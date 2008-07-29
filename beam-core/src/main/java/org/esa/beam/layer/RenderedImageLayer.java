@@ -21,9 +21,7 @@ import com.bc.view.ViewModel;
 import org.esa.beam.util.Debug;
 
 import javax.media.jai.PlanarImage;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.*;
 
@@ -122,14 +120,6 @@ public class RenderedImageLayer extends StyledLayer {
         final ColorModel cm = image.getColorModel();
         final SampleModel sm = image.getSampleModel();
 
-        // JAIJAIJAI
-        if (Boolean.getBoolean("beam.imageTiling.enabled") &&
-                Boolean.getBoolean("beam.imageTiling.debug")) {
-            Debug.trace("Painting tiles:");
-            Debug.trace("  X = " + txmin + " to " + txmax);
-            Debug.trace("  Y = " + tymin + " to " + tymax);
-        }
-
         // Loop over tiles within the clipping region
         for (tj = tymin; tj <= tymax; tj++) {
             for (ti = txmin; ti <= txmax; ti++) {
@@ -150,16 +140,6 @@ public class RenderedImageLayer extends StyledLayer {
                         at.concatenate(transform);
                     }
                     g2d.drawRenderedImage(bi, at);
-
-                    // JAIJAIJAI
-                    if (Boolean.getBoolean("beam.imageTiling.enabled") &&
-                            Boolean.getBoolean("beam.imageTiling.debug")) {
-                        Debug.trace("Painting tile " + tx + "," + ty);
-                        Color colorOld = g2d.getColor();
-                        g2d.setColor(Color.RED);
-                        g2d.drawRect(tx, ty, bi.getWidth(), bi.getHeight());
-                        g2d.setColor(colorOld);
-                    }
                 }
             }
         }

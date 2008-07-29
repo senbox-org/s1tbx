@@ -7,10 +7,7 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.PropertyMap;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Composite;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.RenderedImage;
 
 public abstract class MaskOverlayRenderedImageLayer extends RenderedImageLayer {
@@ -63,16 +60,10 @@ public abstract class MaskOverlayRenderedImageLayer extends RenderedImageLayer {
         if (getImage() == null) {
             return;
         }
-        // JAIJAIJAI
-        if (Boolean.getBoolean("beam.imageTiling.enabled")) {
-            // Alpha is expected to be included in the image's color model
-            super.draw(g2d, viewModel);
-        } else {
-            final Composite oldComposite = g2d.getComposite();
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0F - getTransparency()));
-            super.draw(g2d, viewModel);
-            g2d.setComposite(oldComposite);
-        }
+        final Composite oldComposite = g2d.getComposite();
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0F - getTransparency()));
+        super.draw(g2d, viewModel);
+        g2d.setComposite(oldComposite);
     }
 
     @Override

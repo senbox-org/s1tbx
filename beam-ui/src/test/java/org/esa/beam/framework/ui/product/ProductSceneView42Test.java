@@ -58,16 +58,16 @@ public class ProductSceneView42Test extends TestCase {
     public void testIsRGB() throws IOException {
         ProductSceneView view;
 
-        view = new ProductSceneView42(ProductSceneImage.create(r, ProgressMonitor.NULL));
+        view = ProductSceneView.create(ProductSceneImage42.create(r, ProgressMonitor.NULL));
         assertFalse(view.isRGB());
 
-        view = new ProductSceneView42(ProductSceneImage.create(r, g, b, ProgressMonitor.NULL));
+        view = ProductSceneView.create(ProductSceneImage42.create(r, g, b, ProgressMonitor.NULL));
         assertTrue(view.isRGB());
     }
 
     public void testDispose() throws IOException {
         final ProductSceneView view;
-        view = new ProductSceneView42(ProductSceneImage.create(r, ProgressMonitor.NULL));
+        view = ProductSceneView.create(ProductSceneImage42.create(r, ProgressMonitor.NULL));
 
         view.dispose();
         assertNull(view.getSceneImage());

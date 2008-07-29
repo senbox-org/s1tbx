@@ -29,8 +29,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * TODO - Apidoc
- *
  * @author Norman Fomferra
  * @version $revision$ $date$
  */
@@ -46,8 +44,7 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
     /**
      * Property name for the image histogram matching type
      */
-    public static final String PROPERTY_KEY_HISTOGRAM_MATCHING = "graphics.histogramMatching";// TODO IMAGING 4.5: Move these style settings away
-    // TODO IMAGING 4.5: Layer.getStyle(), SVG property names!
+    public static final String PROPERTY_KEY_HISTOGRAM_MATCHING = "graphics.histogramMatching";
     public static String IMAGE_INTERPOLATION_NEAREST_NEIGHBOUR = "Nearest Neighbour";
     public static String IMAGE_INTERPOLATION_BILINEAR = "Bi-Linear Interpolation";
     public static String IMAGE_INTERPOLATION_BICUBIC = "Bi-Cubic Interpolation";
@@ -57,24 +54,37 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
     public static final Color DEFAULT_IMAGE_BACKGROUND_COLOR = new Color(51, 51, 51);
     public static final double DEFAULT_IMAGE_BORDER_SIZE = 2.0;
     public static final int DEFAULT_IMAGE_VIEW_BORDER_SIZE = 64;
-    protected ProductSceneImage sceneImage;
-    protected ArrayList<ImageUpdateListener> imageUpdateListenerList;
-    protected ArrayList<LayerContentListener> layerContentListenerList;
-    protected ArrayList<ViewportListener> viewportListenerList;
-    protected RasterChangeHandler rasterChangeHandler;
+    private ProductSceneImage sceneImage;
+    private ArrayList<ImageUpdateListener> imageUpdateListenerList;
+    private ArrayList<LayerContentListener> layerContentListenerList;
+    private ArrayList<LayerViewportListener> layerViewportListenerList;
+    private RasterChangeHandler rasterChangeHandler;
 
-    public ProductSceneView(ProductSceneImage sceneImage) {
+    public static ProductSceneView create(ProductSceneImage sceneImage) {
+        Guardian.assertNotNull("sceneImage", sceneImage);
+        if (sceneImage instanceof ProductSceneImage45) {
+            return new ProductSceneView45((ProductSceneImage45) sceneImage);
+        } else {
+            return new ProductSceneView42((ProductSceneImage42) sceneImage);
+        }
+    }
+
+    protected ProductSceneView(ProductSceneImage sceneImage) {
         rasterChangeHandler = new RasterChangeHandler();
         this.sceneImage = sceneImage;
-        setBaseImage(sceneImage.getImage());
+        setBaseImage(sceneImage.getBaseImage());
         setOpaque(false);
 
         getRaster().getProduct().addProductNodeListener(rasterChangeHandler);
 
         imageUpdateListenerList = new ArrayList<ImageUpdateListener>(5);
         layerContentListenerList = new ArrayList<LayerContentListener>(5);
-        viewportListenerList = new ArrayList<ViewportListener>(5);
+        layerViewportListenerList = new ArrayList<LayerViewportListener>(5);
         setPixelInfoFactory(this);
+    }
+
+    ProductSceneImage getSceneImage() {
+        return sceneImage;
     }
 
     /**
@@ -106,7 +116,7 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
     public void updateImage(ProgressMonitor pm) throws IOException {
         StopWatch stopWatch = new StopWatch();
         Cursor oldCursor = UIUtils.setRootFrameWaitCursor(this);
-        final RenderedImage sourceImage = createImage(pm);
+        final RenderedImage sourceImage = getSceneImage().createBaseImage(pm);
         setBaseImage(sourceImage);
         stopWatch.stopAndTrace("ProductSceneView.updateImage");
         fireImageUpdated();
@@ -142,46 +152,45 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
         }
     }
 
+    protected void fireImageUpdated() {
+        for (ImageUpdateListener listener : imageUpdateListenerList.toArray(new ImageUpdateListener[imageUpdateListenerList.size()])) {
+            listener.handleImageUpdated(this);
+        }
+    }
 
-    @Deprecated
     public void addLayerContentListener(LayerContentListener listener) {
         if (listener != null && !layerContentListenerList.contains(listener)) {
             layerContentListenerList.add(listener);
         }
     }
 
-    @Deprecated
     public void removeLayerContentListener(LayerContentListener listener) {
         if (listener != null) {
             layerContentListenerList.remove(listener);
         }
     }
 
-    @Deprecated
     protected void fireLayerContentChanged() {
-        for (LayerContentListener listener : layerContentListenerList.toArray(new LayerContentListener[0])) {
+        for (LayerContentListener listener : layerContentListenerList.toArray(new LayerContentListener[layerContentListenerList.size()])) {
             listener.layerContentChanged(getRaster());
         }
     }
 
-    @Deprecated
-    public void addViewportListener(ViewportListener listener) {
-        if (listener != null && !viewportListenerList.contains(listener)) {
-            viewportListenerList.add(listener);
+    public void addLayerViewportListener(LayerViewportListener listener) {
+        if (listener != null && !layerViewportListenerList.contains(listener)) {
+            layerViewportListenerList.add(listener);
         }
     }
 
-    @Deprecated
-    public void removeViewportListener(ViewportListener listener) {
+    public void removeLayerViewportListener(LayerViewportListener listener) {
         if (listener != null) {
-            viewportListenerList.remove(listener);
+            layerViewportListenerList.remove(listener);
         }
     }
 
-    @Deprecated
-    protected void fireViewportListenerChanged() {
-        for (ViewportListener listener : viewportListenerList.toArray(new ViewportListener[0])) {
-            listener.viewportChanged();
+    protected void fireLayerViewportChanged() {
+        for (LayerViewportListener listener : layerViewportListenerList.toArray(new LayerViewportListener[layerViewportListenerList.size()])) {
+            listener.layerViewportChanged();
         }
     }
 
@@ -215,7 +224,6 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
     @Override
     public JPopupMenu createPopupMenu(MouseEvent event) {
         JPopupMenu popupMenu = new JPopupMenu();
-        addStandardPopupMenuItems(popupMenu);
         addCopyPixelInfoToClipboardMenuItem(popupMenu);
         getCommandUIFactory().addContextDependentMenuItems("image", popupMenu);
         Product product = getProduct();
@@ -373,174 +381,41 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
         setCurrentShapeFigure(ShapeFigure.createArbitraryArea(area1, figure.getAttributes()));
     }
 
-    public boolean isNoDataOverlayEnabled() {
-        // TODO IMAGING 4.5
-        return getSceneImage().getNoDataLayer().isVisible();
-    }
+    public abstract boolean isNoDataOverlayEnabled();
 
-    public void setNoDataOverlayEnabled(boolean enabled) {
-        // TODO IMAGING 4.5
-        getSceneImage().getNoDataLayer().setVisible(enabled);
-    }
+    public abstract void setNoDataOverlayEnabled(boolean enabled);
 
-    public boolean isGraticuleOverlayEnabled() {
-        // TODO IMAGING 4.5
-        return getSceneImage().getGraticuleLayer().isVisible();
-    }
+    public abstract boolean isGraticuleOverlayEnabled();
 
-    public void setGraticuleOverlayEnabled(boolean enabled) {
-        // TODO IMAGING 4.5
-        getSceneImage().getGraticuleLayer().setVisible(enabled);
-    }
+    public abstract void setGraticuleOverlayEnabled(boolean enabled);
 
-    public boolean isPinOverlayEnabled() {
-        // TODO IMAGING 4.5
-        return getSceneImage().getPinLayer().isVisible();
-    }
+    public abstract boolean isPinOverlayEnabled();
 
-    public void setPinOverlayEnabled(boolean enabled) {
-        // TODO IMAGING 4.5
-        getSceneImage().getPinLayer().setVisible(enabled);
-    }
+    public abstract void setPinOverlayEnabled(boolean enabled);
 
-    public boolean isGcpOverlayEnabled() {
-        // TODO IMAGING 4.5
-        return getSceneImage().getGcpLayer().isVisible();
-    }
+    public abstract boolean isGcpOverlayEnabled();
 
-    public void setGcpOverlayEnabled(boolean enabled) {
-        // TODO IMAGING 4.5
-        getSceneImage().getGcpLayer().setVisible(enabled);
-    }
+    public abstract void setGcpOverlayEnabled(boolean enabled);
 
-    public boolean isROIOverlayEnabled() {
-        // TODO IMAGING 4.5
-        return getSceneImage().getROILayer().isVisible();
-    }
+    public abstract boolean isROIOverlayEnabled();
 
-    public void setROIOverlayEnabled(boolean enabled) {
-        // TODO IMAGING 4.5
-        getSceneImage().getROILayer().setVisible(enabled);
-    }
+    public abstract void setROIOverlayEnabled(boolean enabled);
 
-    public boolean isShapeOverlayEnabled() {
-        // TODO IMAGING 4.5
-        return getSceneImage().getFigureLayer().isVisible();
-    }
+    public abstract boolean isShapeOverlayEnabled();
 
-    public void setShapeOverlayEnabled(boolean enabled) {
-        // TODO IMAGING 4.5
-        getSceneImage().getFigureLayer().setVisible(enabled);
-    }
+    public abstract void setShapeOverlayEnabled(boolean enabled);
 
-    public RenderedImage getROIImage() {
-        // TODO IMAGING 4.5
-        return getSceneImage().getROILayer().getImage();
-    }
+    public abstract RenderedImage getROIImage();
 
-    public void setROIImage(RenderedImage roiImage) {
-        // TODO IMAGING 4.5
-        getSceneImage().getROILayer().setImage(roiImage);
-    }
+    public abstract void setROIImage(RenderedImage roiImage);
 
-    public void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception {
-        // TODO IMAGING 4.5
-        getSceneImage().getROILayer().updateImage(recreate, pm);
-    }
+    public abstract void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception;
 
-    public Figure getRasterROIShapeFigure() {
-        // TODO IMAGING 4.5
-        return getSceneImage().getROILayer().getRasterROIShapeFigure();
-    }
+    public abstract Figure getRasterROIShapeFigure();
 
-    public Figure getCurrentShapeFigure() {
-        // TODO IMAGING 4.5
-        return getSceneImage().getFigureLayer().getNumFigures() > 0 ? getSceneImage().getFigureLayer().getFigureAt(0) : null;
-    }
+    public abstract Figure getCurrentShapeFigure();
 
-    public void setCurrentShapeFigure(Figure currentShapeFigure) {
-        setShapeOverlayEnabled(true);
-        final Figure oldShapeFigure = getCurrentShapeFigure();
-        if (currentShapeFigure != oldShapeFigure) {
-            if (oldShapeFigure != null) {
-                // TODO IMAGING 4.5
-                getSceneImage().getFigureLayer().removeFigure(oldShapeFigure);
-            }
-            if (currentShapeFigure != null) {
-                // TODO IMAGING 4.5
-                getSceneImage().getFigureLayer().addFigure(currentShapeFigure);
-            }
-        }
-    }
-
-    /**
-     * Removes a figure from the drawing.
-     */
-    public void removeFigure(Figure figure) {
-        // TODO IMAGING 4.5
-        getSceneImage().getFigureLayer().removeFigure(figure);
-    }
-
-    /**
-     * Gets all figures.
-     *
-     * @return the figure array which is empty if no figures where found, never <code>null</code>
-     */
-    public Figure[] getAllFigures() {
-        // TODO IMAGING 4.5
-        return getSceneImage().getFigureLayer().getAllFigures();
-    }
-
-    /**
-     * Gets the figure at the specified index.
-     *
-     * @return the figure, never <code>null</code>
-     */
-    public Figure getFigureAt(int index) {
-        // TODO IMAGING 4.5
-        return getSceneImage().getFigureLayer().getFigureAt(index);
-    }
-
-    /**
-     * Gets all figures having an attribute with the given name.
-     *
-     * @param name the attribute name
-     * @return the figure array which is empty if no figures where found, never <code>null</code>
-     */
-    public Figure[] getFiguresWithAttribute(String name) {
-        // TODO IMAGING 4.5
-        return getSceneImage().getFigureLayer().getFiguresWithAttribute(name);
-    }
-
-    /**
-     * Gets all figures having an attribute with the given name and value.
-     *
-     * @param name  the attribute name, must not be <code>null</code>
-     * @param value the attribute value, must not be <code>null</code>
-     * @return the figure array which is empty if no figures where found, never <code>null</code>
-     */
-    public Figure[] getFiguresWithAttribute(String name, Object value) {
-        // TODO IMAGING 4.5
-        return getSceneImage().getFigureLayer().getFiguresWithAttribute(name, value);
-    }
-
-    /**
-     * Returns the number of figures.
-     */
-    public int getNumFigures() {
-        // TODO IMAGING 4.5
-        return getSceneImage().getFigureLayer().getNumFigures();
-    }
-
-    /**
-     * Gets all selected figures.
-     *
-     * @return the figure array which is empty if no figures where found, never <code>null</code>
-     */
-    public Figure[] getSelectedFigures() {
-        // TODO IMAGING 4.5
-        return getSceneImage().getFigureLayer().getSelectedFigures();
-    }
+    public abstract void setCurrentShapeFigure(Figure currentShapeFigure);
 
     public abstract void setLayerProperties(PropertyMap propertyMap);
 
@@ -591,28 +466,15 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
 
     public abstract void repaintTool();
 
-    /**
-     * The product scene image associated with this view.
-     *
-     * @return the product scene image
-     */
-    ProductSceneImage getSceneImage() {
-        return sceneImage;
-    }
-
     protected abstract void copyPixelInfoStringToClipboard();
 
     protected abstract void disposeImageDisplayComponent();
 
     protected abstract PixelInfoFactory getPixelInfoFactory();
 
-    private static void addStandardPopupMenuItems(JPopupMenu popupMenu) {
-        popupMenu.addSeparator();
-    }
+    protected abstract void setPixelInfoFactory(PixelInfoFactory pixelInfoFactory);
 
-    private RenderedImage createImage(ProgressMonitor pm) throws IOException {
-        return sceneImage.createImage(pm);
-    }
+    public abstract RenderedImage updateNoDataImage(ProgressMonitor pm) throws Exception;
 
     private void addCopyPixelInfoToClipboardMenuItem(JPopupMenu popupMenu) {
         if (getPixelInfoFactory() != null) {
@@ -628,16 +490,6 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
             popupMenu.addSeparator();
         }
     }
-
-    private void fireImageUpdated() {
-        for (ImageUpdateListener listener : imageUpdateListenerList) {
-            listener.handleImageUpdated(this);
-        }
-    }
-
-    protected abstract void setPixelInfoFactory(PixelInfoFactory pixelInfoFactory);
-
-    public abstract RenderedImage updateNoDataImage(ProgressMonitor pm) throws Exception;
 
     public static interface ImageUpdateListener {
 
@@ -704,16 +556,11 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
         }
     }
 
-    @Deprecated
     public interface LayerContentListener {
-        @Deprecated
         void layerContentChanged(RasterDataNode raster);
     }
 
-
-    @Deprecated
-    public interface ViewportListener {
-        @Deprecated
-        void viewportChanged();
+    public interface LayerViewportListener {
+        void layerViewportChanged();
     }
 }

@@ -24,7 +24,9 @@ import com.bc.layer.LayerModel;
 import com.bc.layer.LayerModelChangeAdapter;
 import com.bc.swing.ViewPane;
 import com.bc.view.ViewModel;
+import com.bc.view.ViewModelChangeListener;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.ui.ImageDisplay;
 import org.esa.beam.framework.ui.PixelInfoFactory;
 import org.esa.beam.framework.ui.PixelPositionListener;
@@ -56,7 +58,7 @@ public class ProductSceneView42 extends ProductSceneView {
 
     private ImageDisplay imageDisplay;
 
-    public ProductSceneView42(ProductSceneImage sceneImage) {
+    public ProductSceneView42(ProductSceneImage42 sceneImage) {
         super(sceneImage);
         Assert.notNull(sceneImage, "sceneImage");
         setLayerModel(sceneImage.getLayerModel());
@@ -70,15 +72,21 @@ public class ProductSceneView42 extends ProductSceneView {
                 fireLayerContentChanged();
             }
 
-
             public void handleLayerChanged(LayerModel layerModel, Layer layer) {
                 fireLayerContentChanged();
             }
-        }
-        );
+        });
 
+        getViewModel().addViewModelChangeListener(new ViewModelChangeListener() {
+            public void handleViewModelChanged(ViewModel viewModel) {
+                fireLayerViewportChanged();
+            }
+        });
     }
 
+    public ProductSceneImage42 getSceneImage42() {
+        return (ProductSceneImage42) getSceneImage();
+    }
 
     /**
      * Sets the layer properties using the given property map.
@@ -89,7 +97,6 @@ public class ProductSceneView42 extends ProductSceneView {
 
         setImageProperties(propertyMap);
 
-        // TODO IMAGING 4.5
         final LayerModel layerModel = getLayerModel();
         final boolean suspendedOld = layerModel.isLayerModelChangeFireingSuspended();
         layerModel.setLayerModelChangeFireingSuspended(true);
@@ -113,7 +120,6 @@ public class ProductSceneView42 extends ProductSceneView {
      * @param listener the pixel position listener to be added
      */
     public void addPixelPositionListener(PixelPositionListener listener) {
-        // TODO IMAGING 4.5
         getImageDisplay().addPixelPositionListener(listener);
     }
 
@@ -123,14 +129,12 @@ public class ProductSceneView42 extends ProductSceneView {
      * @param listener the pixel position listener to be removed
      */
     public void removePixelPositionListener(PixelPositionListener listener) {
-        // TODO IMAGING 4.5
         getImageDisplay().removePixelPositionListener(listener);
     }
 
     public AbstractTool[] getSelectToolDelegates() {
         ArrayList<AbstractTool> toolList = new ArrayList<AbstractTool>(8);
         for (int i = 0; i < getLayerCount(); i++) {
-            // TODO IMAGING 4.5
             final Layer layer = getLayer(i);
             AbstractTool delegate = getDelegateTool(layer);
             if (delegate != null) {
@@ -141,12 +145,10 @@ public class ProductSceneView42 extends ProductSceneView {
     }
 
     public void disposeLayerModel() {
-        // TODO IMAGING 4.5
         getLayerModel().dispose();
     }
 
     public AffineTransform getBaseImageToViewTransform() {
-        // TODO IMAGING 4.5
         final AffineTransform transform = new AffineTransform();
         transform.scale(getViewScale(), getViewScale());
         transform.translate(-getViewModel().getModelOffsetX(),
@@ -155,7 +157,6 @@ public class ProductSceneView42 extends ProductSceneView {
     }
 
     public Rectangle2D getVisibleModelBounds() {
-        // TODO IMAGING 4.5
         return new Rectangle2D.Double(getViewModel().getModelOffsetX(),
                                       getViewModel().getModelOffsetY(),
                                       getImageDisplayComponent().getWidth() / getViewScale(),
@@ -163,48 +164,39 @@ public class ProductSceneView42 extends ProductSceneView {
     }
 
     public double getViewScale() {
-        // TODO IMAGING 4.5
         return getViewModel().getViewScale();
     }
 
     public Rectangle2D getModelBounds() {
-        // TODO IMAGING 4.5
         return getViewModel().getModelArea();
     }
 
     private void setModelBounds(Rectangle modelArea) {
-        // TODO IMAGING 4.5
         getViewModel().setModelArea(modelArea);
     }
 
     public JComponent getImageDisplayComponent() {
-        // TODO IMAGING 4.5
         return getImageDisplay();
     }
 
     public void zoom(Rectangle rect) {
-        // TODO IMAGING 4.5
         getImageDisplay().zoom(rect);
     }
 
     public void zoom(double x, double y, double viewScale) {
-        // TODO IMAGING 4.5
         getImageDisplay().zoom(x, y, viewScale);
     }
 
     public void zoom(double viewScale) {
-        // TODO IMAGING 4.5
         getImageDisplay().zoom(viewScale);
     }
 
     public void zoomAll() {
-        // TODO IMAGING 4.5
         getImageDisplay().zoomAll();
     }
 
     @Deprecated
     public void setModelOffset(double modelOffsetX, double modelOffsetY) {
-        // TODO IMAGING 4.5
         getViewModel().setModelOffset(modelOffsetX, modelOffsetY);
     }
 
@@ -213,7 +205,6 @@ public class ProductSceneView42 extends ProductSceneView {
         final Product otherProduct = view.getRaster().getProduct();
         if (otherProduct == currentProduct ||
                 otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
-            // TODO IMAGING 4.5
             view.setModelOffset(
                     getViewModel().getModelOffsetX(),
                     getViewModel().getModelOffsetY(),
@@ -229,7 +220,6 @@ public class ProductSceneView42 extends ProductSceneView {
      * @return the base image
      */
     public RenderedImage getBaseImage() {
-        // TODO IMAGING 4.5
         return getImageDisplayComponent() != null ? getImageDisplay().getImage() : null;
     }
 
@@ -244,25 +234,20 @@ public class ProductSceneView42 extends ProductSceneView {
         if (getImageDisplayComponent() == null) {
             initUI(baseImage);
         }
-        // TODO IMAGING 4.5
         getImageDisplay().setImage(baseImage);
         revalidate();
         repaint();
     }
 
     public int getBaseImageWidth() {
-        // TODO IMAGING 4.5
         return getImageDisplay().getImageWidth();
     }
 
     public int getBaseImageHeight() {
-        // TODO IMAGING 4.5
         return getImageDisplay().getImageHeight();
     }
 
     public RenderedImage createSnapshotImage(boolean entireImage, boolean useAlpha) {
-        ////////////////////////////////////////////////////////////////////
-        // << TODO IMAGING 4.5
         boolean oldOpaque = getImageDisplayComponent().isOpaque();
         final BufferedImage bi;
         try {
@@ -290,8 +275,6 @@ public class ProductSceneView42 extends ProductSceneView {
         } finally {
             getImageDisplayComponent().setOpaque(oldOpaque);
         }
-        // >> TODO IMAGING 4.5
-        ////////////////////////////////////////////////////////////////////
         return bi;
     }
 
@@ -300,7 +283,6 @@ public class ProductSceneView42 extends ProductSceneView {
      * Returns the current tool for this drawing.
      */
     public Tool getTool() {
-        // TODO IMAGING 4.5
         return getImageDisplay().getTool();
     }
 
@@ -312,7 +294,6 @@ public class ProductSceneView42 extends ProductSceneView {
             tool.setDrawingEditor(this);
             setCursor(tool.getCursor());
         }
-        // TODO IMAGING 4.5
         getImageDisplay().setTool(tool);
     }
 
@@ -320,55 +301,40 @@ public class ProductSceneView42 extends ProductSceneView {
      * Draws the tool in an interactive mode.
      */
     public void repaintTool() {
-        // TODO IMAGING 4.5
         getImageDisplay().repaintTool();
     }
 
     /////////////////////////////////////////////////////////////////////////
     // Package/Private
 
-    @Deprecated
     private void setModelOffset(double modelOffsetX, double modelOffsetY, double viewScale) {
-        // TODO IMAGING 4.5
         getViewModel().setModelOffset(modelOffsetX, modelOffsetY, viewScale);
     }
 
 
-    @Deprecated
     private int getLayerCount() {
-        // TODO IMAGING 4.5
         return getLayerModel().getLayerCount();
     }
 
-    @Deprecated
     private Layer getLayer(int index) {
-        // TODO IMAGING 4.5
         return getLayerModel().getLayer(index);
     }
 
 
-    @Deprecated
     LayerModel getLayerModel() {
-        // TODO IMAGING 4.5
         return getImageDisplay().getLayerModel();
     }
 
-    @Deprecated
     private ViewModel getViewModel() {
-        // TODO IMAGING 4.5
         return getImageDisplay().getViewModel();
     }
 
 
-    @Deprecated
     private void setLayerModel(LayerModel layerModel) {
-        // TODO IMAGING 4.5
         getImageDisplay().setLayerModel(layerModel);
     }
 
-    @Deprecated
     private NoDataLayer getNoDataLayer() {
-        // TODO IMAGING 4.5
         for (int i = 0; i < getLayerCount(); i++) {
             final Layer layer = getLayer(i);
             if (layer instanceof NoDataLayer) {
@@ -378,10 +344,8 @@ public class ProductSceneView42 extends ProductSceneView {
         return null;
     }
 
-    @Deprecated
     private AbstractTool getDelegateTool(Layer layer) {
         AbstractTool delegate = null;
-        // TODO IMAGING 4.5
         if (layer instanceof AbstractLayer) {
             AbstractLayer abstractLayer = (AbstractLayer) layer;
             final Object value = abstractLayer.getPropertyValue(SelectTool.SELECT_TOOL_PROPERTY_NAME);
@@ -404,7 +368,6 @@ public class ProductSceneView42 extends ProductSceneView {
         final String interpolation = propertyMap.getPropertyString(PROPERTY_KEY_IMAGE_INTERPOLATION,
                                                                    DEFAULT_IMAGE_INTERPOLATION_METHOD);
 
-        // TODO IMAGING 4.5
         getImageDisplay().setPixelBorderShown(pixelBorderShown);
         getImageDisplay().setImageBorderShown(imageBorderShown);
         getImageDisplay().setImageBorderSize(imageBorderSize);
@@ -424,7 +387,6 @@ public class ProductSceneView42 extends ProductSceneView {
 
 
     protected void copyPixelInfoStringToClipboard() {
-        // TODO IMAGING 4.5
         getImageDisplay().copyPixelInfoStringToClipboard();
     }
 
@@ -439,20 +401,16 @@ public class ProductSceneView42 extends ProductSceneView {
         getImageDisplayComponent().addKeyListener(popupMenuHandler);
 
         setLayout(new BorderLayout());
-        // TODO IMAGING 4.5
         ViewPane imageDisplayScroller = getImageDisplay().createViewPane();
         add(imageDisplayScroller, BorderLayout.CENTER);
     }
 
 
-    @Deprecated
     private ImageDisplay getImageDisplay() {
-        // TODO IMAGING 4.5
         return imageDisplay;
     }
 
     protected void disposeImageDisplayComponent() {
-        // TODO IMAGING 4.5
         if (getImageDisplayComponent() != null) {
             getImageDisplay().dispose();
             imageDisplay = null;
@@ -460,12 +418,10 @@ public class ProductSceneView42 extends ProductSceneView {
     }
 
     protected PixelInfoFactory getPixelInfoFactory() {
-        // TODO IMAGING 4.5
         return getImageDisplay().getPixelInfoFactory();
     }
 
     protected void setPixelInfoFactory(PixelInfoFactory pixelInfoFactory) {
-        // TODO IMAGING 4.5
         getImageDisplay().setPixelInfoFactory(pixelInfoFactory);
     }
 
@@ -482,4 +438,112 @@ public class ProductSceneView42 extends ProductSceneView {
     /////////////////////////////////////////////////////////////////////////
     // Inner/Nested Interfaces/Classes
 
+    public boolean isNoDataOverlayEnabled() {
+        return getSceneImage42().getNoDataLayer().isVisible();
+    }
+
+    public void setNoDataOverlayEnabled(boolean enabled) {
+        getSceneImage42().getNoDataLayer().setVisible(enabled);
+    }
+
+    public boolean isGraticuleOverlayEnabled() {
+        return getSceneImage42().getGraticuleLayer().isVisible();
+    }
+
+    public void setGraticuleOverlayEnabled(boolean enabled) {
+        getSceneImage42().getGraticuleLayer().setVisible(enabled);
+    }
+
+    public boolean isPinOverlayEnabled() {
+        return getSceneImage42().getPinLayer().isVisible();
+    }
+
+    public void setPinOverlayEnabled(boolean enabled) {
+        getSceneImage42().getPinLayer().setVisible(enabled);
+    }
+
+    public boolean isGcpOverlayEnabled() {
+        return getSceneImage42().getGcpLayer().isVisible();
+    }
+
+    public void setGcpOverlayEnabled(boolean enabled) {
+        getSceneImage42().getGcpLayer().setVisible(enabled);
+    }
+
+    public boolean isROIOverlayEnabled() {
+        return getSceneImage42().getROILayer().isVisible();
+    }
+
+    public void setROIOverlayEnabled(boolean enabled) {
+        getSceneImage42().getROILayer().setVisible(enabled);
+    }
+
+    public boolean isShapeOverlayEnabled() {
+        return getSceneImage42().getFigureLayer().isVisible();
+    }
+
+    public void setShapeOverlayEnabled(boolean enabled) {
+        getSceneImage42().getFigureLayer().setVisible(enabled);
+    }
+
+    public RenderedImage getROIImage() {
+        return getSceneImage42().getROILayer().getImage();
+    }
+
+    public void setROIImage(RenderedImage roiImage) {
+        getSceneImage42().getROILayer().setImage(roiImage);
+    }
+
+    public void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception {
+        getSceneImage42().getROILayer().updateImage(recreate, pm);
+    }
+
+    public Figure getRasterROIShapeFigure() {
+        return getSceneImage42().getROILayer().getRasterROIShapeFigure();
+    }
+
+    public Figure getCurrentShapeFigure() {
+        return getSceneImage42().getFigureLayer().getNumFigures() > 0 ? getSceneImage42().getFigureLayer().getFigureAt(0) : null;
+    }
+
+    public void setCurrentShapeFigure(Figure currentShapeFigure) {
+        setShapeOverlayEnabled(true);
+        final Figure oldShapeFigure = getCurrentShapeFigure();
+        if (currentShapeFigure != oldShapeFigure) {
+            if (oldShapeFigure != null) {
+                getSceneImage42().getFigureLayer().removeFigure(oldShapeFigure);
+            }
+            if (currentShapeFigure != null) {
+                getSceneImage42().getFigureLayer().addFigure(currentShapeFigure);
+            }
+        }
+    }
+
+    public void removeFigure(Figure figure) {
+        getSceneImage42().getFigureLayer().removeFigure(figure);
+    }
+
+    public Figure[] getAllFigures() {
+        return getSceneImage42().getFigureLayer().getAllFigures();
+    }
+
+    public Figure getFigureAt(int index) {
+        return getSceneImage42().getFigureLayer().getFigureAt(index);
+    }
+
+    public Figure[] getFiguresWithAttribute(String name) {
+        return getSceneImage42().getFigureLayer().getFiguresWithAttribute(name);
+    }
+
+    public Figure[] getFiguresWithAttribute(String name, Object value) {
+        return getSceneImage42().getFigureLayer().getFiguresWithAttribute(name, value);
+    }
+
+    public int getNumFigures() {
+        return getSceneImage42().getFigureLayer().getNumFigures();
+    }
+
+    public Figure[] getSelectedFigures() {
+        return getSceneImage42().getFigureLayer().getSelectedFigures();
+    }
 }

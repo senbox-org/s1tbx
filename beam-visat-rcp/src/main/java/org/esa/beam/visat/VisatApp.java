@@ -63,9 +63,9 @@ import org.esa.beam.visat.actions.ToolAction;
 
 import javax.media.jai.JAI;
 import javax.swing.*;
+import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
-import javax.swing.event.InternalFrameAdapter;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -394,11 +394,10 @@ public class VisatApp extends BasicApp {
             getMainFrame().getDockableBarManager().addDockableBar(viewsToolBar);
             pm.worked(1);
 
-            // JAIJAIJAI
-            if (Boolean.getBoolean("beam.imageTiling.enabled")) {
+            if (ProductSceneImage.isInTiledImagingMode()) {
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-                        instance.showInfoDialog("You are using " + getAppName() + " in JAI tiled image mode.\n" +
+                        instance.showInfoDialog("You are using " + getAppName() + " in a new imaging mode.\n" +
                                 "THIS MODE IS STILL UNDER DEVELOPMENT!",
                                                 "beam.imageTiling.warn");
                     }
@@ -1270,7 +1269,7 @@ public class VisatApp extends BasicApp {
                     return;
                 }
 
-                ProductSceneView productSceneView = new ProductSceneView42(productSceneImage);
+                ProductSceneView productSceneView = ProductSceneView.create(productSceneImage);
                 productSceneView.setCommandUIFactory(getCommandUIFactory());
                 productSceneView.setROIOverlayEnabled(true);
                 productSceneView.setGraticuleOverlayEnabled(false);
@@ -1367,7 +1366,7 @@ public class VisatApp extends BasicApp {
                 }
                 clearStatusBarMessage();
 
-                ProductSceneView productSceneView = new ProductSceneView42(productSceneImage);
+                ProductSceneView productSceneView = ProductSceneView.create(productSceneImage);
                 productSceneView.setCommandUIFactory(getCommandUIFactory());
                 productSceneView.setNoDataOverlayEnabled(false);
                 productSceneView.setROIOverlayEnabled(false);
@@ -1557,7 +1556,7 @@ public class VisatApp extends BasicApp {
         final MetadataElement metadataRoot = product.getMetadataRoot();
         final ProductNodeList<MetadataElement> metadataElementBackup = new ProductNodeList<MetadataElement>();
         if (!saveProductHeaders) {
-            String[] headerNames = new String[] {
+            String[] headerNames = new String[]{
                     "MPH", "SPH",
                     "Earth_Explorer_Header", "Fixed_Header", "Variable_Header", "Specific_Product_Header",
                     "Global_Attributes", "GlobalAttributes",
@@ -1646,8 +1645,7 @@ public class VisatApp extends BasicApp {
         Debug.assertNotNull(pm);
 
         final boolean mustLoadData;
-        // JAIJAIJAI
-        if (Boolean.getBoolean("beam.imageTiling.enabled")) {
+        if (ProductSceneImage.isInTiledImagingMode()) {
             mustLoadData = false;
         } else {
             final long dataAutoLoadMemLimit = getDataAutoLoadLimit();
@@ -1666,8 +1664,7 @@ public class VisatApp extends BasicApp {
             final JInternalFrame[] frames = findInternalFrames(raster, 1);
             if (frames.length > 0) {
                 final ProductSceneView42 view = (ProductSceneView42) frames[0].getContentPane();
-                productSceneImage = ProductSceneImage.create(raster, view,
-                                                             SubProgressMonitor.create(pm, 1));
+                productSceneImage = ProductSceneImage.create(raster, view);
             } else {
                 productSceneImage = ProductSceneImage.create(raster, SubProgressMonitor.create(pm, 1));
             }
@@ -1738,7 +1735,7 @@ public class VisatApp extends BasicApp {
             storageMem += rgbBand.band.getRawStorageSize();
         }
         // JAIJAIJAI
-        if (Boolean.getBoolean("beam.imageTiling.enabled")) {
+        if (ProductSceneImage.isInTiledImagingMode()) {
             // don't need to load any data!
         } else {
             if (storageMem < dataAutoLoadMemLimit) {
@@ -2290,7 +2287,7 @@ public class VisatApp extends BasicApp {
         statusBar.add(resize, JideBoxLayout.FIX);
 
         // JAIJAIJAI
-        if (Boolean.getBoolean("beam.imageTiling.enabled")) {
+        if (ProductSceneImage.isInTiledImagingMode()) {
             hookJaiTileCacheFlush(gc);
         }
 
@@ -2303,6 +2300,7 @@ public class VisatApp extends BasicApp {
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     JAI.getDefaultInstance().getTileCache().flush();
+                    System.gc();
                     Debug.trace("JAI tile cache flushed!");
                 }
             });

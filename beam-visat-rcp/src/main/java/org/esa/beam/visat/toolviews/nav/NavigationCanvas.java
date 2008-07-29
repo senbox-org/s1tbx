@@ -179,8 +179,8 @@ public class NavigationCanvas extends JPanel {
         final ImageDisplay painter = new ImageDisplay(view.getBaseImage());
         painter.setSize(thumbnailImage.getWidth(), thumbnailImage.getHeight());
         painter.setOpaque(true);
-        painter.setBackground(view.getBackground());
-        painter.setForeground(view.getForeground());
+        painter.setBackground(view.getImageDisplayComponent().getBackground());
+        painter.setForeground(view.getImageDisplayComponent().getForeground());
         painter.getViewModel().setViewScaleMax(null);
         painter.getViewModel().setModelArea(view.getModelBounds());
         painter.zoomAll();

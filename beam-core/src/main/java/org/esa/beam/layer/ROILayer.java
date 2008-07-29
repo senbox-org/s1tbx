@@ -9,12 +9,8 @@ package org.esa.beam.layer;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.draw.Figure;
-import org.esa.beam.util.jai.ImageFactory;
-import org.esa.beam.util.math.MathUtils;
 
-import javax.media.jai.PlanarImage;
-import javax.media.jai.ROI;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 
@@ -37,29 +33,11 @@ public class ROILayer extends MaskOverlayRenderedImageLayer {
 
     @Override
     protected RenderedImage createImage(ProgressMonitor pm) throws Exception {
-        // JAIJAIJAI
-        if (Boolean.getBoolean("beam.imageTiling.enabled")) {
-            return createImageJAI(getRaster(), getColor(), getTransparency());
-        } else {
-            return createBufferedImage(pm);
-        }
+        return createBufferedImage(pm);
     }
 
     private BufferedImage createBufferedImage(ProgressMonitor pm) throws Exception {
         return getRaster().createROIImage(getColor(), pm);
-    }
-
-    private static PlanarImage createImageJAI(RasterDataNode raster, Color roiColor, float transparency) {
-        ROI roi = ImageFactory.createROI(raster);
-        if (roi == null) {
-            return null;
-        }
-        int alpha = MathUtils.crop((int) (255.0f * (1.0f - transparency)), 0, 255);
-        roiColor = new Color(roiColor.getRed(),
-                             roiColor.getGreen(),
-                             roiColor.getBlue(),
-                             alpha);
-        return ImageFactory.createROIImage(roi, roiColor);
     }
 
     public Figure getRasterROIShapeFigure() {

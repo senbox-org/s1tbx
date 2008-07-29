@@ -8,9 +8,8 @@ package org.esa.beam.layer;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.util.jai.ImageFactory;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
@@ -35,16 +34,7 @@ public class NoDataLayer extends MaskOverlayRenderedImageLayer {
 
     @Override
     protected RenderedImage createImage(ProgressMonitor pm) throws Exception {
-        // JAIJAIJAI
-        if (Boolean.getBoolean("beam.imageTiling.enabled")) {
-            return createImageJAI();
-        } else {
-            return createBufferedImage(pm);
-        }
-    }
-
-    private  RenderedImage createImageJAI() throws Exception {
-        return ImageFactory.createNoDataImage(getRaster(), getColor());
+        return createBufferedImage(pm);
     }
 
     public BufferedImage createBufferedImage(ProgressMonitor pm) throws Exception {
