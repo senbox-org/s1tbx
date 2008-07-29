@@ -22,7 +22,6 @@ import org.esa.beam.util.io.BeamFileChooser;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 
 /**

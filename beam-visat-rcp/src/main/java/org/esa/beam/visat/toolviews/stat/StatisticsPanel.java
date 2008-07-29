@@ -287,4 +287,8 @@ class StatisticsPanel extends TextPagePanel {
         }
         return sb.toString();
     }
+
+    protected void handleLayerContentChanged() {
+        computePanel.updateRoiCheckBoxState();
+    }
 }

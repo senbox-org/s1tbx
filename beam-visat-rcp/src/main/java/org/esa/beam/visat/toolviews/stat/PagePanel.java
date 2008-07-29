@@ -1,13 +1,6 @@
 package org.esa.beam.visat.toolviews.stat;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.framework.ui.UIUtils;
@@ -25,20 +18,10 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.data.Range;
 
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Point;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -53,45 +36,50 @@ import java.io.IOException;
  */
 abstract class PagePanel extends JPanel implements ProductNodeListener {
 
-    private RasterDataNode _raster;
-    private Product _product;
-    private boolean _rasterChanged;
-    private boolean _productChanged;
-    private final ToolView _parentDialog;
+    private Product product;
+    private boolean productChanged;
+    private RasterDataNode raster;
+    private boolean rasterChanged;
+
+    private final ToolView parentDialog;
     private final String helpId;
-    private final PagePanePTL _pagePanePTL = new PagePanePTL();
-    private final InternalFrameAdapter _pagePaneIFL = new PagePaneIFL();
+    private final PagePanelPTL pagePanelPTL;
+    private final PagePanelIFL pagePanelIFL;
+    private final PagePanelLCL pagePanelLCL;
 
     PagePanel(ToolView parentDialog, String helpId) {
         super(new BorderLayout(4, 4));
-        _parentDialog = parentDialog;
+        this.parentDialog = parentDialog;
+        pagePanelPTL = new PagePanelPTL();
+        pagePanelIFL = new PagePanelIFL();
+        pagePanelLCL = new PagePanelLCL();
         this.helpId = helpId;
         setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         setPreferredSize(new Dimension(600, 320));
         final ProductTree productTree = VisatApp.getApp().getProductTree();
-        _parentDialog.getContext().getPage().addPageComponentListener(new PageComponentListenerAdapter() {
+        this.parentDialog.getContext().getPage().addPageComponentListener(new PageComponentListenerAdapter() {
             @Override
             public void componentOpened(PageComponent component) {
-                productTree.addProductTreeListener(_pagePanePTL);
+                productTree.addProductTreeListener(pagePanelPTL);
                 transferProductNodeListener(getProduct(), null);
-                VisatApp.getApp().addInternalFrameListener(_pagePaneIFL);
+                VisatApp.getApp().addInternalFrameListener(pagePanelIFL);
                 updateCurrentSelection();
-                transferProductNodeListener(null, _product);
+                transferProductNodeListener(null, product);
                 updateUI();
             }
 
             @Override
             public void componentClosed(PageComponent component) {
-                productTree.removeProductTreeListener(_pagePanePTL);
+                productTree.removeProductTreeListener(pagePanelPTL);
                 transferProductNodeListener(getProduct(), null);
-                VisatApp.getApp().removeInternalFrameListener(_pagePaneIFL);
+                VisatApp.getApp().removeInternalFrameListener(pagePanelIFL);
             }
 
         });
 
         updateCurrentSelection();
         initContent();
-        transferProductNodeListener(null, _product);
+        transferProductNodeListener(null, product);
     }
 
     protected Container getParentDialogContentPane() {
@@ -130,38 +118,38 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
     protected abstract String getTitlePrefix();
 
     protected Product getProduct() {
-        return _product;
+        return product;
     }
 
     private void setProduct(Product product) {
-        if (_product != product) {
-            transferProductNodeListener(_product, product);
-            _product = product;
-            _productChanged = true;
+        if (this.product != product) {
+            transferProductNodeListener(this.product, product);
+            this.product = product;
+            productChanged = true;
         }
     }
 
     protected RasterDataNode getRaster() {
-        return _raster;
+        return raster;
     }
 
     protected void setRaster(RasterDataNode raster) {
-        if (_raster != raster) {
-            _raster = raster;
-            _rasterChanged = true;
+        if (this.raster != raster) {
+            this.raster = raster;
+            rasterChanged = true;
         }
     }
 
     protected boolean isRasterChanged() {
-        return _rasterChanged;
+        return rasterChanged;
     }
 
     protected boolean isProductChanged() {
-        return _productChanged;
+        return productChanged;
     }
 
     public ToolView getParentDialog() {
-        return _parentDialog;
+        return parentDialog;
     }
 
 
@@ -176,10 +164,10 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         if (mustUpdateContent()) {
             updateContent();
             if (this.isShowing()) {
-                _parentDialog.getDescriptor().setTitle(getTitle());
+                parentDialog.getDescriptor().setTitle(getTitle());
             }
-            _rasterChanged = false;
-            _productChanged = false;
+            rasterChanged = false;
+            productChanged = false;
         }
 
     }
@@ -272,13 +260,13 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         zoomOutButton.setName("zoomOutButton.");
         zoomOutButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                final JFreeChart chart= chartPanel.getChart();
+                final JFreeChart chart = chartPanel.getChart();
                 final boolean rangeAxisOOR = isAxisOutOfRange(chartPanel, chart.getXYPlot().getRangeAxis());
                 final boolean domainAxisOOR = isAxisOutOfRange(chartPanel, chart.getXYPlot().getDomainAxis());
                 // prevent from zooming out to far
-                if(rangeAxisOOR || domainAxisOOR) {
+                if (rangeAxisOOR || domainAxisOOR) {
                     chartPanel.restoreAutoBounds();
-                }else {
+                } else {
                     final Rectangle2D chartArea = chartPanel.getChartRenderingInfo().getChartArea();
                     chartPanel.zoomOutBoth(chartArea.getCenterX(), chartArea.getCenterY());
                 }
@@ -351,7 +339,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         final double outFactor = chartPanel.getZoomOutFactor();
         final Range nextRange = Range.scale(currentRange, outFactor);
         return nextRange.getLowerBound() < defaultRange.getLowerBound() ||
-                          nextRange.getUpperBound() > defaultRange.getUpperBound();
+                nextRange.getUpperBound() > defaultRange.getUpperBound();
     }
 
     class PopupHandler extends MouseAdapter {
@@ -373,11 +361,11 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
     }
 
     private String getProductNodeDisplayName() {
-        if (_raster != null) {
-            return _raster.getDisplayName();
+        if (raster != null) {
+            return raster.getDisplayName();
         } else {
-            if (_product != null) {
-                return _product.getDisplayName();
+            if (product != null) {
+                return product.getDisplayName();
             } else {
                 return "";
             }
@@ -388,8 +376,15 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         if (raster != getRaster() || product != getProduct()) {
             setRaster(raster);
             setProduct(product);
-            updateUI();
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    updateUI();
+                }
+            });
         }
+    }
+
+    protected void handleLayerContentChanged() {        
     }
 
     /**
@@ -425,7 +420,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
     }
 
 
-    private class PagePanePTL implements ProductTreeListener {
+    private class PagePanelPTL implements ProductTreeListener {
 
         public void tiePointGridSelected(TiePointGrid tiePointGrid, int clickCount) {
             selectionChanged(tiePointGrid.getProduct(), tiePointGrid);
@@ -452,14 +447,18 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
 
     }
 
-    private class PagePaneIFL extends InternalFrameAdapter {
+    private class PagePanelIFL extends InternalFrameAdapter {
+
+        public PagePanelIFL() {
+        }
 
         @Override
         public void internalFrameActivated(InternalFrameEvent e) {
             final Container contentPane = e.getInternalFrame().getContentPane();
             if (contentPane instanceof ProductSceneView) {
-                final ProductSceneView sceneView = (ProductSceneView) contentPane;
-                selectionChanged(sceneView.getRaster().getProduct(), sceneView.getRaster());
+                final ProductSceneView view = (ProductSceneView) contentPane;
+                view.addLayerContentListener(pagePanelLCL);
+                selectionChanged(view.getRaster().getProduct(), view.getRaster());
             }
         }
 
@@ -467,8 +466,18 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         public void internalFrameDeactivated(InternalFrameEvent e) {
             final Container contentPane = e.getInternalFrame().getContentPane();
             if (contentPane instanceof ProductSceneView) {
-                final ProductSceneView sceneView = (ProductSceneView) contentPane;
-                selectionChanged(sceneView.getRaster().getProduct(), null);
+                final ProductSceneView view = (ProductSceneView) contentPane;
+                view.removeLayerContentListener(pagePanelLCL);
+                selectionChanged(view.getRaster().getProduct(), null);
+            }
+        }
+
+    }
+
+    private class PagePanelLCL implements ProductSceneView.LayerContentListener {
+        public void layerContentChanged(RasterDataNode raster) {
+            if (raster == getRaster()) {
+                handleLayerContentChanged();
             }
         }
     }

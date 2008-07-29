@@ -1,38 +1,18 @@
-/*
- * $Id: ProductSceneView.java,v 1.3 2006/12/15 08:41:03 marcop Exp $
- *
- * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation. This program is distributed in the hope it will
- * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
 package org.esa.beam.framework.ui.product;
 
-import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.layer.Layer;
-import com.bc.layer.LayerModel;
-import com.bc.layer.LayerModelChangeListener;
-import com.bc.swing.ViewPane;
-import com.bc.view.ViewModel;
-import com.bc.view.ViewModelChangeListener;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
-import org.esa.beam.framework.ui.*;
+import org.esa.beam.framework.ui.BasicView;
+import org.esa.beam.framework.ui.PixelInfoFactory;
+import org.esa.beam.framework.ui.PixelPositionListener;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandUIFactory;
+import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.DrawingEditor;
 import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
-import org.esa.beam.layer.StyledLayer;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.PropertyMapChangeListener;
@@ -44,23 +24,17 @@ import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * The class <code>ProductSceneView</code> is a high-level image display component for color index/RGB images created
- * from one or more raster datasets of a data product.
- * <p/>
- * <p>It is also capable of displaying a graticule (geographical grid) and a ROI associated with a displayed raster
- * dataset.
+ * TODO - Apidoc
+ *
+ * @author Norman Fomferra
+ * @version $revision$ $date$
  */
-public class ProductSceneView extends BasicView implements ProductNodeView,
-        DrawingEditor,
-        PropertyMapChangeListener,
-        PixelInfoFactory {
-
+public abstract class ProductSceneView extends BasicView implements ProductNodeView, DrawingEditor, PropertyMapChangeListener, PixelInfoFactory {
     /**
      * Property name for antialiased graphics drawing
      */
@@ -72,9 +46,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
     /**
      * Property name for the image histogram matching type
      */
-    public static final String PROPERTY_KEY_HISTOGRAM_MATCHING = "graphics.histogramMatching";
-
-    // TODO IMAGING 4.5: Move these style settings away
+    public static final String PROPERTY_KEY_HISTOGRAM_MATCHING = "graphics.histogramMatching";// TODO IMAGING 4.5: Move these style settings away
     // TODO IMAGING 4.5: Layer.getStyle(), SVG property names!
     public static String IMAGE_INTERPOLATION_NEAREST_NEIGHBOUR = "Nearest Neighbour";
     public static String IMAGE_INTERPOLATION_BILINEAR = "Bi-Linear Interpolation";
@@ -85,30 +57,25 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
     public static final Color DEFAULT_IMAGE_BACKGROUND_COLOR = new Color(51, 51, 51);
     public static final double DEFAULT_IMAGE_BORDER_SIZE = 2.0;
     public static final int DEFAULT_IMAGE_VIEW_BORDER_SIZE = 64;
-
-    private ImageDisplay imageDisplay;
-    private ProductSceneImage sceneImage;
-    private ArrayList<ImageUpdateListener> imageUpdateListenerList;
-    private RasterChangeHandler rasterChangeHandler;
+    protected ProductSceneImage sceneImage;
+    protected ArrayList<ImageUpdateListener> imageUpdateListenerList;
+    protected ArrayList<LayerContentListener> layerContentListenerList;
+    protected ArrayList<ViewportListener> viewportListenerList;
+    protected RasterChangeHandler rasterChangeHandler;
 
     public ProductSceneView(ProductSceneImage sceneImage) {
-        Assert.notNull(sceneImage, "sceneImage");
-        setOpaque(false);
+        rasterChangeHandler = new RasterChangeHandler();
         this.sceneImage = sceneImage;
         setBaseImage(sceneImage.getImage());
-        setLayerModel(sceneImage.getLayerModel());
-        Rectangle modelArea = sceneImage.getModelArea();
-        setModelBounds(modelArea);
-        getViewModel().setModelOffset(modelArea.x, modelArea.y, 1.0);
-        getImageDisplayComponent().setPreferredSize(modelArea.getSize());
-        setPixelInfoFactory(this);
+        setOpaque(false);
 
-        rasterChangeHandler = new RasterChangeHandler();
         getRaster().getProduct().addProductNodeListener(rasterChangeHandler);
 
         imageUpdateListenerList = new ArrayList<ImageUpdateListener>(5);
+        layerContentListenerList = new ArrayList<LayerContentListener>(5);
+        viewportListenerList = new ArrayList<ViewportListener>(5);
+        setPixelInfoFactory(this);
     }
-
 
     /**
      * Returns the currently visible product node.
@@ -172,6 +139,49 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
     public void removeImageUpdateListener(ImageUpdateListener listener) {
         if (listener != null) {
             imageUpdateListenerList.remove(listener);
+        }
+    }
+
+
+    @Deprecated
+    public void addLayerContentListener(LayerContentListener listener) {
+        if (listener != null && !layerContentListenerList.contains(listener)) {
+            layerContentListenerList.add(listener);
+        }
+    }
+
+    @Deprecated
+    public void removeLayerContentListener(LayerContentListener listener) {
+        if (listener != null) {
+            layerContentListenerList.remove(listener);
+        }
+    }
+
+    @Deprecated
+    protected void fireLayerContentChanged() {
+        for (LayerContentListener listener : layerContentListenerList.toArray(new LayerContentListener[0])) {
+            listener.layerContentChanged(getRaster());
+        }
+    }
+
+    @Deprecated
+    public void addViewportListener(ViewportListener listener) {
+        if (listener != null && !viewportListenerList.contains(listener)) {
+            viewportListenerList.add(listener);
+        }
+    }
+
+    @Deprecated
+    public void removeViewportListener(ViewportListener listener) {
+        if (listener != null) {
+            viewportListenerList.remove(listener);
+        }
+    }
+
+    @Deprecated
+    protected void fireViewportListenerChanged() {
+        for (ViewportListener listener : viewportListenerList.toArray(new ViewportListener[0])) {
+            listener.viewportChanged();
         }
     }
 
@@ -276,7 +286,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
     public void setImageInfo(ImageInfo imageInfo) {
         getSceneImage().setImageInfo(imageInfo);
     }
-
 
     /**
      * Gets the number of raster datasets.
@@ -533,273 +542,54 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         return getSceneImage().getFigureLayer().getSelectedFigures();
     }
 
+    public abstract void setLayerProperties(PropertyMap propertyMap);
 
-    /**
-     * Sets the layer properties using the given property map.
-     *
-     * @param propertyMap the layer property map
-     */
-    public void setLayerProperties(PropertyMap propertyMap) {
+    public abstract void addPixelPositionListener(PixelPositionListener listener);
 
-        setImageProperties(propertyMap);
+    public abstract void removePixelPositionListener(PixelPositionListener listener);
 
-        // TODO IMAGING 4.5
-        final LayerModel layerModel = getLayerModel();
-        final boolean suspendedOld = layerModel.isLayerModelChangeFireingSuspended();
-        layerModel.setLayerModelChangeFireingSuspended(true);
+    public abstract AbstractTool[] getSelectToolDelegates();
 
-        int layerCount = layerModel.getLayerCount();
-        for (int i = 0; i < layerCount; i++) {
-            Layer layer = layerModel.getLayer(i);
-            if (layer instanceof StyledLayer) {
-                StyledLayer styledLayer = (StyledLayer) layer;
-                styledLayer.setStyleProperties(propertyMap);
-            }
-        }
+    public abstract void disposeLayerModel();
 
-        layerModel.setLayerModelChangeFireingSuspended(suspendedOld);
-        layerModel.fireLayerModelChanged();
-    }
+    public abstract AffineTransform getBaseImageToViewTransform();
 
-    /**
-     * Adds a new pixel position listener to this image display component.
-     *
-     * @param listener the pixel position listener to be added
-     */
-    public void addPixelPositionListener(PixelPositionListener listener) {
-        // TODO IMAGING 4.5
-        getImageDisplay().addPixelPositionListener(listener);
-    }
+    public abstract Rectangle2D getVisibleModelBounds();
 
-    /**
-     * Removes a pixel position listener from this image display component.
-     *
-     * @param listener the pixel position listener to be removed
-     */
-    public void removePixelPositionListener(PixelPositionListener listener) {
-        // TODO IMAGING 4.5
-        getImageDisplay().removePixelPositionListener(listener);
-    }
+    public abstract double getViewScale();
 
-    public void addLayerModelChangeListener(LayerModelChangeListener listener) {
-        // TODO IMAGING 4.5
-        getImageDisplay().getLayerModel().addLayerModelChangeListener(listener);
-    }
-    public void removeLayerModelChangeListener(LayerModelChangeListener listener) {
-        // TODO IMAGING 4.5
-        getImageDisplay().getLayerModel().removeLayerModelChangeListener(listener);
-    }
+    public abstract Rectangle2D getModelBounds();
 
-    public int getLayerCount() {
-        // TODO IMAGING 4.5
-        return getLayerModel().getLayerCount();
-    }
+    public abstract JComponent getImageDisplayComponent();
 
-    public Layer getLayer(int index) {
-        // TODO IMAGING 4.5
-        return getLayerModel().getLayer(index);
-    }
+    public abstract void zoom(Rectangle rect);
 
-    public void disposeLayerModel() {
-        // TODO IMAGING 4.5
-        getLayerModel().dispose();
-    }
+    public abstract void zoom(double x, double y, double viewScale);
 
-    public AffineTransform getBaseImageToViewTransform() {
-        // TODO IMAGING 4.5
-        final AffineTransform transform = new AffineTransform();
-        transform.scale(getViewScale(), getViewScale());
-        transform.translate(-getViewModel().getModelOffsetX(),
-                            -getViewModel().getModelOffsetY());
-        return transform;
-    }
+    public abstract void zoom(double viewScale);
 
-    public Rectangle2D getVisibleModelBounds() {
-        // TODO IMAGING 4.5
-        return new Rectangle2D.Double(getViewModel().getModelOffsetX(),
-                                      getViewModel().getModelOffsetY(),
-                                      getImageDisplayComponent().getWidth() / getViewScale(),
-                                      getImageDisplayComponent().getHeight() / getViewScale());
-    }
+    public abstract void zoomAll();
 
-    public double getViewScale() {
-        // TODO IMAGING 4.5
-        return getViewModel().getViewScale();
-    }
+    @Deprecated
+    public abstract void setModelOffset(double modelOffsetX, double modelOffsetY);
 
-    public Rectangle2D getModelBounds() {
-        // TODO IMAGING 4.5
-        return getViewModel().getModelArea();
-    }
+    public abstract void synchronizeViewport(ProductSceneView42 view);
 
-    private void setModelBounds(Rectangle modelArea) {
-        // TODO IMAGING 4.5
-        getViewModel().setModelArea(modelArea);
-    }
+    public abstract RenderedImage getBaseImage();
 
-    public JComponent getImageDisplayComponent() {
-        // TODO IMAGING 4.5
-        return getImageDisplay();
-    }
+    public abstract void setBaseImage(RenderedImage baseImage);
 
-    public void zoom(Rectangle rect) {
-        // TODO IMAGING 4.5
-        getImageDisplay().zoom(rect);
-    }
+    public abstract int getBaseImageWidth();
 
-    public void zoom(double x, double y, double viewScale) {
-        // TODO IMAGING 4.5
-        getImageDisplay().zoom(x, y, viewScale);
-    }
+    public abstract int getBaseImageHeight();
 
-    public void zoom(double viewScale) {
-        // TODO IMAGING 4.5
-        getImageDisplay().zoom(viewScale);
-    }
+    public abstract RenderedImage createSnapshotImage(boolean entireImage, boolean useAlpha);
 
-    public void zoomAll() {
-        // TODO IMAGING 4.5
-        getImageDisplay().zoomAll();
-    }
+    public abstract Tool getTool();
 
-    public void setModelOffset(double modelOffsetX, double modelOffsetY) {
-        // TODO IMAGING 4.5
-        getViewModel().setModelOffset(modelOffsetX, modelOffsetY);
-    }
+    public abstract void setTool(Tool tool);
 
-    public void setModelOffset(double modelOffsetX, double modelOffsetY, double viewScale) {
-        // TODO IMAGING 4.5
-        getViewModel().setModelOffset(modelOffsetX, modelOffsetY, viewScale);
-    }
-
-    public void synchronizeViewport(ProductSceneView view) {
-        final Product currentProduct = getRaster().getProduct();
-        final Product otherProduct = view.getRaster().getProduct();
-        if (otherProduct == currentProduct ||
-                otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
-            // TODO IMAGING 4.5
-            view.setModelOffset(
-                    getViewModel().getModelOffsetX(),
-                    getViewModel().getModelOffsetY(),
-                    getViewScale());
-        }
-
-    }
-
-    public void addViewModelChangeListener(ViewModelChangeListener listener) {
-        // TODO IMAGING 4.5
-        getViewModel().addViewModelChangeListener(listener);
-    }
-
-    public void removeViewModelChangeListener(ViewModelChangeListener listener) {
-        // TODO IMAGING 4.5
-        getViewModel().removeViewModelChangeListener(listener);
-    }
-
-
-    /**
-     * Gets the base image displayed in this view.
-     *
-     * @return the base image
-     */
-    public RenderedImage getBaseImage() {
-        // TODO IMAGING 4.5
-        return getImageDisplayComponent() != null ? getImageDisplay().getImage() : null;
-    }
-
-
-    /**
-     * Sets the base image displayed in this view.
-     *
-     * @param baseImage the base image
-     */
-    public void setBaseImage(RenderedImage baseImage) {
-        Guardian.assertNotNull("baseImage", baseImage);
-        if (getImageDisplayComponent() == null) {
-            initUI(baseImage);
-        }
-        // TODO IMAGING 4.5
-        getImageDisplay().setImage(baseImage);
-        revalidate();
-        repaint();
-    }
-
-    public int getBaseImageWidth() {
-        // TODO IMAGING 4.5
-        return getImageDisplay().getImageWidth();
-    }
-
-    public int getBaseImageHeight() {
-        // TODO IMAGING 4.5
-        return getImageDisplay().getImageHeight();
-    }
-
-    public RenderedImage createSnapshotImage(boolean entireImage, boolean useAlpha) {
-        ////////////////////////////////////////////////////////////////////
-        // << TODO IMAGING 4.5
-        boolean oldOpaque = getImageDisplayComponent().isOpaque();
-        final BufferedImage bi;
-        try {
-            getImageDisplayComponent().setOpaque(false);
-            final int imageType = useAlpha ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR;
-            if (entireImage) {
-                final double modelOffsetXOld = getViewModel().getModelOffsetX();
-                final double modelOffsetYOld = getViewModel().getModelOffsetY();
-                final double viewScaleOld = getViewScale();
-                try {
-                    getViewModel().setModelOffset(0, 0, 1.0);
-                    bi = new BufferedImage(getBaseImageWidth(),
-                                           getBaseImageHeight(),
-                                           imageType);
-                    getImageDisplayComponent().paint(bi.createGraphics());
-                } finally {
-                    getViewModel().setModelOffset(modelOffsetXOld, modelOffsetYOld, viewScaleOld);
-                }
-            } else {
-                bi = new BufferedImage(getImageDisplayComponent().getWidth(),
-                                       getImageDisplayComponent().getHeight(),
-                                       imageType);
-                getImageDisplayComponent().paint(bi.createGraphics());
-            }
-        } finally {
-            getImageDisplayComponent().setOpaque(oldOpaque);
-        }
-        // >> TODO IMAGING 4.5
-        ////////////////////////////////////////////////////////////////////
-        return bi;
-    }
-
-
-    /**
-     * Returns the current tool for this drawing.
-     */
-    public Tool getTool() {
-        // TODO IMAGING 4.5
-        return getImageDisplay().getTool();
-    }
-
-    /**
-     * Sets the current tool for this drawing.
-     */
-    public void setTool(Tool tool) {
-        if (tool != null) {
-            tool.setDrawingEditor(this);
-            setCursor(tool.getCursor());
-        }
-        // TODO IMAGING 4.5
-        getImageDisplay().setTool(tool);
-    }
-
-    /**
-     * Draws the tool in an interactive mode.
-     */
-    public void repaintTool() {
-        // TODO IMAGING 4.5
-        getImageDisplay().repaintTool();
-    }
-
-    /////////////////////////////////////////////////////////////////////////
-    // Package/Private
+    public abstract void repaintTool();
 
     /**
      * The product scene image associated with this view.
@@ -810,101 +600,11 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         return sceneImage;
     }
 
-    @Deprecated
-    LayerModel getLayerModel() {
-        // TODO IMAGING 4.5
-        return getImageDisplay().getLayerModel();
-    }
+    protected abstract void copyPixelInfoStringToClipboard();
 
-    @Deprecated
-    private ViewModel getViewModel() {
-        // TODO IMAGING 4.5
-        return getImageDisplay().getViewModel();
-    }
+    protected abstract void disposeImageDisplayComponent();
 
-
-    @Deprecated
-    private void setLayerModel(LayerModel layerModel) {
-        // TODO IMAGING 4.5
-        getImageDisplay().setLayerModel(layerModel);
-    }
-
-    private void setImageProperties(PropertyMap propertyMap) {
-        final boolean pixelBorderShown = propertyMap.getPropertyBool("pixel.border.shown", true);
-        final boolean imageBorderShown = propertyMap.getPropertyBool("image.border.shown", true);
-        final float imageBorderSize = (float) propertyMap.getPropertyDouble("image.border.size",
-                                                                            DEFAULT_IMAGE_BORDER_SIZE);
-        final Color imageBorderColor = propertyMap.getPropertyColor("image.border.color", DEFAULT_IMAGE_BORDER_COLOR);
-        final Color backgroundColor = propertyMap.getPropertyColor("image.background.color",
-                                                                   DEFAULT_IMAGE_BACKGROUND_COLOR);
-        final boolean antialiasing = propertyMap.getPropertyBool(PROPERTY_KEY_GRAPHICS_ANTIALIASING, false);
-        final String interpolation = propertyMap.getPropertyString(PROPERTY_KEY_IMAGE_INTERPOLATION,
-                                                                   DEFAULT_IMAGE_INTERPOLATION_METHOD);
-
-        // TODO IMAGING 4.5
-        getImageDisplay().setPixelBorderShown(pixelBorderShown);
-        getImageDisplay().setImageBorderShown(imageBorderShown);
-        getImageDisplay().setImageBorderSize(imageBorderSize);
-        getImageDisplay().setImageBorderColor(imageBorderColor);
-        getImageDisplay().setBackground(backgroundColor);
-        getImageDisplay().setAntialiasing(antialiasing ?
-                RenderingHints.VALUE_ANTIALIAS_ON :
-                RenderingHints.VALUE_ANTIALIAS_OFF);
-        getImageDisplay().setInterpolation(interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_BICUBIC) ?
-                RenderingHints.VALUE_INTERPOLATION_BICUBIC :
-                interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_BILINEAR) ?
-                        RenderingHints.VALUE_INTERPOLATION_BILINEAR :
-                        interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_NEAREST_NEIGHBOUR) ?
-                                RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR :
-                                null);
-    }
-
-
-    private void copyPixelInfoStringToClipboard() {
-        // TODO IMAGING 4.5
-        getImageDisplay().copyPixelInfoStringToClipboard();
-    }
-
-    private void initUI(RenderedImage sourceImage) {
-        PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
-
-        imageDisplay = new ImageDisplay(sourceImage);
-
-        getImageDisplayComponent().setOpaque(true);
-        getImageDisplayComponent().addMouseListener(popupMenuHandler);
-        getImageDisplayComponent().addMouseWheelListener(new ZoomHandler());
-        getImageDisplayComponent().addKeyListener(popupMenuHandler);
-
-        setLayout(new BorderLayout());
-        // TODO IMAGING 4.5
-        ViewPane imageDisplayScroller = getImageDisplay().createViewPane();
-        add(imageDisplayScroller, BorderLayout.CENTER);
-    }
-
-
-    @Deprecated
-    private ImageDisplay getImageDisplay() {
-        // TODO IMAGING 4.5
-        return imageDisplay;
-    }
-
-    private void disposeImageDisplayComponent() {
-        // TODO IMAGING 4.5
-        if (getImageDisplayComponent()  !=null) {
-            getImageDisplay().dispose();
-            imageDisplay = null;
-        }
-    }
-
-    private PixelInfoFactory getPixelInfoFactory() {
-        // TODO IMAGING 4.5
-        return getImageDisplay().getPixelInfoFactory();
-    }
-
-    private void setPixelInfoFactory(PixelInfoFactory pixelInfoFactory) {
-        // TODO IMAGING 4.5
-        getImageDisplay().setPixelInfoFactory(pixelInfoFactory);
-    }
+    protected abstract PixelInfoFactory getPixelInfoFactory();
 
     private static void addStandardPopupMenuItems(JPopupMenu popupMenu) {
         popupMenu.addSeparator();
@@ -935,9 +635,9 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         }
     }
 
+    protected abstract void setPixelInfoFactory(PixelInfoFactory pixelInfoFactory);
 
-    /////////////////////////////////////////////////////////////////////////
-    // Inner/Nested Interfaces/Classes
+    public abstract RenderedImage updateNoDataImage(ProgressMonitor pm) throws Exception;
 
     public static interface ImageUpdateListener {
 
@@ -946,7 +646,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
 
     /**
      * A band that is used as an RGB channel for RGB image views.
-     * These bands shall not be added to {@link Product}s but they are always owned by the {@link Product}
+     * These bands shall not be added to {@link org.esa.beam.framework.datamodel.Product}s but they are always owned by the {@link org.esa.beam.framework.datamodel.Product}
      * passed into the constructor.
      */
     public static class RGBChannel extends VirtualBand {
@@ -968,7 +668,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         }
     }
 
-    private class RasterChangeHandler implements ProductNodeListener {
+    protected class RasterChangeHandler implements ProductNodeListener {
 
         public void nodeChanged(final ProductNodeEvent event) {
             repaintView();
@@ -991,7 +691,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         }
     }
 
-    private final class ZoomHandler implements MouseWheelListener {
+    protected final class ZoomHandler implements MouseWheelListener {
 
         public void mouseWheelMoved(MouseWheelEvent e) {
             int notches = e.getWheelRotation();
@@ -1002,5 +702,18 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
                 zoom(currentViewScale * 0.9f);
             }
         }
+    }
+
+    @Deprecated
+    public interface LayerContentListener {
+        @Deprecated
+        void layerContentChanged(RasterDataNode raster);
+    }
+
+
+    @Deprecated
+    public interface ViewportListener {
+        @Deprecated
+        void viewportChanged();
     }
 }

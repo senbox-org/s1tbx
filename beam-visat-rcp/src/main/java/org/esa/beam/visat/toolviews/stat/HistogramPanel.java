@@ -392,5 +392,8 @@ class HistogramPanel extends PagePanel {
         return sb.toString();
     }
 
+    protected void handleLayerContentChanged() {
+        computePanel.updateRoiCheckBoxState();
+    }
 }
 

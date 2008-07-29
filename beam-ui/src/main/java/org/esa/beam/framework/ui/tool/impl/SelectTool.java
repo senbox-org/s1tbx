@@ -16,16 +16,12 @@
  */
 package org.esa.beam.framework.ui.tool.impl;
 
-import com.bc.layer.AbstractLayer;
-import com.bc.layer.Layer;
-import com.bc.layer.LayerModel;
-import com.bc.swing.GraphicsPane;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 
 /**
- * A tool used to select items in a {@link ProductSceneView}.
+ * A tool used to select items in a {@link org.esa.beam.framework.ui.product.ProductSceneView42}.
  */
 public class SelectTool extends AbstractTool {
     public static final String SELECT_TOOL_PROPERTY_NAME = "selectTool";
@@ -81,26 +77,11 @@ public class SelectTool extends AbstractTool {
         handleInputEvent(e, DRAG);
     }
 
-    private AbstractTool getDelegateTool(Layer layer) {
-        AbstractTool delegate = null;
-        if (layer instanceof AbstractLayer) {
-            AbstractLayer abstractLayer = (AbstractLayer) layer;
-            final Object value = abstractLayer.getPropertyValue(SELECT_TOOL_PROPERTY_NAME);
-            if (value instanceof AbstractTool) {
-                delegate = (AbstractTool) value;
-            }
-        }
-        return delegate;
-    }
-
     private void handleInputEvent(ToolInputEvent e, Delegator method) {
         final ProductSceneView psv = (ProductSceneView)getDrawingEditor();
-        for (int i = 0; i < psv.getLayerCount(); i++) {
-            final Layer layer = psv.getLayer(i);
-            AbstractTool delegate = getDelegateTool(layer);
-            if (delegate != null) {
-                method.execute(delegate, e);
-            }
+        final AbstractTool[] tools = psv.getSelectToolDelegates();
+        for (AbstractTool tool : tools) {
+            method.execute(tool, e);
         }
     }
 

@@ -4,9 +4,9 @@ import com.jidesoft.swing.JideScrollPane;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTree;
 import org.esa.beam.framework.ui.product.ProductTreeListener;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.Debug;
 
 import javax.swing.JComponent;

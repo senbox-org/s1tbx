@@ -27,17 +27,10 @@ class CoordListPanel extends TextPagePanel {
     private static final String _DEFAULT_COORDLIST_TEXT = "Co-ordinate list not available.\n" +
             "No shape (line, polyline or polygon) contained in the image view.";  /*I18N*/
 
-    private static final LayerObserver _figureLayerObserver = LayerObserver.getInstance(FigureLayer.class);
 
 
     public CoordListPanel(final ToolView parentDialog, String helpID) {
         super(parentDialog, _DEFAULT_COORDLIST_TEXT, helpID);
-        _figureLayerObserver.addLayerObserverListener(new LayerObserver.LayerObserverListener() {
-            public void layerChanged() {
-                updateContent();
-            }
-        });
-        _figureLayerObserver.setRaster(getRaster());
     }
 
     @Override
@@ -45,15 +38,6 @@ class CoordListPanel extends TextPagePanel {
         return _TITLE_PREFIX;
     }
 
-
-    @Override
-    protected void setRaster(final RasterDataNode raster) {
-        final RasterDataNode oldRaster = super.getRaster();
-        if (oldRaster != raster) {
-            _figureLayerObserver.setRaster(raster);
-        }
-        super.setRaster(raster);
-    }
 
 
     @Override
@@ -95,6 +79,10 @@ class CoordListPanel extends TextPagePanel {
         } finally {
             UIUtils.setRootFrameCursor(getParentDialogContentPane(), oldCursor);
         }
+    }
+
+    protected void handleLayerContentChanged() {
+        updateContent();
     }
 
 }

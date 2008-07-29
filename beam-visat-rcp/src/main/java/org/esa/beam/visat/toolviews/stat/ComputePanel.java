@@ -6,7 +6,6 @@ import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.layer.ROILayer;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -18,7 +17,6 @@ import java.awt.event.ActionListener;
  */
 class ComputePanel extends JPanel {
 
-    private static final LayerObserver roiLayerObserver = LayerObserver.getInstance(ROILayer.class);
     private final JButton computeButton;
     private final JCheckBox useRoiCheckBox;
     private RasterDataNode raster;
@@ -58,11 +56,6 @@ class ComputePanel extends JPanel {
         useRoiCheckBox.setMnemonic('R');
         useRoiCheckBox.setEnabled(raster != null && raster.isROIUsable());
 
-        roiLayerObserver.addLayerObserverListener(new LayerObserver.LayerObserverListener() {
-            public void layerChanged() {
-                useRoiCheckBox.setEnabled(isROIUsable());
-            }
-        });
         final TableLayout tableLayout = new TableLayout(1);
         tableLayout.setTableAnchor(TableLayout.Anchor.SOUTHWEST);
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
@@ -82,10 +75,12 @@ class ComputePanel extends JPanel {
     public void setRaster(final RasterDataNode raster) {
         if (this.raster != raster) {
             this.raster = raster;
-            roiLayerObserver.setRaster(this.raster);
             computeButton.setEnabled(this.raster != null);
             useRoiCheckBox.setEnabled(this.raster != null && this.raster.isROIUsable());
         }
     }
 
+    void updateRoiCheckBoxState() {
+        useRoiCheckBox.setEnabled(isROIUsable());
+    }
 }

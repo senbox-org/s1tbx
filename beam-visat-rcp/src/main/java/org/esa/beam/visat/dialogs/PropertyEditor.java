@@ -24,8 +24,6 @@ import com.bc.jexp.Term;
 import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
 import com.bc.jexp.impl.SymbolFactory;
-import com.bc.layer.Layer;
-import com.bc.layer.LayerModel;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
@@ -36,7 +34,6 @@ import org.esa.beam.framework.param.editors.GeneralExpressionEditor;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.layer.NoDataLayer;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
@@ -323,9 +320,8 @@ public class PropertyEditor {
                         if (_validMaskPropertyChanged) {
                             final JInternalFrame internalFrame = _visatApp.findInternalFrame(_rasterDataNode);
                             if (internalFrame != null) {
-                                final ProductSceneView productSceneView = getProductSceneView(internalFrame);
-                                final NoDataLayer noDataLayer = getNoDataLayer(productSceneView);
-                                noDataLayer.updateImage(true, SubProgressMonitor.create(pm, 1));
+                                final ProductSceneView psv = getProductSceneView(internalFrame);
+                                psv.updateNoDataImage(SubProgressMonitor.create(pm, 1));
                             } else {
                                 pm.worked(1);
                             }
@@ -630,17 +626,6 @@ public class PropertyEditor {
                 }
             }
         }
-    }
-
-    private static NoDataLayer getNoDataLayer(ProductSceneView psv) {
-        // TODO IMAGING 4.5
-        for (int i = 0; i < psv.getLayerCount(); i++) {
-            final Layer layer = psv.getLayer(i);
-            if (layer instanceof NoDataLayer) {
-                return (NoDataLayer) layer;
-            }
-        }
-        return null;
     }
 
     private static ProductSceneView getProductSceneView(final JInternalFrame internalFrame) {

@@ -83,7 +83,7 @@ public class ProductSceneImage {
      * @return A new scene image.
      * @throws java.io.IOException if the image creation failed due to an I/O problem.
      */
-    public static ProductSceneImage create(RasterDataNode raster, ProductSceneView view, ProgressMonitor pm) throws IOException {
+    public static ProductSceneImage create(RasterDataNode raster, ProductSceneView42 view, ProgressMonitor pm) throws IOException {
         Assert.notNull(raster, "raster");
         Assert.notNull(view, "view");
         Assert.notNull(pm, "pm");
@@ -233,7 +233,7 @@ public class ProductSceneImage {
         gcpLayer.setTextEnabled(false);
     }
 
-    RenderedImage createImage(ProgressMonitor pm) throws IOException {
+    protected RenderedImage createImage(ProgressMonitor pm) throws IOException {
         if (imageInfo != null) {
             return ProductUtils.createRgbImage(rasters, imageInfo, pm);
         } else {

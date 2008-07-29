@@ -21,7 +21,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import com.bc.layer.LayerModel;
 import com.bc.swing.desktop.TabbedDesktopPane;
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.action.CommandMenuBar;
@@ -1271,7 +1270,7 @@ public class VisatApp extends BasicApp {
                     return;
                 }
 
-                ProductSceneView productSceneView = new ProductSceneView(productSceneImage);
+                ProductSceneView productSceneView = new ProductSceneView42(productSceneImage);
                 productSceneView.setCommandUIFactory(getCommandUIFactory());
                 productSceneView.setROIOverlayEnabled(true);
                 productSceneView.setGraticuleOverlayEnabled(false);
@@ -1368,7 +1367,7 @@ public class VisatApp extends BasicApp {
                 }
                 clearStatusBarMessage();
 
-                ProductSceneView productSceneView = new ProductSceneView(productSceneImage);
+                ProductSceneView productSceneView = new ProductSceneView42(productSceneImage);
                 productSceneView.setCommandUIFactory(getCommandUIFactory());
                 productSceneView.setNoDataOverlayEnabled(false);
                 productSceneView.setROIOverlayEnabled(false);
@@ -1666,7 +1665,7 @@ public class VisatApp extends BasicApp {
             }
             final JInternalFrame[] frames = findInternalFrames(raster, 1);
             if (frames.length > 0) {
-                final ProductSceneView view = (ProductSceneView) frames[0].getContentPane();
+                final ProductSceneView42 view = (ProductSceneView42) frames[0].getContentPane();
                 productSceneImage = ProductSceneImage.create(raster, view,
                                                              SubProgressMonitor.create(pm, 1));
             } else {

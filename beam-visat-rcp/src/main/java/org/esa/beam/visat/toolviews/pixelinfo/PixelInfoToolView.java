@@ -4,6 +4,7 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.PixelInfoView;
 import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
+import org.esa.beam.framework.ui.product.ProductSceneView42;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.math.MathUtils;
@@ -93,7 +94,7 @@ public class PixelInfoToolView extends AbstractToolView {
         for (JInternalFrame internalFrame : internalFrames) {
             Container contentPane = internalFrame.getContentPane();
             if (contentPane instanceof ProductSceneView) {
-                initView((ProductSceneView) contentPane);
+                initView((ProductSceneView42) contentPane);
             }
         }
     }
@@ -183,7 +184,7 @@ public class PixelInfoToolView extends AbstractToolView {
         public void internalFrameOpened(InternalFrameEvent e) {
             Container contentPane = e.getInternalFrame().getContentPane();
             if (contentPane instanceof ProductSceneView) {
-                initView((ProductSceneView) contentPane);
+                initView((ProductSceneView42) contentPane);
             }
         }
 

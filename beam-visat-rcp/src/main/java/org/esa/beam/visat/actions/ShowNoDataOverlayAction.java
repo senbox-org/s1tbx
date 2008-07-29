@@ -1,15 +1,9 @@
 package org.esa.beam.visat.actions;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.progress.DialogProgressMonitor;
-import com.bc.layer.Layer;
-import com.bc.layer.LayerModel;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.layer.NoDataLayer;
-import org.esa.beam.util.Debug;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.*;
@@ -18,13 +12,9 @@ import javax.swing.event.InternalFrameEvent;
 import java.awt.*;
 import java.awt.image.RenderedImage;
 
-/**
- * Created by IntelliJ IDEA.
- * User: Norman
- * Date: 14.11.2006
- * Time: 15:59:53
- * To change this template use File | Settings | File Templates.
- */
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+
+
 public class ShowNoDataOverlayAction extends ExecCommand {
 
     private boolean initialized;
@@ -82,10 +72,9 @@ public class ShowNoDataOverlayAction extends ExecCommand {
     }
 
 
-    /**
+    /*
      * Creates a listener for product node changes, which we will add to all products.
      *
-     * @param visatApp
      */
     private void registerProductNodeListener(final VisatApp visatApp) {
         final ProductNodeListenerAdapter productNodeListener = new ProductNodeListenerAdapter() {
@@ -111,20 +100,14 @@ public class ShowNoDataOverlayAction extends ExecCommand {
 
             private void updateAllNoDataOverlays(final VisatApp visatApp, final RasterDataNode rasterDataNode) {
                 final JInternalFrame[] internalFrames = visatApp.findInternalFrames(rasterDataNode);
-                for (int i = 0; i < internalFrames.length; i++) {
-                    final ProductSceneView psv = getProductSceneView(internalFrames[i]);
+                for (JInternalFrame internalFrame : internalFrames) {
+                    final ProductSceneView psv = getProductSceneView(internalFrame);
                     if (psv != null) {
                         updateCommandState(psv);
                     }
                 }
             }
 
-            private boolean isNoDataOverlayRelevantPropertyName(final String propertyName) {
-                return RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE.equals(propertyName)
-                        || RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE_USED.equals(propertyName)
-                        || RasterDataNode.PROPERTY_NAME_VALID_PIXEL_EXPRESSION.equals(propertyName)
-                        || RasterDataNode.PROPERTY_NAME_DATA.equals(propertyName);
-            }
         };
 
         // Register the listener for product node changes in all products
@@ -140,64 +123,42 @@ public class ShowNoDataOverlayAction extends ExecCommand {
     }
 
     private void updateNoDataLayer(ProductSceneView psv) {
-        final NoDataLayer noDataLayer = getNoDataLayer(psv);
-        if (isNoDataOverlaySelected() && isNoDataOverlayApplicable(psv)) {
-            Debug.trace("updateNoDataLayer: updating image for raster '" + noDataLayer.getRaster().getName() + "'");
-            setNoDataImage(noDataLayer);
-        } else {
-            Debug.trace("updateNoDataLayer: clearing image for raster '" + noDataLayer.getRaster().getName() + "'");
-            noDataLayer.setImage(null);
+        if (isNoDataOverlaySelected()) {
+            updateNoDataImage(psv);
         }
         psv.setNoDataOverlayEnabled(isNoDataOverlaySelected());
     }
+
+    private static void updateNoDataImage(final ProductSceneView view) {
+
+        final ProgressMonitorSwingWorker<RenderedImage, Object> swingWorker = new ProgressMonitorSwingWorker<RenderedImage, Object>(view, "Create No-Data Overlay") {
+
+            @Override
+            protected RenderedImage doInBackground(com.bc.ceres.core.ProgressMonitor pm) throws Exception {
+                return view.updateNoDataImage(pm);
+            }
+
+            @Override
+            public void done() {
+                try {
+                    get();
+                } catch (Exception e) {
+                    VisatApp.getApp().showErrorDialog( "Unable to create no-data overlay image due to an error:\n" +
+                            e.getMessage());
+                }
+            }
+        };
+        swingWorker.execute();
+
+    }
+
 
     private boolean isNoDataOverlaySelected() {
         return isEnabled() && isSelected();
     }
 
     private static boolean isNoDataOverlayApplicable(ProductSceneView psv) {
-        return psv != null && (psv.getRaster().isNoDataValueUsed() || psv.getRaster().getValidPixelExpression() != null);
-    }
-
-    private static NoDataLayer getNoDataLayer(ProductSceneView psv) {
-        // TODO IMAGING 4.5
-        for (int i = 0; i < psv.getLayerCount(); i++) {
-            final Layer layer = psv.getLayer(i);
-            if (layer instanceof NoDataLayer) {
-                return (NoDataLayer) layer;
-            }
-        }
-        return null;
-    }
-
-    private static void setNoDataImage(final NoDataLayer noDataLayer) {
-        final SwingWorker swingWorker = new SwingWorker() {
-            final ProgressMonitor pm = new DialogProgressMonitor(VisatApp.getApp().getMainFrame(),
-                                                                 "Create No-Data Overlay",
-                                                                 Dialog.ModalityType.APPLICATION_MODAL);
-
-            @Override
-            protected Object doInBackground() throws Exception {
-                return noDataLayer.updateImage(true, pm);
-            }
-
-            @Override
-            public void done() {
-                Object value;
-                try {
-                    value = get();
-                } catch (Exception e) {
-                    value = e;
-                }
-                if (value instanceof RenderedImage) {
-                    noDataLayer.setImage((RenderedImage) value);
-                } else if (value instanceof Exception) {
-                    VisatApp.getApp().showErrorDialog("Unable to create no-data overlay image due to an error:\n" +
-                            ((Exception) value).getMessage());
-                }
-            }
-        };
-        swingWorker.execute();
+        return psv != null && psv.getRaster().isValidMaskUsed();
     }
 
 

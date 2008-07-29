@@ -45,7 +45,6 @@ class ProfilePlotPanel extends PagePanel {
     private static final int VAR1 = 0;
     private static final int VAR2 = 1;
 
-    private static final LayerObserver figureLayerObserver = LayerObserver.getInstance(FigureLayer.class);
     private static final Parameter[] minParams = new Parameter[2];
     private static final Parameter[] maxParams = new Parameter[2];
     private Parameter markSegmentsParam;
@@ -61,26 +60,11 @@ class ProfilePlotPanel extends PagePanel {
 
     ProfilePlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId);
-        figureLayerObserver.addLayerObserverListener(new LayerObserver.LayerObserverListener() {
-            public void layerChanged() {
-                updateContent();
-            }
-        });
-        figureLayerObserver.setRaster(getRaster());
     }
 
     @Override
     protected String getTitlePrefix() {
         return TITLE_PREFIX;
-    }
-
-    @Override
-    protected void setRaster(RasterDataNode raster) {
-        final RasterDataNode oldRaster = super.getRaster();
-        if (oldRaster != raster) {
-            figureLayerObserver.setRaster(raster);
-        }
-        super.setRaster(raster);
     }
 
     @Override
@@ -337,4 +321,7 @@ class ProfilePlotPanel extends PagePanel {
         }
     }
 
+    protected void handleLayerContentChanged() {
+        updateContent();
+    }
 }

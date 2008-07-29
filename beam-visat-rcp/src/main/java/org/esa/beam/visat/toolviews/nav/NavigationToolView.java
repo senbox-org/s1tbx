@@ -25,6 +25,7 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ApplicationPage;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
+import org.esa.beam.framework.ui.product.ProductSceneView42;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.PropertyMap;
@@ -63,14 +64,14 @@ public class NavigationToolView extends AbstractToolView {
     private AbstractButton syncViewsButton;
     private JTextField percentField;
     private JSlider zoomSlider;
-    private ViewModelChangeHandler imageDisplayCH;
+    private ViewportHandler imageDisplayCH;
     private ImageDisplayResizeHandler imageDisplayRH;
     private DecimalFormat percentFormat;
     private ProductSceneView.ImageUpdateListener imageUpdateHandler;
     private ProductNodeListener productNodeListener;
 
     public NavigationToolView() {
-        imageDisplayCH = new ViewModelChangeHandler();
+        imageDisplayCH = new ViewportHandler();
         imageDisplayRH = new ImageDisplayResizeHandler();
         final DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.ENGLISH);
         percentFormat = new DecimalFormat("#####.##", decimalFormatSymbols);
@@ -101,7 +102,7 @@ public class NavigationToolView extends AbstractToolView {
                 oldView.removeImageUpdateListener(imageUpdateHandler);
                 currentView.getProduct().removeProductNodeListener(productNodeListener);
                 if (oldView.getImageDisplayComponent() != null) {
-                    oldView.removeViewModelChangeListener(imageDisplayCH);
+                    oldView.removeViewportListener(imageDisplayCH);
                     oldView.getImageDisplayComponent().removeComponentListener(imageDisplayRH);
                 }
             }
@@ -110,7 +111,7 @@ public class NavigationToolView extends AbstractToolView {
                 currentView.addImageUpdateListener(imageUpdateHandler);
                 currentView.getProduct().addProductNodeListener(productNodeListener);
                 if (currentView.getImageDisplayComponent() != null) {
-                    currentView.addViewModelChangeListener(imageDisplayCH);
+                    currentView.addViewportListener(imageDisplayCH);
                     currentView.getImageDisplayComponent().addComponentListener(imageDisplayRH);
                 }
             }
@@ -346,7 +347,7 @@ public class NavigationToolView extends AbstractToolView {
         final JInternalFrame[] internalFrames = VisatApp.getApp().getAllInternalFrames();
         for (final JInternalFrame internalFrame : internalFrames) {
             if (internalFrame.getContentPane() instanceof ProductSceneView) {
-                final ProductSceneView view = (ProductSceneView) internalFrame.getContentPane();
+                final ProductSceneView42 view = (ProductSceneView42) internalFrame.getContentPane();
                 if (view != currentView) {
                     currentView.synchronizeViewport(view);
                 }
@@ -449,9 +450,9 @@ public class NavigationToolView extends AbstractToolView {
         }
     }
 
-    private class ViewModelChangeHandler implements ViewModelChangeListener {
-
-        public void handleViewModelChanged(final ViewModel viewModel) {
+    private class ViewportHandler implements ProductSceneView.ViewportListener {
+        @Deprecated
+        public void viewportChanged() {
             updateValues();
         }
     }

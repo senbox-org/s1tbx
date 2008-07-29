@@ -1,7 +1,5 @@
 package org.esa.beam.visat.toolviews.roi;
 
-import com.bc.layer.LayerModel;
-import com.bc.layer.LayerModelChangeAdapter;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
@@ -109,9 +107,9 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
     private BeamFileFilter roiDefinitionFileFilter;
     // TODO -  (nf) replace bandsToBeModified with a String (name) array, memory leaks occur here!!!
     private Band[] bandsToBeModified;
-    private LayerModelChangeHandler _layerModelChangeHandler;
+    private LayerContentHandler layerContentHandler;
     private Figure shapeFigure;
-    private final ProductNodeListener _productNodeListener;
+    private final ProductNodeListener productNodeListener;
 
     private ProductNodeListener roiDefinitionPNL;
     private final JPanel roiDefPane;
@@ -135,8 +133,8 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
                 drawPolygonTool,
         };
         propertyMap = visatApp.getPreferences();
-        _layerModelChangeHandler = new LayerModelChangeHandler();
-        _productNodeListener = createProductNodeListener();
+        layerContentHandler = new LayerContentHandler();
+        productNodeListener = createProductNodeListener();
         bandsToBeModified = new Band[0];
         initParams();
         roiDefPane = createRoiDefinitionPane();
@@ -174,8 +172,8 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         }
         if (this.productSceneView != null) {
             // TODO IMAGING 4.5
-            this.productSceneView.removeLayerModelChangeListener(_layerModelChangeHandler);
-            this.productSceneView.getProduct().removeProductNodeListener(_productNodeListener);
+            this.productSceneView.removeLayerContentListener(layerContentHandler);
+            this.productSceneView.getProduct().removeProductNodeListener(productNodeListener);
         }
 
         this.productSceneView = productSceneView;
@@ -187,8 +185,8 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
                 shapeFigure = this.productSceneView.getCurrentShapeFigure();
             }
             // TODO IMAGING 4.5
-            this.productSceneView.addLayerModelChangeListener(_layerModelChangeHandler);
-            this.productSceneView.getProduct().addProductNodeListener(_productNodeListener);
+            this.productSceneView.addLayerContentListener(layerContentHandler);
+            this.productSceneView.getProduct().addProductNodeListener(productNodeListener);
             roiDefinitionUndo = getCurrentROIDefinition();
             setUIParameterValues(roiDefinitionUndo);
             resetBitmaskFlagNames();
@@ -1074,10 +1072,10 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         };
     }
 
-    private class LayerModelChangeHandler extends LayerModelChangeAdapter {
-
+    private class LayerContentHandler implements ProductSceneView.LayerContentListener {
         @Override
-        public void handleLayerModelChanged(LayerModel layerModel) {
+        @Deprecated
+        public void layerContentChanged(RasterDataNode raster) {
             if (productSceneView != null) {
                 final Figure currentShapeFigure = productSceneView.getCurrentShapeFigure();
                 if (currentShapeFigure != null) {
