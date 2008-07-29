@@ -16,11 +16,22 @@
  */
 package org.esa.beam.visat.actions;
 
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.product.ProductSceneImage;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
+import org.esa.beam.util.Debug;
+
+import javax.swing.*;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
+
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import com.bc.ceres.core.*;
+import com.bc.ceres.core.ProgressMonitor;
 
 /**
  * This action opens an image view of the currently selected raster.
@@ -29,15 +40,155 @@ import org.esa.beam.visat.VisatApp;
  * @version $Revision$ $Date$
  */
 public class ShowImageViewAction extends ExecCommand {
+    public static String ID = "showImageView";
+    public static String ID45 = "showImageView45";
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        VisatApp visatApp = VisatApp.getApp();
-        final ProductNode selectedProductNode = visatApp.getSelectedProductNode();
-        if (selectedProductNode != null && selectedProductNode instanceof RasterDataNode) {
-            visatApp.openProductSceneView((RasterDataNode) selectedProductNode, getHelpId());
-        }
+        final VisatApp visatApp = VisatApp.getApp();
+        openProductSceneView((RasterDataNode) visatApp.getSelectedProductNode());
     }
+
+    public void openProductSceneView(final RasterDataNode selectedProductNode) {
+        final VisatApp visatApp = VisatApp.getApp();
+        visatApp.setStatusBarMessage("Creating image view...");
+        UIUtils.setRootFrameWaitCursor(visatApp.getMainFrame());
+
+        final SwingWorker worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(visatApp.getMainFrame(),
+                                                                                                 visatApp.getAppName() + " - Creating image for '" + selectedProductNode.getName() + "'") {
+
+                @Override
+                protected ProductSceneImage doInBackground(com.bc.ceres.core.ProgressMonitor pm) throws Exception {
+                    try {
+                        return createProductSceneImage(selectedProductNode, pm);
+                    } finally {
+                        if (pm.isCanceled()) {
+                            selectedProductNode.unloadRasterData();
+                        }
+                    }
+                }
+
+                @Override
+                public void done() {
+                    UIUtils.setRootFrameDefaultCursor(visatApp.getMainFrame());
+                    visatApp.clearStatusBarMessage();
+
+                    final ProductSceneImage productSceneImage;
+                    try {
+                        productSceneImage = get();
+                    } catch (OutOfMemoryError e) {
+                        visatApp.showOutOfMemoryErrorDialog("The image view could not be created.");
+                        return;
+                    } catch (Exception e) {
+                        visatApp.handleUnknownException(e);
+                        return;
+                    }
+
+                    ProductSceneView view = ProductSceneView.create(productSceneImage);
+                    view.setCommandUIFactory(visatApp.getCommandUIFactory());
+                    view.setROIOverlayEnabled(true);
+                    view.setGraticuleOverlayEnabled(false);
+                    view.setPinOverlayEnabled(true);
+                    view.setLayerProperties(visatApp.getPreferences());
+                    view.addImageUpdateListener(new ProductSceneView.ImageUpdateListener() {
+                        public void handleImageUpdated(final ProductSceneView view) {
+                            visatApp.updateState();
+                        }
+                    });
+                    final String title = createInternalFrameTitle(selectedProductNode);
+                    final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
+                    final JInternalFrame internalFrame = visatApp.createInternalFrame(title, icon, view, getHelpId());
+                    final ProductNodeListenerAdapter pnl = new ProductNodeListenerAdapter() {
+                        @Override
+                        public void nodeChanged(final ProductNodeEvent event1) {
+                            if (event1.getSourceNode() == selectedProductNode &&
+                                    event1.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
+                                internalFrame.setTitle(createInternalFrameTitle(selectedProductNode));
+                            }
+                        }
+                    };
+                    final Product product = selectedProductNode.getProduct();
+                    internalFrame.addInternalFrameListener(new InternalFrameAdapter() {
+                        public void internalFrameOpened(InternalFrameEvent event1) {
+                            product.addProductNodeListener(pnl);
+                        }
+
+                        public void internalFrameClosed(InternalFrameEvent event11) {
+                            product.removeProductNodeListener(pnl);
+                        }
+                    });
+
+                    visatApp.updateState();
+                }
+            };
+        visatApp.getExecutorService().submit(worker);
+    }
+
+    private String createInternalFrameTitle(final RasterDataNode raster) {
+        return UIUtils.getUniqueFrameTitle(VisatApp.getApp().getAllInternalFrames(), raster.getDisplayName());
+    }
+
+    public ProductSceneImage createProductSceneImage(final RasterDataNode raster,
+                                                     ProgressMonitor pm) throws Exception {
+        Debug.assertNotNull(raster);
+        Debug.assertNotNull(pm);
+        final VisatApp app = VisatApp.getApp();
+
+        final boolean mustLoadData;
+        final boolean inTiledImagingMode = getCommandID().equals(ID45);
+        if (inTiledImagingMode) {
+            mustLoadData = false;
+        } else {
+            final long dataAutoLoadMemLimit = app.getDataAutoLoadLimit();
+            mustLoadData = raster.getRasterDataSizeInBytes() < dataAutoLoadMemLimit;
+        }
+
+        ProductSceneImage sceneImage = null;
+        try {
+            pm.beginTask("Creating image...", mustLoadData ? 2 : 1);
+            if (mustLoadData) {
+                loadProductRasterDataImpl(raster, SubProgressMonitor.create(pm, 1));
+                if (!raster.hasRasterData()) {
+                    return null;
+                }
+            }
+            final JInternalFrame[] frames = app.findInternalFrames(raster, 1);
+            if (frames.length > 0) {
+                final ProductSceneView view = (ProductSceneView) frames[0].getContentPane();
+                sceneImage = ProductSceneImage.create(raster, view);
+            } else {
+                sceneImage = ProductSceneImage.create(raster, SubProgressMonitor.create(pm, 1), inTiledImagingMode);
+            }
+        } finally {
+            pm.done();
+        }
+
+        return sceneImage;
+    }
+
+    private boolean loadProductRasterDataImpl(final RasterDataNode raster, ProgressMonitor pm) {
+        if (raster.hasRasterData()) {
+            return true;
+        }
+        final VisatApp app = VisatApp.getApp();
+
+        app.setStatusBarMessage("Loading raster data...");
+// Don't show wait cursor here - progress bar should pop-up soon...
+
+        boolean state = false;
+        try {
+            raster.loadRasterData(pm);
+            updateState();
+            state = true;
+        } catch (Exception e) {
+            app.handleUnknownException(e);
+        }
+
+        app.clearStatusBarMessage();
+        return state;
+    }
+
+
 
     @Override
     public void updateState(final CommandEvent event) {

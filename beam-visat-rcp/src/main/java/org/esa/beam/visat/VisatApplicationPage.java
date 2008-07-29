@@ -64,9 +64,6 @@ public class VisatApplicationPage extends AbstractApplicationPage {
     @Override
     protected void doShowToolView(ToolView toolView) {
         dockingManager.showFrame(toolView.getId());
-        if (shouldFloat(toolView)) {
-            dockingManager.floatFrame(toolView.getId(), null, false);
-        }
     }
 
     @Override

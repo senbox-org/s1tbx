@@ -60,10 +60,10 @@ import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.visat.actions.ToolAction;
+import org.esa.beam.visat.actions.ShowImageViewAction;
 
 import javax.media.jai.JAI;
 import javax.swing.*;
-import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 import javax.swing.filechooser.FileFilter;
@@ -459,7 +459,7 @@ public class VisatApp extends BasicApp {
         if (plugInManager != null) {
             plugInManager.stopPlugins();
         }
-        singleThreadExecutor.shutdown();
+        getExecutorService().shutdown();
         super.handleImminentExit();
     }
 
@@ -1235,83 +1235,9 @@ public class VisatApp extends BasicApp {
     /**
      * Creates a new product scene view and opens an internal frame for it.
      */
-    public void openProductSceneView(final RasterDataNode raster, final String helpId) {
-        setStatusBarMessage("Creating image view...");
-        UIUtils.setRootFrameWaitCursor(getMainFrame());
-
-        final SwingWorker worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(getMainFrame(),
-                                                                                             getAppName() + " - Creating image for '" + raster.getName() + "'") {
-
-            @Override
-            protected ProductSceneImage doInBackground(ProgressMonitor pm) throws Exception {
-                try {
-                    return createProductSceneImage(raster, pm);
-                } finally {
-                    if (pm.isCanceled()) {
-                        raster.unloadRasterData();
-                    }
-                }
-            }
-
-            @Override
-            public void done() {
-                UIUtils.setRootFrameDefaultCursor(getMainFrame());
-                clearStatusBarMessage();
-
-                final ProductSceneImage productSceneImage;
-                try {
-                    productSceneImage = get();
-                } catch (OutOfMemoryError e) {
-                    showOutOfMemoryErrorDialog("The image view could not be created.");
-                    return;
-                } catch (Exception e) {
-                    handleUnknownException(e);
-                    return;
-                }
-
-                ProductSceneView productSceneView = ProductSceneView.create(productSceneImage);
-                productSceneView.setCommandUIFactory(getCommandUIFactory());
-                productSceneView.setROIOverlayEnabled(true);
-                productSceneView.setGraticuleOverlayEnabled(false);
-                productSceneView.setPinOverlayEnabled(true);
-                productSceneView.setLayerProperties(getPreferences());
-                productSceneView.addImageUpdateListener(new ProductSceneView.ImageUpdateListener() {
-                    public void handleImageUpdated(final ProductSceneView view) {
-                        updateState();
-                    }
-                });
-                final String title = createInternalFrameTitle(raster);
-                final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
-                final JInternalFrame internalFrame = createInternalFrame(title, icon, productSceneView, helpId);
-                final ProductNodeListenerAdapter pnl = new ProductNodeListenerAdapter() {
-                    @Override
-                    public void nodeChanged(final ProductNodeEvent event) {
-                        if (event.getSourceNode() == raster &&
-                                event.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
-                            internalFrame.setTitle(createInternalFrameTitle(raster));
-                        }
-                    }
-                };
-                final Product product = raster.getProduct();
-                internalFrame.addInternalFrameListener(new InternalFrameAdapter() {
-                    public void internalFrameOpened(InternalFrameEvent event) {
-                        product.addProductNodeListener(pnl);
-                    }
-
-                    public void internalFrameClosed(InternalFrameEvent event) {
-                        product.removeProductNodeListener(pnl);
-                    }
-                });
-
-// @todo 1 nf/nf - extract layer properties dialog from VISAT preferences
-// note: the following line has been out-commented because a preferences change is reflected
-// in all open product scene views. The actual solution is to extract a layer properties dialog
-// from the preferences which lets a user edit the properties of the current product scene view.
-//            addPropertyMapChangeListener(productSceneView);
-                updateState();
-            }
-        };
-        singleThreadExecutor.submit(worker);
+    public void openProductSceneView(final RasterDataNode raster) {
+        final ShowImageViewAction command = (ShowImageViewAction) getCommandManager().getCommand(ShowImageViewAction.ID);
+        command.openProductSceneView(raster);
     }
 
     /**
@@ -1381,7 +1307,7 @@ public class VisatApp extends BasicApp {
             }
         };
         setStatusBarMessage("Creating RGB image view...");  /*I18N*/
-        singleThreadExecutor.submit(worker);
+        getExecutorService().submit(worker);
     }
 
     /**
@@ -1639,50 +1565,14 @@ public class VisatApp extends BasicApp {
         return status;
     }
 
-    private ProductSceneImage createProductSceneImage(final RasterDataNode raster,
-                                                      ProgressMonitor pm) throws Exception {
-        Debug.assertNotNull(raster);
-        Debug.assertNotNull(pm);
-
-        final boolean mustLoadData;
-        if (ProductSceneImage.isInTiledImagingMode()) {
-            mustLoadData = false;
-        } else {
-            final long dataAutoLoadMemLimit = getDataAutoLoadLimit();
-            mustLoadData = raster.getRasterDataSizeInBytes() < dataAutoLoadMemLimit;
-        }
-
-        ProductSceneImage productSceneImage = null;
-        try {
-            pm.beginTask("Creating image...", mustLoadData ? 2 : 1);
-            if (mustLoadData) {
-                loadProductRasterDataImpl(raster, SubProgressMonitor.create(pm, 1));
-                if (!raster.hasRasterData()) {
-                    return null;
-                }
-            }
-            final JInternalFrame[] frames = findInternalFrames(raster, 1);
-            if (frames.length > 0) {
-                final ProductSceneView view = (ProductSceneView) frames[0].getContentPane();
-                productSceneImage = ProductSceneImage.create(raster, view);
-            } else {
-                productSceneImage = ProductSceneImage.create(raster, SubProgressMonitor.create(pm, 1));
-            }
-        } finally {
-            pm.done();
-        }
-
-        return productSceneImage;
-    }
-
-    private String createInternalFrameTitle(final RasterDataNode raster) {
-        return UIUtils.getUniqueFrameTitle(getAllInternalFrames(), raster.getDisplayName());
-    }
-
-    private long getDataAutoLoadLimit() {
+    public long getDataAutoLoadLimit() {
         final long megabyte = 1024 * 1024;
         return megabyte * getPreferences().getPropertyInt(PROPERTY_KEY_AUTO_LOAD_DATA_LIMIT,
                                                           PROPERTY_DEFAULT_AUTO_LOAD_DATA_LIMIT);
+    }
+
+    public ExecutorService getExecutorService() {
+        return singleThreadExecutor;
     }
 
     private static class RGBBand {
@@ -1929,27 +1819,6 @@ public class VisatApp extends BasicApp {
         };
         registerJob(worker);
         worker.execute();
-    }
-
-    private boolean loadProductRasterDataImpl(final RasterDataNode raster, ProgressMonitor pm) {
-        if (raster.hasRasterData()) {
-            return true;
-        }
-
-        setStatusBarMessage("Loading raster data...");
-// Don't show wait cursor here - progress bar should pop-up soon...
-
-        boolean state = false;
-        try {
-            raster.loadRasterData(pm);
-            updateState();
-            state = true;
-        } catch (Exception e) {
-            handleUnknownException(e);
-        }
-
-        clearStatusBarMessage();
-        return state;
     }
 
     @Override

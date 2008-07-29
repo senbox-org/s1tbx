@@ -33,42 +33,18 @@ public abstract class ProductSceneImage {
      *
      * @param raster the product raster, must not be null
      * @param pm     a monitor to inform the user about progress
+     * @param inTiledImagingMode todo - remove me
      * @return a color indexed product scene image
      * @throws java.io.IOException if the image creation failed due to an I/O problem
      */
-    public static ProductSceneImage create(RasterDataNode raster, ProgressMonitor pm) throws IOException {
+    public static ProductSceneImage create(RasterDataNode raster, ProgressMonitor pm, boolean inTiledImagingMode) throws IOException {
         Guardian.assertNotNull("raster", raster);
-        if (isInTiledImagingMode()) {
+        if (inTiledImagingMode) {
             return new ProductSceneImage45(raster, pm);
         }  else {
             return new ProductSceneImage42(raster, pm);
         }
 
-    }
-
-    /**
-     * Creates an RGB product scene for the given raster datasets.
-     *
-     * @param redRaster   the product raster used for the red color component, must not be null
-     * @param greenRaster the product raster used for the green color component, must not be null
-     * @param blueRaster  the product raster used for the blue color component, must not be null
-     * @param pm          a monitor to inform the user about progress
-     * @return an RGB product scene image
-     * @throws java.io.IOException if the image creation failed due to an I/O problem
-     */
-    public static ProductSceneImage create(RasterDataNode redRaster,
-                                           RasterDataNode greenRaster,
-                                           RasterDataNode blueRaster,
-                                           ProgressMonitor pm) throws IOException {
-        Assert.notNull(redRaster, "redRaster");
-        Assert.notNull(greenRaster, "greenRaster");
-        Assert.notNull(blueRaster, "blueRaster");
-        Assert.notNull(pm, "pm");
-        if (isInTiledImagingMode()) {
-            return new ProductSceneImage45(new RasterDataNode[]{redRaster, greenRaster, blueRaster}, pm);
-        }  else {
-            return new ProductSceneImage42(new RasterDataNode[]{redRaster, greenRaster, blueRaster}, pm);
-        }
     }
 
     /**
@@ -86,6 +62,49 @@ public abstract class ProductSceneImage {
             return new ProductSceneImage45(raster, (ProductSceneView45) view);
         } else {
             return new ProductSceneImage42(raster, (ProductSceneView42) view);
+        }
+    }
+
+    /**
+     * Creates an RGB product scene for the given raster datasets.
+     *
+     * @param redRaster   the product raster used for the red color component, must not be null
+     * @param greenRaster the product raster used for the green color component, must not be null
+     * @param blueRaster  the product raster used for the blue color component, must not be null
+     * @param pm          a monitor to inform the user about progress
+     * @return an RGB product scene image
+     * @throws java.io.IOException if the image creation failed due to an I/O problem
+     */
+    public static ProductSceneImage create(RasterDataNode redRaster,
+                                           RasterDataNode greenRaster,
+                                           RasterDataNode blueRaster,
+                                           ProgressMonitor pm) throws IOException {
+        return create(redRaster, greenRaster, blueRaster, pm, isInTiledImagingMode());
+    }
+
+    /**
+     * Creates an RGB product scene for the given raster datasets.
+     *
+     * @param redRaster   the product raster used for the red color component, must not be null
+     * @param greenRaster the product raster used for the green color component, must not be null
+     * @param blueRaster  the product raster used for the blue color component, must not be null
+     * @param pm          a monitor to inform the user about progress
+     * @param inTiledImagingMode  todo - remove me
+     * @return an RGB product scene image
+     * @throws java.io.IOException if the image creation failed due to an I/O problem
+     */
+    public static ProductSceneImage create(RasterDataNode redRaster,
+                                           RasterDataNode greenRaster,
+                                           RasterDataNode blueRaster,
+                                           ProgressMonitor pm, final boolean inTiledImagingMode) throws IOException {
+        Assert.notNull(redRaster, "redRaster");
+        Assert.notNull(greenRaster, "greenRaster");
+        Assert.notNull(blueRaster, "blueRaster");
+        Assert.notNull(pm, "pm");
+        if (inTiledImagingMode) {
+            return new ProductSceneImage45(new RasterDataNode[]{redRaster, greenRaster, blueRaster}, pm);
+        }  else {
+            return new ProductSceneImage42(new RasterDataNode[]{redRaster, greenRaster, blueRaster}, pm);
         }
     }
 

@@ -280,9 +280,8 @@ class ProfilePlotPanel extends PagePanel {
         final JPanel optionsPane = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=BOTH");
 
-        GridBagUtils.setAttributes(gbc, "gridy=1,weightx=1");
         GridBagUtils.addToPanel(optionsPane, createOptionsPane(VAR1), gbc, "gridy=0,insets.top=0");
-        GridBagUtils.addToPanel(optionsPane, createOptionsPane(VAR2), gbc, "gridy=1,insets.top=7");
+        GridBagUtils.addToPanel(optionsPane, createOptionsPane(VAR2), gbc, "gridy=1,insets.top=7,weightx=1");
         return optionsPane;
     }
 

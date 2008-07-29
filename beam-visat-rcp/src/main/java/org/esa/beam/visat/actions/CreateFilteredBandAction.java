@@ -237,7 +237,7 @@ public class CreateFilteredBandAction extends ExecCommand {
         final FilterBand filterBand = createFilterBand(dialogData.getFilter(), dialogData.getBandName());
         VisatApp visatApp = VisatApp.getApp();
         if (visatApp.getPreferences().getPropertyBool(VisatApp.PROPERTY_KEY_AUTO_SHOW_NEW_BANDS, true)) {
-            visatApp.openProductSceneView(filterBand, null);
+            visatApp.openProductSceneView(filterBand);
         }
     }
 

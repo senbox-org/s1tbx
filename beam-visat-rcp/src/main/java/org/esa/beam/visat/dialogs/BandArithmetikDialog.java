@@ -244,7 +244,7 @@ public class BandArithmetikDialog extends ModalDialog {
             _targetBand.setModified(true);
             if (_visatApp.getPreferences().getPropertyBool(VisatApp.PROPERTY_KEY_AUTO_SHOW_NEW_BANDS, true)
                     && !_visatApp.hasRasterProductSceneView(_targetBand)) {
-                _visatApp.openProductSceneView(_targetBand, null);
+                _visatApp.openProductSceneView(_targetBand);
             } else {
                 _visatApp.updateImages(new Band[]{_targetBand});
             }

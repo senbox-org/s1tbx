@@ -196,7 +196,6 @@ class HistogramPanel extends PagePanel {
 
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.getPopupMenu().add(createCopyDataToClipboardMenuItem());
-        chartPanel.setPreferredSize(new Dimension(300,200));
         return chartPanel;
     }
 

@@ -812,6 +812,22 @@
         </action>
 
         <action>
+            <id>showImageView45</id>
+            <class>org.esa.beam.visat.actions.ShowImageViewAction</class>
+            <placeAfter>showImageView</placeAfter>
+            <parent>view</parent>
+            <text>Open Image View (v.45)</text>
+            <mnemonic>I</mnemonic>
+            <accellerator>control alt I</accellerator>
+            <shortDescr>Open image view.</shortDescr>
+            <description>Open an image view for the selected band or tie-point grid.</description>
+            <context>band,tiePointGrid</context>
+            <smallIcon>icons/ImageView16.gif</smallIcon>
+            <largeIcon>icons/ImageView24.gif</largeIcon>
+            <helpId>imageView</helpId>
+        </action>
+
+        <action>
             <id>showImageViewRGB</id>
             <class>org.esa.beam.visat.actions.ShowImageViewRGBAction</class>
             <placeAfter>showImageView</placeAfter>

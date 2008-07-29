@@ -93,7 +93,7 @@ public class CreateElevationBandAction extends ExecCommand {
                     final Band band;
                     try {
                         band = get();
-                        VisatApp.getApp().openProductSceneView(band, getHelpId());
+                        VisatApp.getApp().openProductSceneView(band);
                     } catch (Exception e) {
                         VisatApp.getApp().showErrorDialog(DIALOG_TITLE,
                                                           "An internal Error occured:\n" + e.getMessage());
