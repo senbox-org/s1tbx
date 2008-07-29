@@ -1663,7 +1663,7 @@ public class VisatApp extends BasicApp {
             }
             final JInternalFrame[] frames = findInternalFrames(raster, 1);
             if (frames.length > 0) {
-                final ProductSceneView42 view = (ProductSceneView42) frames[0].getContentPane();
+                final ProductSceneView view = (ProductSceneView) frames[0].getContentPane();
                 productSceneImage = ProductSceneImage.create(raster, view);
             } else {
                 productSceneImage = ProductSceneImage.create(raster, SubProgressMonitor.create(pm, 1));

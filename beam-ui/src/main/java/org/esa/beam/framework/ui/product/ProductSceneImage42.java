@@ -32,23 +32,23 @@ import java.awt.*;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 
-public class ProductSceneImage42 extends ProductSceneImage {
+class ProductSceneImage42 extends ProductSceneImage {
 
     private Rectangle modelArea;
     private LayerModel layerModel;
 
-    public ProductSceneImage42(RasterDataNode raster, ProductSceneView42 view) throws IOException {
+    ProductSceneImage42(RasterDataNode raster, ProductSceneView42 view) throws IOException {
         super(raster.getDisplayName(), new RasterDataNode[]{raster}, view.getImageInfo());
         layerModel = view.getLayerModel();
         setBaseImage(((RenderedImageLayer) layerModel.getLayer(0)).getImage());
         initModelArea();
     }
 
-    public ProductSceneImage42(RasterDataNode raster, ProgressMonitor pm) throws IOException {
+    ProductSceneImage42(RasterDataNode raster, ProgressMonitor pm) throws IOException {
         this(raster.getDisplayName(), new RasterDataNode[]{raster}, raster.getImageInfo(), pm);
     }
 
-    public ProductSceneImage42(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) throws IOException {
+    ProductSceneImage42(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) throws IOException {
         this("RGB", rasterDataNodes, null, pm);
     }
 

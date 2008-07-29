@@ -14,16 +14,16 @@ import org.esa.beam.framework.datamodel.ImageInfo;
  * @author Norman Fomferra
  * @version $revision$ $date$
  */
-public class ProductSceneImage45 extends ProductSceneImage {
-    public ProductSceneImage45(RasterDataNode raster, ProductSceneView45 view) throws IOException {
+class ProductSceneImage45 extends ProductSceneImage {
+    ProductSceneImage45(RasterDataNode raster, ProductSceneView45 view) throws IOException {
         super(raster.getDisplayName(), new RasterDataNode[]{raster}, view.getImageInfo());
     }
 
-    public ProductSceneImage45(RasterDataNode raster, ProgressMonitor pm) throws IOException {
+    ProductSceneImage45(RasterDataNode raster, ProgressMonitor pm) throws IOException {
         this(raster.getDisplayName(), new RasterDataNode[]{raster}, raster.getImageInfo(), pm);
     }
 
-    public ProductSceneImage45(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) throws IOException {
+    ProductSceneImage45(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) throws IOException {
         this("RGB", rasterDataNodes, null, pm);
     }
 

@@ -23,7 +23,6 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ApplicationPage;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
-import org.esa.beam.framework.ui.product.ProductSceneView42;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.PropertyMap;
@@ -345,7 +344,7 @@ public class NavigationToolView extends AbstractToolView {
         final JInternalFrame[] internalFrames = VisatApp.getApp().getAllInternalFrames();
         for (final JInternalFrame internalFrame : internalFrames) {
             if (internalFrame.getContentPane() instanceof ProductSceneView) {
-                final ProductSceneView42 view = (ProductSceneView42) internalFrame.getContentPane();
+                final ProductSceneView view = (ProductSceneView) internalFrame.getContentPane();
                 if (view != currentView) {
                     currentView.synchronizeViewport(view);
                 }

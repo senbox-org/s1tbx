@@ -22,8 +22,8 @@ import javax.swing.*;
  * @author Norman Fomferra
  * @version $revision$ $date$
  */
-public class ProductSceneView45 extends ProductSceneView {
-    public ProductSceneView45(ProductSceneImage45 sceneImage) {
+class ProductSceneView45 extends ProductSceneView {
+    ProductSceneView45(ProductSceneImage45 sceneImage) {
         super(sceneImage);
     }
 
@@ -160,7 +160,7 @@ public class ProductSceneView45 extends ProductSceneView {
         // todo - implement me!
     }
 
-    public void synchronizeViewport(ProductSceneView42 view) {
+    public void synchronizeViewport(ProductSceneView view) {
         // todo - implement me!
     }
 

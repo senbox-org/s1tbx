@@ -4,21 +4,15 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.PixelInfoView;
 import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
-import org.esa.beam.framework.ui.product.ProductSceneView42;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JInternalFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -94,7 +88,7 @@ public class PixelInfoToolView extends AbstractToolView {
         for (JInternalFrame internalFrame : internalFrames) {
             Container contentPane = internalFrame.getContentPane();
             if (contentPane instanceof ProductSceneView) {
-                initView((ProductSceneView42) contentPane);
+                initView((ProductSceneView) contentPane);
             }
         }
     }
@@ -184,7 +178,7 @@ public class PixelInfoToolView extends AbstractToolView {
         public void internalFrameOpened(InternalFrameEvent e) {
             Container contentPane = e.getInternalFrame().getContentPane();
             if (contentPane instanceof ProductSceneView) {
-                initView((ProductSceneView42) contentPane);
+                initView((ProductSceneView) contentPane);
             }
         }
 

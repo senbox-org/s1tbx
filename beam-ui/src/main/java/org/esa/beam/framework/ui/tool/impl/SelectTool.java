@@ -21,7 +21,7 @@ import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 
 /**
- * A tool used to select items in a {@link org.esa.beam.framework.ui.product.ProductSceneView42}.
+ * A tool used to select items in a {@link org.esa.beam.framework.ui.product.ProductSceneView}.
  */
 public class SelectTool extends AbstractTool {
     public static final String SELECT_TOOL_PROPERTY_NAME = "selectTool";

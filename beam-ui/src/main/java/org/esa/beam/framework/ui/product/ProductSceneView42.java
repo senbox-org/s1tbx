@@ -54,11 +54,11 @@ import java.util.ArrayList;
  * <p>It is also capable of displaying a graticule (geographical grid) and a ROI associated with a displayed raster
  * dataset.
  */
-public class ProductSceneView42 extends ProductSceneView {
+class ProductSceneView42 extends ProductSceneView {
 
     private ImageDisplay imageDisplay;
 
-    public ProductSceneView42(ProductSceneImage42 sceneImage) {
+    ProductSceneView42(ProductSceneImage42 sceneImage) {
         super(sceneImage);
         Assert.notNull(sceneImage, "sceneImage");
         setLayerModel(sceneImage.getLayerModel());
@@ -84,7 +84,7 @@ public class ProductSceneView42 extends ProductSceneView {
         });
     }
 
-    public ProductSceneImage42 getSceneImage42() {
+    ProductSceneImage42 getSceneImage42() {
         return (ProductSceneImage42) getSceneImage();
     }
 
@@ -200,15 +200,14 @@ public class ProductSceneView42 extends ProductSceneView {
         getViewModel().setModelOffset(modelOffsetX, modelOffsetY);
     }
 
-    public void synchronizeViewport(ProductSceneView42 view) {
+    public void synchronizeViewport(ProductSceneView view) {
         final Product currentProduct = getRaster().getProduct();
         final Product otherProduct = view.getRaster().getProduct();
         if (otherProduct == currentProduct ||
                 otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
-            view.setModelOffset(
-                    getViewModel().getModelOffsetX(),
-                    getViewModel().getModelOffsetY(),
-                    getViewScale());
+            ((ProductSceneView42) view).setModelOffset(getViewModel().getModelOffsetX(),
+                                                       getViewModel().getModelOffsetY(),
+                                                       getViewScale());
         }
 
     }

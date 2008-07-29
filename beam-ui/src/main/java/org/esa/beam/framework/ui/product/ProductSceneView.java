@@ -448,7 +448,7 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
     @Deprecated
     public abstract void setModelOffset(double modelOffsetX, double modelOffsetY);
 
-    public abstract void synchronizeViewport(ProductSceneView42 view);
+    public abstract void synchronizeViewport(ProductSceneView view);
 
     public abstract RenderedImage getBaseImage();
 
