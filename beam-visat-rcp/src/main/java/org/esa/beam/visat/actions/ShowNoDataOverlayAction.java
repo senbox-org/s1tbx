@@ -148,7 +148,7 @@ public class ShowNoDataOverlayAction extends ExecCommand {
             Debug.trace("updateNoDataLayer: clearing image for raster '" + noDataLayer.getRaster().getName() + "'");
             noDataLayer.setImage(null);
         }
-        noDataLayer.setVisible(isNoDataOverlaySelected());
+        psv.setNoDataOverlayEnabled(isNoDataOverlaySelected());
     }
 
     private boolean isNoDataOverlaySelected() {
