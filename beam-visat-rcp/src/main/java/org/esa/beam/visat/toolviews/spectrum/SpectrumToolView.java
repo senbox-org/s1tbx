@@ -567,7 +567,7 @@ public class SpectrumToolView extends AbstractToolView {
         }
 
         private boolean isActive() {
-            return isVisible() && isShowingCursorSpectrum();
+            return isVisible() && isShowingCursorSpectrum() && getSpectraDiagram() != null;
         }
 
     }
