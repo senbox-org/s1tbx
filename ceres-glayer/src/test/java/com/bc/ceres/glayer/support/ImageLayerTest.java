@@ -1,14 +1,16 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.glayer.ImagingTestCase;
-import com.bc.ceres.glayer.support.ImageLayer;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import static com.bc.ceres.glayer.Assert2D.*;
 
 import javax.media.jai.TiledImage;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
-public class ImageLayerTest extends ImagingTestCase {
+public class ImageLayerTest  {
+    @Test
     public void testConstructors() {
         ImageLayer layer;
         final TiledImage image = new TiledImage(new BufferedImage(320, 200, BufferedImage.TYPE_BYTE_GRAY), true);
@@ -32,6 +34,7 @@ public class ImageLayerTest extends ImagingTestCase {
         assertEquals(false, layer.isConcurrent());
     }
 
+    @Test
     public void testBoundingBox() {
         ImageLayer layer;
         final TiledImage image = new TiledImage(new BufferedImage(320, 200, BufferedImage.TYPE_BYTE_GRAY), true);

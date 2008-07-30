@@ -1,23 +1,22 @@
 package com.bc.ceres.grender.support;
 
-import junit.framework.TestCase;
-
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.geom.Rectangle2D;
-
-import com.bc.ceres.grender.support.BufferedImageRendering;
-import com.bc.ceres.glayer.support.ShapeLayer;
 import com.bc.ceres.glayer.support.ImageLayer;
+import junit.framework.TestCase;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import static com.bc.ceres.glayer.Assert2D.*;
+
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 
 
-public class BufferedImageRenderingTest extends TestCase {
+public class BufferedImageRenderingTest  {
     public void testViewIsAnImage() {
-        BufferedImage bi = new BufferedImage(2,2, BufferedImage.TYPE_INT_BGR);
-        bi.setRGB(0,0, Color.ORANGE.getRGB());
-        bi.setRGB(0,1, Color.BLUE.getRGB());
-        bi.setRGB(1,0, Color.GREEN.getRGB());
-        bi.setRGB(1,1, Color.YELLOW.getRGB());
+        BufferedImage bi = new BufferedImage(2, 2, BufferedImage.TYPE_INT_BGR);
+        bi.setRGB(0, 0, Color.ORANGE.getRGB());
+        bi.setRGB(0, 1, Color.BLUE.getRGB());
+        bi.setRGB(1, 0, Color.GREEN.getRGB());
+        bi.setRGB(1, 1, Color.YELLOW.getRGB());
 
         final BufferedImageRendering rendering = new BufferedImageRendering(2, 2);
         ImageLayer il = new ImageLayer(bi);

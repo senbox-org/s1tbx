@@ -32,7 +32,13 @@ public class Layer {
     private StylePCL stylePCL;
 
     /**
-     * Constructor.
+     * Constructor. The following default properties are used:
+     * <ul>
+     * <li>{@code name = getClass().getName()}</li>
+     * <li>{@code visible = true}</li>
+     * <li>{@code style.opcacity = 1.0}</li>
+     * <li>{@code style.composite = }{@link Composite#SRC_OVER}</li>
+     * </ul>
      */
     public Layer() {
         parentLayer = null;

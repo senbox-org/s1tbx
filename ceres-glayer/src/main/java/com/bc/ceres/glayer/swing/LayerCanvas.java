@@ -122,9 +122,10 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 
     @Override
     protected void paintComponent(Graphics g) {
-// dont need to paint background, because I am not opaque and neither is my parent  (todo - make sure!)
-//        g.setColor(getBackground());
-//        g.fillRect(getX(), getY(), getWidth(), getHeight());
+        if (isOpaque()) {
+            g.setColor(getBackground());
+            g.fillRect(getX(), getY(), getWidth(), getHeight());
+        }
 
         // ensure clipping is set
         if (g.getClipBounds() == null) {

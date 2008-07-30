@@ -1,15 +1,18 @@
 package com.bc.ceres.grender.support;
 
-import com.bc.ceres.glayer.ImagingTestCase;
-import com.bc.ceres.grender.support.DefaultViewport;
+import static com.bc.ceres.glayer.Assert2D.assertEquals;
 import com.bc.ceres.grender.Viewport;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import org.junit.Test;
 
-import java.awt.*;
+import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
-public class DefaultViewportTest extends ImagingTestCase {
+public class DefaultViewportTest {
 
+    @Test
     public void testDefaultSettings() {
         final DefaultViewport viewport = new DefaultViewport();
         assertEquals(new AffineTransform(), viewport.getModelToViewTransform());
@@ -18,6 +21,7 @@ public class DefaultViewportTest extends ImagingTestCase {
         assertEquals(1.0, viewport.getZoomFactor());
     }
 
+    @Test
     public void testTransformsAreNotLife() {
         final DefaultViewport viewport = new DefaultViewport();
 
@@ -33,6 +37,7 @@ public class DefaultViewportTest extends ImagingTestCase {
         assertNotSame(v2u, viewport.getViewToModelTransform());
     }
 
+    @Test
     public void testInverse() {
         final DefaultViewport viewport = new DefaultViewport();
 
@@ -51,6 +56,7 @@ public class DefaultViewportTest extends ImagingTestCase {
         assertEquals(p(0.0, 0.0), t(viewport.getViewToModelTransform(), p(150, -10)));
     }
 
+    @Test
     public void testMove() {
         final DefaultViewport viewport = new DefaultViewport();
         viewport.move(15.0, 10.0);
@@ -59,6 +65,7 @@ public class DefaultViewportTest extends ImagingTestCase {
         assertEquals(p(0.0, 0.0), getModelOffset(viewport));
     }
 
+    @Test
     public void testZooming() {
         final DefaultViewport viewport = new DefaultViewport();
         Point2D vc, uc;
@@ -100,6 +107,7 @@ public class DefaultViewportTest extends ImagingTestCase {
         assertEquals(uc, t(viewport.getViewToModelTransform(), vc));
     }
 
+    @Test
     public void testRelativeZoomWithAffineTransform() {
         Point2D vc; // zoom center in view CS
         final Point2D v0 = p(0, 0);

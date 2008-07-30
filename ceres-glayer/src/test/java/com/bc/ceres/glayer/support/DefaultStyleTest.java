@@ -1,16 +1,14 @@
 package com.bc.ceres.glayer.support;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import static com.bc.ceres.glayer.Assert2D.*;
 
 import com.bc.ceres.glayer.TracingPropertyChangeListener;
 
-/**
- * TODO - Apidoc
- *
- * @author Norman Fomferra
- * @version $revision$ $date$
- */
-public class DefaultStyleTest extends TestCase {
+
+public class DefaultStyleTest  {
+    @Test
     public void testDefaultStyle() {
 
         final TracingPropertyChangeListener pcl0 = new TracingPropertyChangeListener();

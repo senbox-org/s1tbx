@@ -1,14 +1,16 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.glayer.ImagingTestCase;
-import com.bc.ceres.glayer.support.ShapeLayer;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import static com.bc.ceres.glayer.Assert2D.*;
 
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 
-public class ShapeLayerTest extends ImagingTestCase {
+public class ShapeLayerTest  {
+    @Test
     public void testConstructors() {
         ShapeLayer layer;
 
@@ -27,6 +29,7 @@ public class ShapeLayerTest extends ImagingTestCase {
         assertEquals(AffineTransform.getTranslateInstance(-100, -200), layer.getModelToShapeTransform());
     }
 
+    @Test
     public void testBoundingBox() {
         ShapeLayer layer;
 

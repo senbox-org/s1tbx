@@ -1,19 +1,23 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.glayer.ImagingTestCase;
+import com.bc.ceres.glayer.Assert2D;
 import com.bc.ceres.glayer.TracingLayerListener;
-import com.bc.ceres.glayer.support.BackgroundLayer;
-import com.bc.ceres.glayer.support.AbstractLayerListener;
 
-import java.awt.*;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import static com.bc.ceres.glayer.Assert2D.*;
 
-public class BackgroundLayerTest extends ImagingTestCase {
+import java.awt.Color;
+
+public class BackgroundLayerTest  {
+    @Test
     public void testConstructor() {
         BackgroundLayer layer = new BackgroundLayer(Color.BLUE);
         assertEquals(Color.BLUE, layer.getPaint());
         assertNull(layer.getBounds());
     }
 
+    @Test
     public void testStyleProperties() {
         BackgroundLayer layer = new BackgroundLayer(Color.WHITE);
         assertEquals(Color.WHITE, layer.getPaint());

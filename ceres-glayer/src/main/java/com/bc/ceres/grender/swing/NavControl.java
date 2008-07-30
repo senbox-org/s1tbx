@@ -333,7 +333,12 @@ public class NavControl extends JComponent {
             if (mode == 1) {
                 double a1 = getAngle(point0);
                 double a2 = getAngle(e.getPoint());
-                final double a = Math.toDegrees(normaliseAngle(Math.toRadians(rotationAngle0) + (a2 - a1)));
+                double a = Math.toDegrees(normaliseAngle(Math.toRadians(rotationAngle0) + (a2 - a1)));
+                if (e.isControlDown()) {
+                    double t = 0.5 * 45.0;
+                    a = t * Math.floor(a / t);
+                }
+
                 setRotationAngle(a);
                 repaint();
                 fireRotate(a);
