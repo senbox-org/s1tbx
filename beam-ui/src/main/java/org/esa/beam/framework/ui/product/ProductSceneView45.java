@@ -1,6 +1,7 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glayer.swing.LayerCanvas;
 
 import java.awt.image.RenderedImage;
 import java.awt.geom.AffineTransform;
@@ -16,15 +17,14 @@ import org.esa.beam.util.PropertyMap;
 
 import javax.swing.*;
 
-/**
- * TODO - Apidoc
- *
- * @author Norman Fomferra
- * @version $revision$ $date$
- */
 class ProductSceneView45 extends ProductSceneView {
+
+    LayerCanvas layerCanvas; 
+
     ProductSceneView45(ProductSceneImage45 sceneImage) {
         super(sceneImage);
+        // layerCanvas = new LayerCanvas(sceneImage.getLayer());
+
     }
 
     public boolean isNoDataOverlayEnabled() {

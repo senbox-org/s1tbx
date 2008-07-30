@@ -47,13 +47,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 
-/**
- * The class <code>ProductSceneView</code> is a high-level image display component for color index/RGB images created
- * from one or more raster datasets of a data product.
- * <p/>
- * <p>It is also capable of displaying a graticule (geographical grid) and a ROI associated with a displayed raster
- * dataset.
- */
 class ProductSceneView42 extends ProductSceneView {
 
     private ImageDisplay imageDisplay;

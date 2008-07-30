@@ -1,7 +1,7 @@
 package org.esa.beam.pview;
 
 import com.bc.ceres.binio.Format;
-import com.bc.ceres.glayer.CollectionLayer;
+import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.grender.swing.ViewportScrollPane;
@@ -119,7 +119,7 @@ public class PView {
         final double aspectRatio = (double) product.getSceneRasterWidth() / product.getSceneRasterHeight();
         boolean worldMode = aspectRatio == 2.0;
 
-        final CollectionLayer rootLayer = new CollectionLayer();
+        final Layer rootLayer = new Layer();
         rootLayer.setName("Root");
 
         AffineTransform i2m = createImageToModelTransform(product, worldMode);
@@ -143,16 +143,16 @@ public class PView {
                 || product.getProductType().startsWith("MER_FR__1P")
                 || product.getProductType().startsWith("MER_FRS_1P")) {
             setMerisL1bRois(product);
-            rootLayer.add(createMerisL1bRgbLayers(product, i2m));
+            rootLayer.getChildLayers().add(createMerisL1bRgbLayers(product, i2m));
         }
         setSomePlacemarks(product);
 
-        addNonEmptyCollectionLayer(rootLayer, createPlacemarksCollectionLayer(product, i2m));
-        addNonEmptyCollectionLayer(rootLayer, createBitmasksCollectionLayer(product, i2m));
-        addNonEmptyCollectionLayer(rootLayer, createRoiLayers(product, i2m));
-        addNonEmptyCollectionLayer(rootLayer, createNoDataMasksCollectionLayer(product, i2m));
-        addNonEmptyCollectionLayer(rootLayer, createBandsCollectionLayer(product, i2m));
-        addNonEmptyCollectionLayer(rootLayer, createTiePointsCollectionLayer(product, i2m));
+        addNonEmptyLayer(rootLayer, createPlacemarksLayer(product, i2m));
+        addNonEmptyLayer(rootLayer, createBitmasksLayer(product, i2m));
+        addNonEmptyLayer(rootLayer, createRoiLayers(product, i2m));
+        addNonEmptyLayer(rootLayer, createNoDataMasksLayer(product, i2m));
+        addNonEmptyLayer(rootLayer, createBandsLayer(product, i2m));
+        addNonEmptyLayer(rootLayer, createTiePointsLayer(product, i2m));
 
         if (worldMode) {
             String dirPath = System.getProperty(WORLD_IMAGE_DIR_PROPERTY_NAME);
@@ -164,15 +164,15 @@ public class PView {
                 layer.setName("World");
                 layer.setVisible(true);
                 layer.setConcurrent(true);
-                rootLayer.add(layer);
+                rootLayer.getChildLayers().add(layer);
             }
         }
         openFrame(productFile, rootLayer);
     }
 
-    private void addNonEmptyCollectionLayer(CollectionLayer rootLayer, CollectionLayer childLayer) {
-        if (!childLayer.isEmpty()) {
-            rootLayer.add(childLayer);
+    private void addNonEmptyLayer(Layer rootLayer, Layer childLayer) {
+        if (!childLayer.getChildLayers().isEmpty()) {
+            rootLayer.getChildLayers().add(childLayer);
         }
     }
 
@@ -273,29 +273,32 @@ public class PView {
         product.getBandAt(5).setROIDefinition(roiDef);
     }
 
-    private static CollectionLayer createMerisL1bRgbLayers(Product product, AffineTransform i2m) {
-        final CollectionLayer collectionLayer = new CollectionLayer();
+    private static Layer createMerisL1bRgbLayers(Product product, AffineTransform i2m) {
+        final Layer collectionLayer = new Layer();
         collectionLayer.setName("RGB");
-        collectionLayer.add(createRgbLayer("RGB 751", new RasterDataNode[]{
+        Layer l2 = createRgbLayer("RGB 751", new RasterDataNode[]{
                 product.getBand("radiance_7"),
                 product.getBand("radiance_5"),
                 product.getBand("radiance_1"),
-        }, i2m));
-        collectionLayer.add(createRgbLayer("RGB 742", new RasterDataNode[]{
+        }, i2m);
+        collectionLayer.getChildLayers().add(l2);
+        Layer l1 = createRgbLayer("RGB 742", new RasterDataNode[]{
                 product.getBand("radiance_7"),
                 product.getBand("radiance_4"),
                 product.getBand("radiance_2"),
-        }, i2m));
-        collectionLayer.add(createRgbLayer("RGB 931", new RasterDataNode[]{
+        }, i2m);
+        collectionLayer.getChildLayers().add(l1);
+        Layer l = createRgbLayer("RGB 931", new RasterDataNode[]{
                 product.getBand("radiance_9"),
                 product.getBand("radiance_3"),
                 product.getBand("radiance_1"),
-        }, i2m));
+        }, i2m);
+        collectionLayer.getChildLayers().add(l);
         return collectionLayer;
     }
 
-    private static CollectionLayer createRoiLayers(Product product, AffineTransform i2m) {
-        final CollectionLayer collectionLayer = new CollectionLayer();
+    private static Layer createRoiLayers(Product product, AffineTransform i2m) {
+        final Layer collectionLayer = new Layer();
         collectionLayer.setName("ROIs");
         final String[] names = product.getBandNames();
         for (final String name : names) {
@@ -307,7 +310,7 @@ public class PView {
                 imageLayer.setVisible(false);
                 imageLayer.getStyle().setOpacity(0.5);
                 imageLayer.setConcurrent(true);
-                collectionLayer.add(imageLayer);
+                collectionLayer.getChildLayers().add(imageLayer);
             }
         }
         return collectionLayer;
@@ -321,8 +324,8 @@ public class PView {
         return imageLayer;
     }
 
-    private static CollectionLayer createBitmasksCollectionLayer(Product product, AffineTransform i2m) {
-        final CollectionLayer collectionLayer = new CollectionLayer();
+    private static Layer createBitmasksLayer(Product product, AffineTransform i2m) {
+        final Layer collectionLayer = new Layer();
         collectionLayer.setName("Bitmasks");
         final BitmaskDef[] bitmaskDefs = product.getBitmaskDefs();
         for (BitmaskDef bitmaskDef : bitmaskDefs) {
@@ -333,13 +336,13 @@ public class PView {
             imageLayer.setVisible(false);
             imageLayer.setConcurrent(true);
             imageLayer.getStyle().setOpacity(bitmaskDef.getAlpha());
-            collectionLayer.add(imageLayer);
+            collectionLayer.getChildLayers().add(imageLayer);
         }
         return collectionLayer;
     }
 
-    private static CollectionLayer createBandsCollectionLayer(Product product, AffineTransform i2m) {
-        final CollectionLayer collectionLayer = new CollectionLayer();
+    private static Layer createBandsLayer(Product product, AffineTransform i2m) {
+        final Layer collectionLayer = new Layer();
         collectionLayer.setName("Bands");
         final String[] names = product.getBandNames();
         for (int i = 0; i < names.length; i++) {
@@ -349,26 +352,26 @@ public class PView {
             imageLayer.setName(band.getName());
             imageLayer.setVisible(i == 0);
             imageLayer.setConcurrent(true);
-            collectionLayer.add(imageLayer);
+            collectionLayer.getChildLayers().add(imageLayer);
         }
 
-        if (!collectionLayer.isEmpty()) {
+        if (!collectionLayer.getChildLayers().isEmpty()) {
             String[] bandNames = new String[]{"radiance_13", "reflec_13"};
             boolean found = false;
             for (int i = 0; i < bandNames.length && !found; i++) {
                 int bandIndex = product.getBandIndex(bandNames[i]);
                 if (bandIndex != -1) {
-                    collectionLayer.get(bandIndex).setVisible(true);
+                    collectionLayer.getChildLayers().get(bandIndex).setVisible(true);
                     found = true;
                 }
             }
-            collectionLayer.get(0).setVisible(!found);
+            collectionLayer.getChildLayers().get(0).setVisible(!found);
         }
         return collectionLayer;
     }
 
-    private static CollectionLayer createNoDataMasksCollectionLayer(Product product, AffineTransform i2m) {
-        final CollectionLayer collectionLayer = new CollectionLayer();
+    private static Layer createNoDataMasksLayer(Product product, AffineTransform i2m) {
+        final Layer collectionLayer = new Layer();
         collectionLayer.setName("No-Data Masks");
         final String[] names = product.getBandNames();
         for (final String name : names) {
@@ -381,14 +384,14 @@ public class PView {
                 imageLayer.setVisible(false);
                 imageLayer.getStyle().setOpacity(0.5);
                 imageLayer.setConcurrent(true);
-                collectionLayer.add(imageLayer);
+                collectionLayer.getChildLayers().add(imageLayer);
             }
         }
         return collectionLayer;
     }
 
-    private static CollectionLayer createTiePointsCollectionLayer(Product product, AffineTransform i2m) {
-        final CollectionLayer collectionLayer = new CollectionLayer();
+    private static Layer createTiePointsLayer(Product product, AffineTransform i2m) {
+        final Layer collectionLayer = new Layer();
         collectionLayer.setName("Tie-Point Grids");
         final String[] names = product.getTiePointGridNames();
         for (final String name : names) {
@@ -397,13 +400,13 @@ public class PView {
             imageLayer.setName(tiePointGrid.getName());
             imageLayer.setVisible(false);
             imageLayer.setConcurrent(true);
-            collectionLayer.add(imageLayer);
+            collectionLayer.getChildLayers().add(imageLayer);
         }
         return collectionLayer;
     }
 
-    private static CollectionLayer createPlacemarksCollectionLayer(Product product, AffineTransform i2m) {
-        final CollectionLayer collectionLayer = new CollectionLayer();
+    private static Layer createPlacemarksLayer(Product product, AffineTransform i2m) {
+        final Layer collectionLayer = new Layer();
         collectionLayer.setName("Placemarks");
 
         if (product.getGeoCoding() != null) {
@@ -411,13 +414,13 @@ public class PView {
             pinLayer.setName("Pins");
             pinLayer.setVisible(false);
             pinLayer.setTextEnabled(true);
-            collectionLayer.add(pinLayer);
+            collectionLayer.getChildLayers().add(pinLayer);
 
             final org.esa.beam.glayer.PlacemarkLayer gcpLayer = new org.esa.beam.glayer.PlacemarkLayer(product, GcpDescriptor.INSTANCE, i2m);
             gcpLayer.setName("GCPs");
             gcpLayer.setVisible(false);
             gcpLayer.setTextEnabled(false);
-            collectionLayer.add(gcpLayer);
+            collectionLayer.getChildLayers().add(gcpLayer);
         }
 
         return collectionLayer;
@@ -428,7 +431,7 @@ public class PView {
         return worldMode ? AffineTransform.getScaleInstance(360.0 / product.getSceneRasterWidth(), 180.0 / product.getSceneRasterHeight()) : new AffineTransform();
     }
 
-    private void openFrame(final File file, final CollectionLayer collectionLayer) {
+    private void openFrame(final File file, final Layer collectionLayer) {
         final int initialViewWidth = 800;
         final int initialViewHeight = 800;
 

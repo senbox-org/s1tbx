@@ -1,7 +1,7 @@
 package org.esa.beam.pview;
 
 import com.bc.ceres.glayer.Composite;
-import com.bc.ceres.glayer.*;
+import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.glayer.support.LayerStyleListener;
 import com.jidesoft.icons.IconsFactory;
@@ -18,12 +18,14 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
+import java.util.List;
 
 class LayerManager {
     private JSlider transparencySlider;
@@ -31,9 +33,9 @@ class LayerManager {
     private boolean adjusting;
     private JPanel control;
     private CheckBoxTree layerTree;
-    private final CollectionLayer rootLayer;
+    private final Layer rootLayer;
 
-    public LayerManager(CollectionLayer rootLayer) {
+    public LayerManager(Layer rootLayer) {
         this.rootLayer = rootLayer;
         layerTree = createCheckBoxTree(rootLayer);
         initSelection(rootLayer);
@@ -76,7 +78,7 @@ class LayerManager {
         });
 
         rootLayer.addListener(new AbstractLayerListener() {
-        
+
         });
 
         rootLayer.addListener(new LayerStyleListener() {
@@ -147,14 +149,14 @@ class LayerManager {
     }
 
     private void updateLayerStyleUI(Layer layer) {
-        final double transparency = 1- layer.getStyle().getOpacity();
+        final double transparency = 1 - layer.getStyle().getOpacity();
         final int n = (int) Math.round(100.0 * transparency);
         transparencySlider.setValue(n);
 
         alphaCompositeBox.setSelectedItem(layer.getStyle().getComposite());
     }
 
-    public CollectionLayer getRootLayer() {
+    public Layer getRootLayer() {
         return rootLayer;
     }
 
@@ -162,7 +164,7 @@ class LayerManager {
         return control;
     }
 
-    public static void showLayerManager(final JFrame frame, String title, CollectionLayer collectionLayer, Point point) {
+    public static void showLayerManager(final JFrame frame, String title, Layer collectionLayer, Point point) {
         final LayerManager layerManager = new LayerManager(collectionLayer);
         final JDialog lm = new JDialog(frame, title, false);
         lm.getContentPane().add(layerManager.getControl(), BorderLayout.CENTER);
@@ -184,8 +186,8 @@ class LayerManager {
     }
 
 
-    private CheckBoxTree createCheckBoxTree(CollectionLayer rootLayer) {
-        CollectionLayerTreeModel layerTreeModel = new CollectionLayerTreeModel(rootLayer);
+    private CheckBoxTree createCheckBoxTree(Layer rootLayer) {
+        LayerTreeModel layerTreeModel = new LayerTreeModel(rootLayer);
         final CheckBoxTree tree = new CheckBoxTree(layerTreeModel);
         tree.setRootVisible(false);
         tree.setShowsRootHandles(true);
@@ -217,16 +219,15 @@ class LayerManager {
         return tree;
     }
 
-    private void initSelection(CollectionLayer rootLayer) {
-        for (Layer layer : rootLayer) {
-            if (layer instanceof CollectionLayer) {
-                initSelection((CollectionLayer) layer);
-            } else {
-                final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) TreeUtils.findTreeNode(layerTree, layer);
-                doSelection(treeNode, layer.isVisible());
-            }
+    private void initSelection(Layer layer) {
+        final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) TreeUtils.findTreeNode(layerTree, layer);
+        doSelection(treeNode, layer.isVisible());
 
+        final List<Layer> childLayers = layer.getChildLayers();
+        for (Layer childLayer : childLayers) {
+            initSelection(childLayer);
         }
+
 
     }
 
