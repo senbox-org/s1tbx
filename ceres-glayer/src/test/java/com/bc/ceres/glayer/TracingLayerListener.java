@@ -15,11 +15,11 @@ public class TracingLayerListener implements LayerListener {
         trace += "data " + region + ";";
     }
 
-    public void handleLayersAdded(CollectionLayer parentLayer, Layer[] layers) {
-        trace += "added " + layers.length + ";";
+    public void handleLayersAdded(Layer parentLayer, Layer[] childLayers) {
+        trace += "added " + childLayers.length + ";";
     }
 
-    public void handleLayersRemoved(CollectionLayer parentLayer, Layer[] layers) {
-        trace += "removed " + layers.length + ";";
+    public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
+        trace += "removed " + childLayers.length + ";";
     }
 }

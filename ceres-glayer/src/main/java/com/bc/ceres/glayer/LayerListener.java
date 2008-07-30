@@ -28,15 +28,15 @@ public interface LayerListener {
      * Called if a new layer has been added to a collection layer.
      *
      * @param parentLayer The parent layer which triggered the change.
-     * @param layers      The layers added.
+     * @param childLayers The child layers added.
      */
-    void handleLayersAdded(CollectionLayer parentLayer, Layer[] layers);
+    void handleLayersAdded(Layer parentLayer, Layer[] childLayers);
 
     /**
      * Called if an existing layer has been removed from a collection layer.
      *
      * @param parentLayer The parent layer which triggered the change.
-     * @param layers      The layers removed.
+     * @param childLayers The child layers removed.
      */
-    void handleLayersRemoved(CollectionLayer parentLayer, Layer[] layers);
+    void handleLayersRemoved(Layer parentLayer, Layer[] childLayers);
 }

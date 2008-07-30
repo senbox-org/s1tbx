@@ -1,6 +1,5 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerListener;
 import com.bc.ceres.glayer.Style;
@@ -45,10 +44,10 @@ public abstract class LayerViewInvalidationListener implements LayerListener {
      * Called if a new layer has been added to a collection layer.
      *
      * @param parentLayer The parent layer.
-     * @param layers      The layers added.
+     * @param childLayers
      */
     @Override
-    public void handleLayersAdded(CollectionLayer parentLayer, Layer[] layers) {
+    public void handleLayersAdded(Layer parentLayer, Layer[] childLayers) {
         // todo - region = union of bounds of all layers
         handleViewInvalidation(parentLayer, null);
     }
@@ -57,10 +56,10 @@ public abstract class LayerViewInvalidationListener implements LayerListener {
      * Called if an existing layer has been removed from a collection layer.
      *
      * @param parentLayer The parent layer.
-     * @param layers      The layers removed.
+     * @param childLayers
      */
     @Override
-    public void handleLayersRemoved(CollectionLayer parentLayer, Layer[] layers) {
+    public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
         // todo - region = union of bounds of all layers
         handleViewInvalidation(parentLayer, null);
     }

@@ -7,15 +7,16 @@ package com.bc.ceres.glayer;
  * @version $revision$ $date$
  */
 public class LayerContext {
-    CollectionLayer layer;
+
+    Layer layer;
     Object coordinateSystem;
 
-    public LayerContext(CollectionLayer layer, Object coordinateSystem) {
+    public LayerContext(Layer layer, Object coordinateSystem) {
         this.layer = layer;
         this.coordinateSystem = coordinateSystem;
     }
 
-    public CollectionLayer getLayer() {
+    public Layer getLayer() {
         return layer;
     }
 

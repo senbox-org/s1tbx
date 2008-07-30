@@ -1,6 +1,64 @@
 package com.bc.ceres.glayer;
 
+import com.bc.ceres.glayer.support.ShapeLayer;
+import com.bc.ceres.grender.Rendering;
+import com.bc.ceres.grender.support.BufferedImageRendering;
+
+import java.awt.*;
+
 public class LayerTest extends ImagingTestCase {
+
+    public void testConstructor() {
+        final Layer cl = new Layer();
+        assertEquals(true, cl.getChildLayers().isEmpty());
+        assertEquals(0, cl.getChildLayers().size());
+        assertNull(cl.getBounds());
+    }
+
+    public void testBounds() {
+        final Layer cl = new Layer();
+        cl.getChildLayers().add(new ShapeLayer(new Shape[]{new Rectangle(-20, 10, 30, 50)}));
+        cl.getChildLayers().add(new ShapeLayer(new Shape[]{new Rectangle(-10, 20, 20, 60)}));
+        cl.getChildLayers().add(new ShapeLayer(new Shape[]{new Rectangle(0, 0, 40, 50)}));
+        assertNotNull(cl.getBounds());
+        assertEquals(new Rectangle(-20, 0, 60, 80), cl.getBounds());
+    }
+
+    public void testRenderRecognisesVisibileState() {
+        final Layer cl = new Layer();
+        final TestLayer l1 = new TestLayer();
+        final TestLayer l2 = new TestLayer();
+        final TestLayer l3 = new TestLayer();
+
+        cl.getChildLayers().add(l1);
+        cl.getChildLayers().add(l2);
+        cl.getChildLayers().add(l3);
+
+        final Rendering rendering = new BufferedImageRendering(16, 16);
+        cl.render(rendering);
+        assertEquals(1, l1.renderCount);
+        assertEquals(1, l2.renderCount);
+        assertEquals(1, l3.renderCount);
+
+        l2.setVisible(false);
+        cl.render(rendering);
+        assertEquals(2, l1.renderCount);
+        assertEquals(1, l2.renderCount);
+        assertEquals(2, l3.renderCount);
+
+        l3.setVisible(false);
+        cl.render(rendering);
+        assertEquals(3, l1.renderCount);
+        assertEquals(1, l2.renderCount);
+        assertEquals(2, l3.renderCount);
+
+        cl.setVisible(false);
+        cl.render(rendering);
+        assertEquals(3, l1.renderCount);
+        assertEquals(1, l2.renderCount);
+        assertEquals(2, l3.renderCount);
+    }
+
 
     public void testInheritedProperties() {
         final TestLayer layer = new TestLayer();
@@ -34,7 +92,7 @@ public class LayerTest extends ImagingTestCase {
         assertEquals(Composite.DST_OUT, layer.getStyle().getComposite());
     }
 
-    public void testPropertyChangeListeners() {
+    public void testListeners() {
         final TestLayer layer = new TestLayer();
         final TracingLayerListener ll = new TracingLayerListener();
         layer.addListener(ll);

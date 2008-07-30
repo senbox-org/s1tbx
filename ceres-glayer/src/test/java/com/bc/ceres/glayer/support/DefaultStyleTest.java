@@ -52,6 +52,10 @@ public class DefaultStyleTest extends TestCase {
 
         assertEquals(0.4, DefaultStyle.getInstance().getOpacity(), 1.0e-10);
         assertEquals(0.5, style.getOpacity(), 1.0e-10);
+
+
+        // reset to default
+        DefaultStyle.getInstance().setOpacity(1.0);
     }
 
 }

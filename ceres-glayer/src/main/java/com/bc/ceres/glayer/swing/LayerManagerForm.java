@@ -1,6 +1,5 @@
 package com.bc.ceres.glayer.swing;
 
-import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Composite;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
@@ -12,7 +11,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -34,7 +33,7 @@ public class LayerManagerForm {
     private boolean adjusting;
     private JPanel formComponent;
 
-    public LayerManagerForm(CollectionLayer rootLayer) {
+    public LayerManagerForm(Layer rootLayer) {
         layerTableModel = new LayerTableModel(rootLayer);
         layerTable = new JTable(layerTableModel);
         layerTable.setUpdateSelectionOnSort(true);
@@ -49,7 +48,7 @@ public class LayerManagerForm {
 
                 final int selectedRow = layerTable.getSelectedRow();
                 if (selectedRow != -1) {
-                    updateLayerStyleUI(getRootLayer().get(selectedRow));
+                    updateLayerStyleUI(getRootLayer().getChildLayers().get(selectedRow));
                 }
             }
         });
@@ -68,7 +67,7 @@ public class LayerManagerForm {
             public void stateChanged(ChangeEvent e) {
                 final int selectedRow = layerTable.getSelectedRow();
                 if (selectedRow != -1) {
-                    final Layer layer = getRootLayer().get(selectedRow);
+                    final Layer layer = getRootLayer().getChildLayers().get(selectedRow);
                     adjusting = true;
                     layer.getStyle().setOpacity(1.0 - transparencySlider.getValue() / 100.0f);
                     adjusting = false;
@@ -80,7 +79,7 @@ public class LayerManagerForm {
             public void actionPerformed(ActionEvent e) {
                 final int selectedRow = layerTable.getSelectedRow();
                 if (selectedRow != -1) {
-                    final Layer layer = getRootLayer().get(selectedRow);
+                    final Layer layer = getRootLayer().getChildLayers().get(selectedRow);
                     adjusting = true;
                     final Composite composite = (Composite) alphaCompositeBox.getSelectedItem();
                     layer.getStyle().setComposite(composite);
@@ -95,7 +94,7 @@ public class LayerManagerForm {
                     if (!adjusting) {
                         final int selectedRow = layerTable.getSelectedRow();
                         if (selectedRow != -1) {
-                            final Layer selectedLayer = getRootLayer().get(selectedRow);
+                            final Layer selectedLayer = getRootLayer().getChildLayers().get(selectedRow);
                             if (selectedLayer == layer) {
                                 updateLayerStyleUI(layer);
                             }
@@ -119,7 +118,7 @@ public class LayerManagerForm {
         alphaCompositeBox.setSelectedItem(layer.getStyle().getComposite());
     }
 
-    public CollectionLayer getRootLayer() {
+    public Layer getRootLayer() {
         return layerTableModel.getRootLayer();
     }
 
@@ -127,7 +126,7 @@ public class LayerManagerForm {
         return formComponent;
     }
 
-    public static void showLayerManager(JFrame frame, CollectionLayer collectionLayer) {
+    public static void showLayerManager(JFrame frame, Layer collectionLayer) {
         final LayerManagerForm layerManagerForm = new LayerManagerForm(collectionLayer);
         final JDialog lm = new JDialog(frame, "Layer Manager", false);
         lm.getContentPane().add(layerManagerForm.getFormComponent(), BorderLayout.CENTER);
@@ -140,23 +139,23 @@ public class LayerManagerForm {
     }
 
     private static class LayerTableModel extends AbstractTableModel {
-        private CollectionLayer rootLayer;
+        private Layer rootLayer;
         private static final String[] COLUMN_NAMES = {"Vis", "Name"};
         private static final Class<?>[] COLUMN_CLASS = {Boolean.class, String.class};
 
-        public LayerTableModel(CollectionLayer rootLayer) {
+        public LayerTableModel(Layer rootLayer) {
             this.rootLayer = rootLayer;
             rootLayer.addListener(new AbstractLayerListener() {
                 // todo - handle layer changes
             });
         }
 
-        public CollectionLayer getRootLayer() {
+        public Layer getRootLayer() {
             return rootLayer;
         }
 
         public int getRowCount() {
-            return rootLayer.size();
+            return rootLayer.getChildLayers().size();
         }
 
         public int getColumnCount() {
@@ -164,7 +163,7 @@ public class LayerManagerForm {
         }
 
         public Object getValueAt(int rowIndex, int columnIndex) {
-            final Layer layer = rootLayer.get(rowIndex);
+            final Layer layer = rootLayer.getChildLayers().get(rowIndex);
             if (columnIndex == 0) {
                 return layer.isVisible();
             } else if (columnIndex == 1) {
@@ -175,7 +174,7 @@ public class LayerManagerForm {
 
         @Override
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-            final Layer layer = rootLayer.get(rowIndex);
+            final Layer layer = rootLayer.getChildLayers().get(rowIndex);
             if (columnIndex == 0) {
                 layer.setVisible((Boolean) aValue);
             } else if (columnIndex == 1) {

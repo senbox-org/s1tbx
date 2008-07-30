@@ -1,6 +1,6 @@
 package com.bc.ceres.glayer.tools;
 
-import com.bc.ceres.glayer.CollectionLayer;
+import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glevel.LevelImage;
@@ -111,11 +111,11 @@ public class Tools {
                                     int levelCount,
                                     boolean concurrent) {
         final LayerCanvas layerCanvas = new LayerCanvas();
-        final CollectionLayer collectionLayer = layerCanvas.getCollectionLayer();
+        final Layer collectionLayer = layerCanvas.getLayer();
         final LevelImage levelImage = new FileMultiLevelImage(location, extension, imageToModelTransform, levelCount);
         final ImageLayer layer = new ImageLayer(levelImage);
         layer.setConcurrent(concurrent);
-        collectionLayer.add(layer);
+        collectionLayer.getChildLayers().add(layer);
 
         layerCanvas.getViewport().setZoomFactor(1.0 / (2 << levelCount), new Point(640 / 2, 480 / 2));
         openFrame(layerCanvas, location.getPath(), new Rectangle(0, 0, 640, 480));
@@ -138,12 +138,12 @@ public class Tools {
                                      int levelCount,
                                      boolean concurrent) {
         final LayerCanvas layerCanvas = new LayerCanvas();
-        final CollectionLayer collectionLayer = layerCanvas.getCollectionLayer();
+        final Layer collectionLayer = layerCanvas.getLayer();
         for (int i = 0; i < images.length; i++) {
             final ImageLayer layer = new ImageLayer(images[i], imageToModelTransforms[i], levelCount);
             layer.setConcurrent(concurrent);
             layer.setDebug(true);
-            collectionLayer.add(layer);
+            collectionLayer.getChildLayers().add(layer);
         }
 
         openFrame(layerCanvas, title, new Rectangle(0, 0, 512, 512));

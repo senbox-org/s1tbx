@@ -1,6 +1,5 @@
 package com.bc.ceres.glayer.swing;
 
-import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.LayerViewInvalidationListener;
 import com.bc.ceres.grender.InteractiveRendering;
@@ -28,26 +27,26 @@ import java.awt.geom.Rectangle2D;
  */
 public class LayerCanvas extends JComponent implements AdjustableView {
 
-    private CollectionLayer collectionLayer;
+    private Layer layer;
     private Viewport viewport;
     private Rectangle2D modelArea;
 
     private SliderPopUp sliderPopUp;
 
     public LayerCanvas() {
-        this(new CollectionLayer());
+        this(new Layer());
     }
 
-    public LayerCanvas(CollectionLayer collectionLayer) {
-        this(collectionLayer, new DefaultViewport());
+    public LayerCanvas(Layer layer) {
+        this(layer, new DefaultViewport());
     }
 
-    public LayerCanvas(final CollectionLayer collectionLayer, final Viewport viewport) {
+    public LayerCanvas(final Layer layer, final Viewport viewport) {
         setOpaque(false);
 
-        this.collectionLayer = collectionLayer;
+        this.layer = layer;
         this.viewport = viewport;
-        this.modelArea = collectionLayer.getBounds(); // todo - register PCL for "collectionLayer.boundingBox"
+        this.modelArea = layer.getBounds(); // todo - check: register PCL for "layer.bounds" ?
         this.sliderPopUp = new SliderPopUp();
 
         final MouseHandler mouseHandler = new MouseHandler();
@@ -65,7 +64,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
             }
         });
 
-        collectionLayer.addListener(new LayerViewInvalidationListener() {
+        layer.addListener(new LayerViewInvalidationListener() {
             public void handleViewInvalidation(Layer layer, Rectangle2D modelRegion) {
                 // todo - convert modelRegion to viewRegion and call repaint(viewRegion)
                 repaint();
@@ -95,8 +94,8 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         });
     }
 
-    public CollectionLayer getCollectionLayer() {
-        return collectionLayer;
+    public Layer getLayer() {
+        return layer;
     }
 
     public Viewport getViewport() {
@@ -132,7 +131,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
             g.setClip(getX(), getY(), getWidth(), getHeight());
         }
         final CanvasRendering canvasRendering = new CanvasRendering((Graphics2D) g);
-        collectionLayer.render(canvasRendering);
+        layer.render(canvasRendering);
     }
 
     private class MouseHandler extends MouseInputAdapter {
