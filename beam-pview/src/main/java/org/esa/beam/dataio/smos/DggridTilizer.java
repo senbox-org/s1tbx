@@ -1,4 +1,4 @@
-package org.esa.beam.pview;
+package org.esa.beam.dataio.smos;
 
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import org.esa.beam.jai.TiledFileOpImage;

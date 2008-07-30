@@ -25,10 +25,6 @@ public class DebugTest extends TestCase {
 
     private boolean _oldDebugState;
 
-    public static void main(String[] args) {
-        junit.swingui.TestRunner.run(DebugTest.class);
-    }
-
     public DebugTest(String testName) {
         super(testName);
     }

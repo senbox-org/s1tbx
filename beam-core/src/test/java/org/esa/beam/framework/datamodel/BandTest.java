@@ -44,10 +44,6 @@ public class BandTest extends AbstractRasterDataNodeTest {
     private Band _rsBandZippFloat1005;
     private Band _rsBandBlepDouble100100;
 
-    public static void main(String[] args) {
-        junit.swingui.TestRunner.run(BandTest.class);
-    }
-
     public BandTest(String testName) {
         super(testName);
     }

@@ -1,5 +1,6 @@
 package org.esa.beam.framework.ui.product;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
@@ -7,7 +8,6 @@ import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.framework.ui.BasicView;
 import org.esa.beam.framework.ui.PixelInfoFactory;
 import org.esa.beam.framework.ui.PixelPositionListener;
-import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandUIFactory;
 import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.DrawingEditor;
@@ -16,15 +16,18 @@ import org.esa.beam.framework.ui.tool.ToolInputEvent;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.PropertyMapChangeListener;
-import org.esa.beam.util.StopWatch;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -34,6 +37,7 @@ import java.util.ArrayList;
  * <p/>
  * <p>It is also capable of displaying a graticule (geographical grid) and a ROI associated with a displayed raster
  * dataset.
+ *
  * @author Norman Fomferra
  * @version $revision$ $date$
  */
@@ -75,17 +79,17 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
     }
 
     protected ProductSceneView(ProductSceneImage sceneImage) {
-        rasterChangeHandler = new RasterChangeHandler();
-        this.sceneImage = sceneImage;
-        setBaseImage(sceneImage.getBaseImage());
+        Assert.notNull(sceneImage, "sceneImage");
         setOpaque(false);
 
+        this.sceneImage = sceneImage;
+
+        rasterChangeHandler = new RasterChangeHandler();
         getRaster().getProduct().addProductNodeListener(rasterChangeHandler);
 
         imageUpdateListenerList = new ArrayList<ImageUpdateListener>(5);
         layerContentListenerList = new ArrayList<LayerContentListener>(5);
         layerViewportListenerList = new ArrayList<LayerViewportListener>(5);
-        setPixelInfoFactory(this);
     }
 
     ProductSceneImage getSceneImage() {
@@ -116,16 +120,6 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
      */
     public void propertyMapChanged(PropertyMap propertyMap) {
         setLayerProperties(propertyMap);
-    }
-
-    public void updateImage(ProgressMonitor pm) throws IOException {
-        StopWatch stopWatch = new StopWatch();
-        Cursor oldCursor = UIUtils.setRootFrameWaitCursor(this);
-        final RenderedImage sourceImage = getSceneImage().createBaseImage(pm);
-        setBaseImage(sourceImage);
-        stopWatch.stopAndTrace("ProductSceneView.updateImage");
-        fireImageUpdated();
-        UIUtils.setRootFrameCursor(this, oldCursor);
     }
 
     /**
@@ -386,6 +380,8 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
         setCurrentShapeFigure(ShapeFigure.createArbitraryArea(area1, figure.getAttributes()));
     }
 
+    public abstract void updateImage(ProgressMonitor pm) throws IOException;
+
     public abstract boolean isNoDataOverlayEnabled();
 
     public abstract void setNoDataOverlayEnabled(boolean enabled);
@@ -430,7 +426,7 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
 
     public abstract AbstractTool[] getSelectToolDelegates();
 
-    public abstract void disposeLayerModel();
+    public abstract void disposeLayers();
 
     public abstract AffineTransform getBaseImageToViewTransform();
 
@@ -455,13 +451,7 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
 
     public abstract void synchronizeViewport(ProductSceneView view);
 
-    public abstract RenderedImage getBaseImage();
-
-    public abstract void setBaseImage(RenderedImage baseImage);
-
-    public abstract int getBaseImageWidth();
-
-    public abstract int getBaseImageHeight();
+    public abstract Rectangle getVisibleImageBounds();
 
     public abstract RenderedImage createSnapshotImage(boolean entireImage, boolean useAlpha);
 
@@ -478,6 +468,8 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
     protected abstract PixelInfoFactory getPixelInfoFactory();
 
     protected abstract void setPixelInfoFactory(PixelInfoFactory pixelInfoFactory);
+
+    public abstract void renderThumbnail(BufferedImage thumbnailImage) ;
 
     public abstract RenderedImage updateNoDataImage(ProgressMonitor pm) throws Exception;
 

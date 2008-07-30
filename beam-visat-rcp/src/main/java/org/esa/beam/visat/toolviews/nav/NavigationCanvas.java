@@ -168,27 +168,12 @@ public class NavigationCanvas extends JPanel {
     }
 
     private void updateImageContent() {
-        /////////////////////////////////////////////////
-        // << TODO IMAGING 4.5
         // Will to this totally different later!!! (Use max. level image of LevelImage).
         final ProductSceneView view = navigationWindow.getCurrentView();
         if (view == null || thumbnailImage == null) {
             return;
         }
-        final Graphics2D graphics = thumbnailImage.createGraphics();
-        final ImageDisplay painter = new ImageDisplay(view.getBaseImage());
-        painter.setSize(thumbnailImage.getWidth(), thumbnailImage.getHeight());
-        painter.setOpaque(true);
-        painter.setBackground(view.getImageDisplayComponent().getBackground());
-        painter.setForeground(view.getImageDisplayComponent().getForeground());
-        painter.getViewModel().setViewScaleMax(null);
-        painter.getViewModel().setModelArea(view.getModelBounds());
-        painter.zoomAll();
-        painter.paintComponent(graphics);
-        painter.dispose();
-        graphics.dispose();
-        // >> TODO IMAGING 4.5
-        /////////////////////////////////////////////////
+        view.renderThumbnail(thumbnailImage);
     }
 
     /**

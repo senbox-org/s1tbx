@@ -9,7 +9,6 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
 
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
 public class CreateSubsetFromViewAction extends ExecCommand {
@@ -22,7 +21,7 @@ public class CreateSubsetFromViewAction extends ExecCommand {
         VisatApp visatApp = VisatApp.getApp();
         final ProductSceneView psv = visatApp.getSelectedProductSceneView();
         if (psv != null) {
-            final Rectangle bounds = computeArea(psv);
+            final Rectangle bounds = psv.getVisibleImageBounds();
             final String propertyName = null;
             if (bounds == null) {
                 visatApp.showInfoDialog(DIALOG_TITLE,
@@ -69,38 +68,4 @@ public class CreateSubsetFromViewAction extends ExecCommand {
         event.getCommand().setEnabled(VisatApp.getApp().getSelectedProductSceneView() != null);
     }
 
-    private Rectangle computeArea(final ProductSceneView psv) {
-
-        final int imageWidth = psv.getBaseImageWidth();
-        final int imageHeight = psv.getBaseImageHeight();
-        final Rectangle2D bounds2D = psv.getVisibleModelBounds();
-        int x = (int) Math.round(bounds2D.getX());
-        int y = (int) Math.round(bounds2D.getY());
-        int width = (int) Math.round(bounds2D.getWidth());
-        int height = (int) Math.round(bounds2D.getHeight());
-
-        if (x < 0) {
-            width += x;
-            x = 0;
-        }
-        if (y < 0) {
-            height += y;
-            y = 0;
-        }
-        Rectangle bounds = null;
-        if (x <= imageWidth && y <= imageHeight && width >= 1 && height >= 1) {
-            final int xMax = x + width;
-            if (xMax > imageWidth) {
-                width += imageWidth - xMax;
-                x = imageWidth - width;
-            }
-            final int yMax = y + height;
-            if (yMax > imageHeight) {
-                height += imageHeight - yMax;
-                y = imageHeight - height;
-            }
-            bounds = new Rectangle(x, y, width, height);
-        }
-        return bounds;
-    }
 }

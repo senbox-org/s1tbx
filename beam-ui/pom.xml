@@ -28,10 +28,6 @@
             <artifactId>ceres-ui</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-glayer</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-core</artifactId>
         </dependency>

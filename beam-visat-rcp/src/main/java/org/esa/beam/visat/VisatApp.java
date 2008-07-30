@@ -2442,7 +2442,7 @@ public class VisatApp extends BasicApp {
 
                 if (otherFrames.length == 0) {
                     Debug.trace("Disposing layer model of view '" + title + "'...");
-                    productSceneView.disposeLayerModel();
+                    productSceneView.disposeLayers();
                     Debug.trace("Layer model disposed.");
                 }
 

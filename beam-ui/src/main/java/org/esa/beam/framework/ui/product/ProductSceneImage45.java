@@ -1,12 +1,14 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.core.ProgressMonitor;
-
-import java.awt.image.RenderedImage;
-import java.io.IOException;
-
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.glevel.BandMultiLevelImage;
+
+import java.io.IOException;
+import java.awt.geom.AffineTransform;
 
 /**
  * TODO - Apidoc
@@ -15,24 +17,36 @@ import org.esa.beam.framework.datamodel.ImageInfo;
  * @version $revision$ $date$
  */
 class ProductSceneImage45 extends ProductSceneImage {
+
+    private Layer rootLayer;
+    private BandMultiLevelImage levelImage;
+
     ProductSceneImage45(RasterDataNode raster, ProductSceneView45 view) throws IOException {
         super(raster.getDisplayName(), new RasterDataNode[]{raster}, view.getImageInfo());
+        levelImage = view.getSceneImage45().getLevelImage();
+        rootLayer = view.getRootLayer();
     }
 
-    ProductSceneImage45(RasterDataNode raster, ProgressMonitor pm) throws IOException {
-        this(raster.getDisplayName(), new RasterDataNode[]{raster}, raster.getImageInfo(), pm);
+    ProductSceneImage45(RasterDataNode raster) throws IOException {
+        super(raster.getDisplayName(), new RasterDataNode[]{raster}, raster.getImageInfo());
+        levelImage = new BandMultiLevelImage(raster, new AffineTransform());
+        rootLayer = new Layer();
+        rootLayer.getChildLayers().add(new ImageLayer(levelImage));
     }
 
-    ProductSceneImage45(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) throws IOException {
-        this("RGB", rasterDataNodes, null, pm);
+    ProductSceneImage45(RasterDataNode[] rasters) throws IOException {
+        super("RGB", rasters, null);
+        levelImage = new BandMultiLevelImage(rasters, new AffineTransform());
+        rootLayer = new Layer();
+        rootLayer.getChildLayers().add(new ImageLayer(levelImage));
     }
 
-    private ProductSceneImage45(String name, RasterDataNode[] rasterDataNodes, ImageInfo imageInfo, ProgressMonitor pm) throws IOException {
-        super(name, rasterDataNodes, imageInfo);
-        setBaseImage(createBaseImage(pm));
+    public Layer getRootLayer() {
+        return rootLayer;
     }
 
-    protected RenderedImage createBaseImage(ProgressMonitor pm) throws IOException {
-        return null;  // todo - implement me!
+
+    public BandMultiLevelImage getLevelImage() {
+        return levelImage;
     }
 }

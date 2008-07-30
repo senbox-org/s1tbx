@@ -25,10 +25,6 @@ import com.bc.ceres.core.ProgressMonitor;
 
 public class VirtualBandTest extends AbstractRasterDataNodeTest {
 
-    public static void main(String[] args) {
-        junit.swingui.TestRunner.run(VirtualBandTest.class);
-    }
-
     public VirtualBandTest(String testName) {
         super(testName);
     }

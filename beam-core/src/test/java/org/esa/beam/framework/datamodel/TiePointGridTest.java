@@ -38,10 +38,6 @@ public class TiePointGridTest extends AbstractRasterDataNodeTest {
             4.0F, 5.0F, 6.0F
     };
 
-    public static void main(String[] args) {
-        junit.swingui.TestRunner.run(TiePointGridTest.class);
-    }
-
     public TiePointGridTest(String testName) {
         super(testName);
     }

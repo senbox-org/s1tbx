@@ -10,10 +10,10 @@ import org.esa.beam.dataio.smos.SmosFormats;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.ShapeFigure;
-import org.esa.beam.glayer.level.BandMultiLevelImage;
-import org.esa.beam.glayer.level.MaskMultiLevelImage;
-import org.esa.beam.glayer.level.RoiMultiLevelImage;
-import org.esa.beam.glayer.level.TiledFileLevelImage;
+import org.esa.beam.glevel.RoiMultiLevelImage;
+import org.esa.beam.glevel.TiledFileLevelImage;
+import org.esa.beam.glevel.BandMultiLevelImage;
+import org.esa.beam.glevel.MaskMultiLevelImage;
 
 import javax.media.jai.JAI;
 import javax.media.jai.util.ImagingListener;

@@ -432,12 +432,10 @@ public class NavigationToolView extends AbstractToolView {
     }
 
     private void updateValues() {
-        System.out.println("ID = " + ID);
 
         if (canvas.isUpdatingImageDisplay()) {
             return;
         }
-        System.out.println("ID2 = " + ID);
         final ProductSceneView view = getCurrentView();
         if (view != null) {
             canvas.updateSlider();

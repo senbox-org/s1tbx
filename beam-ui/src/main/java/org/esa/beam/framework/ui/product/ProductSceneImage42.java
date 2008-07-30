@@ -34,6 +34,7 @@ import java.io.IOException;
 
 class ProductSceneImage42 extends ProductSceneImage {
 
+    private RenderedImage baseImage;
     private Rectangle modelArea;
     private LayerModel layerModel;
 
@@ -134,7 +135,16 @@ class ProductSceneImage42 extends ProductSceneImage {
                                   getBaseImage().getHeight() + 2 * size);
     }
 
-    protected RenderedImage createBaseImage(ProgressMonitor pm) throws IOException {
+    RenderedImage getBaseImage() {
+        return baseImage;
+    }
+
+    void setBaseImage(RenderedImage baseImage) {
+        this.baseImage = baseImage;
+    }
+
+
+    RenderedImage createBaseImage(ProgressMonitor pm) throws IOException {
         if (getImageInfo() != null) {
             return ProductUtils.createRgbImage(getRasters(), getImageInfo(), pm);
         } else {

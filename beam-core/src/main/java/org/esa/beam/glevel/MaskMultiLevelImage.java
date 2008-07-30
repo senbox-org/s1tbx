@@ -1,4 +1,4 @@
-package org.esa.beam.glayer.level;
+package org.esa.beam.glevel;
 
 import com.bc.ceres.glevel.support.AbstractMultiLevelImage;
 import org.esa.beam.framework.datamodel.Product;

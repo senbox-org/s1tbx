@@ -16,7 +16,6 @@
  */
 package org.esa.beam.framework.ui.product;
 
-import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.layer.AbstractLayer;
 import com.bc.layer.Layer;
@@ -27,10 +26,7 @@ import com.bc.view.ViewModel;
 import com.bc.view.ViewModelChangeListener;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.draw.Figure;
-import org.esa.beam.framework.ui.ImageDisplay;
-import org.esa.beam.framework.ui.PixelInfoFactory;
-import org.esa.beam.framework.ui.PixelPositionListener;
-import org.esa.beam.framework.ui.PopupMenuHandler;
+import org.esa.beam.framework.ui.*;
 import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.framework.ui.tool.impl.SelectTool;
@@ -38,6 +34,7 @@ import org.esa.beam.layer.NoDataLayer;
 import org.esa.beam.layer.StyledLayer;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.StopWatch;
 
 import javax.swing.*;
 import java.awt.*;
@@ -46,6 +43,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.util.ArrayList;
+import java.io.IOException;
 
 class ProductSceneView42 extends ProductSceneView {
 
@@ -53,12 +51,26 @@ class ProductSceneView42 extends ProductSceneView {
 
     ProductSceneView42(ProductSceneImage42 sceneImage) {
         super(sceneImage);
-        Assert.notNull(sceneImage, "sceneImage");
+
+        imageDisplay = new ImageDisplay(sceneImage.getBaseImage());
+
+        setLayout(new BorderLayout());
+        ViewPane imageDisplayScroller = imageDisplay.createViewPane();
+        add(imageDisplayScroller, BorderLayout.CENTER);
+
+        PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
+        imageDisplay.setOpaque(true);
+        imageDisplay.addMouseListener(popupMenuHandler);
+        imageDisplay.addMouseWheelListener(new ZoomHandler());
+        imageDisplay.addKeyListener(popupMenuHandler);
+
         setLayerModel(sceneImage.getLayerModel());
         Rectangle modelArea = sceneImage.getModelArea();
         setModelBounds(modelArea);
         getViewModel().setModelOffset(modelArea.x, modelArea.y, 1.0);
-        getImageDisplayComponent().setPreferredSize(modelArea.getSize());
+        imageDisplay.setPreferredSize(modelArea.getSize());
+
+        setPixelInfoFactory(this);
 
         sceneImage.getLayerModel().addLayerModelChangeListener(new LayerModelChangeAdapter() {
             public void handleLayerModelChanged(LayerModel layerModel) {
@@ -137,7 +149,7 @@ class ProductSceneView42 extends ProductSceneView {
         return toolList.toArray(new AbstractTool[toolList.size()]);
     }
 
-    public void disposeLayerModel() {
+    public void disposeLayers() {
         getLayerModel().dispose();
     }
 
@@ -205,13 +217,27 @@ class ProductSceneView42 extends ProductSceneView {
 
     }
 
+    public void renderThumbnail(BufferedImage thumbnailImage) {
+        final Graphics2D graphics = thumbnailImage.createGraphics();
+        final ImageDisplay painter = new ImageDisplay(getBaseImage());
+        painter.setSize(thumbnailImage.getWidth(), thumbnailImage.getHeight());
+        painter.setOpaque(true);
+        painter.setBackground(getImageDisplayComponent().getBackground());
+        painter.setForeground(getImageDisplayComponent().getForeground());
+        painter.getViewModel().setViewScaleMax(null);
+        painter.getViewModel().setModelArea(getModelBounds());
+        painter.zoomAll();
+        painter.paintComponent(graphics);
+        painter.dispose();
+        graphics.dispose();
+    }
 
     /**
      * Gets the base image displayed in this view.
      *
      * @return the base image
      */
-    public RenderedImage getBaseImage() {
+    private RenderedImage getBaseImage() {
         return getImageDisplayComponent() != null ? getImageDisplay().getImage() : null;
     }
 
@@ -221,23 +247,59 @@ class ProductSceneView42 extends ProductSceneView {
      *
      * @param baseImage the base image
      */
-    public void setBaseImage(RenderedImage baseImage) {
+    private void setBaseImage(RenderedImage baseImage) {
         Guardian.assertNotNull("baseImage", baseImage);
-        if (getImageDisplayComponent() == null) {
-            initUI(baseImage);
-        }
         getImageDisplay().setImage(baseImage);
         revalidate();
         repaint();
     }
 
-    public int getBaseImageWidth() {
-        return getImageDisplay().getImageWidth();
+    public void updateImage(ProgressMonitor pm) throws IOException {
+        StopWatch stopWatch = new StopWatch();
+        Cursor oldCursor = UIUtils.setRootFrameWaitCursor(this);
+        final RenderedImage sourceImage = getSceneImage42().createBaseImage(pm);
+        setBaseImage(sourceImage);
+        stopWatch.stopAndTrace("ProductSceneView.updateImage");
+        fireImageUpdated();
+        UIUtils.setRootFrameCursor(this, oldCursor);
     }
 
-    public int getBaseImageHeight() {
-        return getImageDisplay().getImageHeight();
+
+    public Rectangle getVisibleImageBounds() {
+
+        final int imageWidth = getBaseImage().getWidth();
+        final int imageHeight = getBaseImage().getHeight();
+        final Rectangle2D bounds2D = getVisibleModelBounds();
+        int x = (int) Math.round(bounds2D.getX());
+        int y = (int) Math.round(bounds2D.getY());
+        int width = (int) Math.round(bounds2D.getWidth());
+        int height = (int) Math.round(bounds2D.getHeight());
+
+        if (x < 0) {
+            width += x;
+            x = 0;
+        }
+        if (y < 0) {
+            height += y;
+            y = 0;
+        }
+        Rectangle bounds = null;
+        if (x <= imageWidth && y <= imageHeight && width >= 1 && height >= 1) {
+            final int xMax = x + width;
+            if (xMax > imageWidth) {
+                width += imageWidth - xMax;
+                x = imageWidth - width;
+            }
+            final int yMax = y + height;
+            if (yMax > imageHeight) {
+                height += imageHeight - yMax;
+                y = imageHeight - height;
+            }
+            bounds = new Rectangle(x, y, width, height);
+        }
+        return bounds;
     }
+
 
     public RenderedImage createSnapshotImage(boolean entireImage, boolean useAlpha) {
         boolean oldOpaque = getImageDisplayComponent().isOpaque();
@@ -251,8 +313,8 @@ class ProductSceneView42 extends ProductSceneView {
                 final double viewScaleOld = getViewScale();
                 try {
                     getViewModel().setModelOffset(0, 0, 1.0);
-                    bi = new BufferedImage(getBaseImageWidth(),
-                                           getBaseImageHeight(),
+                    bi = new BufferedImage(getBaseImage().getWidth(),
+                                           getBaseImage().getHeight(),
                                            imageType);
                     getImageDisplayComponent().paint(bi.createGraphics());
                 } finally {
@@ -381,22 +443,6 @@ class ProductSceneView42 extends ProductSceneView {
     protected void copyPixelInfoStringToClipboard() {
         getImageDisplay().copyPixelInfoStringToClipboard();
     }
-
-    private void initUI(RenderedImage sourceImage) {
-        PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
-
-        imageDisplay = new ImageDisplay(sourceImage);
-
-        getImageDisplayComponent().setOpaque(true);
-        getImageDisplayComponent().addMouseListener(popupMenuHandler);
-        getImageDisplayComponent().addMouseWheelListener(new ZoomHandler());
-        getImageDisplayComponent().addKeyListener(popupMenuHandler);
-
-        setLayout(new BorderLayout());
-        ViewPane imageDisplayScroller = getImageDisplay().createViewPane();
-        add(imageDisplayScroller, BorderLayout.CENTER);
-    }
-
 
     private ImageDisplay getImageDisplay() {
         return imageDisplay;

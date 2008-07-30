@@ -1,35 +1,105 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerListener;
 import com.bc.ceres.glayer.swing.LayerCanvas;
-
-import java.awt.image.RenderedImage;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-import java.awt.*;
-
+import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.grender.ViewportListener;
+import com.bc.ceres.grender.support.BufferedImageRendering;
+import com.bc.ceres.grender.support.DefaultViewport;
+import com.bc.ceres.grender.swing.ViewportScrollPane;
 import org.esa.beam.framework.draw.Figure;
-import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.PixelInfoFactory;
+import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.util.PropertyMap;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import java.awt.BorderLayout;
+import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.RenderedImage;
+import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.io.IOException;
 
 class ProductSceneView45 extends ProductSceneView {
 
-    LayerCanvas layerCanvas; 
+    LayerCanvas layerCanvas;
 
     ProductSceneView45(ProductSceneImage45 sceneImage) {
         super(sceneImage);
-        // layerCanvas = new LayerCanvas(sceneImage.getLayer());
 
+        layerCanvas = new LayerCanvas(sceneImage.getRootLayer());
+
+        setLayout(new BorderLayout());
+        final ViewportScrollPane scrollPane = new ViewportScrollPane(layerCanvas);
+        add(scrollPane, BorderLayout.CENTER);
+
+        setPixelInfoFactory(this);
+
+        // todo - this change management is for compatibility reasons only, need better control here!!!
+        layerCanvas.getLayer().addListener(new LayerListener() {
+            public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
+                fireLayerContentChanged();
+            }
+
+            public void handleLayerDataChanged(Layer layer, Rectangle2D modelRegion) {
+                fireLayerContentChanged();
+            }
+
+            public void handleLayersAdded(Layer parentLayer, Layer[] childLayers) {
+                fireLayerContentChanged();
+            }
+
+            public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
+                fireLayerContentChanged();
+            }
+        });
+
+        layerCanvas.getViewport().addListener(new ViewportListener() {
+            public void handleViewportChanged(Viewport viewport) {
+                fireLayerViewportChanged();
+            }
+        });
+
+    }
+
+    public Layer getRootLayer() {
+        return getSceneImage45().getRootLayer();
+    }
+
+    ProductSceneImage45 getSceneImage45() {
+        return (ProductSceneImage45) getSceneImage();
+    }
+
+    public Rectangle2D getModelBounds() {
+        return getSceneImage45().getRootLayer().getBounds();
+    }
+
+    public JComponent getImageDisplayComponent() {
+        return layerCanvas;
+    }
+
+    protected PixelInfoFactory getPixelInfoFactory() {
+        return this;
+    }
+
+    protected void disposeImageDisplayComponent() {
+    }
+
+    public void renderThumbnail(BufferedImage thumbnailImage) {
+        final BufferedImageRendering imageRendering = new BufferedImageRendering(thumbnailImage, new DefaultViewport());
+        getSceneImage45().getRootLayer().render(imageRendering);
     }
 
     public boolean isNoDataOverlayEnabled() {
         return false;  // todo - implement me!
     }
+
 
     public void setNoDataOverlayEnabled(boolean enabled) {
         // todo - implement me!
@@ -115,7 +185,7 @@ class ProductSceneView45 extends ProductSceneView {
         return new AbstractTool[0];  // todo - implement me!
     }
 
-    public void disposeLayerModel() {
+    public void disposeLayers() {
         // todo - implement me!
     }
 
@@ -129,14 +199,6 @@ class ProductSceneView45 extends ProductSceneView {
 
     public double getViewScale() {
         return 0;  // todo - implement me!
-    }
-
-    public Rectangle2D getModelBounds() {
-        return null;  // todo - implement me!
-    }
-
-    public JComponent getImageDisplayComponent() {
-        return null;  // todo - implement me!
     }
 
     public void zoom(Rectangle rect) {
@@ -164,21 +226,6 @@ class ProductSceneView45 extends ProductSceneView {
         // todo - implement me!
     }
 
-    public RenderedImage getBaseImage() {
-        return null;  // todo - implement me!
-    }
-
-    public void setBaseImage(RenderedImage baseImage) {
-        // todo - implement me!
-    }
-
-    public int getBaseImageWidth() {
-        return 0;  // todo - implement me!
-    }
-
-    public int getBaseImageHeight() {
-        return 0;  // todo - implement me!
-    }
 
     public RenderedImage createSnapshotImage(boolean entireImage, boolean useAlpha) {
         return null;  // todo - implement me!
@@ -228,19 +275,20 @@ class ProductSceneView45 extends ProductSceneView {
         // todo - implement me!
     }
 
-    protected void disposeImageDisplayComponent() {
-        // todo - implement me!
-    }
-
-    protected PixelInfoFactory getPixelInfoFactory() {
-        return null;  // todo - implement me!
-    }
-
     protected void setPixelInfoFactory(PixelInfoFactory pixelInfoFactory) {
         // todo - implement me!
+    }
+
+    public void updateImage(ProgressMonitor pm) throws IOException {
+        // todo - implement me!
+    }
+
+    public Rectangle getVisibleImageBounds() {
+        return null;  // todo - implement me!
     }
 
     public RenderedImage updateNoDataImage(ProgressMonitor pm) throws Exception {
         return null;  // todo - implement me!
     }
+
 }

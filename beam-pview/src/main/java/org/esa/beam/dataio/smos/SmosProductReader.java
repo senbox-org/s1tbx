@@ -21,11 +21,10 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.glayer.level.TiledFileLevelImage;
+import org.esa.beam.glevel.TiledFileLevelImage;
 import org.esa.beam.util.io.FileUtils;
 
 import javax.media.jai.JAI;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.RenderedImage;
 import java.io.File;
