@@ -52,9 +52,10 @@ class ProductSceneView42 extends ProductSceneView {
     ProductSceneView42(ProductSceneImage42 sceneImage) {
         super(sceneImage);
 
-        imageDisplay = new ImageDisplay(sceneImage.getBaseImage());
-
+        setOpaque(false);
         setLayout(new BorderLayout());
+
+        imageDisplay = new ImageDisplay(sceneImage.getBaseImage());
         ViewPane imageDisplayScroller = imageDisplay.createViewPane();
         add(imageDisplayScroller, BorderLayout.CENTER);
 

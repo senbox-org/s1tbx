@@ -17,8 +17,10 @@ import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.util.PropertyMap;
 
 import javax.swing.JComponent;
+import javax.swing.plaf.DimensionUIResource;
 import java.awt.BorderLayout;
 import java.awt.Rectangle;
+import java.awt.Dimension;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
@@ -33,11 +35,14 @@ class ProductSceneView45 extends ProductSceneView {
     ProductSceneView45(ProductSceneImage45 sceneImage) {
         super(sceneImage);
 
-        layerCanvas = new LayerCanvas(sceneImage.getRootLayer());
-
+        setOpaque(true);
         setLayout(new BorderLayout());
+
+        layerCanvas = new LayerCanvas(sceneImage.getRootLayer());
         final ViewportScrollPane scrollPane = new ViewportScrollPane(layerCanvas);
         add(scrollPane, BorderLayout.CENTER);
+
+        layerCanvas.setPreferredSize(new Dimension(400,400));
 
         setPixelInfoFactory(this);
 

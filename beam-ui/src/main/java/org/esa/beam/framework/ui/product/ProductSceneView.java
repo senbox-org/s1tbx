@@ -80,7 +80,6 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
 
     protected ProductSceneView(ProductSceneImage sceneImage) {
         Assert.notNull(sceneImage, "sceneImage");
-        setOpaque(false);
 
         this.sceneImage = sceneImage;
 
