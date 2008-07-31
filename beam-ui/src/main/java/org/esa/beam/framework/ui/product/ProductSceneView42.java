@@ -74,10 +74,12 @@ class ProductSceneView42 extends ProductSceneView {
         setPixelInfoFactory(this);
 
         sceneImage.getLayerModel().addLayerModelChangeListener(new LayerModelChangeAdapter() {
+            @Override
             public void handleLayerModelChanged(LayerModel layerModel) {
                 fireLayerContentChanged();
             }
 
+            @Override
             public void handleLayerChanged(LayerModel layerModel, Layer layer) {
                 fireLayerContentChanged();
             }
@@ -99,6 +101,7 @@ class ProductSceneView42 extends ProductSceneView {
      *
      * @param propertyMap the layer property map
      */
+    @Override
     public void setLayerProperties(PropertyMap propertyMap) {
 
         setImageProperties(propertyMap);
@@ -125,6 +128,7 @@ class ProductSceneView42 extends ProductSceneView {
      *
      * @param listener the pixel position listener to be added
      */
+    @Override
     public void addPixelPositionListener(PixelPositionListener listener) {
         getImageDisplay().addPixelPositionListener(listener);
     }
@@ -134,10 +138,12 @@ class ProductSceneView42 extends ProductSceneView {
      *
      * @param listener the pixel position listener to be removed
      */
+    @Override
     public void removePixelPositionListener(PixelPositionListener listener) {
         getImageDisplay().removePixelPositionListener(listener);
     }
 
+    @Override
     public AbstractTool[] getSelectToolDelegates() {
         ArrayList<AbstractTool> toolList = new ArrayList<AbstractTool>(8);
         for (int i = 0; i < getLayerCount(); i++) {
@@ -150,10 +156,12 @@ class ProductSceneView42 extends ProductSceneView {
         return toolList.toArray(new AbstractTool[toolList.size()]);
     }
 
+    @Override
     public void disposeLayers() {
         getLayerModel().dispose();
     }
 
+    @Override
     public AffineTransform getBaseImageToViewTransform() {
         final AffineTransform transform = new AffineTransform();
         transform.scale(getViewScale(), getViewScale());
@@ -162,6 +170,7 @@ class ProductSceneView42 extends ProductSceneView {
         return transform;
     }
 
+    @Override
     public Rectangle2D getVisibleModelBounds() {
         return new Rectangle2D.Double(getViewModel().getModelOffsetX(),
                                       getViewModel().getModelOffsetY(),
@@ -169,10 +178,12 @@ class ProductSceneView42 extends ProductSceneView {
                                       getImageDisplayComponent().getHeight() / getViewScale());
     }
 
+    @Override
     public double getViewScale() {
         return getViewModel().getViewScale();
     }
 
+    @Override
     public Rectangle2D getModelBounds() {
         return getViewModel().getModelArea();
     }
@@ -181,31 +192,38 @@ class ProductSceneView42 extends ProductSceneView {
         getViewModel().setModelArea(modelArea);
     }
 
+    @Override
     public JComponent getImageDisplayComponent() {
         return getImageDisplay();
     }
 
+    @Override
     public void zoom(Rectangle rect) {
         getImageDisplay().zoom(rect);
     }
 
+    @Override
     public void zoom(double x, double y, double viewScale) {
         getImageDisplay().zoom(x, y, viewScale);
     }
 
+    @Override
     public void zoom(double viewScale) {
         getImageDisplay().zoom(viewScale);
     }
 
+    @Override
     public void zoomAll() {
         getImageDisplay().zoomAll();
     }
 
+    @Override
     @Deprecated
     public void setModelOffset(double modelOffsetX, double modelOffsetY) {
         getViewModel().setModelOffset(modelOffsetX, modelOffsetY);
     }
 
+    @Override
     public void synchronizeViewport(ProductSceneView view) {
         final Product currentProduct = getRaster().getProduct();
         final Product otherProduct = view.getRaster().getProduct();
@@ -218,6 +236,7 @@ class ProductSceneView42 extends ProductSceneView {
 
     }
 
+    @Override
     public void renderThumbnail(BufferedImage thumbnailImage) {
         final Graphics2D graphics = thumbnailImage.createGraphics();
         final ImageDisplay painter = new ImageDisplay(getBaseImage());
@@ -255,6 +274,7 @@ class ProductSceneView42 extends ProductSceneView {
         repaint();
     }
 
+    @Override
     public void updateImage(ProgressMonitor pm) throws IOException {
         StopWatch stopWatch = new StopWatch();
         Cursor oldCursor = UIUtils.setRootFrameWaitCursor(this);
@@ -266,6 +286,7 @@ class ProductSceneView42 extends ProductSceneView {
     }
 
 
+    @Override
     public Rectangle getVisibleImageBounds() {
 
         final int imageWidth = getBaseImage().getWidth();
@@ -302,6 +323,7 @@ class ProductSceneView42 extends ProductSceneView {
     }
 
 
+    @Override
     public RenderedImage createSnapshotImage(boolean entireImage, boolean useAlpha) {
         boolean oldOpaque = getImageDisplayComponent().isOpaque();
         final BufferedImage bi;
@@ -337,6 +359,7 @@ class ProductSceneView42 extends ProductSceneView {
     /**
      * Returns the current tool for this drawing.
      */
+    @Override
     public Tool getTool() {
         return getImageDisplay().getTool();
     }
@@ -344,6 +367,7 @@ class ProductSceneView42 extends ProductSceneView {
     /**
      * Sets the current tool for this drawing.
      */
+    @Override
     public void setTool(Tool tool) {
         if (tool != null) {
             tool.setDrawingEditor(this);
@@ -355,6 +379,7 @@ class ProductSceneView42 extends ProductSceneView {
     /**
      * Draws the tool in an interactive mode.
      */
+    @Override
     public void repaintTool() {
         getImageDisplay().repaintTool();
     }
@@ -441,6 +466,7 @@ class ProductSceneView42 extends ProductSceneView {
     }
 
 
+    @Override
     protected void copyPixelInfoStringToClipboard() {
         getImageDisplay().copyPixelInfoStringToClipboard();
     }
@@ -449,6 +475,7 @@ class ProductSceneView42 extends ProductSceneView {
         return imageDisplay;
     }
 
+    @Override
     protected void disposeImageDisplayComponent() {
         if (getImageDisplayComponent() != null) {
             getImageDisplay().dispose();
@@ -456,14 +483,17 @@ class ProductSceneView42 extends ProductSceneView {
         }
     }
 
+    @Override
     protected PixelInfoFactory getPixelInfoFactory() {
         return getImageDisplay().getPixelInfoFactory();
     }
 
+    @Override
     protected void setPixelInfoFactory(PixelInfoFactory pixelInfoFactory) {
         getImageDisplay().setPixelInfoFactory(pixelInfoFactory);
     }
 
+    @Override
     public RenderedImage updateNoDataImage(ProgressMonitor pm) throws Exception {
         final NoDataLayer noDataLayer = getNoDataLayer();
         if (getRaster().isValidMaskUsed()) {
@@ -477,74 +507,92 @@ class ProductSceneView42 extends ProductSceneView {
     /////////////////////////////////////////////////////////////////////////
     // Inner/Nested Interfaces/Classes
 
+    @Override
     public boolean isNoDataOverlayEnabled() {
         return getSceneImage42().getNoDataLayer().isVisible();
     }
 
+    @Override
     public void setNoDataOverlayEnabled(boolean enabled) {
         getSceneImage42().getNoDataLayer().setVisible(enabled);
     }
 
+    @Override
     public boolean isGraticuleOverlayEnabled() {
         return getSceneImage42().getGraticuleLayer().isVisible();
     }
 
+    @Override
     public void setGraticuleOverlayEnabled(boolean enabled) {
         getSceneImage42().getGraticuleLayer().setVisible(enabled);
     }
 
+    @Override
     public boolean isPinOverlayEnabled() {
         return getSceneImage42().getPinLayer().isVisible();
     }
 
+    @Override
     public void setPinOverlayEnabled(boolean enabled) {
         getSceneImage42().getPinLayer().setVisible(enabled);
     }
 
+    @Override
     public boolean isGcpOverlayEnabled() {
         return getSceneImage42().getGcpLayer().isVisible();
     }
 
+    @Override
     public void setGcpOverlayEnabled(boolean enabled) {
         getSceneImage42().getGcpLayer().setVisible(enabled);
     }
 
+    @Override
     public boolean isROIOverlayEnabled() {
         return getSceneImage42().getROILayer().isVisible();
     }
 
+    @Override
     public void setROIOverlayEnabled(boolean enabled) {
         getSceneImage42().getROILayer().setVisible(enabled);
     }
 
+    @Override
     public boolean isShapeOverlayEnabled() {
         return getSceneImage42().getFigureLayer().isVisible();
     }
 
+    @Override
     public void setShapeOverlayEnabled(boolean enabled) {
         getSceneImage42().getFigureLayer().setVisible(enabled);
     }
 
+    @Override
     public RenderedImage getROIImage() {
         return getSceneImage42().getROILayer().getImage();
     }
 
+    @Override
     public void setROIImage(RenderedImage roiImage) {
         getSceneImage42().getROILayer().setImage(roiImage);
     }
 
+    @Override
     public void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception {
         getSceneImage42().getROILayer().updateImage(recreate, pm);
     }
 
+    @Override
     public Figure getRasterROIShapeFigure() {
         return getSceneImage42().getROILayer().getRasterROIShapeFigure();
     }
 
+    @Override
     public Figure getCurrentShapeFigure() {
         return getSceneImage42().getFigureLayer().getNumFigures() > 0 ? getSceneImage42().getFigureLayer().getFigureAt(0) : null;
     }
 
+    @Override
     public void setCurrentShapeFigure(Figure currentShapeFigure) {
         setShapeOverlayEnabled(true);
         final Figure oldShapeFigure = getCurrentShapeFigure();
