@@ -30,7 +30,7 @@ import java.io.IOException;
 
 class ProductSceneView45 extends ProductSceneView {
 
-    LayerCanvas layerCanvas;
+    private LayerCanvas layerCanvas;
 
     ProductSceneView45(ProductSceneImage45 sceneImage) {
         super(sceneImage);
