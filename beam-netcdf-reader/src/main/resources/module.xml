@@ -28,6 +28,25 @@
     <dependency>
         <module>lib-netcdf</module>
     </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
 
     <categories>Reader,NetCDF</categories>
+
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>importNetcdfProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <text>Import NetCDF File...</text>
+            <formatName>NetCDF</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <mnemonic>M</mnemonic>
+            <shortDescr>Import a NetCDF file or file subset.</shortDescr>
+            <description>Import a NetCDF file or file subset.</description>
+        </action>
+    </extension>
+
 </module>
