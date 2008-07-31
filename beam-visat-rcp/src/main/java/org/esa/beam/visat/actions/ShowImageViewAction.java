@@ -128,7 +128,7 @@ public class ShowImageViewAction extends ExecCommand {
         return UIUtils.getUniqueFrameTitle(VisatApp.getApp().getAllInternalFrames(), raster.getDisplayName());
     }
 
-    public ProductSceneImage createProductSceneImage(final RasterDataNode raster,
+    private ProductSceneImage createProductSceneImage(final RasterDataNode raster,
                                                      ProgressMonitor pm) throws Exception {
         Debug.assertNotNull(raster);
         Debug.assertNotNull(pm);
