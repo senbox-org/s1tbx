@@ -172,7 +172,7 @@ public class ShapefileTest extends TestCase {
         }
     }
 
-    private Shapefile.Record getLastRecord(Shapefile shapefile, int expecetedNumRemaining) throws IOException {
+    private Shapefile.Record getLastRecord(Shapefile shapefile, int expectedNumRemaining) throws IOException {
         Shapefile.Record lastRecord = null;
         int numRemaining = 0;
         while (true) {
@@ -183,7 +183,7 @@ public class ShapefileTest extends TestCase {
                 break;
             }
         }
-        assertEquals(expecetedNumRemaining, numRemaining);
+        assertEquals(expectedNumRemaining, numRemaining);
         return lastRecord;
     }
 }

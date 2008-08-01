@@ -963,7 +963,7 @@ class ImageInfoEditor extends JPanel {
             if (menu.getItemCount() > 0) {
                 final JPopupMenu popupMenu = menu.getPopupMenu();
                 popupMenu.setVisible(true);
-                popup.add(popupMenu.getComponent());
+                popup.add(menu);
                 popup.showPopup(evt.getXOnScreen(), evt.getYOnScreen());
             } else {
                 popup = null;

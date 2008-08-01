@@ -3,11 +3,11 @@ package org.esa.beam.framework.ui.product;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerListener;
+import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.BufferedImageRendering;
-import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.grender.swing.ViewportScrollPane;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.ui.PixelInfoFactory;
@@ -17,12 +17,13 @@ import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.util.PropertyMap;
 
 import javax.swing.JComponent;
-import javax.swing.plaf.DimensionUIResource;
 import java.awt.BorderLayout;
 import java.awt.Rectangle;
 import java.awt.Dimension;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Area;
 import java.awt.image.RenderedImage;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
@@ -66,8 +67,8 @@ class ProductSceneView45 extends ProductSceneView {
         });
 
         layerCanvas.getViewport().addListener(new ViewportListener() {
-            public void handleViewportChanged(Viewport viewport) {
-                fireLayerViewportChanged();
+            public void handleViewportChanged(Viewport viewport, boolean orientationChanged) {
+                fireLayerViewportChanged(orientationChanged);
             }
         });
 
@@ -79,11 +80,6 @@ class ProductSceneView45 extends ProductSceneView {
 
     ProductSceneImage45 getSceneImage45() {
         return (ProductSceneImage45) getSceneImage();
-    }
-
-    @Override
-    public Rectangle2D getModelBounds() {
-        return getSceneImage45().getRootLayer().getBounds();
     }
 
     @Override
@@ -102,9 +98,86 @@ class ProductSceneView45 extends ProductSceneView {
 
     @Override
     public void renderThumbnail(BufferedImage thumbnailImage) {
-        final BufferedImageRendering imageRendering = new BufferedImageRendering(thumbnailImage, new DefaultViewport());
+        final BufferedImageRendering imageRendering = new BufferedImageRendering(thumbnailImage);
+        final Viewport viewport = imageRendering.getViewport();
+        viewport.zoom(layerCanvas.getLayer().getBounds());
+        viewport.rotate(layerCanvas.getViewport().getOrientation(), new Point2D.Double(0.5*thumbnailImage.getWidth(),
+                                                                                         0.5*thumbnailImage.getHeight()));
         getSceneImage45().getRootLayer().render(imageRendering);
     }
+
+    @Override
+    public void updateImage(ProgressMonitor pm) throws IOException {
+        getBaseImageLayer().regenerate();
+        fireImageUpdated();
+    }
+
+    private ImageLayer getBaseImageLayer() {
+        final Layer layer = layerCanvas.getLayer().getChildLayers().get(0);
+        return (ImageLayer) layer;
+    }
+
+    @Override
+    public Rectangle2D getModelBounds() {
+        return getSceneImage45().getRootLayer().getBounds();
+    }
+
+    @Override
+    public Rectangle2D getVisibleModelBounds() {
+        final Viewport viewport = layerCanvas.getViewport();
+        return viewport.getViewToModelTransform().createTransformedShape(viewport.getBounds()).getBounds2D();
+    }
+
+    @Override
+    public Rectangle getVisibleImageBounds() {
+        final RenderedImage image = getBaseImageLayer().getImage();
+        final Area imageArea = new Area(new Rectangle(0, 0, image.getWidth(), image.getHeight()));
+        final Area visibleImageArea = new Area(getBaseImageLayer().getModelToImageTransform().createTransformedShape(getVisibleModelBounds()));
+        imageArea.intersect(visibleImageArea);
+        return imageArea.getBounds();
+    }
+
+    @Override
+    public void zoom(double viewScale) {
+        layerCanvas.getViewport().zoom(viewScale);
+    }
+
+    @Override
+    public void zoom(Rectangle2D modelRect) {
+        layerCanvas.getViewport().zoom(modelRect);
+    }
+
+    @Override
+    public void zoom(double x, double y, double viewScale) {
+        layerCanvas.getViewport().zoom(x, y, viewScale);
+    }
+
+    @Override
+    public void zoomAll() {
+        zoom(layerCanvas.getLayer().getBounds());
+    }
+
+    public double getOrientation() {
+        return layerCanvas.getViewport().getOrientation();
+    }
+
+    @Override
+    public double getZoomFactor() {
+        return layerCanvas.getViewport().getZoomFactor();
+    }
+
+    @Override
+    public void move(double modelOffsetX, double modelOffsetY) {
+        // todo - implement me!
+    }
+
+
+    @Override
+    public void disposeLayers() {
+        getSceneImage45().getRootLayer().dispose();
+    }
+
+
 
     @Override
     public boolean isNoDataOverlayEnabled() {
@@ -218,49 +291,8 @@ class ProductSceneView45 extends ProductSceneView {
     }
 
     @Override
-    public void disposeLayers() {
-        // todo - implement me!
-    }
-
-    @Override
     public AffineTransform getBaseImageToViewTransform() {
         return null;  // todo - implement me!
-    }
-
-    @Override
-    public Rectangle2D getVisibleModelBounds() {
-        return null;  // todo - implement me!
-    }
-
-    @Override
-    public double getViewScale() {
-        return 0;  // todo - implement me!
-    }
-
-    @Override
-    public void zoom(Rectangle rect) {
-        // todo - implement me!
-    }
-
-    @Override
-    public void zoom(double x, double y, double viewScale) {
-        // todo - implement me!
-    }
-
-    @Override
-    public void zoom(double viewScale) {
-        // todo - implement me!
-    }
-
-    @Override
-    public void zoomAll() {
-        // todo - implement me!
-    }
-
-    @Override
-    @Deprecated
-    public void setModelOffset(double modelOffsetX, double modelOffsetY) {
-        // todo - implement me!
     }
 
     @Override
@@ -328,18 +360,8 @@ class ProductSceneView45 extends ProductSceneView {
     }
 
     @Override
-    public void updateImage(ProgressMonitor pm) throws IOException {
+    public void updateNoDataImage(ProgressMonitor pm) throws Exception {
         // todo - implement me!
-    }
-
-    @Override
-    public Rectangle getVisibleImageBounds() {
-        return null;  // todo - implement me!
-    }
-
-    @Override
-    public RenderedImage updateNoDataImage(ProgressMonitor pm) throws Exception {
-        return null;  // todo - implement me!
     }
 
 }

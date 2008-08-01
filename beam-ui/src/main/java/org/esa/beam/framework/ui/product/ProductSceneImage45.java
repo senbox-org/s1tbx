@@ -6,6 +6,8 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.glevel.BandMultiLevelImage;
+import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.ProductUtils;
 
 import java.io.IOException;
 import java.awt.geom.AffineTransform;
@@ -30,12 +32,14 @@ class ProductSceneImage45 extends ProductSceneImage {
     ProductSceneImage45(RasterDataNode raster) throws IOException {
         super(raster.getDisplayName(), new RasterDataNode[]{raster}, raster.getImageInfo());
         levelImage = new BandMultiLevelImage(raster, new AffineTransform());
+        setImageInfo(raster.getImageInfo());
         initRootLayer();
     }
 
     ProductSceneImage45(RasterDataNode[] rasters) throws IOException {
         super("RGB", rasters, null);
         levelImage = new BandMultiLevelImage(rasters, new AffineTransform());
+        setImageInfo(ProductUtils.createImageInfo(rasters, false, ProgressMonitor.NULL));
         initRootLayer();
     }
 
@@ -43,7 +47,6 @@ class ProductSceneImage45 extends ProductSceneImage {
         rootLayer = new Layer();
         final ImageLayer imageLayer = new ImageLayer(levelImage);
         imageLayer.setName(getName());
-        imageLayer.setConcurrent(true);
         imageLayer.setVisible(true);
         rootLayer.getChildLayers().add(imageLayer);
     }

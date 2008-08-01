@@ -35,6 +35,7 @@ public class BandMultiLevelImage extends AbstractMultiLevelImage {
         super(affineTransform, levelCount);
         this.rasterDataNodes = rasterDataNodes.clone();
         this.boundingBox = getImageToModelTransform(0).createTransformedShape(new Rectangle(0, 0, rasterDataNodes[0].getSceneRasterWidth(), rasterDataNodes[0].getSceneRasterHeight())).getBounds2D();
+        ImageManager.getInstance().prepareImageInfos(rasterDataNodes, levelCount);
     }
 
     @Override

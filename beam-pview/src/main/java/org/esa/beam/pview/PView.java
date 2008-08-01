@@ -163,7 +163,6 @@ public class PView {
                 final ImageLayer layer = new ImageLayer(worldLevelImage);
                 layer.setName("World");
                 layer.setVisible(true);
-                layer.setConcurrent(true);
                 rootLayer.getChildLayers().add(layer);
             }
         }
@@ -309,7 +308,6 @@ public class PView {
                 imageLayer.setName("ROI of " + band.getName());
                 imageLayer.setVisible(false);
                 imageLayer.getStyle().setOpacity(0.5);
-                imageLayer.setConcurrent(true);
                 collectionLayer.getChildLayers().add(imageLayer);
             }
         }
@@ -320,7 +318,6 @@ public class PView {
         ImageLayer imageLayer = new ImageLayer(new BandMultiLevelImage(rasterDataNodes, i2m));
         imageLayer.setName(name);
         imageLayer.setVisible(false);
-        imageLayer.setConcurrent(true);
         return imageLayer;
     }
 
@@ -334,7 +331,6 @@ public class PView {
             final ImageLayer imageLayer = new ImageLayer(new MaskMultiLevelImage(product, color, expression, false, i2m));
             imageLayer.setName(bitmaskDef.getName());
             imageLayer.setVisible(false);
-            imageLayer.setConcurrent(true);
             imageLayer.getStyle().setOpacity(bitmaskDef.getAlpha());
             collectionLayer.getChildLayers().add(imageLayer);
         }
@@ -351,7 +347,6 @@ public class PView {
             final ImageLayer imageLayer = new ImageLayer(new BandMultiLevelImage(band, i2m));
             imageLayer.setName(band.getName());
             imageLayer.setVisible(i == 0);
-            imageLayer.setConcurrent(true);
             collectionLayer.getChildLayers().add(imageLayer);
         }
 
@@ -383,7 +378,6 @@ public class PView {
                 imageLayer.setName("No-data mask of " + band.getName());
                 imageLayer.setVisible(false);
                 imageLayer.getStyle().setOpacity(0.5);
-                imageLayer.setConcurrent(true);
                 collectionLayer.getChildLayers().add(imageLayer);
             }
         }
@@ -399,7 +393,6 @@ public class PView {
             final ImageLayer imageLayer = new ImageLayer(new BandMultiLevelImage(tiePointGrid, i2m));
             imageLayer.setName(tiePointGrid.getName());
             imageLayer.setVisible(false);
-            imageLayer.setConcurrent(true);
             collectionLayer.getChildLayers().add(imageLayer);
         }
         return collectionLayer;
@@ -444,7 +437,7 @@ public class PView {
         final LayerCanvas layerCanvas = new LayerCanvas(collectionLayer);
         ViewportScrollPane viewportScrollPane = new ViewportScrollPane(layerCanvas);
                 
-        layerCanvas.getViewport().setZoomFactor(initialZoomFactor, new Point(0, 0));
+        layerCanvas.getViewport().zoom(initialZoomFactor, new Point(0, 0));
 
         final JFrame frame = new JFrame("View - [" + file.getName() + "] - " + APPNAME);
         frame.setJMenuBar(createMenuBar());

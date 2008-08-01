@@ -281,6 +281,13 @@ public class ImageManager {
         return images;
     }
 
+    public void prepareImageInfos(RasterDataNode[] rasterDataNodes,
+                                   int levelCount) {
+        PlanarImage[] bandImages = getBandImages(rasterDataNodes, 0);
+        PlanarImage[] validMaskImages = getValidMaskImages(rasterDataNodes, 0);
+        prepareImageInfos(rasterDataNodes, bandImages, validMaskImages, levelCount);
+    }
+
     private void prepareImageInfos(RasterDataNode[] rasterDataNodes,
                                    PlanarImage[] bandImages,
                                    PlanarImage[] validMaskImages, int levelCount) {

@@ -433,7 +433,7 @@ class ColorManipulationForm {
                 }
                 setImageInfoCopy(imageInfo);
                 childForm.updateFormModel(productSceneView);
-                VisatApp.getApp().updateImage(productSceneView);
+                visatApp.updateImage(productSceneView);
             } finally {
                 getToolViewPaneControl().setCursor(Cursor.getDefaultCursor());
             }

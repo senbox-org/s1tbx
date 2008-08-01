@@ -131,11 +131,12 @@ public class ShowNoDataOverlayAction extends ExecCommand {
 
     private static void updateNoDataImage(final ProductSceneView view) {
 
-        final ProgressMonitorSwingWorker<RenderedImage, Object> swingWorker = new ProgressMonitorSwingWorker<RenderedImage, Object>(view, "Create No-Data Overlay") {
+        final ProgressMonitorSwingWorker<Boolean, Object> swingWorker = new ProgressMonitorSwingWorker<Boolean, Object>(view, "Create No-Data Overlay") {
 
             @Override
-            protected RenderedImage doInBackground(com.bc.ceres.core.ProgressMonitor pm) throws Exception {
-                return view.updateNoDataImage(pm);
+            protected Boolean doInBackground(com.bc.ceres.core.ProgressMonitor pm) throws Exception {
+                view.updateNoDataImage(pm);
+                return true;
             }
 
             @Override

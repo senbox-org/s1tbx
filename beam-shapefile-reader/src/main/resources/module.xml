@@ -14,4 +14,9 @@
 
     <categories>Reader</categories>
 
+    <dependency>
+        <module>beam-visat</module>
+    </dependency>
+
+
 </module>

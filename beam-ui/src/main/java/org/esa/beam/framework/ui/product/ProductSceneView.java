@@ -186,9 +186,9 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
         }
     }
 
-    protected void fireLayerViewportChanged() {
+    protected void fireLayerViewportChanged(boolean orientationChanged) {
         for (LayerViewportListener listener : layerViewportListenerList.toArray(new LayerViewportListener[layerViewportListenerList.size()])) {
-            listener.layerViewportChanged();
+            listener.layerViewportChanged(orientationChanged);
         }
     }
 
@@ -427,17 +427,30 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
 
     public abstract void disposeLayers();
 
-    public abstract AffineTransform getBaseImageToViewTransform();
-
-    public abstract Rectangle2D getVisibleModelBounds();
-
-    public abstract double getViewScale();
-
-    public abstract Rectangle2D getModelBounds();
-
     public abstract JComponent getImageDisplayComponent();
 
-    public abstract void zoom(Rectangle rect);
+    public abstract AffineTransform getBaseImageToViewTransform();
+
+    /**
+     * @return the visible image area in pixel coordinates
+     */
+    public abstract Rectangle getVisibleImageBounds();
+
+    /**
+     * @return the visible area in model coordinates
+     */
+    public abstract Rectangle2D getVisibleModelBounds();
+
+    /**
+     * @return the model bounds in model coordinates
+     */
+    public abstract Rectangle2D getModelBounds();
+
+    public abstract double getOrientation();
+
+    public abstract double getZoomFactor();
+
+    public abstract void zoom(Rectangle2D modelRect);
 
     public abstract void zoom(double x, double y, double viewScale);
 
@@ -445,12 +458,9 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
 
     public abstract void zoomAll();
 
-    @Deprecated
-    public abstract void setModelOffset(double modelOffsetX, double modelOffsetY);
+    public abstract void move(double modelOffsetX, double modelOffsetY);
 
     public abstract void synchronizeViewport(ProductSceneView view);
-
-    public abstract Rectangle getVisibleImageBounds();
 
     public abstract RenderedImage createSnapshotImage(boolean entireImage, boolean useAlpha);
 
@@ -470,7 +480,7 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
 
     public abstract void renderThumbnail(BufferedImage thumbnailImage) ;
 
-    public abstract RenderedImage updateNoDataImage(ProgressMonitor pm) throws Exception;
+    public abstract void updateNoDataImage(ProgressMonitor pm) throws Exception;
 
     private void addCopyPixelInfoToClipboardMenuItem(JPopupMenu popupMenu) {
         if (getPixelInfoFactory() != null) {
@@ -543,7 +553,7 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
 
         public void mouseWheelMoved(MouseWheelEvent e) {
             int notches = e.getWheelRotation();
-            double currentViewScale = getViewScale();
+            double currentViewScale = getZoomFactor();
             if (notches < 0) {
                 zoom(currentViewScale * 1.1f);
             } else {
@@ -557,6 +567,6 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
     }
 
     public interface LayerViewportListener {
-        void layerViewportChanged();
+        void layerViewportChanged(boolean orientationChanged);
     }
 }

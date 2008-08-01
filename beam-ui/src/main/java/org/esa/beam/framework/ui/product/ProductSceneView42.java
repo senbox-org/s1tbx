@@ -87,7 +87,7 @@ class ProductSceneView42 extends ProductSceneView {
 
         getViewModel().addViewModelChangeListener(new ViewModelChangeListener() {
             public void handleViewModelChanged(ViewModel viewModel) {
-                fireLayerViewportChanged();
+                fireLayerViewportChanged(false);
             }
         });
     }
@@ -161,10 +161,15 @@ class ProductSceneView42 extends ProductSceneView {
         getLayerModel().dispose();
     }
 
+    public double getOrientation() {
+        return 0;
+    }
+
     @Override
     public AffineTransform getBaseImageToViewTransform() {
         final AffineTransform transform = new AffineTransform();
-        transform.scale(getViewScale(), getViewScale());
+
+        transform.scale(getZoomFactor(), getZoomFactor());
         transform.translate(-getViewModel().getModelOffsetX(),
                             -getViewModel().getModelOffsetY());
         return transform;
@@ -174,12 +179,12 @@ class ProductSceneView42 extends ProductSceneView {
     public Rectangle2D getVisibleModelBounds() {
         return new Rectangle2D.Double(getViewModel().getModelOffsetX(),
                                       getViewModel().getModelOffsetY(),
-                                      getImageDisplayComponent().getWidth() / getViewScale(),
-                                      getImageDisplayComponent().getHeight() / getViewScale());
+                                      getImageDisplayComponent().getWidth() / getZoomFactor(),
+                                      getImageDisplayComponent().getHeight() / getZoomFactor());
     }
 
     @Override
-    public double getViewScale() {
+    public double getZoomFactor() {
         return getViewModel().getViewScale();
     }
 
@@ -198,8 +203,8 @@ class ProductSceneView42 extends ProductSceneView {
     }
 
     @Override
-    public void zoom(Rectangle rect) {
-        getImageDisplay().zoom(rect);
+    public void zoom(Rectangle2D modelRect) {
+        getImageDisplay().zoom(modelRect);
     }
 
     @Override
@@ -218,8 +223,7 @@ class ProductSceneView42 extends ProductSceneView {
     }
 
     @Override
-    @Deprecated
-    public void setModelOffset(double modelOffsetX, double modelOffsetY) {
+    public void move(double modelOffsetX, double modelOffsetY) {
         getViewModel().setModelOffset(modelOffsetX, modelOffsetY);
     }
 
@@ -231,7 +235,7 @@ class ProductSceneView42 extends ProductSceneView {
                 otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
             ((ProductSceneView42) view).setModelOffset(getViewModel().getModelOffsetX(),
                                                        getViewModel().getModelOffsetY(),
-                                                       getViewScale());
+                                                       getZoomFactor());
         }
 
     }
@@ -333,7 +337,7 @@ class ProductSceneView42 extends ProductSceneView {
             if (entireImage) {
                 final double modelOffsetXOld = getViewModel().getModelOffsetX();
                 final double modelOffsetYOld = getViewModel().getModelOffsetY();
-                final double viewScaleOld = getViewScale();
+                final double viewScaleOld = getZoomFactor();
                 try {
                     getViewModel().setModelOffset(0, 0, 1.0);
                     bi = new BufferedImage(getBaseImage().getWidth(),
@@ -494,13 +498,12 @@ class ProductSceneView42 extends ProductSceneView {
     }
 
     @Override
-    public RenderedImage updateNoDataImage(ProgressMonitor pm) throws Exception {
+    public void updateNoDataImage(ProgressMonitor pm) throws Exception {
         final NoDataLayer noDataLayer = getNoDataLayer();
         if (getRaster().isValidMaskUsed()) {
-            return noDataLayer.updateImage(true, pm);
+            noDataLayer.updateImage(true, pm);
         } else {
             noDataLayer.setImage(null);
-            return null;
         }
     }
 

@@ -131,7 +131,7 @@ public class NavigationToolView extends AbstractToolView {
         zoomInButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 // TODO IMAGING 4.5
-                zoom(getCurrentView().getViewScale() * ZOOM_FACTOR);
+                zoom(getCurrentView().getZoomFactor() * ZOOM_FACTOR);
             }
         });
 
@@ -150,7 +150,7 @@ public class NavigationToolView extends AbstractToolView {
         zoomOutButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 // TODO IMAGING 4.5
-                zoom(getCurrentView().getViewScale() / ZOOM_FACTOR);
+                zoom(getCurrentView().getZoomFactor() / ZOOM_FACTOR);
             }
         });
 
@@ -277,7 +277,7 @@ public class NavigationToolView extends AbstractToolView {
 
     private void applyPercentValue() {
         final ProductSceneView view = getCurrentView();
-        final double viewScaleOld = view.getViewScale();
+        final double viewScaleOld = view.getZoomFactor();
         double viewScale = getPercentFieldValue();
         viewScale = roundAndCropViewScale(viewScale);
         setPercentFieldValue(100.0 * viewScale);
@@ -293,7 +293,7 @@ public class NavigationToolView extends AbstractToolView {
             final Number number = percentFormat.parse(text);
             viewScale = number.doubleValue() / 100.0;
         } catch (ParseException ignore) {
-            viewScale = getCurrentView().getViewScale();
+            viewScale = getCurrentView().getZoomFactor();
         }
         return viewScale;
     }
@@ -308,7 +308,7 @@ public class NavigationToolView extends AbstractToolView {
             return;
         }
         // TODO IMAGING 4.5
-        view.setModelOffset(modelOffsetX, modelOffsetY);
+        view.move(modelOffsetX, modelOffsetY);
         maybeSynchronizeCompatibleProductViews();
     }
 
@@ -440,18 +440,21 @@ public class NavigationToolView extends AbstractToolView {
         if (view != null) {
             canvas.updateSlider();
             // TODO IMAGING 4.5
-            final int sliderValue = viewScaleToSliderValue(view.getViewScale());
+            final int sliderValue = viewScaleToSliderValue(view.getZoomFactor());
             zoomSlider.setValue(sliderValue);
             // TODO IMAGING 4.5
-            final double viewScalePercent = 100.0 * roundAndCropViewScale(view.getViewScale());
+            final double viewScalePercent = 100.0 * roundAndCropViewScale(view.getZoomFactor());
             setPercentFieldValue(viewScalePercent);
         }
     }
 
     private class ViewportHandler implements ProductSceneView.LayerViewportListener {
         @Deprecated
-        public void layerViewportChanged() {
+        public void layerViewportChanged(boolean orientationChanged) {
             updateValues();
+            if (orientationChanged) {
+                canvas.updateImage();
+            }
         }
     }
 

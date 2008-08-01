@@ -200,10 +200,8 @@ public class GraphicsPane extends JComponent implements ScrollableView {
         final Rectangle2D modelArea = viewModel.getModelArea();
         final double viewScale = cropViewScale(Math.min(viewportWidth / modelArea.getWidth(),
                                                         viewportHeight / modelArea.getHeight()));
-        final double viewportWidth1 = getWidth();
-        final double viewportHeight1 = getHeight();
-        final double modelOffsetX = modelArea.getX() + 0.5 * modelArea.getWidth() - 0.5 * viewportWidth1 / viewScale;
-        final double modelOffsetY = modelArea.getY() + 0.5 * modelArea.getHeight() - 0.5 * viewportHeight1 / viewScale;
+        final double modelOffsetX = modelArea.getX() + 0.5 * modelArea.getWidth() - 0.5 * viewportWidth / viewScale;
+        final double modelOffsetY = modelArea.getY() + 0.5 * modelArea.getHeight() - 0.5 * viewportHeight / viewScale;
         getViewModel().setModelOffset(modelOffsetX, modelOffsetY, viewScale);
     }
 

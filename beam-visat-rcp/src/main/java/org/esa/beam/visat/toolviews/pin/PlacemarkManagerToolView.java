@@ -529,7 +529,7 @@ class PlacemarkManagerToolView extends AbstractToolView {
         if (view != null) {
             final PixelPos pos = activePin.getPixelPos();
             // TODO IMAGING 4.5
-            view.zoom(pos.getX(), pos.getY(), view.getViewScale());
+            view.zoom(pos.getX(), pos.getY(), view.getZoomFactor());
             updateUIState();
         }
     }

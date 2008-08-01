@@ -4,11 +4,10 @@
  */
 package org.esa.beam.visat.toolviews.nav;
 
-import org.esa.beam.framework.ui.ImageDisplay;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.logging.BeamLogManager;
 
-import javax.swing.*;
+import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
@@ -110,7 +109,10 @@ public class NavigationCanvas extends JPanel {
             int imageHeight = getHeight() - (insets.top + insets.bottom);
             final double imageRatio = (double) imageWidth / (double) imageHeight;
             final Rectangle2D ma = view.getModelBounds();
-            final double modelRatio = ma.getWidth() / ma.getHeight();
+            final AffineTransform t = new AffineTransform();
+            t.rotate(view.getOrientation(), ma.getCenterX(), ma.getCenterY());
+            final Rectangle2D tma = t.createTransformedShape(ma).getBounds2D();
+            final double modelRatio = tma.getWidth() / tma.getHeight();
             if (imageRatio < modelRatio) {
                 imageHeight = (int) Math.round(imageWidth / modelRatio);
             } else {
