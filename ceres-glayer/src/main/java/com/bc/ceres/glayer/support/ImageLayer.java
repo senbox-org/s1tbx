@@ -7,6 +7,7 @@ import com.bc.ceres.glevel.support.ConcurrentLevelImageRenderer;
 import com.bc.ceres.glevel.support.DefaultLevelImageRenderer;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.SingleLevelImage;
+import com.bc.ceres.grender.InteractiveRendering;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.DefaultViewport;
@@ -23,8 +24,7 @@ import java.awt.image.RenderedImage;
 public class ImageLayer extends Layer {
 
     private LevelImage levelImage;
-    private LevelImageRenderer levelImageRenderer;
-    private boolean concurrent;
+    private ConcurrentLevelImageRenderer concurrentRenderer;
     private boolean debug;
 
     /**
@@ -66,6 +66,12 @@ public class ImageLayer extends Layer {
         this.levelImage = levelImage;
     }
 
+    public void regenerate() {
+        resetRenderer();
+        levelImage.reset();
+        fireLayerDataChanged(getBounds());
+    }
+
     public int getLevelCount() {
         return levelImage.getLevelCount();
     }
@@ -94,18 +100,6 @@ public class ImageLayer extends Layer {
         return levelImage.getModelToImageTransform(level);
     }
 
-    public boolean isConcurrent() {
-        return concurrent;
-    }
-
-    public void setConcurrent(boolean concurrent) {
-        this.concurrent = concurrent;
-        if (concurrent && levelImageRenderer != null && !(levelImageRenderer instanceof ConcurrentLevelImageRenderer)) {
-            levelImageRenderer.dispose();
-            levelImageRenderer = null;
-        }
-    }
-
     public boolean isDebug() {
         return debug;
     }
@@ -124,30 +118,35 @@ public class ImageLayer extends Layer {
         final double i2mScale = DefaultViewport.getScale(getImageToModelTransform());
         final double m2vScale = 1.0 / vp.getZoomFactor();
         final double scale = m2vScale / i2mScale;
-
         final int currentLevel = levelImage.computeLevel(scale);
-        if (levelImageRenderer == null) {
-            levelImageRenderer = createImagePainter();
-        }
-        levelImageRenderer.renderImage(rendering, levelImage, currentLevel);
+        final LevelImageRenderer renderer = getRenderer(rendering);
+        renderer.renderImage(rendering, levelImage, currentLevel);
     }
 
     public void dispose() {
-        if (levelImageRenderer != null) {
-            levelImageRenderer.dispose();
-            levelImageRenderer = null;
+        resetRenderer();
+        if (levelImage != null) {
+            levelImage.reset();
+            levelImage = null;
         }
-        levelImage = null;
         super.dispose();
     }
 
-    private LevelImageRenderer createImagePainter() {
-        if (concurrent) {
-            final ConcurrentLevelImageRenderer concurrentImagePainter = new ConcurrentLevelImageRenderer();
-            concurrentImagePainter.setDebug(debug);
-            return concurrentImagePainter;
+    private LevelImageRenderer getRenderer(Rendering rendering) {
+        if (rendering instanceof InteractiveRendering) {
+            if (concurrentRenderer == null) {
+                concurrentRenderer = new ConcurrentLevelImageRenderer();
+            }
+            return concurrentRenderer;
+        } else {
+            return new DefaultLevelImageRenderer();
         }
-        return new DefaultLevelImageRenderer();
+    }
+
+    private void resetRenderer() {
+        if (concurrentRenderer != null) {
+            concurrentRenderer.reset();
+        }
     }
 
 }

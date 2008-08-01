@@ -54,8 +54,11 @@ public class SingleLevelImage implements LevelImage {
         return planarImage;
     }
 
+    /**
+     * Does nothing.
+     */
     @Override
-    public void regenerateLevels(boolean removeCachedTiles) {
+    public void reset() {
     }
 
     /**

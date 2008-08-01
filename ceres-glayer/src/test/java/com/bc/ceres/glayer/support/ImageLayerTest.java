@@ -20,7 +20,6 @@ public class ImageLayerTest  {
         assertEquals(new AffineTransform(), layer.getModelToImageTransform());
         assertEquals(new AffineTransform(), layer.getImageToModelTransform());
         assertEquals(1, layer.getLevelCount());
-        assertEquals(false, layer.isConcurrent());
 
 
         final AffineTransform i2m = AffineTransform.getTranslateInstance(+100, +200);
@@ -31,7 +30,6 @@ public class ImageLayerTest  {
         assertEquals(AffineTransform.getTranslateInstance(+100, +200), layer.getImageToModelTransform());
         assertEquals(AffineTransform.getTranslateInstance(-100, -200), layer.getModelToImageTransform());
         assertEquals(1, layer.getLevelCount());
-        assertEquals(false, layer.isConcurrent());
     }
 
     @Test

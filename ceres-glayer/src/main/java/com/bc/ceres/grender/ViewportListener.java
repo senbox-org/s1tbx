@@ -8,6 +8,7 @@ public interface ViewportListener {
      * Called if the given viewport has changed.
      *
      * @param viewport The viewport.
+     * @param orientationChanged
      */
-    void handleViewportChanged(Viewport viewport);
+    void handleViewportChanged(Viewport viewport, boolean orientationChanged);
 }

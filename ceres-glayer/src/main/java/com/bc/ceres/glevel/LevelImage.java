@@ -30,22 +30,20 @@ public interface LevelImage {
      *
      * @param level the resolution level.
      * @return the image for the given level.
-     * @see #regenerateLevels(boolean)
+     * @see #reset()
      */
     PlanarImage getPlanarImage(int level);
 
     /**
-     * States an attempt to regenerate images at all levels and optionally remove all cached tiles.
+     * States an attempt to regenerate images at all levels and remove all cached tiles.
      * After calling this method, {@link #getPlanarImage(int)} should return a newly created image the first
      * time it is called.
      * <p/>
      * This method is particularily useful if properties have changed that affect the appearance of the
      * returned images at all levels, e.g. after a new color palette has been assigned or the
      * contrast range has changed.
-     *
-     * @param removeCachedTiles if {@code true}, cached tiles will be removed from tile caches (if any)
      */
-    void regenerateLevels(boolean removeCachedTiles);
+    void reset();
 
     /**
      * Gets a copy (non-life object) of the affine transformation from image to model coordinates for the given level.

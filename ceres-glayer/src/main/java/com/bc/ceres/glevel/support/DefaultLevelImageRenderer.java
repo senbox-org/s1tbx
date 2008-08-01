@@ -18,7 +18,7 @@ public class DefaultLevelImageRenderer implements LevelImageRenderer {
         rendering.getGraphics().drawRenderedImage(levelImage.getPlanarImage(level), i2m);
     }
 
-    public void dispose() {
+    public void reset() {
         // no state to dispose
     }
 }

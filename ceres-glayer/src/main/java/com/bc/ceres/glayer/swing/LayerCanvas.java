@@ -30,8 +30,8 @@ public class LayerCanvas extends JComponent implements AdjustableView {
     private Layer layer;
     private Viewport viewport;
     private Rectangle2D modelArea;
-
     private SliderPopUp sliderPopUp;
+    private CanvasRendering canvasRendering;
 
     public LayerCanvas() {
         this(new Layer());
@@ -48,6 +48,9 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         this.viewport = viewport;
         this.modelArea = layer.getBounds(); // todo - check: register PCL for "layer.bounds" ?
         this.sliderPopUp = new SliderPopUp();
+
+        this.canvasRendering = new CanvasRendering();
+
 
         final MouseHandler mouseHandler = new MouseHandler();
         addMouseListener(mouseHandler);
@@ -72,7 +75,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         });
 
         viewport.addListener(new ViewportListener() {
-            public void handleViewportChanged(Viewport viewport) {
+            public void handleViewportChanged(Viewport viewport, boolean orientationChanged) {
                 repaint();
             }
         });
@@ -85,11 +88,11 @@ public class LayerCanvas extends JComponent implements AdjustableView {
                 final Rectangle bounds = getBounds();
                 final Point2D.Double viewCenter = new Point2D.Double(bounds.x + 0.5 * bounds.width,
                                                                      bounds.y + 0.5 * bounds.height);
-                viewport.setRotationAngle(Math.toRadians(rotationAngle), viewCenter);
+                viewport.rotate(Math.toRadians(rotationAngle), viewCenter);
             }
 
             public void handleMove(double moveDirX, double moveDirY) {
-                viewport.move(16 * moveDirX, 16 * moveDirY);
+                viewport.moveDelta(16 * moveDirX, 16 * moveDirY);
             }
         });
     }
@@ -122,16 +125,19 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 
     @Override
     protected void paintComponent(Graphics g) {
+        // ensure clipping is set
+        if (g.getClipBounds() == null) {
+            g.setClip(getX(), getY(), getWidth(), getHeight());
+        }
+
+        // paint background
         if (isOpaque()) {
             g.setColor(getBackground());
             g.fillRect(getX(), getY(), getWidth(), getHeight());
         }
 
-        // ensure clipping is set
-        if (g.getClipBounds() == null) {
-            g.setClip(getX(), getY(), getWidth(), getHeight());
-        }
-        final CanvasRendering canvasRendering = new CanvasRendering((Graphics2D) g);
+        // todo - check: create new rendering if 'g' changes? (e.g. printing!)
+        canvasRendering.setGraphics2D((Graphics2D) g);
         layer.render(canvasRendering);
     }
 
@@ -204,7 +210,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
             final Point p = e.getPoint();
             final double dx = p.x - p0.x;
             final double dy = p.y - p0.y;
-            viewport.move(dx, dy);
+            viewport.moveDelta(dx, dy);
             p0 = p;
         }
 
@@ -212,7 +218,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         public void mouseWheelMoved(MouseWheelEvent e) {
             final int wheelRotation = e.getWheelRotation();
             final double newZoomFactor = viewport.getZoomFactor() * Math.pow(1.1, wheelRotation);
-            viewport.setZoomFactor(newZoomFactor);
+            viewport.zoom(newZoomFactor);
         }
 
     }
@@ -245,7 +251,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
             slider.addChangeListener(new ChangeListener() {
                 public void stateChanged(ChangeEvent e) {
                     final double newZoomFactor = Math.pow(2.0, slider.getValue() / 10.0);
-                    viewport.setZoomFactor(newZoomFactor);
+                    viewport.zoom(newZoomFactor);
                     if (!slider.getValueIsAdjusting()) {
                         hide();
                     }
@@ -266,14 +272,17 @@ public class LayerCanvas extends JComponent implements AdjustableView {
     }
 
     private class CanvasRendering implements InteractiveRendering {
-        private final Graphics2D graphics2D;
+        private Graphics2D graphics2D;
 
-        public CanvasRendering(Graphics2D graphics2D) {
-            this.graphics2D = graphics2D;
+        public CanvasRendering() {
         }
 
         public Graphics2D getGraphics() {
             return graphics2D;
+        }
+
+        void setGraphics2D(Graphics2D graphics2D) {
+            this.graphics2D = graphics2D;
         }
 
         public Viewport getViewport() {

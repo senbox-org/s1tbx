@@ -3,6 +3,7 @@ package com.bc.ceres.grender;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 
 /**
@@ -41,7 +42,7 @@ public interface Viewport {
      * @param viewDeltaX the X delta in view coordinates
      * @param viewDeltaY the Y delta in view coordinates
      */
-    void move(double viewDeltaX, double viewDeltaY);
+    void moveDelta(double viewDeltaX, double viewDeltaY);
 
     /**
      * Gets the zoom factor. The zoom factor is the number of model units per view unit.
@@ -51,12 +52,27 @@ public interface Viewport {
     double getZoomFactor();
 
     /**
+     * Gets the maximum zoom factor. The minimum zoom factor is defined by {@code 1.0 / getViewScaleMax()}.
+     *
+     * @return The maximum view scale. Negative values indicate that the zoom factor is not limited.
+     */
+    double getMaxZoomFactor();
+
+    /**
+     * Sets the maximum zoom factor.
+     *
+     * @param maxZoomFactor The maximum view scale. Negative values indicate that the zoom factor is not limited.
+     * @see #getZoomFactor()
+     */
+    void setMaxZoomFactor(double maxZoomFactor);
+
+    /**
      * Sets the zoom factor.
      *
      * @param zoomFactor The zoom factor.
      * @see #getZoomFactor()
      */
-    void setZoomFactor(double zoomFactor);
+    void zoom(double zoomFactor);
 
     /**
      * Sets the zoom factor relative to the given center point in view coordinates.
@@ -65,20 +81,51 @@ public interface Viewport {
      * @param viewCenter The center point in view coordinates.
      * @see #getZoomFactor()
      */
-    void setZoomFactor(double zoomFactor, Point2D viewCenter);
+    void zoom(double zoomFactor, Point2D viewCenter);
 
     /**
      * @return The rotation angle in radians.
      */
-    double getRotationAngle();
+    double getOrientation();
 
     /**
      * Sets the rotation angle relative to a given center point in view coordinates.
      *
-     * @param theta      the new rotaton angle in radians
+     * @param orientation      the new rotaton angle in radians
      * @param viewCenter the center of the zoom in the view CS
      */
-    void setRotationAngle(double theta, Point2D viewCenter);
+    void rotate(double orientation, Point2D viewCenter);
+
+
+    /**
+     * Zooms to the given area in model coordinates.
+     *
+     * @param modelArea the area in model coordinates
+     */
+    void zoom(Rectangle2D modelArea);
+
+    /**
+     * Zooms to the given center point in model coordinates.
+     *
+     * @param modelCenterX The center point X in model coordinates
+     * @param modelCenterY The center point Y in model coordinates
+     * @param zoomFactor The zoom factor.
+     */
+    void zoom(double modelCenterX, double modelCenterY, double zoomFactor) ;
+
+
+    // todo - remove this later
+ /**
+     * This method sets all view properties of this model with a single method call.
+     * The method results in a single change event being generated. This is
+     * convenient when you need to adjust all the model data simultaneously and
+     * do not want individual change events to occur.
+     *
+     * @param modelOffsetX the x-offset in model coordinates of the upper left view pixel
+     * @param modelOffsetY the y-offset in model coordinates of the upper left view pixel
+     * @param zoomFactor the new zoom factor
+     */
+    void setModelOffset(double modelOffsetX, double modelOffsetY, double zoomFactor);
 
 
     /**

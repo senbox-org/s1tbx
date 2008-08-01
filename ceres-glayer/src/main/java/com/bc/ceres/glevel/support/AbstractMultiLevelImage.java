@@ -45,7 +45,11 @@ public abstract class AbstractMultiLevelImage implements LevelImage {
         return level;
     }
 
-    public void regenerateLevels(boolean removeCachedTiles) {
+    /**
+     * Removes all cached images and also removes all cached tiles of those images
+     * from the JAI tile cche.
+     */
+    public void reset() {
         final PlanarImage[] planarImages;
         synchronized (imageCache) {
             planarImages = imageCache.clone();
@@ -65,6 +69,12 @@ public abstract class AbstractMultiLevelImage implements LevelImage {
         }
     }
 
+    /**
+     * Gets the planar image for the given level. If the image does not yet exist,
+     * {@link #createPlanarImage(int)} is called to create the image and cache it for the given level..
+     * @param level The level.
+     * @return The planar image.
+     */
     public final PlanarImage getPlanarImage(int level) {
         checkLevel(level);
         synchronized (imageCache) {

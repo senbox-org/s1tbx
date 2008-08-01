@@ -17,7 +17,6 @@ import java.util.List;
 public class ConcurrentLevelImageRenderer implements LevelImageRenderer {
 
     private int lastLevel;
-    private boolean disposed;
     private boolean debug;
     private final Map<TileIndex, TileRequest> scheduledTileRequests;
     private final TileImageCache localTileCache;
@@ -47,17 +46,14 @@ public class ConcurrentLevelImageRenderer implements LevelImageRenderer {
         this.debug = debug;
     }
 
-    public synchronized void dispose() {
-        if (!disposed) {
-            disposed = true;
-            cancelTileRequests(-1);
-            localTileCache.clear();
-        }
+    public synchronized void reset() {
+        cancelTileRequests(-1);
+        localTileCache.clear();
     }
 
     public void renderImage(Rendering rendering, LevelImage levelImage, int currentLevel) {
         final long t0 = System.nanoTime();
-        paintImpl((InteractiveRendering) rendering, levelImage, currentLevel);
+        renderImpl((InteractiveRendering) rendering, levelImage, currentLevel);
         if (debug) {
             final long t1 = System.nanoTime();
             double time = (t1 - t0) / (1000.0 * 1000.0);
@@ -65,7 +61,7 @@ public class ConcurrentLevelImageRenderer implements LevelImageRenderer {
         }
     }
 
-    private void paintImpl(InteractiveRendering rendering, LevelImage levelImage, int currentLevel) {
+    private void renderImpl(InteractiveRendering rendering, LevelImage levelImage, int currentLevel) {
 
         // On level change, cancel all pending tile requests
         if (this.lastLevel != currentLevel) {
@@ -422,10 +418,8 @@ public class ConcurrentLevelImageRenderer implements LevelImageRenderer {
             rendering.invokeLater(new Runnable() {
                 // Called from EDT.
                 public void run() {
-                    if (!disposed) {
-                        final Rectangle viewRegion = getViewRegion(rendering.getViewport(), levelImage, level, tileBounds);
-                        rendering.invalidateRegion(viewRegion);
-                    }
+                    final Rectangle viewRegion = getViewRegion(rendering.getViewport(), levelImage, level, tileBounds);
+                    rendering.invalidateRegion(viewRegion);
                 }
             });
         }

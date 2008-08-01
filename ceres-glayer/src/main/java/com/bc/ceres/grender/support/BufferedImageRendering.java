@@ -20,9 +20,13 @@ public class BufferedImageRendering implements Rendering {
              new DefaultViewport(new Rectangle(0, 0, width, height)));
     }
 
+    public BufferedImageRendering(BufferedImage image) {
+        this(image, new DefaultViewport(new Rectangle(0,0,image.getWidth(), image.getHeight())));
+    }
+
     public BufferedImageRendering(BufferedImage image, Viewport viewport) {
-        setViewport(viewport);
         setImage(image);
+        setViewport(viewport);
     }
 
     public Rectangle getBounds() {

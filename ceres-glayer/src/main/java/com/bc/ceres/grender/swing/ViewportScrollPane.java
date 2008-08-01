@@ -282,7 +282,7 @@ public class ViewportScrollPane extends JComponent {
                 System.out.println("  vy = " + vy);
                 System.out.println("");
             }
-            adjustableView.getViewport().move(-vx, -vy);
+            adjustableView.getViewport().moveDelta(-vx, -vy);
         }
     }
 
@@ -429,7 +429,7 @@ public class ViewportScrollPane extends JComponent {
     }
 
     private class ViewportChangeHandler implements ViewportListener {
-        public void handleViewportChanged(Viewport viewport) {
+        public void handleViewportChanged(Viewport viewport, boolean orientationChanged) {
             updateScrollBars();
             updateScrollBarIncrements();
         }

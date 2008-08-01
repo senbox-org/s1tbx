@@ -16,9 +16,10 @@ public interface LevelImageRenderer {
      */
     void renderImage(Rendering rendering, LevelImage levelImage, int level);
 
+
     /**
      * Releases any allocated resources for {@code ImageRenderer}s, which maintain a state in between
      * calls to {@link #renderImage}.
      */
-    void dispose();
+    void reset();
 }
