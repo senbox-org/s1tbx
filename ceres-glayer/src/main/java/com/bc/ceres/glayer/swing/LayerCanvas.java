@@ -85,14 +85,11 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         add(navControl);
         navControl.addSelectionListener(new NavControl.SelectionListener() {
             public void handleRotate(double rotationAngle) {
-                final Rectangle bounds = getBounds();
-                final Point2D.Double viewCenter = new Point2D.Double(bounds.x + 0.5 * bounds.width,
-                                                                     bounds.y + 0.5 * bounds.height);
-                viewport.rotate(Math.toRadians(rotationAngle), viewCenter);
+                viewport.rotate(Math.toRadians(rotationAngle));
             }
 
             public void handleMove(double moveDirX, double moveDirY) {
-                viewport.moveDelta(16 * moveDirX, 16 * moveDirY);
+                viewport.moveViewDelta(16 * moveDirX, 16 * moveDirY);
             }
         });
     }
@@ -210,7 +207,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
             final Point p = e.getPoint();
             final double dx = p.x - p0.x;
             final double dy = p.y - p0.y;
-            viewport.moveDelta(dx, dy);
+            viewport.moveViewDelta(dx, dy);
             p0 = p;
         }
 

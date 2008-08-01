@@ -1,6 +1,6 @@
 package com.bc.ceres.grender;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -36,13 +36,20 @@ public interface Viewport {
     AffineTransform getModelToViewTransform();
 
     /**
+     * Moves the viewport to the absolute position in model coordinates.
+     * @param modelPosX The position X in model coordinates.
+     * @param modelPosY The position Y in model coordinates.
+     */
+    void move(double modelPosX, double modelPosY);
+
+    /**
      * Moves the model CS by translating it into the opposite direction of the given
      * vector in view coordinates.
      *
      * @param viewDeltaX the X delta in view coordinates
      * @param viewDeltaY the Y delta in view coordinates
      */
-    void moveDelta(double viewDeltaX, double viewDeltaY);
+    void moveViewDelta(double viewDeltaX, double viewDeltaY);
 
     /**
      * Gets the zoom factor. The zoom factor is the number of model units per view unit.
@@ -89,10 +96,17 @@ public interface Viewport {
     double getOrientation();
 
     /**
+     * Sets the rotation angle.
+     *
+     * @param orientation the new rotaton angle in radians
+     */
+    void rotate(double orientation);
+
+    /**
      * Sets the rotation angle relative to a given center point in view coordinates.
      *
-     * @param orientation      the new rotaton angle in radians
-     * @param viewCenter the center of the zoom in the view CS
+     * @param orientation the new rotaton angle in radians
+     * @param viewCenter  the center of the zoom in the view CS
      */
     void rotate(double orientation, Point2D viewCenter);
 
@@ -109,24 +123,9 @@ public interface Viewport {
      *
      * @param modelCenterX The center point X in model coordinates
      * @param modelCenterY The center point Y in model coordinates
-     * @param zoomFactor The zoom factor.
+     * @param zoomFactor   The zoom factor.
      */
-    void zoom(double modelCenterX, double modelCenterY, double zoomFactor) ;
-
-
-    // todo - remove this later
- /**
-     * This method sets all view properties of this model with a single method call.
-     * The method results in a single change event being generated. This is
-     * convenient when you need to adjust all the model data simultaneously and
-     * do not want individual change events to occur.
-     *
-     * @param modelOffsetX the x-offset in model coordinates of the upper left view pixel
-     * @param modelOffsetY the y-offset in model coordinates of the upper left view pixel
-     * @param zoomFactor the new zoom factor
-     */
-    void setModelOffset(double modelOffsetX, double modelOffsetY, double zoomFactor);
-
+    void zoom(double modelCenterX, double modelCenterY, double zoomFactor);
 
     /**
      * Adds a change listener to this viewport.

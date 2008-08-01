@@ -16,7 +16,7 @@ public class DefaultViewport implements Viewport {
     private final Rectangle bounds;
     private final AffineTransform viewToModelTransform;
     private final AffineTransform modelToViewTransform;
-    private double rotation;
+    private double orientation;
     private final ArrayList<ViewportListener> changeListeners;
     private double maxZoomFactor;
 
@@ -30,6 +30,7 @@ public class DefaultViewport implements Viewport {
         this.viewToModelTransform = new AffineTransform();
         this.modelToViewTransform = new AffineTransform();
         this.changeListeners = new ArrayList<ViewportListener>(3);
+        this.maxZoomFactor = 16;
     }
 
     public double getMaxZoomFactor() {
@@ -59,25 +60,42 @@ public class DefaultViewport implements Viewport {
     }
 
     public double getOrientation() {
-        return rotation;
+        return orientation;
     }
 
     public double getZoomFactor() {
         return getScale(modelToViewTransform);
     }
 
-    public void rotate(double theta, Point2D viewCenter) {
-        Assert.notNull(viewCenter, "viewCenter");
-        final AffineTransform t = viewToModelTransform;
-        t.translate(viewCenter.getX(), viewCenter.getY());
-        t.rotate(theta - rotation);
-        t.translate(-viewCenter.getX(), -viewCenter.getY());
-        updateModelToViewTransform();
-        rotation = theta;
-        fireViewportChanged(true);
+    public void rotate(double orientation) {
+        rotate(orientation, getViewportCenterPoint());
     }
 
-    public void moveDelta(double deltaX, double deltaY) {
+    public void rotate(double orientation, Point2D viewCenter) {
+        Assert.notNull(viewCenter, "viewCenter");
+        if (this.orientation != orientation) {
+            final AffineTransform v2m = viewToModelTransform;
+            v2m.translate(viewCenter.getX(), viewCenter.getY());
+            v2m.rotate(orientation - this.orientation);
+            v2m.translate(-viewCenter.getX(), -viewCenter.getY());
+            updateModelToViewTransform();
+            this.orientation = orientation;
+            fireViewportChanged(true);
+        }
+    }
+
+    public void move(double modelPosX, double modelPosY) {
+        viewToModelTransform.setTransform(viewToModelTransform.getScaleX(),
+                                          viewToModelTransform.getShearY(),
+                                          viewToModelTransform.getShearX(),
+                                          viewToModelTransform.getScaleY(),
+                                          modelPosX,
+                                          modelPosY);
+        updateModelToViewTransform();
+        fireViewportChanged(false);
+    }
+
+    public void moveViewDelta(double deltaX, double deltaY) {
         viewToModelTransform.translate(-deltaX, -deltaY);
         updateModelToViewTransform();
         fireViewportChanged(false);
@@ -87,7 +105,7 @@ public class DefaultViewport implements Viewport {
         final double viewportWidth = bounds.width;
         final double viewportHeight = bounds.height;
         final double zoomFactor = Math.min(viewportWidth / modelArea.getWidth(),
-                                          viewportHeight / modelArea.getHeight());
+                                           viewportHeight / modelArea.getHeight());
         zoom(modelArea.getCenterX(),
              modelArea.getCenterY(),
              zoomFactor);
@@ -99,29 +117,37 @@ public class DefaultViewport implements Viewport {
         final double viewportHeight = bounds.height;
         final double modelOffsetX = modelCenterX - 0.5 * viewportWidth / zoomFactor;
         final double modelOffsetY = modelCenterY - 0.5 * viewportHeight / zoomFactor;
-        setModelOffset(modelOffsetX, modelOffsetY, zoomFactor);
+        final double orientation = getOrientation();
+        final AffineTransform m2v = new AffineTransform();
+        m2v.scale(zoomFactor, zoomFactor);
+        m2v.translate(-modelOffsetX, -modelOffsetY);
+        modelToViewTransform.setTransform(m2v);
+        updateViewToModelTransform();
+        rotate(orientation);
+        fireViewportChanged(false);
+    }
+
+    private Point2D.Double getViewportCenterPoint() {
+        return new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
     }
 
     public void zoom(double zoomFactor) {
-        final Rectangle bounds = getBounds();
-        final Point2D.Double viewCenter = new Point2D.Double(bounds.x + 0.5 * bounds.width,
-                                                             bounds.y + 0.5 * bounds.height);
-        zoom(zoomFactor, viewCenter);
+        zoom(zoomFactor, getViewportCenterPoint());
     }
 
     public void zoom(double zoomFactor, Point2D viewCenter) {
         Assert.notNull(viewCenter, "viewCenter");
         zoomFactor = limitZoomFactor(zoomFactor);
-        final AffineTransform t = viewToModelTransform;
-        final double m00 = t.getScaleX();
-        final double m10 = t.getShearY();
-        final double m01 = t.getShearX();
-        final double m11 = t.getScaleY();
+        final AffineTransform v2m = viewToModelTransform;
+        final double m00 = v2m.getScaleX();
+        final double m10 = v2m.getShearY();
+        final double m01 = v2m.getShearX();
+        final double m11 = v2m.getScaleY();
         final double sx = Math.sqrt(m00 * m00 + m10 * m10);
         final double sy = Math.sqrt(m01 * m01 + m11 * m11);
-        t.translate(viewCenter.getX(), viewCenter.getY());
-        t.scale(1.0 / zoomFactor / sx, 1.0 / zoomFactor / sy);  // preserves signum & rotation of m00, m01, m10 and m11
-        t.translate(-viewCenter.getX(), -viewCenter.getY());
+        v2m.translate(viewCenter.getX(), viewCenter.getY());
+        v2m.scale(1.0 / zoomFactor / sx, 1.0 / zoomFactor / sy);  // preserves signum & rotation of m00, m01, m10 and m11
+        v2m.translate(-viewCenter.getX(), -viewCenter.getY());
         updateModelToViewTransform();
         fireViewportChanged(false);
     }
@@ -142,19 +168,6 @@ public class DefaultViewport implements Viewport {
         return changeListeners.toArray(new ViewportListener[changeListeners.size()]);
     }
 
-
-    // todo - remove this later
-    public void setModelOffset(double modelOffsetX, double modelOffsetY, double zoomFactor) {
-        final double rotationAngle = getOrientation();
-        final AffineTransform transform = new AffineTransform();
-        transform.scale(zoomFactor, zoomFactor);
-        transform.translate(-modelOffsetX, -modelOffsetY);
-        modelToViewTransform.setTransform(transform);
-        final Rectangle rectangle = getBounds();
-        updateViewToModelTransform();
-        rotate(rotationAngle, new Point2D.Double(rectangle.getCenterX(), rectangle.getCenterY()));
-        fireViewportChanged(false);
-    }
 
     protected void fireViewportChanged(final boolean orientationChanged) {
         for (ViewportListener listener : getListeners()) {
@@ -190,10 +203,10 @@ public class DefaultViewport implements Viewport {
     }
 
     private double limitZoomFactor(double viewScale) {
-        return cropViewScale(viewScale, maxZoomFactor);
+        return limitZoomFactor(viewScale, maxZoomFactor);
     }
 
-        public static double cropViewScale(double viewScale, double viewScaleMax) {
+    public static double limitZoomFactor(double viewScale, double viewScaleMax) {
         if (viewScaleMax > 1.0) {
             final double upperLimit = viewScaleMax;
             final double lowerLimit = 1.0 / upperLimit;

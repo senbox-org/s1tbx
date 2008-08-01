@@ -31,7 +31,7 @@ public class DefaultViewportTest {
         final AffineTransform v2u = viewport.getViewToModelTransform();
         assertNotSame(v2u, viewport.getViewToModelTransform());
 
-        viewport.moveDelta(150.0, -10.0);
+        viewport.moveViewDelta(150.0, -10.0);
 
         assertNotSame(m2v, viewport.getModelToViewTransform());
         assertNotSame(v2u, viewport.getViewToModelTransform());
@@ -47,7 +47,7 @@ public class DefaultViewportTest {
         final AffineTransform v2u = viewport.getViewToModelTransform();
         assertNotSame(v2u, viewport.getViewToModelTransform());
 
-        viewport.moveDelta(150.0, -10.0);
+        viewport.moveViewDelta(150.0, -10.0);
 
         assertEquals(p(-150, 10), t(viewport.getViewToModelTransform(), p(0, 0)));
         assertEquals(p(0, 0), t(viewport.getModelToViewTransform(), p(-150, 10)));
@@ -59,9 +59,9 @@ public class DefaultViewportTest {
     @Test
     public void testMove() {
         final DefaultViewport viewport = new DefaultViewport();
-        viewport.moveDelta(15.0, 10.0);
+        viewport.moveViewDelta(15.0, 10.0);
         assertEquals(p(-15.0, -10.0), getModelOffset(viewport));
-        viewport.moveDelta(-15.0, -10.0);
+        viewport.moveViewDelta(-15.0, -10.0);
         assertEquals(p(0.0, 0.0), getModelOffset(viewport));
     }
 
@@ -69,7 +69,7 @@ public class DefaultViewportTest {
     public void testZooming() {
         final DefaultViewport viewport = new DefaultViewport();
         Point2D vc, uc;
-        viewport.moveDelta(-10, -10);
+        viewport.moveViewDelta(-10, -10);
 
         /////////////////////////////
         // view center 1

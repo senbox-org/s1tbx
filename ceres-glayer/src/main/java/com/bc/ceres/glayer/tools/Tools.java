@@ -115,9 +115,11 @@ public class Tools {
         final LevelImage levelImage = new FileMultiLevelImage(location, extension, imageToModelTransform, levelCount);
         final ImageLayer layer = new ImageLayer(levelImage);
         collectionLayer.getChildLayers().add(layer);
-
-        layerCanvas.getViewport().zoom(1.0 / (2 << levelCount), new Point(640 / 2, 480 / 2));
-        openFrame(layerCanvas, location.getPath(), new Rectangle(0, 0, 640, 480));
+        final Rectangle viewportBounds = new Rectangle(0, 0, 640, 480);
+        layerCanvas.setPreferredSize(new Dimension( 640, 480));
+        layerCanvas.getViewport().setBounds(viewportBounds);
+        layerCanvas.getViewport().zoom(layer.getBounds());
+        openFrame(layerCanvas, location.getPath(), viewportBounds);
     }
 
     public static void displayImage(String title,
