@@ -480,6 +480,8 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
 
     public abstract void renderThumbnail(BufferedImage thumbnailImage) ;
 
+    public abstract Rectangle getViewportThumbnailBounds(Rectangle thumbnailArea);
+
     public abstract void updateNoDataImage(ProgressMonitor pm) throws Exception;
 
     private void addCopyPixelInfoToClipboardMenuItem(JPopupMenu popupMenu) {
@@ -495,6 +497,17 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
             popupMenu.add(menuItem);
             popupMenu.addSeparator();
         }
+    }
+
+    public Rectangle2D getRotatedModelBounds() {
+        final Rectangle2D modelBounds = getModelBounds();
+        final double orientation = getOrientation();
+        if (orientation != 0) {
+            final AffineTransform t = new AffineTransform();
+            t.rotate(orientation, modelBounds.getCenterX(), modelBounds.getCenterY());
+            return t.createTransformedShape(modelBounds).getBounds2D();
+        }
+        return modelBounds;
     }
 
     public static interface ImageUpdateListener {

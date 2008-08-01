@@ -8,6 +8,7 @@ import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.BufferedImageRendering;
+import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.grender.swing.ViewportScrollPane;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.ui.PixelInfoFactory;
@@ -18,14 +19,15 @@ import org.esa.beam.util.PropertyMap;
 
 import javax.swing.JComponent;
 import java.awt.BorderLayout;
-import java.awt.Rectangle;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.Point2D;
 import java.awt.geom.Area;
-import java.awt.image.RenderedImage;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 
@@ -37,13 +39,14 @@ class ProductSceneView45 extends ProductSceneView {
         super(sceneImage);
 
         setOpaque(true);
+        setBackground(DEFAULT_IMAGE_BACKGROUND_COLOR);
         setLayout(new BorderLayout());
 
         layerCanvas = new LayerCanvas(sceneImage.getRootLayer());
         final ViewportScrollPane scrollPane = new ViewportScrollPane(layerCanvas);
         add(scrollPane, BorderLayout.CENTER);
 
-        layerCanvas.setPreferredSize(new Dimension(400,400));
+        layerCanvas.setPreferredSize(new Dimension(400, 400));
 
         setPixelInfoFactory(this);
 
@@ -99,11 +102,36 @@ class ProductSceneView45 extends ProductSceneView {
     @Override
     public void renderThumbnail(BufferedImage thumbnailImage) {
         final BufferedImageRendering imageRendering = new BufferedImageRendering(thumbnailImage);
-        final Viewport viewport = imageRendering.getViewport();
-        viewport.zoom(layerCanvas.getLayer().getBounds());
-        viewport.rotate(layerCanvas.getViewport().getOrientation(), new Point2D.Double(0.5*thumbnailImage.getWidth(),
-                                                                                         0.5*thumbnailImage.getHeight()));
+
+        final Graphics2D graphics = imageRendering.getGraphics();
+        graphics.setColor(getBackground());
+        graphics.fillRect(0, 0, thumbnailImage.getWidth(), thumbnailImage.getHeight());
+
+        configureThumbnailViewport(imageRendering.getViewport());
         getSceneImage45().getRootLayer().render(imageRendering);
+    }
+
+    public Rectangle getViewportThumbnailBounds(Rectangle thumbnailArea) {
+        final Viewport thumbnailViewport = new DefaultViewport(thumbnailArea);
+        configureThumbnailViewport(thumbnailViewport);
+        final Viewport canvasViewport = layerCanvas.getViewport();
+        final Point2D modelOffset = canvasViewport.getViewToModelTransform().transform(canvasViewport.getBounds().getLocation(), null);
+
+        final Point2D tnOffset = thumbnailViewport.getModelToViewTransform().transform(modelOffset, null);
+        double scale = DefaultViewport.getScale(canvasViewport.getViewToModelTransform())
+                * DefaultViewport.getScale(thumbnailViewport.getModelToViewTransform());
+
+        return new Rectangle((int) Math.floor(tnOffset.getX()),
+                             (int) Math.floor(tnOffset.getY()),
+                             (int) Math.floor(canvasViewport.getBounds().width * scale),
+                             (int) Math.floor(canvasViewport.getBounds().height * scale));
+    }
+
+    private void configureThumbnailViewport(Viewport thumbnailViewport) {
+        thumbnailViewport.setMaxZoomFactor(-1);
+        thumbnailViewport.zoom(getRotatedModelBounds());
+        thumbnailViewport.rotate(getOrientation());
+        thumbnailViewport.moveViewDelta(thumbnailViewport.getBounds().x, thumbnailViewport.getBounds().y);
     }
 
     @Override
@@ -168,7 +196,7 @@ class ProductSceneView45 extends ProductSceneView {
 
     @Override
     public void move(double modelOffsetX, double modelOffsetY) {
-        // todo - implement me!
+        layerCanvas.getViewport().move(modelOffsetX, modelOffsetY);
     }
 
 
@@ -176,7 +204,6 @@ class ProductSceneView45 extends ProductSceneView {
     public void disposeLayers() {
         getSceneImage45().getRootLayer().dispose();
     }
-
 
 
     @Override

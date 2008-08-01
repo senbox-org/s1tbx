@@ -256,6 +256,18 @@ class ProductSceneView42 extends ProductSceneView {
         graphics.dispose();
     }
 
+    public Rectangle getViewportThumbnailBounds(Rectangle thumbnailArea) {
+        final Rectangle2D va = getVisibleModelBounds();
+        final Rectangle2D ma = getModelBounds();
+
+        Rectangle slider = new Rectangle();
+        slider.x = thumbnailArea.x + (int) Math.round(thumbnailArea.width * (va.getX() - ma.getX()) / ma.getWidth());
+        slider.y = thumbnailArea.y + (int) Math.round(thumbnailArea.height * (va.getY() - ma.getY()) / ma.getHeight());
+        slider.width = (int) Math.round(thumbnailArea.width * va.getWidth() / ma.getWidth());
+        slider.height = (int) Math.round(thumbnailArea.height * va.getHeight() / ma.getHeight());
+        return slider;
+    }
+
     /**
      * Gets the base image displayed in this view.
      *

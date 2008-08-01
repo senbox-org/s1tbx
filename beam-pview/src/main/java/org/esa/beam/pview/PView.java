@@ -437,8 +437,6 @@ public class PView {
         final LayerCanvas layerCanvas = new LayerCanvas(collectionLayer);
         ViewportScrollPane viewportScrollPane = new ViewportScrollPane(layerCanvas);
                 
-        layerCanvas.getViewport().zoom(initialZoomFactor, new Point(0, 0));
-
         final JFrame frame = new JFrame("View - [" + file.getName() + "] - " + APPNAME);
         frame.setJMenuBar(createMenuBar());
         frame.getContentPane().add(viewportScrollPane, BorderLayout.CENTER);
@@ -448,6 +446,10 @@ public class PView {
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.setIconImages(FRAME_ICONS);
         frame.addWindowListener(new WindowAdapter() {
+            public void windowOpened(WindowEvent event) {
+                layerCanvas.getViewport().zoom(collectionLayer.getBounds());
+            }
+
             @Override
             public void windowClosing(WindowEvent e) {
                 frame.dispose();

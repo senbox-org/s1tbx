@@ -108,10 +108,7 @@ public class NavigationCanvas extends JPanel {
             int imageWidth = getWidth() - (insets.left + insets.right);
             int imageHeight = getHeight() - (insets.top + insets.bottom);
             final double imageRatio = (double) imageWidth / (double) imageHeight;
-            final Rectangle2D ma = view.getModelBounds();
-            final AffineTransform t = new AffineTransform();
-            t.rotate(view.getOrientation(), ma.getCenterX(), ma.getCenterY());
-            final Rectangle2D tma = t.createTransformedShape(ma).getBounds2D();
+            final Rectangle2D tma = view.getRotatedModelBounds();
             final double modelRatio = tma.getWidth() / tma.getHeight();
             if (imageRatio < modelRatio) {
                 imageHeight = (int) Math.round(imageWidth / modelRatio);
@@ -143,13 +140,7 @@ public class NavigationCanvas extends JPanel {
         if (updatingImageDisplay || view == null) {
             return;
         }
-        final Rectangle2D va = view.getVisibleModelBounds();
-        final Rectangle2D ma = view.getModelBounds();
-
-        slider.x = sliderArea.x + (int) Math.round(sliderArea.width * (va.getX() - ma.getX()) / ma.getWidth());
-        slider.y = sliderArea.y + (int) Math.round(sliderArea.height * (va.getY() - ma.getY()) / ma.getHeight());
-        slider.width = (int) Math.round(sliderArea.width * va.getWidth() / ma.getWidth());
-        slider.height = (int) Math.round(sliderArea.height * va.getHeight() / ma.getHeight());
+        slider.setRect(view.getViewportThumbnailBounds(sliderArea));
         repaint();
     }
 
