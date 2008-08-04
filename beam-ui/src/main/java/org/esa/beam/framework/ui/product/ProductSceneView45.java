@@ -114,10 +114,7 @@ class ProductSceneView45 extends ProductSceneView {
     @Override
     public Rectangle getViewportThumbnailBounds(Rectangle thumbnailArea) {
         final Viewport thumbnailViewport = new DefaultViewport(thumbnailArea);
-        thumbnailViewport.setMaxZoomFactor(-1);
-        thumbnailViewport.zoom(getRotatedModelBounds());
-        thumbnailViewport.moveViewDelta(thumbnailViewport.getBounds().x, thumbnailViewport.getBounds().y);
-        thumbnailViewport.rotate(getOrientation());
+        configureThumbnailViewport(thumbnailViewport);
         final Viewport canvasViewport = layerCanvas.getViewport();
         final Point2D modelOffset = canvasViewport.getViewToModelTransform().transform(canvasViewport.getBounds().getLocation(), null);
 
@@ -134,8 +131,8 @@ class ProductSceneView45 extends ProductSceneView {
     private void configureThumbnailViewport(Viewport thumbnailViewport) {
         thumbnailViewport.setMaxZoomFactor(-1);
         thumbnailViewport.zoom(getRotatedModelBounds());
-        thumbnailViewport.rotate(getOrientation());
         thumbnailViewport.moveViewDelta(thumbnailViewport.getBounds().x, thumbnailViewport.getBounds().y);
+        thumbnailViewport.rotate(getOrientation());
     }
 
     @Override
