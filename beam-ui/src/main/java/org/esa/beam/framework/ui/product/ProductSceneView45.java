@@ -111,9 +111,13 @@ class ProductSceneView45 extends ProductSceneView {
         getSceneImage45().getRootLayer().render(imageRendering);
     }
 
+    @Override
     public Rectangle getViewportThumbnailBounds(Rectangle thumbnailArea) {
         final Viewport thumbnailViewport = new DefaultViewport(thumbnailArea);
-        configureThumbnailViewport(thumbnailViewport);
+        thumbnailViewport.setMaxZoomFactor(-1);
+        thumbnailViewport.zoom(getRotatedModelBounds());
+        thumbnailViewport.moveViewDelta(thumbnailViewport.getBounds().x, thumbnailViewport.getBounds().y);
+        thumbnailViewport.rotate(getOrientation());
         final Viewport canvasViewport = layerCanvas.getViewport();
         final Point2D modelOffset = canvasViewport.getViewToModelTransform().transform(canvasViewport.getBounds().getLocation(), null);
 
