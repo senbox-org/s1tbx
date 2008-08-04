@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-netcdf-reader</symbolicName>
-    <version>1.0.100</version>
+    <version>1.0.201-SNAPSHOT</version>
     <name>NetCDF Product Reader</name>
     <description>
         A product reader for NetCDF files conforming to the
@@ -10,8 +10,10 @@
     
     <changelog>
         <![CDATA[
-        Changes in 1.0.100:<br>
-        [BEAM-821] MERIS L3 MGVI cannot be opened in BEAM<br>
+        Changes in 1.0.201:<br/>
+        [BEAM-851] Missing NetCDF command in import menu<br/>
+        <br/>Changes in 1.0.100:<br/>
+        [BEAM-821] MERIS L3 MGVI cannot be opened in BEAM<br/>
         ]]>
     </changelog>
 
