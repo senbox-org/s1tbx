@@ -8,6 +8,9 @@ import com.bc.ceres.core.runtime.ModuleState;
 import java.io.IOException;
 import java.net.URL;
 
+import org.junit.Ignore;
+
+@Ignore
 public class TestHelpers {
     /**
      * Loads a module. Sets the location to the resiource URL and the ID to -1

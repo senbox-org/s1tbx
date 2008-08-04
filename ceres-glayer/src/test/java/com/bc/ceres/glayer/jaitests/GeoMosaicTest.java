@@ -6,6 +6,9 @@ import javax.media.jai.RenderedOp;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 
+import org.junit.Ignore;
+
+@Ignore
 public class GeoMosaicTest {
 
     private static class ImageFeature {

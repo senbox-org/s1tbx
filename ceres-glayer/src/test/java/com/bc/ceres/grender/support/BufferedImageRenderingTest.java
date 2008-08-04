@@ -1,15 +1,14 @@
 package com.bc.ceres.grender.support;
 
 import com.bc.ceres.glayer.support.ImageLayer;
-import junit.framework.TestCase;
-import static org.junit.Assert.*;
-import org.junit.Test;
-import static com.bc.ceres.glayer.Assert2D.*;
+import static org.junit.Assert.assertEquals;
+import org.junit.Ignore;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 
+@Ignore
 public class BufferedImageRenderingTest  {
     public void testViewIsAnImage() {
         BufferedImage bi = new BufferedImage(2, 2, BufferedImage.TYPE_INT_BGR);

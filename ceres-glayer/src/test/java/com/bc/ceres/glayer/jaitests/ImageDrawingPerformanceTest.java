@@ -1,5 +1,7 @@
 package com.bc.ceres.glayer.jaitests;
 
+import org.junit.Ignore;
+
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -11,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+@Ignore
 public class ImageDrawingPerformanceTest {
     private static final String[] BUFFERED_IMAGE_TYPE_NAMES = new String[]{
             "TYPE_3BYTE_BGR",

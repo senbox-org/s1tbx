@@ -16,6 +16,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.text.MessageFormat;
 
+import org.junit.Ignore;
+
+@Ignore
 public class TestHelpers {
 
     public static Module newRepositoryModuleMock(String name, String version, ModuleState state) throws CoreException {

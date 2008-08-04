@@ -15,6 +15,9 @@ import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 
+import org.junit.Ignore;
+
+@Ignore
 public class TransparencyTest {
 
 
