@@ -11,6 +11,7 @@
 
     <changelog>
         <![CDATA[<p>Changes in 4.5:<br/>
+          [BEAM-853] Context menu is not shown correctly on Mac OS X<br/>
           [BEAM-845] Created JPEG Images have false colours<br/>
           [BEAM-842] Context menu is not triggered on linux<br/>
          </p>
