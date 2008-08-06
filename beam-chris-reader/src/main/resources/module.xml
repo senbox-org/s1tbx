@@ -103,9 +103,9 @@
         </rgbProfile>
         <rgbProfile>
             <name>CHRIS/PROBA - Mode 3A</name>
-            <red>radiance_9</red>
+            <red>radiance_8</red>
             <green>radiance_5</green>
-            <blue>radiance_3</blue>
+            <blue>radiance_2</blue>
         </rgbProfile>
         <rgbProfile>
             <name>CHRIS/PROBA - Mode 4</name>
