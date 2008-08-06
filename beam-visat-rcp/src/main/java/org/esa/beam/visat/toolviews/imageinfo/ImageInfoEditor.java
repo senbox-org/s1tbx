@@ -22,6 +22,7 @@ import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.jidesoft.combobox.ColorChooserPanel;
 import com.jidesoft.popup.JidePopup;
+import com.jidesoft.swing.JidePopupMenu;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.util.math.Histogram;
@@ -30,14 +31,13 @@ import org.esa.beam.util.math.Range;
 
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
-import javax.swing.text.NumberFormatter;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.NumberFormatter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -55,6 +55,7 @@ import java.text.DecimalFormat;
 
 
 class ImageInfoEditor extends JPanel {
+
     public static final String PROPERTY_NAME_MODEL = "model";
 
     public static final String NO_DISPLAY_INFO_TEXT = "No image information available.";
@@ -72,7 +73,7 @@ class ImageInfoEditor extends JPanel {
     public static final Dimension PREF_COMPONENT_SIZE
             = new Dimension(PREF_HISTO_WIDTH + 2 * HOR_BORDER_SIZE,
                             PREF_HISTO_HEIGHT + PALETTE_HEIGHT + SLIDER_HEIGHT / 2
-                                    + 2 * HOR_BORDER_SIZE + FONT_SIZE);
+                            + 2 * HOR_BORDER_SIZE + FONT_SIZE);
     public static final BasicStroke STROKE_1 = new BasicStroke(1.0f);
     public static final BasicStroke STROKE_2 = new BasicStroke(2.0f);
     public static final BasicStroke DASHED_STROKE = new BasicStroke(0.75F, BasicStroke.CAP_SQUARE,
@@ -221,15 +222,11 @@ class ImageInfoEditor extends JPanel {
     }
 
     public void computeZoomInToSliderLimits() {
-        final double firstSliderValue;
-        final double lastSliderValue;
-        firstSliderValue = scaleInverse(getFirstSliderSample());
-        lastSliderValue = scaleInverse(getLastSliderSample());
+        final double firstSliderValue = scaleInverse(getFirstSliderSample());
+        final double lastSliderValue = scaleInverse(getLastSliderSample());
         final double tenPercentOffset = (lastSliderValue - firstSliderValue) / 80 * 10;
-        final double minViewSample;
-        final double maxViewSample;
-        minViewSample = scale(firstSliderValue - tenPercentOffset);
-        maxViewSample = scale(lastSliderValue + tenPercentOffset);
+        final double minViewSample = scale(firstSliderValue - tenPercentOffset);
+        final double maxViewSample = scale(lastSliderValue + tenPercentOffset);
 
         getModel().setMinHistogramViewSample(Math.max(minViewSample, getMinSample()));
         getModel().setMaxHistogramViewSample(Math.min(maxViewSample, getMaxSample()));
@@ -279,7 +276,7 @@ class ImageInfoEditor extends JPanel {
     }
 
     public void computeZoomInVertical() {
-        getModel().setHistogramViewGain(getModel().getHistogramViewGain() * (1.4));
+        getModel().setHistogramViewGain(getModel().getHistogramViewGain() * 1.4);
         repaint();
     }
 
@@ -295,23 +292,23 @@ class ImageInfoEditor extends JPanel {
         long paletteX1 = paletteRect.x + Math.round(getRelativeSliderPos(getFirstSliderSample()));
         long paletteX2 = paletteRect.x + Math.round(getRelativeSliderPos(getLastSliderSample()));
         g2d.setStroke(STROKE_1);
-        Color[] palette = getColorPalette();
-        if (palette != null) {
+        Color[] colorPalette = getColorPalette();
+        if (colorPalette != null) {
             for (int x = paletteRect.x; x < paletteRect.x + paletteRect.width; x++) {
                 long divisor = paletteX2 - paletteX1;
                 int palIndex;
                 if (divisor == 0) {
-                    palIndex = x < paletteX1 ? 0 : palette.length - 1;
+                    palIndex = x < paletteX1 ? 0 : colorPalette.length - 1;
                 } else {
-                    palIndex = (int) ((palette.length * (x - paletteX1)) / divisor);
+                    palIndex = (int) ((colorPalette.length * (x - paletteX1)) / divisor);
                 }
                 if (palIndex < 0) {
                     palIndex = 0;
                 }
-                if (palIndex > palette.length - 1) {
-                    palIndex = palette.length - 1;
+                if (palIndex > colorPalette.length - 1) {
+                    palIndex = colorPalette.length - 1;
                 }
-                g2d.setColor(palette[palIndex]);
+                g2d.setColor(colorPalette[palIndex]);
                 g2d.drawLine(x, paletteRect.y, x, paletteRect.y + paletteRect.height);
             }
         }
@@ -432,7 +429,7 @@ class ImageInfoEditor extends JPanel {
         line++;
         g2d.drawString(strings[2], xStartPosPrefix, yStartPos + FONT_SIZE * line);
         g2d.drawString(strings[3], xStartPosValues, yStartPos + FONT_SIZE * line);
-        if (!strings[5].equals("")) {
+        if (strings[5].length() != 0) {
             line++;
             g2d.drawString(strings[4], xStartPosPrefix, yStartPos + FONT_SIZE * line);
             g2d.drawString(strings[5], xStartPosValues, yStartPos + FONT_SIZE * line);
@@ -443,12 +440,10 @@ class ImageInfoEditor extends JPanel {
         g2d.setColor(Color.white);
         g2d.setStroke(STROKE_2);
 
-        int x1, y1, x2, y2;
-
-        x1 = histoRect.x;
-        y1 = histoRect.y + histoRect.height - 1;
-        x2 = (int) getAbsoluteSliderPos(getFirstSliderSample());
-        y2 = y1;
+        int x1 = histoRect.x;
+        int y1 = histoRect.y + histoRect.height - 1;
+        int x2 = (int) getAbsoluteSliderPos(getFirstSliderSample());
+        int y2 = y1;
         g2d.drawLine(x1, y1, x2, y2);
 
         x1 = x2;
@@ -531,7 +526,7 @@ class ImageInfoEditor extends JPanel {
         }
     }
 
-    private double getMaxVisibleHistogramCounts(final int[] histogramBins, double ratio) {
+    private static double getMaxVisibleHistogramCounts(final int[] histogramBins, double ratio) {
         double totalHistogramCounts = 0.0;
         for (int histogramBin : histogramBins) {
             totalHistogramCounts += histogramBin;
@@ -657,7 +652,7 @@ class ImageInfoEditor extends JPanel {
 
     private double computeAdjustedSliderValue(int sliderIndex, double value) {
         double valueD = value;
-        double minSliderValue = getMinSliderSample(sliderIndex);        
+        double minSliderValue = getMinSliderSample(sliderIndex);
         double maxSliderValue = getMaxSliderSample(sliderIndex);
         if (valueD < minSliderValue) {
             valueD = minSliderValue;
@@ -673,7 +668,7 @@ class ImageInfoEditor extends JPanel {
     }
 
     private boolean isLastSliderIndex(int sliderIndex) {
-        return (getSliderCount() - 1) == sliderIndex;
+        return getSliderCount() - 1 == sliderIndex;
     }
 
     private double round(double value) {
@@ -718,8 +713,9 @@ class ImageInfoEditor extends JPanel {
         }
         if (getMinSample() != getModel().getMinHistogramViewSample() || getMaxSample() != getModel().getMaxHistogramViewSample()) {
             return getModel().getHistogramBins().length
-                    / (scaleInverse(getMaxSample()) - scaleInverse(getMinSample()))
-                    * (scaleInverse(getModel().getMaxHistogramViewSample()) - scaleInverse(getModel().getMinHistogramViewSample()));
+                   / (scaleInverse(getMaxSample()) - scaleInverse(getMinSample()))
+                   * (scaleInverse(getModel().getMaxHistogramViewSample()) - scaleInverse(
+                    getModel().getMinHistogramViewSample()));
         }
         return getModel().getHistogramBins().length;
     }
@@ -730,18 +726,16 @@ class ImageInfoEditor extends JPanel {
         }
         if (getMinSample() != getModel().getMinHistogramViewSample()) {
             return (getModel().getHistogramBins().length - 1)
-                    / (scaleInverse(getMaxSample()) - scaleInverse(getMinSample()))
-                    * (scaleInverse(getModel().getMinHistogramViewSample()) - scaleInverse(getMinSample()));
+                   / (scaleInverse(getMaxSample()) - scaleInverse(getMinSample()))
+                   * (scaleInverse(getModel().getMinHistogramViewSample()) - scaleInverse(getMinSample()));
         }
         return 0;
     }
 
 
     public double getNormalizedHistogramViewSampleValue(double sample) {
-        final double minVisibleSample;
-        final double maxVisibleSample;
-        minVisibleSample = scaleInverse(getModel().getMinHistogramViewSample());
-        maxVisibleSample = scaleInverse(getModel().getMaxHistogramViewSample());
+        final double minVisibleSample = scaleInverse(getModel().getMinHistogramViewSample());
+        final double maxVisibleSample = scaleInverse(getModel().getMaxHistogramViewSample());
         sample = scaleInverse(sample);
         double delta = maxVisibleSample - minVisibleSample;
         if (delta == 0 || Double.isNaN(delta)) {
@@ -761,20 +755,13 @@ class ImageInfoEditor extends JPanel {
             panel.setSelectedColor(selectedColor);
         }
 
-        popup = new JidePopup();
-        popup.setOwner(ImageInfoEditor.this);
-        popup.setDefaultFocusComponent(panel);
-        popup.setContentPane(panel);
-        popup.setAttachable(true);
-        popup.setMovable(true);
-        popup.showPopup(evt.getXOnScreen(), evt.getYOnScreen());
+        showPopup(evt, panel);
 
         panel.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
-                popup.hidePopup();
-                final Color selectedColor = panel.getSelectedColor();
-                if (selectedColor != null) {
-                    setSliderColor(sliderIndex, selectedColor);
+                hidePopup();
+                if (panel.getSelectedColor() != null) {
+                    setSliderColor(sliderIndex, panel.getSelectedColor());
                 } else {
                     setSliderColor(sliderIndex, ImageInfo.NO_COLOR);
                 }
@@ -783,8 +770,6 @@ class ImageInfoEditor extends JPanel {
     }
 
     private void editSliderSample(MouseEvent evt, final int sliderIndex) {
-        hidePopup();
-
         final ValueContainer vc = new ValueContainer();
         vc.addModel(ValueModel.createValueModel("sample", getSliderSample(sliderIndex)));
         vc.getDescriptor("sample").setDisplayName("sample");
@@ -804,7 +789,7 @@ class ImageInfoEditor extends JPanel {
 
         ctx.addPropertyChangeListener("sample", new PropertyChangeListener() {
 
-            public void propertyChange(PropertyChangeEvent evt) {
+            public void propertyChange(PropertyChangeEvent pce) {
                 hidePopup();
                 setSliderSample(sliderIndex, (Double) ctx.getBinding("sample").getPropertyValue());
             }
@@ -812,11 +797,13 @@ class ImageInfoEditor extends JPanel {
     }
 
     private void showPopup(MouseEvent evt, JComponent component) {
+        hidePopup();
         popup = new JidePopup();
-        popup.getContentPane().add(component);
-        popup.setOwner(ImageInfoEditor.this);
+        popup.setOwner(this);
         popup.setDefaultFocusComponent(component);
+        popup.getContentPane().add(component);
         popup.setAttachable(true);
+        popup.setMovable(false);
         popup.showPopup(evt.getXOnScreen(), evt.getYOnScreen());
     }
 
@@ -832,8 +819,10 @@ class ImageInfoEditor extends JPanel {
         private int draggedSliderIndex;
         private boolean dragging;
 
-        public InternalMouseListener() {
-            resetState();
+        private InternalMouseListener() {
+            draggedSliderIndex = INVALID_INDEX;
+            factors = null;
+            dragging = false;
         }
 
         public boolean isDragging() {
@@ -858,32 +847,29 @@ class ImageInfoEditor extends JPanel {
         }
 
         public void mouseReleased(MouseEvent evt) {
-            if (!isDragging()) {
-                if (!maybeShowSliderActions(evt) && SwingUtilities.isLeftMouseButton(evt)) {
-                    int mode = 0;
-                    int sliderIndex = getSelectedSliderIndex(evt);
-                    if (sliderIndex != INVALID_INDEX && getModel().isColorEditable()) {
-                        mode = 1;
-                    }
-                    if (mode == 0) {
-                        if (sliderIndex == INVALID_INDEX) {
-                            sliderIndex = getSelectedSliderTextIndex(evt);
-                        }
-                        if (sliderIndex != INVALID_INDEX) {
-                            mode = 2;
-                        }
-                    }
-                    if (mode == 1) {
-                        editSliderColor(evt, sliderIndex);
-                    } else if (mode == 2) {
-                        editSliderSample(evt, sliderIndex);
-                    }
-                }
-            }
-            if (popup == null) {
+            if (isDragging()) {
                 doDragSlider(evt, false);
                 setDragging(false);
                 setDraggedSliderIndex(INVALID_INDEX);
+            } else if (!maybeShowSliderActions(evt) && SwingUtilities.isLeftMouseButton(evt)) {
+                int mode = 0;
+                int sliderIndex = getSelectedSliderIndex(evt);
+                if (sliderIndex != INVALID_INDEX && getModel().isColorEditable()) {
+                    mode = 1;
+                }
+                if (mode == 0) {
+                    if (sliderIndex == INVALID_INDEX) {
+                        sliderIndex = getSelectedSliderTextIndex(evt);
+                    }
+                    if (sliderIndex != INVALID_INDEX) {
+                        mode = 2;
+                    }
+                }
+                if (mode == 1) {
+                    editSliderColor(evt, sliderIndex);
+                } else if (mode == 2) {
+                    editSliderSample(evt, sliderIndex);
+                }
             }
         }
 
@@ -943,42 +929,39 @@ class ImageInfoEditor extends JPanel {
         }
 
         private void showSliderActions(MouseEvent evt, final int sliderIndex) {
-            popup = new JidePopup();
-            popup.setOwner(ImageInfoEditor.this);
-            final JMenu menu = new JMenu();
+            final JPopupMenu menu = new JidePopupMenu();
+            boolean showPopupMenu = false;
             JMenuItem menuItem = createMenuItemAddNewSlider(sliderIndex, evt);
             if (menuItem != null) {
                 menu.add(menuItem);
+                showPopupMenu = true;
             }
             if (getSliderCount() > 3 && sliderIndex != INVALID_INDEX) {
                 menuItem = createMenuItemDeleteSlider(sliderIndex);
                 menu.add(menuItem);
+                showPopupMenu = true;
             }
             if (getSliderCount() > 2 && sliderIndex > 0 && sliderIndex < getSliderCount() - 1) {
                 menuItem = createMenuItemCenterSampleValue(sliderIndex);
                 menu.add(menuItem);
                 menuItem = createMenuItemCenterColorValue(sliderIndex);
                 menu.add(menuItem);
+                showPopupMenu = true;
             }
-            if (menu.getItemCount() > 0) {
-                final JPopupMenu popupMenu = menu.getPopupMenu();
-                popupMenu.setVisible(true);
-                popup.add(menu);
-                popup.showPopup(evt.getXOnScreen(), evt.getYOnScreen());
-            } else {
-                popup = null;
+            if (showPopupMenu) {
+                menu.show(evt.getComponent(), evt.getX(), evt.getY());
             }
         }
 
         private JMenuItem createMenuItemCenterColorValue(final int sliderIndex) {
-            JMenuItem menuItem;
-            menuItem = new JMenuItem();
+            JMenuItem menuItem = new JMenuItem();
             menuItem.setText("Center slider colour"); /* I18N */
             menuItem.setMnemonic('c');
             menuItem.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent actionEvent) {
-                    final Color newColor = ColorPaletteDef.getCenterColor(getSliderColor(sliderIndex - 1), getSliderColor(sliderIndex + 1));
+                    final Color newColor = ColorPaletteDef.getCenterColor(getSliderColor(sliderIndex - 1),
+                                                                          getSliderColor(sliderIndex + 1));
                     setSliderColor(sliderIndex, newColor);
                     hidePopup();
                 }
@@ -993,7 +976,8 @@ class ImageInfoEditor extends JPanel {
             menuItem.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent actionEvent) {
-                    final double center = scale(0.5 * (scaleInverse(getSliderSample(sliderIndex - 1)) + scaleInverse(getSliderSample(sliderIndex + 1))));
+                    final double center = scale(0.5 * (scaleInverse(getSliderSample(sliderIndex - 1)) + scaleInverse(
+                            getSliderSample(sliderIndex + 1))));
                     setSliderSample(sliderIndex, center, false);
                     hidePopup();
                 }
@@ -1036,7 +1020,7 @@ class ImageInfoEditor extends JPanel {
             menuItem.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
-                    assert getModel() != null;
+                    assert getModel() != null : "getModel() != null";
                     if (index != INVALID_INDEX && index < getModel().getSliderCount() - 1) {
                         getModel().createSliderAfter(index);
                     }
@@ -1055,7 +1039,7 @@ class ImageInfoEditor extends JPanel {
         }
 
         private boolean isLastSliderDragged() {
-            return getDraggedSliderIndex() == (getSliderCount() - 1);
+            return getDraggedSliderIndex() == getSliderCount() - 1;
         }
 
         private boolean isVerticalInColorBarArea(int y) {
@@ -1126,7 +1110,7 @@ class ImageInfoEditor extends JPanel {
             if (nearestIndex == getSliderCount() - 1) {
                 final int i = getSliderCount() - 1;
                 if (getAbsoluteSliderPos(getSliderSample(i - 1)) == getAbsoluteSliderPos(getSliderSample(i))) {
-                    nearestIndex = (dx <= 0.0) ? i : i - 1;
+                    nearestIndex = dx <= 0.0 ? i : i - 1;
                 }
             }
             return nearestIndex;
@@ -1150,6 +1134,7 @@ class ImageInfoEditor extends JPanel {
     }
 
     private class RepaintCL implements ChangeListener {
+
         public void stateChanged(ChangeEvent e) {
             palette = null;
             repaint();
@@ -1157,6 +1142,7 @@ class ImageInfoEditor extends JPanel {
     }
 
     private class ModelCL implements ChangeListener {
+
         public void stateChanged(ChangeEvent e) {
             fireStateChanged();
         }
