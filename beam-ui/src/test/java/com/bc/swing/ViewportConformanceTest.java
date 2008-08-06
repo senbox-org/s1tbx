@@ -1,19 +1,13 @@
 package com.bc.swing;
 
-import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.glayer.Assert2D;
-import com.bc.view.DefaultViewModel;
+import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.view.ViewModel;
-
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
-import org.junit.Assert;
-import static org.junit.Assert.*;
+
+import java.awt.*;
+import java.awt.geom.AffineTransform;
 
 public class ViewportConformanceTest {
 
@@ -27,8 +21,8 @@ public class ViewportConformanceTest {
         final GraphicsPane graphicsPane = new GraphicsPane();
         graphicsPane.setBounds(viewportBounds);
 
-        viewport.zoom(new Rectangle(2,3,4,5));
-        graphicsPane.zoom(new Rectangle(2,3,4,5));
+        viewport.zoom(new Rectangle(2, 3, 4, 5));
+        graphicsPane.zoom(new Rectangle(2, 3, 4, 5));
         AffineTransform expectedAT = createModelToViewTransform(graphicsPane);
         assertEquals(expectedAT, viewport.getModelToViewTransform());
 
@@ -37,13 +31,13 @@ public class ViewportConformanceTest {
         expectedAT = createModelToViewTransform(graphicsPane);
         assertEquals(expectedAT, viewport.getModelToViewTransform());
 
-        viewport.zoom(3,2,0.5);
-        graphicsPane.zoom(3,2,0.5);
+        viewport.zoom(3, 2, 0.5);
+        graphicsPane.zoom(3, 2, 0.5);
         expectedAT = createModelToViewTransform(graphicsPane);
         assertEquals(expectedAT, viewport.getModelToViewTransform());
 
-        viewport.move(-3,1);
-        graphicsPane.getViewModel().setModelOffset(-3,1);
+        viewport.move(-3, 1);
+        graphicsPane.getViewModel().setModelOffset(-3, 1);
         expectedAT = createModelToViewTransform(graphicsPane);
         assertEquals(expectedAT, viewport.getModelToViewTransform());
     }
