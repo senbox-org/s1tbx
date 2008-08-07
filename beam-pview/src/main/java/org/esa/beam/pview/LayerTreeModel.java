@@ -21,7 +21,7 @@ class LayerTreeModel extends DefaultTreeModel {
             final Object userObject = parentNode.getUserObject();
             if (userObject instanceof Layer) {
                 Layer layer = (Layer) userObject;
-                layer.getChildLayers().add(index, (Layer) treeNode.getUserObject());
+                layer.getChildLayerList().add(index, (Layer) treeNode.getUserObject());
                 super.insertNodeInto(newChild, parent, index);
             }
         }
@@ -35,7 +35,7 @@ class LayerTreeModel extends DefaultTreeModel {
             final Object userObject = parent.getUserObject();
             if (userObject instanceof Layer) {
                 Layer collectionLayer = (Layer) userObject;
-                if (collectionLayer.getChildLayers().remove((Layer) treeNode.getUserObject())) {
+                if (collectionLayer.getChildLayerList().remove((Layer) treeNode.getUserObject())) {
                     super.removeNodeFromParent(node);
                 }
             }
@@ -45,8 +45,8 @@ class LayerTreeModel extends DefaultTreeModel {
 
     private static MutableTreeNode createTreeNodes(Layer layer) {
         final DefaultMutableTreeNode node = new DefaultMutableTreeNode(layer);
-        for (Layer subLayer : layer.getChildLayers()) {
-            if (layer.getChildLayers().isEmpty()) {
+        for (Layer subLayer : layer.getChildLayerList()) {
+            if (layer.getChildLayerList().isEmpty()) {
                 node.add(new DefaultMutableTreeNode(subLayer));
             } else {
                 node.add(createTreeNodes(subLayer));

@@ -65,6 +65,7 @@ public class PlacemarkLayer extends Layer {
             g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
             final AffineTransform transform = new AffineTransform();
+            transform.concatenate(oldTransform);
             transform.concatenate(viewport.getModelToViewTransform());
             transform.concatenate(imageToModelTransform);
             g2d.setTransform(transform);
@@ -77,6 +78,7 @@ public class PlacemarkLayer extends Layer {
                 if (pixelPos != null) {
                     g2d.translate(pixelPos.getX(), pixelPos.getY());
                     g2d.scale(1.0 / zoomFactor, 1.0 / zoomFactor);
+                    g2d.rotate(viewport.getOrientation());
 
                     if (pin.isSelected()) {
                         pin.getSymbol().drawSelected(g2d);
@@ -88,6 +90,7 @@ public class PlacemarkLayer extends Layer {
                         drawTextLabel(g2d, pin);
                     }
 
+                    g2d.rotate(-viewport.getOrientation());
                     g2d.scale(zoomFactor, zoomFactor);
                     g2d.translate(-pixelPos.getX(), -pixelPos.getY());
                 }

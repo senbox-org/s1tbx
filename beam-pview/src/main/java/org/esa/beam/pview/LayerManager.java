@@ -223,7 +223,7 @@ class LayerManager {
         final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) TreeUtils.findTreeNode(layerTree, layer);
         doSelection(treeNode, layer.isVisible());
 
-        final List<Layer> childLayers = layer.getChildLayers();
+        final List<Layer> childLayers = layer.getChildLayerList();
         for (Layer childLayer : childLayers) {
             initSelection(childLayer);
         }

@@ -5,6 +5,8 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerListener;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
+import com.bc.ceres.glevel.LevelImage;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.BufferedImageRendering;
@@ -15,13 +17,12 @@ import org.esa.beam.framework.ui.PixelInfoFactory;
 import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.Tool;
+import org.esa.beam.glevel.MaskMultiLevelImage;
+import org.esa.beam.glevel.RoiMultiLevelImage;
 import org.esa.beam.util.PropertyMap;
 
 import javax.swing.JComponent;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Point2D;
@@ -30,6 +31,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.io.IOException;
+import java.util.Collections;
 
 class ProductSceneView45 extends ProductSceneView {
 
@@ -142,13 +144,13 @@ class ProductSceneView45 extends ProductSceneView {
     }
 
     private ImageLayer getBaseImageLayer() {
-        final Layer layer = layerCanvas.getLayer().getChildLayers().get(0);
+        final Layer layer = layerCanvas.getLayer().getChildLayerList().get(0);
         return (ImageLayer) layer;
     }
 
     @Override
     public Rectangle2D getModelBounds() {
-        return getSceneImage45().getRootLayer().getBounds();
+        return layerCanvas.getLayer().getBounds();
     }
 
     @Override
@@ -209,53 +211,102 @@ class ProductSceneView45 extends ProductSceneView {
 
     @Override
     public boolean isNoDataOverlayEnabled() {
-        return false;  // todo - implement me!
+        return getNoDataLayer().isVisible();
     }
 
 
     @Override
     public void setNoDataOverlayEnabled(boolean enabled) {
-        // todo - implement me!
+        if (isNoDataOverlayEnabled() != enabled) {
+            getNoDataLayer().setVisible(enabled);
+            fireImageUpdated();
+        }
     }
 
     @Override
-    public boolean isGraticuleOverlayEnabled() {
-        return false;  // todo - implement me!
-    }
+    public void updateNoDataImage(ProgressMonitor pm) throws Exception {
+        final String expression = getRaster().getValidMaskExpression();
+        if (expression != null) {
+            // todo - get color from style, set color
+            final LevelImage levelImage = new MaskMultiLevelImage(getRaster().getProduct(), Color.ORANGE, expression,
+                                                                  true, new AffineTransform());
+            getNoDataLayer().setLevelImage(levelImage);
+        } else {
+            getNoDataLayer().setLevelImage(LevelImage.NULL);
+        }
 
-    @Override
-    public void setGraticuleOverlayEnabled(boolean enabled) {
-        // todo - implement me!
-    }
-
-    @Override
-    public boolean isPinOverlayEnabled() {
-        return false;  // todo - implement me!
-    }
-
-    @Override
-    public void setPinOverlayEnabled(boolean enabled) {
-        // todo - implement me!
-    }
-
-    @Override
-    public boolean isGcpOverlayEnabled() {
-        return false;  // todo - implement me!
-    }
-
-    @Override
-    public void setGcpOverlayEnabled(boolean enabled) {
-        // todo - implement me!
+        fireImageUpdated();
     }
 
     @Override
     public boolean isROIOverlayEnabled() {
-        return false;  // todo - implement me!
+        return getRoiLayer().isVisible();
     }
 
     @Override
     public void setROIOverlayEnabled(boolean enabled) {
-        // todo - implement me!
+        if (isROIOverlayEnabled() != enabled) {
+            getRoiLayer().setVisible(enabled);
+            fireImageUpdated();
+        }
+    }
+
+    @Override
+    public void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception {
+        if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
+            // todo - get color from style, set color
+            final LevelImage levelImage = new RoiMultiLevelImage(getRaster(), Color.RED, new AffineTransform());
+            getRoiLayer().setLevelImage(levelImage);
+        } else {
+            getRoiLayer().setLevelImage(LevelImage.NULL);
+        }
+
+        fireImageUpdated();
+    }
+
+    @Override
+    public RenderedImage getROIImage() {
+        final RenderedImage roiImage = getRoiLayer().getImage(0);
+
+        if (roiImage == LevelImage.NULL) {
+            // for compatibility to 42
+            return null;
+        }
+
+        return roiImage;
+    }
+
+    @Override
+    public void setROIImage(RenderedImage roiImage) {
+        // todo - check why this is needed - used by MagicStick only
+        getRoiLayer().setLevelImage(new DefaultMultiLevelImage(roiImage, new AffineTransform(), 0));
+        fireImageUpdated();
+    }
+
+    @Override
+    public boolean isPinOverlayEnabled() {
+        return getPinLayer().isVisible();
+    }
+
+    @Override
+    public void setPinOverlayEnabled(boolean enabled) {
+        if (isPinOverlayEnabled() != enabled) {
+            getPinLayer().setVisible(enabled);
+            fireImageUpdated();
+        }
+    }
+
+    @Override
+    public boolean isGcpOverlayEnabled() {
+        return getGcpLayer().isVisible();
+    }
+
+    @Override
+    public void setGcpOverlayEnabled(boolean enabled) {
+        if (isGcpOverlayEnabled() != enabled) {
+            getGcpLayer().setVisible(enabled);
+            fireImageUpdated();
+        }
     }
 
     @Override
@@ -269,18 +320,13 @@ class ProductSceneView45 extends ProductSceneView {
     }
 
     @Override
-    public RenderedImage getROIImage() {
-        return null;  // todo - implement me!
+    public boolean isGraticuleOverlayEnabled() {
+        return false;  // todo - implement me! See 4.2 layer impl.
     }
 
     @Override
-    public void setROIImage(RenderedImage roiImage) {
-        // todo - implement me!
-    }
-
-    @Override
-    public void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception {
-        // todo - implement me!
+    public void setGraticuleOverlayEnabled(boolean enabled) {
+        // todo - implement me! See 4.2 layer impl.
     }
 
     @Override
@@ -298,14 +344,21 @@ class ProductSceneView45 extends ProductSceneView {
         // todo - implement me!
     }
 
+    /**
+     * Called after VISAT preferences have changed.
+     * This behaviour is deprecated since we want to uswe separate style editors for each layers.
+     *
+     * @param propertyMap
+     */
     @Override
     public void setLayerProperties(PropertyMap propertyMap) {
+
         // todo - implement me!
     }
 
     @Override
     public void addPixelPositionListener(PixelPositionListener listener) {
-        // todo - implement me!
+        // todo - implement me! Use viewport.viewToModelTransform + image.modelToImageTransform to fire pixel change
     }
 
     @Override
@@ -313,9 +366,14 @@ class ProductSceneView45 extends ProductSceneView {
         // todo - implement me!
     }
 
+    /**
+     * Gets tools which can handle selections.
+     *
+     * @return
+     */
     @Override
     public AbstractTool[] getSelectToolDelegates() {
-        return new AbstractTool[0];  // todo - implement me!
+        return new AbstractTool[0];  // todo - implement me! Check: maybe this isn't even used
     }
 
     @Override
@@ -387,9 +445,19 @@ class ProductSceneView45 extends ProductSceneView {
         // todo - implement me!
     }
 
-    @Override
-    public void updateNoDataImage(ProgressMonitor pm) throws Exception {
-        // todo - implement me!
+    private ImageLayer getNoDataLayer() {
+        return (ImageLayer) getSceneImage45().getRootLayer().getChildLayerList().get(1);
     }
 
+    private ImageLayer getRoiLayer() {
+        return (ImageLayer) getSceneImage45().getRootLayer().getChildLayerList().get(3);
+    }
+
+    private Layer getPinLayer() {
+        return getSceneImage45().getRootLayer().getChildLayerList().get(5);
+    }
+
+    private Layer getGcpLayer() {
+        return getSceneImage45().getRootLayer().getChildLayerList().get(6);
+    }
 }

@@ -128,6 +128,8 @@ public class ImageManager {
         final String expression;
 
         private MaskKey(Product product, String expression) {
+            Assert.notNull(product, "product");
+            Assert.notNull(expression, "expression");
             this.product = product;
             this.expression = expression;
         }

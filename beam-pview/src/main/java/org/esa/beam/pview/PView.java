@@ -143,7 +143,7 @@ public class PView {
                 || product.getProductType().startsWith("MER_FR__1P")
                 || product.getProductType().startsWith("MER_FRS_1P")) {
             setMerisL1bRois(product);
-            rootLayer.getChildLayers().add(createMerisL1bRgbLayers(product, i2m));
+            rootLayer.getChildLayerList().add(createMerisL1bRgbLayers(product, i2m));
         }
         setSomePlacemarks(product);
 
@@ -163,15 +163,15 @@ public class PView {
                 final ImageLayer layer = new ImageLayer(worldLevelImage);
                 layer.setName("World");
                 layer.setVisible(true);
-                rootLayer.getChildLayers().add(layer);
+                rootLayer.getChildLayerList().add(layer);
             }
         }
         openFrame(productFile, rootLayer);
     }
 
     private void addNonEmptyLayer(Layer rootLayer, Layer childLayer) {
-        if (!childLayer.getChildLayers().isEmpty()) {
-            rootLayer.getChildLayers().add(childLayer);
+        if (!childLayer.getChildLayerList().isEmpty()) {
+            rootLayer.getChildLayerList().add(childLayer);
         }
     }
 
@@ -280,19 +280,19 @@ public class PView {
                 product.getBand("radiance_5"),
                 product.getBand("radiance_1"),
         }, i2m);
-        collectionLayer.getChildLayers().add(l2);
+        collectionLayer.getChildLayerList().add(l2);
         Layer l1 = createRgbLayer("RGB 742", new RasterDataNode[]{
                 product.getBand("radiance_7"),
                 product.getBand("radiance_4"),
                 product.getBand("radiance_2"),
         }, i2m);
-        collectionLayer.getChildLayers().add(l1);
+        collectionLayer.getChildLayerList().add(l1);
         Layer l = createRgbLayer("RGB 931", new RasterDataNode[]{
                 product.getBand("radiance_9"),
                 product.getBand("radiance_3"),
                 product.getBand("radiance_1"),
         }, i2m);
-        collectionLayer.getChildLayers().add(l);
+        collectionLayer.getChildLayerList().add(l);
         return collectionLayer;
     }
 
@@ -308,7 +308,7 @@ public class PView {
                 imageLayer.setName("ROI of " + band.getName());
                 imageLayer.setVisible(false);
                 imageLayer.getStyle().setOpacity(0.5);
-                collectionLayer.getChildLayers().add(imageLayer);
+                collectionLayer.getChildLayerList().add(imageLayer);
             }
         }
         return collectionLayer;
@@ -332,7 +332,7 @@ public class PView {
             imageLayer.setName(bitmaskDef.getName());
             imageLayer.setVisible(false);
             imageLayer.getStyle().setOpacity(bitmaskDef.getAlpha());
-            collectionLayer.getChildLayers().add(imageLayer);
+            collectionLayer.getChildLayerList().add(imageLayer);
         }
         return collectionLayer;
     }
@@ -347,20 +347,20 @@ public class PView {
             final ImageLayer imageLayer = new ImageLayer(new BandMultiLevelImage(band, i2m));
             imageLayer.setName(band.getName());
             imageLayer.setVisible(i == 0);
-            collectionLayer.getChildLayers().add(imageLayer);
+            collectionLayer.getChildLayerList().add(imageLayer);
         }
 
-        if (!collectionLayer.getChildLayers().isEmpty()) {
+        if (!collectionLayer.getChildLayerList().isEmpty()) {
             String[] bandNames = new String[]{"radiance_13", "reflec_13"};
             boolean found = false;
             for (int i = 0; i < bandNames.length && !found; i++) {
                 int bandIndex = product.getBandIndex(bandNames[i]);
                 if (bandIndex != -1) {
-                    collectionLayer.getChildLayers().get(bandIndex).setVisible(true);
+                    collectionLayer.getChildLayerList().get(bandIndex).setVisible(true);
                     found = true;
                 }
             }
-            collectionLayer.getChildLayers().get(0).setVisible(!found);
+            collectionLayer.getChildLayerList().get(0).setVisible(!found);
         }
         return collectionLayer;
     }
@@ -378,7 +378,7 @@ public class PView {
                 imageLayer.setName("No-data mask of " + band.getName());
                 imageLayer.setVisible(false);
                 imageLayer.getStyle().setOpacity(0.5);
-                collectionLayer.getChildLayers().add(imageLayer);
+                collectionLayer.getChildLayerList().add(imageLayer);
             }
         }
         return collectionLayer;
@@ -393,7 +393,7 @@ public class PView {
             final ImageLayer imageLayer = new ImageLayer(new BandMultiLevelImage(tiePointGrid, i2m));
             imageLayer.setName(tiePointGrid.getName());
             imageLayer.setVisible(false);
-            collectionLayer.getChildLayers().add(imageLayer);
+            collectionLayer.getChildLayerList().add(imageLayer);
         }
         return collectionLayer;
     }
@@ -407,13 +407,13 @@ public class PView {
             pinLayer.setName("Pins");
             pinLayer.setVisible(false);
             pinLayer.setTextEnabled(true);
-            collectionLayer.getChildLayers().add(pinLayer);
+            collectionLayer.getChildLayerList().add(pinLayer);
 
             final org.esa.beam.glayer.PlacemarkLayer gcpLayer = new org.esa.beam.glayer.PlacemarkLayer(product, GcpDescriptor.INSTANCE, i2m);
             gcpLayer.setName("GCPs");
             gcpLayer.setVisible(false);
             gcpLayer.setTextEnabled(false);
-            collectionLayer.getChildLayers().add(gcpLayer);
+            collectionLayer.getChildLayerList().add(gcpLayer);
         }
 
         return collectionLayer;

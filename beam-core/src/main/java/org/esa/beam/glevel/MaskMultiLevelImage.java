@@ -1,6 +1,7 @@
 package org.esa.beam.glevel;
 
 import com.bc.ceres.glevel.support.AbstractMultiLevelImage;
+import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.jai.ImageManager;
 
@@ -20,6 +21,9 @@ public class MaskMultiLevelImage extends AbstractMultiLevelImage {
 
     public MaskMultiLevelImage(Product product, Color color, String expression, boolean inverseMask, AffineTransform affineTransform) {
         super(affineTransform, ImageManager.computeMaxLevelCount(product.getSceneRasterWidth(), product.getSceneRasterHeight()));
+        Assert.notNull(color);
+        Assert.notNull(expression);
+
         this.product = product;
         this.color = color;
         this.expression = expression;

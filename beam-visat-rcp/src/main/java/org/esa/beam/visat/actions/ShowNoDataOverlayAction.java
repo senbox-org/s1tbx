@@ -146,6 +146,7 @@ public class ShowNoDataOverlayAction extends ExecCommand {
                 } catch (Exception e) {
                     VisatApp.getApp().showErrorDialog( "Unable to create no-data overlay image due to an error:\n" +
                             e.getMessage());
+                    e.printStackTrace();
                 }
             }
         };
