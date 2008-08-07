@@ -21,7 +21,9 @@
     </dependency>
 
     <changelog>
-        <![CDATA[<p>Changes in 4.5:<br/>
+        <![CDATA[
+        <p>Changes in 4.5:<br/>
+        [BEAM-854] ROI shifted by one pixel compared to shape<br/>
         [BEAM-844] False computation of bitmask overlay colours<br/>
         </p>
 

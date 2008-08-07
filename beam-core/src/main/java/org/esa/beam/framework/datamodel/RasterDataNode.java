@@ -29,6 +29,7 @@ import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
@@ -36,6 +37,7 @@ import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.text.MessageFormat;
 
 /**
  * The <code>RasterDataNode</code> class ist the abstract base class for all objects in the product package that contain
@@ -1788,7 +1790,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         final byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
         final int n = data.length;
         // Nothing set so far
-        boolean dataValid = false;
 
         int count = 0;
         if (!StringUtils.isNullOrEmpty(roiDefinition.getBitmaskExpr()) && roiDefinition.isBitmaskEnabled()) {
@@ -1808,6 +1809,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         }
         pm.beginTask("Computing ROI image...", count);
 
+        boolean dataValid = false;
         try {
             //////////////////////////////////////////////////////////////////
             // Step 1:  insert ROI pixels determined by bitmask expression
@@ -1841,25 +1843,24 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 if (!dataValid) {
                     processor = new RasterDataProcessor() {
                         public void processRasterDataBuffer(ProductData buffer, int y0, int numLines,
-                                                            ProgressMonitor pm) throws IOException {
+                                                            ProgressMonitor monitor) throws IOException {
                             final RasterDataDoubleList values = new RasterDataDoubleList(buffer);
                             final IndexValidator pixelValidator = createPixelValidator(y0, null);
                             final int n = values.getSize();
                             final int i0 = y0 * getSceneRasterWidth();
-                            double v;
-                            pm.beginTask("Processing raster data", n);
+                            monitor.beginTask("Processing raster data", n);
                             try {
                                 for (int i = 0; i < n; i++) {
                                     if (pixelValidator.validateIndex(i)) {
-                                        v = values.getDouble(i);
+                                        double v = values.getDouble(i);
                                         if (v >= min && v <= max) {
                                             data[i0 + i] = b01;
                                         }
                                     }
-                                    pm.worked(1);
+                                    monitor.worked(1);
                                 }
                             } finally {
-                                pm.done();
+                                monitor.done();
                             }
 
                         }
@@ -1867,54 +1868,52 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 } else if (orCombined) {
                     processor = new RasterDataProcessor() {
                         public void processRasterDataBuffer(ProductData buffer, int y0, int numLines,
-                                                            ProgressMonitor pm) throws IOException {
+                                                            ProgressMonitor monitor) throws IOException {
                             final RasterDataDoubleList values = new RasterDataDoubleList(buffer);
                             final IndexValidator pixelValidator = createPixelValidator(y0, null);
                             final int n = values.getSize();
                             final int i0 = y0 * getSceneRasterWidth();
-                            double v;
-                            pm.beginTask("Processing raster data", n);
+                            monitor.beginTask("Processing raster data", n);
                             try {
                                 for (int i = 0; i < n; i++) {
                                     if (pixelValidator.validateIndex(i)) {
                                         if (data[i0 + i] == b00) {
-                                            v = values.getDouble(i);
+                                            double v = values.getDouble(i);
                                             if (v >= min && v <= max) {
                                                 data[i0 + i] = b01;
                                             }
                                         }
                                     }
-                                    pm.worked(1);
+                                    monitor.worked(1);
                                 }
                             } finally {
-                                pm.done();
+                                monitor.done();
                             }
                         }
                     };
                 } else {
                     processor = new RasterDataProcessor() {
                         public void processRasterDataBuffer(ProductData buffer, int y0, int numLines,
-                                                            ProgressMonitor pm) throws IOException {
+                                                            ProgressMonitor monitor) throws IOException {
                             final RasterDataDoubleList values = new RasterDataDoubleList(buffer);
                             final IndexValidator pixelValidator = createPixelValidator(y0, null);
                             final int n = values.getSize();
                             final int i0 = y0 * getSceneRasterWidth();
-                            double v;
-                            pm.beginTask("Processing raster data", n);
+                            monitor.beginTask("Processing raster data", n);
                             try {
                                 for (int i = 0; i < n; i++) {
                                     if (pixelValidator.validateIndex(i)) {
                                         if (data[i0 + i] == b01) {
-                                            v = values.getDouble(i);
+                                            double v = values.getDouble(i);
                                             if (v < min || v > max) {
                                                 data[i0 + i] = b00;
                                             }
                                         }
                                     }
-                                    pm.worked(1);
+                                    monitor.worked(1);
                                 }
                             } finally {
-                                pm.done();
+                                monitor.done();
                             }
                         }
                     };
@@ -1941,10 +1940,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                         validIndexes[i] = -1;
                     }
                 }
-                int validIndex;
                 if (!dataValid || orCombined) {
-                    for (int validIndexe : validIndexes) {
-                        validIndex = validIndexe;
+                    for (int validIndex : validIndexes) {
                         if (validIndex != -1) {
                             data[validIndex] = b01;
                         }
@@ -1983,8 +1980,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 final Graphics2D graphics2D = bi2.createGraphics();
                 graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
                 graphics2D.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
+                graphics2D.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
                 graphics2D.setColor(Color.white);
-                graphics2D.setStroke(new BasicStroke(1f));
+                graphics2D.setStroke(new BasicStroke(1.0f));
                 if (!roiShapeFigure.isOneDimensional()) {
                     graphics2D.fill(roiShapeFigure.getShape());
                 }
@@ -2014,7 +2012,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             //
             if (roiDefinition.isInverted()) {
                 for (int i = 0; i < n; i++) {
-                    data[i] = (data[i] == b00) ? b01 : b00;
+                    data[i] = data[i] == b00 ? b01 : b00;
                 }
                 pm.worked(1);
             }
