@@ -65,13 +65,16 @@ public abstract class AbstractMultiLevelImage implements LevelImage {
                     cache = opImage.getTileCache();
                 }
             }
-            cache.removeTiles(planarImage);
+            if (planarImage != null) {
+                cache.removeTiles(planarImage);
+            }
         }
     }
 
     /**
      * Gets the planar image for the given level. If the image does not yet exist,
      * {@link #createPlanarImage(int)} is called to create the image and cache it for the given level..
+     *
      * @param level The level.
      * @return The planar image.
      */

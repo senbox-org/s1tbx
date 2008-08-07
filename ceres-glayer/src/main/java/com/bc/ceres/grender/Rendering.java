@@ -19,7 +19,7 @@ public interface Rendering {
     Graphics2D getGraphics();
 
     /**
-     * @return The porthole through which the data is viewed.
+     * @return The porthole through which the model is viewed.
      */
     Viewport getViewport();
 }

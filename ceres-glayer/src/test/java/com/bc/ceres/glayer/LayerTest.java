@@ -23,7 +23,7 @@ public class LayerTest {
         assertEquals(1.0, layer.getStyle().getOpacity(), 1e-10);
         assertEquals(Composite.SRC_OVER, layer.getStyle().getComposite());
 
-        assertEquals(true, layer.getChildLayers().isEmpty());
+        assertEquals(true, layer.getChildLayerList().isEmpty());
         assertNull(layer.getBounds());
     }
 
@@ -63,9 +63,9 @@ public class LayerTest {
     @Test
     public void testBounds() {
         final Layer layer = new Layer();
-        layer.getChildLayers().add(new ShapeLayer(new Shape[]{new Rectangle(-20, 10, 30, 50)}));
-        layer.getChildLayers().add(new ShapeLayer(new Shape[]{new Rectangle(-10, 20, 20, 60)}));
-        layer.getChildLayers().add(new ShapeLayer(new Shape[]{new Rectangle(0, 0, 40, 50)}));
+        layer.getChildLayerList().add(new ShapeLayer(new Shape[]{new Rectangle(-20, 10, 30, 50)}));
+        layer.getChildLayerList().add(new ShapeLayer(new Shape[]{new Rectangle(-10, 20, 20, 60)}));
+        layer.getChildLayerList().add(new ShapeLayer(new Shape[]{new Rectangle(0, 0, 40, 50)}));
         assertNotNull(layer.getBounds());
         assertEquals(new Rectangle(-20, 0, 60, 80), layer.getBounds());
     }
@@ -77,9 +77,9 @@ public class LayerTest {
         final RenderCountingLayer l2 = new RenderCountingLayer();
         final RenderCountingLayer l3 = new RenderCountingLayer();
 
-        layer.getChildLayers().add(l1);
-        layer.getChildLayers().add(l2);
-        layer.getChildLayers().add(l3);
+        layer.getChildLayerList().add(l1);
+        layer.getChildLayerList().add(l2);
+        layer.getChildLayerList().add(l3);
 
         final Rendering rendering = new BufferedImageRendering(16, 16);
         layer.render(rendering);
@@ -144,7 +144,7 @@ public class LayerTest {
     @Test
     public void testListInterfaceImplementionSpecConformance() {
 
-        final java.util.List<Layer> list = new Layer().getChildLayers();
+        final java.util.List<Layer> list = new Layer().getChildLayerList();
 
         assertEquals(true, list.isEmpty());
         assertEquals(0, list.size());
@@ -221,7 +221,7 @@ public class LayerTest {
     public void testChildLayerListIsLife() {
 
         Layer owner = new Layer();
-        final List<Layer> list = owner.getChildLayers();
+        final List<Layer> list = owner.getChildLayerList();
 
 
         final TracingLayerListener ll = new TracingLayerListener();

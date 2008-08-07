@@ -3,6 +3,10 @@ package com.bc.ceres.glayer.support;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import static com.bc.ceres.glayer.Assert2D.*;
+import com.bc.ceres.glayer.LayerTest;
+import com.bc.ceres.glevel.LevelImage;
+import com.bc.ceres.glevel.support.NullLevelImage;
+import com.bc.ceres.grender.Rendering;
 
 import javax.media.jai.TiledImage;
 import java.awt.geom.AffineTransform;
@@ -10,6 +14,26 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public class ImageLayerTest  {
+
+    @Test
+    public void testThatLayerOperattesWithNullImage() {
+        final ImageLayer layer = new ImageLayer(LevelImage.NULL);
+
+        assertNotNull(layer.getLevelImage());
+        assertNotNull(layer.getImage());
+
+        assertEquals(1, layer.getLevelCount());
+
+        assertNotNull(layer.getImageToModelTransform());
+        assertTrue(layer.getImageToModelTransform().isIdentity());
+
+        assertNotNull(layer.getModelToImageTransform());
+        assertTrue(layer.getModelToImageTransform().isIdentity());
+
+        assertNotNull(layer.getBounds());
+        assertTrue(layer.getBounds().isEmpty());
+    }
+
     @Test
     public void testConstructors() {
         ImageLayer layer;

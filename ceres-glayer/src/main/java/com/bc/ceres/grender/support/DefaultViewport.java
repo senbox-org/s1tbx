@@ -196,6 +196,7 @@ public class DefaultViewport implements Viewport {
         return getClass().getName() + "[viewToModelTransform=" + viewToModelTransform + "]";
     }
 
+    // todo - move somewhere else
     public static double getScale(AffineTransform t) {
         final double m00 = t.getScaleX();
         final double m10 = t.getShearY();

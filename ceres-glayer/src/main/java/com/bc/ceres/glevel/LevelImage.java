@@ -1,13 +1,17 @@
 package com.bc.ceres.glevel;
 
+import com.bc.ceres.glevel.support.NullLevelImage;
+
 import javax.media.jai.PlanarImage;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.RenderedImage;
 
 /**
  * An image comprising multiple resolution levels.
  */
 public interface LevelImage {
+    LevelImage NULL = NullLevelImage.INSTANCE;
 
     /**
      * Gets the maximum number of resolution levels.
@@ -68,4 +72,5 @@ public interface LevelImage {
      * @return the bounding box.
      */
     Rectangle2D getBounds(int level);
+
 }

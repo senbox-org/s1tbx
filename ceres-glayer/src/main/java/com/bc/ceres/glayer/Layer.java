@@ -63,7 +63,7 @@ public class Layer {
      *
      * @return The child layers of this layer. May be empty.
      */
-    public List<Layer> getChildLayers() {
+    public List<Layer> getChildLayerList() {
         return childLayers;
     }
 
@@ -232,8 +232,8 @@ public class Layer {
      * @param rendering The rendering to which the layer will be rendered.
      */
     protected void renderChildLayers(Rendering rendering) {
-        for (int i = childLayers.size() - 1; i >= 0; i--) {
-            childLayers.get(i).render(rendering);
+        for (Layer childLayer : childLayers) {
+            childLayer.render(rendering);
         }
     }
 
@@ -343,6 +343,13 @@ public class Layer {
      */
      void setParentLayer(Layer parentLayer) {
         this.parentLayer = parentLayer;
+    }
+
+    /**
+     * Regenerates the layer. May be called to update the layer data.
+     * The default implementation does nothing.
+     */
+    public void regenerate() {
     }
 
     private class StylePCL implements PropertyChangeListener {

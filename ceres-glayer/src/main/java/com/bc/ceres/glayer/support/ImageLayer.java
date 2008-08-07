@@ -1,12 +1,10 @@
 package com.bc.ceres.glayer.support;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glevel.LevelImage;
 import com.bc.ceres.glevel.LevelImageRenderer;
-import com.bc.ceres.glevel.support.ConcurrentLevelImageRenderer;
-import com.bc.ceres.glevel.support.DefaultLevelImageRenderer;
-import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-import com.bc.ceres.glevel.support.SingleLevelImage;
+import com.bc.ceres.glevel.support.*;
 import com.bc.ceres.grender.InteractiveRendering;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
@@ -15,6 +13,7 @@ import com.bc.ceres.grender.support.DefaultViewport;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
+import java.util.logging.Level;
 
 /**
  * A multi-resolution capable image layer.
@@ -63,12 +62,13 @@ public class ImageLayer extends Layer {
      * @param levelImage the multi-resolution-level image
      */
     public ImageLayer(LevelImage levelImage) {
+        Assert.notNull(levelImage);
         this.levelImage = levelImage;
     }
 
+    @Override
     public void regenerate() {
-        resetRenderer();
-        levelImage.reset();
+        clearCaches();
         fireLayerDataChanged(getBounds());
     }
 
@@ -78,6 +78,21 @@ public class ImageLayer extends Layer {
 
     public RenderedImage getImage() {
         return getImage(0);
+    }
+
+    public LevelImage getLevelImage() {
+        return levelImage;
+    }
+
+    public void setLevelImage(LevelImage levelImage) {
+        Assert.notNull(levelImage);
+        if (levelImage != this.levelImage) {
+            final Rectangle2D region = this.levelImage.getBounds(0).createUnion(levelImage.getBounds(0));
+            clearCaches();
+            this.levelImage = levelImage;
+            concurrentRenderer = null;
+            fireLayerDataChanged(region);
+        }
     }
 
     public AffineTransform getImageToModelTransform() {
@@ -114,6 +129,9 @@ public class ImageLayer extends Layer {
 
     @Override
     protected void renderLayer(Rendering rendering) {
+        if (levelImage == LevelImage.NULL) {
+            return;
+        }
         final Viewport vp = rendering.getViewport();
         final double i2mScale = DefaultViewport.getScale(getImageToModelTransform());
         final double m2vScale = 1.0 / vp.getZoomFactor();
@@ -147,6 +165,11 @@ public class ImageLayer extends Layer {
         if (concurrentRenderer != null) {
             concurrentRenderer.reset();
         }
+    }
+
+    private void clearCaches() {
+        resetRenderer();
+        levelImage.reset();
     }
 
 }

@@ -48,7 +48,7 @@ public class LayerManagerForm {
 
                 final int selectedRow = layerTable.getSelectedRow();
                 if (selectedRow != -1) {
-                    updateLayerStyleUI(getRootLayer().getChildLayers().get(selectedRow));
+                    updateLayerStyleUI(getRootLayer().getChildLayerList().get(selectedRow));
                 }
             }
         });
@@ -67,7 +67,7 @@ public class LayerManagerForm {
             public void stateChanged(ChangeEvent e) {
                 final int selectedRow = layerTable.getSelectedRow();
                 if (selectedRow != -1) {
-                    final Layer layer = getRootLayer().getChildLayers().get(selectedRow);
+                    final Layer layer = getRootLayer().getChildLayerList().get(selectedRow);
                     adjusting = true;
                     layer.getStyle().setOpacity(1.0 - transparencySlider.getValue() / 100.0f);
                     adjusting = false;
@@ -79,7 +79,7 @@ public class LayerManagerForm {
             public void actionPerformed(ActionEvent e) {
                 final int selectedRow = layerTable.getSelectedRow();
                 if (selectedRow != -1) {
-                    final Layer layer = getRootLayer().getChildLayers().get(selectedRow);
+                    final Layer layer = getRootLayer().getChildLayerList().get(selectedRow);
                     adjusting = true;
                     final Composite composite = (Composite) alphaCompositeBox.getSelectedItem();
                     layer.getStyle().setComposite(composite);
@@ -94,7 +94,7 @@ public class LayerManagerForm {
                     if (!adjusting) {
                         final int selectedRow = layerTable.getSelectedRow();
                         if (selectedRow != -1) {
-                            final Layer selectedLayer = getRootLayer().getChildLayers().get(selectedRow);
+                            final Layer selectedLayer = getRootLayer().getChildLayerList().get(selectedRow);
                             if (selectedLayer == layer) {
                                 updateLayerStyleUI(layer);
                             }
@@ -155,7 +155,7 @@ public class LayerManagerForm {
         }
 
         public int getRowCount() {
-            return rootLayer.getChildLayers().size();
+            return rootLayer.getChildLayerList().size();
         }
 
         public int getColumnCount() {
@@ -163,7 +163,7 @@ public class LayerManagerForm {
         }
 
         public Object getValueAt(int rowIndex, int columnIndex) {
-            final Layer layer = rootLayer.getChildLayers().get(rowIndex);
+            final Layer layer = rootLayer.getChildLayerList().get(rowIndex);
             if (columnIndex == 0) {
                 return layer.isVisible();
             } else if (columnIndex == 1) {
@@ -174,7 +174,7 @@ public class LayerManagerForm {
 
         @Override
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-            final Layer layer = rootLayer.getChildLayers().get(rowIndex);
+            final Layer layer = rootLayer.getChildLayerList().get(rowIndex);
             if (columnIndex == 0) {
                 layer.setVisible((Boolean) aValue);
             } else if (columnIndex == 1) {

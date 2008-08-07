@@ -38,7 +38,7 @@ public abstract class AbstractLayerListener implements LayerListener {
      * Called if a new layer has been added to a collection layer.
      *
      * @param parentLayer The parent layer which triggered the change.
-     * @param childLayers
+     * @param childLayers The child layers added.
      */
     @Override
     public void handleLayersAdded(Layer parentLayer, Layer[] childLayers) {
@@ -48,7 +48,7 @@ public abstract class AbstractLayerListener implements LayerListener {
      * Called if an existing layer has been removed from a collection layer.
      *
      * @param parentLayer The parent layer which triggered the change.
-     * @param childLayers
+     * @param childLayers The child layers removed.
      */
     @Override
     public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
