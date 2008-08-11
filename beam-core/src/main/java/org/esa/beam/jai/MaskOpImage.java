@@ -51,6 +51,7 @@ public class MaskOpImage extends SingleBandedOpImage {
         this.term = term;
     }
 
+    @Override
     protected LevelOpImage createDownscaledImage(int level) {
         return new MaskOpImage(product, term, getLevel0Image(), level);
     }

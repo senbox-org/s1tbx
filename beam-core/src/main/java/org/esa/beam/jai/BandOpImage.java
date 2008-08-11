@@ -32,6 +32,7 @@ public class BandOpImage extends SingleBandedOpImage {
         this.rasterDataNode = rasterDataNode;
     }
 
+    @Override
     protected LevelOpImage createDownscaledImage(int level) {
         return new BandOpImage(rasterDataNode, getLevel0Image(), level);
     }

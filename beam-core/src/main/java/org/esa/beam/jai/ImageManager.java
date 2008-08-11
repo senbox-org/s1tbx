@@ -28,7 +28,7 @@ public class ImageManager {
     private static final ColorPaletteDef.Point OTHER_POINT = new ColorPaletteDef.Point(Double.NaN, Color.BLACK, "Other");
 
     private final static ImageManager INSTANCE = new ImageManager();
-    private final Map<Object, MaskOpImage> maskImageMap = new HashMap<Object, MaskOpImage>(101);
+    private final Map<Object, LevelOpImage> maskImageMap = new HashMap<Object, LevelOpImage>(101);
 
     public static ImageManager getInstance() {
         return INSTANCE;
@@ -250,15 +250,15 @@ public class ImageManager {
         return image;
     }
 
-    public MaskOpImage getMaskImage(Product product, String expression, int level) {
+    public LevelOpImage getMaskImage(Product product, String expression, int level) {
         final Object key = new MaskKey(product, expression);
         synchronized (maskImageMap) {
-            MaskOpImage opImage = maskImageMap.get(key);
+            LevelOpImage opImage = maskImageMap.get(key);
             if (opImage == null) {
                 opImage = MaskOpImage.create(product, expression);
                 maskImageMap.put(key, opImage);
             }
-            return (MaskOpImage) opImage.downscale(level);
+            return (LevelOpImage) opImage.downscale(level);
         }
     }
 
@@ -537,17 +537,41 @@ public class ImageManager {
 
         // Step 3:  insert ROI pixels for pins
         if (roiDefinition.isPinUseEnabled() && rasterDataNode.getProduct().getPinGroup().getNodeCount() > 0) {
-            rois.add(new PlacemarkMaskOpImage(rasterDataNode.getProduct(), PinDescriptor.INSTANCE, 3,
-                                              rasterDataNode.getSceneRasterWidth(),
-                                              rasterDataNode.getSceneRasterHeight(), level));
+            
+            final Object key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getName()+"_RoiPlacemarks");
+            PlacemarkMaskOpImage placemarkMaskOpImageLevel0 = null;
+            synchronized (maskImageMap) {
+                LevelOpImage opImage = maskImageMap.get(key);
+                if (opImage == null) {
+                    placemarkMaskOpImageLevel0 = new PlacemarkMaskOpImage(rasterDataNode.getProduct(), PinDescriptor.INSTANCE, 3,
+                            rasterDataNode.getSceneRasterWidth(),
+                            rasterDataNode.getSceneRasterHeight());
+                    maskImageMap.put(key, placemarkMaskOpImageLevel0);
+                }
+            }
+            if (placemarkMaskOpImageLevel0 != null) {
+                rois.add((PlanarImage)placemarkMaskOpImageLevel0.downscale(level));
+            }
         }
 
         // Step 4:  insert ROI pixels within shape
         Figure roiShapeFigure = roiDefinition.getShapeFigure();
         if (roiDefinition.isShapeEnabled() && roiShapeFigure != null) {
-            rois.add(new ShapeMaskOpImage(roiShapeFigure.getShape(),
-                                          rasterDataNode.getSceneRasterWidth(),
-                                          rasterDataNode.getSceneRasterHeight(), level));
+            
+            final Object key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getName()+"_RoiShapes");
+            ShapeMaskOpImage shapeMaskOpImageLevel0 = null;
+            synchronized (maskImageMap) {
+                LevelOpImage opImage = maskImageMap.get(key);
+                if (opImage == null) {
+                    shapeMaskOpImageLevel0 = new ShapeMaskOpImage(roiShapeFigure.getShape(),
+                            rasterDataNode.getSceneRasterWidth(),
+                            rasterDataNode.getSceneRasterHeight());
+                    maskImageMap.put(key, shapeMaskOpImageLevel0);
+                }
+            }
+            if (shapeMaskOpImageLevel0 != null) {
+                rois.add((PlanarImage)shapeMaskOpImageLevel0.downscale(level));
+            }
         }
 
         if (rois.size() == 0) {

@@ -21,9 +21,16 @@ public class PlacemarkMaskOpImage extends SingleBandedOpImage {
     private final int placemarkSize;
 
     public PlacemarkMaskOpImage(Product product, PlacemarkDescriptor placemarkDescriptor,
+            int placemarkSize,
+            int sourceWidth, int sourceHeight) {
+        this(product, placemarkDescriptor, placemarkSize, 
+                sourceWidth, sourceHeight, null, 0);
+    }
+    
+    private PlacemarkMaskOpImage(Product product, PlacemarkDescriptor placemarkDescriptor,
                                 int placemarkSize,
-                                int sourceWidth, int sourceHeight, int level) {
-        super(DataBuffer.TYPE_BYTE, sourceWidth, sourceHeight, product.getPreferredTileSize(), null, level,
+                                int sourceWidth, int sourceHeight, LevelOpImage level0Image, int level) {
+        super(DataBuffer.TYPE_BYTE, sourceWidth, sourceHeight, product.getPreferredTileSize(), level0Image, level,
               null);
         this.product = product;
         this.placemarkDescriptor = placemarkDescriptor;
@@ -31,8 +38,9 @@ public class PlacemarkMaskOpImage extends SingleBandedOpImage {
         this.colorModel = createColorModel(getSampleModel());
     }
 
+    @Override
     protected LevelOpImage createDownscaledImage(int level) {
-        return new PlacemarkMaskOpImage(product, placemarkDescriptor, placemarkSize, getSourceWidth(), getSourceHeight(), level);
+        return new PlacemarkMaskOpImage(product, placemarkDescriptor, placemarkSize, getSourceWidth(), getSourceHeight(), getLevel0Image(), level);
     }
 
     @Override

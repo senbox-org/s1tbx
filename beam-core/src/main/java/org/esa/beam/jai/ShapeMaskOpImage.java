@@ -17,14 +17,19 @@ public class ShapeMaskOpImage extends SingleBandedOpImage {
     private final Shape shape;
     private final ColorModel colorModel;
 
-    public ShapeMaskOpImage(Shape shape, int sourceWidth, int sourceHeight, int level) {
-        super(DataBuffer.TYPE_BYTE, sourceWidth, sourceHeight, null, null, level, null);
+    public ShapeMaskOpImage(Shape shape, int sourceWidth, int sourceHeight) {
+        this(shape, sourceWidth, sourceHeight, null, 0);
+        
+    }
+    private ShapeMaskOpImage(Shape shape, int sourceWidth, int sourceHeight, LevelOpImage level0Image, int level) {
+        super(DataBuffer.TYPE_BYTE, sourceWidth, sourceHeight, null, level0Image, level, null);
         this.shape = AffineTransform.getScaleInstance(getScale(), getScale()).createTransformedShape(shape);
         this.colorModel = PlanarImage.createColorModel(getSampleModel());
     }
 
+    @Override
     protected LevelOpImage createDownscaledImage(int level) {
-        return new ShapeMaskOpImage(shape, getSourceWidth(), getSourceHeight(), level);
+        return new ShapeMaskOpImage(shape, getSourceWidth(), getSourceHeight(), getLevel0Image(), level);
     }
 
     @Override
