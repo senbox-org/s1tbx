@@ -3,17 +3,25 @@ package org.esa.beam.framework.ui.product;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glayer.support.ShapeLayer;
 import com.bc.ceres.glevel.LevelImage;
+import com.bc.ceres.grender.Rendering;
+import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.glayer.PlacemarkLayer;
 import org.esa.beam.glevel.BandMultiLevelImage;
 import org.esa.beam.util.ProductUtils;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
+import java.util.*;
+import java.util.List;
 
 /**
  * TODO - Apidoc
@@ -77,8 +85,11 @@ class ProductSceneImage45 extends ProductSceneImage {
         gcpLayer.setVisible(false);
         gcpLayer.setTextEnabled(false);
 
+        final FigureLayer figureLayer = new FigureLayer(new Figure[0]);
+        figureLayer.setVisible(true);
+
         rootLayer.getChildLayerList().add(noDataLayer);
-        rootLayer.getChildLayerList().add(new ImageLayer(LevelImage.NULL)); // figure layer
+        rootLayer.getChildLayerList().add(figureLayer);
         rootLayer.getChildLayerList().add(roiLayer);
         rootLayer.getChildLayerList().add(new ImageLayer(LevelImage.NULL)); // graticule layer
         rootLayer.getChildLayerList().add(pinLayer);
@@ -120,8 +131,66 @@ class ProductSceneImage45 extends ProductSceneImage {
         return rootLayer;
     }
 
-
     public BandMultiLevelImage getLevelImage() {
         return levelImage;
+    }
+
+    public static class FigureLayer extends Layer {
+        private final List<Figure> figureList;
+        private final AffineTransform shapeToModelTransform;
+        private final AffineTransform modelToShapeTransform;
+
+        public FigureLayer(Figure[] figures) {
+            this.figureList = new ArrayList<Figure>(Arrays.asList(figures));
+            this.shapeToModelTransform =
+                    this.modelToShapeTransform = new AffineTransform();
+        }
+
+        public List<Figure> getFigureList() {
+            return new ArrayList<Figure>(figureList);
+        }
+
+        public void setFigureList(List<Figure> list) {
+            figureList.clear();
+            figureList.addAll(list);
+        }
+
+//        public AffineTransform getShapeToModelTransform() {
+//            return (AffineTransform) shapeToModelTransform.clone();
+//        }
+//
+//        public AffineTransform getModelToShapeTransform() {
+//            return (AffineTransform) modelToShapeTransform.clone();
+//        }
+
+        @Override
+        public Rectangle2D getBounds() {
+            Rectangle2D boundingBox = new Rectangle2D.Double();
+            for (Figure figure : figureList) {
+                boundingBox.add(figure.getShape().getBounds2D());
+            }
+            return shapeToModelTransform.createTransformedShape(boundingBox).getBounds2D();
+        }
+
+        @Override
+        protected void renderLayer(Rendering rendering) {
+            final Graphics2D g = rendering.getGraphics();
+            final Viewport vp = rendering.getViewport();
+            final AffineTransform transformSave = g.getTransform();
+            try {
+                final AffineTransform transform = new AffineTransform();
+                transform.concatenate(vp.getModelToViewTransform());
+                transform.concatenate(shapeToModelTransform);
+                g.setTransform(transform);
+                for (Figure figure : figureList) {
+                    g.setPaint(Color.WHITE);
+                    g.fill(figure.getShape());
+                    g.setPaint(Color.BLACK);
+                    g.draw(figure.getShape());
+                }
+            } finally {
+                g.setTransform(transformSave);
+            }
+        }
     }
 }

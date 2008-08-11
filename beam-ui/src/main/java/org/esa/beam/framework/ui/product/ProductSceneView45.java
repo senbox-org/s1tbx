@@ -17,12 +17,15 @@ import org.esa.beam.framework.ui.PixelInfoFactory;
 import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.Tool;
+import org.esa.beam.framework.ui.tool.ToolInputEvent;
 import org.esa.beam.glevel.MaskMultiLevelImage;
 import org.esa.beam.glevel.RoiMultiLevelImage;
 import org.esa.beam.util.PropertyMap;
 
-import javax.swing.JComponent;
+import javax.swing.*;
+import javax.swing.event.MouseInputListener;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Point2D;
@@ -31,11 +34,11 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.io.IOException;
-import java.util.Collections;
 
 class ProductSceneView45 extends ProductSceneView {
 
-    private LayerCanvas layerCanvas;
+    private MyLayerCanvas layerCanvas;
+//    private Tool currentTool;
 
     ProductSceneView45(ProductSceneImage45 sceneImage) {
         super(sceneImage);
@@ -44,7 +47,7 @@ class ProductSceneView45 extends ProductSceneView {
         setBackground(DEFAULT_IMAGE_BACKGROUND_COLOR);
         setLayout(new BorderLayout());
 
-        layerCanvas = new LayerCanvas(sceneImage.getRootLayer());
+        layerCanvas = new MyLayerCanvas(sceneImage.getRootLayer());
         final ViewportScrollPane scrollPane = new ViewportScrollPane(layerCanvas);
         add(scrollPane, BorderLayout.CENTER);
 
@@ -268,8 +271,8 @@ class ProductSceneView45 extends ProductSceneView {
     public RenderedImage getROIImage() {
         final RenderedImage roiImage = getRoiLayer().getImage(0);
 
+        // for compatibility to 42
         if (roiImage == LevelImage.NULL) {
-            // for compatibility to 42
             return null;
         }
 
@@ -278,7 +281,7 @@ class ProductSceneView45 extends ProductSceneView {
 
     @Override
     public void setROIImage(RenderedImage roiImage) {
-        // todo - check why this is needed - used by MagicStick only
+        // used by MagicStick only
         getRoiLayer().setLevelImage(new DefaultMultiLevelImage(roiImage, new AffineTransform(), 0));
         fireImageUpdated();
     }
@@ -311,12 +314,15 @@ class ProductSceneView45 extends ProductSceneView {
 
     @Override
     public boolean isShapeOverlayEnabled() {
-        return false;  // todo - implement me!
+        return getFigureLayer().isVisible();
     }
 
     @Override
     public void setShapeOverlayEnabled(boolean enabled) {
-        // todo - implement me!
+        if (isShapeOverlayEnabled() != enabled) {
+            getFigureLayer().setVisible(enabled);
+            fireImageUpdated();
+        }
     }
 
     @Override
@@ -336,12 +342,21 @@ class ProductSceneView45 extends ProductSceneView {
 
     @Override
     public Figure getCurrentShapeFigure() {
-        return null;  // todo - implement me!
+        return getNumFigures() > 0 ? getFigureAt(0) : null;
     }
 
     @Override
     public void setCurrentShapeFigure(Figure currentShapeFigure) {
-        // todo - implement me!
+        setShapeOverlayEnabled(true);
+        final Figure oldShapeFigure = getCurrentShapeFigure();
+        if (currentShapeFigure != oldShapeFigure) {
+            if (oldShapeFigure != null) {
+                getFigureLayer().getFigureList().remove(oldShapeFigure);
+            }
+            if (currentShapeFigure != null) {
+                getFigureLayer().getFigureList().add(currentShapeFigure);
+            }
+        }
     }
 
     /**
@@ -352,7 +367,6 @@ class ProductSceneView45 extends ProductSceneView {
      */
     @Override
     public void setLayerProperties(PropertyMap propertyMap) {
-
         // todo - implement me!
     }
 
@@ -394,33 +408,54 @@ class ProductSceneView45 extends ProductSceneView {
 
     @Override
     public Tool getTool() {
-        return null;  // todo - implement me!
+        return layerCanvas.tool;
     }
 
     @Override
     public void setTool(Tool tool) {
-        // todo - implement me!
+        if (tool != null && layerCanvas.tool != tool) {
+            tool.setDrawingEditor(this);
+            setCursor(tool.getCursor());
+            layerCanvas.setTool(tool);
+        }
     }
 
     @Override
     public void repaintTool() {
-        // todo - implement me!
+        if (layerCanvas.tool != null) {
+            System.out.println("repaintTool: " + layerCanvas.tool.getClass().toString());
+//            toolRepaintRequested = true;
+            repaint(100);
+        }
     }
 
+//    private final void drawToolNoTransf(Graphics2D g2d) {
+//        if (currentTool != null) {
+//            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+//            if (currentTool.getDrawable() != null) {
+//                currentTool.getDrawable().draw(g2d);
+//            }
+//            // reset rendering hints ?????? TODO
+//        }
+//    }
+
     public void removeFigure(Figure figure) {
-        // todo - implement me!
+        getFigureLayer().getFigureList().remove(figure);
+        if (isShapeOverlayEnabled()) {
+            fireImageUpdated();
+        }
     }
 
     public int getNumFigures() {
-        return 0;  // todo - implement me!
+        return getFigureLayer().getFigureList().size();
     }
 
     public Figure getFigureAt(int index) {
-        return null;  // todo - implement me!
+        return getFigureLayer().getFigureList().get(index);
     }
 
     public Figure[] getAllFigures() {
-        return new Figure[0];  // todo - implement me!
+        return getFigureLayer().getFigureList().toArray(new Figure[getNumFigures()]);
     }
 
     public Figure[] getSelectedFigures() {
@@ -445,8 +480,21 @@ class ProductSceneView45 extends ProductSceneView {
         // todo - implement me!
     }
 
+//    @Override
+//    protected void paintComponent(Graphics g) {
+//        layerCanvas.paint(g);
+//        if (g instanceof Graphics2D) {
+//            Graphics2D g2d = (Graphics2D) g;
+//            drawToolNoTransf(g2d);
+//        }
+//    }
+
     private ImageLayer getNoDataLayer() {
         return (ImageLayer) getSceneImage45().getRootLayer().getChildLayerList().get(1);
+    }
+
+    private ProductSceneImage45.FigureLayer getFigureLayer() {
+        return (ProductSceneImage45.FigureLayer) getSceneImage45().getRootLayer().getChildLayerList().get(2);
     }
 
     private ImageLayer getRoiLayer() {
@@ -459,5 +507,153 @@ class ProductSceneView45 extends ProductSceneView {
 
     private Layer getGcpLayer() {
         return getSceneImage45().getRootLayer().getChildLayerList().get(6);
+    }
+
+    private static class MyLayerCanvas extends LayerCanvas {
+        Tool tool;
+        private int pixelX = -1;
+        private int pixelY = -1;
+
+//        private MyLayerCanvas() {
+//            super();
+//        }
+
+        private MyLayerCanvas(Layer layer) {
+            super(layer);
+        }
+
+//        private MyLayerCanvas(Layer layer, Viewport viewport) {
+//            super(layer, viewport);
+//        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (g instanceof Graphics2D) {
+                Graphics2D g2d = (Graphics2D) g;
+
+                if (tool != null && tool.isActive()) {
+                    final Viewport vp = getViewport();
+                    final AffineTransform transformSave = g2d.getTransform();
+                    try {
+                        final AffineTransform transform = new AffineTransform();
+                        transform.concatenate(vp.getModelToViewTransform());
+                        g2d.setTransform(transform);
+                        drawToolNoTransf(g2d);
+                    } finally {
+                        g2d.setTransform(transformSave);
+                    }
+                }
+            }
+        }
+
+        private void drawToolNoTransf(Graphics2D g2d) {
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            if (tool.getDrawable() != null) {
+                System.out.println("DRAW_TOOL:" + tool.getClass().toString());
+                tool.getDrawable().draw(g2d);
+            }
+            // reset rendering hints ?????? TODO
+        }
+
+        private void setTool(Tool tool) {
+            Tool oldTool = this.tool;
+            this.tool = tool;
+            firePropertyChange("tool", oldTool, tool);
+        }
+
+        final synchronized void fireToolEvent(MouseEvent e) {
+//        Debug.trace("fireToolEvent "  + e);
+            if (tool != null) {
+//                ToolInputEvent toolInputEvent = createToolInputEvent(e);
+//                tool.handleEvent(toolInputEvent);
+            }
+        }
+
+        private void setPixelPos(MouseEvent e, boolean showBorder) {
+            Point p = e.getPoint();
+            final Point2D modelP = getViewport().getViewToModelTransform().transform(p, null);
+            int pixelX = (int) Math.floor(modelP.getX());
+            int pixelY = (int) Math.floor(modelP.getY());
+            if (pixelX != this.pixelX || pixelY != this.pixelY) {
+//                if (isPixelBorderDisplayEnabled() && (showBorder || pixelBorderDrawn)) {
+//                    drawPixelBorder(pixelX, pixelY, showBorder);
+//                }
+                setPixelPos(e, pixelX, pixelY);
+            }
+        }
+
+
+        final void setPixelPos(MouseEvent e, int pixelX, int pixelY) {
+            this.pixelX = pixelX;
+            this.pixelY = pixelY;
+            if (e.getID() != MouseEvent.MOUSE_EXITED) {
+//                firePixelPosChanged(e, this.pixelX, this.pixelY);
+            } else {
+//                firePixelPosNotAvailable();
+            }
+        }
+
+        private final class PixelPosUpdater implements MouseInputListener {
+
+
+            /**
+             * Invoked when the mouse has been clicked on a component.
+             */
+            public final void mouseClicked(MouseEvent e) {
+                updatePixelPos(e, false);
+            }
+
+            /**
+             * Invoked when the mouse enters a component.
+             */
+            public final void mouseEntered(MouseEvent e) {
+                updatePixelPos(e, false);
+            }
+
+            /**
+             * Invoked when a mouse button has been pressed on a component.
+             */
+            public final void mousePressed(MouseEvent e) {
+                updatePixelPos(e, false);
+            }
+
+            /**
+             * Invoked when a mouse button has been released on a component.
+             */
+            public final void mouseReleased(MouseEvent e) {
+                updatePixelPos(e, false);
+            }
+
+            /**
+             * Invoked when the mouse exits a component.
+             */
+            public final void mouseExited(MouseEvent e) {
+                updatePixelPos(e, false);
+            }
+
+            /**
+             * Invoked when a mouse button is pressed on a component and then dragged.  Mouse drag events will continue
+             * to be delivered to the component where the first originated until the mouse button is released
+             * (regardless of whether the mouse position is within the bounds of the component).
+             */
+            public final void mouseDragged(MouseEvent e) {
+                updatePixelPos(e, true);
+            }
+
+            /**
+             * Invoked when the mouse button has been moved on a component (with no buttons no down).
+             */
+            public final void mouseMoved(MouseEvent e) {
+                updatePixelPos(e, true);
+            }
+
+
+            private void updatePixelPos(MouseEvent e, boolean showBorder) {
+                setPixelPos(e, showBorder);
+                fireToolEvent(e);
+            }
+        }
+
     }
 }
