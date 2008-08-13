@@ -123,6 +123,7 @@ public class DefaultViewport implements Viewport {
         m2v.translate(-modelOffsetX, -modelOffsetY);
         modelToViewTransform.setTransform(m2v);
         updateViewToModelTransform();
+        this.orientation = 0;
         rotate(orientation);
         fireViewportChanged(false);
     }
