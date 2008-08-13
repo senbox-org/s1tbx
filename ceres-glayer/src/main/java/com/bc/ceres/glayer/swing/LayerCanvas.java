@@ -15,7 +15,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -50,12 +49,6 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         this.sliderPopUp = new SliderPopUp();
 
         this.canvasRendering = new CanvasRendering();
-
-
-        final MouseHandler mouseHandler = new MouseHandler();
-        addMouseListener(mouseHandler);
-        addMouseMotionListener(mouseHandler);
-        addMouseWheelListener(mouseHandler);
 
         addComponentListener(new ComponentAdapter() {
             public void componentMoved(ComponentEvent event) {
@@ -94,6 +87,13 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         });
     }
 
+    public void installMouseHandler() {
+        final MouseHandler mouseHandler = new MouseHandler();
+        addMouseListener(mouseHandler);
+        addMouseMotionListener(mouseHandler);
+        addMouseWheelListener(mouseHandler);
+    }
+    
     public Layer getLayer() {
         return layer;
     }

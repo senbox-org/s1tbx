@@ -111,6 +111,7 @@ public class Tools {
                                     int levelCount,
                                     boolean concurrent) {
         final LayerCanvas layerCanvas = new LayerCanvas();
+        layerCanvas.installMouseHandler();
         final Layer collectionLayer = layerCanvas.getLayer();
         final LevelImage levelImage = new FileMultiLevelImage(location, extension, imageToModelTransform, levelCount);
         final ImageLayer layer = new ImageLayer(levelImage);
@@ -139,6 +140,7 @@ public class Tools {
                                      int levelCount,
                                      boolean concurrent) {
         final LayerCanvas layerCanvas = new LayerCanvas();
+        layerCanvas.installMouseHandler();
         final Layer collectionLayer = layerCanvas.getLayer();
         for (int i = 0; i < images.length; i++) {
             final ImageLayer layer = new ImageLayer(images[i], imageToModelTransforms[i], levelCount);
