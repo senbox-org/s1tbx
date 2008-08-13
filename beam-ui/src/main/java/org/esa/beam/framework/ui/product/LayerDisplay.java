@@ -42,7 +42,7 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.grender.Viewport;
 
-class LayerDisplay extends LayerCanvas {
+public class LayerDisplay extends LayerCanvas {
     private Tool tool;
     private int pixelX = -1;
     private int pixelY = -1;
