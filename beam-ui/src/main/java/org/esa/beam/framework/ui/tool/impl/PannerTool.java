@@ -4,6 +4,7 @@
  */
 package org.esa.beam.framework.ui.tool.impl;
 
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -13,9 +14,11 @@ import javax.swing.ImageIcon;
 
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.draw.Drawable;
+import org.esa.beam.framework.ui.product.LayerDisplay;
 import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 
+import com.bc.ceres.grender.Viewport;
 import com.bc.swing.GraphicsPane;
 
 public class  PannerTool extends AbstractTool {
@@ -34,19 +37,36 @@ public class  PannerTool extends AbstractTool {
     }
 
     public void mousePressed(ToolInputEvent e) {
-        GraphicsPane graphicsPane = (GraphicsPane) e.getComponent();
         _viewportX = e.getMouseEvent().getX();
         _viewportY = e.getMouseEvent().getY();
-        _modelOffsetX = graphicsPane.getViewModel().getModelOffsetX();
-        _modelOffsetY = graphicsPane.getViewModel().getModelOffsetY();
+        
+        Component component = e.getComponent();
+        if (component instanceof GraphicsPane) {
+            GraphicsPane graphicsPane = (GraphicsPane) component;
+            _modelOffsetX = graphicsPane.getViewModel().getModelOffsetX();
+            _modelOffsetY = graphicsPane.getViewModel().getModelOffsetY();
+        }
     }
 
     public void mouseDragged(ToolInputEvent e) {
-        GraphicsPane graphicsPane = (GraphicsPane) e.getComponent();
-        final double viewScale = graphicsPane.getViewModel().getViewScale();
-        graphicsPane.getViewModel().setModelOffset(
-                _modelOffsetX + (_viewportX -e.getMouseEvent().getX()) / viewScale,
-                _modelOffsetY + (_viewportY - e.getMouseEvent().getY()) / viewScale);
+        Component component = e.getComponent();
+        if (component instanceof GraphicsPane) {
+            GraphicsPane graphicsPane = (GraphicsPane) component;
+            final double viewScale = graphicsPane.getViewModel().getViewScale();
+            graphicsPane.getViewModel().setModelOffset(
+                    _modelOffsetX + (_viewportX -e.getMouseEvent().getX()) / viewScale,
+                    _modelOffsetY + (_viewportY - e.getMouseEvent().getY()) / viewScale);
+        } else if (component instanceof LayerDisplay) {
+            LayerDisplay layerDisplay = (LayerDisplay) component;
+            Viewport viewport = layerDisplay.getViewport();
+            int viewportX = e.getMouseEvent().getX();
+            int viewportY = e.getMouseEvent().getY();
+            final double dx = viewportX - _viewportX;
+            final double dy = viewportY - _viewportY;
+            viewport.moveViewDelta(dx, dy);
+            _viewportX = viewportX;
+            _viewportY = viewportY;
+        }
     }
 
     public Cursor getCursor() {
