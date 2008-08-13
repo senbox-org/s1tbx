@@ -435,6 +435,7 @@ public class PView {
         }
 
         final LayerCanvas layerCanvas = new LayerCanvas(collectionLayer);
+        layerCanvas.installMouseHandler();
         ViewportScrollPane viewportScrollPane = new ViewportScrollPane(layerCanvas);
                 
         final JFrame frame = new JFrame("View - [" + file.getName() + "] - " + APPNAME);
