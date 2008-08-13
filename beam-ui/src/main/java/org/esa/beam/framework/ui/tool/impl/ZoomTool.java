@@ -14,14 +14,12 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.Rectangle2D.Double;
 
 import javax.swing.ImageIcon;
 
-import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.draw.Drawable;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.LayerDisplay;
 import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
@@ -106,26 +104,8 @@ public class ZoomTool extends AbstractTool {
             Viewport viewport = layerDisplay.getViewport();
             if (!_zoomRect.isEmpty()) {
                 AffineTransform viewToModelTransform = viewport.getViewToModelTransform();
-                Point2D viewP = new Point2D.Double(_zoomRect.x, _zoomRect.y);
-                System.out.println("v1="+viewP);
-                Point2D modelP = viewToModelTransform.transform(viewP, null);
-                System.out.println("m1="+modelP);
-                final double modelX = modelP.getX();
-                final double modelY = modelP.getY();
-                viewP.setLocation(_zoomRect.x+_zoomRect.width, _zoomRect.y+_zoomRect.height);
-                System.out.println("v2="+viewP);
-                viewToModelTransform.transform(viewP, modelP);
-                System.out.println("m2="+modelP);
-                final double modelW = modelP.getX() - modelX;
-                final double modelH = modelP.getY() - modelY;
-                Rectangle2D modelRect = new Rectangle2D.Double(modelX, modelY, modelW, modelH);
-                
                 Shape transformedShape = viewToModelTransform.createTransformedShape(_zoomRect);
                 Rectangle2D bounds2D = transformedShape.getBounds2D();
-                System.out.println("zoom: view="+_zoomRect);
-                System.out.println("zoom: model="+modelRect);
-                
-                System.out.println("zoom: model2="+bounds2D);
                 viewport.zoom(bounds2D);
             } else {
                 boolean zoomOut = e.getMouseEvent().isControlDown() || e.getMouseEvent().getButton() != 1;
