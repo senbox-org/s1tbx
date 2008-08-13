@@ -78,18 +78,18 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
      */
     public DecodeQualification getDecodeQualification(Object input) {
         try {
-            int fileId = HDFConstants.FAIL;
+            int sdsId = HDFConstants.FAIL;
+
             try {
                 final File file = getInputFile(input);
                 if (!hdfLibAvailable
-                    || file == null
-                    || !file.isFile()
-                    || !utils.isHdfFile(file.getPath())) {
+                        || file == null
+                        || !file.isFile()
+                        || !utils.isHdfFile(file.getPath())) {
                     return DecodeQualification.UNABLE;
                 }
-                fileId = utils.openHdfFileReadOnly(file.getPath());
-                final int sdStart = utils.openSdInterfaceReadOnly(file.getPath());
-                final List<HdfAttribute> list = utils.readGlobalAttributes(sdStart);
+                sdsId = utils.openSdInterfaceReadOnly(file.getPath());
+                final List<HdfAttribute> list = utils.readGlobalAttributes(sdsId);
                 for (HdfAttribute hdfAttribute : list) {
                     if ("Title".equals(hdfAttribute.getName())) {
                         final String value = hdfAttribute.getStringValue();
@@ -102,8 +102,8 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
                     }
                 }
             } finally {
-                if (fileId != HDFConstants.FAIL) {
-                    utils.closeHdfFile(fileId);
+                if (sdsId != HDFConstants.FAIL) {
+                    utils.closeSdInterface(sdsId);
                 }
             }
         } catch (Exception e) {

@@ -211,6 +211,10 @@ public class HdfFacade {
         return HDF.getInstance().SDstart(path, HDFConstants.DFACC_RDONLY);
     }
 
+    public boolean closeSdInterface(int sdsId) throws HDFException {
+        return HDF.getInstance().SDend(sdsId);
+    }
+
     public boolean closeHdfFile(final int fileId) throws HDFException {
         return HDF.getInstance().Hclose(fileId);
     }
@@ -226,9 +230,7 @@ public class HdfFacade {
         final int[] stride = new int[]{1, 1, 1};
         final int[] count = new int[]{0, 0, 0};
         final int[] dimensions = sdsInfo.getDimensions();
-        for (int i = 0; i < dimensions.length; i++) {
-            count[i] = dimensions[i];
-        }
+        System.arraycopy(dimensions, 0, count, 0, dimensions.length);
         final Object buffer = data.getElems();
         HDF.getInstance().SDreaddata(sdsID, start, stride, count, buffer);
         return data;

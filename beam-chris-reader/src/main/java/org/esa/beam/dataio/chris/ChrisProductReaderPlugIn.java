@@ -71,21 +71,20 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
         }
 
         // @todo 2 rq/rq write test for this logic!
-        if (file.getPath().toLowerCase().endsWith(ChrisConstants.DEFAULT_FILE_EXTENSION) && file.isFile()) {
-            int fileId = -1;
+        if (file.isFile() && file.getPath().toLowerCase().endsWith(ChrisConstants.DEFAULT_FILE_EXTENSION)) {
+            int sdId = -1;
             try {
-                fileId = HDF4Lib.Hopen(file.getPath(), HDFConstants.DFACC_RDONLY);
-                if (fileId != -1) {
-                    if (isChrisModeAttributeAvailable(file)) {
-                        return DecodeQualification.INTENDED;
-                    }
+                sdId = HDF4Lib.SDstart(file.getPath(), HDFConstants.DFACC_RDONLY);
+
+                if (isSensorTypeAttributeCorrect(sdId)) {
+                    return DecodeQualification.INTENDED;
                 }
             } catch (Exception e) {
                 // nothing to do, return value is already false
             } finally {
-                if (fileId != -1) {
+                if (sdId != -1) {
                     try {
-                        HDF4Lib.Hclose(fileId);
+                        HDF4Lib.SDend(sdId);
                     } catch (Exception ignore) {
                         // nothing to do, return value is already false
                     }
@@ -179,27 +178,22 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
     }
 
 
-    private static boolean isChrisModeAttributeAvailable(File file) throws Exception {
-        final int sdId = HDF4Lib.SDstart(file.getPath(), HDFConstants.DFACC_RDONLY);
-        if (sdId == -1) {
-            return false;
-        }
-        final String[] nameBuffer = new String[]{""};
-        final int[] attributeInfo = new int[16];
-        try {
-            HDF4Lib.SDattrinfo(sdId, 0, nameBuffer, attributeInfo);
-            final String name = nameBuffer[0];
-            int numberType = attributeInfo[0];
-            int arrayLength = attributeInfo[1];
-            byte[] data = new byte[arrayLength];
-            if ("Sensor Type".equalsIgnoreCase(name) && numberType == HDFConstants.DFNT_CHAR) {
-                HDF4Lib.SDreadattr(sdId, 0, data);
-                return "CHRIS".equalsIgnoreCase(new String(data));
-            }
-        } finally {
-            HDF4Lib.SDend(sdId);
-        }
-        return false;
-    }
+    private static boolean isSensorTypeAttributeCorrect(int sdId) throws Exception {
+         final String[] nameBuffer = new String[]{""};
+         final int[] attributeInfo = new int[16];
+         HDF4Lib.SDattrinfo(sdId, 0, nameBuffer, attributeInfo);
+
+         final String name = nameBuffer[0];
+         final int numberType = attributeInfo[0];
+         final int arrayLength = attributeInfo[1];
+         final byte[] data = new byte[arrayLength];
+
+         if ("Sensor Type".equalsIgnoreCase(name) && numberType == HDFConstants.DFNT_CHAR) {
+             HDF4Lib.SDreadattr(sdId, 0, data);
+             return "CHRIS".equalsIgnoreCase(new String(data));
+         }
+
+         return false;
+     }
 
 }

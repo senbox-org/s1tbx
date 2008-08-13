@@ -14,6 +14,7 @@
     <changelog>
         <![CDATA[
         Changes in 1.0.101:<br/>
+        [BEAM-855] Reader plugin does not close SD interface<br/>
         [BEAM-840] MODIS L2 "*.x.hdf" read error<br/>
         ]]>
     </changelog>
