@@ -426,7 +426,6 @@ class ProductSceneView45 extends ProductSceneView {
     @Override
     public void repaintTool() {
         if (layerCanvas.getTool() != null) {
-            System.out.println("repaintTool: " + layerCanvas.getTool().getClass().toString());
             repaint(100);
         }
     }
