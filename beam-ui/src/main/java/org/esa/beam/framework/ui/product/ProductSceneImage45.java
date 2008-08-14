@@ -147,7 +147,7 @@ class ProductSceneImage45 extends ProductSceneImage {
         }
 
         public List<Figure> getFigureList() {
-            return new ArrayList<Figure>(figureList);
+            return figureList;
         }
 
         public void setFigureList(List<Figure> list) {
@@ -179,9 +179,11 @@ class ProductSceneImage45 extends ProductSceneImage {
             final AffineTransform transformSave = g.getTransform();
             try {
                 final AffineTransform transform = new AffineTransform();
+                transform.concatenate(transformSave);
                 transform.concatenate(vp.getModelToViewTransform());
                 transform.concatenate(shapeToModelTransform);
                 g.setTransform(transform);
+
                 for (Figure figure : figureList) {
                     g.setPaint(Color.WHITE);
                     g.fill(figure.getShape());
