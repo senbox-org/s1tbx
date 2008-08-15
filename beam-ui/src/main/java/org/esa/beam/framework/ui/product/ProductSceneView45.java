@@ -13,6 +13,7 @@ import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.grender.swing.ViewportScrollPane;
 
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.ui.PixelInfoFactory;
 import org.esa.beam.framework.ui.PixelPositionListener;
@@ -332,11 +333,6 @@ class ProductSceneView45 extends ProductSceneView {
     @Override
     public void setGraticuleOverlayEnabled(boolean enabled) {
         // todo - implement me! See 4.2 layer impl.
-    }
-
-    @Override
-    public Figure getRasterROIShapeFigure() {
-        return null;  // todo - implement me!
     }
 
     @Override

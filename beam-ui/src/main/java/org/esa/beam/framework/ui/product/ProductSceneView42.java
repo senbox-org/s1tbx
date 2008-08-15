@@ -598,11 +598,6 @@ class ProductSceneView42 extends ProductSceneView {
     }
 
     @Override
-    public Figure getRasterROIShapeFigure() {
-        return getSceneImage42().getROILayer().getRasterROIShapeFigure();
-    }
-
-    @Override
     public Figure getCurrentShapeFigure() {
         return getSceneImage42().getFigureLayer().getNumFigures() > 0 ? getSceneImage42().getFigureLayer().getFigureAt(0) : null;
     }

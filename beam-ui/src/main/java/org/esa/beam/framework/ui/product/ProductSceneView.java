@@ -411,7 +411,12 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
 
     public abstract void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception;
 
-    public abstract Figure getRasterROIShapeFigure();
+    public Figure getRasterROIShapeFigure() {
+        if (getRaster().getROIDefinition() != null) {
+            return getRaster().getROIDefinition().getShapeFigure();
+        }
+        return null;
+    }
 
     public abstract Figure getCurrentShapeFigure();
 

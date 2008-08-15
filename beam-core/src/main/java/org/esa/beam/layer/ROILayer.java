@@ -39,11 +39,4 @@ public class ROILayer extends MaskOverlayRenderedImageLayer {
     private BufferedImage createBufferedImage(ProgressMonitor pm) throws Exception {
         return getRaster().createROIImage(getColor(), pm);
     }
-
-    public Figure getRasterROIShapeFigure() {
-        if (getRaster().getROIDefinition() != null) {
-            return getRaster().getROIDefinition().getShapeFigure();
-        }
-        return null;
-    }
 }
