@@ -22,6 +22,7 @@ import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.glevel.MaskMultiLevelImage;
 import org.esa.beam.glevel.RoiMultiLevelImage;
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.math.MathUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -383,6 +384,8 @@ class ProductSceneView45 extends ProductSceneView {
     @Override
     public AbstractTool[] getSelectToolDelegates() {
         return new AbstractTool[0];  // todo - implement me! Check: maybe this isn't even used
+        // is used for the selection tool, which can be specified for each layer
+        // has been introduced for IAVISA (IFOV selection)
     }
 
     @Override
@@ -415,7 +418,29 @@ class ProductSceneView45 extends ProductSceneView {
 
     @Override
     public RenderedImage createSnapshotImage(boolean entireImage, boolean useAlpha) {
-        return null;  // todo - implement me!
+        final Rectangle2D bounds;
+        if (entireImage) {
+            bounds = getBaseImageLayer().getBounds();
+        } else {
+            bounds = getVisibleModelBounds();
+        }
+        final int imageWidth = MathUtils.floorInt(bounds.getWidth());
+        final int imageHeight = MathUtils.floorInt(bounds.getHeight());
+        final int imageType = useAlpha ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR;
+        final BufferedImage bi = new BufferedImage(imageWidth, imageHeight, imageType);
+        final BufferedImageRendering imageRendering = new BufferedImageRendering(bi);
+
+        final Graphics2D graphics = imageRendering.getGraphics();
+        graphics.setColor(getBackground());
+        graphics.fillRect(0, 0, imageWidth, imageHeight);
+        
+        Viewport snapshotVp = imageRendering.getViewport();
+        snapshotVp.setMaxZoomFactor(-1);
+        snapshotVp.zoom(bounds);
+        snapshotVp.moveViewDelta(snapshotVp.getBounds().x, snapshotVp.getBounds().y);
+        
+        getSceneImage45().getRootLayer().render(imageRendering);
+        return bi;
     }
 
     @Override
