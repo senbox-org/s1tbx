@@ -11,6 +11,8 @@ import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.grender.swing.ViewportScrollPane;
+
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.ui.PixelInfoFactory;
 import org.esa.beam.framework.ui.PixelPositionListener;
@@ -187,6 +189,7 @@ class ProductSceneView45 extends ProductSceneView {
         zoom(layerCanvas.getLayer().getBounds());
     }
 
+    @Override
     public double getOrientation() {
         return layerCanvas.getViewport().getOrientation();
     }
@@ -400,7 +403,17 @@ class ProductSceneView45 extends ProductSceneView {
 
     @Override
     public void synchronizeViewport(ProductSceneView view) {
-        // todo - implement me!
+        final Product currentProduct = getRaster().getProduct();
+        final Product otherProduct = view.getRaster().getProduct();
+        if (otherProduct == currentProduct ||
+                otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
+            
+            Rectangle2D visibleModelBounds = getVisibleModelBounds();
+            view.move(visibleModelBounds.getX(), visibleModelBounds.getY());
+            view.zoom(getZoomFactor());
+            ProductSceneView45 view45 = (ProductSceneView45)view;
+            view45.layerCanvas.getViewport().rotate(getOrientation());
+        }
     }
 
 
