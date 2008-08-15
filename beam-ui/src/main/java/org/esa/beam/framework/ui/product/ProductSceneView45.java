@@ -13,15 +13,15 @@ import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.grender.swing.ViewportScrollPane;
 
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.draw.Figure;
-import org.esa.beam.framework.ui.PixelInfoFactory;
 import org.esa.beam.framework.ui.PixelPositionListener;
+import org.esa.beam.framework.ui.PopupMenuHandler;
 import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.glevel.MaskMultiLevelImage;
 import org.esa.beam.glevel.RoiMultiLevelImage;
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.swing.*;
@@ -53,7 +53,9 @@ class ProductSceneView45 extends ProductSceneView {
 
         layerCanvas.setPreferredSize(new Dimension(400, 400));
 
-        setPixelInfoFactory(this);
+        PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
+        layerCanvas.addMouseListener(popupMenuHandler);
+        layerCanvas.addKeyListener(popupMenuHandler);
 
         // todo - this change management is for compatibility reasons only, need better control here!!!
         layerCanvas.getLayer().addListener(new LayerListener() {
@@ -93,11 +95,6 @@ class ProductSceneView45 extends ProductSceneView {
     @Override
     public JComponent getImageDisplayComponent() {
         return layerCanvas;
-    }
-
-    @Override
-    protected PixelInfoFactory getPixelInfoFactory() {
-        return this;
     }
 
     @Override
@@ -484,25 +481,21 @@ class ProductSceneView45 extends ProductSceneView {
     }
 
     public Figure[] getSelectedFigures() {
-        return new Figure[0];  // todo - implement me!
+        return new Figure[0];  // todo - implement me! UNUSED !!!
     }
 
     public Figure[] getFiguresWithAttribute(String name) {
-        return new Figure[0];  // todo - implement me!
+        return new Figure[0];  // todo - implement me! UNUSED !!!
     }
 
     public Figure[] getFiguresWithAttribute(String name, Object value) {
-        return new Figure[0];  // todo - implement me!
+        return new Figure[0];  // todo - implement me! UNUSED !!!
     }
 
     @Override
     protected void copyPixelInfoStringToClipboard() {
-        // todo - implement me!
-    }
-
-    @Override
-    protected void setPixelInfoFactory(PixelInfoFactory pixelInfoFactory) {
-        // todo - implement me!
+        String text = layerCanvas.createPixelInfoString(this);
+        SystemUtils.copyToClipboard(text);
     }
 
     private ImageLayer getNoDataLayer() {

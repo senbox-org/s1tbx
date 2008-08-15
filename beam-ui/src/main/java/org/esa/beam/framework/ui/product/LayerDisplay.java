@@ -32,6 +32,7 @@ import java.util.Vector;
 
 import javax.swing.event.MouseInputListener;
 
+import org.esa.beam.framework.ui.PixelInfoFactory;
 import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
@@ -270,14 +271,10 @@ public class LayerDisplay extends LayerCanvas {
     public Tool getTool() {
         return tool;
     }
-
-    // final synchronized void fireToolEvent(MouseEvent e) {
-    // // Debug.trace("fireToolEvent " + e);
-    // if (tool != null) {
-    // // ToolInputEvent toolInputEvent = createToolInputEvent(e);
-    // // tool.handleEvent(toolInputEvent);
-    // }
-    // }
+    
+    public String createPixelInfoString(PixelInfoFactory pixelInfoFactory) {
+        return pixelInfoFactory.createPixelInfoString(pixelX, pixelY);
+    }
 
     private void setPixelPos(MouseEvent e, boolean showBorder) {
         Point p = e.getPoint();

@@ -71,8 +71,6 @@ class ProductSceneView42 extends ProductSceneView {
         getViewModel().setModelOffset(modelArea.x, modelArea.y, 1.0);
         imageDisplay.setPreferredSize(modelArea.getSize());
 
-        setPixelInfoFactory(this);
-
         sceneImage.getLayerModel().addLayerModelChangeListener(new LayerModelChangeAdapter() {
             @Override
             public void handleLayerModelChanged(LayerModel layerModel) {
@@ -484,7 +482,7 @@ class ProductSceneView42 extends ProductSceneView {
 
     @Override
     protected void copyPixelInfoStringToClipboard() {
-        getImageDisplay().copyPixelInfoStringToClipboard();
+        getImageDisplay().copyPixelInfoStringToClipboard(this);
     }
 
     private ImageDisplay getImageDisplay() {
@@ -497,16 +495,6 @@ class ProductSceneView42 extends ProductSceneView {
             getImageDisplay().dispose();
             imageDisplay = null;
         }
-    }
-
-    @Override
-    protected PixelInfoFactory getPixelInfoFactory() {
-        return getImageDisplay().getPixelInfoFactory();
-    }
-
-    @Override
-    protected void setPixelInfoFactory(PixelInfoFactory pixelInfoFactory) {
-        getImageDisplay().setPixelInfoFactory(pixelInfoFactory);
     }
 
     @Override

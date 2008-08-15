@@ -479,10 +479,6 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
 
     protected abstract void disposeImageDisplayComponent();
 
-    protected abstract PixelInfoFactory getPixelInfoFactory();
-
-    protected abstract void setPixelInfoFactory(PixelInfoFactory pixelInfoFactory);
-
     public abstract void renderThumbnail(BufferedImage thumbnailImage) ;
 
     public abstract Rectangle getViewportThumbnailBounds(Rectangle thumbnailArea);
@@ -490,18 +486,16 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
     public abstract void updateNoDataImage(ProgressMonitor pm) throws Exception;
 
     private void addCopyPixelInfoToClipboardMenuItem(JPopupMenu popupMenu) {
-        if (getPixelInfoFactory() != null) {
-            JMenuItem menuItem = new JMenuItem("Copy Pixel-Info to Clipboard");
-            menuItem.setMnemonic('C');
-            menuItem.addActionListener(new ActionListener() {
+        JMenuItem menuItem = new JMenuItem("Copy Pixel-Info to Clipboard");
+        menuItem.setMnemonic('C');
+        menuItem.addActionListener(new ActionListener() {
 
-                public void actionPerformed(ActionEvent e) {
-                    copyPixelInfoStringToClipboard();
-                }
-            });
-            popupMenu.add(menuItem);
-            popupMenu.addSeparator();
-        }
+            public void actionPerformed(ActionEvent e) {
+                copyPixelInfoStringToClipboard();
+            }
+        });
+        popupMenu.add(menuItem);
+        popupMenu.addSeparator();
     }
 
     public Rectangle2D getRotatedModelBounds() {

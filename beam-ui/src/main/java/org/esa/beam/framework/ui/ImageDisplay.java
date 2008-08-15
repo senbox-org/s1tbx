@@ -51,10 +51,6 @@ public class ImageDisplay extends GraphicsPane {
      * The current tool.
      */
     private Tool tool;
-    /**
-     * A pixel info sink.
-     */
-    private PixelInfoFactory pixelInfoFactory;
 
     private int imageWidth;
     private int imageHeight;
@@ -220,19 +216,6 @@ public class ImageDisplay extends GraphicsPane {
         this.interpolation = interpolation;
     }
 
-    public PixelInfoFactory getPixelInfoFactory() {
-        return pixelInfoFactory;
-    }
-
-    public void setPixelInfoFactory(PixelInfoFactory pixelInfoFactory) {
-        PixelInfoFactory oldFactory = this.pixelInfoFactory;
-        if (oldFactory == pixelInfoFactory) {
-            return;
-        }
-        this.pixelInfoFactory = pixelInfoFactory;
-        firePropertyChange("pixelInfoFactory", oldFactory, this.pixelInfoFactory);
-    }
-
     /**
      * Gets the source image.
      *
@@ -341,7 +324,6 @@ public class ImageDisplay extends GraphicsPane {
             dblbufG2D = null;
         }
         tool = null;
-        pixelInfoFactory = null;
         deregisterListeners();
         if (pixelPositionListeners != null) {
             pixelPositionListeners.clear();
@@ -349,17 +331,9 @@ public class ImageDisplay extends GraphicsPane {
         }
     }
 
-
-    public void copyPixelInfoStringToClipboard() {
-        copyPixelInfoStringToClipboard(pixelX, pixelY);
-    }
-
-
-    public void copyPixelInfoStringToClipboard(int pixelX, int pixelY) {
-        if (getPixelInfoFactory() != null) {
-            String text = getPixelInfoFactory().createPixelInfoString(pixelX, pixelY);
-            SystemUtils.copyToClipboard(text);
-        }
+    public void copyPixelInfoStringToClipboard(PixelInfoFactory pixelInfoFactory) {
+        String text = pixelInfoFactory.createPixelInfoString(pixelX, pixelY);
+        SystemUtils.copyToClipboard(text);
     }
 
     /**
