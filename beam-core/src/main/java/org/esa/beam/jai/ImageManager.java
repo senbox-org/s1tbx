@@ -2,6 +2,7 @@ package org.esa.beam.jai;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.DownscalableImage;
+import com.bc.ceres.glevel.LevelImage;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.util.Debug;
@@ -283,8 +284,7 @@ public class ImageManager {
         return images;
     }
 
-    public void prepareImageInfos(RasterDataNode[] rasterDataNodes,
-                                   int levelCount) {
+    public void prepareImageInfos(RasterDataNode[] rasterDataNodes, int levelCount) {
         PlanarImage[] bandImages = getBandImages(rasterDataNodes, 0);
         PlanarImage[] validMaskImages = getValidMaskImages(rasterDataNodes, 0);
         prepareImageInfos(rasterDataNodes, bandImages, validMaskImages, levelCount);
@@ -514,7 +514,6 @@ public class ImageManager {
      * @return the ROI, or null if the band has no valid ROI definition
      */
     public PlanarImage createRoiMaskImage(RasterDataNode rasterDataNode, int level) {
-
         final ROIDefinition roiDefinition = rasterDataNode.getROIDefinition();
         if (roiDefinition == null) {
             return null;
@@ -537,7 +536,7 @@ public class ImageManager {
 
         // Step 3:  insert ROI pixels for pins
         if (roiDefinition.isPinUseEnabled() && rasterDataNode.getProduct().getPinGroup().getNodeCount() > 0) {
-            
+
             final Object key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getName()+"_RoiPlacemarks");
             PlacemarkMaskOpImage placemarkMaskOpImageLevel0 = null;
             synchronized (maskImageMap) {
@@ -557,7 +556,7 @@ public class ImageManager {
         // Step 4:  insert ROI pixels within shape
         Figure roiShapeFigure = roiDefinition.getShapeFigure();
         if (roiDefinition.isShapeEnabled() && roiShapeFigure != null) {
-            
+
             final Object key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getName()+"_RoiShapes");
             ShapeMaskOpImage shapeMaskOpImageLevel0 = null;
             synchronized (maskImageMap) {
@@ -575,6 +574,8 @@ public class ImageManager {
         }
 
         if (rois.size() == 0) {
+            // todo - null is returned whenever a shape is converted into a ROI for any but the first time
+            // todo - may be this problem is due to concurrency issues
             return null;
         }
 
