@@ -4,6 +4,8 @@ import com.bc.ceres.glevel.LevelImage;
 
 import javax.media.jai.PlanarImage;
 import java.awt.image.BufferedImage;
+import java.awt.image.IndexColorModel;
+import java.awt.image.ColorModel;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.Rectangle;
@@ -23,29 +25,36 @@ public class NullLevelImage implements LevelImage {
     private NullLevelImage() {
     }
 
+    @Override
     public int getLevelCount() {
         return 1;
     }
 
+    @Override
     public int computeLevel(double scale) {
         return 0;
     }
 
+    @Override
     public PlanarImage getPlanarImage(int level) {
         return IMAGE;
     }
 
+    @Override
     public void reset() {
     }
 
+    @Override
     public AffineTransform getImageToModelTransform(int level) {
         return new AffineTransform();
     }
 
+    @Override
     public AffineTransform getModelToImageTransform(int level) {
         return new AffineTransform();
      }
 
+    @Override
     public Rectangle2D getBounds(int level) {
         return new Rectangle();
     }
