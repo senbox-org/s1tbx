@@ -4,6 +4,7 @@ import com.bc.ceres.glevel.LevelImage;
 import com.bc.ceres.glevel.LevelImageRenderer;
 import com.bc.ceres.grender.Rendering;
 
+import javax.media.jai.PlanarImage;
 import java.awt.geom.AffineTransform;
 
 public class DefaultLevelImageRenderer implements LevelImageRenderer {
@@ -11,6 +12,7 @@ public class DefaultLevelImageRenderer implements LevelImageRenderer {
     public DefaultLevelImageRenderer() {
     }
 
+    @Override
     public void renderImage(Rendering rendering, LevelImage levelImage, int level) {
         final AffineTransform i2m = levelImage.getImageToModelTransform(level);
         final AffineTransform m2v = rendering.getViewport().getModelToViewTransform();
@@ -18,6 +20,7 @@ public class DefaultLevelImageRenderer implements LevelImageRenderer {
         rendering.getGraphics().drawRenderedImage(levelImage.getPlanarImage(level), i2m);
     }
 
+    @Override
     public void reset() {
         // no state to dispose
     }
