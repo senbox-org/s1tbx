@@ -3,6 +3,8 @@ package org.esa.beam.framework.ui.product;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerListener;
+import com.bc.ceres.glayer.Style;
+import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.LevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
@@ -11,6 +13,7 @@ import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.grender.swing.ViewportScrollPane;
+import com.bc.layer.LayerModel;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.draw.Figure;
@@ -20,6 +23,8 @@ import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.glevel.MaskMultiLevelImage;
 import org.esa.beam.glevel.RoiMultiLevelImage;
+import org.esa.beam.layer.NoDataLayer;
+import org.esa.beam.layer.StyledLayer;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
@@ -347,7 +352,7 @@ class ProductSceneView45 extends ProductSceneView {
                 getFigureLayer().getFigureList().remove(oldShapeFigure);
             }
             if (currentShapeFigure != null) {
-                getFigureLayer().getFigureList().add(currentShapeFigure);
+                getFigureLayer().addFigure(currentShapeFigure);
             }
         }
     }
@@ -360,7 +365,18 @@ class ProductSceneView45 extends ProductSceneView {
      */
     @Override
     public void setLayerProperties(PropertyMap propertyMap) {
-        // todo - implement me!
+
+//        setImageProperties(propertyMap); TODO implement
+        
+        getFigureLayer().setStyleProperties(propertyMap);
+        Style noDataStyle = new DefaultStyle();
+//        noDataStyle.setOpacity(propertyMap.getPropertyDouble(NoDataLayer.DEFAULT_TRANSPARENCY));
+//        getNoDataLayer().setStyle(noDataStyle );
+        //getGraticuleLayer().setStyleProperties(propertyMap);
+//        getPinLayer().setStyleProperties(propertyMap);
+//        getGcpLayer().setStyleProperties(propertyMap);
+        
+        fireImageUpdated();
     }
 
     @Override
