@@ -31,10 +31,12 @@ public abstract class AbstractMultiLevelImage implements LevelImage {
         this.modelToImageTransforms[0] = new AffineTransform(modelToImageTransform);
     }
 
+    @Override
     public int getLevelCount() {
         return levelCount;
     }
 
+    @Override
     public int computeLevel(double scale) {
         int level = (int) Math.round(log2(scale));
         if (level < 0) {
@@ -49,6 +51,7 @@ public abstract class AbstractMultiLevelImage implements LevelImage {
      * Removes all cached images and also removes all cached tiles of those images
      * from the JAI tile cche.
      */
+    @Override
     public void reset() {
         final PlanarImage[] planarImages;
         synchronized (imageCache) {
@@ -76,8 +79,10 @@ public abstract class AbstractMultiLevelImage implements LevelImage {
      * {@link #createPlanarImage(int)} is called to create the image and cache it for the given level..
      *
      * @param level The level.
+     *
      * @return The planar image.
      */
+    @Override
     public final PlanarImage getPlanarImage(int level) {
         checkLevel(level);
         synchronized (imageCache) {
@@ -92,6 +97,7 @@ public abstract class AbstractMultiLevelImage implements LevelImage {
 
     protected abstract PlanarImage createPlanarImage(int level);
 
+    @Override
     public final AffineTransform getImageToModelTransform(int level) {
         checkLevel(level);
         AffineTransform transform = imageToModelTransforms[level];
@@ -104,6 +110,7 @@ public abstract class AbstractMultiLevelImage implements LevelImage {
         return new AffineTransform(transform);
     }
 
+    @Override
     public final AffineTransform getModelToImageTransform(int level) {
         checkLevel(level);
         AffineTransform transform = modelToImageTransforms[level];
