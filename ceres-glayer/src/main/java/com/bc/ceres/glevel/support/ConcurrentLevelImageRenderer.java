@@ -46,11 +46,13 @@ public class ConcurrentLevelImageRenderer implements LevelImageRenderer {
         this.debug = debug;
     }
 
+    @Override
     public synchronized void reset() {
         cancelTileRequests(-1);
         localTileCache.clear();
     }
 
+    @Override
     public void renderImage(Rendering rendering, LevelImage levelImage, int currentLevel) {
         final long t0 = System.nanoTime();
         renderImpl((InteractiveRendering) rendering, levelImage, currentLevel);
@@ -235,7 +237,8 @@ public class ConcurrentLevelImageRenderer implements LevelImageRenderer {
         ti.timeStamp = System.currentTimeMillis();
     }
 
-    private static void drawTileFrames(Graphics2D g, Viewport vp, PlanarImage planarImage, List<TileIndex> tileIndices, AffineTransform i2m, Color frameColor) {
+    private static void drawTileFrames(Graphics2D g, Viewport vp, PlanarImage planarImage, List<TileIndex> tileIndices,
+                                       AffineTransform i2m, Color frameColor) {
         final AffineTransform m2v = vp.getModelToViewTransform();
         final AffineTransform oldTransform = g.getTransform();
         final Color oldColor = g.getColor();
@@ -376,6 +379,7 @@ public class ConcurrentLevelImageRenderer implements LevelImageRenderer {
         }
 
         // Called from worker threads of the tile scheduler.
+        @Override
         public void tileComputed(Object object,
                                  TileRequest[] tileRequests,
                                  PlanarImage planarImage,
@@ -417,6 +421,7 @@ public class ConcurrentLevelImageRenderer implements LevelImageRenderer {
             // place to access the viewport.
             rendering.invokeLater(new Runnable() {
                 // Called from EDT.
+                @Override
                 public void run() {
                     final Rectangle viewRegion = getViewRegion(rendering.getViewport(), levelImage, level, tileBounds);
                     rendering.invalidateRegion(viewRegion);
@@ -425,6 +430,7 @@ public class ConcurrentLevelImageRenderer implements LevelImageRenderer {
         }
 
         // Called from worker threads of the tile scheduler.
+        @Override
         public void tileCancelled(Object object,
                                   TileRequest[] tileRequests,
                                   PlanarImage planarImage,
@@ -437,6 +443,7 @@ public class ConcurrentLevelImageRenderer implements LevelImageRenderer {
         }
 
         // Called from worker threads of the tile scheduler.
+        @Override
         public void tileComputationFailure(Object object,
                                            TileRequest[] tileRequests,
                                            PlanarImage planarImage,
@@ -642,12 +649,14 @@ public class ConcurrentLevelImageRenderer implements LevelImageRenderer {
     }
 
     private static class AscendingLevelsComparator implements Comparator<TileImage> {
+        @Override
         public int compare(TileImage ti1, TileImage ti2) {
             return compareAscending(ti1, ti2);
         }
     }
 
     private static class DescendingLevelsComparator implements Comparator<TileImage> {
+        @Override
         public int compare(TileImage ti1, TileImage ti2) {
             return compareAscending(ti2, ti1);
         }
