@@ -37,7 +37,6 @@ import org.esa.beam.util.PropertyMap;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
-import com.bc.view.ViewModel;
 
 /**
  * @author Marco Zuehlke
@@ -124,6 +123,7 @@ public class GraticuleLayer extends Layer {
         fireLayerDataChanged(getBounds());
     }
 
+    @Override
     public void renderLayer(Rendering rendering) {
         if (_graticule == null) {
             _graticule = Graticule.create(_raster,
