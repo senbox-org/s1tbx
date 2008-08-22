@@ -9,6 +9,7 @@ import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.glayer.FigureLayer;
+import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glayer.PlacemarkLayer;
 import org.esa.beam.glevel.BandMultiLevelImage;
 import org.esa.beam.util.ProductUtils;
@@ -67,6 +68,11 @@ class ProductSceneImage45 extends ProductSceneImage {
         roiLayer.setName("ROI of " + getRaster().getName());
         roiLayer.setVisible(false);
         roiLayer.getStyle().setOpacity(0.5);
+        
+        final GraticuleLayer graticuleLayer = new GraticuleLayer(getProduct(), getRaster());
+        graticuleLayer.setName("Graticule of " + getRaster().getName());
+        graticuleLayer.setVisible(false);
+        graticuleLayer.getStyle().setOpacity(0.5);
 
         final PlacemarkLayer pinLayer = new PlacemarkLayer(getRaster().getProduct(), PinDescriptor.INSTANCE,
                                                            new AffineTransform());
@@ -86,7 +92,7 @@ class ProductSceneImage45 extends ProductSceneImage {
         rootLayer.getChildLayerList().add(noDataLayer);
         rootLayer.getChildLayerList().add(figureLayer);
         rootLayer.getChildLayerList().add(roiLayer);
-        rootLayer.getChildLayerList().add(new ImageLayer(LevelImage.NULL)); // graticule layer
+        rootLayer.getChildLayerList().add(graticuleLayer);
         rootLayer.getChildLayerList().add(pinLayer);
         rootLayer.getChildLayerList().add(gcpLayer);
 

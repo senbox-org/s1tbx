@@ -22,6 +22,7 @@ import org.esa.beam.framework.ui.PopupMenuHandler;
 import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.glayer.FigureLayer;
+import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glevel.MaskMultiLevelImage;
 import org.esa.beam.glevel.RoiMultiLevelImage;
 import org.esa.beam.layer.NoDataLayer;
@@ -331,12 +332,15 @@ class ProductSceneView45 extends ProductSceneView {
 
     @Override
     public boolean isGraticuleOverlayEnabled() {
-        return false;  // todo - implement me! See 4.2 layer impl.
+        return getGraticuleLayer().isVisible();
     }
 
     @Override
     public void setGraticuleOverlayEnabled(boolean enabled) {
-        // todo - implement me! See 4.2 layer impl.
+        if (isGraticuleOverlayEnabled() != enabled) {
+            getGraticuleLayer().setVisible(enabled);
+            fireImageUpdated();
+        }
     }
 
     @Override
@@ -371,7 +375,7 @@ class ProductSceneView45 extends ProductSceneView {
         
         getFigureLayer().setStyleProperties(propertyMap);
 //        getNoDataLayer().setStyle(noDataStyle );
-        //getGraticuleLayer().setStyleProperties(propertyMap);
+        getGraticuleLayer().setStyleProperties(propertyMap);
 //        getPinLayer().setStyleProperties(propertyMap);
 //        getGcpLayer().setStyleProperties(propertyMap);
         
@@ -455,6 +459,7 @@ class ProductSceneView45 extends ProductSceneView {
         return bi;
     }
 
+    // TODO remove ??? UNUSED
     @Override
     public Tool getTool() {
         return layerCanvas.getTool();
@@ -476,6 +481,7 @@ class ProductSceneView45 extends ProductSceneView {
         }
     }
 
+    // TODO remove ??? UNUSED
     public void removeFigure(Figure figure) {
         getFigureLayer().getFigureList().remove(figure);
         if (isShapeOverlayEnabled()) {
@@ -483,28 +489,34 @@ class ProductSceneView45 extends ProductSceneView {
         }
     }
 
+    // used only internaly --> private ???
     public int getNumFigures() {
         return getFigureLayer().getFigureList().size();
     }
 
+    // used only internaly --> private ???
     public Figure getFigureAt(int index) {
         return getFigureLayer().getFigureList().get(index);
     }
 
+    // TODO remove ??? UNUSED
     public Figure[] getAllFigures() {
         return getFigureLayer().getFigureList().toArray(new Figure[getNumFigures()]);
     }
 
+    //TODO remove ??? UNUSED
     public Figure[] getSelectedFigures() {
-        return new Figure[0];  // todo - implement me! UNUSED !!!
+        return new Figure[0];
     }
-
+    
+    // TODO remove ??? UNUSED
     public Figure[] getFiguresWithAttribute(String name) {
-        return new Figure[0];  // todo - implement me! UNUSED !!!
+        return new Figure[0];
     }
-
+    
+    // TODO remove ??? UNUSED
     public Figure[] getFiguresWithAttribute(String name, Object value) {
-        return new Figure[0];  // todo - implement me! UNUSED !!!
+        return new Figure[0];
     }
 
     @Override
@@ -525,6 +537,10 @@ class ProductSceneView45 extends ProductSceneView {
         return (ImageLayer) getSceneImage45().getRootLayer().getChildLayerList().get(3);
     }
 
+    private GraticuleLayer getGraticuleLayer() {
+        return (GraticuleLayer) getSceneImage45().getRootLayer().getChildLayerList().get(4);
+    }
+    
     private Layer getPinLayer() {
         return getSceneImage45().getRootLayer().getChildLayerList().get(5);
     }
@@ -532,4 +548,6 @@ class ProductSceneView45 extends ProductSceneView {
     private Layer getGcpLayer() {
         return getSceneImage45().getRootLayer().getChildLayerList().get(6);
     }
+    
+
 }
