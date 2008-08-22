@@ -21,6 +21,7 @@ import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.PopupMenuHandler;
 import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.Tool;
+import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glevel.MaskMultiLevelImage;
 import org.esa.beam.glevel.RoiMultiLevelImage;
 import org.esa.beam.layer.NoDataLayer;
@@ -369,8 +370,6 @@ class ProductSceneView45 extends ProductSceneView {
 //        setImageProperties(propertyMap); TODO implement
         
         getFigureLayer().setStyleProperties(propertyMap);
-        Style noDataStyle = new DefaultStyle();
-//        noDataStyle.setOpacity(propertyMap.getPropertyDouble(NoDataLayer.DEFAULT_TRANSPARENCY));
 //        getNoDataLayer().setStyle(noDataStyle );
         //getGraticuleLayer().setStyleProperties(propertyMap);
 //        getPinLayer().setStyleProperties(propertyMap);
@@ -518,8 +517,8 @@ class ProductSceneView45 extends ProductSceneView {
         return (ImageLayer) getSceneImage45().getRootLayer().getChildLayerList().get(1);
     }
 
-    private ProductSceneImage45.FigureLayer getFigureLayer() {
-        return (ProductSceneImage45.FigureLayer) getSceneImage45().getRootLayer().getChildLayerList().get(2);
+    private FigureLayer getFigureLayer() {
+        return (FigureLayer) getSceneImage45().getRootLayer().getChildLayerList().get(2);
     }
 
     private ImageLayer getRoiLayer() {
