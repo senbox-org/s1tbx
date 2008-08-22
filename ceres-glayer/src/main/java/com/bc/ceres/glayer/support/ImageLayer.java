@@ -123,6 +123,7 @@ public class ImageLayer extends Layer {
         this.debug = debug;
     }
 
+    @Override
     public Rectangle2D getBounds() {
         return levelImage.getBounds(0);
     }
@@ -141,6 +142,7 @@ public class ImageLayer extends Layer {
         renderer.renderImage(rendering, levelImage, currentLevel);
     }
 
+    @Override
     public void dispose() {
         resetRenderer();
         if (levelImage != null) {
