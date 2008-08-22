@@ -53,6 +53,7 @@ public class PlacemarkLayer extends Layer {
         return new AffineTransform(imageToModelTransform);
     }
 
+    @Override
     protected void renderLayer(Rendering rendering) {
         Graphics2D g2d = rendering.getGraphics();
         Viewport viewport = rendering.getViewport();
@@ -103,6 +104,7 @@ public class PlacemarkLayer extends Layer {
 
     }
 
+    @Override
     public Rectangle2D getBounds() {
         return new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
     }
@@ -121,7 +123,7 @@ public class PlacemarkLayer extends Layer {
 
         int[] alphas = new int[]{64, 128, 192, 255};
         for (int i = 0; i < alphas.length; i++) {
-            BasicStroke selectionStroke = new BasicStroke((float) (alphas.length - i));
+            BasicStroke selectionStroke = new BasicStroke((alphas.length - i));
             Color selectionColor = new Color(getTextBgColor().getRed(),
                                              getTextBgColor().getGreen(),
                                              getTextBgColor().getGreen(),
