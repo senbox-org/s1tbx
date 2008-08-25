@@ -3,8 +3,6 @@ package org.esa.beam.framework.ui.product;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerListener;
-import com.bc.ceres.glayer.Style;
-import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.LevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
@@ -13,8 +11,6 @@ import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.grender.swing.ViewportScrollPane;
-import com.bc.layer.LayerModel;
-
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.ui.PixelPositionListener;
@@ -25,19 +21,13 @@ import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glevel.MaskMultiLevelImage;
 import org.esa.beam.glevel.RoiMultiLevelImage;
-import org.esa.beam.layer.NoDataLayer;
-import org.esa.beam.layer.StyledLayer;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
@@ -372,13 +362,13 @@ class ProductSceneView45 extends ProductSceneView {
     public void setLayerProperties(PropertyMap propertyMap) {
 
 //        setImageProperties(propertyMap); TODO implement
-        
+
         getFigureLayer().setStyleProperties(propertyMap);
 //        getNoDataLayer().setStyle(noDataStyle );
         getGraticuleLayer().setStyleProperties(propertyMap);
 //        getPinLayer().setStyleProperties(propertyMap);
 //        getGcpLayer().setStyleProperties(propertyMap);
-        
+
         fireImageUpdated();
     }
 
@@ -422,11 +412,11 @@ class ProductSceneView45 extends ProductSceneView {
         final Product otherProduct = view.getRaster().getProduct();
         if (otherProduct == currentProduct ||
                 otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
-            
+
             Rectangle2D visibleModelBounds = getVisibleModelBounds();
             view.move(visibleModelBounds.getX(), visibleModelBounds.getY());
             view.zoom(getZoomFactor());
-            ProductSceneView45 view45 = (ProductSceneView45)view;
+            ProductSceneView45 view45 = (ProductSceneView45) view;
             view45.layerCanvas.getViewport().rotate(getOrientation());
         }
     }
@@ -449,12 +439,12 @@ class ProductSceneView45 extends ProductSceneView {
         final Graphics2D graphics = imageRendering.getGraphics();
         graphics.setColor(getBackground());
         graphics.fillRect(0, 0, imageWidth, imageHeight);
-        
+
         Viewport snapshotVp = imageRendering.getViewport();
         snapshotVp.setMaxZoomFactor(-1);
         snapshotVp.zoom(bounds);
         snapshotVp.moveViewDelta(snapshotVp.getBounds().x, snapshotVp.getBounds().y);
-        
+
         getSceneImage45().getRootLayer().render(imageRendering);
         return bi;
     }
@@ -508,12 +498,12 @@ class ProductSceneView45 extends ProductSceneView {
     public Figure[] getSelectedFigures() {
         return new Figure[0];
     }
-    
+
     // TODO remove ??? UNUSED
     public Figure[] getFiguresWithAttribute(String name) {
         return new Figure[0];
     }
-    
+
     // TODO remove ??? UNUSED
     public Figure[] getFiguresWithAttribute(String name, Object value) {
         return new Figure[0];
@@ -540,7 +530,7 @@ class ProductSceneView45 extends ProductSceneView {
     private GraticuleLayer getGraticuleLayer() {
         return (GraticuleLayer) getSceneImage45().getRootLayer().getChildLayerList().get(4);
     }
-    
+
     private Layer getPinLayer() {
         return getSceneImage45().getRootLayer().getChildLayerList().get(5);
     }
@@ -548,6 +538,6 @@ class ProductSceneView45 extends ProductSceneView {
     private Layer getGcpLayer() {
         return getSceneImage45().getRootLayer().getChildLayerList().get(6);
     }
-    
+
 
 }
