@@ -12,39 +12,41 @@ import java.awt.image.RenderedImage;
 
 public class DefaultMultiLevelImage extends AbstractMultiLevelImage {
 
-    private final PlanarImage sourceImage;
+    private final PlanarImage levelZeroImage;
     private final Rectangle2D boundingBox;
     private final Interpolation interpolation;
 
-    public DefaultMultiLevelImage(RenderedImage image,
+    public DefaultMultiLevelImage(RenderedImage levelZeroImage,
                                   AffineTransform imageToModelTransform,
                                   int levelCount) {
-        this(image,
+        this(levelZeroImage,
              imageToModelTransform,
              levelCount,
              Interpolation.getInstance(Interpolation.INTERP_BICUBIC));
     }
 
-    public DefaultMultiLevelImage(RenderedImage image,
+    public DefaultMultiLevelImage(RenderedImage levelZeroImage,
                                   AffineTransform imageToModelTransform,
                                   int levelCount,
                                   Interpolation interpolation) {
         super(imageToModelTransform, levelCount);
-        boundingBox = imageToModelTransform.createTransformedShape(new Rectangle(image.getMinX(), image.getMinY(), image.getWidth(), image.getHeight())).getBounds2D();
-        sourceImage = PlanarImage.wrapRenderedImage(image);
+        boundingBox = imageToModelTransform.createTransformedShape(new Rectangle(levelZeroImage.getMinX(),
+                                                                                 levelZeroImage.getMinY(),
+                                                                                 levelZeroImage.getWidth(),
+                                                                                 levelZeroImage.getHeight())).getBounds2D();
+        this.levelZeroImage = PlanarImage.wrapRenderedImage(levelZeroImage);
         this.interpolation = interpolation;
     }
 
     @Override
     protected PlanarImage createPlanarImage(int level) {
         if (level == 0) {
-            return sourceImage;
-        } else if (sourceImage instanceof DownscalableImage) {
-            final DownscalableImage downscalableImage = (DownscalableImage) sourceImage;
-            return PlanarImage.wrapRenderedImage(downscalableImage.downscale(level));
+            return levelZeroImage;
+        } else if (levelZeroImage instanceof DownscalableImage) {
+            return PlanarImage.wrapRenderedImage(((DownscalableImage) levelZeroImage).downscale(level));
         } else {
             float scale = (float) pow2(-level);
-            return ScaleDescriptor.create(sourceImage,
+            return ScaleDescriptor.create(levelZeroImage,
                                           scale, scale, 0.0f, 0.0f,
                                           interpolation, null).getRendering();
         }

@@ -18,5 +18,5 @@ public interface DownscalableImage extends RenderedImage {
      * @param level The resolution level.
      * @return The downscaled image.
      */
-    RenderedImage downscale(int level);
+    DownscalableImage downscale(int level);
 }
