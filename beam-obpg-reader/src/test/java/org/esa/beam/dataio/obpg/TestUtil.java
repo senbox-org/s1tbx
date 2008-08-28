@@ -20,14 +20,24 @@ import junit.framework.Assert;
 import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
+import java.io.IOException;
 
 public class TestUtil {
+    public static final String HDF_DIR = "testdata/out/beam-obpg-reader";
+    public static final String HDF_FILE = HDF_DIR + "/product.hdf";
 
-    public static void deleteFileTree(final String path) {
-        final File treeRoot = new File(path);
+    public static void deleteFileTree() {
+        final File treeRoot = new File(HDF_FILE);
         SystemUtils.deleteFileTree(treeRoot);
         if (treeRoot.isDirectory()) {
             Assert.fail("test directory could not be removed - check your tests");
         }
+    }
+
+    public static File createFile() throws IOException {
+        File file = new File(HDF_FILE);
+        file.getParentFile().mkdirs();
+        file.createNewFile();
+        return file;
     }
 }

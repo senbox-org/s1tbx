@@ -38,16 +38,12 @@ public class ObpgProductReaderTest extends TestCase {
 
     private ObpgProductReaderPlugIn plugIn;
     private File file;
-    private static final String OBPG_TESTS = "ObpgTests";
     private ObpgUtils obpgUtilsMock;
     private ObpgProductReader productReader;
 
     @Override
     protected void setUp() throws Exception {
-        file = new File(OBPG_TESTS + "/File.hdf");
-        file.getParentFile().mkdirs();
-        file.createNewFile();
-
+        this.file = TestUtil.createFile();
         obpgUtilsMock = mock(ObpgUtils.class);
 
         plugIn = new ObpgProductReaderPlugIn();
@@ -57,7 +53,7 @@ public class ObpgProductReaderTest extends TestCase {
 
     @Override
     protected void tearDown() throws Exception {
-        TestUtil.deleteFileTree(OBPG_TESTS);
+        TestUtil.deleteFileTree();
     }
 
     public void fixThisTestOK() throws IOException, HDFException {

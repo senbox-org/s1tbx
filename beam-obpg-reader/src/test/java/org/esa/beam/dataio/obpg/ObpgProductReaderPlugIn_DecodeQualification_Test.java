@@ -32,11 +32,10 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
 
     private ObpgProductReaderPlugIn plugIn;
     private File file;
-    private static final String OBPG_TESTS = "ObpgTests";
     private ObpgUtils obpgUtilsMock;
 
     protected void setUp() throws Exception {
-        file = new File(OBPG_TESTS + "/File.hdf");
+        this.file = TestUtil.createFile();
         file.getParentFile().mkdirs();
         file.createNewFile();
 
@@ -46,7 +45,7 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     }
 
     protected void tearDown() throws Exception {
-        TestUtil.deleteFileTree(OBPG_TESTS);
+        TestUtil.deleteFileTree();
     }
 
     public void test_Unable_BecauseHDFLibrarySaysItIsNotHDF() throws HDFException {
