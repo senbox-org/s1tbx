@@ -23,11 +23,11 @@ import java.io.File;
 import java.io.IOException;
 
 public class TestUtil {
-    public static final String HDF_DIR = "testdata/out/beam-obpg-reader";
-    public static final String HDF_FILE = HDF_DIR + "/product.hdf";
+    public static final String OUT_DIR = "testdata/out";
+    public static final String HDF_FILE = OUT_DIR + "/beam-obpg-reader/product.hdf";
 
     public static void deleteFileTree() {
-        final File treeRoot = new File(HDF_FILE);
+        final File treeRoot = new File(HDF_FILE).getParentFile();
         SystemUtils.deleteFileTree(treeRoot);
         if (treeRoot.isDirectory()) {
             Assert.fail("test directory could not be removed - check your tests");
