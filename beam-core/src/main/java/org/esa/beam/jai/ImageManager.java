@@ -2,7 +2,6 @@ package org.esa.beam.jai;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.DownscalableImage;
-import com.bc.ceres.glevel.LevelImage;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.util.Debug;
@@ -14,14 +13,16 @@ import org.esa.beam.util.math.Histogram;
 
 import javax.media.jai.*;
 import javax.media.jai.operator.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.RenderingHints;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 
 public class ImageManager {
@@ -29,14 +30,14 @@ public class ImageManager {
     private static final ColorPaletteDef.Point OTHER_POINT = new ColorPaletteDef.Point(Double.NaN, Color.BLACK, "Other");
 
     private final static ImageManager INSTANCE = new ImageManager();
-    private final Map<Object, LevelOpImage> maskImageMap = new HashMap<Object, LevelOpImage>(101);
+    private final Map<Object, SingleBandedOpImage> maskImageMap = new WeakHashMap<Object, SingleBandedOpImage>(101);
 
     public static ImageManager getInstance() {
         return INSTANCE;
     }
 
     public synchronized void dispose() {
-        for (PlanarImage image : maskImageMap.values()) {
+        for (SingleBandedOpImage image : maskImageMap.values()) {
             image.dispose();
         }
         maskImageMap.clear();
@@ -224,7 +225,15 @@ public class ImageManager {
     public PlanarImage getBandImage(RasterDataNode rasterDataNode, int level) {
         RenderedImage levelZeroImage = rasterDataNode.getSourceImage();
         if (levelZeroImage == null) {
-            levelZeroImage = new BandOpImage(rasterDataNode);
+            if (rasterDataNode instanceof TiePointGrid) {
+                levelZeroImage = new TiePointGridOpImage((TiePointGrid) rasterDataNode);
+            } else if (rasterDataNode instanceof VirtualBand) {
+                levelZeroImage = new VirtualBandOpImage(new Product[]{rasterDataNode.getProduct()}, ((VirtualBand)rasterDataNode).getExpression(), rasterDataNode.getDataType());
+            } else if (rasterDataNode instanceof AbstractBand) {
+                levelZeroImage = new BandOpImage((AbstractBand) rasterDataNode);
+            } else {
+                throw new IllegalArgumentException("rasterDataNode: unknown subclass " + rasterDataNode.getClass());
+            }
             rasterDataNode.setSourceImage(levelZeroImage);
         }
         return getDownscaledImage(levelZeroImage, level);
@@ -251,15 +260,16 @@ public class ImageManager {
         return image;
     }
 
-    public LevelOpImage getMaskImage(Product product, String expression, int level) {
+    public SingleBandedOpImage getMaskImage(Product product, String expression, int level) {
         final Object key = new MaskKey(product, expression);
         synchronized (maskImageMap) {
-            LevelOpImage opImage = maskImageMap.get(key);
-            if (opImage == null) {
-                opImage = MaskOpImage.create(product, expression);
-                maskImageMap.put(key, opImage);
+            SingleBandedOpImage levelZeroImage = maskImageMap.get(key);
+            if (levelZeroImage == null) {
+                levelZeroImage = MaskOpImage.create(product, expression);
+                maskImageMap.put(key, levelZeroImage);
             }
-            return (LevelOpImage) opImage.downscale(level);
+             // Note: cast is ok, because interface of DownscalableImage requires to return same type
+            return (SingleBandedOpImage) levelZeroImage.downscale(level);
         }
     }
 
@@ -537,19 +547,19 @@ public class ImageManager {
         // Step 3:  insert ROI pixels for pins
         if (roiDefinition.isPinUseEnabled() && rasterDataNode.getProduct().getPinGroup().getNodeCount() > 0) {
 
-            final Object key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getName()+"_RoiPlacemarks");
+            final Object key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getName() + "_RoiPlacemarks");
             PlacemarkMaskOpImage placemarkMaskOpImageLevel0 = null;
             synchronized (maskImageMap) {
-                LevelOpImage opImage = maskImageMap.get(key);
+                SingleBandedOpImage opImage = maskImageMap.get(key);
                 if (opImage == null) {
                     placemarkMaskOpImageLevel0 = new PlacemarkMaskOpImage(rasterDataNode.getProduct(), PinDescriptor.INSTANCE, 3,
-                            rasterDataNode.getSceneRasterWidth(),
-                            rasterDataNode.getSceneRasterHeight());
+                                                                          rasterDataNode.getSceneRasterWidth(),
+                                                                          rasterDataNode.getSceneRasterHeight());
                     maskImageMap.put(key, placemarkMaskOpImageLevel0);
                 }
             }
             if (placemarkMaskOpImageLevel0 != null) {
-                rois.add((PlanarImage)placemarkMaskOpImageLevel0.downscale(level));
+                rois.add((PlanarImage) placemarkMaskOpImageLevel0.downscale(level));
             }
         }
 
@@ -557,19 +567,19 @@ public class ImageManager {
         Figure roiShapeFigure = roiDefinition.getShapeFigure();
         if (roiDefinition.isShapeEnabled() && roiShapeFigure != null) {
 
-            final Object key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getName()+"_RoiShapes");
+            final Object key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getName() + "_RoiShapes");
             ShapeMaskOpImage shapeMaskOpImageLevel0 = null;
             synchronized (maskImageMap) {
-                LevelOpImage opImage = maskImageMap.get(key);
+                SingleBandedOpImage opImage = maskImageMap.get(key);
                 if (opImage == null) {
                     shapeMaskOpImageLevel0 = new ShapeMaskOpImage(roiShapeFigure.getShape(),
-                            rasterDataNode.getSceneRasterWidth(),
-                            rasterDataNode.getSceneRasterHeight());
+                                                                  rasterDataNode.getSceneRasterWidth(),
+                                                                  rasterDataNode.getSceneRasterHeight());
                     maskImageMap.put(key, shapeMaskOpImageLevel0);
                 }
             }
             if (shapeMaskOpImageLevel0 != null) {
-                rois.add((PlanarImage)shapeMaskOpImageLevel0.downscale(level));
+                rois.add((PlanarImage) shapeMaskOpImageLevel0.downscale(level));
             }
         }
 

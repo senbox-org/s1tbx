@@ -817,7 +817,7 @@
             <class>org.esa.beam.visat.actions.ShowImageViewAction</class>
             <placeAfter>showImageView</placeAfter>
             <parent>view</parent>
-            <text>Open Image View (v.45)</text>
+            <text>Open Image View (v4.5)</text>
             <mnemonic>I</mnemonic>
             <accellerator>control alt I</accellerator>
             <shortDescr>Open image view.</shortDescr>
@@ -834,6 +834,22 @@
             <placeAfter>showImageView</placeAfter>
             <parent>view</parent>
             <text>Open RGB Image View...</text>
+            <mnemonic>R</mnemonic>
+            <accellerator>control alt G</accellerator>
+            <shortDescr>Open RGB image view.</shortDescr>
+            <description>Open an RGB image view for the selected product.</description>
+            <context>product</context>
+            <smallIcon>icons/ImageView16.gif</smallIcon>
+            <largeIcon>icons/ImageView24.gif</largeIcon>
+            <helpId>rgbImageProfile</helpId>
+        </action>
+
+        <action>
+            <id>showImageViewRGB45</id>
+            <class>org.esa.beam.visat.actions.ShowImageViewRGBAction</class>
+            <placeAfter>showImageView</placeAfter>
+            <parent>view</parent>
+            <text>Open RGB Image View (v4.5)...</text>
             <mnemonic>R</mnemonic>
             <accellerator>control alt G</accellerator>
             <shortDescr>Open RGB image view.</shortDescr>

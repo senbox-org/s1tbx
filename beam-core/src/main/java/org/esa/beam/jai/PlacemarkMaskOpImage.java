@@ -4,8 +4,13 @@ import org.esa.beam.framework.datamodel.*;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.*;
+
+import com.bc.ceres.glevel.DownscalableImage;
 
 /**
  * Creates a mask image for a given {@link org.esa.beam.framework.datamodel.RasterDataNode}.
@@ -15,23 +20,33 @@ import java.awt.image.*;
 public class PlacemarkMaskOpImage extends SingleBandedOpImage {
     private static final byte FALSE = (byte) 0;
     private static final byte TRUE = (byte) 255;
-    private final ColorModel colorModel;
-    private final Product product;
-    private final PlacemarkDescriptor placemarkDescriptor;
-    private final int placemarkSize;
+    private ColorModel colorModel;
+    private Product product;
+    private PlacemarkDescriptor placemarkDescriptor;
+    private int placemarkSize;
 
-    public PlacemarkMaskOpImage(Product product, PlacemarkDescriptor placemarkDescriptor,
-            int placemarkSize,
-            int sourceWidth, int sourceHeight) {
-        this(product, placemarkDescriptor, placemarkSize, 
-                sourceWidth, sourceHeight, null, 0);
-    }
-    
-    private PlacemarkMaskOpImage(Product product, PlacemarkDescriptor placemarkDescriptor,
+    public PlacemarkMaskOpImage(Product product,
+                                PlacemarkDescriptor placemarkDescriptor,
                                 int placemarkSize,
-                                int sourceWidth, int sourceHeight, LevelOpImage level0Image, int level) {
-        super(DataBuffer.TYPE_BYTE, sourceWidth, sourceHeight, product.getPreferredTileSize(), level0Image, level,
+                                int width,
+                                int height) {
+        super(DataBuffer.TYPE_BYTE,
+              width,
+              height,
+              product.getPreferredTileSize(),
               null);
+        init(product, placemarkDescriptor, placemarkSize);
+    }
+
+    private PlacemarkMaskOpImage(Product product, PlacemarkDescriptor placemarkDescriptor,
+                                 int placemarkSize,
+                                 DownscalableImageSupport level0,
+                                 int level) {
+        super(level0, level, null);
+        init(product, placemarkDescriptor, placemarkSize);
+    }
+
+    private void init(Product product, PlacemarkDescriptor placemarkDescriptor, int placemarkSize) {
         this.product = product;
         this.placemarkDescriptor = placemarkDescriptor;
         this.placemarkSize = placemarkSize;
@@ -39,8 +54,8 @@ public class PlacemarkMaskOpImage extends SingleBandedOpImage {
     }
 
     @Override
-    protected LevelOpImage createDownscaledImage(int level) {
-        return new PlacemarkMaskOpImage(product, placemarkDescriptor, placemarkSize, getSourceWidth(), getSourceHeight(), getLevel0Image(), level);
+    public DownscalableImage createDownscalableImage(int level) {
+        return new PlacemarkMaskOpImage(product, placemarkDescriptor, placemarkSize, getDownscalableImageSupport().getLevel0(), level);
     }
 
     @Override

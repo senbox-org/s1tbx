@@ -130,11 +130,11 @@ public class SmosProductReader extends AbstractProductReader {
 
     private RenderedImage createSourceImage(Band band) {
         final int btDataIndex = bandDescrMap.get(band.getName()).btDataIndex;
-        return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridLevelImage, 0);
+        return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridLevelImage);
     }
 
     private RenderedImage createValidMaksImage(Band band) {
-        return new SmosL1ValidImage(band, 0);
+        return new SmosL1ValidImage(band);
     }
 
     private void applyBandProperties(Band band) {

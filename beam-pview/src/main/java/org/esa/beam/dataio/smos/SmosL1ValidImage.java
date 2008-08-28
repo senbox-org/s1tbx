@@ -18,8 +18,8 @@ package org.esa.beam.dataio.smos;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.jai.LevelOpImage;
 import org.esa.beam.jai.SingleBandedOpImage;
+import org.esa.beam.jai.DownscalableImageSupport;
 
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
@@ -27,20 +27,31 @@ import javax.media.jai.RenderedOp;
 import java.awt.*;
 import java.awt.image.DataBuffer;
 import java.awt.image.WritableRaster;
+import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
+
+import com.bc.ceres.glevel.DownscalableImage;
 
 public class SmosL1ValidImage extends SingleBandedOpImage {
 
-    private final Band smosBand;
+    private Band smosBand;
     private PlanarImage rendering;
 
-    public SmosL1ValidImage(Band smosBand, int level) {
+    public SmosL1ValidImage(Band smosBand) {
         super(DataBuffer.TYPE_BYTE,
               smosBand.getSceneRasterWidth(),
               smosBand.getSceneRasterHeight(),
-              smosBand.getProduct().getPreferredTileSize(), null, level,
+              smosBand.getProduct().getPreferredTileSize(),
               null);
+        init(smosBand, 0);
+    }
 
+    public SmosL1ValidImage(Band smosBand, DownscalableImageSupport level0, int level) {
+        super(level0, level, null);
+        init(smosBand, level);
+    }
+
+    private void init(Band smosBand, int level) {
         this.smosBand = smosBand;
         ParameterBlock pb;
 
@@ -67,13 +78,12 @@ public class SmosL1ValidImage extends SingleBandedOpImage {
     }
 
     @Override
-    protected void computeRect(PlanarImage[] sourceImages, WritableRaster tile, Rectangle destRect) {
-        rendering.copyData(tile);
+    public DownscalableImage createDownscalableImage(int level) {
+        return new SmosL1ValidImage(smosBand, getDownscalableImageSupport().getLevel0(), level);
     }
 
     @Override
-    protected LevelOpImage createDownscaledImage(int level) {
-        return new SmosL1ValidImage(smosBand, level);
+    protected void computeRect(PlanarImage[] sourceImages, WritableRaster tile, Rectangle destRect) {
+        rendering.copyData(tile);
     }
-
 }

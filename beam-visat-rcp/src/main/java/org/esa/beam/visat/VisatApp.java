@@ -61,6 +61,7 @@ import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.visat.actions.ToolAction;
 import org.esa.beam.visat.actions.ShowImageViewAction;
+import org.esa.beam.visat.actions.ShowImageViewRGBAction;
 
 import javax.media.jai.JAI;
 import javax.swing.*;
@@ -1245,69 +1246,8 @@ public class VisatApp extends BasicApp {
      * created and opend as internal frame.
      */
     public void openProductSceneViewRGB(final Product product, final String helpId) {
-        final RGBImageProfilePane profilePane = new RGBImageProfilePane(getPreferences(), product);
-        final boolean ok = profilePane.showDialog(getMainFrame(), getAppName() + " - Select RGB-Image Channels",
-                                                  helpId);
-        if (!ok) {
-            return;
-        }
-        final String[] rgbaExpressions = profilePane.getRgbaExpressions();
-        if (profilePane.getStoreProfileInProduct()) {
-            RGBImageProfile.storeRgbaExpressions(product, rgbaExpressions);
-        }
-
-        final RGBImageProfile selectedProfile = profilePane.getSelectedProfile();
-        final String name = selectedProfile != null ? selectedProfile.getName().replace("_", " ") : "";
-
-        openProductSceneViewRGB(name, product, rgbaExpressions, helpId);
-    }
-
-    /**
-     * Creates product scene view using the given RGBA expressions.
-     */
-    public void openProductSceneViewRGB(final String name, final Product product, final String[] rgbaExpressions,
-                                        final String helpId) {
-        final SwingWorker<ProductSceneImage, Object> worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(
-                getMainFrame(),
-                getAppName() + " - Creating image for '" + name + "'") {
-
-            @Override
-            protected ProductSceneImage doInBackground(ProgressMonitor pm) throws Exception {
-                return createProductSceneImageRGB(name, product, rgbaExpressions, pm);
-            }
-
-            @Override
-            protected void done() {
-                getMainFrame().setCursor(Cursor.getDefaultCursor());
-
-                final ProductSceneImage productSceneImage;
-                try {
-                    productSceneImage = get();
-                } catch (OutOfMemoryError e) {
-                    showOutOfMemoryErrorDialog("The RGB image view could not be created."); /*I18N*/
-                    return;
-                } catch (Exception e) {
-                    handleUnknownException(e);
-                    return;
-                }
-                clearStatusBarMessage();
-
-                ProductSceneView productSceneView = ProductSceneView.create(productSceneImage);
-                productSceneView.setCommandUIFactory(getCommandUIFactory());
-                productSceneView.setNoDataOverlayEnabled(false);
-                productSceneView.setROIOverlayEnabled(false);
-                productSceneView.setGraticuleOverlayEnabled(false);
-                productSceneView.setPinOverlayEnabled(false);
-                productSceneView.setLayerProperties(getPreferences());
-                final String title = createInternalFrameTitleRGB(product, productSceneImage.getName());
-                final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
-                createInternalFrame(title, icon, productSceneView, helpId);
-                addPropertyMapChangeListener(productSceneView);
-                updateState();
-            }
-        };
-        setStatusBarMessage("Creating RGB image view...");  /*I18N*/
-        getExecutorService().submit(worker);
+        final ShowImageViewRGBAction command = (ShowImageViewRGBAction) getCommandManager().getCommand(ShowImageViewRGBAction.ID);
+        command.openProductSceneViewRGB(product, helpId);
     }
 
     /**
@@ -1573,102 +1513,6 @@ public class VisatApp extends BasicApp {
 
     public ExecutorService getExecutorService() {
         return singleThreadExecutor;
-    }
-
-    private static class RGBBand {
-
-        private Band band;
-        private boolean dataLoaded;
-    }
-
-    private ProductSceneImage createProductSceneImageRGB(String name, final Product product, String[] rgbaExpressions,
-                                                         ProgressMonitor pm) throws Exception {
-        getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        RGBBand[] rgbBands = null;
-        boolean errorOccured = false;
-        ProductSceneImage productSceneImage = null;
-        try {
-            pm.beginTask("Creating RGB image...", 2);
-            rgbBands = allocateRgbBands(product, rgbaExpressions, getDataAutoLoadLimit(),
-                                        SubProgressMonitor.create(pm, 1));
-            productSceneImage = ProductSceneImage.create(rgbBands[0].band, rgbBands[1].band, rgbBands[2].band,
-                                                         SubProgressMonitor.create(pm, 1));
-            productSceneImage.setName(name);
-        } catch (Exception e) {
-            errorOccured = true;
-            throw e;
-        } finally {
-            pm.done();
-            if (rgbBands != null) {
-                releaseRgbBands(rgbBands, errorOccured);
-            }
-        }
-        return productSceneImage;
-    }
-
-    private static RGBBand[] allocateRgbBands(final Product product,
-                                              final String[] rgbaExpressions,
-                                              final long dataAutoLoadMemLimit,
-                                              final ProgressMonitor pm) throws IOException {
-        final RGBBand[] rgbBands = new RGBBand[3]; // todo - set to [4] as soon as we support alpha
-        long storageMem = 0;
-        for (int i = 0; i < rgbBands.length; i++) {
-            final RGBBand rgbBand = new RGBBand();
-            String expression = rgbaExpressions[i].isEmpty() ? "0" : rgbaExpressions[i];
-            rgbBand.band = product.getBand(expression);
-            if (rgbBand.band == null) {
-                rgbBand.band = new ProductSceneView.RGBChannel(product,
-                                                               RGBImageProfile.RGB_BAND_NAMES[i],
-                                                               expression);
-            }
-            rgbBands[i] = rgbBand;
-            storageMem += rgbBand.band.getRawStorageSize();
-        }
-        // JAIJAIJAI
-        if (ProductSceneImage.isInTiledImagingMode()) {
-            // don't need to load any data!
-        } else {
-            if (storageMem < dataAutoLoadMemLimit) {
-                pm.beginTask("Loading RGB channels...", rgbBands.length);
-                String msgPattern = "Loading RGB channel ''{0}''...";
-                for (final RGBBand rgbBand : rgbBands) {
-                    if (!rgbBand.band.hasRasterData()) {
-                        pm.setSubTaskName(MessageFormat.format(msgPattern, rgbBand.band.getName()));
-                        rgbBand.band.loadRasterData(SubProgressMonitor.create(pm, 1));
-                        rgbBand.dataLoaded = true;
-                    } else {
-                        pm.worked(1);
-                    }
-                    if (pm.isCanceled()) {
-                        throw new IOException("Image creation canceled by user.");
-                    }
-                }
-            }
-        }
-        return rgbBands;
-    }
-
-    private static void releaseRgbBands(RGBBand[] rgbBands, boolean errorOccured) {
-        for (int i = 0; i < rgbBands.length; i++) {
-            final RGBBand rgbBand = rgbBands[i];
-            if (rgbBand != null && rgbBand.band != null) {
-                if (rgbBand.band instanceof ProductSceneView.RGBChannel) {
-                    if (rgbBand.dataLoaded) {
-                        rgbBand.band.unloadRasterData();
-                    }
-                    if (errorOccured) {
-                        rgbBand.band.dispose();
-                    }
-                }
-                rgbBand.band = null;
-            }
-            rgbBands[i] = null;
-        }
-    }
-
-    private String createInternalFrameTitleRGB(final Product product, String name) {
-        return UIUtils.getUniqueFrameTitle(getAllInternalFrames(),
-                                           product.getProductRefString() + " " + name + " RGB");
     }
 
     private ProductMetadataView createProductMetadataViewImpl(final MetadataElement element) {

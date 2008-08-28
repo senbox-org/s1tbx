@@ -1,5 +1,7 @@
 package org.esa.beam.jai;
 
+import com.bc.ceres.glevel.DownscalableImage;
+
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
 import java.awt.*;
@@ -14,23 +16,29 @@ import java.awt.image.*;
 public class ShapeMaskOpImage extends SingleBandedOpImage {
     private static final byte FALSE = (byte) 0;
     private static final byte TRUE = (byte) 255;
-    private final Shape shape;
-    private final ColorModel colorModel;
+    private Shape shape;
+    private ColorModel colorModel;
 
-    public ShapeMaskOpImage(Shape shape, int sourceWidth, int sourceHeight) {
-        this(shape, sourceWidth, sourceHeight, null, 0);
-        
+    public ShapeMaskOpImage(Shape shape, int width, int height) {
+        super(DataBuffer.TYPE_BYTE, width, height, null, null);
+        init(shape);
     }
-    private ShapeMaskOpImage(Shape shape, int sourceWidth, int sourceHeight, LevelOpImage level0Image, int level) {
-        super(DataBuffer.TYPE_BYTE, sourceWidth, sourceHeight, null, level0Image, level, null);
+
+    private ShapeMaskOpImage(Shape shape, DownscalableImageSupport level0, int level) {
+        super(level0, level, null);
+        init(shape);
+    }
+
+    private void init(Shape shape) {
         this.shape = AffineTransform.getScaleInstance(getScale(), getScale()).createTransformedShape(shape);
         this.colorModel = PlanarImage.createColorModel(getSampleModel());
     }
 
     @Override
-    protected LevelOpImage createDownscaledImage(int level) {
-        return new ShapeMaskOpImage(shape, getSourceWidth(), getSourceHeight(), getLevel0Image(), level);
+    public DownscalableImage createDownscalableImage(int level) {
+        return new ShapeMaskOpImage(shape, getDownscalableImageSupport().getLevel0(), level);
     }
+
 
     @Override
     protected void computeRect(PlanarImage[] sourceImages, WritableRaster tile, Rectangle destRect) {
