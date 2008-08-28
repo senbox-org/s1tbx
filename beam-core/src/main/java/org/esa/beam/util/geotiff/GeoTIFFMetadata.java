@@ -24,6 +24,7 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -215,6 +216,10 @@ public class GeoTIFFMetadata {
         return value;
     }
 
+    public double[] getGeoDoubleParams() {
+        return Arrays.copyOf(_geoDoubleParams, _numGeoDoubleParams);
+    }
+
     public double getGeoDoubleParam(int keyID) {
         final KeyEntry entry = getNonNullKeyEntry(keyID);
         final int[] data = entry.getData();
@@ -241,6 +246,10 @@ public class GeoTIFFMetadata {
         }
         System.arraycopy(_geoDoubleParams, offset, values, 0, count);
         return values;
+    }
+
+    public String getGeoAsciiParams() {
+        return _geoAsciiParams.toString();
     }
 
     public String getGeoAsciiParam(int keyID) {
@@ -468,9 +477,9 @@ public class GeoTIFFMetadata {
     private Element createIFD() {
         Element ifd = new Element(IIO_TIFF_IFD_ELEMENT_NAME);
         ifd.setAttribute(
-                IIO_TIFF_TAGSETS_ATT_NAME,
-                BaselineTIFFTagSet.class.getName() + "," +
-                        GeoTIFFTagSet.class.getName());
+                    IIO_TIFF_TAGSETS_ATT_NAME,
+                    BaselineTIFFTagSet.class.getName() + "," +
+                    GeoTIFFTagSet.class.getName());
         if (isModelPixelScaleSet()) {
             ifd.addContent(createModelPixelScaleElement());
         }

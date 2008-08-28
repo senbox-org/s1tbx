@@ -171,7 +171,7 @@ class TiffIFD {
                 }
             }
             if (data[1] == TiffTag.GeoAsciiParamsTag.getValue()) {
-                directoryTagValues[i * 4 + 3] = new TiffShort(doubleValues.size());
+                directoryTagValues[i * 4 + 3] = new TiffShort(asciiValues.size());
                 asciiValues.add(new TiffAscii(geoTIFFMetadata.getGeoAsciiParam(data[0])));
             }
         }

@@ -6,11 +6,10 @@
  */
 package org.esa.beam.util.geotiff;
 
-import java.util.List;
-
 import junit.framework.TestCase;
-
 import org.jdom.Element;
+
+import java.util.List;
 
 public class GeoTIFFMetadataTest extends TestCase {
 
@@ -270,6 +269,36 @@ public class GeoTIFFMetadataTest extends TestCase {
         assertEquals(1005, md.getGeoKeyEntryAt(5).getData()[0]);
         assertEquals(1006, md.getGeoKeyEntryAt(6).getData()[0]);
         assertEquals(1007, md.getGeoKeyEntryAt(7).getData()[0]);
+    }
+
+    public void testGetGeoAscIIParams() {
+        final String s1 = "My Projection";
+        final String s2 = "My Datum";
+
+        final GeoTIFFMetadata md = new GeoTIFFMetadata();
+
+        md.addGeoAscii(1003, s1);
+        md.addGeoAscii(1007, s2);
+
+        assertEquals(s1 + "|" + s2 + "|", md.getGeoAsciiParams());
+    }
+
+    public void testGetGeoDoubleParams() {
+        final GeoTIFFMetadata md = new GeoTIFFMetadata();
+
+        md.addGeoDoubleParams(1004, new double[]{21.4, -2.1, 76.9, -0.6});
+        md.addGeoDoubleParam(1002, 45.3);
+        md.addGeoDoubleParam(1006, 76.4);
+
+        final double[] doubleParams = md.getGeoDoubleParams();
+        assertNotNull(doubleParams);
+        assertEquals(6, doubleParams.length);
+        assertEquals(21.4, doubleParams[0], 1e-12);
+        assertEquals(-2.1, doubleParams[1], 1e-12);
+        assertEquals(76.9, doubleParams[2], 1e-12);
+        assertEquals(-0.6, doubleParams[3], 1e-12);
+        assertEquals(45.3, doubleParams[4], 1e-12);
+        assertEquals(76.4, doubleParams[5], 1e-12);
     }
 }
 

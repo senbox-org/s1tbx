@@ -2015,6 +2015,12 @@ public class ProductUtils {
 
     public static GeoTIFFMetadata createGeoTIFFMetadata(final Product product) {
         final GeoCoding geoCoding = product != null ? product.getGeoCoding() : null;
+        final int w = product.getSceneRasterWidth();
+        final int h = product.getSceneRasterHeight();
+        return createGeoTIFFMetadata(geoCoding, w, h);
+    }
+
+    public static GeoTIFFMetadata createGeoTIFFMetadata(GeoCoding geoCoding, int width, int height) {
         GeoTIFFMetadata metadata = null;
         if (geoCoding instanceof MapGeoCoding) {
             final MapGeoCoding mapGeoCoding = (MapGeoCoding) geoCoding;
@@ -2152,10 +2158,8 @@ public class ProductUtils {
             metadata.addGeoShortParam(GeoTIFFCodes.GTModelTypeGeoKey, GeoTIFFCodes.ModelTypeGeographic);
             metadata.addGeoShortParam(GeoTIFFCodes.GTRasterTypeGeoKey, GeoTIFFCodes.RasterPixelIsArea);
             metadata.addGeoShortParam(GeoTIFFCodes.GeographicTypeGeoKey, EPSGCodes.GCS_WGS_84);
-            final int w = product.getSceneRasterWidth();
-            final int h = product.getSceneRasterHeight();
             final int numTotMax = 32;
-            int numHor = (int) Math.sqrt(numTotMax * ((double) w / (double) h));
+            int numHor = (int) Math.sqrt(numTotMax * ((double) width / (double) height));
             if (numHor < 2) {
                 numHor = 2;
             }
@@ -2167,8 +2171,8 @@ public class ProductUtils {
             final PixelPos pixelPos = new PixelPos();
             for (int y = 0; y < numVer; y++) {
                 for (int x = 0; x < numHor; x++) {
-                    pixelPos.x = w * (float) x / (numHor - 1.0f);
-                    pixelPos.y = h * (float) y / (numVer - 1.0f);
+                    pixelPos.x = width * (float) x / (numHor - 1.0f);
+                    pixelPos.y = height * (float) y / (numVer - 1.0f);
                     geoCoding.getGeoPos(pixelPos, geoPos);
                     metadata.addModelTiePoint(pixelPos.x, pixelPos.y, geoPos.lon, geoPos.lat);
                 }
