@@ -289,6 +289,21 @@
             <initIndex>0</initIndex>
         </toolView>
 
+        <toolView>
+            <id>org.esa.beam.visat.toolviews.layermanager.LayerManagerToolView</id>
+            <class>org.esa.beam.visat.toolviews.layermanager.LayerManagerToolView</class>
+            <title>Layer Manager</title>
+            <mnemonic>L</mnemonic>
+            <accelerator>ctrl alt L</accelerator>
+            <description>Manage the display of image layers.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay24.gif</largeIcon>
+            <helpId/>
+            <initState>HIDDEN</initState>
+            <initSide>SOUTH</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+
     </extension>
 
     <extension point="beam-ui:actions">
