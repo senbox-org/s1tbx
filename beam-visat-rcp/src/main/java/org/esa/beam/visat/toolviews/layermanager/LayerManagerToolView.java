@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * todo - add API doc
+ * Layer manager tool view.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
@@ -91,13 +91,18 @@ public class LayerManagerToolView extends AbstractToolView {
                 setProductSceneView(null);
             }
         }
-        
+
         @Override
         public void internalFrameClosed(InternalFrameEvent e) {
             final Container container = e.getInternalFrame().getContentPane();
 
             if (container instanceof ProductSceneView45) {
-                setProductSceneView(null);
+                final ProductSceneView selectedSceneView = VisatApp.getApp().getSelectedProductSceneView();
+                if (selectedSceneView instanceof ProductSceneView45) {
+                    setProductSceneView((ProductSceneView45) selectedSceneView);
+                } else {
+                    setProductSceneView(null);
+                }
                 layerManagerMap.remove(container);
             }
         }

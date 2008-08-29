@@ -33,7 +33,7 @@ import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 
-class ProductSceneView45 extends ProductSceneView {
+public class ProductSceneView45 extends ProductSceneView {
 
     private LayerDisplay layerCanvas;
 

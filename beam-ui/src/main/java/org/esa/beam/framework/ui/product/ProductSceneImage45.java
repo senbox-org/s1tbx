@@ -7,11 +7,13 @@ import java.io.IOException;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glayer.PlacemarkLayer;
 import org.esa.beam.glevel.BandMultiLevelImage;
+import org.esa.beam.glevel.MaskMultiLevelImage;
 import org.esa.beam.util.ProductUtils;
 
 import com.bc.ceres.core.ProgressMonitor;
@@ -96,36 +98,21 @@ class ProductSceneImage45 extends ProductSceneImage {
         rootLayer.getChildLayerList().add(pinLayer);
         rootLayer.getChildLayerList().add(gcpLayer);
 
-//        figureLayer.setVisible(true);
-//        roiLayer.setVisible(false);
-//        graticuleLayer.setVisible(false);
-//        pinLayer.setVisible(false);
-//        pinLayer.setTextEnabled(true);
-//        gcpLayer.setVisible(false);
-//        gcpLayer.setTextEnabled(false);
-//
-//        rootLayer.getChildLayerList().add(new FigureLayer());
-//        rootLayer.getChildLayerList().add(new ROILayer(getRaster()));
-//        rootLayer.getChildLayerList().add(new GraticuleLayer(getProduct(), getRaster()));
-//        rootLayer.getChildLayerList().add(new PlacemarkLayer(getProduct(), PinDescriptor.INSTANCE));
-//        rootLayer.getChildLayerList().add(new PlacemarkLayer(getProduct(), GcpDescriptor.INSTANCE));
+        final Layer bitmaskLayer = new Layer();
+        bitmaskLayer.setName("Bitmasks");
+        final BitmaskDef[] bitmaskDefs = getProduct().getBitmaskDefs();
+        for (BitmaskDef bitmaskDef : bitmaskDefs) {
+            final Color color = bitmaskDef.getColor();
+            final String expression = bitmaskDef.getExpr();
+            MaskMultiLevelImage maskImage = new MaskMultiLevelImage(getProduct(), color, expression, false, new AffineTransform());
+            final ImageLayer maskImageLayer = new ImageLayer(maskImage);
+            maskImageLayer.setName(bitmaskDef.getName());
+            maskImageLayer.setVisible(false);
+            maskImageLayer.getStyle().setOpacity(bitmaskDef.getAlpha());
+            bitmaskLayer.getChildLayerList().add(maskImageLayer);
+        }
 
-//        NoDataLayer noDataLayer = (NoDataLayer) layerModel.getLayer(1);
-//        FigureLayer figureLayer = (FigureLayer) layerModel.getLayer(2);
-//        ROILayer roiLayer = (ROILayer) layerModel.getLayer(3);
-//        GraticuleLayer graticuleLayer = (GraticuleLayer) layerModel.getLayer(4);
-//        PlacemarkLayer pinLayer = (PlacemarkLayer) layerModel.getLayer(5);
-//        PlacemarkLayer gcpLayer = (PlacemarkLayer) layerModel.getLayer(6);
-//
-//        imageLayer.setVisible(true);
-//        noDataLayer.setVisible(false);
-//        figureLayer.setVisible(true);
-//        roiLayer.setVisible(false);
-//        graticuleLayer.setVisible(false);
-//        pinLayer.setVisible(false);
-//        pinLayer.setTextEnabled(true);
-//        gcpLayer.setVisible(false);
-//        gcpLayer.setTextEnabled(false);
+        rootLayer.getChildLayerList().add(bitmaskLayer);
     }
 
     public Layer getRootLayer() {

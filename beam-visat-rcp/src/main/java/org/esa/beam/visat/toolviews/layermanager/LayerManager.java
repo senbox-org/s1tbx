@@ -26,7 +26,7 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.util.List;
 
-public class LayerManager {
+class LayerManager {
     private JSlider transparencySlider;
     private JComboBox alphaCompositeBox;
     private boolean adjusting;
