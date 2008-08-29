@@ -89,6 +89,7 @@ class ProductSceneImage45 extends ProductSceneImage {
         gcpLayer.setTextEnabled(false);
 
         final FigureLayer figureLayer = new FigureLayer(new Figure[0]);
+        figureLayer.setName("Figures");
         figureLayer.setVisible(true);
 
         rootLayer.getChildLayerList().add(noDataLayer);

@@ -25,7 +25,7 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.swing.JComponent;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
@@ -122,9 +122,9 @@ public class ProductSceneView45 extends ProductSceneView {
                 * DefaultViewport.getScale(thumbnailViewport.getModelToViewTransform());
 
         return new Rectangle((int) Math.floor(tnOffset.getX()),
-                             (int) Math.floor(tnOffset.getY()),
-                             (int) Math.floor(canvasViewport.getBounds().width * scale),
-                             (int) Math.floor(canvasViewport.getBounds().height * scale));
+                (int) Math.floor(tnOffset.getY()),
+                (int) Math.floor(canvasViewport.getBounds().width * scale),
+                (int) Math.floor(canvasViewport.getBounds().height * scale));
     }
 
     private void configureThumbnailViewport(Viewport thumbnailViewport) {
@@ -227,7 +227,7 @@ public class ProductSceneView45 extends ProductSceneView {
         if (expression != null) {
             // todo - get color from style, set color
             final LevelImage levelImage = new MaskMultiLevelImage(getRaster().getProduct(), Color.ORANGE, expression,
-                                                                  true, new AffineTransform());
+                    true, new AffineTransform());
             getNoDataLayer().setLevelImage(levelImage);
         } else {
             getNoDataLayer().setLevelImage(LevelImage.NULL);
@@ -516,28 +516,62 @@ public class ProductSceneView45 extends ProductSceneView {
     }
 
     private ImageLayer getNoDataLayer() {
-        return (ImageLayer) getSceneImage45().getRootLayer().getChildLayerList().get(1);
+        for (final Layer layer : getSceneImage45().getRootLayer().getChildLayerList()) {
+            if (layer.getName().startsWith("No-data")) {
+                return (ImageLayer) layer;
+            }
+        }
+
+        return null;
     }
 
     private FigureLayer getFigureLayer() {
-        return (FigureLayer) getSceneImage45().getRootLayer().getChildLayerList().get(2);
+        for (final Layer layer : getSceneImage45().getRootLayer().getChildLayerList()) {
+            if ("Figures".equals(layer.getName())) {
+                return (FigureLayer) layer;
+            }
+        }
+
+        return null;
     }
 
     private ImageLayer getRoiLayer() {
-        return (ImageLayer) getSceneImage45().getRootLayer().getChildLayerList().get(3);
+        for (final Layer layer : getSceneImage45().getRootLayer().getChildLayerList()) {
+            if (layer.getName().startsWith("ROI")) {
+                return (ImageLayer) layer;
+            }
+        }
+
+        return null;
     }
 
     private GraticuleLayer getGraticuleLayer() {
-        return (GraticuleLayer) getSceneImage45().getRootLayer().getChildLayerList().get(4);
+        for (final Layer layer : getSceneImage45().getRootLayer().getChildLayerList()) {
+            if (layer.getName().startsWith("Graticule")) {
+                return (GraticuleLayer) layer;
+            }
+        }
+
+        return null;
     }
 
     private Layer getPinLayer() {
-        return getSceneImage45().getRootLayer().getChildLayerList().get(5);
+        for (final Layer layer : getSceneImage45().getRootLayer().getChildLayerList()) {
+            if ("Pins".equals(layer.getName())) {
+                return layer;
+            }
+        }
+
+        return null;
     }
 
     private Layer getGcpLayer() {
-        return getSceneImage45().getRootLayer().getChildLayerList().get(6);
+        for (final Layer layer : getSceneImage45().getRootLayer().getChildLayerList()) {
+            if ("GCPs".equals(layer.getName())) {
+                return layer;
+            }
+        }
+
+        return null;
     }
-
-
 }
