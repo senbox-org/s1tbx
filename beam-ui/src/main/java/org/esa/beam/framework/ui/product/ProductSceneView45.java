@@ -56,18 +56,22 @@ public class ProductSceneView45 extends ProductSceneView {
 
         // todo - this change management is for compatibility reasons only, need better control here!!!
         layerCanvas.getLayer().addListener(new LayerListener() {
+            @Override
             public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
                 fireLayerContentChanged();
             }
 
+            @Override
             public void handleLayerDataChanged(Layer layer, Rectangle2D modelRegion) {
                 fireLayerContentChanged();
             }
 
+            @Override
             public void handleLayersAdded(Layer parentLayer, Layer[] childLayers) {
                 fireLayerContentChanged();
             }
 
+            @Override
             public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
                 fireLayerContentChanged();
             }
@@ -141,8 +145,13 @@ public class ProductSceneView45 extends ProductSceneView {
     }
 
     ImageLayer getBaseImageLayer() {
-        final Layer layer = layerCanvas.getLayer().getChildLayerList().get(0);
-        return (ImageLayer) layer;
+        for (final Layer layer : getSceneImage45().getRootLayer().getChildLayerList()) {
+            if (layer.getName().equals(getSceneImage45().getName())) {
+                return (ImageLayer) layer;
+            }
+        }
+
+        return null;
     }
 
     @Override

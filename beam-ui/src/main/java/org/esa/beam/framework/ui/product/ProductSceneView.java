@@ -169,7 +169,7 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
     }
 
     protected void fireLayerContentChanged() {
-        for (LayerContentListener listener : layerContentListenerList.toArray(new LayerContentListener[layerContentListenerList.size()])) {
+        for (LayerContentListener listener : layerContentListenerList) {
             listener.layerContentChanged(getRaster());
         }
     }

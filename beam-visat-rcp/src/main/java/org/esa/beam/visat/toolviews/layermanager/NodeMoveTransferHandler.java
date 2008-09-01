@@ -146,6 +146,7 @@ class NodeMoveTransferHandler extends TransferHandler {
          *
          * @return an array of supported data flavors
          */
+        @Override
         public DataFlavor[] getTransferDataFlavors() {
             return new DataFlavor[0];
         }
@@ -155,6 +156,7 @@ class NodeMoveTransferHandler extends TransferHandler {
          *
          * @return true, if the given data flavor is supported
          */
+        @Override
         public boolean isDataFlavorSupported(DataFlavor flavor) {
             return false;
         }
@@ -164,6 +166,7 @@ class NodeMoveTransferHandler extends TransferHandler {
          *
          * @return the data transported by this transferable
          */
+        @Override
         public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
             return data;
         }

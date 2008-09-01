@@ -27,6 +27,7 @@ import java.beans.PropertyChangeEvent;
 import java.util.List;
 
 class LayerManager {
+
     private JSlider transparencySlider;
     private JComboBox alphaCompositeBox;
     private boolean adjusting;
@@ -50,6 +51,7 @@ class LayerManager {
         // sliderPanel.add(alphaCompositeBox, BorderLayout.EAST);
 
         transparencySlider.addChangeListener(new ChangeListener() {
+            @Override
             public void stateChanged(ChangeEvent e) {
 
                 TreePath path = layerTree.getSelectionPath();
@@ -64,6 +66,7 @@ class LayerManager {
         });
 
         alphaCompositeBox.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 TreePath path = layerTree.getSelectionPath();
                 if (path != null) {
@@ -81,6 +84,7 @@ class LayerManager {
         });
 
         rootLayer.addListener(new LayerStyleListener() {
+            @Override
             public void handleLayerStylePropertyChanged(Layer layer, PropertyChangeEvent event) {
                 if (!adjusting) {
                     TreePath path = layerTree.getSelectionPath();
@@ -95,6 +99,7 @@ class LayerManager {
         });
 
         rootLayer.addListener(new AbstractLayerListener() {
+            @Override
             public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
                 if (event.getPropertyName().equals("visible")) {
                     final Boolean oldValue = (Boolean) event.getOldValue();
@@ -198,6 +203,7 @@ class LayerManager {
         final NodeMoveTransferHandler transferHandler = new NodeMoveTransferHandler();
         tree.setTransferHandler(transferHandler);
         tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
+            @Override
             public void valueChanged(TreeSelectionEvent event) {
                 Layer layer = getLayer(event.getPath());
                 updateLayerStyleUI(layer);
@@ -206,6 +212,7 @@ class LayerManager {
 
         final CheckBoxTreeSelectionModel selectionModel = tree.getCheckBoxTreeSelectionModel();
         selectionModel.addTreeSelectionListener(new TreeSelectionListener() {
+            @Override
             public void valueChanged(TreeSelectionEvent event) {
                 if (!adjusting) {
                     Layer layer = getLayer(event.getPath());
@@ -228,9 +235,14 @@ class LayerManager {
         for (Layer childLayer : childLayers) {
             initSelection(childLayer);
         }
-
-
     }
 
+    private static class MyTreeCellRenderer extends DefaultTreeCellRenderer {
+
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            return super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+        }
+    }
 }
 

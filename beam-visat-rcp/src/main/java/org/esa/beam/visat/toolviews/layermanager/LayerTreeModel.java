@@ -35,7 +35,8 @@ class LayerTreeModel extends DefaultTreeModel {
             final Object userObject = parent.getUserObject();
             if (userObject instanceof Layer) {
                 Layer collectionLayer = (Layer) userObject;
-                if (collectionLayer.getChildLayerList().remove((Layer) treeNode.getUserObject())) {
+                //noinspection SuspiciousMethodCalls
+                if (collectionLayer.getChildLayerList().remove(treeNode.getUserObject())) {
                     super.removeNodeFromParent(node);
                 }
             }
@@ -45,13 +46,17 @@ class LayerTreeModel extends DefaultTreeModel {
 
     private static MutableTreeNode createTreeNodes(Layer layer) {
         final DefaultMutableTreeNode node = new DefaultMutableTreeNode(layer);
-        for (Layer subLayer : layer.getChildLayerList()) {
+
+        for (int i = 0; i < layer.getChildLayerList().size(); ++i) {
+            final Layer childLayer = layer.getChildLayerList().get(i);
+
             if (layer.getChildLayerList().isEmpty()) {
-                node.add(new DefaultMutableTreeNode(subLayer));
+                node.add(new DefaultMutableTreeNode(childLayer));
             } else {
-                node.add(createTreeNodes(subLayer));
+                node.add(createTreeNodes(childLayer));
             }
         }
+
         return node;
     }
 }
