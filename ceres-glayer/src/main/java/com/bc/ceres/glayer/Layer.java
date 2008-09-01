@@ -1,6 +1,7 @@
 package com.bc.ceres.glayer;
 
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.grender.Rendering;
 
@@ -8,7 +9,9 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.*;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 // todo - make this class thread safe!!!
@@ -20,7 +23,7 @@ import java.util.List;
  * @author Norman Fomferra
  * @version $revision$ $date$
  */
-public class Layer {
+public class Layer extends ExtensibleObject {
     private Layer parentLayer;
     private LayerList childLayerList;
     private String name;
@@ -339,7 +342,7 @@ public class Layer {
     /**
      * @param parentLayer The parent layer, or {@code null} if this layer has no parent.
      */
-     void setParentLayer(Layer parentLayer) {
+    void setParentLayer(Layer parentLayer) {
         this.parentLayer = parentLayer;
     }
 
