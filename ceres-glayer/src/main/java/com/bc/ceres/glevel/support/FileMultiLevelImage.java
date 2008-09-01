@@ -1,41 +1,39 @@
 package com.bc.ceres.glevel.support;
 
-import javax.media.jai.PlanarImage;
+import com.bc.ceres.glevel.LRImageFactory;
+
 import javax.media.jai.operator.FileLoadDescriptor;
-import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
+import java.awt.image.RenderedImage;
 import java.io.File;
 
-public class FileMultiLevelImage extends AbstractMultiLevelImage {
-
-    private final File location;
-    private final String basename;
-    private final String extension;
+public class FileMultiLevelImage extends DeferredMultiLevelImage {
 
     public FileMultiLevelImage(File location, String extension, AffineTransform imageToModelTransform, int levelCount) {
-        super(imageToModelTransform, levelCount);
-        this.location = location;
-        this.basename = location.getName();
-        this.extension = extension;
+        super(imageToModelTransform, levelCount, new IF(location, location.getName(), extension));
+        setModelBounds(getModelBounds(imageToModelTransform, getLRImage(0)));
     }
 
-    @Override
-    protected PlanarImage createPlanarImage(int level) {
-        final StringBuilder sb = new StringBuilder(basename);
-        sb.append('.');
-        sb.append(level);
-        sb.append('.');
-        sb.append(extension);
-        final String fileName = sb.toString();
-        final File file = new File(location, fileName);
-        return FileLoadDescriptor.create(file.getPath(), null, true, null).getRendering();
-    }
+    private static class IF implements LRImageFactory {
+        private final File location;
+        private final String basename;
+        private final String extension;
 
-    @Override
-    public Rectangle2D getBounds(int level) {
-        checkLevel(level);
-        final PlanarImage image = getPlanarImage(0);
-        return getImageToModelTransform(0).createTransformedShape(new Rectangle(image.getMinX(), image.getMinY(), image.getWidth(), image.getHeight())).getBounds2D();
+        public IF(File location, String basename, String extension) {
+            this.location = location;
+            this.basename = basename;
+            this.extension = extension;
+        }
+
+        public RenderedImage createLRImage(int level) {
+            final StringBuilder sb = new StringBuilder(basename);
+            sb.append('.');
+            sb.append(level);
+            sb.append('.');
+            sb.append(extension);
+            final String fileName = sb.toString();
+            final File file = new File(location, fileName);
+            return FileLoadDescriptor.create(file.getPath(), null, true, null).getRendering();
+        }
     }
 }

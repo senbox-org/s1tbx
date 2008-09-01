@@ -2,7 +2,6 @@ package com.bc.ceres.glevel;
 
 import com.bc.ceres.glevel.support.NullLevelImage;
 
-import javax.media.jai.PlanarImage;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
@@ -36,11 +35,11 @@ public interface LevelImage {
      * @return the image for the given level.
      * @see #reset()
      */
-    PlanarImage getPlanarImage(int level);
+    RenderedImage getLRImage(int level);
 
     /**
      * States an attempt to regenerate images at all levels and remove all cached tiles.
-     * After calling this method, {@link #getPlanarImage(int)} should return a newly created image the first
+     * After calling this method, {@link #getLRImage(int)} should return a newly created image the first
      * time it is called.
      * <p/>
      * This method is particularily useful if properties have changed that affect the appearance of the
@@ -66,11 +65,10 @@ public interface LevelImage {
     AffineTransform getModelToImageTransform(int level);
 
     /**
-     * Returns the bounding box in model coordinates for the given level.
+     * Returns the bounding box in model coordinates.
      *
-     * @param level the resolution level
      * @return the bounding box.
      */
-    Rectangle2D getBounds(int level);
+    Rectangle2D getModelBounds();
 
 }

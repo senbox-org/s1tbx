@@ -2,19 +2,18 @@ package com.bc.ceres.glevel.support;
 
 import com.bc.ceres.glevel.LevelImage;
 
-import javax.media.jai.JAI;
-import javax.media.jai.OpImage;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.TileCache;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.RenderedImage;
+import java.awt.Rectangle;
 
 public abstract class AbstractMultiLevelImage implements LevelImage {
 
     private final int levelCount;
-    private final PlanarImage[] imageCache;
     private final AffineTransform[] imageToModelTransforms;
     private final AffineTransform[] modelToImageTransforms;
+    private Rectangle2D modelBounds;
 
     public AbstractMultiLevelImage(AffineTransform imageToModelTransform, int levelCount) {
         final AffineTransform modelToImageTransform;
@@ -24,7 +23,6 @@ public abstract class AbstractMultiLevelImage implements LevelImage {
             throw new IllegalArgumentException("imageToModelTransform", e);
         }
         this.levelCount = levelCount;
-        this.imageCache = new PlanarImage[levelCount];
         this.imageToModelTransforms = new AffineTransform[levelCount];
         this.modelToImageTransforms = new AffineTransform[levelCount];
         this.imageToModelTransforms[0] = new AffineTransform(imageToModelTransform);
@@ -53,49 +51,7 @@ public abstract class AbstractMultiLevelImage implements LevelImage {
      */
     @Override
     public void reset() {
-        final PlanarImage[] planarImages;
-        synchronized (imageCache) {
-            planarImages = imageCache.clone();
-            for (int i = 0; i < imageCache.length; i++) {
-                imageCache[i] = null;
-            }
-        }
-        for (PlanarImage planarImage : planarImages) {
-            TileCache cache = JAI.getDefaultInstance().getTileCache();
-            if (planarImage instanceof OpImage) {
-                OpImage opImage = (OpImage) planarImage;
-                if (opImage.getTileCache() != null) {
-                    cache = opImage.getTileCache();
-                }
-            }
-            if (planarImage != null) {
-                cache.removeTiles(planarImage);
-            }
-        }
     }
-
-    /**
-     * Gets the planar image for the given level. If the image does not yet exist,
-     * {@link #createPlanarImage(int)} is called to create the image and cache it for the given level..
-     *
-     * @param level The level.
-     *
-     * @return The planar image.
-     */
-    @Override
-    public final PlanarImage getPlanarImage(int level) {
-        checkLevel(level);
-        synchronized (imageCache) {
-            PlanarImage image = imageCache[level];
-            if (image == null) {
-                image = createPlanarImage(level);
-                imageCache[level] = image;
-            }
-            return image;
-        }
-    }
-
-    protected abstract PlanarImage createPlanarImage(int level);
 
     @Override
     public final AffineTransform getImageToModelTransform(int level) {
@@ -125,6 +81,22 @@ public abstract class AbstractMultiLevelImage implements LevelImage {
         return new AffineTransform(transform);
     }
 
+
+
+    @Override
+    public Rectangle2D getModelBounds() {
+        return new Rectangle2D.Double(
+                modelBounds.getX(), modelBounds.getY(),
+                modelBounds.getWidth(), modelBounds.getHeight());
+    }
+
+
+    public void setModelBounds(Rectangle2D modelBounds) {
+        this.modelBounds = new Rectangle2D.Double(
+                modelBounds.getX(), modelBounds.getY(),
+                modelBounds.getWidth(), modelBounds.getHeight());
+    }
+
     protected static double pow2(double v) {
         return Math.pow(2.0, v);
     }
@@ -137,5 +109,16 @@ public abstract class AbstractMultiLevelImage implements LevelImage {
         if (level < 0 || level >= levelCount) {
             throw new IllegalArgumentException("level");
         }
+    }
+    protected static Rectangle2D getModelBounds(AffineTransform imageToModelTransform, RenderedImage levelZeroImage) {
+        return imageToModelTransform.createTransformedShape(new Rectangle(levelZeroImage.getMinX(),
+                                                                                 levelZeroImage.getMinY(),
+                                                                                 levelZeroImage.getWidth(),
+                                                                                 levelZeroImage.getHeight())).getBounds2D();
+    }
+
+
+    protected static Rectangle2D getModelBounds(AffineTransform imageToModelTransform, int w, int h) {
+        return imageToModelTransform.createTransformedShape(new Rectangle(0, 0, w, h)).getBounds2D();
     }
 }

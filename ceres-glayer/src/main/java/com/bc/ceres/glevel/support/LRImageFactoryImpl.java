@@ -15,9 +15,15 @@ import java.awt.image.RenderedImage;
  */
 public class LRImageFactoryImpl implements LRImageFactory {
     private final RenderedImage frSourceImage;
+    private Interpolation interpolation;
 
     public LRImageFactoryImpl(RenderedImage frSourceImage) {
+        this(frSourceImage, Interpolation.getInstance(Interpolation.INTERP_NEAREST));
+    }
+
+    public LRImageFactoryImpl(RenderedImage frSourceImage, Interpolation interpolation) {
         this.frSourceImage = frSourceImage;
+        this.interpolation = interpolation;
     }
 
     public RenderedImage getFRSourceImage() {
@@ -47,7 +53,7 @@ public class LRImageFactoryImpl implements LRImageFactory {
         return ScaleDescriptor.create(getFRSourceImage(),
                                       (float)scale, (float)scale,
                                       0.0f, 0.0f,
-                                      Interpolation.getInstance(Interpolation.INTERP_NEAREST),
+                                      interpolation,
                                       null);
     }
 

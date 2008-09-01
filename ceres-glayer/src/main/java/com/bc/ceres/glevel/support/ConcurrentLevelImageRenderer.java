@@ -71,7 +71,7 @@ public class ConcurrentLevelImageRenderer implements LevelImageRenderer {
             this.lastLevel = currentLevel;
         }
 
-        final PlanarImage planarImage = levelImage.getPlanarImage(currentLevel);
+        final PlanarImage planarImage = (PlanarImage) levelImage.getLRImage(currentLevel);
         final Graphics2D graphics = rendering.getGraphics();
         final Viewport viewport = rendering.getViewport();
 

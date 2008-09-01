@@ -13,7 +13,6 @@ import com.bc.ceres.grender.support.DefaultViewport;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
-import java.util.logging.Level;
 
 /**
  * A multi-resolution capable image layer.
@@ -53,7 +52,7 @@ public class ImageLayer extends Layer {
      * @param levelCount            the number of resolution levels
      */
     public ImageLayer(RenderedImage image, AffineTransform imageToModelTransform, int levelCount) {
-        this(levelCount > 1 ? new DefaultMultiLevelImage(image, imageToModelTransform, levelCount) : new SingleLevelImage(image, imageToModelTransform));
+        this(new DefaultMultiLevelImage(image, imageToModelTransform, levelCount));
     }
 
     /**
@@ -87,7 +86,7 @@ public class ImageLayer extends Layer {
     public void setLevelImage(LevelImage levelImage) {
         Assert.notNull(levelImage);
         if (levelImage != this.levelImage) {
-            final Rectangle2D region = this.levelImage.getBounds(0).createUnion(levelImage.getBounds(0));
+            final Rectangle2D region = this.levelImage.getModelBounds().createUnion(levelImage.getModelBounds());
             clearCaches();
             this.levelImage = levelImage;
             concurrentRenderer = null;
@@ -104,7 +103,7 @@ public class ImageLayer extends Layer {
     }
 
     public RenderedImage getImage(int level) {
-        return levelImage.getPlanarImage(level);
+        return levelImage.getLRImage(level);
     }
 
     public AffineTransform getImageToModelTransform(int level) {
@@ -125,7 +124,7 @@ public class ImageLayer extends Layer {
 
     @Override
     public Rectangle2D getBounds() {
-        return levelImage.getBounds(0);
+        return levelImage.getModelBounds();
     }
 
     @Override
