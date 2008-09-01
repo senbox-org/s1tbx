@@ -6,6 +6,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.util.ImageUtils;
+import org.esa.beam.util.ProductUtils;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -126,32 +127,7 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
     }
 
     private static int getDataBufferType(int productDataType) {
-        int dataBufferType;
-        switch (productDataType) {
-            case ProductData.TYPE_INT8:
-            case ProductData.TYPE_UINT8:
-                dataBufferType = DataBuffer.TYPE_BYTE;
-                break;
-            case ProductData.TYPE_INT16:
-                dataBufferType = DataBuffer.TYPE_SHORT;
-                break;
-            case ProductData.TYPE_UINT16:
-                dataBufferType = DataBuffer.TYPE_USHORT;
-                break;
-            case ProductData.TYPE_INT32:
-            case ProductData.TYPE_UINT32:
-                dataBufferType = DataBuffer.TYPE_INT;
-                break;
-            case ProductData.TYPE_FLOAT32:
-                dataBufferType = DataBuffer.TYPE_FLOAT;
-                break;
-            case ProductData.TYPE_FLOAT64:
-                dataBufferType = DataBuffer.TYPE_DOUBLE;
-                break;
-            default:
-                throw new IllegalArgumentException("productDataType");
-        }
-        return dataBufferType;
+        return ProductUtils.getAsDataBufferType(productDataType);
     }
 
     @Override
