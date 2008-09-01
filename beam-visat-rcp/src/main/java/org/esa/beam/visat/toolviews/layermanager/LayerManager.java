@@ -185,6 +185,7 @@ class LayerManager {
             }
         });
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 lm.setVisible(true);
             }
@@ -234,14 +235,6 @@ class LayerManager {
         final List<Layer> childLayers = layer.getChildLayerList();
         for (Layer childLayer : childLayers) {
             initSelection(childLayer);
-        }
-    }
-
-    private static class MyTreeCellRenderer extends DefaultTreeCellRenderer {
-
-        @Override
-        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-            return super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
         }
     }
 }

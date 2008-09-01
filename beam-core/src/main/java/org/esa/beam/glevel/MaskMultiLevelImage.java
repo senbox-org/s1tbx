@@ -1,7 +1,7 @@
 package org.esa.beam.glevel;
 
-import com.bc.ceres.glevel.support.AbstractMultiLevelImage;
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.glevel.support.AbstractMultiLevelImage;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.jai.ImageManager;
 

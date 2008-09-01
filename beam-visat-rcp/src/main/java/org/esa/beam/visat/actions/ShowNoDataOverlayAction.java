@@ -1,5 +1,6 @@
 package org.esa.beam.visat.actions;
 
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
@@ -10,10 +11,6 @@ import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import java.awt.*;
-import java.awt.image.RenderedImage;
-
-import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-
 
 public class ShowNoDataOverlayAction extends ExecCommand {
 
@@ -36,7 +33,6 @@ public class ShowNoDataOverlayAction extends ExecCommand {
         }
         ProductSceneView psv = visatApp.getSelectedProductSceneView();
         updateCommandState(psv);
-
     }
 
     private void updateCommandState(ProductSceneView psv) {
@@ -112,10 +108,12 @@ public class ShowNoDataOverlayAction extends ExecCommand {
 
         // Register the listener for product node changes in all products
         visatApp.getProductManager().addListener(new ProductManager.Listener() {
+            @Override
             public void productAdded(ProductManager.Event event) {
                 event.getProduct().addProductNodeListener(productNodeListener);
             }
 
+            @Override
             public void productRemoved(ProductManager.Event event) {
                 event.getProduct().removeProductNodeListener(productNodeListener);
             }
@@ -144,14 +142,13 @@ public class ShowNoDataOverlayAction extends ExecCommand {
                 try {
                     get();
                 } catch (Exception e) {
-                    VisatApp.getApp().showErrorDialog( "Unable to create no-data overlay image due to an error:\n" +
+                    VisatApp.getApp().showErrorDialog("Unable to create no-data overlay image due to an error:\n" +
                             e.getMessage());
                     e.printStackTrace();
                 }
             }
         };
         swingWorker.execute();
-
     }
 
 
@@ -162,6 +159,4 @@ public class ShowNoDataOverlayAction extends ExecCommand {
     private static boolean isNoDataOverlayApplicable(ProductSceneView psv) {
         return psv != null && psv.getRaster().isValidMaskUsed();
     }
-
-
 }
