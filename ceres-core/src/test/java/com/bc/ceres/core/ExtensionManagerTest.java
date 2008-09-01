@@ -33,13 +33,7 @@ public class ExtensionManagerTest extends TestCase {
         assertSame(x2, a2.getX());
     }
 
-    private static class X implements Extendible {
-        public <ET> ET getExtension(Class<ET> extensionType) {
-            return ExtensionManager.getInstance().getExtension(this, extensionType);
-        }
-    }
-
-    private static class Y {
+    private static class X extends ExtensibleObject{
     }
 
     private interface IA {
@@ -53,6 +47,7 @@ public class ExtensionManagerTest extends TestCase {
             this.x = x;
         }
 
+        @Override
         public X getX() {
             return x;
         }
@@ -66,6 +61,7 @@ public class ExtensionManagerTest extends TestCase {
 
 
     private class MyFactory implements ExtensionFactory<X> {
+        @Override
         public <E> E getExtension(X x, Class<E> extensionType) {
             if (IA.class.equals(extensionType)) {
                 return (E) new A1(x);
@@ -73,6 +69,7 @@ public class ExtensionManagerTest extends TestCase {
             return null;
         }
 
+        @Override
         public Class<?>[] getExtensionTypes() {
             return new Class<?>[] {IA.class};
         }

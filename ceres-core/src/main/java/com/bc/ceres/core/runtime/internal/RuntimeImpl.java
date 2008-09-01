@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 // todo - delegate specific behaviour to kind-of RuntimeAdvisor / RuntimeConfigurer
 // todo - propagate or provide errors/warnings detected during start-up to client
 
-public class RuntimeImpl implements ModuleRuntime {
+public class RuntimeImpl extends ExtensibleObject implements ModuleRuntime {
 
     public static final String UNINSTALL_FILE_SUFFIX = ".uninstall";
 
@@ -39,10 +39,6 @@ public class RuntimeImpl implements ModuleRuntime {
         this.config = config;
         this.commandLineArgs = commandLineArgs;
         this.progressMonitor = progressMonitor;
-    }
-
-    public <E> E getExtension(Class<E> extensionType) {
-        return ExtensionManager.getInstance().getExtension(this, extensionType);
     }
 
     public RuntimeConfig getRuntimeConfig() {

@@ -1,7 +1,7 @@
 package com.bc.ceres.core;
 
 public interface ExtensionFactory<T> {
-    <E> E getExtension(T extendibleObject, Class<E> extensionType);
+    <E> E getExtension(T extensibleObject, Class<E> extensionType);
 
     Class<?>[] getExtensionTypes();
 }

@@ -8,9 +8,7 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
 
 // todo - make this class thread safe!!!
@@ -24,7 +22,7 @@ import java.util.List;
  */
 public class Layer {
     private Layer parentLayer;
-    private LayerList childLayers;
+    private LayerList childLayerList;
     private String name;
     private boolean visible;
     private Style style;
@@ -42,7 +40,7 @@ public class Layer {
      */
     public Layer() {
         parentLayer = null;
-        childLayers = new LayerList();
+        childLayerList = new LayerList();
         name = getClass().getName();
         visible = true;
         layerListenerList = new ArrayList<LayerListener>(8);
@@ -64,7 +62,7 @@ public class Layer {
      * @return The child layers of this layer. May be empty.
      */
     public List<Layer> getChildLayerList() {
-        return childLayers;
+        return childLayerList;
     }
 
     /**
@@ -175,7 +173,7 @@ public class Layer {
      */
     protected Rectangle2D getChildLayersBounds() {
         Rectangle2D.Double bounds = null;
-        for (Layer layer : childLayers) {
+        for (Layer layer : childLayerList) {
             Rectangle2D childBounds = layer.getBounds();
             if (childBounds != null) {
                 if (bounds == null) {
@@ -232,7 +230,7 @@ public class Layer {
      * @param rendering The rendering to which the layer will be rendered.
      */
     protected void renderChildLayers(Rendering rendering) {
-        for (Layer childLayer : childLayers) {
+        for (Layer childLayer : childLayerList) {
             childLayer.render(rendering);
         }
     }
@@ -260,7 +258,7 @@ public class Layer {
      * and removes them from this layer.
      */
     protected void disposeChildLayers() {
-        childLayers.dispose();
+        childLayerList.dispose();
     }
 
     /**
