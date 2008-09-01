@@ -6,37 +6,34 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
 import javax.media.jai.PlanarImage;
-import javax.media.jai.operator.ExpDescriptor;
-import javax.media.jai.operator.FormatDescriptor;
-import javax.media.jai.operator.RescaleDescriptor;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
 
 /**
  * @author Norman Fomferra
  * @version $revision$ $date$
  */
 public class ImageManagerTest extends TestCase {
-    private static final double EPS = 1e-8;
+    private static final double EPS_L = 1e-3;
+    private static final double EPS_H = 1e-6;
 
     public void testBandWithNoScaling() {
         Band band = createBand(1.0, 0.0, false);
-        testTargetImageSampleValues(band);
+        testTargetImageSampleValues(band, EPS_H);
     }
 
     public void testBandWithLinearScaling() {
         Band band = createBand(0.1, 0.5, false);
-        testTargetImageSampleValues(band);
+        testTargetImageSampleValues(band, EPS_H);
     }
 
     public void testBandWithLog10Scaling() {
         Band band = createBand(1.0, 0.0, true);
-        testTargetImageSampleValues(band);
+        testTargetImageSampleValues(band, EPS_L);
     }
 
     public void testBandWithLinearAndLog10Scaling() {
         Band band = createBand(0.1, 0.5, true);
-        testTargetImageSampleValues(band);
+        testTargetImageSampleValues(band, EPS_H);
     }
 
     private Band createBand(double factor, double offset, boolean log10Scaled) {
@@ -47,12 +44,12 @@ public class ImageManagerTest extends TestCase {
         return band;
     }
 
-    private void testTargetImageSampleValues(Band band) {
+    private void testTargetImageSampleValues(Band band, final double eps) {
         PlanarImage image = createTargetImage(band);
-        assertEquals(band.scale(0), getSample(image, 0, 0), EPS);
-        assertEquals(band.scale(1), getSample(image, 1, 0), EPS);
-        assertEquals(band.scale(2), getSample(image, 0, 1), EPS);
-        assertEquals(band.scale(3), getSample(image, 1, 1), EPS);
+        assertEquals(band.scale(0), getSample(image, 0, 0), eps);
+        assertEquals(band.scale(1), getSample(image, 1, 0), eps);
+        assertEquals(band.scale(2), getSample(image, 0, 1), eps);
+        assertEquals(band.scale(3), getSample(image, 1, 1), eps);
     }
 
     private double getSample(PlanarImage image, int x, int y) {
@@ -65,31 +62,8 @@ public class ImageManagerTest extends TestCase {
     }
 
     private static PlanarImage createdTargetImage(RasterDataNode rdn, PlanarImage image) {
-        if (!rdn.isScalingApplied()) {
-            return image;
-        } else if (!rdn.isLog10Scaled()) {
-            image = toDouble(image);
-            image = rescale(image, rdn.getScalingFactor(), rdn.getScalingOffset());
-        } else {
-            image = toDouble(image);
-            image = rescale(image, Math.log(10) * rdn.getScalingFactor(), Math.log(10) * rdn.getScalingOffset());
-            image = ExpDescriptor.create(image, null);
-        }
-        return image;
-    }
-
-    private static PlanarImage rescale(PlanarImage image, double factor, double offset) {
-        image = RescaleDescriptor.create(image,
-                                         new double[]{factor},
-                                         new double[]{offset}, null);
-        return image;
-    }
-
-    private static PlanarImage toDouble(PlanarImage image) {
-        if (image.getSampleModel().getDataType() != DataBuffer.TYPE_DOUBLE) {
-            image = FormatDescriptor.create(createSourceImage(), DataBuffer.TYPE_DOUBLE, null);
-        }
-        return image;
+        rdn.setSourceImage(image);
+        return ImageManager.createGeophysicalSourceImage(rdn);
     }
 
     private static PlanarImage createSourceImage() {

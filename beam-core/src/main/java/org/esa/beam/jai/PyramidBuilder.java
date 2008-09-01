@@ -66,7 +66,7 @@ public class PyramidBuilder {
 
         for (int level = 0; level < levelCount; level++) {
 
-            final PlanarImage image = levelImage.getPlanarImage(level);
+            final PlanarImage image = PlanarImage.wrapRenderedImage(levelImage.getPlanarImage(level));
 
             final int width = image.getWidth();
             final int height = image.getHeight();

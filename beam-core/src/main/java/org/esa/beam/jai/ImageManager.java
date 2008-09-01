@@ -125,6 +125,36 @@ public class ImageManager {
         return dataBufferType;
     }
 
+    public static PlanarImage createGeophysicalSourceImage(RasterDataNode rdn) {
+        PlanarImage image = PlanarImage.wrapRenderedImage(rdn.getSourceImage());
+        if (!rdn.isScalingApplied()) {
+            return image;
+        } else if (!rdn.isLog10Scaled()) {
+            image = toDouble(image);
+            image = rescale(image, rdn.getScalingFactor(), rdn.getScalingOffset());
+        } else {
+            image = toDouble(image);
+            image = rescale(image, Math.log(10) * rdn.getScalingFactor(), Math.log(10) * rdn.getScalingOffset());
+            image = ExpDescriptor.create(image, null);
+        }
+        return image;
+    }
+
+    private static PlanarImage rescale(PlanarImage image, double factor, double offset) {
+        image = RescaleDescriptor.create(image,
+                                         new double[]{factor},
+                                         new double[]{offset}, null);
+        return image;
+    }
+
+    private static PlanarImage toDouble(PlanarImage image) {
+        final int dataType = image.getSampleModel().getDataType();
+        if (dataType == DataBuffer.TYPE_FLOAT || dataType == DataBuffer.TYPE_DOUBLE) {
+            return image;
+        }
+        return FormatDescriptor.create(image, DataBuffer.TYPE_FLOAT, null);
+    }
+
     private static class MaskKey {
         final Product product; // todo - may cause memory leaks!!! Use WeakReference?
         final String expression;
@@ -237,6 +267,17 @@ public class ImageManager {
             rasterDataNode.setSourceImage(levelZeroImage);
         }
         return getDownscaledImage(levelZeroImage, level);
+    }
+
+    public PlanarImage getGeophysicalBandImage(RasterDataNode rasterDataNode, int level) {
+        final PlanarImage image = getBandImage(rasterDataNode, level);
+return image; // TODO!!!!       
+//        RenderedImage levelZeroImage = rasterDataNode.getGeophysicalSourceImage();
+//        if (levelZeroImage == null) {
+//            levelZeroImage = createGeophysicalSourceImage(rasterDataNode);
+//            rasterDataNode.setGeophysicalSourceImage(levelZeroImage);
+//        }
+//        return getDownscaledImage(levelZeroImage, level);
     }
 
     private PlanarImage getDownscaledImage(RenderedImage levelZeroImage, int level) {

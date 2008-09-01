@@ -51,7 +51,7 @@ public class SmosL1BandOpImage extends SingleBandedOpImage {
         this.smosBand = smosBand;
         this.btDataIndex = btDataIndex;
         this.dggridLevelImage = dggridLevelImage;
-        this.seqnumImage = dggridLevelImage.getPlanarImage(level);
+        this.seqnumImage = PlanarImage.wrapRenderedImage(dggridLevelImage.getPlanarImage(level));
     }
 
     @Override
