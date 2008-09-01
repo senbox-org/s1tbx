@@ -1,28 +1,24 @@
 package org.esa.beam.glevel;
 
-import com.bc.ceres.glevel.support.AbstractMultiLevelImage;
+import com.bc.ceres.glevel.support.DeferredMultiLevelImage;
+import com.bc.ceres.glevel.LRImageFactory;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
 
-import javax.media.jai.PlanarImage;
-import java.awt.*;
+import java.awt.image.RenderedImage;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 
 
-public class BandMultiLevelImage extends AbstractMultiLevelImage {
+public class BandMultiLevelImage extends DeferredMultiLevelImage implements LRImageFactory {
 
     private final RasterDataNode[] rasterDataNodes;
 
-    private final Rectangle2D boundingBox;
-
-
-    public BandMultiLevelImage(RasterDataNode rasterDataNode, AffineTransform affineTransform) {
-        this(new RasterDataNode[]{rasterDataNode}, affineTransform);
+    public BandMultiLevelImage(RasterDataNode rasterDataNode, AffineTransform imageToModelTransform) {
+        this(new RasterDataNode[]{rasterDataNode}, imageToModelTransform);
     }
 
-    public BandMultiLevelImage(RasterDataNode rasterDataNode, AffineTransform affineTransform, int levelCount) {
-        this(new RasterDataNode[]{rasterDataNode}, affineTransform, levelCount);
+    public BandMultiLevelImage(RasterDataNode rasterDataNode, AffineTransform imageToModelTransform, int levelCount) {
+        this(new RasterDataNode[]{rasterDataNode}, imageToModelTransform, levelCount);
     }
 
     public BandMultiLevelImage(RasterDataNode[] rasterDataNodes, AffineTransform affineTransform) {
@@ -31,20 +27,19 @@ public class BandMultiLevelImage extends AbstractMultiLevelImage {
                                                rasterDataNodes[0].getSceneRasterHeight()));
     }
 
-    public BandMultiLevelImage(RasterDataNode[] rasterDataNodes, AffineTransform affineTransform, int levelCount) {
-        super(affineTransform, levelCount);
+    public BandMultiLevelImage(RasterDataNode[] rasterDataNodes, AffineTransform imageToModelTransform, int levelCount) {
+        super(imageToModelTransform, levelCount);
+        setLRImageFactory(this);
         this.rasterDataNodes = rasterDataNodes.clone();
-        this.boundingBox = getImageToModelTransform(0).createTransformedShape(new Rectangle(0, 0, rasterDataNodes[0].getSceneRasterWidth(), rasterDataNodes[0].getSceneRasterHeight())).getBounds2D();
+        final int w = rasterDataNodes[0].getSceneRasterWidth();
+        final int h = rasterDataNodes[0].getSceneRasterHeight();
+        setModelBounds(getModelBounds(imageToModelTransform, w, h));
         ImageManager.getInstance().prepareImageInfos(rasterDataNodes, levelCount);
     }
 
     @Override
-    protected PlanarImage createPlanarImage(int level) {
+    public RenderedImage createLRImage(int level) {
         return ImageManager.getInstance().createRgbImage(rasterDataNodes, level, getLevelCount());
     }
 
-    @Override
-    public Rectangle2D getBounds(int level) {
-        return boundingBox;
-    }
 }

@@ -1,35 +1,31 @@
 package org.esa.beam.glevel;
 
-import com.bc.ceres.glevel.support.AbstractMultiLevelImage;
+import com.bc.ceres.glevel.support.DeferredMultiLevelImage;
+import com.bc.ceres.glevel.LRImageFactory;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
 
-import javax.media.jai.PlanarImage;
 import java.awt.*;
+import java.awt.image.RenderedImage;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 
 
-public class RoiMultiLevelImage extends AbstractMultiLevelImage {
+public class RoiMultiLevelImage  extends DeferredMultiLevelImage implements LRImageFactory {
 
     private final RasterDataNode rasterDataNode;
     private final Color color;
-    private final Rectangle2D boundingBox;
 
-    public RoiMultiLevelImage(RasterDataNode rasterDataNode, Color color, AffineTransform affineTransform) {
-        super(affineTransform, ImageManager.computeMaxLevelCount(rasterDataNode.getSceneRasterWidth(), rasterDataNode.getSceneRasterHeight()));
+    public RoiMultiLevelImage(RasterDataNode rasterDataNode, Color color, AffineTransform imageToModelTransform) {
+        super(imageToModelTransform, ImageManager.computeMaxLevelCount(rasterDataNode.getSceneRasterWidth(), rasterDataNode.getSceneRasterHeight()));
+        setLRImageFactory(this);
+        setModelBounds(getModelBounds(imageToModelTransform, rasterDataNode.getSceneRasterWidth(), rasterDataNode.getSceneRasterHeight()));
         this.rasterDataNode = rasterDataNode;
         this.color = color;
-        this.boundingBox = getImageToModelTransform(0).createTransformedShape(new Rectangle(0, 0, rasterDataNode.getSceneRasterWidth(), rasterDataNode.getSceneRasterHeight())).getBounds2D();
     }
 
     @Override
-    protected PlanarImage createPlanarImage(int level) {
+    public RenderedImage createLRImage(int level) {
         return ImageManager.getInstance().createColoredRoiImage(rasterDataNode, color, level);
     }
 
-    @Override
-    public Rectangle2D getBounds(int level) {
-        return boundingBox;
-    }
 }

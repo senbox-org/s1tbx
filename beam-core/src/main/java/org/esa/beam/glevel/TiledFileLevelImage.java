@@ -1,14 +1,14 @@
 package org.esa.beam.glevel;
 
-import com.bc.ceres.glevel.support.AbstractMultiLevelImage;
+import com.bc.ceres.glevel.LRImageFactory;
+import com.bc.ceres.glevel.support.DeferredMultiLevelImage;
 import org.esa.beam.jai.TiledFileOpImage;
 
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
-import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.DataBuffer;
+import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.io.FileReader;
@@ -16,9 +16,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 
-public class TiledFileLevelImage extends AbstractMultiLevelImage {
+public class TiledFileLevelImage extends DeferredMultiLevelImage implements LRImageFactory {
 
-    private final Rectangle2D boundingBox;
     private final File imageDir;
     private final Properties imageProperties;
     boolean visualDebug;
@@ -43,18 +42,19 @@ public class TiledFileLevelImage extends AbstractMultiLevelImage {
                                int levelCount,
                                int sourceWidth,
                                int sourceHeight,
-                               AffineTransform affineTransform,
+                               AffineTransform imageToModelTransform,
                                Properties imageProperties,
                                boolean visualDebug) {
-        super(affineTransform, levelCount);
+        super(imageToModelTransform, levelCount);
+        setLRImageFactory(this);
+        setModelBounds(getModelBounds(imageToModelTransform,sourceWidth, sourceHeight));
         this.imageDir = imageDir;
         this.imageProperties = imageProperties;
-        this.boundingBox = getImageToModelTransform(0).createTransformedShape(new Rectangle(0, 0, sourceWidth, sourceHeight)).getBounds2D();
         this.visualDebug = visualDebug;
     }
 
     @Override
-    protected PlanarImage createPlanarImage(int level) {
+    public RenderedImage createLRImage(int level) {
         PlanarImage image;
         try {
             image = TiledFileOpImage.create(new File(imageDir, level + ""), imageProperties);
@@ -80,10 +80,5 @@ public class TiledFileLevelImage extends AbstractMultiLevelImage {
             image = JAI.create("format", pb, null);
         }
         return image;
-    }
-
-    @Override
-    public Rectangle2D getBounds(int level) {
-        return boundingBox;
     }
 }
