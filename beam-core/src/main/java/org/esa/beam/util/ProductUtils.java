@@ -2678,39 +2678,4 @@ public class ProductUtils {
         }
         return path;
     }
-
-    /**
-     * Converts the given {@link org.esa.beam.framework.datamodel.ProductData} type into the coresponding
-     * {@link DataBuffer} type.
-     * @param productDataType The {@link org.esa.beam.framework.datamodel.ProductData} type. 
-     * @return The {@link DataBuffer} type.
-     */
-    public static int getAsDataBufferType(int productDataType) {
-        int dataBufferType;
-        switch (productDataType) {
-            case ProductData.TYPE_INT8:
-            case ProductData.TYPE_UINT8:
-                dataBufferType = DataBuffer.TYPE_BYTE;
-                break;
-            case ProductData.TYPE_INT16:
-                dataBufferType = DataBuffer.TYPE_SHORT;
-                break;
-            case ProductData.TYPE_UINT16:
-                dataBufferType = DataBuffer.TYPE_USHORT;
-                break;
-            case ProductData.TYPE_INT32:
-            case ProductData.TYPE_UINT32:
-                dataBufferType = DataBuffer.TYPE_INT;
-                break;
-            case ProductData.TYPE_FLOAT32:
-                dataBufferType = DataBuffer.TYPE_FLOAT;
-                break;
-            case ProductData.TYPE_FLOAT64:
-                dataBufferType = DataBuffer.TYPE_DOUBLE;
-                break;
-            default:
-                throw new IllegalArgumentException("productDataType");
-        }
-        return dataBufferType;
-    }
 }

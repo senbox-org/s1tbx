@@ -7,6 +7,7 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.jai.ImageManager;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -127,7 +128,7 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
     }
 
     private static int getDataBufferType(int productDataType) {
-        return ProductUtils.getAsDataBufferType(productDataType);
+        return ImageManager.getDataBufferType(productDataType);
     }
 
     @Override
