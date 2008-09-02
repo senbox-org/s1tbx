@@ -78,6 +78,7 @@ public class ProductSceneView45 extends ProductSceneView {
         });
 
         layerCanvas.getViewport().addListener(new ViewportListener() {
+            @Override
             public void handleViewportChanged(Viewport viewport, boolean orientationChanged) {
                 fireLayerViewportChanged(orientationChanged);
             }

@@ -66,6 +66,7 @@ public class NavigationToolView extends AbstractToolView {
     private DecimalFormat percentFormat;
     private ProductSceneView.ImageUpdateListener imageUpdateHandler;
     private ProductNodeListener productNodeListener;
+    private ProductSceneView.LayerContentListener layerContentListener;
 
     public NavigationToolView() {
         viewportHandler = new ViewportHandler();
@@ -75,7 +76,14 @@ public class NavigationToolView extends AbstractToolView {
         percentFormat.setGroupingUsed(false);
         percentFormat.setDecimalSeparatorAlwaysShown(false);
         imageUpdateHandler = new ProductSceneView.ImageUpdateListener() {
+            @Override
             public void handleImageUpdated(final ProductSceneView view) {
+                canvas.updateImage();
+            }
+        };
+        layerContentListener = new ProductSceneView.LayerContentListener() {
+            @Override
+            public void layerContentChanged(RasterDataNode raster) {
                 canvas.updateImage();
             }
         };
@@ -99,6 +107,7 @@ public class NavigationToolView extends AbstractToolView {
                 oldView.removeImageUpdateListener(imageUpdateHandler);
                 currentView.getProduct().removeProductNodeListener(productNodeListener);
                 if (oldView.getImageDisplayComponent() != null) {
+                    oldView.removeLayerContentListener(layerContentListener);
                     oldView.removeLayerViewportListener(viewportHandler);
                     oldView.getImageDisplayComponent().removeComponentListener(imageDisplayRH);
                 }
@@ -109,6 +118,7 @@ public class NavigationToolView extends AbstractToolView {
                 currentView.getProduct().addProductNodeListener(productNodeListener);
                 if (currentView.getImageDisplayComponent() != null) {
                     currentView.addLayerViewportListener(viewportHandler);
+                    currentView.addLayerContentListener(layerContentListener);
                     currentView.getImageDisplayComponent().addComponentListener(imageDisplayRH);
                 }
             }
@@ -129,6 +139,7 @@ public class NavigationToolView extends AbstractToolView {
         zoomInButton.setToolTipText("Zoom in."); /*I18N*/
         zoomInButton.setName("zoomInButton");
         zoomInButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 // TODO IMAGING 4.5
                 zoom(getCurrentView().getZoomFactor() * ZOOM_FACTOR);
@@ -139,6 +150,7 @@ public class NavigationToolView extends AbstractToolView {
         zoomZeroButton.setToolTipText("Actual Pixels."); /*I18N*/
         zoomZeroButton.setName("zoomZeroButton");
         zoomZeroButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 zoom(1.0);
             }
@@ -148,6 +160,7 @@ public class NavigationToolView extends AbstractToolView {
         zoomOutButton.setName("zoomOutButton");
         zoomOutButton.setToolTipText("Zoom out."); /*I18N*/
         zoomOutButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 // TODO IMAGING 4.5
                 zoom(getCurrentView().getZoomFactor() / ZOOM_FACTOR);
@@ -158,6 +171,7 @@ public class NavigationToolView extends AbstractToolView {
         zoomAllButton.setName("zoomAllButton");
         zoomAllButton.setToolTipText("Zoom all."); /*I18N*/
         zoomAllButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 zoomAll();
             }
@@ -167,6 +181,7 @@ public class NavigationToolView extends AbstractToolView {
         syncViewsButton.setToolTipText("Synchronize compatible product views."); /*I18N*/
         syncViewsButton.setName("syncViewsButton");
         syncViewsButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 maybeSynchronizeCompatibleProductViews();
             }
@@ -213,6 +228,7 @@ public class NavigationToolView extends AbstractToolView {
         percentField.setColumns(5);
         percentField.setHorizontalAlignment(JTextField.RIGHT);
         percentField.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 applyPercentValue();
             }
@@ -233,6 +249,7 @@ public class NavigationToolView extends AbstractToolView {
         zoomSlider.setSnapToTicks(false);
         zoomSlider.setPaintTrack(true);
         zoomSlider.addChangeListener(new ChangeListener() {
+            @Override
             public void stateChanged(final ChangeEvent e) {
                 zoom(sliderValueToViewScale(zoomSlider.getValue()));
             }
@@ -449,7 +466,7 @@ public class NavigationToolView extends AbstractToolView {
     }
 
     private class ViewportHandler implements ProductSceneView.LayerViewportListener {
-        @Deprecated
+        @Override
         public void layerViewportChanged(boolean orientationChanged) {
             updateValues();
             if (orientationChanged) {
