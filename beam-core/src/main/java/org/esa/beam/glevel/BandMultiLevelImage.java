@@ -2,7 +2,7 @@ package org.esa.beam.glevel;
 
 import com.bc.ceres.glevel.support.AbstractLayerImage;
 import com.bc.ceres.glevel.support.DeferredLayerImage;
-import com.bc.ceres.glevel.LRImageFactory;
+import com.bc.ceres.glevel.LevelImageFactory;
 import com.bc.ceres.glevel.LayerImage;
 
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -27,8 +27,8 @@ public class BandMultiLevelImage {
                         rasterDataNodes[0].getSceneRasterHeight()));
     }
     public static LayerImage create(RasterDataNode[] rasterDataNodes, AffineTransform imageToModelTransform, int levelCount) {
-        LRImageFactory lrImageFactory = new Factory(rasterDataNodes, levelCount);
-        DeferredLayerImage deferredLayerImage = new DeferredLayerImage(imageToModelTransform, levelCount, lrImageFactory);
+        LevelImageFactory levelImageFactory = new Factory(rasterDataNodes, levelCount);
+        DeferredLayerImage deferredLayerImage = new DeferredLayerImage(imageToModelTransform, levelCount, levelImageFactory);
         final int w = rasterDataNodes[0].getSceneRasterWidth();
         final int h = rasterDataNodes[0].getSceneRasterHeight();
         Rectangle2D modelBounds = AbstractLayerImage.getModelBounds(imageToModelTransform, w, h);
@@ -37,7 +37,7 @@ public class BandMultiLevelImage {
         return deferredLayerImage;
     }
     
-    private static class Factory implements LRImageFactory {
+    private static class Factory implements LevelImageFactory {
         
         private final RasterDataNode[] rasterDataNodes;
         private final int levelCount;

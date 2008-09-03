@@ -3,7 +3,7 @@ package org.esa.beam.glevel;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.support.AbstractLayerImage;
 import com.bc.ceres.glevel.support.DeferredLayerImage;
-import com.bc.ceres.glevel.LRImageFactory;
+import com.bc.ceres.glevel.LevelImageFactory;
 import com.bc.ceres.glevel.LayerImage;
 
 import org.esa.beam.framework.datamodel.Product;
@@ -24,15 +24,15 @@ public class MaskMultiLevelImage {
         final int rasterWidth = product.getSceneRasterWidth();
         final int rasterHeight = product.getSceneRasterHeight();
         final int levelCount = ImageManager.computeMaxLevelCount(rasterWidth, rasterHeight);
-        LRImageFactory lrImageFactory = new Factory(product, color, expression, inverseMask);
+        LevelImageFactory levelImageFactory = new Factory(product, color, expression, inverseMask);
         DeferredLayerImage deferredLayerImage = new DeferredLayerImage(
-                imageToModelTransform, levelCount, lrImageFactory);
+                imageToModelTransform, levelCount, levelImageFactory);
         Rectangle2D modelBounds = AbstractLayerImage.getModelBounds(imageToModelTransform, rasterWidth, rasterHeight);
         deferredLayerImage.setModelBounds(modelBounds);
         return deferredLayerImage;
     }
 
-    private static class Factory implements LRImageFactory {
+    private static class Factory implements LevelImageFactory {
         private final Product product;
         private final Color color;
         private final String expression;

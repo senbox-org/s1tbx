@@ -1,6 +1,6 @@
 package org.esa.beam.glevel;
 
-import com.bc.ceres.glevel.LRImageFactory;
+import com.bc.ceres.glevel.LevelImageFactory;
 import com.bc.ceres.glevel.LayerImage;
 import com.bc.ceres.glevel.support.AbstractLayerImage;
 import com.bc.ceres.glevel.support.DeferredLayerImage;
@@ -29,14 +29,14 @@ public class TiledFileLevelImage {
         int sourceHeight = Integer.parseInt(imageProperties.getProperty("height"));
         // todo - read 6 parameters from properties1
         final AffineTransform transform = AffineTransform.getScaleInstance(360.0 / sourceWidth, 180.0 / sourceHeight);
-        LRImageFactory lrImageFactory = new Factory(imageDir, imageProperties, visualDebug);
-        DeferredLayerImage deferredLayerImage = new DeferredLayerImage(transform, levelCount, lrImageFactory);
+        LevelImageFactory levelImageFactory = new Factory(imageDir, imageProperties, visualDebug);
+        DeferredLayerImage deferredLayerImage = new DeferredLayerImage(transform, levelCount, levelImageFactory);
         Rectangle2D modelBounds = AbstractLayerImage.getModelBounds(transform, sourceWidth, sourceHeight);
         deferredLayerImage.setModelBounds(modelBounds);
         return deferredLayerImage;
     }
 
-    private static class Factory implements LRImageFactory {
+    private static class Factory implements LevelImageFactory {
         private final File imageDir;
         private final Properties imageProperties;
         boolean visualDebug;
