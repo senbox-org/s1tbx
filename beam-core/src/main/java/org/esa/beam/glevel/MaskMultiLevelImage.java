@@ -1,10 +1,10 @@
 package org.esa.beam.glevel;
 
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.glevel.support.AbstractMultiLevelImage;
-import com.bc.ceres.glevel.support.DeferredMultiLevelImage;
+import com.bc.ceres.glevel.support.AbstractLayerImage;
+import com.bc.ceres.glevel.support.DeferredLayerImage;
 import com.bc.ceres.glevel.LRImageFactory;
-import com.bc.ceres.glevel.LevelImage;
+import com.bc.ceres.glevel.LayerImage;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.jai.ImageManager;
@@ -17,7 +17,7 @@ import java.awt.geom.Rectangle2D;
 
 public class MaskMultiLevelImage {
 
-    public static LevelImage create(Product product, Color color, String expression, boolean inverseMask, AffineTransform imageToModelTransform) {
+    public static LayerImage create(Product product, Color color, String expression, boolean inverseMask, AffineTransform imageToModelTransform) {
         Assert.notNull(product);
         Assert.notNull(color);
         Assert.notNull(expression);
@@ -25,11 +25,11 @@ public class MaskMultiLevelImage {
         final int rasterHeight = product.getSceneRasterHeight();
         final int levelCount = ImageManager.computeMaxLevelCount(rasterWidth, rasterHeight);
         LRImageFactory lrImageFactory = new Factory(product, color, expression, inverseMask);
-        DeferredMultiLevelImage deferredMultiLevelImage = new DeferredMultiLevelImage(
+        DeferredLayerImage deferredLayerImage = new DeferredLayerImage(
                 imageToModelTransform, levelCount, lrImageFactory);
-        Rectangle2D modelBounds = AbstractMultiLevelImage.getModelBounds(imageToModelTransform, rasterWidth, rasterHeight);
-        deferredMultiLevelImage.setModelBounds(modelBounds);
-        return deferredMultiLevelImage;
+        Rectangle2D modelBounds = AbstractLayerImage.getModelBounds(imageToModelTransform, rasterWidth, rasterHeight);
+        deferredLayerImage.setModelBounds(modelBounds);
+        return deferredLayerImage;
     }
 
     private static class Factory implements LRImageFactory {

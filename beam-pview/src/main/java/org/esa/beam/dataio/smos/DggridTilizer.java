@@ -1,6 +1,6 @@
 package org.esa.beam.dataio.smos;
 
-import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import com.bc.ceres.glevel.support.DefaultLayerImage;
 import org.esa.beam.jai.TiledFileOpImage;
 
 import javax.imageio.stream.ImageOutputStream;
@@ -33,10 +33,10 @@ public class DggridTilizer {
         int tileWidth = 512;
         int tileHeight = 512;
         final int levelCount = 7;
-        final DefaultMultiLevelImage levelImage = new DefaultMultiLevelImage(opImage, new AffineTransform(), levelCount, Interpolation.getInstance(Interpolation.INTERP_NEAREST));
+        final DefaultLayerImage layerImage = new DefaultLayerImage(opImage, new AffineTransform(), levelCount, Interpolation.getInstance(Interpolation.INTERP_NEAREST));
         for (int level = 5; level < levelCount; level++) {
 
-            final PlanarImage image = PlanarImage.wrapRenderedImage(levelImage.getLRImage(level));
+            final PlanarImage image = PlanarImage.wrapRenderedImage(layerImage.getLRImage(level));
 
             final int width = image.getWidth();
             final int height = image.getHeight();

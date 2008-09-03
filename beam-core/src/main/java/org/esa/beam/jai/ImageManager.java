@@ -53,8 +53,8 @@ import org.esa.beam.util.math.Histogram;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.LRImageFactory;
-import com.bc.ceres.glevel.MRImage;
-import com.bc.ceres.glevel.support.MRImageImpl;
+import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.support.MultiResolutionImageImpl;
 
 
 public class ImageManager {
@@ -62,14 +62,14 @@ public class ImageManager {
     private static final ColorPaletteDef.Point OTHER_POINT = new ColorPaletteDef.Point(Double.NaN, Color.BLACK, "Other");
 
     private final static ImageManager INSTANCE = new ImageManager();
-    private final Map<Object, MRImage> maskImageMap = new WeakHashMap<Object, MRImage>(101);
+    private final Map<Object, MultiLevelImage> maskImageMap = new WeakHashMap<Object, MultiLevelImage>(101);
 
     public static ImageManager getInstance() {
         return INSTANCE;
     }
 
     public synchronized void dispose() {
-        for (MRImage image : maskImageMap.values()) {
+        for (MultiLevelImage image : maskImageMap.values()) {
             image.dispose();
         }
         maskImageMap.clear();
@@ -302,21 +302,21 @@ public class ImageManager {
         if (levelZeroImage == null) {
             if (rasterDataNode instanceof TiePointGrid) {
                 final TiePointGrid tiePointGrid = (TiePointGrid) rasterDataNode;
-                levelZeroImage = new MRImageImpl(new LRImageFactory() {
+                levelZeroImage = new MultiResolutionImageImpl(new LRImageFactory() {
                     @Override
                     public RenderedImage createLRImage(int level) {
                         return new TiePointGridOpImage(tiePointGrid, level);
                     }});
             } else if (rasterDataNode instanceof VirtualBand) {
                 final VirtualBand virtualBand = (VirtualBand) rasterDataNode;
-                levelZeroImage = new MRImageImpl(new LRImageFactory() {
+                levelZeroImage = new MultiResolutionImageImpl(new LRImageFactory() {
                     @Override
                     public RenderedImage createLRImage(int level) {
                         return new VirtualBandOpImage(new Product[]{virtualBand.getProduct()}, virtualBand.getExpression(), virtualBand.getDataType(), level);
                     }});
             } else if (rasterDataNode instanceof AbstractBand) {
                 final AbstractBand band = (AbstractBand) rasterDataNode;
-                levelZeroImage = new MRImageImpl(new LRImageFactory() {
+                levelZeroImage = new MultiResolutionImageImpl(new LRImageFactory() {
                     @Override
                     public RenderedImage createLRImage(int level) {
                         return new BandOpImage(band, level);
@@ -344,8 +344,8 @@ return image; // TODO!!!!
         RenderedImage image;
         if (level == 0) {
             image = levelZeroImage;
-        } else if (levelZeroImage instanceof MRImage) {
-            image = ((MRImage) levelZeroImage).getLRImage(level);
+        } else if (levelZeroImage instanceof MultiLevelImage) {
+            image = ((MultiLevelImage) levelZeroImage).getLevelImage(level);
         } else {
             image = createDownscaledImage(levelZeroImage, level);
         }
@@ -364,17 +364,17 @@ return image; // TODO!!!!
     public SingleBandedOpImage getMaskImage(final Product product, final String expression, int level) {
         final Object key = new MaskKey(product, expression);
         synchronized (maskImageMap) {
-            MRImage mrImage = maskImageMap.get(key);
+            MultiLevelImage mrImage = maskImageMap.get(key);
             if (mrImage == null) {
-                mrImage = new MRImageImpl(new LRImageFactory() {
+                mrImage = new MultiResolutionImageImpl(new LRImageFactory() {
                     @Override
                     public RenderedImage createLRImage(int level) {
                         return MaskOpImage.create(product, expression, level);
                     }});
                 maskImageMap.put(key, mrImage);
             }
-             // Note: cast is ok, because interface of MRImage requires to return same type
-            return (SingleBandedOpImage) mrImage.getLRImage(level);
+             // Note: cast is ok, because interface of MultiLevelImage requires to return same type
+            return (SingleBandedOpImage) mrImage.getLevelImage(level);
         }
     }
 
@@ -385,7 +385,7 @@ return image; // TODO!!!!
         }
         RenderedImage levelZeroImage = rasterDataNode.getValidMaskImage();
         if (levelZeroImage == null) {
-            levelZeroImage = new MRImageImpl(new LRImageFactory() {
+            levelZeroImage = new MultiResolutionImageImpl(new LRImageFactory() {
                 @Override
                 public RenderedImage createLRImage(int level) {
                     return MaskOpImage.create(rasterDataNode, level);
@@ -657,11 +657,11 @@ return image; // TODO!!!!
         if (roiDefinition.isPinUseEnabled() && rasterDataNode.getProduct().getPinGroup().getNodeCount() > 0) {
 
             final Object key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getName() + "_RoiPlacemarks");
-            MRImage placemarkMaskMRImage = null;
+            MultiLevelImage placemarkMaskMRImage = null;
             synchronized (maskImageMap) {
                 placemarkMaskMRImage = maskImageMap.get(key);
                 if (placemarkMaskMRImage == null) {
-                    placemarkMaskMRImage = new MRImageImpl(new LRImageFactory() {
+                    placemarkMaskMRImage = new MultiResolutionImageImpl(new LRImageFactory() {
                         @Override
                         public RenderedImage createLRImage(int level) {
                             return new PlacemarkMaskOpImage(rasterDataNode.getProduct(), PinDescriptor.INSTANCE, 3,
@@ -671,7 +671,7 @@ return image; // TODO!!!!
                     maskImageMap.put(key, placemarkMaskMRImage);
                 }
             }
-            rois.add((PlanarImage) placemarkMaskMRImage.getLRImage(level));
+            rois.add((PlanarImage) placemarkMaskMRImage.getLevelImage(level));
         }
 
         // Step 4:  insert ROI pixels within shape
@@ -679,12 +679,12 @@ return image; // TODO!!!!
         if (roiDefinition.isShapeEnabled() && roiShapeFigure != null) {
 
             final Object key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getName() + "_RoiShapes");
-            MRImage shapeMaskMRImage = null;
+            MultiLevelImage shapeMaskMRImage = null;
             synchronized (maskImageMap) {
                 shapeMaskMRImage = maskImageMap.get(key);
                 if (shapeMaskMRImage == null) {
                     final Shape roiShape = roiShapeFigure.getShape();
-                    shapeMaskMRImage = new MRImageImpl(new LRImageFactory() {
+                    shapeMaskMRImage = new MultiResolutionImageImpl(new LRImageFactory() {
                         @Override
                         public RenderedImage createLRImage(int level) {
                             return new ShapeMaskOpImage(roiShape,
@@ -695,7 +695,7 @@ return image; // TODO!!!!
                     maskImageMap.put(key, shapeMaskMRImage);
                 }
             }
-            rois.add((PlanarImage) shapeMaskMRImage.getLRImage(level));
+            rois.add((PlanarImage) shapeMaskMRImage.getLevelImage(level));
         }
 
         if (rois.size() == 0) {

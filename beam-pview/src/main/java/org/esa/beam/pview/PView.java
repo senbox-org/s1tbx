@@ -58,7 +58,7 @@ import com.bc.ceres.binio.Format;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
-import com.bc.ceres.glevel.LevelImage;
+import com.bc.ceres.glevel.LayerImage;
 import com.bc.ceres.grender.swing.ViewportScrollPane;
 import com.jidesoft.utils.Lm;
 
@@ -75,7 +75,7 @@ public class PView {
                                                                            new ImageIcon(PView.class.getResource("/images/pview-32x32.png")).getImage());
     private static Logger logger;
 
-    private LevelImage worldLevelImage;
+    private LayerImage worldLayerImage;
     private int frameLocation = 0;
     private ArrayList<JFrame> frames = new ArrayList<JFrame>();
 
@@ -182,10 +182,10 @@ public class PView {
         if (worldMode) {
             String dirPath = System.getProperty(WORLD_IMAGE_DIR_PROPERTY_NAME);
             if (dirPath != null && new File(dirPath).exists()) {
-                if (worldLevelImage == null) {
-                    worldLevelImage = TiledFileLevelImage.create(new File(dirPath), false);
+                if (worldLayerImage == null) {
+                    worldLayerImage = TiledFileLevelImage.create(new File(dirPath), false);
                 }
-                final ImageLayer layer = new ImageLayer(worldLevelImage);
+                final ImageLayer layer = new ImageLayer(worldLayerImage);
                 layer.setName("World");
                 layer.setVisible(true);
                 rootLayer.getChildLayerList().add(layer);

@@ -1,9 +1,9 @@
 package org.esa.beam.glevel;
 
-import com.bc.ceres.glevel.support.AbstractMultiLevelImage;
-import com.bc.ceres.glevel.support.DeferredMultiLevelImage;
+import com.bc.ceres.glevel.support.AbstractLayerImage;
+import com.bc.ceres.glevel.support.DeferredLayerImage;
 import com.bc.ceres.glevel.LRImageFactory;
-import com.bc.ceres.glevel.LevelImage;
+import com.bc.ceres.glevel.LayerImage;
 
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
@@ -16,15 +16,15 @@ import java.awt.geom.Rectangle2D;
 
 public class RoiMultiLevelImage {
 
-    public static LevelImage create(RasterDataNode rasterDataNode, Color color, AffineTransform imageToModelTransform) {
+    public static LayerImage create(RasterDataNode rasterDataNode, Color color, AffineTransform imageToModelTransform) {
         final int rasterWidth = rasterDataNode.getSceneRasterWidth();
         final int rasterHeight = rasterDataNode.getSceneRasterHeight();
         final int levelCount = ImageManager.computeMaxLevelCount(rasterWidth, rasterHeight);
         LRImageFactory lrImageFactory = new Factory(rasterDataNode, color);
-        DeferredMultiLevelImage deferredMultiLevelImage = new DeferredMultiLevelImage(imageToModelTransform, levelCount, lrImageFactory);
-        Rectangle2D modelBounds = AbstractMultiLevelImage.getModelBounds(imageToModelTransform, rasterWidth, rasterHeight);
-        deferredMultiLevelImage.setModelBounds(modelBounds);
-        return deferredMultiLevelImage;
+        DeferredLayerImage deferredLayerImage = new DeferredLayerImage(imageToModelTransform, levelCount, lrImageFactory);
+        Rectangle2D modelBounds = AbstractLayerImage.getModelBounds(imageToModelTransform, rasterWidth, rasterHeight);
+        deferredLayerImage.setModelBounds(modelBounds);
+        return deferredLayerImage;
     }
 
     private static class Factory implements LRImageFactory {

@@ -4,8 +4,8 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerListener;
 import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glevel.LevelImage;
-import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import com.bc.ceres.glevel.LayerImage;
+import com.bc.ceres.glevel.support.DefaultLayerImage;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.BufferedImageRendering;
@@ -237,11 +237,11 @@ public class ProductSceneView45 extends ProductSceneView {
         final String expression = getRaster().getValidMaskExpression();
         if (expression != null) {
             // todo - get color from style, set color
-            final LevelImage levelImage = MaskMultiLevelImage.create(getRaster().getProduct(), Color.ORANGE, expression,
+            final LayerImage layerImage = MaskMultiLevelImage.create(getRaster().getProduct(), Color.ORANGE, expression,
                     true, new AffineTransform());
-            getNoDataLayer().setLevelImage(levelImage);
+            getNoDataLayer().setLayerImage(layerImage);
         } else {
-            getNoDataLayer().setLevelImage(LevelImage.NULL);
+            getNoDataLayer().setLayerImage(LayerImage.NULL);
         }
 
         fireImageUpdated();
@@ -264,10 +264,10 @@ public class ProductSceneView45 extends ProductSceneView {
     public void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception {
         if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
             // todo - get color from style, set color
-            final LevelImage levelImage = RoiMultiLevelImage.create(getRaster(), Color.RED, new AffineTransform());
-            getRoiLayer().setLevelImage(levelImage);
+            final LayerImage layerImage = RoiMultiLevelImage.create(getRaster(), Color.RED, new AffineTransform());
+            getRoiLayer().setLayerImage(layerImage);
         } else {
-            getRoiLayer().setLevelImage(LevelImage.NULL);
+            getRoiLayer().setLayerImage(LayerImage.NULL);
         }
 
         fireImageUpdated();
@@ -278,7 +278,7 @@ public class ProductSceneView45 extends ProductSceneView {
         final RenderedImage roiImage = getRoiLayer().getImage(0);
 
         // for compatibility to 42
-        if (roiImage == LevelImage.NULL) {
+        if (roiImage == LayerImage.NULL) {
             return null;
         }
 
@@ -288,8 +288,8 @@ public class ProductSceneView45 extends ProductSceneView {
     @Override
     public void setROIImage(RenderedImage roiImage) {
         // used by MagicStick only
-        // TODO fix LevelImage creation: transformation ?, levelcount ?
-        getRoiLayer().setLevelImage(new DefaultMultiLevelImage(roiImage, new AffineTransform(), 0,
+        // TODO fix LayerImage creation: transformation ?, levelcount ?
+        getRoiLayer().setLayerImage(new DefaultLayerImage(roiImage, new AffineTransform(), 0,
                                     Interpolation.getInstance(Interpolation.INTERP_NEAREST)));
         fireImageUpdated();
     }

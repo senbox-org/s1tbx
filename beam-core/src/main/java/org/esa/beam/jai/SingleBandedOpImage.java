@@ -10,13 +10,13 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 import javax.media.jai.SourcelessOpImage;
 
-import com.bc.ceres.glevel.LRImage;
+import com.bc.ceres.glevel.LevelImage;
 
 
 /**
  * A base class for single-band {@code OpImages} retrieving data at a given pyramid level.
  */
-public abstract class SingleBandedOpImage extends SourcelessOpImage implements LRImage {
+public abstract class SingleBandedOpImage extends SourcelessOpImage implements LevelImage {
     
     private ScalableImageSupport scalableImageSupport;
     private final int level;

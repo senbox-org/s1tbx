@@ -161,7 +161,7 @@ public class NavigationCanvas extends JPanel {
     }
 
     private void updateImageContent() {
-        // Will to this totally different later!!! (Use max. level image of LevelImage).
+        // Will to this totally different later!!! (Use max. level image of LayerImage).
         final ProductSceneView view = navigationWindow.getCurrentView();
         if (view == null || thumbnailImage == null) {
             return;

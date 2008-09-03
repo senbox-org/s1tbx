@@ -1,9 +1,9 @@
 package org.esa.beam.glevel;
 
 import com.bc.ceres.glevel.LRImageFactory;
-import com.bc.ceres.glevel.LevelImage;
-import com.bc.ceres.glevel.support.AbstractMultiLevelImage;
-import com.bc.ceres.glevel.support.DeferredMultiLevelImage;
+import com.bc.ceres.glevel.LayerImage;
+import com.bc.ceres.glevel.support.AbstractLayerImage;
+import com.bc.ceres.glevel.support.DeferredLayerImage;
 import org.esa.beam.jai.TiledFileOpImage;
 
 import javax.media.jai.JAI;
@@ -21,7 +21,7 @@ import java.util.Properties;
 
 public class TiledFileLevelImage {
 
-    public static LevelImage create(File imageDir, boolean visualDebug) throws IOException {
+    public static LayerImage create(File imageDir, boolean visualDebug) throws IOException {
         final Properties imageProperties = new Properties();
         imageProperties.load(new FileReader(new File(imageDir, "image.properties")));
         int levelCount = Integer.parseInt(imageProperties.getProperty("numLevels"));
@@ -30,10 +30,10 @@ public class TiledFileLevelImage {
         // todo - read 6 parameters from properties1
         final AffineTransform transform = AffineTransform.getScaleInstance(360.0 / sourceWidth, 180.0 / sourceHeight);
         LRImageFactory lrImageFactory = new Factory(imageDir, imageProperties, visualDebug);
-        DeferredMultiLevelImage deferredMultiLevelImage = new DeferredMultiLevelImage(transform, levelCount, lrImageFactory);
-        Rectangle2D modelBounds = AbstractMultiLevelImage.getModelBounds(transform, sourceWidth, sourceHeight);
-        deferredMultiLevelImage.setModelBounds(modelBounds);
-        return deferredMultiLevelImage;
+        DeferredLayerImage deferredLayerImage = new DeferredLayerImage(transform, levelCount, lrImageFactory);
+        Rectangle2D modelBounds = AbstractLayerImage.getModelBounds(transform, sourceWidth, sourceHeight);
+        deferredLayerImage.setModelBounds(modelBounds);
+        return deferredLayerImage;
     }
 
     private static class Factory implements LRImageFactory {

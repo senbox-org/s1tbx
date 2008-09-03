@@ -40,9 +40,9 @@ import org.esa.beam.util.io.FileUtils;
 import com.bc.ceres.binio.Format;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.LRImageFactory;
-import com.bc.ceres.glevel.LevelImage;
-import com.bc.ceres.glevel.MRImage;
-import com.bc.ceres.glevel.support.MRImageImpl;
+import com.bc.ceres.glevel.LayerImage;
+import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.support.MultiResolutionImageImpl;
 
 
 public class SmosProductReader extends AbstractProductReader {
@@ -68,7 +68,7 @@ public class SmosProductReader extends AbstractProductReader {
         bandDescrMap.put("BT_Value_Imag", new BandDescr("BT_Value_Imag", 2));
     }
 
-    private static LevelImage dggridLevelImage;
+    private static LayerImage dggridLayerImage;
 
     SmosProductReader(final SmosProductReaderPlugIn productReaderPlugIn) {
         super(productReaderPlugIn);
@@ -76,14 +76,14 @@ public class SmosProductReader extends AbstractProductReader {
 
     @Override
     protected synchronized Product readProductNodesImpl() throws IOException {
-        if (dggridLevelImage == null) {
+        if (dggridLayerImage == null) {
             String dirPath = System.getProperty(SMOS_DGG_DIR_PROPERTY_NAME);
             if (dirPath == null || !new File(dirPath).exists()) {
                 throw new IOException(
                         MessageFormat.format("SMOS products require a DGG image.\nPlease set system property ''{0}''to a valid DGG image directory.", SMOS_DGG_DIR_PROPERTY_NAME));
             }
             try {
-                dggridLevelImage = TiledFileLevelImage.create(new File(dirPath), false);
+                dggridLayerImage = TiledFileLevelImage.create(new File(dirPath), false);
             } catch (IOException e) {
                 throw new IOException(MessageFormat.format("Failed to load SMOS DDG ''{0}''", dirPath), e);
             }
@@ -141,16 +141,16 @@ public class SmosProductReader extends AbstractProductReader {
 
     private RenderedImage createSourceImage(final Band band) {
         final int btDataIndex = bandDescrMap.get(band.getName()).btDataIndex;
-        MRImage image = new MRImageImpl(new LRImageFactory() {
+        MultiLevelImage image = new MultiResolutionImageImpl(new LRImageFactory() {
             @Override
             public RenderedImage createLRImage(int level) {
-                return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridLevelImage.getLRImage(level), level);
+                return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridLayerImage.getLRImage(level), level);
             }});
         return image;
     }
 
     private RenderedImage createValidMaksImage(final Band band) {
-        MRImage image = new MRImageImpl(new LRImageFactory() {
+        MultiLevelImage image = new MultiResolutionImageImpl(new LRImageFactory() {
             @Override
             public RenderedImage createLRImage(int level) {
                 return new SmosL1ValidImage(band, level);
