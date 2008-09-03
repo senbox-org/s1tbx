@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 
-public class TiledFileLevelImage {
+public class TiledFileLayerImageFactory {
 
     public static LayerImage create(File imageDir, boolean visualDebug) throws IOException {
         final Properties imageProperties = new Properties();
@@ -29,19 +29,19 @@ public class TiledFileLevelImage {
         int sourceHeight = Integer.parseInt(imageProperties.getProperty("height"));
         // todo - read 6 parameters from properties1
         final AffineTransform transform = AffineTransform.getScaleInstance(360.0 / sourceWidth, 180.0 / sourceHeight);
-        LevelImageFactory levelImageFactory = new Factory(imageDir, imageProperties, visualDebug);
+        LevelImageFactory levelImageFactory = new LIF(imageDir, imageProperties, visualDebug);
         DeferredLayerImage deferredLayerImage = new DeferredLayerImage(transform, levelCount, levelImageFactory);
         Rectangle2D modelBounds = AbstractLayerImage.getModelBounds(transform, sourceWidth, sourceHeight);
         deferredLayerImage.setModelBounds(modelBounds);
         return deferredLayerImage;
     }
 
-    private static class Factory implements LevelImageFactory {
+    private static class LIF implements LevelImageFactory {
         private final File imageDir;
         private final Properties imageProperties;
         boolean visualDebug;
         
-        public Factory(File imageDir, Properties imageProperties, boolean visualDebug) {
+        public LIF(File imageDir, Properties imageProperties, boolean visualDebug) {
             this.imageDir = imageDir;
             this.imageProperties = imageProperties;
             this.visualDebug = visualDebug;

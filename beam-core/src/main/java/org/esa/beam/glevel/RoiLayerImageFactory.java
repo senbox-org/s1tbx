@@ -14,24 +14,24 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
 
-public class RoiMultiLevelImage {
+public class RoiLayerImageFactory {
 
     public static LayerImage create(RasterDataNode rasterDataNode, Color color, AffineTransform imageToModelTransform) {
         final int rasterWidth = rasterDataNode.getSceneRasterWidth();
         final int rasterHeight = rasterDataNode.getSceneRasterHeight();
         final int levelCount = ImageManager.computeMaxLevelCount(rasterWidth, rasterHeight);
-        LevelImageFactory levelImageFactory = new Factory(rasterDataNode, color);
+        LevelImageFactory levelImageFactory = new LIF(rasterDataNode, color);
         DeferredLayerImage deferredLayerImage = new DeferredLayerImage(imageToModelTransform, levelCount, levelImageFactory);
         Rectangle2D modelBounds = AbstractLayerImage.getModelBounds(imageToModelTransform, rasterWidth, rasterHeight);
         deferredLayerImage.setModelBounds(modelBounds);
         return deferredLayerImage;
     }
 
-    private static class Factory implements LevelImageFactory {
+    private static class LIF implements LevelImageFactory {
         private final RasterDataNode rasterDataNode;
         private final Color color;
         
-        public Factory(RasterDataNode rasterDataNode, Color color) {
+        public LIF(RasterDataNode rasterDataNode, Color color) {
             this.rasterDataNode = rasterDataNode;
             this.color = color;
         }

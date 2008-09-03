@@ -1,9 +1,40 @@
 package org.esa.beam.framework.ui.product;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.beans.PropertyChangeEvent;
+import java.io.IOException;
+
+import javax.media.jai.Interpolation;
+import javax.swing.JComponent;
+
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.draw.Figure;
+import org.esa.beam.framework.ui.PixelPositionListener;
+import org.esa.beam.framework.ui.PopupMenuHandler;
+import org.esa.beam.framework.ui.tool.AbstractTool;
+import org.esa.beam.framework.ui.tool.Tool;
+import org.esa.beam.glayer.FigureLayer;
+import org.esa.beam.glayer.GraticuleLayer;
+import org.esa.beam.glevel.MaskLayerImageFactory;
+import org.esa.beam.glevel.RoiLayerImageFactory;
+import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.math.MathUtils;
+
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerListener;
-import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.LayerImage;
 import com.bc.ceres.glevel.support.DefaultLayerImage;
@@ -12,32 +43,6 @@ import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.grender.swing.ViewportScrollPane;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.draw.Figure;
-import org.esa.beam.framework.ui.PixelPositionListener;
-import org.esa.beam.framework.ui.PopupMenuHandler;
-import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.ui.tool.AbstractTool;
-import org.esa.beam.framework.ui.tool.Tool;
-import org.esa.beam.glayer.FigureLayer;
-import org.esa.beam.glayer.GraticuleLayer;
-import org.esa.beam.glevel.MaskMultiLevelImage;
-import org.esa.beam.glevel.RoiMultiLevelImage;
-import org.esa.beam.util.PropertyMap;
-import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.StopWatch;
-import org.esa.beam.util.math.MathUtils;
-
-import javax.media.jai.Interpolation;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.geom.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-import java.beans.PropertyChangeEvent;
-import java.io.IOException;
 
 public class ProductSceneView45 extends ProductSceneView {
 
@@ -241,7 +246,7 @@ public class ProductSceneView45 extends ProductSceneView {
         final String expression = getRaster().getValidMaskExpression();
         if (expression != null) {
             // todo - get color from style, set color
-            final LayerImage layerImage = MaskMultiLevelImage.create(getRaster().getProduct(), Color.ORANGE, expression,
+            final LayerImage layerImage = MaskLayerImageFactory.create(getRaster().getProduct(), Color.ORANGE, expression,
                     true, new AffineTransform());
             getNoDataLayer().setLayerImage(layerImage);
         } else {
@@ -268,7 +273,7 @@ public class ProductSceneView45 extends ProductSceneView {
     public void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception {
         if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
             // todo - get color from style, set color
-            final LayerImage layerImage = RoiMultiLevelImage.create(getRaster(), Color.RED, new AffineTransform());
+            final LayerImage layerImage = RoiLayerImageFactory.create(getRaster(), Color.RED, new AffineTransform());
             getRoiLayer().setLayerImage(layerImage);
         } else {
             getRoiLayer().setLayerImage(LayerImage.NULL);

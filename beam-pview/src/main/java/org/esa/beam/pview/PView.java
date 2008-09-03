@@ -49,10 +49,10 @@ import org.esa.beam.framework.datamodel.ROIDefinition;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.draw.ShapeFigure;
-import org.esa.beam.glevel.BandMultiLevelImage;
-import org.esa.beam.glevel.MaskMultiLevelImage;
-import org.esa.beam.glevel.RoiMultiLevelImage;
-import org.esa.beam.glevel.TiledFileLevelImage;
+import org.esa.beam.glevel.BandLayerImageFactory;
+import org.esa.beam.glevel.MaskLayerImageFactory;
+import org.esa.beam.glevel.RoiLayerImageFactory;
+import org.esa.beam.glevel.TiledFileLayerImageFactory;
 
 import com.bc.ceres.binio.Format;
 import com.bc.ceres.glayer.Layer;
@@ -160,7 +160,7 @@ public class PView {
 //                return;
 //            }
 //            if (dggridLevelImage == null) {
-//                dggridLevelImage = TiledFileLevelImage.createMaskOpImage(new File(dirPath), false);
+//                dggridLevelImage = TiledFileLayerImageFactory.createMaskOpImage(new File(dirPath), false);
 //            }
             worldMode = true;
         }
@@ -183,7 +183,7 @@ public class PView {
             String dirPath = System.getProperty(WORLD_IMAGE_DIR_PROPERTY_NAME);
             if (dirPath != null && new File(dirPath).exists()) {
                 if (worldLayerImage == null) {
-                    worldLayerImage = TiledFileLevelImage.create(new File(dirPath), false);
+                    worldLayerImage = TiledFileLayerImageFactory.create(new File(dirPath), false);
                 }
                 final ImageLayer layer = new ImageLayer(worldLayerImage);
                 layer.setName("World");
@@ -329,7 +329,7 @@ public class PView {
             final Band band = product.getBand(name);
             if (band.getROIDefinition() != null && band.getROIDefinition().isUsable()) {
                 final Color color = Color.RED;
-                final ImageLayer imageLayer = new ImageLayer(RoiMultiLevelImage.create(band, color, i2m));
+                final ImageLayer imageLayer = new ImageLayer(RoiLayerImageFactory.create(band, color, i2m));
                 imageLayer.setName("ROI of " + band.getName());
                 imageLayer.setVisible(false);
                 imageLayer.getStyle().setOpacity(0.5);
@@ -340,7 +340,7 @@ public class PView {
     }
 
     private static ImageLayer createRgbLayer(String name, RasterDataNode[] rasterDataNodes, AffineTransform i2m) {
-        ImageLayer imageLayer = new ImageLayer(BandMultiLevelImage.create(rasterDataNodes, i2m));
+        ImageLayer imageLayer = new ImageLayer(BandLayerImageFactory.create(rasterDataNodes, i2m));
         imageLayer.setName(name);
         imageLayer.setVisible(false);
         return imageLayer;
@@ -353,7 +353,7 @@ public class PView {
         for (BitmaskDef bitmaskDef : bitmaskDefs) {
             final Color color = bitmaskDef.getColor();
             final String expression = bitmaskDef.getExpr();
-            final ImageLayer imageLayer = new ImageLayer(MaskMultiLevelImage.create(product, color, expression, false, i2m));
+            final ImageLayer imageLayer = new ImageLayer(MaskLayerImageFactory.create(product, color, expression, false, i2m));
             imageLayer.setName(bitmaskDef.getName());
             imageLayer.setVisible(false);
             imageLayer.getStyle().setOpacity(bitmaskDef.getAlpha());
@@ -369,7 +369,7 @@ public class PView {
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
             final Band band = product.getBand(name);
-            final ImageLayer imageLayer = new ImageLayer(BandMultiLevelImage.create(band, i2m));
+            final ImageLayer imageLayer = new ImageLayer(BandLayerImageFactory.create(band, i2m));
             imageLayer.setName(band.getName());
             imageLayer.setVisible(i == 0);
             collectionLayer.getChildLayerList().add(imageLayer);
@@ -399,7 +399,7 @@ public class PView {
             if (band.getValidMaskExpression() != null) {
                 final Color color = Color.ORANGE;
                 final String expression = band.getValidMaskExpression();
-                final ImageLayer imageLayer = new ImageLayer(MaskMultiLevelImage.create(product, color, expression, true, i2m));
+                final ImageLayer imageLayer = new ImageLayer(MaskLayerImageFactory.create(product, color, expression, true, i2m));
                 imageLayer.setName("No-data mask of " + band.getName());
                 imageLayer.setVisible(false);
                 imageLayer.getStyle().setOpacity(0.5);
@@ -415,7 +415,7 @@ public class PView {
         final String[] names = product.getTiePointGridNames();
         for (final String name : names) {
             final TiePointGrid tiePointGrid = product.getTiePointGrid(name);
-            final ImageLayer imageLayer = new ImageLayer(BandMultiLevelImage.create(tiePointGrid, i2m));
+            final ImageLayer imageLayer = new ImageLayer(BandLayerImageFactory.create(tiePointGrid, i2m));
             imageLayer.setName(tiePointGrid.getName());
             imageLayer.setVisible(false);
             collectionLayer.getChildLayerList().add(imageLayer);

@@ -13,7 +13,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
 
-public class BandMultiLevelImage {
+public class BandLayerImageFactory {
 
     public static LayerImage create(RasterDataNode rasterDataNode, AffineTransform imageToModelTransform) {
         return create(new RasterDataNode[]{rasterDataNode}, imageToModelTransform);
@@ -27,7 +27,7 @@ public class BandMultiLevelImage {
                         rasterDataNodes[0].getSceneRasterHeight()));
     }
     public static LayerImage create(RasterDataNode[] rasterDataNodes, AffineTransform imageToModelTransform, int levelCount) {
-        LevelImageFactory levelImageFactory = new Factory(rasterDataNodes, levelCount);
+        LevelImageFactory levelImageFactory = new LIF(rasterDataNodes, levelCount);
         DeferredLayerImage deferredLayerImage = new DeferredLayerImage(imageToModelTransform, levelCount, levelImageFactory);
         final int w = rasterDataNodes[0].getSceneRasterWidth();
         final int h = rasterDataNodes[0].getSceneRasterHeight();
@@ -37,12 +37,12 @@ public class BandMultiLevelImage {
         return deferredLayerImage;
     }
     
-    private static class Factory implements LevelImageFactory {
+    private static class LIF implements LevelImageFactory {
         
         private final RasterDataNode[] rasterDataNodes;
         private final int levelCount;
 
-        public Factory(RasterDataNode[] rasterDataNodes, int levelCount) {
+        public LIF(RasterDataNode[] rasterDataNodes, int levelCount) {
             this.rasterDataNodes = rasterDataNodes.clone();
             this.levelCount = levelCount;
         }

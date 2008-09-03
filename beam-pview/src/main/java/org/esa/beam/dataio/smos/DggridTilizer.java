@@ -36,7 +36,7 @@ public class DggridTilizer {
         final DefaultLayerImage layerImage = new DefaultLayerImage(opImage, new AffineTransform(), levelCount, Interpolation.getInstance(Interpolation.INTERP_NEAREST));
         for (int level = 5; level < levelCount; level++) {
 
-            final PlanarImage image = PlanarImage.wrapRenderedImage(layerImage.getLRImage(level));
+            final PlanarImage image = PlanarImage.wrapRenderedImage(layerImage.getLevelImage(level));
 
             final int width = image.getWidth();
             final int height = image.getHeight();

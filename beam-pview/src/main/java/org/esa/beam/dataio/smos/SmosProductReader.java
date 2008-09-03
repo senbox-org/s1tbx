@@ -34,7 +34,7 @@ import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.glevel.TiledFileLevelImage;
+import org.esa.beam.glevel.TiledFileLayerImageFactory;
 import org.esa.beam.util.io.FileUtils;
 
 import com.bc.ceres.binio.Format;
@@ -83,7 +83,7 @@ public class SmosProductReader extends AbstractProductReader {
                         MessageFormat.format("SMOS products require a DGG image.\nPlease set system property ''{0}''to a valid DGG image directory.", SMOS_DGG_DIR_PROPERTY_NAME));
             }
             try {
-                dggridLayerImage = TiledFileLevelImage.create(new File(dirPath), false);
+                dggridLayerImage = TiledFileLayerImageFactory.create(new File(dirPath), false);
             } catch (IOException e) {
                 throw new IOException(MessageFormat.format("Failed to load SMOS DDG ''{0}''", dirPath), e);
             }
@@ -144,7 +144,7 @@ public class SmosProductReader extends AbstractProductReader {
         MultiLevelImage image = new MultiLevelImageImpl(new LevelImageFactory() {
             @Override
             public RenderedImage createLRImage(int level) {
-                return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridLayerImage.getLRImage(level), level);
+                return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridLayerImage.getLevelImage(level), level);
             }});
         return image;
     }

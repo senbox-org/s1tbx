@@ -15,7 +15,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
 
-public class MaskMultiLevelImage {
+public class MaskLayerImageFactory {
 
     public static LayerImage create(Product product, Color color, String expression, boolean inverseMask, AffineTransform imageToModelTransform) {
         Assert.notNull(product);
@@ -24,7 +24,7 @@ public class MaskMultiLevelImage {
         final int rasterWidth = product.getSceneRasterWidth();
         final int rasterHeight = product.getSceneRasterHeight();
         final int levelCount = ImageManager.computeMaxLevelCount(rasterWidth, rasterHeight);
-        LevelImageFactory levelImageFactory = new Factory(product, color, expression, inverseMask);
+        LevelImageFactory levelImageFactory = new LIF(product, color, expression, inverseMask);
         DeferredLayerImage deferredLayerImage = new DeferredLayerImage(
                 imageToModelTransform, levelCount, levelImageFactory);
         Rectangle2D modelBounds = AbstractLayerImage.getModelBounds(imageToModelTransform, rasterWidth, rasterHeight);
@@ -32,13 +32,13 @@ public class MaskMultiLevelImage {
         return deferredLayerImage;
     }
 
-    private static class Factory implements LevelImageFactory {
+    private static class LIF implements LevelImageFactory {
         private final Product product;
         private final Color color;
         private final String expression;
         private final boolean inverseMask;
         
-        public Factory(Product product, Color color, String expression, boolean inverseMask) {
+        public LIF(Product product, Color color, String expression, boolean inverseMask) {
             this.product = product;
             this.color = color;
             this.expression = expression;

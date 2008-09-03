@@ -9,9 +9,9 @@ import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glayer.PlacemarkLayer;
-import org.esa.beam.glevel.BandMultiLevelImage;
-import org.esa.beam.glevel.MaskMultiLevelImage;
-import org.esa.beam.glevel.RoiMultiLevelImage;
+import org.esa.beam.glevel.BandLayerImageFactory;
+import org.esa.beam.glevel.MaskLayerImageFactory;
+import org.esa.beam.glevel.RoiLayerImageFactory;
 import org.esa.beam.util.ProductUtils;
 
 import java.awt.*;
@@ -38,14 +38,14 @@ class ProductSceneImage45 extends ProductSceneImage {
 
     ProductSceneImage45(RasterDataNode raster) throws IOException {
         super(raster.getDisplayName(), new RasterDataNode[]{raster}, raster.getImageInfo());
-        layerImage = BandMultiLevelImage.create(raster, new AffineTransform());
+        layerImage = BandLayerImageFactory.create(raster, new AffineTransform());
         setImageInfo(raster.getImageInfo());
         initRootLayer();
     }
 
     ProductSceneImage45(RasterDataNode[] rasters) throws IOException {
         super("RGB", rasters, null);
-        layerImage = BandMultiLevelImage.create(rasters, new AffineTransform());
+        layerImage = BandLayerImageFactory.create(rasters, new AffineTransform());
         setImageInfo(ProductUtils.createImageInfo(rasters, false, ProgressMonitor.NULL));
         initRootLayer();
     }
@@ -81,7 +81,7 @@ class ProductSceneImage45 extends ProductSceneImage {
 
         if (getRaster().getValidMaskExpression() != null) {
             // todo - get color from style, set color
-            layerImage = MaskMultiLevelImage.create(getRaster().getProduct(), Color.ORANGE,
+            layerImage = MaskLayerImageFactory.create(getRaster().getProduct(), Color.ORANGE,
                     getRaster().getValidMaskExpression(), true, new AffineTransform());
         } else {
             layerImage = LayerImage.NULL;
@@ -107,7 +107,7 @@ class ProductSceneImage45 extends ProductSceneImage {
 
         if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
             // todo - get color from style, set color
-            layerImage = RoiMultiLevelImage.create(getRaster(), Color.RED, new AffineTransform());
+            layerImage = RoiLayerImageFactory.create(getRaster(), Color.RED, new AffineTransform());
         } else {
             layerImage = LayerImage.NULL;
         }
@@ -160,7 +160,7 @@ class ProductSceneImage45 extends ProductSceneImage {
     private Layer createBitmaskLayer(final BitmaskDef bitmaskDef) {
         final Color color = bitmaskDef.getColor();
         final String expr = bitmaskDef.getExpr();
-        final LayerImage image = MaskMultiLevelImage.create(getProduct(), color, expr, false, new AffineTransform());
+        final LayerImage image = MaskLayerImageFactory.create(getProduct(), color, expr, false, new AffineTransform());
 
         final Layer layer = new ImageLayer(image);
         layer.setName(bitmaskDef.getName());
