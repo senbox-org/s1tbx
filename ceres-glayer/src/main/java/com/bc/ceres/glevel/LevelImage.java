@@ -29,6 +29,15 @@ public interface LevelImage {
     int computeLevel(double scale);
 
     /**
+     * Computes the scaling factor from the given resolution level. The scaling factor is the number of units in
+     * the model CS per unit in the view CS.
+     * 
+     * @param level The resolution level.
+     * @return the model-to-view scaling factor.
+     */
+    double computeScale(int level);
+    
+    /**
      * Gets the image for the given level.
      *
      * @param level the resolution level.
@@ -70,5 +79,6 @@ public interface LevelImage {
      * @return the bounding box.
      */
     Rectangle2D getModelBounds();
+
 
 }

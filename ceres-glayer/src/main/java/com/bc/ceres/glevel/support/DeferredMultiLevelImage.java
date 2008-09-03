@@ -1,19 +1,15 @@
 package com.bc.ceres.glevel.support;
 
-import com.bc.ceres.core.Assert;
-import com.bc.ceres.glevel.LRImageFactory;
-
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 
+import com.bc.ceres.glevel.LRImageFactory;
+import com.bc.ceres.glevel.MRImage;
+
 public class DeferredMultiLevelImage extends AbstractMultiLevelImage {
 
-    private LRImageFactory lrImageFactory;
-    private MRImageImpl mrImage;
-
-    public DeferredMultiLevelImage(AffineTransform imageToModelTransform, int levelCount) {
-        super(imageToModelTransform, levelCount);
-    }
+    private final LRImageFactory lrImageFactory;
+    private MRImage mrImage;
 
     public DeferredMultiLevelImage(AffineTransform imageToModelTransform, int levelCount, LRImageFactory lrImageFactory) {
         super(imageToModelTransform, levelCount);
@@ -24,16 +20,10 @@ public class DeferredMultiLevelImage extends AbstractMultiLevelImage {
         return lrImageFactory;
     }
 
-    public void setLRImageFactory(LRImageFactory lrImageFactory) {
-        reset();
-        this.lrImageFactory = lrImageFactory;
-    }
-
     public RenderedImage getLRImage(int level) {
         checkLevel(level);
         synchronized (this) {
             if (mrImage == null) {
-                Assert.state(lrImageFactory != null, "lrImageFactory != null");
                 mrImage = new MRImageImpl(lrImageFactory);
             }
             return mrImage.getLRImage(level);

@@ -45,6 +45,11 @@ public abstract class AbstractMultiLevelImage implements LevelImage {
         return level;
     }
 
+    @Override
+    public double computeScale(int level) {
+        return pow2(level);
+    }
+    
     /**
      * Removes all cached images and also removes all cached tiles of those images
      * from the JAI tile cche.
@@ -59,12 +64,13 @@ public abstract class AbstractMultiLevelImage implements LevelImage {
         AffineTransform transform = imageToModelTransforms[level];
         if (transform == null) {
             transform = new AffineTransform(imageToModelTransforms[0]);
-            final double s = pow2(level);
+            final double s = computeScale(level);
             transform.scale(s, s);
             imageToModelTransforms[level] = transform;
         }
         return new AffineTransform(transform);
     }
+
 
     @Override
     public final AffineTransform getModelToImageTransform(int level) {
@@ -110,15 +116,16 @@ public abstract class AbstractMultiLevelImage implements LevelImage {
             throw new IllegalArgumentException("level");
         }
     }
-    protected static Rectangle2D getModelBounds(AffineTransform imageToModelTransform, RenderedImage levelZeroImage) {
+    // TODO move somewhere else ???
+    public static Rectangle2D getModelBounds(AffineTransform imageToModelTransform, RenderedImage levelZeroImage) {
         return imageToModelTransform.createTransformedShape(new Rectangle(levelZeroImage.getMinX(),
                                                                                  levelZeroImage.getMinY(),
                                                                                  levelZeroImage.getWidth(),
                                                                                  levelZeroImage.getHeight())).getBounds2D();
     }
 
-
-    protected static Rectangle2D getModelBounds(AffineTransform imageToModelTransform, int w, int h) {
+    // TODO move somewhere else ???
+    public static Rectangle2D getModelBounds(AffineTransform imageToModelTransform, int w, int h) {
         return imageToModelTransform.createTransformedShape(new Rectangle(0, 0, w, h)).getBounds2D();
     }
 }

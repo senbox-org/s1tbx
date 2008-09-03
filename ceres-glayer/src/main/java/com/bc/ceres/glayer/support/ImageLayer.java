@@ -14,6 +14,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 
+import javax.media.jai.Interpolation;
+
 /**
  * A multi-resolution capable image layer.
  *
@@ -52,7 +54,8 @@ public class ImageLayer extends Layer {
      * @param levelCount            the number of resolution levels
      */
     public ImageLayer(RenderedImage image, AffineTransform imageToModelTransform, int levelCount) {
-        this(new DefaultMultiLevelImage(image, imageToModelTransform, levelCount));
+        this(new DefaultMultiLevelImage(image, imageToModelTransform, levelCount,
+                                        Interpolation.getInstance(Interpolation.INTERP_BICUBIC)));
     }
 
     /**
@@ -69,10 +72,6 @@ public class ImageLayer extends Layer {
     public void regenerate() {
         clearCaches();
         fireLayerDataChanged(getBounds());
-    }
-
-    public int getLevelCount() {
-        return levelImage.getLevelCount();
     }
 
     public RenderedImage getImage() {

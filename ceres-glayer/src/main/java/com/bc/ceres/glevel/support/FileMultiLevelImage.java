@@ -1,25 +1,30 @@
 package com.bc.ceres.glevel.support;
 
 import com.bc.ceres.glevel.LRImageFactory;
+import com.bc.ceres.glevel.LevelImage;
 
 import javax.media.jai.operator.FileLoadDescriptor;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.io.File;
 
-public class FileMultiLevelImage extends DeferredMultiLevelImage {
+public class FileMultiLevelImage {
 
-    public FileMultiLevelImage(File location, String extension, AffineTransform imageToModelTransform, int levelCount) {
-        super(imageToModelTransform, levelCount, new IF(location, location.getName(), extension));
-        setModelBounds(getModelBounds(imageToModelTransform, getLRImage(0)));
+    public static LevelImage create(File location, String extension, AffineTransform imageToModelTransform, int levelCount) {
+        DeferredMultiLevelImage deferredMultiLevelImage = new DeferredMultiLevelImage(
+                imageToModelTransform, levelCount, new Factory(location, location.getName(), extension));
+        Rectangle2D modelBounds2 = AbstractMultiLevelImage.getModelBounds(imageToModelTransform, deferredMultiLevelImage.getLRImage(0));
+        deferredMultiLevelImage.setModelBounds(modelBounds2);
+        return deferredMultiLevelImage;
     }
 
-    private static class IF implements LRImageFactory {
+    private static class Factory implements LRImageFactory {
         private final File location;
         private final String basename;
         private final String extension;
 
-        public IF(File location, String basename, String extension) {
+        public Factory(File location, String basename, String extension) {
             this.location = location;
             this.basename = basename;
             this.extension = extension;

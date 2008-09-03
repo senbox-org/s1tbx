@@ -22,8 +22,6 @@ public class ImageLayerTest  {
         assertNotNull(layer.getLevelImage());
         assertNotNull(layer.getImage());
 
-        assertEquals(1, layer.getLevelCount());
-
         assertNotNull(layer.getImageToModelTransform());
         assertTrue(layer.getImageToModelTransform().isIdentity());
 
@@ -43,7 +41,6 @@ public class ImageLayerTest  {
         assertSame(image, layer.getImage());
         assertEquals(new AffineTransform(), layer.getModelToImageTransform());
         assertEquals(new AffineTransform(), layer.getImageToModelTransform());
-        assertEquals(1, layer.getLevelCount());
 
 
         final AffineTransform i2m = AffineTransform.getTranslateInstance(+100, +200);
@@ -53,7 +50,6 @@ public class ImageLayerTest  {
         assertNotSame(i2m, layer.getModelToImageTransform());
         assertEquals(AffineTransform.getTranslateInstance(+100, +200), layer.getImageToModelTransform());
         assertEquals(AffineTransform.getTranslateInstance(-100, -200), layer.getModelToImageTransform());
-        assertEquals(1, layer.getLevelCount());
     }
 
     @Test

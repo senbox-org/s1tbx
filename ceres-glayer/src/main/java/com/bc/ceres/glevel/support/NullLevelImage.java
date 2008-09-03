@@ -35,6 +35,10 @@ public class NullLevelImage implements LevelImage {
     }
 
     @Override
+    public double computeScale(int level) {
+        return 1;
+    }
+    @Override
     public RenderedImage getLRImage(int level) {
         return IMAGE;
     }
