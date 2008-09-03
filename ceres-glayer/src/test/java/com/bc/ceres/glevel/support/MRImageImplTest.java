@@ -46,7 +46,7 @@ public class MRImageImplTest extends TestCase {
         return PlanarImage.wrapRenderedImage(bi);
     }
 
-    private static class MyLevelImageFactory extends LRImageFactoryImpl {
+    private static class MyLevelImageFactory extends LevelImageFactoryImpl {
 
         private MyLevelImageFactory(PlanarImage frSource) {
             super(frSource);

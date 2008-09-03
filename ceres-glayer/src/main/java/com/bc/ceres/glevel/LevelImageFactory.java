@@ -8,6 +8,6 @@ import java.awt.image.RenderedImage;
  * @author Norman Fomferra
  * @version $revision$ $date$
  */
-public interface LRImageFactory {
+public interface LevelImageFactory {
     RenderedImage createLRImage(int level);
 }

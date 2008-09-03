@@ -1,6 +1,6 @@
 package com.bc.ceres.glevel.support;
 
-import com.bc.ceres.glevel.LRImageFactory;
+import com.bc.ceres.glevel.LevelImageFactory;
 import com.bc.ceres.glevel.LayerImage;
 
 import javax.media.jai.operator.FileLoadDescriptor;
@@ -19,7 +19,7 @@ public class FileMultiLevelImage {
         return deferredLayerImage;
     }
 
-    private static class Factory implements LRImageFactory {
+    private static class Factory implements LevelImageFactory {
         private final File location;
         private final String basename;
         private final String extension;

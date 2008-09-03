@@ -3,28 +3,28 @@ package com.bc.ceres.glevel.support;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 
-import com.bc.ceres.glevel.LRImageFactory;
+import com.bc.ceres.glevel.LevelImageFactory;
 import com.bc.ceres.glevel.MultiLevelImage;
 
 public class DeferredLayerImage extends AbstractLayerImage {
 
-    private final LRImageFactory lrImageFactory;
+    private final LevelImageFactory levelImageFactory;
     private MultiLevelImage mrImage;
 
-    public DeferredLayerImage(AffineTransform imageToModelTransform, int levelCount, LRImageFactory lrImageFactory) {
+    public DeferredLayerImage(AffineTransform imageToModelTransform, int levelCount, LevelImageFactory levelImageFactory) {
         super(imageToModelTransform, levelCount);
-        this.lrImageFactory = lrImageFactory;
+        this.levelImageFactory = levelImageFactory;
     }
 
-    public LRImageFactory getLRImageFactory() {
-        return lrImageFactory;
+    public LevelImageFactory getLevelImageFactory() {
+        return levelImageFactory;
     }
 
     public RenderedImage getLRImage(int level) {
         checkLevel(level);
         synchronized (this) {
             if (mrImage == null) {
-                mrImage = new MultiResolutionImageImpl(lrImageFactory);
+                mrImage = new MultiResolutionImageImpl(levelImageFactory);
             }
             return mrImage.getLevelImage(level);
         }

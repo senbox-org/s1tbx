@@ -11,7 +11,7 @@ package com.bc.ceres.glevel;
  *   <li>It should be possible to add the multi-resolution capability to any existing {@code RenderedImage} (see {@link MultiResolutionImageImpl}).
  *   </li>
  *   <li>Classes implementing the multi-resolution capability may use any JAI {@code OpImage} DAG to produce its tiles.
- *        It should be easy to implement the multi-resolution capability (see {@link MRImageSupport}). Tile computation
+ *        It should be easy to implement the multi-resolution capability (see {@link MultiLevelImageSupport}). Tile computation
  *        shall then directly take into account the resolution level.
  *   </li>
  * </ul>

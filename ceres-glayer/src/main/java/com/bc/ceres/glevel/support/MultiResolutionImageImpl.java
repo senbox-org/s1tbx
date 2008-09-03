@@ -1,6 +1,6 @@
 package com.bc.ceres.glevel.support;
 
-import com.bc.ceres.glevel.LRImageFactory;
+import com.bc.ceres.glevel.LevelImageFactory;
 import com.bc.ceres.glevel.MultiLevelImage;
 
 import javax.media.jai.RenderedImageAdapter;
@@ -14,25 +14,25 @@ import java.awt.image.RenderedImage;
  */
 public class MultiResolutionImageImpl extends RenderedImageAdapter implements MultiLevelImage {
 
-    private final MRImageSupport mrImageSupport;
+    private final MultiLevelImageSupport multiLevelImageSupport;
 
-    public MultiResolutionImageImpl(LRImageFactory lrImageFactory) {
-        this(lrImageFactory.createLRImage(0), lrImageFactory);
+    public MultiResolutionImageImpl(LevelImageFactory levelImageFactory) {
+        this(levelImageFactory.createLRImage(0), levelImageFactory);
     }
 
-    public MultiResolutionImageImpl(RenderedImage frImage, LRImageFactory lrImageFactory) {
+    public MultiResolutionImageImpl(RenderedImage frImage, LevelImageFactory levelImageFactory) {
         super(frImage);
-        mrImageSupport = new MRImageSupport(frImage, lrImageFactory);
+        multiLevelImageSupport = new MultiLevelImageSupport(frImage, levelImageFactory);
     }
 
     @Override
     public RenderedImage getLevelImage(int level) {
-        return mrImageSupport.getLRImage(level);
+        return multiLevelImageSupport.getLRImage(level);
     }
 
     @Override
     public synchronized void dispose() {
-        mrImageSupport.dispose();
+        multiLevelImageSupport.dispose();
         super.dispose();
     }
 }

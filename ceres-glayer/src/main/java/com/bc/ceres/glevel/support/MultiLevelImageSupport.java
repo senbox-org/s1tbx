@@ -1,6 +1,6 @@
 package com.bc.ceres.glevel.support;
 
-import com.bc.ceres.glevel.LRImageFactory;
+import com.bc.ceres.glevel.LevelImageFactory;
 
 import javax.media.jai.PlanarImage;
 import java.awt.image.RenderedImage;
@@ -13,13 +13,13 @@ import java.util.Map;
  * @author Norman Fomferra
  * @version $revision$ $date$
  */
-public class MRImageSupport {
+public class MultiLevelImageSupport {
     private final RenderedImage frImage;
-    private final LRImageFactory lrImageFactory;
+    private final LevelImageFactory levelImageFactory;
     private final Map<Integer, RenderedImage> lrImages;
 
-    public MRImageSupport(RenderedImage frImage, LRImageFactory lrImageFactory) {
-        this.lrImageFactory = lrImageFactory;
+    public MultiLevelImageSupport(RenderedImage frImage, LevelImageFactory levelImageFactory) {
+        this.levelImageFactory = levelImageFactory;
         this.frImage = frImage;
         this.lrImages = new HashMap<Integer, RenderedImage>(16);
     }
@@ -28,8 +28,8 @@ public class MRImageSupport {
         return frImage;
     }
 
-    public LRImageFactory getLRImageFactory() {
-        return lrImageFactory;
+    public LevelImageFactory getLevelImageFactory() {
+        return levelImageFactory;
     }
 
     public RenderedImage getLRImage(int level) {
@@ -39,7 +39,7 @@ public class MRImageSupport {
         synchronized (lrImages) {
             RenderedImage lrImage = lrImages.get(level);
             if (lrImage == null) {
-                lrImage = lrImageFactory.createLRImage(level);
+                lrImage = levelImageFactory.createLRImage(level);
                 lrImages.put(level, lrImage);
             }
             return lrImage;

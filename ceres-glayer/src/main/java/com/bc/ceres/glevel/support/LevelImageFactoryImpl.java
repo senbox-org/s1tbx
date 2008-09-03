@@ -1,7 +1,7 @@
 package com.bc.ceres.glevel.support;
 
 import com.bc.ceres.glevel.MultiLevelImage;
-import com.bc.ceres.glevel.LRImageFactory;
+import com.bc.ceres.glevel.LevelImageFactory;
 
 import javax.media.jai.Interpolation;
 import javax.media.jai.operator.ScaleDescriptor;
@@ -13,15 +13,15 @@ import java.awt.image.RenderedImage;
  * @author Norman Fomferra
  * @version $revision$ $date$
  */
-public class LRImageFactoryImpl implements LRImageFactory {
+public class LevelImageFactoryImpl implements LevelImageFactory {
     private final RenderedImage frSourceImage;
     private Interpolation interpolation;
 
-    public LRImageFactoryImpl(RenderedImage frSourceImage) {
+    public LevelImageFactoryImpl(RenderedImage frSourceImage) {
         this(frSourceImage, Interpolation.getInstance(Interpolation.INTERP_NEAREST));
     }
 
-    public LRImageFactoryImpl(RenderedImage frSourceImage, Interpolation interpolation) {
+    public LevelImageFactoryImpl(RenderedImage frSourceImage, Interpolation interpolation) {
         this.frSourceImage = frSourceImage;
         this.interpolation = interpolation;
     }
