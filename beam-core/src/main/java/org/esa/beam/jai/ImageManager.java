@@ -54,7 +54,7 @@ import org.esa.beam.util.math.Histogram;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.LevelImageFactory;
 import com.bc.ceres.glevel.MultiLevelImage;
-import com.bc.ceres.glevel.support.MultiResolutionImageImpl;
+import com.bc.ceres.glevel.support.MultiLevelImageImpl;
 
 
 public class ImageManager {
@@ -302,21 +302,21 @@ public class ImageManager {
         if (levelZeroImage == null) {
             if (rasterDataNode instanceof TiePointGrid) {
                 final TiePointGrid tiePointGrid = (TiePointGrid) rasterDataNode;
-                levelZeroImage = new MultiResolutionImageImpl(new LevelImageFactory() {
+                levelZeroImage = new MultiLevelImageImpl(new LevelImageFactory() {
                     @Override
                     public RenderedImage createLRImage(int level) {
                         return new TiePointGridOpImage(tiePointGrid, level);
                     }});
             } else if (rasterDataNode instanceof VirtualBand) {
                 final VirtualBand virtualBand = (VirtualBand) rasterDataNode;
-                levelZeroImage = new MultiResolutionImageImpl(new LevelImageFactory() {
+                levelZeroImage = new MultiLevelImageImpl(new LevelImageFactory() {
                     @Override
                     public RenderedImage createLRImage(int level) {
                         return new VirtualBandOpImage(new Product[]{virtualBand.getProduct()}, virtualBand.getExpression(), virtualBand.getDataType(), level);
                     }});
             } else if (rasterDataNode instanceof AbstractBand) {
                 final AbstractBand band = (AbstractBand) rasterDataNode;
-                levelZeroImage = new MultiResolutionImageImpl(new LevelImageFactory() {
+                levelZeroImage = new MultiLevelImageImpl(new LevelImageFactory() {
                     @Override
                     public RenderedImage createLRImage(int level) {
                         return new BandOpImage(band, level);
@@ -366,7 +366,7 @@ return image; // TODO!!!!
         synchronized (maskImageMap) {
             MultiLevelImage mrImage = maskImageMap.get(key);
             if (mrImage == null) {
-                mrImage = new MultiResolutionImageImpl(new LevelImageFactory() {
+                mrImage = new MultiLevelImageImpl(new LevelImageFactory() {
                     @Override
                     public RenderedImage createLRImage(int level) {
                         return MaskOpImage.create(product, expression, level);
@@ -385,7 +385,7 @@ return image; // TODO!!!!
         }
         RenderedImage levelZeroImage = rasterDataNode.getValidMaskImage();
         if (levelZeroImage == null) {
-            levelZeroImage = new MultiResolutionImageImpl(new LevelImageFactory() {
+            levelZeroImage = new MultiLevelImageImpl(new LevelImageFactory() {
                 @Override
                 public RenderedImage createLRImage(int level) {
                     return MaskOpImage.create(rasterDataNode, level);
@@ -661,7 +661,7 @@ return image; // TODO!!!!
             synchronized (maskImageMap) {
                 placemarkMaskMRImage = maskImageMap.get(key);
                 if (placemarkMaskMRImage == null) {
-                    placemarkMaskMRImage = new MultiResolutionImageImpl(new LevelImageFactory() {
+                    placemarkMaskMRImage = new MultiLevelImageImpl(new LevelImageFactory() {
                         @Override
                         public RenderedImage createLRImage(int level) {
                             return new PlacemarkMaskOpImage(rasterDataNode.getProduct(), PinDescriptor.INSTANCE, 3,
@@ -684,7 +684,7 @@ return image; // TODO!!!!
                 shapeMaskMRImage = maskImageMap.get(key);
                 if (shapeMaskMRImage == null) {
                     final Shape roiShape = roiShapeFigure.getShape();
-                    shapeMaskMRImage = new MultiResolutionImageImpl(new LevelImageFactory() {
+                    shapeMaskMRImage = new MultiLevelImageImpl(new LevelImageFactory() {
                         @Override
                         public RenderedImage createLRImage(int level) {
                             return new ShapeMaskOpImage(roiShape,
