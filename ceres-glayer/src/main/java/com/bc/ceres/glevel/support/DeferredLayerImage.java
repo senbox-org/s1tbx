@@ -24,7 +24,7 @@ public class DeferredLayerImage extends AbstractLayerImage {
         checkLevel(level);
         synchronized (this) {
             if (mrImage == null) {
-                mrImage = new MultiResolutionImageImpl(levelImageFactory);
+                mrImage = new MultiLevelImageImpl(levelImageFactory);
             }
             return mrImage.getLevelImage(level);
         }

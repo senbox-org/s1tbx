@@ -21,7 +21,7 @@ public class DefaultLayerImage extends AbstractLayerImage {
             Interpolation interpolation) {
         super(imageToModelTransform, levelCount);
         setModelBounds(getModelBounds(imageToModelTransform, levelZeroImage));
-        this.levelZeroImage = new MultiResolutionImageImpl(new LevelImageFactoryImpl(levelZeroImage, interpolation));
+        this.levelZeroImage = new MultiLevelImageImpl(new LevelImageFactoryImpl(levelZeroImage, interpolation));
     }
 
     public RenderedImage getLRImage(int level) {

@@ -15,7 +15,7 @@ public class MRImageImplTest extends TestCase {
     public void testIt() {
         final PlanarImage src = createSourceImage(16, 16);
 
-        MultiResolutionImageImpl mri = new MultiResolutionImageImpl(new MyLevelImageFactory(src));
+        MultiLevelImageImpl mri = new MultiLevelImageImpl(new MyLevelImageFactory(src));
 
         final RenderedImage l0 = mri.getLevelImage(0);
         assertSame(l0, mri.getLevelImage(0));

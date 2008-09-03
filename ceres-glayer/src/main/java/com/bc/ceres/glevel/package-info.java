@@ -8,7 +8,7 @@ package com.bc.ceres.glevel;
  *   <li>A multi-resolution image ({@link MultiLevelImage}) shall manage its lower-resolution instances such that
  *       the same lower-resolution image instance is returned for the same level.
  *   </li>
- *   <li>It should be possible to add the multi-resolution capability to any existing {@code RenderedImage} (see {@link MultiResolutionImageImpl}).
+ *   <li>It should be possible to add the multi-resolution capability to any existing {@code RenderedImage} (see {@link MultiLevelImageImpl}).
  *   </li>
  *   <li>Classes implementing the multi-resolution capability may use any JAI {@code OpImage} DAG to produce its tiles.
  *        It should be easy to implement the multi-resolution capability (see {@link MultiLevelImageSupport}). Tile computation

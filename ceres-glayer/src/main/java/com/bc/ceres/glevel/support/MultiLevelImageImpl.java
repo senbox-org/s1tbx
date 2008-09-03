@@ -12,15 +12,15 @@ import java.awt.image.RenderedImage;
  * @author Norman Fomferra
  * @version $revision$ $date$
  */
-public class MultiResolutionImageImpl extends RenderedImageAdapter implements MultiLevelImage {
+public class MultiLevelImageImpl extends RenderedImageAdapter implements MultiLevelImage {
 
     private final MultiLevelImageSupport multiLevelImageSupport;
 
-    public MultiResolutionImageImpl(LevelImageFactory levelImageFactory) {
+    public MultiLevelImageImpl(LevelImageFactory levelImageFactory) {
         this(levelImageFactory.createLRImage(0), levelImageFactory);
     }
 
-    public MultiResolutionImageImpl(RenderedImage frImage, LevelImageFactory levelImageFactory) {
+    public MultiLevelImageImpl(RenderedImage frImage, LevelImageFactory levelImageFactory) {
         super(frImage);
         multiLevelImageSupport = new MultiLevelImageSupport(frImage, levelImageFactory);
     }
