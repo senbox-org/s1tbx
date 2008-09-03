@@ -1,7 +1,7 @@
 package com.bc.ceres.glevel.support;
 
 import com.bc.ceres.glevel.LRImageFactory;
-import com.bc.ceres.glevel.LevelImage;
+import com.bc.ceres.glevel.LayerImage;
 
 import javax.media.jai.operator.FileLoadDescriptor;
 import java.awt.geom.AffineTransform;
@@ -11,12 +11,12 @@ import java.io.File;
 
 public class FileMultiLevelImage {
 
-    public static LevelImage create(File location, String extension, AffineTransform imageToModelTransform, int levelCount) {
-        DeferredMultiLevelImage deferredMultiLevelImage = new DeferredMultiLevelImage(
+    public static LayerImage create(File location, String extension, AffineTransform imageToModelTransform, int levelCount) {
+        DeferredLayerImage deferredLayerImage = new DeferredLayerImage(
                 imageToModelTransform, levelCount, new Factory(location, location.getName(), extension));
-        Rectangle2D modelBounds2 = AbstractMultiLevelImage.getModelBounds(imageToModelTransform, deferredMultiLevelImage.getLRImage(0));
-        deferredMultiLevelImage.setModelBounds(modelBounds2);
-        return deferredMultiLevelImage;
+        Rectangle2D modelBounds2 = AbstractLayerImage.getModelBounds(imageToModelTransform, deferredLayerImage.getLRImage(0));
+        deferredLayerImage.setModelBounds(modelBounds2);
+        return deferredLayerImage;
     }
 
     private static class Factory implements LRImageFactory {

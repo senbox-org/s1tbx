@@ -1,6 +1,6 @@
 package com.bc.ceres.glevel.support;
 
-import com.bc.ceres.glevel.LevelImage;
+import com.bc.ceres.glevel.LayerImage;
 
 import javax.media.jai.PlanarImage;
 import java.awt.image.BufferedImage;
@@ -15,13 +15,13 @@ import java.awt.Rectangle;
 * @author Ralf Quast
 * @version $revision$ $date$
 */
-public class NullLevelImage implements LevelImage {
+public class NullLayerImage implements LayerImage {
 
-    public static final NullLevelImage INSTANCE = new NullLevelImage();
+    public static final NullLayerImage INSTANCE = new NullLayerImage();
 
     private final static PlanarImage IMAGE = PlanarImage.wrapRenderedImage(new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB));
 
-    private NullLevelImage() {
+    private NullLayerImage() {
     }
 
     @Override

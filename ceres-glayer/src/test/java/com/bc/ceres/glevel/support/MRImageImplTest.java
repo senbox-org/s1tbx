@@ -15,23 +15,23 @@ public class MRImageImplTest extends TestCase {
     public void testIt() {
         final PlanarImage src = createSourceImage(16, 16);
 
-        MRImageImpl mri = new MRImageImpl(new MyLevelImageFactory(src));
+        MultiResolutionImageImpl mri = new MultiResolutionImageImpl(new MyLevelImageFactory(src));
 
-        final RenderedImage l0 = mri.getLRImage(0);
-        assertSame(l0, mri.getLRImage(0));
+        final RenderedImage l0 = mri.getLevelImage(0);
+        assertSame(l0, mri.getLevelImage(0));
         assertSame(l0, mri.getWrappedImage());
         assertEquals(DataBuffer.TYPE_DOUBLE, l0.getSampleModel().getDataType());
         assertEquals(16, l0.getWidth());
         assertEquals(16, l0.getHeight());
 
-        final RenderedImage l1 = mri.getLRImage(1);
-        assertSame(l1, mri.getLRImage(1));
+        final RenderedImage l1 = mri.getLevelImage(1);
+        assertSame(l1, mri.getLevelImage(1));
         assertEquals(DataBuffer.TYPE_DOUBLE, l1.getSampleModel().getDataType());
         assertEquals(8, l1.getWidth());
         assertEquals(8, l1.getHeight());
 
-        final RenderedImage l2 = mri.getLRImage(2);
-        assertSame(l2, mri.getLRImage(2));
+        final RenderedImage l2 = mri.getLevelImage(2);
+        assertSame(l2, mri.getLevelImage(2));
         assertEquals(DataBuffer.TYPE_DOUBLE, l2.getSampleModel().getDataType());
         assertEquals(4, l2.getWidth());
         assertEquals(4, l2.getHeight());

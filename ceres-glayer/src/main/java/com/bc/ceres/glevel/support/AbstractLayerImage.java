@@ -1,6 +1,6 @@
 package com.bc.ceres.glevel.support;
 
-import com.bc.ceres.glevel.LevelImage;
+import com.bc.ceres.glevel.LayerImage;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
@@ -8,14 +8,14 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.awt.Rectangle;
 
-public abstract class AbstractMultiLevelImage implements LevelImage {
+public abstract class AbstractLayerImage implements LayerImage {
 
     private final int levelCount;
     private final AffineTransform[] imageToModelTransforms;
     private final AffineTransform[] modelToImageTransforms;
     private Rectangle2D modelBounds;
 
-    public AbstractMultiLevelImage(AffineTransform imageToModelTransform, int levelCount) {
+    public AbstractLayerImage(AffineTransform imageToModelTransform, int levelCount) {
         final AffineTransform modelToImageTransform;
         try {
             modelToImageTransform = imageToModelTransform.createInverse();

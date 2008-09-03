@@ -4,14 +4,14 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 
 import com.bc.ceres.glevel.LRImageFactory;
-import com.bc.ceres.glevel.MRImage;
+import com.bc.ceres.glevel.MultiLevelImage;
 
-public class DeferredMultiLevelImage extends AbstractMultiLevelImage {
+public class DeferredLayerImage extends AbstractLayerImage {
 
     private final LRImageFactory lrImageFactory;
-    private MRImage mrImage;
+    private MultiLevelImage mrImage;
 
-    public DeferredMultiLevelImage(AffineTransform imageToModelTransform, int levelCount, LRImageFactory lrImageFactory) {
+    public DeferredLayerImage(AffineTransform imageToModelTransform, int levelCount, LRImageFactory lrImageFactory) {
         super(imageToModelTransform, levelCount);
         this.lrImageFactory = lrImageFactory;
     }
@@ -24,9 +24,9 @@ public class DeferredMultiLevelImage extends AbstractMultiLevelImage {
         checkLevel(level);
         synchronized (this) {
             if (mrImage == null) {
-                mrImage = new MRImageImpl(lrImageFactory);
+                mrImage = new MultiResolutionImageImpl(lrImageFactory);
             }
-            return mrImage.getLRImage(level);
+            return mrImage.getLevelImage(level);
         }
     }
 

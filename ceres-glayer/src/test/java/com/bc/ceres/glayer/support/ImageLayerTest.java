@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import static com.bc.ceres.glayer.Assert2D.*;
 import com.bc.ceres.glayer.LayerTest;
-import com.bc.ceres.glevel.LevelImage;
-import com.bc.ceres.glevel.support.NullLevelImage;
+import com.bc.ceres.glevel.LayerImage;
+import com.bc.ceres.glevel.support.NullLayerImage;
 import com.bc.ceres.grender.Rendering;
 
 import javax.media.jai.TiledImage;
@@ -17,9 +17,9 @@ public class ImageLayerTest  {
 
     @Test
     public void testThatLayerOperattesWithNullImage() {
-        final ImageLayer layer = new ImageLayer(LevelImage.NULL);
+        final ImageLayer layer = new ImageLayer(LayerImage.NULL);
 
-        assertNotNull(layer.getLevelImage());
+        assertNotNull(layer.getLayerImage());
         assertNotNull(layer.getImage());
 
         assertNotNull(layer.getImageToModelTransform());

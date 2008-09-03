@@ -2,8 +2,8 @@ package com.bc.ceres.glayer.support;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glevel.LevelImage;
-import com.bc.ceres.glevel.LevelImageRenderer;
+import com.bc.ceres.glevel.LayerImage;
+import com.bc.ceres.glevel.LayerImageRenderer;
 import com.bc.ceres.glevel.support.*;
 import com.bc.ceres.grender.InteractiveRendering;
 import com.bc.ceres.grender.Rendering;
@@ -23,8 +23,8 @@ import javax.media.jai.Interpolation;
  */
 public class ImageLayer extends Layer {
 
-    private LevelImage levelImage;
-    private ConcurrentLevelImageRenderer concurrentRenderer;
+    private LayerImage layerImage;
+    private ConcurrentLayerImageRenderer concurrentRenderer;
     private boolean debug;
 
     /**
@@ -54,18 +54,18 @@ public class ImageLayer extends Layer {
      * @param levelCount            the number of resolution levels
      */
     public ImageLayer(RenderedImage image, AffineTransform imageToModelTransform, int levelCount) {
-        this(new DefaultMultiLevelImage(image, imageToModelTransform, levelCount,
+        this(new DefaultLayerImage(image, imageToModelTransform, levelCount,
                                         Interpolation.getInstance(Interpolation.INTERP_BICUBIC)));
     }
 
     /**
      * Constructs a multi-resolution-level image layer.
      *
-     * @param levelImage the multi-resolution-level image
+     * @param layerImage the multi-resolution-level image
      */
-    public ImageLayer(LevelImage levelImage) {
-        Assert.notNull(levelImage);
-        this.levelImage = levelImage;
+    public ImageLayer(LayerImage layerImage) {
+        Assert.notNull(layerImage);
+        this.layerImage = layerImage;
     }
 
     @Override
@@ -78,16 +78,16 @@ public class ImageLayer extends Layer {
         return getImage(0);
     }
 
-    public LevelImage getLevelImage() {
-        return levelImage;
+    public LayerImage getLayerImage() {
+        return layerImage;
     }
 
-    public void setLevelImage(LevelImage levelImage) {
-        Assert.notNull(levelImage);
-        if (levelImage != this.levelImage) {
-            final Rectangle2D region = this.levelImage.getModelBounds().createUnion(levelImage.getModelBounds());
+    public void setLayerImage(LayerImage layerImage) {
+        Assert.notNull(layerImage);
+        if (layerImage != this.layerImage) {
+            final Rectangle2D region = this.layerImage.getModelBounds().createUnion(layerImage.getModelBounds());
             clearCaches();
-            this.levelImage = levelImage;
+            this.layerImage = layerImage;
             concurrentRenderer = null;
             fireLayerDataChanged(region);
         }
@@ -102,15 +102,15 @@ public class ImageLayer extends Layer {
     }
 
     public RenderedImage getImage(int level) {
-        return levelImage.getLRImage(level);
+        return layerImage.getLRImage(level);
     }
 
     public AffineTransform getImageToModelTransform(int level) {
-        return levelImage.getImageToModelTransform(level);
+        return layerImage.getImageToModelTransform(level);
     }
 
     public AffineTransform getModelToImageTransform(int level) {
-        return levelImage.getModelToImageTransform(level);
+        return layerImage.getModelToImageTransform(level);
     }
 
     public boolean isDebug() {
@@ -123,41 +123,41 @@ public class ImageLayer extends Layer {
 
     @Override
     public Rectangle2D getBounds() {
-        return levelImage.getModelBounds();
+        return layerImage.getModelBounds();
     }
 
     @Override
     protected void renderLayer(Rendering rendering) {
-        if (levelImage == LevelImage.NULL) {
+        if (layerImage == LayerImage.NULL) {
             return;
         }
         final Viewport vp = rendering.getViewport();
         final double i2mScale = DefaultViewport.getScale(getImageToModelTransform());
         final double m2vScale = 1.0 / vp.getZoomFactor();
         final double scale = m2vScale / i2mScale;
-        final int currentLevel = levelImage.computeLevel(scale);
-        final LevelImageRenderer renderer = getRenderer(rendering);
-        renderer.renderImage(rendering, levelImage, currentLevel);
+        final int currentLevel = layerImage.computeLevel(scale);
+        final LayerImageRenderer renderer = getRenderer(rendering);
+        renderer.renderImage(rendering, layerImage, currentLevel);
     }
 
     @Override
     public void dispose() {
         resetRenderer();
-        if (levelImage != null) {
-            levelImage.reset();
-            levelImage = null;
+        if (layerImage != null) {
+            layerImage.reset();
+            layerImage = null;
         }
         super.dispose();
     }
 
-    private LevelImageRenderer getRenderer(Rendering rendering) {
+    private LayerImageRenderer getRenderer(Rendering rendering) {
         if (rendering instanceof InteractiveRendering) {
             if (concurrentRenderer == null) {
-                concurrentRenderer = new ConcurrentLevelImageRenderer();
+                concurrentRenderer = new ConcurrentLayerImageRenderer();
             }
             return concurrentRenderer;
         } else {
-            return new DefaultLevelImageRenderer();
+            return new DefaultLayerImageRenderer();
         }
     }
 
@@ -169,7 +169,7 @@ public class ImageLayer extends Layer {
 
     private void clearCaches() {
         resetRenderer();
-        levelImage.reset();
+        layerImage.reset();
     }
 
 }
