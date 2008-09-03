@@ -96,33 +96,46 @@ public class ImageManager {
         return Math.pow(2, -level);
     }
 
+    // todo (mp,se: 2008/09/03)- is this a good place for this method? ; see also getProductDataType
     public static int getDataBufferType(int productDataType) {
-        int dataBufferType;
         switch (productDataType) {
             case ProductData.TYPE_INT8:
             case ProductData.TYPE_UINT8:
-                dataBufferType = DataBuffer.TYPE_BYTE;
-                break;
+                return DataBuffer.TYPE_BYTE;
             case ProductData.TYPE_INT16:
-                dataBufferType = DataBuffer.TYPE_SHORT;
-                break;
+                return DataBuffer.TYPE_SHORT;
             case ProductData.TYPE_UINT16:
-                dataBufferType = DataBuffer.TYPE_USHORT;
-                break;
+                return DataBuffer.TYPE_USHORT;
             case ProductData.TYPE_INT32:
             case ProductData.TYPE_UINT32:
-                dataBufferType = DataBuffer.TYPE_INT;
-                break;
+                return DataBuffer.TYPE_INT;
             case ProductData.TYPE_FLOAT32:
-                dataBufferType = DataBuffer.TYPE_FLOAT;
-                break;
+                return DataBuffer.TYPE_FLOAT;
             case ProductData.TYPE_FLOAT64:
-                dataBufferType = DataBuffer.TYPE_DOUBLE;
-                break;
+                return DataBuffer.TYPE_DOUBLE;
             default:
                 throw new IllegalArgumentException("productDataType");
         }
-        return dataBufferType;
+    }
+
+    // todo (mp,se: 2008/09/03)- is this a good place for this method? ; see also getDataBufferType
+    public static int getProductDataType(int dataBufferType) {
+        switch (dataBufferType) {
+            case DataBuffer.TYPE_BYTE:
+               return ProductData.TYPE_INT8;
+            case DataBuffer.TYPE_SHORT:
+                return ProductData.TYPE_INT16;
+            case DataBuffer.TYPE_USHORT:
+                return ProductData.TYPE_UINT16;
+            case DataBuffer.TYPE_INT:
+                return ProductData.TYPE_INT32;
+            case DataBuffer.TYPE_FLOAT:
+                return ProductData.TYPE_FLOAT32;
+            case DataBuffer.TYPE_DOUBLE:
+                return ProductData.TYPE_FLOAT64;
+            default:
+                throw new IllegalArgumentException("dataBufferType");
+        }
     }
 
     public static PlanarImage createGeophysicalSourceImage(RasterDataNode rdn) {
