@@ -1,12 +1,19 @@
 package org.esa.beam.jai;
 
-import com.bc.ceres.glevel.DownscalableImage;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.WritableRaster;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
-import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.*;
 
 /**
  * Creates a mask image for a given {@link org.esa.beam.framework.datamodel.RasterDataNode}.
@@ -16,29 +23,14 @@ import java.awt.image.*;
 public class ShapeMaskOpImage extends SingleBandedOpImage {
     private static final byte FALSE = (byte) 0;
     private static final byte TRUE = (byte) 255;
-    private Shape shape;
-    private ColorModel colorModel;
+    private final Shape shape;
+    private final ColorModel colorModel;
 
-    public ShapeMaskOpImage(Shape shape, int width, int height) {
-        super(DataBuffer.TYPE_BYTE, width, height, null, null);
-        init(shape);
-    }
-
-    private ShapeMaskOpImage(Shape shape, DownscalableImageSupport level0, int level) {
-        super(level0, level, null);
-        init(shape);
-    }
-
-    private void init(Shape shape) {
+    public ShapeMaskOpImage(Shape shape, int width, int height, int level) {
+        super(DataBuffer.TYPE_BYTE, width, height, null, null, level);
         this.shape = AffineTransform.getScaleInstance(getScale(), getScale()).createTransformedShape(shape);
         this.colorModel = PlanarImage.createColorModel(getSampleModel());
     }
-
-    @Override
-    public DownscalableImage createDownscalableImage(int level) {
-        return new ShapeMaskOpImage(shape, getDownscalableImageSupport().getLevel0(), level);
-    }
-
 
     @Override
     protected void computeRect(PlanarImage[] sourceImages, WritableRaster tile, Rectangle destRect) {

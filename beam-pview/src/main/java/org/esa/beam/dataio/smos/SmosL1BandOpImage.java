@@ -1,62 +1,42 @@
 package org.esa.beam.dataio.smos;
 
-import com.bc.ceres.glevel.DownscalableImage;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.glevel.TiledFileLevelImage;
-import org.esa.beam.jai.DownscalableImageSupport;
-import org.esa.beam.jai.ImageManager;
-import org.esa.beam.jai.SingleBandedOpImage;
-
-import javax.media.jai.PixelAccessor;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.UnpackedImageData;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 
+import javax.media.jai.PixelAccessor;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.UnpackedImageData;
+
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.jai.ImageManager;
+import org.esa.beam.jai.SingleBandedOpImage;
+
 public class SmosL1BandOpImage extends SingleBandedOpImage {
 
-    private SmosFile smosFile;
+    private final SmosFile smosFile;
     private Band smosBand;
-    private int btDataIndex;
-    private PlanarImage seqnumImage;
-    private TiledFileLevelImage dggridLevelImage;
+    private final int btDataIndex;
+    private final PlanarImage seqnumImage;
 
     public SmosL1BandOpImage(SmosFile smosFile,
                              Band smosBand,
                              int btDataIndex,
-                             TiledFileLevelImage dggridLevelImage) {
+                             RenderedImage seqnumImage,
+                             int level) {
         super(ImageManager.getDataBufferType(smosBand.getDataType()),
               smosBand.getSceneRasterWidth(),
               smosBand.getSceneRasterHeight(),
               smosBand.getProduct().getPreferredTileSize(),
-              null);
-        init(smosFile, smosBand, btDataIndex, dggridLevelImage, 0);
-    }
-
-    private SmosL1BandOpImage(SmosFile smosFile,
-                              Band smosBand,
-                              int btDataIndex,
-                              TiledFileLevelImage dggridLevelImage,
-                              DownscalableImageSupport level0,
-                              int level) {
-        super(level0, level, null);
-        init(smosFile, smosBand, btDataIndex, dggridLevelImage, level);
-    }
-
-    private void init(SmosFile smosFile, Band smosBand, int btDataIndex, TiledFileLevelImage dggridLevelImage, int level) {
+              null,
+              level);
         this.smosFile = smosFile;
         this.smosBand = smosBand;
         this.btDataIndex = btDataIndex;
-        this.dggridLevelImage = dggridLevelImage;
-        this.seqnumImage = PlanarImage.wrapRenderedImage(dggridLevelImage.getLRImage(level));
-    }
-
-    @Override
-    public DownscalableImage createDownscalableImage(int level) {
-        return new SmosL1BandOpImage(smosFile, smosBand, btDataIndex, dggridLevelImage, getDownscalableImageSupport().getLevel0(), level);
+        this.seqnumImage = PlanarImage.wrapRenderedImage(seqnumImage);
     }
 
     @Override

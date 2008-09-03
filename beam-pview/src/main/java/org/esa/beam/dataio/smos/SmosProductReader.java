@@ -16,22 +16,33 @@
  */
 package org.esa.beam.dataio.smos;
 
-import com.bc.ceres.binio.Format;
-import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.glevel.TiledFileLevelImage;
-import org.esa.beam.util.io.FileUtils;
-
-import javax.media.jai.JAI;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.media.jai.JAI;
+
+import org.esa.beam.framework.dataio.AbstractProductReader;
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.glevel.TiledFileLevelImage;
+import org.esa.beam.util.io.FileUtils;
+
+import com.bc.ceres.binio.Format;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glevel.LRImageFactory;
+import com.bc.ceres.glevel.LevelImage;
+import com.bc.ceres.glevel.MRImage;
+import com.bc.ceres.glevel.support.MRImageImpl;
 
 
 public class SmosProductReader extends AbstractProductReader {
@@ -57,7 +68,7 @@ public class SmosProductReader extends AbstractProductReader {
         bandDescrMap.put("BT_Value_Imag", new BandDescr("BT_Value_Imag", 2));
     }
 
-    private static TiledFileLevelImage dggridLevelImage;
+    private static LevelImage dggridLevelImage;
 
     SmosProductReader(final SmosProductReaderPlugIn productReaderPlugIn) {
         super(productReaderPlugIn);
@@ -128,13 +139,23 @@ public class SmosProductReader extends AbstractProductReader {
         return product;
     }
 
-    private RenderedImage createSourceImage(Band band) {
+    private RenderedImage createSourceImage(final Band band) {
         final int btDataIndex = bandDescrMap.get(band.getName()).btDataIndex;
-        return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridLevelImage);
+        MRImage image = new MRImageImpl(new LRImageFactory() {
+            @Override
+            public RenderedImage createLRImage(int level) {
+                return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridLevelImage.getLRImage(level), level);
+            }});
+        return image;
     }
 
-    private RenderedImage createValidMaksImage(Band band) {
-        return new SmosL1ValidImage(band);
+    private RenderedImage createValidMaksImage(final Band band) {
+        MRImage image = new MRImageImpl(new LRImageFactory() {
+            @Override
+            public RenderedImage createLRImage(int level) {
+                return new SmosL1ValidImage(band, level);
+            }});
+        return image;
     }
 
     private void applyBandProperties(Band band) {

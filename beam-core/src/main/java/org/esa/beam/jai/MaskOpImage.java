@@ -1,19 +1,20 @@
 package org.esa.beam.jai;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glevel.DownscalableImage;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Term;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-
-import javax.media.jai.PlanarImage;
-import javax.media.jai.RasterAccessor;
-import javax.media.jai.RasterFormatTag;
 import java.awt.Rectangle;
 import java.awt.image.DataBuffer;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
+
+import javax.media.jai.PlanarImage;
+import javax.media.jai.RasterAccessor;
+import javax.media.jai.RasterFormatTag;
+
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Term;
 
 /**
  * Creates a mask image for a given {@link org.esa.beam.framework.datamodel.RasterDataNode}.
@@ -23,44 +24,30 @@ import java.io.IOException;
 public class MaskOpImage extends SingleBandedOpImage {
     private static final byte FALSE = (byte) 0;
     private static final byte TRUE = (byte) 255;
-    private Product product;
-    private Term term;
+    private final Product product;
+    private final Term term;
 
-    public static MaskOpImage create(RasterDataNode rasterDataNode) {
-        return create(rasterDataNode.getProduct(), rasterDataNode.getValidMaskExpression());
+    public static MaskOpImage create(RasterDataNode rasterDataNode, int level) {
+        return create(rasterDataNode.getProduct(), rasterDataNode.getValidMaskExpression(), level);
     }
 
-    public static MaskOpImage create(Product product, String expression) {
+    public static MaskOpImage create(Product product, String expression, int level) {
         try {
-            return new MaskOpImage(product, product.createTerm(expression));
+            return new MaskOpImage(product, product.createTerm(expression), level);
         } catch (ParseException e) {
             throw new IllegalArgumentException("expression", e);
         }
     }
 
-    private MaskOpImage(Product product, Term term) {
+    private MaskOpImage(Product product, Term term, int level) {
         super(DataBuffer.TYPE_BYTE,
               product.getSceneRasterWidth(),
               product.getSceneRasterHeight(),
               product.getPreferredTileSize(),
-              null);
-        init(product, term);
-    }
-
-    private MaskOpImage(Product product, Term term,
-                        DownscalableImageSupport level0,
-                        int level) {
-        super(level0, level, null);
-        init(product, term);
-    }
-
-    private void init(Product product, Term term) {
+              null,
+              level);
         this.product = product;
         this.term = term;
-    }
-
-    public DownscalableImage createDownscalableImage(int level) {
-        return new MaskOpImage(product, term, getDownscalableImageSupport().getLevel0(), level);
     }
 
     @Override

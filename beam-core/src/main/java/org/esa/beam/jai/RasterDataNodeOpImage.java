@@ -17,19 +17,12 @@ import java.io.IOException;
 public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
     private RasterDataNode rasterDataNode;
 
-    protected RasterDataNodeOpImage(RasterDataNode rasterDataNode) {
+    protected RasterDataNodeOpImage(RasterDataNode rasterDataNode, int level) {
         super(ImageManager.getDataBufferType(rasterDataNode.getDataType()),
-              rasterDataNode.getSceneRasterWidth(),
-              rasterDataNode.getSceneRasterHeight(),
-              rasterDataNode.getProduct().getPreferredTileSize(),
-              null);
-        this.rasterDataNode = rasterDataNode;
-    }
-
-    protected RasterDataNodeOpImage(RasterDataNode rasterDataNode,
-                                    DownscalableImageSupport level0,
-                                    int level) {
-        super(level0, level, null);
+                rasterDataNode.getSceneRasterWidth(),
+                rasterDataNode.getSceneRasterHeight(),
+                rasterDataNode.getProduct().getPreferredTileSize(),
+                null, level);
         this.rasterDataNode = rasterDataNode;
     }
 

@@ -1,68 +1,58 @@
 package org.esa.beam.jai;
 
-import com.bc.ceres.glevel.DownscalableImage;
-
-import javax.media.jai.ImageLayout;
-import javax.media.jai.JAI;
-import javax.media.jai.SourcelessOpImage;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.util.Map;
 
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
+import javax.media.jai.SourcelessOpImage;
+
+import com.bc.ceres.glevel.LRImage;
+
 
 /**
  * A base class for single-band {@code OpImages} retrieving data at a given pyramid level.
  */
-public abstract class SingleBandedOpImage extends SourcelessOpImage implements DownscalableImage, DownscalableImageFactory {
-    private DownscalableImageSupport downscalableImageSupport;
-
+public abstract class SingleBandedOpImage extends SourcelessOpImage implements LRImage {
+    
+    private ScalableImageSupport scalableImageSupport;
+    private final int level;
+    
     /**
-     * Used to construct a level-0 image.
+     * Used to construct an image.
      *
      * @param dataBufferType The data type.
-     * @param width          The width of the level 0 image.
-     * @param height         The height of the level 0 image.
+     * @param sourceWidth    The width of the level 0 image.
+     * @param sourceHeight   The height of the level 0 image.
      * @param tileSize       The tile size for this image.
      * @param configuration  The configuration map (can be null).
+     * @param lrImageFactory 
      */
     protected SingleBandedOpImage(int dataBufferType,
-                                  int width,
-                                  int height,
+                                  int sourceWidth,
+                                  int sourceHeight,
                                   Dimension tileSize,
-                                  Map configuration) {
+                                  Map configuration, 
+                                  int level) {
         this(ImageManager.createSingleBandedImageLayout(dataBufferType,
-                                                        width,
-                                                        height,
+                                                        sourceWidth,
+                                                        sourceHeight,
                                                         tileSize,
-                                                        0),
-             configuration);
-        downscalableImageSupport = new DownscalableImageSupport.Level0(this, this);
-    }
-
-    /**
-     * Used to construct a level-N image.
-     *
-     * @param level0        The DownscalableImageSupport for Level 0.
-     * @param level         The level of this image.
-     * @param configuration The configuration map (can be null).
-     */
-    protected SingleBandedOpImage(DownscalableImageSupport level0,
-                                  int level,
-                                  Map configuration) {
-        this(ImageManager.createSingleBandedImageLayout(level0.getImage().getSampleModel().getDataType(),
-                                                        level0.getSourceWidth(),
-                                                        level0.getSourceHeight(),
-                                                        new Dimension(level0.getImage().getTileWidth(),
-                                                                      level0.getImage().getTileHeight()),
                                                         level),
-             configuration);
-        downscalableImageSupport = new DownscalableImageSupport.LevelN(level0, this, level);
+             sourceWidth,
+             sourceHeight,
+             configuration,
+             level);
     }
 
     private SingleBandedOpImage(ImageLayout layout,
-                                Map configuration) {
+                                int sourceWidth,
+                                int sourceHeight,
+                                Map configuration,
+                                int level) {
         super(layout,
               configuration,
               layout.getSampleModel(null),
@@ -70,36 +60,36 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage implements D
               layout.getMinY(null),
               layout.getWidth(null),
               layout.getHeight(null));
+        this.level = level;
         setTileCache(JAI.getDefaultInstance().getTileCache());
+        scalableImageSupport = new ScalableImageSupport(sourceWidth,
+                                                        sourceHeight,
+                                                        level);
     }
 
-    protected DownscalableImageSupport getDownscalableImageSupport() {
-        return downscalableImageSupport;
-    }
-
-    protected final int getLevel() {
-        return downscalableImageSupport.getLevel();
+    public final int getLevel() {
+        return level;
     }
 
     protected final double getScale() {
-        return downscalableImageSupport.getScale();
+        return scalableImageSupport.getScale();
     }
 
     protected int getSourceX(int tx) {
-        return downscalableImageSupport.getSourceX(tx);
+        return scalableImageSupport.getSourceX(tx);
     }
 
     protected int getSourceY(int ty) {
-        return downscalableImageSupport.getSourceY(ty);
+        return scalableImageSupport.getSourceY(ty);
     }
 
     // TODO - wrong impl, replace by getSourceRect(destRect)
     protected int getSourceWidth(int destWidth) {
-        return downscalableImageSupport.getSourceWidth(destWidth);
+        return scalableImageSupport.getSourceWidth(destWidth);
     }
 
     protected int getSourceCoord(double destCoord, int min, int max) {
-        return downscalableImageSupport.getSourceCoord(destCoord, min, max);
+        return scalableImageSupport.getSourceCoord(destCoord, min, max);
     }
 
     /**
@@ -112,13 +102,5 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage implements D
      */
     @Override
     protected final void computeRect(Raster[] sources, WritableRaster dest, Rectangle destRect) {
-    }
-
-    public DownscalableImage downscale(int level) {
-        return downscalableImageSupport.getDownscaledImage(level);
-    }
-
-    public synchronized void dispose() {
-        downscalableImageSupport.dispose();
     }
 }

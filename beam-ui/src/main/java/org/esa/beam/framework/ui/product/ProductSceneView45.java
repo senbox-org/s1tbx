@@ -25,6 +25,7 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
 
+import javax.media.jai.Interpolation;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.*;
@@ -236,7 +237,7 @@ public class ProductSceneView45 extends ProductSceneView {
         final String expression = getRaster().getValidMaskExpression();
         if (expression != null) {
             // todo - get color from style, set color
-            final LevelImage levelImage = new MaskMultiLevelImage(getRaster().getProduct(), Color.ORANGE, expression,
+            final LevelImage levelImage = MaskMultiLevelImage.create(getRaster().getProduct(), Color.ORANGE, expression,
                     true, new AffineTransform());
             getNoDataLayer().setLevelImage(levelImage);
         } else {
@@ -263,7 +264,7 @@ public class ProductSceneView45 extends ProductSceneView {
     public void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception {
         if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
             // todo - get color from style, set color
-            final LevelImage levelImage = new RoiMultiLevelImage(getRaster(), Color.RED, new AffineTransform());
+            final LevelImage levelImage = RoiMultiLevelImage.create(getRaster(), Color.RED, new AffineTransform());
             getRoiLayer().setLevelImage(levelImage);
         } else {
             getRoiLayer().setLevelImage(LevelImage.NULL);
@@ -287,7 +288,9 @@ public class ProductSceneView45 extends ProductSceneView {
     @Override
     public void setROIImage(RenderedImage roiImage) {
         // used by MagicStick only
-        getRoiLayer().setLevelImage(new DefaultMultiLevelImage(roiImage, new AffineTransform(), 0));
+        // TODO fix LevelImage creation: transformation ?, levelcount ?
+        getRoiLayer().setLevelImage(new DefaultMultiLevelImage(roiImage, new AffineTransform(), 0,
+                                    Interpolation.getInstance(Interpolation.INTERP_NEAREST)));
         fireImageUpdated();
     }
 

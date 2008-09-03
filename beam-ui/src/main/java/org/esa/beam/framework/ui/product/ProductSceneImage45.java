@@ -30,7 +30,7 @@ import java.io.IOException;
 class ProductSceneImage45 extends ProductSceneImage {
 
     private Layer rootLayer;
-    private BandMultiLevelImage levelImage;
+    private LevelImage levelImage;
 
     ProductSceneImage45(RasterDataNode raster, ProductSceneView45 view) throws IOException {
         super(raster.getDisplayName(), new RasterDataNode[]{raster}, view.getImageInfo());
@@ -40,14 +40,14 @@ class ProductSceneImage45 extends ProductSceneImage {
 
     ProductSceneImage45(RasterDataNode raster) throws IOException {
         super(raster.getDisplayName(), new RasterDataNode[]{raster}, raster.getImageInfo());
-        levelImage = new BandMultiLevelImage(raster, new AffineTransform());
+        levelImage = BandMultiLevelImage.create(raster, new AffineTransform());
         setImageInfo(raster.getImageInfo());
         initRootLayer();
     }
 
     ProductSceneImage45(RasterDataNode[] rasters) throws IOException {
         super("RGB", rasters, null);
-        levelImage = new BandMultiLevelImage(rasters, new AffineTransform());
+        levelImage = BandMultiLevelImage.create(rasters, new AffineTransform());
         setImageInfo(ProductUtils.createImageInfo(rasters, false, ProgressMonitor.NULL));
         initRootLayer();
     }
@@ -81,7 +81,7 @@ class ProductSceneImage45 extends ProductSceneImage {
 
         if (getRaster().getValidMaskExpression() != null) {
             // todo - get color from style, set color
-            levelImage = new MaskMultiLevelImage(getRaster().getProduct(), Color.ORANGE,
+            levelImage = MaskMultiLevelImage.create(getRaster().getProduct(), Color.ORANGE,
                     getRaster().getValidMaskExpression(), true, new AffineTransform());
         } else {
             levelImage = LevelImage.NULL;
@@ -107,7 +107,7 @@ class ProductSceneImage45 extends ProductSceneImage {
 
         if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
             // todo - get color from style, set color
-            levelImage = new RoiMultiLevelImage(getRaster(), Color.RED, new AffineTransform());
+            levelImage = RoiMultiLevelImage.create(getRaster(), Color.RED, new AffineTransform());
         } else {
             levelImage = LevelImage.NULL;
         }
@@ -153,7 +153,7 @@ class ProductSceneImage45 extends ProductSceneImage {
         for (BitmaskDef bitmaskDef : bitmaskDefs) {
             final Color color = bitmaskDef.getColor();
             final String expr = bitmaskDef.getExpr();
-            MaskMultiLevelImage maskImage = new MaskMultiLevelImage(getProduct(), color, expr, false, new AffineTransform());
+            LevelImage maskImage = MaskMultiLevelImage.create(getProduct(), color, expr, false, new AffineTransform());
             final ImageLayer maskImageLayer = new ImageLayer(maskImage);
             maskImageLayer.setName(bitmaskDef.getName());
             maskImageLayer.setVisible(false);
@@ -167,7 +167,7 @@ class ProductSceneImage45 extends ProductSceneImage {
         return rootLayer;
     }
 
-    public BandMultiLevelImage getLevelImage() {
+    private LevelImage getLevelImage() {
         return levelImage;
     }
 }

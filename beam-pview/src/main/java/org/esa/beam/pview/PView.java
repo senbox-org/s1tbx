@@ -1,24 +1,12 @@
 package org.esa.beam.pview;
 
-import com.bc.ceres.binio.Format;
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glayer.swing.LayerCanvas;
-import com.bc.ceres.grender.swing.ViewportScrollPane;
-import com.jidesoft.utils.Lm;
-import org.esa.beam.dataio.smos.SmosFormats;
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.draw.ShapeFigure;
-import org.esa.beam.glevel.RoiMultiLevelImage;
-import org.esa.beam.glevel.TiledFileLevelImage;
-import org.esa.beam.glevel.BandMultiLevelImage;
-import org.esa.beam.glevel.MaskMultiLevelImage;
-
-import javax.media.jai.JAI;
-import javax.media.jai.util.ImagingListener;
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Desktop;
+import java.awt.HeadlessException;
+import java.awt.Image;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -35,10 +23,48 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
+import javax.media.jai.JAI;
+import javax.media.jai.util.ImagingListener;
+import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+
+import org.esa.beam.dataio.smos.SmosFormats;
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.GcpDescriptor;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.PinSymbol;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ROIDefinition;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.draw.ShapeFigure;
+import org.esa.beam.glevel.BandMultiLevelImage;
+import org.esa.beam.glevel.MaskMultiLevelImage;
+import org.esa.beam.glevel.RoiMultiLevelImage;
+import org.esa.beam.glevel.TiledFileLevelImage;
+
+import com.bc.ceres.binio.Format;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glayer.swing.LayerCanvas;
+import com.bc.ceres.glevel.LevelImage;
+import com.bc.ceres.grender.swing.ViewportScrollPane;
+import com.jidesoft.utils.Lm;
+
 public class PView {
     private static final String APPNAME = "BEAM PView 1.1";
     private static final String WORLD_IMAGE_DIR_PROPERTY_NAME = "org.esa.beam.pview.worldImageDir";
-    private static final String SMOS_DGG_DIR_PROPERTY_NAME = "org.esa.beam.pview.smosDggDir";
     private static final String LAST_DATA_DIR_PREF_KEY = "lastDataDir";
     private static final String DEFAULT_DATA_DIR = "data/smos-samples";
     private static final String ERROR_LOG = "pview-error.log";
@@ -49,8 +75,7 @@ public class PView {
                                                                            new ImageIcon(PView.class.getResource("/images/pview-32x32.png")).getImage());
     private static Logger logger;
 
-    private TiledFileLevelImage dggridLevelImage;
-    private TiledFileLevelImage worldLevelImage;
+    private LevelImage worldLevelImage;
     private int frameLocation = 0;
     private ArrayList<JFrame> frames = new ArrayList<JFrame>();
 
@@ -304,7 +329,7 @@ public class PView {
             final Band band = product.getBand(name);
             if (band.getROIDefinition() != null && band.getROIDefinition().isUsable()) {
                 final Color color = Color.RED;
-                final ImageLayer imageLayer = new ImageLayer(new RoiMultiLevelImage(band, color, i2m));
+                final ImageLayer imageLayer = new ImageLayer(RoiMultiLevelImage.create(band, color, i2m));
                 imageLayer.setName("ROI of " + band.getName());
                 imageLayer.setVisible(false);
                 imageLayer.getStyle().setOpacity(0.5);
@@ -315,7 +340,7 @@ public class PView {
     }
 
     private static ImageLayer createRgbLayer(String name, RasterDataNode[] rasterDataNodes, AffineTransform i2m) {
-        ImageLayer imageLayer = new ImageLayer(new BandMultiLevelImage(rasterDataNodes, i2m));
+        ImageLayer imageLayer = new ImageLayer(BandMultiLevelImage.create(rasterDataNodes, i2m));
         imageLayer.setName(name);
         imageLayer.setVisible(false);
         return imageLayer;
@@ -328,7 +353,7 @@ public class PView {
         for (BitmaskDef bitmaskDef : bitmaskDefs) {
             final Color color = bitmaskDef.getColor();
             final String expression = bitmaskDef.getExpr();
-            final ImageLayer imageLayer = new ImageLayer(new MaskMultiLevelImage(product, color, expression, false, i2m));
+            final ImageLayer imageLayer = new ImageLayer(MaskMultiLevelImage.create(product, color, expression, false, i2m));
             imageLayer.setName(bitmaskDef.getName());
             imageLayer.setVisible(false);
             imageLayer.getStyle().setOpacity(bitmaskDef.getAlpha());
@@ -344,7 +369,7 @@ public class PView {
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
             final Band band = product.getBand(name);
-            final ImageLayer imageLayer = new ImageLayer(new BandMultiLevelImage(band, i2m));
+            final ImageLayer imageLayer = new ImageLayer(BandMultiLevelImage.create(band, i2m));
             imageLayer.setName(band.getName());
             imageLayer.setVisible(i == 0);
             collectionLayer.getChildLayerList().add(imageLayer);
@@ -374,7 +399,7 @@ public class PView {
             if (band.getValidMaskExpression() != null) {
                 final Color color = Color.ORANGE;
                 final String expression = band.getValidMaskExpression();
-                final ImageLayer imageLayer = new ImageLayer(new MaskMultiLevelImage(product, color, expression, true, i2m));
+                final ImageLayer imageLayer = new ImageLayer(MaskMultiLevelImage.create(product, color, expression, true, i2m));
                 imageLayer.setName("No-data mask of " + band.getName());
                 imageLayer.setVisible(false);
                 imageLayer.getStyle().setOpacity(0.5);
@@ -390,7 +415,7 @@ public class PView {
         final String[] names = product.getTiePointGridNames();
         for (final String name : names) {
             final TiePointGrid tiePointGrid = product.getTiePointGrid(name);
-            final ImageLayer imageLayer = new ImageLayer(new BandMultiLevelImage(tiePointGrid, i2m));
+            final ImageLayer imageLayer = new ImageLayer(BandMultiLevelImage.create(tiePointGrid, i2m));
             imageLayer.setName(tiePointGrid.getName());
             imageLayer.setVisible(false);
             collectionLayer.getChildLayerList().add(imageLayer);

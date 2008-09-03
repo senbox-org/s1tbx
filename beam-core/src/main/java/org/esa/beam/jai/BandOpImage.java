@@ -1,12 +1,12 @@
 package org.esa.beam.jai;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glevel.DownscalableImage;
+import java.awt.Rectangle;
+import java.io.IOException;
+
 import org.esa.beam.framework.datamodel.AbstractBand;
 import org.esa.beam.framework.datamodel.ProductData;
 
-import java.awt.Rectangle;
-import java.io.IOException;
+import com.bc.ceres.core.ProgressMonitor;
 
 
 /**
@@ -15,17 +15,8 @@ import java.io.IOException;
  */
 public class BandOpImage extends RasterDataNodeOpImage {
 
-    public BandOpImage(AbstractBand band) {
-        super(band);
-    }
-
-    private BandOpImage(AbstractBand band, DownscalableImageSupport level0, int level) {
-        super(band, level0, level);
-    }
-
-    @Override
-    public DownscalableImage createDownscalableImage(int level) {
-        return new BandOpImage(getBand(), getDownscalableImageSupport().getLevel0(), level);
+    public BandOpImage(AbstractBand band, int level) {
+        super(band, level);
     }
 
     public AbstractBand getBand() {

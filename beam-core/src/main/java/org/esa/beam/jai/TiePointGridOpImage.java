@@ -1,12 +1,12 @@
 package org.esa.beam.jai;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glevel.DownscalableImage;
+import java.awt.Rectangle;
+import java.io.IOException;
+
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 
-import java.awt.Rectangle;
-import java.io.IOException;
+import com.bc.ceres.core.ProgressMonitor;
 
 
 /**
@@ -15,17 +15,8 @@ import java.io.IOException;
  */
 public class TiePointGridOpImage extends RasterDataNodeOpImage {
 
-    public TiePointGridOpImage(TiePointGrid band) {
-        super(band);
-    }
-
-    private TiePointGridOpImage(TiePointGrid band, DownscalableImageSupport level0, int level) {
-        super(band, level0, level);
-    }
-
-    @Override
-    public DownscalableImage createDownscalableImage(int level) {
-        return new TiePointGridOpImage(getTiePointGrid(), getDownscalableImageSupport().getLevel0(), level);
+    public TiePointGridOpImage(TiePointGrid band, int level) {
+        super(band, level);
     }
 
     public TiePointGrid getTiePointGrid() {
