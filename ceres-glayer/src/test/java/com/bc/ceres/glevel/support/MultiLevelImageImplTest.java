@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 
-public class MRImageImplTest extends TestCase {
+public class MultiLevelImageImplTest extends TestCase {
 
     public void testIt() {
         final PlanarImage src = createSourceImage(16, 16);
