@@ -31,7 +31,7 @@ public class LevelImageFactoryImpl implements LevelImageFactory {
     }
 
     @Override
-    public final RenderedImage createLRImage(int level) {
+    public final RenderedImage createLevelImage(int level) {
         final RenderedImage lrSource;
         if (level > 0) {
             if (getFRSourceImage() instanceof MultiLevelImage) {

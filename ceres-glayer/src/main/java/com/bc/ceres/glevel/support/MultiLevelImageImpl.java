@@ -17,7 +17,7 @@ public class MultiLevelImageImpl extends RenderedImageAdapter implements MultiLe
     private final MultiLevelImageSupport multiLevelImageSupport;
 
     public MultiLevelImageImpl(LevelImageFactory levelImageFactory) {
-        this(levelImageFactory.createLRImage(0), levelImageFactory);
+        this(levelImageFactory.createLevelImage(0), levelImageFactory);
     }
 
     public MultiLevelImageImpl(RenderedImage frImage, LevelImageFactory levelImageFactory) {

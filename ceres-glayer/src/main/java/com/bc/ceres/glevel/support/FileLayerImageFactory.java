@@ -30,7 +30,7 @@ public class FileLayerImageFactory {
             this.extension = extension;
         }
 
-        public RenderedImage createLRImage(int level) {
+        public RenderedImage createLevelImage(int level) {
             final StringBuilder sb = new StringBuilder(basename);
             sb.append('.');
             sb.append(level);

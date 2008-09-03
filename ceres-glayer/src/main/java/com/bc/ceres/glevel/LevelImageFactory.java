@@ -9,5 +9,5 @@ import java.awt.image.RenderedImage;
  * @version $revision$ $date$
  */
 public interface LevelImageFactory {
-    RenderedImage createLRImage(int level);
+    RenderedImage createLevelImage(int level);
 }

@@ -39,7 +39,7 @@ public class MultiLevelImageSupport {
         synchronized (lrImages) {
             RenderedImage lrImage = lrImages.get(level);
             if (lrImage == null) {
-                lrImage = levelImageFactory.createLRImage(level);
+                lrImage = levelImageFactory.createLevelImage(level);
                 lrImages.put(level, lrImage);
             }
             return lrImage;
