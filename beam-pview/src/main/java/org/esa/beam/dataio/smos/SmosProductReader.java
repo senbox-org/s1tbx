@@ -143,7 +143,7 @@ public class SmosProductReader extends AbstractProductReader {
         final int btDataIndex = bandDescrMap.get(band.getName()).btDataIndex;
         MultiLevelImage image = new MultiLevelImageImpl(new LevelImageFactory() {
             @Override
-            public RenderedImage createLRImage(int level) {
+            public RenderedImage createLevelImage(int level) {
                 return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridLayerImage.getLevelImage(level), level);
             }});
         return image;
@@ -152,7 +152,7 @@ public class SmosProductReader extends AbstractProductReader {
     private RenderedImage createValidMaksImage(final Band band) {
         MultiLevelImage image = new MultiLevelImageImpl(new LevelImageFactory() {
             @Override
-            public RenderedImage createLRImage(int level) {
+            public RenderedImage createLevelImage(int level) {
                 return new SmosL1ValidImage(band, level);
             }});
         return image;

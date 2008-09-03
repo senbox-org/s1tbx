@@ -46,7 +46,7 @@ public class MaskLayerImageFactory {
         }
 
         @Override
-        public RenderedImage createLRImage(int level) {
+        public RenderedImage createLevelImage(int level) {
             return ImageManager.getInstance().createColoredMaskImage(product, expression, color, inverseMask, level);
         }
     }

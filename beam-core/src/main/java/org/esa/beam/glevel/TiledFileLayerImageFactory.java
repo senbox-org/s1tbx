@@ -48,7 +48,7 @@ public class TiledFileLayerImageFactory {
         }
 
     @Override
-        public RenderedImage createLRImage(int level) {
+        public RenderedImage createLevelImage(int level) {
             PlanarImage image;
             try {
                 image = TiledFileOpImage.create(new File(imageDir, level + ""),

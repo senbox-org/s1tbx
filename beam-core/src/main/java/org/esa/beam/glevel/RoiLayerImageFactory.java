@@ -37,7 +37,7 @@ public class RoiLayerImageFactory {
         }
 
         @Override
-        public RenderedImage createLRImage(int level) {
+        public RenderedImage createLevelImage(int level) {
             return ImageManager.getInstance().createColoredRoiImage(rasterDataNode, color, level);
         }
     }

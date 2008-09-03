@@ -48,7 +48,7 @@ public class BandLayerImageFactory {
         }
 
         @Override
-        public RenderedImage createLRImage(int level) {
+        public RenderedImage createLevelImage(int level) {
             return ImageManager.getInstance().createRgbImage(rasterDataNodes, level, levelCount);
         }
     }

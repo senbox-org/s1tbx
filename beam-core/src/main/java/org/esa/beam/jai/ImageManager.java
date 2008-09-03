@@ -304,21 +304,21 @@ public class ImageManager {
                 final TiePointGrid tiePointGrid = (TiePointGrid) rasterDataNode;
                 levelZeroImage = new MultiLevelImageImpl(new LevelImageFactory() {
                     @Override
-                    public RenderedImage createLRImage(int level) {
+                    public RenderedImage createLevelImage(int level) {
                         return new TiePointGridOpImage(tiePointGrid, level);
                     }});
             } else if (rasterDataNode instanceof VirtualBand) {
                 final VirtualBand virtualBand = (VirtualBand) rasterDataNode;
                 levelZeroImage = new MultiLevelImageImpl(new LevelImageFactory() {
                     @Override
-                    public RenderedImage createLRImage(int level) {
+                    public RenderedImage createLevelImage(int level) {
                         return new VirtualBandOpImage(new Product[]{virtualBand.getProduct()}, virtualBand.getExpression(), virtualBand.getDataType(), level);
                     }});
             } else if (rasterDataNode instanceof AbstractBand) {
                 final AbstractBand band = (AbstractBand) rasterDataNode;
                 levelZeroImage = new MultiLevelImageImpl(new LevelImageFactory() {
                     @Override
-                    public RenderedImage createLRImage(int level) {
+                    public RenderedImage createLevelImage(int level) {
                         return new BandOpImage(band, level);
                     }});
             } else {
@@ -368,7 +368,7 @@ return image; // TODO!!!!
             if (mrImage == null) {
                 mrImage = new MultiLevelImageImpl(new LevelImageFactory() {
                     @Override
-                    public RenderedImage createLRImage(int level) {
+                    public RenderedImage createLevelImage(int level) {
                         return MaskOpImage.create(product, expression, level);
                     }});
                 maskImageMap.put(key, mrImage);
@@ -387,7 +387,7 @@ return image; // TODO!!!!
         if (levelZeroImage == null) {
             levelZeroImage = new MultiLevelImageImpl(new LevelImageFactory() {
                 @Override
-                public RenderedImage createLRImage(int level) {
+                public RenderedImage createLevelImage(int level) {
                     return MaskOpImage.create(rasterDataNode, level);
                 }});
             rasterDataNode.setValidMaskImage(levelZeroImage);
@@ -663,7 +663,7 @@ return image; // TODO!!!!
                 if (placemarkMaskMRImage == null) {
                     placemarkMaskMRImage = new MultiLevelImageImpl(new LevelImageFactory() {
                         @Override
-                        public RenderedImage createLRImage(int level) {
+                        public RenderedImage createLevelImage(int level) {
                             return new PlacemarkMaskOpImage(rasterDataNode.getProduct(), PinDescriptor.INSTANCE, 3,
                                     rasterDataNode.getSceneRasterWidth(),
                                     rasterDataNode.getSceneRasterHeight(), level);
@@ -686,7 +686,7 @@ return image; // TODO!!!!
                     final Shape roiShape = roiShapeFigure.getShape();
                     shapeMaskMRImage = new MultiLevelImageImpl(new LevelImageFactory() {
                         @Override
-                        public RenderedImage createLRImage(int level) {
+                        public RenderedImage createLevelImage(int level) {
                             return new ShapeMaskOpImage(roiShape,
                                     rasterDataNode.getSceneRasterWidth(),
                                     rasterDataNode.getSceneRasterHeight(),
