@@ -27,7 +27,7 @@ public class MultiLevelImageImpl extends RenderedImageAdapter implements MultiLe
 
     @Override
     public RenderedImage getLevelImage(int level) {
-        return multiLevelImageSupport.getLRImage(level);
+        return multiLevelImageSupport.getLevelImage(level);
     }
 
     @Override

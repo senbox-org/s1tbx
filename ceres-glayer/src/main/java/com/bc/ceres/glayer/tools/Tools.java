@@ -4,7 +4,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glevel.LayerImage;
-import com.bc.ceres.glevel.support.FileMultiLevelImage;
+import com.bc.ceres.glevel.support.FileLayerImageFactory;
 import com.sun.media.jai.codec.TIFFEncodeParam;
 
 import javax.media.jai.*;
@@ -113,7 +113,7 @@ public class Tools {
         final LayerCanvas layerCanvas = new LayerCanvas();
         layerCanvas.installMouseHandler();
         final Layer collectionLayer = layerCanvas.getLayer();
-        final LayerImage layerImage = FileMultiLevelImage.create(location, extension, imageToModelTransform, levelCount);
+        final LayerImage layerImage = FileLayerImageFactory.create(location, extension, imageToModelTransform, levelCount);
         final ImageLayer layer = new ImageLayer(layerImage);
         collectionLayer.getChildLayerList().add(layer);
         final Rectangle viewportBounds = new Rectangle(0, 0, 640, 480);

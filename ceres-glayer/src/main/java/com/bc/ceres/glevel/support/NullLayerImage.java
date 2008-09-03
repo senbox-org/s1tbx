@@ -39,7 +39,7 @@ public class NullLayerImage implements LayerImage {
         return 1;
     }
     @Override
-    public RenderedImage getLRImage(int level) {
+    public RenderedImage getLevelImage(int level) {
         return IMAGE;
     }
 

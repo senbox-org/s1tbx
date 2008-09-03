@@ -44,14 +44,14 @@ public interface LayerImage {
      * @return the image for the given level.
      * @see #reset()
      */
-    RenderedImage getLRImage(int level);
+    RenderedImage getLevelImage(int level);
 
     /**
      * States an attempt to regenerate images at all levels and remove all cached tiles.
-     * After calling this method, {@link #getLRImage(int)} should return a newly created image the first
+     * After calling this method, {@link #getLevelImage(int)} should return a newly created image the first
      * time it is called.
      * <p/>
-     * This method is particularily useful if properties have changed that affect the appearance of the
+     * This method is particularly useful if properties have changed that affect the appearance of the
      * returned images at all levels, e.g. after a new color palette has been assigned or the
      * contrast range has changed.
      */

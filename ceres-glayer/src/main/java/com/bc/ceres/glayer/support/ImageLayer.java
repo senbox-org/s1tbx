@@ -102,7 +102,7 @@ public class ImageLayer extends Layer {
     }
 
     public RenderedImage getImage(int level) {
-        return layerImage.getLRImage(level);
+        return layerImage.getLevelImage(level);
     }
 
     public AffineTransform getImageToModelTransform(int level) {

@@ -10,6 +10,7 @@ public class DefaultLayerImage extends AbstractLayerImage {
 
     private final MultiLevelImage levelZeroImage;
 
+    // no usage yet. But this will come....
     public DefaultLayerImage(MultiLevelImage mrImage, AffineTransform imageToModelTransform, int levelCount) {
         super(imageToModelTransform, levelCount);
         setModelBounds(getModelBounds(imageToModelTransform, mrImage));
@@ -24,7 +25,7 @@ public class DefaultLayerImage extends AbstractLayerImage {
         this.levelZeroImage = new MultiLevelImageImpl(new LevelImageFactoryImpl(levelZeroImage, interpolation));
     }
 
-    public RenderedImage getLRImage(int level) {
+    public RenderedImage getLevelImage(int level) {
         return levelZeroImage.getLevelImage(level);
     }
 

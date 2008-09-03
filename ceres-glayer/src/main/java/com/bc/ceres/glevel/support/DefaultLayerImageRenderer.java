@@ -16,7 +16,7 @@ public class DefaultLayerImageRenderer implements LayerImageRenderer {
         final AffineTransform i2m = layerImage.getImageToModelTransform(level);
         final AffineTransform m2v = rendering.getViewport().getModelToViewTransform();
         i2m.preConcatenate(m2v);
-        rendering.getGraphics().drawRenderedImage(layerImage.getLRImage(level), i2m);
+        rendering.getGraphics().drawRenderedImage(layerImage.getLevelImage(level), i2m);
     }
 
     @Override

@@ -32,7 +32,7 @@ public class MultiLevelImageSupport {
         return levelImageFactory;
     }
 
-    public RenderedImage getLRImage(int level) {
+    public RenderedImage getLevelImage(int level) {
         if (level <= 0) {
             return frImage;
         }

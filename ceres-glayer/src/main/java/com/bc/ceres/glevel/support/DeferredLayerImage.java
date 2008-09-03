@@ -20,7 +20,7 @@ public class DeferredLayerImage extends AbstractLayerImage {
         return levelImageFactory;
     }
 
-    public RenderedImage getLRImage(int level) {
+    public RenderedImage getLevelImage(int level) {
         checkLevel(level);
         synchronized (this) {
             if (mrImage == null) {

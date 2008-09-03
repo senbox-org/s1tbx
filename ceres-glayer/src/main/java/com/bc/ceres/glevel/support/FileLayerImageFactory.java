@@ -9,12 +9,12 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.io.File;
 
-public class FileMultiLevelImage {
+public class FileLayerImageFactory {
 
     public static LayerImage create(File location, String extension, AffineTransform imageToModelTransform, int levelCount) {
         DeferredLayerImage deferredLayerImage = new DeferredLayerImage(
                 imageToModelTransform, levelCount, new Factory(location, location.getName(), extension));
-        Rectangle2D modelBounds2 = AbstractLayerImage.getModelBounds(imageToModelTransform, deferredLayerImage.getLRImage(0));
+        Rectangle2D modelBounds2 = AbstractLayerImage.getModelBounds(imageToModelTransform, deferredLayerImage.getLevelImage(0));
         deferredLayerImage.setModelBounds(modelBounds2);
         return deferredLayerImage;
     }
