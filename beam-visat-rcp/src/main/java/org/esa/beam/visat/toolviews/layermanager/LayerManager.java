@@ -21,21 +21,19 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
-import java.util.List;
 
 class LayerManager {
 
-    private JSlider transparencySlider;
-    private JComboBox alphaCompositeBox;
-    private boolean adjusting;
-    private JPanel control;
-    private CheckBoxTree layerTree;
     private final Layer rootLayer;
+    private final CheckBoxTree layerTree;
+    private final JSlider transparencySlider;
+    private final JComboBox alphaCompositeBox;
+    private final JPanel control;
 
-    public LayerManager(Layer rootLayer) {
+    private boolean adjusting;
+
+    public LayerManager(final Layer rootLayer) {
         this.rootLayer = rootLayer;
         layerTree = createCheckBoxTree(rootLayer);
         initSelection(rootLayer);
@@ -43,7 +41,7 @@ class LayerManager {
         transparencySlider = new JSlider(0, 100, 0);
         alphaCompositeBox = new JComboBox(Composite.values());
 
-        JPanel sliderPanel = new JPanel(new BorderLayout(4, 4));
+        final JPanel sliderPanel = new JPanel(new BorderLayout(4, 4));
         sliderPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
         sliderPanel.add(new JLabel("Transparency:"), BorderLayout.WEST);
         sliderPanel.add(transparencySlider, BorderLayout.CENTER);
@@ -79,17 +77,13 @@ class LayerManager {
             }
         });
 
-        rootLayer.addListener(new AbstractLayerListener() {
-
-        });
-
         rootLayer.addListener(new LayerStyleListener() {
             @Override
             public void handleLayerStylePropertyChanged(Layer layer, PropertyChangeEvent event) {
                 if (!adjusting) {
-                    TreePath path = layerTree.getSelectionPath();
-                    if (path != null) {
-                        Layer selectedLayer = getLayer(path);
+                    final TreePath selectionPath = layerTree.getSelectionPath();
+                    if (selectionPath != null) {
+                        final Layer selectedLayer = getLayer(selectionPath);
                         if (selectedLayer == layer) {
                             updateLayerStyleUI(layer);
                         }
@@ -104,8 +98,11 @@ class LayerManager {
                 if (event.getPropertyName().equals("visible")) {
                     final Boolean oldValue = (Boolean) event.getOldValue();
                     final Boolean newValue = (Boolean) event.getNewValue();
-                    if (!adjusting && !oldValue.equals(newValue)) {
-                        final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) TreeUtils.findTreeNode(layerTree, layer);
+
+                    if (!oldValue.equals(newValue) && !adjusting) {
+                        final DefaultMutableTreeNode treeNode =
+                                (DefaultMutableTreeNode) TreeUtils.findTreeNode(layerTree, layer);
+
                         doSelection(treeNode, newValue);
                     }
                 }
@@ -118,27 +115,29 @@ class LayerManager {
     }
 
     private void doSelection(DefaultMutableTreeNode treeNode, boolean selected) {
-        final CheckBoxTreeSelectionModel treeSelectionModel = layerTree.getCheckBoxTreeSelectionModel();
-        final TreePath path = new TreePath(treeNode.getPath());
-        final DefaultMutableTreeNode parent = (DefaultMutableTreeNode) treeNode.getParent();
+        final CheckBoxTreeSelectionModel checkBoxTreeSelectionModel = layerTree.getCheckBoxTreeSelectionModel();
+        final TreePath treeNodePath = new TreePath(treeNode.getPath());
+        final DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) treeNode.getParent();
+
         if (selected) {
-            treeSelectionModel.addSelectionPath(path);
-            if (parent != null) {
-                doSelection(parent, selected);
+            checkBoxTreeSelectionModel.addSelectionPath(treeNodePath);
+            if (parentNode != null) {
+                doSelection(parentNode, true);
             }
         } else {
-            treeSelectionModel.removeSelectionPath(path);
-            if (parent != null) {
-                boolean oneSelected = false;
-                for (int i = 0; i < parent.getChildCount(); i++) {
-                    final DefaultMutableTreeNode child = (DefaultMutableTreeNode) parent.getChildAt(i);
-                    if (treeSelectionModel.isPathSelected(new TreePath(child.getPath()))) {
-                        oneSelected = true;
+            checkBoxTreeSelectionModel.removeSelectionPath(treeNodePath);
+            if (parentNode != null) {
+                boolean noChildNodeSelected = true;
+
+                for (int i = 0; i < parentNode.getChildCount(); i++) {
+                    final DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) parentNode.getChildAt(i);
+                    if (checkBoxTreeSelectionModel.isPathSelected(new TreePath(childNode.getPath()))) {
+                        noChildNodeSelected = false;
                         break;
                     }
                 }
-                if (!oneSelected) {
-                    doSelection(parent, selected);
+                if (noChildNodeSelected) {
+                    doSelection(parentNode, false);
                 }
             }
         }
@@ -168,42 +167,20 @@ class LayerManager {
         return control;
     }
 
-    public static void showLayerManager(final JFrame frame, String title, Layer collectionLayer, Point point) {
-        final LayerManager layerManager = new LayerManager(collectionLayer);
-        final JDialog lm = new JDialog(frame, title, false);
-        lm.getContentPane().add(layerManager.getControl(), BorderLayout.CENTER);
-        lm.pack();
-        lm.setLocation(point);
-        lm.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        lm.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                lm.dispose();
-                if (frame != null) {
-                    frame.dispose();
-                }
-            }
-        });
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                lm.setVisible(true);
-            }
-        });
-    }
-
-
     private CheckBoxTree createCheckBoxTree(Layer rootLayer) {
-        LayerTreeModel layerTreeModel = new LayerTreeModel(rootLayer);
-        final CheckBoxTree tree = new CheckBoxTree(layerTreeModel);
-        tree.setRootVisible(false);
-        tree.setShowsRootHandles(true);
-        tree.setDigIn(false);
-        tree.setDragEnabled(true);
-        tree.setDropMode(DropMode.ON_OR_INSERT);
+        final LayerTreeModel layerTreeModel = new LayerTreeModel(rootLayer);
+
+        final CheckBoxTree checkBoxTree = new CheckBoxTree(layerTreeModel);
+        checkBoxTree.setRootVisible(false);
+        checkBoxTree.setShowsRootHandles(true);
+        checkBoxTree.setDigIn(false);
+        checkBoxTree.setDragEnabled(true);
+        checkBoxTree.setDropMode(DropMode.ON_OR_INSERT);
+
         final NodeMoveTransferHandler transferHandler = new NodeMoveTransferHandler();
-        tree.setTransferHandler(transferHandler);
-        tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
+        checkBoxTree.setTransferHandler(transferHandler);
+
+        checkBoxTree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent event) {
                 Layer layer = getLayer(event.getPath());
@@ -211,7 +188,7 @@ class LayerManager {
             }
         });
 
-        final CheckBoxTreeSelectionModel selectionModel = tree.getCheckBoxTreeSelectionModel();
+        final CheckBoxTreeSelectionModel selectionModel = checkBoxTree.getCheckBoxTreeSelectionModel();
         selectionModel.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent event) {
@@ -221,19 +198,20 @@ class LayerManager {
                 }
             }
         });
-        DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) tree.getActualCellRenderer();
+
+        final DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) checkBoxTree.getActualCellRenderer();
         renderer.setLeafIcon(IconsFactory.getImageIcon(getClass(), "/org/esa/beam/resources/images/icons/RsBandAsSwath16.gif"));
         renderer.setClosedIcon(IconsFactory.getImageIcon(getClass(), "/org/esa/beam/resources/images/icons/RsGroupClosed16.gif"));
         renderer.setOpenIcon(IconsFactory.getImageIcon(getClass(), "/org/esa/beam/resources/images/icons/RsGroupOpen16.gif"));
-        return tree;
+
+        return checkBoxTree;
     }
 
-    private void initSelection(Layer layer) {
+    private void initSelection(final Layer layer) {
         final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) TreeUtils.findTreeNode(layerTree, layer);
         doSelection(treeNode, layer.isVisible());
 
-        final List<Layer> childLayers = layer.getChildLayerList();
-        for (Layer childLayer : childLayers) {
+        for (final Layer childLayer : layer.getChildLayerList()) {
             initSelection(childLayer);
         }
     }

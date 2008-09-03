@@ -29,51 +29,62 @@ class NodeMoveTransferHandler extends TransferHandler {
     @Override
     protected Transferable createTransferable(JComponent c) {
         Transferable t = null;
+
         if (c instanceof JTree) {
-            JTree tree = (JTree) c;
+            final JTree tree = (JTree) c;
+
             movedPaths = tree.getSelectionPaths();
             t = new GenericTransferable(movedPaths);
         }
+
         return t;
     }
 
     @Override
     public boolean importData(TransferSupport support) {
         if (support.getComponent() instanceof JTree) {
-            JTree tree = (JTree) support.getComponent();
-            DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
+            final JTree tree = (JTree) support.getComponent();
+            final DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
             final Point dropPoint = support.getDropLocation().getDropPoint();
             final TreePath currentPath = tree.getClosestPathForLocation(dropPoint.x, dropPoint.y);
+
+            // todo - remove
             System.out.println("currentPath = " + currentPath);
+
             if (currentPath != null) {
                 addNodes(currentPath, model);
                 tree.setSelectionPath(tree.getClosestPathForLocation(dropPoint.x, dropPoint.y));
+
                 return true;
             }
         }
+
         return false;
     }
 
     @Override
     public boolean canImport(TransferSupport support) {
         final Component component = support.getComponent();
-        if (!(component instanceof JTree)) {
-            return false;
-        }
-        JTree tree = (JTree) component;
 
-        final Point dropPoint = support.getDropLocation().getDropPoint();
-        final TreePath targetPath = tree.getClosestPathForLocation(dropPoint.x, dropPoint.y);
-        final MutableTreeNode targetNode = (MutableTreeNode) targetPath.getLastPathComponent();
-        // todo- can used the transferable from the support object.
-        // this returns just a proxy object which can't be used to get the nodes
-        for (TreePath movedPath : movedPaths) {
-            MutableTreeNode movedNode = (MutableTreeNode) movedPath.getLastPathComponent();
-            if (!movedNode.getParent().equals(targetNode.getParent())) {
-                return false;
+        if (component instanceof JTree) {
+            final JTree tree = (JTree) component;
+            final Point dropPoint = support.getDropLocation().getDropPoint();
+            final TreePath targetPath = tree.getClosestPathForLocation(dropPoint.x, dropPoint.y);
+            final MutableTreeNode targetNode = (MutableTreeNode) targetPath.getLastPathComponent();
+
+            // todo - can used the transferable from the support object.
+            // todo - this returns just a proxy object which can't be used to get the nodes
+            for (TreePath movedPath : movedPaths) {
+                MutableTreeNode movedNode = (MutableTreeNode) movedPath.getLastPathComponent();
+                if (!movedNode.getParent().equals(targetNode.getParent())) {
+                    return false;
+                }
             }
+
+            return true;
         }
-        return true;
+
+        return false;
     }
 
     /**
@@ -83,9 +94,11 @@ class NodeMoveTransferHandler extends TransferHandler {
      * @param model       tree model containing the nodes
      */
     private void addNodes(TreePath currentPath, DefaultTreeModel model) {
-        MutableTreeNode targetNode = (MutableTreeNode) currentPath.getLastPathComponent();
-        for (TreePath movedPath : movedPaths) {
-            MutableTreeNode movedNode = (MutableTreeNode) movedPath.getLastPathComponent();
+        final MutableTreeNode targetNode = (MutableTreeNode) currentPath.getLastPathComponent();
+
+        for (final TreePath movedPath : movedPaths) {
+            final MutableTreeNode movedNode = (MutableTreeNode) movedPath.getLastPathComponent();
+
             if (!movedNode.equals(targetNode)) {
                 model.removeNodeFromParent(movedNode);
                 final MutableTreeNode parent = (MutableTreeNode) targetNode.getParent();

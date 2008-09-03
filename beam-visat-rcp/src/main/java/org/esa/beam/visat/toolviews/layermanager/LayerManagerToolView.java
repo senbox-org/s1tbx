@@ -62,7 +62,7 @@ public class LayerManagerToolView extends AbstractToolView {
             if (layerManagerMap.containsKey(sceneView)) {
                 layerManager = layerManagerMap.get(sceneView);
             } else {
-                layerManager = new LayerManager(sceneView.getRootLayer());
+                  layerManager = new LayerManager(sceneView.getRootLayer());
                 layerManagerMap.put(sceneView, layerManager);
             }
             panel.add(layerManager.getControl(), BorderLayout.CENTER);
@@ -94,16 +94,16 @@ public class LayerManagerToolView extends AbstractToolView {
 
         @Override
         public void internalFrameClosed(InternalFrameEvent e) {
-            final Container container = e.getInternalFrame().getContentPane();
+            final Container contentPane = e.getInternalFrame().getContentPane();
 
-            if (container instanceof ProductSceneView45) {
+            if (contentPane instanceof ProductSceneView45) {
                 final ProductSceneView selectedSceneView = VisatApp.getApp().getSelectedProductSceneView();
                 if (selectedSceneView instanceof ProductSceneView45) {
                     setProductSceneView((ProductSceneView45) selectedSceneView);
                 } else {
                     setProductSceneView(null);
                 }
-                layerManagerMap.remove(container);
+                layerManagerMap.remove(contentPane);
             }
         }
     }

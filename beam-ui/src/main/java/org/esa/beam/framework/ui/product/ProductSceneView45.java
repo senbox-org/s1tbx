@@ -3,6 +3,7 @@ package org.esa.beam.framework.ui.product;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerListener;
+import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.LayerImage;
 import com.bc.ceres.glevel.support.DefaultLayerImage;
@@ -12,9 +13,12 @@ import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.grender.swing.ViewportScrollPane;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.PopupMenuHandler;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.glayer.FigureLayer;
@@ -23,6 +27,7 @@ import org.esa.beam.glevel.MaskMultiLevelImage;
 import org.esa.beam.glevel.RoiMultiLevelImage;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.Interpolation;
@@ -44,7 +49,6 @@ public class ProductSceneView45 extends ProductSceneView {
         setOpaque(true);
         setBackground(DEFAULT_IMAGE_BACKGROUND_COLOR);
         setLayout(new BorderLayout());
-
         layerCanvas = new LayerDisplay(sceneImage.getRootLayer(), this);
         final ViewportScrollPane scrollPane = new ViewportScrollPane(layerCanvas);
         add(scrollPane, BorderLayout.CENTER);
