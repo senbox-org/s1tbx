@@ -1,26 +1,23 @@
 package org.esa.beam.jai;
 
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
+import javax.media.jai.SourcelessOpImage;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.util.Map;
 
-import javax.media.jai.ImageLayout;
-import javax.media.jai.JAI;
-import javax.media.jai.SourcelessOpImage;
-
-import com.bc.ceres.glevel.LevelImage;
-
 
 /**
  * A base class for single-band {@code OpImages} retrieving data at a given pyramid level.
  */
-public abstract class SingleBandedOpImage extends SourcelessOpImage implements LevelImage {
-    
+public abstract class SingleBandedOpImage extends SourcelessOpImage {
+
     private ScalableImageSupport scalableImageSupport;
     private final int level;
-    
+
     /**
      * Used to construct an image.
      *
@@ -29,13 +26,13 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage implements L
      * @param sourceHeight   The height of the level 0 image.
      * @param tileSize       The tile size for this image.
      * @param configuration  The configuration map (can be null).
-     * @param lrImageFactory 
+     * @param level          The resolution level.
      */
     protected SingleBandedOpImage(int dataBufferType,
                                   int sourceWidth,
                                   int sourceHeight,
                                   Dimension tileSize,
-                                  Map configuration, 
+                                  Map configuration,
                                   int level) {
         this(ImageManager.createSingleBandedImageLayout(dataBufferType,
                                                         sourceWidth,

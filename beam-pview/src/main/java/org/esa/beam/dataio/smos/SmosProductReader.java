@@ -18,13 +18,12 @@ package org.esa.beam.dataio.smos;
 
 import com.bc.ceres.binio.Format;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glevel.ImageLayerModel;
-import com.bc.ceres.glevel.support.AbstractLevelImageSource;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.MultiLevelImage;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.glevel.TiledFileLayerImageFactory;
+import org.esa.beam.glevel.TiledFileImageLayerModelFactory;
 import org.esa.beam.util.io.FileUtils;
 
 import javax.media.jai.JAI;
@@ -76,7 +75,7 @@ public class SmosProductReader extends AbstractProductReader {
                         MessageFormat.format("SMOS products require a DGG image.\nPlease set system property ''{0}''to a valid DGG image directory.", SMOS_DGG_DIR_PROPERTY_NAME));
             }
             try {
-                dggridImageLayerModel = TiledFileLayerImageFactory.create(new File(dirPath), false);
+                dggridImageLayerModel = TiledFileImageLayerModelFactory.create(new File(dirPath), false);
             } catch (IOException e) {
                 throw new IOException(MessageFormat.format("Failed to load SMOS DDG ''{0}''", dirPath), e);
             }
@@ -134,7 +133,7 @@ public class SmosProductReader extends AbstractProductReader {
 
     private RenderedImage createSourceImage(final Band band) {
         final int btDataIndex = bandDescrMap.get(band.getName()).btDataIndex;
-        MultiLevelImage image = new MultiLevelImage(new AbstractLevelImageSource(8) {  // TODO - LEVEL!!!
+        MultiLevelImage image = new MultiLevelImage(new AbstractMultiLevelSource(dggridImageLayerModel) {  // TODO - LEVEL!!!
 
             @Override
             public RenderedImage createLevelImage(int level) {
@@ -145,7 +144,7 @@ public class SmosProductReader extends AbstractProductReader {
     }
 
     private RenderedImage createValidMaksImage(final Band band) {
-        MultiLevelImage image = new MultiLevelImage(new AbstractLevelImageSource(8) {  // TODO - LEVEL!!!
+        MultiLevelImage image = new MultiLevelImage(new AbstractMultiLevelSource(8) {  // TODO - LEVEL!!!
 
             @Override
             public RenderedImage createLevelImage(int level) {

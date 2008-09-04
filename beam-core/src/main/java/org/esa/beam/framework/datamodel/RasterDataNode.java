@@ -944,12 +944,18 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             roiDefinition = null;
         }
         if (sourceImage != null) {
-            JAI.getDefaultInstance().getTileCache().removeTiles(sourceImage);
             if (sourceImage instanceof PlanarImage) {
                 PlanarImage planarImage = (PlanarImage) sourceImage;
                 planarImage.dispose();
             }
             sourceImage = null;
+        }
+        if (validMaskImage != null) {
+            if (validMaskImage instanceof PlanarImage) {
+                PlanarImage planarImage = (PlanarImage) validMaskImage;
+                planarImage.dispose();
+            }
+            validMaskImage = null;
         }
         super.dispose();
     }

@@ -4,9 +4,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerListener;
 import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glevel.ImageLayerModel;
-import com.bc.ceres.glevel.support.DefaultImageLayerModel;
-import com.bc.ceres.glevel.support.DefaultLevelImageSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.BufferedImageRendering;
@@ -20,8 +18,8 @@ import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
-import org.esa.beam.glevel.MaskLayerImageFactory;
-import org.esa.beam.glevel.RoiLayerImageFactory;
+import org.esa.beam.glevel.MaskImageLayerModelFactory;
+import org.esa.beam.glevel.RoiImageLayerModelFactory;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
@@ -237,11 +235,11 @@ public class ProductSceneView45 extends ProductSceneView {
         final String expression = getRaster().getValidMaskExpression();
         if (expression != null) {
             // todo - get color from style, set color
-            final ImageLayerModel imageLayerModel = MaskLayerImageFactory.create(getRaster().getProduct(), Color.ORANGE, expression,
+            final ImageLayerModel imageLayerModel = MaskImageLayerModelFactory.create(getRaster().getProduct(), Color.ORANGE, expression,
                                                                                  true, new AffineTransform());
-            getNoDataLayer().setLayerImage(imageLayerModel);
+            getNoDataLayer().setMultiLevelSource(imageLayerModel);
         } else {
-            getNoDataLayer().setLayerImage(ImageLayerModel.NULL);
+            getNoDataLayer().setMultiLevelSource(ImageLayerModel.NULL);
         }
 
         fireImageUpdated();
@@ -264,10 +262,10 @@ public class ProductSceneView45 extends ProductSceneView {
     public void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception {
         if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
             // todo - get color from style, set color
-            final ImageLayerModel imageLayerModel = RoiLayerImageFactory.create(getRaster(), Color.RED, new AffineTransform());
-            getRoiLayer().setLayerImage(imageLayerModel);
+            final ImageLayerModel imageLayerModel = RoiImageLayerModelFactory.create(getRaster(), Color.RED, new AffineTransform());
+            getRoiLayer().setMultiLevelSource(imageLayerModel);
         } else {
-            getRoiLayer().setLayerImage(ImageLayerModel.NULL);
+            getRoiLayer().setMultiLevelSource(ImageLayerModel.NULL);
         }
 
         fireImageUpdated();
@@ -289,9 +287,9 @@ public class ProductSceneView45 extends ProductSceneView {
     public void setROIImage(RenderedImage roiImage) {
         // used by MagicStick only
         // TODO fix ImageLayerModel creation: transformation ?, levelcount ?
-        getRoiLayer().setLayerImage(
+        getRoiLayer().setMultiLevelSource(
                 new DefaultImageLayerModel(
-                        new DefaultLevelImageSource(roiImage, 0, Interpolation.getInstance(Interpolation.INTERP_NEAREST)),
+                        new DefaultMultiLevelSource(roiImage, 0, Interpolation.getInstance(Interpolation.INTERP_NEAREST)),
                         new AffineTransform(),
                         null));
         fireImageUpdated();

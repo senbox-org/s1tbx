@@ -1,8 +1,6 @@
 package org.esa.beam.jai;
 
-import com.bc.ceres.glevel.support.DefaultImageLayerModel;
-import com.bc.ceres.glevel.support.DefaultLevelImageSource;
-import com.bc.ceres.glevel.ImageLayerModel;
+import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
@@ -58,11 +56,11 @@ public class PyramidBuilder {
         if (raw) {
             final TiledFileOpImage image0 = TiledFileOpImage.create(imageFile, new Properties());
             dataType = image0.getSampleModel().getDataType();
-            imageLayerModel = new DefaultImageLayerModel(new DefaultLevelImageSource(image0, levelCount, Interpolation.getInstance(Interpolation.INTERP_NEAREST)), new AffineTransform(), null);
+            imageLayerModel = new DefaultImageLayerModel(new DefaultMultiLevelSource(image0, levelCount, Interpolation.getInstance(Interpolation.INTERP_NEAREST)), new AffineTransform(), null);
         } else {
             final RenderedOp image0 = FileLoadDescriptor.create(imageFile.getPath(), null, true, null);
             dataType = image0.getSampleModel().getDataType();
-            imageLayerModel = new DefaultImageLayerModel(new DefaultLevelImageSource(image0, levelCount, Interpolation.getInstance(Interpolation.INTERP_BICUBIC)), new AffineTransform(), null);
+            imageLayerModel = new DefaultImageLayerModel(new DefaultMultiLevelSource(image0, levelCount, Interpolation.getInstance(Interpolation.INTERP_BICUBIC)), new AffineTransform(), null);
         }
 
         for (int level = 0; level < levelCount; level++) {
