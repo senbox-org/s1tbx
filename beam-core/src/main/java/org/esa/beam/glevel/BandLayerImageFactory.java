@@ -1,16 +1,16 @@
 package org.esa.beam.glevel;
 
-import com.bc.ceres.glevel.support.AbstractLayerImage;
-import com.bc.ceres.glevel.support.DeferredLayerImage;
-import com.bc.ceres.glevel.LevelImageFactory;
-import com.bc.ceres.glevel.LayerImage;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.RenderedImage;
 
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
 
-import java.awt.image.RenderedImage;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
+import com.bc.ceres.core.Assert;
+import com.bc.ceres.glevel.LayerImage;
+import com.bc.ceres.glevel.support.AbstractLevelImageSource;
+import com.bc.ceres.glevel.support.DefaultLayerImage;
 
 
 public class BandLayerImageFactory {
@@ -27,29 +27,29 @@ public class BandLayerImageFactory {
                         rasterDataNodes[0].getSceneRasterHeight()));
     }
     public static LayerImage create(RasterDataNode[] rasterDataNodes, AffineTransform imageToModelTransform, int levelCount) {
-        LevelImageFactory levelImageFactory = new LIF(rasterDataNodes, levelCount);
-        DeferredLayerImage deferredLayerImage = new DeferredLayerImage(imageToModelTransform, levelCount, levelImageFactory);
+        Assert.notNull(rasterDataNodes);
+        Assert.argument(rasterDataNodes.length>0);
+        final LIS levelImageSource = new LIS(rasterDataNodes, levelCount);
         final int w = rasterDataNodes[0].getSceneRasterWidth();
         final int h = rasterDataNodes[0].getSceneRasterHeight();
-        Rectangle2D modelBounds = AbstractLayerImage.getModelBounds(imageToModelTransform, w, h);
-        deferredLayerImage.setModelBounds(modelBounds);
+        Rectangle2D modelBounds = DefaultLayerImage.getModelBounds(imageToModelTransform, w, h);
+        DefaultLayerImage defaultLayerImage = new DefaultLayerImage(levelImageSource, imageToModelTransform, modelBounds);
         ImageManager.getInstance().prepareImageInfos(rasterDataNodes, levelCount);
-        return deferredLayerImage;
+        return defaultLayerImage;
     }
     
-    private static class LIF implements LevelImageFactory {
+    private static class LIS extends AbstractLevelImageSource {
         
         private final RasterDataNode[] rasterDataNodes;
-        private final int levelCount;
 
-        public LIF(RasterDataNode[] rasterDataNodes, int levelCount) {
+        public LIS(RasterDataNode[] rasterDataNodes, int levelCount) {
+            super(levelCount);
             this.rasterDataNodes = rasterDataNodes.clone();
-            this.levelCount = levelCount;
         }
 
         @Override
         public RenderedImage createLevelImage(int level) {
-            return ImageManager.getInstance().createRgbImage(rasterDataNodes, level, levelCount);
+            return ImageManager.getInstance().createRgbImage(rasterDataNodes, level, getLevelCount());
         }
     }
 

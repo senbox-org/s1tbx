@@ -1,13 +1,5 @@
 package org.esa.beam.glevel;
 
-import com.bc.ceres.glevel.LevelImageFactory;
-import com.bc.ceres.glevel.LayerImage;
-import com.bc.ceres.glevel.support.AbstractLayerImage;
-import com.bc.ceres.glevel.support.DeferredLayerImage;
-import org.esa.beam.jai.TiledFileOpImage;
-
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.DataBuffer;
@@ -18,30 +10,41 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+
+import org.esa.beam.jai.TiledFileOpImage;
+
+import com.bc.ceres.core.Assert;
+import com.bc.ceres.glevel.LayerImage;
+import com.bc.ceres.glevel.support.AbstractLevelImageSource;
+import com.bc.ceres.glevel.support.DefaultLayerImage;
+
 
 public class TiledFileLayerImageFactory {
 
     public static LayerImage create(File imageDir, boolean visualDebug) throws IOException {
+        Assert.notNull(imageDir);
         final Properties imageProperties = new Properties();
         imageProperties.load(new FileReader(new File(imageDir, "image.properties")));
         int levelCount = Integer.parseInt(imageProperties.getProperty("numLevels"));
         int sourceWidth = Integer.parseInt(imageProperties.getProperty("width"));
         int sourceHeight = Integer.parseInt(imageProperties.getProperty("height"));
         // todo - read 6 parameters from properties1
-        final AffineTransform transform = AffineTransform.getScaleInstance(360.0 / sourceWidth, 180.0 / sourceHeight);
-        LevelImageFactory levelImageFactory = new LIF(imageDir, imageProperties, visualDebug);
-        DeferredLayerImage deferredLayerImage = new DeferredLayerImage(transform, levelCount, levelImageFactory);
-        Rectangle2D modelBounds = AbstractLayerImage.getModelBounds(transform, sourceWidth, sourceHeight);
-        deferredLayerImage.setModelBounds(modelBounds);
-        return deferredLayerImage;
+        final AffineTransform imageToModelTransform = AffineTransform.getScaleInstance(360.0 / sourceWidth, 180.0 / sourceHeight);
+        final LIS levelImageSource = new LIS(imageDir, imageProperties, visualDebug, levelCount);
+        Rectangle2D modelBounds = DefaultLayerImage.getModelBounds(imageToModelTransform, sourceWidth, sourceHeight);
+        DefaultLayerImage defaultLayerImage = new DefaultLayerImage(levelImageSource, imageToModelTransform, modelBounds);
+        return defaultLayerImage;
     }
 
-    private static class LIF implements LevelImageFactory {
+    private static class LIS extends AbstractLevelImageSource {
         private final File imageDir;
         private final Properties imageProperties;
         boolean visualDebug;
         
-        public LIF(File imageDir, Properties imageProperties, boolean visualDebug) {
+        public LIS(File imageDir, Properties imageProperties, boolean visualDebug, int levelCount) {
+            super(levelCount);
             this.imageDir = imageDir;
             this.imageProperties = imageProperties;
             this.visualDebug = visualDebug;
