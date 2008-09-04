@@ -1,7 +1,7 @@
 Current capabilities:
 =====================
 
-* Image layers hava an image-to-model CS affine transformation
+* Image layers hava an imageLayerModel-to-model CS affine transformation
 * The basic layers properties are: name, visible flag and transparency
 * Layers are drawn using a current graphics context and a viewport.
 * A viewport has a model-to-view CS affine transformation and is used
@@ -10,7 +10,7 @@ Current capabilities:
 * Deferred, concurrent tile computation
 * Reuse of cached tiles from other resolution levels
 * Image info (range/histogram) generated for resolution level corresponding
-  to an image at a resolution <= 256*256 pixels
+  to an imageLayerModel at a resolution <= 256*256 pixels
 
 Urgent TODOs:
 =============

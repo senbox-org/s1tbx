@@ -3,7 +3,7 @@ package com.bc.ceres.glayer.support;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import static com.bc.ceres.glayer.Assert2D.*;
-import com.bc.ceres.glevel.LayerImage;
+import com.bc.ceres.glevel.ImageLayerModel;
 
 import javax.media.jai.TiledImage;
 import java.awt.geom.AffineTransform;
@@ -14,7 +14,7 @@ public class ImageLayerTest  {
 
     @Test
     public void testThatLayerOperattesWithNullImage() {
-        final ImageLayer layer = new ImageLayer(LayerImage.NULL);
+        final ImageLayer layer = new ImageLayer(ImageLayerModel.NULL);
 
         assertNotNull(layer.getLayerImage());
         assertNotNull(layer.getImage());
