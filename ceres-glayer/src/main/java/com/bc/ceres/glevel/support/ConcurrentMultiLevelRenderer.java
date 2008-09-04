@@ -1,7 +1,7 @@
 package com.bc.ceres.glevel.support;
 
-import com.bc.ceres.glevel.LayerImage;
-import com.bc.ceres.glevel.LayerImageRenderer;
+import com.bc.ceres.glevel.MultiLevelRenderer;
+import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.grender.InteractiveRendering;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
@@ -14,14 +14,14 @@ import java.awt.image.*;
 import java.util.*;
 import java.util.List;
 
-public class ConcurrentLayerImageRenderer implements LayerImageRenderer {
+public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
     private int lastLevel;
     private boolean debug;
     private final Map<TileIndex, TileRequest> scheduledTileRequests;
     private final TileImageCache localTileCache;
 
-    public ConcurrentLayerImageRenderer() {
+    public ConcurrentMultiLevelRenderer() {
         lastLevel = -1;
         scheduledTileRequests = Collections.synchronizedMap(new HashMap<TileIndex, TileRequest>(37));
         localTileCache = new TileImageCache();
@@ -53,17 +53,17 @@ public class ConcurrentLayerImageRenderer implements LayerImageRenderer {
     }
 
     @Override
-    public void renderImage(Rendering rendering, LayerImage layerImage, int currentLevel) {
+    public void renderImage(Rendering rendering, MultiLevelSource multiLevelSource, int currentLevel) {
         final long t0 = System.nanoTime();
-        renderImpl((InteractiveRendering) rendering, layerImage, currentLevel);
+        renderImpl((InteractiveRendering) rendering, multiLevelSource, currentLevel);
         if (debug) {
             final long t1 = System.nanoTime();
             double time = (t1 - t0) / (1000.0 * 1000.0);
-            System.out.printf("ConcurrentLayerImageRenderer: render: time=%f ms, clip=%s\n", time, rendering.getGraphics().getClip());
+            System.out.printf("ConcurrentMultiLevelRenderer: render: time=%f ms, clip=%s\n", time, rendering.getGraphics().getClip());
         }
     }
 
-    private void renderImpl(InteractiveRendering rendering, LayerImage layerImage, int currentLevel) {
+    private void renderImpl(InteractiveRendering rendering, MultiLevelSource multiLevelSource, int currentLevel) {
 
         // On level change, cancel all pending tile requests
         if (this.lastLevel != currentLevel) {
@@ -71,7 +71,7 @@ public class ConcurrentLayerImageRenderer implements LayerImageRenderer {
             this.lastLevel = currentLevel;
         }
 
-        final PlanarImage planarImage = (PlanarImage) layerImage.getLevelImage(currentLevel);
+        final PlanarImage planarImage = (PlanarImage) multiLevelSource.getLevelImage(currentLevel);
         final Graphics2D graphics = rendering.getGraphics();
         final Viewport viewport = rendering.getViewport();
 
@@ -88,7 +88,7 @@ public class ConcurrentLayerImageRenderer implements LayerImageRenderer {
         }
 
         // Create set of required tile indexes
-        final Rectangle clippedImageRegion = getImageRegion(viewport, layerImage, currentLevel, clipBounds);
+        final Rectangle clippedImageRegion = getImageRegion(viewport, multiLevelSource, currentLevel, clipBounds);
         final Set<TileIndex> requiredTileIndexes = getTileIndexes(planarImage, currentLevel, clippedImageRegion);
         if (requiredTileIndexes.isEmpty()) {
             return; // nothing to render
@@ -113,7 +113,7 @@ public class ConcurrentLayerImageRenderer implements LayerImageRenderer {
         if (!notScheduledTileIndexList.isEmpty()) {
             final TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
             final TileComputationHandler tileComputationHandler = new TileComputationHandler(rendering,
-                                                                                             layerImage,
+                                                                                             multiLevelSource,
                                                                                              currentLevel);
             final TileRequest tileRequest = tileScheduler.scheduleTiles(planarImage,
                                                                         getPoints(notScheduledTileIndexList),
@@ -127,7 +127,7 @@ public class ConcurrentLayerImageRenderer implements LayerImageRenderer {
 
         // Draw missing tiles from other levels (if any)
         drawTentativeTileImages(graphics, viewport,
-                                layerImage, currentLevel, planarImage, missingTileIndexList);
+                                multiLevelSource, currentLevel, planarImage, missingTileIndexList);
 
         // Draw available tiles
         for (final TileIndex tileIndex : availableTileIndexList) {
@@ -136,14 +136,14 @@ public class ConcurrentLayerImageRenderer implements LayerImageRenderer {
         }
 
         // Draw tile frames
-        final AffineTransform i2m = layerImage.getImageToModelTransform(currentLevel);
+        final AffineTransform i2m = multiLevelSource.getModel().getImageToModelTransform(currentLevel);
         drawTileFrames(graphics, viewport, planarImage, missingTileIndexList, i2m, Color.RED);
         if (debug) {
             drawTileFrames(graphics, viewport, planarImage, availableTileIndexList, i2m, Color.BLUE);
         }
 
         // Cancel any pending tile requests that are not in the visible region
-        final Rectangle visibleImageRegion = getImageRegion(viewport, layerImage, currentLevel, rendering.getBounds());
+        final Rectangle visibleImageRegion = getImageRegion(viewport, multiLevelSource, currentLevel, rendering.getBounds());
         final Set<TileIndex> visibleTileIndexSet = getTileIndexes(planarImage, currentLevel, visibleImageRegion);
         if (!visibleTileIndexSet.isEmpty()) {
             cancelTileRequests(visibleTileIndexSet);
@@ -155,11 +155,11 @@ public class ConcurrentLayerImageRenderer implements LayerImageRenderer {
 
     private void drawTentativeTileImages(Graphics2D g,
                                          Viewport vp,
-                                         LayerImage layerImage,
+                                         MultiLevelSource multiLevelSource,
                                          int level,
                                          PlanarImage planarImage,
                                          List<TileIndex> missingTileIndexList) {
-        final AffineTransform i2m = layerImage.getImageToModelTransform(level);
+        final AffineTransform i2m = multiLevelSource.getModel().getImageToModelTransform(level);
         for (final TileIndex tileIndex : missingTileIndexList) {
 
             final Rectangle tileRect = planarImage.getTileRect(tileIndex.tileX, tileIndex.tileY);
@@ -329,22 +329,22 @@ public class ConcurrentLayerImageRenderer implements LayerImageRenderer {
         // todo </optimize>
     }
 
-    private static Rectangle getImageRegion(Viewport vp, LayerImage layerImage, int level, Rectangle2D viewRegion) {
-        return getViewToImageTransform(vp, layerImage, level).createTransformedShape(viewRegion).getBounds();
+    private static Rectangle getImageRegion(Viewport vp, MultiLevelSource multiLevelSource, int level, Rectangle2D viewRegion) {
+        return getViewToImageTransform(vp, multiLevelSource, level).createTransformedShape(viewRegion).getBounds();
     }
 
-    private static Rectangle getViewRegion(Viewport vp, LayerImage layerImage, int level, Rectangle2D imageRegion) {
-        return getImageToViewTransform(vp, layerImage, level).createTransformedShape(imageRegion).getBounds();
+    private static Rectangle getViewRegion(Viewport vp, MultiLevelSource multiLevelSource, int level, Rectangle2D imageRegion) {
+        return getImageToViewTransform(vp, multiLevelSource, level).createTransformedShape(imageRegion).getBounds();
     }
 
-    private static AffineTransform getViewToImageTransform(Viewport vp, LayerImage layerImage, int level) {
+    private static AffineTransform getViewToImageTransform(Viewport vp, MultiLevelSource multiLevelSource, int level) {
         final AffineTransform t = vp.getViewToModelTransform();
-        t.preConcatenate(layerImage.getModelToImageTransform(level));
+        t.preConcatenate(multiLevelSource.getModel().getModelToImageTransform(level));
         return t;
     }
 
-    private static AffineTransform getImageToViewTransform(Viewport vp, LayerImage layerImage, int level) {
-        final AffineTransform t = new AffineTransform(layerImage.getImageToModelTransform(level));
+    private static AffineTransform getImageToViewTransform(Viewport vp, MultiLevelSource multiLevelSource, int level) {
+        final AffineTransform t = new AffineTransform(multiLevelSource.getModel().getImageToModelTransform(level));
         t.preConcatenate(vp.getModelToViewTransform());
         return t;
     }
@@ -368,13 +368,13 @@ public class ConcurrentLayerImageRenderer implements LayerImageRenderer {
     private class TileComputationHandler implements TileComputationListener {
         private final InteractiveRendering rendering;
         private final GraphicsConfiguration deviceConfiguration;
-        private final LayerImage layerImage;
+        private final MultiLevelSource multiLevelSource;
         private final int level;
 
-        private TileComputationHandler(InteractiveRendering rendering, LayerImage layerImage, int level) {
+        private TileComputationHandler(InteractiveRendering rendering, MultiLevelSource multiLevelSource, int level) {
             this.rendering = rendering;
             this.deviceConfiguration = rendering.getGraphics().getDeviceConfiguration();
-            this.layerImage = layerImage;
+            this.multiLevelSource = multiLevelSource;
             this.level = level;
         }
 
@@ -398,8 +398,8 @@ public class ConcurrentLayerImageRenderer implements LayerImageRenderer {
                                                         planarImage,
                                                         tileIndex,
                                                         tile,
-                                                        layerImage.getImageToModelTransform(level));
-            synchronized (ConcurrentLayerImageRenderer.this) {
+                                                        multiLevelSource.getModel().getImageToModelTransform(level));
+            synchronized (ConcurrentMultiLevelRenderer.this) {
                 scheduledTileRequests.remove(tileIndex);
                 localTileCache.add(tileImage);
             }
@@ -423,7 +423,7 @@ public class ConcurrentLayerImageRenderer implements LayerImageRenderer {
                 // Called from EDT.
                 @Override
                 public void run() {
-                    final Rectangle viewRegion = getViewRegion(rendering.getViewport(), layerImage, level, tileBounds);
+                    final Rectangle viewRegion = getViewRegion(rendering.getViewport(), multiLevelSource, level, tileBounds);
                     rendering.invalidateRegion(viewRegion);
                 }
             });
@@ -438,7 +438,7 @@ public class ConcurrentLayerImageRenderer implements LayerImageRenderer {
             TileIndex tileIndex = new TileIndex(tileX, tileY, level);
             dropTile(tileIndex);
             if (debug) {
-                System.out.printf("ConcurrentLayerImageRenderer: tileCancelled: %s\n", tileIndex);
+                System.out.printf("ConcurrentMultiLevelRenderer: tileCancelled: %s\n", tileIndex);
             }
         }
 
@@ -452,13 +452,13 @@ public class ConcurrentLayerImageRenderer implements LayerImageRenderer {
             TileIndex tileIndex = new TileIndex(tileX, tileY, level);
             dropTile(tileIndex);
             if (debug) {
-                System.out.printf("ConcurrentLayerImageRenderer: tileComputationFailure: %s\n", tileIndex);
+                System.out.printf("ConcurrentMultiLevelRenderer: tileComputationFailure: %s\n", tileIndex);
                 error.printStackTrace();
             }
         }
 
         private void dropTile(TileIndex tileIndex) {
-            synchronized (ConcurrentLayerImageRenderer.this) {
+            synchronized (ConcurrentMultiLevelRenderer.this) {
                 scheduledTileRequests.remove(tileIndex);
                 localTileCache.remove(tileIndex);
             }
@@ -499,7 +499,7 @@ public class ConcurrentLayerImageRenderer implements LayerImageRenderer {
             }
             size += tileImage.size;
             if (debug) {
-                System.out.printf("ConcurrentLayerImageRenderer$TileImageCache: add: tileIndex=%s, size=%d\n", tileImage.tileIndex, size);
+                System.out.printf("ConcurrentMultiLevelRenderer$TileImageCache: add: tileIndex=%s, size=%d\n", tileImage.tileIndex, size);
             }
         }
 
@@ -508,7 +508,7 @@ public class ConcurrentLayerImageRenderer implements LayerImageRenderer {
             if (oldTileImage != null) {
                 size -= oldTileImage.size;
                 if (debug) {
-                    System.out.printf("ConcurrentLayerImageRenderer$TileImageCache: remove: tileIndex=%s, size=%d\n", tileIndex, size);
+                    System.out.printf("ConcurrentMultiLevelRenderer$TileImageCache: remove: tileIndex=%s, size=%d\n", tileIndex, size);
                 }
             }
         }

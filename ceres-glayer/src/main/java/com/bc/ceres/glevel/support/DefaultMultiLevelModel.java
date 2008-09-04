@@ -1,42 +1,60 @@
 package com.bc.ceres.glevel.support;
 
-import com.bc.ceres.glevel.LayerImage;
-import com.bc.ceres.glevel.LevelImageSource;
+import com.bc.ceres.glevel.MultiLevelModel;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 
-public class DefaultLayerImage implements LayerImage {
-    public static final DefaultLayerImage NULL = createNullImage();
+public class DefaultMultiLevelModel implements MultiLevelModel {
 
-    private final LevelImageSource levelImageSource;
+    private final int levelCount;
     private final AffineTransform[] imageToModelTransforms;
     private final AffineTransform[] modelToImageTransforms;
     private Rectangle2D modelBounds;
 
-    public DefaultLayerImage(LevelImageSource levelImageSource, AffineTransform imageToModelTransform, Rectangle2D modelBounds) {
-        this.levelImageSource = levelImageSource;
+    public DefaultMultiLevelModel(int levelCount,
+                                  AffineTransform imageToModelTransform,
+                                  Rectangle2D modelBounds) {
+        this.levelCount = levelCount;
         final AffineTransform modelToImageTransform;
         try {
             modelToImageTransform = imageToModelTransform.createInverse();
         } catch (NoninvertibleTransformException e) {
             throw new IllegalArgumentException("imageToModelTransform", e);
         }
-        this.imageToModelTransforms = new AffineTransform[levelImageSource.getLevelCount()];
-        this.modelToImageTransforms = new AffineTransform[levelImageSource.getLevelCount()];
+        this.imageToModelTransforms = new AffineTransform[levelCount];
+        this.modelToImageTransforms = new AffineTransform[levelCount];
         this.imageToModelTransforms[0] = new AffineTransform(imageToModelTransform);
         this.modelToImageTransforms[0] = new AffineTransform(modelToImageTransform);
         setModelBounds(modelBounds);
     }
 
 
-    public LevelImageSource getLevelImageSource() {
-        return levelImageSource;
+    @Override
+    public int getLevelCount() {
+        return levelCount;
     }
+
+    @Override
+    public int getLevel(double scale) {
+        int level = (int) Math.round(log2(scale));
+        if (level < 0) {
+            level = 0;
+        } else if (level >= levelCount) {
+            level = levelCount - 1;
+        }
+        return level;
+    }
+
+    @Override
+    public double getScale(int level) {
+        checkLevel(level);
+        return pow2(level);
+    }
+
 
     @Override
     public final AffineTransform getImageToModelTransform(int level) {
@@ -44,7 +62,7 @@ public class DefaultLayerImage implements LayerImage {
         AffineTransform transform = imageToModelTransforms[level];
         if (transform == null) {
             transform = new AffineTransform(imageToModelTransforms[0]);
-            final double s = getLevelImageSource().computeScale(level);
+            final double s = getScale(level);
             transform.scale(s, s);
             imageToModelTransforms[level] = transform;
         }
@@ -67,8 +85,16 @@ public class DefaultLayerImage implements LayerImage {
         return new AffineTransform(transform);
     }
 
+    protected static double pow2(double v) {
+        return Math.pow(2.0, v);
+    }
+
+    protected static double log2(double v) {
+        return Math.log(v) / Math.log(2.0);
+    }
+
     protected void checkLevel(int level) {
-        if (level < 0 || level >= getLevelImageSource().getLevelCount()) {
+        if (level < 0 || level >= getLevelCount()) {
             throw new IllegalArgumentException("level");
         }
     }
@@ -105,9 +131,4 @@ public class DefaultLayerImage implements LayerImage {
     public static Rectangle2D getModelBounds(AffineTransform imageToModelTransform, int w, int h) {
         return imageToModelTransform.createTransformedShape(new Rectangle(0, 0, w, h)).getBounds2D();
     }
-
-    private static DefaultLayerImage createNullImage() {
-        return new DefaultLayerImage(new DefaultLevelImageSource(new BufferedImage(1, 1, BufferedImage.TYPE_BYTE_GRAY)), new AffineTransform(), new Rectangle(1, 1));
-    }
-
 }

@@ -3,18 +3,18 @@ package com.bc.ceres.glevel;
 import com.bc.ceres.grender.Rendering;
 
 /**
- * An {@code ImageRenderer} is used to render multi-resolution {@link com.bc.ceres.glevel.LayerImage}s
+ * An {@code ImageRenderer} is used to render multi-resolution {@link ImageLayerModel}s
  * at a certain level.
  */
-public interface LayerImageRenderer {
+public interface MultiLevelRenderer {
     /**
-     * Renders a {@link LayerImage} at the specified level onto the given {@link com.bc.ceres.grender.Rendering}.
+     * Renders a {@link ImageLayerModel} at the specified level onto the given {@link com.bc.ceres.grender.Rendering}.
      *
      * @param rendering  The rendering.
-     * @param layerImage The current level image.
+     * @param multiLevelSource The
      * @param level      the current resolution level.
      */
-    void renderImage(Rendering rendering, LayerImage layerImage, int level);
+    void renderImage(Rendering rendering, MultiLevelSource multiLevelSource, int level);
 
 
     /**

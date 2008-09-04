@@ -2,8 +2,8 @@ package com.bc.ceres.glayer.support;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glevel.ImageLayerModel;
-import com.bc.ceres.glevel.ImageLayerModelRenderer;
+import com.bc.ceres.glevel.MultiLevelRenderer;
+import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.*;
 import com.bc.ceres.grender.InteractiveRendering;
 import com.bc.ceres.grender.Rendering;
@@ -14,8 +14,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 
-import javax.media.jai.Interpolation;
-
 /**
  * A multi-resolution capable image layer.
  *
@@ -23,8 +21,8 @@ import javax.media.jai.Interpolation;
  */
 public class ImageLayer extends Layer {
 
-    private ImageLayerModel imageLayerModel;
-    private ConcurrentImageLayerModelRenderer concurrentRenderer;
+    private MultiLevelSource multiLevelSource;
+    private ConcurrentMultiLevelRenderer concurrentRenderer;
     private boolean debug;
 
     /**
@@ -54,19 +52,20 @@ public class ImageLayer extends Layer {
      * @param levelCount            the number of resolution levels
      */
     public ImageLayer(RenderedImage image, AffineTransform imageToModelTransform, int levelCount) {
-        this(new DefaultImageLayerModel(new DefaultLevelImageSource(image, levelCount, Interpolation.getInstance(Interpolation.INTERP_BICUBIC)),
-                                        imageToModelTransform,
-                                        DefaultImageLayerModel.getModelBounds(imageToModelTransform, image)));
+        this(new DefaultMultiLevelSource(new DefaultMultiLevelModel(levelCount,
+                                                                    imageToModelTransform,
+                                                                    DefaultMultiLevelModel.getModelBounds(imageToModelTransform, image)) ,
+                                                                    image));
     }
 
     /**
      * Constructs a multi-resolution-level image layer.
      *
-     * @param imageLayerModel the multi-resolution-level image
+     * @param multiLevelSource the multi-resolution-level image
      */
-    public ImageLayer(ImageLayerModel imageLayerModel) {
-        Assert.notNull(imageLayerModel);
-        this.imageLayerModel = imageLayerModel;
+    public ImageLayer(MultiLevelSource multiLevelSource) {
+        Assert.notNull(multiLevelSource);
+        this.multiLevelSource = multiLevelSource;
     }
 
     @Override
@@ -79,16 +78,18 @@ public class ImageLayer extends Layer {
         return getImage(0);
     }
 
-    public ImageLayerModel getLayerImage() {
-        return imageLayerModel;
+    public MultiLevelSource getMultiLevelSource() {
+        return multiLevelSource;
     }
 
-    public void setLayerImage(ImageLayerModel imageLayerModel) {
-        Assert.notNull(imageLayerModel);
-        if (imageLayerModel != this.imageLayerModel) {
-            final Rectangle2D region = this.imageLayerModel.getModelBounds().createUnion(imageLayerModel.getModelBounds());
+    public void setMultiLevelSource(MultiLevelSource multiLevelSource) {
+        Assert.notNull(multiLevelSource);
+        if (multiLevelSource != this.multiLevelSource) {
+            final Rectangle2D oldBounds = this.multiLevelSource.getModel().getModelBounds();
+            final Rectangle2D newBounds = multiLevelSource.getModel().getModelBounds();
+            final Rectangle2D region = oldBounds.createUnion(newBounds);
             clearCaches();
-            this.imageLayerModel = imageLayerModel;
+            this.multiLevelSource = multiLevelSource;
             concurrentRenderer = null;
             fireLayerDataChanged(region);
         }
@@ -103,15 +104,15 @@ public class ImageLayer extends Layer {
     }
 
     public RenderedImage getImage(int level) {
-        return imageLayerModel.getLevelImageSource().getLevelImage(level);
+        return multiLevelSource.getLevelImage(level);
     }
 
     public AffineTransform getImageToModelTransform(int level) {
-        return imageLayerModel.getImageToModelTransform(level);
+        return multiLevelSource.getModel().getImageToModelTransform(level);
     }
 
     public AffineTransform getModelToImageTransform(int level) {
-        return imageLayerModel.getModelToImageTransform(level);
+        return multiLevelSource.getModel().getModelToImageTransform(level);
     }
 
     public boolean isDebug() {
@@ -124,41 +125,41 @@ public class ImageLayer extends Layer {
 
     @Override
     public Rectangle2D getBounds() {
-        return imageLayerModel.getModelBounds();
+        return multiLevelSource.getModel().getModelBounds();
     }
 
     @Override
     protected void renderLayer(Rendering rendering) {
-        if (imageLayerModel == ImageLayerModel.NULL) {
+        if (multiLevelSource == MultiLevelSource.NULL) {
             return;
         }
         final Viewport vp = rendering.getViewport();
         final double i2mScale = DefaultViewport.getScale(getImageToModelTransform());
         final double m2vScale = 1.0 / vp.getZoomFactor();
         final double scale = m2vScale / i2mScale;
-        final int currentLevel = imageLayerModel.getLevelImageSource().computeLevel(scale);
-        final ImageLayerModelRenderer renderer = getRenderer(rendering);
-        renderer.renderImage(rendering, imageLayerModel, currentLevel);
+        final int currentLevel = multiLevelSource.getModel().getLevel(scale);
+        final MultiLevelRenderer renderer = getRenderer(rendering);
+        renderer.renderImage(rendering, multiLevelSource, currentLevel);
     }
 
     @Override
     public synchronized void dispose() {
         resetRenderer();
-        if (imageLayerModel != null) {
-            imageLayerModel.getLevelImageSource().reset();
-            imageLayerModel = null;
+        if (multiLevelSource != null) {
+            multiLevelSource.reset();
+            multiLevelSource = null;
         }
         super.dispose();
     }
 
-    private synchronized ImageLayerModelRenderer getRenderer(Rendering rendering) {
+    private synchronized MultiLevelRenderer getRenderer(Rendering rendering) {
         if (rendering instanceof InteractiveRendering) {
             if (concurrentRenderer == null) {
-                concurrentRenderer = new ConcurrentImageLayerModelRenderer();
+                concurrentRenderer = new ConcurrentMultiLevelRenderer();
             }
             return concurrentRenderer;
         } else {
-            return new DefaultImageLayerModelRenderer();
+            return new DefaultMultiLevelRenderer();
         }
     }
 
@@ -170,7 +171,7 @@ public class ImageLayer extends Layer {
 
     private void clearCaches() {
         resetRenderer();
-        imageLayerModel.getLevelImageSource().reset();
+        multiLevelSource.reset();
     }
 
 }
