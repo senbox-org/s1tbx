@@ -255,7 +255,7 @@ public class LayerDisplay extends LayerCanvas {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_OFF);
         if (tool.getDrawable() != null) {
-            System.out.println("DRAW_TOOL:" + tool.getClass().toString());
+            // System.out.println("DRAW_TOOL:" + tool.getClass().toString());
             tool.getDrawable().draw(g2d);
         }
         // reset rendering hints ?????? TODO
