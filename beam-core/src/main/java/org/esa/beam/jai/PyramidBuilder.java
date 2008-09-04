@@ -1,5 +1,7 @@
 package org.esa.beam.jai;
 
+import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 
 import javax.imageio.stream.FileImageOutputStream;
@@ -7,15 +9,19 @@ import javax.imageio.stream.ImageOutputStream;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 import javax.media.jai.Interpolation;
 import javax.media.jai.PlanarImage;
-import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.FileLoadDescriptor;
 import javax.media.jai.operator.FileStoreDescriptor;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.awt.image.Raster;
-import java.io.*;
+import java.awt.image.RenderedImage;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -46,26 +52,29 @@ public class PyramidBuilder {
 
         outputDir.mkdir();
 
-        final int dataType;
+        int dataType;
         int tileWidth = tileWidth0;
         int tileHeight = tileHeight0;
+        Interpolation interpolation;
+        RenderedImage image0;
 
-        final ImageLayerModel imageLayerModel;
         boolean rawZip = tileFormat.equalsIgnoreCase("raw.zip");
         boolean raw = tileFormat.equalsIgnoreCase("raw") || rawZip;
         if (raw) {
-            final TiledFileOpImage image0 = TiledFileOpImage.create(imageFile, new Properties());
-            dataType = image0.getSampleModel().getDataType();
-            imageLayerModel = new DefaultImageLayerModel(new DefaultMultiLevelSource(image0, levelCount, Interpolation.getInstance(Interpolation.INTERP_NEAREST)), new AffineTransform(), null);
+            interpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
+            image0 = TiledFileOpImage.create(imageFile, new Properties());
         } else {
-            final RenderedOp image0 = FileLoadDescriptor.create(imageFile.getPath(), null, true, null);
-            dataType = image0.getSampleModel().getDataType();
-            imageLayerModel = new DefaultImageLayerModel(new DefaultMultiLevelSource(image0, levelCount, Interpolation.getInstance(Interpolation.INTERP_BICUBIC)), new AffineTransform(), null);
+            image0 = FileLoadDescriptor.create(imageFile.getPath(), null, true, null);
+            interpolation = Interpolation.getInstance(Interpolation.INTERP_BICUBIC);
         }
+
+        dataType = image0.getSampleModel().getDataType();
+        DefaultMultiLevelModel model = new DefaultMultiLevelModel(levelCount, new AffineTransform(), new Rectangle(image0.getWidth(), image0.getHeight()));
+        MultiLevelSource multiLevelSource = new DefaultMultiLevelSource(model, image0, interpolation);
 
         for (int level = 0; level < levelCount; level++) {
 
-            final PlanarImage image = PlanarImage.wrapRenderedImage(imageLayerModel.getLevelImageSource().getLevelImage(level));
+            final PlanarImage image = PlanarImage.wrapRenderedImage(multiLevelSource.getLevelImage(level));
 
             final int width = image.getWidth();
             final int height = image.getHeight();
