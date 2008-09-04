@@ -12,6 +12,9 @@ import java.awt.image.RenderedImage;
 public interface LayerImage {
     LayerImage NULL = NullLayerImage.INSTANCE;
 
+    // todo - return LevelImageSource instance
+    // LevelImageSource getLevelImageSource();
+
     /**
      * Gets the maximum number of resolution levels.
      *

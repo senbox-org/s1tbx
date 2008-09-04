@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 
+// todo - why is this here?!?!
 public class MultiLevelImageImplTest extends TestCase {
 
     public void testIt() {

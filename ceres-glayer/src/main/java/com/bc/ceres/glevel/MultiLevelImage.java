@@ -14,7 +14,7 @@ import java.awt.image.RenderedImage;
  * @author Norman Fomferra
  * @version $revision$ $date$
  */
-public interface MultiLevelImage extends RenderedImage {
+public interface MultiLevelImage extends RenderedImage { // todo - also extend LevelImageSource
     RenderedImage getLevelImage(int level);
     void dispose();
 }

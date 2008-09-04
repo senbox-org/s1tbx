@@ -8,6 +8,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.awt.Rectangle;
 
+// todo - move code to DefaultLayerImage?!?!
 public abstract class AbstractLayerImage implements LayerImage {
 
     private final int levelCount;

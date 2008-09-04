@@ -6,6 +6,7 @@ import java.awt.image.RenderedImage;
 import com.bc.ceres.glevel.LevelImageFactory;
 import com.bc.ceres.glevel.MultiLevelImage;
 
+// todo - move code to DefaultLayerImage
 public class DeferredLayerImage extends AbstractLayerImage {
 
     private final LevelImageFactory levelImageFactory;

@@ -9,6 +9,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.Rectangle;
 
+// todo - remove class, replace by DefaultLayerImage.NULL
+
 /**
  * A level image which can be used instead of {@code null).
 *
