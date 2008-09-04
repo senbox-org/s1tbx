@@ -14,6 +14,8 @@ import java.awt.image.RenderedImage;
  */
 public interface LevelImageSource {
     /**
+     * Gets the number of resolution levels, which is always greater than zero.
+     *
      * @return The number of resolution levels.
      */
     int getLevelCount();
@@ -27,7 +29,7 @@ public interface LevelImageSource {
     RenderedImage getLevelImage(int level);
 
     /**
-     * Computes a resolution level from a given scale, e.g. {@code level = (int) (log(scale)/log(2)}).
+     * Computes a resolution level from a given scaling factor, e.g. {@code level=(int)(log(scale)/log(2)}).
      *
      * @param scale The scaling factor, will always be a positive number.
      * @return The resolution level, must be in the range 0 to {@link #getLevelCount()}-1.
@@ -35,7 +37,7 @@ public interface LevelImageSource {
     int computeLevel(double scale);
 
     /**
-     * Computes a scale from a given resolution level, e.g. {@code scale = (int) pow(2, level)}.
+     * Computes a scale from a given resolution level, e.g. {@code scale=pow(2,level)}.
      *
      * @param level The resolution level.
      * @return The scaling factor, must be a positive number so that {@link #computeLevel(double scale)}
