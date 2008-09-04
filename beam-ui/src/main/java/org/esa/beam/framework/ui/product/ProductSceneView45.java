@@ -1,23 +1,17 @@
 package org.esa.beam.framework.ui.product;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-import java.beans.PropertyChangeEvent;
-import java.io.IOException;
-
-import javax.media.jai.Interpolation;
-import javax.swing.JComponent;
-
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerListener;
+import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glevel.ImageLayerModel;
+import com.bc.ceres.glevel.support.DefaultImageLayerModel;
+import com.bc.ceres.glevel.support.DefaultLevelImageSource;
+import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.grender.ViewportListener;
+import com.bc.ceres.grender.support.BufferedImageRendering;
+import com.bc.ceres.grender.support.DefaultViewport;
+import com.bc.ceres.grender.swing.ViewportScrollPane;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.ui.PixelPositionListener;
@@ -32,17 +26,14 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerListener;
-import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glevel.LayerImage;
-import com.bc.ceres.glevel.support.DefaultLayerImage;
-import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.grender.ViewportListener;
-import com.bc.ceres.grender.support.BufferedImageRendering;
-import com.bc.ceres.grender.support.DefaultViewport;
-import com.bc.ceres.grender.swing.ViewportScrollPane;
+import javax.media.jai.Interpolation;
+import javax.swing.JComponent;
+import java.awt.*;
+import java.awt.geom.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.beans.PropertyChangeEvent;
+import java.io.IOException;
 
 public class ProductSceneView45 extends ProductSceneView {
 
@@ -137,9 +128,9 @@ public class ProductSceneView45 extends ProductSceneView {
                 * DefaultViewport.getScale(thumbnailViewport.getModelToViewTransform());
 
         return new Rectangle((int) Math.floor(tnOffset.getX()),
-                (int) Math.floor(tnOffset.getY()),
-                (int) Math.floor(canvasViewport.getBounds().width * scale),
-                (int) Math.floor(canvasViewport.getBounds().height * scale));
+                             (int) Math.floor(tnOffset.getY()),
+                             (int) Math.floor(canvasViewport.getBounds().width * scale),
+                             (int) Math.floor(canvasViewport.getBounds().height * scale));
     }
 
     private void configureThumbnailViewport(Viewport thumbnailViewport) {
@@ -246,11 +237,11 @@ public class ProductSceneView45 extends ProductSceneView {
         final String expression = getRaster().getValidMaskExpression();
         if (expression != null) {
             // todo - get color from style, set color
-            final LayerImage layerImage = MaskLayerImageFactory.create(getRaster().getProduct(), Color.ORANGE, expression,
-                    true, new AffineTransform());
-            getNoDataLayer().setLayerImage(layerImage);
+            final ImageLayerModel imageLayerModel = MaskLayerImageFactory.create(getRaster().getProduct(), Color.ORANGE, expression,
+                                                                                 true, new AffineTransform());
+            getNoDataLayer().setLayerImage(imageLayerModel);
         } else {
-            getNoDataLayer().setLayerImage(LayerImage.NULL);
+            getNoDataLayer().setLayerImage(ImageLayerModel.NULL);
         }
 
         fireImageUpdated();
@@ -273,10 +264,10 @@ public class ProductSceneView45 extends ProductSceneView {
     public void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception {
         if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
             // todo - get color from style, set color
-            final LayerImage layerImage = RoiLayerImageFactory.create(getRaster(), Color.RED, new AffineTransform());
-            getRoiLayer().setLayerImage(layerImage);
+            final ImageLayerModel imageLayerModel = RoiLayerImageFactory.create(getRaster(), Color.RED, new AffineTransform());
+            getRoiLayer().setLayerImage(imageLayerModel);
         } else {
-            getRoiLayer().setLayerImage(LayerImage.NULL);
+            getRoiLayer().setLayerImage(ImageLayerModel.NULL);
         }
 
         fireImageUpdated();
@@ -287,7 +278,7 @@ public class ProductSceneView45 extends ProductSceneView {
         final RenderedImage roiImage = getRoiLayer().getImage(0);
 
         // for compatibility to 42
-        if (roiImage == LayerImage.NULL) {
+        if (roiImage == ImageLayerModel.NULL) {
             return null;
         }
 
@@ -297,9 +288,12 @@ public class ProductSceneView45 extends ProductSceneView {
     @Override
     public void setROIImage(RenderedImage roiImage) {
         // used by MagicStick only
-        // TODO fix LayerImage creation: transformation ?, levelcount ?
-        getRoiLayer().setLayerImage(new DefaultLayerImage(roiImage, new AffineTransform(), 0,
-                                    Interpolation.getInstance(Interpolation.INTERP_NEAREST)));
+        // TODO fix ImageLayerModel creation: transformation ?, levelcount ?
+        getRoiLayer().setLayerImage(
+                new DefaultImageLayerModel(
+                        new DefaultLevelImageSource(roiImage, 0, Interpolation.getInstance(Interpolation.INTERP_NEAREST)),
+                        new AffineTransform(),
+                        null));
         fireImageUpdated();
     }
 

@@ -1,5 +1,20 @@
 package org.esa.beam.jai;
 
+import com.bc.ceres.core.Assert;
+import com.bc.ceres.glevel.LevelImageSource;
+import com.bc.ceres.glevel.support.AbstractLevelImageSource;
+import com.bc.ceres.glevel.support.MultiLevelImage;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.draw.Figure;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.ImageUtils;
+import org.esa.beam.util.IntMap;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.jai.JAIUtils;
+import org.esa.beam.util.math.Histogram;
+
+import javax.media.jai.*;
+import javax.media.jai.operator.*;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.RenderingHints;
@@ -12,65 +27,21 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import javax.media.jai.ImageLayout;
-import javax.media.jai.Interpolation;
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.ROI;
-import javax.media.jai.RenderedOp;
-import javax.media.jai.operator.BandMergeDescriptor;
-import javax.media.jai.operator.ConstantDescriptor;
-import javax.media.jai.operator.ExpDescriptor;
-import javax.media.jai.operator.ExtremaDescriptor;
-import javax.media.jai.operator.FormatDescriptor;
-import javax.media.jai.operator.HistogramDescriptor;
-import javax.media.jai.operator.InvertDescriptor;
-import javax.media.jai.operator.MaxDescriptor;
-import javax.media.jai.operator.MinDescriptor;
-import javax.media.jai.operator.RescaleDescriptor;
-import javax.media.jai.operator.ScaleDescriptor;
-
-import org.esa.beam.framework.datamodel.AbstractBand;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ROIDefinition;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.draw.Figure;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.ImageUtils;
-import org.esa.beam.util.IntMap;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.jai.JAIUtils;
-import org.esa.beam.util.math.Histogram;
-
-import com.bc.ceres.core.Assert;
-import com.bc.ceres.glevel.LevelImageFactory;
-import com.bc.ceres.glevel.IMultiLevelImage;
-import com.bc.ceres.glevel.support.MultiLevelImageImpl;
-
 
 public class ImageManager {
     private final static int MAX_PIXEL_COUNT = 256 * 256;
     private static final ColorPaletteDef.Point OTHER_POINT = new ColorPaletteDef.Point(Double.NaN, Color.BLACK, "Other");
 
     private final static ImageManager INSTANCE = new ImageManager();
-    private final Map<Object, IMultiLevelImage> maskImageMap = new WeakHashMap<Object, IMultiLevelImage>(101);
+    private final Map<Object, LevelImageSource> maskImageMap = new WeakHashMap<Object, LevelImageSource>(101);
 
     public static ImageManager getInstance() {
         return INSTANCE;
     }
 
     public synchronized void dispose() {
-        for (IMultiLevelImage image : maskImageMap.values()) {
-            image.dispose();
+        for (LevelImageSource levelImageSource : maskImageMap.values()) {
+            levelImageSource.reset();
         }
         maskImageMap.clear();
     }
@@ -154,7 +125,7 @@ public class ImageManager {
     public static int getProductDataType(int dataBufferType) {
         switch (dataBufferType) {
             case DataBuffer.TYPE_BYTE:
-               return ProductData.TYPE_INT8;
+                return ProductData.TYPE_INT8;
             case DataBuffer.TYPE_SHORT:
                 return ProductData.TYPE_INT16;
             case DataBuffer.TYPE_USHORT:
@@ -302,25 +273,31 @@ public class ImageManager {
         if (levelZeroImage == null) {
             if (rasterDataNode instanceof TiePointGrid) {
                 final TiePointGrid tiePointGrid = (TiePointGrid) rasterDataNode;
-                levelZeroImage = new MultiLevelImageImpl(new LevelImageFactory() {
+                levelZeroImage = new MultiLevelImage(new AbstractLevelImageSource(8) { // todo - LEVEL!!!
+
                     @Override
                     public RenderedImage createLevelImage(int level) {
                         return new TiePointGridOpImage(tiePointGrid, level);
-                    }});
+                    }
+                });
             } else if (rasterDataNode instanceof VirtualBand) {
                 final VirtualBand virtualBand = (VirtualBand) rasterDataNode;
-                levelZeroImage = new MultiLevelImageImpl(new LevelImageFactory() {
+                levelZeroImage = new MultiLevelImage(new AbstractLevelImageSource(8) { // todo - LEVEL!!!
+
                     @Override
                     public RenderedImage createLevelImage(int level) {
                         return new VirtualBandOpImage(new Product[]{virtualBand.getProduct()}, virtualBand.getExpression(), virtualBand.getDataType(), level);
-                    }});
+                    }
+                });
             } else if (rasterDataNode instanceof AbstractBand) {
                 final AbstractBand band = (AbstractBand) rasterDataNode;
-                levelZeroImage = new MultiLevelImageImpl(new LevelImageFactory() {
+                levelZeroImage = new MultiLevelImage(new AbstractLevelImageSource(8) { // todo - LEVEL!!!
+
                     @Override
                     public RenderedImage createLevelImage(int level) {
                         return new BandOpImage(band, level);
-                    }});
+                    }
+                });
             } else {
                 throw new IllegalArgumentException("rasterDataNode: unknown subclass " + rasterDataNode.getClass());
             }
@@ -331,7 +308,7 @@ public class ImageManager {
 
     public PlanarImage getGeophysicalBandImage(RasterDataNode rasterDataNode, int level) {
         final PlanarImage image = getBandImage(rasterDataNode, level);
-return image; // TODO!!!!       
+        return image; // TODO!!!!
 //        RenderedImage levelZeroImage = null; //= rasterDataNode.getGeophysicalSourceImage();
 //        if (levelZeroImage == null) {
 //            levelZeroImage = createGeophysicalSourceImage(rasterDataNode);
@@ -344,8 +321,8 @@ return image; // TODO!!!!
         RenderedImage image;
         if (level == 0) {
             image = levelZeroImage;
-        } else if (levelZeroImage instanceof IMultiLevelImage) {
-            image = ((IMultiLevelImage) levelZeroImage).getLevelImage(level);
+        } else if (levelZeroImage instanceof LevelImageSource) {
+            image = ((LevelImageSource) levelZeroImage).getLevelImage(level);
         } else {
             image = createDownscaledImage(levelZeroImage, level);
         }
@@ -364,16 +341,18 @@ return image; // TODO!!!!
     public SingleBandedOpImage getMaskImage(final Product product, final String expression, int level) {
         final Object key = new MaskKey(product, expression);
         synchronized (maskImageMap) {
-            IMultiLevelImage mrImage = maskImageMap.get(key);
+            LevelImageSource mrImage = maskImageMap.get(key);
             if (mrImage == null) {
-                mrImage = new MultiLevelImageImpl(new LevelImageFactory() {
+                mrImage = new AbstractLevelImageSource(8) { // todo - LEVEL!!!
+
                     @Override
                     public RenderedImage createLevelImage(int level) {
                         return MaskOpImage.create(product, expression, level);
-                    }});
+                    }
+                };
                 maskImageMap.put(key, mrImage);
             }
-             // Note: cast is ok, because interface of IMultiLevelImage requires to return same type
+            // Note: cast is ok, because interface of LevelImageSource requires to return same type
             return (SingleBandedOpImage) mrImage.getLevelImage(level);
         }
     }
@@ -385,11 +364,13 @@ return image; // TODO!!!!
         }
         RenderedImage levelZeroImage = rasterDataNode.getValidMaskImage();
         if (levelZeroImage == null) {
-            levelZeroImage = new MultiLevelImageImpl(new LevelImageFactory() {
+            levelZeroImage = new MultiLevelImage(new AbstractLevelImageSource(8) { // todo - LEVEL!!!
+
                 @Override
                 public RenderedImage createLevelImage(int level) {
                     return MaskOpImage.create(rasterDataNode, level);
-                }});
+                }
+            });
             rasterDataNode.setValidMaskImage(levelZeroImage);
         }
         return getDownscaledImage(levelZeroImage, level);
@@ -657,17 +638,19 @@ return image; // TODO!!!!
         if (roiDefinition.isPinUseEnabled() && rasterDataNode.getProduct().getPinGroup().getNodeCount() > 0) {
 
             final Object key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getName() + "_RoiPlacemarks");
-            IMultiLevelImage placemarkMaskMRImage = null;
+            LevelImageSource placemarkMaskMRImage = null;
             synchronized (maskImageMap) {
                 placemarkMaskMRImage = maskImageMap.get(key);
                 if (placemarkMaskMRImage == null) {
-                    placemarkMaskMRImage = new MultiLevelImageImpl(new LevelImageFactory() {
+                    placemarkMaskMRImage = new AbstractLevelImageSource(8) { // todo - LEVEL!!!
+
                         @Override
                         public RenderedImage createLevelImage(int level) {
                             return new PlacemarkMaskOpImage(rasterDataNode.getProduct(), PinDescriptor.INSTANCE, 3,
-                                    rasterDataNode.getSceneRasterWidth(),
-                                    rasterDataNode.getSceneRasterHeight(), level);
-                        }});
+                                                            rasterDataNode.getSceneRasterWidth(),
+                                                            rasterDataNode.getSceneRasterHeight(), level);
+                        }
+                    };
                     maskImageMap.put(key, placemarkMaskMRImage);
                 }
             }
@@ -679,19 +662,21 @@ return image; // TODO!!!!
         if (roiDefinition.isShapeEnabled() && roiShapeFigure != null) {
 
             final Object key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getName() + "_RoiShapes");
-            IMultiLevelImage shapeMaskMRImage = null;
+            LevelImageSource shapeMaskMRImage = null;
             synchronized (maskImageMap) {
                 shapeMaskMRImage = maskImageMap.get(key);
                 if (shapeMaskMRImage == null) {
                     final Shape roiShape = roiShapeFigure.getShape();
-                    shapeMaskMRImage = new MultiLevelImageImpl(new LevelImageFactory() {
+                    shapeMaskMRImage = new AbstractLevelImageSource(8) { // todo - LEVEL!!!
+
                         @Override
                         public RenderedImage createLevelImage(int level) {
                             return new ShapeMaskOpImage(roiShape,
-                                    rasterDataNode.getSceneRasterWidth(),
-                                    rasterDataNode.getSceneRasterHeight(),
-                                    level);
-                        }});
+                                                        rasterDataNode.getSceneRasterWidth(),
+                                                        rasterDataNode.getSceneRasterHeight(),
+                                                        level);
+                        }
+                    };
                     maskImageMap.put(key, shapeMaskMRImage);
                 }
             }

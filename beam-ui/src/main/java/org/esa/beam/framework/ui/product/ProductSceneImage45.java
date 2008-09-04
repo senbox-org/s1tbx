@@ -3,7 +3,7 @@ package org.esa.beam.framework.ui.product;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glevel.LayerImage;
+import com.bc.ceres.glevel.ImageLayerModel;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.glayer.FigureLayer;
@@ -28,31 +28,31 @@ import java.util.List;
 class ProductSceneImage45 extends ProductSceneImage {
 
     private Layer rootLayer;
-    private LayerImage layerImage;
+    private ImageLayerModel imageLayerModel;
 
     ProductSceneImage45(RasterDataNode raster, ProductSceneView45 view) throws IOException {
         super(raster.getDisplayName(), new RasterDataNode[]{raster}, view.getImageInfo());
-        layerImage = view.getSceneImage45().getLayerImage();
+        imageLayerModel = view.getSceneImage45().getLayerImage();
         rootLayer = view.getRootLayer();
     }
 
     ProductSceneImage45(RasterDataNode raster) throws IOException {
         super(raster.getDisplayName(), new RasterDataNode[]{raster}, raster.getImageInfo());
-        layerImage = BandLayerImageFactory.create(raster, new AffineTransform());
+        imageLayerModel = BandLayerImageFactory.create(raster, new AffineTransform());
         setImageInfo(raster.getImageInfo());
         initRootLayer();
     }
 
     ProductSceneImage45(RasterDataNode[] rasters) throws IOException {
         super("RGB", rasters, null);
-        layerImage = BandLayerImageFactory.create(rasters, new AffineTransform());
+        imageLayerModel = BandLayerImageFactory.create(rasters, new AffineTransform());
         setImageInfo(ProductUtils.createImageInfo(rasters, false, ProgressMonitor.NULL));
         initRootLayer();
     }
 
     private void initRootLayer() {
         rootLayer = new Layer();
-        final ImageLayer imageLayer = new ImageLayer(layerImage);
+        final ImageLayer imageLayer = new ImageLayer(imageLayerModel);
         imageLayer.setName(getName());
         imageLayer.setVisible(true);
         rootLayer.getChildLayerList().add(imageLayer);
@@ -77,17 +77,17 @@ class ProductSceneImage45 extends ProductSceneImage {
     }
 
     private ImageLayer createNoDataLayer() {
-        final LayerImage layerImage;
+        final ImageLayerModel imageLayerModel;
 
         if (getRaster().getValidMaskExpression() != null) {
             // todo - get color from style, set color
-            layerImage = MaskLayerImageFactory.create(getRaster().getProduct(), Color.ORANGE,
+            imageLayerModel = MaskLayerImageFactory.create(getRaster().getProduct(), Color.ORANGE,
                     getRaster().getValidMaskExpression(), true, new AffineTransform());
         } else {
-            layerImage = LayerImage.NULL;
+            imageLayerModel = ImageLayerModel.NULL;
         }
 
-        final ImageLayer noDataLayer = new ImageLayer(layerImage);
+        final ImageLayer noDataLayer = new ImageLayer(imageLayerModel);
         noDataLayer.setName("No-data mask of " + getRaster().getName());
         noDataLayer.setVisible(false);
         noDataLayer.getStyle().setOpacity(0.5);
@@ -103,16 +103,16 @@ class ProductSceneImage45 extends ProductSceneImage {
     }
 
     private ImageLayer createRoiLayer() {
-        final LayerImage layerImage;
+        final ImageLayerModel imageLayerModel;
 
         if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
             // todo - get color from style, set color
-            layerImage = RoiLayerImageFactory.create(getRaster(), Color.RED, new AffineTransform());
+            imageLayerModel = RoiLayerImageFactory.create(getRaster(), Color.RED, new AffineTransform());
         } else {
-            layerImage = LayerImage.NULL;
+            imageLayerModel = ImageLayerModel.NULL;
         }
 
-        final ImageLayer roiLayer = new ImageLayer(layerImage);
+        final ImageLayer roiLayer = new ImageLayer(imageLayerModel);
         roiLayer.setName("ROI of " + getRaster().getName());
         roiLayer.setVisible(false);
         roiLayer.getStyle().setOpacity(0.5);
@@ -160,9 +160,9 @@ class ProductSceneImage45 extends ProductSceneImage {
     private Layer createBitmaskLayer(final BitmaskDef bitmaskDef) {
         final Color color = bitmaskDef.getColor();
         final String expr = bitmaskDef.getExpr();
-        final LayerImage image = MaskLayerImageFactory.create(getProduct(), color, expr, false, new AffineTransform());
+        final ImageLayerModel imageLayerModel = MaskLayerImageFactory.create(getProduct(), color, expr, false, new AffineTransform());
 
-        final Layer layer = new ImageLayer(image);
+        final Layer layer = new ImageLayer(imageLayerModel);
         layer.setName(bitmaskDef.getName());
         layer.setVisible(false);
         layer.getStyle().setOpacity(bitmaskDef.getAlpha());
@@ -174,8 +174,8 @@ class ProductSceneImage45 extends ProductSceneImage {
         return rootLayer;
     }
 
-    private LayerImage getLayerImage() {
-        return layerImage;
+    private ImageLayerModel getLayerImage() {
+        return imageLayerModel;
     }
 
     private class BitmaskDefListener implements ProductNodeListener {

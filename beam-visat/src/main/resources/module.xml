@@ -34,7 +34,7 @@
         [BEAM-633] Ask before removing pins<br>
         [BEAM-634] Make pin size independent of zoom factor<br>
         [BEAM-636] Make pin labels nicer<br>
-        [BEAM-660] Speedup image creation process<br>
+        [BEAM-660] Speedup imageLayerModel creation process<br>
         [BEAM-671] Pin pixel coordinates should be floating point numbers<br>
         [BEAM-672] Include spectral unmixing tool<br>
         [BEAM-673] Allow for multiple spectra in spectrum view<br>

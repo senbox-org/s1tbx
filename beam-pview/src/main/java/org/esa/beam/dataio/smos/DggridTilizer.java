@@ -1,13 +1,14 @@
 package org.esa.beam.dataio.smos;
 
-import com.bc.ceres.glevel.support.DefaultLayerImage;
+import com.bc.ceres.glevel.support.DefaultImageLayerModel;
+import com.bc.ceres.glevel.support.DefaultLevelImageSource;
 import org.esa.beam.jai.TiledFileOpImage;
 
 import javax.imageio.stream.ImageOutputStream;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 import javax.media.jai.Interpolation;
 import javax.media.jai.PlanarImage;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.DataBufferInt;
 import java.awt.image.Raster;
@@ -33,10 +34,11 @@ public class DggridTilizer {
         int tileWidth = 512;
         int tileHeight = 512;
         final int levelCount = 7;
-        final DefaultLayerImage layerImage = new DefaultLayerImage(opImage, new AffineTransform(), levelCount, Interpolation.getInstance(Interpolation.INTERP_NEAREST));
+        final DefaultImageLayerModel layerImage = new DefaultImageLayerModel(new DefaultLevelImageSource(opImage, levelCount, Interpolation.getInstance(Interpolation.INTERP_NEAREST)),
+                                                                             new AffineTransform(), null);
         for (int level = 5; level < levelCount; level++) {
 
-            final PlanarImage image = PlanarImage.wrapRenderedImage(layerImage.getLevelImage(level));
+            final PlanarImage image = PlanarImage.wrapRenderedImage(layerImage.getLevelImageSource().getLevelImage(level));
 
             final int width = image.getWidth();
             final int height = image.getHeight();

@@ -16,6 +16,18 @@
  */
 package org.esa.beam.dataio.smos;
 
+import com.bc.ceres.binio.Format;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glevel.ImageLayerModel;
+import com.bc.ceres.glevel.support.AbstractLevelImageSource;
+import com.bc.ceres.glevel.support.MultiLevelImage;
+import org.esa.beam.framework.dataio.AbstractProductReader;
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.glevel.TiledFileLayerImageFactory;
+import org.esa.beam.util.io.FileUtils;
+
+import javax.media.jai.JAI;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
@@ -24,25 +36,6 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.media.jai.JAI;
-
-import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.glevel.TiledFileLayerImageFactory;
-import org.esa.beam.util.io.FileUtils;
-
-import com.bc.ceres.binio.Format;
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glevel.LevelImageFactory;
-import com.bc.ceres.glevel.LayerImage;
-import com.bc.ceres.glevel.IMultiLevelImage;
-import com.bc.ceres.glevel.support.MultiLevelImageImpl;
 
 
 public class SmosProductReader extends AbstractProductReader {
@@ -68,7 +61,7 @@ public class SmosProductReader extends AbstractProductReader {
         bandDescrMap.put("BT_Value_Imag", new BandDescr("BT_Value_Imag", 2));
     }
 
-    private static LayerImage dggridLayerImage;
+    private static ImageLayerModel dggridImageLayerModel;
 
     SmosProductReader(final SmosProductReaderPlugIn productReaderPlugIn) {
         super(productReaderPlugIn);
@@ -76,14 +69,14 @@ public class SmosProductReader extends AbstractProductReader {
 
     @Override
     protected synchronized Product readProductNodesImpl() throws IOException {
-        if (dggridLayerImage == null) {
+        if (dggridImageLayerModel == null) {
             String dirPath = System.getProperty(SMOS_DGG_DIR_PROPERTY_NAME);
             if (dirPath == null || !new File(dirPath).exists()) {
                 throw new IOException(
                         MessageFormat.format("SMOS products require a DGG image.\nPlease set system property ''{0}''to a valid DGG image directory.", SMOS_DGG_DIR_PROPERTY_NAME));
             }
             try {
-                dggridLayerImage = TiledFileLayerImageFactory.create(new File(dirPath), false);
+                dggridImageLayerModel = TiledFileLayerImageFactory.create(new File(dirPath), false);
             } catch (IOException e) {
                 throw new IOException(MessageFormat.format("Failed to load SMOS DDG ''{0}''", dirPath), e);
             }
@@ -141,20 +134,24 @@ public class SmosProductReader extends AbstractProductReader {
 
     private RenderedImage createSourceImage(final Band band) {
         final int btDataIndex = bandDescrMap.get(band.getName()).btDataIndex;
-        IMultiLevelImage image = new MultiLevelImageImpl(new LevelImageFactory() {
+        MultiLevelImage image = new MultiLevelImage(new AbstractLevelImageSource(8) {  // TODO - LEVEL!!!
+
             @Override
             public RenderedImage createLevelImage(int level) {
-                return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridLayerImage.getLevelImage(level), level);
-            }});
+                return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridImageLayerModel.getLevelImageSource().getLevelImage(level), level);
+            }
+        });
         return image;
     }
 
     private RenderedImage createValidMaksImage(final Band band) {
-        IMultiLevelImage image = new MultiLevelImageImpl(new LevelImageFactory() {
+        MultiLevelImage image = new MultiLevelImage(new AbstractLevelImageSource(8) {  // TODO - LEVEL!!!
+
             @Override
             public RenderedImage createLevelImage(int level) {
                 return new SmosL1ValidImage(band, level);
-            }});
+            }
+        });
         return image;
     }
 

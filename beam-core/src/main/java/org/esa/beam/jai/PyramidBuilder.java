@@ -1,7 +1,8 @@
 package org.esa.beam.jai;
 
-import com.bc.ceres.glevel.support.DefaultLayerImage;
-import com.bc.ceres.glevel.LayerImage;
+import com.bc.ceres.glevel.support.DefaultImageLayerModel;
+import com.bc.ceres.glevel.support.DefaultLevelImageSource;
+import com.bc.ceres.glevel.ImageLayerModel;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
@@ -51,22 +52,22 @@ public class PyramidBuilder {
         int tileWidth = tileWidth0;
         int tileHeight = tileHeight0;
 
-        final LayerImage layerImage;
+        final ImageLayerModel imageLayerModel;
         boolean rawZip = tileFormat.equalsIgnoreCase("raw.zip");
         boolean raw = tileFormat.equalsIgnoreCase("raw") || rawZip;
         if (raw) {
             final TiledFileOpImage image0 = TiledFileOpImage.create(imageFile, new Properties());
             dataType = image0.getSampleModel().getDataType();
-            layerImage = new DefaultLayerImage(image0, new AffineTransform(), levelCount, Interpolation.getInstance(Interpolation.INTERP_NEAREST));
+            imageLayerModel = new DefaultImageLayerModel(new DefaultLevelImageSource(image0, levelCount, Interpolation.getInstance(Interpolation.INTERP_NEAREST)), new AffineTransform(), null);
         } else {
             final RenderedOp image0 = FileLoadDescriptor.create(imageFile.getPath(), null, true, null);
             dataType = image0.getSampleModel().getDataType();
-            layerImage = new DefaultLayerImage(image0, new AffineTransform(), levelCount, Interpolation.getInstance(Interpolation.INTERP_BICUBIC));
+            imageLayerModel = new DefaultImageLayerModel(new DefaultLevelImageSource(image0, levelCount, Interpolation.getInstance(Interpolation.INTERP_BICUBIC)), new AffineTransform(), null);
         }
 
         for (int level = 0; level < levelCount; level++) {
 
-            final PlanarImage image = PlanarImage.wrapRenderedImage(layerImage.getLevelImage(level));
+            final PlanarImage image = PlanarImage.wrapRenderedImage(imageLayerModel.getLevelImageSource().getLevelImage(level));
 
             final int width = image.getWidth();
             final int height = image.getHeight();

@@ -16,14 +16,14 @@ import javax.media.jai.PlanarImage;
 import org.esa.beam.jai.TiledFileOpImage;
 
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.glevel.LayerImage;
+import com.bc.ceres.glevel.ImageLayerModel;
 import com.bc.ceres.glevel.support.AbstractLevelImageSource;
-import com.bc.ceres.glevel.support.DefaultLayerImage;
+import com.bc.ceres.glevel.support.DefaultImageLayerModel;
 
 
 public class TiledFileLayerImageFactory {
 
-    public static LayerImage create(File imageDir, boolean visualDebug) throws IOException {
+    public static ImageLayerModel create(File imageDir, boolean visualDebug) throws IOException {
         Assert.notNull(imageDir);
         final Properties imageProperties = new Properties();
         imageProperties.load(new FileReader(new File(imageDir, "image.properties")));
@@ -33,9 +33,8 @@ public class TiledFileLayerImageFactory {
         // todo - read 6 parameters from properties1
         final AffineTransform imageToModelTransform = AffineTransform.getScaleInstance(360.0 / sourceWidth, 180.0 / sourceHeight);
         final LIS levelImageSource = new LIS(imageDir, imageProperties, visualDebug, levelCount);
-        Rectangle2D modelBounds = DefaultLayerImage.getModelBounds(imageToModelTransform, sourceWidth, sourceHeight);
-        DefaultLayerImage defaultLayerImage = new DefaultLayerImage(levelImageSource, imageToModelTransform, modelBounds);
-        return defaultLayerImage;
+        Rectangle2D modelBounds = DefaultImageLayerModel.getModelBounds(imageToModelTransform, sourceWidth, sourceHeight);
+        return new DefaultImageLayerModel(levelImageSource, imageToModelTransform, modelBounds);
     }
 
     private static class LIS extends AbstractLevelImageSource {

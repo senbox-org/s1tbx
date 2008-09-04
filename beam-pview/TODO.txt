@@ -9,8 +9,8 @@ Missing Features
 Problems with existing BEAM components
 ======================================
 
-1) PixelPositionListener: change events can only be fired by image layers
-2) ImageUpdateListener: change events can only be fired by image layers
+1) PixelPositionListener: change events can only be fired by imageLayerModel layers
+2) ImageUpdateListener: change events can only be fired by imageLayerModel layers
 3) Currently no idea how to apply color manipulations to the JAI DAG
 
 Plan
@@ -24,7 +24,7 @@ All changes regarding the new imaging model are marked "TODO IMAGING 4.5"
 * Minimize ImageDisplay usages in ProductSceneView (done)
 * Remove all references to ImageDisplay in rest of BEAM API (done, still ref. in NavigationCanvas)
 * Replace usages of ImageDisplay component by LayerCanvas
-* Replace usages of ImageDisplay image by ImageLayer image
+* Replace usages of ImageDisplay imageLayerModel by ImageLayer imageLayerModel
 * Replace usages of ViewModel by Viewport
 * Replace usages of LayerModel by CollectionLayer
 * Remove ImageDisplay
