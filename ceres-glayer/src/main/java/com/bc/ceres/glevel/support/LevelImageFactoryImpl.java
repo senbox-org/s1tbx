@@ -1,6 +1,6 @@
 package com.bc.ceres.glevel.support;
 
-import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.IMultiLevelImage;
 import com.bc.ceres.glevel.LevelImageFactory;
 
 import javax.media.jai.Interpolation;
@@ -34,8 +34,8 @@ public class LevelImageFactoryImpl implements LevelImageFactory {
     public final RenderedImage createLevelImage(int level) {
         final RenderedImage lrSource;
         if (level > 0) {
-            if (getFRSourceImage() instanceof MultiLevelImage) {
-                lrSource = ((MultiLevelImage) getFRSourceImage()).getLevelImage(level);
+            if (getFRSourceImage() instanceof IMultiLevelImage) {
+                lrSource = ((IMultiLevelImage) getFRSourceImage()).getLevelImage(level);
             } else {
                 lrSource = createLRSourceImage(convertLevelToScale(level));
             }

@@ -1,7 +1,7 @@
 package com.bc.ceres.glevel.support;
 
 import com.bc.ceres.glevel.LevelImageFactory;
-import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.IMultiLevelImage;
 
 import javax.media.jai.RenderedImageAdapter;
 import java.awt.image.RenderedImage;
@@ -12,7 +12,7 @@ import java.awt.image.RenderedImage;
  * @author Norman Fomferra
  * @version $revision$ $date$
  */
-public class MultiLevelImageImpl extends RenderedImageAdapter implements MultiLevelImage {
+public class MultiLevelImageImpl extends RenderedImageAdapter implements IMultiLevelImage {
 
     private final MultiLevelImageSupport multiLevelImageSupport;
 

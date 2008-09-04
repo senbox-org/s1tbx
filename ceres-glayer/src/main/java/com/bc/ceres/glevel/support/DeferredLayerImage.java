@@ -4,13 +4,13 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 
 import com.bc.ceres.glevel.LevelImageFactory;
-import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.IMultiLevelImage;
 
 // todo - move code to DefaultLayerImage
 public class DeferredLayerImage extends AbstractLayerImage {
 
     private final LevelImageFactory levelImageFactory;
-    private MultiLevelImage mrImage;
+    private IMultiLevelImage mrImage;
 
     public DeferredLayerImage(AffineTransform imageToModelTransform, int levelCount, LevelImageFactory levelImageFactory) {
         super(imageToModelTransform, levelCount);

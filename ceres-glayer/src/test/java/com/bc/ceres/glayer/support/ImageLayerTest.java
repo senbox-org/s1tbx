@@ -3,10 +3,7 @@ package com.bc.ceres.glayer.support;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import static com.bc.ceres.glayer.Assert2D.*;
-import com.bc.ceres.glayer.LayerTest;
 import com.bc.ceres.glevel.LayerImage;
-import com.bc.ceres.glevel.support.NullLayerImage;
-import com.bc.ceres.grender.Rendering;
 
 import javax.media.jai.TiledImage;
 import java.awt.geom.AffineTransform;

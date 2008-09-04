@@ -23,7 +23,6 @@ import java.awt.image.RenderedImage;
  *
  * @author Marco Zuehlke
  * @version $Revision$ $Date$
- * @since BEAM 4.2
  */
 public interface LevelImage extends RenderedImage {
     int getLevel();

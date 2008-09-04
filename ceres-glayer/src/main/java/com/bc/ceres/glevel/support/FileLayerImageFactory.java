@@ -12,19 +12,18 @@ import java.io.File;
 public class FileLayerImageFactory {
 
     public static LayerImage create(File location, String extension, AffineTransform imageToModelTransform, int levelCount) {
-        DeferredLayerImage deferredLayerImage = new DeferredLayerImage(
-                imageToModelTransform, levelCount, new Factory(location, location.getName(), extension));
-        Rectangle2D modelBounds2 = AbstractLayerImage.getModelBounds(imageToModelTransform, deferredLayerImage.getLevelImage(0));
-        deferredLayerImage.setModelBounds(modelBounds2);
-        return deferredLayerImage;
+        final LIS levelImageSource = new LIS(location, location.getName(), extension, levelCount);
+        Rectangle2D modelBounds = AbstractLayerImage.getModelBounds(imageToModelTransform, levelImageSource.getLevelImage(0));
+        return new DefaultLayerImage(levelImageSource, imageToModelTransform, modelBounds);
     }
 
-    private static class Factory implements LevelImageFactory {
+    private static class LIS extends AbstractLevelImageSource {
         private final File location;
         private final String basename;
         private final String extension;
 
-        public Factory(File location, String basename, String extension) {
+        public LIS(File location, String basename, String extension, int levelCount) {
+            super(levelCount);
             this.location = location;
             this.basename = basename;
             this.extension = extension;

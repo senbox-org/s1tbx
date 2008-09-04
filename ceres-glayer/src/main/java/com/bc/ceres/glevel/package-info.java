@@ -5,7 +5,7 @@ package com.bc.ceres.glevel;
  *
  * The framework has been designed taking into account the following requirements:
  * <ul>
- *   <li>A multi-resolution image ({@link MultiLevelImage}) shall manage its lower-resolution instances such that
+ *   <li>A multi-resolution image ({@link IMultiLevelImage}) shall manage its lower-resolution instances such that
  *       the same lower-resolution image instance is returned for the same level.
  *   </li>
  *   <li>It should be possible to add the multi-resolution capability to any existing {@code RenderedImage} (see {@link MultiLevelImageImpl}).
