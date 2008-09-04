@@ -41,7 +41,7 @@ import com.bc.ceres.binio.Format;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.LevelImageFactory;
 import com.bc.ceres.glevel.LayerImage;
-import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.IMultiLevelImage;
 import com.bc.ceres.glevel.support.MultiLevelImageImpl;
 
 
@@ -141,7 +141,7 @@ public class SmosProductReader extends AbstractProductReader {
 
     private RenderedImage createSourceImage(final Band band) {
         final int btDataIndex = bandDescrMap.get(band.getName()).btDataIndex;
-        MultiLevelImage image = new MultiLevelImageImpl(new LevelImageFactory() {
+        IMultiLevelImage image = new MultiLevelImageImpl(new LevelImageFactory() {
             @Override
             public RenderedImage createLevelImage(int level) {
                 return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridLayerImage.getLevelImage(level), level);
@@ -150,7 +150,7 @@ public class SmosProductReader extends AbstractProductReader {
     }
 
     private RenderedImage createValidMaksImage(final Band band) {
-        MultiLevelImage image = new MultiLevelImageImpl(new LevelImageFactory() {
+        IMultiLevelImage image = new MultiLevelImageImpl(new LevelImageFactory() {
             @Override
             public RenderedImage createLevelImage(int level) {
                 return new SmosL1ValidImage(band, level);

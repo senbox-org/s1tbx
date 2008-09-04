@@ -53,7 +53,7 @@ import org.esa.beam.util.math.Histogram;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.LevelImageFactory;
-import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.IMultiLevelImage;
 import com.bc.ceres.glevel.support.MultiLevelImageImpl;
 
 
@@ -62,14 +62,14 @@ public class ImageManager {
     private static final ColorPaletteDef.Point OTHER_POINT = new ColorPaletteDef.Point(Double.NaN, Color.BLACK, "Other");
 
     private final static ImageManager INSTANCE = new ImageManager();
-    private final Map<Object, MultiLevelImage> maskImageMap = new WeakHashMap<Object, MultiLevelImage>(101);
+    private final Map<Object, IMultiLevelImage> maskImageMap = new WeakHashMap<Object, IMultiLevelImage>(101);
 
     public static ImageManager getInstance() {
         return INSTANCE;
     }
 
     public synchronized void dispose() {
-        for (MultiLevelImage image : maskImageMap.values()) {
+        for (IMultiLevelImage image : maskImageMap.values()) {
             image.dispose();
         }
         maskImageMap.clear();
@@ -344,8 +344,8 @@ return image; // TODO!!!!
         RenderedImage image;
         if (level == 0) {
             image = levelZeroImage;
-        } else if (levelZeroImage instanceof MultiLevelImage) {
-            image = ((MultiLevelImage) levelZeroImage).getLevelImage(level);
+        } else if (levelZeroImage instanceof IMultiLevelImage) {
+            image = ((IMultiLevelImage) levelZeroImage).getLevelImage(level);
         } else {
             image = createDownscaledImage(levelZeroImage, level);
         }
@@ -364,7 +364,7 @@ return image; // TODO!!!!
     public SingleBandedOpImage getMaskImage(final Product product, final String expression, int level) {
         final Object key = new MaskKey(product, expression);
         synchronized (maskImageMap) {
-            MultiLevelImage mrImage = maskImageMap.get(key);
+            IMultiLevelImage mrImage = maskImageMap.get(key);
             if (mrImage == null) {
                 mrImage = new MultiLevelImageImpl(new LevelImageFactory() {
                     @Override
@@ -373,7 +373,7 @@ return image; // TODO!!!!
                     }});
                 maskImageMap.put(key, mrImage);
             }
-             // Note: cast is ok, because interface of MultiLevelImage requires to return same type
+             // Note: cast is ok, because interface of IMultiLevelImage requires to return same type
             return (SingleBandedOpImage) mrImage.getLevelImage(level);
         }
     }
@@ -657,7 +657,7 @@ return image; // TODO!!!!
         if (roiDefinition.isPinUseEnabled() && rasterDataNode.getProduct().getPinGroup().getNodeCount() > 0) {
 
             final Object key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getName() + "_RoiPlacemarks");
-            MultiLevelImage placemarkMaskMRImage = null;
+            IMultiLevelImage placemarkMaskMRImage = null;
             synchronized (maskImageMap) {
                 placemarkMaskMRImage = maskImageMap.get(key);
                 if (placemarkMaskMRImage == null) {
@@ -679,7 +679,7 @@ return image; // TODO!!!!
         if (roiDefinition.isShapeEnabled() && roiShapeFigure != null) {
 
             final Object key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getName() + "_RoiShapes");
-            MultiLevelImage shapeMaskMRImage = null;
+            IMultiLevelImage shapeMaskMRImage = null;
             synchronized (maskImageMap) {
                 shapeMaskMRImage = maskImageMap.get(key);
                 if (shapeMaskMRImage == null) {
