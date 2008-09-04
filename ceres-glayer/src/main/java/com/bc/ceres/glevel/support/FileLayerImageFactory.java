@@ -1,19 +1,19 @@
 package com.bc.ceres.glevel.support;
 
-import com.bc.ceres.glevel.LevelImageFactory;
-import com.bc.ceres.glevel.LayerImage;
-
-import javax.media.jai.operator.FileLoadDescriptor;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.io.File;
 
+import javax.media.jai.operator.FileLoadDescriptor;
+
+import com.bc.ceres.glevel.LayerImage;
+
 public class FileLayerImageFactory {
 
     public static LayerImage create(File location, String extension, AffineTransform imageToModelTransform, int levelCount) {
         final LIS levelImageSource = new LIS(location, location.getName(), extension, levelCount);
-        Rectangle2D modelBounds = AbstractLayerImage.getModelBounds(imageToModelTransform, levelImageSource.getLevelImage(0));
+        Rectangle2D modelBounds = DefaultLayerImage.getModelBounds(imageToModelTransform, levelImageSource.getLevelImage(0));
         return new DefaultLayerImage(levelImageSource, imageToModelTransform, modelBounds);
     }
 
@@ -29,6 +29,7 @@ public class FileLayerImageFactory {
             this.extension = extension;
         }
 
+        @Override
         public RenderedImage createLevelImage(int level) {
             final StringBuilder sb = new StringBuilder(basename);
             sb.append('.');
