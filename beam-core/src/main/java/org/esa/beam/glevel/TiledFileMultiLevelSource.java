@@ -57,7 +57,7 @@ public class TiledFileMultiLevelSource extends AbstractMultiLevelSource {
     }
 
     @Override
-    public RenderedImage createLevelImage(int level) {
+    public RenderedImage createImage(int level) {
         PlanarImage image;
         try {
             image = TiledFileOpImage.create(new File(imageDir, level + ""), imageProperties);

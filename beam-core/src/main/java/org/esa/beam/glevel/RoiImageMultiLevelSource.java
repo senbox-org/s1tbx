@@ -38,7 +38,7 @@ public class RoiImageMultiLevelSource extends AbstractMultiLevelSource {
     }
 
     @Override
-    public RenderedImage createLevelImage(int level) {
+    public RenderedImage createImage(int level) {
         return ImageManager.getInstance().createColoredRoiImage(rasterDataNode, color, level);
     }
 }

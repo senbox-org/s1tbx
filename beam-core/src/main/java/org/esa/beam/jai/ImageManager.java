@@ -4,8 +4,7 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.MultiLevelImage;
-import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
-import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
+import com.bc.ceres.glevel.support.*;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.util.Debug;
@@ -37,6 +36,7 @@ public class ImageManager {
 
     private final static ImageManager INSTANCE = new ImageManager();
     private final Map<Object, MultiLevelSource> maskImageMap = new WeakHashMap<Object, MultiLevelSource>(101);
+//    private final Map<RasterDataNode, MultiLevelSource> sourceImageMap = new WeakHashMap<Object, MultiLevelSource>(101);
 
     public static ImageManager getInstance() {
         return INSTANCE;
@@ -157,19 +157,26 @@ public class ImageManager {
         }
     }
 
-    public static PlanarImage createGeophysicalSourceImage(RasterDataNode rdn) {
-        PlanarImage image = PlanarImage.wrapRenderedImage(rdn.getSourceImage());
-        if (!rdn.isScalingApplied()) {
-            return image;
-        } else if (!rdn.isLog10Scaled()) {
-            image = toDouble(image);
-            image = rescale(image, rdn.getScalingFactor(), rdn.getScalingOffset());
-        } else {
-            image = toDouble(image);
-            image = rescale(image, Math.log(10) * rdn.getScalingFactor(), Math.log(10) * rdn.getScalingOffset());
-            image = ExpDescriptor.create(image, null);
-        }
-        return image;
+    public PlanarImage createGeophysicalImage(final RasterDataNode rdn) {
+        final MultiLevelSource source = getBandMultiLevelSource(rdn);
+        final MultiLevelSource geoSource = new GenericMultiLevelSource(source) {
+            @Override
+            protected RenderedImage createImage(RenderedImage[] sourceImages, int level) {
+                PlanarImage image = PlanarImage.wrapRenderedImage(sourceImages[0]);
+                if (!rdn.isScalingApplied()) {
+                    return image;
+                } else if (!rdn.isLog10Scaled()) {
+                    image = reformat(image, getDataBufferType(rdn.getGeophysicalDataType()));
+                    image = rescale(image, rdn.getScalingFactor(), rdn.getScalingOffset());
+                } else {
+                    image = reformat(image, getDataBufferType(rdn.getGeophysicalDataType()));
+                    image = rescale(image, Math.log(10) * rdn.getScalingFactor(), Math.log(10) * rdn.getScalingOffset());
+                    image = ExpDescriptor.create(image, null);
+                }
+                return image;
+            }
+        };
+        return new DefaultMultiLevelImage(geoSource);
     }
 
     private static PlanarImage rescale(PlanarImage image, double factor, double offset) {
@@ -179,12 +186,12 @@ public class ImageManager {
         return image;
     }
 
-    private static PlanarImage toDouble(PlanarImage image) {
+    private static PlanarImage reformat(PlanarImage image, int databufferDataType) {
         final int dataType = image.getSampleModel().getDataType();
-        if (dataType == DataBuffer.TYPE_FLOAT || dataType == DataBuffer.TYPE_DOUBLE) {
+        if (dataType == databufferDataType) {
             return image;
         }
-        return FormatDescriptor.create(image, DataBuffer.TYPE_FLOAT, null);
+        return FormatDescriptor.create(image, databufferDataType, null);
     }
 
     private static class MaskKey {
@@ -284,56 +291,75 @@ public class ImageManager {
         return planarImages;
     }
 
+    public MultiLevelSource getBandMultiLevelSource(RasterDataNode rasterDataNode) {
+        RenderedImage levelZeroImage = rasterDataNode.getSourceImage();
+        MultiLevelSource multiLevelSource;
+        if (levelZeroImage == null) {
+            final MultiLevelImage multiLevelImage = createBandMultiLevelImage(rasterDataNode);
+            rasterDataNode.setSourceImage(multiLevelImage);
+            multiLevelSource = multiLevelImage;
+        } else if (levelZeroImage instanceof MultiLevelSource) {
+            multiLevelSource = (MultiLevelSource) levelZeroImage;
+        } else {
+            // todo - store this refernce!!!
+            multiLevelSource = new DefaultMultiLevelSource(levelZeroImage);
+            System.out.println("IMAGING 4.5: Warning: Created new MultiLevelSource");
+        }
+        return  multiLevelSource;
+    }
 
     public PlanarImage getBandImage(RasterDataNode rasterDataNode, int level) {
         RenderedImage levelZeroImage = rasterDataNode.getSourceImage();
         if (levelZeroImage == null) {
-
-            final MultiLevelModel model = createMultiLevelModel(rasterDataNode);
-            if (rasterDataNode instanceof TiePointGrid) {
-                final TiePointGrid tiePointGrid = (TiePointGrid) rasterDataNode;
-                levelZeroImage = new MultiLevelImage(new AbstractMultiLevelSource(model) {
-
-                    @Override
-                    public RenderedImage createLevelImage(int level) {
-                        return new TiePointGridOpImage(tiePointGrid, level);
-                    }
-                });
-            } else if (rasterDataNode instanceof VirtualBand) {
-                final VirtualBand virtualBand = (VirtualBand) rasterDataNode;
-                levelZeroImage = new MultiLevelImage(new AbstractMultiLevelSource(model) {
-
-                    @Override
-                    public RenderedImage createLevelImage(int level) {
-                        return new VirtualBandOpImage(new Product[]{virtualBand.getProduct()}, virtualBand.getExpression(), virtualBand.getDataType(), level);
-                    }
-                });
-            } else if (rasterDataNode instanceof AbstractBand) {
-                final AbstractBand band = (AbstractBand) rasterDataNode;
-                levelZeroImage = new MultiLevelImage(new AbstractMultiLevelSource(model) {
-
-                    @Override
-                    public RenderedImage createLevelImage(int level) {
-                        return new BandOpImage(band, level);
-                    }
-                });
-            } else {
-                throw new IllegalArgumentException("rasterDataNode: unknown subclass " + rasterDataNode.getClass());
-            }
+            levelZeroImage = createBandMultiLevelImage(rasterDataNode);
             rasterDataNode.setSourceImage(levelZeroImage);
         }
         return getLevelImage(levelZeroImage, level);
     }
 
+    public MultiLevelImage createBandMultiLevelImage(RasterDataNode rasterDataNode) {
+        final MultiLevelModel model = createMultiLevelModel(rasterDataNode);
+        MultiLevelImage levelZeroImage;
+        if (rasterDataNode instanceof TiePointGrid) {
+            final TiePointGrid tiePointGrid = (TiePointGrid) rasterDataNode;
+            levelZeroImage = new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
+
+                @Override
+                public RenderedImage createImage(int level) {
+                    return new TiePointGridOpImage(tiePointGrid, level);
+                }
+            });
+        } else if (rasterDataNode instanceof VirtualBand) {
+            final VirtualBand virtualBand = (VirtualBand) rasterDataNode;
+            levelZeroImage = new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
+
+                @Override
+                public RenderedImage createImage(int level) {
+                    return new VirtualBandOpImage(new Product[]{virtualBand.getProduct()}, virtualBand.getExpression(), virtualBand.getDataType(), level);
+                }
+            });
+        } else if (rasterDataNode instanceof AbstractBand) {
+            final AbstractBand band = (AbstractBand) rasterDataNode;
+            levelZeroImage = new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
+
+                @Override
+                public RenderedImage createImage(int level) {
+                    return new BandOpImage(band, level);
+                }
+            });
+        } else {
+            throw new IllegalArgumentException("rasterDataNode: unknown subclass " + rasterDataNode.getClass());
+        }
+        return levelZeroImage;
+    }
+
     public PlanarImage getGeophysicalBandImage(RasterDataNode rasterDataNode, int level) {
-        final PlanarImage image = getBandImage(rasterDataNode, level);
-        return image; // TODO!!!!
-//        RenderedImage levelZeroImage = null; //= rasterDataNode.getGeophysicalSourceImage();
-//        if (levelZeroImage == null) {
-//            levelZeroImage = createGeophysicalSourceImage(rasterDataNode);
-////            rasterDataNode.setGeophysicalSourceImage(levelZeroImage);
-//        }
-//        return getDownscaledImage(levelZeroImage, level);
+        RenderedImage levelZeroImage = rasterDataNode.getGeophysicalImage();
+        if (levelZeroImage == null) {
+            levelZeroImage = createGeophysicalImage(rasterDataNode);
+            rasterDataNode.setGeophysicalImage(levelZeroImage);
+        }
+        return getLevelImage(levelZeroImage, level);
     }
 
     private PlanarImage getLevelImage(RenderedImage levelZeroImage, int level) {
@@ -343,12 +369,12 @@ public class ImageManager {
         } else if (levelZeroImage instanceof MultiLevelSource) {
             image = ((MultiLevelSource) levelZeroImage).getImage(level);
         } else {
-            image = createDownscaledImage(levelZeroImage, level);
+            image = createLevelImage(levelZeroImage, level);
         }
         return PlanarImage.wrapRenderedImage(image);
     }
 
-    private static PlanarImage createDownscaledImage(RenderedImage levelZeroImage, int level) {
+    private static PlanarImage createLevelImage(RenderedImage levelZeroImage, int level) {
         PlanarImage image;
         float scale = (float) Math.pow(2, -level);
         image = ScaleDescriptor.create(levelZeroImage,
@@ -365,7 +391,7 @@ public class ImageManager {
                 mrMulti = new AbstractMultiLevelSource(createMultiLevelModel(product)) {
 
                     @Override
-                    public RenderedImage createLevelImage(int level) {
+                    public RenderedImage createImage(int level) {
                         return MaskOpImage.create(product, expression, level);
                     }
                 };
@@ -383,10 +409,10 @@ public class ImageManager {
         }
         RenderedImage levelZeroImage = rasterDataNode.getValidMaskImage();
         if (levelZeroImage == null) {
-            levelZeroImage = new MultiLevelImage(new AbstractMultiLevelSource(createMultiLevelModel(rasterDataNode)) {
+            levelZeroImage = new DefaultMultiLevelImage(new AbstractMultiLevelSource(createMultiLevelModel(rasterDataNode)) {
 
                 @Override
-                public RenderedImage createLevelImage(int level) {
+                public RenderedImage createImage(int level) {
                     return MaskOpImage.create(rasterDataNode, level);
                 }
             });
@@ -665,7 +691,7 @@ public class ImageManager {
                     placemarkMaskMLS = new AbstractMultiLevelSource(multiLevelModel) {
 
                         @Override
-                        public RenderedImage createLevelImage(int level) {
+                        public RenderedImage createImage(int level) {
                             return new PlacemarkMaskOpImage(rasterDataNode.getProduct(), PinDescriptor.INSTANCE, 3,
                                                             rasterDataNode.getSceneRasterWidth(),
                                                             rasterDataNode.getSceneRasterHeight(), level);
@@ -690,7 +716,7 @@ public class ImageManager {
                     shapeMaskMLS = new AbstractMultiLevelSource(multiLevelModel) { // todo - LEVEL!!!
 
                         @Override
-                        public RenderedImage createLevelImage(int level) {
+                        public RenderedImage createImage(int level) {
                             return new ShapeMaskOpImage(roiShape,
                                                         rasterDataNode.getSceneRasterWidth(),
                                                         rasterDataNode.getSceneRasterHeight(),

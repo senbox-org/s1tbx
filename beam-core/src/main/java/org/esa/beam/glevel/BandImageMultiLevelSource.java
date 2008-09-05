@@ -50,7 +50,7 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
     }
 
     @Override
-    public RenderedImage createLevelImage(int level) {
+    public RenderedImage createImage(int level) {
         return ImageManager.getInstance().createRgbImage(rasterDataNodes, level,
                                                          getModel().getLevelCount());
     }

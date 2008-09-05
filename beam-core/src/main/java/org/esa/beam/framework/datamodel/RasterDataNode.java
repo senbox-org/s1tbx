@@ -25,11 +25,9 @@ import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.util.*;
 import org.esa.beam.util.math.*;
 
-import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
@@ -37,7 +35,6 @@ import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.text.MessageFormat;
 
 /**
  * The <code>RasterDataNode</code> class ist the abstract base class for all objects in the product package that contain
@@ -136,6 +133,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     private RenderedImage sourceImage;
     private RenderedImage validMaskImage;
+    private RenderedImage geophysicalImage;
 
     /**
      * Constructs an object of type <code>RasterDataNode</code>.
@@ -956,6 +954,13 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 planarImage.dispose();
             }
             validMaskImage = null;
+        }
+        if (geophysicalImage != null) {
+            if (geophysicalImage instanceof PlanarImage) {
+                PlanarImage planarImage = (PlanarImage) geophysicalImage;
+                planarImage.dispose();
+            }
+            geophysicalImage = null;
         }
         super.dispose();
     }
@@ -2449,6 +2454,22 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             this.validMaskImage = image;
             fireProductNodeChanged("validMaskImage", oldValue);
         }
+    }
+
+    /**
+     * @return The geophysical source image.
+     * @since BEAM 4.5
+     */
+    public RenderedImage getGeophysicalImage() {
+        return geophysicalImage;
+    }
+
+    /**
+     * @param geophysicalImage The geophysical source image.
+     * @since BEAM 4.5
+     */
+    public void setGeophysicalImage(RenderedImage geophysicalImage) {
+        this.geophysicalImage = geophysicalImage;
     }
 
     /**

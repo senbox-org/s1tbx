@@ -43,7 +43,7 @@ public class MaskImageMultiLevelSource extends AbstractMultiLevelSource {
     }
 
     @Override
-    public RenderedImage createLevelImage(int level) {
+    public RenderedImage createImage(int level) {
         return ImageManager.getInstance().createColoredMaskImage(product, expression, color,
                                                                  inverseMask, level);
     }

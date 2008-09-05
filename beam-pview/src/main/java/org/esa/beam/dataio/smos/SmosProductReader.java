@@ -19,6 +19,7 @@ package org.esa.beam.dataio.smos;
 import com.bc.ceres.binio.Format;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.dataio.AbstractProductReader;
@@ -132,22 +133,22 @@ public class SmosProductReader extends AbstractProductReader {
         return product;
     }
 
-    private RenderedImage createSourceImage(final Band band) {
+    private MultiLevelImage createSourceImage(final Band band) {
         final int btDataIndex = bandDescrMap.get(band.getName()).btDataIndex;
-        return new MultiLevelImage(new AbstractMultiLevelSource(dggridMultiLevelSource.getModel()) {
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(dggridMultiLevelSource.getModel()) {
 
             @Override
-            public RenderedImage createLevelImage(int level) {
+            public RenderedImage createImage(int level) {
                 return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridMultiLevelSource.getImage(level), level);
             }
         });
     }
 
-    private RenderedImage createValidMaksImage(final Band band) {
-        return new MultiLevelImage(new AbstractMultiLevelSource(dggridMultiLevelSource.getModel()) {
+    private MultiLevelImage createValidMaksImage(final Band band) {
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(dggridMultiLevelSource.getModel()) {
 
             @Override
-            public RenderedImage createLevelImage(int level) {
+            public RenderedImage createImage(int level) {
                 return new SmosL1ValidImage(band, level);
             }
         });
