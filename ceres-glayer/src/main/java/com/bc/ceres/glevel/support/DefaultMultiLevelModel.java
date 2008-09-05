@@ -16,6 +16,12 @@ public class DefaultMultiLevelModel implements MultiLevelModel {
     private Rectangle2D modelBounds;
 
     public DefaultMultiLevelModel(int levelCount,
+                                  AffineTransform i2mTransform,
+                                  int w, int h) {
+        this(levelCount, i2mTransform, getModelBounds(i2mTransform, w, h));
+    }
+
+    public DefaultMultiLevelModel(int levelCount,
                                   AffineTransform imageToModelTransform,
                                   Rectangle2D modelBounds) {
         this.levelCount = levelCount;
@@ -131,4 +137,5 @@ public class DefaultMultiLevelModel implements MultiLevelModel {
     public static Rectangle2D getModelBounds(AffineTransform imageToModelTransform, int w, int h) {
         return imageToModelTransform.createTransformedShape(new Rectangle(0, 0, w, h)).getBounds2D();
     }
+
 }
