@@ -19,7 +19,7 @@ package org.esa.beam.dataio.smos;
 import com.bc.ceres.binio.Format;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
-import com.bc.ceres.glevel.support.MultiLevelImage;
+import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIO;
@@ -138,7 +138,7 @@ public class SmosProductReader extends AbstractProductReader {
 
             @Override
             public RenderedImage createLevelImage(int level) {
-                return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridMultiLevelSource.getLevelImage(level), level);
+                return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridMultiLevelSource.getImage(level), level);
             }
         });
     }

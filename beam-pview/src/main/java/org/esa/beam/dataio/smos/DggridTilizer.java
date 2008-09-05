@@ -40,7 +40,7 @@ public class DggridTilizer {
 
         for (int level = 5; level < levelCount; level++) {
 
-            final PlanarImage image = PlanarImage.wrapRenderedImage(multiLevelSource.getLevelImage(level));
+            final PlanarImage image = PlanarImage.wrapRenderedImage(multiLevelSource.getImage(level));
 
             final int width = image.getWidth();
             final int height = image.getHeight();

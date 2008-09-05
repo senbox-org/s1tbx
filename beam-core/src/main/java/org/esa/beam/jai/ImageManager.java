@@ -3,9 +3,9 @@ package org.esa.beam.jai;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
-import com.bc.ceres.glevel.support.MultiLevelImage;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.util.Debug;
@@ -341,7 +341,7 @@ public class ImageManager {
         if (level == 0) {
             image = levelZeroImage;
         } else if (levelZeroImage instanceof MultiLevelSource) {
-            image = ((MultiLevelSource) levelZeroImage).getLevelImage(level);
+            image = ((MultiLevelSource) levelZeroImage).getImage(level);
         } else {
             image = createDownscaledImage(levelZeroImage, level);
         }
@@ -372,7 +372,7 @@ public class ImageManager {
                 maskImageMap.put(key, mrMulti);
             }
             // Note: cast is ok, because interface of MultiLevelSource requires to return same type
-            return (SingleBandedOpImage) mrMulti.getLevelImage(level);
+            return (SingleBandedOpImage) mrMulti.getImage(level);
         }
     }
 
@@ -674,7 +674,7 @@ public class ImageManager {
                     maskImageMap.put(key, placemarkMaskMLS);
                 }
             }
-            rois.add((PlanarImage) placemarkMaskMLS.getLevelImage(level));
+            rois.add((PlanarImage) placemarkMaskMLS.getImage(level));
         }
 
         // Step 4:  insert ROI pixels within shape
@@ -700,7 +700,7 @@ public class ImageManager {
                     maskImageMap.put(key, shapeMaskMLS);
                 }
             }
-            rois.add((PlanarImage) shapeMaskMLS.getLevelImage(level));
+            rois.add((PlanarImage) shapeMaskMLS.getImage(level));
         }
 
         if (rois.size() == 0) {
