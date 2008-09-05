@@ -42,7 +42,7 @@
         <li>[CBOX-25] Dropout and saturated flags are reversed</li>
         <li>[CBOX-24] Calibration coefficients are applied twice</li>
         <li>[CBOX-23] Imported subsets are scrambled</li>
-        <li>[CBOX-22] No thumbnail imageLayerModel in subset dialog</li>
+        <li>[CBOX-22] No thumbnail image in subset dialog</li>
         </ul>
         </p>
         ]]>
