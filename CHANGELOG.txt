@@ -34,7 +34,7 @@ _____________________________________________________________________________
 o New cluster analysis tools:
   - K-Means (fast)
   - EM, Expectation Maximisation (slow, but outputs also probabilities)
-o Enhanced imageLayerModel colour manipulation tool:
+o Enhanced image colour manipulation tool:
   - Editor for classified images (e.g. output from cluster analysis)
   - Continuous and discrete colour palettes
   - No-data pixels can be either transparent or have a special colour
@@ -153,7 +153,7 @@ BEAM-671 	Pin pixel coordinates should be floating point numbers
 BEAM-669 	Improve performance of FUB/WeW Water Processor
 BEAM-668 	Port FUB WeW Water Processor
 BEAM-666 	GeoTIFF writer ignores orientation angle
-BEAM-660 	Speedup imageLayerModel creation process
+BEAM-660 	Speedup image creation process
 BEAM-659 	Location of new version of Beam
 BEAM-656 	Support for MERIS band subset
 BEAM-653 	Landsat reads the raw data (unsigned bytes) wrong
@@ -226,7 +226,7 @@ o Displaying more metadata of PRISM/AVNIR-2 products.
 
 2) New VISAT Features, Improvements and Changes
 
-o The world-map uses a low- and a high-resolution imageLayerModel
+o The world-map uses a low- and a high-resolution image
 o The contrast stretch window has now an additional button "Distribute Evenly".
   This performs an even distribution of the sliders between the first and the
   last one (BEAM-46).
@@ -262,7 +262,7 @@ o Deprecated PropertyFileParameterPage(File, String) and
 o Added PropertyFileParameterPage(File), PropertyFileParameterPage(ParamGroup).
 o Enabled write support for virtual bands.
 o Added class org.esa.beam.visat.modules.worldmap.WorldMapImageLoader to handle
-  loading of world-map imageLayerModel centrally.
+  loading of world-map image centrally.
 o Added ProductIO.readProduct(File file, ProductSubsetDef subsetDef, String[] formatNames);
 o Added MapProjection.hashCode() and MapProjection.equals(Object obj)
 
@@ -286,8 +286,8 @@ o Added scan-line time display to pixel info view
 o Added color palette export
 o Added non-linear filters e.g. Min, Max, Median, Mean,...
 o Added Google Earth (TM) KML format export
-o Improved imageLayerModel resolution of world map view, added 32x zoom level.
-  World map imageLayerModel can now be changed in directory auxdata/worldmap
+o Improved image resolution of world map view, added 32x zoom level.
+  World map image can now be changed in directory auxdata/worldmap
 o Metadata is now included by default in the subset definition dialog
 o Flipping tool now also works for non-geocoded products
 
@@ -369,7 +369,7 @@ _____________________________________________________________________________
     o A basic reader for NetCDF files has been developed in order to support
       GHRSST-PP products, the standard MERIS Level-3 data products and
       the upcoming Level-3 products of the GlobCOLOUR project
-      (www.globcolour.info). Basically, the netCDF reader can support any imageLayerModel-
+      (www.globcolour.info). Basically, the netCDF reader can support any image-
       like netCDF file structure up to netCDf version
       3.5. The NetCDf Java library version currently is 2.2.12.
     o The new MERIS Level-1b FRG and FSG data formats are now supported in BEAM.
@@ -379,7 +379,7 @@ _____________________________________________________________________________
       will be available soon from the Envisat Tools page at
       http://envisat.esa.int/services/tools_table.html.
     o Several new options are available for the "pconvert" tool:
-        o The options -W, -H force a specified width or height for imageLayerModel output.
+        o The options -W, -H force a specified width or height for image output.
         o The option -n specifies the color that should be used for the no-data layer.
         o The otpion -c specifies the file path to a text file containing a
           color palette definition.
@@ -482,13 +482,13 @@ _____________________________________________________________________________
 
    o  Import/export file chooser dialogs now remember their last position and
       size on the screen
-   o  Reduced memory consumption during opening an imageLayerModel view. Now 30% less
-      memory is needed for imageLayerModel display
+   o  Reduced memory consumption during opening an image view. Now 30% less
+      memory is needed for image display
    o  Now it is possible to reorder the bitmask definitions inside the
       bitmask overlay window
-   o  The user can now create own RGB imageLayerModel profiles, it's also possible to
+   o  The user can now create own RGB image profiles, it's also possible to
       delete profiles, except the default VISAT profiles.
-      If there are multiple applicable RGB imageLayerModel profiles, the user is prompted
+      If there are multiple applicable RGB image profiles, the user is prompted
       to selected the desired profile.
    o  Spectral wavelength of a band can now be assigned to a band in the
       properties dialog. The spectrum view will update itself to changes of this
@@ -673,12 +673,12 @@ VISAT help.
       Convolution.
 
     o Create Subset from View:
-      A new entry in the context menu over an imageLayerModel view provides a new command
+      A new entry in the context menu over an image view provides a new command
       which opens the product subset dialog with the currently visible region
       as predefined spatial subset.
 
     o Pin Tool Behaviour Change:
-      If the pin tool is selected and you click into an imageLayerModel, the pin is created
+      If the pin tool is selected and you click into an image, the pin is created
       and displayed immediately, the pin properties dialog does not pop-up
       anymore. If the pin is the double-clicked, the diolog opens as before.
 
@@ -767,7 +767,7 @@ _____________________________________________________________________________
    o VISAT can now perform an on-line version check at start up and automatically
      inform the user if a new release is available on the server.
 
-   o The pin labels can now be displayed in the imageLayerModel view. For this purpose, a
+   o The pin labels can now be displayed in the image view. For this purpose, a
      pin now has an extra label property. Text appearence can be set in VISAT's
      preferences dialog. (issue #107)
 
@@ -776,10 +776,10 @@ _____________________________________________________________________________
      subtract the shape from the ROI, whereas "Shape to ROI" can delete the
      source shape in one step.
 
-   o It is now possible to show/hide an extra shape layer displayed in the imageLayerModel
+   o It is now possible to show/hide an extra shape layer displayed in the image
      view.
 
-   o The preview imageLayerModel in the product subset dialog is now created from the
+   o The preview image in the product subset dialog is now created from the
      most suitable band in a product. E.g., for AATSR L1b products we now use
      an infrared channel so that night-time scenes can also be viewed.
 
@@ -862,19 +862,19 @@ _____________________________________________________________________________
    iss #283: MERIS L2 rectified reflectances for red/near-infrared were interchanged
    iss #285: MERIS L2 yellow substance is from IODD 7.1 on log-scaled
    iss #290: The VISAT navigation window cropped left and right or top and bottom of
-             its overview imageLayerModel depending on the aspect ratio of the source imageLayerModel.
+             its overview image depending on the aspect ratio of the source image.
              The problem occured only with high-resolution source images such as
              images of MERIS and AATSR full orbit, MERIS FR, and ASAR products.
              However, this was a pure display problem and did not impact functionality
              or accuracy in any way.
-   iss #289: The navigation window now also updates its overview imageLayerModel if the source
-             imageLayerModel changes.
+   iss #289: The navigation window now also updates its overview image if the source
+             image changes.
    iss #015: Search in VISAT help showed empty pages
    iss #162: Problems with map-projections for very small output regions (huge pixel size)
    iss #110: VISAT Spectrum Window did not snap to pins anymore
    iss #142: Unhandeled exception occurred during opening an arithmetic band with
              invalid expression.
-   iss #220: ROI is now restored again after imageLayerModel view is re-opened
+   iss #220: ROI is now restored again after image view is re-opened
    iss #245: Import ROI definitions did not recognize shapes anymore
    iss #280: Map-projected products with 180 degree meridian now correctly handled
              concerning graticule overlay and pins
@@ -907,25 +907,25 @@ _____________________________________________________________________________
      of spatially compatible data products.
    o New Zoom- and Panner Tools: In addition to the navigation window, standard
      zooming and panning can also be done using the mouse.
-   o New imageLayerModel scroll bars, Zoom all: All imageLayerModel views now have scroll bars.
+   o New image scroll bars, Zoom all: All image views now have scroll bars.
      If both scroll bars are visible, a tiny "Zoom all" button is now available
-     which scales the imageLayerModel to fit the entire window (limited by the minimal
+     which scales the image to fit the entire window (limited by the minimal
      zoom factor).
    o Open multiple views per band: Multiple views of any any band can be displayed
      by using "View" -> "Open Image View" multiple times. Double clicking a band
      does not open multiple views. With multiple views it is possible to view an
      overview in one window and a zoomed detail in another window.
    o ROI definition Window, new "Zoom to": The ROI definition dialogue has got a
-     new funtion "zoom to ROI" (magnifier icon) which causes the imageLayerModel view to be
+     new funtion "zoom to ROI" (magnifier icon) which causes the image view to be
      panned to the ROI.
    o Pin Manager Window, new "Zoom to": The Pin Manager dialogue has got a new
-     funtion "zoom to ROI" (magnifier icon) which causes the imageLayerModel view to be
+     funtion "zoom to ROI" (magnifier icon) which causes the image view to be
      panned to the selected Pin.
-   o Redesign of imageLayerModel display: Overall imaging performance has significantly been
-     improved and imageLayerModel/graphic display has completely been redesigned and now internally
+   o Redesign of image display: Overall imaging performance has significantly been
+     improved and image/graphic display has completely been redesigned and now internally
      uses a multi-layer model. The VISAT preferences dialog reflects the layer architecture
      by providing a property page for each graphic layer.
-   o New imageLayerModel interpolation methods: The interpolation method for the imageLayerModel display
+   o New image interpolation methods: The interpolation method for the image display
      can be changed in the preferences: either nearest neighbour, bi-linear or bi-cubic.
      This effects the only the display of images when zoomed in or out.
    o Improved graticule overlay: The graticule overlay has been re-implemented to
@@ -954,17 +954,17 @@ _____________________________________________________________________________
      are now composed of floatable internal tool windows. You can now
      float the geo-location window and switch back to the product tab.
    o Former VISAT versions used a scrollable desktop pane which contained
-     the metadata and imageLayerModel views. Now we used a tabbed desktop pane
+     the metadata and image views. Now we used a tabbed desktop pane
      without scrollbars. The views have their own scrollbars instead.
    o The "window" menu now contains new usefull window arrangement/tiling
      methods
 
 4) Other BEAM 3.0 Improvements and Changes
    o Image Export as GeoTIFF:
-     The displayed imageLayerModel can be exported as GeoTiff (Tiff with geo-location).
+     The displayed image can be exported as GeoTiff (Tiff with geo-location).
      This function is available via "File" -> "Export ..." -> "Export displayed
-     imageLayerModel" -> set "File Type" to GeoTiff, or on the right mouse button when
-     the mouse is over an imageLayerModel view ("Export displayed imageLayerModel")
+     image" -> set "File Type" to GeoTiff, or on the right mouse button when
+     the mouse is over an image view ("Export displayed image")
    o "Export Metadata" to clipboard and file:
      This is a new command which lets a user copy the content of a metadata
      view to the clipboard or a file. It is available either from the "File" ->
@@ -991,7 +991,7 @@ _____________________________________________________________________________
      of the first/last scan line in a scene raster.
    o BEAM 3.0 uses the JRE (Java Runtime Environment) 1.4.2 again. The bottle
      necks concerning imaging performance using 1.4.2 have been removed.
-   o VISAT's tiny panner and magnifier windows which appeared in an imageLayerModel view
+   o VISAT's tiny panner and magnifier windows which appeared in an image view
      have been dismissed in favour of the new Navigation Window
    o The layer properties from VISAT's preferences dialog are now assigned to
      the current view only. The layer properties for a new view is obtained from
@@ -1072,11 +1072,11 @@ BEAM Extensions
      large product files even if the computer is low in memory. The operations are:
      a) Statistics, Histogram, Scatter Plot, Profile Plot, and Transect Coordinate List.
      b) Opening single band and RGB images
-   o In order to control loading of raster data for imageLayerModel creation we have added a new
+   o In order to control loading of raster data for image creation we have added a new
      option in the behaviour page of the preferences dialog. It's label is
-     "On imageLayerModel open, load raster data only if size is below" and the value is the number
+     "On image open, load raster data only if size is below" and the value is the number
      of megabytes a raster can have so that it is completely loaded into memory. If you
-     set this value to zero, VISAT will never load and store raster data in memory for imageLayerModel
+     set this value to zero, VISAT will never load and store raster data in memory for image
      creation.
 
 3) Map Projection Extensions
@@ -1101,7 +1101,7 @@ BEAM Extensions
      For some reason the JRE 1.4.2, which was used by BEAM 2.2, shows poorer
      imaging performance, especially if multiple images have been opened in VISAT.
    o The "File/Export/Export Displayed Image" command now can either export the
-     entire imageLayerModel (as before) or just the currently visible clipping. Furthermore
+     entire image (as before) or just the currently visible clipping. Furthermore
      all overlays e.g. graticule, pins, bitmasks, ROIs are exported too.
    o VISAT's contrast stretch / color palette tool is now supported by a couple
      of predefined color palettes. They are stored in
@@ -1117,7 +1117,7 @@ BEAM Extensions
    o The pixel info view now also displays map coordinates in map units if a projection
      has been applied to the product. If applicable, map coordinates are now also considered
      by the "Copy pixel info to clipboard" command.
-   o While performing the "Open RGB imageLayerModel" command VISAT now asks uses to select RGB
+   o While performing the "Open RGB image" command VISAT now asks uses to select RGB
      bands if it cannot find a suitable predefined RGB profile.
    o For ENVISAT products, the properties tab in the statistics dialog now displays
      the actual sensing start and stop time for the product.
@@ -1245,11 +1245,11 @@ New BEAM 2.2 Features
 
 4) New Color-Legend Export Function
    o A menu item "Export Color Legend" has been included in the context menu of
-     imageLayerModel views. It is used to export the current color palette to an imageLayerModel file.
+     image views. It is used to export the current color palette to an image file.
    o Multiple legend properties can be set in order to customize appearance of the
-     exported legend imageLayerModel.
+     exported legend image.
    o The legend preview can be copied into the system clipboard by using the
-     centext menu item "Copy imageLayerModel to clipboard" in the preview dialog.
+     centext menu item "Copy image to clipboard" in the preview dialog.
 
 5) New ROI Definition Features
    o A "Multiple Apply" function has been introduced in VISAT's ROI definition
@@ -1271,14 +1271,14 @@ New BEAM 2.2 Features
 
 7) Other VISAT Behaviour Changes/Improvements
    o Out-of-memory exceptions are now handled by a messages dialog which gives the
-     user a tip how to solve the problem. For example, for large imageLayerModel files the
-     imageLayerModel export tool often wrote a zero-byte imageLayerModel file without notifying the user.
+     user a tip how to solve the problem. For example, for large image files the
+     image export tool often wrote a zero-byte image file without notifying the user.
      This happened because insufficient memory was available during the export.
    o On "Save as" a format conversion warning pops-up if the product which is to
      be saved is not a BEAM-DIMAP product. The warning says that a format conversion
      will take place which might take a while.
    o It is now possible no disable the inital visiblity of the magnifier whithin
-     newly created imageLayerModel views. The default behaviour can be changed in VISAT's
+     newly created image views. The default behaviour can be changed in VISAT's
      preferences dialog.
    o All product import file choosers now have predefined file filters. For example,
      for ENVISAT products the filter pattern is either (*.N1,*.prd) or all files (*.*)
@@ -1302,7 +1302,7 @@ Bug Fixes
  3) User defined output scene size in the map-projection tool are now handled
     correctly.
  4) VISAT now fully releases virtual memory allocated by the graphic contexts
-    of an imageLayerModel view. VISAT now also fully releases virtual memory allocated
+    of an image view. VISAT now also fully releases virtual memory allocated
     by closed products.
  5) Under UNIX operating systems, the BEAM extensions directory is now
     correctly identified. VISAT scans its extensions directory at start up time
@@ -1312,11 +1312,11 @@ Bug Fixes
  7) In the contrast stretch window, the display of the histogram bins was incorrect
     for high vertical zoom levels.
  8) Histogram height settings of VISAT's contrast stretch window are now correctly
-    remembered in each imageLayerModel view
+    remembered in each image view
  9) In transect data files (former "shape files", see above), the "Pixel-X" and
     "Pixel-Y" columns are not mandatory anymore if "lon" and "lat" values
     are given.
-10) HDF5 export: incorrected imageLayerModel display range has been fixed
+10) HDF5 export: incorrected image display range has been fixed
 11) ROI Shape outline now correctly included in ROI (rectangles & circles)
 12) VISAT crashed when invalid plug-ins (missing class files, invalid package names)
     have been placed in the "extensions" folder.
@@ -1328,7 +1328,7 @@ Bug Fixes
 16) Spectrum view ignored the products [1+n] which have been opened before(!)
     the spectrum view window was opened. This has been fixed.
 17) VISAT's contrast stretch window accidentally resetted the color palette
-    settings to default grey-scale if an imageLayerModel view other than the selected one was
+    settings to default grey-scale if an image view other than the selected one was
     closed.
 18) If the user zoomed very deep into the histogram og VISAT's contrast stretch window
     (so that less than about 40 histogram bins were visible), the bin rectangles have been
@@ -1360,7 +1360,7 @@ version 2.1.0. The bug fixes are:
 
 Also some general improvements concerning VISAT behavior have been introduced:
 
-1) When dragged, the imageLayerModel magnifier does not center itself at mouse cursor anymore
+1) When dragged, the image magnifier does not center itself at mouse cursor anymore
 
 2) Image display information of bands such as contrast stretch ranges and color
    palette points are now copied into the corresponding bands of the output products
@@ -1380,13 +1380,13 @@ New BEAM 2.1 Features
 
 1) BEAM now runs on Mac OS X!
 
-2) VISAT has some more RGB imageLayerModel enhancements accessible from the contrast stretch window:
+2) VISAT has some more RGB image enhancements accessible from the contrast stretch window:
    a) A gamma value can be entered for each RGB component in order to adapt the transfer function
-   which quantizes (geophysical) source sample values to imageLayerModel sample values. For MERIS
+   which quantizes (geophysical) source sample values to image sample values. For MERIS
    L1b, a gamma value of 0.7 for the blue channel yields to more realistic results.
-   b) It is sometimes desirable to transform an imageLayerModel so that it's histogram matches that of a
+   b) It is sometimes desirable to transform an image so that it's histogram matches that of a
    specified functional form. It is now possible to apply an equalized or normalized
-   histogram matching to RGB images which can drastically improve imageLayerModel quality.
+   histogram matching to RGB images which can drastically improve image quality.
 
 3) For exact geo-location, it is possible to explicitely set the reference point
    within the area of a pixel which is used to derive geolocation for a given pixel.
@@ -1395,7 +1395,7 @@ New BEAM 2.1 Features
    dialog.
 
 4) BEAM-DIMAP format update:
-   Added gamma value imageLayerModel information for bands.
+   Added gamma value image information for bands.
    Added a valid-mask term for bands. The valid-mask is a bitmask expression used to identify
    whether a pixel of a band is valid or not.
    Added missing scaling factor and offset for a band to ENVI compatible header files.
@@ -1417,7 +1417,7 @@ Bug fixes
 2) The Transverse_Mercator projection computed a slightly wrong y value (0% - 6% depending on
    the order of magnitude of the latitude).
 
-3) If an RGB imageLayerModel was created from a map-projected product, VISAT showed a flickering
+3) If an RGB image was created from a map-projected product, VISAT showed a flickering
    progress bar which consumed a lot of processing power and caused VISAT to hang.
 
 4) The Java source code examples (NDVI processors) now run correctly without any error messages.
@@ -1455,7 +1455,7 @@ New BEAM 2.0 Features:
    A pin manager window allows for pin selection, export and import. The spectrum
    window and the pixel info view can now be fixed to a selected pin.
 5) VISAT World Map: A window which displays the geographical boundaries of all open
-   products in world map imageLayerModel.
+   products in world map image.
 6) Support for ENVISAT Child Products has been added.
 7) For high quality RGB output, "pconvert" tool can now also process mathematical
    band expressions as source for each RGB channel
@@ -1468,7 +1468,7 @@ Software Optimizations
     times faster.
 3)  ENVISAT products now requires significantly less heap space when opened in
     VISAT.
-4)  VISAT imageLayerModel generation has been significantly accellerated.
+4)  VISAT image generation has been significantly accellerated.
 5)  Images generated from ENVISAT tie point grids now display in half of the time.
 6)  ENVISAT flag datasets can now also be displayed as images.
 
@@ -1480,7 +1480,7 @@ Bug Fixes
    whose data internally stored in integer arrays have been used
    within an expression.
 4) In VISAT, Product "Properties" and "Geo Coding Information" can now be opened
-   without the need to open an imageLayerModel view.
+   without the need to open an image view.
 5) Missing help page for "Geo Coding Information" has been added.
 
 Other Changes
@@ -1543,7 +1543,7 @@ New Features
   1) New VISAT Spectrum Tool:
      Following many requests by users, we've added a spectrum tool to VISAT.
      The spectrum tool displayes the spectrum at a given pixel position.
-     When the user moves the mouse over an imageLayerModel display, the spectrum display is
+     When the user moves the mouse over an image display, the spectrum display is
      immediately updated.
      The spectrum is read from the spectral bands of a product and
      works with ENVISAT MERIS L1b/L2 and AATSR L1b products.
@@ -1560,7 +1560,7 @@ New Features
 
   3) Improved VISAT Map Projections:
      The output parameters in the map projection dialog now allow to specify
-     the width and height in pixels of the output imageLayerModel. Hereby it is now
+     the width and height in pixels of the output image. Hereby it is now
      possible to co-locate MERIS and AATSR products covering the same
      geographical regions.
      Formerly, width and height have automatically been selected in order to fit
@@ -1608,7 +1608,7 @@ Fixes
   8) Command-line scripts: The UNIX bin/*-console.sh scripts contained a bad CLASSPATH:
      semicola have been used as path separators instead of the colon character.
 
-  9) Image-export: After an imageLayerModel has been exported by VISAT, the imageLayerModel file was not closed
+  9) Image-export: After an image has been exported by VISAT, the image file was not closed
      and therefore unaccessible for other applications while VISAT was running.
 
  10) Debug-messages are now correctly written to the log file if this option has been
@@ -1916,7 +1916,7 @@ _____________________________________________________________________________
 
 Bug Fixes
 
-  1) If an imageLayerModel view had very few valid pixels, which means that most of the
+  1) If an image view had very few valid pixels, which means that most of the
      samples are zero, the contrast stretch pane often "swapped" it's sliders
      and that they where not movable anymore. This problem has been fixed.
 
@@ -2013,15 +2013,15 @@ New VISAT Functions
     Accessible from the 'Data' menu.
 
  3) Geometric shapes (line, polyline, rectangle, ellipse and polygon)
-    can be drawn on the imageLayerModel and directly assigned as ROI.
+    can be drawn on the image and directly assigned as ROI.
 
  4) The shape drawing capabilities are also available from the 'ROI Definition'
     window. It offers now three ciriteria to specify a ROI: geometric shape,
     value range, bitmask. The criteria can be AND/OR combined create the
     resulting, combined ROI.
 
- 5) The current ROI overlay can now be exported to a standard imageLayerModel format.
-    In the ROI overlay imageLayerModel, pixels not belonging to the ROI have a
+ 5) The current ROI overlay can now be exported to a standard image format.
+    In the ROI overlay image, pixels not belonging to the ROI have a
     black color value (RGB=0,0,0), the pixels belonging to the ROI are
     diferent from zero.
     Usage: Export the exact set of pixels considered in a ROI and therefore
@@ -2043,7 +2043,7 @@ VISAT Improvements
     it is superfluous. A ROI is at least specified by the three criteria. If none
     is selected, the ROI is now per se deactivated.
 
- 2) The imageLayerModel magnifier now also shows the (magnified) graticule overlay
+ 2) The image magnifier now also shows the (magnified) graticule overlay
     and ROI shapes.
 
  3) More toolbar buttons have been added
@@ -2081,7 +2081,7 @@ VISAT Improvements
  2) The complete set of MERIS L2 flags has been overtaken into the list
     of predefined bitmasks (applies to 'Import ENVISAT Product')
 
- 3) The subset dialog now opens quicker for large products. The thumbnail imageLayerModel
+ 3) The subset dialog now opens quicker for large products. The thumbnail image
     is now created in the background and displayed only if it is fully loaded.
 
 VISAT Bug-Fixes
@@ -2107,7 +2107,7 @@ VISAT Bug-Fixes
 1) Bitmask compatibilty check was not performed correctly in bitmask overlay dialog
    if multiple different product types are open in VISAT. Fixed.
 
-2) The wait cursor was missing while applying time consuming imageLayerModel changes with
+2) The wait cursor was missing while applying time consuming image changes with
    contrast stretch, bitmask overlay and ROI definition windows. Partly fixed.
 
 3) When reloading bands from ENVISAT product, the progress bar does not show up
@@ -2200,16 +2200,16 @@ Changes in VISAT - Image Display
 1) Graticule (geographic grid) overlay is now possible. Graticule properties are
    editable in VISAT's preferences dialog.
 
-2) The magnifier window now displayes imageLayerModel borders correctly. A 1-pixel
-   wide, white border is now drawn around each imageLayerModel, the background is set to
+2) The magnifier window now displayes image borders correctly. A 1-pixel
+   wide, white border is now drawn around each image, the background is set to
    black.
 
 3) The magnifier window now draws a border around the current pixel so that
    the pixel position is visible also on images with poor contrast.
 
-4) The magnifier now signals if it is out-of-imageLayerModel by displaying a warning string
+4) The magnifier now signals if it is out-of-image by displaying a warning string
 
-5) Default mouse cursor changes to a crosshair cursor over imageLayerModel pixels
+5) Default mouse cursor changes to a crosshair cursor over image pixels
 
 
 
@@ -2252,7 +2252,7 @@ Changes in VISAT - Import subset dialog
    original product loses the meaning when processing a subset of the product,
    tie-point  grids and meta information is not automatically imported to subset
    products anymore. The user has to switch this behaviour explicitely on.
-2) When VISAT calculates the preview imageLayerModel, a wait cursor shows up to
+2) When VISAT calculates the preview image, a wait cursor shows up to
    indicate that the application is busy.
 
 Changes in VISAT - Contrast stretch
@@ -2379,7 +2379,7 @@ Changes in VISAT - BITMASK OVERLAY
    is fixed.
 
 2) The bitmask properties of the selected band are now correctly displayed
-   in the bitmask definition dialog. If the user changes the imageLayerModel view, the bitmask
+   in the bitmask definition dialog. If the user changes the image view, the bitmask
    definition dialog displays the correct band-associated bitmask definition.
 
 
