@@ -19,27 +19,26 @@ public class DefaultMultiLevelSourceTest extends TestCase {
     public void testLevelImages() {
         final PlanarImage src = createSourceImage(256, 128);
 
-        DefaultMultiLevelSource mrs = new DefaultMultiLevelSource(src, 5);
-        assertEquals(5, mrs.getModel().getLevelCount());
+        DefaultMultiLevelSource mls = new DefaultMultiLevelSource(src, 5);
+        assertEquals(5, mls.getModel().getLevelCount());
 
-        assertSame(src, mrs.getSourceImage());
-        assertSame(src, mrs.getLevelImage(0));
+        assertSame(src, mls.getSourceImage());
+        assertSame(src, mls.getLevelImage(0));
 
-        testLevelImage(mrs, 0, 256, 128);
-        testLevelImage(mrs, 1, 128, 64);
-        testLevelImage(mrs, 2, 64, 32);
-        testLevelImage(mrs, 3, 32, 16);
-        testLevelImage(mrs, 4, 16, 8);
+        testLevelImage(mls, 0, 256, 128);
+        testLevelImage(mls, 1, 128, 64);
+        testLevelImage(mls, 2, 64, 32);
+        testLevelImage(mls, 3, 32, 16);
+        testLevelImage(mls, 4, 16, 8);
     }
 
-    private RenderedImage testLevelImage(DefaultMultiLevelSource mrs, int level, int ew, int eh) {
-        final RenderedImage l0 = mrs.getLevelImage(level);
-        assertSame(l0, mrs.getLevelImage(level));
-        assertEquals(mrs.getSourceImage().getSampleModel().getDataType(), l0.getSampleModel().getDataType());
-        assertEquals(mrs.getSourceImage().getSampleModel().getNumBands(), l0.getSampleModel().getNumBands());
-        assertEquals(ew, l0.getWidth());
-        assertEquals(eh, l0.getHeight());
-        return l0;
+    private void testLevelImage(DefaultMultiLevelSource mls, int level, int ew, int eh) {
+        final RenderedImage image = mls.getLevelImage(level);
+        assertSame(image, mls.getLevelImage(level));
+        assertEquals(mls.getSourceImage().getSampleModel().getDataType(), image.getSampleModel().getDataType());
+        assertEquals(mls.getSourceImage().getSampleModel().getNumBands(), image.getSampleModel().getNumBands());
+        assertEquals(ew, image.getWidth());
+        assertEquals(eh, image.getHeight());
     }
 
     static PlanarImage createSourceImage(int w, int h) {
