@@ -22,10 +22,10 @@ public class GenericMultiLevelSourceTest extends TestCase {
         GenericMultiLevelSource mls = createGeophysicalSourceImage(src, 5);
         assertEquals(5, mls.getModel().getLevelCount());
 
-        assertEquals(GEOPHYS_SCALING * 0, mls.getLevelImage(0).getData().getSampleDouble(0, 0, 0), 1e-10);
-        assertEquals(GEOPHYS_SCALING * 1, mls.getLevelImage(0).getData().getSampleDouble(1, 0, 0), 1e-10);
-        assertEquals(GEOPHYS_SCALING * 2, mls.getLevelImage(0).getData().getSampleDouble(0, 1, 0), 1e-10);
-        assertEquals(GEOPHYS_SCALING * 3, mls.getLevelImage(0).getData().getSampleDouble(1, 1, 0), 1e-10);
+        assertEquals(GEOPHYS_SCALING * 0, mls.getImage(0).getData().getSampleDouble(0, 0, 0), 1e-10);
+        assertEquals(GEOPHYS_SCALING * 1, mls.getImage(0).getData().getSampleDouble(1, 0, 0), 1e-10);
+        assertEquals(GEOPHYS_SCALING * 2, mls.getImage(0).getData().getSampleDouble(0, 1, 0), 1e-10);
+        assertEquals(GEOPHYS_SCALING * 3, mls.getImage(0).getData().getSampleDouble(1, 1, 0), 1e-10);
 
         testLevelImage(mls, 0, 256, 128);
         testLevelImage(mls, 1, 128, 64);
@@ -35,8 +35,8 @@ public class GenericMultiLevelSourceTest extends TestCase {
     }
 
     private void testLevelImage(MultiLevelSource mls, int level, int ew, int eh) {
-        final RenderedImage image = mls.getLevelImage(level);
-        assertSame(image, mls.getLevelImage(level));
+        final RenderedImage image = mls.getImage(level);
+        assertSame(image, mls.getImage(level));
         assertEquals(GEOPHYS_DATATYPE, image.getSampleModel().getDataType());
         assertEquals(1, image.getSampleModel().getNumBands());
         assertEquals(ew, image.getWidth());

@@ -14,7 +14,7 @@ public class FileMultiLevelSourceFactory {
     public static MultiLevelSource create(File location, String extension, AffineTransform imageToModelTransform, int levelCount) {
         final DefaultMultiLevelModel defaultMultiLevelModel = new DefaultMultiLevelModel(levelCount, imageToModelTransform, null);
         final LIS levelImageSource = new LIS(location, location.getName(), extension, defaultMultiLevelModel);
-        Rectangle2D modelBounds = DefaultMultiLevelModel.getModelBounds(imageToModelTransform, levelImageSource.getLevelImage(0));
+        Rectangle2D modelBounds = DefaultMultiLevelModel.getModelBounds(imageToModelTransform, levelImageSource.getImage(0));
         defaultMultiLevelModel.setModelBounds(modelBounds);
         return levelImageSource;
     }

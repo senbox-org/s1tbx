@@ -104,7 +104,7 @@ public class ImageLayer extends Layer {
     }
 
     public RenderedImage getImage(int level) {
-        return multiLevelSource.getLevelImage(level);
+        return multiLevelSource.getImage(level);
     }
 
     public AffineTransform getImageToModelTransform(int level) {

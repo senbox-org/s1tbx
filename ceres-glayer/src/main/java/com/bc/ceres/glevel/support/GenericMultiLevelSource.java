@@ -30,7 +30,7 @@ public abstract class GenericMultiLevelSource extends AbstractMultiLevelSource {
     protected RenderedImage createLevelImage(int level) {
         RenderedImage[] sourceImages = new RenderedImage[multiLevelSources.length];
         for (int i = 0; i < multiLevelSources.length; i++) {
-            sourceImages[i] = multiLevelSources[i].getLevelImage(level);
+            sourceImages[i] = multiLevelSources[i].getImage(level);
         }
         return createLevelImage(sourceImages, level);
     }

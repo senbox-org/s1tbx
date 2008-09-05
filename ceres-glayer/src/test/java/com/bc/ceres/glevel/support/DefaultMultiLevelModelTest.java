@@ -6,12 +6,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-/**
- * TODO - Apidoc
- *
- * @author Norman Fomferra
- * @version $revision$ $date$
- */
 public class DefaultMultiLevelModelTest extends TestCase {
 
     final double TX0 = -50;

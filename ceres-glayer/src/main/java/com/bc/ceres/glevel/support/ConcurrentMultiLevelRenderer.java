@@ -71,7 +71,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
             this.lastLevel = currentLevel;
         }
 
-        final PlanarImage planarImage = (PlanarImage) multiLevelSource.getLevelImage(currentLevel);
+        final PlanarImage planarImage = (PlanarImage) multiLevelSource.getImage(currentLevel);
         final Graphics2D graphics = rendering.getGraphics();
         final Viewport viewport = rendering.getViewport();
 

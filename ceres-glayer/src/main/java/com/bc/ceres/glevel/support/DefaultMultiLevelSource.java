@@ -55,11 +55,11 @@ public class DefaultMultiLevelSource extends AbstractMultiLevelSource {
      * @return The image.
      */
     @Override
-    public synchronized RenderedImage getLevelImage(int level) {
+    public synchronized RenderedImage getImage(int level) {
         if (level == 0) {
             return sourceImage;
         }
-        return super.getLevelImage(level);
+        return super.getImage(level);
     }
 
     /**
@@ -73,7 +73,7 @@ public class DefaultMultiLevelSource extends AbstractMultiLevelSource {
         if (level == 0) {
             return sourceImage;
         }
-        final float scale = 1f/(float) getModel().getScale(level);
+        final float scale = (float) (1.0 / getModel().getScale(level));
         return ScaleDescriptor.create(sourceImage, scale, scale, 0.0f, 0.0f, interpolation, null);
     }
 

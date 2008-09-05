@@ -23,7 +23,7 @@ public class DefaultMultiLevelSourceTest extends TestCase {
         assertEquals(5, mls.getModel().getLevelCount());
 
         assertSame(src, mls.getSourceImage());
-        assertSame(src, mls.getLevelImage(0));
+        assertSame(src, mls.getImage(0));
 
         testLevelImage(mls, 0, 256, 128);
         testLevelImage(mls, 1, 128, 64);
@@ -33,8 +33,8 @@ public class DefaultMultiLevelSourceTest extends TestCase {
     }
 
     private void testLevelImage(DefaultMultiLevelSource mls, int level, int ew, int eh) {
-        final RenderedImage image = mls.getLevelImage(level);
-        assertSame(image, mls.getLevelImage(level));
+        final RenderedImage image = mls.getImage(level);
+        assertSame(image, mls.getImage(level));
         assertEquals(mls.getSourceImage().getSampleModel().getDataType(), image.getSampleModel().getDataType());
         assertEquals(mls.getSourceImage().getSampleModel().getNumBands(), image.getSampleModel().getNumBands());
         assertEquals(ew, image.getWidth());

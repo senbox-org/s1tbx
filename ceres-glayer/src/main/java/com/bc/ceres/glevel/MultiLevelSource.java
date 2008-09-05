@@ -25,12 +25,14 @@ public interface MultiLevelSource {
 
     /**
      * Gets the scaled image for the given resolution level.
+     * The width and height of an image returned for a given {@code level} is
+     * {@link MultiLevelModel#getScale(int) scale} times smaller than the dimensions of the
+     * image at {@code level=0}.
      *
      * @param level The resolution level.
      * @return The scaled image, must be in the range 0 to {@link MultiLevelModel#getLevelCount()}-1.
-     * @see #getModel()
      */
-    RenderedImage getLevelImage(int level);
+    RenderedImage getImage(int level);
 
     /**
      * <p>Provides a hint that the level images provided so far will no longer be accessed from a
@@ -39,7 +41,7 @@ public interface MultiLevelSource {
      * <p>Therefore implementations of this method might also dispose any cached level images
      * that have been provided so far.</p>
      *
-     * <p>After calling this method, a call to {@link #getLevelImage(int)}} for the same level may 
+     * <p>After calling this method, a call to {@link #getImage(int)}} for the same level may
      * return a new level image instance.</p>
      *
      * <p>This method is particularly useful if properties have changed that affect the appearance of the

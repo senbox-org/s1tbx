@@ -21,7 +21,7 @@ public abstract class AbstractMultiLevelSource implements MultiLevelSource {
     }
 
     @Override
-    public synchronized RenderedImage getLevelImage(int level) {
+    public synchronized RenderedImage getImage(int level) {
         checkLevel(level);
         RenderedImage levelImage = levelImages[level];
         if (levelImage == null) {

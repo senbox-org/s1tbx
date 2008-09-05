@@ -16,7 +16,7 @@ public class DefaultMultiLevelRenderer implements MultiLevelRenderer {
         final AffineTransform i2m = multiLevelSource.getModel().getImageToModelTransform(level);
         final AffineTransform m2v = rendering.getViewport().getModelToViewTransform();
         i2m.preConcatenate(m2v);
-        rendering.getGraphics().drawRenderedImage(multiLevelSource.getLevelImage(level), i2m);
+        rendering.getGraphics().drawRenderedImage(multiLevelSource.getImage(level), i2m);
     }
 
     @Override
