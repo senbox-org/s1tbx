@@ -4,13 +4,7 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import junit.framework.TestCase;
 
 import javax.media.jai.PlanarImage;
-import javax.media.jai.RenderedOp;
-import javax.media.jai.operator.FormatDescriptor;
-import javax.media.jai.operator.MultiplyConstDescriptor;
-import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 
 
@@ -22,8 +16,8 @@ public class DefaultMultiLevelSourceTest extends TestCase {
         assertTrue(mls.getModel().getModelBounds().isEmpty());
     }
 
-    public void testIt() {
-        final PlanarImage src = createSourceImage(16, 16);
+    public void testLevelImages() {
+        final PlanarImage src = createSourceImage(256, 128);
 
         DefaultMultiLevelSource mrs = new DefaultMultiLevelSource(src, 5);
         assertEquals(5, mrs.getModel().getLevelCount());
@@ -31,32 +25,21 @@ public class DefaultMultiLevelSourceTest extends TestCase {
         assertSame(src, mrs.getSourceImage());
         assertSame(src, mrs.getLevelImage(0));
 
-        final RenderedImage l0 = mrs.getLevelImage(0);
-        assertSame(l0, mrs.getLevelImage(0));
-        assertEquals(src.getSampleModel(), l0.getSampleModel().getDataType());
-        assertEquals(16, l0.getWidth());
-        assertEquals(16, l0.getHeight());
-
-        final RenderedImage l1 = mrs.getLevelImage(1);
-        assertSame(l1, mrs.getLevelImage(1));
-        assertEquals(src.getSampleModel(), l0.getSampleModel().getDataType());
-        assertEquals(8, l1.getWidth());
-        assertEquals(8, l1.getHeight());
-
-        final RenderedImage l2 = mrs.getLevelImage(2);
-        assertSame(l2, mrs.getLevelImage(2));
-        assertEquals(src.getSampleModel(), l0.getSampleModel().getDataType());
-        assertEquals(4, l2.getWidth());
-        assertEquals(4, l2.getHeight());
+        testLevelImage(mrs, 0, 256, 128);
+        testLevelImage(mrs, 1, 128, 64);
+        testLevelImage(mrs, 2, 64, 32);
+        testLevelImage(mrs, 3, 32, 16);
+        testLevelImage(mrs, 4, 16, 8);
     }
 
-    private MultiLevelImage createGeophysicalSourceImage(PlanarImage src) {
-        if (src instanceof MultiLevelSource) {
-            MultiLevelSource multiLevelSource = (MultiLevelSource) src;
-            return new MultiLevelImage(new LIS(multiLevelSource));
-        }
-        final DefaultMultiLevelModel model = new DefaultMultiLevelModel(3, new AffineTransform(), new Rectangle(8, 8));
-        return new MultiLevelImage(new LIS(new DefaultMultiLevelSource(src, model)));
+    private RenderedImage testLevelImage(DefaultMultiLevelSource mrs, int level, int ew, int eh) {
+        final RenderedImage l0 = mrs.getLevelImage(level);
+        assertSame(l0, mrs.getLevelImage(level));
+        assertEquals(mrs.getSourceImage().getSampleModel().getDataType(), l0.getSampleModel().getDataType());
+        assertEquals(mrs.getSourceImage().getSampleModel().getNumBands(), l0.getSampleModel().getNumBands());
+        assertEquals(ew, l0.getWidth());
+        assertEquals(eh, l0.getHeight());
+        return l0;
     }
 
     static PlanarImage createSourceImage(int w, int h) {
@@ -66,24 +49,5 @@ public class DefaultMultiLevelSourceTest extends TestCase {
         bi.getRaster().setSample(0, 1, 0, 2);
         bi.getRaster().setSample(1, 1, 0, 3);
         return PlanarImage.wrapRenderedImage(bi);
-    }
-
-    private static class LIS extends AbstractMultiLevelSource {
-        MultiLevelSource multiLevelSource;
-
-        private LIS(MultiLevelSource multiLevelSource) {
-            super(multiLevelSource.getModel());
-            this.multiLevelSource = multiLevelSource;
-        }
-
-        protected RenderedImage createLevelImage(int level) {
-            final RenderedImage sourceLevelImage = multiLevelSource.getLevelImage(level);
-            return createTargetLevelImage(sourceLevelImage);
-        }
-
-        protected RenderedImage createTargetLevelImage(RenderedImage sourceLevelImage) {
-            final RenderedOp dst = FormatDescriptor.create(PlanarImage.wrapRenderedImage(sourceLevelImage), DataBuffer.TYPE_DOUBLE, null);
-            return MultiplyConstDescriptor.create(dst, new double[]{2.5}, null);
-        }
     }
 }
