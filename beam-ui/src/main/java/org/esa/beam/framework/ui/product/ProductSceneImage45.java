@@ -17,7 +17,8 @@ import org.esa.beam.util.ProductUtils;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * TODO - Apidoc
@@ -73,7 +74,9 @@ class ProductSceneImage45 extends ProductSceneImage {
         rootLayer.getChildLayerList().add(gcpLayer);
         rootLayer.getChildLayerList().add(bitmaskLayer);
 
+        // todo - remove listeners when scene view is disposed
         getProduct().addProductNodeListener(new BitmaskDefListener(bitmaskLayer));
+        getProduct().addProductNodeListener(new BitmaskOverlayInfoListener(bitmaskLayer));
     }
 
     private ImageLayer createNoDataLayer() {
@@ -166,6 +169,7 @@ class ProductSceneImage45 extends ProductSceneImage {
         layer.setName(bitmaskDef.getName());
         layer.setVisible(false);
         layer.getStyle().setOpacity(bitmaskDef.getAlpha());
+        // todo - add layer icon, bitmask color or even bitmaskDef to layer style?
 
         return layer;
     }
@@ -180,9 +184,16 @@ class ProductSceneImage45 extends ProductSceneImage {
 
     private class BitmaskDefListener implements ProductNodeListener {
         private final Layer bitmaskLayer;
+        private final Map<BitmaskDef, Layer> layerMap;
 
         public BitmaskDefListener(Layer bitmaskLayer) {
             this.bitmaskLayer = bitmaskLayer;
+            this.layerMap = new HashMap<BitmaskDef, Layer>();
+
+            final Product product = getProduct();
+            for (final Layer layer : bitmaskLayer.getChildLayerList()) {
+                layerMap.put(product.getBitmaskDef(layer.getName()), layer);
+            }
         }
 
         @Override
@@ -190,13 +201,16 @@ class ProductSceneImage45 extends ProductSceneImage {
             final ProductNode sourceNode = event.getSourceNode();
 
             if (sourceNode instanceof BitmaskDef) {
-                final BitmaskDef[] bitmaskDefs = getProduct().getBitmaskDefs();
+                final BitmaskDef bitmaskDef = (BitmaskDef) sourceNode;
+                final Layer layer = layerMap.remove(bitmaskDef);
 
-                for (int i = 0; i < bitmaskDefs.length; i++) {
-                    if (sourceNode == bitmaskDefs[i]) {
-                        bitmaskLayer.getChildLayerList().remove(i);
-                        bitmaskLayer.getChildLayerList().add(i, createBitmaskLayer(bitmaskDefs[i]));
-                        break;
+                if (layer != null) {
+                    final int index = bitmaskLayer.getChildLayerList().indexOf(layer);
+                    if (index != -1) {
+                        final Layer newLayer = createBitmaskLayer(bitmaskDef);
+                        bitmaskLayer.getChildLayerList().remove(index);
+                        bitmaskLayer.getChildLayerList().add(index, newLayer);
+                        layerMap.put(bitmaskDef, newLayer);
                     }
                 }
             }
@@ -216,7 +230,9 @@ class ProductSceneImage45 extends ProductSceneImage {
 
                 for (int i = 0; i < bitmaskDefs.length; i++) {
                     if (sourceNode == bitmaskDefs[i]) {
-                        bitmaskLayer.getChildLayerList().add(i, createBitmaskLayer(bitmaskDefs[i]));
+                        final Layer layer = createBitmaskLayer(bitmaskDefs[i]);
+                        bitmaskLayer.getChildLayerList().add(i, layer);
+                        layerMap.put(bitmaskDefs[i], layer);
                         break;
                     }
                 }
@@ -228,14 +244,47 @@ class ProductSceneImage45 extends ProductSceneImage {
             final ProductNode sourceNode = event.getSourceNode();
 
             if (sourceNode instanceof BitmaskDef) {
-                final List<Layer> childLayerList = bitmaskLayer.getChildLayerList();
-
-                for (final Layer childLayer : childLayerList) {
-                    if (childLayer.getName().equals(sourceNode.getName())) {
-                        childLayerList.remove(childLayer);
-                    }
+                final BitmaskDef bitmaskDef = (BitmaskDef) sourceNode;
+                final Layer layer = layerMap.remove(bitmaskDef);
+                if (layer != null) {
+                    bitmaskLayer.getChildLayerList().remove(layer);
                 }
             }
+        }
+    }
+
+    private class BitmaskOverlayInfoListener implements ProductNodeListener {
+        private final Layer bitmaskLayer;
+
+        private BitmaskOverlayInfoListener(Layer bitmaskLayer) {
+            this.bitmaskLayer = bitmaskLayer;
+        }
+
+        @Override
+        public void nodeChanged(ProductNodeEvent event) {
+            final ProductNode sourceNode = event.getSourceNode();
+
+            if (sourceNode == getRaster() &&
+                    RasterDataNode.PROPERTY_NAME_BITMASK_OVERLAY_INFO.equals(event.getPropertyName())) {
+                final BitmaskOverlayInfo overlayInfo = getRaster().getBitmaskOverlayInfo();
+                final Product product = getProduct();
+
+                for (final Layer layer : bitmaskLayer.getChildLayerList()) {
+                    layer.setVisible(overlayInfo.containsBitmaskDef(product.getBitmaskDef(layer.getName())));
+                }
+            }
+        }
+
+        @Override
+        public void nodeDataChanged(ProductNodeEvent event) {
+        }
+
+        @Override
+        public void nodeAdded(ProductNodeEvent event) {
+        }
+
+        @Override
+        public void nodeRemoved(ProductNodeEvent event) {
         }
     }
 }

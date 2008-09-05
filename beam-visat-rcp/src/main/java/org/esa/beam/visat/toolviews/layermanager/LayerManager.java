@@ -11,13 +11,11 @@ import com.jidesoft.tree.TreeUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
+import javax.swing.event.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.MutableTreeNode;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -188,17 +186,39 @@ class LayerManager {
             }
         });
 
-        final CheckBoxTreeSelectionModel selectionModel = checkBoxTree.getCheckBoxTreeSelectionModel();
-        selectionModel.addTreeSelectionListener(new TreeSelectionListener() {
+        final CheckBoxTreeSelectionModel checkBoxSelectionModel = checkBoxTree.getCheckBoxTreeSelectionModel();
+        checkBoxSelectionModel.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent event) {
                 if (!adjusting) {
                     Layer layer = getLayer(event.getPath());
-                    layer.setVisible(selectionModel.isPathSelected(event.getPath()));
+                    layer.setVisible(checkBoxSelectionModel.isPathSelected(event.getPath()));
                 }
             }
         });
 
+        layerTreeModel.addTreeModelListener(new TreeModelListener() {
+            public void treeNodesChanged(TreeModelEvent e) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public void treeNodesInserted(TreeModelEvent e) {
+                if(e.getChildren().length >0) {
+                    final DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.getChildren()[0];
+                    checkBoxTree.getSelectionModel().setSelectionPath(new TreePath(node.getPath()));
+                }
+            }
+
+            public void treeNodesRemoved(TreeModelEvent e) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            public void treeStructureChanged(TreeModelEvent e) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+        });
+        
         final DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) checkBoxTree.getActualCellRenderer();
         renderer.setLeafIcon(IconsFactory.getImageIcon(getClass(), "/org/esa/beam/resources/images/icons/RsBandAsSwath16.gif"));
         renderer.setClosedIcon(IconsFactory.getImageIcon(getClass(), "/org/esa/beam/resources/images/icons/RsGroupClosed16.gif"));

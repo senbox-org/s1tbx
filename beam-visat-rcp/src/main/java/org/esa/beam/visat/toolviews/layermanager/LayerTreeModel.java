@@ -11,13 +11,9 @@ import java.util.List;
 
 class LayerTreeModel extends DefaultTreeModel {
 
-    private final DeactivatableLayerListener layerListener;
-
     public LayerTreeModel(final Layer layer) {
         super(createTreeNodes(layer));
-
-        layerListener = new DeactivatableLayerListener();
-        layer.addListener(layerListener);
+        layer.addListener(new LayerListener());
     }
 
     @Override
@@ -31,11 +27,11 @@ class LayerTreeModel extends DefaultTreeModel {
                 final Layer parentLayer = (Layer) parentUserObject;
                 final Layer newChildLayer = (Layer) newChildNode.getUserObject();
 
-                super.insertNodeInto(newChild, parent, index);
-                synchronized (layerListener) {
-                    layerListener.setActive(false);
-                    parentLayer.getChildLayerList().add(index, newChildLayer);
-                    layerListener.setActive(true);
+                if (!isUserObjectOfNodeChild(parentNode, newChildLayer)) {
+                    super.insertNodeInto(newChild, parent, index);
+                    if (!parentLayer.getChildLayerList().contains(newChildLayer)) {
+                        parentLayer.getChildLayerList().add(index, newChildLayer);
+                    }
                 }
             }
         }
@@ -56,15 +52,22 @@ class LayerTreeModel extends DefaultTreeModel {
 
                 //noinspection SuspiciousMethodCalls
                 if (childLayerList.contains(childUserObject)) {
-                    synchronized (layerListener) {
-                        layerListener.setActive(false);
-                        //noinspection SuspiciousMethodCalls
-                        childLayerList.remove(childUserObject);
-                        layerListener.setActive(true);
-                    }
+                    //noinspection SuspiciousMethodCalls
+                    childLayerList.remove(childUserObject);
                 }
             }
         }
+    }
+
+    private static boolean isUserObjectOfNodeChild(DefaultMutableTreeNode parentNode, Layer newChildLayer) {
+        //noinspection unchecked
+        final Enumeration<DefaultMutableTreeNode> enumeration = parentNode.children();
+        while (enumeration.hasMoreElements()) {
+            if (enumeration.nextElement().getUserObject() == newChildLayer) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static MutableTreeNode createTreeNodes(Layer layer) {
@@ -83,49 +86,35 @@ class LayerTreeModel extends DefaultTreeModel {
         return node;
     }
 
-    private class DeactivatableLayerListener extends AbstractLayerListener {
-        private boolean active;
-
-        private DeactivatableLayerListener() {
-            active = true;
-        }
-
-        public void setActive(boolean active) {
-            this.active = active;
-        }
-
+    private class LayerListener extends AbstractLayerListener {
         @Override
         public void handleLayersAdded(Layer parentLayer, Layer[] childLayers) {
-            if (active) {
-                final DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) LayerTreeModel.this.getRoot();
-                //noinspection unchecked
-                final Enumeration<DefaultMutableTreeNode> nodeEnumeration = rootNode.preorderEnumeration();
+            final DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) LayerTreeModel.this.getRoot();
+            //noinspection unchecked
+            final Enumeration<DefaultMutableTreeNode> nodeEnumeration = rootNode.preorderEnumeration();
 
-                while (nodeEnumeration.hasMoreElements()) {
-                    final DefaultMutableTreeNode parentNode = nodeEnumeration.nextElement();
+            while (nodeEnumeration.hasMoreElements()) {
+                final DefaultMutableTreeNode parentNode = nodeEnumeration.nextElement();
 
-                    if (parentNode.getUserObject() == parentLayer) {
-                        insertNodesIntoTreeModel(parentLayer, childLayers, parentNode);
-                        break;
-                    }
+                if (parentNode.getUserObject() == parentLayer) {
+                    insertNodesIntoTreeModel(parentLayer, childLayers, parentNode);
+                    break;
                 }
             }
         }
 
         @Override
         public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
-            if (active) {
-                final DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) LayerTreeModel.this.getRoot();
-                //noinspection unchecked
-                final Enumeration<DefaultMutableTreeNode> nodeEnumeration = rootNode.preorderEnumeration();
+            final DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) LayerTreeModel.this.getRoot();
+            //noinspection unchecked
+            final Enumeration<DefaultMutableTreeNode> nodeEnumeration = rootNode.preorderEnumeration();
 
-                while (nodeEnumeration.hasMoreElements()) {
-                    final DefaultMutableTreeNode parentNode = nodeEnumeration.nextElement();
+            while (nodeEnumeration.hasMoreElements()) {
+                final DefaultMutableTreeNode parentNode = nodeEnumeration.nextElement();
 
-                    if (parentNode.getUserObject() == parentLayer) {
-                        removeNodesFromTreeModel(childLayers, parentNode);
-                        break;
-                    }
+                if (parentNode.getUserObject() == parentLayer) {
+                    removeNodesFromTreeModel(childLayers, parentNode);
+                    break;
                 }
             }
         }
@@ -137,7 +126,7 @@ class LayerTreeModel extends DefaultTreeModel {
 
                 for (int i = 0; i < childLayerList.size(); ++i) {
                     if (childLayerList.get(i) == addedLayer) {
-                        LayerTreeModel.super.insertNodeInto(new DefaultMutableTreeNode(addedLayer), parentNode, i);
+                        LayerTreeModel.this.insertNodeInto(new DefaultMutableTreeNode(addedLayer), parentNode, i);
                         break;
                     }
                 }
@@ -153,7 +142,7 @@ class LayerTreeModel extends DefaultTreeModel {
                     final DefaultMutableTreeNode childNode = childNodeEnumeration.nextElement();
 
                     if (childNode.getUserObject() == childLayer) {
-                        LayerTreeModel.super.removeNodeFromParent(childNode);
+                        LayerTreeModel.this.removeNodeFromParent(childNode);
                         break;
                     }
                 }

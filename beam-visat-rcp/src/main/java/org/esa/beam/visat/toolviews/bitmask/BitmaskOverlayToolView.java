@@ -204,7 +204,8 @@ public class BitmaskOverlayToolView extends AbstractToolView {
             }
         }
         raster.setBitmaskOverlayInfo(bitmaskOverlayInfo);
-        visatApp.updateImage(productSceneView);
+        // todo - only needed by ProductSceneView42
+//        visatApp.updateImage(productSceneView);
     }
 
     private void newBitmaskDef() {
@@ -687,7 +688,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
     private void doEditAction(final BitmaskDef bitmaskDefNew, final int rowIndex) {
         final BitmaskDef bitmaskDefOld = bitmaskDefTable.getBitmaskDefAt(rowIndex);
         bitmaskDefTable.setBitmaskDefAt(bitmaskDefNew, rowIndex);
-        bitmaskDefActions.add(new EditAction(bitmaskDefOld, bitmaskDefNew));
+        bitmaskDefActions.add(new EditAction(bitmaskDefOld, bitmaskDefNew, rowIndex));
         applyButton.setEnabled(true);
         Debug.trace(
                 "doEditAction(): old=" + bitmaskDefOld.getName() + ", new=" + bitmaskDefNew.getName() + " at rowIndex=" + rowIndex);
@@ -865,7 +866,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         showCompatibleCheck.setMnemonic('c');
         showCompatibleCheck.setToolTipText("Shows bitmask definitions of other compatible products too.");     /*I18N*/
         showCompatibleCheck.addActionListener(new ActionListener() {
-
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 toggleShowCompatibleBitmasks();
             }
@@ -881,7 +882,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         applyButton.setToolTipText("Apply bitmask changes."); /*I18N*/
         applyButton.setMnemonic('A');
         applyButton.addActionListener(new ActionListener() {
-
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 apply();
             }
@@ -891,7 +892,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         newButton.setName("newButton");
         newButton.setToolTipText("Create and add new bitmask."); /*I18N*/
         newButton.addActionListener(new ActionListener() {
-
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 newBitmaskDef();
             }
@@ -901,7 +902,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         copyButton.setName("copyButton");
         copyButton.setToolTipText("Copy and add existing bitmask."); /*I18N*/
         copyButton.addActionListener(new ActionListener() {
-
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 copySelectedBitmaskDef();
             }
@@ -1104,29 +1105,39 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         }
     }
 
-    private static class EditAction implements BmdAction {
+    private class EditAction implements BmdAction {
 
-        private final BitmaskDef _bitmaskDefOld;
-        private final BitmaskDef _bitmaskDefNew;
+        private final BitmaskDef bitmaskDefOld;
+        private final BitmaskDef bitmaskDefNew;
+        private final int rowIndex;
 
-        public EditAction(final BitmaskDef bitmaskDefOld, final BitmaskDef bitmaskDefNew) {
-            _bitmaskDefOld = bitmaskDefOld;
-            _bitmaskDefNew = bitmaskDefNew;
+        public EditAction(final BitmaskDef bitmaskDefOld, final BitmaskDef bitmaskDefNew, int rowIndex) {
+            this.bitmaskDefOld = bitmaskDefOld;
+            this.bitmaskDefNew = bitmaskDefNew;
+            this.rowIndex = rowIndex;
         }
 
+        @Override
         public void doAction(final Product product) {
-            Debug.trace("Applying action: replace bitmask '" + _bitmaskDefNew.getName() + "'");
-            product.replaceBitmaskDef(_bitmaskDefOld, _bitmaskDefNew);
+            Debug.trace("Applying action: replace bitmask '" + bitmaskDefNew.getName() + "'");
+            bitmaskDefOld.setName(bitmaskDefNew.getName());
+            bitmaskDefOld.setDescription(bitmaskDefNew.getDescription());
+            bitmaskDefOld.setColor(bitmaskDefNew.getColor());
+            bitmaskDefOld.setTransparency(bitmaskDefNew.getTransparency());
+            bitmaskDefOld.setExpr(bitmaskDefNew.getExpr());
+            bitmaskDefTable.setBitmaskDefAt(bitmaskDefOld, rowIndex);
+//            product.replaceBitmaskDef(bitmaskDefOld, bitmaskDefNew);
         }
     }
 
     private class BitmaskDefEditPane extends JPanel {
 
         ParamChangeListener _paramChangeListener = new ParamChangeListener() {
+            @Override
             public void parameterValueChanged(final ParamChangeEvent event) {
                 updateUIState();
                 firePropertyChange(event.getParameter().getName(), event.getOldValue(),
-                                   event.getParameter().getValue());
+                        event.getParameter().getValue());
             }
         };
         public BitmaskDef _bitmask;
@@ -1176,8 +1187,6 @@ public class BitmaskOverlayToolView extends AbstractToolView {
             gbc.gridy++;
             GridBagUtils.addToPanel(this, _descrParam.getEditor().getComponent(), gbc);
             GridBagUtils.addToPanel(this, _transParam.getEditor().getComponent(), gbc);
-
-
         }
 
         private void createParameter() {
@@ -1202,7 +1211,6 @@ public class BitmaskOverlayToolView extends AbstractToolView {
             _transParam.getProperties().setEditorClass(TextFieldEditor.class);
             _transParam.getProperties().setValidatorClass(NumberValidator.class);
             _transParam.addParamChangeListener(_paramChangeListener);
-
         }
     }
 
