@@ -24,8 +24,16 @@ public class RotatorTest extends TestCase {
 
         assertEquals(0.0, p1.getX(), 1.0E-10);
         assertEquals(0.0, p1.getY(), 1.0E-10);
-        assertEquals(0.0, p2.getY(), 1.0E-10);
         assertEquals(5.0, p2.getX(), 1.0E-10);
+        assertEquals(0.0, p2.getY(), 1.0E-10);
+
+        rotator.transformInversely(p1);
+        rotator.transformInversely(p2);
+
+        assertEquals(0.0, p1.getX(), 1.0E-10);
+        assertEquals(0.0, p1.getY(), 1.0E-10);
+        assertEquals(0.0, p2.getX(), 1.0E-10);
+        assertEquals(5.0, p2.getY(), 1.0E-10);
     }
 
     public void testRotateY() {
@@ -40,6 +48,14 @@ public class RotatorTest extends TestCase {
         assertEquals(0.0, p1.getY(), 1.0E-10);
         assertEquals(0.0, p2.getX(), 1.0E-10);
         assertEquals(5.0, p2.getY(), 1.0E-10);
+
+        rotator.transformInversely(p1);
+        rotator.transformInversely(p2);
+
+        assertEquals(0.0, p1.getX(), 1.0E-10);
+        assertEquals(45.0, p1.getY(), 1.0E-10);
+        assertEquals(0.0, p2.getX(), 1.0E-10);
+        assertEquals(50.0, p2.getY(), 1.0E-10);
     }
 
     public void testRotateZ() {
@@ -54,49 +70,79 @@ public class RotatorTest extends TestCase {
         assertEquals(0.0, p1.getY(), 1.0E-10);
         assertEquals(5.0, p2.getX(), 1.0E-10);
         assertEquals(0.0, p2.getY(), 1.0E-10);
+
+        rotator.transformInversely(p1);
+        rotator.transformInversely(p2);
+
+        assertEquals(45.0, p1.getX(), 1.0E-10);
+        assertEquals(0.0, p1.getY(), 1.0E-10);
+        assertEquals(50.0, p2.getX(), 1.0E-10);
+        assertEquals(0.0, p2.getY(), 1.0E-10);
     }
 
     public void testRotateNorthPole() {
         final double[] lons = new double[]{0.0, 90.0, 180.0, -90.0, -180.0};
         final double[] lats = new double[]{80.0, 80.0, 80.0, 80.0, 80.0};
 
-        new Rotator(0.0, 90.0).transform(lons, lats);
+        final Rotator rotator = new Rotator(0.0, 90.0);
+
+        rotator.transform(lons, lats);
 
         assertEquals(0.0, lons[0], 1.0E-10);
         assertEquals(-10.0, lats[0], 1.0E-10);
-
         assertEquals(10.0, lons[1], 1.0E-10);
         assertEquals(0.0, lats[1], 1.0E-10);
-
         assertEquals(0.0, lons[2], 1.0E-10);
         assertEquals(10.0, lats[2], 1.0E-10);
-
         assertEquals(-10.0, lons[3], 1.0E-10);
         assertEquals(0.0, lats[3], 1.0E-10);
-
         assertEquals(0.0, lons[4], 1.0E-10);
         assertEquals(10.0, lats[4], 1.0E-10);
+
+        rotator.transformInversely(lons, lats);
+
+        assertEquals(0.0, lons[0], 1.0E-10);
+        assertEquals(80.0, lats[0], 1.0E-10);
+        assertEquals(90.0, lons[1], 1.0E-10);
+        assertEquals(80.0, lats[1], 1.0E-10);
+        assertEquals(180.0, lons[2], 1.0E-10);
+        assertEquals(80.0, lats[2], 1.0E-10);
+        assertEquals(-90.0, lons[3], 1.0E-10);
+        assertEquals(80.0, lats[3], 1.0E-10);
+        assertEquals(-180.0, lons[4], 1.0E-10);
+        assertEquals(80.0, lats[4], 1.0E-10);
     }
 
     public void testRotateSouthPole() {
         final double[] lons = new double[]{0.0, 90.0, 180.0, -90.0, -180.0};
         final double[] lats = new double[]{-80.0, -80.0, -80.0, -80.0, -80.0};
 
-        new Rotator(0.0, -90.0).transform(lons, lats);
+        final Rotator rotator = new Rotator(0.0, -90.0);
+
+        rotator.transform(lons, lats);
 
         assertEquals(0.0, lons[0], 1.0E-10);
         assertEquals(10.0, lats[0], 1.0E-10);
-
         assertEquals(10.0, lons[1], 1.0E-10);
         assertEquals(0.0, lats[1], 1.0E-10);
-
         assertEquals(0.0, lons[2], 1.0E-10);
         assertEquals(-10.0, lats[2], 1.0E-10);
-
         assertEquals(-10.0, lons[3], 1.0E-10);
         assertEquals(0.0, lats[3], 1.0E-10);
-
-        assertEquals(-10.0, lats[4], 1.0E-10);
         assertEquals(0.0, lons[4], 1.0E-10);
+        assertEquals(-10.0, lats[4], 1.0E-10);
+
+        rotator.transformInversely(lons, lats);
+
+        assertEquals(0.0, lons[0], 1.0E-10);
+        assertEquals(-80.0, lats[0], 1.0E-10);
+        assertEquals(90.0, lons[1], 1.0E-10);
+        assertEquals(-80.0, lats[1], 1.0E-10);
+        assertEquals(180.0, lons[2], 1.0E-10);
+        assertEquals(-80.0, lats[2], 1.0E-10);
+        assertEquals(-90.0, lons[3], 1.0E-10);
+        assertEquals(-80.0, lats[3], 1.0E-10);
+        assertEquals(-180.0, lons[4], 1.0E-10);
+        assertEquals(-80.0, lats[4], 1.0E-10);
     }
 }
