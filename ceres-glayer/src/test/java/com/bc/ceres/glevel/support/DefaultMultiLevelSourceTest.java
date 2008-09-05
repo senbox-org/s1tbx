@@ -14,30 +14,38 @@ import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 
 
-public class MultiLevelImageTest extends TestCase {
+public class DefaultMultiLevelSourceTest extends TestCase {
+
+    public void testNull() {
+        final MultiLevelSource mls = DefaultMultiLevelSource.NULL;
+        assertEquals(1, mls.getModel().getLevelCount());
+        assertTrue(mls.getModel().getModelBounds().isEmpty());
+    }
 
     public void testIt() {
         final PlanarImage src = createSourceImage(16, 16);
 
-        MultiLevelImage mri = createGeophysicalSourceImage(src);
-        assertEquals(3, mri.getModel().getLevelCount());
-        assertSame(mri.getWrappedImage(), mri.getLevelImage(0));
+        DefaultMultiLevelSource mrs = new DefaultMultiLevelSource(src, 5);
+        assertEquals(5, mrs.getModel().getLevelCount());
 
-        final RenderedImage l0 = mri.getLevelImage(0);
-        assertSame(l0, mri.getLevelImage(0));
-        assertEquals(DataBuffer.TYPE_DOUBLE, l0.getSampleModel().getDataType());
+        assertSame(src, mrs.getSourceImage());
+        assertSame(src, mrs.getLevelImage(0));
+
+        final RenderedImage l0 = mrs.getLevelImage(0);
+        assertSame(l0, mrs.getLevelImage(0));
+        assertEquals(src.getSampleModel(), l0.getSampleModel().getDataType());
         assertEquals(16, l0.getWidth());
         assertEquals(16, l0.getHeight());
 
-        final RenderedImage l1 = mri.getLevelImage(1);
-        assertSame(l1, mri.getLevelImage(1));
-        assertEquals(DataBuffer.TYPE_DOUBLE, l1.getSampleModel().getDataType());
+        final RenderedImage l1 = mrs.getLevelImage(1);
+        assertSame(l1, mrs.getLevelImage(1));
+        assertEquals(src.getSampleModel(), l0.getSampleModel().getDataType());
         assertEquals(8, l1.getWidth());
         assertEquals(8, l1.getHeight());
 
-        final RenderedImage l2 = mri.getLevelImage(2);
-        assertSame(l2, mri.getLevelImage(2));
-        assertEquals(DataBuffer.TYPE_DOUBLE, l2.getSampleModel().getDataType());
+        final RenderedImage l2 = mrs.getLevelImage(2);
+        assertSame(l2, mrs.getLevelImage(2));
+        assertEquals(src.getSampleModel(), l0.getSampleModel().getDataType());
         assertEquals(4, l2.getWidth());
         assertEquals(4, l2.getHeight());
     }

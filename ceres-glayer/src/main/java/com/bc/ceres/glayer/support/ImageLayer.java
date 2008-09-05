@@ -52,10 +52,10 @@ public class ImageLayer extends Layer {
      * @param levelCount            the number of resolution levels
      */
     public ImageLayer(RenderedImage image, AffineTransform imageToModelTransform, int levelCount) {
-        this(new DefaultMultiLevelSource(new DefaultMultiLevelModel(levelCount,
+        this(new DefaultMultiLevelSource(image, new DefaultMultiLevelModel(levelCount,
                                                                     imageToModelTransform,
-                                                                    DefaultMultiLevelModel.getModelBounds(imageToModelTransform, image)) ,
-                                                                    image));
+                                                                    DefaultMultiLevelModel.getModelBounds(imageToModelTransform, image))
+        ));
     }
 
     /**
