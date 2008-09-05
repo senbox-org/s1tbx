@@ -4,6 +4,8 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerListener;
 import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
@@ -18,13 +20,12 @@ import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
-import org.esa.beam.glevel.MaskImageLayerModelFactory;
-import org.esa.beam.glevel.RoiImageLayerModelFactory;
+import org.esa.beam.glevel.MaskImageMultiLevelSource;
+import org.esa.beam.glevel.RoiImageMultiLevelSource;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.media.jai.Interpolation;
 import javax.swing.JComponent;
 import java.awt.*;
 import java.awt.geom.*;
@@ -235,11 +236,11 @@ public class ProductSceneView45 extends ProductSceneView {
         final String expression = getRaster().getValidMaskExpression();
         if (expression != null) {
             // todo - get color from style, set color
-            final ImageLayerModel imageLayerModel = MaskImageLayerModelFactory.create(getRaster().getProduct(), Color.ORANGE, expression,
+            final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(), Color.ORANGE, expression,
                                                                                  true, new AffineTransform());
-            getNoDataLayer().setMultiLevelSource(imageLayerModel);
+            getNoDataLayer().setMultiLevelSource(multiLevelSource);
         } else {
-            getNoDataLayer().setMultiLevelSource(ImageLayerModel.NULL);
+            getNoDataLayer().setMultiLevelSource(MultiLevelSource.NULL);
         }
 
         fireImageUpdated();
@@ -262,10 +263,10 @@ public class ProductSceneView45 extends ProductSceneView {
     public void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception {
         if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
             // todo - get color from style, set color
-            final ImageLayerModel imageLayerModel = RoiImageLayerModelFactory.create(getRaster(), Color.RED, new AffineTransform());
-            getRoiLayer().setMultiLevelSource(imageLayerModel);
+            final MultiLevelSource multiLevelSource = RoiImageMultiLevelSource.create(getRaster(), Color.RED, new AffineTransform());
+            getRoiLayer().setMultiLevelSource(multiLevelSource);
         } else {
-            getRoiLayer().setMultiLevelSource(ImageLayerModel.NULL);
+            getRoiLayer().setMultiLevelSource(MultiLevelSource.NULL);
         }
 
         fireImageUpdated();
@@ -276,7 +277,7 @@ public class ProductSceneView45 extends ProductSceneView {
         final RenderedImage roiImage = getRoiLayer().getImage(0);
 
         // for compatibility to 42
-        if (roiImage == ImageLayerModel.NULL) {
+        if (roiImage == MultiLevelSource.NULL) {
             return null;
         }
 
@@ -286,12 +287,9 @@ public class ProductSceneView45 extends ProductSceneView {
     @Override
     public void setROIImage(RenderedImage roiImage) {
         // used by MagicStick only
-        // TODO fix ImageLayerModel creation: transformation ?, levelcount ?
-        getRoiLayer().setMultiLevelSource(
-                new DefaultImageLayerModel(
-                        new DefaultMultiLevelSource(roiImage, 0, Interpolation.getInstance(Interpolation.INTERP_NEAREST)),
-                        new AffineTransform(),
-                        null));
+        ImageLayer roiLayer = getRoiLayer();
+        MultiLevelModel model = roiLayer.getMultiLevelSource().getModel();
+        roiLayer.setMultiLevelSource(new DefaultMultiLevelSource(model, roiImage));
         fireImageUpdated();
     }
 

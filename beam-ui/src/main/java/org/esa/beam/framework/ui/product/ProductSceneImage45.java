@@ -9,9 +9,9 @@ import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glayer.PlacemarkLayer;
-import org.esa.beam.glevel.BandImageLayerModelFactory;
-import org.esa.beam.glevel.MaskImageLayerModelFactory;
-import org.esa.beam.glevel.RoiImageLayerModelFactory;
+import org.esa.beam.glevel.BandImageMultiLevelSource;
+import org.esa.beam.glevel.MaskImageMultiLevelSource;
+import org.esa.beam.glevel.RoiImageMultiLevelSource;
 import org.esa.beam.util.ProductUtils;
 
 import java.awt.*;
@@ -38,14 +38,14 @@ class ProductSceneImage45 extends ProductSceneImage {
 
     ProductSceneImage45(RasterDataNode raster) throws IOException {
         super(raster.getDisplayName(), new RasterDataNode[]{raster}, raster.getImageInfo());
-        multiLevelSource = BandImageLayerModelFactory.create(raster, new AffineTransform());
+        multiLevelSource = BandImageMultiLevelSource.create(raster, new AffineTransform());
         setImageInfo(raster.getImageInfo());
         initRootLayer();
     }
 
     ProductSceneImage45(RasterDataNode[] rasters) throws IOException {
         super("RGB", rasters, null);
-        multiLevelSource = BandImageLayerModelFactory.create(rasters, new AffineTransform());
+        multiLevelSource = BandImageMultiLevelSource.create(rasters, new AffineTransform());
         setImageInfo(ProductUtils.createImageInfo(rasters, false, ProgressMonitor.NULL));
         initRootLayer();
     }
@@ -81,7 +81,7 @@ class ProductSceneImage45 extends ProductSceneImage {
 
         if (getRaster().getValidMaskExpression() != null) {
             // todo - get color from style, set color
-            multiLevelSource = MaskImageLayerModelFactory.create(getRaster().getProduct(), Color.ORANGE,
+            multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(), Color.ORANGE,
                     getRaster().getValidMaskExpression(), true, new AffineTransform());
         } else {
             multiLevelSource = MultiLevelSource.NULL;
@@ -107,7 +107,7 @@ class ProductSceneImage45 extends ProductSceneImage {
 
         if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
             // todo - get color from style, set color
-            multiLevelSource = RoiImageLayerModelFactory.create(getRaster(), Color.RED, new AffineTransform());
+            multiLevelSource = RoiImageMultiLevelSource.create(getRaster(), Color.RED, new AffineTransform());
         } else {
             multiLevelSource = MultiLevelSource.NULL;
         }
@@ -160,7 +160,7 @@ class ProductSceneImage45 extends ProductSceneImage {
     private Layer createBitmaskLayer(final BitmaskDef bitmaskDef) {
         final Color color = bitmaskDef.getColor();
         final String expr = bitmaskDef.getExpr();
-        final MultiLevelSource multiLevelSource = MaskImageLayerModelFactory.create(getProduct(), color, expr, false, new AffineTransform());
+        final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getProduct(), color, expr, false, new AffineTransform());
 
         final Layer layer = new ImageLayer(multiLevelSource);
         layer.setName(bitmaskDef.getName());
