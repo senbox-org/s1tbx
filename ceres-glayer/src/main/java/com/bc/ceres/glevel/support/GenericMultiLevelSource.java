@@ -27,13 +27,13 @@ public abstract class GenericMultiLevelSource extends AbstractMultiLevelSource {
     }
 
     @Override
-    protected RenderedImage createLevelImage(int level) {
+    protected RenderedImage createImage(int level) {
         RenderedImage[] sourceImages = new RenderedImage[multiLevelSources.length];
         for (int i = 0; i < multiLevelSources.length; i++) {
             sourceImages[i] = multiLevelSources[i].getImage(level);
         }
-        return createLevelImage(sourceImages, level);
+        return createImage(sourceImages, level);
     }
 
-    protected abstract RenderedImage createLevelImage(RenderedImage[] sourceImages, int level);
+    protected abstract RenderedImage createImage(RenderedImage[] sourceImages, int level);
 }

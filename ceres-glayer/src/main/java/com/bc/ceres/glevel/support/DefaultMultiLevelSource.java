@@ -69,7 +69,7 @@ public class DefaultMultiLevelSource extends AbstractMultiLevelSource {
      * @return The image.
      */
     @Override
-    public RenderedImage createLevelImage(int level) {
+    public RenderedImage createImage(int level) {
         if (level == 0) {
             return sourceImage;
         }

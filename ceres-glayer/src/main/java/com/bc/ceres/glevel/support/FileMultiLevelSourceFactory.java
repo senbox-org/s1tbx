@@ -31,7 +31,7 @@ public class FileMultiLevelSourceFactory {
             this.extension = extension;
         }
 
-        public RenderedImage createLevelImage(int level) {
+        public RenderedImage createImage(int level) {
             final StringBuilder sb = new StringBuilder(basename);
             sb.append('.');
             sb.append(level);

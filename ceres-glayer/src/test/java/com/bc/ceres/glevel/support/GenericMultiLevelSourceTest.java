@@ -62,7 +62,7 @@ public class GenericMultiLevelSourceTest extends TestCase {
             super(new DefaultMultiLevelSource(src, levelCount));
         }
 
-        protected RenderedImage createLevelImage(RenderedImage[] sourceImages, int level) {
+        protected RenderedImage createImage(RenderedImage[] sourceImages, int level) {
             final RenderedOp op = FormatDescriptor.create(PlanarImage.wrapRenderedImage(sourceImages[0]), GEOPHYS_DATATYPE, null);
             return MultiplyConstDescriptor.create(op, new double[]{GEOPHYS_SCALING}, null);
         }

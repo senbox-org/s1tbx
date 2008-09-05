@@ -25,13 +25,13 @@ public abstract class AbstractMultiLevelSource implements MultiLevelSource {
         checkLevel(level);
         RenderedImage levelImage = levelImages[level];
         if (levelImage == null) {
-            levelImage = createLevelImage(level);
+            levelImage = createImage(level);
             levelImages[level] = levelImage;
         }
         return levelImage;
     }
 
-    protected abstract RenderedImage createLevelImage(int level);
+    protected abstract RenderedImage createImage(int level);
 
 
     /**

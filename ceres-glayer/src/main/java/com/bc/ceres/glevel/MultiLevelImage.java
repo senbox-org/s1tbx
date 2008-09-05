@@ -4,45 +4,24 @@ import javax.media.jai.RenderedImageAdapter;
 import java.awt.image.RenderedImage;
 
 /**
- * Adapts a JAI {@link javax.media.jai.PlanarImage PlanarImage} to the {@link MultiLevelSource} interface.
- * The image data provided by this {@code PlanarImage} corresponds to the level zero image of the given
+ * A {@link RenderedImage} which is also a {@link MultiLevelSource}.
+ * The image data provided by this {@code RenderedImage} corresponds to the level zero image of the given
  * {@code MultiLevelSource}.
  *
  * @author Norman Fomferra
  * @version $revision$ $date$
  */
-public class MultiLevelImage extends RenderedImageAdapter implements MultiLevelSource {
-
-    private final MultiLevelSource source;
-
-
-    public MultiLevelImage(MultiLevelSource source) {
-        super(source.getImage(0));
-        this.source = source;
-    }
-
-    public MultiLevelSource getSource() {
-        return source;
-    }
-
-    @Override
-    public MultiLevelModel getModel() {
-        return source.getModel();
-    }
-
-    @Override
-    public RenderedImage getImage(int level) {
-        return source.getImage(level);
-    }
-
-    @Override
-    public void reset() {
-        source.reset();
-    }
-
-    @Override
-    public synchronized void dispose() {
-        reset();
-        super.dispose();
-    }
+public interface MultiLevelImage extends RenderedImage, MultiLevelSource {
+    /**
+     * Provides a hint that an image will no longer be accessed from a
+     * reference in user space.  The results are equivalent to those
+     * that occur when the program loses its last reference to this
+     * image, the garbage collector discovers this, and finalize is
+     * called.  This can be used as a hint in situations where waiting
+     * for garbage collection would be overly conservative.
+     *
+     * <p> The results of referencing an image after a call to
+     * <code>dispose()</code> are undefined.
+     */
+    void dispose();
 }
