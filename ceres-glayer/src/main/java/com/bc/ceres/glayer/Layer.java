@@ -354,6 +354,7 @@ public class Layer extends ExtensibleObject {
     }
 
     private class StylePCL implements PropertyChangeListener {
+        @Override
         public void propertyChange(PropertyChangeEvent event) {
             fireLayerPropertyChanged(event);
         }
