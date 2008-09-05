@@ -300,6 +300,16 @@ public class GcpGeoCoding extends AbstractGeoCoding {
         yc /= length;
         zc /= length;
 
+//        final double lat = toDegrees(asin(zc));
+//        final double lon = toDegrees(atan2(yc, xc));
+//
+//        double lonSum = 0;
+//        double latSum = 0;
+//        for (int i = 0; i < lons.length; i++) {
+//            lonSum += lons[i];
+//            latSum += lats[i];
+//        }
+
         final double lat = toDegrees(asin(zc));
         final double lon = toDegrees(atan2(yc, xc));
 
