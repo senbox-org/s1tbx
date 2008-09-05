@@ -281,16 +281,17 @@ public class GcpGeoCoding extends AbstractGeoCoding {
     }
 
     private static GeoPos calculateCentralGeoPos(double[] lons, double[] lats) {
-        final double[] x = new double[lats.length];
-        final double[] y = new double[lats.length];
-        final double[] z = new double[lats.length];
+        final int size = lats.length;
+        final double[] x = new double[size];
+        final double[] y = new double[size];
+        final double[] z = new double[size];
 
         calculateXYZ(lons, lats, x, y, z);
 
         double xc = 0.0;
         double yc = 0.0;
         double zc = 0.0;
-        for (int i = 0; i < x.length; i++) {
+        for (int i = 0; i < size; i++) {
             xc += x[i];
             yc += y[i];
             zc += z[i];
