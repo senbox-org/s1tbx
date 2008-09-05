@@ -289,7 +289,7 @@ public class ProductSceneView45 extends ProductSceneView {
         // used by MagicStick only
         ImageLayer roiLayer = getRoiLayer();
         MultiLevelModel model = roiLayer.getMultiLevelSource().getModel();
-        roiLayer.setMultiLevelSource(new DefaultMultiLevelSource(model, roiImage));
+        roiLayer.setMultiLevelSource(new DefaultMultiLevelSource(roiImage, model));
         fireImageUpdated();
     }
 

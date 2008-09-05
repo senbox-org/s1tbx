@@ -1,27 +1,21 @@
 package org.esa.beam.dataio.smos;
 
-import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
-import java.awt.image.DataBufferInt;
-import java.awt.image.Raster;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.imageio.stream.ImageOutputStream;
-import javax.imageio.stream.MemoryCacheImageOutputStream;
-import javax.media.jai.PlanarImage;
-
-import org.esa.beam.jai.TiledFileOpImage;
-
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
+import org.esa.beam.jai.TiledFileOpImage;
+
+import javax.imageio.stream.ImageOutputStream;
+import javax.imageio.stream.MemoryCacheImageOutputStream;
+import javax.media.jai.PlanarImage;
+import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.image.DataBufferInt;
+import java.awt.image.Raster;
+import java.io.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class DggridTilizer {
     private File inputLevel0Dir;
@@ -42,8 +36,8 @@ public class DggridTilizer {
         int tileHeight = 512;
         final int levelCount = 7;
         final MultiLevelModel model = new DefaultMultiLevelModel(levelCount, new AffineTransform(), opImage.getWidth(), opImage.getHeight());
-        final MultiLevelSource multiLevelSource = new DefaultMultiLevelSource(model, opImage);
-        
+        final MultiLevelSource multiLevelSource = new DefaultMultiLevelSource(opImage, model);
+
         for (int level = 5; level < levelCount; level++) {
 
             final PlanarImage image = PlanarImage.wrapRenderedImage(multiLevelSource.getLevelImage(level));

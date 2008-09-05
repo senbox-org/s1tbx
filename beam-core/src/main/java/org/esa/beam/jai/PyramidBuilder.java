@@ -70,7 +70,7 @@ public class PyramidBuilder {
 
         dataType = image0.getSampleModel().getDataType();
         DefaultMultiLevelModel model = new DefaultMultiLevelModel(levelCount, new AffineTransform(), new Rectangle(image0.getWidth(), image0.getHeight()));
-        MultiLevelSource multiLevelSource = new DefaultMultiLevelSource(model, image0, interpolation);
+        MultiLevelSource multiLevelSource = new DefaultMultiLevelSource(image0, model, interpolation);
 
         for (int level = 0; level < levelCount; level++) {
 
