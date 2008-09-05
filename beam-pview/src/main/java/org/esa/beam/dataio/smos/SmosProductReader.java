@@ -20,10 +20,11 @@ import com.bc.ceres.binio.Format;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.MultiLevelImage;
+import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.glevel.TiledFileImageLayerModelFactory;
+import org.esa.beam.glevel.TiledFileMultiLevelSource;
 import org.esa.beam.util.io.FileUtils;
 
 import javax.media.jai.JAI;
@@ -60,7 +61,7 @@ public class SmosProductReader extends AbstractProductReader {
         bandDescrMap.put("BT_Value_Imag", new BandDescr("BT_Value_Imag", 2));
     }
 
-    private static ImageLayerModel dggridImageLayerModel;
+    private static MultiLevelSource dggridMultiLevelSource;
 
     SmosProductReader(final SmosProductReaderPlugIn productReaderPlugIn) {
         super(productReaderPlugIn);
@@ -68,14 +69,14 @@ public class SmosProductReader extends AbstractProductReader {
 
     @Override
     protected synchronized Product readProductNodesImpl() throws IOException {
-        if (dggridImageLayerModel == null) {
+        if (dggridMultiLevelSource == null) {
             String dirPath = System.getProperty(SMOS_DGG_DIR_PROPERTY_NAME);
             if (dirPath == null || !new File(dirPath).exists()) {
                 throw new IOException(
                         MessageFormat.format("SMOS products require a DGG image.\nPlease set system property ''{0}''to a valid DGG image directory.", SMOS_DGG_DIR_PROPERTY_NAME));
             }
             try {
-                dggridImageLayerModel = TiledFileImageLayerModelFactory.create(new File(dirPath), false);
+                dggridMultiLevelSource = TiledFileMultiLevelSource.create(new File(dirPath), false);
             } catch (IOException e) {
                 throw new IOException(MessageFormat.format("Failed to load SMOS DDG ''{0}''", dirPath), e);
             }
@@ -133,25 +134,23 @@ public class SmosProductReader extends AbstractProductReader {
 
     private RenderedImage createSourceImage(final Band band) {
         final int btDataIndex = bandDescrMap.get(band.getName()).btDataIndex;
-        MultiLevelImage image = new MultiLevelImage(new AbstractMultiLevelSource(dggridImageLayerModel) {  // TODO - LEVEL!!!
+        return new MultiLevelImage(new AbstractMultiLevelSource(dggridMultiLevelSource.getModel()) {
 
             @Override
             public RenderedImage createLevelImage(int level) {
-                return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridImageLayerModel.getLevelImageSource().getLevelImage(level), level);
+                return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridMultiLevelSource.getLevelImage(level), level);
             }
         });
-        return image;
     }
 
     private RenderedImage createValidMaksImage(final Band band) {
-        MultiLevelImage image = new MultiLevelImage(new AbstractMultiLevelSource(8) {  // TODO - LEVEL!!!
+        return new MultiLevelImage(new AbstractMultiLevelSource(dggridMultiLevelSource.getModel()) {
 
             @Override
             public RenderedImage createLevelImage(int level) {
                 return new SmosL1ValidImage(band, level);
             }
         });
-        return image;
     }
 
     private void applyBandProperties(Band band) {

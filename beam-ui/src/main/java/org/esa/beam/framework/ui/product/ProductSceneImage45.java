@@ -3,6 +3,7 @@ package org.esa.beam.framework.ui.product;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.glayer.FigureLayer;
@@ -27,31 +28,31 @@ import java.util.List;
 class ProductSceneImage45 extends ProductSceneImage {
 
     private Layer rootLayer;
-    private ImageLayerModel imageLayerModel;
+    private MultiLevelSource multiLevelSource;
 
     ProductSceneImage45(RasterDataNode raster, ProductSceneView45 view) throws IOException {
         super(raster.getDisplayName(), new RasterDataNode[]{raster}, view.getImageInfo());
-        imageLayerModel = view.getSceneImage45().getLayerImage();
+        multiLevelSource = view.getSceneImage45().getMultiLevelSource();
         rootLayer = view.getRootLayer();
     }
 
     ProductSceneImage45(RasterDataNode raster) throws IOException {
         super(raster.getDisplayName(), new RasterDataNode[]{raster}, raster.getImageInfo());
-        imageLayerModel = BandImageLayerModelFactory.create(raster, new AffineTransform());
+        multiLevelSource = BandImageLayerModelFactory.create(raster, new AffineTransform());
         setImageInfo(raster.getImageInfo());
         initRootLayer();
     }
 
     ProductSceneImage45(RasterDataNode[] rasters) throws IOException {
         super("RGB", rasters, null);
-        imageLayerModel = BandImageLayerModelFactory.create(rasters, new AffineTransform());
+        multiLevelSource = BandImageLayerModelFactory.create(rasters, new AffineTransform());
         setImageInfo(ProductUtils.createImageInfo(rasters, false, ProgressMonitor.NULL));
         initRootLayer();
     }
 
     private void initRootLayer() {
         rootLayer = new Layer();
-        final ImageLayer imageLayer = new ImageLayer(imageLayerModel);
+        final ImageLayer imageLayer = new ImageLayer(multiLevelSource);
         imageLayer.setName(getName());
         imageLayer.setVisible(true);
         rootLayer.getChildLayerList().add(imageLayer);
@@ -76,17 +77,17 @@ class ProductSceneImage45 extends ProductSceneImage {
     }
 
     private ImageLayer createNoDataLayer() {
-        final ImageLayerModel imageLayerModel;
+        final MultiLevelSource multiLevelSource;
 
         if (getRaster().getValidMaskExpression() != null) {
             // todo - get color from style, set color
-            imageLayerModel = MaskImageLayerModelFactory.create(getRaster().getProduct(), Color.ORANGE,
+            multiLevelSource = MaskImageLayerModelFactory.create(getRaster().getProduct(), Color.ORANGE,
                     getRaster().getValidMaskExpression(), true, new AffineTransform());
         } else {
-            imageLayerModel = ImageLayerModel.NULL;
+            multiLevelSource = MultiLevelSource.NULL;
         }
 
-        final ImageLayer noDataLayer = new ImageLayer(imageLayerModel);
+        final ImageLayer noDataLayer = new ImageLayer(multiLevelSource);
         noDataLayer.setName("No-data mask of " + getRaster().getName());
         noDataLayer.setVisible(false);
         noDataLayer.getStyle().setOpacity(0.5);
@@ -102,16 +103,16 @@ class ProductSceneImage45 extends ProductSceneImage {
     }
 
     private ImageLayer createRoiLayer() {
-        final ImageLayerModel imageLayerModel;
+        final MultiLevelSource multiLevelSource;
 
         if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
             // todo - get color from style, set color
-            imageLayerModel = RoiImageLayerModelFactory.create(getRaster(), Color.RED, new AffineTransform());
+            multiLevelSource = RoiImageLayerModelFactory.create(getRaster(), Color.RED, new AffineTransform());
         } else {
-            imageLayerModel = ImageLayerModel.NULL;
+            multiLevelSource = MultiLevelSource.NULL;
         }
 
-        final ImageLayer roiLayer = new ImageLayer(imageLayerModel);
+        final ImageLayer roiLayer = new ImageLayer(multiLevelSource);
         roiLayer.setName("ROI of " + getRaster().getName());
         roiLayer.setVisible(false);
         roiLayer.getStyle().setOpacity(0.5);
@@ -159,9 +160,9 @@ class ProductSceneImage45 extends ProductSceneImage {
     private Layer createBitmaskLayer(final BitmaskDef bitmaskDef) {
         final Color color = bitmaskDef.getColor();
         final String expr = bitmaskDef.getExpr();
-        final ImageLayerModel imageLayerModel = MaskImageLayerModelFactory.create(getProduct(), color, expr, false, new AffineTransform());
+        final MultiLevelSource multiLevelSource = MaskImageLayerModelFactory.create(getProduct(), color, expr, false, new AffineTransform());
 
-        final Layer layer = new ImageLayer(imageLayerModel);
+        final Layer layer = new ImageLayer(multiLevelSource);
         layer.setName(bitmaskDef.getName());
         layer.setVisible(false);
         layer.getStyle().setOpacity(bitmaskDef.getAlpha());
@@ -173,8 +174,8 @@ class ProductSceneImage45 extends ProductSceneImage {
         return rootLayer;
     }
 
-    private ImageLayerModel getLayerImage() {
-        return imageLayerModel;
+    private MultiLevelSource getMultiLevelSource() {
+        return multiLevelSource;
     }
 
     private class BitmaskDefListener implements ProductNodeListener {

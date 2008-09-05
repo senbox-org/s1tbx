@@ -1,8 +1,10 @@
 package org.esa.beam.jai;
 
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.MultiLevelImage;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
@@ -19,6 +21,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
@@ -44,6 +47,19 @@ public class ImageManager {
             multiLevelSource.reset();
         }
         maskImageMap.clear();
+    }
+
+    public MultiLevelModel createMultiLevelModel(ProductNode productNode) {
+        final Scene scene = SceneFactory.createScene(productNode);
+        if (scene == null) {
+            return null;
+        }
+        final int w = scene.getRasterWidth();
+        final int h = scene.getRasterHeight();
+        // todo - use scene.getGeoCoding() to construct i2mTransform
+        final AffineTransform i2mTransform = new AffineTransform();
+        final int levelCount = computeMaxLevelCount(w, h);
+        return new DefaultMultiLevelModel(levelCount, i2mTransform, w, h);
     }
 
     public static ImageLayout createSingleBandedImageLayout(int dataType,
@@ -272,9 +288,11 @@ public class ImageManager {
     public PlanarImage getBandImage(RasterDataNode rasterDataNode, int level) {
         RenderedImage levelZeroImage = rasterDataNode.getSourceImage();
         if (levelZeroImage == null) {
+
+            final MultiLevelModel model = createMultiLevelModel(rasterDataNode);
             if (rasterDataNode instanceof TiePointGrid) {
                 final TiePointGrid tiePointGrid = (TiePointGrid) rasterDataNode;
-                levelZeroImage = new MultiLevelImage(new AbstractMultiLevelSource(8) { // todo - LEVEL!!!
+                levelZeroImage = new MultiLevelImage(new AbstractMultiLevelSource(model) {
 
                     @Override
                     public RenderedImage createLevelImage(int level) {
@@ -283,7 +301,7 @@ public class ImageManager {
                 });
             } else if (rasterDataNode instanceof VirtualBand) {
                 final VirtualBand virtualBand = (VirtualBand) rasterDataNode;
-                levelZeroImage = new MultiLevelImage(new AbstractMultiLevelSource(8) { // todo - LEVEL!!!
+                levelZeroImage = new MultiLevelImage(new AbstractMultiLevelSource(model) {
 
                     @Override
                     public RenderedImage createLevelImage(int level) {
@@ -292,7 +310,7 @@ public class ImageManager {
                 });
             } else if (rasterDataNode instanceof AbstractBand) {
                 final AbstractBand band = (AbstractBand) rasterDataNode;
-                levelZeroImage = new MultiLevelImage(new AbstractMultiLevelSource(8) { // todo - LEVEL!!!
+                levelZeroImage = new MultiLevelImage(new AbstractMultiLevelSource(model) {
 
                     @Override
                     public RenderedImage createLevelImage(int level) {
@@ -344,7 +362,7 @@ public class ImageManager {
         synchronized (maskImageMap) {
             MultiLevelSource mrMulti = maskImageMap.get(key);
             if (mrMulti == null) {
-                mrMulti = new AbstractMultiLevelSource(8) { // todo - LEVEL!!!
+                mrMulti = new AbstractMultiLevelSource(createMultiLevelModel(product)) {
 
                     @Override
                     public RenderedImage createLevelImage(int level) {
@@ -365,7 +383,7 @@ public class ImageManager {
         }
         RenderedImage levelZeroImage = rasterDataNode.getValidMaskImage();
         if (levelZeroImage == null) {
-            levelZeroImage = new MultiLevelImage(new AbstractMultiLevelSource(8) { // todo - LEVEL!!!
+            levelZeroImage = new MultiLevelImage(new AbstractMultiLevelSource(createMultiLevelModel(rasterDataNode)) {
 
                 @Override
                 public RenderedImage createLevelImage(int level) {
@@ -636,14 +654,15 @@ public class ImageManager {
         }
 
         // Step 3:  insert ROI pixels for pins
+        final MultiLevelModel multiLevelModel = createMultiLevelModel(rasterDataNode);
         if (roiDefinition.isPinUseEnabled() && rasterDataNode.getProduct().getPinGroup().getNodeCount() > 0) {
 
             final Object key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getName() + "_RoiPlacemarks");
-            MultiLevelSource placemarkMaskMRMulti = null;
+            MultiLevelSource placemarkMaskMLS;
             synchronized (maskImageMap) {
-                placemarkMaskMRMulti = maskImageMap.get(key);
-                if (placemarkMaskMRMulti == null) {
-                    placemarkMaskMRMulti = new AbstractMultiLevelSource(8) { // todo - LEVEL!!!
+                placemarkMaskMLS = maskImageMap.get(key);
+                if (placemarkMaskMLS == null) {
+                    placemarkMaskMLS = new AbstractMultiLevelSource(multiLevelModel) {
 
                         @Override
                         public RenderedImage createLevelImage(int level) {
@@ -652,10 +671,10 @@ public class ImageManager {
                                                             rasterDataNode.getSceneRasterHeight(), level);
                         }
                     };
-                    maskImageMap.put(key, placemarkMaskMRMulti);
+                    maskImageMap.put(key, placemarkMaskMLS);
                 }
             }
-            rois.add((PlanarImage) placemarkMaskMRMulti.getLevelImage(level));
+            rois.add((PlanarImage) placemarkMaskMLS.getLevelImage(level));
         }
 
         // Step 4:  insert ROI pixels within shape
@@ -663,12 +682,12 @@ public class ImageManager {
         if (roiDefinition.isShapeEnabled() && roiShapeFigure != null) {
 
             final Object key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getName() + "_RoiShapes");
-            MultiLevelSource shapeMaskMRMulti = null;
+            MultiLevelSource shapeMaskMLS;
             synchronized (maskImageMap) {
-                shapeMaskMRMulti = maskImageMap.get(key);
-                if (shapeMaskMRMulti == null) {
+                shapeMaskMLS = maskImageMap.get(key);
+                if (shapeMaskMLS == null) {
                     final Shape roiShape = roiShapeFigure.getShape();
-                    shapeMaskMRMulti = new AbstractMultiLevelSource(8) { // todo - LEVEL!!!
+                    shapeMaskMLS = new AbstractMultiLevelSource(multiLevelModel) { // todo - LEVEL!!!
 
                         @Override
                         public RenderedImage createLevelImage(int level) {
@@ -678,10 +697,10 @@ public class ImageManager {
                                                         level);
                         }
                     };
-                    maskImageMap.put(key, shapeMaskMRMulti);
+                    maskImageMap.put(key, shapeMaskMLS);
                 }
             }
-            rois.add((PlanarImage) shapeMaskMRMulti.getLevelImage(level));
+            rois.add((PlanarImage) shapeMaskMLS.getLevelImage(level));
         }
 
         if (rois.size() == 0) {

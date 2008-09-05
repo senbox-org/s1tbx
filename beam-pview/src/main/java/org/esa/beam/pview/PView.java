@@ -52,7 +52,7 @@ import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.glevel.BandImageLayerModelFactory;
 import org.esa.beam.glevel.MaskImageLayerModelFactory;
 import org.esa.beam.glevel.RoiImageLayerModelFactory;
-import org.esa.beam.glevel.TiledFileImageLayerModelFactory;
+import org.esa.beam.glevel.TiledFileMultiLevelSource;
 
 import com.bc.ceres.binio.Format;
 import com.bc.ceres.glayer.Layer;
@@ -159,7 +159,7 @@ public class PView {
 //                return;
 //            }
 //            if (dggridLevelImage == null) {
-//                dggridLevelImage = TiledFileImageLayerModelFactory.createMaskOpImage(new File(dirPath), false);
+//                dggridLevelImage = TiledFileMultiLevelSource.createMaskOpImage(new File(dirPath), false);
 //            }
             worldMode = true;
         }
@@ -182,7 +182,7 @@ public class PView {
             String dirPath = System.getProperty(WORLD_IMAGE_DIR_PROPERTY_NAME);
             if (dirPath != null && new File(dirPath).exists()) {
                 if (worldImageLayerModel == null) {
-                    worldImageLayerModel = TiledFileImageLayerModelFactory.create(new File(dirPath), false);
+                    worldImageLayerModel = TiledFileMultiLevelSource.create(new File(dirPath), false);
                 }
                 final ImageLayer layer = new ImageLayer(worldImageLayerModel);
                 layer.setName("World");
