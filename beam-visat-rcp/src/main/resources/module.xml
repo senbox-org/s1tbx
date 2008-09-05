@@ -47,7 +47,7 @@
         [BEAM-633] Ask before removing pins<br/>
         [BEAM-634] Make pin size independent of zoom factor<br/>
         [BEAM-636] Make pin labels nicer<br/>
-        [BEAM-660] Speedup imageLayerModel creation process<br/>
+        [BEAM-660] Speedup image creation process<br/>
         [BEAM-671] Pin pixel coordinates should be floating point numbers<br/>
         [BEAM-672] Include spectral unmixing tool<br/>
         [BEAM-673] Allow for multiple spectra in spectrum view<br/>
@@ -118,7 +118,7 @@
             <smallIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay24.gif</largeIcon>
             <!--<helpId>TODO</helpId>-->
-            <description>Display and modify layers of an imageLayerModel view.</description>
+            <description>Display and modify layers of an image view.</description>
             <initState>DOCKED</initState>
             <initSide>WEST</initSide>
             <initIndex>0</initIndex>
@@ -130,7 +130,7 @@
             <title>Colour Manipulation</title>
             <mnemonic>C</mnemonic>
             <accelerator>ctrl alt C</accelerator>
-            <description>Allows imageLayerModel colour manipulation and contrast stretching.</description>
+            <description>Allows image colour manipulation and contrast stretching.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/ContrastStretch16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/ContrastStretch24.gif</largeIcon>
             <helpId>showColorManipulationWnd</helpId>
@@ -145,7 +145,7 @@
             <title>Navigation</title>
             <mnemonic>N</mnemonic>
             <accelerator>ctrl alt N</accelerator>
-            <description>Zoom and pan a selected imageLayerModel view.</description>
+            <description>Zoom and pan a selected image view.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/Navigation16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/Navigation24.gif</largeIcon>
             <helpId>showNavigationWnd</helpId>
@@ -176,7 +176,7 @@
             <title>Bitmask Overlay</title>
             <mnemonic>B</mnemonic>
             <accelerator>ctrl alt B</accelerator>
-            <description>Overlay bitmasks on top of an imageLayerModel view.</description>
+            <description>Overlay bitmasks on top of an image view.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay24.gif</largeIcon>
             <helpId>showBitmaskOverlayWnd</helpId>
@@ -222,7 +222,7 @@
             <title>ROI Manager</title>
             <mnemonic>r</mnemonic>
             <accelerator>ctrl alt R</accelerator>
-            <description>Manage ROI of a selected imageLayerModel view.</description>
+            <description>Manage ROI of a selected image view.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/ROIDefinition16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/ROIDefinition24.gif</largeIcon>
             <helpId>showROIDefWnd</helpId>
@@ -295,7 +295,7 @@
             <title>Layer Manager</title>
             <mnemonic>L</mnemonic>
             <accelerator>ctrl alt L</accelerator>
-            <description>Manage the display of imageLayerModel layers.</description>
+            <description>Manage the display of image layers.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay24.gif</largeIcon>
             <helpId/>
@@ -542,9 +542,9 @@
             <parent>export</parent>
             <text>Export Displayed Image...</text>
             <mnemonic>I</mnemonic>
-            <shortDescr>Export the currently displayed imageLayerModel.</shortDescr>
-            <description>Export the currently displayed imageLayerModel to a standard imageLayerModel format.</description>
-            <context>imageLayerModel</context>
+            <shortDescr>Export the currently displayed image.</shortDescr>
+            <description>Export the currently displayed image to a standard image format.</description>
+            <context>image</context>
             <helpId>exportImageFile</helpId>
         </action>
 
@@ -554,9 +554,9 @@
             <parent>export</parent>
             <text>Export Google Earth KMZ...</text>
             <mnemonic>K</mnemonic>
-            <shortDescr>Export the currently displayed imageLayerModel as Google Earth KMZ file.</shortDescr>
-            <description>Export the currently displayed imageLayerModel as Google Earth KMZ file.</description>
-            <context>imageLayerModel</context>
+            <shortDescr>Export the currently displayed image as Google Earth KMZ file.</shortDescr>
+            <description>Export the currently displayed image as Google Earth KMZ file.</description>
+            <context>image</context>
             <helpId>exportKmzFile</helpId>
         </action>
 
@@ -567,8 +567,8 @@
             <text>Export ROI Overlay...</text>
             <mnemonic>O</mnemonic>
             <shortDescr>Export the currently displayed ROI overlay.</shortDescr>
-            <description>Export the currently displayed ROI overlay to a standard imageLayerModel format.</description>
-            <context>imageLayerModel</context>
+            <description>Export the currently displayed ROI overlay to a standard image format.</description>
+            <context>image</context>
             <helpId>exportROIImageFile</helpId>
         </action>
 
@@ -579,7 +579,7 @@
             <shortDescr>Export Pin Pixels</shortDescr>
             <longDescr>Export Pin Pixels</longDescr>
             <parent>export</parent>
-            <context>imageLayerModel</context>
+            <context>image</context>
         </action>
 
         <action>
@@ -589,8 +589,8 @@
             <text>Export Colour Legend...</text>
             <mnemonic>C</mnemonic>
             <shortDescr>Export the colour legend.</shortDescr>
-            <description>Export the colour legend for the currently displayed imageLayerModel.</description>
-            <context>imageLayerModel</context>
+            <description>Export the colour legend for the currently displayed image.</description>
+            <context>image</context>
             <helpId>exportLegendImageFile</helpId>
         </action>
 
@@ -601,8 +601,8 @@
             <text>Export Colour Palette...</text>
             <mnemonic>a</mnemonic>
             <shortDescr>Export the colour palette.</shortDescr>
-            <description>Export the colour palette for the currently displayed imageLayerModel.</description>
-            <context>imageLayerModel</context>
+            <description>Export the colour palette for the currently displayed image.</description>
+            <context>image</context>
             <helpId>exportColorPalette</helpId>
         </action>
 
@@ -615,7 +615,7 @@
             <shortDescr>Export the pixels of the current ROI.</shortDescr>
             <description>Export the pixels of the current ROI as tab-separated text.</description>
             <accelerator>shift control P</accelerator>
-            <context>imageLayerModel</context>
+            <context>image</context>
             <helpId>exportROIPixels</helpId>
         </action>
 
@@ -627,7 +627,7 @@
             <mnemonic>T</mnemonic>
             <shortDescr>Export transect pixels.</shortDescr>
             <description>Export transect pixels as tab-separated text.</description>
-            <context>imageLayerModel</context>
+            <context>image</context>
             <helpId>exportEnviGcpFile</helpId>
         </action>
 
@@ -650,7 +650,7 @@
             <text>Export Geo-Coding as ENVI GCP File...</text>
             <mnemonic>G</mnemonic>
             <shortDescr>Export an ENVI GCP (ground control points) file.</shortDescr>
-            <description>Export an ENVI GCP (ground control points) file for imageLayerModel registration.</description>
+            <description>Export an ENVI GCP (ground control points) file for image registration.</description>
             <helpId>exportEnviGcpFile</helpId>
         </action>
 
@@ -671,7 +671,7 @@
             <text>Delete Shape</text>
             <shortDescr>Delete shape.</shortDescr>
             <description>Delete current shape.</description>
-            <context>imageLayerModel,band,tiePointGrid</context>
+            <context>image,band,tiePointGrid</context>
             <placeAfter>delete</placeAfter>
             <smallIcon>icons/DeleteShapeTool16.gif</smallIcon>
             <largeIcon>icons/DeleteShapeTool24.gif</largeIcon>
@@ -819,8 +819,8 @@
             <text>Open Image View</text>
             <mnemonic>I</mnemonic>
             <accellerator>control alt I</accellerator>
-            <shortDescr>Open imageLayerModel view.</shortDescr>
-            <description>Open an imageLayerModel view for the selected band or tie-point grid.</description>
+            <shortDescr>Open image view.</shortDescr>
+            <description>Open an image view for the selected band or tie-point grid.</description>
             <context>band,tiePointGrid</context>
             <smallIcon>icons/ImageView16.gif</smallIcon>
             <largeIcon>icons/ImageView24.gif</largeIcon>
@@ -835,8 +835,8 @@
             <text>Open Image View (v4.5)</text>
             <mnemonic>I</mnemonic>
             <accellerator>control alt I</accellerator>
-            <shortDescr>Open imageLayerModel view.</shortDescr>
-            <description>Open an imageLayerModel view for the selected band or tie-point grid.</description>
+            <shortDescr>Open image view.</shortDescr>
+            <description>Open an image view for the selected band or tie-point grid.</description>
             <context>band,tiePointGrid</context>
             <smallIcon>icons/ImageView16.gif</smallIcon>
             <largeIcon>icons/ImageView24.gif</largeIcon>
@@ -851,8 +851,8 @@
             <text>Open RGB Image View...</text>
             <mnemonic>R</mnemonic>
             <accellerator>control alt G</accellerator>
-            <shortDescr>Open RGB imageLayerModel view.</shortDescr>
-            <description>Open an RGB imageLayerModel view for the selected product.</description>
+            <shortDescr>Open RGB image view.</shortDescr>
+            <description>Open an RGB image view for the selected product.</description>
             <context>product</context>
             <smallIcon>icons/ImageView16.gif</smallIcon>
             <largeIcon>icons/ImageView24.gif</largeIcon>
@@ -867,8 +867,8 @@
             <text>Open RGB Image View (v4.5)...</text>
             <mnemonic>R</mnemonic>
             <accellerator>control alt G</accellerator>
-            <shortDescr>Open RGB imageLayerModel view.</shortDescr>
-            <description>Open an RGB imageLayerModel view for the selected product.</description>
+            <shortDescr>Open RGB image view.</shortDescr>
+            <description>Open an RGB image view for the selected product.</description>
             <context>product</context>
             <smallIcon>icons/ImageView16.gif</smallIcon>
             <largeIcon>icons/ImageView24.gif</largeIcon>
@@ -883,8 +883,8 @@
             <text>Show No-Data Overlay</text>
             <toggle>true</toggle>
             <shortDescr>Show no-data overlay</shortDescr>
-            <description>Show no-data overlay for the selected imageLayerModel</description>
-            <context>imageLayerModel</context>
+            <description>Show no-data overlay for the selected image</description>
+            <context>image</context>
             <separatorBefore>true</separatorBefore>
             <smallIcon>icons/NoDataOverlay16.gif</smallIcon>
             <largeIcon>icons/NoDataOverlay24.gif</largeIcon>
@@ -900,8 +900,8 @@
             <toggle>true</toggle>
             <mnemonic>O</mnemonic>
             <shortDescr>Show/hide ROI overlay</shortDescr>
-            <description>Show/hide ROI overlay for the selected imageLayerModel</description>
-            <context>imageLayerModel</context>
+            <description>Show/hide ROI overlay for the selected image</description>
+            <context>image</context>
             <smallIcon>icons/ROIOverlay16.gif</smallIcon>
             <largeIcon>icons/ROIOverlay24.gif</largeIcon>
             <helpId>showROIOverlay</helpId>
@@ -916,8 +916,8 @@
             <toggle>true</toggle>
             <mnemonic>O</mnemonic>
             <shortDescr>Show/hide shape overlay</shortDescr>
-            <description>Show/hide shape overlay for the selected imageLayerModel</description>
-            <context>imageLayerModel</context>
+            <description>Show/hide shape overlay for the selected image</description>
+            <context>image</context>
             <smallIcon>icons/ShapeOverlay16.gif</smallIcon>
             <largeIcon>icons/ShapeOverlay24.gif</largeIcon>
             <helpId>showShapeOverlay</helpId>
@@ -933,8 +933,8 @@
             <separatorAfter>false</separatorAfter>
             <mnemonic>G</mnemonic>
             <shortDescr>Show/hide graticule overlay</shortDescr>
-            <description>Show/hide graticule overlay for the selected imageLayerModel</description>
-            <context>imageLayerModel</context>
+            <description>Show/hide graticule overlay for the selected image</description>
+            <context>image</context>
             <smallIcon>icons/GraticuleOverlay16.gif</smallIcon>
             <largeIcon>icons/GraticuleOverlay24.gif</largeIcon>
             <helpId>showGraticuleOverlay</helpId>
@@ -1053,7 +1053,7 @@
             <placeBefore>projection</placeBefore>
             <text>Band Arithmetic...</text>
             <shortDescr>Apply Band Arithmetic</shortDescr>
-            <context>imageLayerModel,band,tiePointGrid</context>
+            <context>image,band,tiePointGrid</context>
             <separatorBefore>true</separatorBefore>
             <separatorAfter>false</separatorAfter>
             <smallIcon>icons/BAritmethic16.gif</smallIcon>
@@ -1250,10 +1250,10 @@
             <toggle>true</toggle>
             <separatorAfter>false</separatorAfter>
             <shortDescr>Show pin overlay</shortDescr>
-            <description>Show pin overlay for the selected imageLayerModel</description>
+            <description>Show pin overlay for the selected image</description>
             <smallIcon>icons/PinOverlay16.gif</smallIcon>
             <largeIcon>icons/PinOverlay24.gif</largeIcon>
-            <context>imageLayerModel</context>
+            <context>image</context>
             <helpId>showPinOverlay</helpId>
         </action>
 
@@ -1266,10 +1266,10 @@
             <toggle>true</toggle>
             <separatorAfter>false</separatorAfter>
             <shortDescr>Show GCP overlay</shortDescr>
-            <description>Show GCP overlay for the selected imageLayerModel</description>
+            <description>Show GCP overlay for the selected image</description>
             <smallIcon>icons/GcpOverlay16.gif</smallIcon>
             <largeIcon>icons/GcpOverlay24.gif</largeIcon>
-            <context>imageLayerModel</context>
+            <context>image</context>
             <helpId>showGcpOverlay</helpId>
         </action>
 
@@ -1328,7 +1328,7 @@
             <description>Determine the distance between two points</description>
             <largeIcon>icons/RangeFinder24.gif</largeIcon>
             <selected>false</selected>
-            <context>imageLayerModel</context>
+            <context>image</context>
             <helpId>rangeFinder</helpId>
         </action>
 
@@ -1342,7 +1342,7 @@
             <shortDescr>Zooming Tool</shortDescr>
             <largeIcon>icons/ZoomTool24.gif</largeIcon>
             <selected>false</selected>
-            <context>imageLayerModel</context>
+            <context>image</context>
             <helpId>zoomTool</helpId>
         </action>
 
@@ -1356,7 +1356,7 @@
             <shortDescr>Panner Tool</shortDescr>
             <largeIcon>icons/PannerTool24.gif</largeIcon>
             <selected>false</selected>
-            <context>imageLayerModel</context>
+            <context>image</context>
             <helpId>panTool</helpId>
         </action>
 
@@ -1371,7 +1371,7 @@
             <description>Sets, edits or deletes pins</description>
             <largeIcon>icons/PinTool24.gif</largeIcon>
             <selected>false</selected>
-            <!--<context>imageLayerModel</context>-->
+            <!--<context>image</context>-->
             <helpId>pinTool</helpId>
         </action>
 
@@ -1387,7 +1387,7 @@
             <description>Sets, edits or deletes GCPs</description>
             <largeIcon>icons/GcpTool24.gif</largeIcon>
             <selected>false</selected>
-            <!--<context>imageLayerModel</context>-->
+            <!--<context>image</context>-->
             <helpId>gcpTool</helpId>
         </action>
 
@@ -1401,7 +1401,7 @@
             <shortDescr>Draw Line</shortDescr>
             <largeIcon>icons/DrawLineTool24.gif</largeIcon>
             <selected>false</selected>
-            <context>imageLayerModel</context>
+            <context>image</context>
             <helpId>drawLineTool</helpId>
         </action>
 
@@ -1414,7 +1414,7 @@
             <text>Draw Rectangle</text>
             <shortDescr>Draw Rectangle</shortDescr>
             <largeIcon>icons/DrawRectangleTool24.gif</largeIcon>
-            <context>imageLayerModel</context>
+            <context>image</context>
             <selected>false</selected>
             <helpId>drawRectangleTool</helpId>
         </action>
@@ -1429,7 +1429,7 @@
             <shortDescr>Draw Ellipse</shortDescr>
             <largeIcon>icons/DrawEllipseTool24.gif</largeIcon>
             <selected>false</selected>
-            <context>imageLayerModel</context>
+            <context>image</context>
             <helpId>drawEllipseTool</helpId>
         </action>
 
@@ -1443,7 +1443,7 @@
             <shortDescr>Draw Polyline</shortDescr>
             <largeIcon>icons/DrawPolylineTool24.gif</largeIcon>
             <selected>false</selected>
-            <context>imageLayerModel</context>
+            <context>image</context>
             <helpId>drawPolylineTool</helpId>
         </action>
 
@@ -1457,7 +1457,7 @@
             <shortDescr>Draw Polygon</shortDescr>
             <largeIcon>icons/DrawPolygonTool24.gif</largeIcon>
             <selected>false</selected>
-            <context>imageLayerModel</context>
+            <context>image</context>
             <helpId>drawPolygonTool</helpId>
         </action>
 
@@ -1506,7 +1506,7 @@
                     <shortDescr>Creates a ROI using a magic stick</shortDescr>
                     <largeIcon>icons/MagicStickTool24.gif</largeIcon>
                     <selected>false</selected>
-                    <context>imageLayerModel</context>
+                    <context>image</context>
                     <helpId>magicStickTool</helpId>
                 </action>
         -->
