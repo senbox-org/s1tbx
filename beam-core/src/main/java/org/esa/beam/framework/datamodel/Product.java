@@ -29,12 +29,13 @@ import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 /**
  * <code>Product</code> instances are an in-memory representation of a remote sensing data product. The product is more
@@ -215,9 +216,7 @@ public class Product extends ProductNode {
                         final Pin pin = pinGroup.get(i);
                         final PinDescriptor pinDescriptor = PinDescriptor.INSTANCE;
                         final GeoPos geoPos = pin.getGeoPos();
-                        pinDescriptor.updateGeoPos(getGeoCoding(),
-                                                   pin.getPixelPos(),
-                                                   geoPos);
+                        pinDescriptor.updateGeoPos(getGeoCoding(), pin.getPixelPos(), geoPos);
                         pin.setGeoPos(geoPos);
                     }
                 }
@@ -1238,8 +1237,11 @@ public class Product extends ProductNode {
      * @param index      the destination index for the given bitmask definition
      */
     public void moveBitmaskDef(final BitmaskDef bitmaskdef, final int index) {
-        bitmaskDefs.remove(bitmaskdef);
+        if (bitmaskDefs.remove(bitmaskdef)) {
+            fireNodeRemoved(bitmaskdef);
+        }
         bitmaskDefs.insert(bitmaskdef, index);
+        fireNodeAdded(bitmaskdef);
     }
 
     /**
@@ -1480,8 +1482,11 @@ public class Product extends ProductNode {
             if (insertIndex == -1) {
                 addBitmaskDef(bitmaskDefNew);
             } else {
-                bitmaskDefs.remove(bitmaskDefOld);
+                if (bitmaskDefs.remove(bitmaskDefOld)) {
+                    fireNodeRemoved(bitmaskDefOld);
+                }
                 bitmaskDefs.insert(bitmaskDefNew, insertIndex);
+                fireNodeAdded(bitmaskDefNew);
             }
         }
         final Band[] bands = getBands();
@@ -1728,7 +1733,7 @@ public class Product extends ProductNode {
         return parser.parse(expression);
     }
 
-    public Term createTerm(final String expression, RasterDataNode ... extraRasters) throws ParseException {
+    public Term createTerm(final String expression, RasterDataNode... extraRasters) throws ParseException {
         final WritableNamespace namespace = BandArithmetic.createDefaultNamespace(new Product[]{getProductSafe()});
         final Symbol[] symbols = namespace.getAllSymbols();
         for (RasterDataNode extraRaster : extraRasters) {
@@ -1792,8 +1797,8 @@ public class Product extends ProductNode {
                             final Term bitmaskTerm,
                             final boolean[] bitmask, ProgressMonitor pm) throws IOException {
         final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
-                                                       width, height,
-                                                       new Term[]{bitmaskTerm}, pm);
+                width, height,
+                new Term[]{bitmaskTerm}, pm);
         loop.forEachPixel(new RasterDataLoop.Body() {
             public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
                 bitmask[pixelIndex] = bitmaskTerm.evalB(env);
@@ -1855,8 +1860,8 @@ public class Product extends ProductNode {
                                          final byte falseValue,
                                          ProgressMonitor pm) throws IOException {
         final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
-                                                       width, height,
-                                                       new Term[]{bitmaskTerm}, pm);
+                width, height,
+                new Term[]{bitmaskTerm}, pm);
         loop.forEachPixel(new RasterDataLoop.Body() {
             public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
                 if (bitmaskTerm.evalB(env)) {
@@ -1930,9 +1935,7 @@ public class Product extends ProductNode {
                             final int trueValue,
                             final int falseValue,
                             ProgressMonitor pm) throws IOException {
-        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
-                                                       width, height,
-                                                       new Term[]{bitmaskTerm}, pm);
+        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY, width, height, new Term[]{bitmaskTerm}, pm);
         loop.forEachPixel(new RasterDataLoop.Body() {
             public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
                 if (bitmaskTerm.evalB(env)) {
@@ -1956,11 +1959,11 @@ public class Product extends ProductNode {
                                 final boolean termValue,
                                 final double maskValue) throws IOException {
         maskProductData(offsetX, offsetY,
-                        width, height,
-                        bitmaskTerm,
-                        rasterData,
-                        termValue, maskValue,
-                        ProgressMonitor.NULL);
+                width, height,
+                bitmaskTerm,
+                rasterData,
+                termValue, maskValue,
+                ProgressMonitor.NULL);
     }
 
     /**
@@ -1998,9 +2001,9 @@ public class Product extends ProductNode {
                                 final double maskValue,
                                 final ProgressMonitor pm) throws IOException {
         final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
-                                                       width, height,
-                                                       new Term[]{bitmaskTerm},
-                                                       pm);
+                width, height,
+                new Term[]{bitmaskTerm},
+                pm);
         loop.forEachPixel(new RasterDataLoop.Body() {
             public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
                 if (bitmaskTerm.evalB(env) == termValue) {
