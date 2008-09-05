@@ -37,7 +37,7 @@
         <!--
             The path to the NDVI output.
             The output product is written in the BEAM-DIMAP format,
-            i.e. an XML header file (ndvi_example.dim) and an imageLayerModel file
+            i.e. an XML header file (ndvi_example.dim) and an image file
             containing the NDVI values in ENVI format (header/raw). You can
             inspect the NDVI output product either in VISAT or in ENVI.
         -->
