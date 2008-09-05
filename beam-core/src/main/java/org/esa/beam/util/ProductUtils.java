@@ -2189,6 +2189,13 @@ public class ProductUtils {
                     metadata.addModelTiePoint(pixelPos.x, pixelPos.y, geoPos.lon, geoPos.lat);
                 }
             }
+            // upper left, it's better than center
+            // todo - the accuracy is still not good, but better as without ModelPixelScale
+            GeoPos geoPos1 = geoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null);
+            GeoPos geoPos2 = geoCoding.getGeoPos(new PixelPos(1.5f, 1.5f), null);
+            final float scaleX = Math.abs(geoPos2.lon - geoPos1.lon);
+            final float scaleY = Math.abs(geoPos2.lat - geoPos1.lat);
+            metadata.setModelPixelScale(scaleX, scaleY);
         }
         return metadata;
     }
