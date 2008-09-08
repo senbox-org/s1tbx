@@ -5,13 +5,14 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 
 import javax.media.jai.PlanarImage;
+import javax.media.jai.RasterAccessor;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
-import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
+import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.beam.util.ImageUtils;
 
 import com.bc.jexp.ParseException;
@@ -28,7 +29,6 @@ import com.bc.jexp.impl.ParserImpl;
 public class VirtualBandOpImage extends SingleBandedOpImage {
     private final Product[] products;
     private final String expression;
-    private final int dataType;
 
     public VirtualBandOpImage(Product[] products, String expression, int dataType, int level) {
         super(ImageManager.getDataBufferType(dataType),
@@ -40,11 +40,10 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         // todo - check products for compatibilits
         this.products = products;
         this.expression = expression;
-        this.dataType = dataType;
     }
 
     @Override
-    protected void computeRect(PlanarImage[] planarImages, WritableRaster writableRaster, Rectangle rect) {
+    protected void computeRect(PlanarImage[] planarImages, WritableRaster writableRaster, Rectangle destRect) {
         WritableNamespace namespace = BandArithmetic.createDefaultNamespace(products, 0);
         final Term term;
         try {
@@ -57,22 +56,28 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         for (RasterDataSymbol rasterDataSymbol : rasterDataSymbols) {
             final RasterDataNode sourceRDN = rasterDataSymbol.getRaster();
             PlanarImage sourceImage = ImageManager.getInstance().getGeophysicalBandImage(sourceRDN, getLevel());
-            Raster sourceRaster = sourceImage.getData(rect);
+            Raster sourceRaster = sourceImage.getData(destRect);
             Object sourceArray = ImageUtils.getPrimitiveArray(sourceRaster.getDataBuffer());
             ProductData productData = ProductData.createInstance(sourceRDN.getGeophysicalDataType(), sourceArray);
             rasterDataSymbol.setData(productData);
         }
-
-        final RasterDataEvalEnv env = new RasterDataEvalEnv(rect.x, rect.y, rect.width, rect.height);
+        RasterAccessor targetAccessor = new RasterAccessor(writableRaster,
+                                                           destRect,
+                                                           getFormatTags()[0],
+                                                           getColorModel());
+        final RasterDataEvalEnv env = new RasterDataEvalEnv(destRect.x, destRect.y, destRect.width, destRect.height);
         int pixelIndex = 0;
-        for (int y = rect.y; y < rect.y + rect.height; y++) {
+        int lineIndex = targetAccessor.getBandOffset(0);
+        for (int y = destRect.y; y < destRect.y + destRect.height; y++) {
             env.setPixelY(y);
-            for (int x = rect.x; x < rect.x + rect.width; x++) {
+            pixelIndex = lineIndex;
+            for (int x = destRect.x; x < destRect.x + destRect.width; x++) {
                 env.setElemIndex(pixelIndex);
                 env.setPixelX(x);
                 writableRaster.setSample(x, y, 0, term.evalD(env));
                 pixelIndex++;
             }
+            lineIndex += targetAccessor.getScanlineStride();
         }
     }
 }
