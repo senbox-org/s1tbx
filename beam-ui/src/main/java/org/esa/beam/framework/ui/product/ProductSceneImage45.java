@@ -163,11 +163,13 @@ class ProductSceneImage45 extends ProductSceneImage {
     private Layer createBitmaskLayer(final BitmaskDef bitmaskDef) {
         final Color color = bitmaskDef.getColor();
         final String expr = bitmaskDef.getExpr();
-        final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getProduct(), color, expr, false, new AffineTransform());
+        final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getProduct(), color, expr, false,
+                new AffineTransform());
 
         final Layer layer = new ImageLayer(multiLevelSource);
         layer.setName(bitmaskDef.getName());
-        layer.setVisible(false);
+        final BitmaskOverlayInfo overlayInfo = getRaster().getBitmaskOverlayInfo();
+        layer.setVisible(overlayInfo != null && overlayInfo.containsBitmaskDef(bitmaskDef));
         layer.getStyle().setOpacity(bitmaskDef.getAlpha());
         // todo - add layer icon, bitmask color or even bitmaskDef to layer style?
 

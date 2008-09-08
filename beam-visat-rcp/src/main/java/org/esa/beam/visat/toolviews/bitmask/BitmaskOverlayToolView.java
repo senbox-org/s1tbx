@@ -913,6 +913,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         editButton.setToolTipText("Edit selected bitmask."); /*I18N*/
         editButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 editSelectedBitmaskDef();
             }
@@ -923,6 +924,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         removeButton.setToolTipText("Remove selected bitmask."); /*I18N*/
         removeButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 removeSelectedBitmaskDef();
                 updateUIState();
@@ -934,6 +936,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         importButton.setToolTipText("Import bitmask from text file."); /*I18N*/
         importButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 importBitmaskDef();
                 updateUIState();
@@ -945,6 +948,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         exportButton.setToolTipText("Export bitmask to text file."); /*I18N*/
         exportButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 exportSelectedBitmaskDef();
             }
@@ -955,6 +959,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         importNButton.setToolTipText("Import all bitmask definitions from XML file."); /*I18N*/
         importNButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 importBitmaskDefs();
                 updateUIState();
@@ -966,6 +971,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         exportNButton.setToolTipText("Export all bitmask definitions to XML file."); /*I18N*/
         exportNButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 exportBitmaskDefs();
             }
@@ -976,6 +982,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         moveUpButton.setToolTipText("Moves selected entry up."); /*I18N*/
         moveUpButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 doMoveAction(bitmaskDefTable.getSelectedRow(), true);
             }
@@ -986,6 +993,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         moveDownButton.setToolTipText("Moves selected entry down."); /*I18N*/
         moveDownButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 doMoveAction(bitmaskDefTable.getSelectedRow(), false);
             }
