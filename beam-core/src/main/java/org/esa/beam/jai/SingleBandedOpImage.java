@@ -71,20 +71,19 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
         return levelImageSupport.getScale();
     }
 
-    protected int getSourceX(int tx) {
+    protected final int getSourceX(int tx) {
         return levelImageSupport.getSourceX(tx);
     }
 
-    protected int getSourceY(int ty) {
+    protected final int getSourceY(int ty) {
         return levelImageSupport.getSourceY(ty);
     }
 
-    // TODO - wrong impl, replace by getSourceRect(destRect)
-    protected int getSourceWidth(int destWidth) {
+    protected final int getSourceWidth(int destWidth) {
         return levelImageSupport.getSourceWidth(destWidth);
     }
 
-    protected int getSourceCoord(double destCoord, int min, int max) {
+    protected final int getSourceCoord(double destCoord, int min, int max) {
         return levelImageSupport.getSourceCoord(destCoord, min, max);
     }
 

@@ -5,14 +5,14 @@ package org.esa.beam.jai;
  * Supports the development of images, which are returned by implementations of the
  * {@link com.bc.ceres.glevel.MultiLevelSource MultiLevelSource} interface.
  */
-public class LevelImageSupport {
+public final class LevelImageSupport {
 
     private final int sourceWidth;
     private final int sourceHeight;
     private final int level;
     private final double scale;
 
-    protected LevelImageSupport(int sourceWidth, int sourceHeight, ResolutionLevel level) {
+    public LevelImageSupport(int sourceWidth, int sourceHeight, ResolutionLevel level) {
         this.sourceWidth = sourceWidth;
         this.sourceHeight = sourceHeight;
         this.level = level.getIndex();
@@ -35,20 +35,19 @@ public class LevelImageSupport {
         return scale;
     }
 
-    public int getSourceX(int tx) {
+    public final int getSourceX(int tx) {
         return getSourceCoord(tx, 0, getSourceWidth() - 1);
     }
 
-    public int getSourceY(int ty) {
+    public final int getSourceY(int ty) {
         return getSourceCoord(ty, 0, getSourceHeight() - 1);
     }
 
-    // TODO - wrong impl, replace by getSourceRect(destRect)
-    public int getSourceWidth(int destWidth) {
+    public final int getSourceWidth(int destWidth) {
         return getSourceCoord(destWidth, 1, getSourceWidth() - 1);
     }
 
-    public int getSourceCoord(double destCoord, int min, int max) {
+    public final int getSourceCoord(double destCoord, int min, int max) {
         return double2int(getScale() * destCoord, min, max);
     }
 
