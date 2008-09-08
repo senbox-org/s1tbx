@@ -1,12 +1,10 @@
 package org.esa.beam.jai;
 
-import java.awt.Rectangle;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
-
-import javax.media.jai.PlanarImage;
-import javax.media.jai.RasterAccessor;
-
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Parser;
+import com.bc.jexp.Term;
+import com.bc.jexp.WritableNamespace;
+import com.bc.jexp.impl.ParserImpl;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -15,11 +13,11 @@ import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.beam.util.ImageUtils;
 
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Parser;
-import com.bc.jexp.Term;
-import com.bc.jexp.WritableNamespace;
-import com.bc.jexp.impl.ParserImpl;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.RasterAccessor;
+import java.awt.Rectangle;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 
 
 /**
@@ -54,7 +52,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         }
         RasterDataSymbol[] rasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
         for (RasterDataSymbol rasterDataSymbol : rasterDataSymbols) {
-            final RasterDataNode sourceRDN = rasterDataSymbol.getRaster();
+            RasterDataNode sourceRDN = rasterDataSymbol.getRaster();
             PlanarImage sourceImage = ImageManager.getInstance().getGeophysicalBandImage(sourceRDN, getLevel());
             Raster sourceRaster = sourceImage.getData(destRect);
             Object sourceArray = ImageUtils.getPrimitiveArray(sourceRaster.getDataBuffer());
@@ -65,8 +63,8 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                                                            destRect,
                                                            getFormatTags()[0],
                                                            getColorModel());
-        final RasterDataEvalEnv env = new RasterDataEvalEnv(destRect.x, destRect.y, destRect.width, destRect.height);
-        int pixelIndex = 0;
+        RasterDataEvalEnv env = new RasterDataEvalEnv(destRect.x, destRect.y, destRect.width, destRect.height);
+        int pixelIndex;
         int lineIndex = targetAccessor.getBandOffset(0);
         for (int y = destRect.y; y < destRect.y + destRect.height; y++) {
             env.setPixelY(y);
