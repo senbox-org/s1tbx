@@ -3,22 +3,21 @@ package org.esa.beam.framework.gpf.internal;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ImageUtils;
-import org.esa.beam.util.jai.JAIUtils;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.SourcelessOpImage;
-import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.image.*;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +29,7 @@ public class OperatorImage extends SourcelessOpImage {
 
 
     public OperatorImage(Band targetBand, OperatorContext operatorContext) {
-        this(targetBand, operatorContext, createSingleBandedImageLayout(targetBand));
+        this(targetBand, operatorContext, ImageManager.createSingleBandedImageLayout(targetBand));
     }
 
     private OperatorImage(Band targetBand, OperatorContext operatorContext, ImageLayout imageLayout) {
@@ -152,48 +151,10 @@ public class OperatorImage extends SourcelessOpImage {
     }
 
     public WritableRaster createWritableRaster(Rectangle rectangle) {
-        final int dataBufferType = getDataBufferType(band.getDataType());
+        final int dataBufferType = ImageManager.getDataBufferType(band.getDataType());
         SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataBufferType, rectangle.width, rectangle.height);
         final Point location = new Point(rectangle.x, rectangle.y);
         return createWritableRaster(sampleModel, location);
-    }
-
-    public static ImageLayout createSingleBandedImageLayout(RasterDataNode rasterDataNode) {
-        int dataBufferType = getDataBufferType(rasterDataNode.getDataType());
-        return createSingleBandedImageLayout(rasterDataNode, dataBufferType);
-    }
-
-    public static ImageLayout createSingleBandedImageLayout(RasterDataNode rasterDataNode, int dataBufferType) {
-        int width = rasterDataNode.getSceneRasterWidth();
-        int height = rasterDataNode.getSceneRasterHeight();
-        SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataBufferType,
-                                                                           width,
-                                                                           height);
-        ColorModel colorModel = createColorModel(sampleModel);
-        Dimension tileSize = getPreferredTileSize(rasterDataNode.getProduct());
-        return new ImageLayout(0, 0,
-                               width,
-                               height,
-                               0, 0,
-                               tileSize.width, tileSize.height,
-                               sampleModel,
-                               colorModel);
-    }
-
-    private static Dimension getPreferredTileSize(Product product) {
-        Dimension tileSize;
-        final Dimension preferredTileSize = product.getPreferredTileSize();
-        if (preferredTileSize != null) {
-            tileSize = preferredTileSize;
-        } else {
-            tileSize = JAIUtils.computePreferredTileSize(product.getSceneRasterWidth(),
-                                                         product.getSceneRasterHeight(), 1);
-        }
-        return tileSize;
-    }
-
-    private static int getDataBufferType(int productDataType) {
-        return ImageManager.getDataBufferType(productDataType);
     }
 
     @Override

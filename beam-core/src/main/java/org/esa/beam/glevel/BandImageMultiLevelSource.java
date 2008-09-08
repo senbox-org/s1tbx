@@ -1,16 +1,15 @@
 package org.esa.beam.glevel;
 
-import java.awt.geom.AffineTransform;
-import java.awt.image.RenderedImage;
-
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.jai.ImageManager;
-
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.jai.ImageManager;
+
+import java.awt.geom.AffineTransform;
+import java.awt.image.RenderedImage;
 
 public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
 
@@ -18,19 +17,19 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
 
     public static MultiLevelSource create(RasterDataNode rasterDataNode,
                                           AffineTransform i2mTransform) {
-        return create(new RasterDataNode[] { rasterDataNode }, i2mTransform);
+        return create(new RasterDataNode[]{rasterDataNode}, i2mTransform);
     }
 
     public static MultiLevelSource create(RasterDataNode rasterDataNode,
                                           AffineTransform i2mTransform, int levelCount) {
-        return create(new RasterDataNode[] { rasterDataNode }, i2mTransform, levelCount);
+        return create(new RasterDataNode[]{rasterDataNode}, i2mTransform, levelCount);
     }
 
     public static MultiLevelSource create(RasterDataNode[] rasterDataNodes,
                                           AffineTransform i2mTransform) {
         return create(rasterDataNodes, i2mTransform,
-                      ImageManager.computeMaxLevelCount(rasterDataNodes[0].getSceneRasterWidth(),
-                                                        rasterDataNodes[0].getSceneRasterHeight()));
+                      DefaultMultiLevelModel.getLevelCount(rasterDataNodes[0].getSceneRasterWidth(),
+                                                           rasterDataNodes[0].getSceneRasterHeight()));
     }
 
     private static MultiLevelSource create(RasterDataNode[] rasterDataNodes,

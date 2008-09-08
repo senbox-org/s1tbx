@@ -27,8 +27,8 @@ import org.esa.beam.util.math.IndexValidator;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.io.IOException;
-import java.util.Random;
 import java.util.HashMap;
+import java.util.Random;
 
 
 /**
@@ -306,15 +306,7 @@ public class Band extends AbstractBand {
                                           ProgressMonitor pm) throws IOException {
         Product product = getProductSafe();
         ProductReader reader = product.getProductReaderSafe();
-        pm.beginTask("Reading raster data...", isMaskProductDataEnabled() ? 2 : 1);
-        try {
-            reader.readBandRasterData(this, offsetX, offsetY, width, height, rasterData, SubProgressMonitor.create(pm, 1));
-            if (isMaskProductDataEnabled()) {
-                maskProductData(offsetX, offsetY, width, height, rasterData, SubProgressMonitor.create(pm, 1));
-            }
-        } finally {
-            pm.done();
-        }
+        reader.readBandRasterData(this, offsetX, offsetY, width, height, rasterData, pm);
         if (rasterData == getRasterData()) {
             fireProductNodeDataChanged();
         }

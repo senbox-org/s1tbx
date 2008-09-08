@@ -1,12 +1,11 @@
 package org.esa.beam.jai;
 
-import java.awt.Rectangle;
-import java.io.IOException;
-
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 
-import com.bc.ceres.core.ProgressMonitor;
+import java.awt.Rectangle;
+import java.io.IOException;
 
 
 /**
@@ -15,7 +14,7 @@ import com.bc.ceres.core.ProgressMonitor;
  */
 public class TiePointGridOpImage extends RasterDataNodeOpImage {
 
-    public TiePointGridOpImage(TiePointGrid band, int level) {
+    public TiePointGridOpImage(TiePointGrid band, ResolutionLevel level) {
         super(band, level);
     }
 

@@ -18,14 +18,15 @@ package org.esa.beam.dataio.smos;
 
 import com.bc.ceres.binio.Format;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
-import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.glevel.TiledFileMultiLevelSource;
+import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.util.io.FileUtils;
 
 import javax.media.jai.JAI;
@@ -139,7 +140,11 @@ public class SmosProductReader extends AbstractProductReader {
 
             @Override
             public RenderedImage createImage(int level) {
-                return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridMultiLevelSource.getImage(level), level);
+                return new SmosL1BandOpImage(smosFile,
+                                             band,
+                                             btDataIndex,
+                                             dggridMultiLevelSource.getImage(level),
+                                             ResolutionLevel.create(getModel(), level));
             }
         });
     }
@@ -149,7 +154,7 @@ public class SmosProductReader extends AbstractProductReader {
 
             @Override
             public RenderedImage createImage(int level) {
-                return new SmosL1ValidImage(band, level);
+                return new SmosL1ValidImage(band, ResolutionLevel.create(getModel(), level));
             }
         });
     }

@@ -16,24 +16,24 @@
  */
 package org.esa.beam.dataio.smos;
 
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.jai.ImageManager;
+import org.esa.beam.jai.ResolutionLevel;
+import org.esa.beam.jai.SingleBandedOpImage;
+
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.RenderedOp;
 import java.awt.Rectangle;
 import java.awt.image.DataBuffer;
 import java.awt.image.WritableRaster;
 import java.awt.image.renderable.ParameterBlock;
 
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.RenderedOp;
-
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.jai.ImageManager;
-import org.esa.beam.jai.SingleBandedOpImage;
-
 public class SmosL1ValidImage extends SingleBandedOpImage {
 
     private PlanarImage rendering;
 
-    public SmosL1ValidImage(Band smosBand, int level) {
+    public SmosL1ValidImage(Band smosBand, ResolutionLevel level) {
         super(DataBuffer.TYPE_BYTE,
               smosBand.getSceneRasterWidth(),
               smosBand.getSceneRasterHeight(),
@@ -42,11 +42,11 @@ public class SmosL1ValidImage extends SingleBandedOpImage {
         init(smosBand, level);
     }
 
-    private void init(Band smosBand, int level) {
+    private void init(Band smosBand, ResolutionLevel level) {
         ParameterBlock pb;
 
         pb = new ParameterBlock();
-        pb.addSource(ImageManager.getInstance().getBandImage(smosBand, level));
+        pb.addSource(ImageManager.getInstance().getBandImage(smosBand, level.getIndex()));
         pb.add(new double[]{0.0});
         pb.add(new double[]{32000.0});
         pb.add(new double[]{255.0});

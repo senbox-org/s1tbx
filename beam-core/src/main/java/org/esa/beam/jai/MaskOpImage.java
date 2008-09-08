@@ -1,20 +1,18 @@
 package org.esa.beam.jai;
 
-import java.awt.Rectangle;
-import java.awt.image.DataBuffer;
-import java.awt.image.WritableRaster;
-import java.io.IOException;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Term;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterAccessor;
 import javax.media.jai.RasterFormatTag;
-
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Term;
+import java.awt.Rectangle;
+import java.awt.image.DataBuffer;
+import java.awt.image.WritableRaster;
+import java.io.IOException;
 
 /**
  * Creates a mask image for a given {@link org.esa.beam.framework.datamodel.RasterDataNode}.
@@ -27,11 +25,11 @@ public class MaskOpImage extends SingleBandedOpImage {
     private final Product product;
     private final Term term;
 
-    public static MaskOpImage create(RasterDataNode rasterDataNode, int level) {
+    public static MaskOpImage create(RasterDataNode rasterDataNode, ResolutionLevel level) {
         return create(rasterDataNode.getProduct(), rasterDataNode.getValidMaskExpression(), level);
     }
 
-    public static MaskOpImage create(Product product, String expression, int level) {
+    public static MaskOpImage create(Product product, String expression, ResolutionLevel level) {
         try {
             return new MaskOpImage(product, product.createTerm(expression), level);
         } catch (ParseException e) {
@@ -39,7 +37,7 @@ public class MaskOpImage extends SingleBandedOpImage {
         }
     }
 
-    private MaskOpImage(Product product, Term term, int level) {
+    private MaskOpImage(Product product, Term term, ResolutionLevel level) {
         super(DataBuffer.TYPE_BYTE,
               product.getSceneRasterWidth(),
               product.getSceneRasterHeight(),

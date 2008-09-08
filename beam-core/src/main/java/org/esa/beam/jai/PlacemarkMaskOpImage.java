@@ -1,23 +1,14 @@
 package org.esa.beam.jai;
 
+import org.esa.beam.framework.datamodel.*;
+
+import javax.media.jai.PlanarImage;
+import javax.media.jai.RasterFactory;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
-
-import javax.media.jai.PlanarImage;
-import javax.media.jai.RasterFactory;
-
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import java.awt.image.*;
 
 /**
  * Creates a mask image for a given {@link org.esa.beam.framework.datamodel.RasterDataNode}.
@@ -37,7 +28,7 @@ public class PlacemarkMaskOpImage extends SingleBandedOpImage {
                                 int placemarkSize,
                                 int width,
                                 int height,
-                                int level) {
+                                ResolutionLevel level) {
         super(DataBuffer.TYPE_BYTE,
               width,
               height,

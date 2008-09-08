@@ -27,7 +27,7 @@ import org.esa.beam.util.io.FileUtils;
 
 import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +45,8 @@ import java.util.Vector;
  */
 public class EnvisatProductReader extends AbstractProductReader {
 
+    private static final String PROPERTY_NAME_MASK_OUT_INVALID_PIXELS = "beam.envisatProductReader.maskOutInvalidPixels";
+
     /**
      * Represents the product's file.
      */
@@ -54,11 +56,11 @@ public class EnvisatProductReader extends AbstractProductReader {
      * The width of the raster covering the full scene.
      */
     private int _sceneRasterWidth;
-
     /**
      * The height of the raster covering the full scene.
      */
     private int _sceneRasterHeight;
+    private boolean maskOutInvalidPixels;
 
     /**
      * Constructs a new ENVISAT product reader.
@@ -67,6 +69,7 @@ public class EnvisatProductReader extends AbstractProductReader {
      */
     public EnvisatProductReader(EnvisatProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
+        maskOutInvalidPixels = Boolean.getBoolean(PROPERTY_NAME_MASK_OUT_INVALID_PIXELS);
     }
 
     public ProductFile getProductFile() {
@@ -166,13 +169,12 @@ public class EnvisatProductReader extends AbstractProductReader {
         final int sourceMaxY = sourceMinY + sourceHeight - 1;
         int destArrayPos = 0;
 
-        destBand.ensureValidMaskComputed(ProgressMonitor.NULL);
 
         pm.beginTask("Reading band '" + destBand.getName() + "'...", (sourceMaxY - sourceMinY) + 1);
         // For each scan in the data source
         try {
 
-            if(_productFile.getProductType().equalsIgnoreCase("ASA_WSS_1P")) {
+            if (_productFile.getProductType().equalsIgnoreCase("ASA_WSS_1P")) {
                 processWSSImageRecordMetadata(destBand);
             }
 
@@ -182,17 +184,20 @@ public class EnvisatProductReader extends AbstractProductReader {
                 }
 
                 bandLineReader.readRasterLine(sourceMinX, sourceMaxX, sourceStepX,
-                        sourceY,
-                        destBuffer, destArrayPos);
+                                              sourceY,
+                                              destBuffer, destArrayPos);
 
                 destArrayPos += destWidth;
                 pm.worked(sourceStepY);
             }
 
-            // For Envisat products, we only need to mask out pixels for bands
-            // which have a validPixelExpression set
-            if (destBand.getValidPixelExpression() != null) {
-                maskOutMissingData(destBand, destOffsetX, destOffsetY, destWidth, destHeight, destBuffer);
+            if (maskOutInvalidPixels) {
+                destBand.ensureValidMaskComputed(ProgressMonitor.NULL);
+                // For Envisat products, we only need to mask out pixels for bands
+                // which have a validPixelExpression set
+                if (destBand.getValidPixelExpression() != null) {
+                    maskOutMissingData(destBand, destOffsetX, destOffsetY, destWidth, destHeight, destBuffer);
+                }
             }
             pm.worked(1);
         } finally {
@@ -205,19 +210,19 @@ public class EnvisatProductReader extends AbstractProductReader {
 
         Product product = destBand.getProduct();
         MetadataElement imgRecElem = product.getMetadataRoot().getElement("Image Record");
-        if(imgRecElem == null) {
+        if (imgRecElem == null) {
             imgRecElem = new MetadataElement("Image Record");
             product.getMetadataRoot().addElement(imgRecElem);
         }
 
         MetadataElement bandElem = imgRecElem.getElement(destBand.getName());
-        if(bandElem == null) {
+        if (bandElem == null) {
             bandElem = new MetadataElement(destBand.getName());
             imgRecElem.addElement(bandElem);
         }
 
         MetadataElement timeElem = bandElem.getElement("time");
-        if(timeElem == null) {
+        if (timeElem == null) {
             timeElem = new MetadataElement("time");
             bandElem.addElement(timeElem);
 
@@ -230,15 +235,15 @@ public class EnvisatProductReader extends AbstractProductReader {
         }
     }
 
-    /** add line record data into the metadata
+    /**
+     * add line record data into the metadata
      *
      * @param lineRecord the line record
      */
-    private static void saveLineRecord(MetadataElement timeElem, Record lineRecord, int line)
-    {
+    private static void saveLineRecord(MetadataElement timeElem, Record lineRecord, int line) {
         Field field0 = lineRecord.getFieldAt(0);
         MetadataAttribute attribute = new MetadataAttribute(String.valueOf(line), ProductData.TYPE_FLOAT64, 1);
-        attribute.getData().setElemDouble( ((ProductData.UTC)field0.getData()).getMJD() );
+        attribute.getData().setElemDouble(((ProductData.UTC) field0.getData()).getMJD());
         timeElem.addAttribute(attribute);
     }
 
@@ -273,10 +278,10 @@ public class EnvisatProductReader extends AbstractProductReader {
         productName = FileUtils.createValidFilename(productName);
 
         Product product = new Product(productName,
-                getProductFile().getProductType(),
-                getSceneRasterWidth(),
-                getSceneRasterHeight(),
-                this);
+                                      getProductFile().getProductType(),
+                                      getSceneRasterWidth(),
+                                      getSceneRasterHeight(),
+                                      this);
 
         product.setFileLocation(getProductFile().getFile());
         product.setDescription(getProductFile().getProductDescription());
@@ -328,17 +333,17 @@ public class EnvisatProductReader extends AbstractProductReader {
                 if (bandLineReader instanceof BandLineReader.Virtual) {
                     final BandLineReader.Virtual virtual = ((BandLineReader.Virtual) bandLineReader);
                     band = new VirtualBand(bandName, ProductData.TYPE_FLOAT64,//bandInfo.getDataType(),
-                            width, height,
-                            virtual.getExpression());
+                                           width, height,
+                                           virtual.getExpression());
                 } else {
                     band = new Band(bandName,
-                            bandInfo.getDataType() < ProductData.TYPE_FLOAT32 ? bandInfo.getDataType() : bandLineReader.getPixelDataField().getDataType(),
-                            width, height);
+                                    bandInfo.getDataType() < ProductData.TYPE_FLOAT32 ? bandInfo.getDataType() : bandLineReader.getPixelDataField().getDataType(),
+                                    width, height);
                 }
                 band.setScalingOffset(bandInfo.getScalingOffset());
 
                 _productFile.setInvalidPixelExpression(band);
-                
+
                 band.setScalingFactor(bandInfo.getScalingFactor());
                 band.setLog10Scaled(bandInfo.getScalingMethod() == BandInfo.SCALE_LOG10);
                 band.setSpectralBandIndex(bandInfo.getSpectralBandIndex());
@@ -483,28 +488,28 @@ public class EnvisatProductReader extends AbstractProductReader {
                 final MetadataElement dsdGroup = new MetadataElement("DSD." + (i + 1));
                 dsdGroup.addAttribute(
                         new MetadataAttribute("DATASET_NAME",
-                                ProductData.createInstance(getNonNullString(dsd.getDatasetName())),
-                                true));
+                                              ProductData.createInstance(getNonNullString(dsd.getDatasetName())),
+                                              true));
                 dsdGroup.addAttribute(new MetadataAttribute("DATASET_TYPE",
-                        ProductData.createInstance(
-                                new String(new char[]{dsd.getDatasetType()})),
-                        true));
+                                                            ProductData.createInstance(
+                                                                    new String(new char[]{dsd.getDatasetType()})),
+                                                            true));
                 dsdGroup.addAttribute(new MetadataAttribute("FILE_NAME",
-                        ProductData.createInstance(
-                                getNonNullString(dsd.getFileName())),
-                        true));
+                                                            ProductData.createInstance(
+                                                                    getNonNullString(dsd.getFileName())),
+                                                            true));
                 dsdGroup.addAttribute(new MetadataAttribute("OFFSET", ProductData.createInstance(
                         new long[]{dsd.getDatasetOffset()}),
-                        true));
+                                                            true));
                 dsdGroup.addAttribute(new MetadataAttribute("SIZE", ProductData.createInstance(
                         new long[]{dsd.getDatasetSize()}),
-                        true));
+                                                            true));
                 dsdGroup.addAttribute(new MetadataAttribute("NUM_RECORDS",
-                        ProductData.createInstance(new int[]{dsd.getNumRecords()}),
-                        true));
+                                                            ProductData.createInstance(new int[]{dsd.getNumRecords()}),
+                                                            true));
                 dsdGroup.addAttribute(new MetadataAttribute("RECORD_SIZE",
-                        ProductData.createInstance(new int[]{dsd.getRecordSize()}),
-                        true));
+                                                            ProductData.createInstance(new int[]{dsd.getRecordSize()}),
+                                                            true));
                 dsdsGroup.addElement(dsdGroup);
             }
         }
@@ -620,13 +625,13 @@ public class EnvisatProductReader extends AbstractProductReader {
         float subSamplingY = getProductFile().getTiePointSubSamplingY(gridWidth);
 
         TiePointGrid tiePointGrid = createTiePointGrid(bandName,
-                gridWidth,
-                gridHeight,
-                offsetX,
-                offsetY,
-                subSamplingX,
-                subSamplingY,
-                tiePoints);
+                                                       gridWidth,
+                                                       gridHeight,
+                                                       offsetX,
+                                                       offsetY,
+                                                       subSamplingX,
+                                                       subSamplingY,
+                                                       tiePoints);
         if (bandInfo.getPhysicalUnit() != null) {
             tiePointGrid.setUnit(bandInfo.getPhysicalUnit());
         }

@@ -1,17 +1,16 @@
 package org.esa.beam.glevel;
 
-import java.awt.Color;
-import java.awt.geom.AffineTransform;
-import java.awt.image.RenderedImage;
-
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.jai.ImageManager;
-
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.jai.ImageManager;
+
+import java.awt.Color;
+import java.awt.geom.AffineTransform;
+import java.awt.image.RenderedImage;
 
 public class MaskImageMultiLevelSource extends AbstractMultiLevelSource {
 
@@ -27,14 +26,12 @@ public class MaskImageMultiLevelSource extends AbstractMultiLevelSource {
         Assert.notNull(expression);
         final int width = product.getSceneRasterWidth();
         final int height = product.getSceneRasterHeight();
-        final int levelCount = ImageManager.computeMaxLevelCount(width, height);
-        MultiLevelModel model = new DefaultMultiLevelModel(levelCount, i2mTransform,
-                                                           width, height);
+        MultiLevelModel model = new DefaultMultiLevelModel(i2mTransform, width, height);
         return new MaskImageMultiLevelSource(model, product, color, expression, inverseMask);
     }
 
     public MaskImageMultiLevelSource(MultiLevelModel model, Product product, Color color,
-                                      String expression, boolean inverseMask) {
+                                     String expression, boolean inverseMask) {
         super(model);
         this.product = product;
         this.color = color;

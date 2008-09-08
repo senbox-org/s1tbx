@@ -16,7 +16,6 @@ import java.util.Map;
 public abstract class SingleBandedOpImage extends SourcelessOpImage {
 
     private LevelImageSupport levelImageSupport;
-    private final int level;
 
     /**
      * Used to construct an image.
@@ -27,13 +26,14 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
      * @param tileSize       The tile size for this image.
      * @param configuration  The configuration map (can be null).
      * @param level          The resolution level.
+     * @param scale          The ratio model units per pixel units for given resolution level.
      */
     protected SingleBandedOpImage(int dataBufferType,
                                   int sourceWidth,
                                   int sourceHeight,
                                   Dimension tileSize,
                                   Map configuration,
-                                  int level) {
+                                  ResolutionLevel level) {
         this(ImageManager.createSingleBandedImageLayout(dataBufferType,
                                                         sourceWidth,
                                                         sourceHeight,
@@ -49,7 +49,7 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
                                 int sourceWidth,
                                 int sourceHeight,
                                 Map configuration,
-                                int level) {
+                                ResolutionLevel level) {
         super(layout,
               configuration,
               layout.getSampleModel(null),
@@ -57,7 +57,6 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
               layout.getMinY(null),
               layout.getWidth(null),
               layout.getHeight(null));
-        this.level = level;
         setTileCache(JAI.getDefaultInstance().getTileCache());
         levelImageSupport = new LevelImageSupport(sourceWidth,
                                                   sourceHeight,
@@ -65,7 +64,7 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
     }
 
     public final int getLevel() {
-        return level;
+        return levelImageSupport.getLevel();
     }
 
     protected final double getScale() {

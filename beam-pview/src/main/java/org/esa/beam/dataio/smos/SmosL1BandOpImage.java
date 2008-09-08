@@ -1,19 +1,19 @@
 package org.esa.beam.dataio.smos;
 
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.jai.ImageManager;
+import org.esa.beam.jai.ResolutionLevel;
+import org.esa.beam.jai.SingleBandedOpImage;
+
+import javax.media.jai.PixelAccessor;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.UnpackedImageData;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
-
-import javax.media.jai.PixelAccessor;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.UnpackedImageData;
-
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.jai.ImageManager;
-import org.esa.beam.jai.SingleBandedOpImage;
 
 public class SmosL1BandOpImage extends SingleBandedOpImage {
 
@@ -26,7 +26,7 @@ public class SmosL1BandOpImage extends SingleBandedOpImage {
                              Band smosBand,
                              int btDataIndex,
                              RenderedImage seqnumImage,
-                             int level) {
+                             ResolutionLevel level) {
         super(ImageManager.getDataBufferType(smosBand.getDataType()),
               smosBand.getSceneRasterWidth(),
               smosBand.getSceneRasterHeight(),

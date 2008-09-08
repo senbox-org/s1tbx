@@ -1,7 +1,5 @@
 package org.esa.beam.jai;
 
-import com.bc.ceres.core.Assert;
-
 
 /**
  * Supports the development of images, which are returned by implementations of the
@@ -14,12 +12,11 @@ public class LevelImageSupport {
     private final int level;
     private final double scale;
 
-    protected LevelImageSupport(int sourceWidth, int sourceHeight, int level) {
+    protected LevelImageSupport(int sourceWidth, int sourceHeight, ResolutionLevel level) {
         this.sourceWidth = sourceWidth;
         this.sourceHeight = sourceHeight;
-        Assert.argument(level >= 0, "level >= 0");
-        this.level = level;
-        this.scale = ImageManager.computeScale(level);
+        this.level = level.getIndex();
+        this.scale = level.getScale();
     }
 
     public int getSourceWidth() {
@@ -52,11 +49,11 @@ public class LevelImageSupport {
     }
 
     public int getSourceCoord(double destCoord, int min, int max) {
-        return double2int(destCoord / getScale(), min, max);
+        return double2int(getScale() * destCoord, min, max);
     }
 
     public int getDestCoord(double sourceCoord, int min, int max) {
-        return double2int(getScale() * sourceCoord, min, max);
+        return double2int(sourceCoord / getScale(), min, max);
     }
 
     private static int double2int(double v, int min, int max) {

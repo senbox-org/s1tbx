@@ -121,11 +121,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private ROIDefinition roiDefinition;
 
     /**
-     * Should be set by readers only, don't copy this property for bands which use a product builder
-     */
-    private boolean maskProductDataEnabled;
-
-    /**
      * Number of bytes used for internal read buffer.
      */
     private static final int READ_BUFFER_MAX_SIZE = 8 * 1024 * 1024; // 8 MB
@@ -881,8 +876,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @see #loadRasterData(com.bc.ceres.core.ProgressMonitor)
      * @throws java.io.IOException if an I/O error occurs
+     * @see #loadRasterData(com.bc.ceres.core.ProgressMonitor)
      */
     public void loadRasterData() throws IOException {
         loadRasterData(ProgressMonitor.NULL);
@@ -1335,8 +1330,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @see #readRasterDataFully(ProgressMonitor)
      * @throws java.io.IOException if an I/O error occurs
+     * @see #readRasterDataFully(ProgressMonitor)
      */
     public void readRasterDataFully() throws IOException {
         readRasterDataFully(ProgressMonitor.NULL);
@@ -1485,8 +1480,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Tests whether the given parameters specify a compatible raster or not.
      *
      * @param rasterData the raster data
-     * @param w the raster width
-     * @param h the raster height
+     * @param w          the raster width
+     * @param h          the raster height
      * @return {@code true} if so
      */
     public boolean isCompatibleRasterData(ProductData rasterData, int w, int h) {
@@ -1499,8 +1494,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Throws an <code>IllegalArgumentException</code> if the given parameters dont specify a compatible raster.
      *
      * @param rasterData the raster data
-     * @param w the raster width
-     * @param h the raster height
+     * @param w          the raster width
+     * @param h          the raster height
      */
     public void checkCompatibleRasterData(ProductData rasterData, int w, int h) {
         if (!isCompatibleRasterData(rasterData, w, h)) {
@@ -1521,8 +1516,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Creates a transect profile for the given shape (-outline).
      *
      * @param shape the shape
-     * @throws IOException if an I/O error occurs
      * @return the profile data
+     * @throws IOException if an I/O error occurs
      */
     public TransectProfileData createTransectProfileData(Shape shape) throws IOException {
         return TransectProfileData.create(this, shape);
@@ -1565,7 +1560,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * <p/>
      * <p>The method simply returns the value of <code>ensureValidImageInfo(null, ProgressMonitor.NULL)</code>.
      *
-     * @param pm             A progress monitor.
+     * @param pm A progress monitor.
      * @return A valid image information instance.
      * @throws IOException if an I/O error occurs
      * @see #getImageInfo(double[],ProgressMonitor)
@@ -1662,6 +1657,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Sets the bitmask overlay info for image display
+     *
      * @param bitmaskOverlayInfo the bitmask overlay info
      */
     public void setBitmaskOverlayInfo(BitmaskOverlayInfo bitmaskOverlayInfo) {
@@ -1696,7 +1692,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Sets the ROI definition for image display
-     * @param roiDefinition  the ROI definition
+     *
+     * @param roiDefinition the ROI definition
      */
     public void setROIDefinition(ROIDefinition roiDefinition) {
         if (this.roiDefinition != roiDefinition) {
@@ -1739,7 +1736,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (imageInfo != null) {
             return ProductUtils.createRgbImage(new RasterDataNode[]{this}, imageInfo, pm);
         } else {
-            pm.beginTask("Creating image", 1+3);
+            pm.beginTask("Creating image", 1 + 3);
             BufferedImage rgbImage;
             try {
                 imageInfo = createDefaultImageInfo(null, SubProgressMonitor.create(pm, 1));
@@ -1750,6 +1747,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             return rgbImage;
         }
     }
+
     /**
      * Creates a new ROI from the current ROI definition.
      *
@@ -2396,18 +2394,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         geophysicalNoDataValue = scale(getNoDataValue());
     }
 
-    public boolean isMaskProductDataEnabled() {
-        return maskProductDataEnabled;
-    }
-
-    public void setMaskProductDataEnabled(boolean maskProductDataEnabled) {
-        this.maskProductDataEnabled = maskProductDataEnabled;
-    }
-
     /**
      * Gets the source image associated with this {@code RasterDataNode}.
      * This image is currently not used for display purposes.
      * Used by GPF. This method belongs to preliminary API and may be removed or changed in the future.
+     *
      * @return The rendered image.
      * @since BEAM 4.2
      */
@@ -2419,6 +2410,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Sets the source image associated with this {@code RasterDataNode}.
      * This image is currently not used for display purposes.
      * Used by GPF. This method belongs to preliminary API and may be removed or changed in the future.
+     *
      * @param sourceImage The rendered image.
      * @since BEAM 4.2
      */
@@ -2434,6 +2426,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Gets the valid-mask image associated with this {@code RasterDataNode}.
      * This image is currently not used for display purposes.
      * Used by GPF. This method belongs to preliminary API and may be removed or changed in the future.
+     *
      * @return The rendered image.
      * @since BEAM 4.2
      */
@@ -2445,6 +2438,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Sets the valid-mask image associated with this {@code RasterDataNode}.
      * This image is currently not used for display purposes.
      * Used by GPF. This method belongs to preliminary API and may be removed or changed in the future.
+     *
      * @param image The rendered image.
      * @since BEAM 4.2
      */
@@ -2475,6 +2469,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Gets the statistics.
      * This method belongs to preliminary API and may be removed or changed in the future.
+     *
      * @return The statistics or {@code null} if not yet set.
      * @see #getStx(com.bc.ceres.core.ProgressMonitor)
      * @since BEAM 4.2
@@ -2488,6 +2483,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Gets the statistics.
      * If the statistics have not been set before they are computed using the given progress monitor {@code pm} and then set.
      * This method belongs to preliminary API and may be removed or changed in the future.
+     *
      * @param pm A progress monitor which is used to compute the new statistics, if required.
      * @return The statistics.
      * @throws java.io.IOException if an I/O error occures
@@ -2507,6 +2503,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * are really related to this {@code RasterDataNode}'s raster data.
      * The method fires a property change event for the property {@link #PROPERTY_NAME_STATISTICS}.
      * This method belongs to preliminary API and may be removed or changed in the future.
+     *
      * @param stx The statistics. May be {@code null}.
      * @since BEAM 4.2
      */
@@ -2521,6 +2518,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Computes the statistics. May be overridden.
      * This method belongs to preliminary API and may be removed or changed in the future.
+     *
      * @param pm A progress monitor which is used to compute the new statistics, if required.
      * @return The statistics.
      * @throws java.io.IOException if an I/O error occures
@@ -2607,6 +2605,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Premininary API. Use at your own risk.
+     *
      * @since BEAM 4.2
      */
     public static class Stx {

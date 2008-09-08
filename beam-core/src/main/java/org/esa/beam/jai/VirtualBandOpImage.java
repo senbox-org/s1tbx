@@ -27,17 +27,39 @@ import java.awt.image.WritableRaster;
 public class VirtualBandOpImage extends SingleBandedOpImage {
     private final Product[] products;
     private final String expression;
+    private final boolean mask;
 
-    public VirtualBandOpImage(Product[] products, String expression, int dataType, int level) {
+    public static VirtualBandOpImage createMaskOpImage(RasterDataNode rasterDataNode, ResolutionLevel level) {
+        return createMaskOpImage(rasterDataNode.getProduct(),
+                                 rasterDataNode.getValidMaskExpression(),
+                                 level);
+    }
+
+    public static VirtualBandOpImage createMaskOpImage(Product product,
+                                                       String expression,
+                                                       ResolutionLevel level) {
+        return new VirtualBandOpImage(new Product[]{product},
+                                      expression,
+                                      ProductData.TYPE_UINT8,
+                                      true,
+                                      level);
+    }
+
+    public VirtualBandOpImage(Product[] products, String expression, int dataType, ResolutionLevel level) {
+        this(products, expression, dataType, false, level);
+    }
+
+    public VirtualBandOpImage(Product[] products, String expression, int dataType, boolean mask, ResolutionLevel level) {
         super(ImageManager.getDataBufferType(dataType),
               products[0].getSceneRasterWidth(),
               products[0].getSceneRasterHeight(),
               products[0].getPreferredTileSize(),
               null,
               level);
-        // todo - check products for compatibilits
+        // todo - check products for compatibility
         this.products = products;
         this.expression = expression;
+        this.mask = mask;
     }
 
     @Override
@@ -69,11 +91,20 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         for (int y = destRect.y; y < destRect.y + destRect.height; y++) {
             env.setPixelY(y);
             pixelIndex = lineIndex;
-            for (int x = destRect.x; x < destRect.x + destRect.width; x++) {
-                env.setElemIndex(pixelIndex);
-                env.setPixelX(x);
-                writableRaster.setSample(x, y, 0, term.evalD(env));
-                pixelIndex++;
+            if (mask) {
+                for (int x = destRect.x; x < destRect.x + destRect.width; x++) {
+                    env.setElemIndex(pixelIndex);
+                    env.setPixelX(x);
+                    writableRaster.setSample(x, y, 0, term.evalB(env) ? 255 : 0);
+                    pixelIndex++;
+                }
+            } else {
+                for (int x = destRect.x; x < destRect.x + destRect.width; x++) {
+                    env.setElemIndex(pixelIndex);
+                    env.setPixelX(x);
+                    writableRaster.setSample(x, y, 0, term.evalD(env));
+                    pixelIndex++;
+                }
             }
             lineIndex += targetAccessor.getScanlineStride();
         }

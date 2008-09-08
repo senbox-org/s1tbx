@@ -15,10 +15,10 @@ import java.io.IOException;
 public class BandOpImage extends RasterDataNodeOpImage {
 
     public BandOpImage(AbstractBand band) {
-        super(band, 0);
+        super(band, ResolutionLevel.MAXRES);
     }
 
-    public BandOpImage(AbstractBand band, int level) {
+    public BandOpImage(AbstractBand band, ResolutionLevel level) {
         super(band, level);
     }
 
