@@ -41,7 +41,6 @@ import com.bc.ceres.core.ProgressMonitor;
  */
 public class ShowImageViewAction extends ExecCommand {
     public static String ID = "showImageView";
-    public static String ID45 = "showImageView45";
 
     @Override
     public void actionPerformed(final CommandEvent event) {
@@ -134,30 +133,15 @@ public class ShowImageViewAction extends ExecCommand {
         Debug.assertNotNull(pm);
         final VisatApp app = VisatApp.getApp();
 
-        final boolean mustLoadData;
-        final boolean inTiledImagingMode = getCommandID().equals(ID45);
-        if (inTiledImagingMode) {
-            mustLoadData = false;
-        } else {
-            final long dataAutoLoadMemLimit = app.getDataAutoLoadLimit();
-            mustLoadData = raster.getRasterDataSizeInBytes() < dataAutoLoadMemLimit;
-        }
-
         ProductSceneImage sceneImage = null;
         try {
-            pm.beginTask("Creating image...", mustLoadData ? 2 : 1);
-            if (mustLoadData) {
-                loadProductRasterDataImpl(raster, SubProgressMonitor.create(pm, 1));
-                if (!raster.hasRasterData()) {
-                    return null;
-                }
-            }
+            pm.beginTask("Creating image...", 1);
             final JInternalFrame[] frames = app.findInternalFrames(raster, 1);
             if (frames.length > 0) {
                 final ProductSceneView view = (ProductSceneView) frames[0].getContentPane();
                 sceneImage = ProductSceneImage.create(raster, view);
             } else {
-                sceneImage = ProductSceneImage.create(raster, SubProgressMonitor.create(pm, 1), inTiledImagingMode);
+                sceneImage = ProductSceneImage.create(raster, SubProgressMonitor.create(pm, 1), true);
             }
         } finally {
             pm.done();
@@ -165,30 +149,6 @@ public class ShowImageViewAction extends ExecCommand {
 
         return sceneImage;
     }
-
-    private boolean loadProductRasterDataImpl(final RasterDataNode raster, ProgressMonitor pm) {
-        if (raster.hasRasterData()) {
-            return true;
-        }
-        final VisatApp app = VisatApp.getApp();
-
-        app.setStatusBarMessage("Loading raster data...");
-// Don't show wait cursor here - progress bar should pop-up soon...
-
-        boolean state = false;
-        try {
-            raster.loadRasterData(pm);
-            updateState();
-            state = true;
-        } catch (Exception e) {
-            app.handleUnknownException(e);
-        }
-
-        app.clearStatusBarMessage();
-        return state;
-    }
-
-
 
     @Override
     public void updateState(final CommandEvent event) {

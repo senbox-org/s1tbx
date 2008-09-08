@@ -44,7 +44,6 @@ import java.text.MessageFormat;
  */
 public class ShowImageViewRGBAction extends ExecCommand {
     public static String ID = "showImageViewRGB";
-    public static String ID45 = "showImageViewRGB45";
 
     @Override
     public void actionPerformed(final CommandEvent event) {
@@ -144,11 +143,10 @@ public class ShowImageViewRGBAction extends ExecCommand {
         ProductSceneImage productSceneImage = null;
         try {
             pm.beginTask("Creating RGB image...", 2);
-            final boolean inTiledImagingMode = getCommandID().equals(ID45);
             rgbBands = allocateRgbBands(product, rgbaExpressions, visatApp.getDataAutoLoadLimit(),
                                         SubProgressMonitor.create(pm, 1));
             productSceneImage = ProductSceneImage.create(rgbBands[0].band, rgbBands[1].band, rgbBands[2].band,
-                                                         SubProgressMonitor.create(pm, 1), inTiledImagingMode);
+                                                         SubProgressMonitor.create(pm, 1), true);
             productSceneImage.setName(name);
         } catch (Exception e) {
             errorOccured = true;
@@ -179,28 +177,6 @@ public class ShowImageViewRGBAction extends ExecCommand {
             }
             rgbBands[i] = rgbBand;
             storageMem += rgbBand.band.getRawStorageSize();
-        }
-        // JAIJAIJAI
-        final boolean inTiledImagingMode = getCommandID().equals(ID45);
-        if (inTiledImagingMode) {
-            // don't need to load any data!
-        } else {
-            if (storageMem < dataAutoLoadMemLimit) {
-                pm.beginTask("Loading RGB channels...", rgbBands.length);
-                String msgPattern = "Loading RGB channel ''{0}''...";
-                for (final RGBBand rgbBand : rgbBands) {
-                    if (!rgbBand.band.hasRasterData()) {
-                        pm.setSubTaskName(MessageFormat.format(msgPattern, rgbBand.band.getName()));
-                        rgbBand.band.loadRasterData(SubProgressMonitor.create(pm, 1));
-                        rgbBand.dataLoaded = true;
-                    } else {
-                        pm.worked(1);
-                    }
-                    if (pm.isCanceled()) {
-                        throw new IOException("Image creation canceled by user.");
-                    }
-                }
-            }
         }
         return rgbBands;
     }

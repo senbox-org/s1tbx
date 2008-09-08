@@ -71,11 +71,7 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
 
     public static ProductSceneView create(ProductSceneImage sceneImage) {
         Guardian.assertNotNull("sceneImage", sceneImage);
-        if (sceneImage instanceof ProductSceneImage45) {
-            return new ProductSceneView45((ProductSceneImage45) sceneImage);
-        } else {
-            return new ProductSceneView42((ProductSceneImage42) sceneImage);
-        }
+        return new ProductSceneView45((ProductSceneImage45) sceneImage);
     }
 
     protected ProductSceneView(ProductSceneImage sceneImage) {

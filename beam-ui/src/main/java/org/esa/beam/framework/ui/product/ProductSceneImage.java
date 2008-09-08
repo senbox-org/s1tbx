@@ -36,11 +36,7 @@ public abstract class ProductSceneImage {
      */
     public static ProductSceneImage create(RasterDataNode raster, ProgressMonitor pm, boolean inTiledImagingMode) throws IOException {
         Guardian.assertNotNull("raster", raster);
-        if (inTiledImagingMode) {
-            return new ProductSceneImage45(raster);
-        } else {
-            return new ProductSceneImage42(raster, pm);
-        }
+        return new ProductSceneImage45(raster);
 
     }
 
@@ -55,11 +51,7 @@ public abstract class ProductSceneImage {
     public static ProductSceneImage create(RasterDataNode raster, ProductSceneView view) throws IOException {
         Assert.notNull(raster, "raster");
         Assert.notNull(view, "view");
-        if (view instanceof ProductSceneView45) {
-            return new ProductSceneImage45(raster, (ProductSceneView45) view);
-        } else {
-            return new ProductSceneImage42(raster, (ProductSceneView42) view);
-        }
+        return new ProductSceneImage45(raster, (ProductSceneView45) view);
     }
 
     /**
@@ -98,11 +90,7 @@ public abstract class ProductSceneImage {
         Assert.notNull(greenRaster, "greenRaster");
         Assert.notNull(blueRaster, "blueRaster");
         Assert.notNull(pm, "pm");
-        if (inTiledImagingMode) {
-            return new ProductSceneImage45(new RasterDataNode[]{redRaster, greenRaster, blueRaster});
-        } else {
-            return new ProductSceneImage42(new RasterDataNode[]{redRaster, greenRaster, blueRaster}, pm);
-        }
+        return new ProductSceneImage45(new RasterDataNode[]{redRaster, greenRaster, blueRaster});
     }
 
     protected ProductSceneImage(String name, RasterDataNode[] rasters, ImageInfo imageInfo) {

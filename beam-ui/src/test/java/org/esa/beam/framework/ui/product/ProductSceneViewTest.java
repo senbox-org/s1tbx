@@ -25,7 +25,7 @@ import org.esa.beam.framework.datamodel.VirtualBand;
 import java.io.IOException;
 import java.awt.geom.AffineTransform;
 
-public class ProductSceneView42Test extends TestCase {
+public class ProductSceneViewTest extends TestCase {
 
     private VirtualBand r;
     private VirtualBand g;
@@ -58,16 +58,16 @@ public class ProductSceneView42Test extends TestCase {
     public void testIsRGB() throws IOException {
         ProductSceneView view;
 
-        view = ProductSceneView.create(ProductSceneImage42.create(r, ProgressMonitor.NULL, ProductSceneImage.isInTiledImagingMode()));
+        view = ProductSceneView.create(ProductSceneImage45.create(r, ProgressMonitor.NULL, ProductSceneImage.isInTiledImagingMode()));
         assertFalse(view.isRGB());
 
-        view = ProductSceneView.create(ProductSceneImage42.create(r, g, b, ProgressMonitor.NULL));
+        view = ProductSceneView.create(ProductSceneImage45.create(r, g, b, ProgressMonitor.NULL));
         assertTrue(view.isRGB());
     }
 
     public void testDispose() throws IOException {
         final ProductSceneView view;
-        view = ProductSceneView.create(ProductSceneImage42.create(r, ProgressMonitor.NULL, ProductSceneImage.isInTiledImagingMode()));
+        view = ProductSceneView.create(ProductSceneImage45.create(r, ProgressMonitor.NULL, ProductSceneImage.isInTiledImagingMode()));
 
         view.dispose();
         assertNull(view.getSceneImage());
