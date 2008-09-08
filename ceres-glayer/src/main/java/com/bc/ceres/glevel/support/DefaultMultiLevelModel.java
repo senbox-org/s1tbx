@@ -14,11 +14,17 @@ public class DefaultMultiLevelModel implements MultiLevelModel {
     private final AffineTransform[] imageToModelTransforms;
     private final AffineTransform[] modelToImageTransforms;
     private Rectangle2D modelBounds;
+    public final static int MAX_PIXEL_COUNT = 256 * 256;
+
+    public DefaultMultiLevelModel(AffineTransform i2mTransform,
+                                  int width, int height) {
+        this(getLevelCount(width, height), i2mTransform, getModelBounds(i2mTransform, width, height));
+    }
 
     public DefaultMultiLevelModel(int levelCount,
                                   AffineTransform i2mTransform,
-                                  int w, int h) {
-        this(levelCount, i2mTransform, getModelBounds(i2mTransform, w, h));
+                                  int width, int height) {
+        this(levelCount, i2mTransform, getModelBounds(i2mTransform, width, height));
     }
 
     public DefaultMultiLevelModel(int levelCount,
@@ -138,4 +144,13 @@ public class DefaultMultiLevelModel implements MultiLevelModel {
         return imageToModelTransform.createTransformedShape(new Rectangle(0, 0, w, h)).getBounds2D();
     }
 
+    public static int getLevelCount(int width, int height) {
+        int level = 1;
+        double scale = 1.0;
+        while ((scale * width) * (scale * height) >= MAX_PIXEL_COUNT) {
+            level++;
+            scale *= 0.5;
+        }
+        return level;
+    }
 }
