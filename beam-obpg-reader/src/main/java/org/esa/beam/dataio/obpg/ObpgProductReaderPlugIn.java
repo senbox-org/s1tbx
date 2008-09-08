@@ -38,11 +38,11 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
     public static final String FORMAT_NAME = "NASA-OBPG";
 
     private static final String[] magicStrings = {
-                "MODISA Level-2 Data",
-                "MODIST Level-2 Data",
-                "SeaWiFS Level-2 Data",
-                "CZCS Level-2 Data",
-                "OCTS Level-2 Data"
+            "MODISA Level-2 Data",
+            "MODIST Level-2 Data",
+            "SeaWiFS Level-2 Data",
+            "CZCS Level-2 Data",
+            "OCTS Level-2 Data"
     };
 
     private static boolean hdfLibAvailable = false;
@@ -77,13 +77,15 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
      * is capable of decoding the input's content.
      */
     public DecodeQualification getDecodeQualification(Object input) {
+        if (!hdfLibAvailable) {
+            return DecodeQualification.UNABLE;
+        }
         try {
             int sdsId = HDFConstants.FAIL;
 
             try {
                 final File file = getInputFile(input);
-                if (!hdfLibAvailable
-                        || file == null
+                if (file == null
                         || !file.isFile()
                         || !utils.isHdfFile(file.getPath())) {
                     return DecodeQualification.UNABLE;
@@ -123,10 +125,6 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
      * @return an array containing valid input types, never <code>null</code>
      */
     public Class[] getInputTypes() {
-        if (!hdfLibAvailable) {
-            return new Class[0];
-        }
-
         return new Class[]{String.class, File.class};
     }
 
@@ -161,10 +159,6 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
     public String[] getDefaultFileExtensions() {
-        if (!hdfLibAvailable) {
-            return new String[0];
-        }
-
         return new String[]{DEFAULT_FILE_EXTENSION, DEFAULT_FILE_EXTENSION_L2_LAC, DEFAULT_FILE_EXTENSION_L2_MLAC};
     }
 
@@ -175,7 +169,6 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
-     *
      * @return a textual description of this product reader/writer
      */
     public String getDescription(Locale locale) {
