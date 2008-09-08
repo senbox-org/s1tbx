@@ -25,18 +25,22 @@ public abstract class AbstractStyle implements Style {
         setDefaultStyle(defaultStyle);
     }
 
+    @Override
     public double getOpacity() {
         return (Double) getProperty(PROPERTY_NAME_OPACITY);
     }
 
+    @Override
     public void setOpacity(double opacity) {
         setProperty(PROPERTY_NAME_OPACITY, opacity);
     }
 
+    @Override
     public Composite getComposite() {
         return (Composite) getProperty(PROPERTY_NAME_COMPOSITE);
     }
 
+    @Override
     public void setComposite(Composite composite) {
         setProperty(PROPERTY_NAME_COMPOSITE, composite);
     }
