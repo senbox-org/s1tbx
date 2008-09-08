@@ -19,6 +19,31 @@ public class GraphProcessorTest extends TestCase {
     private static TileCache jaiTileCache = JAI.getDefaultInstance().getTileCache();
     private static TileCache testTileCache = new VerbousTileCache(jaiTileCache);
 
+    @Override
+    protected void setUp() throws Exception {
+        JAI.getDefaultInstance().setTileCache(testTileCache);
+        testTileCache.flush();
+
+        TestOps.clearCalls();
+        spi1 = new TestOps.Op1.Spi();
+        spi2 = new TestOps.Op2.Spi();
+        spi3 = new TestOps.Op3.Spi();
+        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        registry.addOperatorSpi(spi1);
+        registry.addOperatorSpi(spi2);
+        registry.addOperatorSpi(spi3);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        testTileCache.flush();
+        JAI.getDefaultInstance().setTileCache(jaiTileCache);
+        final OperatorSpiRegistry spiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        spiRegistry.removeOperatorSpi(spi1);
+        spiRegistry.removeOperatorSpi(spi2);
+        spiRegistry.removeOperatorSpi(spi3);
+    }
+
     public void testEmptyChain() {
         Graph graph = new Graph("test-graph");
         try {
@@ -240,28 +265,4 @@ public class GraphProcessorTest extends TestCase {
         }
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        JAI.getDefaultInstance().setTileCache(testTileCache);
-        testTileCache.flush();
-
-        TestOps.clearCalls();
-        spi1 = new TestOps.Op1.Spi();
-        spi2 = new TestOps.Op2.Spi();
-        spi3 = new TestOps.Op3.Spi();
-        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        registry.addOperatorSpi(spi1);
-        registry.addOperatorSpi(spi2);
-        registry.addOperatorSpi(spi3);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        testTileCache.flush();
-        JAI.getDefaultInstance().setTileCache(jaiTileCache);
-        final OperatorSpiRegistry spiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        spiRegistry.removeOperatorSpi(spi1);
-        spiRegistry.removeOperatorSpi(spi2);
-        spiRegistry.removeOperatorSpi(spi3);
-    }
 }

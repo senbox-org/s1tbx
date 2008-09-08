@@ -2,11 +2,11 @@ package org.esa.beam.framework.gpf.internal;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.jai.RasterDataNodeOpImage;
 
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
@@ -112,7 +112,7 @@ public class JaiHelper {
         final ParameterBlockJAI parameterBlock = new ParameterBlockJAI(operationName);
         RenderedImage sourceImage = sourceBand.getSourceImage();
         if (sourceImage == null) {
-            sourceImage = new RasterDataNodeOpImage(sourceBand);
+            sourceImage = ImageManager.getInstance().createBandMultiLevelImage(sourceBand);
             sourceBand.setSourceImage(sourceImage);
         }
         parameterBlock.addSource(sourceImage);

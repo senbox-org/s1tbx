@@ -10,7 +10,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.io.BeamFileFilter;
-import org.esa.beam.util.jai.RasterDataNodeOpImage;
 
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
@@ -70,7 +69,7 @@ public class OperatorProductReader implements ProductReader {
                                    ProductData destBuffer,
                                    ProgressMonitor pm) throws IOException {
         final RenderedImage image = operatorContext.getTargetImage(destBand);
-        ProgressMonitor oldPm = RasterDataNodeOpImage.setProgressMonitor(image, pm);
+        ProgressMonitor oldPm = OperatorImage.setProgressMonitor(image, pm);
         try {
             /////////////////////////////////////////////////////////////////////
             //
@@ -84,7 +83,7 @@ public class OperatorProductReader implements ProductReader {
             /////////////////////////////////////////////////////////////////////
             data.getDataElements(destOffsetX, destOffsetY, destWidth, destHeight, destBuffer.getElems());
         } finally {
-            RasterDataNodeOpImage.setProgressMonitor(image, oldPm);
+            OperatorImage.setProgressMonitor(image, oldPm);
         }
     }
 
@@ -123,7 +122,7 @@ public class OperatorProductReader implements ProductReader {
         }
 
         public String[] getFormatNames() {
-            return new String[0];
+            return new String[]{"GPF_IN_MEMORY"};
         }
 
         public BeamFileFilter getProductFileFilter() {

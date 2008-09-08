@@ -1,9 +1,9 @@
 package org.esa.beam.jai;
 
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
-import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.support.*;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
@@ -25,6 +25,7 @@ import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -93,7 +94,7 @@ public class ImageManager {
         if (level < 0) {
             throw new IllegalArgumentException("level");
         }
-        final double scale = computeScale(level);
+        final double scale = computeScale(level);  // todo - wrong!!!
         int destWidth = (int) Math.floor(scale * sourceWidth);
         int destHeight = (int) Math.floor(scale * sourceHeight);
         SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataBufferType,
@@ -111,11 +112,12 @@ public class ImageManager {
                                colorModel);
     }
 
+    // todo - dont use, its wrong!
+    @Deprecated
     public static double computeScale(int level) {
         return Math.pow(2, -level);
     }
 
-    // todo (mp,se: 2008/09/03)- is this a good place for this method? ; see also getProductDataType
     public static int getDataBufferType(int productDataType) {
         switch (productDataType) {
             case ProductData.TYPE_INT8:
@@ -137,7 +139,6 @@ public class ImageManager {
         }
     }
 
-    // todo (mp,se: 2008/09/03)- is this a good place for this method? ; see also getDataBufferType
     public static int getProductDataType(int dataBufferType) {
         switch (dataBufferType) {
             case DataBuffer.TYPE_BYTE:
@@ -195,13 +196,13 @@ public class ImageManager {
     }
 
     private static class MaskKey {
-        final Product product; // todo - may cause memory leaks!!! Use WeakReference?
+        final WeakReference<Product> product;
         final String expression;
 
         private MaskKey(Product product, String expression) {
             Assert.notNull(product, "product");
             Assert.notNull(expression, "expression");
-            this.product = product;
+            this.product = new WeakReference<Product>(product);
             this.expression = expression;
         }
 
@@ -217,14 +218,14 @@ public class ImageManager {
                 return false;
             }
             MaskKey key = (MaskKey) o;
-            return product == key.product && expression.equals(key.expression);
+            return product.get() == key.product.get() && expression.equals(key.expression);
 
         }
 
         @Override
         public int hashCode() {
             int result;
-            result = product.hashCode();
+            result = product.get().hashCode();
             result = 31 * result + expression.hashCode();
             return result;
         }
@@ -305,7 +306,7 @@ public class ImageManager {
             multiLevelSource = new DefaultMultiLevelSource(levelZeroImage);
             System.out.println("IMAGING 4.5: Warning: Created new MultiLevelSource");
         }
-        return  multiLevelSource;
+        return multiLevelSource;
     }
 
     public PlanarImage getBandImage(RasterDataNode rasterDataNode, int level) {

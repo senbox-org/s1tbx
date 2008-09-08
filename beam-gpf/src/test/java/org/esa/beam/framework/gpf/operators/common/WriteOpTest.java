@@ -19,16 +19,8 @@ package org.esa.beam.framework.gpf.operators.common;
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.GlobalTestConfig;
-import org.esa.beam.util.SystemUtils;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.PinSymbol;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -40,6 +32,7 @@ import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphContext;
 import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.GraphProcessor;
+import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
 import java.io.StringReader;
@@ -74,45 +67,46 @@ public class WriteOpTest extends TestCase {
     }
 
     public void testWrite() throws Exception {
-            String graphOpXml = "<graph id=\"myOneNodeGraph\">\n"
-                    + "  <version>1.0</version>\n"
-                    + "  <header>\n"
-                    + "    <target refid=\"node2\" />\n"
-                    + "  </header>\n"
-                    + "  <node id=\"node1\">\n"
-                    + "    <operator>MockFiller</operator>\n"
-                    + "  </node>\n"
-                    + "  <node id=\"node2\">\n"
-                    + "    <operator>Write</operator>\n"
-                    + "    <sources>\n"
-                    + "      <input refid=\"node1\"/>\n"
-                    + "    </sources>\n"
-                    + "    <parameters>\n"
-                    + "       <file>" + outputFile.getAbsolutePath() + "</file>\n"
-                    + "       <deleteOutputOnFailure>false</deleteOutputOnFailure>\n"
-                    + "    </parameters>\n"
-                    + "  </node>\n"
-                    + "</graph>";
-            StringReader reader = new StringReader(graphOpXml);
-            Graph graph = GraphIO.read(reader);
+        String graphOpXml = "<graph id=\"myOneNodeGraph\">\n"
+                + "  <version>1.0</version>\n"
+                + "  <header>\n"
+                + "    <target refid=\"node2\" />\n"
+                + "  </header>\n"
+                + "  <node id=\"node1\">\n"
+                + "    <operator>MockFiller</operator>\n"
+                + "  </node>\n"
+                + "  <node id=\"node2\">\n"
+                + "    <operator>Write</operator>\n"
+                + "    <sources>\n"
+                + "      <input refid=\"node1\"/>\n"
+                + "    </sources>\n"
+                + "    <parameters>\n"
+                + "       <file>" + outputFile.getAbsolutePath() + "</file>\n"
+                + "       <deleteOutputOnFailure>false</deleteOutputOnFailure>\n"
+                + "    </parameters>\n"
+                + "  </node>\n"
+                + "</graph>";
+        StringReader reader = new StringReader(graphOpXml);
+        Graph graph = GraphIO.read(reader);
 
-            GraphProcessor processor = new GraphProcessor();
-            GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
-            processor.executeGraphContext(graphContext, ProgressMonitor.NULL);
-            Product[] outputProducts = graphContext.getOutputProducts();
-            outputProducts[0].dispose();
+        GraphProcessor processor = new GraphProcessor();
+        GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
+        processor.executeGraphContext(graphContext, ProgressMonitor.NULL);
+        Product[] outputProducts = graphContext.getOutputProducts();
+        outputProducts[0].dispose();
 
-            Product readProduct = ProductIO.readProduct(outputFile, null);
-            final ProductNodeGroup<Pin> pinProductNodeGroup = readProduct.getPinGroup();
-            assertEquals(4, pinProductNodeGroup.getNodeCount());     // one for each tile, we have 4 tiles
-            assertEquals("writtenProduct", readProduct.getName());
-            assertEquals(1, readProduct.getNumBands());
-            Band band1 = readProduct.getBandAt(0);
-            assertEquals("Op1A", band1.getName());
-            assertEquals(RASTER_SIZE, band1.getSceneRasterWidth());
-            band1.loadRasterData();
-            assertEquals(42, band1.getPixelInt(0, 0));
-            readProduct.dispose();
+        Product productOnDisk = ProductIO.readProduct(outputFile, null);
+        assertNotNull(productOnDisk);
+        final ProductNodeGroup<Pin> pinProductNodeGroup = productOnDisk.getPinGroup();
+        assertEquals(4, pinProductNodeGroup.getNodeCount());     // one for each tile, we have 4 tiles
+        assertEquals("writtenProduct", productOnDisk.getName());
+        assertEquals(1, productOnDisk.getNumBands());
+        Band band1 = productOnDisk.getBandAt(0);
+        assertEquals("Op1A", band1.getName());
+        assertEquals(RASTER_SIZE, band1.getSceneRasterWidth());
+        band1.loadRasterData();
+        assertEquals(42, band1.getPixelInt(0, 0));
+        productOnDisk.dispose();
     }
 
     @OperatorMetadata(alias = "MockFiller")
@@ -125,7 +119,7 @@ public class WriteOpTest extends TestCase {
         public void initialize() {
             targetProduct = new Product("Op1Name", "Op1Type", RASTER_SIZE, RASTER_SIZE);
             targetProduct.addBand(new Band("Op1A", ProductData.TYPE_INT8, RASTER_SIZE, RASTER_SIZE));
-            targetProduct.setPreferredTileSize(2,2);
+            targetProduct.setPreferredTileSize(2, 2);
         }
 
         @Override

@@ -3,14 +3,18 @@ package org.esa.beam.jai;
 import com.bc.ceres.core.Assert;
 
 
-public class ScalableImageSupport {
+/**
+ * Supports the development of images, which are returned by implementations of the
+ * {@link com.bc.ceres.glevel.MultiLevelSource MultiLevelSource} interface.
+ */
+public class LevelImageSupport {
 
     private final int sourceWidth;
     private final int sourceHeight;
     private final int level;
     private final double scale;
 
-    protected ScalableImageSupport(int sourceWidth, int sourceHeight, int level) {
+    protected LevelImageSupport(int sourceWidth, int sourceHeight, int level) {
         this.sourceWidth = sourceWidth;
         this.sourceHeight = sourceHeight;
         Assert.argument(level >= 0, "level >= 0");

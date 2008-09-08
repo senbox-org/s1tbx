@@ -18,7 +18,7 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.jai.RasterDataNodeOpImage;
+import org.esa.beam.jai.BandOpImage;
 
 import java.io.IOException;
 import java.util.Random;
@@ -92,7 +92,7 @@ public class FindClustersOpTest extends TestCase {
 
         band.setSynthetic(true);
         band.setRasterData(ProductData.createInstance(values));
-        band.setSourceImage(new RasterDataNodeOpImage(band));
+        band.setSourceImage(new BandOpImage(band));
 
         return band;
     }

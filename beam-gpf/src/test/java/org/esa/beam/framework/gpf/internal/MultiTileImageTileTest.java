@@ -18,6 +18,11 @@ public class MultiTileImageTileTest extends AbstractTileImageTileTest {
     }
 
     @Override
+    public int getTileCount() {
+        return 4;
+    }
+
+    @Override
     public Dimension getImageSize() {
         return new Dimension(IMAGE_W, IMAGE_H);
     }
@@ -28,9 +33,9 @@ public class MultiTileImageTileTest extends AbstractTileImageTileTest {
     }
 
     public void testThatImageIsTiled() {
-        assertEquals(4, imageFLOAT32.getNumTileImpls());
         assertEquals(TILE_SIZE, imageFLOAT32.getSampleModel().getWidth());
         assertEquals(TILE_SIZE, imageFLOAT32.getSampleModel().getHeight());
+        assertEquals(4, imageFLOAT32.getTileCount());
     }
 
     public void testTargetTile00() {
@@ -62,7 +67,7 @@ public class MultiTileImageTileTest extends AbstractTileImageTileTest {
     }
 
     private void testTargetTile(Rectangle expectedRect) {
-        TileImpl tile = imageFLOAT32.getTileImpl(expectedRect);
+        TileImpl tile = imageFLOAT32.getTile(expectedRect);
         assertNotNull(tile);
         assertSame(getBand("B_FLOAT32"), tile.getRasterDataNode());
 

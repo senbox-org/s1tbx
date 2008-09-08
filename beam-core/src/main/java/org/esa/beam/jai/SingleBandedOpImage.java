@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public abstract class SingleBandedOpImage extends SourcelessOpImage {
 
-    private ScalableImageSupport scalableImageSupport;
+    private LevelImageSupport levelImageSupport;
     private final int level;
 
     /**
@@ -59,9 +59,9 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
               layout.getHeight(null));
         this.level = level;
         setTileCache(JAI.getDefaultInstance().getTileCache());
-        scalableImageSupport = new ScalableImageSupport(sourceWidth,
-                                                        sourceHeight,
-                                                        level);
+        levelImageSupport = new LevelImageSupport(sourceWidth,
+                                                  sourceHeight,
+                                                  level);
     }
 
     public final int getLevel() {
@@ -69,24 +69,24 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
     }
 
     protected final double getScale() {
-        return scalableImageSupport.getScale();
+        return levelImageSupport.getScale();
     }
 
     protected int getSourceX(int tx) {
-        return scalableImageSupport.getSourceX(tx);
+        return levelImageSupport.getSourceX(tx);
     }
 
     protected int getSourceY(int ty) {
-        return scalableImageSupport.getSourceY(ty);
+        return levelImageSupport.getSourceY(ty);
     }
 
     // TODO - wrong impl, replace by getSourceRect(destRect)
     protected int getSourceWidth(int destWidth) {
-        return scalableImageSupport.getSourceWidth(destWidth);
+        return levelImageSupport.getSourceWidth(destWidth);
     }
 
     protected int getSourceCoord(double destCoord, int min, int max) {
-        return scalableImageSupport.getSourceCoord(destCoord, min, max);
+        return levelImageSupport.getSourceCoord(destCoord, min, max);
     }
 
     /**

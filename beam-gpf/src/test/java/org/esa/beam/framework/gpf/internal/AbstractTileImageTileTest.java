@@ -46,6 +46,8 @@ public abstract class AbstractTileImageTileTest extends TestCase {
 
     public abstract Dimension getTileSize();
 
+    public abstract int getTileCount();
+
     public Product getProduct() {
         return product;
     }
@@ -60,7 +62,9 @@ public abstract class AbstractTileImageTileTest extends TestCase {
         TestOpImage image = imageMap.get(name);
         if (image == null) {
             image = new TestOpImage(band);
-            image.getTiles(); // Forces JAI tile computation.
+            final Raster[] rasters = image.getTiles(); // Forces JAI tile computation.
+            assertNotNull(rasters);
+            assertEquals(getTileCount(), rasters.length);
             imageMap.put(name, image);
 
             Dimension tileSize = getTileSize();

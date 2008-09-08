@@ -5,18 +5,12 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.util.jai.RasterDataNodeOpImage;
+import org.esa.beam.framework.gpf.internal.OperatorImage;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -149,7 +143,7 @@ public class GraphProcessor {
 
         NodeContext[] outputNodeContexts = graphContext.getOutputNodeContexts();
         Map<Dimension, List<NodeContext>> tileDimMap = buildTileDimensionMap(outputNodeContexts);
-        
+
         List<Dimension> dimList = new ArrayList<Dimension>(tileDimMap.keySet());
         Collections.sort(dimList, new Comparator<Dimension>() {
 
@@ -160,12 +154,12 @@ public class GraphProcessor {
                 return area1.compareTo(area2);
             }
         });
-        
+
         int numPmTicks = 0;
         for (Dimension dimension : dimList) {
             numPmTicks += dimension.width * dimension.height * tileDimMap.get(dimension).size();
         }
-        
+
         try {
             pm.beginTask("Computing raster data...", numPmTicks);
             for (Dimension dimension : dimList) {
@@ -179,9 +173,9 @@ public class GraphProcessor {
                             return;
                         }
                         Rectangle tileRectangle = new Rectangle(tileX * tileSize.width,
-                                tileY * tileSize.height,
-                                tileSize.width,
-                                tileSize.height);
+                                                                tileY * tileSize.height,
+                                                                tileSize.width,
+                                                                tileSize.height);
                         fireTileStarted(graphContext, tileRectangle);
                         for (NodeContext nodeContext : nodeContextList) {
                             Product targetProduct = nodeContext.getTargetProduct();
@@ -231,7 +225,7 @@ public class GraphProcessor {
     }
 
     private static void forceTileComputation(NodeContext nodeContext, Band band, int tileX, int tileY) {
-        RasterDataNodeOpImage image = nodeContext.getTargetImage(band);
+        OperatorImage image = nodeContext.getTargetImage(band);
         /////////////////////////////////////////////////////////////////////
         //
         // GPF pull-processing is triggered here!!!

@@ -21,17 +21,15 @@ import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.*;
 import org.esa.beam.framework.gpf.graph.GraphOp;
 import org.esa.beam.framework.gpf.graph.OperatorConfiguration;
 import org.esa.beam.framework.gpf.graph.OperatorConfiguration.Reference;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.jai.JAIUtils;
-import org.esa.beam.util.jai.RasterDataNodeOpImage;
 
-import javax.media.jai.JAI;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
@@ -63,7 +61,7 @@ public class OperatorContext {
     private Map<String, Object> parameters;
     private Map<String, Product> sourceProductMap;
     private Map<String, Object> targetPropertyMap;
-    private Map<Band, RasterDataNodeOpImage> targetImageMap;
+    private Map<Band, OperatorImage> targetImageMap;
     private OperatorConfiguration configuration;
     private Logger logger;
     private boolean disposed;
@@ -224,7 +222,7 @@ public class OperatorContext {
 
     public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle rectangle, ProgressMonitor pm) {
         RenderedImage image = getSourceImage(rasterDataNode);
-        ProgressMonitor oldPm = RasterDataNodeOpImage.setProgressMonitor(image, pm);
+        ProgressMonitor oldPm = OperatorImage.setProgressMonitor(image, pm);
         try {
             /////////////////////////////////////////////////////////////////////
             //
@@ -235,11 +233,11 @@ public class OperatorContext {
             /////////////////////////////////////////////////////////////////////
             return new TileImpl(rasterDataNode, awtRaster);
         } finally {
-            RasterDataNodeOpImage.setProgressMonitor(image, oldPm);
+            OperatorImage.setProgressMonitor(image, oldPm);
         }
     }
 
-    public RasterDataNodeOpImage getTargetImage(Band band) {
+    public OperatorImage getTargetImage(Band band) {
         return targetImageMap.get(band);
     }
 
@@ -254,14 +252,9 @@ public class OperatorContext {
             configuration = null;
             sourceProductMap.clear();
             sourceProductList.clear();
-            Collection<RasterDataNodeOpImage> operatorImages = targetImageMap.values();
-            for (RasterDataNodeOpImage image : operatorImages) {
-                RasterDataNode rdn = image.getRasterDataNode();
-                if (rdn != null && rdn.getSourceImage() instanceof OperatorImage) {
-                    rdn.setSourceImage(null);
-                }
+            Collection<OperatorImage> operatorImages = targetImageMap.values();
+            for (OperatorImage image : operatorImages) {
                 image.dispose();
-                JAI.getDefaultInstance().getTileCache().removeTiles(image);
             }
             targetImageMap.clear();
             operator.dispose();
@@ -271,7 +264,7 @@ public class OperatorContext {
     private static RenderedImage getSourceImage(RasterDataNode rasterDataNode) {
         RenderedImage image = rasterDataNode.getSourceImage();
         if (image == null) {
-            image = new RasterDataNodeOpImage(rasterDataNode);
+            image = ImageManager.getInstance().createBandMultiLevelImage(rasterDataNode);
             rasterDataNode.setSourceImage(image);
         }
         return image;
@@ -279,18 +272,18 @@ public class OperatorContext {
 
     private static boolean canOperatorComputeTile(Class<? extends Operator> aClass) {
         return implementsMethod(aClass, "computeTile",
-                new Class[]{
-                        Band.class,
-                        Tile.class,
-                        ProgressMonitor.class});
+                                new Class[]{
+                                        Band.class,
+                                        Tile.class,
+                                        ProgressMonitor.class});
     }
 
     private static boolean canOperatorComputeTileStack(Class<? extends Operator> aClass) {
         return implementsMethod(aClass, "computeTileStack",
-                new Class[]{
-                        Map.class,
-                        Rectangle.class,
-                        ProgressMonitor.class});
+                                new Class[]{
+                                        Map.class,
+                                        Rectangle.class,
+                                        ProgressMonitor.class});
     }
 
     private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {
@@ -324,12 +317,6 @@ public class OperatorContext {
         }
         initTargetImages();
         initGraphMetadata();
-
-        ProductReader oldProductReader = targetProduct.getProductReader();
-        if (oldProductReader == null) {
-            OperatorProductReader operatorProductReader = new OperatorProductReader(this);
-            targetProduct.setProductReader(operatorProductReader);
-        }
     }
 
     private ValueContainer getOperatorValueContainer() {
@@ -359,7 +346,7 @@ public class OperatorContext {
             if (idAttribute.getData().getElemString().equals(opId)) {
                 contains = true;
             }
-            if(element.getName().startsWith("node")) {
+            if (element.getName().startsWith("node")) {
                 nodeElementCount++;
             }
         }
@@ -367,7 +354,7 @@ public class OperatorContext {
             return;
         }
         final String opName = OperatorSpi.getOperatorAlias(context.operator.getClass());
-        MetadataElement targetNodeME = new MetadataElement(String.format("node.%d",nodeElementCount));
+        MetadataElement targetNodeME = new MetadataElement(String.format("node.%d", nodeElementCount));
         targetGraphME.addElement(targetNodeME);
         targetNodeME.addAttribute(new MetadataAttribute("id", ProductData.createInstance(opId), false));
         targetNodeME.addAttribute(new MetadataAttribute("operator", ProductData.createInstance(opName), false));
@@ -471,27 +458,25 @@ public class OperatorContext {
             }
             if (tileSize == null) {
                 tileSize = JAIUtils.computePreferredTileSize(targetProduct.getSceneRasterWidth(),
-                        targetProduct.getSceneRasterHeight(), 4);
+                                                             targetProduct.getSceneRasterHeight(), 4);
             }
             targetProduct.setPreferredTileSize(tileSize);
         }
 
         Band[] bands = targetProduct.getBands();
-        targetImageMap = new HashMap<Band, RasterDataNodeOpImage>(bands.length * 2);
+        targetImageMap = new HashMap<Band, OperatorImage>(bands.length * 2);
         for (Band band : bands) {
-            final RasterDataNodeOpImage image;
-            // Note: "instanceof" has intentionally not been used
+            // Set OperatorImage, "instanceof" has intentionally not been used
             if (band.getClass() == Band.class) {
-                // Create an image that calls the operator to compute a tile
-                image = new OperatorImage(band, this);
+                OperatorImage image = new OperatorImage(band, this);
+                // Note: pass-through operators have source band=target band, in this case an OperatorImage is already set
+                if (band.getSourceImage() == null) {
+                    band.setSourceImage(image);
+                }
+                targetImageMap.put(band, image);
             } else {
-                // Create an image that calls Band.readRasterDataNode() to compute a tile (VirtualBand, FilterBand, ...)
-                image = new RasterDataNodeOpImage(band);
+                band.setSourceImage(ImageManager.getInstance().createBandMultiLevelImage(band));
             }
-            if (band.getSourceImage() == null) {
-                band.setSourceImage(image);
-            }
-            targetImageMap.put(band, image);
         }
     }
 
@@ -502,7 +487,7 @@ public class OperatorContext {
             if (targetProductAnnotation != null) {
                 if (!declaredField.getType().equals(Product.class)) {
                     String msg = formatExceptionMessage("Field '%s' annotated as target product is not of type '%s'.",
-                            declaredField.getName(), Product.class);
+                                                        declaredField.getName(), Product.class);
                     throw new OperatorException(msg);
                 }
                 final Product targetProduct = (Product) getOperatorFieldValue(declaredField);
@@ -522,6 +507,9 @@ public class OperatorContext {
             final String message = formatExceptionMessage("No target product set.");
             throw new OperatorException(message);
         }
+        if (targetProduct.getProductReader() == null) {
+            targetProduct.setProductReader(new OperatorProductReader(this));
+        }
     }
 
     private void initTargetProperties() throws OperatorException {
@@ -533,7 +521,7 @@ public class OperatorContext {
                 String fieldName = declaredField.getName();
                 if (targetPropertyMap.containsKey(fieldName)) {
                     final String message = formatExceptionMessage("Name of field '%s' is already used as target property alias.",
-                            fieldName);
+                                                                  fieldName);
                     throw new OperatorException(message);
                 }
                 targetPropertyMap.put(fieldName, propertyValue);
@@ -541,7 +529,7 @@ public class OperatorContext {
                     String aliasName = targetPropertyAnnotation.alias();
                     if (targetPropertyMap.containsKey(aliasName)) {
                         final String message = formatExceptionMessage("Alias of field '%s' is already used by another target property.",
-                                aliasName);
+                                                                      aliasName);
                         throw new OperatorException(message);
                     }
                     targetPropertyMap.put(aliasName, propertyValue);
@@ -572,9 +560,9 @@ public class OperatorContext {
             }
             if (sourceProduct != null) {
                 validateSourceProduct(declaredField.getName(),
-                        sourceProduct,
-                        sourceProductAnnotation.type(),
-                        sourceProductAnnotation.bands());
+                                      sourceProduct,
+                                      sourceProductAnnotation.type(),
+                                      sourceProductAnnotation.bands());
                 setSourceProductFieldValue(declaredField, sourceProduct);
             } else {
                 sourceProduct = getSourceProductFieldValue(declaredField);
@@ -622,9 +610,9 @@ public class OperatorContext {
             }
             for (Product sourceProduct : sourceProducts) {
                 validateSourceProduct(declaredField.getName(),
-                        sourceProduct,
-                        sourceProductsAnnotation.type(),
-                        sourceProductsAnnotation.bands());
+                                      sourceProduct,
+                                      sourceProductsAnnotation.type(),
+                                      sourceProductsAnnotation.bands());
             }
         } else {
             String text = "Source products (field '%s') must be of type '%s'.";
@@ -666,7 +654,7 @@ public class OperatorContext {
             for (String bandName : bandNames) {
                 if (!sourceProduct.containsBand(bandName)) {
                     String msg = formatExceptionMessage("A source product (field '%s') does not contain the band '%s'",
-                            fieldName, bandName);
+                                                        fieldName, bandName);
                     throw new OperatorException(msg);
                 }
             }
@@ -765,7 +753,7 @@ public class OperatorContext {
     }
 
     private String formatExceptionMessage(String format, Object... args) {
-        Object[] allArgs = new Object[args.length+1];
+        Object[] allArgs = new Object[args.length + 1];
         allArgs[0] = operator.getClass().getSimpleName();
         System.arraycopy(args, 0, allArgs, 1, allArgs.length - 1);
         return String.format("Operator '%s': " + format, allArgs);
