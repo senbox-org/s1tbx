@@ -747,7 +747,7 @@ public class OperatorContext {
                 }
                 try {
                     ValueDescriptor descriptor = valueModel.getDescriptor();
-                    if (((String) descriptor.getProperty("sourceId")) != null) {
+                    if (descriptor.getProperty("sourceId") != null) {
                         String sourceId = (String) descriptor.getProperty("sourceId");
                         Product sourceProduct = getSourceProduct(sourceId);
                         if (sourceProduct == null) {
