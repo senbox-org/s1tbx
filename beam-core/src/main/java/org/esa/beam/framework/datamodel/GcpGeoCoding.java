@@ -280,7 +280,8 @@ public class GcpGeoCoding extends AbstractGeoCoding {
         }
     }
 
-    private static GeoPos calculateCentralGeoPos(double[] lons, double[] lats) {
+    static GeoPos calculateCentralGeoPos(double[] lons, double[] lats) {
+        // calculate (x, y, z) in order to avoid issues with anti-meridian
         final int size = lats.length;
         final double[] x = new double[size];
         final double[] y = new double[size];
@@ -325,7 +326,7 @@ public class GcpGeoCoding extends AbstractGeoCoding {
         }
     }
 
-    private static class RationalFunctionMap2D {
+    static class RationalFunctionMap2D {
 
         private final RationalFunctionModel um;
         private final RationalFunctionModel vm;
