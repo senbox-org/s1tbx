@@ -67,12 +67,12 @@ class ProductSceneImage45 extends ProductSceneImage {
         final Layer bitmaskLayer = createBitmaskCollectionLayer();
 
         rootLayer.getChildLayerList().add(noDataLayer);
+        rootLayer.getChildLayerList().add(bitmaskLayer);
         rootLayer.getChildLayerList().add(figureLayer);
         rootLayer.getChildLayerList().add(roiLayer);
         rootLayer.getChildLayerList().add(graticuleLayer);
         rootLayer.getChildLayerList().add(pinLayer);
         rootLayer.getChildLayerList().add(gcpLayer);
-        rootLayer.getChildLayerList().add(bitmaskLayer);
 
         // todo - remove listeners when scene view is disposed
         getProduct().addProductNodeListener(new BitmaskDefListener(bitmaskLayer));
