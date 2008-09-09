@@ -25,7 +25,6 @@ import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 
 import com.bc.ceres.grender.Viewport;
-import com.bc.swing.GraphicsPane;
 
 public class ZoomTool extends AbstractTool {
     private int _viewportX;
@@ -38,10 +37,12 @@ public class ZoomTool extends AbstractTool {
      *
      * @return always <code>null</code>
      */
+    @Override
     public Drawable getDrawable() {
         return null;
     }
 
+    @Override
     public void mousePressed(ToolInputEvent e) {
         _graphics = e.getComponent().getGraphics();
         _viewportX = e.getMouseEvent().getX();
@@ -49,6 +50,7 @@ public class ZoomTool extends AbstractTool {
         setZoomRect(e);
     }
 
+    @Override
     public void mouseDragged(ToolInputEvent e) {
         if (_graphics == null) {
             return;
@@ -78,28 +80,14 @@ public class ZoomTool extends AbstractTool {
         _zoomRect.setBounds(x, y, w, h);
     }
 
+    @Override
     public void mouseReleased(ToolInputEvent e) {
         if (_graphics == null) {
             return;
         }
         Component component = e.getComponent();
-        if (component instanceof GraphicsPane) {
-            GraphicsPane graphicsPane = (GraphicsPane) component;
-            
-            if (!_zoomRect.isEmpty()) {
-                graphicsPane.zoom(new Rectangle2D.Double(graphicsPane.viewToModelX(_zoomRect.x),
-                        graphicsPane.viewToModelY(_zoomRect.y),
-                        graphicsPane.viewToModelLength(_zoomRect.width),
-                        graphicsPane.viewToModelLength(_zoomRect.height)));
-            } else {
-                boolean zoomOut = e.getMouseEvent().isControlDown() || e.getMouseEvent().getButton() != 1;
-                final double viewScaleOld = graphicsPane.getViewModel().getViewScale();
-                final double viewScaleNew = zoomOut ? viewScaleOld / 1.6 : viewScaleOld * 1.6;
-                graphicsPane.zoom(graphicsPane.viewToModelX(_zoomRect.x),
-                        graphicsPane.viewToModelY(_zoomRect.y),
-                        viewScaleNew);
-            }
-        } else if (component instanceof LayerDisplay) {
+        // this should be always the case
+        if (component instanceof LayerDisplay) {
             LayerDisplay layerDisplay = (LayerDisplay) component;
             Viewport viewport = layerDisplay.getViewport();
             if (!_zoomRect.isEmpty()) {
@@ -120,6 +108,7 @@ public class ZoomTool extends AbstractTool {
     }
 
 
+    @Override
     public Cursor getCursor() {
         Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
         final String cursorName = "pinCursor";

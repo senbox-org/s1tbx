@@ -33,7 +33,7 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.config.ConfigDialog;
 import org.esa.beam.framework.ui.config.DefaultConfigPage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.layer.FigureLayer;
+import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import static org.esa.beam.visat.VisatApp.*;

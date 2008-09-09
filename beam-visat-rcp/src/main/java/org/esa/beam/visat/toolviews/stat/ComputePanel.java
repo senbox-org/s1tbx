@@ -3,7 +3,6 @@ package org.esa.beam.visat.toolviews.stat;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.TableLayout;
-import org.esa.beam.layer.ROILayer;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

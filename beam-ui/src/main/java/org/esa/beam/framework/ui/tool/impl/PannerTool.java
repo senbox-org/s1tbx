@@ -12,51 +12,39 @@ import java.awt.Toolkit;
 
 import javax.swing.ImageIcon;
 
-import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.draw.Drawable;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.LayerDisplay;
 import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 
 import com.bc.ceres.grender.Viewport;
-import com.bc.swing.GraphicsPane;
 
 public class  PannerTool extends AbstractTool {
     private int _viewportX;
     private int _viewportY;
-    private double _modelOffsetX;
-    private double _modelOffsetY;
 
     /**
      * Gets a thing that can be drawn while the tool is working.
      *
      * @return always <code>null</code>
      */
+    @Override
     public Drawable getDrawable() {
         return null;
     }
 
+    @Override
     public void mousePressed(ToolInputEvent e) {
         _viewportX = e.getMouseEvent().getX();
         _viewportY = e.getMouseEvent().getY();
-        
-        Component component = e.getComponent();
-        if (component instanceof GraphicsPane) {
-            GraphicsPane graphicsPane = (GraphicsPane) component;
-            _modelOffsetX = graphicsPane.getViewModel().getModelOffsetX();
-            _modelOffsetY = graphicsPane.getViewModel().getModelOffsetY();
-        }
     }
 
+    @Override
     public void mouseDragged(ToolInputEvent e) {
         Component component = e.getComponent();
-        if (component instanceof GraphicsPane) {
-            GraphicsPane graphicsPane = (GraphicsPane) component;
-            final double viewScale = graphicsPane.getViewModel().getViewScale();
-            graphicsPane.getViewModel().setModelOffset(
-                    _modelOffsetX + (_viewportX -e.getMouseEvent().getX()) / viewScale,
-                    _modelOffsetY + (_viewportY - e.getMouseEvent().getY()) / viewScale);
-        } else if (component instanceof LayerDisplay) {
+        // this should be always the case
+        if (component instanceof LayerDisplay) {
             LayerDisplay layerDisplay = (LayerDisplay) component;
             Viewport viewport = layerDisplay.getViewport();
             int viewportX = e.getMouseEvent().getX();
@@ -69,6 +57,7 @@ public class  PannerTool extends AbstractTool {
         }
     }
 
+    @Override
     public Cursor getCursor() {
         Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
         final String cursorName = "pinCursor";

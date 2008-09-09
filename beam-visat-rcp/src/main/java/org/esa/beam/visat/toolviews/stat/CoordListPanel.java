@@ -1,9 +1,7 @@
 package org.esa.beam.visat.toolviews.stat;
 
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
-import org.esa.beam.layer.FigureLayer;
 
 import javax.swing.JOptionPane;
 import java.awt.Cursor;
@@ -81,6 +79,7 @@ class CoordListPanel extends TextPagePanel {
         }
     }
 
+    @Override
     protected void handleLayerContentChanged() {
         updateContent();
     }

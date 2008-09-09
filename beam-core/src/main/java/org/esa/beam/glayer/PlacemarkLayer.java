@@ -4,6 +4,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.util.PropertyMap;
 
 import java.awt.*;
 import java.awt.font.GlyphVector;
@@ -52,6 +53,15 @@ public class PlacemarkLayer extends Layer {
     public AffineTransform getImageToModelTransform() {
         return new AffineTransform(imageToModelTransform);
     }
+    
+    // from old layer , as reference for the old property names
+//    protected void setStylePropertiesImpl(PropertyMap propertyMap) {
+//        super.setStylePropertiesImpl(propertyMap);
+//        setTextEnabled(propertyMap.getPropertyBool(getPropertyName("text.enabled"), isTextEnabled()));
+//        setTextFgColor(propertyMap.getPropertyColor(getPropertyName("text.fg.color"), textFgColor));
+//        setTextBgColor(propertyMap.getPropertyColor(getPropertyName("text.bg.color"), getTextBgColor()));
+//        setTextBgTransparency((float) propertyMap.getPropertyDouble(getPropertyName("text.bg.transparency"), textBgTransparency));
+//    }
 
     @Override
     protected void renderLayer(Rendering rendering) {

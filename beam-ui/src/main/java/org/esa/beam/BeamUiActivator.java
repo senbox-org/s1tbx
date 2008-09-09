@@ -23,13 +23,24 @@ import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.application.ToolViewDescriptorRegistry;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.framework.ui.command.Command;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.TreeNode;
 
+import javax.help.DefaultHelpModel;
 import javax.help.HelpSet;
 import javax.help.HelpSetException;
+import javax.help.JHelpSearchNavigator;
+import javax.help.NavigatorView;
+import javax.help.SearchView;
+import javax.help.HelpSet.DefaultHelpSetFactory;
+
+import java.awt.Component;
+import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -214,14 +225,14 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
             return;
         }
 
-        HelpSet helpSet;
-        try {
-            helpSet = new HelpSet(declaringModule.getClassLoader(), helpSetUrl);
-        } catch (HelpSetException e) {
+        DefaultHelpSetFactory factory = new VerifyingHelpSetFactory();
+        HelpSet helpSet = HelpSet.parse(helpSetUrl, declaringModule.getClassLoader(), factory);
+
+        if (helpSet == null) {
             String message = String.format("Failed to add help set [%s] of module [%s]: %s.",
                                            helpSetPath, declaringModule.getName(),
-                                           e.getMessage());
-            moduleContext.getLogger().log(Level.SEVERE, message, e);
+                                           "");
+            moduleContext.getLogger().log(Level.SEVERE, message, "");
             return;
         }
 
@@ -260,6 +271,31 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
                                            helpSetPath,
                                            declaringModule.getName());
             moduleContext.getLogger().severe(message);
+        }
+    }
+    
+    private static class VerifyingHelpSetFactory extends DefaultHelpSetFactory {
+        public VerifyingHelpSetFactory() {
+            super();
+        }
+        @Override
+        public void processView(HelpSet hs,
+                String name,
+                String label,
+                String type,
+                Hashtable viewAttributes,
+                String data,
+                Hashtable dataAttributes,
+                Locale locale) {
+            if (!name.equals("Search")) {
+                System.out.println("url: "+hs.getHelpSetURL());
+                System.out.println("name: "+name);
+                System.out.println("label: "+label);
+                System.out.println("type: "+type);
+                System.out.println("data: "+data);
+                System.out.println("---------------");
+                super.processView(hs, name, label, type, viewAttributes, data, dataAttributes, locale);
+            }
         }
     }
 

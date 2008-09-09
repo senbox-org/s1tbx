@@ -124,7 +124,10 @@
         <module>lib-netcdf</module>
 
         <!--<module>nest-dat</module>-->
-
+        <module>../binio</module>
+        <module>../binio-hdf-reader</module>
+<!--        <module>../beam-metop-avhrr-reader</module>-->
+<!--        <module>../iavisa-1.x</module>-->
     </modules>
 
     <dependencyManagement>
