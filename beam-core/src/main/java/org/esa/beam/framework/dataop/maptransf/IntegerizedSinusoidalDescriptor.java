@@ -63,7 +63,10 @@ public class IntegerizedSinusoidalDescriptor implements MapTransformDescriptor {
      * Gets the default parameter values for this map transform.
      */
     public double[] getParameterDefaultValues() {
-        return PARAMETER_DEFAULT_VALUES;
+        final double[] values = new double[PARAMETER_DEFAULT_VALUES.length];
+    	System.arraycopy(PARAMETER_DEFAULT_VALUES, 0, values, 0, values.length);
+
+        return values;
     }
 
     public Parameter[] getParameters() {
