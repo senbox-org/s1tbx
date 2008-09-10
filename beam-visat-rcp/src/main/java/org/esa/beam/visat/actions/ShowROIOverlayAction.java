@@ -1,26 +1,27 @@
 package org.esa.beam.visat.actions;
 
 import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
 
-public class ShowROIOverlayAction extends ExecCommand {
+public class ShowROIOverlayAction extends AbstractShowOverlayAction {
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        final ProductSceneView productSceneView = VisatApp.getApp().getSelectedProductSceneView();
-        if (productSceneView != null) {
-            productSceneView.setROIOverlayEnabled(isSelected());
+        final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
+        if (view != null) {
+            view.setROIOverlayEnabled(isSelected());
         }
     }
 
     @Override
-    public void updateState(final CommandEvent event) {
-        final ProductSceneView productSceneView = VisatApp.getApp().getSelectedProductSceneView();
-        if (productSceneView != null) {
-            setSelected(productSceneView.isROIOverlayEnabled());
-        }
-        setEnabled(productSceneView != null);
+    protected void updateEnableState(ProductSceneView view) {
+        // todo - disable when no ROI defined?
+        setEnabled(view != null);
+    }
+
+    @Override
+    protected void updateSelectState(ProductSceneView view) {
+        setSelected(view != null && view.isROIOverlayEnabled());
     }
 }

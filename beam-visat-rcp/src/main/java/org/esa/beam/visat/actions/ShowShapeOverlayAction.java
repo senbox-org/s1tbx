@@ -1,26 +1,27 @@
 package org.esa.beam.visat.actions;
 
 import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
 
-public class ShowShapeOverlayAction extends ExecCommand {
+public class ShowShapeOverlayAction extends AbstractShowOverlayAction {
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        ProductSceneView productSceneView = VisatApp.getApp().getSelectedProductSceneView();
-        if (productSceneView != null) {
-            productSceneView.setShapeOverlayEnabled(isSelected());
+        final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
+
+        if (view != null) {
+            view.setShapeOverlayEnabled(isSelected());
         }
     }
 
     @Override
-    public void updateState(CommandEvent event) {
-        ProductSceneView productSceneView = VisatApp.getApp().getSelectedProductSceneView();
-        if (productSceneView != null) {
-            setSelected(productSceneView.isShapeOverlayEnabled());
-        }
-        setEnabled(productSceneView != null && productSceneView.getCurrentShapeFigure() != null);
+    protected void updateEnableState(ProductSceneView view) {
+        setEnabled(view != null && view.getCurrentShapeFigure() != null);
+    }
+
+    @Override
+    protected void updateSelectState(ProductSceneView view) {
+        setSelected(view != null && view.isShapeOverlayEnabled());
     }
 }

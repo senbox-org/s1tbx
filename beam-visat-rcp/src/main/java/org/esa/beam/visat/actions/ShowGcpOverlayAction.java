@@ -1,29 +1,27 @@
 package org.esa.beam.visat.actions;
 
 import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
 
-public class ShowGcpOverlayAction extends ExecCommand {
+public class ShowGcpOverlayAction extends AbstractShowOverlayAction {
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        ProductSceneView productSceneView = VisatApp.getApp().getSelectedProductSceneView();
-        if (productSceneView != null) {
-            productSceneView.setGcpOverlayEnabled(isSelected());
-            VisatApp.getApp().updateState();
+        final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
+        if (view != null) {
+            view.setGcpOverlayEnabled(isSelected());
         }
     }
 
     @Override
-    public void updateState(CommandEvent event) {
-        ProductSceneView productSceneView = VisatApp.getApp().getSelectedProductSceneView();
-        boolean enabled = false;
-        if (productSceneView != null) {
-            setSelected(productSceneView.isGcpOverlayEnabled());
-            enabled = true;
-        }
-        setEnabled(enabled);
+    protected void updateEnableState(ProductSceneView view) {
+        // todo - disable when pin group is empty?
+        setEnabled(view != null);
+    }
+
+    @Override
+    protected void updateSelectState(ProductSceneView view) {
+        setSelected(view != null && view.isGcpOverlayEnabled());
     }
 }
