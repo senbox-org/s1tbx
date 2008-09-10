@@ -2136,7 +2136,7 @@ public class VisatApp extends BasicApp {
 // Resize frame so that it completely fits into desktopPane
         final Rectangle desktopBounds = new Rectangle(desktopPane.getDesktopPane().getSize());
         if (!desktopBounds.isEmpty()) {
-            frame.setBounds(frame.getBounds().intersection(desktopBounds));
+            frame.setBounds(desktopBounds);
         }
 
         desktopPane.addFrame(frame);
