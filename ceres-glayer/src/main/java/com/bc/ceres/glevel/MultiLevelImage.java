@@ -1,6 +1,5 @@
 package com.bc.ceres.glevel;
 
-import javax.media.jai.RenderedImageAdapter;
 import java.awt.image.RenderedImage;
 
 /**
