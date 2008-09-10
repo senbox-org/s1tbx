@@ -2069,6 +2069,8 @@ public class ProductUtils {
             metadata.addGeoAscii(GeoTIFFCodes.GTCitationGeoKey, "org.esa.beam.util.geotiff.GeoTIFF");
             if (Datum.WGS_84.equals(datum)) {
                 metadata.addGeoShortParam(GeoTIFFCodes.GeographicTypeGeoKey, EPSGCodes.GCS_WGS_84);
+            } else if (Datum.WGS_72.equals(datum)){
+                metadata.addGeoShortParam(GeoTIFFCodes.GeographicTypeGeoKey, EPSGCodes.GCS_WGS_72);
             } else {
                 metadata.addGeoShortParam(GeoTIFFCodes.GeographicTypeGeoKey, EPSGCodes.GCS_WGS_84);
             }
