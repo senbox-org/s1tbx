@@ -34,7 +34,6 @@ import javax.swing.SwingWorker;
 import javax.swing.Icon;
 import java.awt.Cursor;
 import java.io.IOException;
-import java.text.MessageFormat;
 
 /**
  * This action opens an RGB image view on the currently selected Product.
@@ -146,7 +145,7 @@ public class ShowImageViewRGBAction extends ExecCommand {
             rgbBands = allocateRgbBands(product, rgbaExpressions, visatApp.getDataAutoLoadLimit(),
                                         SubProgressMonitor.create(pm, 1));
             productSceneImage = ProductSceneImage.create(rgbBands[0].band, rgbBands[1].band, rgbBands[2].band,
-                                                         SubProgressMonitor.create(pm, 1), true);
+                                                         SubProgressMonitor.create(pm, 1));
             productSceneImage.setName(name);
         } catch (Exception e) {
             errorOccured = true;

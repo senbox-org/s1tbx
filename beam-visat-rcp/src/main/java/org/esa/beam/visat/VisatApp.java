@@ -18,9 +18,7 @@ package org.esa.beam.visat;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
-import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.bc.swing.desktop.TabbedDesktopPane;
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.action.CommandMenuBar;
@@ -76,7 +74,6 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -394,17 +391,6 @@ public class VisatApp extends BasicApp {
             viewsToolBar.getContext().setInitIndex(1);
             getMainFrame().getDockableBarManager().addDockableBar(viewsToolBar);
             pm.worked(1);
-
-            if (ProductSceneImage.isInTiledImagingMode()) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        instance.showInfoDialog("You are using " + getAppName() + " in a new imaging mode.\n" +
-                                "THIS MODE IS STILL UNDER DEVELOPMENT!",
-                                                "beam.imageTiling.warn");
-                    }
-                });
-            }
-
         } finally {
             pm.done();
         }
@@ -1998,11 +1984,7 @@ public class VisatApp extends BasicApp {
 
         final ResizeStatusBarItem resize = new ResizeStatusBarItem();
         statusBar.add(resize, JideBoxLayout.FIX);
-
-        // JAIJAIJAI
-        if (ProductSceneImage.isInTiledImagingMode()) {
-            hookJaiTileCacheFlush(gc);
-        }
+        hookJaiTileCacheFlush(gc);
 
         return statusBar;
     }

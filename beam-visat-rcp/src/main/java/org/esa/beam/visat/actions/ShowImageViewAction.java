@@ -141,7 +141,7 @@ public class ShowImageViewAction extends ExecCommand {
                 final ProductSceneView view = (ProductSceneView) frames[0].getContentPane();
                 sceneImage = ProductSceneImage.create(raster, view);
             } else {
-                sceneImage = ProductSceneImage.create(raster, SubProgressMonitor.create(pm, 1), true);
+                sceneImage = ProductSceneImage.create(raster, SubProgressMonitor.create(pm, 1));
             }
         } finally {
             pm.done();

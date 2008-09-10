@@ -21,10 +21,6 @@ public abstract class ProductSceneImage {
     private ImageInfo imageInfo;
     private RasterDataNode[] rasters;
 
-    public static boolean isInTiledImagingMode() {
-        return Boolean.getBoolean("beam.imageTiling.enabled");
-    }
-
     /**
      * Creates a color indexed product scene for the given product raster.
      *
@@ -34,7 +30,7 @@ public abstract class ProductSceneImage {
      * @return a color indexed product scene image
      * @throws java.io.IOException if the image creation failed due to an I/O problem
      */
-    public static ProductSceneImage create(RasterDataNode raster, ProgressMonitor pm, boolean inTiledImagingMode) throws IOException {
+    public static ProductSceneImage create(RasterDataNode raster, ProgressMonitor pm) throws IOException {
         Guardian.assertNotNull("raster", raster);
         return new ProductSceneImage45(raster);
 
@@ -57,10 +53,10 @@ public abstract class ProductSceneImage {
     /**
      * Creates an RGB product scene for the given raster datasets.
      *
-     * @param redRaster   the product raster used for the red color component, must not be null
-     * @param greenRaster the product raster used for the green color component, must not be null
-     * @param blueRaster  the product raster used for the blue color component, must not be null
-     * @param pm          a monitor to inform the user about progress
+     * @param redRaster          the product raster used for the red color component, must not be null
+     * @param greenRaster        the product raster used for the green color component, must not be null
+     * @param blueRaster         the product raster used for the blue color component, must not be null
+     * @param pm                 a monitor to inform the user about progress
      * @return an RGB product scene image
      * @throws java.io.IOException if the image creation failed due to an I/O problem
      */
@@ -68,24 +64,6 @@ public abstract class ProductSceneImage {
                                            RasterDataNode greenRaster,
                                            RasterDataNode blueRaster,
                                            ProgressMonitor pm) throws IOException {
-        return create(redRaster, greenRaster, blueRaster, pm, isInTiledImagingMode());
-    }
-
-    /**
-     * Creates an RGB product scene for the given raster datasets.
-     *
-     * @param redRaster          the product raster used for the red color component, must not be null
-     * @param greenRaster        the product raster used for the green color component, must not be null
-     * @param blueRaster         the product raster used for the blue color component, must not be null
-     * @param pm                 a monitor to inform the user about progress
-     * @param inTiledImagingMode todo - remove me
-     * @return an RGB product scene image
-     * @throws java.io.IOException if the image creation failed due to an I/O problem
-     */
-    public static ProductSceneImage create(RasterDataNode redRaster,
-                                           RasterDataNode greenRaster,
-                                           RasterDataNode blueRaster,
-                                           ProgressMonitor pm, final boolean inTiledImagingMode) throws IOException {
         Assert.notNull(redRaster, "redRaster");
         Assert.notNull(greenRaster, "greenRaster");
         Assert.notNull(blueRaster, "blueRaster");
