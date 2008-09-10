@@ -1,6 +1,5 @@
 package org.esa.beam.visat.actions;
 
-import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
@@ -15,98 +14,36 @@ import java.awt.*;
 public class ShowNoDataOverlayAction extends ExecCommand {
 
     private boolean initialized;
+    private ProductSceneView.LayerContentListener layerContentListener;
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        ProductSceneView psv = VisatApp.getApp().getSelectedProductSceneView();
+        final ProductSceneView psv = VisatApp.getApp().getSelectedProductSceneView();
         if (psv != null) {
-            updateNoDataLayer(psv);
+            psv.setNoDataOverlayEnabled(isEnabled() && isSelected());
         }
     }
 
     @Override
     public void updateState(CommandEvent event) {
         VisatApp visatApp = VisatApp.getApp();
+
         if (!initialized) {
             init(visatApp);
             initialized = true;
         }
-        ProductSceneView psv = visatApp.getSelectedProductSceneView();
-        updateCommandState(psv);
+
+        updateState(visatApp.getSelectedProductSceneView());
     }
 
-    private void updateCommandState(ProductSceneView psv) {
-        if (psv != null) {
-            setEnabled(isNoDataOverlayApplicable(psv));
-            setSelected(psv.isNoDataOverlayEnabled());
-        } else {
-            setEnabled(false);
-        }
+    private void updateState(ProductSceneView psv) {
+        setEnabled(psv != null && psv.getRaster().isValidMaskUsed());
+        setSelected(psv != null && psv.isNoDataOverlayEnabled());
     }
 
-    private void init(VisatApp visatApp) {
-        registerProductNodeListener(visatApp);
-        visatApp.addInternalFrameListener(new InternalFrameAdapter() {
-            /**
-             * Invoked when an internal frame is activated.
-             */
-            @Override
-            public void internalFrameActivated(InternalFrameEvent e) {
-                final ProductSceneView psv = getProductSceneView(e.getInternalFrame());
-                updateCommandState(psv);
-            }
-        });
+    private void init(final VisatApp visatApp) {
+        final ProductNodeListenerAdapter productNodeListener = new ProductNodeListener(visatApp);
 
-    }
-
-    private static ProductSceneView getProductSceneView(final JInternalFrame internalFrame) {
-        final Container contentPane = internalFrame.getContentPane();
-        if (contentPane instanceof ProductSceneView) {
-            return (ProductSceneView) contentPane;
-        }
-        return null;
-    }
-
-
-    /*
-     * Creates a listener for product node changes, which we will add to all products.
-     *
-     */
-    private void registerProductNodeListener(final VisatApp visatApp) {
-        final ProductNodeListenerAdapter productNodeListener = new ProductNodeListenerAdapter() {
-            @Override
-            public void nodeChanged(ProductNodeEvent event) {
-                maybeUpdateAllNoDataOverlays(event);
-            }
-
-            @Override
-            public void nodeDataChanged(ProductNodeEvent event) {
-                maybeUpdateAllNoDataOverlays(event);
-            }
-
-            private void maybeUpdateAllNoDataOverlays(final ProductNodeEvent event) {
-                ProductNode productNode = event.getSourceNode();
-                if (productNode instanceof RasterDataNode) {
-                    RasterDataNode rasterDataNode = (RasterDataNode) productNode;
-                    if (RasterDataNode.isValidMaskProperty(event.getPropertyName())) {
-                        updateAllNoDataOverlays(visatApp, rasterDataNode);
-                    }
-                }
-            }
-
-            private void updateAllNoDataOverlays(final VisatApp visatApp, final RasterDataNode rasterDataNode) {
-                final JInternalFrame[] internalFrames = visatApp.findInternalFrames(rasterDataNode);
-                for (JInternalFrame internalFrame : internalFrames) {
-                    final ProductSceneView psv = getProductSceneView(internalFrame);
-                    if (psv != null) {
-                        updateCommandState(psv);
-                    }
-                }
-            }
-
-        };
-
-        // Register the listener for product node changes in all products
         visatApp.getProductManager().addListener(new ProductManager.Listener() {
             @Override
             public void productAdded(ProductManager.Event event) {
@@ -118,45 +55,92 @@ public class ShowNoDataOverlayAction extends ExecCommand {
                 event.getProduct().removeProductNodeListener(productNodeListener);
             }
         });
+
+        visatApp.addInternalFrameListener(new InternalFrameListener());
     }
 
-    private void updateNoDataLayer(ProductSceneView psv) {
-        if (isNoDataOverlaySelected()) {
-            updateNoDataImage(psv);
+    private static ProductSceneView getProductSceneView(final JInternalFrame internalFrame) {
+        final Container contentPane = internalFrame.getContentPane();
+
+        if (contentPane instanceof ProductSceneView) {
+            return (ProductSceneView) contentPane;
         }
-        psv.setNoDataOverlayEnabled(isNoDataOverlaySelected());
+
+        return null;
     }
 
-    private static void updateNoDataImage(final ProductSceneView view) {
+    private class ProductNodeListener extends ProductNodeListenerAdapter {
+        private final VisatApp visatApp;
 
-        final ProgressMonitorSwingWorker<Boolean, Object> swingWorker = new ProgressMonitorSwingWorker<Boolean, Object>(view, "Create No-Data Overlay") {
+        public ProductNodeListener(VisatApp visatApp) {
+            this.visatApp = visatApp;
+        }
 
-            @Override
-            protected Boolean doInBackground(com.bc.ceres.core.ProgressMonitor pm) throws Exception {
-                view.updateNoDataImage(pm);
-                return true;
-            }
+        @Override
+        public void nodeChanged(ProductNodeEvent event) {
+            updateAllRelatedNoDataOverlays(event);
+        }
 
-            @Override
-            public void done() {
-                try {
-                    get();
-                } catch (Exception e) {
-                    VisatApp.getApp().showErrorDialog("Unable to create no-data overlay image due to an error:\n" +
-                            e.getMessage());
-                    e.printStackTrace();
+        @Override
+        public void nodeDataChanged(ProductNodeEvent event) {
+            updateAllRelatedNoDataOverlays(event);
+        }
+
+        private void updateAllRelatedNoDataOverlays(final ProductNodeEvent event) {
+            final ProductNode productNode = event.getSourceNode();
+            if (productNode instanceof RasterDataNode) {
+                final RasterDataNode rasterDataNode = (RasterDataNode) productNode;
+                if (RasterDataNode.isValidMaskProperty(event.getPropertyName())) {
+                    updateAllNoDataOverlays(visatApp, rasterDataNode);
                 }
             }
-        };
-        swingWorker.execute();
+        }
+
+        private void updateAllNoDataOverlays(final VisatApp visatApp, final RasterDataNode rasterDataNode) {
+            final JInternalFrame[] internalFrames = visatApp.findInternalFrames(rasterDataNode);
+            for (JInternalFrame internalFrame : internalFrames) {
+                final ProductSceneView psv = getProductSceneView(internalFrame);
+                if (psv != null) {
+                    updateState(psv);
+                }
+            }
+        }
     }
 
+    private class InternalFrameListener extends InternalFrameAdapter {
+        private LayerContentListener layerContentListener;
 
-    private boolean isNoDataOverlaySelected() {
-        return isEnabled() && isSelected();
+        @Override
+        public void internalFrameOpened(InternalFrameEvent e) {
+            final ProductSceneView view = getProductSceneView(e.getInternalFrame());
+
+            layerContentListener = new LayerContentListener(view);
+            view.addLayerContentListener(layerContentListener);
+        }
+
+        @Override
+        public void internalFrameActivated(InternalFrameEvent e) {
+            final ProductSceneView view = getProductSceneView(e.getInternalFrame());
+            updateState(view);
+        }
+
+        @Override
+        public void internalFrameClosed(InternalFrameEvent e) {
+            final ProductSceneView view = getProductSceneView(e.getInternalFrame());
+            view.removeLayerContentListener(layerContentListener);
+        }
     }
 
-    private static boolean isNoDataOverlayApplicable(ProductSceneView psv) {
-        return psv != null && psv.getRaster().isValidMaskUsed();
+    private class LayerContentListener implements ProductSceneView.LayerContentListener {
+        private final ProductSceneView view;
+
+        public LayerContentListener(ProductSceneView view) {
+            this.view = view;
+        }
+
+        @Override
+        public void layerContentChanged(RasterDataNode raster) {
+            updateState(view);
+        }
     }
 }
