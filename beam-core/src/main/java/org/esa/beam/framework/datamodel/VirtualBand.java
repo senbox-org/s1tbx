@@ -17,14 +17,22 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.jexp.*;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.jai.ImageManager;
+import org.esa.beam.jai.ResolutionLevel;
+import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.StringUtils;
 
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -335,6 +343,23 @@ public class VirtualBand extends Band {
         super.dispose();
     }
 
+    @Override
+    protected RenderedImage createSourceImage() {
+        final MultiLevelModel model = ImageManager.getInstance().createMultiLevelModel(this); // todo mz,mp where to get model from ???
+        final VirtualBand vb = this;
+        MultiLevelImage multiLevelImage = new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
+
+            @Override
+            public RenderedImage createImage(int level) {
+                return new VirtualBandOpImage(new Product[]{vb.getProduct()},
+                                              vb.getExpression(),
+                                              vb.getDataType(),
+                                              ResolutionLevel.create(getModel(), level));
+            }
+        });
+        return multiLevelImage;
+    }
+    
     private synchronized Term getTerm(final ProductData pd) throws ParseException {
         if (termMap == null) {
             termMap = new WeakHashMap<ProductData, Term>(10);

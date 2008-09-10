@@ -110,12 +110,7 @@ public class JaiHelper {
                                                 HashMap<String, Object> operationParameters,
                                                 RenderingHints renderingHints) {
         final ParameterBlockJAI parameterBlock = new ParameterBlockJAI(operationName);
-        RenderedImage sourceImage = sourceBand.getSourceImage();
-        if (sourceImage == null) {
-            sourceImage = ImageManager.getInstance().createBandMultiLevelImage(sourceBand);
-            sourceBand.setSourceImage(sourceImage);
-        }
-        parameterBlock.addSource(sourceImage);
+        parameterBlock.addSource(sourceBand.getSourceImage());
         for (Map.Entry<String, Object> parameter : operationParameters.entrySet()) {
             try {
                 parameterBlock.setParameter(parameter.getKey(), parameter.getValue());

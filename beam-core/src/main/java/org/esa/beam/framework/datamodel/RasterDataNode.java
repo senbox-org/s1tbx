@@ -2393,18 +2393,43 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private void setGeophysicalNoDataValue() {
         geophysicalNoDataValue = scale(getNoDataValue());
     }
+    
+    /**
+     * Returns wether the source image is set on this {@code RasterDataNode}.
+     * 
+     * This method belongs to preliminary API and may be removed or changed in the future.
+     *
+     * @return Wether the source image is set.
+     * @since BEAM 4.5
+     */
+    public boolean isSourceImageSet() {
+        return sourceImage != null;
+    }
 
     /**
      * Gets the source image associated with this {@code RasterDataNode}.
-     * This image is currently not used for display purposes.
-     * Used by GPF. This method belongs to preliminary API and may be removed or changed in the future.
+     * 
+     * This method belongs to preliminary API and may be removed or changed in the future.
      *
      * @return The rendered image.
      * @since BEAM 4.2
      */
     public RenderedImage getSourceImage() {
+        if (!isSourceImageSet()) {
+            sourceImage = createSourceImage();
+        }
         return sourceImage;
     }
+
+    /**
+     * Creates the source image associated with this {@code RasterDataNode}.
+     * 
+     * This method belongs to preliminary API and may be removed or changed in the future.
+     *
+     * @return The rendered image.
+     * @since BEAM 4.5
+     */
+    protected abstract RenderedImage createSourceImage();
 
     /**
      * Sets the source image associated with this {@code RasterDataNode}.

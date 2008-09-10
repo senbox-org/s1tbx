@@ -18,12 +18,21 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+
+import org.esa.beam.jai.ImageManager;
+import org.esa.beam.jai.ResolutionLevel;
+import org.esa.beam.jai.TiePointGridOpImage;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.Range;
 
 import java.awt.Rectangle;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 
 /**
@@ -726,6 +735,21 @@ public class TiePointGrid extends RasterDataNode {
     @Override
     public void writeRasterDataFully(ProgressMonitor pm) throws IOException {
         raisePixelsAreReadOnlyError();
+    }
+    
+    @Override
+    protected RenderedImage createSourceImage() {
+        final MultiLevelModel model = ImageManager.getInstance().createMultiLevelModel(this); // todo mz,mp where to get model from ???
+        MultiLevelImage multiLevelImage = 
+            new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
+
+            @Override
+            public RenderedImage createImage(int level) {
+                return new TiePointGridOpImage(TiePointGrid.this, 
+                                               ResolutionLevel.create(getModel(), level));
+            }
+        });
+        return multiLevelImage;
     }
 
     // ////////////////////////////////////////////////////////////////////////

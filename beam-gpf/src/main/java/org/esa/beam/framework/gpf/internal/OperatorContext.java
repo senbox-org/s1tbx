@@ -221,7 +221,7 @@ public class OperatorContext {
     }
 
     public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle rectangle, ProgressMonitor pm) {
-        RenderedImage image = getSourceImage(rasterDataNode);
+        RenderedImage image = rasterDataNode.getSourceImage();
         ProgressMonitor oldPm = OperatorImage.setProgressMonitor(image, pm);
         try {
             /////////////////////////////////////////////////////////////////////
@@ -259,15 +259,6 @@ public class OperatorContext {
             targetImageMap.clear();
             operator.dispose();
         }
-    }
-
-    private static RenderedImage getSourceImage(RasterDataNode rasterDataNode) {
-        RenderedImage image = rasterDataNode.getSourceImage();
-        if (image == null) {
-            image = ImageManager.getInstance().createBandMultiLevelImage(rasterDataNode);
-            rasterDataNode.setSourceImage(image);
-        }
-        return image;
     }
 
     private static boolean canOperatorComputeTile(Class<? extends Operator> aClass) {
@@ -470,12 +461,10 @@ public class OperatorContext {
             if (band.getClass() == Band.class) {
                 OperatorImage image = new OperatorImage(band, this);
                 // Note: pass-through operators have source band=target band, in this case an OperatorImage is already set
-                if (band.getSourceImage() == null) {
+                if (!band.isSourceImageSet()) {
                     band.setSourceImage(image);
                 }
                 targetImageMap.put(band, image);
-            } else {
-                band.setSourceImage(ImageManager.getInstance().createBandMultiLevelImage(band));
             }
         }
     }

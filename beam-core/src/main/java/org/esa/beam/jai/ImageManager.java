@@ -311,14 +311,10 @@ public class ImageManager {
     public MultiLevelSource getBandMultiLevelSource(RasterDataNode rasterDataNode) {
         RenderedImage levelZeroImage = rasterDataNode.getSourceImage();
         MultiLevelSource multiLevelSource;
-        if (levelZeroImage == null) {
-            final MultiLevelImage multiLevelImage = createBandMultiLevelImage(rasterDataNode);
-            rasterDataNode.setSourceImage(multiLevelImage);
-            multiLevelSource = multiLevelImage;
-        } else if (levelZeroImage instanceof MultiLevelSource) {
+        if (levelZeroImage instanceof MultiLevelSource) {
             multiLevelSource = (MultiLevelSource) levelZeroImage;
         } else {
-            // todo - store this refernce!!!
+            // TODO - store this reference!!!
             multiLevelSource = new DefaultMultiLevelSource(levelZeroImage);
             System.out.println("IMAGING 4.5: Warning: Created new MultiLevelSource");
         }
@@ -326,14 +322,10 @@ public class ImageManager {
     }
 
     public PlanarImage getBandImage(RasterDataNode rasterDataNode, int level) {
-        RenderedImage levelZeroImage = rasterDataNode.getSourceImage();
-        if (levelZeroImage == null) {
-            levelZeroImage = createBandMultiLevelImage(rasterDataNode);
-            rasterDataNode.setSourceImage(levelZeroImage);
-        }
-        return getLevelImage(levelZeroImage, level);
+        return getLevelImage(rasterDataNode.getSourceImage(), level);
     }
 
+    // TODO zero usages REMOVE !!!! ??? !!!
     public MultiLevelImage createBandMultiLevelImage(RasterDataNode rasterDataNode) {
         final MultiLevelModel model = createMultiLevelModel(rasterDataNode);
         MultiLevelImage levelZeroImage;
