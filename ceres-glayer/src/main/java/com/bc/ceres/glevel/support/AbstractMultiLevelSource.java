@@ -57,7 +57,7 @@ public abstract class AbstractMultiLevelSource implements MultiLevelSource {
 
     protected void checkLevel(int level) {
         if (level < 0 || level >= multiLevelModel.getLevelCount()) {
-            throw new IllegalArgumentException("level");
+            throw new IllegalArgumentException("level=" +level);
         }
     }
 }
