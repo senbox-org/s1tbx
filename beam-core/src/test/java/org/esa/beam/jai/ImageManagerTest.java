@@ -41,6 +41,7 @@ public class ImageManagerTest extends TestCase {
         band.setScalingFactor(factor);
         band.setScalingOffset(offset);
         band.setLog10Scaled(log10Scaled);
+        band.setSourceImage(createSourceImage());
         return band;
     }
 
@@ -57,13 +58,7 @@ public class ImageManagerTest extends TestCase {
     }
 
     private static PlanarImage createTargetImage(RasterDataNode rdn) {
-        PlanarImage image = createSourceImage();
-        return createdTargetImage(rdn, image);
-    }
-
-    private static PlanarImage createdTargetImage(RasterDataNode rdn, PlanarImage image) {
-        rdn.setSourceImage(image);
-        return ImageManager.getInstance().createGeophysicalImage(rdn);
+        return PlanarImage.wrapRenderedImage(rdn.getGeophysicalImage());
     }
 
     private static PlanarImage createSourceImage() {

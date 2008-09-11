@@ -1580,13 +1580,14 @@ public class Product extends ProductNode {
                 oldImage = validMaskImages.remove(id);
             }
         }
-        if (oldImage != null) {
-            JAI.getDefaultInstance().getTileCache().removeTiles(oldImage);
-            if (oldImage instanceof PlanarImage) {
-                PlanarImage planarImage = (PlanarImage) oldImage;
-                planarImage.dispose();
-            }
-        }
+        // dont dispose them, they may be in use!!!!
+//        if (oldImage != null) {
+//            JAI.getDefaultInstance().getTileCache().removeTiles(oldImage);
+//            if (oldImage instanceof PlanarImage) {
+//                PlanarImage planarImage = (PlanarImage) oldImage;
+//                planarImage.dispose();
+//            }
+//        }
     }
 
 

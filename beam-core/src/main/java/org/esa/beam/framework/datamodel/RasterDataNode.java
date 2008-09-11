@@ -18,19 +18,35 @@ package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
+import com.bc.ceres.glevel.support.GenericMultiLevelSource;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Term;
+
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.draw.Figure;
+import org.esa.beam.jai.ImageManager;
+import org.esa.beam.jai.ResolutionLevel;
+import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.*;
 import org.esa.beam.util.math.*;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
+import javax.media.jai.operator.ExpDescriptor;
+import javax.media.jai.operator.FormatDescriptor;
+import javax.media.jai.operator.RescaleDescriptor;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
+import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Arrays;
@@ -108,9 +124,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private double geophysicalNoDataValue; // invariant, depending on _noData
     private String validPixelExpression;
 
-    private BitRaster validMask;
-    private Term validMaskTerm;
-    private boolean validMaskInProgress; // used to prevent from infinite recursion due to data reloading in data-mask terms
+//    private BitRaster validMask;
+//    private Term validMaskTerm;
+//    private boolean validMaskInProgress; // used to prevent from infinite recursion due to data reloading in data-mask terms
 
     private GeoCoding geoCoding;
 
@@ -162,11 +178,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         noDataValueUsed = false;
         geophysicalNoDataValue = 0.0;
         validPixelExpression = null;
-
-        validMaskTerm = null;
-        validMask = null;
-        validMaskInProgress = false;
-
     }
 
     /**
@@ -634,9 +645,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return the valid pixel mask, <code>null</code> if not set.
      * @see #setValidMask(org.esa.beam.util.BitRaster)
      * @see #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)
+     * @deprecated in BEAM 4.5, use {@link #getValidMaskImage()}
      */
+    @Deprecated
     public BitRaster getValidMask() {
-        return validMask;
+        return computeValidBitRaster();
     }
 
     /**
@@ -648,9 +661,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param validMask the valid pixel mask, can be null.
      * @see #getValidMask()
      * @see #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)
+     * @deprecated in BEAM 4.5
      */
+    @Deprecated
     protected void setValidMask(final BitRaster validMask) {
-        this.validMask = validMask;
     }
 
     /**
@@ -662,28 +676,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param pm The progress monitor.
      * @throws IOException if an I/O error occurs
+     * @deprecated in BEAM 4.5
      */
+    @Deprecated
     public void ensureValidMaskComputed(ProgressMonitor pm) throws IOException {
-        if (isValidMaskUsed() && getValidMask() == null) {
-            computeValidMask(pm);
-        }
     }
 
     private void resetValidMask() {
-        final Product product = getProduct();
-        if (product != null) { // node might not have been added to product so far
-            product.releaseValidMask(getValidMask());
-        }
-        setValidMask(null);
-        setValidMaskTerm(null);
-    }
-
-    private Term getValidMaskTerm() {
-        return validMaskTerm;
-    }
-
-    private void setValidMaskTerm(Term dataMaskTerm) {
-        validMaskTerm = dataMaskTerm;
+        validMaskImage = null;
     }
 
     /**
@@ -716,77 +716,31 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         return "fneq(" + BandArithmetic.createExternalName(getName()) + "," + getGeophysicalNoDataValue() + ")";
     }
 
+    @Deprecated
     protected synchronized void computeValidMask(ProgressMonitor pm) throws IOException {
-        if (validMaskInProgress) {
-            // prevent from infinite recursion due to data reloading in evaluation of valid-mask terms
-            return;
-        }
-        validMaskInProgress = true;
-        try {
-            computeValidMaskImpl(pm);
-        } finally {
-            validMaskInProgress = false;
-        }
     }
 
-    protected synchronized void maskProductData(int offsetX, int offsetY, int width, int height,
-                                                ProductData rasterData, ProgressMonitor pm) throws IOException {
-        if (validMaskInProgress) {
-            // prevent from infinite recursion due to data reloading in evaluation of valid-mask terms
-            return;
+    private BitRaster computeValidBitRaster() {
+        if (!isNoDataValueUsed() ) {
+            BitRaster validBitMask = new BitRaster(getSceneRasterWidth(), getSceneRasterHeight());
+            for (int i = 0; i < (getSceneRasterWidth() * getSceneRasterHeight()); i++) {
+                validBitMask.set(i);
+            }
+            return validBitMask;
         }
-        validMaskInProgress = true;
-        try {
-            maskProductDataImpl(offsetX, offsetY, width, height, rasterData, pm);
-        } finally {
-            validMaskInProgress = false;
-        }
-    }
-
-    private void computeValidMaskImpl(ProgressMonitor pm) throws IOException {
-        validMask = null;
-        final Term term = createValidMaskTerm();
-        if (term != null) {
-            validMask = getProduct().createValidMask(term, pm);
-        }
-    }
-
-    private void maskProductDataImpl(int offsetX, int offsetY, int width, int height, ProductData rasterData,
-                                     ProgressMonitor pm) throws IOException {
-        if (isValidMaskUsed()) { // todo nf/** - CHECK PERF: isn't it isValidPixelExpressionSet()?
-            final Product product = getProductSafe();
-            final Term term = createValidMaskTerm(); // todo nf/** - CHECK PERF: isn't it term from _validPixelExpression only?
-            product.maskProductData(offsetX, offsetY,
-                                    width, height,
-                                    term,
-                                    rasterData,
-                                    false,
-                                    isNoDataValueUsed() ? getNoDataValue() : 0.0,
-                                    pm);
-        }
-    }
-
-    private Term createValidMaskTerm() throws IOException {
-        final Product product = getProductSafe();
-        Term term = getValidMaskTerm();
-        if (term == null) {
-            final String dataMaskExpression = getValidMaskExpression();
-            if (dataMaskExpression != null) {
-                try {
-                    term = product.createTerm(dataMaskExpression, this);
-                } catch (ParseException e) {
-                    final IOException ioException = new IOException("Unable to create the valid pixel mask.\n" +
-                            "The expression\n" +
-                            "  '" + dataMaskExpression + "'\n" +
-                            "caused the following parse error:\n" +
-                            e.getMessage());
-                    ioException.initCause(e);
-                    throw ioException;
-                }
-                setValidMaskTerm(term);
+        PlanarImage planarValidMaskImage =  PlanarImage.wrapRenderedImage(getValidMaskImage());
+        BitRaster validBitMask = new BitRaster(getSceneRasterWidth(), getSceneRasterHeight());
+        for (int y = 0; y < getSceneRasterHeight(); y++) {
+            final int tileY = planarValidMaskImage.YToTileY(y);
+            for (int x = 0; x < getSceneRasterWidth(); x++) {
+                final int tileX = planarValidMaskImage.XToTileX(x);
+                Raster tile = planarValidMaskImage.getTile(tileX, tileY);
+                int sample = tile.getSample(x, y, 0);
+                final boolean isValid = (sample == VirtualBandOpImage.TRUE);
+                validBitMask.set(x, y, isValid);
             }
         }
-        return term;
+        return validBitMask;
     }
 
     /**
@@ -922,8 +876,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     @Override
     public void dispose() {
-        validMask = null;
-        validMaskTerm = null;
         if (imageInfo != null) {
             imageInfo.dispose();
             imageInfo = null;
@@ -937,24 +889,24 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             roiDefinition = null;
         }
         if (sourceImage != null) {
-            if (sourceImage instanceof PlanarImage) {
-                PlanarImage planarImage = (PlanarImage) sourceImage;
-                planarImage.dispose();
-            }
+//            if (sourceImage instanceof PlanarImage) {
+//                PlanarImage planarImage = (PlanarImage) sourceImage;
+//                planarImage.dispose();
+//            }
             sourceImage = null;
         }
         if (validMaskImage != null) {
-            if (validMaskImage instanceof PlanarImage) {
-                PlanarImage planarImage = (PlanarImage) validMaskImage;
-                planarImage.dispose();
-            }
+//            if (validMaskImage instanceof PlanarImage) {
+//                PlanarImage planarImage = (PlanarImage) validMaskImage;
+//                planarImage.dispose();
+//            }
             validMaskImage = null;
         }
         if (geophysicalImage != null) {
-            if (geophysicalImage instanceof PlanarImage) {
-                PlanarImage planarImage = (PlanarImage) geophysicalImage;
-                planarImage.dispose();
-            }
+//            if (geophysicalImage instanceof PlanarImage) {
+//                PlanarImage planarImage = (PlanarImage) geophysicalImage;
+//                planarImage.dispose();
+//            }
             geophysicalImage = null;
         }
         super.dispose();
@@ -980,7 +932,16 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #setValidPixelExpression(String)
      */
     public boolean isPixelValid(int x, int y) {
-        return validMask == null || validMask.isSet(x, y);
+        if (!isNoDataValueUsed() ) {
+            return true;
+        }
+
+        PlanarImage planarValidMaskImage =  PlanarImage.wrapRenderedImage(getValidMaskImage());
+        final int tileY = planarValidMaskImage.YToTileY(y);
+        final int tileX = planarValidMaskImage.XToTileX(x);
+        Raster tile = planarValidMaskImage.getTile(tileX, tileY);
+        final int sample = tile.getSample(x, y, 0);
+        return sample == VirtualBandOpImage.TRUE;
     }
 
     /**
@@ -1003,7 +964,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @since 4.1
      */
     public boolean isPixelValid(int pixelIndex) {
-        return validMask == null || validMask.isSet(pixelIndex);
+        if (!isNoDataValueUsed() ) {
+            return true;
+        }
+        final int y = pixelIndex /getSceneRasterWidth();
+        final int x = pixelIndex - (y * getSceneRasterWidth());
+        return isPixelValid(x, y);
     }
 
     /**
@@ -1319,10 +1285,18 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (validMask == null) {
             validMask = new boolean[w * h];
         }
-        if (isValidPixelExpressionSet() || isNoDataValueUsed()) {
-            final Product product = getProduct();
-            final Term term = createValidMaskTerm();
-            product.readBitmask(x, y, w, h, term, validMask, ProgressMonitor.NULL);
+        if (isValidMaskUsed()) {
+            PlanarImage planarValidMaskImage =  PlanarImage.wrapRenderedImage(getValidMaskImage());
+            int index = 0;
+            for (int yi = y; yi < y + h; yi++) {
+                final int tileY = planarValidMaskImage.YToTileY(yi);
+                for (int xi = 0; xi < x + w; xi++) {
+                    final int tileX = planarValidMaskImage.XToTileX(xi);
+                    Raster tile = planarValidMaskImage.getTile(tileX, tileY);
+                    final int sample = tile.getSample(xi, yi, 0);
+                    validMask[index] = (sample == VirtualBandOpImage.TRUE);
+                }
+            }
         } else {
             Arrays.fill(validMask, true);
         }
@@ -2258,17 +2232,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws IOException if an I/O error occurs
      */
     public IndexValidator createPixelValidator(int lineOffset, final ROI roi) throws IOException {
-        if (isValidMaskUsed()) {
-            ensureValidMaskComputed(ProgressMonitor.NULL);
-        }
-        final BitRaster validMask = getValidMask();
-        final int rasterWidth = getSceneRasterWidth();
-        if (validMask != null && roi != null) {
+        if (isValidMaskUsed() && roi != null) {
             return new DelegatingValidator(
-                    new ValidMaskValidator(rasterWidth, lineOffset, validMask),
+                    new RoiValidator(rasterWidth, lineOffset, new ROI(getValidMaskImage())),
                     new RoiValidator(rasterWidth, lineOffset, roi));
-        } else if (validMask != null) {
-            return new ValidMaskValidator(rasterWidth, lineOffset, validMask);
+        } else if (isValidMaskUsed()) {
+            return new RoiValidator(rasterWidth, lineOffset, new ROI(getValidMaskImage()));
         } else if (roi != null) {
             return new RoiValidator(rasterWidth, lineOffset, roi);
         } else {
@@ -2446,7 +2415,19 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             fireProductNodeChanged("sourceImage", oldValue);
         }
     }
-
+    
+    /**
+     * Returns wether the valid mask image is set on this {@code RasterDataNode}.
+     * 
+     * This method belongs to preliminary API and may be removed or changed in the future.
+     *
+     * @return Wether the source image is set.
+     * @since BEAM 4.5
+     */
+    public boolean isValidMaskImageSet() {
+        return validMaskImage != null;
+    }
+    
     /**
      * Gets the valid-mask image associated with this {@code RasterDataNode}.
      * This image is currently not used for display purposes.
@@ -2456,9 +2437,32 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @since BEAM 4.2
      */
     public RenderedImage getValidMaskImage() {
+        if (!isValidMaskImageSet() && isValidMaskUsed()) {
+            validMaskImage = createValidMaskImage();
+        }
         return validMaskImage;
     }
 
+    private RenderedImage createValidMaskImage() {
+        final String validMaskKey = getValidMaskExpression();
+        Product product = getProductSafe();
+        RenderedImage maskImage = product.getValidMaskImage(validMaskKey);
+        if (maskImage != null ) {
+            return maskImage;
+        }
+        final MultiLevelModel model = ImageManager.getInstance().createMultiLevelModel(this); // todo mz,mp where to get model from ???
+        final MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(model) {
+            
+            @Override
+            public RenderedImage createImage(int level) {
+                return VirtualBandOpImage.createMaskOpImage(RasterDataNode.this, ResolutionLevel.create(getModel(), level));
+            }
+        };
+        MultiLevelImage multiLevelImage = new DefaultMultiLevelImage(multiLevelSource);
+        product.setValidMaskImage(validMaskKey, multiLevelImage);
+        return multiLevelImage;
+    }
+    
     /**
      * Sets the valid-mask image associated with this {@code RasterDataNode}.
      * This image is currently not used for display purposes.
@@ -2480,9 +2484,56 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @since BEAM 4.5
      */
     public RenderedImage getGeophysicalImage() {
+        if (geophysicalImage == null) {
+            geophysicalImage = createGeophysicalImage();
+        }
         return geophysicalImage;
     }
 
+    private RenderedImage createGeophysicalImage() {
+        RenderedImage rawSourceImage = getSourceImage();
+        MultiLevelSource multiLevelSource;
+        if (rawSourceImage instanceof MultiLevelSource) {
+            multiLevelSource = (MultiLevelSource) rawSourceImage;
+        } else {
+            multiLevelSource = new DefaultMultiLevelSource(rawSourceImage);
+        }
+        final MultiLevelSource geoSource = new GenericMultiLevelSource(multiLevelSource) {
+            
+            @Override
+            protected RenderedImage createImage(RenderedImage[] sourceImages, int level) {
+                PlanarImage image = PlanarImage.wrapRenderedImage(sourceImages[0]);
+                if (!RasterDataNode.this.isScalingApplied()) {
+                    return image;
+                } else if (!RasterDataNode.this.isLog10Scaled()) {
+                    image = reformat(image, ImageManager.getDataBufferType(RasterDataNode.this.getGeophysicalDataType()));
+                    image = rescale(image, RasterDataNode.this.getScalingFactor(), RasterDataNode.this.getScalingOffset());
+                } else {
+                    image = reformat(image, ImageManager.getDataBufferType(RasterDataNode.this.getGeophysicalDataType()));
+                    image = rescale(image, Math.log(10) * RasterDataNode.this.getScalingFactor(), Math.log(10) * RasterDataNode.this.getScalingOffset());
+                    image = ExpDescriptor.create(image, null);
+                }
+                return image;
+            }
+        };
+        return new DefaultMultiLevelImage(geoSource);
+    }
+    
+    private static PlanarImage rescale(PlanarImage image, double factor, double offset) {
+        image = RescaleDescriptor.create(image,
+                                         new double[]{factor},
+                                         new double[]{offset}, null);
+        return image;
+    }
+
+    private static PlanarImage reformat(PlanarImage image, int databufferDataType) {
+        final int dataType = image.getSampleModel().getDataType();
+        if (dataType == databufferDataType) {
+            return image;
+        }
+        return FormatDescriptor.create(image, databufferDataType, null);
+    }
+    
     /**
      * @param geophysicalImage The geophysical source image.
      * @since BEAM 4.5

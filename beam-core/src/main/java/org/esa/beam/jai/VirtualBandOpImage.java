@@ -26,6 +26,9 @@ import com.bc.jexp.impl.ParserImpl;
  * given {@code RasterDataNode} at a given pyramid level.
  */
 public class VirtualBandOpImage extends SingleBandedOpImage {
+    public static final int TRUE = 255;
+    public static final int FALSE = 255;
+    
     private final Product[] products;
     private final String expression;
     private final boolean mask;
@@ -76,7 +79,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         for (int i = 0; i < rasterSize; i++) {
             env.setElemIndex(i);
             if (mask) {
-                productData.setElemUIntAt(i, term.evalB(env) ? 255 : 0);
+                productData.setElemUIntAt(i, term.evalB(env) ? TRUE : 0);
             } else {
                 productData.setElemDoubleAt(i, term.evalD(env));
             }
