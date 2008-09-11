@@ -4,7 +4,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.util.ImageUtils;
-import org.esa.beam.util.jai.JAIUtils;
 
 import javax.media.jai.PlanarImage;
 
@@ -21,20 +20,19 @@ import java.io.IOException;
 public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
     private RasterDataNode rasterDataNode;
 
-    private static Dimension calculateTileSize(RasterDataNode rdn) {
+    private static Dimension getPreferredTileSize(RasterDataNode rdn) {
         Product product = rdn.getProduct();
-        if ((product != null) && (product.getPreferredTileSize() != null)) {
+        if (product != null && product.getPreferredTileSize() != null) {
             return product.getPreferredTileSize();
         }
-        return JAIUtils.computePreferredTileSize(rdn.getSceneRasterWidth(),
-                                                 rdn.getSceneRasterHeight(), 4);
+        return null;
     }
     
     protected RasterDataNodeOpImage(RasterDataNode rasterDataNode, ResolutionLevel level) {
         super(ImageManager.getDataBufferType(rasterDataNode.getDataType()),
               rasterDataNode.getSceneRasterWidth(),
               rasterDataNode.getSceneRasterHeight(),
-              calculateTileSize(rasterDataNode),
+              getPreferredTileSize(rasterDataNode),
               null, level);
         this.rasterDataNode = rasterDataNode;
     }
