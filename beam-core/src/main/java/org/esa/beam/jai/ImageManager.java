@@ -144,7 +144,7 @@ public class ImageManager {
     public static int getProductDataType(int dataBufferType) {
         switch (dataBufferType) {
             case DataBuffer.TYPE_BYTE:
-                return ProductData.TYPE_INT8;
+                return ProductData.TYPE_UINT8;
             case DataBuffer.TYPE_SHORT:
                 return ProductData.TYPE_INT16;
             case DataBuffer.TYPE_USHORT:
