@@ -1,10 +1,14 @@
 package org.esa.beam.jai;
 
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.util.ImageUtils;
+import org.esa.beam.util.jai.JAIUtils;
 
 import javax.media.jai.PlanarImage;
+
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
@@ -17,11 +21,20 @@ import java.io.IOException;
 public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
     private RasterDataNode rasterDataNode;
 
+    private static Dimension calculateTileSize(RasterDataNode rdn) {
+        Product product = rdn.getProduct();
+        if ((product != null) && (product.getPreferredTileSize() != null)) {
+            return product.getPreferredTileSize();
+        }
+        return JAIUtils.computePreferredTileSize(rdn.getSceneRasterWidth(),
+                                                 rdn.getSceneRasterHeight(), 4);
+    }
+    
     protected RasterDataNodeOpImage(RasterDataNode rasterDataNode, ResolutionLevel level) {
         super(ImageManager.getDataBufferType(rasterDataNode.getDataType()),
               rasterDataNode.getSceneRasterWidth(),
               rasterDataNode.getSceneRasterHeight(),
-              rasterDataNode.getProduct().getPreferredTileSize(),
+              calculateTileSize(rasterDataNode),
               null, level);
         this.rasterDataNode = rasterDataNode;
     }
