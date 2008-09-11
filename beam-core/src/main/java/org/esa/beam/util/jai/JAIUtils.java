@@ -255,8 +255,8 @@ public class JAIUtils {
              * @todo 3 nf/nf - what about this comment
              */
             ColorModel cm = ImageUtils.create8BitGreyscaleColorModel();
-            SampleModel sm = cm.createCompatibleSampleModel(src.getWidth(),
-                                                            src.getHeight());
+            SampleModel sm = cm.createCompatibleSampleModel(src.getTileWidth(),
+                                                            src.getTileHeight());
             ImageLayout layout = new ImageLayout(src);
             layout.setColorModel(cm);
             layout.setSampleModel(sm);
