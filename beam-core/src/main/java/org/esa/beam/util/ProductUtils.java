@@ -994,7 +994,8 @@ public class ProductUtils {
             step = 2 * Math.max(rect.width, rect.height); // don't step!
         }
 
-        final ArrayList<PixelPos> pixelPosList = new ArrayList<PixelPos>(rect.width * rect.height / step + 10);
+        final ArrayList<PixelPos> pixelPosList = new ArrayList<PixelPos>();
+//        final ArrayList<PixelPos> pixelPosList = new ArrayList<PixelPos>(rect.width * rect.height / step + 10);
 
         float lastX = 0;
         for (float x = x1; x < x2; x += step) {

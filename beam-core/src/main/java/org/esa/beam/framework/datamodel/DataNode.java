@@ -36,7 +36,7 @@ public abstract class DataNode extends ProductNode {
      * The data type. Always one of <code>ProductData.TYPE_<i>X</i></code>.
      */
     private final int _dataType;
-    private final int _numElems;
+    private final long _numElems;
     private ProductData _data;
     private boolean _readOnly;
     private String _unit;
@@ -45,7 +45,7 @@ public abstract class DataNode extends ProductNode {
     /**
      * Constructs a new data node with the given name, data type and number of elements.
      */
-    public DataNode(String name, int dataType, int numElems) {
+    public DataNode(String name, int dataType, long numElems) {
         super(name);
         if (dataType != ProductData.TYPE_INT8
                 && dataType != ProductData.TYPE_INT16
@@ -58,9 +58,6 @@ public abstract class DataNode extends ProductNode {
                 && dataType != ProductData.TYPE_ASCII
                 && dataType != ProductData.TYPE_UTC) {
             throw new IllegalArgumentException("dataType is invalid");
-        }
-        if (numElems < 1) {
-            throw new IllegalArgumentException("numElems is less than 1");
         }
         _dataType = dataType;
         _numElems = numElems;
@@ -98,7 +95,8 @@ public abstract class DataNode extends ProductNode {
     /**
      * Gets the number of data elements in this data node.
      */
-    public int getNumDataElems() {
+    public long getNumDataElems() {
+        checkState();
         return _numElems;
     }
 
@@ -149,8 +147,12 @@ public abstract class DataNode extends ProductNode {
             throw new IllegalArgumentException("attribute is read-only");
         }
 
+        checkState();
         if (_data == null) {
-            _data = createCompatibleProductData(_numElems);
+            if (_numElems > Integer.MAX_VALUE) {
+                throw new IllegalStateException("number of elements must be less than "+ (long)Integer.MAX_VALUE + 1);
+            }
+            _data = createCompatibleProductData((int) _numElems);
         }
         Object oldData = _data.getElems();
         if (!ObjectUtils.equalObjects(oldData, elems)) {
@@ -225,6 +227,7 @@ public abstract class DataNode extends ProductNode {
     }
 
     //////////////////////////////////////////////////////////////////////////
+
     // Implementation helpers
 
     /**
@@ -255,6 +258,7 @@ public abstract class DataNode extends ProductNode {
     }
 
     //////////////////////////////////////////////////////////////////////////
+
     // 'Visitor' pattern support
 
     /**
@@ -310,5 +314,11 @@ public abstract class DataNode extends ProductNode {
      */
     public ProductData createCompatibleProductData(final int numElems) {
         return ProductData.createInstance(getDataType(), numElems);
+    }
+
+    private void checkState() {
+        if(_numElems < 1) {
+            throw new IllegalStateException("number of elements must be at last 1");
+        }
     }
 }

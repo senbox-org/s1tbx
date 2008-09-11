@@ -419,10 +419,10 @@ public class Band extends AbstractBand {
         long size = 0L;
         if (isPartOfSubset(subsetDef)) {
             size += 256; // add estimated overhead of 256 bytes
-            int numDataElems = getNumDataElems();
+            long numDataElems = getNumDataElems();
             if (subsetDef != null) {
-                int width = getSceneRasterWidth();
-                int height = getSceneRasterHeight();
+                long width = getSceneRasterWidth();
+                long height = getSceneRasterHeight();
                 Rectangle region = subsetDef.getRegion();
                 if (region != null) {
                     width = region.width;

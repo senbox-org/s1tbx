@@ -140,7 +140,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param height   the height of the raster in pixels
      */
     protected RasterDataNode(String name, int dataType, int width, int height) {
-        super(name, dataType, width * height);
+        super(name, dataType, (long)width * height);
         if (dataType != ProductData.TYPE_INT8
                 && dataType != ProductData.TYPE_INT16
                 && dataType != ProductData.TYPE_INT32
@@ -2393,10 +2393,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private void setGeophysicalNoDataValue() {
         geophysicalNoDataValue = scale(getNoDataValue());
     }
-    
+
     /**
      * Returns wether the source image is set on this {@code RasterDataNode}.
-     * 
+     *
      * This method belongs to preliminary API and may be removed or changed in the future.
      *
      * @return Wether the source image is set.
@@ -2408,7 +2408,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Gets the source image associated with this {@code RasterDataNode}.
-     * 
+     *
      * This method belongs to preliminary API and may be removed or changed in the future.
      *
      * @return The rendered image.
@@ -2423,7 +2423,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Creates the source image associated with this {@code RasterDataNode}.
-     * 
+     *
      * This method belongs to preliminary API and may be removed or changed in the future.
      *
      * @return The rendered image.
