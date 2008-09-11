@@ -374,7 +374,8 @@ public class ImageManager {
                 if (imageInfo == null) {
                     final PlanarImage statisticsBandImage;
                     final PlanarImage statisticsValidMaskImage;
-                    if (bandImage.getWidth() * bandImage.getHeight() <= DefaultMultiLevelModel.MAX_PIXEL_COUNT) {
+                    final long imageSize = (long) bandImage.getWidth() * bandImage.getHeight();
+                    if (imageSize <= DefaultMultiLevelModel.MAX_PIXEL_COUNT) {
                         statisticsBandImage = bandImage;
                         statisticsValidMaskImage = validMaskImage;
                     } else {
