@@ -317,7 +317,7 @@ public abstract class DataNode extends ProductNode {
     }
 
     private void checkState() {
-        if(_numElems < 1) {
+        if(_numElems < 0) {
             throw new IllegalStateException("number of elements must be at last 1");
         }
     }
