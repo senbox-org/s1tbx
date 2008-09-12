@@ -13,6 +13,7 @@ import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.glevel.RoiImageMultiLevelSource;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.jai.ImageManager;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -31,15 +32,20 @@ class ProductSceneImage45 extends ProductSceneImage {
     private Layer rootLayer;
     private MultiLevelSource multiLevelSource;
 
-    ProductSceneImage45(RasterDataNode raster, ProductSceneView45 view) throws IOException {
+    ProductSceneImage45(RasterDataNode raster, ProductSceneView45 view) {
         super(raster.getDisplayName(), new RasterDataNode[]{raster}, view.getImageInfo());
         multiLevelSource = view.getSceneImage45().getMultiLevelSource();
         rootLayer = view.getRootLayer();
     }
 
-    ProductSceneImage45(RasterDataNode raster) throws IOException {
+    ProductSceneImage45(RasterDataNode raster) {
         super(raster.getDisplayName(), new RasterDataNode[]{raster}, raster.getImageInfo());
-        multiLevelSource = BandImageMultiLevelSource.create(raster, new AffineTransform());
+        if(raster.getSourceImage() instanceof MultiLevelSource) {
+            multiLevelSource = (MultiLevelSource) raster.getSourceImage();
+            ImageManager.getInstance().prepareImageInfos(new RasterDataNode[]{raster}, multiLevelSource.getModel().getLevelCount());
+        }else {
+            multiLevelSource = BandImageMultiLevelSource.create(raster, new AffineTransform());
+        }
         setImageInfo(raster.getImageInfo());
         initRootLayer();
     }
