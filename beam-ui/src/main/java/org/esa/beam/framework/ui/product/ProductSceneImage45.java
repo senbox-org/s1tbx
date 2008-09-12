@@ -40,19 +40,14 @@ class ProductSceneImage45 extends ProductSceneImage {
 
     ProductSceneImage45(RasterDataNode raster) {
         super(raster.getDisplayName(), new RasterDataNode[]{raster}, raster.getImageInfo());
-        if(raster.getSourceImage() instanceof MultiLevelSource) {
-            multiLevelSource = (MultiLevelSource) raster.getSourceImage();
-            ImageManager.getInstance().prepareImageInfos(new RasterDataNode[]{raster}, multiLevelSource.getModel().getLevelCount());
-        }else {
-            multiLevelSource = BandImageMultiLevelSource.create(raster, new AffineTransform());
-        }
+        multiLevelSource = BandImageMultiLevelSource.create(raster);
         setImageInfo(raster.getImageInfo());
         initRootLayer();
     }
 
     ProductSceneImage45(RasterDataNode[] rasters) throws IOException {
         super("RGB", rasters, null);
-        multiLevelSource = BandImageMultiLevelSource.create(rasters, new AffineTransform());
+        multiLevelSource = BandImageMultiLevelSource.create(rasters);
         setImageInfo(ProductUtils.createImageInfo(rasters, false, ProgressMonitor.NULL));
         initRootLayer();
     }

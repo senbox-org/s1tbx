@@ -15,14 +15,28 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
 
     private final RasterDataNode[] rasterDataNodes;
 
+    public static MultiLevelSource create(RasterDataNode rasterDataNode) {
+        return create(new RasterDataNode[]{rasterDataNode});
+    }
+    
+    public static MultiLevelSource create(RasterDataNode[] rasterDataNodes) {
+        RasterDataNode rdn = rasterDataNodes[0];
+        MultiLevelModel model;
+        if(rdn.getSourceImage() instanceof MultiLevelSource) {
+            MultiLevelSource multiLevelSource = (MultiLevelSource) rdn.getSourceImage();
+            model = multiLevelSource.getModel();
+        } else {
+            final int w = rdn.getSceneRasterWidth();
+            final int h = rdn.getSceneRasterHeight();
+            model = new DefaultMultiLevelModel(new AffineTransform(), w, h);
+        }
+        ImageManager.getInstance().prepareImageInfos(rasterDataNodes, model.getLevelCount());
+        return new BandImageMultiLevelSource(model, rasterDataNodes);
+    }
+    
     public static MultiLevelSource create(RasterDataNode rasterDataNode,
                                           AffineTransform i2mTransform) {
         return create(new RasterDataNode[]{rasterDataNode}, i2mTransform);
-    }
-
-    public static MultiLevelSource create(RasterDataNode rasterDataNode,
-                                          AffineTransform i2mTransform, int levelCount) {
-        return create(new RasterDataNode[]{rasterDataNode}, i2mTransform, levelCount);
     }
 
     public static MultiLevelSource create(RasterDataNode[] rasterDataNodes,
