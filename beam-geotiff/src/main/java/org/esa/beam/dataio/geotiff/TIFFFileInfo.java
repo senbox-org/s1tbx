@@ -25,6 +25,9 @@ import org.esa.beam.framework.dataio.ProductIOException;
 import java.util.HashMap;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 class TIFFFileInfo {
 
@@ -136,10 +139,12 @@ class TIFFFileInfo {
         if (containsField(GeoTIFFTagSet.TAG_GEO_ASCII_PARAMS)) {
             final TIFFField field = getField(GeoTIFFTagSet.TAG_GEO_ASCII_PARAMS);
             final String[] values = getStringValues(field);
-            for (int i = 0; i < values.length; i++) {
-                values[i] = values[i].replace("|", "");
+            final ArrayList<String> strings = new ArrayList<String>();
+            for (String value : values) {
+                value = value.replace("\u0000", "");
+                strings.addAll(Arrays.asList(value.split("\\|")));
             }
-            return values;
+            return strings.toArray(new String[strings.size()]);
         }
         return new String[0];
     }
