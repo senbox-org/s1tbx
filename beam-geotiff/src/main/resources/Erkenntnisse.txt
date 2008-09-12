@@ -1,0 +1,158 @@
+tag = 256(ImageWidth) 	 type = 4 	 count = 1 	 2,
+tag = 257(ImageLength) 	 type = 4 	 count = 1 	 2,
+tag = 258(BitsPerSample) 	 type = 3 	 count = 2 	 32, 32,
+tag = 259(Compression) 	 type = 3 	 count = 1 	 1,
+tag = 262(Photometric) 	 type = 3 	 count = 1 	 1,
+tag = 270(ImageDescription) 	 type = 2 	 count = 1 	 P,
+tag = 273(StripOffsets) 	 type = 4 	 count = 1 	 2076,
+tag = 277(SamplesPerPixel) 	 type = 3 	 count = 1 	 2,
+tag = 278(RowsPerStrip) 	 type = 4 	 count = 1 	 8,
+tag = 279(StripByteCounts) 	 type = 4 	 count = 1 	 32,
+tag = 338(ExtraSamples) 	 type = 3 	 count = 1 	 2,
+tag = 339(SampleFormat) 	 type = 3 	 count = 2 	 3, 3,
+tag = 33922(ModelTiepointTag(Intergraph) 	 type = 12 	 count = 180 	 0.0, 0.0, 0.0, -180.0, 90.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 180.0, -90.0, 0.0, 1.5, 0.0, 0.0, 360.0, -180.0, 0.0, 2.0, 0.0, 0.0, 540.0, -270.0, 0.0, 0.0, 0.4000000059604645, 0.0, -180.0, 90.0, 0.0, 0.5, 0.4000000059604645, 0.0, 0.0, 0.0, 0.0, 1.0, 0.4000000059604645, 0.0, 180.0, -90.0, 0.0, 1.5, 0.4000000059604645, 0.0, 360.0, -180.0, 0.0, 2.0, 0.4000000059604645, 0.0, 540.0, -270.0, 0.0, 0.0, 0.800000011920929, 0.0, -180.0, 90.0, 0.0, 0.5, 0.800000011920929, 0.0, 0.0, 0.0, 0.0, 1.0, 0.800000011920929, 0.0, 180.0, -90.0, 0.0, 1.5, 0.800000011920929, 0.0, 360.0, -180.0, 0.0, 2.0, 0.800000011920929, 0.0, 540.0, -270.0, 0.0, 0.0, 1.2000000476837158, 0.0, -180.0, 90.0, 0.0, 0.5, 1.2000000476837158, 0.0, 0.0, 0.0, 0.0, 1.0, 1.2000000476837158, 0.0, 180.0, -90.0, 0.0, 1.5, 1.2000000476837158, 0.0, 360.0, -180.0, 0.0, 2.0, 1.2000000476837158, 0.0, 540.0, -270.0, 0.0, 0.0, 1.600000023841858, 0.0, -180.0, 90.0, 0.0, 0.5, 1.600000023841858, 0.0, 0.0, 0.0, 0.0, 1.0, 1.600000023841858, 0.0, 180.0, -90.0, 0.0, 1.5, 1.600000023841858, 0.0, 360.0, -180.0, 0.0, 2.0, 1.600000023841858, 0.0, 540.0, -270.0, 0.0, 0.0, 2.0, 0.0, -180.0, 90.0, 0.0, 0.5, 2.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 0.0, 180.0, -90.0, 0.0, 1.5, 2.0, 0.0, 360.0, -180.0, 0.0, 2.0, 2.0, 0.0, 540.0, -270.0, 0.0,
+tag = 34735(GeoKeyDirectoryTag(SPOT)) 	 type = 3 	 count = 16 	 1, 1, 2, 3, 1024, 0, 1, 2, 1025, 0, 1, 1, 2048, 0, 1, 4326,
+tag = 65000(OurOwnBeamTag) 	 type = 2 	 count = 1 	 <?xml version="1.0" encoding="UTF-8"?>  <beam_metadata version="0.1"><product><name>P</name><product_type>T</product_type><band><name>int16</name><data_type>11</data_type><scaling_factor>1.0</scaling_factor><scaling_offset>0.0</scaling_offset></band><band><name>float32</name><data_type>30</data_type><scaling_factor>1.0</scaling_factor><scaling_offset>0.0</scaling_offset></band></product></beam_metadata>  ,
+-------------------
+version = 1.2
+numKeys = 3
+entry = 1024, 0, 1, 2
+entry = 1025, 0, 1, 1
+entry = 2048, 0, 1, 4326
+-------------------
+
+
+
+LatLonProjektion(Identity Transform)   --> ModelType = Geographic
+                                       --> (Tiff)ModelTransformation ist angegeben
+
+TiePointGeocoding                      --> ModelType = Geographic
+                                       --> (Tiff)ModelTiepointTag + (Tiff)PixelScaleTag sind angegeben
+
+Bei anderen Map Projektionen           --> ModelType = Projected
+																			 --> RasterType = Area || Point
+				bekannte Projektion						 --> ProjectedCSType = EPSGCode
+
+			unbekannte Projektion	(not EPSG) --> ProjectedCSType = user-defined (32767)
+								 											 --> GeographicType = code or user-defined (Earth definition)
+																			 		 if user-defined -->
+																						  GeogGeodeticDatum = code or user-defined (only WGS_84 supported)+
+																						  GeoAngularUnits = code +
+																						  GeogPrimeMeridian = code
+
+
+
+Ergebnis aus ProductUtils createGeoTiffMetadata:
+"""""""""""""""""""""""""""""""""""""""""""""""""
+
+    if (MapGeocoding) {
+        if (Orientation == 0.0) {
+                aus MapInfo
+                (33550)ModelPixelScale == PixelSizeX, PixelSizeY, 0.0
+                (33922)ModelTiePoint   == PixelX, PixelY, 0.0, Easting, Northing, 0.0
+        } ansonsten {
+                Berechnete Werte --> siehe ProductUtils
+        }
+
+        (1025)GTRasterTypeGeokey == (1)RasterPixelIsArea
+        (1026)GTCitationGeoKey   == "org.esa.beam.util.geotiff.GeoTIFF"
+        IMMER  ?????
+        (2048)GeographicTypeGeoKey == (4326)EPSGCode GCS_WGS_84
+        ?????
+		(3073)PCSCitationGeoKey == mapProjection.getName() + " with " + datum.getName());
+
+		if (MapUnit == "meter")
+		    (3076)ProjLinearUnitsGeoKey == (9001)EPSGCodes.Linear_Meter
+		if (MapUnit == "foot")
+		    (3076)ProjLinearUnitsGeoKey == (9002)EPSGCodes.Linear_Foot
+		if (MapUnit == "degree")
+		    (2054)GeogAngularUnitsGeoKey == (9102) EPSGCode Angular_Degree
+		if (MapUnit == "radian")
+		    (2054)GeogAngularUnitsGeoKey == (9101) EPSGCode Angular_Radian
+
+		    // metadata.addGeoDoubleParam(GeoTIFFCodes.ProjAzimuthAngleGeoKey, mapInfo.getOrientation());
+            // metadata.addGeoShortParam(GeoTIFFCodes.GeogAzimuthUnitsGeoKey, EPSGCodes.Angular_Degree);
+
+        if (TransverseMercator) {
+            (1024)GTModelTypeGeoKey == (1)ModelTypeProjected
+            if (UTM) {
+                (3072)ProjectedCSTypeGeoKey == UTM_EPSGCode N(32601 - 32660) S(32701 - 32760)
+            } else {
+                (3072)ProjectedCSTypeGeoKey == (32767)GTUserDefinedGeoKey
+                (3074)ProjectionGeoKey      == (32767)GTUserDefinedGeoKey
+                (3075)ProjCoordTransGeoKey  == (1)CT_TransverseMercator
+
+                        final double[] parameterValues = mapTransform.getParameterValues();
+
+                (2057)GeogSemiMajorAxisGeoKey    == parameterValues[0] // semi_major
+                (2058)GeogSemiMinorAxisGeoKey    == parameterValues[1] // semi_minor
+                (3081)ProjNatOriginLatGeoKey     == parameterValues[2] // latitude_of_origin (not used)
+                (3080)ProjNatOriginLongGeoKey    == parameterValues[3] // central_meridian
+                (3092)ProjScaleAtNatOriginGeoKey == parameterValues[4] // scale_factor
+                (3082)ProjFalseEastingGeoKey     == parameterValues[5] // false_easting
+                (3083)ProjFalseNorthingGeoKey    == parameterValues[6] // false_northing
+            }
+        } else if (LambertConformalConic) {
+            (1024)GTModelTypeGeoKey     == (1)ModelTypeProjected
+
+            (3072)ProjectedCSTypeGeoKey == (32767)GTUserDefinedGeoKey
+            (3074)ProjectionGeoKey      == (32767)GTUserDefinedGeoKey
+            (3075)ProjCoordTransGeoKey  == (8)CT_LambertConfConic
+
+                        final double[] parameterValues = mapTransform.getParameterValues();
+
+            (2057)GeogSemiMajorAxisGeoKey    == parameterValues[0] // semi_major
+            (2058)GeogSemiMinorAxisGeoKey    == parameterValues[1] // semi_minor
+            (3081)ProjNatOriginLatGeoKey     == parameterValues[2] // latitude_of_origin
+            (3080)ProjNatOriginLongGeoKey    == parameterValues[3] // central_meridian
+            (3078)ProjStdParallel1GeoKey     == parameterValues[4] // latitude_of_intersection_1
+            (3079)ProjStdParallel2GeoKey     == parameterValues[5] // latitude_of_intersection_2
+            (3092)ProjScaleAtNatOriginGeoKey == parameterValues[6] // scale_factor
+
+        } else if (Stereographic) {
+            (1024)GTModelTypeGeoKey     == (1)ModelTypeProjected
+
+            (3072)ProjectedCSTypeGeoKey == (32767)GTUserDefinedGeoKey
+            (3074)ProjectionGeoKey      == (32767)GTUserDefinedGeoKey
+            (3075)ProjCoordTransGeoKey  == (15)CT_PolarStereographic
+
+            (2057)GeogSemiMajorAxisGeoKey    == parameterValues[0] // semi_major
+            (2058)GeogSemiMinorAxisGeoKey    == parameterValues[1] // semi_minor
+            (3081)ProjNatOriginLatGeoKey     == parameterValues[2] // latitude_of_origin
+            (3080)ProjNatOriginLongGeoKey    == parameterValues[3] // central_meridian
+            (3092)ProjScaleAtNatOriginGeoKey == parameterValues[4] // scale_factor
+            (3082)ProjFalseEastingGeoKey     == parameterValues[5] // false_easting
+            (3083)ProjFalseNorthingGeoKey    == parameterValues[6] // false_northing
+        } else if (AlbersEqualArea) {
+            (1024)GTModelTypeGeoKey     == (1)ModelTypeProjected
+
+            (3072)ProjectedCSTypeGeoKey == (32767)GTUserDefinedGeoKey
+            (3074)ProjectionGeoKey      == (32767)GTUserDefinedGeoKey
+            (3075)ProjCoordTransGeoKey  == (11)CT_AlbersEqualArea
+
+            (2057)GeogSemiMajorAxisGeoKey    == parameterValues[0] // semi_major
+            (2058)GeogSemiMinorAxisGeoKey    == parameterValues[1] // semi_minor
+            (3081)ProjNatOriginLatGeoKey     == parameterValues[2] // latitude_of_origin
+            (3080)ProjNatOriginLongGeoKey    == parameterValues[3] // central_meridian
+            (3078)ProjStdParallel1GeoKey     == parameterValues[4] // latitude_of_intersection_1
+            (3079)ProjStdParallel2GeoKey     == parameterValues[5] // latitude_of_intersection_2
+            (3092)ProjScaleAtNatOriginGeoKey == parameterValues[6] // scale_factor
+            (3082)ProjFalseEastingGeoKey     == parameterValues[7] // false_easting
+            (3083)ProjFalseNorthingGeoKey    == parameterValues[8] // false_northing
+        } else if (IdentityTransform) {
+            (1024)GTModelTypeGeoKey == (2)ModelTypeGeographic
+        } else {
+            metadata = null;
+        }
+    }
+    if (anyOtherGeocoding) {
+        (1024)GTModelTypeGeoKey == (2)ModelTypeGeographic
+        (1025)GTRasterTypeGeoKey   == (1)RasterPixelIsArea
+        (2048)GeographicTypeGeoKey == (4326)EPSGCode GCS_WGS_84
+        Computing TiePoints ...
+        (33922)ModelTiePoint   == i,j,0.0,lon,lat,0.0,  ... i,j,0.0,lon,lat,0.0, ...
+
+    }
+    return metadata;
+
+

@@ -1,0 +1,48 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-geotiffr</symbolicName>
+    <version>1.0</version>
+    <name>GeoTIFF Product Module</name>
+    <description>A module for GeoTIFF Data Products</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://oceancolor.gsfc.nasa.gov/</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Reader,Writer,GeoTIFF,VISAT</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>importGeoTiffProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>GeoTiff</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <mnemonic>O</mnemonic>
+            <text>Import GeoTiff Product...</text>
+            <shortDescr>Import a GeoTIFF data product or subset.</shortDescr>
+            <description>Import a GeoTIFF data product or product subset.</description>
+            <helpId>importGeoTIFFProduct</helpId>
+        </action>
+        <action>
+            <id>exportGeoTiffProduct</id>
+            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <formatName>GeoTiff</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <mnemonic>O</mnemonic>
+            <text>Export GeoTiff Product...</text>
+            <shortDescr>Export a GeoTIFF data product or subset.</shortDescr>
+            <description>Export a GeoTIFF data product or product subset.</description>
+            <helpId>exportGeoTiffProduct</helpId>
+        </action>
+    </extension>
+</module>
