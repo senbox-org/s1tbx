@@ -43,8 +43,11 @@ import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.BandSelectDescriptor;
 import java.awt.Rectangle;
+import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.IndexColorModel;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.io.IOException;
@@ -139,9 +142,23 @@ public class GeoTIFFProductReader extends AbstractProductReader {
             final Band band = product.addBand(bandName, productDataType);
 
             final RenderedOp bandSourceImage = BandSelectDescriptor.create(geoTiff, new int[]{i}, null);
-            final DefaultMultiLevelImage levelImage = new DefaultMultiLevelImage(
-                    new DefaultMultiLevelSource(bandSourceImage, 10));
-            band.setSourceImage(levelImage);
+            band.setSourceImage(bandSourceImage);
+
+            // todo - here for future implementation
+//            if(info.containsField(BaselineTIFFTagSet.TAG_COLOR_MAP) && geoTiff.getColorModel() instanceof IndexColorModel) {
+//                final IndexColorModel colorModel = (IndexColorModel) geoTiff.getColorModel();
+//                final IndexCoding indexCoding = new IndexCoding("color_map");
+//                final int colorCount = colorModel.getMapSize();
+//                final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[colorCount];
+//                for(int j=0; j < colorCount; j++) {
+//                    indexCoding.addIndex("I"+j, j,"");
+//                    points[j] = new ColorPaletteDef.Point(j, new Color(colorModel.getRGB(j)));
+//                }
+//                product.getIndexCodingGroup().add(indexCoding);
+//                band.setSampleCoding(indexCoding);
+//
+//                band.setImageInfo(new ImageInfo(new ColorPaletteDef(points)));
+//            }
         }
         if (info.isGeotiff()) {
             applyGeoCoding(info, product);
