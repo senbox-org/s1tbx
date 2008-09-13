@@ -28,6 +28,8 @@ import org.esa.beam.util.math.MathUtils;
 
 import javax.swing.JComponent;
 import java.awt.*;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
@@ -53,6 +55,16 @@ public class ProductSceneView45 extends ProductSceneView {
         PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
         layerCanvas.addMouseListener(popupMenuHandler);
         layerCanvas.addKeyListener(popupMenuHandler);
+        layerCanvas.addMouseWheelListener(new MouseWheelListener() {
+
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                final Viewport viewport = layerCanvas.getViewport();
+                final int wheelRotation = e.getWheelRotation();
+                final double newZoomFactor = viewport.getZoomFactor() * Math.pow(1.1, wheelRotation);
+                viewport.zoom(newZoomFactor);
+            }
+        });
 
         // todo - this change management is for compatibility reasons only, need better control here!!!
         layerCanvas.getLayer().addListener(new LayerListener() {
