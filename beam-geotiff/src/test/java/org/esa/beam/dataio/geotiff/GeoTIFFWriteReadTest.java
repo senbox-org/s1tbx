@@ -1,16 +1,7 @@
 package org.esa.beam.dataio.geotiff;
 
 import com.sun.media.jai.codec.ByteArraySeekableStream;
-import static org.esa.beam.dataio.geotiff.GeoTIFFProductWriter.writeGeoTIFFProduct;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.*;
 import org.esa.beam.jai.ImageManager;
 import static org.junit.Assert.*;
@@ -66,7 +57,19 @@ public class GeoTIFFWriteReadTest {
         assertEquals(expectedBand.getNoDataValue(), actualBand.getNoDataValue(), 1.0e-6);
         assertEquals(expectedBand.isNoDataValueUsed(), actualBand.isNoDataValueUsed());
     }
-    
+
+    @Test
+    public void testWriteReadVirtualBandIsExcluded() throws IOException {
+        final VirtualBand virtualBand = new VirtualBand("VB", ProductData.TYPE_FLOAT32,
+                                                        outProduct.getSceneRasterWidth(),
+                                                        outProduct.getSceneRasterHeight(), "X * Y");
+        outProduct.addBand(virtualBand);
+        final Product inProduct = writeReadProduct();
+
+        assertEquals(outProduct.getNumBands()-1, inProduct.getNumBands());
+        assertEquals(true, inProduct.getBand("VB") == null);
+    }  
+
     @Test
     public void testWriteReadUTMProjectProduct() throws IOException {
         setUTMGeoCoding(outProduct);
@@ -394,7 +397,8 @@ public class GeoTIFFWriteReadTest {
     }
 
     private Product writeReadProduct() throws IOException {
-        writeGeoTIFFProduct(outputStream, outProduct);
+        final GeoTIFFProductWriter writer = (GeoTIFFProductWriter) new GeoTIFFProductWriterPlugIn().createWriterInstance();
+        writer.writeGeoTIFFProduct(outputStream, outProduct);
         ByteArraySeekableStream inputStream = new ByteArraySeekableStream(outputStream.toByteArray());
         return reader.readGeoTIFFProduct(inputStream, location);
     }

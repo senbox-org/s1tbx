@@ -10,14 +10,16 @@ import com.sun.media.jai.codec.TIFFField;
 import org.esa.beam.framework.dataio.AbstractProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 import org.jdom.Document;
-import org.jdom.output.XMLOutputter;
 import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 
 import javax.media.jai.operator.BandMergeDescriptor;
 import javax.media.jai.operator.FormatDescriptor;
@@ -28,8 +30,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * todo - add API doc
@@ -81,23 +83,35 @@ public class GeoTIFFProductWriter extends AbstractProductWriter {
     public void deleteOutput() throws IOException {
     }
 
-    static void writeGeoTIFFProduct(OutputStream outputStream, Product product) throws IOException {
+    void writeGeoTIFFProduct(OutputStream outputStream, Product product) throws IOException {
         final ImageContainer imageContainer = createImageContainer(product);
         ImageEncoder enc = ImageCodec.createImageEncoder("TIFF", outputStream, imageContainer.getEncodeParam());
         enc.encode(imageContainer.getImage());
     }
 
-    static ImageContainer createImageContainer(Product product) {
+    @Override
+    public boolean shouldWrite(ProductNode node) {
+        if(node instanceof VirtualBand) {
+            return false;
+        }
+        return super.shouldWrite(node);
+    }
+
+    ImageContainer createImageContainer(Product product) {
         final Band[] bands = product.getBands();
         final int bufferType = getLeastCommonDataBufferType(bands);
         final RenderedImage[] renderedImages = ImageManager.getInstance().getBandImages(bands, LEVEL_ZERO);
         for (int i = 0; i < renderedImages.length; i++) {
-            renderedImages[i] = FormatDescriptor.create(renderedImages[i], bufferType, null);
+            if (shouldWrite(bands[i])) {
+                renderedImages[i] = FormatDescriptor.create(renderedImages[i], bufferType, null);
+            }
         }
         RenderedImage masterImage = renderedImages[0];
         for (int i = 1; i < renderedImages.length; i++) {
-            RenderedImage renderedImage = renderedImages[i];
-            masterImage = BandMergeDescriptor.create(masterImage, renderedImage, null);
+            if (shouldWrite(bands[i])) {
+                RenderedImage renderedImage = renderedImages[i];
+                masterImage = BandMergeDescriptor.create(masterImage, renderedImage, null);
+            }
         }
 
         final List<TIFFField> tiffFieldList = createGeoTiffFields(product);
@@ -106,7 +120,6 @@ public class GeoTIFFProductWriter extends AbstractProductWriter {
                                         1,
                                         new String[]{product.getName()}));
         TIFFEncodeParam masterParam = new TIFFEncodeParam();
-
 
         final BeamMetadata.Metadata metadata = BeamMetadata.createMetadata(product);
         final Document dom = metadata.getDocument();

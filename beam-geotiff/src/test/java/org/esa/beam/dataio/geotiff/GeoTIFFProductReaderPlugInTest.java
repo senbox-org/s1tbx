@@ -1,26 +1,25 @@
 package org.esa.beam.dataio.geotiff;
 
-import org.esa.beam.util.io.BeamFileFilter;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import com.sun.media.jai.codec.ByteArraySeekableStream;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.UTM;
-import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.util.io.BeamFileFilter;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-
-import com.sun.media.jai.codec.ByteArraySeekableStream;
 
 /**
  * todo - add API doc
@@ -45,7 +44,8 @@ public class GeoTIFFProductReaderPlugInTest {
         band.ensureRasterData();
         band.setSynthetic(true);
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        GeoTIFFProductWriter.writeGeoTIFFProduct(outputStream, product);
+        final GeoTIFFProductWriter writer = (GeoTIFFProductWriter) new GeoTIFFProductWriterPlugIn().createWriterInstance();
+        writer.writeGeoTIFFProduct(outputStream, product);
         final DecodeQualification decodeQualification = plugIn.getDecodeQualification(
                 new ByteArraySeekableStream(outputStream.toByteArray()));
 
@@ -63,7 +63,8 @@ public class GeoTIFFProductReaderPlugInTest {
         mapInfo.setSceneHeight(product.getSceneRasterHeight());
         product.setGeoCoding(new MapGeoCoding(mapInfo));
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        GeoTIFFProductWriter.writeGeoTIFFProduct(outputStream, product);
+        final GeoTIFFProductWriter writer = (GeoTIFFProductWriter) new GeoTIFFProductWriterPlugIn().createWriterInstance();
+        writer.writeGeoTIFFProduct(outputStream, product);
         final DecodeQualification decodeQualification = plugIn.getDecodeQualification(
                 new ByteArraySeekableStream(outputStream.toByteArray()));
 
