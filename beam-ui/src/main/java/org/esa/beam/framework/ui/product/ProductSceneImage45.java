@@ -12,11 +12,12 @@ import org.esa.beam.glayer.PlacemarkLayer;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.glevel.RoiImageMultiLevelSource;
+import org.esa.beam.glevel.TiledFileMultiLevelSource;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.jai.ImageManager;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,10 +75,40 @@ class ProductSceneImage45 extends ProductSceneImage {
         rootLayer.getChildLayerList().add(graticuleLayer);
         rootLayer.getChildLayerList().add(pinLayer);
         rootLayer.getChildLayerList().add(gcpLayer);
+        if (getRaster().getProduct().getProductType().startsWith("MIR_")) {
+            // SMOS
+            Layer createWorldLayer = createWorldLayer();
+            if (createWorldLayer != null) {
+                rootLayer.getChildLayerList().add(createWorldLayer);
+            }
+        }
 
         // todo - remove listeners when scene view is disposed
         getProduct().addProductNodeListener(new BitmaskDefListener(bitmaskLayer));
         getProduct().addProductNodeListener(new BitmaskOverlayInfoListener(bitmaskLayer));
+    }
+
+    /**
+     * @return
+     */
+    private Layer createWorldLayer() {
+        final String WORLD_IMAGE_DIR_PROPERTY_NAME = "org.esa.beam.pview.worldImageDir";
+        String dirPath = System.getProperty(WORLD_IMAGE_DIR_PROPERTY_NAME);
+        if (dirPath == null || dirPath.isEmpty()) {
+            return null;
+        }
+        MultiLevelSource multiLevelSource = null;
+        try {
+            multiLevelSource = TiledFileMultiLevelSource.create(new File(dirPath), false);
+        } catch (IOException e) {
+            return null;
+        }
+        
+        final ImageLayer blueMarbleLayer = new ImageLayer(multiLevelSource);
+        blueMarbleLayer.setName("Bluemarble " + getRaster().getName());
+        blueMarbleLayer.setVisible(true);
+        blueMarbleLayer.getStyle().setOpacity(0.0);
+        return blueMarbleLayer;
     }
 
     private ImageLayer createNoDataLayer() {
