@@ -76,6 +76,6 @@ public class SmosProductReaderPlugIn implements ProductReaderPlugIn {
 
     @Override
     public BeamFileFilter getProductFileFilter() {
-        return new BeamFileFilter();
+        return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
     }
 }
