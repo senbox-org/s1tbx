@@ -55,6 +55,8 @@ import java.util.TreeSet;
 
 public class GeoTIFFProductReader extends AbstractProductReader {
 
+    private static final int GCS_USER_DEFINED = 32767;
+
     private FileSeekableStream inputStream;
 
     GeoTIFFProductReader(ProductReaderPlugIn readerPlugIn) {
@@ -96,15 +98,12 @@ public class GeoTIFFProductReader extends AbstractProductReader {
         pb.add(param);
 
         final RenderedOp geoTiff = JAI.create("tiff", pb);
-
-        final TIFFDirectory dir = (TIFFDirectory) geoTiff.getProperty("tiff_directory");
-        final TIFFFileInfo info = new TIFFFileInfo(dir);
-
+        final TIFFFileInfo tiffInfo = new TIFFFileInfo((TIFFDirectory) geoTiff.getProperty("tiff_directory"));
 
         final int width = geoTiff.getWidth();
         final int height = geoTiff.getHeight();
 
-        final BeamMetadata.Metadata metadata = getBeamMetadata(info);
+        final BeamMetadata.Metadata metadata = getBeamMetadata(tiffInfo);
 
         final String productName;
         final String productType;
@@ -112,8 +111,8 @@ public class GeoTIFFProductReader extends AbstractProductReader {
             productName = metadata.getProductProperty(BeamMetadata.NODE_NAME);
             productType = metadata.getProductProperty(BeamMetadata.NODE_PRODUCTTYPE);
         } else {
-            if (info.containsField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION)) {
-                final TIFFField field = info.getField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION);
+            if (tiffInfo.containsField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION)) {
+                final TIFFField field = tiffInfo.getField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION);
                 final String s = field.getAsString(0);
                 productName = s.substring(0, s.length() - 1);
             } else {
@@ -130,20 +129,8 @@ public class GeoTIFFProductReader extends AbstractProductReader {
         for (int i = 0; i < numBands; i++) {
             final Band band;
             if (metadata != null) {
-                final String bandName = metadata.getBandProperty(i, BeamMetadata.NODE_NAME);
-                band = product.addBand(bandName, productDataType);
-                double scalingFactor = Double.parseDouble(metadata.getBandProperty(i, BeamMetadata.NODE_SCALING_FACTOR));
-                double scalingOffset = Double.parseDouble(metadata.getBandProperty(i, BeamMetadata.NODE_SCALING_OFFSET));
-                boolean log10Scaled = Boolean.parseBoolean(metadata.getBandProperty(i, BeamMetadata.NODE_LOG_10_SCALED));
-                band.setScalingFactor(scalingFactor);
-                band.setScalingOffset(scalingOffset);
-                band.setLog10Scaled(log10Scaled);
-                double noDataValue = Double.parseDouble(metadata.getBandProperty(i, BeamMetadata.NODE_NO_DATA_VALUE));
-                boolean noDataValueUsed = Boolean.parseBoolean(metadata.getBandProperty(i, BeamMetadata.NODE_NO_DATA_VALUE_USED));
-                String validExpression = metadata.getBandProperty(i, BeamMetadata.NODE_VALID_EXPRESION);
-                band.setNoDataValue(noDataValue);
-                band.setNoDataValueUsed(noDataValueUsed);
-                band.setValidPixelExpression(validExpression);
+                band = product.addBand(metadata.getBandProperty(i, BeamMetadata.NODE_NAME), productDataType);
+                configureBand(metadata, band, i);
             } else {
                 band = product.addBand(String.format("band_%d", i + 1), productDataType);
             }
@@ -152,7 +139,7 @@ public class GeoTIFFProductReader extends AbstractProductReader {
             band.setSourceImage(bandSourceImage);
 
             // todo - here for future implementation
-//            if(info.containsField(BaselineTIFFTagSet.TAG_COLOR_MAP) && geoTiff.getColorModel() instanceof IndexColorModel) {
+//            if(tiffInfo.containsField(BaselineTIFFTagSet.TAG_COLOR_MAP) && geoTiff.getColorModel() instanceof IndexColorModel) {
 //                final IndexColorModel colorModel = (IndexColorModel) geoTiff.getColorModel();
 //                final IndexCoding indexCoding = new IndexCoding("color_map");
 //                final int colorCount = colorModel.getMapSize();
@@ -167,10 +154,25 @@ public class GeoTIFFProductReader extends AbstractProductReader {
 //                band.setImageInfo(new ImageInfo(new ColorPaletteDef(points)));
 //            }
         }
-        if (info.isGeotiff()) {
-            applyGeoCoding(info, product);
+        if (tiffInfo.isGeotiff()) {
+            applyGeoCoding(tiffInfo, product);
         }
         return product;
+    }
+
+    private void configureBand(BeamMetadata.Metadata metadata, Band band, int bandIndex) {
+        double scalingFactor = Double.parseDouble(metadata.getBandProperty(bandIndex, BeamMetadata.NODE_SCALING_FACTOR));
+        double scalingOffset = Double.parseDouble(metadata.getBandProperty(bandIndex, BeamMetadata.NODE_SCALING_OFFSET));
+        boolean log10Scaled = Boolean.parseBoolean(metadata.getBandProperty(bandIndex, BeamMetadata.NODE_LOG_10_SCALED));
+        band.setScalingFactor(scalingFactor);
+        band.setScalingOffset(scalingOffset);
+        band.setLog10Scaled(log10Scaled);
+        double noDataValue = Double.parseDouble(metadata.getBandProperty(bandIndex, BeamMetadata.NODE_NO_DATA_VALUE));
+        boolean noDataValueUsed = Boolean.parseBoolean(metadata.getBandProperty(bandIndex, BeamMetadata.NODE_NO_DATA_VALUE_USED));
+        String validExpression = metadata.getBandProperty(bandIndex, BeamMetadata.NODE_VALID_EXPRESION);
+        band.setNoDataValue(noDataValue);
+        band.setNoDataValueUsed(noDataValueUsed);
+        band.setValidPixelExpression(validExpression);
     }
 
     private static BeamMetadata.Metadata getBeamMetadata(TIFFFileInfo info) throws ProductIOException {
@@ -221,7 +223,7 @@ public class GeoTIFFProductReader extends AbstractProductReader {
                     product.setGeoCoding(new MapGeoCoding(mapInfo));
                     return;
                 }
-                return; //todo message "gocoding is not supported" continuing as standard Tiff reader
+                return; //todo message "geocoding is not supported" continuing as standard Tiff reader
             } else if (isUserdefinedPCSCode(pcsCode)) {
                 if (isProjectionUserDefined(keyEntries)) {
                     if (isProjectionTransverseMercator(keyEntries)) {
@@ -653,7 +655,9 @@ public class GeoTIFFProductReader extends AbstractProductReader {
             final int value = geoKeyEntries.get(GeoTIFFCodes.GeographicTypeGeoKey).getIntValue();
             if (value == EPSGCodes.GCS_WGS_72) {
                 datum = Datum.WGS_72;
-            } else {
+            } else if(value == EPSGCodes.GCS_WGS_84){
+                datum = Datum.WGS_84;
+            }else {
                 //@todo if user defined ... make user defined datum
                 datum = Datum.WGS_84;
             }
