@@ -121,6 +121,20 @@ public class GeoTIFFProductWriter extends AbstractProductWriter {
                                         new String[]{product.getName()}));
         TIFFEncodeParam masterParam = new TIFFEncodeParam();
 
+        // support for tiled writing - seems to slow down writing
+//        masterParam.setWriteTiled(true);
+//        int tileWidth;
+//        int tileHeight;
+//        if(product.getPreferredTileSize() != null) {
+//            final Dimension preferredTileSize = product.getPreferredTileSize();
+//            tileWidth = (int)Math.floor(preferredTileSize.getWidth());
+//            tileHeight = (int)Math.floor(preferredTileSize.getHeight());
+//        }else {
+//            tileWidth = 256;
+//            tileHeight = 256;
+//        }
+//        masterParam.setTileSize(tileWidth, tileHeight);
+
         final BeamMetadata.Metadata metadata = BeamMetadata.createMetadata(product);
         final Document dom = metadata.getDocument();
         final StringWriter writer = new StringWriter();
