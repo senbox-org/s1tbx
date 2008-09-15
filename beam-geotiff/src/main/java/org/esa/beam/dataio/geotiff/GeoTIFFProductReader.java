@@ -169,10 +169,8 @@ public class GeoTIFFProductReader extends AbstractProductReader {
         band.setLog10Scaled(log10Scaled);
         double noDataValue = Double.parseDouble(metadata.getBandProperty(bandIndex, BeamMetadata.NODE_NO_DATA_VALUE));
         boolean noDataValueUsed = Boolean.parseBoolean(metadata.getBandProperty(bandIndex, BeamMetadata.NODE_NO_DATA_VALUE_USED));
-        String validExpression = metadata.getBandProperty(bandIndex, BeamMetadata.NODE_VALID_EXPRESION);
         band.setNoDataValue(noDataValue);
         band.setNoDataValueUsed(noDataValueUsed);
-        band.setValidPixelExpression(validExpression);
     }
 
     private static BeamMetadata.Metadata getBeamMetadata(TIFFFileInfo info) throws ProductIOException {

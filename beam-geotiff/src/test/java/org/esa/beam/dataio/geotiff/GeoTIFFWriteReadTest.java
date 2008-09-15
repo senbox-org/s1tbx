@@ -50,7 +50,6 @@ public class GeoTIFFWriteReadTest {
         expectedBand.setScalingOffset(100);
         expectedBand.setNoDataValue(12.5);
         expectedBand.setNoDataValueUsed(true);
-        expectedBand.setValidPixelExpression("!100");
 
         final Product inProduct = writeReadProduct();
 
@@ -66,7 +65,6 @@ public class GeoTIFFWriteReadTest {
         assertEquals(expectedBand.isLog10Scaled(), actualBand.isLog10Scaled());
         assertEquals(expectedBand.getNoDataValue(), actualBand.getNoDataValue(), 1.0e-6);
         assertEquals(expectedBand.isNoDataValueUsed(), actualBand.isNoDataValueUsed());
-        assertEquals(expectedBand.getValidPixelExpression(), actualBand.getValidPixelExpression());
     }
     
     @Test

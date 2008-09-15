@@ -36,7 +36,6 @@ class BeamMetadata {
     public static final String NODE_LOG_10_SCALED = "log_10_scaled";
     public static final String NODE_NO_DATA_VALUE = "no_data_value";
     public static final String NODE_NO_DATA_VALUE_USED = "no_data_value_used";
-    public static final String NODE_VALID_EXPRESION = "valid_expresssion";
 
     static Metadata createMetadata(final Document dom) {
         Assert.notNull(dom);
@@ -132,7 +131,6 @@ class BeamMetadata {
                 bandNode.addContent(new Element(NODE_LOG_10_SCALED).setText(getBandProperty(i, NODE_LOG_10_SCALED)));
                 bandNode.addContent(new Element(NODE_NO_DATA_VALUE).setText(getBandProperty(i, NODE_NO_DATA_VALUE)));
                 bandNode.addContent(new Element(NODE_NO_DATA_VALUE_USED).setText(getBandProperty(i, NODE_NO_DATA_VALUE_USED)));
-                bandNode.addContent(new Element(NODE_VALID_EXPRESION).setText(getBandProperty(i, NODE_VALID_EXPRESION)));
                 productNode.addContent(bandNode);
             }
 
@@ -167,8 +165,6 @@ class BeamMetadata {
                 return String.valueOf(band.getNoDataValue());
             }else if (NODE_NO_DATA_VALUE_USED.equals(name)) {
                 return String.valueOf(band.isNoDataValueUsed());
-            }else if (NODE_VALID_EXPRESION.equals(name)) {
-                return band.getValidPixelExpression();
             }
             return null;
         }
