@@ -27,7 +27,6 @@ import org.esa.beam.framework.gpf.annotations.*;
 import org.esa.beam.framework.gpf.graph.GraphOp;
 import org.esa.beam.framework.gpf.graph.OperatorConfiguration;
 import org.esa.beam.framework.gpf.graph.OperatorConfiguration.Reference;
-import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.jai.JAIUtils;
 
 import java.awt.Dimension;
