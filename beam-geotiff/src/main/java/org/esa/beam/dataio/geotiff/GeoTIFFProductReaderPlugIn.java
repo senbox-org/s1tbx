@@ -45,7 +45,7 @@ public class GeoTIFFProductReaderPlugIn implements ProductReaderPlugIn {
                 stream.close();
             }
         } catch (Exception ignore) {
-            // nothing to do, return value is already false
+            // nothing to do, return value is already UNABLE
         }
 
         return DecodeQualification.UNABLE;

@@ -24,6 +24,7 @@ import com.sun.media.jai.codec.SeekableStream;
 import com.sun.media.jai.codec.TIFFDecodeParam;
 import com.sun.media.jai.codec.TIFFDirectory;
 import com.sun.media.jai.codec.TIFFField;
+import com.sun.media.imageioimpl.plugins.tiff.TIFFDeflater;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -40,6 +41,7 @@ import org.jdom.input.SAXBuilder;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.BandSelectDescriptor;
+import javax.imageio.ImageIO;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
@@ -54,8 +56,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class GeoTIFFProductReader extends AbstractProductReader {
-
-    private static final int GCS_USER_DEFINED = 32767;
 
     private FileSeekableStream inputStream;
 
@@ -96,7 +96,6 @@ public class GeoTIFFProductReader extends AbstractProductReader {
         pb.add(stream);
         final TIFFDecodeParam param = new TIFFDecodeParam();
         pb.add(param);
-
         final RenderedOp geoTiff = JAI.create("tiff", pb);
         final TIFFFileInfo tiffInfo = new TIFFFileInfo((TIFFDirectory) geoTiff.getProperty("tiff_directory"));
 
