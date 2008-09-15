@@ -33,6 +33,10 @@ class BeamMetadata {
     public static final String NODE_DATATYPE = "data_type";
     public static final String NODE_SCALING_FACTOR = "scaling_factor";
     public static final String NODE_SCALING_OFFSET = "scaling_offset";
+    public static final String NODE_LOG_10_SCALED = "log_10_scaled";
+    public static final String NODE_NO_DATA_VALUE = "no_data_value";
+    public static final String NODE_NO_DATA_VALUE_USED = "no_data_value_used";
+    public static final String NODE_VALID_EXPRESION = "valid_expresssion";
 
     static Metadata createMetadata(final Document dom) {
         Assert.notNull(dom);
@@ -51,12 +55,7 @@ class BeamMetadata {
         if (dom == null) {
             return false;
         }
-        // dom.getRootElement() throws IlleaglStateException if there is
-        // no root element avalable
-//        if (dom.getRootElement() == null) {
-//            return false;
-//        }
-        if (!dom.getRootElement().getName().equals(BeamMetadata.ROOT_NODENAME)) {
+         if (!dom.getRootElement().getName().equals(BeamMetadata.ROOT_NODENAME)) {
             return false;
         }
         if (dom.getRootElement().getAttribute(BeamMetadata.ROOT_ATTRIB) == null) {
@@ -130,6 +129,10 @@ class BeamMetadata {
                 bandNode.addContent(new Element(NODE_DATATYPE).setText(getBandProperty(i, NODE_DATATYPE)));
                 bandNode.addContent(new Element(NODE_SCALING_FACTOR).setText(getBandProperty(i, NODE_SCALING_FACTOR)));
                 bandNode.addContent(new Element(NODE_SCALING_OFFSET).setText(getBandProperty(i, NODE_SCALING_OFFSET)));
+                bandNode.addContent(new Element(NODE_LOG_10_SCALED).setText(getBandProperty(i, NODE_LOG_10_SCALED)));
+                bandNode.addContent(new Element(NODE_NO_DATA_VALUE).setText(getBandProperty(i, NODE_NO_DATA_VALUE)));
+                bandNode.addContent(new Element(NODE_NO_DATA_VALUE_USED).setText(getBandProperty(i, NODE_NO_DATA_VALUE_USED)));
+                bandNode.addContent(new Element(NODE_VALID_EXPRESION).setText(getBandProperty(i, NODE_VALID_EXPRESION)));
                 productNode.addContent(bandNode);
             }
 
@@ -158,6 +161,14 @@ class BeamMetadata {
                 return String.valueOf(band.getScalingFactor());
             } else if (NODE_SCALING_OFFSET.equals(name)) {
                 return String.valueOf(band.getScalingOffset());
+            }else if (NODE_LOG_10_SCALED.equals(name)) {
+                return String.valueOf(band.isLog10Scaled());
+            }else if (NODE_NO_DATA_VALUE.equals(name)) {
+                return String.valueOf(band.getNoDataValue());
+            }else if (NODE_NO_DATA_VALUE_USED.equals(name)) {
+                return String.valueOf(band.isNoDataValueUsed());
+            }else if (NODE_VALID_EXPRESION.equals(name)) {
+                return band.getValidPixelExpression();
             }
             return null;
         }

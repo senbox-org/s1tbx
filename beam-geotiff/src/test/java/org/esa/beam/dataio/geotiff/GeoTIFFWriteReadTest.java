@@ -27,11 +27,13 @@ public class GeoTIFFWriteReadTest {
     private Product outProduct;
     private ByteArrayOutputStream outputStream;
     private GeoTIFFProductReader reader;
+    private File location;
 
     @Before
     public void setup() {
         reader = (GeoTIFFProductReader) new GeoTIFFProductReaderPlugIn().createReaderInstance();
         outputStream = new ByteArrayOutputStream();
+        location = new File("memory.tif");
         final int width = 14;
         final int height = 14;
         outProduct = new Product("P", "T", width, height);
@@ -42,12 +44,35 @@ public class GeoTIFFWriteReadTest {
     }
 
     @Test
+    public void testWriteReadBeamMetadata() throws IOException {
+        final Band expectedBand = outProduct.getBand("int16");
+        expectedBand.setScalingFactor(0.7);
+        expectedBand.setScalingOffset(100);
+        expectedBand.setNoDataValue(12.5);
+        expectedBand.setNoDataValueUsed(true);
+        expectedBand.setValidPixelExpression("!100");
+
+        final Product inProduct = writeReadProduct();
+
+        assertEquals(outProduct.getName(), inProduct.getName());
+        assertEquals(outProduct.getProductType(), inProduct.getProductType());
+        assertEquals(outProduct.getNumBands(), inProduct.getNumBands());
+
+        final Band actualBand = inProduct.getBandAt(0);
+        assertEquals(expectedBand.getName(), actualBand.getName());
+        assertEquals(expectedBand.getDataType(), actualBand.getDataType());
+        assertEquals(expectedBand.getScalingFactor(), actualBand.getScalingFactor(), 1.0e-6);
+        assertEquals(expectedBand.getScalingOffset(), actualBand.getScalingOffset(), 1.0e-6);
+        assertEquals(expectedBand.isLog10Scaled(), actualBand.isLog10Scaled());
+        assertEquals(expectedBand.getNoDataValue(), actualBand.getNoDataValue(), 1.0e-6);
+        assertEquals(expectedBand.isNoDataValueUsed(), actualBand.isNoDataValueUsed());
+        assertEquals(expectedBand.getValidPixelExpression(), actualBand.getValidPixelExpression());
+    }
+    
+    @Test
     public void testWriteReadUTMProjectProduct() throws IOException {
         setUTMGeoCoding(outProduct);
-        writeGeoTIFFProduct(outputStream, outProduct);
-        ByteArraySeekableStream inputStream = new ByteArraySeekableStream(outputStream.toByteArray());
-        final File location = new File("memory.tif");
-        final Product inProduct = reader.readGeoTIFFProduct(inputStream, location);
+        final Product inProduct = writeReadProduct();
 
         assertEquals(outProduct.getName(), inProduct.getName());
         assertEquals(outProduct.getProductType(), inProduct.getProductType());
@@ -64,11 +89,7 @@ public class GeoTIFFWriteReadTest {
     @Test
     public void testWriteReadProductWithLatLonGeocoding() throws IOException {
         setIdentityTransformGeoCoding(outProduct);
-        writeGeoTIFFProduct(outputStream, outProduct);
-        ByteArraySeekableStream inputStream = new ByteArraySeekableStream(outputStream.toByteArray());
-//        GeoTiffExplorerMain.exploreWithJai(inputStream);
-        final File location = new File("memory.tif");
-        final Product inProduct = reader.readGeoTIFFProduct(inputStream, location);
+        final Product inProduct = writeReadProduct();
 
         assertEquals(outProduct.getName(), inProduct.getName());
         assertEquals(outProduct.getProductType(), inProduct.getProductType());
@@ -89,10 +110,7 @@ public class GeoTIFFWriteReadTest {
         bandfloat32.setDataElems(createFloats(getProductSize(), 2.343f));
         bandfloat32.setSynthetic(true);
 
-        writeGeoTIFFProduct(outputStream, outProduct);
-        ByteArraySeekableStream inputStream = new ByteArraySeekableStream(outputStream.toByteArray());
-        final File location = new File("memory.tif");
-        final Product inProduct = reader.readGeoTIFFProduct(inputStream, location);
+        final Product inProduct = writeReadProduct();
 
         assertEquals(outProduct.getName(), inProduct.getName());
         assertEquals(outProduct.getProductType(), inProduct.getProductType());
@@ -109,10 +127,7 @@ public class GeoTIFFWriteReadTest {
     public void testWriteReadTransverseMercatorProduct() throws IOException {
         setTransverseMercatorGeoCoding(outProduct);
 
-        writeGeoTIFFProduct(outputStream, outProduct);
-        ByteArraySeekableStream inputStream = new ByteArraySeekableStream(outputStream.toByteArray());
-        final File location = new File("transverse.tif");
-        final Product inProduct = reader.readGeoTIFFProduct(inputStream, location);
+        final Product inProduct = writeReadProduct();
 
         assertEquals(outProduct.getName(), inProduct.getName());
         assertEquals(outProduct.getProductType(), inProduct.getProductType());
@@ -129,10 +144,7 @@ public class GeoTIFFWriteReadTest {
     public void testWriteReadLambertConformalConicProduct() throws IOException {
         setLambertConformalConicGeoCoding(outProduct);
 
-        writeGeoTIFFProduct(outputStream, outProduct);
-        ByteArraySeekableStream inputStream = new ByteArraySeekableStream(outputStream.toByteArray());
-        final File location = new File("lambert.tif");
-        final Product inProduct = reader.readGeoTIFFProduct(inputStream, location);
+        final Product inProduct = writeReadProduct();
 
         assertEquals(outProduct.getName(), inProduct.getName());
         assertEquals(outProduct.getProductType(), inProduct.getProductType());
@@ -149,10 +161,7 @@ public class GeoTIFFWriteReadTest {
     public void testWriteReadStereographicProduct() throws IOException {
         setStereographicGeoCoding(outProduct);
 
-        writeGeoTIFFProduct(outputStream, outProduct);
-        ByteArraySeekableStream inputStream = new ByteArraySeekableStream(outputStream.toByteArray());
-        final File location = new File("stereographic.tif");
-        final Product inProduct = reader.readGeoTIFFProduct(inputStream, location);
+        final Product inProduct = writeReadProduct();
 
         assertEquals(outProduct.getName(), inProduct.getName());
         assertEquals(outProduct.getProductType(), inProduct.getProductType());
@@ -169,10 +178,7 @@ public class GeoTIFFWriteReadTest {
     public void testWriteReadAlbersEqualAreaProduct() throws IOException {
         setAlbersEqualAreaGeoCoding(outProduct);
 
-        writeGeoTIFFProduct(outputStream, outProduct);
-        ByteArraySeekableStream inputStream = new ByteArraySeekableStream(outputStream.toByteArray());
-        final File location = new File("albersEqualArea.tif");
-        final Product inProduct = reader.readGeoTIFFProduct(inputStream, location);
+        final Product inProduct = writeReadProduct();
 
         assertEquals(outProduct.getName(), inProduct.getName());
         assertEquals(outProduct.getProductType(), inProduct.getProductType());
@@ -388,4 +394,11 @@ public class GeoTIFFWriteReadTest {
         product.addTiePointGrid(lonGrid);
         product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
     }
+
+    private Product writeReadProduct() throws IOException {
+        writeGeoTIFFProduct(outputStream, outProduct);
+        ByteArraySeekableStream inputStream = new ByteArraySeekableStream(outputStream.toByteArray());
+        return reader.readGeoTIFFProduct(inputStream, location);
+    }
+
 }

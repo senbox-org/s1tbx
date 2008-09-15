@@ -17,8 +17,6 @@
 package org.esa.beam.dataio.geotiff;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.sun.media.imageio.plugins.tiff.BaselineTIFFTagSet;
 import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
 import com.sun.media.jai.codec.FileSeekableStream;
@@ -43,11 +41,8 @@ import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.BandSelectDescriptor;
 import java.awt.Rectangle;
-import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.IndexColorModel;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.io.IOException;
@@ -133,13 +128,25 @@ public class GeoTIFFProductReader extends AbstractProductReader {
         final int numBands = geoTiff.getSampleModel().getNumBands();
         final int productDataType = ImageManager.getProductDataType(geoTiff.getSampleModel().getDataType());
         for (int i = 0; i < numBands; i++) {
-            final String bandName;
+            final Band band;
             if (metadata != null) {
-                bandName = metadata.getBandProperty(i, BeamMetadata.NODE_NAME);
+                final String bandName = metadata.getBandProperty(i, BeamMetadata.NODE_NAME);
+                band = product.addBand(bandName, productDataType);
+                double scalingFactor = Double.parseDouble(metadata.getBandProperty(i, BeamMetadata.NODE_SCALING_FACTOR));
+                double scalingOffset = Double.parseDouble(metadata.getBandProperty(i, BeamMetadata.NODE_SCALING_OFFSET));
+                boolean log10Scaled = Boolean.parseBoolean(metadata.getBandProperty(i, BeamMetadata.NODE_LOG_10_SCALED));
+                band.setScalingFactor(scalingFactor);
+                band.setScalingOffset(scalingOffset);
+                band.setLog10Scaled(log10Scaled);
+                double noDataValue = Double.parseDouble(metadata.getBandProperty(i, BeamMetadata.NODE_NO_DATA_VALUE));
+                boolean noDataValueUsed = Boolean.parseBoolean(metadata.getBandProperty(i, BeamMetadata.NODE_NO_DATA_VALUE_USED));
+                String validExpression = metadata.getBandProperty(i, BeamMetadata.NODE_VALID_EXPRESION);
+                band.setNoDataValue(noDataValue);
+                band.setNoDataValueUsed(noDataValueUsed);
+                band.setValidPixelExpression(validExpression);
             } else {
-                bandName = String.format("band_%d", i + 1);
+                band = product.addBand(String.format("band_%d", i + 1), productDataType);
             }
-            final Band band = product.addBand(bandName, productDataType);
 
             final RenderedOp bandSourceImage = BandSelectDescriptor.create(geoTiff, new int[]{i}, null);
             band.setSourceImage(bandSourceImage);
