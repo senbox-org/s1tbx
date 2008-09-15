@@ -17,6 +17,10 @@
 package org.esa.beam.dataio.geotiff;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
+import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.sun.media.imageio.plugins.tiff.BaselineTIFFTagSet;
 import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
 import com.sun.media.jai.codec.FileSeekableStream;
@@ -135,7 +139,11 @@ public class GeoTIFFProductReader extends AbstractProductReader {
             }
 
             final RenderedOp bandSourceImage = BandSelectDescriptor.create(geoTiff, new int[]{i}, null);
-            band.setSourceImage(bandSourceImage);
+            final DefaultMultiLevelModel model = new DefaultMultiLevelModel(new AffineTransform(),
+                                                                            bandSourceImage.getWidth(),
+                                                                            bandSourceImage.getHeight());
+            final MultiLevelSource multiLevelSource = new DefaultMultiLevelSource(bandSourceImage, model);
+            band.setSourceImage(new DefaultMultiLevelImage(multiLevelSource));
 
             // todo - here for future implementation
 //            if(tiffInfo.containsField(BaselineTIFFTagSet.TAG_COLOR_MAP) && geoTiff.getColorModel() instanceof IndexColorModel) {

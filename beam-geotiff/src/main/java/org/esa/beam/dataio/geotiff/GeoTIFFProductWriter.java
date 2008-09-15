@@ -130,8 +130,8 @@ public class GeoTIFFProductWriter extends AbstractProductWriter {
 //            tileWidth = (int)Math.floor(preferredTileSize.getWidth());
 //            tileHeight = (int)Math.floor(preferredTileSize.getHeight());
 //        }else {
-//            tileWidth = 256;
-//            tileHeight = 256;
+//            tileWidth = 512;
+//            tileHeight = 512;
 //        }
 //        masterParam.setTileSize(tileWidth, tileHeight);
 
