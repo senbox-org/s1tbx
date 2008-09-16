@@ -198,8 +198,8 @@ class LayerManager {
         });
 
         layerTreeModel.addTreeModelListener(new TreeModelListener() {
+            @Override
             public void treeNodesChanged(TreeModelEvent e) {
-                //To change body of implemented methods use File | Settings | File Templates.
             }
 
             @Override
@@ -210,12 +210,12 @@ class LayerManager {
                 }
             }
 
+            @Override
             public void treeNodesRemoved(TreeModelEvent e) {
-                //To change body of implemented methods use File | Settings | File Templates.
             }
 
+            @Override
             public void treeStructureChanged(TreeModelEvent e) {
-                //To change body of implemented methods use File | Settings | File Templates.
             }
         });
         
