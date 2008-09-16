@@ -23,26 +23,26 @@
 
     <extension point="beam-ui:actions">
         <action>
-            <id>importGeoTiffProduct</id>
+            <id>importGeoTIFFProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <formatName>GeoTiff</formatName>
+            <formatName>GeoTIFF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>O</mnemonic>
-            <text>Import GeoTiff Product...</text>
+            <text>Import GeoTIFF Product...</text>
             <shortDescr>Import a GeoTIFF data product or subset.</shortDescr>
             <description>Import a GeoTIFF data product or product subset.</description>
             <helpId>importGeoTIFFProduct</helpId>
         </action>
         <action>
-            <id>exportGeoTiffProduct</id>
+            <id>exportGeoTIFFProduct</id>
             <class>org.esa.beam.visat.actions.ProductExportAction</class>
-            <formatName>GeoTiff</formatName>
+            <formatName>GeoTIFF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>O</mnemonic>
-            <text>Export GeoTiff Product...</text>
+            <text>Export GeoTIFF Product...</text>
             <shortDescr>Export a GeoTIFF data product or subset.</shortDescr>
             <description>Export a GeoTIFF data product or product subset.</description>
-            <helpId>exportGeoTiffProduct</helpId>
+            <helpId>exportGeoTIFFProduct</helpId>
         </action>
     </extension>
 </module>
