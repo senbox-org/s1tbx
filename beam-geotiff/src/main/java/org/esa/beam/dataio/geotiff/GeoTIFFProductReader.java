@@ -126,6 +126,9 @@ public class GeoTIFFProductReader extends AbstractProductReader {
 
         final Product product = new Product(productName, productType, width, height, this);
         product.setFileLocation(inputFile);
+        if(geoTiff.getTileWidth() != 0 && geoTiff.getTileHeight() != 0) {
+            product.setPreferredTileSize(geoTiff.getTileWidth(), geoTiff.getTileHeight());
+        }
 
         final int numBands = geoTiff.getSampleModel().getNumBands();
         final int productDataType = ImageManager.getProductDataType(geoTiff.getSampleModel().getDataType());

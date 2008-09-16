@@ -17,21 +17,26 @@ import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
+import org.esa.beam.util.jai.JAIUtils;
 import org.jdom.Document;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
-import javax.media.jai.operator.BandMergeDescriptor;
+import javax.media.jai.JAI;
 import javax.media.jai.operator.FormatDescriptor;
+import java.awt.Dimension;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
+import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * todo - add API doc
@@ -91,49 +96,39 @@ public class GeoTIFFProductWriter extends AbstractProductWriter {
 
     @Override
     public boolean shouldWrite(ProductNode node) {
-        if(node instanceof VirtualBand) {
+        if (node instanceof VirtualBand) {
             return false;
         }
         return super.shouldWrite(node);
     }
 
     ImageContainer createImageContainer(Product product) {
-        final Band[] bands = product.getBands();
-        final int bufferType = getLeastCommonDataBufferType(bands);
-        final RenderedImage[] renderedImages = ImageManager.getInstance().getBandImages(bands, LEVEL_ZERO);
-        for (int i = 0; i < renderedImages.length; i++) {
-            if (shouldWrite(bands[i])) {
-                renderedImages[i] = FormatDescriptor.create(renderedImages[i], bufferType, null);
+        final List<Band> bandList = new ArrayList<Band>(Arrays.asList(product.getBands()));
+        for (Band band : bandList) {
+            if (!shouldWrite(band)) {
+                bandList.remove(band);
             }
         }
-        RenderedImage masterImage = renderedImages[0];
-        for (int i = 1; i < renderedImages.length; i++) {
-            if (shouldWrite(bands[i])) {
-                RenderedImage renderedImage = renderedImages[i];
-                masterImage = BandMergeDescriptor.create(masterImage, renderedImage, null);
-            }
-        }
+
+        RenderedImage tiffImage = createTiffImage(bandList);
+        TIFFEncodeParam tiffParam = new TIFFEncodeParam();
 
         final List<TIFFField> tiffFieldList = createGeoTiffFields(product);
         tiffFieldList.add(new TIFFField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION,
                                         TIFFField.TIFF_ASCII,
                                         1,
                                         new String[]{product.getName()}));
-        TIFFEncodeParam masterParam = new TIFFEncodeParam();
 
-        // support for tiled writing - seems to slow down writing
-//        masterParam.setWriteTiled(true);
-//        int tileWidth;
-//        int tileHeight;
-//        if(product.getPreferredTileSize() != null) {
-//            final Dimension preferredTileSize = product.getPreferredTileSize();
-//            tileWidth = (int)Math.floor(preferredTileSize.getWidth());
-//            tileHeight = (int)Math.floor(preferredTileSize.getHeight());
-//        }else {
-//            tileWidth = 512;
-//            tileHeight = 512;
-//        }
-//        masterParam.setTileSize(tileWidth, tileHeight);
+        // support for tiled writing
+        tiffParam.setWriteTiled(true);
+        final Dimension tileSize;
+        if (product.getPreferredTileSize() != null) {
+            tileSize = product.getPreferredTileSize();
+        } else {
+            tileSize = JAIUtils.computePreferredTileSize(product.getSceneRasterWidth(),
+                                                         product.getSceneRasterHeight(), 1);
+        }
+        tiffParam.setTileSize(tileSize.width, tileSize.height);
 
         final BeamMetadata.Metadata metadata = BeamMetadata.createMetadata(product);
         final Document dom = metadata.getDocument();
@@ -150,15 +145,26 @@ public class GeoTIFFProductWriter extends AbstractProductWriter {
                 new String[]{writer.toString()}
         ));
 
-        masterParam.setExtraFields(tiffFieldList.toArray(new TIFFField[tiffFieldList.size()]));
+        tiffParam.setExtraFields(tiffFieldList.toArray(new TIFFField[tiffFieldList.size()]));
 
-        return new ImageContainer(masterImage, masterParam);
+        return new ImageContainer(tiffImage, tiffParam);
+    }
+
+    private static RenderedImage createTiffImage(List<Band> bandList) {
+        final Band[] bands = bandList.toArray(new Band[bandList.size()]);
+        final int bufferType = getLeastCommonDataBufferType(bands);
+        final RenderedImage[] renderedImages = ImageManager.getInstance().getBandImages(bands, LEVEL_ZERO);
+        for (int i = 0; i < renderedImages.length; i++) {
+            renderedImages[i] = FormatDescriptor.create(renderedImages[i], bufferType, null);
+        }
+        final ParameterBlock pb = new ParameterBlock(new Vector<Object>(Arrays.asList(renderedImages)));
+        return JAI.create("BandMerge", pb);
     }
 
     private static List<TIFFField> createGeoTiffFields(final Product product) {
         final GeoTIFFMetadata geoTIFFMetadata = ProductUtils.createGeoTIFFMetadata(
                 product.getGeoCoding(), product.getSceneRasterWidth(), product.getSceneRasterHeight());
-        if(geoTIFFMetadata != null) {
+        if (geoTIFFMetadata != null) {
             return Utils.createGeoTIFFFields(geoTIFFMetadata);
         }
 
@@ -168,7 +174,9 @@ public class GeoTIFFProductWriter extends AbstractProductWriter {
     /**
      * Returns the least common {@link DataBuffer} type of
      * all the bands in the given array of bands.
+     *
      * @param bands the given array of bands to analyze.
+     *
      * @return the least common {@link DataBuffer} type of all given bands
      */
     static int getLeastCommonDataBufferType(final Band[] bands) {
