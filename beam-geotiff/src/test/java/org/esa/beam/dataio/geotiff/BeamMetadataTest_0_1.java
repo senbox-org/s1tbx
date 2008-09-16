@@ -3,6 +3,8 @@ package org.esa.beam.dataio.geotiff;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.jdom.Document;
 import org.jdom.Element;
 import static org.junit.Assert.assertEquals;
@@ -15,15 +17,21 @@ public class BeamMetadataTest_0_1 {
     private Product product;
     private BeamMetadata.ProductMetadata productMetadata;
     private BeamMetadata.DomMetadata_0_1 domMetadata;
+    private BeamMetadata.Validator trueValidator;
 
     @Before
     public void setup() {
         product = new Product("ProductName", "ProductType", 3, 5);
-        productMetadata = (BeamMetadata.ProductMetadata) BeamMetadata.createMetadata(product);
+        trueValidator = new BeamMetadata.Validator() {
+            public boolean validate(ProductNode node) {
+                return true;
+            }
+        };
         init();
     }
 
     private void init() {
+        productMetadata = (BeamMetadata.ProductMetadata) BeamMetadata.createMetadata(product, trueValidator);
         final Document dom = productMetadata.getDocument();
         domMetadata = (BeamMetadata.DomMetadata_0_1) BeamMetadata.createMetadata(dom);
 //        try {
@@ -96,5 +104,29 @@ public class BeamMetadataTest_0_1 {
         name = BeamMetadata.NODE_SCALING_OFFSET;
         assertEquals("" + band.getScalingOffset(), domMetadata.getBandProperty(bandindex, name));
         assertEquals("" + band.getScalingOffset(), productMetadata.getBandProperty(bandindex, name));
+    }
+
+    @Test
+    public void testExcludeVirtualBands() {
+        product.addBand("BandUInt16", ProductData.TYPE_UINT16);
+        product.addBand(new VirtualBand("virtualBand", ProductData.TYPE_INT16,
+                                        product.getSceneRasterWidth(),
+                                        product.getSceneRasterHeight(),
+                                        "X * Y"));
+        product.addBand("BandInt16", ProductData.TYPE_INT16);
+        product.addBand("BandInt8", ProductData.TYPE_INT8);
+
+        final BeamMetadata.Validator virtualBandExcluder = new BeamMetadata.Validator() {
+            public boolean validate(ProductNode node) {
+                return !(node instanceof VirtualBand);
+            }
+        };
+        final BeamMetadata.ProductMetadata metadata = new BeamMetadata.ProductMetadata(product, virtualBandExcluder);
+        final String[] bandNames = {"BandUInt16", "BandInt16", "BandInt8", null};
+        assertEquals(4, bandNames.length);
+        for (int i = 0; i < bandNames.length; i++) {
+            final String bandName = bandNames[i];
+            assertEquals(bandName, metadata.getBandProperty(i, "name"));
+        }
     }
 }

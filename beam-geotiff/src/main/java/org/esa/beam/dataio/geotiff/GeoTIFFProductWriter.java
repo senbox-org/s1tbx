@@ -142,7 +142,11 @@ public class GeoTIFFProductWriter extends AbstractProductWriter {
         }
         tiffParam.setTileSize(tileSize.width, tileSize.height);
 
-        final BeamMetadata.Metadata metadata = BeamMetadata.createMetadata(product);
+        final BeamMetadata.Metadata metadata = BeamMetadata.createMetadata(product, new BeamMetadata.Validator() {
+            public boolean validate(ProductNode node) {
+                return GeoTIFFProductWriter.this.shouldWrite(node);
+            }
+        });
         final Document dom = metadata.getDocument();
         final StringWriter writer = new StringWriter();
         try {

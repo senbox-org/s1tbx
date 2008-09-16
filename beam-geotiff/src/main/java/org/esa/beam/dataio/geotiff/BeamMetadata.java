@@ -3,10 +3,12 @@ package org.esa.beam.dataio.geotiff;
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.jdom.Document;
 import org.jdom.Element;
 
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * todo - add API doc
@@ -37,6 +39,11 @@ class BeamMetadata {
     public static final String NODE_NO_DATA_VALUE = "no_data_value";
     public static final String NODE_NO_DATA_VALUE_USED = "no_data_value_used";
 
+    public static interface Validator {
+
+        public boolean validate(ProductNode node);
+    }
+
     static Metadata createMetadata(final Document dom) {
         Assert.notNull(dom);
         if (!isBeamMetadata(dom)) {
@@ -45,16 +52,17 @@ class BeamMetadata {
         return new DomMetadata_0_1(dom);
     }
 
-    static Metadata createMetadata(final Product product) {
+    static Metadata createMetadata(final Product product, Validator validator) {
         Assert.notNull(product);
-        return new ProductMetadata(product);
+        Assert.notNull(validator);
+        return new ProductMetadata(product, validator);
     }
 
     static boolean isBeamMetadata(final Document dom) {
         if (dom == null) {
             return false;
         }
-         if (!dom.getRootElement().getName().equals(BeamMetadata.ROOT_NODENAME)) {
+        if (!dom.getRootElement().getName().equals(BeamMetadata.ROOT_NODENAME)) {
             return false;
         }
         if (dom.getRootElement().getAttribute(BeamMetadata.ROOT_ATTRIB) == null) {
@@ -106,9 +114,11 @@ class BeamMetadata {
     static class ProductMetadata implements Metadata {
 
         private final Product product;
+        private final ArrayList<Band> bandList;
 
-        public ProductMetadata(final Product product) {
+        public ProductMetadata(final Product product, Validator validator) {
             this.product = product;
+            bandList = initBandsToWrite(validator);
         }
 
         public Document getDocument() {
@@ -122,7 +132,7 @@ class BeamMetadata {
             productNode.addContent(new Element(NODE_PRODUCTTYPE).setText(getProductProperty(NODE_PRODUCTTYPE)));
             root.addContent(productNode);
 
-            for (int i = 0; i < product.getNumBands(); i++) {
+            for (int i = 0; i < bandList.size(); i++) {
                 final Element bandNode = new Element(NODE_BAND);
                 bandNode.addContent(new Element(NODE_NAME).setText(getBandProperty(i, NODE_NAME)));
                 bandNode.addContent(new Element(NODE_DATATYPE).setText(getBandProperty(i, NODE_DATATYPE)));
@@ -130,7 +140,8 @@ class BeamMetadata {
                 bandNode.addContent(new Element(NODE_SCALING_OFFSET).setText(getBandProperty(i, NODE_SCALING_OFFSET)));
                 bandNode.addContent(new Element(NODE_LOG_10_SCALED).setText(getBandProperty(i, NODE_LOG_10_SCALED)));
                 bandNode.addContent(new Element(NODE_NO_DATA_VALUE).setText(getBandProperty(i, NODE_NO_DATA_VALUE)));
-                bandNode.addContent(new Element(NODE_NO_DATA_VALUE_USED).setText(getBandProperty(i, NODE_NO_DATA_VALUE_USED)));
+                bandNode.addContent(
+                            new Element(NODE_NO_DATA_VALUE_USED).setText(getBandProperty(i, NODE_NO_DATA_VALUE_USED)));
                 productNode.addContent(bandNode);
             }
 
@@ -147,10 +158,10 @@ class BeamMetadata {
         }
 
         public String getBandProperty(int bandindex, String name) {
-            if (bandindex >= product.getNumBands()) {
+            if (bandindex >= bandList.size()) {
                 return null;
             }
-            final Band band = product.getBandAt(bandindex);
+            final Band band = bandList.get(bandindex);
             if (NODE_NAME.equals(name)) {
                 return band.getName();
             } else if (NODE_DATATYPE.equals(name)) {
@@ -159,14 +170,25 @@ class BeamMetadata {
                 return String.valueOf(band.getScalingFactor());
             } else if (NODE_SCALING_OFFSET.equals(name)) {
                 return String.valueOf(band.getScalingOffset());
-            }else if (NODE_LOG_10_SCALED.equals(name)) {
+            } else if (NODE_LOG_10_SCALED.equals(name)) {
                 return String.valueOf(band.isLog10Scaled());
-            }else if (NODE_NO_DATA_VALUE.equals(name)) {
+            } else if (NODE_NO_DATA_VALUE.equals(name)) {
                 return String.valueOf(band.getNoDataValue());
-            }else if (NODE_NO_DATA_VALUE_USED.equals(name)) {
+            } else if (NODE_NO_DATA_VALUE_USED.equals(name)) {
                 return String.valueOf(band.isNoDataValueUsed());
             }
             return null;
+        }
+
+        private ArrayList<Band> initBandsToWrite(Validator validator) {
+            final Band[] bands = product.getBands();
+            final ArrayList<Band> bandList = new ArrayList<Band>();
+            for (Band band : bands) {
+                if (validator.validate(band)) {
+                    bandList.add(band);
+                }
+            }
+            return bandList;
         }
     }
 }
