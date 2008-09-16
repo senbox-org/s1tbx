@@ -451,12 +451,10 @@ public class SstProcessor extends Processor {
      */
     private void createOutputProduct() throws ProcessorException,
                                               IOException {
-        final ProductRef prod;
-        final ProductWriter writer;
 
         // take only the first output product. There might be more but we will ignore
         // these in this processor.
-        prod = getOutputProductSafe();
+        final ProductRef prod = getOutputProductSafe();
 
         // retrieve product specific inpormation
         // -------------------------------------
@@ -470,7 +468,7 @@ public class SstProcessor extends Processor {
         // connect with appropriate writer
         // -----------------------------------------------------
         _outputProduct = new Product(productName, productType, sceneWidth, sceneHeight);
-        writer = ProcessorUtils.createProductWriter(prod);
+        final ProductWriter writer = ProcessorUtils.createProductWriter(prod);
         _outputProduct.setProductWriter(writer);
 
         // create the sst nadir band

@@ -338,14 +338,11 @@ public class SmileProcessor extends Processor {
      * @throws ProcessorException
      * @throws IOException
      */
-    private void createOutputProduct() throws ProcessorException,
-            IOException {
-        ProductRef prod;
-        ProductWriter writer;
+    private void createOutputProduct() throws ProcessorException, IOException {
 
         // take only the first output product. There might be more but we will ignore
         // these in this processor.
-        prod = getRequest().getOutputProductAt(0);
+        ProductRef prod = getRequest().getOutputProductAt(0);
         if (prod == null) {
             throw new ProcessorException(ProcessorConstants.LOG_MSG_NO_OUTPUT);
         }
@@ -364,7 +361,7 @@ public class SmileProcessor extends Processor {
         int sceneWidth = _inputProduct.getSceneRasterWidth();
         int sceneHeight = _inputProduct.getSceneRasterHeight();
 
-        writer = ProcessorUtils.createProductWriter(prod);
+        ProductWriter writer = ProcessorUtils.createProductWriter(prod);
 
         _outputProduct = new Product(productName, productType, sceneWidth, sceneHeight);
         _outputProduct.setProductWriter(writer);

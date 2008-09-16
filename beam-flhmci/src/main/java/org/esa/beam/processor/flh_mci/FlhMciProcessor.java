@@ -19,8 +19,6 @@ package org.esa.beam.processor.flh_mci;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.jexp.Term;
-import org.esa.beam.dataio.dimap.DimapProductConstants;
-import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -494,7 +492,7 @@ public final class FlhMciProcessor extends Processor {
         // connect with appropriate writer
         // -----------------------------------------------------
         _outputProduct = new Product(productName, productType, sceneWidth, sceneHeight);
-        final ProductWriter writer = createProductWriter(prodRef);
+        final ProductWriter writer = ProcessorUtils.createProductWriter(prodRef);
         _outputProduct.setProductWriter(writer);
 
         // create the bands for lineheight and slope (if wanted)
@@ -524,27 +522,6 @@ public final class FlhMciProcessor extends Processor {
         writer.writeProductNodes(_outputProduct, outputFile);
 
         copyFlagBandData(_inputProduct, _outputProduct, pm);
-    }
-
-    /**
-     * Creates a product writer based on the information stored in the product reference passed in
-     *
-     * @param prodRef the <code>ProductRef</code> containing the information for the output product
-     */
-    private ProductWriter createProductWriter(ProductRef prodRef) throws ProcessorException {
-        String format = prodRef.getFileFormat();
-        if ((format == null) || (format.length() == 0)) {
-            format = DimapProductConstants.DIMAP_FORMAT_NAME;
-            _logger.warning(ProcessorConstants.LOG_MSG_NO_OUTPUT_FORMAT);
-            _logger.warning(ProcessorConstants.LOG_MSG_USING + format);
-        }
-
-        final ProductWriter writer = ProductIO.getProductWriter(format);
-        if (writer == null) {
-            throw new ProcessorException(ProcessorConstants.LOG_MSG_FAIL_CREATE_WRITER + format);
-        }
-
-        return writer;
     }
 
     /**

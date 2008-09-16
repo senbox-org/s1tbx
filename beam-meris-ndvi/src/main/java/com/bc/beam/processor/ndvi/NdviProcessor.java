@@ -15,7 +15,6 @@ package com.bc.beam.processor.ndvi;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.envisat.EnvisatConstants;
-import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
@@ -337,7 +336,7 @@ public class NdviProcessor extends Processor {
         // this is the BEAM_DIMAP format, the toolbox native file format
         // and attach to the writer to the output product
         //
-        final ProductWriter writer = ProductIO.getProductWriter(ProductIO.DEFAULT_FORMAT_NAME);
+        final ProductWriter writer = ProcessorUtils.createProductWriter(outputRef);
         _outputProduct.setProductWriter(writer);
 
         // and initialize the disk represenation

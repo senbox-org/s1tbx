@@ -535,12 +535,10 @@ public class SmacProcessor extends Processor {
     // Creates the output product for the given request.
     private void createOutputProduct(ProgressMonitor pm) throws IOException,
                                                                 ProcessorException {
-        ProductRef prod;
-        ProductWriter writer;
 
         // take only the first output product. There might be more but we will ignore
         // these in SMAC.
-        prod = getRequest().getOutputProductAt(0);
+        ProductRef prod = getRequest().getOutputProductAt(0);
         checkParamNotNull(prod, "output product");
 
         String productType = _inputProduct.getProductType() + "_SMAC";
@@ -549,7 +547,7 @@ public class SmacProcessor extends Processor {
         int sceneHeight = _inputProduct.getSceneRasterHeight();
         _outputProduct = new Product(productName, productType, sceneWidth, sceneHeight);
 
-        writer = ProcessorUtils.createProductWriter(prod);
+        ProductWriter writer = ProcessorUtils.createProductWriter(prod);
         _outputProduct.setProductWriter(writer);
 
         // loop over bands and create them

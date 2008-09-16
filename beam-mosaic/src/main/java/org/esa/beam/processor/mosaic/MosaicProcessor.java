@@ -21,18 +21,33 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
 import com.bc.jexp.Term;
-import org.esa.beam.framework.dataio.*;
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.dataio.ProductProjectionBuilder;
+import org.esa.beam.framework.dataio.ProductSubsetBuilder;
+import org.esa.beam.framework.dataio.ProductSubsetDef;
+import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
-import org.esa.beam.framework.dataop.maptransf.*;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
+import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
+import org.esa.beam.framework.dataop.maptransf.MapTransform;
+import org.esa.beam.framework.dataop.maptransf.MapTransformDescriptor;
+import org.esa.beam.framework.dataop.maptransf.UTM;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.framework.processor.*;
+import org.esa.beam.framework.processor.Processor;
+import org.esa.beam.framework.processor.ProcessorConstants;
+import org.esa.beam.framework.processor.ProcessorException;
+import org.esa.beam.framework.processor.ProcessorUtils;
+import org.esa.beam.framework.processor.ProductRef;
+import org.esa.beam.framework.processor.Request;
+import org.esa.beam.framework.processor.RequestElementFactory;
 import org.esa.beam.framework.processor.ui.ProcessorUI;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
@@ -1188,11 +1203,10 @@ public class MosaicProcessor extends Processor {
     private void prepareOutputProductForUpdate() throws ProcessorException {
         final String msgPrefix = "Failed to prepare output product for mosaic update process:\n"; /*I18N*/
         final Product outputProduct = getOutputProduct();
-        final String fileFormat = outputProduct.getProductReader().getReaderPlugIn().getFormatNames()[0];
-        final ProductWriter productWriter = ProductIO.getProductWriter(fileFormat);
+        final ProductWriter productWriter = ProcessorUtils.createProductWriter(_outputProductRef);
         if (productWriter == null) {
             final String message = msgPrefix +
-                    "Unable to create a product writer for output format '" + fileFormat + "'"; /*I18N*/
+                    "Unable to create a product writer for output format '" + _outputProductRef.getFileFormat() + "'"; /*I18N*/
             _logger.severe(message);
             throw new ProcessorException(message);
         }
