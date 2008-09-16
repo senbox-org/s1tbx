@@ -41,19 +41,13 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import javax.imageio.ImageReadParam;
-import javax.imageio.ImageReader;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.BandSelectDescriptor;
-import java.awt.Image;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
-import java.awt.image.renderable.RenderContext;
-import java.awt.image.renderable.RenderableImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
@@ -62,7 +56,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.Vector;
 
 public class GeoTIFFProductReader extends AbstractProductReader {
 
@@ -133,7 +126,7 @@ public class GeoTIFFProductReader extends AbstractProductReader {
 
         final Product product = new Product(productName, productType, width, height, this);
         product.setFileLocation(inputFile);
-        if(geoTiff.getTileWidth() != 0 && geoTiff.getTileHeight() != 0) {
+        if (geoTiff.getTileWidth() != 0 && geoTiff.getTileHeight() != 0) {
             product.setPreferredTileSize(geoTiff.getTileWidth(), geoTiff.getTileHeight());
         }
 
@@ -155,33 +148,24 @@ public class GeoTIFFProductReader extends AbstractProductReader {
             final MultiLevelSource multiLevelSource = new DefaultMultiLevelSource(bandSourceImage, model);
             band.setSourceImage(new DefaultMultiLevelImage(multiLevelSource));
 
-
+            // for future implementation        
 //            final TIFFImageReader imageReader = new TIFFImageReader(new TIFFImageReaderSpi());
 //            imageReader.setInput(new MemoryCacheImageInputStream(stream));
-//            final RenderableImage ri = new ImageReaderRenderableImage(i, imageReader);
-////            final RenderableOp geoTiffable = JAI.createRenderable("tiff", pb);    // causes exception
-////            final RenderableOp bandSourceRenderable = BandSelectDescriptor.createRenderable(ri, new int[]{i}, null);
-//            final DefaultMultiLevelModel model = new DefaultMultiLevelModel(new AffineTransform(),
-//                                                                            (int)ri.getWidth(),
-//                                                                            (int)ri.getHeight() );
-//            final AbstractMultiLevelSource multiLevelSource = new AbstractMultiLevelSource(model) {
-//                @Override
-//                protected RenderedImage createImage(int level) {
-//                    final double scale = getModel().getScale(level);
-//                    AffineTransform usr2dev = AffineTransform.getScaleInstance(scale, scale);
-//                    RenderContext newRC = new RenderContext(usr2dev);
-//                    return ri.createRendering(newRC);
-////                    return ri.createScaledRendering(Math.abs((int) scale), Math.abs((int) scale),
-////                                                    new RenderingHints(new HashMap<RenderingHints.Key, Object>()));
-//                }
-//            };
+//            final DefaultMultiLevelModel model;
+//            try {
+//                model = new DefaultMultiLevelModel(new AffineTransform(),
+//                                                   imageReader.getWidth(i),
+//                                                   imageReader.getHeight(i));
+//            } catch (IOException e) {
+//                final ProductIOException ioException = new ProductIOException(e.getMessage());
+//                ioException.initCause(e);
+//                throw ioException;
+//            }
+//            final AbstractMultiLevelSource multiLevelSource = new ImageReaderMultiLevelSource(imageReader, i, model);
 //            final MultiLevelImage image = new DefaultMultiLevelImage(multiLevelSource);
 //            band.setSourceImage(image);
 
-
-
-
-            // todo - here for future implementation
+            // todo - here for future support of ColorMaps
 //            if(tiffInfo.containsField(BaselineTIFFTagSet.TAG_COLOR_MAP) && geoTiff.getColorModel() instanceof IndexColorModel) {
 //                final IndexColorModel colorModel = (IndexColorModel) geoTiff.getColorModel();
 //                final IndexCoding indexCoding = new IndexCoding("color_map");
@@ -204,14 +188,18 @@ public class GeoTIFFProductReader extends AbstractProductReader {
     }
 
     private void configureBand(BeamMetadata.Metadata metadata, Band band, int bandIndex) {
-        double scalingFactor = Double.parseDouble(metadata.getBandProperty(bandIndex, BeamMetadata.NODE_SCALING_FACTOR));
-        double scalingOffset = Double.parseDouble(metadata.getBandProperty(bandIndex, BeamMetadata.NODE_SCALING_OFFSET));
-        boolean log10Scaled = Boolean.parseBoolean(metadata.getBandProperty(bandIndex, BeamMetadata.NODE_LOG_10_SCALED));
+        double scalingFactor = Double.parseDouble(
+                metadata.getBandProperty(bandIndex, BeamMetadata.NODE_SCALING_FACTOR));
+        double scalingOffset = Double.parseDouble(
+                metadata.getBandProperty(bandIndex, BeamMetadata.NODE_SCALING_OFFSET));
+        boolean log10Scaled = Boolean.parseBoolean(
+                metadata.getBandProperty(bandIndex, BeamMetadata.NODE_LOG_10_SCALED));
         band.setScalingFactor(scalingFactor);
         band.setScalingOffset(scalingOffset);
         band.setLog10Scaled(log10Scaled);
         double noDataValue = Double.parseDouble(metadata.getBandProperty(bandIndex, BeamMetadata.NODE_NO_DATA_VALUE));
-        boolean noDataValueUsed = Boolean.parseBoolean(metadata.getBandProperty(bandIndex, BeamMetadata.NODE_NO_DATA_VALUE_USED));
+        boolean noDataValueUsed = Boolean.parseBoolean(
+                metadata.getBandProperty(bandIndex, BeamMetadata.NODE_NO_DATA_VALUE_USED));
         band.setNoDataValue(noDataValue);
         band.setNoDataValueUsed(noDataValueUsed);
     }
@@ -376,7 +364,7 @@ public class GeoTIFFProductReader extends AbstractProductReader {
 
     private static MapProjection getProjectionTransverseMercator(Map<Integer, GeoKeyEntry> keyEntries) {
         final MapTransformDescriptor descriptor = MapProjectionRegistry.getDescriptor(
-                    TransverseMercatorDescriptor.TYPE_ID);
+                TransverseMercatorDescriptor.TYPE_ID);
         final double[] values = descriptor.getParameterDefaultValues();
 
         if (keyEntries.containsKey(GeoTIFFCodes.GeogSemiMajorAxisGeoKey)) {
@@ -407,7 +395,7 @@ public class GeoTIFFProductReader extends AbstractProductReader {
 
     private static MapProjection getProjectionLambertConfConic(Map<Integer, GeoKeyEntry> keyEntries) {
         final MapTransformDescriptor descriptor = MapProjectionRegistry.getDescriptor(
-                    LambertConformalConicDescriptor.TYPE_ID);
+                LambertConformalConicDescriptor.TYPE_ID);
         final double[] values = descriptor.getParameterDefaultValues();
 
         if (keyEntries.containsKey(GeoTIFFCodes.GeogSemiMajorAxisGeoKey)) {
@@ -438,7 +426,7 @@ public class GeoTIFFProductReader extends AbstractProductReader {
 
     private static MapProjection getProjectionPolarStereographic(Map<Integer, GeoKeyEntry> keyEntries) {
         final MapTransformDescriptor descriptor = MapProjectionRegistry.getDescriptor(
-                    StereographicDescriptor.TYPE_ID);
+                StereographicDescriptor.TYPE_ID);
         final double[] values = descriptor.getParameterDefaultValues();
 
         if (keyEntries.containsKey(GeoTIFFCodes.GeogSemiMajorAxisGeoKey)) {
@@ -469,7 +457,7 @@ public class GeoTIFFProductReader extends AbstractProductReader {
 
     private static MapProjection getProjectionAlbersEqualAreaConic(Map<Integer, GeoKeyEntry> keyEntries) {
         final MapTransformDescriptor descriptor = MapProjectionRegistry.getDescriptor(
-                    AlbersEqualAreaConicDescriptor.TYPE_ID);
+                AlbersEqualAreaConicDescriptor.TYPE_ID);
         final double[] values = descriptor.getParameterDefaultValues();
 
         if (keyEntries.containsKey(GeoTIFFCodes.GeogSemiMajorAxisGeoKey)) {
@@ -569,9 +557,9 @@ public class GeoTIFFProductReader extends AbstractProductReader {
         }
 
         final TiePointGrid latGrid = new TiePointGrid(
-                    "latitude", width, height, (float) xMin, (float) yMin, (float) xDiff, (float) yDiff, lats);
+                "latitude", width, height, (float) xMin, (float) yMin, (float) xDiff, (float) yDiff, lats);
         final TiePointGrid lonGrid = new TiePointGrid(
-                    "longitude", width, height, (float) xMin, (float) yMin, (float) xDiff, (float) yDiff, lons);
+                "longitude", width, height, (float) xMin, (float) yMin, (float) xDiff, (float) yDiff, lons);
 
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
@@ -635,8 +623,8 @@ public class GeoTIFFProductReader extends AbstractProductReader {
         northing = (float) tiePoints[4];
         final MapProjection projection = MapProjectionRegistry.getProjection(IdentityTransformDescriptor.NAME);
         final MapInfo mapInfo = new MapInfo(
-                    projection,
-                    pixelX, pixelY, easting, northing, pixelSizeX, pixelSizeY, datum
+                projection,
+                pixelX, pixelY, easting, northing, pixelSizeX, pixelSizeY, datum
 
         );
         mapInfo.setSceneWidth(product.getSceneRasterWidth());
@@ -696,9 +684,9 @@ public class GeoTIFFProductReader extends AbstractProductReader {
             final int value = geoKeyEntries.get(GeoTIFFCodes.GeographicTypeGeoKey).getIntValue();
             if (value == EPSGCodes.GCS_WGS_72) {
                 datum = Datum.WGS_72;
-            } else if(value == EPSGCodes.GCS_WGS_84){
+            } else if (value == EPSGCodes.GCS_WGS_84) {
                 datum = Datum.WGS_84;
-            }else {
+            } else {
                 //@todo if user defined ... make user defined datum
                 datum = Datum.WGS_84;
             }
@@ -712,7 +700,7 @@ public class GeoTIFFProductReader extends AbstractProductReader {
 
         if (info.containsField(GeoTIFFTagSet.TAG_MODEL_TRANSFORMATION)) {
             final MapProjection projection = MapProjectionRegistry.getProjection(
-                        IdentityTransformDescriptor.NAME);
+                    IdentityTransformDescriptor.NAME);
 
             final SortedMap<Integer, GeoKeyEntry> geoKeyEntries = info.getGeoKeyEntries();
             float pixelOffset = 0.5f;
@@ -724,11 +712,11 @@ public class GeoTIFFProductReader extends AbstractProductReader {
             }
 
             final MapInfo mapInfo = new MapInfo(
-                        projection,
-                        pixelOffset, pixelOffset,
-                        0, 0,
-                        1, 1,
-                        Datum.WGS_84);
+                    projection,
+                    pixelOffset, pixelOffset,
+                    0, 0,
+                    1, 1,
+                    Datum.WGS_84);
 
             mapInfo.setSceneWidth(product.getSceneRasterWidth());
             mapInfo.setSceneHeight(product.getSceneRasterHeight());
@@ -773,92 +761,32 @@ public class GeoTIFFProductReader extends AbstractProductReader {
         return pcsCode >= EPSGCodes.PCS_WGS84_UTM_zone_1N && pcsCode <= EPSGCodes.PCS_WGS84_UTM_zone_60N;
     }
 
-
-    private static class ImageReaderRenderableImage implements RenderableImage {
-
-        private final int imageIndex;
-        private final ImageReader imageReader;
-
-        public ImageReaderRenderableImage(int imageIndex, ImageReader imageReader) {
-            this.imageIndex = imageIndex;
-            this.imageReader = imageReader;
-        }
-
-        public Vector<RenderableImage> getSources() {
-            return new Vector<RenderableImage>();
-        }
-
-        public Object getProperty(String name) {
-            return Image.UndefinedProperty;
-        }
-
-        public String[] getPropertyNames() {
-            return new String[0];
-        }
-
-        public boolean isDynamic() {
-            return false;
-        }
-
-        public float getWidth() {
-            try {
-                return imageReader.getWidth(imageIndex);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return 0;
-        }
-
-        public float getHeight() {
-            try {
-                return imageReader.getHeight(imageIndex);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return 0;
-        }
-
-        public float getMinX() {
-            try {
-                return imageReader.getTileGridXOffset(imageIndex);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return 0;
-        }
-
-        public float getMinY() {
-            try {
-                return imageReader.getTileGridYOffset(imageIndex);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return 0;
-        }
-
-        public RenderedImage createScaledRendering(int w, int h, RenderingHints hints) {
-            final ImageReadParam param = imageReader.getDefaultReadParam();
-            param.setSourceSubsampling((int)getWidth() / w, (int)getHeight() / h, 0 , 0);
-            try {
-                return imageReader.readAsRenderedImage(imageIndex, param);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        public RenderedImage createDefaultRendering() {
-            try {
-                return imageReader.readAsRenderedImage(imageIndex, new ImageReadParam());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        public RenderedImage createRendering(RenderContext renderContext) {
-            return createDefaultRendering();
-        }
-    }
-
+    // for further implementation
+//    private static class ImageReaderMultiLevelSource extends AbstractMultiLevelSource {
+//
+//        private final ImageReader reader;
+//        private final int imageIndex;
+//
+//        ImageReaderMultiLevelSource(ImageReader reader, int index, DefaultMultiLevelModel model) {
+//            super(model);
+//            this.reader = reader;
+//            imageIndex = index;
+//        }
+//
+//        @Override
+//        protected RenderedImage createImage(int level) {
+//            final double scale = getModel().getScale(level);
+//            final Rectangle2D modelBounds = getModel().getModelBounds();
+//            int subSmaplingX = (int) Math.floor(modelBounds.getWidth() / modelBounds.getWidth() * scale);
+//            int subSmaplingY = (int) Math.floor(modelBounds.getHeight() / modelBounds.getHeight() * scale);
+//            final ImageReadParam imageReadParam = reader.getDefaultReadParam();
+//            try {
+//                imageReadParam.setSourceSubsampling(subSmaplingX, subSmaplingY, 0, 0);
+//                return reader.readAsRenderedImage(imageIndex, imageReadParam);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            return DefaultMultiLevelImage.NULL.getImage(level);
+//        }
+//    }
 }
