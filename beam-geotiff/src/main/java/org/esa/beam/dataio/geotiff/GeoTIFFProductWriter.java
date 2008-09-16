@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * todo - add API doc
@@ -48,6 +49,8 @@ import java.util.Vector;
 public class GeoTIFFProductWriter extends AbstractProductWriter {
 
     private static final int LEVEL_ZERO = 0;
+    private AtomicBoolean isWritten;
+    private File outputFile;
 
     /**
      * Constructs a <code>GeoTIFFProductWriter</code>. Since no output destination is set, the <code>setOutput</code>
@@ -60,23 +63,27 @@ public class GeoTIFFProductWriter extends AbstractProductWriter {
      */
     public GeoTIFFProductWriter(ProductWriterPlugIn writerPlugIn) {
         super(writerPlugIn);
+        isWritten = new AtomicBoolean(false);
     }
 
     @Override
     protected void writeProductNodesImpl() throws IOException {
-        final File outputFile = Utils.getFile(getOutput());
-        final FileOutputStream outputStream = new FileOutputStream(outputFile);
-
-        try {
-            writeGeoTIFFProduct(outputStream, getSourceProduct());
-        } finally {
-            outputStream.close();
-        }
-
+        outputFile = Utils.getFile(getOutput());
     }
 
     public void writeBandRasterData(Band sourceBand, int sourceOffsetX, int sourceOffsetY, int sourceWidth,
                                     int sourceHeight, ProductData sourceBuffer, ProgressMonitor pm) throws IOException {
+        if (isWritten.compareAndSet(false, true)) {
+            final FileOutputStream outputStream = new FileOutputStream(outputFile);
+
+            pm.beginTask("Writing GeoTIFF...", 1);
+            try {
+                writeGeoTIFFProduct(outputStream, getSourceProduct());
+            } finally {
+                outputStream.close();
+                pm.done();
+            }
+        }
     }
 
     public void flush() throws IOException {
@@ -86,6 +93,10 @@ public class GeoTIFFProductWriter extends AbstractProductWriter {
     }
 
     public void deleteOutput() throws IOException {
+          if(!outputFile.delete()) {
+              outputFile.deleteOnExit();
+          }
+        outputFile = null;
     }
 
     void writeGeoTIFFProduct(OutputStream outputStream, Product product) throws IOException {
@@ -157,7 +168,7 @@ public class GeoTIFFProductWriter extends AbstractProductWriter {
         if (renderedImages.length == 1) {
             return renderedImages[0];
         }
-        
+
         for (int i = 0; i < renderedImages.length; i++) {
             renderedImages[i] = FormatDescriptor.create(renderedImages[i], bufferType, null);
         }
