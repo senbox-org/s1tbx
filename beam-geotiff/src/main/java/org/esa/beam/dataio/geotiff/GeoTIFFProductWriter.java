@@ -35,6 +35,7 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -115,12 +116,12 @@ public class GeoTIFFProductWriter extends AbstractProductWriter {
 
     ImageContainer createImageContainer(Product product) {
         final List<Band> bandList = new ArrayList<Band>(Arrays.asList(product.getBands()));
-        for (Band band : bandList) {
-            if (!shouldWrite(band)) {
-                bandList.remove(band);
+        final Iterator<Band> bandIterator = bandList.iterator();
+        while (bandIterator.hasNext()) {
+            if (!shouldWrite(bandIterator.next())) {
+                bandIterator.remove();
             }
         }
-
         RenderedImage tiffImage = createTiffImage(bandList);
         TIFFEncodeParam tiffParam = new TIFFEncodeParam();
 
