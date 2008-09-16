@@ -176,7 +176,7 @@ public class DimapProductWriter extends AbstractProductWriter {
     }
 
     /**
-     * Deletes the physically representation of the product from the hard disk. (oder anderem datentr�ger???)
+     * Deletes the physically representation of the product from the hard disk.
      */
     public void deleteOutput() throws IOException {
         flush();
