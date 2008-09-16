@@ -39,6 +39,7 @@ public class GeoTIFFWriteReadTest {
         final Band expectedBand = outProduct.getBand("int16");
         expectedBand.setScalingFactor(0.7);
         expectedBand.setScalingOffset(100);
+        expectedBand.setLog10Scaled(true);
         expectedBand.setNoDataValue(12.5);
         expectedBand.setNoDataValueUsed(true);
 

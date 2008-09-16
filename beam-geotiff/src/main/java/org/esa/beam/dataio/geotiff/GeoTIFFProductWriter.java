@@ -154,6 +154,10 @@ public class GeoTIFFProductWriter extends AbstractProductWriter {
         final Band[] bands = bandList.toArray(new Band[bandList.size()]);
         final int bufferType = getLeastCommonDataBufferType(bands);
         final RenderedImage[] renderedImages = ImageManager.getInstance().getBandImages(bands, LEVEL_ZERO);
+        if (renderedImages.length == 1) {
+            return renderedImages[0];
+        }
+        
         for (int i = 0; i < renderedImages.length; i++) {
             renderedImages[i] = FormatDescriptor.create(renderedImages[i], bufferType, null);
         }
