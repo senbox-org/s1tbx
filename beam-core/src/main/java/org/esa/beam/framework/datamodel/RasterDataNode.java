@@ -1290,11 +1290,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             int index = 0;
             for (int yi = y; yi < y + h; yi++) {
                 final int tileY = planarValidMaskImage.YToTileY(yi);
-                for (int xi = 0; xi < x + w; xi++) {
+                for (int xi = x; xi < x + w; xi++) {
                     final int tileX = planarValidMaskImage.XToTileX(xi);
                     Raster tile = planarValidMaskImage.getTile(tileX, tileY);
                     final int sample = tile.getSample(xi, yi, 0);
                     validMask[index] = (sample == VirtualBandOpImage.TRUE);
+                    index++;
                 }
             }
         } else {
