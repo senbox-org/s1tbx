@@ -20,7 +20,7 @@ public abstract class ExtensionManager {
 
     public abstract <T> void unregister(Class<T> extensibleType, ExtensionFactory<T> factory);
 
-    public abstract <T> List<ExtensionFactory<T>> getExtensionFactories(Class<T> extendibleType);
+    public abstract <T> List<ExtensionFactory<T>> getExtensionFactories(Class<T> extensibleType);
 
     public <E, T> E getExtension(T extensibleObject, Class<E> extensionType) {
         Assert.notNull(extensibleObject, "extensibleObject");
