@@ -356,8 +356,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (this.scalingFactor != scalingFactor) {
             this.scalingFactor = scalingFactor;
             setScalingApplied();
+            resetGeophysicalImage();
             fireProductNodeChanged(PROPERTY_NAME_SCALING_FACTOR);
             setGeophysicalNoDataValue();
+            resetValidMask();
             setModified(true);
         }
     }
@@ -383,8 +385,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (this.scalingOffset != scalingOffset) {
             this.scalingOffset = scalingOffset;
             setScalingApplied();
+            resetGeophysicalImage();
             fireProductNodeChanged(PROPERTY_NAME_SCALING_OFFSET);
             setGeophysicalNoDataValue();
+            resetValidMask();
             setModified(true);
         }
     }
@@ -412,7 +416,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (this.log10Scaled != log10Scaled) {
             this.log10Scaled = log10Scaled;
             setScalingApplied();
+            resetGeophysicalImage();
             setGeophysicalNoDataValue();
+            resetValidMask();
             fireProductNodeChanged(PROPERTY_NAME_LOG_10_SCALED);
             setModified(true);
         }
@@ -2541,6 +2547,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public void setGeophysicalImage(RenderedImage geophysicalImage) {
         this.geophysicalImage = geophysicalImage;
+    }
+    
+    private void resetGeophysicalImage() {
+        geophysicalImage = null;
     }
 
     /**
