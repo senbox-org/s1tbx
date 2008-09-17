@@ -44,7 +44,7 @@ public class DefaultConfigPage implements ConfigPage {
     private String _title;
     private boolean _modified;
     private Component _pageUI;
-    private List _subPageList;
+    private List<ConfigPage> _subPageList;
 
     public DefaultConfigPage() {
         _key = getClass().getName().concat(String.valueOf(_lastKey++));
@@ -59,14 +59,17 @@ public class DefaultConfigPage implements ConfigPage {
     protected void initPageUI() {
     }
 
+    @Override
     public ParamGroup getConfigParams() {
         return _configParams;
     }
 
+    @Override
     public PropertyMap getConfigParamValues(PropertyMap propertyMap) {
         return getConfigParams().getParameterValues(propertyMap);
     }
 
+    @Override
     public void setConfigParamValues(PropertyMap propertyMap, ParamExceptionHandler errorHandler) {
         getConfigParams().setParameterValues(propertyMap, errorHandler);
     }
@@ -83,10 +86,12 @@ public class DefaultConfigPage implements ConfigPage {
         getConfigParam(paramName).setUIEnabled(enabled);
     }
 
+    @Override
     public String getKey() {
         return _key;
     }
 
+    @Override
     public Icon getIcon() {
         return _icon;
     }
@@ -95,6 +100,7 @@ public class DefaultConfigPage implements ConfigPage {
         _icon = icon;
     }
 
+    @Override
     public String getTitle() {
         return _title;
     }
@@ -103,6 +109,7 @@ public class DefaultConfigPage implements ConfigPage {
         _title = title;
     }
 
+    @Override
     public boolean isModified() {
         return _modified;
     }
@@ -111,6 +118,7 @@ public class DefaultConfigPage implements ConfigPage {
         _modified = modified;
     }
 
+    @Override
     public Component getPageUI() {
         return _pageUI;
     }
@@ -121,7 +129,7 @@ public class DefaultConfigPage implements ConfigPage {
 
     public void addSubPage(ConfigPage subPage) {
         if (_subPageList == null) {
-            _subPageList = new ArrayList();
+            _subPageList = new ArrayList<ConfigPage>();
         }
         _subPageList.add(subPage);
     }
@@ -133,6 +141,7 @@ public class DefaultConfigPage implements ConfigPage {
         _subPageList.remove(subPage);
     }
 
+    @Override
     public ConfigPage[] getSubPages() {
         if (_subPageList == null) {
             return null;
@@ -142,18 +151,23 @@ public class DefaultConfigPage implements ConfigPage {
         return subPages;
     }
 
+    @Override
     public void applyPage() {
     }
 
+    @Override
     public void restorePage() {
     }
 
+    @Override
     public void onOK() {
     }
 
+    @Override
     public void updatePageUI() {
     }
 
+    @Override
     public boolean verifyUserInput() {
         return true;
     }
