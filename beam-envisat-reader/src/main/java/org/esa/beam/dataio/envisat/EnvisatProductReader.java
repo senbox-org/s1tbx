@@ -45,8 +45,6 @@ import java.util.Vector;
  */
 public class EnvisatProductReader extends AbstractProductReader {
 
-    private static final String PROPERTY_NAME_MASK_OUT_INVALID_PIXELS = "beam.envisatProductReader.maskOutInvalidPixels";
-
     /**
      * Represents the product's file.
      */
@@ -60,7 +58,6 @@ public class EnvisatProductReader extends AbstractProductReader {
      * The height of the raster covering the full scene.
      */
     private int _sceneRasterHeight;
-    private boolean maskOutInvalidPixels;
 
     /**
      * Constructs a new ENVISAT product reader.
@@ -69,7 +66,6 @@ public class EnvisatProductReader extends AbstractProductReader {
      */
     public EnvisatProductReader(EnvisatProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
-        maskOutInvalidPixels = Boolean.getBoolean(PROPERTY_NAME_MASK_OUT_INVALID_PIXELS);
     }
 
     public ProductFile getProductFile() {
@@ -190,15 +186,6 @@ public class EnvisatProductReader extends AbstractProductReader {
                 destArrayPos += destWidth;
                 pm.worked(sourceStepY);
             }
-
-            if (maskOutInvalidPixels) {
-                destBand.ensureValidMaskComputed(ProgressMonitor.NULL);
-                // For Envisat products, we only need to mask out pixels for bands
-                // which have a validPixelExpression set
-                if (destBand.getValidPixelExpression() != null) {
-                    maskOutMissingData(destBand, destOffsetX, destOffsetY, destWidth, destHeight, destBuffer);
-                }
-            }
             pm.worked(1);
         } finally {
             pm.done();
@@ -245,22 +232,6 @@ public class EnvisatProductReader extends AbstractProductReader {
         MetadataAttribute attribute = new MetadataAttribute(String.valueOf(line), ProductData.TYPE_FLOAT64, 1);
         attribute.getData().setElemDouble(((ProductData.UTC) field0.getData()).getMJD());
         timeElem.addAttribute(attribute);
-    }
-
-    private static void maskOutMissingData(Band destBand,
-                                           int destOffsetX,
-                                           int destOffsetY,
-                                           int destWidth,
-                                           int destHeight,
-                                           ProductData destBuffer) {
-        final int numElems = destBuffer.getNumElems();
-        for (int i = 0; i < numElems; i++) {
-            int x = destOffsetX + i % destWidth;
-            int y = destOffsetY + i / destWidth;
-            if (!destBand.isPixelValid(x, y)) {
-                destBuffer.setElemIntAt(i, 0);
-            }
-        }
     }
 
     private Product createProduct() throws IOException {
