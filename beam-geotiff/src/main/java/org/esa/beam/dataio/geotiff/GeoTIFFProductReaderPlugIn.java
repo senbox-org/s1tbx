@@ -16,19 +16,19 @@
  */
 package org.esa.beam.dataio.geotiff;
 
-import com.sun.media.jai.codec.FileSeekableStream;
-import com.sun.media.jai.codec.TIFFDecodeParam;
-import com.sun.media.jai.codec.TIFFDirectory;
-import com.sun.media.jai.codec.SeekableStream;
+import com.sun.media.imageioimpl.plugins.tiff.TIFFIFD;
+import com.sun.media.imageioimpl.plugins.tiff.TIFFImageMetadata;
+import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
 
-import javax.media.jai.JAI;
-import javax.media.jai.RenderedOp;
-import java.awt.image.renderable.ParameterBlock;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import java.io.File;
+import java.util.Iterator;
 import java.util.Locale;
 
 public class GeoTIFFProductReaderPlugIn implements ProductReaderPlugIn {
@@ -37,10 +37,11 @@ public class GeoTIFFProductReaderPlugIn implements ProductReaderPlugIn {
 
     public DecodeQualification getDecodeQualification(Object input) {
         try {
-            final File file = Utils.getFile(input);
-            FileSeekableStream stream = new FileSeekableStream(file);
+                final File file = Utils.getFile(input);
+            final ImageInputStream stream = ImageIO.createImageInputStream(file);
+
             try {
-                return getDecodeQualification(stream);
+                return getDecodeQualificationImpl(stream);
             } finally {
                 stream.close();
             }
@@ -51,16 +52,15 @@ public class GeoTIFFProductReaderPlugIn implements ProductReaderPlugIn {
         return DecodeQualification.UNABLE;
     }
 
-    static DecodeQualification getDecodeQualification(SeekableStream stream) {
-        final ParameterBlock pb = new ParameterBlock();
-        pb.add(stream);
-        pb.add(new TIFFDecodeParam());
-
+    static DecodeQualification getDecodeQualificationImpl(ImageInputStream stream) {
         try {
-            final RenderedOp op = JAI.create("tiff", pb);
+            Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(stream);
+            TIFFImageReader imageReader = (TIFFImageReader) imageReaders.next();
+            imageReader.setInput(stream);
 
-            final TIFFDirectory dir = (TIFFDirectory) op.getProperty("tiff_directory");
-            final TIFFFileInfo info = new TIFFFileInfo(dir);
+            final TIFFImageMetadata imageMetadata = (TIFFImageMetadata) imageReader.getImageMetadata(0);
+            final TIFFIFD ifd = imageMetadata.getRootIFD();
+            final TIFFFileInfo info = new TIFFFileInfo(ifd);
 
             if (info.isGeotiff()) {
                 return DecodeQualification.INTENDED;

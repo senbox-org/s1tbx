@@ -14,6 +14,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.imageio.stream.MemoryCacheImageInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -46,8 +47,8 @@ public class GeoTIFFProductReaderPlugInTest {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final GeoTIFFProductWriter writer = (GeoTIFFProductWriter) new GeoTIFFProductWriterPlugIn().createWriterInstance();
         writer.writeGeoTIFFProduct(outputStream, product);
-        final DecodeQualification decodeQualification = plugIn.getDecodeQualification(
-                new ByteArraySeekableStream(outputStream.toByteArray()));
+        final DecodeQualification decodeQualification = GeoTIFFProductReaderPlugIn.getDecodeQualificationImpl(
+                new MemoryCacheImageInputStream(new ByteArraySeekableStream(outputStream.toByteArray())));
 
         assertEquals(DecodeQualification.SUITABLE, decodeQualification);
     }
@@ -65,8 +66,8 @@ public class GeoTIFFProductReaderPlugInTest {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final GeoTIFFProductWriter writer = (GeoTIFFProductWriter) new GeoTIFFProductWriterPlugIn().createWriterInstance();
         writer.writeGeoTIFFProduct(outputStream, product);
-        final DecodeQualification decodeQualification = plugIn.getDecodeQualification(
-                new ByteArraySeekableStream(outputStream.toByteArray()));
+        final DecodeQualification decodeQualification = GeoTIFFProductReaderPlugIn.getDecodeQualificationImpl(
+                new MemoryCacheImageInputStream(new ByteArraySeekableStream(outputStream.toByteArray())));
 
         assertEquals(DecodeQualification.INTENDED, decodeQualification);
     }

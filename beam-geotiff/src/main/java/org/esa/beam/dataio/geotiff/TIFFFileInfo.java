@@ -18,35 +18,31 @@ package org.esa.beam.dataio.geotiff;
 
 import com.bc.ceres.core.Assert;
 import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
-import com.sun.media.jai.codec.TIFFDirectory;
-import com.sun.media.jai.codec.TIFFField;
+import com.sun.media.imageio.plugins.tiff.TIFFDirectory;
+import com.sun.media.imageio.plugins.tiff.TIFFField;
 import org.esa.beam.framework.dataio.ProductIOException;
 
-import java.util.HashMap;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 class TIFFFileInfo {
 
-    private final static int TAG_MODEL_PIXEL_SCALE___SOFTDESK = 33550;
-    private final static int TAG_MODEL_TRANSFORMATION___JPL_CARTO_GROUP = 34264;
-    private final static int TAG_MODEL_TIEPOINT___INTERGRAPH = 33922;
-    private final static int TAG_GEO_KEY_DIRECTORY___SPOT = 34735;
-    private final static int TAG_GEO_DOUBLE_PARAMS___SPOT = 34736;
-    private final static int TAG_GEO_ASCII_PARAMS___SPOT = 34737;
-    private final static int TAG_INTERGRAPH_MATRIX___INTERGRAPH = 33920;
+    private static final int TAG_GEO_KEY_DIRECTORY___SPOT = 34735;
+    private static final int TAG_GEO_DOUBLE_PARAMS___SPOT = 34736;
+    private static final int TAG_GEO_ASCII_PARAMS___SPOT = 34737;
 
-    private final HashMap<Integer, TIFFField> fieldMap;
+    private final Map<Integer, TIFFField> fieldMap;
 
-    public TIFFFileInfo(final TIFFDirectory dir) {
+    TIFFFileInfo(final TIFFDirectory dir) {
         Assert.notNull(dir);
-        final TIFFField[] tiffFields = dir.getFields();
+        final TIFFField[] tiffFields = dir.getTIFFFields();
         fieldMap = new HashMap<Integer, TIFFField>(tiffFields.length);
         for (TIFFField tiffField : tiffFields) {
-            fieldMap.put(tiffField.getTag(), tiffField);
+            fieldMap.put(tiffField.getTagNumber(), tiffField);
         }
     }
 

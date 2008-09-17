@@ -23,11 +23,12 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.sun.media.imageio.plugins.tiff.BaselineTIFFTagSet;
 import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
-import com.sun.media.jai.codec.FileSeekableStream;
-import com.sun.media.jai.codec.SeekableStream;
-import com.sun.media.jai.codec.TIFFDecodeParam;
-import com.sun.media.jai.codec.TIFFDirectory;
-import com.sun.media.jai.codec.TIFFField;
+import com.sun.media.imageio.plugins.tiff.TIFFField;
+import com.sun.media.imageio.plugins.tiff.TIFFTag;
+import com.sun.media.imageioimpl.plugins.tiff.TIFFIFD;
+import com.sun.media.imageioimpl.plugins.tiff.TIFFImageMetadata;
+import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
+import com.sun.media.imageioimpl.plugins.tiff.TIFFRenderedImage;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -41,17 +42,21 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import javax.media.jai.JAI;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.BandSelectDescriptor;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
-import java.awt.image.renderable.ParameterBlock;
+import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -59,7 +64,7 @@ import java.util.TreeSet;
 
 public class GeoTIFFProductReader extends AbstractProductReader {
 
-    private FileSeekableStream inputStream;
+    private ImageInputStream inputStream;
 
     GeoTIFFProductReader(ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
@@ -68,7 +73,7 @@ public class GeoTIFFProductReader extends AbstractProductReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         final File inputFile = Utils.getFile(getInput());
-        inputStream = new FileSeekableStream(inputFile);
+        inputStream = ImageIO.createImageInputStream(inputFile);
 
         final Product product = readGeoTIFFProduct(inputStream, inputFile);
         product.setProductReader(this);
@@ -95,16 +100,18 @@ public class GeoTIFFProductReader extends AbstractProductReader {
         inputStream.close();
     }
 
-    Product readGeoTIFFProduct(final SeekableStream stream, final File inputFile) throws ProductIOException {
-        final ParameterBlock pb = new ParameterBlock();
-        pb.add(stream);
-        final TIFFDecodeParam param = new TIFFDecodeParam();
-        pb.add(param);
-        final RenderedOp geoTiff = JAI.create("tiff", pb);
-        final TIFFFileInfo tiffInfo = new TIFFFileInfo((TIFFDirectory) geoTiff.getProperty("tiff_directory"));
+    Product readGeoTIFFProduct(final ImageInputStream stream, final File inputFile) throws IOException {
+        Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(stream);
+        TIFFImageReader imageReader = (TIFFImageReader) imageReaders.next();
+        imageReader.setInput(stream);
 
-        final int width = geoTiff.getWidth();
-        final int height = geoTiff.getHeight();
+        final int width = imageReader.getWidth(0);
+        final int height = imageReader.getHeight(0);
+
+        final TIFFImageMetadata imageMetadata = (TIFFImageMetadata) imageReader.getImageMetadata(0);
+        final TIFFIFD ifd = imageMetadata.getRootIFD();
+        final TIFFFileInfo tiffInfo = new TIFFFileInfo(ifd);
+
 
         final BeamMetadata.Metadata metadata = getBeamMetadata(tiffInfo);
 
@@ -126,12 +133,15 @@ public class GeoTIFFProductReader extends AbstractProductReader {
 
         final Product product = new Product(productName, productType, width, height, this);
         product.setFileLocation(inputFile);
-        if (geoTiff.getTileWidth() != 0 && geoTiff.getTileHeight() != 0) {
-            product.setPreferredTileSize(geoTiff.getTileWidth(), geoTiff.getTileHeight());
+        if (imageReader.getTileWidth(0) != 0 && imageReader.getTileHeight(0) != 0) {
+            product.setPreferredTileSize(imageReader.getTileWidth(0), imageReader.getTileHeight(0));
         }
 
-        final int numBands = geoTiff.getSampleModel().getNumBands();
-        final int productDataType = ImageManager.getProductDataType(geoTiff.getSampleModel().getDataType());
+        final ImageReadParam readParam = imageReader.getDefaultReadParam();
+        TIFFRenderedImage baseImage = (TIFFRenderedImage) imageReader.readAsRenderedImage(0, readParam);
+        final SampleModel sampleModel = baseImage.getSampleModel();
+        final int numBands = sampleModel.getNumBands();
+        final int productDataType = ImageManager.getProductDataType(sampleModel.getDataType());
         for (int i = 0; i < numBands; i++) {
             final Band band;
             if (metadata != null) {
@@ -141,7 +151,7 @@ public class GeoTIFFProductReader extends AbstractProductReader {
                 band = product.addBand(String.format("band_%d", i + 1), productDataType);
             }
 
-            final RenderedOp bandSourceImage = BandSelectDescriptor.create(geoTiff, new int[]{i}, null);
+            final RenderedOp bandSourceImage = BandSelectDescriptor.create(baseImage, new int[]{i}, null);
             final DefaultMultiLevelModel model = new DefaultMultiLevelModel(new AffineTransform(),
                                                                             bandSourceImage.getWidth(),
                                                                             bandSourceImage.getHeight());
@@ -166,8 +176,8 @@ public class GeoTIFFProductReader extends AbstractProductReader {
 //            band.setSourceImage(image);
 
             // todo - here for future support of ColorMaps
-//            if(tiffInfo.containsField(BaselineTIFFTagSet.TAG_COLOR_MAP) && geoTiff.getColorModel() instanceof IndexColorModel) {
-//                final IndexColorModel colorModel = (IndexColorModel) geoTiff.getColorModel();
+//            if(tiffInfo.containsField(BaselineTIFFTagSet.TAG_COLOR_MAP) && baseImage.getColorModel() instanceof IndexColorModel) {
+//                final IndexColorModel colorModel = (IndexColorModel) baseImage.getColorModel();
 //                final IndexCoding indexCoding = new IndexCoding("color_map");
 //                final int colorCount = colorModel.getMapSize();
 //                final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[colorCount];
@@ -207,7 +217,7 @@ public class GeoTIFFProductReader extends AbstractProductReader {
     private static BeamMetadata.Metadata getBeamMetadata(TIFFFileInfo info) throws ProductIOException {
 
         final TIFFField field = info.getField(BeamMetadata.PRIVATE_TIFF_TAG_NUMBER);
-        if (field == null || field.getType() != TIFFField.TIFF_ASCII) {
+        if (field == null || field.getType() != TIFFTag.TIFF_ASCII) {
             return null;
         }
         final String s = field.getAsString(0).trim();

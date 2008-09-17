@@ -8,6 +8,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.imageio.stream.MemoryCacheImageInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -401,7 +402,7 @@ public class GeoTIFFWriteReadTest {
         final GeoTIFFProductWriter writer = (GeoTIFFProductWriter) new GeoTIFFProductWriterPlugIn().createWriterInstance();
         writer.writeGeoTIFFProduct(outputStream, outProduct);
         ByteArraySeekableStream inputStream = new ByteArraySeekableStream(outputStream.toByteArray());
-        return reader.readGeoTIFFProduct(inputStream, location);
+        return reader.readGeoTIFFProduct(new MemoryCacheImageInputStream(inputStream), location);
     }
 
 }
