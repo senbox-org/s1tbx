@@ -1493,11 +1493,9 @@ public class VisatPreferencesDialog extends ConfigDialog {
         }
     }
 
-    public static class NoDataOverlayPage extends LayerStyleConfigPage {
+    public static class NoDataOverlayPage extends DefaultConfigPage {
 
         public NoDataOverlayPage() {
-            // todo - use specific style
-            super(new DefaultStyle());
             setTitle("No-Data Layer");
         }
 
