@@ -144,6 +144,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     private RenderedImage sourceImage;
     private RenderedImage validMaskImage;
+    private ROI validMaskROI;
     private RenderedImage geophysicalImage;
 
     /**
@@ -689,6 +690,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     private void resetValidMask() {
+        validMaskROI = null;
         validMaskImage = null;
     }
 
@@ -727,23 +729,17 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     private BitRaster computeValidBitRaster() {
-        if (!isNoDataValueUsed() ) {
-            BitRaster validBitMask = new BitRaster(getSceneRasterWidth(), getSceneRasterHeight());
+        BitRaster validBitMask = new BitRaster(getSceneRasterWidth(), getSceneRasterHeight());
+        if (isValidMaskUsed() ) {
+            ROI roi = getValidMaskROI();
+            for (int y = 0; y < getSceneRasterHeight(); y++) {
+                for (int x = 0; x < getSceneRasterWidth(); x++) {
+                    validBitMask.set(x, y, roi.contains(x, y));
+                }
+            }
+        } else {
             for (int i = 0; i < (getSceneRasterWidth() * getSceneRasterHeight()); i++) {
                 validBitMask.set(i);
-            }
-            return validBitMask;
-        }
-        PlanarImage planarValidMaskImage =  PlanarImage.wrapRenderedImage(getValidMaskImage());
-        BitRaster validBitMask = new BitRaster(getSceneRasterWidth(), getSceneRasterHeight());
-        for (int y = 0; y < getSceneRasterHeight(); y++) {
-            final int tileY = planarValidMaskImage.YToTileY(y);
-            for (int x = 0; x < getSceneRasterWidth(); x++) {
-                final int tileX = planarValidMaskImage.XToTileX(x);
-                Raster tile = planarValidMaskImage.getTile(tileX, tileY);
-                int sample = tile.getSample(x, y, 0);
-                final boolean isValid = (sample == VirtualBandOpImage.TRUE);
-                validBitMask.set(x, y, isValid);
             }
         }
         return validBitMask;
@@ -901,6 +897,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 //            }
             sourceImage = null;
         }
+        if (validMaskROI != null) {
+            validMaskROI = null;
+        }
         if (validMaskImage != null) {
 //            if (validMaskImage instanceof PlanarImage) {
 //                PlanarImage planarImage = (PlanarImage) validMaskImage;
@@ -938,16 +937,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #setValidPixelExpression(String)
      */
     public boolean isPixelValid(int x, int y) {
-        if (!isNoDataValueUsed() ) {
-            return true;
+        if (isValidMaskUsed() ) {
+            return getValidMaskROI().contains(x, y);
         }
-
-        PlanarImage planarValidMaskImage =  PlanarImage.wrapRenderedImage(getValidMaskImage());
-        final int tileY = planarValidMaskImage.YToTileY(y);
-        final int tileX = planarValidMaskImage.XToTileX(x);
-        Raster tile = planarValidMaskImage.getTile(tileX, tileY);
-        final int sample = tile.getSample(x, y, 0);
-        return sample == VirtualBandOpImage.TRUE;
+        return true;
     }
 
     /**
@@ -970,7 +963,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @since 4.1
      */
     public boolean isPixelValid(int pixelIndex) {
-        if (!isNoDataValueUsed() ) {
+        if (!isValidMaskUsed() ) {
             return true;
         }
         final int y = pixelIndex /getSceneRasterWidth();
@@ -1292,15 +1285,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             validMask = new boolean[w * h];
         }
         if (isValidMaskUsed()) {
-            PlanarImage planarValidMaskImage =  PlanarImage.wrapRenderedImage(getValidMaskImage());
             int index = 0;
+            ROI roi = getValidMaskROI();
             for (int yi = y; yi < y + h; yi++) {
-                final int tileY = planarValidMaskImage.YToTileY(yi);
                 for (int xi = x; xi < x + w; xi++) {
-                    final int tileX = planarValidMaskImage.XToTileX(xi);
-                    Raster tile = planarValidMaskImage.getTile(tileX, tileY);
-                    final int sample = tile.getSample(xi, yi, 0);
-                    validMask[index] = (sample == VirtualBandOpImage.TRUE);
+                    validMask[index] = roi.contains(xi, yi);
                     index++;
                 }
             }
@@ -2241,10 +2230,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public IndexValidator createPixelValidator(int lineOffset, final ROI roi) throws IOException {
         if (isValidMaskUsed() && roi != null) {
             return new DelegatingValidator(
-                    new RoiValidator(rasterWidth, lineOffset, new ROI(getValidMaskImage())),
+                    new RoiValidator(rasterWidth, lineOffset, getValidMaskROI()),
                     new RoiValidator(rasterWidth, lineOffset, roi));
         } else if (isValidMaskUsed()) {
-            return new RoiValidator(rasterWidth, lineOffset, new ROI(getValidMaskImage()));
+            return new RoiValidator(rasterWidth, lineOffset, getValidMaskROI());
         } else if (roi != null) {
             return new RoiValidator(rasterWidth, lineOffset, roi);
         } else {
@@ -2471,6 +2460,19 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
     
     /**
+     * Returns a ROI for the validMask, if the a validMask is used. 
+     * Check before calling this method if a validMask is used.
+     * 
+     * @return the ROI for the valid mask
+     */
+    private synchronized ROI getValidMaskROI() {
+        if (validMaskROI == null) {
+            validMaskROI = new ROI(getValidMaskImage());
+        }
+        return validMaskROI;
+    }
+    
+    /**
      * Sets the valid-mask image associated with this {@code RasterDataNode}.
      * This image is currently not used for display purposes.
      * Used by GPF. This method belongs to preliminary API and may be removed or changed in the future.
@@ -2482,6 +2484,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         final RenderedImage oldValue = this.validMaskImage;
         if (oldValue != image) {
             this.validMaskImage = image;
+            validMaskROI = null;
             fireProductNodeChanged("validMaskImage", oldValue);
         }
     }
@@ -2747,6 +2750,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     @Deprecated
     private byte[] dataMask;
+    
 
     /**
      * @deprecated in BEAM 4.1, use {@link #isValidMaskUsed()}
