@@ -73,9 +73,7 @@ class LayerTreeModel extends DefaultTreeModel {
     private static MutableTreeNode createTreeNodes(Layer layer) {
         final DefaultMutableTreeNode node = new DefaultMutableTreeNode(layer);
 
-        for (int i = 0; i < layer.getChildLayerList().size(); ++i) {
-            final Layer childLayer = layer.getChildLayerList().get(i);
-
+        for (final Layer childLayer : layer.getChildLayerList()) {
             if (layer.getChildLayerList().isEmpty()) {
                 node.add(new DefaultMutableTreeNode(childLayer));
             } else {
