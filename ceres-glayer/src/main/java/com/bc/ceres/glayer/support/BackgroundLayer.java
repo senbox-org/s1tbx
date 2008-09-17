@@ -13,7 +13,6 @@ import java.awt.geom.Rectangle2D;
  */
 public class BackgroundLayer extends Layer {
 
-
     public BackgroundLayer(Paint paint) {
         getStyle().setProperty("paint", paint);
     }
@@ -26,6 +25,7 @@ public class BackgroundLayer extends Layer {
         getStyle().setProperty("paint", paint);
     }
 
+    @Override
     public Rectangle2D getBounds() {
         return null;
     }

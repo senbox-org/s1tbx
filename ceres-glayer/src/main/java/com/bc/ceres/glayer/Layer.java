@@ -118,7 +118,8 @@ public class Layer extends ExtensibleObject {
      * @param style The layer's style.
      */
     public void setStyle(Style style) {
-        if (this.style != style) {
+        final Style oldStyle = this.style;
+        if (oldStyle != style) {
             if (this.style != null) {
                 this.style.removePropertyChangeListener(stylePCL);
             }
@@ -126,6 +127,7 @@ public class Layer extends ExtensibleObject {
             if (this.style != null) {
                 this.style.addPropertyChangeListener(stylePCL);
             }
+            fireLayerPropertyChanged("style", oldStyle, style);
         }
     }
 

@@ -10,11 +10,15 @@ import com.sun.media.jai.codec.TIFFEncodeParam;
 import javax.media.jai.*;
 import javax.media.jai.operator.*;
 import javax.media.jai.util.ImagingListener;
-import javax.swing.JFrame;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.MouseInputAdapter;
+import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.ColorModel;
 import java.awt.image.RenderedImage;
@@ -62,7 +66,7 @@ public class Tools {
 
     public static RenderedOp createMosaic(RenderedImage[] images) {
         return MosaicDescriptor.create(images, MosaicDescriptor.MOSAIC_TYPE_OVERLAY,
-                                       null, null, null, new double[]{0.0}, null);
+                null, null, null, new double[]{0.0}, null);
 
     }
 
@@ -90,8 +94,8 @@ public class Tools {
 
     public static RenderedOp transformImage(RenderedImage image, AffineTransform transform) {
         return AffineDescriptor.create(image, transform,
-                                       Interpolation.getInstance(Interpolation.INTERP_NEAREST),
-                                       new double[]{0.0}, null);
+                Interpolation.getInstance(Interpolation.INTERP_NEAREST),
+                new double[]{0.0}, null);
     }
 
     public static RenderedOp createTiledImage(RenderedImage image, int tileWidth, int tileHeight) {
@@ -114,7 +118,7 @@ public class Tools {
                                     int levelCount,
                                     boolean concurrent) {
         final LayerCanvas layerCanvas = new LayerCanvas();
-        layerCanvas.installMouseHandler();
+        installLayerCanvasNavigation(layerCanvas);
         final Layer collectionLayer = layerCanvas.getLayer();
         final MultiLevelSource source = FileMultiLevelSourceFactory.create(location, extension, imageToModelTransform, levelCount);
         final ImageLayer layer = new ImageLayer(source);
@@ -132,10 +136,10 @@ public class Tools {
                                     int levelCount,
                                     boolean concurrent) {
         displayImages(title,
-                      new RenderedImage[]{image},
-                      new AffineTransform[]{imageToModelTransform},
-                      levelCount,
-                      concurrent);
+                new RenderedImage[]{image},
+                new AffineTransform[]{imageToModelTransform},
+                levelCount,
+                concurrent);
     }
 
     public static void displayImages(String title, RenderedImage[] images,
@@ -143,7 +147,7 @@ public class Tools {
                                      int levelCount,
                                      boolean concurrent) {
         final LayerCanvas layerCanvas = new LayerCanvas();
-        layerCanvas.installMouseHandler();
+        installLayerCanvasNavigation(layerCanvas);
         final Layer collectionLayer = layerCanvas.getLayer();
         for (int i = 0; i < images.length; i++) {
             final ImageLayer layer = new ImageLayer(images[i], imageToModelTransforms[i], levelCount);
@@ -200,4 +204,103 @@ public class Tools {
         frame.setVisible(true);
     }
 
+    public static void installLayerCanvasNavigation(LayerCanvas layerCanvas) {
+        final MouseHandler mouseHandler = new MouseHandler(layerCanvas);
+        layerCanvas.addMouseListener(mouseHandler);
+        layerCanvas.addMouseMotionListener(mouseHandler);
+        layerCanvas.addMouseWheelListener(mouseHandler);
+    }
+
+    public static class MouseHandler extends MouseInputAdapter {
+        LayerCanvas layerCanvas;
+        private SliderPopUp sliderPopUp;
+        private Point p0;
+
+        private MouseHandler(LayerCanvas layerCanvas) {
+            this.layerCanvas = layerCanvas;
+            this.sliderPopUp = new SliderPopUp();
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            p0 = e.getPoint();
+        }
+
+        @Override
+        public void mouseReleased(final MouseEvent mouseEvent) {
+            if (mouseEvent.isPopupTrigger()) {
+                final Point point = mouseEvent.getPoint();
+                SwingUtilities.convertPointToScreen(point, layerCanvas);
+                sliderPopUp.show(point);
+            } else {
+                sliderPopUp.hide();
+            }
+        }
+
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            final Point p = e.getPoint();
+            final double dx = p.x - p0.x;
+            final double dy = p.y - p0.y;
+            layerCanvas.getViewport().moveViewDelta(dx, dy);
+            p0 = p;
+        }
+
+        @Override
+        public void mouseWheelMoved(MouseWheelEvent e) {
+            final int wheelRotation = e.getWheelRotation();
+            final double newZoomFactor = layerCanvas.getViewport().getZoomFactor() * Math.pow(1.1, wheelRotation);
+            layerCanvas.getViewport().zoom(newZoomFactor);
+        }
+
+        private class SliderPopUp {
+            private JWindow window;
+            private JSlider slider;
+
+            public void show(Point location) {
+                if (window == null) {
+                    initUI();
+                }
+                final double oldZoomFactor = layerCanvas.getViewport().getZoomFactor();
+                slider.setValue((int) Math.round(10.0 * Math.log(oldZoomFactor) / Math.log(2.0)));
+                window.setLocation(location);
+                window.setVisible(true);
+            }
+
+            public void hide() {
+                if (window != null) {
+                    window.setVisible(false);
+                }
+            }
+
+            private void initUI() {
+                window = new JWindow();
+                final int min = -100;
+                final int max = 100;
+                slider = new JSlider(min, max);
+                slider.addChangeListener(new ChangeListener() {
+                    @Override
+                    public void stateChanged(ChangeEvent e) {
+                        final double newZoomFactor = Math.pow(2.0, slider.getValue() / 10.0);
+                        layerCanvas.getViewport().zoom(newZoomFactor);
+                        if (!slider.getValueIsAdjusting()) {
+                            hide();
+                        }
+                    }
+                });
+
+                window.requestFocus();
+                window.setAlwaysOnTop(true);
+                window.add(slider);
+                window.pack();
+                window.addFocusListener(new FocusAdapter() {
+                    @Override
+                    public void focusLost(FocusEvent e) {
+                        hide();
+                    }
+                });
+            }
+        }
+    }
 }
