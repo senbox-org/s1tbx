@@ -1,16 +1,27 @@
 package org.esa.beam.pview;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Desktop;
-import java.awt.HeadlessException;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import com.bc.ceres.binio.Format;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.tools.Tools;
+import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glayer.swing.LayerCanvas;
+import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.grender.swing.ViewportScrollPane;
+import com.jidesoft.utils.Lm;
+import org.esa.beam.dataio.smos.SmosFormats;
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.draw.ShapeFigure;
+import org.esa.beam.glevel.BandImageMultiLevelSource;
+import org.esa.beam.glevel.MaskImageMultiLevelSource;
+import org.esa.beam.glevel.RoiImageMultiLevelSource;
+import org.esa.beam.glevel.TiledFileMultiLevelSource;
+
+import javax.media.jai.JAI;
+import javax.media.jai.util.ImagingListener;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.io.File;
@@ -23,45 +34,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
-import javax.media.jai.JAI;
-import javax.media.jai.util.ImagingListener;
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.UIManager;
-
-import org.esa.beam.dataio.smos.SmosFormats;
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.GcpDescriptor;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.PinSymbol;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ROIDefinition;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.draw.ShapeFigure;
-import org.esa.beam.glevel.BandImageMultiLevelSource;
-import org.esa.beam.glevel.MaskImageMultiLevelSource;
-import org.esa.beam.glevel.RoiImageMultiLevelSource;
-import org.esa.beam.glevel.TiledFileMultiLevelSource;
-
-import com.bc.ceres.binio.Format;
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glayer.swing.LayerCanvas;
-import com.bc.ceres.glevel.MultiLevelSource;
-import com.bc.ceres.grender.swing.ViewportScrollPane;
-import com.jidesoft.utils.Lm;
-
 public class PView {
     private static final String APPNAME = "BEAM PView 1.1";
     private static final String WORLD_IMAGE_DIR_PROPERTY_NAME = "org.esa.beam.pview.worldImageDir";
@@ -72,7 +44,7 @@ public class PView {
     private static final Preferences PREFERENCES = Preferences.userNodeForPackage(PView.class);
 
     private static final java.util.List<Image> FRAME_ICONS = Arrays.asList(new ImageIcon(PView.class.getResource("/images/pview-16x16.png")).getImage(),
-                                                                           new ImageIcon(PView.class.getResource("/images/pview-32x32.png")).getImage());
+            new ImageIcon(PView.class.getResource("/images/pview-32x32.png")).getImage());
     private static Logger logger;
 
     private MultiLevelSource worldImageSource;
@@ -97,6 +69,7 @@ public class PView {
         }
         JAI.getDefaultInstance().getTileCache().setMemoryCapacity(256L * (1024 * 1024));
         JAI.getDefaultInstance().setImagingListener(new ImagingListener() {
+            @Override
             public boolean errorOccurred(String message, Throwable thrown, Object where, boolean isRetryable) throws RuntimeException {
                 System.out.println("JAI error ocurred: " + message);
                 if (thrown != null) {
@@ -238,15 +211,15 @@ public class PView {
             product.getPinGroup().add(new Pin("pin_" + i, "Pin " + i, "", new PixelPos(
                     0.5f + (i == 0 ? 0 : (int) (Math.random() * product.getSceneRasterWidth())),
                     0.5f + (i == 0 ? 0 : (int) (Math.random() * product.getSceneRasterHeight()))),
-                                              null,
-                                              PinSymbol.createDefaultPinSymbol()));
+                    null,
+                    PinSymbol.createDefaultPinSymbol()));
         }
         for (int i = 0; i < n; i++) {
             product.getGcpGroup().add(new Pin("gcp_" + i, "GCP " + i, "", new PixelPos(
                     0.5f + (i == 0 ? 0 : (int) (Math.random() * product.getSceneRasterWidth())),
                     0.5f + (i == 0 ? 0 : (int) (Math.random() * product.getSceneRasterHeight()))),
-                                              null,
-                                              PinSymbol.createDefaultGcpSymbol()));
+                    null,
+                    PinSymbol.createDefaultGcpSymbol()));
         }
     }
 
@@ -453,25 +426,20 @@ public class PView {
         final int initialViewWidth = 800;
         final int initialViewHeight = 800;
 
-        double modelWidth = collectionLayer.getBounds().getWidth();
-        double initialZoomFactor = initialViewWidth / modelWidth;
-        if (initialZoomFactor <= 1.e-3) {
-            initialZoomFactor = 1;
-        }
-
         final LayerCanvas layerCanvas = new LayerCanvas(collectionLayer);
-        layerCanvas.installMouseHandler();
+        Tools.installLayerCanvasNavigation(layerCanvas);
+
         ViewportScrollPane viewportScrollPane = new ViewportScrollPane(layerCanvas);
-                
+
         final JFrame frame = new JFrame("View - [" + file.getName() + "] - " + APPNAME);
         frame.setJMenuBar(createMenuBar());
         frame.getContentPane().add(viewportScrollPane, BorderLayout.CENTER);
-//        frame.getContentPane().add(layerCanvas, BorderLayout.CENTER);
         frame.setSize(initialViewWidth, initialViewHeight);
         frame.setLocation(frameLocation, frameLocation);
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.setIconImages(FRAME_ICONS);
         frame.addWindowListener(new WindowAdapter() {
+            @Override
             public void windowOpened(WindowEvent event) {
                 layerCanvas.getViewport().zoom(collectionLayer.getBounds());
             }
@@ -489,7 +457,7 @@ public class PView {
 
         frame.setVisible(true);
         LayerManager.showLayerManager(frame, "Layers - [" + file.getName() + "] - " + APPNAME,
-                                      collectionLayer, new Point(initialViewWidth + frameLocation, frameLocation));
+                collectionLayer, new Point(initialViewWidth + frameLocation, frameLocation));
         frameLocation += 24;
         frames.add(frame);
     }
@@ -504,6 +472,7 @@ public class PView {
     private JMenu createHelpMenu() {
         JMenuItem openMenuItem = new JMenuItem("Manual");
         openMenuItem.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent event) {
                 try {
                     Desktop.getDesktop().browse(new File(MANUAL_HTML).toURI());
@@ -515,6 +484,7 @@ public class PView {
 
         JMenuItem exitMenuItem = new JMenuItem("About");
         exitMenuItem.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(null, APPNAME +
                         "\n(C) 2008 by Brockmann Consult GmbH" +
@@ -532,6 +502,7 @@ public class PView {
     private JMenu createFileMenu() {
         JMenuItem openMenuItem = new JMenuItem("Open");
         openMenuItem.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 openProducts();
             }
@@ -539,6 +510,7 @@ public class PView {
 
         JMenuItem exitMenuItem = new JMenuItem("Exit");
         exitMenuItem.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 System.exit(0);
             }
@@ -554,5 +526,6 @@ public class PView {
         JOptionPane.showMessageDialog(null, "An error occured:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         logger.log(Level.SEVERE, e.getMessage(), e);
     }
+
 
 }
