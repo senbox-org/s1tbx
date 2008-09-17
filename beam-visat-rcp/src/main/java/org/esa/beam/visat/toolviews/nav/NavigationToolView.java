@@ -78,13 +78,17 @@ public class NavigationToolView extends AbstractToolView {
         imageUpdateHandler = new ProductSceneView.ImageUpdateListener() {
             @Override
             public void handleImageUpdated(final ProductSceneView view) {
-                canvas.updateImage();
+                if (isVisible()) {
+                    canvas.updateImage();
+                }
             }
         };
         layerContentListener = new ProductSceneView.LayerContentListener() {
             @Override
             public void layerContentChanged(RasterDataNode raster) {
-                canvas.updateImage();
+                if (isVisible()) {
+                    canvas.updateImage();
+                }
             }
         };
         productNodeListener = createProductNodeListener();

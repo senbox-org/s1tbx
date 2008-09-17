@@ -36,6 +36,7 @@ public class PixelInfoToolView extends AbstractToolView {
     public PixelInfoToolView() {
     }
 
+    @Override
     public JComponent createControl() {
         _pinCheckbox = new JCheckBox("Snap to selected pin");
         _pinCheckbox.setName("pinCheckbox");
@@ -245,7 +246,7 @@ public class PixelInfoToolView extends AbstractToolView {
         }
 
         private boolean isExecute() {
-            return _pixelInfoView.isVisible() && !isSnapToPin();
+            return isVisible() && !isSnapToPin();
         }
     }
 

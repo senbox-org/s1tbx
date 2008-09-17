@@ -439,10 +439,6 @@ public class SpectrumToolView extends AbstractToolView {
         return cursorSpectrumPPLMap.get(product);
     }
 
-    private boolean isVisible() {
-        return getControl().isVisible();
-    }
-
     private boolean isShowingCursorSpectrum() {
         return showSpectrumForCursorButton.isSelected();
     }

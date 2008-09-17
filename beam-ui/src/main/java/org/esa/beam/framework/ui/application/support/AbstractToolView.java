@@ -216,6 +216,15 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      */
     public void componentFocusLost() {
     }
+    
+    /**
+     * Returns whether the toolview is visible. 
+     * @return if the toolview is visible
+     */
+    public boolean isVisible() {
+        return context.getPane().getControl().isVisible();
+    }
+
 
 
     private void assertDescriptorSet() {
