@@ -37,6 +37,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import javax.media.jai.PlanarImage;
+
 /**
  * A band contains the data for geophysical parameter in remote sensing data products. Bands are two-dimensional images
  * which hold their pixel values (samples) in a buffer of the type {@link ProductData}. The band class is just a
@@ -99,6 +101,9 @@ public class VirtualBand extends Band {
         if (!ObjectUtils.equalObjects(this.expression, expression)) {
             this.expression = expression;
             disposeTermMap();
+            if (isSourceImageSet()) {
+                setSourceImage(null);
+            }
             setImageInfo(null);
             setModified(true);
             fireProductNodeChanged(PROPERTY_NAME_EXPRESSION);
