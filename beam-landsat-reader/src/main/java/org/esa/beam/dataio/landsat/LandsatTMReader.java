@@ -18,13 +18,8 @@ package org.esa.beam.dataio.landsat;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.datamodel.ProductData.UTC;
-import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjection;
@@ -32,7 +27,6 @@ import org.esa.beam.framework.dataop.maptransf.UTM;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -64,14 +58,14 @@ final class LandsatTMReader extends AbstractProductReader {
     }
 
     @Override
-    protected void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY,
-                                          int sourceWidth, int sourceHeight,
-                                          int sourceStepX, int sourceStepY,
-                                          Band destband,
-                                          int destOffsetX, int destOffsetY,
-                                          int destWidth, int destHeight,
-                                          ProductData destBuffer,
-                                          ProgressMonitor progressMonitor) throws IOException {
+    protected synchronized void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY,
+                                                       int sourceWidth, int sourceHeight,
+                                                       int sourceStepX, int sourceStepY,
+                                                       Band destband,
+                                                       int destOffsetX, int destOffsetY,
+                                                       int destWidth, int destHeight,
+                                                       ProductData destBuffer,
+                                                       ProgressMonitor progressMonitor) throws IOException {
         LandsatBandReader reader = landsatTM.getBandReader(destband);
         if (reader == null) {
             throw new IOException("No band reader for band '" + destband.getName() + "' available!");  /*I18N*/
@@ -195,7 +189,7 @@ final class LandsatTMReader extends AbstractProductReader {
      */
     @Override
     public final void close() throws
-                              IOException {
+            IOException {
         super.close();
         landsatTM.close();
         landsatTM = null;
