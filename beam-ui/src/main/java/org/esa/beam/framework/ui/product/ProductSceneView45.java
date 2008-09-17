@@ -231,7 +231,8 @@ public class ProductSceneView45 extends ProductSceneView {
 
     @Override
     public boolean isNoDataOverlayEnabled() {
-        return getNoDataLayer().isVisible();
+        final ImageLayer noDataLayer = getNoDataLayer();
+        return noDataLayer != null && noDataLayer.isVisible();
     }
 
 
@@ -260,7 +261,8 @@ public class ProductSceneView45 extends ProductSceneView {
 
     @Override
     public boolean isROIOverlayEnabled() {
-        return getRoiLayer().isVisible();
+        final ImageLayer roiLayer = getRoiLayer();
+        return roiLayer != null && roiLayer.isVisible();
     }
 
     @Override
@@ -307,7 +309,8 @@ public class ProductSceneView45 extends ProductSceneView {
 
     @Override
     public boolean isPinOverlayEnabled() {
-        return getPinLayer().isVisible();
+        final Layer pinLayer = getPinLayer();
+        return pinLayer != null && pinLayer.isVisible();
     }
 
     @Override
@@ -320,7 +323,8 @@ public class ProductSceneView45 extends ProductSceneView {
 
     @Override
     public boolean isGcpOverlayEnabled() {
-        return getGcpLayer().isVisible();
+        final Layer gcpLayer = getGcpLayer();
+        return gcpLayer != null && gcpLayer.isVisible();
     }
 
     @Override
@@ -333,7 +337,8 @@ public class ProductSceneView45 extends ProductSceneView {
 
     @Override
     public boolean isShapeOverlayEnabled() {
-        return getFigureLayer().isVisible();
+        final FigureLayer figureLayer = getFigureLayer();
+        return figureLayer != null && figureLayer.isVisible();
     }
 
     @Override
@@ -346,7 +351,8 @@ public class ProductSceneView45 extends ProductSceneView {
 
     @Override
     public boolean isGraticuleOverlayEnabled() {
-        return getGraticuleLayer().isVisible();
+        final GraticuleLayer graticuleLayer = getGraticuleLayer();
+        return graticuleLayer != null && graticuleLayer.isVisible();
     }
 
     @Override

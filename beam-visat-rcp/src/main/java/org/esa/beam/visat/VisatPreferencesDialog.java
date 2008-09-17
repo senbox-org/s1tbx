@@ -19,6 +19,8 @@ package org.esa.beam.visat;
 
 import com.bc.ceres.swing.update.ConnectionConfigData;
 import com.bc.ceres.swing.update.ConnectionConfigPane;
+import com.bc.ceres.glayer.support.NoDataOverlay;
+import com.bc.ceres.glayer.support.DefaultStyle;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamExceptionHandler;
@@ -32,6 +34,7 @@ import org.esa.beam.framework.ui.SuppressibleOptionPane;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.config.ConfigDialog;
 import org.esa.beam.framework.ui.config.DefaultConfigPage;
+import org.esa.beam.framework.ui.config.LayerStyleConfigPage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.util.PropertyMap;
@@ -1490,9 +1493,11 @@ public class VisatPreferencesDialog extends ConfigDialog {
         }
     }
 
-    public static class NoDataOverlayPage extends DefaultConfigPage {
+    public static class NoDataOverlayPage extends LayerStyleConfigPage {
 
         public NoDataOverlayPage() {
+            // todo - use specific style
+            super(new DefaultStyle());
             setTitle("No-Data Layer");
         }
 

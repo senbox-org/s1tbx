@@ -74,8 +74,8 @@ class NodeMoveTransferHandler extends TransferHandler {
 
             // todo - can used the transferable from the support object.
             // todo - this returns just a proxy object which can't be used to get the nodes
-            for (TreePath movedPath : movedPaths) {
-                MutableTreeNode movedNode = (MutableTreeNode) movedPath.getLastPathComponent();
+            for (final TreePath movedPath : movedPaths) {
+                final MutableTreeNode movedNode = (MutableTreeNode) movedPath.getLastPathComponent();
                 if (!movedNode.getParent().equals(targetNode.getParent())) {
                     return false;
                 }

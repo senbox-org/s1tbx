@@ -15,13 +15,12 @@ import javax.swing.event.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
-import javax.swing.tree.MutableTreeNode;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 
-class LayerManager {
+public class LayerManager {
 
     private final Layer rootLayer;
     private final CheckBoxTree layerTree;
@@ -204,7 +203,7 @@ class LayerManager {
 
             @Override
             public void treeNodesInserted(TreeModelEvent e) {
-                if(e.getChildren().length >0) {
+                if (e.getChildren().length > 0) {
                     final DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.getChildren()[0];
                     checkBoxTree.getSelectionModel().setSelectionPath(new TreePath(node.getPath()));
                 }
@@ -218,7 +217,7 @@ class LayerManager {
             public void treeStructureChanged(TreeModelEvent e) {
             }
         });
-        
+
         final DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) checkBoxTree.getActualCellRenderer();
         renderer.setLeafIcon(IconsFactory.getImageIcon(getClass(), "/org/esa/beam/resources/images/icons/RsBandAsSwath16.gif"));
         renderer.setClosedIcon(IconsFactory.getImageIcon(getClass(), "/org/esa/beam/resources/images/icons/RsGroupClosed16.gif"));
