@@ -26,7 +26,6 @@ public abstract class ProductSceneImage {
      *
      * @param raster             the product raster, must not be null
      * @param pm                 a monitor to inform the user about progress
-     * @param inTiledImagingMode todo - remove me
      * @return a color indexed product scene image
      * @throws java.io.IOException if the image creation failed due to an I/O problem
      */

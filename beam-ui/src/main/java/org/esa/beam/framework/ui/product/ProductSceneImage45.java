@@ -58,7 +58,6 @@ class ProductSceneImage45 extends ProductSceneImage {
         final ImageLayer imageLayer = new ImageLayer(multiLevelSource);
         imageLayer.setName(getName());
         imageLayer.setVisible(true);
-        rootLayer.getChildLayerList().add(imageLayer);
 
         final ImageLayer noDataLayer = createNoDataLayer();
         final FigureLayer figureLayer = createFigureLayer();
@@ -68,13 +67,14 @@ class ProductSceneImage45 extends ProductSceneImage {
         final PlacemarkLayer gcpLayer = createGcpLayer();
         final Layer bitmaskLayer = createBitmaskCollectionLayer();
 
-        rootLayer.getChildLayerList().add(noDataLayer);
-        rootLayer.getChildLayerList().add(bitmaskLayer);
         rootLayer.getChildLayerList().add(figureLayer);
-        rootLayer.getChildLayerList().add(roiLayer);
-        rootLayer.getChildLayerList().add(graticuleLayer);
         rootLayer.getChildLayerList().add(pinLayer);
         rootLayer.getChildLayerList().add(gcpLayer);
+        rootLayer.getChildLayerList().add(graticuleLayer);
+        rootLayer.getChildLayerList().add(bitmaskLayer);
+        rootLayer.getChildLayerList().add(roiLayer);
+        rootLayer.getChildLayerList().add(noDataLayer);
+        rootLayer.getChildLayerList().add(imageLayer);
         if (getRaster().getProduct().getProductType().startsWith("MIR_")) {
             // SMOS
             Layer createWorldLayer = createWorldLayer();
@@ -83,27 +83,23 @@ class ProductSceneImage45 extends ProductSceneImage {
             }
         }
 
-        // todo - remove listeners when scene view is disposed
         getProduct().addProductNodeListener(new BitmaskDefListener(bitmaskLayer));
         getProduct().addProductNodeListener(new BitmaskOverlayInfoListener(bitmaskLayer));
     }
 
-    /**
-     * @return
-     */
     private Layer createWorldLayer() {
         final String WORLD_IMAGE_DIR_PROPERTY_NAME = "org.esa.beam.pview.worldImageDir";
         String dirPath = System.getProperty(WORLD_IMAGE_DIR_PROPERTY_NAME);
         if (dirPath == null || dirPath.isEmpty()) {
             return null;
         }
-        MultiLevelSource multiLevelSource = null;
+        MultiLevelSource multiLevelSource;
         try {
             multiLevelSource = TiledFileMultiLevelSource.create(new File(dirPath), false);
         } catch (IOException e) {
             return null;
         }
-        
+
         final ImageLayer blueMarbleLayer = new ImageLayer(multiLevelSource);
         blueMarbleLayer.setName("Bluemarble " + getRaster().getName());
         blueMarbleLayer.setVisible(true);
@@ -242,9 +238,10 @@ class ProductSceneImage45 extends ProductSceneImage {
                     final int index = bitmaskLayer.getChildLayerList().indexOf(layer);
                     if (index != -1) {
                         final Layer newLayer = createBitmaskLayer(bitmaskDef);
-                        bitmaskLayer.getChildLayerList().remove(index);
+                        final Layer oldLayer = bitmaskLayer.getChildLayerList().remove(index);
                         bitmaskLayer.getChildLayerList().add(index, newLayer);
                         layerMap.put(bitmaskDef, newLayer);
+                        oldLayer.dispose();
                     }
                 }
             }
@@ -281,7 +278,9 @@ class ProductSceneImage45 extends ProductSceneImage {
                 final BitmaskDef bitmaskDef = (BitmaskDef) sourceNode;
                 final Layer layer = layerMap.remove(bitmaskDef);
                 if (layer != null) {
-                    bitmaskLayer.getChildLayerList().remove(layer);
+                    if (bitmaskLayer.getChildLayerList().remove(layer)) {
+                        layer.dispose();
+                    }
                 }
             }
         }
