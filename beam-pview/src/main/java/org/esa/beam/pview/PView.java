@@ -2,9 +2,9 @@ package org.esa.beam.pview;
 
 import com.bc.ceres.binio.Format;
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.tools.Tools;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
+import com.bc.ceres.glayer.tools.Tools;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.grender.swing.ViewportScrollPane;
 import com.jidesoft.utils.Lm;
@@ -16,12 +16,16 @@ import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.glevel.RoiImageMultiLevelSource;
 import org.esa.beam.glevel.TiledFileMultiLevelSource;
+import org.esa.beam.visat.toolviews.layermanager.LayerManager;
 
 import javax.media.jai.JAI;
 import javax.media.jai.util.ImagingListener;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.io.File;
@@ -456,7 +460,7 @@ public class PView {
         });
 
         frame.setVisible(true);
-        LayerManager.showLayerManager(frame, "Layers - [" + file.getName() + "] - " + APPNAME,
+        showLayerManager(frame, "Layers - [" + file.getName() + "] - " + APPNAME,
                 collectionLayer, new Point(initialViewWidth + frameLocation, frameLocation));
         frameLocation += 24;
         frames.add(frame);
@@ -528,4 +532,24 @@ public class PView {
     }
 
 
+    public static void showLayerManager(final JFrame frame, String title, Layer collectionLayer, Point point) {
+        final LayerManager layerManager = new LayerManager(collectionLayer);
+        final JDialog lm = new JDialog(frame, title, false);
+        lm.getContentPane().add(layerManager.getControl(), BorderLayout.CENTER);
+        lm.pack();
+        lm.setLocation(point);
+        lm.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        lm.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                lm.dispose();
+                frame.dispose();
+            }
+        });
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                lm.setVisible(true);
+            }
+        });
+    }
 }
