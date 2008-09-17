@@ -235,9 +235,12 @@ public class Layer extends ExtensibleObject {
      * @param rendering The rendering to which the layer will be rendered.
      */
     protected void renderChildLayers(Rendering rendering) {
-        for (Layer childLayer : childLayerList) {
-            childLayer.render(rendering);
+        for (int i = childLayerList.size() - 1; i >= 0; --i) {
+            childLayerList.get(i).render(rendering);
         }
+//        for (Layer childLayer : childLayerList) {
+//            childLayer.render(rendering);
+//        }
     }
 
     /**
