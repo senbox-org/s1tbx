@@ -7,8 +7,8 @@ import org.esa.beam.framework.datamodel.ProductNode;
 import org.jdom.Document;
 import org.jdom.Element;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * todo - add API doc
@@ -28,10 +28,13 @@ class BeamMetadata {
     public static final String ROOT_VERSION_0_1 = "0.1";
 
     public static final String NODE_NAME = "name";
-    public static final String NODE_PRODUCT = "product";
 
+    public static final String NODE_PRODUCT = "product";
     public static final String NODE_PRODUCTTYPE = "product_type";
+
     public static final String NODE_BAND = "band";
+    public static final String NODE_DESCRIPTION = "description";
+    public static final String NODE_UNIT = "unit";
     public static final String NODE_DATATYPE = "data_type";
     public static final String NODE_SCALING_FACTOR = "scaling_factor";
     public static final String NODE_SCALING_OFFSET = "scaling_offset";
@@ -41,7 +44,7 @@ class BeamMetadata {
 
     public static interface Validator {
 
-        public boolean validate(ProductNode node);
+        boolean validate(ProductNode node);
     }
 
     static Metadata createMetadata(final Document dom) {
@@ -62,29 +65,26 @@ class BeamMetadata {
         if (dom == null) {
             return false;
         }
-        if (!dom.getRootElement().getName().equals(BeamMetadata.ROOT_NODENAME)) {
+        if (!dom.getRootElement().getName().equals(ROOT_NODENAME)) {
             return false;
         }
-        if (dom.getRootElement().getAttribute(BeamMetadata.ROOT_ATTRIB) == null) {
-            return false;
-        }
-        return true;
+        return dom.getRootElement().getAttribute(ROOT_ATTRIB) != null;
     }
 
     static interface Metadata {
 
-        public Document getDocument();
+        Document getDocument();
 
-        public String getProductProperty(final String name);
+        String getProductProperty(final String name);
 
-        public String getBandProperty(final int bandindex, final String name);
+        String getBandProperty(final int bandindex, final String name);
     }
 
     static class DomMetadata_0_1 implements Metadata {
 
         private final Document dom;
 
-        public DomMetadata_0_1(final Document dom) {
+        DomMetadata_0_1(final Document dom) {
             this.dom = dom;
         }
 
@@ -116,7 +116,7 @@ class BeamMetadata {
         private final Product product;
         private final ArrayList<Band> bandList;
 
-        public ProductMetadata(final Product product, Validator validator) {
+        ProductMetadata(final Product product, Validator validator) {
             this.product = product;
             bandList = initBandsToWrite(validator);
         }
@@ -135,6 +135,8 @@ class BeamMetadata {
             for (int i = 0; i < bandList.size(); i++) {
                 final Element bandNode = new Element(NODE_BAND);
                 bandNode.addContent(new Element(NODE_NAME).setText(getBandProperty(i, NODE_NAME)));
+                bandNode.addContent(new Element(NODE_DESCRIPTION).setText(getBandProperty(i, NODE_DESCRIPTION)));
+                bandNode.addContent(new Element(NODE_UNIT).setText(getBandProperty(i, NODE_UNIT)));
                 bandNode.addContent(new Element(NODE_DATATYPE).setText(getBandProperty(i, NODE_DATATYPE)));
                 bandNode.addContent(new Element(NODE_SCALING_FACTOR).setText(getBandProperty(i, NODE_SCALING_FACTOR)));
                 bandNode.addContent(new Element(NODE_SCALING_OFFSET).setText(getBandProperty(i, NODE_SCALING_OFFSET)));
@@ -164,6 +166,10 @@ class BeamMetadata {
             final Band band = bandList.get(bandindex);
             if (NODE_NAME.equals(name)) {
                 return band.getName();
+            } else if (NODE_DESCRIPTION.equals(name)) {
+                return band.getDescription();
+            } else if (NODE_UNIT.equals(name)) {
+                return band.getUnit();
             } else if (NODE_DATATYPE.equals(name)) {
                 return String.valueOf(band.getDataType());
             } else if (NODE_SCALING_FACTOR.equals(name)) {
