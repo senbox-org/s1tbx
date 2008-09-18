@@ -26,7 +26,7 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.swing.JComponent;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -35,6 +35,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 
 public class ProductSceneView45 extends ProductSceneView {
 
@@ -139,9 +141,9 @@ public class ProductSceneView45 extends ProductSceneView {
                 * DefaultViewport.getScale(thumbnailViewport.getModelToViewTransform());
 
         return new Rectangle((int) Math.floor(tnOffset.getX()),
-                             (int) Math.floor(tnOffset.getY()),
-                             (int) Math.floor(canvasViewport.getBounds().width * scale),
-                             (int) Math.floor(canvasViewport.getBounds().height * scale));
+                (int) Math.floor(tnOffset.getY()),
+                (int) Math.floor(canvasViewport.getBounds().width * scale),
+                (int) Math.floor(canvasViewport.getBounds().height * scale));
     }
 
     private void configureThumbnailViewport(Viewport thumbnailViewport) {
@@ -247,16 +249,20 @@ public class ProductSceneView45 extends ProductSceneView {
     @Override
     public void updateNoDataImage(ProgressMonitor pm) throws Exception {
         final String expression = getRaster().getValidMaskExpression();
-        if (expression != null) {
-            // todo - get color from style, set color
-            final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(), Color.ORANGE, expression,
-                                                                                 true, new AffineTransform());
-            getNoDataLayer().setMultiLevelSource(multiLevelSource);
-        } else {
-            getNoDataLayer().setMultiLevelSource(MultiLevelSource.NULL);
-        }
+        final ImageLayer noDataLayer = getNoDataLayer();
 
-        fireImageUpdated();
+        if (noDataLayer != null) {
+            if (expression != null) {
+                // todo - get color from style, set color
+                final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(), Color.ORANGE, expression,
+                        true, new AffineTransform());
+                noDataLayer.setMultiLevelSource(multiLevelSource);
+            } else {
+                noDataLayer.setMultiLevelSource(MultiLevelSource.NULL);
+            }
+
+            fireImageUpdated();
+        }
     }
 
     @Override
@@ -275,20 +281,29 @@ public class ProductSceneView45 extends ProductSceneView {
 
     @Override
     public void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception {
-        if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
-            // todo - get color from style, set color
-            final MultiLevelSource multiLevelSource = RoiImageMultiLevelSource.create(getRaster(), Color.RED, new AffineTransform());
-            getRoiLayer().setMultiLevelSource(multiLevelSource);
-        } else {
-            getRoiLayer().setMultiLevelSource(MultiLevelSource.NULL);
-        }
+        final ImageLayer roiLayer = getRoiLayer();
+        if (roiLayer != null) {
+            if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
+                // todo - get color from style, set color
+                final MultiLevelSource multiLevelSource = RoiImageMultiLevelSource.create(getRaster(), Color.RED, new AffineTransform());
+                roiLayer.setMultiLevelSource(multiLevelSource);
+            } else {
+                roiLayer.setMultiLevelSource(MultiLevelSource.NULL);
+            }
 
-        fireImageUpdated();
+            fireImageUpdated();
+        }
     }
 
     @Override
     public RenderedImage getROIImage() {
-        final RenderedImage roiImage = getRoiLayer().getImage(0);
+        final ImageLayer roiLayer = getRoiLayer();
+
+        if (roiLayer == null) {
+            return null;
+        }
+
+        final RenderedImage roiImage = roiLayer.getImage(0);
 
         // for compatibility to 42
         if (roiImage == MultiLevelSource.NULL) {
@@ -302,9 +317,11 @@ public class ProductSceneView45 extends ProductSceneView {
     public void setROIImage(RenderedImage roiImage) {
         // used by MagicStick only
         ImageLayer roiLayer = getRoiLayer();
-        MultiLevelModel model = roiLayer.getMultiLevelSource().getModel();
-        roiLayer.setMultiLevelSource(new DefaultMultiLevelSource(roiImage, model));
-        fireImageUpdated();
+        if (roiLayer != null) {
+            MultiLevelModel model = roiLayer.getMultiLevelSource().getModel();
+            roiLayer.setMultiLevelSource(new DefaultMultiLevelSource(roiImage, model));
+            fireImageUpdated();
+        }
     }
 
     @Override
@@ -393,9 +410,15 @@ public class ProductSceneView45 extends ProductSceneView {
 
 //        setImageProperties(propertyMap); TODO implement
 
-        getFigureLayer().setStyleProperties(propertyMap);
+        final FigureLayer figureLayer = getFigureLayer();
+        if (figureLayer != null) {
+            figureLayer.setStyleProperties(propertyMap);
+        }
 //        getNoDataLayer().setStyle(noDataStyle );
-        getGraticuleLayer().setStyleProperties(propertyMap);
+        final GraticuleLayer graticuleLayer = getGraticuleLayer();
+        if (graticuleLayer != null) {
+            graticuleLayer.setStyleProperties(propertyMap);
+        }
 //        getPinLayer().setStyleProperties(propertyMap);
 //        getGcpLayer().setStyleProperties(propertyMap);
 
@@ -503,9 +526,13 @@ public class ProductSceneView45 extends ProductSceneView {
 
     // TODO remove ??? UNUSED
     public void removeFigure(Figure figure) {
-        getFigureLayer().getFigureList().remove(figure);
-        if (isShapeOverlayEnabled()) {
-            fireImageUpdated();
+        final FigureLayer figureLayer = getFigureLayer();
+
+        if (figureLayer != null) {
+            figureLayer.getFigureList().remove(figure);
+            if (isShapeOverlayEnabled()) {
+                fireImageUpdated();
+            }
         }
     }
 
