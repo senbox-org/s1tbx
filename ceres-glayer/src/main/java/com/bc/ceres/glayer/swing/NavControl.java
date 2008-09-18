@@ -56,6 +56,7 @@ public class NavControl extends JComponent {
         final MouseHandler mouseHandler = new MouseHandler();
         addMouseListener(mouseHandler);
         addMouseMotionListener(mouseHandler);
+        setBounds(0, 0, PREFERRED_SIZE.width, PREFERRED_SIZE.height);
     }
 
     /**

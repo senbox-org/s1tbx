@@ -42,6 +42,9 @@ public class LayerCanvas extends JComponent implements AdjustableView {
     private Rectangle2D modelArea;
     private CanvasRendering canvasRendering;
 
+    private boolean navControlShown;
+    private WakefulComponent navControlWrapper;
+
     public LayerCanvas() {
         this(new Layer());
     }
@@ -86,35 +89,40 @@ public class LayerCanvas extends JComponent implements AdjustableView {
             }
         });
 
-        final NavControl navControl = new NavControl();
-        navControl.setBounds(0, 0, 120, 120);
-        add(new WakefulComponent(navControl));
-        navControl.addSelectionListener(new NavControl.SelectionListener() {
-            @Override
-            public void handleRotate(double rotationAngle) {
-                viewport.rotate(Math.toRadians(rotationAngle));
-            }
-
-            @Override
-            public void handleMove(double moveDirX, double moveDirY) {
-                viewport.moveViewDelta(16 * moveDirX, 16 * moveDirY);
-            }
-
-            @Override
-            public void handleScale(double scaleDir) {
-                final double oldZoomFactor = viewport.getZoomFactor();
-                final double newZoomFactor = (1.0 + 0.1 * scaleDir) * oldZoomFactor;
-//                System.out.println("LayerCanvas.handleScale():");
-//                System.out.println("  scaleDir      = " + scaleDir);
-//                System.out.println("  oldZoomFactor = " + oldZoomFactor);
-//                System.out.println("  newZoomFactor = " + newZoomFactor);
-                viewport.zoom(newZoomFactor);
-            }
-        });
+        setNavControlShown(true);
     }
 
     public Layer getLayer() {
         return layer;
+    }
+
+    /**
+     * None API. Don't use this method!
+     * @return true, if this canvas uses a {@link NavControl}.
+     */
+    public boolean isNavControlShown() {
+        return navControlShown;
+    }
+
+    /**
+     * None API. Don't use this method!
+     * @param navControlShown true, if this canvas uses a {@link NavControl}.
+     */
+    public void setNavControlShown(boolean navControlShown) {
+        boolean oldValue = this.navControlShown;
+        if (oldValue != navControlShown) {
+            if (navControlShown) {
+                final NavControl navControl = new NavControl();
+                navControl.addSelectionListener(new NavControlHandler(viewport));
+                navControlWrapper = new WakefulComponent(navControl);
+                add(navControlWrapper);
+            } else {
+                remove(navControlWrapper);
+                navControlWrapper = null;
+            }
+            validate();
+            this.navControlShown = navControlShown;
+        }
     }
 
     @Override
@@ -128,16 +136,12 @@ public class LayerCanvas extends JComponent implements AdjustableView {
     }
 
     @Override
-    protected void paintChildren(Graphics g) {
-        final Graphics2D g2D = (Graphics2D) g;
-        final Composite oldComposite = g2D.getComposite();
-        try {
-            g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
-            super.paintChildren(g);
-        } finally {
-            if (oldComposite != null) {
-                g2D.setComposite(oldComposite);
-            }
+    public void doLayout() {
+        if (navControlShown && navControlWrapper != null) {
+            final int w = navControlWrapper.getWidth();
+            final int x = getWidth() - w - 4;
+            final int y = 4;
+            navControlWrapper.setLocation(x,y);
         }
     }
 
@@ -193,6 +197,35 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         @Override
         public void invokeLater(Runnable runnable) {
             SwingUtilities.invokeLater(runnable);
+        }
+    }
+
+    private static class NavControlHandler implements NavControl.SelectionListener {
+        private final Viewport viewport;
+
+        public NavControlHandler(Viewport viewport) {
+            this.viewport = viewport;
+        }
+
+        @Override
+        public void handleRotate(double rotationAngle) {
+            viewport.rotate(Math.toRadians(rotationAngle));
+        }
+
+        @Override
+        public void handleMove(double moveDirX, double moveDirY) {
+            viewport.moveViewDelta(16 * moveDirX, 16 * moveDirY);
+        }
+
+        @Override
+        public void handleScale(double scaleDir) {
+            final double oldZoomFactor = viewport.getZoomFactor();
+            final double newZoomFactor = (1.0 + 0.1 * scaleDir) * oldZoomFactor;
+//                System.out.println("LayerCanvas.handleScale():");
+//                System.out.println("  scaleDir      = " + scaleDir);
+//                System.out.println("  oldZoomFactor = " + oldZoomFactor);
+//                System.out.println("  newZoomFactor = " + newZoomFactor);
+            viewport.zoom(newZoomFactor);
         }
     }
 }
