@@ -38,6 +38,8 @@ public class GeoTIFFWriteReadTest {
     @Test
     public void testWriteReadBeamMetadata() throws IOException {
         final Band expectedBand = outProduct.getBand("int16");
+        expectedBand.setDescription("Danger");
+        expectedBand.setUnit("Voltage");
         expectedBand.setScalingFactor(0.7);
         expectedBand.setScalingOffset(100);
         expectedBand.setLog10Scaled(true);
@@ -52,6 +54,8 @@ public class GeoTIFFWriteReadTest {
 
         final Band actualBand = inProduct.getBandAt(0);
         assertEquals(expectedBand.getName(), actualBand.getName());
+        assertEquals(expectedBand.getDescription(), actualBand.getDescription());
+        assertEquals(expectedBand.getUnit(), actualBand.getUnit());
         assertEquals(expectedBand.getDataType(), actualBand.getDataType());
         assertEquals(expectedBand.getScalingFactor(), actualBand.getScalingFactor(), 1.0e-6);
         assertEquals(expectedBand.getScalingOffset(), actualBand.getScalingOffset(), 1.0e-6);
