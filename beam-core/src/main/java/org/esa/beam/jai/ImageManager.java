@@ -5,6 +5,7 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.*;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.RasterDataNode.Stx;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ImageUtils;
@@ -270,7 +271,6 @@ public class ImageManager {
         return planarImages;
     }
 
-    // unused
     public MultiLevelSource getBandMultiLevelSource(RasterDataNode rasterDataNode) {
         RenderedImage levelZeroImage = rasterDataNode.getSourceImage();
         MultiLevelSource multiLevelSource;
@@ -369,6 +369,7 @@ public class ImageManager {
                     final IndexCoding indexCoding = ((Band) raster).getIndexCoding();
                     if (indexCoding != null) {
                         imageInfo = createIndexedImageInfo(indexCoding);
+                        raster.setImageInfo(imageInfo);
                     }
                 }
                 if (imageInfo == null) {
@@ -417,6 +418,7 @@ public class ImageManager {
                         Histogram histogram = getBeamHistogram(histogramOp);
                         imageInfo = raster.createDefaultImageInfo(null, histogram);
                         raster.setImageInfo(imageInfo);
+                        raster.setStx(new Stx(min, max, histogram.getBinCounts()));
                         Debug.trace("Sample frequencies computed.");
                     } else {
                         raster.setImageInfo(new ImageInfo(new ColorPaletteDef(min, min + 1.0)));
