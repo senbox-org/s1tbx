@@ -30,7 +30,7 @@ public class DefaultViewport implements Viewport {
         this.viewToModelTransform = new AffineTransform();
         this.modelToViewTransform = new AffineTransform();
         this.changeListeners = new ArrayList<ViewportListener>(3);
-        this.maxZoomFactor = 16;
+        this.maxZoomFactor = 32;
     }
 
     public double getMaxZoomFactor() {
