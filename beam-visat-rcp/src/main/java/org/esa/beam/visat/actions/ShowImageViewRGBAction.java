@@ -73,7 +73,7 @@ public class ShowImageViewRGBAction extends ExecCommand {
         final RGBImageProfile selectedProfile = profilePane.getSelectedProfile();
         final String name = selectedProfile != null ? selectedProfile.getName().replace("_", " ") : "";
 
-        openProductSceneViewRGB(name, product, rgbaExpressions, helpId);
+        openProductSceneViewRGB(name + " RGB", product, rgbaExpressions, helpId);
     }
 
     /**
@@ -114,7 +114,7 @@ public class ShowImageViewRGBAction extends ExecCommand {
                 productSceneView.setGraticuleOverlayEnabled(false);
                 productSceneView.setPinOverlayEnabled(false);
                 productSceneView.setLayerProperties(visatApp.getPreferences());
-                final String title = createInternalFrameTitleRGB(product, productSceneImage.getName());
+                final String title = createInternalFrameTitle(product, productSceneImage.getName());
                 final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
                 visatApp.createInternalFrame(title, icon, productSceneView, helpId);
                 visatApp.addPropertyMapChangeListener(productSceneView);
@@ -144,12 +144,11 @@ public class ShowImageViewRGBAction extends ExecCommand {
             pm.beginTask("Creating RGB image...", 2);
             rgbBands = allocateRgbBands(product, rgbaExpressions, visatApp.getDataAutoLoadLimit(),
                                         SubProgressMonitor.create(pm, 1));
-            productSceneImage = ProductSceneImage.create(rgbBands[0].band,
+            productSceneImage = ProductSceneImage.create(name, rgbBands[0].band,
                                                          rgbBands[1].band,
                                                          rgbBands[2].band,
                                                          visatApp.getPreferences(),
                                                          SubProgressMonitor.create(pm, 1));
-            productSceneImage.setName(name);
         } catch (Exception e) {
             errorOccured = true;
             throw e;
@@ -201,9 +200,9 @@ public class ShowImageViewRGBAction extends ExecCommand {
         }
     }
 
-    private String createInternalFrameTitleRGB(final Product product, String name) {
+    private String createInternalFrameTitle(final Product product, String name) {
         return UIUtils.getUniqueFrameTitle(VisatApp.getApp().getAllInternalFrames(),
-                                           product.getProductRefString() + " " + name + " RGB");
+                                           product.getProductRefString() + " " + name);
     }
 
 }

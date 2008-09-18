@@ -27,10 +27,7 @@ import org.esa.beam.framework.ui.tool.ToolInputEvent;
 import org.esa.beam.util.MouseEventFilterFactory;
 
 import javax.swing.event.MouseInputListener;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -137,9 +134,9 @@ public class LayerDisplay extends LayerCanvas {
      * Fires a 'pixel position changed' event to all registered pixel-pos
      * listeners.
      *
-     * @param e      the event
-     * @param pixelX pixel position X
-     * @param pixelY pixel position Y
+     * @param e             the event
+     * @param currentPixelX pixel position X
+     * @param currentPixelY pixel position Y
      */
     private final void firePixelPosChanged(MouseEvent e, int currentPixelX, int currentPixelY, int currentLevel) {
         boolean pixelPosValid = isPixelPosValid(currentPixelX, currentPixelY);
@@ -244,7 +241,7 @@ public class LayerDisplay extends LayerCanvas {
 
     private void drawToolNoTransf(Graphics2D g2d) {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                             RenderingHints.VALUE_ANTIALIAS_OFF);
+                RenderingHints.VALUE_ANTIALIAS_OFF);
         if (tool.getDrawable() != null) {
             // System.out.println("DRAW_TOOL:" + tool.getClass().toString());
             tool.getDrawable().draw(g2d);
@@ -291,7 +288,7 @@ public class LayerDisplay extends LayerCanvas {
         pixelX = currentPixelX;
         pixelY = currentPixelY;
         if (e.getID() != MouseEvent.MOUSE_EXITED) {
-             firePixelPosChanged(e, pixelX, pixelY, currentLevel);
+            firePixelPosChanged(e, pixelX, pixelY, currentLevel);
         } else {
             firePixelPosNotAvailable();
         }

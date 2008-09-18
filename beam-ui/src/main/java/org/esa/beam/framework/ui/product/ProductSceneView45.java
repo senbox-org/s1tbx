@@ -182,11 +182,17 @@ public class ProductSceneView45 extends ProductSceneView {
 
     @Override
     public Rectangle getVisibleImageBounds() {
-        final RenderedImage image = getBaseImageLayer().getImage();
-        final Area imageArea = new Area(new Rectangle(0, 0, image.getWidth(), image.getHeight()));
-        final Area visibleImageArea = new Area(getBaseImageLayer().getModelToImageTransform().createTransformedShape(getVisibleModelBounds()));
-        imageArea.intersect(visibleImageArea);
-        return imageArea.getBounds();
+        final ImageLayer imageLayer = getBaseImageLayer();
+
+        if (imageLayer != null) {
+            final RenderedImage image = imageLayer.getImage();
+            final Area imageArea = new Area(new Rectangle(0, 0, image.getWidth(), image.getHeight()));
+            final Area visibleImageArea = new Area(imageLayer.getModelToImageTransform().createTransformedShape(getVisibleModelBounds()));
+            imageArea.intersect(visibleImageArea);
+            return imageArea.getBounds();
+        }
+
+        return null;
     }
 
     @Override
@@ -646,3 +652,4 @@ public class ProductSceneView45 extends ProductSceneView {
         return null;
     }
 }
+
