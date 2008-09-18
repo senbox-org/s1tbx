@@ -37,13 +37,13 @@ class ProductSceneImage45 extends ProductSceneImage {
     private MultiLevelSource multiLevelSource;
 
     ProductSceneImage45(RasterDataNode raster, ProductSceneView45 view) {
-        super("Band '" + raster.getName() + "'", new RasterDataNode[]{raster}, view.getImageInfo(), view.getSceneImage().getConfiguration());
+        super("Image of " + raster.getName(), new RasterDataNode[]{raster}, view.getImageInfo(), view.getSceneImage().getConfiguration());
         multiLevelSource = view.getSceneImage45().getMultiLevelSource();
         rootLayer = view.getRootLayer();
     }
 
     ProductSceneImage45(RasterDataNode raster, PropertyMap configuration, ProgressMonitor pm) {
-        super("Band '" + raster.getName() + "'", new RasterDataNode[]{raster}, raster.getImageInfo(), configuration);
+        super("Image of " + raster.getName(), new RasterDataNode[]{raster}, raster.getImageInfo(), configuration);
         multiLevelSource = BandImageMultiLevelSource.create(raster, pm);
         setImageInfo(raster.getImageInfo());
         initRootLayer();

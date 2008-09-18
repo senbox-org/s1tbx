@@ -18,16 +18,10 @@ import org.esa.beam.dataio.chris.internal.DropoutCorrection;
 import org.esa.beam.dataio.chris.internal.MaskRefinement;
 import org.esa.beam.dataio.chris.internal.SunPositionCalculator;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.io.FileUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.Math.max;
@@ -92,19 +86,19 @@ public class ChrisProductReader extends AbstractProductReader {
     }
 
     @Override
-    protected void readBandRasterDataImpl(int sourceOffsetX,
-                                          int sourceOffsetY,
-                                          int sourceWidth,
-                                          int sourceHeight,
-                                          int sourceStepX,
-                                          int sourceStepY,
-                                          Band targetBand,
-                                          int targetOffsetX,
-                                          int targetOffsetY,
-                                          int targetWidth,
-                                          int targetHeight,
-                                          ProductData targetBuffer,
-                                          ProgressMonitor pm) throws IOException {
+    protected synchronized void readBandRasterDataImpl(int sourceOffsetX,
+                                                       int sourceOffsetY,
+                                                       int sourceWidth,
+                                                       int sourceHeight,
+                                                       int sourceStepX,
+                                                       int sourceStepY,
+                                                       Band targetBand,
+                                                       int targetOffsetX,
+                                                       int targetOffsetY,
+                                                       int targetWidth,
+                                                       int targetHeight,
+                                                       ProductData targetBuffer,
+                                                       ProgressMonitor pm) throws IOException {
         Assert.state(sourceOffsetX == targetOffsetX, "sourceOffsetX != targetOffsetX");
         Assert.state(sourceOffsetY == targetOffsetY, "sourceOffsetY != targetOffsetY");
         Assert.state(sourceStepX == 1, "sourceStepX != 1");
@@ -169,7 +163,7 @@ public class ChrisProductReader extends AbstractProductReader {
 
             product.setStartTime(utc);
             product.setEndTime(utc);
-        } catch (ParseException e) {
+        } catch (ParseException ignored) {
             // todo - warning
         }
     }
@@ -190,7 +184,7 @@ public class ChrisProductReader extends AbstractProductReader {
         }
 
         mph.addAttribute(new MetadataAttribute(ChrisConstants.ATTR_NAME_NOISE_REDUCTION,
-                                               ProductData.createInstance("None"), true));
+                ProductData.createInstance("None"), true));
 
         final MetadataElement bandInfo = createBandInfo();
 
@@ -309,11 +303,11 @@ public class ChrisProductReader extends AbstractProductReader {
         }
 
         addSpectrumBitmask(product, Flags.DROPOUT, "spectrum_dropout",
-                           "Spectrum contains a dropout pixel");
+                "Spectrum contains a dropout pixel");
         addSpectrumBitmask(product, Flags.SATURATED, "spectrum_saturated",
-                           "Spectrum contains a saturated pixel");
+                "Spectrum contains a saturated pixel");
         addSpectrumBitmask(product, Flags.DROPOUT_CORRECTED, "spectrum_dropout_corrected",
-                           "Spectrum contains a corrected dropout pixel");
+                "Spectrum contains a corrected dropout pixel");
 
         for (int i = 0; i < spectralBandCount; ++i) {
             for (final Flags flag : Flags.values()) {
@@ -336,7 +330,7 @@ public class ChrisProductReader extends AbstractProductReader {
             expression.append(maskBands[i].getName()).append(".").append(flag);
         }
         product.addBitmaskDef(new BitmaskDef(name, description, expression.toString(), flag.getColor(),
-                                             flag.getTransparency()));
+                flag.getTransparency()));
     }
 
     private void readRciBandRasterData(int bandIndex,
@@ -378,13 +372,13 @@ public class ChrisProductReader extends AbstractProductReader {
                 pm.worked(1);
             }
             dropoutCorrection.compute(rciData, maskData, sceneRasterWidth, tileHeight,
-                                      new Rectangle(targetOffsetX, targetOffsetY - tileOffsetY, targetWidth,
-                                                    targetHeight));
+                    new Rectangle(targetOffsetX, targetOffsetY - tileOffsetY, targetWidth,
+                            targetHeight));
             pm.worked(3);
 
             for (int i = 0; i < targetHeight; ++i) {
                 System.arraycopy(rciData[0], targetOffsetX + (targetOffsetY - tileOffsetY + i) * sceneRasterWidth,
-                                 targetBuffer.getElems(), i * targetWidth, targetWidth);
+                        targetBuffer.getElems(), i * targetWidth, targetWidth);
             }
             pm.worked(1);
         } finally {
@@ -409,7 +403,7 @@ public class ChrisProductReader extends AbstractProductReader {
 
             for (int i = 0; i < targetHeight; ++i) {
                 System.arraycopy(maskData, targetOffsetX + i * sceneRasterWidth, targetBuffer.getElems(),
-                                 i * targetWidth, targetWidth);
+                        i * targetWidth, targetWidth);
                 pm.worked(1);
             }
         } finally {
@@ -424,10 +418,10 @@ public class ChrisProductReader extends AbstractProductReader {
 
         if (maskBand.hasRasterData()) {
             System.arraycopy(maskBand.getRasterData().getElems(), tileOffsetY * sceneRasterWidth,
-                             maskData, 0, maskData.length);
+                    maskData, 0, maskData.length);
             if (rciBand.hasRasterData()) {
                 System.arraycopy(rciBand.getRasterData().getElems(), tileOffsetY * sceneRasterWidth,
-                                 rciData, 0, rciData.length);
+                        rciData, 0, rciData.length);
             } else {
                 chrisFile.readRciData(bandIndex, 0, tileOffsetY, 1, 1, sceneRasterWidth, tileHeight, rciData);
             }

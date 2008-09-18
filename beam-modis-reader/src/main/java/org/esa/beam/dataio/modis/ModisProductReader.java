@@ -30,7 +30,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.logging.BeamLogManager;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -130,16 +130,15 @@ public class ModisProductReader extends AbstractProductReader {
      * @param destHeight    the height of region to be read given in the band's raster co-ordinates
      * @param destBuffer    the destination buffer which receives the sample values to be read
      * @param pm            a monitor to inform the user about progress
-     *
      * @throws IOException if an I/O error occurs
      * @see #readBandRasterData
      * @see #getSubsetDef
      */
     @Override
-    protected void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
-                                          int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
-                                          int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
-                                          ProgressMonitor pm) throws IOException {
+    protected synchronized void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
+                                                       int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
+                                                       int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
+                                                       ProgressMonitor pm) throws IOException {
 
         ModisBandReader reader = _fileReader.getBandReader(destBand);
 
@@ -149,9 +148,9 @@ public class ModisProductReader extends AbstractProductReader {
 
         try {
             reader.readBandData(sourceOffsetX, sourceOffsetY,
-                                sourceWidth, sourceHeight,
-                                sourceStepX, sourceStepY,
-                                destBuffer, pm);
+                    sourceWidth, sourceHeight,
+                    sourceStepX, sourceStepY,
+                    destBuffer, pm);
         } catch (HDFException e) {
             final IOException ioException = new IOException(e.getMessage());
             ioException.initCause(e);
@@ -184,7 +183,7 @@ public class ModisProductReader extends AbstractProductReader {
                 final Dimension productDim = _globalAttributes.getProductDimensions();
                 final Product product;
                 product = new Product(_globalAttributes.getProductName(), _globalAttributes.getProductType(),
-                                      productDim.width, productDim.height, this);
+                        productDim.width, productDim.height, this);
                 product.setFileLocation(inFile);
                 _fileReader.addRastersAndGeocoding(_sdStart, _globalAttributes, product);
 
@@ -247,7 +246,7 @@ public class ModisProductReader extends AbstractProductReader {
      * @throws HDFException
      */
     private void readGlobalMetaData(File inFile) throws HDFException,
-                                                        ProductIOException {
+            ProductIOException {
         _globalHdfAttrs = HdfUtils.readAttributes(_sdStart);
 
         // check wheter daac or imapp
@@ -306,7 +305,7 @@ public class ModisProductReader extends AbstractProductReader {
         int[] numNightScans = _globalHdfAttrs.getIntAttributeValue(ModisConstants.NUM_OF_NIGHT_SCANS_KEY);
 
         if ((numNightScans == null) || (numDayScans == null) ||
-            (numNightScans.length <= 0) || (numDayScans.length <= 0)) {
+                (numNightScans.length <= 0) || (numDayScans.length <= 0)) {
             _logger.warning("Unable to retrieve day mode or night mode scan number. Assuming day mode");
             //_dayMode = true;
         } else {
