@@ -1,3 +1,19 @@
+/*
+ * $Id$
+ *
+ * Copyright (C) 2008 by Brockmann Consult (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 package com.bc.ceres.glayer.swing;
 
 import com.bc.ceres.glayer.Layer;
@@ -6,19 +22,16 @@ import com.bc.ceres.grender.InteractiveRendering;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.DefaultViewport;
-import com.bc.ceres.grender.swing.AdjustableView;
-import com.bc.ceres.grender.swing.NavControl;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Rectangle2D;
 
 /**
- * A preliminary UI class.
  * <p>A Swing component capable of drawing a collection of {@link com.bc.ceres.glayer.Layer}s.
- * </p>
  *
  * @author Norman Fomferra
  */
@@ -75,7 +88,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 
         final NavControl navControl = new NavControl();
         navControl.setBounds(0, 0, 120, 120);
-        add(navControl);
+        add(new WakefulComponent(navControl));
         navControl.addSelectionListener(new NavControl.SelectionListener() {
             @Override
             public void handleRotate(double rotationAngle) {
@@ -85,6 +98,17 @@ public class LayerCanvas extends JComponent implements AdjustableView {
             @Override
             public void handleMove(double moveDirX, double moveDirY) {
                 viewport.moveViewDelta(16 * moveDirX, 16 * moveDirY);
+            }
+
+            @Override
+            public void handleScale(double scaleDir) {
+                final double oldZoomFactor = viewport.getZoomFactor();
+                final double newZoomFactor = (1.0 + 0.1 * scaleDir) * oldZoomFactor;
+//                System.out.println("LayerCanvas.handleScale():");
+//                System.out.println("  scaleDir      = " + scaleDir);
+//                System.out.println("  oldZoomFactor = " + oldZoomFactor);
+//                System.out.println("  newZoomFactor = " + newZoomFactor);
+                viewport.zoom(newZoomFactor);
             }
         });
     }

@@ -1,7 +1,7 @@
 /*
- * $Id: ViewPane.java,v 1.2 2006/10/23 06:38:14 norman Exp $
+ * $Id$
  *
- * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+ * Copyright (C) 2008 by Brockmann Consult (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package com.bc.ceres.grender.swing;
+package com.bc.ceres.glayer.swing;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.grender.Viewport;
@@ -38,8 +38,8 @@ import java.awt.geom.Rectangle2D;
  * by a {@link javax.swing.JComponent} but it's {@link Viewport}. For this reason
  * the view component must implement the {@link AdjustableView} interface.
  *
- * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision: 2182 $ $Date: 2008-06-12 11:09:11 +0200 (Thu, 12 Jun 2008) $
+ * @author Norman Fomferra
+ * @version $Revision$ $Date$
  */
 public class ViewportScrollPane extends JComponent {
     private static final long serialVersionUID = -2634482999458990218L;

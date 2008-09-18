@@ -1,4 +1,20 @@
-package com.bc.ceres.grender.swing;
+/*
+ * $Id$
+ *
+ * Copyright (C) 2008 by Brockmann Consult (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+package com.bc.ceres.glayer.swing;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -10,21 +26,32 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.*;
 import java.util.EventListener;
 
-// todo - find better name
+/**
+ * A navigation control which appears as a screen overlay.
+ * It can fire rotation, translation and scale events.
+ *
+ * @author Norman Fomferra
+ * @version $Revision$ $Date$
+ */
 public class NavControl extends JComponent {
     private double rotationAngle;
-    private double pannerShapeOffsetX;
-    private double pannerShapeOffsetY;
+    private double pannerHandleOffsetX;
+    private double pannerHandleOffsetY;
+    private double scaleHandleOffsetX;
+    private double scaleHandleOffsetY;
 
-    private static final int PREFERRED_SIZE = 100;
-    private static final int MINIMUM_SIZE = 32;
+    private static final int PREFERRED_WHEEL_SIZE = 100;
+    private static final int MINIMUM_WHEEL_SIZE = 32;
+    private static final int TIMER_DELAY = 50;
 
     private Ellipse2D outerRotationCircle;
     private Ellipse2D innerRotationCircle;
     private Ellipse2D outerMoveCircle;
-    private Shape pannerShape;
+    private Shape pannerHandle;
     private Shape[] moveArrowShapes;
     private Area[] rotationUnitShapes;
+    private RectangularShape scaleHandle;
+    private RectangularShape scaleBar;
 
     public NavControl() {
         final MouseHandler mouseHandler = new MouseHandler();
@@ -48,8 +75,10 @@ public class NavControl extends JComponent {
      */
     public void setRotationAngle(double rotationAngle) {
         double oldRotationAngle = this.rotationAngle;
-        this.rotationAngle = rotationAngle;
-        firePropertyChange("rotationAngle", oldRotationAngle, rotationAngle);
+        if (oldRotationAngle != rotationAngle) {
+            this.rotationAngle = rotationAngle;
+            firePropertyChange("rotationAngle", oldRotationAngle, rotationAngle);
+        }
     }
 
     @Override
@@ -57,7 +86,7 @@ public class NavControl extends JComponent {
         if (isPreferredSizeSet()) {
             return super.getPreferredSize();
         }
-        return getSizePlusInsets(PREFERRED_SIZE);
+        return getSizePlusInsets(PREFERRED_WHEEL_SIZE);
     }
 
     @Override
@@ -65,7 +94,7 @@ public class NavControl extends JComponent {
         if (isMinimumSizeSet()) {
             return super.getMinimumSize();
         }
-        return getSizePlusInsets(MINIMUM_SIZE);
+        return getSizePlusInsets(MINIMUM_WHEEL_SIZE);
     }
 
     private Dimension getSizePlusInsets(int s) {
@@ -104,21 +133,49 @@ public class NavControl extends JComponent {
             graphics2D.draw(arrow);
         }
 
-        graphics2D.translate(pannerShapeOffsetX,
-                             pannerShapeOffsetY);
+        graphics2D.translate(pannerHandleOffsetX, pannerHandleOffsetY);
         graphics2D.setColor(Color.WHITE);
-        graphics2D.fill(pannerShape);
+        graphics2D.fill(pannerHandle);
         graphics2D.setColor(Color.BLACK);
-        graphics2D.draw(pannerShape);
+        graphics2D.draw(pannerHandle);
+        graphics2D.setTransform(oldTransform);
+
+        graphics2D.setColor(Color.WHITE);
+        graphics2D.fill(scaleBar);
+        graphics2D.setColor(Color.BLACK);
+        graphics2D.draw(scaleBar);
+
+        graphics2D.translate(scaleHandleOffsetX, scaleHandleOffsetY);
+        graphics2D.setColor(Color.WHITE);
+        graphics2D.fill(scaleHandle);
+        graphics2D.setColor(Color.BLACK);
+        graphics2D.draw(scaleHandle);
         graphics2D.setTransform(oldTransform);
     }
 
+    /**
+     * Gives the UI delegate an opportunity to define the precise
+     * shape of this component for the sake of mouse processing.
+     *
+     * @return true if this component logically contains x,y
+     * @see java.awt.Component#contains(int, int)
+     * @see javax.swing.plaf.ComponentUI
+     */
+    @Override
+    public boolean contains(int x, int y) {
+        return getAction(x, y) != ACTION_NONE;
+    }
+
     private void updateGeom() {
+        final double scaleHandleW = Math.max(4, 0.025 * getWidth());
+        final double scaleHandleH = 4 * scaleHandleW;
+        final double gap = Math.max(4, 0.05 * getHeight());
+
         final Insets insets = getInsets();
-        int x = insets.left;
-        int y = insets.top;
-        int w = getWidth() - (insets.left + insets.right);
-        int h = getHeight() - (insets.top + insets.bottom);
+        double x = insets.left;
+        double y = insets.top;
+        double w = getWidth() - (insets.left + insets.right);
+        double h = getHeight() - (insets.top + insets.bottom + gap + scaleHandleH);
         final double outerRotationDiameter;
         if (w > h) {
             x += (w - h) / 2;
@@ -145,7 +202,25 @@ public class NavControl extends JComponent {
 
         rotationUnitShapes = createRotationUnitShapes();
         moveArrowShapes = createMoveArrows();
-        pannerShape = createPanner();
+        pannerHandle = createPanner();
+
+        /////////////////////////////////////////////////////////
+
+        final double scaleBarW = outerRotationDiameter;
+        final double scaleBarH = scaleHandleW;
+
+        final double scaleBarX = x;
+        final double scaleHandleY = y + outerRotationDiameter + gap;
+
+        scaleBar = new Rectangle2D.Double(scaleBarX,
+                                          scaleHandleY + 0.5 * (scaleHandleH - scaleBarH),
+                                          scaleBarW,
+                                          scaleBarH);
+
+        scaleHandle = new Rectangle2D.Double(scaleBarX + 0.5 * (scaleBarW - scaleHandleW),
+                                             scaleHandleY,
+                                             scaleHandleW,
+                                             scaleHandleH);
     }
 
     private Shape createPanner() {
@@ -230,6 +305,15 @@ public class NavControl extends JComponent {
         }
     }
 
+    protected void fireScale(double scaleDir) {
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == SelectionListener.class) {
+                ((SelectionListener) listeners[i + 1]).handleScale(scaleDir);
+            }
+        }
+    }
+
     private double getAngle(Point point) {
         final double a = Math.atan2(-(point.y - innerRotationCircle.getCenterY()),
                                     point.x - innerRotationCircle.getCenterX());
@@ -247,11 +331,46 @@ public class NavControl extends JComponent {
         return a;
     }
 
+    int getAction(int x, int y) {
+        if (super.contains(x, y)) {
+            if (outerRotationCircle.contains(x, y) && !innerRotationCircle.contains(x, y)) {
+                return ACTION_ROT;
+            } else if (pannerHandle.contains(x, y)) {
+                return ACTION_PAN;
+            } else if (scaleHandle.contains(x, y) || scaleBar.contains(x, y)) {
+                return ACTION_SCALE;
+            } else {
+                for (int i = 0; i < moveArrowShapes.length; i++) {
+                    Shape moveArrowShape = moveArrowShapes[i];
+                    if (moveArrowShape.contains(x, y)) {
+                        return ACTION_MOVE_DIRS[i];
+                    }
+                }
+            }
+        }
+        return ACTION_NONE;
+    }
+
     public static interface SelectionListener extends EventListener {
         void handleRotate(double rotationAngle);
 
         void handleMove(double moveDirX, double moveDirY);
+
+        void handleScale(double scaleDir);
     }
+
+    private final static int ACTION_NONE = 0;
+    private final static int ACTION_ROT = 1;
+    private final static int ACTION_SCALE = 2;
+    private final static int ACTION_PAN = 3;
+    private final static int ACTION_MOVE_N = 4;
+    private final static int ACTION_MOVE_S = 5;
+    private final static int ACTION_MOVE_W = 6;
+    private final static int ACTION_MOVE_E = 7;
+
+    private final static  int[] ACTION_MOVE_DIRS = {ACTION_MOVE_N, ACTION_MOVE_S, ACTION_MOVE_W, ACTION_MOVE_E};
+    private static final double[] X_DIRS = new double[]{0, -1, 0, 1};
+    private static final double[] Y_DIRS = new double[]{1, 0, -1, 0};
 
     private class MouseHandler extends MouseInputAdapter implements ActionListener {
         private Point point0;
@@ -259,22 +378,27 @@ public class NavControl extends JComponent {
         private double moveDirX;
         private double moveDirY;
         private double moveAcc;
+        private double scaleDir;
+        private double scaleAcc;
         private Cursor cursor0;
-        private int mode;
-        private static final int TIMER_DELAY = 100;
         private final Timer dragTimer;
+
+        private int action;  // see MODE_XXX values
 
         private MouseHandler() {
             dragTimer = new Timer(TIMER_DELAY, this);
+            action = ACTION_NONE;
         }
 
         public void actionPerformed(ActionEvent e) {
-            if (mode > 1) {
-                fireMove(moveAcc * moveDirX, moveAcc * moveDirY);
-                moveAcc *= 1.05;
-                if (moveAcc > 2.5) {
-                    moveAcc = 2.5;
-                }
+            if (action == ACTION_PAN
+                    || action == ACTION_MOVE_N
+                     || action == ACTION_MOVE_S
+                     || action == ACTION_MOVE_W
+                     || action == ACTION_MOVE_E) {
+                fireAcceleratedMove();
+            } else if (action == ACTION_SCALE) {
+                fireAcceleratedScale();
             }
         }
 
@@ -282,105 +406,161 @@ public class NavControl extends JComponent {
         public void mousePressed(MouseEvent e) {
             cursor0 = getCursor();
             point0 = e.getPoint();
-            mode = 0;
-            moveAcc = 1;
+            moveAcc = 1.0;
+            scaleAcc = 1.0;
+            action = getAction(e.getX(), e.getY());
 
-            if (outerRotationCircle.contains(point0) && !innerRotationCircle.contains(point0)) {
+            if (action == ACTION_ROT) {
                 rotationAngle0 = getRotationAngle();
-                mode = 1;
-            } else if (pannerShape.contains(point0)) {
-                mode = 2;
-            } else {
-                double[] dirXs = new double[]{0, -1, 0, 1};
-                double[] dirYs = new double[]{1, 0, -1, 0};
-                for (int i = 0; i < moveArrowShapes.length; i++) {
-                    Shape moveArrowShape = moveArrowShapes[i];
-                    if (moveArrowShape.contains(point0)) {
-                        mode = 3;
-                        moveDirX = dirXs[i];
-                        moveDirY = dirYs[i];
-                        dragTimer.start();
-                        break;
-                    }
-                }
+            } else if (action == ACTION_SCALE) {
+                doScale(e);
+            } else if (action == ACTION_MOVE_N) {
+                startMove(0);
+            } else if (action == ACTION_MOVE_S) {
+                startMove(1);
+            } else if (action == ACTION_MOVE_W) {
+                startMove(2);
+            } else if (action == ACTION_MOVE_E) {
+                startMove(3);
             }
-
-            if (mode != 0) {
+            if (action != ACTION_NONE) {
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             }
         }
 
         @Override
+        public void mouseDragged(MouseEvent e) {
+            if (action == ACTION_ROT) {
+                doRotate(e);
+            } else if (action == ACTION_PAN) {
+                doPan(e);
+            } else if (action == ACTION_SCALE) {
+                doScale(e);
+            }
+        }
+
+        @Override
         public void mouseReleased(MouseEvent e) {
+            stopAction();
+        }
+
+        private void doScale(MouseEvent e) {
+            final Point point = e.getPoint();
+            double dx = point.x - scaleBar.getCenterX();
+            double a = 0.5 * (scaleBar.getWidth() - scaleHandle.getWidth());
+            if (dx < -a) {
+                dx = -a;
+            }
+            if (dx > +a) {
+                dx = +a;
+            }
+            scaleHandleOffsetX = dx;
+            scaleHandleOffsetY = 0;
+            scaleDir = dx / a;
+            scaleAcc = 1.0;
+            fireAcceleratedScale();
+            dragTimer.restart();
+        }
+
+        private void doPan(MouseEvent e) {
+            final Point point = e.getPoint();
+            final double outerMoveRadius = 0.5 * outerMoveCircle.getWidth();
+            double dx = point.x - outerMoveCircle.getCenterX();
+            double dy = point.y - outerMoveCircle.getCenterY();
+            final double r = Math.sqrt(dx * dx + dy * dy);
+            if (r > outerMoveRadius) {
+                dx = outerMoveRadius * dx / r;
+                dy = outerMoveRadius * dy / r;
+            }
+            pannerHandleOffsetX = dx;
+            pannerHandleOffsetY = dy;
+            moveDirX = -dx / outerMoveRadius;
+            moveDirY = -dy / outerMoveRadius;
+            moveAcc = 1.0;
+            fireAcceleratedMove();
+            dragTimer.restart();
+        }
+
+         void startMove(int dir) {
+            moveDirX = X_DIRS[dir];
+            moveDirY = Y_DIRS[dir];
+            doMove();
+        }
+
+        private void doMove() {
+            moveAcc = 1.0;
+            dragTimer.restart();
+        }
+
+        private void doRotate(MouseEvent e) {
+            double a1 = getAngle(point0);
+            double a2 = getAngle(e.getPoint());
+            double a = Math.toDegrees(normaliseAngle(Math.toRadians(rotationAngle0) + (a2 - a1)));
+            if (e.isControlDown()) {
+                double t = 0.5 * 45.0;
+                a = t * Math.floor(a / t);
+            }
+            setRotationAngle(a);
+            repaint();
+            fireRotate(a);
+        }
+
+        private void fireAcceleratedScale() {
+            fireScale(scaleAcc * scaleDir / 4.0);
+            scaleAcc *= 1.1;
+            if (scaleAcc > 4.0) {
+                scaleAcc = 4.0;
+            }
+        }
+
+        private void fireAcceleratedMove() {
+            fireMove(moveAcc * moveDirX, moveAcc * moveDirY);
+            moveAcc *= 1.05;
+            if (moveAcc > 4.0) {
+                moveAcc = 4.0;
+            }
+        }
+
+        private void stopAction() {
             setCursor(cursor0);
             dragTimer.stop();
             cursor0 = null;
             point0 = null;
+            action = ACTION_NONE;
+
             moveDirX = 0;
             moveDirY = 0;
-            mode = 0;
-            pannerShapeOffsetX = 0;
-            pannerShapeOffsetY = 0;
-            moveAcc = 1;
+            moveAcc = 1.0;
+            pannerHandleOffsetX = 0;
+            pannerHandleOffsetY = 0;
+
+            scaleDir = 0;
+            scaleAcc = 1.0;
+            scaleHandleOffsetX = 0;
+            scaleHandleOffsetY = 0;
+
             repaint();
         }
-
-        @Override
-        public void mouseDragged(MouseEvent e) {
-            if (mode == 0) {
-                return;
-            }
-            if (mode == 1) {
-                double a1 = getAngle(point0);
-                double a2 = getAngle(e.getPoint());
-                double a = Math.toDegrees(normaliseAngle(Math.toRadians(rotationAngle0) + (a2 - a1)));
-                if (e.isControlDown()) {
-                    double t = 0.5 * 45.0;
-                    a = t * Math.floor(a / t);
-                }
-
-                setRotationAngle(a);
-                repaint();
-                fireRotate(a);
-            } else if (mode == 2) {
-                final Point point = e.getPoint();
-                final double outerMoveRadius = 0.5 * outerMoveCircle.getWidth();
-                double dx = point.x - outerMoveCircle.getCenterX();
-                double dy = point.y - outerMoveCircle.getCenterY();
-                final double r = Math.sqrt(dx * dx + dy * dy);
-                if (r > outerMoveRadius) {
-                    dx = outerMoveRadius * dx / r;
-                    dy = outerMoveRadius * dy / r;
-                }
-                pannerShapeOffsetX = dx;
-                pannerShapeOffsetY = dy;
-                moveDirX = -dx / outerMoveRadius;
-                moveDirY = -dy / outerMoveRadius;
-                repaint();
-                fireMove(moveDirX, moveDirY);
-                moveAcc = 1;
-                dragTimer.restart();
-            } else if (mode == 3) {
-                moveAcc = 1;
-                dragTimer.restart();
-            }
-        }
     }
-
 
     public static void main(String[] args) {
         final JFrame frame = new JFrame("NavControl");
         final JPanel panel = new JPanel(new BorderLayout(3, 3));
         panel.setBackground(Color.GRAY);
-        final JLabel label = new JLabel("Angle");
+        final JLabel label = new JLabel("Angle: ");
         final NavControl navControl = new NavControl();
         navControl.addSelectionListener(new SelectionListener() {
             public void handleRotate(double rotationAngle) {
-                System.out.println("rotationAngle = " + rotationAngle);
+                label.setText("Angle: " + rotationAngle);
+                System.out.println("NavControl: rotationAngle = " + rotationAngle);
             }
 
             public void handleMove(double moveDirX, double moveDirY) {
-                System.out.println("moveDirX = " + moveDirX + ", moveDirY = " + moveDirY);
+                System.out.println("NavControl: moveDirX = " + moveDirX + ", moveDirY = " + moveDirY);
+            }
+
+            public void handleScale(double scaleDir) {
+                System.out.println("NavControl: scaleDir = " + scaleDir);
             }
         });
 
