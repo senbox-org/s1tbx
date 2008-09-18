@@ -16,32 +16,26 @@
  */
 package org.esa.beam.framework.ui.product;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.RenderingHints;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
-import java.awt.image.RenderedImage;
-import java.util.Vector;
-
-import javax.swing.event.MouseInputListener;
-
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glayer.swing.LayerCanvas;
+import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.ui.PixelInfoFactory;
 import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 import org.esa.beam.util.MouseEventFilterFactory;
 
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glayer.swing.LayerCanvas;
-import com.bc.ceres.grender.Viewport;
+import javax.swing.event.MouseInputListener;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.RenderingHints;
+import java.awt.event.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
+import java.awt.image.RenderedImage;
+import java.util.Vector;
 
 public class LayerDisplay extends LayerCanvas {
     private Tool tool;
@@ -61,7 +55,7 @@ public class LayerDisplay extends LayerCanvas {
 
     @Override
     public void dispose() {
-       deregisterListeners();
+        deregisterListeners();
         super.dispose();
     }
 
@@ -69,7 +63,6 @@ public class LayerDisplay extends LayerCanvas {
         registerComponentListener();
         registerMouseListeners();
         registerKeyListeners();
-        pixelPositionListeners.clear();
     }
 
     private void deregisterListeners() {
@@ -77,15 +70,17 @@ public class LayerDisplay extends LayerCanvas {
         removeMouseListener(mouseInputListener);
         removeMouseMotionListener(mouseInputListener);
         removeKeyListener(imageDisplayKeyListener);
+        if (pixelPositionListeners != null) {
+            pixelPositionListeners.clear();
+        }
     }
 
     /**
      * Adds a new pixel position listener to this image display component. If
      * the component already contains the given listener, the method does
      * nothing.
-     * 
-     * @param listener
-     *            the pixel position listener to be added
+     *
+     * @param listener the pixel position listener to be added
      */
     public final void addPixelPositionListener(PixelPositionListener listener) {
         if (listener == null) {
@@ -102,9 +97,8 @@ public class LayerDisplay extends LayerCanvas {
 
     /**
      * Removes a pixel position listener from this image display component.
-     * 
-     * @param listener
-     *            the pixel position listener to be removed
+     *
+     * @param listener the pixel position listener to be removed
      */
     public final void removePixelPositionListener(PixelPositionListener listener) {
         if (listener == null || pixelPositionListeners == null) {
@@ -138,7 +132,7 @@ public class LayerDisplay extends LayerCanvas {
     private ImageLayer getBaseImageLayer() {
         return productSceneView45.getBaseImageLayer();
     }
-    
+
     private RenderedImage getImage() {
         return getBaseImageLayer().getImage();
     }
@@ -146,19 +140,20 @@ public class LayerDisplay extends LayerCanvas {
     /**
      * Fires a 'pixel position changed' event to all registered pixel-pos
      * listeners.
-     * @param e the event
+     *
+     * @param e      the event
      * @param pixelX pixel position X
      * @param pixelY pixel position Y
      */
     protected final void firePixelPosChanged(MouseEvent e, int pixelX,
-            int pixelY) {
+                                             int pixelY) {
         if (pixelPositionListeners != null) {
             PixelPositionListener[] listeners = this.pixelPositionListeners
                     .toArray(new PixelPositionListener[this.pixelPositionListeners.size()]);
             boolean pixelPosValid = isPixelPosValid(pixelX, pixelY);
             for (PixelPositionListener listener : listeners) {
                 listener.pixelPosChanged(getImage(), pixelX, pixelY,
-                        pixelPosValid, e);
+                                         pixelPosValid, e);
             }
         }
     }
@@ -263,7 +258,7 @@ public class LayerDisplay extends LayerCanvas {
 
     private void drawToolNoTransf(Graphics2D g2d) {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_OFF);
+                             RenderingHints.VALUE_ANTIALIAS_OFF);
         if (tool.getDrawable() != null) {
             // System.out.println("DRAW_TOOL:" + tool.getClass().toString());
             tool.getDrawable().draw(g2d);
@@ -281,7 +276,7 @@ public class LayerDisplay extends LayerCanvas {
     public Tool getTool() {
         return tool;
     }
-    
+
     public String createPixelInfoString(PixelInfoFactory pixelInfoFactory) {
         return pixelInfoFactory.createPixelInfoString(pixelX, pixelY);
     }
@@ -306,9 +301,9 @@ public class LayerDisplay extends LayerCanvas {
         this.pixelX = pixelX;
         this.pixelY = pixelY;
         if (e.getID() != MouseEvent.MOUSE_EXITED) {
-             firePixelPosChanged(e, this.pixelX, this.pixelY);
+            firePixelPosChanged(e, this.pixelX, this.pixelY);
         } else {
-             firePixelPosNotAvailable();
+            firePixelPosNotAvailable();
         }
     }
 
