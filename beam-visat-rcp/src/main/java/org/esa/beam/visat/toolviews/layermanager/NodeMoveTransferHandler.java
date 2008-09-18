@@ -48,8 +48,7 @@ class NodeMoveTransferHandler extends TransferHandler {
             final Point dropPoint = support.getDropLocation().getDropPoint();
             final TreePath currentPath = tree.getClosestPathForLocation(dropPoint.x, dropPoint.y);
 
-            // todo - remove
-            System.out.println("currentPath = " + currentPath);
+            // System.out.println("currentPath = " + currentPath);
 
             if (currentPath != null) {
                 addNodes(currentPath, model);

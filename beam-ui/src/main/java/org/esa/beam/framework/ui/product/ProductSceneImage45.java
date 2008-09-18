@@ -16,6 +16,7 @@ import org.esa.beam.glevel.RoiImageMultiLevelSource;
 import org.esa.beam.glevel.TiledFileMultiLevelSource;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.jai.ImageManager;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -50,8 +51,8 @@ class ProductSceneImage45 extends ProductSceneImage {
 
     ProductSceneImage45(String name, RasterDataNode[] rasters, PropertyMap configuration, ProgressMonitor pm) throws IOException {
         super(name, rasters, null, configuration);
-        multiLevelSource = BandImageMultiLevelSource.create(rasters, SubProgressMonitor.create(pm, 1));
-        setImageInfo(ProductUtils.createImageInfo(rasters, false, SubProgressMonitor.create(pm, 1)));
+        multiLevelSource = BandImageMultiLevelSource.create(rasters, pm);
+        setImageInfo(ImageManager.getInstance().getImageInfo(rasters));
         initRootLayer();
     }
 

@@ -46,7 +46,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
-import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Arrays;
@@ -2699,30 +2698,36 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @since BEAM 4.2
      */
     public static class Stx {
-        private final double sampleMin;
-        private final double sampleMax;
+        private final double minSample;
+        private final double maxSample;
         private final int[] sampleFrequencies;
         private final long sampleCount;
+        private final int resolutionLevel;
         private boolean dirty;
 
-        public Stx(double sampleMin, double sampleMax, int[] sampleFrequencies) {
-            this.sampleMin = sampleMin;
-            this.sampleMax = sampleMax;
+        public Stx(double minSample, double maxSample, int[] sampleFrequencies) {
+            this(minSample, maxSample, sampleFrequencies, 0);
+        }
+
+        public Stx(double minSample, double maxSample, int[] sampleFrequencies, int resolutionLevel) {
+            this.minSample = minSample;
+            this.maxSample = maxSample;
             this.sampleFrequencies = sampleFrequencies;
             long sum = 0;
             for (int sampleFrequency : sampleFrequencies) {
                 sum += sampleFrequency;
             }
             sampleCount = sum;
+            this.resolutionLevel = resolutionLevel;
             dirty = false;
         }
 
         public double getMinSample() {
-            return sampleMin;
+            return minSample;
         }
 
         public double getMaxSample() {
-            return sampleMax;
+            return maxSample;
         }
 
         public int[] getSampleFrequencies() {
@@ -2731,6 +2736,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
         public long getSampleCount() {
             return sampleCount;
+        }
+
+        public int getResolutionLevel() {
+            return resolutionLevel;
         }
 
         public boolean isDirty() {

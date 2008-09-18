@@ -4,7 +4,9 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
-import com.bc.ceres.glevel.support.*;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
+import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.datamodel.RasterDataNode.Stx;
 import org.esa.beam.framework.draw.Figure;
@@ -26,6 +28,7 @@ import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Map;
@@ -349,6 +352,28 @@ public class ImageManager {
         return images;
     }
 
+
+    public ImageInfo getImageInfo(RasterDataNode[] rasters) {
+        Assert.notNull(rasters, "rasters");
+        Assert.argument(rasters.length == 1 || rasters.length == 3, "rasters.length == 1 || rasters.length == 3");
+        if (rasters.length == 1) {
+            Assert.state(rasters[0].getImageInfo() != null, "rasters[0].getImageInfo()");
+            return rasters[0].getImageInfo();
+        } else {
+            final RGBChannelDef rgbChannelDef = new RGBChannelDef();
+            for (int i = 0; i < rasters.length; i++) {
+                RasterDataNode raster = rasters[i];
+                Assert.state(rasters[i].getImageInfo() != null, "rasters[i].getImageInfo()");
+                ImageInfo imageInfo = raster.getImageInfo();
+                rgbChannelDef.setSourceName(i, raster.getName());
+                rgbChannelDef.setMinDisplaySample(i, imageInfo.getColorPaletteDef().getMinDisplaySample());
+                rgbChannelDef.setMaxDisplaySample(i, imageInfo.getColorPaletteDef().getMaxDisplaySample());
+            }
+            return new ImageInfo(rgbChannelDef);
+        }
+    }
+
+
     public void prepareImageInfos(RasterDataNode[] rasterDataNodes, int levelCount, ProgressMonitor pm) {
         PlanarImage[] bandImages = getBandImages(rasterDataNodes, 0);
         PlanarImage[] validMaskImages = getValidMaskImages(rasterDataNodes, 0);
@@ -380,17 +405,21 @@ public class ImageManager {
                         final IndexCoding indexCoding = ((Band) raster).getIndexCoding();
                         if (indexCoding != null) {
                             imageInfo = createIndexedImageInfo(indexCoding);
+                            raster.setImageInfo(imageInfo);
+                            // todo - compute frequencies here (nf, 18.09.2008), set Stx
                         }
                     }
                     if (imageInfo == null) {
                         final PlanarImage statisticsBandImage;
                         final PlanarImage statisticsValidMaskImage;
                         final long imageSize = (long) bandImage.getWidth() * bandImage.getHeight();
+                        final int statisticsLevel;
                         if (imageSize <= DefaultMultiLevelModel.MAX_PIXEL_COUNT) {
+                            statisticsLevel = 0;
                             statisticsBandImage = bandImage;
                             statisticsValidMaskImage = validMaskImage;
                         } else {
-                            final int statisticsLevel = levelCount - 1;
+                            statisticsLevel = levelCount - 1;
                             statisticsBandImage = getBandImage(raster, statisticsLevel);
                             statisticsValidMaskImage = validMaskImage != null ? getValidMaskImage(raster, statisticsLevel) : null;
                         }
@@ -429,11 +458,18 @@ public class ImageManager {
                             Debug.trace("Computing sample frequencies for [" + raster.getName() + "]...");
                             final RenderedOp histogramOp = HistogramDescriptor.create(statisticsBandImage, roi, 1, 1, new int[]{256}, extrema[0], extrema[1], null);
                             Histogram histogram = getBeamHistogram(histogramOp);
+                            Debug.trace("Sample frequencies computed.");
                             imageInfo = raster.createDefaultImageInfo(null, histogram);
                             raster.setImageInfo(imageInfo);
-                            Debug.trace("Sample frequencies computed.");
+                            if (raster.getStx() == null) {
+                                raster.setStx(new Stx(min, max, histogram.getBinCounts(), statisticsLevel));
+                            }
                         } else {
                             raster.setImageInfo(new ImageInfo(new ColorPaletteDef(min, min + 1.0)));
+                            if (raster.getStx() == null) {
+                                final int numPixels = (int) Math.min((long) Integer.MAX_VALUE, imageSize);
+                                raster.setStx(new Stx(min, min, new int[]{numPixels}, statisticsLevel));
+                            }
                         }
 
                         pm.worked(1);

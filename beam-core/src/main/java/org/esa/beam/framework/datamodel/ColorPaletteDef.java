@@ -50,7 +50,7 @@ public class ColorPaletteDef implements Cloneable{
     private boolean discrete;
 
     public ColorPaletteDef(double minSample, double maxSample) {
-        this(minSample, 0.5F * (maxSample + minSample), maxSample);
+        this(minSample, 0.5 * (maxSample + minSample), maxSample);
     }
 
     public ColorPaletteDef(double minSample, double centerSample, double maxSample) {
