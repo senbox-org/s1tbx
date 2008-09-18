@@ -146,7 +146,6 @@ public class ShowImageViewRGBAction extends ExecCommand {
                                         SubProgressMonitor.create(pm, 1));
             productSceneImage = ProductSceneImage.create(name, rgbBands[0].band, rgbBands[1].band, rgbBands[2].band,
                                                          SubProgressMonitor.create(pm, 1));
-            productSceneImage.setName(name);
         } catch (Exception e) {
             errorOccured = true;
             throw e;
