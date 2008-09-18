@@ -34,15 +34,14 @@ import java.util.EventListener;
  * @version $Revision$ $Date$
  */
 public class NavControl extends JComponent {
+    private static final Dimension PREFERRED_SIZE = new Dimension(100, 120);
+    private static final int TIMER_DELAY = 50;
+
     private double rotationAngle;
     private double pannerHandleOffsetX;
     private double pannerHandleOffsetY;
     private double scaleHandleOffsetX;
     private double scaleHandleOffsetY;
-
-    private static final int PREFERRED_WHEEL_SIZE = 100;
-    private static final int MINIMUM_WHEEL_SIZE = 32;
-    private static final int TIMER_DELAY = 50;
 
     private Ellipse2D outerRotationCircle;
     private Ellipse2D innerRotationCircle;
@@ -86,22 +85,9 @@ public class NavControl extends JComponent {
         if (isPreferredSizeSet()) {
             return super.getPreferredSize();
         }
-        return getSizePlusInsets(PREFERRED_WHEEL_SIZE);
+        return PREFERRED_SIZE;
     }
 
-    @Override
-    public Dimension getMinimumSize() {
-        if (isMinimumSizeSet()) {
-            return super.getMinimumSize();
-        }
-        return getSizePlusInsets(MINIMUM_WHEEL_SIZE);
-    }
-
-    private Dimension getSizePlusInsets(int s) {
-        final Insets insets = getInsets();
-        return new Dimension(s + (insets.left + insets.right),
-                             s + (insets.top + insets.bottom));
-    }
 
     @Override
     public void setBounds(int x, int y, int width, int height) {
@@ -174,8 +160,8 @@ public class NavControl extends JComponent {
         final Insets insets = getInsets();
         double x = insets.left;
         double y = insets.top;
-        double w = getWidth() - (insets.left + insets.right);
-        double h = getHeight() - (insets.top + insets.bottom + gap + scaleHandleH);
+        double w = getWidth() - (insets.left + insets.right) - 2;
+        double h = getHeight() - (insets.top + insets.bottom + gap + scaleHandleH) - 2;
         final double outerRotationDiameter;
         if (w > h) {
             x += (w - h) / 2;
@@ -368,7 +354,7 @@ public class NavControl extends JComponent {
     private final static int ACTION_MOVE_W = 6;
     private final static int ACTION_MOVE_E = 7;
 
-    private final static  int[] ACTION_MOVE_DIRS = {ACTION_MOVE_N, ACTION_MOVE_S, ACTION_MOVE_W, ACTION_MOVE_E};
+    private final static int[] ACTION_MOVE_DIRS = {ACTION_MOVE_N, ACTION_MOVE_S, ACTION_MOVE_W, ACTION_MOVE_E};
     private static final double[] X_DIRS = new double[]{0, -1, 0, 1};
     private static final double[] Y_DIRS = new double[]{1, 0, -1, 0};
 
@@ -393,9 +379,9 @@ public class NavControl extends JComponent {
         public void actionPerformed(ActionEvent e) {
             if (action == ACTION_PAN
                     || action == ACTION_MOVE_N
-                     || action == ACTION_MOVE_S
-                     || action == ACTION_MOVE_W
-                     || action == ACTION_MOVE_E) {
+                    || action == ACTION_MOVE_S
+                    || action == ACTION_MOVE_W
+                    || action == ACTION_MOVE_E) {
                 fireAcceleratedMove();
             } else if (action == ACTION_SCALE) {
                 fireAcceleratedScale();
@@ -481,7 +467,7 @@ public class NavControl extends JComponent {
             dragTimer.restart();
         }
 
-         void startMove(int dir) {
+        void startMove(int dir) {
             moveDirX = X_DIRS[dir];
             moveDirY = Y_DIRS[dir];
             doMove();

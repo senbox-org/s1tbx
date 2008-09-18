@@ -159,8 +159,6 @@ public class WakefulComponent extends JComponent {
 
     @Override
     public void setBounds(int x, int y, int width, int height) {
-        System.out.println("WakefulComponent.width = " +width);
-        System.out.println("WakefulComponent.height = " +height);
         super.setBounds(x, y, width, height);
         if (imageGraphics != null) {
             imageGraphics.dispose();
@@ -245,7 +243,7 @@ public class WakefulComponent extends JComponent {
     private class HitHandler extends MouseAdapter {
         @Override
         public void mouseEntered(MouseEvent e) {
-            System.out.println("WakefulComponent.e = " + e);
+            // System.out.println("WakefulComponent.e = " + e);
             if (getVisualState() == VisualState.INACTIVE) {
                 setVisualState(VisualState.ACTIVATING);
                 timer.setDelay(activationTime / PPS);
@@ -256,13 +254,13 @@ public class WakefulComponent extends JComponent {
 
         @Override
         public void mouseExited(MouseEvent e) {
-            System.out.println("WakefulComponent.e = " + e);
+            // System.out.println("WakefulComponent.e = " + e);
             lastHitTimestamp = System.currentTimeMillis();
         }
 
         @Override
         public void mouseMoved(MouseEvent e) {
-            System.out.println("WakefulComponent.e = " + e);
+            // System.out.println("WakefulComponent.e = " + e);
             lastHitTimestamp = -1;
         }
     }
