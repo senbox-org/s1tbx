@@ -1757,13 +1757,14 @@ public class VisatApp extends BasicApp {
 // note: the following line is necessary in order to transfer layer proerties from
 // preferences to current product scene view. Only the current view is affected by
 // the preferences change.
-                applyProductSceneViewlPreferences();
+                applyProductSceneViewPreferences();
                 firePreferencesChanged();
             }
         }
     }
 
-    private void applyProductSceneViewlPreferences() {
+    private void applyProductSceneViewPreferences() {
+
         final ProductSceneView selectedProductSceneView = getSelectedProductSceneView();
         if (selectedProductSceneView != null) {
             selectedProductSceneView.setLayerProperties(getPreferences());

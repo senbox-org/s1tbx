@@ -59,10 +59,17 @@ public class LayerDisplay extends LayerCanvas {
         registerListeners();
     }
 
+    @Override
+    public void dispose() {
+       deregisterListeners();
+        super.dispose();
+    }
+
     private void registerListeners() {
         registerComponentListener();
         registerMouseListeners();
         registerKeyListeners();
+        pixelPositionListeners.clear();
     }
 
     private void deregisterListeners() {
@@ -123,7 +130,7 @@ public class LayerDisplay extends LayerCanvas {
                 pixelX, pixelY));
     }
 
-    private final boolean isPixelPosValid(int pixelX, int pixelY) {
+    private boolean isPixelPosValid(int pixelX, int pixelY) {
         return pixelX >= 0 && pixelX < getImage().getWidth() && pixelY >= 0
                 && pixelY < getImage().getHeight();
     }
@@ -139,12 +146,15 @@ public class LayerDisplay extends LayerCanvas {
     /**
      * Fires a 'pixel position changed' event to all registered pixel-pos
      * listeners.
+     * @param e the event
+     * @param pixelX pixel position X
+     * @param pixelY pixel position Y
      */
     protected final void firePixelPosChanged(MouseEvent e, int pixelX,
             int pixelY) {
         if (pixelPositionListeners != null) {
             PixelPositionListener[] listeners = this.pixelPositionListeners
-                    .toArray(new PixelPositionListener[0]);
+                    .toArray(new PixelPositionListener[this.pixelPositionListeners.size()]);
             boolean pixelPosValid = isPixelPosValid(pixelX, pixelY);
             for (PixelPositionListener listener : listeners) {
                 listener.pixelPosChanged(getImage(), pixelX, pixelY,
@@ -159,7 +169,7 @@ public class LayerDisplay extends LayerCanvas {
     protected final void firePixelPosNotAvailable() {
         if (pixelPositionListeners != null) {
             PixelPositionListener[] listeners = this.pixelPositionListeners
-                    .toArray(new PixelPositionListener[0]);
+                    .toArray(new PixelPositionListener[this.pixelPositionListeners.size()]);
             for (PixelPositionListener listener : listeners) {
                 listener.pixelPosNotAvailable(getImage());
             }

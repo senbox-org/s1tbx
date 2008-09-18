@@ -221,7 +221,8 @@ public class ProductUtils {
                 final RGBChannelDef rgbChannelDef = new RGBChannelDef();
                 for (int i = 0; i < rasters.length; i++) {
                     RasterDataNode raster = rasters[i];
-                    ImageInfo imageInfo = assignMissingImageInfos ? raster.getImageInfo(pm) : raster.createDefaultImageInfo(null, SubProgressMonitor.create(pm, 1));
+                    final ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
+                    ImageInfo imageInfo = assignMissingImageInfos ? raster.getImageInfo(subPm) : raster.createDefaultImageInfo(null, subPm);
                     rgbChannelDef.setSourceName(i, raster.getName());
                     rgbChannelDef.setMinDisplaySample(i, imageInfo.getColorPaletteDef().getMinDisplaySample());
                     rgbChannelDef.setMaxDisplaySample(i, imageInfo.getColorPaletteDef().getMaxDisplaySample());

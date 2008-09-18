@@ -2,6 +2,7 @@ package com.bc.jexp;
 
 import junit.framework.TestCase;
 import com.bc.jexp.impl.ParserImpl;
+import com.bc.jexp.impl.SymbolFactory;
 
 public class ParserImplTest extends TestCase {
 
@@ -62,5 +63,35 @@ public class ParserImplTest extends TestCase {
         assertEquals(374.0, term.evalD(env));
         assertEquals("374", term.evalS(env));
         assertEquals("\"374\"", term.toString());
+
+
+        term = parser.parse("NaN");
+        assertTrue(Double.isNaN(term.evalD(env)));
+
+        // Band arithmetic: y = log(x), pixel value x=0
+        term = parser.parse("log(0)");
+        double d = term.evalD(env);
+
+        final Variable x = SymbolFactory.createVariable("x", 0.0);
+        ((WritableNamespace)parser.getDefaultNamespace()).registerSymbol(x);
+        term = parser.parse("inf(x) || nan(x)");
+
+        x.assignD(env, 0.0);
+        assertEquals(false, term.evalB(env));
+
+        x.assignD(env, Math.log(0));
+        assertEquals(true, term.evalB(env));
+
+        x.assignD(env, (double)(float)Math.log(0));
+        assertEquals(true, term.evalB(env));
+
+        x.assignD(env, 0.0);
+        assertEquals(false, term.evalB(env));
+
+        x.assignD(env, Math.sqrt(-1));
+        assertEquals(true, term.evalB(env));
+
+        x.assignD(env, (double)(float)Math.sqrt(-1));
+        assertEquals(true, term.evalB(env));
     }
 }

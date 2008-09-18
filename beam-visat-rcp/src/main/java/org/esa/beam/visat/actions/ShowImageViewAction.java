@@ -108,10 +108,12 @@ public class ShowImageViewAction extends ExecCommand {
                     };
                     final Product product = selectedProductNode.getProduct();
                     internalFrame.addInternalFrameListener(new InternalFrameAdapter() {
+                        @Override
                         public void internalFrameOpened(InternalFrameEvent event1) {
                             product.addProductNodeListener(pnl);
                         }
 
+                        @Override
                         public void internalFrameClosed(InternalFrameEvent event11) {
                             product.removeProductNodeListener(pnl);
                         }
@@ -141,7 +143,7 @@ public class ShowImageViewAction extends ExecCommand {
                 final ProductSceneView view = (ProductSceneView) frames[0].getContentPane();
                 sceneImage = ProductSceneImage.create(raster, view);
             } else {
-                sceneImage = ProductSceneImage.create(raster, SubProgressMonitor.create(pm, 1));
+                sceneImage = ProductSceneImage.create(raster, app.getPreferences(), SubProgressMonitor.create(pm, 1));
             }
         } finally {
             pm.done();

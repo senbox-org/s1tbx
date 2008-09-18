@@ -1,6 +1,7 @@
 package org.esa.beam.jai;
 
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.*;
@@ -222,7 +223,7 @@ public class ImageManager {
 
         PlanarImage[] bandImages = getBandImages(rasterDataNodes, level);
         PlanarImage[] validMaskImages = getValidMaskImages(rasterDataNodes, level);
-        prepareImageInfos(rasterDataNodes, bandImages, validMaskImages, levelCount);
+        prepareImageInfos(rasterDataNodes, bandImages, validMaskImages, levelCount, ProgressMonitor.NULL);
 
         PlanarImage[] sourceImages = new PlanarImage[rasterDataNodes.length];
         for (int i = 0; i < rasterDataNodes.length; i++) {
@@ -348,83 +349,101 @@ public class ImageManager {
         return images;
     }
 
-    public void prepareImageInfos(RasterDataNode[] rasterDataNodes, int levelCount) {
+    public void prepareImageInfos(RasterDataNode[] rasterDataNodes, int levelCount, ProgressMonitor pm) {
         PlanarImage[] bandImages = getBandImages(rasterDataNodes, 0);
         PlanarImage[] validMaskImages = getValidMaskImages(rasterDataNodes, 0);
-        prepareImageInfos(rasterDataNodes, bandImages, validMaskImages, levelCount);
+        prepareImageInfos(rasterDataNodes, bandImages, validMaskImages, levelCount, pm);
     }
 
     private void prepareImageInfos(RasterDataNode[] rasterDataNodes,
                                    PlanarImage[] bandImages,
-                                   PlanarImage[] validMaskImages, int levelCount) {
+                                   PlanarImage[] validMaskImages,
+                                   int levelCount,
+                                   ProgressMonitor pm) {
 
-        for (int i = 0; i < rasterDataNodes.length; i++) {
-            RasterDataNode raster = rasterDataNodes[i];
+        int numTaskSteps = 0;
+        for (RasterDataNode raster : rasterDataNodes) {
+            numTaskSteps += raster.getImageInfo() == null ? 1 : 0;
+        }
+        numTaskSteps *= 3;
 
-            PlanarImage bandImage = bandImages[i];
-            PlanarImage validMaskImage = validMaskImages[i];
-            ImageInfo imageInfo = raster.getImageInfo();
-            if (imageInfo == null) {
-                if (raster instanceof Band) {
-                    final IndexCoding indexCoding = ((Band) raster).getIndexCoding();
-                    if (indexCoding != null) {
-                        imageInfo = createIndexedImageInfo(indexCoding);
-                        raster.setImageInfo(imageInfo);
-                    }
-                }
+        pm.beginTask("Computing image statitics", numTaskSteps);
+        try {
+            for (int i = 0; i < rasterDataNodes.length; i++) {
+                RasterDataNode raster = rasterDataNodes[i];
+
+                PlanarImage bandImage = bandImages[i];
+                PlanarImage validMaskImage = validMaskImages[i];
+                ImageInfo imageInfo = raster.getImageInfo();
                 if (imageInfo == null) {
-                    final PlanarImage statisticsBandImage;
-                    final PlanarImage statisticsValidMaskImage;
-                    final long imageSize = (long) bandImage.getWidth() * bandImage.getHeight();
-                    if (imageSize <= DefaultMultiLevelModel.MAX_PIXEL_COUNT) {
-                        statisticsBandImage = bandImage;
-                        statisticsValidMaskImage = validMaskImage;
-                    } else {
-                        final int statisticsLevel = levelCount - 1;
-                        statisticsBandImage = getBandImage(raster, statisticsLevel);
-                        statisticsValidMaskImage = validMaskImage != null ? getValidMaskImage(raster, statisticsLevel) : null;
+                    if (raster instanceof Band) {
+                        final IndexCoding indexCoding = ((Band) raster).getIndexCoding();
+                        if (indexCoding != null) {
+                            imageInfo = createIndexedImageInfo(indexCoding);
+                        }
                     }
+                    if (imageInfo == null) {
+                        final PlanarImage statisticsBandImage;
+                        final PlanarImage statisticsValidMaskImage;
+                        final long imageSize = (long) bandImage.getWidth() * bandImage.getHeight();
+                        if (imageSize <= DefaultMultiLevelModel.MAX_PIXEL_COUNT) {
+                            statisticsBandImage = bandImage;
+                            statisticsValidMaskImage = validMaskImage;
+                        } else {
+                            final int statisticsLevel = levelCount - 1;
+                            statisticsBandImage = getBandImage(raster, statisticsLevel);
+                            statisticsValidMaskImage = validMaskImage != null ? getValidMaskImage(raster, statisticsLevel) : null;
+                        }
 
-                    ROI roi = createROI(statisticsValidMaskImage);
+                        ROI roi = createROI(statisticsValidMaskImage);
 
-                    System.out.println("Computing sample extrema for " + raster.getName() + "...");
-                    final RenderedOp extremaOp = ExtremaDescriptor.create(statisticsBandImage, roi, 1, 1, false, 1, null);
+                        pm.worked(1);
 
-                    final long t0 = System.nanoTime();
-                    final double[][] extrema = (double[][]) extremaOp.getProperty("extrema");
-                    final double min = extrema[0][0];
-                    final double max = extrema[1][0];
-                    final long t1 = System.nanoTime();
+                        System.out.println("Computing sample extrema for " + raster.getName() + "...");
+                        final RenderedOp extremaOp = ExtremaDescriptor.create(statisticsBandImage, roi, 1, 1, false, 1, null);
 
-                    System.out.println("Image Info:");
-                    System.out.println("  name       = " + raster.getName());
-                    System.out.println("  width      = " + bandImage.getWidth());
-                    System.out.println("  height     = " + bandImage.getHeight());
-                    System.out.println("  tileWidth  = " + bandImage.getTileWidth());
-                    System.out.println("  tileHeight = " + bandImage.getTileHeight());
+                        final long t0 = System.nanoTime();
+                        final double[][] extrema = (double[][]) extremaOp.getProperty("extrema");
+                        final double min = extrema[0][0];
+                        final double max = extrema[1][0];
+                        final long t1 = System.nanoTime();
 
-                    System.out.printf("Extrema computed in %f ms:\n", (t1 - t0) / (1000.0 * 1000.0));
-                    System.out.println("  width  = " + statisticsBandImage.getWidth());
-                    System.out.println("  height = " + statisticsBandImage.getHeight());
-//                    System.out.println("  level  = " + statisticsBandImage.getLevel());
-                    System.out.println("  min    = " + min);
-                    System.out.println("  max    = " + max);
+                        pm.worked(1);
 
-                    Debug.trace("Sample extrema computed.");
+                        System.out.println("Image Info:");
+                        System.out.println("  name       = " + raster.getName());
+                        System.out.println("  width      = " + bandImage.getWidth());
+                        System.out.println("  height     = " + bandImage.getHeight());
+                        System.out.println("  tileWidth  = " + bandImage.getTileWidth());
+                        System.out.println("  tileHeight = " + bandImage.getTileHeight());
 
-                    if (min < max) {
-                        Debug.trace("Computing sample frequencies for [" + raster.getName() + "]...");
-                        final RenderedOp histogramOp = HistogramDescriptor.create(statisticsBandImage, roi, 1, 1, new int[]{256}, extrema[0], extrema[1], null);
-                        Histogram histogram = getBeamHistogram(histogramOp);
-                        imageInfo = raster.createDefaultImageInfo(null, histogram);
-                        raster.setImageInfo(imageInfo);
-                        raster.setStx(new Stx(min, max, histogram.getBinCounts()));
-                        Debug.trace("Sample frequencies computed.");
+                        System.out.printf("Extrema computed in %f ms:\n", (t1 - t0) / (1000.0 * 1000.0));
+                        System.out.println("  width  = " + statisticsBandImage.getWidth());
+                        System.out.println("  height = " + statisticsBandImage.getHeight());
+                        System.out.println("  min    = " + min);
+                        System.out.println("  max    = " + max);
+
+                        Debug.trace("Sample extrema computed.");
+
+                        if (min < max) {
+                            Debug.trace("Computing sample frequencies for [" + raster.getName() + "]...");
+                            final RenderedOp histogramOp = HistogramDescriptor.create(statisticsBandImage, roi, 1, 1, new int[]{256}, extrema[0], extrema[1], null);
+                            Histogram histogram = getBeamHistogram(histogramOp);
+                            imageInfo = raster.createDefaultImageInfo(null, histogram);
+                            raster.setImageInfo(imageInfo);
+                            Debug.trace("Sample frequencies computed.");
+                        } else {
+                            raster.setImageInfo(new ImageInfo(new ColorPaletteDef(min, min + 1.0)));
+                        }
+
+                        pm.worked(1);
                     } else {
-                        raster.setImageInfo(new ImageInfo(new ColorPaletteDef(min, min + 1.0)));
+                        pm.worked(3);
                     }
                 }
             }
+        } finally {
+            pm.done();
         }
     }
 

@@ -1,6 +1,7 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
@@ -14,6 +15,7 @@ import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.glevel.RoiImageMultiLevelSource;
 import org.esa.beam.glevel.TiledFileMultiLevelSource;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.PropertyMap;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -34,22 +36,22 @@ class ProductSceneImage45 extends ProductSceneImage {
     private MultiLevelSource multiLevelSource;
 
     ProductSceneImage45(RasterDataNode raster, ProductSceneView45 view) {
-        super(raster.getDisplayName(), new RasterDataNode[]{raster}, view.getImageInfo());
+        super(raster.getDisplayName(), new RasterDataNode[]{raster}, view.getImageInfo(), view.getSceneImage().getConfiguration());
         multiLevelSource = view.getSceneImage45().getMultiLevelSource();
         rootLayer = view.getRootLayer();
     }
 
-    ProductSceneImage45(RasterDataNode raster) {
-        super(raster.getDisplayName(), new RasterDataNode[]{raster}, raster.getImageInfo());
-        multiLevelSource = BandImageMultiLevelSource.create(raster);
+    ProductSceneImage45(RasterDataNode raster, PropertyMap configuration, ProgressMonitor pm) {
+        super(raster.getDisplayName(), new RasterDataNode[]{raster}, raster.getImageInfo(), configuration);
+        multiLevelSource = BandImageMultiLevelSource.create(raster, pm);
         setImageInfo(raster.getImageInfo());
         initRootLayer();
     }
 
-    ProductSceneImage45(String name, RasterDataNode[] rasters) throws IOException {
-        super(name, rasters, null);
-        multiLevelSource = BandImageMultiLevelSource.create(rasters);
-        setImageInfo(ProductUtils.createImageInfo(rasters, false, ProgressMonitor.NULL));
+    ProductSceneImage45(RasterDataNode[] rasters, PropertyMap configuration, ProgressMonitor pm) throws IOException {
+        super("RGB", rasters, null, configuration);
+        multiLevelSource = BandImageMultiLevelSource.create(rasters, SubProgressMonitor.create(pm, 1));
+        setImageInfo(ProductUtils.createImageInfo(rasters, false, SubProgressMonitor.create(pm, 1)));
         initRootLayer();
     }
 
@@ -75,6 +77,8 @@ class ProductSceneImage45 extends ProductSceneImage {
         rootLayer.getChildLayerList().add(roiLayer);
         rootLayer.getChildLayerList().add(noDataLayer);
         rootLayer.getChildLayerList().add(imageLayer);
+
+        // TODO: remove this hack!!!
         if (getRaster().getProduct().getProductType().startsWith("MIR_")) {
             // SMOS
             Layer createWorldLayer = createWorldLayer();

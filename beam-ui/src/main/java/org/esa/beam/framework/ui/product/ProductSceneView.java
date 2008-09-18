@@ -51,9 +51,17 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
      */
     public static final String PROPERTY_KEY_IMAGE_INTERPOLATION = "image.interpolation";
     /**
-     * Property name for the image histogram matching type
+     * Name of property which switsches display of af a navigataion control in the image view.
      */
+    public static final String PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN = "image.navControlShown";
+
+    /**
+     * Property name for the image histogram matching type
+     * @deprecated
+     */
+    @Deprecated
     public static final String PROPERTY_KEY_HISTOGRAM_MATCHING = "graphics.histogramMatching";
+
     public static String IMAGE_INTERPOLATION_NEAREST_NEIGHBOUR = "Nearest Neighbour";
     public static String IMAGE_INTERPOLATION_BILINEAR = "Bi-Linear Interpolation";
     public static String IMAGE_INTERPOLATION_BICUBIC = "Bi-Cubic Interpolation";

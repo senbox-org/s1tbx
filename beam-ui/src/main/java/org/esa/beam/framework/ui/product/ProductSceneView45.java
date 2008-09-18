@@ -4,7 +4,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerListener;
 import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glayer.swing.ViewportScrollPane;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
@@ -12,6 +11,7 @@ import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
+import com.bc.ceres.glayer.swing.ViewportScrollPane;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.ui.PixelPositionListener;
@@ -35,8 +35,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
 
 public class ProductSceneView45 extends ProductSceneView {
 
@@ -46,12 +44,14 @@ public class ProductSceneView45 extends ProductSceneView {
         super(sceneImage);
 
         setOpaque(true);
-        setBackground(DEFAULT_IMAGE_BACKGROUND_COLOR);
+        setBackground(DEFAULT_IMAGE_BACKGROUND_COLOR); // todo - use sceneImage.getConfiguration() (nf, 18.09.2008)
         setLayout(new BorderLayout());
         layerCanvas = new LayerDisplay(sceneImage.getRootLayer(), this);
         final ViewportScrollPane scrollPane = new ViewportScrollPane(layerCanvas);
         add(scrollPane, BorderLayout.CENTER);
 
+        final boolean navControlShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true);
+        layerCanvas.setNavControlShown(navControlShown);
         layerCanvas.setPreferredSize(new Dimension(400, 400));
 
         PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
@@ -403,21 +403,23 @@ public class ProductSceneView45 extends ProductSceneView {
      * Called after VISAT preferences have changed.
      * This behaviour is deprecated since we want to uswe separate style editors for each layers.
      *
-     * @param propertyMap
+     * @param configuration
      */
     @Override
-    public void setLayerProperties(PropertyMap propertyMap) {
+    public void setLayerProperties(PropertyMap configuration) {
+
+        layerCanvas.setNavControlShown(configuration.getPropertyBool(PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true));
 
 //        setImageProperties(propertyMap); TODO implement
 
         final FigureLayer figureLayer = getFigureLayer();
         if (figureLayer != null) {
-            figureLayer.setStyleProperties(propertyMap);
+            figureLayer.setStyleProperties(configuration);
         }
 //        getNoDataLayer().setStyle(noDataStyle );
         final GraticuleLayer graticuleLayer = getGraticuleLayer();
         if (graticuleLayer != null) {
-            graticuleLayer.setStyleProperties(propertyMap);
+            graticuleLayer.setStyleProperties(configuration);
         }
 //        getPinLayer().setStyleProperties(propertyMap);
 //        getGcpLayer().setStyleProperties(propertyMap);
@@ -442,9 +444,9 @@ public class ProductSceneView45 extends ProductSceneView {
      */
     @Override
     public AbstractTool[] getSelectToolDelegates() {
-        return new AbstractTool[0];  // todo - implement me! Check: maybe this isn't even used
         // is used for the selection tool, which can be specified for each layer
-        // has been introduced for IAVISA (IFOV selection)
+        // has been introduced for IAVISA (IFOV selection)  (nf, 2008)
+        return new AbstractTool[0];
     }
 
     @Override

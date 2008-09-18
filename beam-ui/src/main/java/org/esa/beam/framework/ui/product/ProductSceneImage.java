@@ -6,6 +6,7 @@ import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.PropertyMap;
 
 import java.io.IOException;
 
@@ -20,19 +21,20 @@ public abstract class ProductSceneImage {
     private String name;
     private ImageInfo imageInfo;
     private RasterDataNode[] rasters;
+    private PropertyMap configuration;
 
     /**
      * Creates a color indexed product scene for the given product raster.
      *
-     * @param raster the product raster, must not be null
-     * @param pm     a monitor to inform the user about progress
-     * @return a color indexed product scene image
+     * @param raster            the product raster, must not be null
+     * @param configuration     a configuration
+     *@param pm                 a monitor to inform the user about progress @return a color indexed product scene image
      * @throws java.io.IOException if the image creation failed due to an I/O problem
      */
-    public static ProductSceneImage create(RasterDataNode raster, ProgressMonitor pm) throws IOException {
+    public static ProductSceneImage create(RasterDataNode raster, PropertyMap configuration, ProgressMonitor pm) throws IOException {
         Guardian.assertNotNull("raster", raster);
-        return new ProductSceneImage45(raster);
-
+        Assert.notNull(configuration, "configuration");
+        return new ProductSceneImage45(raster, configuration, pm);
     }
 
     /**
@@ -52,29 +54,35 @@ public abstract class ProductSceneImage {
     /**
      * Creates an RGB product scene for the given raster datasets.
      *
-     * @param name        the name of the scene image
-     * @param redRaster   the product raster used for the red color component, must not be null
-     * @param greenRaster the product raster used for the green color component, must not be null
-     * @param blueRaster  the product raster used for the blue color component, must not be null
-     * @param pm          a monitor to inform the user about progress @return an RGB product scene image
-     * @return the scene image created
+     * @param redRaster          the product raster used for the red color component, must not be null
+     * @param greenRaster        the product raster used for the green color component, must not be null
+     * @param blueRaster         the product raster used for the blue color component, must not be null
+     * @param configuration     a configuration
+     *@param pm                 a monitor to inform the user about progress @return an RGB product scene image
      * @throws java.io.IOException if the image creation failed due to an I/O problem
      */
-    public static ProductSceneImage create(String name, RasterDataNode redRaster,
+    public static ProductSceneImage create(RasterDataNode redRaster,
                                            RasterDataNode greenRaster,
                                            RasterDataNode blueRaster,
+                                           PropertyMap configuration,
                                            ProgressMonitor pm) throws IOException {
         Assert.notNull(redRaster, "redRaster");
         Assert.notNull(greenRaster, "greenRaster");
         Assert.notNull(blueRaster, "blueRaster");
+        Assert.notNull(configuration, "configuration");
         Assert.notNull(pm, "pm");
-        return new ProductSceneImage45(name, new RasterDataNode[]{redRaster, greenRaster, blueRaster});
+        return new ProductSceneImage45(new RasterDataNode[]{redRaster, greenRaster, blueRaster}, configuration, pm);
     }
 
-    protected ProductSceneImage(String name, RasterDataNode[] rasters, ImageInfo imageInfo) {
+    protected ProductSceneImage(String name, RasterDataNode[] rasters, ImageInfo imageInfo, PropertyMap configuration) {
         this.name = name;
         this.rasters = rasters;
         this.imageInfo = imageInfo;
+        this.configuration = configuration;
+    }
+
+    public PropertyMap getConfiguration() {
+        return configuration;
     }
 
     /**

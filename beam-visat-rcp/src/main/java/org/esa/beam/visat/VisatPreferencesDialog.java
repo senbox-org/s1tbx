@@ -689,6 +689,10 @@ public class VisatPreferencesDialog extends ConfigDialog {
             param = new Parameter(ProductSceneView.PROPERTY_KEY_GRAPHICS_ANTIALIASING, Boolean.FALSE);
             param.getProperties().setLabel("Use anti-aliasing for rendering text and vector graphics"); /*I18N*/
             configParams.addParameter(param);
+
+            param = new Parameter(ProductSceneView.PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, Boolean.TRUE);
+            param.getProperties().setLabel("Show a navigation control widget in image views"); /*I18N*/
+            configParams.addParameter(param);
         }
 
         @Override
@@ -714,6 +718,12 @@ public class VisatPreferencesDialog extends ConfigDialog {
             final JLabel note = new JLabel("Note: For best performance turn anti-aliasing off.");
             configureNoteLabel(note);
             pageUI.add(note, gbc);
+            gbc.gridy++;
+
+            gbc.insets.top += 6;
+            param = getConfigParam(ProductSceneView.PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN);
+            pageUI.add(param.getEditor().getEditorComponent(), gbc);
+            gbc.insets.top -= 6;
             gbc.gridy++;
 
             return createPageUIContentPane(pageUI);
@@ -780,6 +790,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
                 }
             });
             configParams.addParameter(param);
+
         }
 
         @Override

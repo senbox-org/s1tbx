@@ -1,45 +1,71 @@
 package org.esa.beam.pview;
 
-import com.bc.ceres.binio.Format;
+import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glayer.swing.ViewportScrollPane;
 import com.bc.ceres.glayer.tools.Tools;
-import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.binio.Format;
+import com.bc.ceres.core.ProgressMonitor;
 import com.jidesoft.utils.Lm;
-import org.esa.beam.dataio.smos.SmosFormats;
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.draw.ShapeFigure;
-import org.esa.beam.glevel.BandImageMultiLevelSource;
-import org.esa.beam.glevel.MaskImageMultiLevelSource;
-import org.esa.beam.glevel.RoiImageMultiLevelSource;
-import org.esa.beam.glevel.TiledFileMultiLevelSource;
-import org.esa.beam.visat.toolviews.layermanager.LayerManager;
 
-import javax.media.jai.JAI;
+import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 import javax.media.jai.util.ImagingListener;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
-import java.io.File;
-import java.io.IOException;
+import javax.media.jai.JAI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.Preferences;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.io.IOException;
+import java.io.File;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Desktop;
+import java.awt.HeadlessException;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
+
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.GcpDescriptor;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.PinSymbol;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ROIDefinition;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.draw.ShapeFigure;
+import org.esa.beam.dataio.smos.SmosFormats;
+import org.esa.beam.glevel.TiledFileMultiLevelSource;
+import org.esa.beam.glevel.BandImageMultiLevelSource;
+import org.esa.beam.glevel.MaskImageMultiLevelSource;
+import org.esa.beam.glevel.RoiImageMultiLevelSource;
+
 
 public class PView {
-    private static final String APPNAME = "BEAM PView 1.1";
+    private static final String APPNAME = "BEAM PView 1.5";
     private static final String WORLD_IMAGE_DIR_PROPERTY_NAME = "org.esa.beam.pview.worldImageDir";
     private static final String LAST_DATA_DIR_PREF_KEY = "lastDataDir";
     private static final String DEFAULT_DATA_DIR = "data/smos-samples";
@@ -317,7 +343,7 @@ public class PView {
     }
 
     private static ImageLayer createRgbLayer(String name, RasterDataNode[] rasterDataNodes, AffineTransform i2m) {
-        ImageLayer imageLayer = new ImageLayer(BandImageMultiLevelSource.create(rasterDataNodes, i2m));
+        ImageLayer imageLayer = new ImageLayer(BandImageMultiLevelSource.create(rasterDataNodes, i2m, ProgressMonitor.NULL));
         imageLayer.setName(name);
         imageLayer.setVisible(false);
         return imageLayer;
@@ -346,7 +372,7 @@ public class PView {
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
             final Band band = product.getBand(name);
-            final ImageLayer imageLayer = new ImageLayer(BandImageMultiLevelSource.create(band, i2m));
+            final ImageLayer imageLayer = new ImageLayer(BandImageMultiLevelSource.create(band, i2m, ProgressMonitor.NULL));
             imageLayer.setName(band.getName());
             imageLayer.setVisible(i == 0);
             collectionLayer.getChildLayerList().add(imageLayer);
@@ -392,7 +418,7 @@ public class PView {
         final String[] names = product.getTiePointGridNames();
         for (final String name : names) {
             final TiePointGrid tiePointGrid = product.getTiePointGrid(name);
-            final ImageLayer imageLayer = new ImageLayer(BandImageMultiLevelSource.create(tiePointGrid, i2m));
+            final ImageLayer imageLayer = new ImageLayer(BandImageMultiLevelSource.create(tiePointGrid, i2m, ProgressMonitor.NULL));
             imageLayer.setName(tiePointGrid.getName());
             imageLayer.setVisible(false);
             collectionLayer.getChildLayerList().add(imageLayer);
@@ -431,6 +457,7 @@ public class PView {
         final int initialViewHeight = 800;
 
         final LayerCanvas layerCanvas = new LayerCanvas(collectionLayer);
+        layerCanvas.setNavControlShown(true);
         Tools.installLayerCanvasNavigation(layerCanvas);
 
         ViewportScrollPane viewportScrollPane = new ViewportScrollPane(layerCanvas);
@@ -460,8 +487,8 @@ public class PView {
         });
 
         frame.setVisible(true);
-        showLayerManager(frame, "Layers - [" + file.getName() + "] - " + APPNAME,
-                collectionLayer, new Point(initialViewWidth + frameLocation, frameLocation));
+//        showLayerManager(frame, "Layers - [" + file.getName() + "] - " + APPNAME,
+//                collectionLayer, new Point(initialViewWidth + frameLocation, frameLocation));
         frameLocation += 24;
         frames.add(frame);
     }
@@ -532,24 +559,24 @@ public class PView {
     }
 
 
-    public static void showLayerManager(final JFrame frame, String title, Layer collectionLayer, Point point) {
-        final LayerManager layerManager = new LayerManager(collectionLayer);
-        final JDialog lm = new JDialog(frame, title, false);
-        lm.getContentPane().add(layerManager.getControl(), BorderLayout.CENTER);
-        lm.pack();
-        lm.setLocation(point);
-        lm.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        lm.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                lm.dispose();
-                frame.dispose();
-            }
-        });
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                lm.setVisible(true);
-            }
-        });
-    }
+//    public static void showLayerManager(final JFrame frame, String title, Layer collectionLayer, Point point) {
+//        final LayerManager layerManager = new LayerManager(collectionLayer);
+//        final JDialog lm = new JDialog(frame, title, false);
+//        lm.getContentPane().add(layerManager.getControl(), BorderLayout.CENTER);
+//        lm.pack();
+//        lm.setLocation(point);
+//        lm.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+//        lm.addWindowListener(new WindowAdapter() {
+//            @Override
+//            public void windowClosing(WindowEvent e) {
+//                lm.dispose();
+//                frame.dispose();
+//            }
+//        });
+//        SwingUtilities.invokeLater(new Runnable() {
+//            public void run() {
+//                lm.setVisible(true);
+//            }
+//        });
+//    }
 }

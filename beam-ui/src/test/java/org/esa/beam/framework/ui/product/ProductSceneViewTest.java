@@ -21,6 +21,7 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.util.PropertyMap;
 
 import java.io.IOException;
 import java.awt.geom.AffineTransform;
@@ -58,16 +59,16 @@ public class ProductSceneViewTest extends TestCase {
     public void testIsRGB() throws IOException {
         ProductSceneView view;
 
-        view = ProductSceneView.create(ProductSceneImage45.create(r, ProgressMonitor.NULL));
+        view = ProductSceneView.create(ProductSceneImage45.create(r, new PropertyMap(), ProgressMonitor.NULL));
         assertFalse(view.isRGB());
 
-        view = ProductSceneView.create(ProductSceneImage45.create("RGB", r, g, b, ProgressMonitor.NULL));
+        view = ProductSceneView.create(ProductSceneImage45.create(r, g, b, new PropertyMap(), ProgressMonitor.NULL));
         assertTrue(view.isRGB());
     }
 
     public void testDispose() throws IOException {
         final ProductSceneView view;
-        view = ProductSceneView.create(ProductSceneImage45.create(r, ProgressMonitor.NULL));
+        view = ProductSceneView.create(ProductSceneImage45.create(r, new PropertyMap(), ProgressMonitor.NULL));
 
         view.dispose();
         assertNull(view.getSceneImage());
