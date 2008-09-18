@@ -46,8 +46,8 @@ class ProductSceneImage45 extends ProductSceneImage {
         initRootLayer();
     }
 
-    ProductSceneImage45(RasterDataNode[] rasters) throws IOException {
-        super("RGB", rasters, null);
+    ProductSceneImage45(String name, RasterDataNode[] rasters) throws IOException {
+        super(name, rasters, null);
         multiLevelSource = BandImageMultiLevelSource.create(rasters);
         setImageInfo(ProductUtils.createImageInfo(rasters, false, ProgressMonitor.NULL));
         initRootLayer();

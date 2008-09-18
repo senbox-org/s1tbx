@@ -24,8 +24,8 @@ public abstract class ProductSceneImage {
     /**
      * Creates a color indexed product scene for the given product raster.
      *
-     * @param raster             the product raster, must not be null
-     * @param pm                 a monitor to inform the user about progress
+     * @param raster the product raster, must not be null
+     * @param pm     a monitor to inform the user about progress
      * @return a color indexed product scene image
      * @throws java.io.IOException if the image creation failed due to an I/O problem
      */
@@ -52,14 +52,15 @@ public abstract class ProductSceneImage {
     /**
      * Creates an RGB product scene for the given raster datasets.
      *
-     * @param redRaster          the product raster used for the red color component, must not be null
-     * @param greenRaster        the product raster used for the green color component, must not be null
-     * @param blueRaster         the product raster used for the blue color component, must not be null
-     * @param pm                 a monitor to inform the user about progress
-     * @return an RGB product scene image
+     * @param name        the name of the scene image
+     * @param redRaster   the product raster used for the red color component, must not be null
+     * @param greenRaster the product raster used for the green color component, must not be null
+     * @param blueRaster  the product raster used for the blue color component, must not be null
+     * @param pm          a monitor to inform the user about progress @return an RGB product scene image
+     * @return the scene image created
      * @throws java.io.IOException if the image creation failed due to an I/O problem
      */
-    public static ProductSceneImage create(RasterDataNode redRaster,
+    public static ProductSceneImage create(String name, RasterDataNode redRaster,
                                            RasterDataNode greenRaster,
                                            RasterDataNode blueRaster,
                                            ProgressMonitor pm) throws IOException {
@@ -67,7 +68,7 @@ public abstract class ProductSceneImage {
         Assert.notNull(greenRaster, "greenRaster");
         Assert.notNull(blueRaster, "blueRaster");
         Assert.notNull(pm, "pm");
-        return new ProductSceneImage45(new RasterDataNode[]{redRaster, greenRaster, blueRaster});
+        return new ProductSceneImage45(name, new RasterDataNode[]{redRaster, greenRaster, blueRaster});
     }
 
     protected ProductSceneImage(String name, RasterDataNode[] rasters, ImageInfo imageInfo) {

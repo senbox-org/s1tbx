@@ -144,7 +144,7 @@ public class ShowImageViewRGBAction extends ExecCommand {
             pm.beginTask("Creating RGB image...", 2);
             rgbBands = allocateRgbBands(product, rgbaExpressions, visatApp.getDataAutoLoadLimit(),
                                         SubProgressMonitor.create(pm, 1));
-            productSceneImage = ProductSceneImage.create(rgbBands[0].band, rgbBands[1].band, rgbBands[2].band,
+            productSceneImage = ProductSceneImage.create(name, rgbBands[0].band, rgbBands[1].band, rgbBands[2].band,
                                                          SubProgressMonitor.create(pm, 1));
             productSceneImage.setName(name);
         } catch (Exception e) {

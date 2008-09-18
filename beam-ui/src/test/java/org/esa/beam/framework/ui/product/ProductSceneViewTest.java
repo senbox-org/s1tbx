@@ -61,7 +61,7 @@ public class ProductSceneViewTest extends TestCase {
         view = ProductSceneView.create(ProductSceneImage45.create(r, ProgressMonitor.NULL));
         assertFalse(view.isRGB());
 
-        view = ProductSceneView.create(ProductSceneImage45.create(r, g, b, ProgressMonitor.NULL));
+        view = ProductSceneView.create(ProductSceneImage45.create("RGB", r, g, b, ProgressMonitor.NULL));
         assertTrue(view.isRGB());
     }
 
