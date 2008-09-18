@@ -48,9 +48,7 @@ public class NavigationToolView extends AbstractToolView {
     public static final String ID = NavigationToolView.class.getName();
     private static final int MAX_SLIDER_VALUE = 100;
     private static final double ZOOM_FACTOR = 1.2;
-    private static final double VIEW_SCALE_MAX = 16.0;
-    public static final double MIN_PERCENT_VALUE = 100.0 / VIEW_SCALE_MAX;
-    public static final double MAX_PERCENT_VALUE = 100.0 * VIEW_SCALE_MAX;
+    private static final double VIEW_SCALE_MAX = 32.0;
 
     private ProductSceneView currentView;
     private NavigationCanvas canvas;

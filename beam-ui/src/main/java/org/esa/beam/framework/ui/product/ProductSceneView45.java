@@ -115,20 +115,23 @@ public class ProductSceneView45 extends ProductSceneView {
 
     @Override
     protected void disposeImageDisplayComponent() {
+        layerCanvas.dispose();
     }
 
+    // todo - move to somewhere in navigation tool view package
     @Override
     public void renderThumbnail(BufferedImage thumbnailImage) {
         final BufferedImageRendering imageRendering = new BufferedImageRendering(thumbnailImage);
 
         final Graphics2D graphics = imageRendering.getGraphics();
-        graphics.setColor(getBackground());
-        graphics.fillRect(0, 0, thumbnailImage.getWidth(), thumbnailImage.getHeight());
+        graphics.setBackground(getBackground());
+        graphics.clearRect(0, 0, thumbnailImage.getWidth(), thumbnailImage.getHeight());
 
         configureThumbnailViewport(imageRendering.getViewport());
         getSceneImage45().getRootLayer().render(imageRendering);
     }
 
+    // todo - move to somewhere in navigation tool view package
     @Override
     public Rectangle getViewportThumbnailBounds(Rectangle thumbnailArea) {
         final Viewport thumbnailViewport = new DefaultViewport(thumbnailArea);
@@ -146,6 +149,7 @@ public class ProductSceneView45 extends ProductSceneView {
                 (int) Math.floor(canvasViewport.getBounds().height * scale));
     }
 
+    // todo - move to somewhere in navigation tool view package
     private void configureThumbnailViewport(Viewport thumbnailViewport) {
         thumbnailViewport.setMaxZoomFactor(-1);
         thumbnailViewport.zoom(getRotatedModelBounds());

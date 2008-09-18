@@ -116,6 +116,7 @@ public class NavigationCanvas extends JPanel {
                 imageWidth = (int) Math.round(imageHeight * modelRatio);
             }
             if (imageWidth > 0 && imageHeight > 0) {
+                System.out.println("modelRatio = " + modelRatio);
                 if (thumbnailImage == null ||
                         thumbnailImage.getWidth() != imageWidth ||
                         thumbnailImage.getHeight() != imageHeight) {
