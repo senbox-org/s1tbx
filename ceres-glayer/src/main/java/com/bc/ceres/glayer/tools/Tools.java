@@ -205,6 +205,7 @@ public class Tools {
     }
 
     public static void installLayerCanvasNavigation(LayerCanvas layerCanvas) {
+        layerCanvas.setNavControlShown(true);
         final MouseHandler mouseHandler = new MouseHandler(layerCanvas);
         layerCanvas.addMouseListener(mouseHandler);
         layerCanvas.addMouseMotionListener(mouseHandler);

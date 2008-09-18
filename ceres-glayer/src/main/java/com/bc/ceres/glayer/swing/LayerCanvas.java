@@ -89,11 +89,14 @@ public class LayerCanvas extends JComponent implements AdjustableView {
             }
         });
 
-        setNavControlShown(true);
+        setNavControlShown(false);
     }
 
     public Layer getLayer() {
         return layer;
+    }
+
+    public void dispose() {
     }
 
     /**

@@ -368,12 +368,12 @@ public class NavControl extends JComponent {
         private double scaleDir;
         private double scaleAcc;
         private Cursor cursor0;
-        private final Timer dragTimer;
+        private final Timer actionTrigger;
 
         private int action;  // see MODE_XXX values
 
         private MouseHandler() {
-            dragTimer = new Timer(TIMER_DELAY, this);
+            actionTrigger = new Timer(TIMER_DELAY, this);
             action = ACTION_NONE;
         }
 
@@ -446,7 +446,17 @@ public class NavControl extends JComponent {
             scaleDir = dx / a;
             scaleAcc = 1.0;
             fireAcceleratedScale();
-            dragTimer.restart();
+            startTriggeringActions();
+        }
+
+        private void startTriggeringActions() {
+            System.out.println("NavControl.startTriggeringActions() >>>");
+            actionTrigger.restart();
+        }
+
+        private void stopTriggeringActions() {
+            System.out.println("NavControl.stopTriggeringActions() <<<");
+            actionTrigger.stop();
         }
 
         private void doPan(MouseEvent e) {
@@ -465,7 +475,7 @@ public class NavControl extends JComponent {
             moveDirY = -dy / outerMoveRadius;
             moveAcc = 1.0;
             fireAcceleratedMove();
-            dragTimer.restart();
+            startTriggeringActions();
         }
 
         void startMove(int dir) {
@@ -476,7 +486,7 @@ public class NavControl extends JComponent {
 
         private void doMove() {
             moveAcc = 1.0;
-            dragTimer.restart();
+            startTriggeringActions();
         }
 
         private void doRotate(MouseEvent e) {
@@ -510,7 +520,7 @@ public class NavControl extends JComponent {
 
         private void stopAction() {
             setCursor(cursor0);
-            dragTimer.stop();
+            stopTriggeringActions();
             cursor0 = null;
             point0 = null;
             action = ACTION_NONE;
@@ -528,6 +538,7 @@ public class NavControl extends JComponent {
 
             repaint();
         }
+
     }
 
     public static void main(String[] args) {

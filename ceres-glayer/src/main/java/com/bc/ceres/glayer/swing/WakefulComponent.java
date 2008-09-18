@@ -52,8 +52,8 @@ public class WakefulComponent extends JComponent {
     private static final int PPS = 20;
 
     private float currentAlpha;
-    private float minAlpha = 0.1f;
-    private float maxAlpha = 0.7f;
+    private float minAlpha = 0.2f;
+    private float maxAlpha = 0.8f;
     private int activationTime = 400;
     private int deactivationTime = 200;
     private int waitingTime = 700;
