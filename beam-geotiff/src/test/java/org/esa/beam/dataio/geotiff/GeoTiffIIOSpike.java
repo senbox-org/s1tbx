@@ -30,11 +30,11 @@ import java.util.Iterator;
 /**
  * @author Marco
  */
-public class GeoTiffIIOTesting {
+public class GeoTiffIIOSpike {
 
     private static final String DEFAULT_DIR = "C:\\Dokumente und Einstellungen\\Marco Peters\\Eigene Dateien\\EOData\\geotiff";
 
-    private GeoTiffIIOTesting() {
+    private GeoTiffIIOSpike() {
     }
 
     /**
@@ -88,7 +88,7 @@ public class GeoTiffIIOTesting {
             System.out.println("formatName = " + formatName);
         }
         final Node imageTree = imageMetadata.getAsTree("com_sun_media_imageio_plugins_tiff_image_1.0");
-        displayMetadata(imageTree);
+//        displayMetadata(imageTree);
         final TIFFIFD ifd = imageMetadata.getRootIFD(); // replace TIFFDirectory with this
 
 //        final TIFFFileInfo fileInfo = new TIFFFileInfo(ifd);
