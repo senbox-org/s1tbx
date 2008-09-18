@@ -511,7 +511,13 @@ public class ProductSceneView45 extends ProductSceneView {
 
     // used only internaly --> private ???
     public int getNumFigures() {
-        return getFigureLayer().getFigureList().size();
+        final FigureLayer figureLayer = getFigureLayer();
+
+        if (figureLayer != null) {
+            return figureLayer.getFigureList().size();
+        }
+
+        return 0;
     }
 
     // used only internaly --> private ???
@@ -521,7 +527,13 @@ public class ProductSceneView45 extends ProductSceneView {
 
     // TODO remove ??? UNUSED
     public Figure[] getAllFigures() {
-        return getFigureLayer().getFigureList().toArray(new Figure[getNumFigures()]);
+        final FigureLayer figureLayer = getFigureLayer();
+
+        if (figureLayer != null) {
+            return figureLayer.getFigureList().toArray(new Figure[getNumFigures()]);
+        }
+
+        return new Figure[0];
     }
 
     //TODO remove ??? UNUSED
