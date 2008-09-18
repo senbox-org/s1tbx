@@ -99,6 +99,7 @@ class NodeMoveTransferHandler extends TransferHandler {
             final MutableTreeNode movedNode = (MutableTreeNode) movedPath.getLastPathComponent();
 
             if (!movedNode.equals(targetNode)) {
+                // todo - implement swapping of nodes (rq)
                 model.removeNodeFromParent(movedNode);
                 final MutableTreeNode parent = (MutableTreeNode) targetNode.getParent();
                 final int index = parent.getIndex(targetNode);

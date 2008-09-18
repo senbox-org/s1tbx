@@ -171,11 +171,12 @@ public class LayerManager {
         checkBoxTree.setRootVisible(false);
         checkBoxTree.setShowsRootHandles(true);
         checkBoxTree.setDigIn(false);
-        checkBoxTree.setDragEnabled(true);
+        checkBoxTree.setDragEnabled(false);
         checkBoxTree.setDropMode(DropMode.ON_OR_INSERT);
 
-        final NodeMoveTransferHandler transferHandler = new NodeMoveTransferHandler();
-        checkBoxTree.setTransferHandler(transferHandler);
+        // removed because the current {@link NodeTransferHandler} is too immature (rq)
+//        final NodeMoveTransferHandler transferHandler = new NodeMoveTransferHandler();
+//        checkBoxTree.setTransferHandler(transferHandler);
 
         checkBoxTree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             @Override
