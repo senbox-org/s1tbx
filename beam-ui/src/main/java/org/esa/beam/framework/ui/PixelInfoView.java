@@ -16,6 +16,7 @@
  */
 package org.esa.beam.framework.ui;
 
+import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.swing.dock.DockablePane;
 import com.jidesoft.swing.JideSplitPane;
 import org.esa.beam.framework.datamodel.*;
@@ -36,9 +37,12 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Calendar;
@@ -89,6 +93,7 @@ public class PixelInfoView extends JPanel {
     private float _pixelOffsetY;
     private int _pixelX;
     private int _pixelY;
+    private int _level;
     private boolean _pixelPosValid;
     private DisplayFilter _displayFilter;
 
@@ -199,7 +204,7 @@ public class PixelInfoView extends JPanel {
         }
     }
 
-    public void updatePixelValues(ProductSceneView view, int pixelX, int pixelY, boolean pixelPosValid) {
+    public void updatePixelValues(ProductSceneView view, int pixelX, int pixelY, int level, boolean pixelPosValid) {
         Guardian.assertNotNull("view", view);
         final RasterDataNode raster = view.getRaster();
         final Product product = raster.getProduct();
@@ -231,6 +236,7 @@ public class PixelInfoView extends JPanel {
         Debug.assertTrue(_currentProduct != null);
         _pixelX = pixelX;
         _pixelY = pixelY;
+        _level = level;
         _pixelPosValid = pixelPosValid;
         updateDataDisplay();
     }

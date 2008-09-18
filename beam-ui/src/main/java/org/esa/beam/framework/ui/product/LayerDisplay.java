@@ -44,12 +44,13 @@ public class LayerDisplay extends LayerCanvas {
     private ComponentAdapter componentAdapter;
     private MouseInputListener mouseInputListener;
     private KeyListener imageDisplayKeyListener;
-    private Vector<PixelPositionListener> pixelPositionListeners;
+    private final Vector<PixelPositionListener> pixelPositionListeners;
     private final ProductSceneView45 productSceneView45;
 
     LayerDisplay(Layer layer, ProductSceneView45 productSceneView45) {
         super(layer);
         this.productSceneView45 = productSceneView45;
+        pixelPositionListeners = new Vector<PixelPositionListener>();
         registerListeners();
     }
 
@@ -86,9 +87,6 @@ public class LayerDisplay extends LayerCanvas {
         if (listener == null) {
             return;
         }
-        if (pixelPositionListeners == null) {
-            pixelPositionListeners = new Vector<PixelPositionListener>();
-        }
         if (pixelPositionListeners.contains(listener)) {
             return;
         }
@@ -101,7 +99,7 @@ public class LayerDisplay extends LayerCanvas {
      * @param listener the pixel position listener to be removed
      */
     public final void removePixelPositionListener(PixelPositionListener listener) {
-        if (listener == null || pixelPositionListeners == null) {
+        if (listener == null || pixelPositionListeners.isEmpty()) {
             return;
         }
         pixelPositionListeners.remove(listener);
@@ -115,18 +113,16 @@ public class LayerDisplay extends LayerCanvas {
     }
 
     private ToolInputEvent createToolInputEvent(MouseEvent e) {
-        return new ToolInputEvent(this, e, pixelX, pixelY, isPixelPosValid(
-                pixelX, pixelY));
+        return new ToolInputEvent(this, e, pixelX, pixelY, isPixelPosValid(pixelX, pixelY));
     }
 
     private ToolInputEvent createToolInputEvent(KeyEvent e) {
-        return new ToolInputEvent(this, e, pixelX, pixelY, isPixelPosValid(
-                pixelX, pixelY));
+        return new ToolInputEvent(this, e, pixelX, pixelY, isPixelPosValid(pixelX, pixelY));
     }
 
-    private boolean isPixelPosValid(int pixelX, int pixelY) {
-        return pixelX >= 0 && pixelX < getImage().getWidth() && pixelY >= 0
-                && pixelY < getImage().getHeight();
+    private boolean isPixelPosValid(int currentPixelX, int currentPixelY) {
+        return currentPixelX >= 0 && currentPixelX < getImage().getWidth() && currentPixelY >= 0
+                && currentPixelY < getImage().getHeight();
     }
 
     private ImageLayer getBaseImageLayer() {
@@ -145,29 +141,19 @@ public class LayerDisplay extends LayerCanvas {
      * @param pixelX pixel position X
      * @param pixelY pixel position Y
      */
-    protected final void firePixelPosChanged(MouseEvent e, int pixelX,
-                                             int pixelY) {
-        if (pixelPositionListeners != null) {
-            PixelPositionListener[] listeners = this.pixelPositionListeners
-                    .toArray(new PixelPositionListener[this.pixelPositionListeners.size()]);
-            boolean pixelPosValid = isPixelPosValid(pixelX, pixelY);
-            for (PixelPositionListener listener : listeners) {
-                listener.pixelPosChanged(getImage(), pixelX, pixelY,
-                                         pixelPosValid, e);
-            }
+    private final void firePixelPosChanged(MouseEvent e, int currentPixelX, int currentPixelY, int currentLevel) {
+        boolean pixelPosValid = isPixelPosValid(currentPixelX, currentPixelY);
+        for (PixelPositionListener listener : pixelPositionListeners) {
+            listener.pixelPosChanged(getImage(), currentPixelX, currentPixelY, currentLevel, pixelPosValid, e);
         }
     }
 
     /**
      * Fires a 'pixel position is invalid' event to all registered listeners.
      */
-    protected final void firePixelPosNotAvailable() {
-        if (pixelPositionListeners != null) {
-            PixelPositionListener[] listeners = this.pixelPositionListeners
-                    .toArray(new PixelPositionListener[this.pixelPositionListeners.size()]);
-            for (PixelPositionListener listener : listeners) {
-                listener.pixelPosNotAvailable(getImage());
-            }
+    private final void firePixelPosNotAvailable() {
+        for (PixelPositionListener listener : pixelPositionListeners) {
+            listener.pixelPosNotAvailable(getImage());
         }
     }
 
@@ -283,25 +269,29 @@ public class LayerDisplay extends LayerCanvas {
 
     private void setPixelPos(MouseEvent e, boolean showBorder) {
         Point p = e.getPoint();
-        final Point2D modelP = getViewport().getViewToModelTransform()
-                .transform(p, null);
-        Point2D imageP = getBaseImageLayer().getModelToImageTransform().transform(modelP, null);
-        int pixelX = (int) Math.floor(imageP.getX());
-        int pixelY = (int) Math.floor(imageP.getY());
-        if (pixelX != this.pixelX || pixelY != this.pixelY) {
+        ImageLayer baseImageLayer = getBaseImageLayer();
+        Viewport viewport = getViewport();
+        AffineTransform v2mTransform = viewport.getViewToModelTransform();
+        AffineTransform m2iTransform = baseImageLayer.getModelToImageTransform();
+        final Point2D modelP = v2mTransform.transform(p, null);
+        Point2D imageP = m2iTransform.transform(modelP, null);
+        int currentPixelX = (int) Math.floor(imageP.getX());
+        int currentPixelY = (int) Math.floor(imageP.getY());
+        if (currentPixelX != pixelX || currentPixelY != pixelY) {
             // if (isPixelBorderDisplayEnabled() && (showBorder ||
             // pixelBorderDrawn)) {
             // drawPixelBorder(pixelX, pixelY, showBorder);
             // }
-            setPixelPos(e, pixelX, pixelY);
+            final int currentLevel = baseImageLayer.getLevel(viewport);
+            setPixelPos(e, currentPixelX, currentPixelY, currentLevel);
         }
     }
 
-    final void setPixelPos(MouseEvent e, int pixelX, int pixelY) {
-        this.pixelX = pixelX;
-        this.pixelY = pixelY;
+    private void setPixelPos(MouseEvent e, int currentPixelX, int currentPixelY, int currentLevel) {
+        pixelX = currentPixelX;
+        pixelY = currentPixelY;
         if (e.getID() != MouseEvent.MOUSE_EXITED) {
-            firePixelPosChanged(e, this.pixelX, this.pixelY);
+             firePixelPosChanged(e, pixelX, pixelY, currentLevel);
         } else {
             firePixelPosNotAvailable();
         }

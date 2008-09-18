@@ -540,6 +540,7 @@ public class SpectrumToolView extends AbstractToolView {
         public void pixelPosChanged(RenderedImage sourceImage,
                                     int pixelX,
                                     int pixelY,
+                                    int currentLevel,
                                     boolean pixelPosValid,
                                     MouseEvent e) {
             diagramCanvas.setMessageText(null);

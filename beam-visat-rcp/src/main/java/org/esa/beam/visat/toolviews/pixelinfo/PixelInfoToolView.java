@@ -147,12 +147,12 @@ public class PixelInfoToolView extends AbstractToolView {
             final Product product = sceneView.getProduct();
             final Pin pin = product.getPinGroup().getSelectedNode();
             if (pin == null) {
-                _pixelInfoView.updatePixelValues(sceneView, -1, -1, false);
+                _pixelInfoView.updatePixelValues(sceneView, -1, -1, 0, false);
             } else {
                 final PixelPos pos = pin.getPixelPos();
                 final int x = MathUtils.floorInt(pos.x);
                 final int y = MathUtils.floorInt(pos.y);
-                _pixelInfoView.updatePixelValues(sceneView, x, y, true);
+                _pixelInfoView.updatePixelValues(sceneView, x, y, 0, true);
             }
         }
     }
@@ -219,7 +219,7 @@ public class PixelInfoToolView extends AbstractToolView {
                 final Product product = view.getProduct();
                 product.removeProductNodeListener(getOrCreatePinSelectionChangedListener());
                 if (isSnapToPin()) {
-                    _pixelInfoView.updatePixelValues(view, -1, -1, false);
+                    _pixelInfoView.updatePixelValues(view, -1, -1, 0, false);
                 }
             }
         }
@@ -233,15 +233,15 @@ public class PixelInfoToolView extends AbstractToolView {
             _view = view;
         }
 
-        public void pixelPosChanged(RenderedImage sourceImage, int pixelX, int pixelY, boolean pixelPosValid, MouseEvent e) {
+        public void pixelPosChanged(RenderedImage sourceImage, int pixelX, int pixelY, int currentLevel, boolean pixelPosValid, MouseEvent e) {
             if (isExecute()) {
-                _pixelInfoView.updatePixelValues(_view, pixelX, pixelY, pixelPosValid);
+                _pixelInfoView.updatePixelValues(_view, pixelX, pixelY, currentLevel, pixelPosValid);
             }
         }
 
         public void pixelPosNotAvailable(RenderedImage sourceImage) {
             if (isExecute()) {
-                _pixelInfoView.updatePixelValues(_view, -1, -1, false);
+                _pixelInfoView.updatePixelValues(_view, -1, -1, 0, false);
             }
         }
 

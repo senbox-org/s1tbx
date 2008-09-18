@@ -136,6 +136,7 @@ public class StatusBarPosDisplayVPI extends AbstractVisatPlugIn {
         public void pixelPosChanged(RenderedImage sourceImage,
                                     int pixelX,
                                     int pixelY,
+                                    int currentLevel,
                                     boolean pixelPosValid,
                                     MouseEvent e) {
             LabelStatusBarItem positionStatusBarItem = getPositionStatusBarItem();

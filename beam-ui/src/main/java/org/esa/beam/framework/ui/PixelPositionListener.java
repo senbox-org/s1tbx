@@ -35,9 +35,10 @@ public interface PixelPositionListener {
      * @param sourceImage   the source image
      * @param pixelX        the x position within the image in pixel co-ordinates
      * @param pixelY        the y position within the image in pixel co-ordinates
+     * @param currentLevel  the current level at which the image is displayed
      * @param pixelPosValid if <code>true</code>, pixel position is valid
      */
-    void pixelPosChanged(RenderedImage sourceImage, int pixelX, int pixelY, boolean pixelPosValid, MouseEvent e);
+    void pixelPosChanged(RenderedImage sourceImage, int pixelX, int pixelY, int currentLevel, boolean pixelPosValid, MouseEvent e);
 
     /**
      * Informs a client that the pixel positions are no longer available.
