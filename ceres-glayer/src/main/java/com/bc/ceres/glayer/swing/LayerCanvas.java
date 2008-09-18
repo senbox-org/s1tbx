@@ -140,12 +140,13 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 
     @Override
     public void doLayout() {
-        if (navControlShown && navControlWrapper != null) {
-            final int w = navControlWrapper.getWidth();
-            final int x = getWidth() - w - 4;
-            final int y = 4;
-            navControlWrapper.setLocation(x,y);
-        }
+// Use the follwoing code to align the nav. control to the RIGHT (nf, 18.09,.2008)
+//        if (navControlShown && navControlWrapper != null) {
+//            final int w = navControlWrapper.getWidth();
+//            final int x = getWidth() - w - 4;
+//            final int y = 4;
+//            navControlWrapper.setLocation(x,y);
+//        }
     }
 
     @Override
