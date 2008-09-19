@@ -92,7 +92,7 @@ public abstract class AbstractStyle implements Style {
     }
 
     private class DefaultStylePCL implements PropertyChangeListener {
-        /*
+        /**
          * Called if a property the default style changed.
          */
         @Override
