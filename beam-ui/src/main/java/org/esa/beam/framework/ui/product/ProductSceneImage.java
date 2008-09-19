@@ -71,9 +71,8 @@ public class ProductSceneImage {
              new RasterDataNode[]{raster}, 
              view.getImageInfo(), 
              view.getSceneImage().getConfiguration());
-        ProductSceneView45 view45 = (ProductSceneView45) view;
-        imageMultiLevelSource = view45.getSceneImage45().getImageMultiLevelSource();
-        rootLayer = view45.getRootLayer();
+        imageMultiLevelSource = view.getSceneImage().getImageMultiLevelSource();
+        rootLayer = view.getRootLayer();
     }
 
     /**

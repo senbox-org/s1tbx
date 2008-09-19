@@ -42,11 +42,11 @@ public class LayerDisplay extends LayerCanvas {
     private MouseInputListener mouseInputListener;
     private KeyListener imageDisplayKeyListener;
     private final Vector<PixelPositionListener> pixelPositionListeners;
-    private final ProductSceneView45 productSceneView45;
+    private final ProductSceneView productSceneView;
 
-    LayerDisplay(Layer layer, ProductSceneView45 productSceneView45) {
+    LayerDisplay(Layer layer, ProductSceneView productSceneView) {
         super(layer);
-        this.productSceneView45 = productSceneView45;
+        this.productSceneView = productSceneView;
         pixelPositionListeners = new Vector<PixelPositionListener>();
         registerListeners();
     }
@@ -123,7 +123,7 @@ public class LayerDisplay extends LayerCanvas {
     }
 
     private ImageLayer getBaseImageLayer() {
-        return productSceneView45.getBaseImageLayer();
+        return productSceneView.getBaseImageLayer();
     }
 
     private RenderedImage getImage() {

@@ -16,7 +16,6 @@ package org.esa.beam.visat.toolviews.layermanager;
 
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.ui.product.ProductSceneView45;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.*;
@@ -44,16 +43,14 @@ public class LayerManagerToolView extends AbstractToolView {
         layerManagerMap = new HashMap<Container, LayerManager>();
 
         final ProductSceneView sceneView = VisatApp.getApp().getSelectedProductSceneView();
-        if (sceneView instanceof ProductSceneView45) {
-            setProductSceneView((ProductSceneView45) sceneView);
-        }
+        setProductSceneView(sceneView);
 
         VisatApp.getApp().addInternalFrameListener(new LayerManagerIFL());
 
         return panel;
     }
 
-    private void setProductSceneView(final ProductSceneView45 sceneView) {
+    private void setProductSceneView(final ProductSceneView sceneView) {
         if (panel.getComponentCount() > 0) {
             panel.remove(0);
         }
@@ -76,8 +73,8 @@ public class LayerManagerToolView extends AbstractToolView {
         public void internalFrameActivated(InternalFrameEvent e) {
             final Container container = e.getInternalFrame().getContentPane();
 
-            if (container instanceof ProductSceneView45) {
-                setProductSceneView((ProductSceneView45) container);
+            if (container instanceof ProductSceneView) {
+                setProductSceneView((ProductSceneView) container);
             } else {
                 setProductSceneView(null);
             }
@@ -87,7 +84,7 @@ public class LayerManagerToolView extends AbstractToolView {
         public void internalFrameDeactivated(InternalFrameEvent e) {
             final Container container = e.getInternalFrame().getContentPane();
 
-            if (container instanceof ProductSceneView45) {
+            if (container instanceof ProductSceneView) {
                 setProductSceneView(null);
             }
         }
@@ -96,13 +93,9 @@ public class LayerManagerToolView extends AbstractToolView {
         public void internalFrameClosed(InternalFrameEvent e) {
             final Container contentPane = e.getInternalFrame().getContentPane();
 
-            if (contentPane instanceof ProductSceneView45) {
+            if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView selectedSceneView = VisatApp.getApp().getSelectedProductSceneView();
-                if (selectedSceneView instanceof ProductSceneView45) {
-                    setProductSceneView((ProductSceneView45) selectedSceneView);
-                } else {
-                    setProductSceneView(null);
-                }
+                setProductSceneView(selectedSceneView);
                 layerManagerMap.remove(contentPane);
             }
         }

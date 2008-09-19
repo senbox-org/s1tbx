@@ -60,17 +60,15 @@ public class ProductSceneViewTest extends TestCase {
     public void testIsRGB() {
         ProductSceneView view;
 
-        view = ProductSceneView.create(new ProductSceneImage(r, new PropertyMap(), ProgressMonitor.NULL));
+        view = new ProductSceneView(new ProductSceneImage(r, new PropertyMap(), ProgressMonitor.NULL));
         assertFalse(view.isRGB());
 
-        view = ProductSceneView.create(new ProductSceneImage("RGB", r, g, b, new PropertyMap(), ProgressMonitor.NULL));
+        view = new ProductSceneView(new ProductSceneImage("RGB", r, g, b, new PropertyMap(), ProgressMonitor.NULL));
         assertTrue(view.isRGB());
     }
 
     public void testDispose() {
-        final ProductSceneView view;
-        view = ProductSceneView.create(new ProductSceneImage(r, new PropertyMap(), ProgressMonitor.NULL));
-
+        final ProductSceneView view = new ProductSceneView(new ProductSceneImage(r, new PropertyMap(), ProgressMonitor.NULL));
         view.dispose();
         assertNull(view.getSceneImage());
 

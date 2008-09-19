@@ -83,7 +83,7 @@ public class ShowImageViewAction extends ExecCommand {
                         return;
                     }
 
-                    ProductSceneView view = ProductSceneView.create(productSceneImage);
+                    ProductSceneView view = new ProductSceneView(productSceneImage);
                     view.setCommandUIFactory(visatApp.getCommandUIFactory());
                     view.setROIOverlayEnabled(true);
                     view.setGraticuleOverlayEnabled(false);

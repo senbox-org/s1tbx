@@ -107,7 +107,7 @@ public class ShowImageViewRGBAction extends ExecCommand {
                 }
                 visatApp.clearStatusBarMessage();
 
-                ProductSceneView productSceneView = ProductSceneView.create(productSceneImage);
+                ProductSceneView productSceneView = new ProductSceneView(productSceneImage);
                 productSceneView.setCommandUIFactory(getCommandUIFactory());
                 productSceneView.setNoDataOverlayEnabled(false);
                 productSceneView.setROIOverlayEnabled(false);
