@@ -1,11 +1,10 @@
 package org.esa.beam.jai;
 
-import java.awt.Rectangle;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
-
-import javax.media.jai.PlanarImage;
-
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Parser;
+import com.bc.jexp.Term;
+import com.bc.jexp.WritableNamespace;
+import com.bc.jexp.impl.ParserImpl;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -14,11 +13,10 @@ import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.beam.util.ImageUtils;
 
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Parser;
-import com.bc.jexp.Term;
-import com.bc.jexp.WritableNamespace;
-import com.bc.jexp.impl.ParserImpl;
+import javax.media.jai.PlanarImage;
+import java.awt.Rectangle;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 
 
 /**
@@ -26,9 +24,9 @@ import com.bc.jexp.impl.ParserImpl;
  * given {@code RasterDataNode} at a given pyramid level.
  */
 public class VirtualBandOpImage extends SingleBandedOpImage {
-    public static final int TRUE = 255;
-    public static final int FALSE = 255;
-    
+    private static final int TRUE = 255;
+    private static final int FALSE = 0;
+
     private final Product[] products;
     private final String expression;
     private final boolean mask;
@@ -72,20 +70,23 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
     protected void computeRect(PlanarImage[] planarImages, WritableRaster writableRaster, Rectangle destRect) {
         final Term term = createTerm();
         addSourceToRasterDataSymbols(destRect, term);
-        
-        ProductData productData = ProductData.createInstance(dataType, ImageUtils.getPrimitiveArray(writableRaster.getDataBuffer()));
+
+        final ProductData productData = ProductData.createInstance(dataType, ImageUtils.getPrimitiveArray(writableRaster.getDataBuffer()));
         final int rasterSize = writableRaster.getDataBuffer().getSize();
-        RasterDataEvalEnv env = new RasterDataEvalEnv(destRect.x, destRect.y, destRect.width, destRect.height);
-        for (int i = 0; i < rasterSize; i++) {
-            env.setElemIndex(i);
-            if (mask) {
-                productData.setElemUIntAt(i, term.evalB(env) ? TRUE : 0);
-            } else {
+        final RasterDataEvalEnv env = new RasterDataEvalEnv(destRect.x, destRect.y, destRect.width, destRect.height);
+        if (mask) {
+            for (int i = 0; i < rasterSize; i++) {
+                env.setElemIndex(i);
+                productData.setElemUIntAt(i, term.evalB(env) ? TRUE : FALSE);
+            }
+        } else {
+            for (int i = 0; i < rasterSize; i++) {
+                env.setElemIndex(i);
                 productData.setElemDoubleAt(i, term.evalD(env));
             }
         }
     }
-    
+
     private Term createTerm() {
         WritableNamespace namespace = BandArithmetic.createDefaultNamespace(products, 0);
         final Term term;
@@ -97,7 +98,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         }
         return term;
     }
-    
+
     private void addSourceToRasterDataSymbols(Rectangle destRect, final Term term) {
         RasterDataSymbol[] rasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
         for (RasterDataSymbol rasterDataSymbol : rasterDataSymbols) {
