@@ -1,12 +1,12 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
+import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glayer.PlacemarkLayer;
@@ -14,9 +14,8 @@ import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.glevel.RoiImageMultiLevelSource;
 import org.esa.beam.glevel.TiledFileMultiLevelSource;
-import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.PropertyMap;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.PropertyMap;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -46,23 +45,23 @@ class ProductSceneImage45 extends ProductSceneImage {
         super("Image of " + raster.getName(), new RasterDataNode[]{raster}, raster.getImageInfo(), configuration);
         multiLevelSource = BandImageMultiLevelSource.create(raster, pm);
         setImageInfo(raster.getImageInfo());
-        initRootLayer();
+        initRootLayer(configuration);
     }
 
     ProductSceneImage45(String name, RasterDataNode[] rasters, PropertyMap configuration, ProgressMonitor pm) throws IOException {
         super(name, rasters, null, configuration);
         multiLevelSource = BandImageMultiLevelSource.create(rasters, pm);
         setImageInfo(ImageManager.getInstance().getImageInfo(rasters));
-        initRootLayer();
+        initRootLayer(configuration);
     }
 
-    private void initRootLayer() {
+    private void initRootLayer(PropertyMap configuration) {
         rootLayer = new Layer();
         final ImageLayer imageLayer = new ImageLayer(multiLevelSource);
         imageLayer.setName(getName());
         imageLayer.setVisible(true);
 
-        final ImageLayer noDataLayer = createNoDataLayer();
+        final ImageLayer noDataLayer = createNoDataLayer(configuration);
         final FigureLayer figureLayer = createFigureLayer();
         final ImageLayer roiLayer = createRoiLayer();
         final GraticuleLayer graticuleLayer = createGraticuleLayer();
@@ -74,8 +73,8 @@ class ProductSceneImage45 extends ProductSceneImage {
         rootLayer.getChildLayerList().add(pinLayer);
         rootLayer.getChildLayerList().add(gcpLayer);
         rootLayer.getChildLayerList().add(graticuleLayer);
-        rootLayer.getChildLayerList().add(bitmaskLayer);
         rootLayer.getChildLayerList().add(roiLayer);
+        rootLayer.getChildLayerList().add(bitmaskLayer);
         rootLayer.getChildLayerList().add(noDataLayer);
         rootLayer.getChildLayerList().add(imageLayer);
 
@@ -112,12 +111,15 @@ class ProductSceneImage45 extends ProductSceneImage {
         return blueMarbleLayer;
     }
 
-    private ImageLayer createNoDataLayer() {
+    private ImageLayer createNoDataLayer(PropertyMap configuration) {
         final MultiLevelSource multiLevelSource;
+
+        final Color color = configuration.getPropertyColor("noDataOverlay.color", Color.ORANGE);
+        final double transparency = configuration.getPropertyDouble("noDataOverlay.transparency", 0.3);
 
         if (getRaster().getValidMaskExpression() != null) {
             // todo - get color from style, set color
-            multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(), Color.ORANGE,
+            multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(), color,
                     getRaster().getValidMaskExpression(), true, new AffineTransform());
         } else {
             multiLevelSource = MultiLevelSource.NULL;
@@ -126,7 +128,7 @@ class ProductSceneImage45 extends ProductSceneImage {
         final ImageLayer noDataLayer = new ImageLayer(multiLevelSource);
         noDataLayer.setName("No-data mask of " + getRaster().getName());
         noDataLayer.setVisible(false);
-        noDataLayer.getStyle().setOpacity(0.5);
+        noDataLayer.getStyle().setOpacity(1.0 - transparency);
 
         return noDataLayer;
     }
