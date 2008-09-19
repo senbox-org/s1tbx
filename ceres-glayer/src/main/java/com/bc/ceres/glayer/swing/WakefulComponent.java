@@ -163,7 +163,7 @@ public class WakefulComponent extends JComponent {
         if (imageGraphics != null) {
             imageGraphics.dispose();
         }
-        image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+        image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
         imageGraphics = image.createGraphics();
         imageGraphics.setBackground(new Color(0, 0, 0, 0));
     }

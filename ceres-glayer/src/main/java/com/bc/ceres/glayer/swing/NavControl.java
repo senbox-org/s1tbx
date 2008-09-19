@@ -100,7 +100,7 @@ public class NavControl extends JComponent {
     protected void paintComponent(Graphics g) {
         final Graphics2D graphics2D = (Graphics2D) g;
         final AffineTransform oldTransform = graphics2D.getTransform();
-        graphics2D.setStroke(new BasicStroke(0.5f));
+        graphics2D.setStroke(new BasicStroke(0.6f));
         graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics2D.rotate(-Math.PI * 0.5 - Math.toRadians(getRotationAngle()),
                           outerRotationCircle.getCenterX(),
