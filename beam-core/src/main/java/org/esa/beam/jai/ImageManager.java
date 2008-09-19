@@ -28,7 +28,6 @@ import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Map;
@@ -40,7 +39,6 @@ public class ImageManager {
 
     private final static ImageManager INSTANCE = new ImageManager();
     private final Map<Object, MultiLevelSource> maskImageMap = new WeakHashMap<Object, MultiLevelSource>(101);
-//    private final Map<RasterDataNode, MultiLevelSource> sourceImageMap = new WeakHashMap<Object, MultiLevelSource>(101);
 
     public static ImageManager getInstance() {
         return INSTANCE;
@@ -60,7 +58,7 @@ public class ImageManager {
         }
         final int w = scene.getRasterWidth();
         final int h = scene.getRasterHeight();
-        // todo - use scene.getGeoCoding() to construct i2mTransform
+        // TODO - BLOCKER: Use scene.getGeoCoding() to construct i2mTransform. SMOS will not work otherwise.  (nf, 19.09.2008)
         final AffineTransform i2mTransform = new AffineTransform();
         return new DefaultMultiLevelModel(i2mTransform, w, h);
     }
@@ -213,14 +211,24 @@ public class ImageManager {
         }
     }
 
-    public PlanarImage createRgbImage(final RasterDataNode[] rasterDataNodes,
-                                      final int level,
-                                      int levelCount) {
+    // TODO - BLOCKER: ImageInfo.rgbChannelDef is not used for 3-band images! (nf, 19.09.2008)
+    // Solution: Split into following methods, use ProductUtils code as reference.
+    //
+    //    public PlanarImage createColored1BandImage(RasterDataNode raster, ImageInfo imageInfo,
+    //                                               int level, int levelCount);
+    //
+    //    public PlanarImage createColored3BandImage(RasterDataNode[] rasters, ImageInfo imageInfo,
+    //                                               int level, int levelCount);
+    //
+    public PlanarImage createColoredBandImage(final RasterDataNode[] rasterDataNodes,
+                                              final int level,
+                                              int levelCount) {
         Assert.notNull(rasterDataNodes,
                        "rasterDataNodes");
-        Assert.state(rasterDataNodes.length == 1 || rasterDataNodes.length == 3 || rasterDataNodes.length == 4,
+        Assert.state(rasterDataNodes.length == 1
+                || rasterDataNodes.length == 3
+                || rasterDataNodes.length == 4,
                      "invalid number of bands");
-
 
         PlanarImage image;
 
@@ -281,9 +289,9 @@ public class ImageManager {
         if (levelZeroImage instanceof MultiLevelSource) {
             multiLevelSource = (MultiLevelSource) levelZeroImage;
         } else {
-            // TODO - store this reference!!!
+            // TODO - New image instance is created here. This will happen e.g. for all bands created by GPF operators. (nf, 19.09.2008)
             multiLevelSource = new DefaultMultiLevelSource(levelZeroImage);
-            System.out.println("IMAGING 4.5: Warning: Created new MultiLevelSource");
+            System.out.println("IMAGING 4.5: Warning: Created an (inefficient) instance of DefaultMultiLevelSource. Source image is a " + levelZeroImage.getClass());
         }
         return multiLevelSource;
     }
@@ -406,7 +414,7 @@ public class ImageManager {
                         if (indexCoding != null) {
                             imageInfo = createIndexedImageInfo(indexCoding);
                             raster.setImageInfo(imageInfo);
-                            // todo - compute frequencies here (nf, 18.09.2008), set Stx
+                            // TODO - BLOCKER: Compute frequencies (Stx) here, set Band.stx property (nf, 18.09.2008),
                         }
                     }
                     if (imageInfo == null) {
@@ -424,7 +432,7 @@ public class ImageManager {
                             statisticsValidMaskImage = validMaskImage != null ? getValidMaskImage(raster, statisticsLevel) : null;
                         }
 
-                        ROI roi = createROI(statisticsValidMaskImage);
+                        ROI roi = statisticsValidMaskImage != null ? new ROI(statisticsValidMaskImage) : null;
 
                         pm.worked(1);
 
@@ -481,13 +489,6 @@ public class ImageManager {
         } finally {
             pm.done();
         }
-    }
-
-    private static ROI createROI(PlanarImage maskOpImage) {
-        if (maskOpImage == null) {
-            return null;
-        }
-        return new ROI(maskOpImage);
     }
 
     private static ImageInfo createIndexedImageInfo(IndexCoding indexCoding) {
@@ -682,7 +683,7 @@ public class ImageManager {
                 shapeMaskMLS = maskImageMap.get(key);
                 if (shapeMaskMLS == null) {
                     final Shape roiShape = roiShapeFigure.getShape();
-                    shapeMaskMLS = new AbstractMultiLevelSource(multiLevelModel) { // todo - LEVEL!!!
+                    shapeMaskMLS = new AbstractMultiLevelSource(multiLevelModel) {
 
                         @Override
                         public RenderedImage createImage(int level) {

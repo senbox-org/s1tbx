@@ -17,13 +17,13 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
     private final RasterDataNode[] rasterDataNodes;
 
     public static MultiLevelSource create(RasterDataNode rasterDataNode, ProgressMonitor pm) {
-        return create(new RasterDataNode[]{rasterDataNode} , pm);
+        return create(new RasterDataNode[]{rasterDataNode}, pm);
     }
-    
+
     public static MultiLevelSource create(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) {
         RasterDataNode rdn = rasterDataNodes[0];
         MultiLevelModel model;
-        if(rdn.getSourceImage() instanceof MultiLevelSource) {
+        if (rdn.getSourceImage() instanceof MultiLevelSource) {
             MultiLevelSource multiLevelSource = (MultiLevelSource) rdn.getSourceImage();
             model = multiLevelSource.getModel();
         } else {
@@ -34,7 +34,7 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
         ImageManager.getInstance().prepareImageInfos(rasterDataNodes, model.getLevelCount(), pm);
         return new BandImageMultiLevelSource(model, rasterDataNodes);
     }
-    
+
     public static MultiLevelSource create(RasterDataNode rasterDataNode,
                                           AffineTransform i2mTransform, ProgressMonitor pm) {
         return create(new RasterDataNode[]{rasterDataNode}, i2mTransform, pm);
@@ -67,7 +67,7 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
 
     @Override
     public RenderedImage createImage(int level) {
-        return ImageManager.getInstance().createRgbImage(rasterDataNodes, level,
-                                                         getModel().getLevelCount());
+        return ImageManager.getInstance().createColoredBandImage(rasterDataNodes, level,
+                                                                 getModel().getLevelCount());
     }
 }
