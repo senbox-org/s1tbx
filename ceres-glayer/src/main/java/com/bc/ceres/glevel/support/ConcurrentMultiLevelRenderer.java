@@ -135,10 +135,10 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
             drawTileImage(graphics, viewport, tileImage);
         }
 
-        // Draw tile frames
-        final AffineTransform i2m = multiLevelSource.getModel().getImageToModelTransform(currentLevel);
-        drawTileFrames(graphics, viewport, planarImage, missingTileIndexList, i2m, Color.RED);
         if (debug) {
+            // Draw tile frames
+            final AffineTransform i2m = multiLevelSource.getModel().getImageToModelTransform(currentLevel);
+            drawTileFrames(graphics, viewport, planarImage, missingTileIndexList, i2m, Color.RED);
             drawTileFrames(graphics, viewport, planarImage, availableTileIndexList, i2m, Color.BLUE);
         }
 
