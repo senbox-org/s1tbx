@@ -40,7 +40,7 @@ public class ProductSceneView45 extends ProductSceneView {
 
     private LayerDisplay layerCanvas;
 
-    ProductSceneView45(ProductSceneImage45 sceneImage) {
+    ProductSceneView45(ProductSceneImage sceneImage) {
         super(sceneImage);
 
         setOpaque(true);
@@ -104,8 +104,8 @@ public class ProductSceneView45 extends ProductSceneView {
         return getSceneImage45().getRootLayer();
     }
 
-    ProductSceneImage45 getSceneImage45() {
-        return (ProductSceneImage45) getSceneImage();
+    ProductSceneImage getSceneImage45() {
+        return getSceneImage();
     }
 
     @Override

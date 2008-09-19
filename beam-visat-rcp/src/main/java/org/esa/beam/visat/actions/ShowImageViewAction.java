@@ -130,7 +130,7 @@ public class ShowImageViewAction extends ExecCommand {
     }
 
     private ProductSceneImage createProductSceneImage(final RasterDataNode raster,
-                                                     ProgressMonitor pm) throws Exception {
+                                                     ProgressMonitor pm) {
         Debug.assertNotNull(raster);
         Debug.assertNotNull(pm);
         final VisatApp app = VisatApp.getApp();
@@ -141,9 +141,9 @@ public class ShowImageViewAction extends ExecCommand {
             final JInternalFrame[] frames = app.findInternalFrames(raster, 1);
             if (frames.length > 0) {
                 final ProductSceneView view = (ProductSceneView) frames[0].getContentPane();
-                sceneImage = ProductSceneImage.create(raster, view);
+                sceneImage = new ProductSceneImage(raster, view);
             } else {
-                sceneImage = ProductSceneImage.create(raster, app.getPreferences(), SubProgressMonitor.create(pm, 1));
+                sceneImage = new ProductSceneImage(raster, app.getPreferences(), SubProgressMonitor.create(pm, 1));
             }
         } finally {
             pm.done();

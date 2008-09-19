@@ -79,7 +79,7 @@ public abstract class ProductSceneView extends BasicView implements ProductNodeV
 
     public static ProductSceneView create(ProductSceneImage sceneImage) {
         Guardian.assertNotNull("sceneImage", sceneImage);
-        return new ProductSceneView45((ProductSceneImage45) sceneImage);
+        return new ProductSceneView45(sceneImage);
     }
 
     protected ProductSceneView(ProductSceneImage sceneImage) {
