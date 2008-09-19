@@ -136,6 +136,8 @@ public class ChrisProductReader extends AbstractProductReader {
         addRciAndMaskBands(product);
         addFlagCodingsAndBitmasks(product);
 
+        product.setPreferredTileSize(sceneRasterWidth, sceneRasterHeight / 2);
+
         return product;
     }
 
