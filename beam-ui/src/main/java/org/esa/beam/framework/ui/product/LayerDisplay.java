@@ -31,7 +31,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.image.RenderedImage;
 import java.util.Vector;
 
 public class LayerDisplay extends LayerCanvas {
@@ -42,11 +41,11 @@ public class LayerDisplay extends LayerCanvas {
     private MouseInputListener mouseInputListener;
     private KeyListener imageDisplayKeyListener;
     private final Vector<PixelPositionListener> pixelPositionListeners;
-    private final ProductSceneView productSceneView;
+    private final ImageLayer baseImageLayer;
 
-    LayerDisplay(Layer layer, ProductSceneView productSceneView) {
+    LayerDisplay(Layer layer, ImageLayer baseImageLayer) {
         super(layer);
-        this.productSceneView = productSceneView;
+        this.baseImageLayer = baseImageLayer;
         pixelPositionListeners = new Vector<PixelPositionListener>();
         registerListeners();
     }
@@ -118,16 +117,8 @@ public class LayerDisplay extends LayerCanvas {
     }
 
     private boolean isPixelPosValid(int currentPixelX, int currentPixelY) {
-        return currentPixelX >= 0 && currentPixelX < getImage().getWidth() && currentPixelY >= 0
-                && currentPixelY < getImage().getHeight();
-    }
-
-    private ImageLayer getBaseImageLayer() {
-        return productSceneView.getBaseImageLayer();
-    }
-
-    private RenderedImage getImage() {
-        return getBaseImageLayer().getImage();
+        return currentPixelX >= 0 && currentPixelX < baseImageLayer.getImage().getWidth() && currentPixelY >= 0
+                && currentPixelY < baseImageLayer.getImage().getHeight();
     }
 
     /**
@@ -141,7 +132,7 @@ public class LayerDisplay extends LayerCanvas {
     private final void firePixelPosChanged(MouseEvent e, int currentPixelX, int currentPixelY, int currentLevel) {
         boolean pixelPosValid = isPixelPosValid(currentPixelX, currentPixelY);
         for (PixelPositionListener listener : pixelPositionListeners) {
-            listener.pixelPosChanged(getImage(), currentPixelX, currentPixelY, currentLevel, pixelPosValid, e);
+            listener.pixelPosChanged(baseImageLayer.getImage(), currentPixelX, currentPixelY, currentLevel, pixelPosValid, e);
         }
     }
 
@@ -150,7 +141,7 @@ public class LayerDisplay extends LayerCanvas {
      */
     private final void firePixelPosNotAvailable() {
         for (PixelPositionListener listener : pixelPositionListeners) {
-            listener.pixelPosNotAvailable(getImage());
+            listener.pixelPosNotAvailable(baseImageLayer.getImage());
         }
     }
 
@@ -266,7 +257,6 @@ public class LayerDisplay extends LayerCanvas {
 
     private void setPixelPos(MouseEvent e, boolean showBorder) {
         Point p = e.getPoint();
-        ImageLayer baseImageLayer = getBaseImageLayer();
         Viewport viewport = getViewport();
         AffineTransform v2mTransform = viewport.getViewToModelTransform();
         AffineTransform m2iTransform = baseImageLayer.getModelToImageTransform();

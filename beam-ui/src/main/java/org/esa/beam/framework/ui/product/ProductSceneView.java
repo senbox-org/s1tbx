@@ -117,7 +117,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         setOpaque(true);
         setBackground(DEFAULT_IMAGE_BACKGROUND_COLOR); // todo - use sceneImage.getConfiguration() (nf, 18.09.2008)
         setLayout(new BorderLayout());
-        layerCanvas = new LayerDisplay(sceneImage.getRootLayer(), this);
+        layerCanvas = new LayerDisplay(sceneImage.getRootLayer(), getBaseImageLayer());
         final ViewportScrollPane scrollPane = new ViewportScrollPane(layerCanvas);
         add(scrollPane, BorderLayout.CENTER);
 
