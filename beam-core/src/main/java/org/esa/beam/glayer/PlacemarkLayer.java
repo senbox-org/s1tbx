@@ -4,7 +4,6 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.util.PropertyMap;
 
 import java.awt.*;
 import java.awt.font.GlyphVector;
@@ -36,10 +35,9 @@ public class PlacemarkLayer extends Layer {
     }
 
     @Override
-    public void dispose() {
+    public void disposeLayer() {
         product = null;
         placemarkDescriptor = null;
-        super.dispose();
     }
 
     protected ProductNodeGroup<Pin> getPlacemarkGroup() {

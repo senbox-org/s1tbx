@@ -6,7 +6,7 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
-import org.esa.beam.framework.param.Parameter;
+import org.esa.beam.glayer.BitmaskCollectionLayer;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glayer.PlacemarkLayer;
@@ -21,8 +21,6 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * TODO - Apidoc
@@ -86,9 +84,6 @@ class ProductSceneImage45 extends ProductSceneImage {
                 rootLayer.getChildLayerList().add(createWorldLayer);
             }
         }
-
-        getProduct().addProductNodeListener(new BitmaskDefListener(bitmaskLayer));
-        getProduct().addProductNodeListener(new BitmaskOverlayInfoListener(bitmaskLayer));
     }
 
     private Layer createWorldLayer() {
@@ -185,30 +180,7 @@ class ProductSceneImage45 extends ProductSceneImage {
     }
 
     private Layer createBitmaskCollectionLayer() {
-        final Layer layer = new Layer();
-        layer.setName("Bitmasks");
-        final BitmaskDef[] bitmaskDefs = getProduct().getBitmaskDefs();
-        for (final BitmaskDef bitmaskDef : bitmaskDefs) {
-            layer.getChildLayerList().add(createBitmaskLayer(bitmaskDef));
-        }
-
-        return layer;
-    }
-
-    private Layer createBitmaskLayer(final BitmaskDef bitmaskDef) {
-        final Color color = bitmaskDef.getColor();
-        final String expr = bitmaskDef.getExpr();
-        final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getProduct(), color, expr, false,
-                new AffineTransform());
-
-        final Layer layer = new ImageLayer(multiLevelSource);
-        layer.setName(bitmaskDef.getName());
-        final BitmaskOverlayInfo overlayInfo = getRaster().getBitmaskOverlayInfo();
-        layer.setVisible(overlayInfo != null && overlayInfo.containsBitmaskDef(bitmaskDef));
-        layer.getStyle().setOpacity(bitmaskDef.getAlpha());
-        // todo - add layer icon, bitmask color or even bitmaskDef to layer style?
-
-        return layer;
+        return new BitmaskCollectionLayer(getRaster());
     }
 
     public Layer getRootLayer() {
@@ -217,114 +189,5 @@ class ProductSceneImage45 extends ProductSceneImage {
 
     private MultiLevelSource getMultiLevelSource() {
         return multiLevelSource;
-    }
-
-    private class BitmaskDefListener implements ProductNodeListener {
-        private final Layer bitmaskLayer;
-        private final Map<BitmaskDef, Layer> layerMap;
-
-        public BitmaskDefListener(Layer bitmaskLayer) {
-            this.bitmaskLayer = bitmaskLayer;
-            this.layerMap = new HashMap<BitmaskDef, Layer>();
-
-            final Product product = getProduct();
-            for (final Layer layer : bitmaskLayer.getChildLayerList()) {
-                layerMap.put(product.getBitmaskDef(layer.getName()), layer);
-            }
-        }
-
-        @Override
-        public void nodeChanged(ProductNodeEvent event) {
-            final ProductNode sourceNode = event.getSourceNode();
-
-            if (sourceNode instanceof BitmaskDef) {
-                final BitmaskDef bitmaskDef = (BitmaskDef) sourceNode;
-                final Layer layer = layerMap.remove(bitmaskDef);
-
-                if (layer != null) {
-                    final int index = bitmaskLayer.getChildLayerList().indexOf(layer);
-                    if (index != -1) {
-                        final Layer newLayer = createBitmaskLayer(bitmaskDef);
-                        final Layer oldLayer = bitmaskLayer.getChildLayerList().remove(index);
-                        bitmaskLayer.getChildLayerList().add(index, newLayer);
-                        layerMap.put(bitmaskDef, newLayer);
-                        oldLayer.dispose();
-                    }
-                }
-            }
-        }
-
-        @Override
-        public void nodeDataChanged(ProductNodeEvent event) {
-            nodeChanged(event);
-        }
-
-        @Override
-        public void nodeAdded(ProductNodeEvent event) {
-            final ProductNode sourceNode = event.getSourceNode();
-
-            if (sourceNode instanceof BitmaskDef) {
-                final BitmaskDef[] bitmaskDefs = getProduct().getBitmaskDefs();
-
-                for (int i = 0; i < bitmaskDefs.length; i++) {
-                    if (sourceNode == bitmaskDefs[i]) {
-                        final Layer layer = createBitmaskLayer(bitmaskDefs[i]);
-                        bitmaskLayer.getChildLayerList().add(i, layer);
-                        layerMap.put(bitmaskDefs[i], layer);
-                        break;
-                    }
-                }
-            }
-        }
-
-        @Override
-        public void nodeRemoved(ProductNodeEvent event) {
-            final ProductNode sourceNode = event.getSourceNode();
-
-            if (sourceNode instanceof BitmaskDef) {
-                final BitmaskDef bitmaskDef = (BitmaskDef) sourceNode;
-                final Layer layer = layerMap.remove(bitmaskDef);
-                if (layer != null) {
-                    if (bitmaskLayer.getChildLayerList().remove(layer)) {
-                        layer.dispose();
-                    }
-                }
-            }
-        }
-    }
-
-    private class BitmaskOverlayInfoListener implements ProductNodeListener {
-        private final Layer bitmaskLayer;
-
-        private BitmaskOverlayInfoListener(Layer bitmaskLayer) {
-            this.bitmaskLayer = bitmaskLayer;
-        }
-
-        @Override
-        public void nodeChanged(ProductNodeEvent event) {
-            final ProductNode sourceNode = event.getSourceNode();
-
-            if (sourceNode == getRaster() &&
-                    RasterDataNode.PROPERTY_NAME_BITMASK_OVERLAY_INFO.equals(event.getPropertyName())) {
-                final BitmaskOverlayInfo overlayInfo = getRaster().getBitmaskOverlayInfo();
-                final Product product = getProduct();
-
-                for (final Layer layer : bitmaskLayer.getChildLayerList()) {
-                    layer.setVisible(overlayInfo.containsBitmaskDef(product.getBitmaskDef(layer.getName())));
-                }
-            }
-        }
-
-        @Override
-        public void nodeDataChanged(ProductNodeEvent event) {
-        }
-
-        @Override
-        public void nodeAdded(ProductNodeEvent event) {
-        }
-
-        @Override
-        public void nodeRemoved(ProductNodeEvent event) {
-        }
     }
 }
