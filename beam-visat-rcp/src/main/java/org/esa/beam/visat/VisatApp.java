@@ -2115,14 +2115,13 @@ public class VisatApp extends BasicApp {
         } else {
             frame.setSize(640, 480);
         }
-
-// Resize frame so that it completely fits into desktopPane
-        final Rectangle desktopBounds = new Rectangle(desktopPane.getDesktopPane().getSize());
-        if (!desktopBounds.isEmpty()) {
-            frame.setBounds(desktopBounds);
-        }
-
         desktopPane.addFrame(frame);
+        try {
+            // try to resize frame so that it completely fits into desktopPane
+            frame.setMaximum(true);
+        } catch (PropertyVetoException e) {
+            // ok
+        }
 
 // force frame to be activated so that the frame listeners are informed
         try {
