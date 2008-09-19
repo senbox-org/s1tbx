@@ -52,7 +52,7 @@ public class DefaultMultiLevelModel implements MultiLevelModel {
 
     @Override
     public int getLevel(double scale) {
-        int level = (int) Math.round(log2(scale));
+        int level = (int) Math.floor(log2(scale));
         if (level < 0) {
             level = 0;
         } else if (level >= levelCount) {
