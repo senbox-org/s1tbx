@@ -12,7 +12,6 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.BufferedImageRendering;
-import com.bc.ceres.grender.support.DefaultViewport;
 
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
@@ -45,7 +44,6 @@ import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.awt.image.BufferedImage;
@@ -176,6 +174,10 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     
     public Layer getRootLayer() {
         return sceneImage.getRootLayer();
+    }
+    
+    public LayerDisplay getLayerCanvas() {
+        return layerCanvas;
     }
 
     /**
@@ -859,45 +861,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         layerCanvas.dispose();
     }
 
-    // todo - move to somewhere in navigation tool view package
-    public void renderThumbnail(BufferedImage thumbnailImage) {
-        final BufferedImageRendering imageRendering = new BufferedImageRendering(thumbnailImage);
-
-        final Graphics2D graphics = imageRendering.getGraphics();
-        graphics.setBackground(getBackground());
-        graphics.clearRect(0, 0, thumbnailImage.getWidth(), thumbnailImage.getHeight());
-
-        configureThumbnailViewport(imageRendering.getViewport());
-        getSceneImage().getRootLayer().render(imageRendering);
-    }
-
-
-
-    // todo - move to somewhere in navigation tool view package
-    public Rectangle getViewportThumbnailBounds(Rectangle thumbnailArea) {
-        final Viewport thumbnailViewport = new DefaultViewport(thumbnailArea);
-        configureThumbnailViewport(thumbnailViewport);
-        final Viewport canvasViewport = layerCanvas.getViewport();
-        final Point2D modelOffset = canvasViewport.getViewToModelTransform().transform(canvasViewport.getBounds().getLocation(), null);
-
-        final Point2D tnOffset = thumbnailViewport.getModelToViewTransform().transform(modelOffset, null);
-        double scale = DefaultViewport.getScale(canvasViewport.getViewToModelTransform())
-                * DefaultViewport.getScale(thumbnailViewport.getModelToViewTransform());
-
-        return new Rectangle((int) Math.floor(tnOffset.getX()),
-                (int) Math.floor(tnOffset.getY()),
-                (int) Math.floor(canvasViewport.getBounds().width * scale),
-                (int) Math.floor(canvasViewport.getBounds().height * scale));
-    }
-
-    // todo - move to somewhere in navigation tool view package
-    private void configureThumbnailViewport(Viewport thumbnailViewport) {
-        thumbnailViewport.setMaxZoomFactor(-1);
-        thumbnailViewport.zoom(getRotatedModelBounds());
-        thumbnailViewport.moveViewDelta(thumbnailViewport.getBounds().x, thumbnailViewport.getBounds().y);
-        thumbnailViewport.rotate(getOrientation());
-    }
-
     public void updateNoDataImage(ProgressMonitor pm) throws Exception {
         final String expression = getRaster().getValidMaskExpression();
         final ImageLayer noDataLayer = getNoDataLayer();
@@ -927,17 +890,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         });
         popupMenu.add(menuItem);
         popupMenu.addSeparator();
-    }
-
-    public Rectangle2D getRotatedModelBounds() {
-        final Rectangle2D modelBounds = getModelBounds();
-        final double orientation = getOrientation();
-        if (orientation != 0) {
-            final AffineTransform t = new AffineTransform();
-            t.rotate(orientation, modelBounds.getCenterX(), modelBounds.getCenterY());
-            return t.createTransformedShape(modelBounds).getBounds2D();
-        }
-        return modelBounds;
     }
 
     public static interface ImageUpdateListener {
