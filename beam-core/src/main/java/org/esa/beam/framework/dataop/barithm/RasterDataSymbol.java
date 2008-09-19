@@ -75,7 +75,6 @@ public class RasterDataSymbol implements Symbol {
 
     public boolean evalB(final EvalEnv env) throws EvalException {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
-        Debug.assertNotNull(_data);
         return Term.toB(_data.getElemDoubleAt(elemIndex));
     }
 
