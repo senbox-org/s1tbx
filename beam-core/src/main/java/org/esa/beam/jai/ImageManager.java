@@ -242,11 +242,11 @@ public class ImageManager {
             PlanarImage planarImage = bandImages[i];
             ImageInfo imageInfo = raster.getImageInfo();
             Assert.state(imageInfo != null, "imageInfo != null");
-            final IndexCoding indexCoding = (raster instanceof Band) ? ((Band) raster).getIndexCoding() : null;
             final double minSample = imageInfo.getColorPaletteDef().getMinDisplaySample();
             final double maxSample = imageInfo.getColorPaletteDef().getMaxDisplaySample();
             Assert.notNull(imageInfo, "imageInfo");
 
+            final IndexCoding indexCoding = (raster instanceof Band) ? ((Band) raster).getIndexCoding() : null;
             if (indexCoding != null) {
                 final IntMap sampleColorIndexMap = new IntMap((int) minSample - 1, 4098);
                 final ColorPaletteDef.Point[] points = imageInfo.getColorPaletteDef().getPoints();
