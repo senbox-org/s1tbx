@@ -24,7 +24,7 @@ import java.util.Map;
  */
 public class AreaFigure extends ShapeFigure {
 
-    public AreaFigure(Shape shape, Map attributes) {
+    public AreaFigure(Shape shape, Map<String, Object> attributes) {
         super(shape, false, attributes);
     }
 }
