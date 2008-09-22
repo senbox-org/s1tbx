@@ -42,8 +42,21 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.geom.*;
-import java.awt.image.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.IndexColorModel;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -2125,6 +2138,9 @@ public class ProductUtils {
                 metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMinorAxisGeoKey, parameterValues[1]);  // semi_minor
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLatGeoKey, parameterValues[2]); // latitude_of_origin
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLongGeoKey, parameterValues[3]);   // central_meridian
+                // todo - check which one to use ProjNatOrigin*GeoKey or ProjCenter*GeoKey
+//                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjCenterLatGeoKey, parameterValues[2]); // latitude_of_origin
+//                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjCenterLongGeoKey, parameterValues[3]);   // central_meridian
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey, parameterValues[4]);  // scale_factor
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseEastingGeoKey, parameterValues[5]);  // false_easting
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseNorthingGeoKey, parameterValues[6]);  // false_northing
