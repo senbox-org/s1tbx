@@ -7,7 +7,10 @@ package org.esa.beam.dataio.geotiff;
  * Time: 12:18:19
  */
 
+import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
+import org.esa.beam.dataio.geotiff.internal.TiffHeader;
+import org.esa.beam.dataio.geotiff.internal.TiffIFD;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -16,18 +19,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import com.bc.ceres.core.ProgressMonitor;
-
-public class GeoTIFFProductWriterTest extends TestCase {
+public class GeoTiffProductWriterTest extends TestCase {
 
     private static final String FILENAME = "temp.tif";
-    private GeoTIFFProductWriter _productWriter;
+    private GeoTiffProductWriter _productWriter;
     private Product _product;
 
     protected void setUp() throws Exception {
         new File(FILENAME).delete();
 
-        _productWriter = new GeoTIFFProductWriter(new GeoTIFFProductWriterPlugIn());
+        _productWriter = new GeoTiffProductWriter(new GeoTiffProductWriterPlugIn());
 
         _product = new Product("product", "type", 10, 20);
         _product.addBand("b1", ProductData.TYPE_UINT32);
@@ -40,7 +41,7 @@ public class GeoTIFFProductWriterTest extends TestCase {
     }
 
     public void testGeoTIFFProductWriterCreation() {
-        final GeoTIFFProductWriter productWriter = new GeoTIFFProductWriter(new GeoTIFFProductWriterPlugIn());
+        final GeoTiffProductWriter productWriter = new GeoTiffProductWriter(new GeoTiffProductWriterPlugIn());
 
         assertNotNull(productWriter.getWriterPlugIn());
     }
