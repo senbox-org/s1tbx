@@ -58,7 +58,7 @@ public class ImageManager {
         }
         final int w = scene.getRasterWidth();
         final int h = scene.getRasterHeight();
-        // TODO - BLOCKER: Use scene.getGeoCoding() to construct i2mTransform. SMOS will not work otherwise.  (nf, 19.09.2008)
+        // TODO - BLOCKER: Use scene.getGeoCoding().getMapInfo() to construct i2mTransform. SMOS will not work otherwise.  (nf, 19.09.2008)
         final AffineTransform i2mTransform = new AffineTransform();
         return new DefaultMultiLevelModel(i2mTransform, w, h);
     }
@@ -400,7 +400,7 @@ public class ImageManager {
         }
         numTaskSteps *= 3;
 
-        pm.beginTask("Computing image statitics", numTaskSteps);
+        pm.beginTask("Computing image statistics", numTaskSteps);
         try {
             for (int i = 0; i < rasterDataNodes.length; i++) {
                 RasterDataNode raster = rasterDataNodes[i];
