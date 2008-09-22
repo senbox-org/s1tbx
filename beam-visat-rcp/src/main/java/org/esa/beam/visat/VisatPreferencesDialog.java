@@ -767,6 +767,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             param.getProperties().setLabel("Show image border"); /*I18N*/
             param.addParamChangeListener(new ParamChangeListener() {
 
+                @Override
                 public void parameterValueChanged(ParamChangeEvent event) {
                     updatePageUI();
                 }
@@ -785,6 +786,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             param.getProperties().setLabel("Show pixel border in magnified views"); /*I18N*/
             param.addParamChangeListener(new ParamChangeListener() {
 
+                @Override
                 public void parameterValueChanged(ParamChangeEvent event) {
                     updatePageUI();
                 }
@@ -912,6 +914,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             Parameter param;
 
             final ParamChangeListener paramChangeListener = new ParamChangeListener() {
+                @Override
                 public void parameterValueChanged(ParamChangeEvent event) {
                     updatePageUI();
                 }
@@ -1119,6 +1122,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             Parameter param;
 
             final ParamChangeListener paramChangeListener = new ParamChangeListener() {
+                @Override
                 public void parameterValueChanged(ParamChangeEvent event) {
                     updatePageUI();
                 }
@@ -1135,12 +1139,6 @@ public class VisatPreferencesDialog extends ConfigDialog {
 
             param = new Parameter("pin.text.bg.color", Color.black);
             param.getProperties().setLabel("Text background colour"); /*I18N*/
-            configParams.addParameter(param);
-
-            param = new Parameter("pin.text.bg.transparency", 0.7);
-            param.getProperties().setLabel("Text background transparency"); /*I18N*/
-            param.getProperties().setMinValue(0.0);
-            param.getProperties().setMaxValue(1.0);
             configParams.addParameter(param);
         }
 
@@ -1185,13 +1183,6 @@ public class VisatPreferencesDialog extends ConfigDialog {
             pageUI.add(param.getEditor().getEditorComponent(), gbc);
             gbc.gridy++;
 
-            param = getConfigParam("pin.text.bg.transparency");
-            gbc.weightx = 0;
-            pageUI.add(param.getEditor().getLabelComponent(), gbc);
-            gbc.weightx = 1;
-            pageUI.add(param.getEditor().getEditorComponent(), gbc);
-            gbc.gridy++;
-
             return createPageUIContentPane(pageUI);
         }
 
@@ -1200,7 +1191,6 @@ public class VisatPreferencesDialog extends ConfigDialog {
             final boolean textEnabled = (Boolean) getConfigParam("pin.text.enabled").getValue();
             getConfigParam("pin.text.fg.color").setUIEnabled(textEnabled);
             getConfigParam("pin.text.bg.color").setUIEnabled(textEnabled);
-            getConfigParam("pin.text.bg.transparency").setUIEnabled(textEnabled);
         }
     }
 
@@ -1215,6 +1205,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             Parameter param;
 
             final ParamChangeListener paramChangeListener = new ParamChangeListener() {
+                @Override
                 public void parameterValueChanged(ParamChangeEvent event) {
                     updatePageUI();
                 }
@@ -1231,12 +1222,6 @@ public class VisatPreferencesDialog extends ConfigDialog {
 
             param = new Parameter("gcp.text.bg.color", Color.black);
             param.getProperties().setLabel("Text background colour"); /*I18N*/
-            configParams.addParameter(param);
-
-            param = new Parameter("gcp.text.bg.transparency", 0.7);
-            param.getProperties().setLabel("Text background transparency"); /*I18N*/
-            param.getProperties().setMinValue(0.0);
-            param.getProperties().setMaxValue(1.0);
             configParams.addParameter(param);
         }
 
@@ -1281,13 +1266,6 @@ public class VisatPreferencesDialog extends ConfigDialog {
             pageUI.add(param.getEditor().getEditorComponent(), gbc);
             gbc.gridy++;
 
-            param = getConfigParam("gcp.text.bg.transparency");
-            gbc.weightx = 0;
-            pageUI.add(param.getEditor().getLabelComponent(), gbc);
-            gbc.weightx = 1;
-            pageUI.add(param.getEditor().getEditorComponent(), gbc);
-            gbc.gridy++;
-
             return createPageUIContentPane(pageUI);
         }
 
@@ -1296,7 +1274,6 @@ public class VisatPreferencesDialog extends ConfigDialog {
             final boolean textEnabled = (Boolean) getConfigParam("gcp.text.enabled").getValue();
             getConfigParam("gcp.text.fg.color").setUIEnabled(textEnabled);
             getConfigParam("gcp.text.bg.color").setUIEnabled(textEnabled);
-            getConfigParam("gcp.text.bg.transparency").setUIEnabled(textEnabled);
         }
     }
 
@@ -1312,6 +1289,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
 
             final ParamChangeListener paramChangeListener = new ParamChangeListener() {
 
+                @Override
                 public void parameterValueChanged(ParamChangeEvent event) {
                     updatePageUI();
                 }
