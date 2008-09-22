@@ -1,67 +1,43 @@
 package org.esa.beam.pview;
 
-import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.binio.Format;
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glayer.swing.ViewportScrollPane;
 import com.bc.ceres.glayer.tools.Tools;
-import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.binio.Format;
-import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelSource;
 import com.jidesoft.utils.Lm;
-
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.UIManager;
-import javax.media.jai.util.ImagingListener;
-import javax.media.jai.JAI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.prefs.Preferences;
-import java.util.logging.FileHandler;
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.io.IOException;
-import java.io.File;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Desktop;
-import java.awt.HeadlessException;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
-
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.GcpDescriptor;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.PinSymbol;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ROIDefinition;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.dataio.smos.SmosFormats;
-import org.esa.beam.glevel.TiledFileMultiLevelSource;
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.draw.ShapeFigure;
+import org.esa.beam.glayer.PlacemarkLayer;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.glevel.RoiImageMultiLevelSource;
+import org.esa.beam.glevel.TiledFileMultiLevelSource;
+
+import javax.media.jai.JAI;
+import javax.media.jai.util.ImagingListener;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 
 
 public class PView {
@@ -431,13 +407,13 @@ public class PView {
         collectionLayer.setName("Placemarks");
 
         if (product.getGeoCoding() != null) {
-            final org.esa.beam.glayer.PlacemarkLayer pinLayer = new org.esa.beam.glayer.PlacemarkLayer(product, PinDescriptor.INSTANCE, i2m);
+            final PlacemarkLayer pinLayer = new PlacemarkLayer(product, PinDescriptor.INSTANCE, i2m);
             pinLayer.setName("Pins");
             pinLayer.setVisible(false);
             pinLayer.setTextEnabled(true);
             collectionLayer.getChildLayerList().add(pinLayer);
 
-            final org.esa.beam.glayer.PlacemarkLayer gcpLayer = new org.esa.beam.glayer.PlacemarkLayer(product, GcpDescriptor.INSTANCE, i2m);
+            final PlacemarkLayer gcpLayer = new PlacemarkLayer(product, GcpDescriptor.INSTANCE, i2m);
             gcpLayer.setName("GCPs");
             gcpLayer.setVisible(false);
             gcpLayer.setTextEnabled(false);
@@ -557,7 +533,6 @@ public class PView {
         JOptionPane.showMessageDialog(null, "An error occured:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         logger.log(Level.SEVERE, e.getMessage(), e);
     }
-
 
 //    public static void showLayerManager(final JFrame frame, String title, Layer collectionLayer, Point point) {
 //        final LayerManager layerManager = new LayerManager(collectionLayer);
