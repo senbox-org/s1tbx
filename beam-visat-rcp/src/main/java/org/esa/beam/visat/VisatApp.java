@@ -1727,6 +1727,7 @@ public class VisatApp extends BasicApp {
         }
         if (preferencesErrorHandler == null) {
             preferencesErrorHandler = new ParamExceptionHandler() {
+                @Override
                 public boolean handleParamException(final ParamException e) {
                     final Parameter parameter = e.getParameter();
                     final Object defaultValue = parameter.getProperties().getDefaultValue();
@@ -1764,7 +1765,6 @@ public class VisatApp extends BasicApp {
     }
 
     private void applyProductSceneViewPreferences() {
-
         final ProductSceneView selectedProductSceneView = getSelectedProductSceneView();
         if (selectedProductSceneView != null) {
             selectedProductSceneView.setLayerProperties(getPreferences());
