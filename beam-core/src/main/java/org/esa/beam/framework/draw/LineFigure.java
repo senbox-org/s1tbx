@@ -24,7 +24,7 @@ import java.util.Map;
  */
 public class LineFigure extends ShapeFigure {
 
-    public LineFigure(Shape shape, Map attributes) {
+    public LineFigure(Shape shape, Map<String, Object> attributes) {
         super(shape, true, attributes);
     }
 
