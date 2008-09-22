@@ -70,7 +70,7 @@ public abstract class AbstractStyle implements Style {
         if (getDefaultStyle() != null && !hasPropertyNoDefault(propertyName)) {
             return getDefaultStyle().hasProperty(propertyName);
         }
-        return hasProperty(propertyName);
+        return hasPropertyNoDefault(propertyName);
     }
 
     @Override
