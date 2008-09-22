@@ -12,7 +12,6 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.BufferedImageRendering;
-
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
@@ -35,18 +34,15 @@ import org.esa.beam.util.PropertyMapChangeListener;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.swing.JComponent;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.RenderedImage;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -77,6 +73,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
     /**
      * Property name for the image histogram matching type
+     *
      * @deprecated
      */
     @Deprecated
@@ -95,7 +92,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     private ArrayList<LayerContentListener> layerContentListenerList;
     private ArrayList<LayerViewportListener> layerViewportListenerList;
     private RasterChangeHandler rasterChangeHandler;
-    
+
     private ProductSceneImage sceneImage;
     private LayerDisplay layerCanvas;
 
@@ -111,7 +108,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         imageUpdateListenerList = new ArrayList<ImageUpdateListener>(5);
         layerContentListenerList = new ArrayList<LayerContentListener>(5);
         layerViewportListenerList = new ArrayList<LayerViewportListener>(5);
-        
+
         setOpaque(true);
         setBackground(DEFAULT_IMAGE_BACKGROUND_COLOR); // todo - use sceneImage.getConfiguration() (nf, 18.09.2008)
         setLayout(new BorderLayout());
@@ -171,11 +168,11 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     ProductSceneImage getSceneImage() {
         return sceneImage;
     }
-    
+
     public Layer getRootLayer() {
         return sceneImage.getRootLayer();
     }
-    
+
     public LayerDisplay getLayerCanvas() {
         return layerCanvas;
     }
@@ -183,6 +180,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     /**
      * Returns the currently visible product node.
      */
+    @Override
     public ProductNode getVisibleProductNode() {
         return getRaster();
     }
@@ -195,6 +193,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
      * @param pixelY the pixel Y co-ordinate
      * @return the info string at the given position
      */
+    @Override
     public String createPixelInfoString(int pixelX, int pixelY) {
         return getProduct() != null ? getProduct().createPixelInfoString(pixelX, pixelY) : "";
     }
@@ -202,6 +201,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     /**
      * Called if the property map changed. Simply calls {@link #setLayerProperties(org.esa.beam.util.PropertyMap)}.
      */
+    @Override
     public void propertyMapChanged(PropertyMap propertyMap) {
         setLayerProperties(propertyMap);
     }
@@ -350,6 +350,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         if (getImageDisplayComponent() != null) {
             // ensure that imageDisplay.dispose() is run in the EDT
             SwingUtilities.invokeLater(new Runnable() {
+                @Override
                 public void run() {
                     disposeImageDisplayComponent();
                 }
@@ -427,6 +428,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     /**
      * Adds a new figure to the drawing.
      */
+    @Override
     public void addFigure(Figure figure) {
         Guardian.assertNotNull("figure", figure);
 
@@ -468,7 +470,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         getBaseImageLayer().regenerate();
         fireImageUpdated();
     }
-    
+
     public ImageLayer getBaseImageLayer() {
         for (final Layer layer : getSceneImage().getRootLayer().getChildLayerList()) {
             if (layer.getName().equals(getSceneImage().getName())) {
@@ -478,7 +480,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
         return null;
     }
-    
+
     public boolean isNoDataOverlayEnabled() {
         final ImageLayer noDataLayer = getNoDataLayer();
         return noDataLayer != null && noDataLayer.isVisible();
@@ -514,6 +516,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
             fireImageUpdated();
         }
     }
+
     public boolean isGcpOverlayEnabled() {
         final Layer gcpLayer = getGcpLayer();
         return gcpLayer != null && gcpLayer.isVisible();
@@ -582,7 +585,8 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         if (roiLayer != null) {
             if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
                 // todo - get color from style, set color
-                final MultiLevelSource multiLevelSource = RoiImageMultiLevelSource.create(getRaster(), Color.RED, new AffineTransform());
+                final MultiLevelSource multiLevelSource = RoiImageMultiLevelSource.create(getRaster(),
+                        Color.RED, new AffineTransform());
                 roiLayer.setMultiLevelSource(multiLevelSource);
             } else {
                 roiLayer.setMultiLevelSource(MultiLevelSource.NULL);
@@ -620,25 +624,37 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
      * Called after VISAT preferences have changed.
      * This behaviour is deprecated since we want to uswe separate style editors for each layers.
      *
-     * @param configuration
+     * @param configuration the configuration.
      */
     public void setLayerProperties(PropertyMap configuration) {
-
         layerCanvas.setNavControlShown(configuration.getPropertyBool(PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true));
 
-//        setImageProperties(propertyMap); TODO implement
+//        setImageProperties(propertyMap); todo - implement
 
+        final Layer noDataLayer = getNoDataLayer();
+        if (noDataLayer != null) {
+            ProductSceneImage.setNoDataLayerStyle(configuration, noDataLayer);
+        }
+        final Layer roiLayer = getRoiLayer();
+        if (roiLayer != null) {
+            ProductSceneImage.setRoiLayerStyle(configuration, roiLayer);
+        }
+        final Layer pinLayer = getPinLayer();
+        if (pinLayer != null) {
+            ProductSceneImage.setPinLayerStyle(configuration, pinLayer);
+        }
+        final Layer gcpLayer = getGcpLayer();
+        if (gcpLayer != null) {
+            ProductSceneImage.setGcpLayerStyle(configuration, gcpLayer);
+        }
         final FigureLayer figureLayer = getFigureLayer();
         if (figureLayer != null) {
-            figureLayer.setStyleProperties(configuration);
+            ProductSceneImage.setFigureLayerStyle(configuration, figureLayer);
         }
-//        getNoDataLayer().setStyle(noDataStyle );
         final GraticuleLayer graticuleLayer = getGraticuleLayer();
         if (graticuleLayer != null) {
-            graticuleLayer.setStyleProperties(configuration);
+            ProductSceneImage.setGraticuleLayerStyle(configuration, graticuleLayer);
         }
-//        getPinLayer().setStyleProperties(propertyMap);
-//        getGcpLayer().setStyleProperties(propertyMap);
 
         fireImageUpdated();
     }
@@ -653,8 +669,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
     /**
      * Gets tools which can handle selections.
-     *
-     * @return
      */
     public AbstractTool[] getSelectToolDelegates() {
         // is used for the selection tool, which can be specified for each layer
@@ -780,10 +794,12 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         return bi;
     }
 
+    @Override
     public Tool getTool() {
         return layerCanvas.getTool();
     }
 
+    @Override
     public void setTool(Tool tool) {
         if (tool != null && layerCanvas.getTool() != tool) {
             tool.setDrawingEditor(this);
@@ -792,6 +808,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         }
     }
 
+    @Override
     public void repaintTool() {
         if (layerCanvas.getTool() != null) {
             repaint(100);
@@ -799,6 +816,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     // TODO remove ??? UNUSED
+    @Override
     public void removeFigure(Figure figure) {
         final FigureLayer figureLayer = getFigureLayer();
 
@@ -811,6 +829,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     // used only internaly --> private ???
+    @Override
     public int getNumFigures() {
         final FigureLayer figureLayer = getFigureLayer();
 
@@ -822,11 +841,13 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     // used only internaly --> private ???
+    @Override
     public Figure getFigureAt(int index) {
         return getFigureLayer().getFigureList().get(index);
     }
 
     // TODO remove ??? UNUSED
+    @Override
     public Figure[] getAllFigures() {
         final FigureLayer figureLayer = getFigureLayer();
 
@@ -838,20 +859,23 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     //TODO remove ??? UNUSED
+    @Override
     public Figure[] getSelectedFigures() {
         return new Figure[0];
     }
 
     // TODO remove ??? UNUSED
+    @Override
     public Figure[] getFiguresWithAttribute(String name) {
         return new Figure[0];
     }
 
     // TODO remove ??? UNUSED
+    @Override
     public Figure[] getFiguresWithAttribute(String name, Object value) {
         return new Figure[0];
     }
-    
+
     protected void copyPixelInfoStringToClipboard() {
         String text = layerCanvas.createPixelInfoString(this);
         SystemUtils.copyToClipboard(text);
@@ -868,8 +892,8 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         if (noDataLayer != null) {
             if (expression != null) {
                 // todo - get color from style, set color
-                final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(), Color.ORANGE, expression,
-                        true, new AffineTransform());
+                final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(),
+                        Color.ORANGE, expression, true, new AffineTransform());
                 noDataLayer.setMultiLevelSource(multiLevelSource);
             } else {
                 noDataLayer.setMultiLevelSource(MultiLevelSource.NULL);
@@ -884,6 +908,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         menuItem.setMnemonic('C');
         menuItem.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 copyPixelInfoStringToClipboard();
             }
@@ -913,28 +938,32 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
          */
         public RGBChannel(final Product product, final String name, final String expression) {
             super(name,
-                  ProductData.TYPE_FLOAT32,
-                  product.getSceneRasterWidth(),
-                  product.getSceneRasterHeight(),
-                  expression);
+                    ProductData.TYPE_FLOAT32,
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight(),
+                    expression);
             setOwner(product);
         }
     }
 
     protected class RasterChangeHandler implements ProductNodeListener {
 
+        @Override
         public void nodeChanged(final ProductNodeEvent event) {
             repaintView();
         }
 
+        @Override
         public void nodeDataChanged(final ProductNodeEvent event) {
             repaintView();
         }
 
+        @Override
         public void nodeAdded(final ProductNodeEvent event) {
             repaintView();
         }
 
+        @Override
         public void nodeRemoved(final ProductNodeEvent event) {
             repaintView();
         }
@@ -946,6 +975,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
     protected final class ZoomHandler implements MouseWheelListener {
 
+        @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
             int notches = e.getWheelRotation();
             double currentViewScale = getZoomFactor();
@@ -964,7 +994,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     public interface LayerViewportListener {
         void layerViewportChanged(boolean orientationChanged);
     }
-    
+
     private ImageLayer getNoDataLayer() {
         for (final Layer layer : getSceneImage().getRootLayer().getChildLayerList()) {
             if (layer.getName().startsWith("No-data")) {

@@ -1,6 +1,7 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.Style;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.datamodel.*;
@@ -12,26 +13,30 @@ import java.awt.geom.Rectangle2D;
 
 public class PlacemarkLayer extends Layer {
 
+    public static final String PROPERTY_NAME_TEXT_FONT = "text.font";
+    public static final String PROPERTY_NAME_TEXT_ENABLED = "text.enabled";
+    public static final String PROPERTY_NAME_TEXT_FG_COLOR = "text.fg.color";
+    public static final String PROPERTY_NAME_TEXT_BG_COLOR = "text.bg.color";
+
+    private static final boolean DEFAULT_TEXT_ENABLED = false;
+    private static final Font DEFAULT_TEXT_FONT = new Font("Helvetica", Font.BOLD, 14);
+    private static final Color DEFAULT_TEXT_FG_COLOR = Color.WHITE;
+    private static final Color DEFAULT_TEXT_BG_COLOR = Color.BLACK;
+
     private Product product;
     private PlacemarkDescriptor placemarkDescriptor;
     private final AffineTransform imageToModelTransform;
-
-    private boolean textEnabled;
-    private Font textFont;
-    private Color textFgColor;
-    private Color textBgColor;
-    private float textBgTransparency;
-
 
     public PlacemarkLayer(Product product, PlacemarkDescriptor placemarkDescriptor, AffineTransform imageToModelTransform) {
         this.product = product;
         this.placemarkDescriptor = placemarkDescriptor;
         this.imageToModelTransform = new AffineTransform(imageToModelTransform);
-        setTextFont(new Font("Helvetica", Font.BOLD, 14));
-        setTextEnabled(false);
-        setTextFgColor(Color.white);
-        setTextBgColor(Color.black);
-        setTextBgTransparency(0.7f);
+
+        final Style defaultStyle = getStyle().getDefaultStyle();
+        defaultStyle.setProperty(PROPERTY_NAME_TEXT_ENABLED, DEFAULT_TEXT_ENABLED);
+        defaultStyle.setProperty(PROPERTY_NAME_TEXT_FONT, DEFAULT_TEXT_FONT);
+        defaultStyle.setProperty(PROPERTY_NAME_TEXT_FG_COLOR, DEFAULT_TEXT_FG_COLOR);
+        defaultStyle.setProperty(PROPERTY_NAME_TEXT_BG_COLOR, DEFAULT_TEXT_BG_COLOR);
     }
 
     @Override
@@ -51,15 +56,6 @@ public class PlacemarkLayer extends Layer {
     public AffineTransform getImageToModelTransform() {
         return new AffineTransform(imageToModelTransform);
     }
-    
-    // from old layer , as reference for the old property names
-//    protected void setStylePropertiesImpl(PropertyMap propertyMap) {
-//        super.setStylePropertiesImpl(propertyMap);
-//        setTextEnabled(propertyMap.getPropertyBool(getPropertyName("text.enabled"), isTextEnabled()));
-//        setTextFgColor(propertyMap.getPropertyColor(getPropertyName("text.fg.color"), textFgColor));
-//        setTextBgColor(propertyMap.getPropertyColor(getPropertyName("text.bg.color"), getTextBgColor()));
-//        setTextBgTransparency((float) propertyMap.getPropertyDouble(getPropertyName("text.bg.transparency"), textBgTransparency));
-//    }
 
     @Override
     protected void renderLayer(Rendering rendering) {
@@ -82,7 +78,7 @@ public class PlacemarkLayer extends Layer {
             double zoomFactor = viewport.getZoomFactor();
             ProductNodeGroup<Pin> pinGroup = getPlacemarkGroup();
             Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
-            for (Pin pin : pins) {
+            for (final Pin pin : pins) {
                 final PixelPos pixelPos = pin.getPixelPos();
                 if (pixelPos != null) {
                     g2d.translate(pixelPos.getX(), pixelPos.getY());
@@ -109,7 +105,6 @@ public class PlacemarkLayer extends Layer {
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntialiasing);
             g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, oldTextAntialiasing);
         }
-
     }
 
     @Override
@@ -133,9 +128,9 @@ public class PlacemarkLayer extends Layer {
         for (int i = 0; i < alphas.length; i++) {
             BasicStroke selectionStroke = new BasicStroke((alphas.length - i));
             Color selectionColor = new Color(getTextBgColor().getRed(),
-                                             getTextBgColor().getGreen(),
-                                             getTextBgColor().getGreen(),
-                                             alphas[i]);
+                    getTextBgColor().getGreen(),
+                    getTextBgColor().getGreen(),
+                    alphas[i]);
             g2d.setStroke(selectionStroke);
             g2d.setPaint(selectionColor);
             g2d.draw(outline);
@@ -145,44 +140,59 @@ public class PlacemarkLayer extends Layer {
         g2d.fill(outline);
     }
 
-    public boolean isTextEnabled() {
-        return textEnabled;
+    private boolean isTextEnabled() {
+        final Style style = getStyle();
+
+        if (style.hasProperty(PROPERTY_NAME_TEXT_ENABLED)) {
+            return (Boolean) style.getProperty(PROPERTY_NAME_TEXT_ENABLED);
+        }
+
+        return DEFAULT_TEXT_ENABLED;
     }
 
     public void setTextEnabled(boolean textEnabled) {
-        this.textEnabled = textEnabled;
+        getStyle().setProperty(PROPERTY_NAME_TEXT_ENABLED, textEnabled);
     }
 
     public Font getTextFont() {
-        return textFont;
+        final Style style = getStyle();
+
+        if (style.hasProperty(PROPERTY_NAME_TEXT_FONT)) {
+            return (Font) style.getProperty(PROPERTY_NAME_TEXT_FONT);
+        }
+
+        return DEFAULT_TEXT_FONT;
     }
 
-    public void setTextFont(Font textFont) {
-        this.textFont = textFont;
+    public void setTextFont(Font font) {
+        getStyle().setProperty(PROPERTY_NAME_TEXT_FONT, font);
     }
 
     public Color getTextFgColor() {
-        return textFgColor;
+        final Style style = getStyle();
+
+        if (style.hasProperty(PROPERTY_NAME_TEXT_FG_COLOR)) {
+            return (Color) style.getProperty(PROPERTY_NAME_TEXT_FG_COLOR);
+        }
+
+        return DEFAULT_TEXT_FG_COLOR;
     }
 
-    public void setTextFgColor(Color textFgColor) {
-        this.textFgColor = textFgColor;
+    public void setTextFgColor(Color color) {
+        getStyle().setProperty(PROPERTY_NAME_TEXT_FG_COLOR, color);
     }
 
     public Color getTextBgColor() {
-        return textBgColor;
+        final Style style = getStyle();
+
+        if (style.hasProperty(PROPERTY_NAME_TEXT_BG_COLOR)) {
+            return (Color) style.getProperty(PROPERTY_NAME_TEXT_BG_COLOR);
+        }
+
+        return DEFAULT_TEXT_BG_COLOR;
     }
 
-    public void setTextBgColor(Color textBgColor) {
-        this.textBgColor = textBgColor;
+    public void setTextBgColor(Color color) {
+        getStyle().setProperty(PROPERTY_NAME_TEXT_BG_COLOR, color);
     }
-
-    public float getTextBgTransparency() {
-        return textBgTransparency;
-    }
-
-    public void setTextBgTransparency(float textBgTransparency) {
-        this.textBgTransparency = textBgTransparency;
-    }
-
 }

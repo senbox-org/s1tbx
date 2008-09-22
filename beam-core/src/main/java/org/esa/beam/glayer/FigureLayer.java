@@ -16,144 +16,193 @@
  */
 package org.esa.beam.glayer;
 
-import java.awt.AlphaComposite;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.Style;
+import com.bc.ceres.grender.Rendering;
+import com.bc.ceres.grender.Viewport;
+import org.esa.beam.framework.draw.Figure;
+
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import org.esa.beam.framework.draw.Figure;
-import org.esa.beam.util.PropertyMap;
-
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.grender.Rendering;
-import com.bc.ceres.grender.Viewport;
 
 public class FigureLayer extends Layer {
-        // TODO: IMAGING 4.5: Layer.getStyle(), SVG property names!
-        public static final boolean DEFAULT_SHAPE_OUTLINED = true;
-        public static final double DEFAULT_SHAPE_OUTL_TRANSPARENCY = 0.1;
-        public static final Color DEFAULT_SHAPE_OUTL_COLOR = Color.yellow;
-        public static final double DEFAULT_SHAPE_OUTL_WIDTH = 1.0;
-        public static final boolean DEFAULT_SHAPE_FILLED = true;
-        public static final double DEFAULT_SHAPE_FILL_TRANSPARENCY = 0.5;
-        public static final Color DEFAULT_SHAPE_FILL_COLOR = Color.blue;
+    public static final String PROPERTY_NAME_SHAPE_OUTLINED = "shape.outlined";
+    public static final String PROPERTY_NAME_SHAPE_FILLED = "shape.filled";
+    public static final String PROPERTY_NAME_SHAPE_OUTL_COLOR = "shape.outl.color";
+    public static final String PROPERTY_NAME_SHAPE_FILL_COLOR = "shape.fill.color";
+    public static final String PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY = "shape.outl.transparency";
+    public static final String PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY = "shape.fill.transparency";
+    public static final String PROPERTY_NAME_SHAPE_OUTL_WIDTH = "shape.outl.width";
+    public static final String PROPERTY_NAME_SHAPE_OUTL_COMPOSITE = "shape.outl.composite";
+    public static final String PROPERTY_NAME_SHAPE_FILL_COMPOSITE = "shape.fill.composite";
 
-        private final List<Figure> figureList;
-        private final AffineTransform shapeToModelTransform;
-        private final AffineTransform modelToShapeTransform;
-        private Map<String, Object> figureAttributes;
+    public static final boolean DEFAULT_SHAPE_OUTLINED = true;
+    public static final boolean DEFAULT_SHAPE_FILLED = true;
+    public static final Color DEFAULT_SHAPE_OUTL_COLOR = Color.yellow;
+    public static final Color DEFAULT_SHAPE_FILL_COLOR = Color.BLUE;
+    public static final double DEFAULT_SHAPE_OUTL_TRANSPARENCY = 0.1;
+    public static final double DEFAULT_SHAPE_FILL_TRANSPARENCY = 0.5;
+    public static final double DEFAULT_SHAPE_OUTL_WIDTH = 1.0;
 
-        public FigureLayer(Figure[] figures) {
-            this.figureList = new ArrayList<Figure>(Arrays.asList(figures));
-            this.shapeToModelTransform =
-                    this.modelToShapeTransform = new AffineTransform();
-            figureAttributes = new HashMap<String, Object>();
-        }
+    private final List<Figure> figureList;
+    private final AffineTransform shapeToModelTransform;
+    private final AffineTransform modelToShapeTransform;
 
-        public void addFigure(Figure currentShapeFigure) {
-            currentShapeFigure.setAttributes(figureAttributes);
-            figureList.add(currentShapeFigure);
-        }
-
-        public List<Figure> getFigureList() {
-            return figureList;
-        }
-
-        public void setFigureList(List<Figure> list) {
-            figureList.clear();
-            figureList.addAll(list);
-            for (Figure figure : figureList) {
-                figure.setAttributes(figureAttributes);
-            }
-        }
-
-//        public AffineTransform getShapeToModelTransform() {
-//            return (AffineTransform) shapeToModelTransform.clone();
-//        }
-//
-//        public AffineTransform getModelToShapeTransform() {
-//            return (AffineTransform) modelToShapeTransform.clone();
-//        }
-
-        @Override
-        public Rectangle2D getBounds() {
-            Rectangle2D boundingBox = new Rectangle2D.Double();
-            for (Figure figure : figureList) {
-                boundingBox.add(figure.getShape().getBounds2D());
-            }
-            return shapeToModelTransform.createTransformedShape(boundingBox).getBounds2D();
-        }
-
-        @Override
-        protected void renderLayer(Rendering rendering) {
-            final Graphics2D g2d = rendering.getGraphics();
-            final Viewport vp = rendering.getViewport();
-            final AffineTransform transformSave = g2d.getTransform();
-            try {
-                final AffineTransform transform = new AffineTransform();
-                transform.concatenate(transformSave);
-                transform.concatenate(vp.getModelToViewTransform());
-                transform.concatenate(shapeToModelTransform);
-                g2d.setTransform(transform);
-
-                for (Figure figure : figureList) {
-                    figure.draw(g2d);
-                }
-            } finally {
-                g2d.setTransform(transformSave);
-            }
-        }
-
-        /**
-         * @param propertyMap
-         */
-        public void setStyleProperties(PropertyMap propertyMap) {
-            final boolean outlined = propertyMap.getPropertyBool("shape.outlined", FigureLayer.DEFAULT_SHAPE_OUTLINED);
-            final float outlTransp = (float) propertyMap.getPropertyDouble("shape.outl.transparency",
-                                                                           FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY);
-            final Color outlColor = propertyMap.getPropertyColor("shape.outl.color", FigureLayer.DEFAULT_SHAPE_OUTL_COLOR);
-            final float outlWidth = (float) propertyMap.getPropertyDouble("shape.outl.width",
-                                                                          FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH);
-
-            final boolean filled = propertyMap.getPropertyBool("shape.filled", FigureLayer.DEFAULT_SHAPE_FILLED);
-            final float fillTransp = (float) propertyMap.getPropertyDouble("shape.fill.transparency",
-                                                                           FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY);
-            final Color fillColor = propertyMap.getPropertyColor("shape.fill.color", FigureLayer.DEFAULT_SHAPE_OUTL_COLOR);
-
-            final AlphaComposite outlComp;
-            if (outlTransp > 0.0f) {
-                outlComp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f - outlTransp);
-            } else {
-                outlComp = null;
-            }
-
-            final AlphaComposite fillComp;
-            if (fillTransp > 0.0f) {
-                fillComp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f - fillTransp);
-            } else {
-                fillComp = null;
-            }
-
-            figureAttributes.put(Figure.OUTLINED_KEY, outlined ? Boolean.TRUE : Boolean.FALSE);
-            figureAttributes.put(Figure.OUTL_COMPOSITE_KEY, outlComp);
-            figureAttributes.put(Figure.OUTL_COLOR_KEY, outlColor);
-            figureAttributes.put(Figure.OUTL_STROKE_KEY, new BasicStroke(outlWidth));
-
-            figureAttributes.put(Figure.FILLED_KEY, filled ? Boolean.TRUE : Boolean.FALSE);
-            figureAttributes.put(Figure.FILL_COMPOSITE_KEY, fillComp);
-            figureAttributes.put(Figure.FILL_PAINT_KEY, fillColor);
-
-            for (Figure figure : figureList) {
-                figure.setAttributes(figureAttributes);
-            }
-            
-        }
-
+    public FigureLayer(Figure[] figures) {
+        this.figureList = new ArrayList<Figure>(Arrays.asList(figures));
+        this.shapeToModelTransform = new AffineTransform();
+        this.modelToShapeTransform = new AffineTransform();
     }
+
+    public void addFigure(Figure currentShapeFigure) {
+        setAttributes(currentShapeFigure);
+        figureList.add(currentShapeFigure);
+    }
+
+    private void setAttributes(Figure figure) {
+        figure.setAttribute(Figure.OUTLINED_KEY, isShapeOutlined());
+        figure.setAttribute(Figure.OUTL_COLOR_KEY, getShapeOutlineColor());
+        figure.setAttribute(Figure.OUTL_STROKE_KEY, createStroke(getShapeOutlineWidth()));
+        figure.setAttribute(Figure.FILLED_KEY, isShapeFilled());
+        figure.setAttribute(Figure.FILL_PAINT_KEY, getShapeFillColor());
+        figure.setAttribute(Figure.OUTL_COMPOSITE_KEY, createComposite(getShapeOutlineTransparency()));
+        figure.setAttribute(Figure.FILL_COMPOSITE_KEY, createComposite(getShapeFillTransparency()));
+    }
+
+    public List<Figure> getFigureList() {
+        return figureList;
+    }
+
+    // todo - this method is never used. Remove? Deprecate?? (rq)
+    public void setFigureList(List<Figure> list) {
+        figureList.clear();
+        figureList.addAll(list);
+        for (final Figure figure : figureList) {
+            setAttributes(figure);
+        }
+    }
+
+    public AffineTransform getShapeToModelTransform() {
+        return (AffineTransform) shapeToModelTransform.clone();
+    }
+
+    public AffineTransform getModelToShapeTransform() {
+        return (AffineTransform) modelToShapeTransform.clone();
+    }
+
+    @Override
+    public Rectangle2D getBounds() {
+        Rectangle2D boundingBox = new Rectangle2D.Double();
+        for (final Figure figure : figureList) {
+            boundingBox.add(figure.getShape().getBounds2D());
+        }
+        return shapeToModelTransform.createTransformedShape(boundingBox).getBounds2D();
+    }
+
+    @Override
+    protected void renderLayer(Rendering rendering) {
+        final Graphics2D g2d = rendering.getGraphics();
+        final Viewport vp = rendering.getViewport();
+        final AffineTransform transformSave = g2d.getTransform();
+
+        try {
+            final AffineTransform transform = new AffineTransform();
+            transform.concatenate(transformSave);
+            transform.concatenate(vp.getModelToViewTransform());
+            transform.concatenate(shapeToModelTransform);
+            g2d.setTransform(transform);
+
+            for (final Figure figure : figureList) {
+                figure.draw(g2d);
+            }
+        } finally {
+            g2d.setTransform(transformSave);
+        }
+    }
+
+    private static Composite createComposite(double transparency) {
+        if (transparency > 0.0) {
+            return AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) (1.0 - transparency));
+        }
+
+        return null;
+    }
+
+    private static Stroke createStroke(double width) {
+        return new BasicStroke((float) width);
+    }
+
+    private boolean isShapeOutlined() {
+        final Style style = getStyle();
+
+        if (style.hasProperty(PROPERTY_NAME_SHAPE_OUTLINED)) {
+            return (Boolean) style.getProperty(PROPERTY_NAME_SHAPE_OUTLINED);
+        }
+
+        return DEFAULT_SHAPE_OUTLINED;
+    }
+
+    private Color getShapeOutlineColor() {
+        final Style style = getStyle();
+
+        if (style.hasProperty(PROPERTY_NAME_SHAPE_OUTL_COLOR)) {
+            return (Color) style.getProperty(PROPERTY_NAME_SHAPE_OUTL_COLOR);
+        }
+
+        return DEFAULT_SHAPE_OUTL_COLOR;
+    }
+
+    private double getShapeOutlineTransparency() {
+        final Style style = getStyle();
+
+        if (style.hasProperty(PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY)) {
+            return (Double) style.getProperty(PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY);
+        }
+
+        return DEFAULT_SHAPE_OUTL_TRANSPARENCY;
+    }
+
+    private boolean isShapeFilled() {
+        final Style style = getStyle();
+
+        if (style.hasProperty(PROPERTY_NAME_SHAPE_FILLED)) {
+            return (Boolean) style.getProperty(PROPERTY_NAME_SHAPE_FILLED);
+        }
+
+        return DEFAULT_SHAPE_FILLED;
+    }
+
+    private double getShapeOutlineWidth() {
+        final Style style = getStyle();
+
+        if (style.hasProperty(PROPERTY_NAME_SHAPE_OUTL_WIDTH)) {
+            return (Double) style.getProperty(PROPERTY_NAME_SHAPE_OUTL_WIDTH);
+        }
+
+        return DEFAULT_SHAPE_OUTL_WIDTH;
+    }
+
+    private Color getShapeFillColor() {
+        final Style style = getStyle();
+
+        if (style.hasProperty(PROPERTY_NAME_SHAPE_FILL_COLOR)) {
+            return (Color) style.getProperty(PROPERTY_NAME_SHAPE_FILL_COLOR);
+        }
+
+        return DEFAULT_SHAPE_FILL_COLOR;
+    }
+
+    private double getShapeFillTransparency() {
+        final Style style = getStyle();
+
+        if (style.hasProperty(PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY)) {
+            return (Double) style.getProperty(PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY);
+        }
+
+        return DEFAULT_SHAPE_FILL_TRANSPARENCY;
+    }    
+}
