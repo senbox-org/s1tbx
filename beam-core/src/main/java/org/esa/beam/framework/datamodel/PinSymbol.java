@@ -167,10 +167,7 @@ public class PinSymbol extends ShapeFigure {
 
     public boolean isFilled() {
         Object attribute = getAttribute(FILLED_KEY);
-        if (attribute instanceof Boolean) {
-            return (Boolean) attribute;
-        }
-        return false;
+        return attribute instanceof Boolean && (Boolean) attribute;
     }
 
     public void setFilled(boolean fill) {
