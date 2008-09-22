@@ -46,7 +46,7 @@ public class ShapeFigure extends AbstractFigure {
     /**
      * Constructs a shape figure for the given shape.
      */
-    public ShapeFigure(Shape shape, boolean oneDimensional, Map attributes) {
+    public ShapeFigure(Shape shape, boolean oneDimensional, Map<String, Object> attributes) {
         super(attributes);
         Guardian.assertNotNull("shape", shape);
         _shape = shape;
@@ -58,6 +58,7 @@ public class ShapeFigure extends AbstractFigure {
      *
      * @return a shape representation of this figure which is never <code>null</code>.
      */
+    @Override
     public Shape getShape() {
         return _shape;
     }
@@ -65,6 +66,7 @@ public class ShapeFigure extends AbstractFigure {
     /**
      * Gets the figure as an area. One-dimensional figures are returned as line strokes with a width of 1 unit.
      */
+    @Override
     public Area getAsArea() {
         if (getShape() instanceof Area) {
             return (Area) getShape();
@@ -78,6 +80,7 @@ public class ShapeFigure extends AbstractFigure {
     /**
      * Gets the figure's center.
      */
+    @Override
     public Point2D getCenterPoint() {
         Rectangle2D bounds = getBounds();
         return new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
@@ -86,6 +89,7 @@ public class ShapeFigure extends AbstractFigure {
     /**
      * Gets the bounding box of the figure
      */
+    @Override
     public Rectangle2D getBounds() {
         return _shape.getBounds2D();
     }
@@ -93,6 +97,7 @@ public class ShapeFigure extends AbstractFigure {
     /**
      * Checks if a point is inside the figure.
      */
+    @Override
     public boolean containsPoint(double x, double y) {
         return _shape.contains(x, y);
     }
@@ -100,6 +105,7 @@ public class ShapeFigure extends AbstractFigure {
     /**
      * Determines whether a figure is a (one-dimensional) line in a two-dimensional space.
      */
+    @Override
     public boolean isOneDimensional() {
         return _oneDimensional;
     }
@@ -109,6 +115,7 @@ public class ShapeFigure extends AbstractFigure {
      *
      * @param g2d the graphics context
      */
+    @Override
     public void draw(Graphics2D g2d) {
         if (!isOneDimensional()) {
             fillShape(g2d);
@@ -131,7 +138,7 @@ public class ShapeFigure extends AbstractFigure {
         Composite compositeNew = null;
         Composite compositeOld = null;
 
-        Object value = null;
+        Object value;
 
         value = getAttribute(FILL_PAINT_KEY);
         if (value instanceof Paint) {
@@ -191,7 +198,7 @@ public class ShapeFigure extends AbstractFigure {
         Composite compositeNew = null;
         Composite compositeOld = null;
 
-        Object value = null;
+        Object value;
 
         value = getAttribute(OUTL_COLOR_KEY);
         if (value instanceof Paint) {
@@ -236,27 +243,27 @@ public class ShapeFigure extends AbstractFigure {
         }
     }
 
-    public static LineFigure createLine(float x1, float y1, float x2, float y2, Map attributes) {
+    public static LineFigure createLine(float x1, float y1, float x2, float y2, Map<String, Object> attributes) {
         return new LineFigure(new Line2D.Float(x1, y1, x2, y2), attributes);
     }
 
-    public static LineFigure createPolyline(GeneralPath path, Map attributes) {
+    public static LineFigure createPolyline(GeneralPath path, Map<String, Object> attributes) {
         return new LineFigure(path, attributes);
     }
 
-    public static AreaFigure createRectangleArea(float x, float y, float w, float h, Map attributes) {
+    public static AreaFigure createRectangleArea(float x, float y, float w, float h, Map<String, Object> attributes) {
         return new AreaFigure(new Rectangle2D.Float(x, y, w, h), attributes);
     }
 
-    public static AreaFigure createEllipseArea(float x, float y, float w, float h, Map attributes) {
+    public static AreaFigure createEllipseArea(float x, float y, float w, float h, Map<String, Object> attributes) {
         return new AreaFigure(new Ellipse2D.Float(x, y, w, h), attributes);
     }
 
-    public static AreaFigure createPolygonArea(GeneralPath path, Map attributes) {
+    public static AreaFigure createPolygonArea(GeneralPath path, Map<String, Object> attributes) {
         return new AreaFigure(path, attributes);
     }
 
-    public static AreaFigure createArbitraryArea(Area area, Map attributes) {
+    public static AreaFigure createArbitraryArea(Area area, Map<String, Object> attributes) {
         return new AreaFigure(area, attributes);
     }
 }
