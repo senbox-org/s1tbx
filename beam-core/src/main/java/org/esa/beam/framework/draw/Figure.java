@@ -204,7 +204,7 @@ public interface Figure extends Drawable, Cloneable, Serializable {
     /**
      * Returns the attributes of this figure as a <code>Map</code>.
      */
-    Map getAttributes();
+    Map<String, Object> getAttributes();
 
     /**
      * Returns the named attribute or null if a a figure doesn't have an attribute. All figures support the attribute
@@ -220,7 +220,7 @@ public interface Figure extends Drawable, Cloneable, Serializable {
     /**
      * Sets multiple attributes
      */
-    void setAttributes(Map attributes);
+    void setAttributes(Map<String, Object> attributes);
 
     /**
      * Adds a listener for this figure.
