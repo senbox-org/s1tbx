@@ -33,7 +33,7 @@ import javax.swing.event.EventListenerList;
 public abstract class AbstractFigure implements Figure {
 
     private int _zValue;
-    private Map _attributes;
+    private Map<String, Object> _attributes;
     private EventListenerList _listenerList;
     private PropertyChangeSupport _propertyChangeSupport;
 
@@ -42,9 +42,9 @@ public abstract class AbstractFigure implements Figure {
      *
      * @param attributes the default attributes for the new figure, can be <code>null</code>
      */
-    protected AbstractFigure(Map attributes) {
+    protected AbstractFigure(Map<String, Object> attributes) {
         if (attributes != null) {
-            _attributes = new HashMap();
+            _attributes = new HashMap<String, Object>();
             _attributes.putAll(attributes);
         }
     }
@@ -57,6 +57,7 @@ public abstract class AbstractFigure implements Figure {
      *
      * @see FigureHandle
      */
+    @Override
     public FigureHandle[] createHandles() {
         return null;
     }
@@ -64,6 +65,7 @@ public abstract class AbstractFigure implements Figure {
     /**
      * Returns an Enumeration of the figures contained in this figure
      */
+    @Override
     public Figure[] getFigures() {
         return null;
     }
@@ -71,6 +73,7 @@ public abstract class AbstractFigure implements Figure {
     /**
      * Returns the figure that contains the given point.
      */
+    @Override
     public Figure findFigureInside(double x, double y) {
         return null;
     }
@@ -78,6 +81,7 @@ public abstract class AbstractFigure implements Figure {
     /**
      * Checks whether the given figure is contained in this figure.
      */
+    @Override
     public boolean includes(Figure figure) {
         return false;
     }
@@ -85,6 +89,7 @@ public abstract class AbstractFigure implements Figure {
     /**
      * Decomposes a figure into its parts. A figure is considered as a part of itself.
      */
+    @Override
     public Figure[] decompose() {
         return null;
     }
@@ -93,6 +98,7 @@ public abstract class AbstractFigure implements Figure {
      * Releases a figure's resources. Release is called when a figure is removed from a drawing. Informs the listeners
      * that the figure is removed by calling figureRemoved.
      */
+    @Override
     public void dispose() {
         if (_attributes != null) {
             _attributes.clear();
@@ -107,6 +113,7 @@ public abstract class AbstractFigure implements Figure {
     /**
      * Gets the z value (back-to-front ordering) of this figure. Z values are not guaranteed to not skip numbers.
      */
+    @Override
     public int getZValue() {
         return _zValue;
     }
@@ -114,6 +121,7 @@ public abstract class AbstractFigure implements Figure {
     /**
      * Sets the z value (back-to-front ordering) of this figure. Z values are not guaranteed to not skip numbers.
      */
+    @Override
     public void setZValue(int zValue) {
         _zValue = zValue;
     }
@@ -121,7 +129,8 @@ public abstract class AbstractFigure implements Figure {
     /**
      * Returns the attributes of this figure as a <code>Map</code>.
      */
-    public Map getAttributes() {
+    @Override
+    public Map<String, Object> getAttributes() {
         return _attributes;
     }
 
@@ -129,6 +138,7 @@ public abstract class AbstractFigure implements Figure {
      * Returns the named attribute or null if a a figure doesn't have an attribute. All figures support the attribute
      * names FillColor and FrameColor
      */
+    @Override
     public Object getAttribute(String name) {
         if (_attributes == null) {
             return null;
@@ -139,9 +149,10 @@ public abstract class AbstractFigure implements Figure {
     /**
      * Sets the named attribute to the new value
      */
+    @Override
     public void setAttribute(String name, Object value) {
         if (_attributes == null) {
-            _attributes = new HashMap();
+            _attributes = new HashMap<String, Object>();
         }
         Object oldValue = _attributes.get(name);
         if (oldValue == null && value != null
@@ -156,11 +167,10 @@ public abstract class AbstractFigure implements Figure {
     /**
      * Sets multiple attributes
      */
-    public void setAttributes(Map attributes) {
-        final Iterator it = attributes.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry entry = (Map.Entry) it.next();
-            setAttribute(entry.getKey().toString(), entry.getValue());
+    @Override
+    public void setAttributes(Map<String, Object> attributes) {
+        for (final Map.Entry<String, Object> entry : attributes.entrySet()) {
+            setAttribute(entry.getKey(), entry.getValue());
         }
     }
 
@@ -169,6 +179,7 @@ public abstract class AbstractFigure implements Figure {
      *
      * @param listener the listener to be added
      */
+    @Override
     public void addFigureChangeListener(FigureChangeListener listener) {
         if (listener != null) {
             if (_listenerList == null) {
@@ -183,6 +194,7 @@ public abstract class AbstractFigure implements Figure {
      *
      * @param listener the listener to be removed
      */
+    @Override
     public void removeFigureChangeListener(FigureChangeListener listener) {
         if (listener != null && _listenerList != null) {
             _listenerList.remove(FigureChangeListener.class, listener);
@@ -193,6 +205,7 @@ public abstract class AbstractFigure implements Figure {
     /**
      * Returns a clone of this figure
      */
+    @Override
     public Object clone() {
         try {
             return super.clone();
