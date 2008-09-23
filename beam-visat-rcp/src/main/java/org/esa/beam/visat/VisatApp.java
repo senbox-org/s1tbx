@@ -1006,8 +1006,10 @@ public class VisatApp extends BasicApp {
         }
     }
 
+    // not used anywhere
     public void updateROIImages(final RasterDataNode[] rasters, final boolean recreateROIImage) {
         updateAssociatedViews(rasters, new ViewUpdateMethod() {
+            @Override
             public void updateView(final ProductSceneView view) {
                 updateROIImage(view, recreateROIImage);
             }
@@ -1027,7 +1029,7 @@ public class VisatApp extends BasicApp {
                     Debug.trace(e);
                     showErrorDialog("Failed to create ROI image.\nAn I/O error occured:\n" + e.getMessage());
                 }
-                return null;  //To change body of implemented methods use File | Settings | File Templates.
+                return null;
             }
 
             @Override
