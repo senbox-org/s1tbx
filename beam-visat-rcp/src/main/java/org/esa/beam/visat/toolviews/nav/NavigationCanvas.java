@@ -3,17 +3,17 @@
  */
 package org.esa.beam.visat.toolviews.nav;
 
-import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.util.logging.BeamLogManager;
-
-import javax.swing.JPanel;
-import javax.swing.border.Border;
-import javax.swing.event.MouseInputAdapter;
-
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
+import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.util.logging.BeamLogManager;
 
+import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
@@ -65,7 +65,7 @@ public class NavigationCanvas extends JPanel {
      * Causes this container to lay out its components. Most programs should not
      * call this method directly, but should invoke the <code>validate</code>
      * method instead.
-     * 
+     *
      * @see java.awt.LayoutManager#layoutContainer
      * @see #setLayout
      * @see #validate
@@ -88,7 +88,7 @@ public class NavigationCanvas extends JPanel {
             ((Graphics2D) g).drawRenderedImage(thumbnailImage, transform);
 
             g.setColor(new Color(getForeground().getRed(), getForeground().getGreen(),
-                                 getForeground().getBlue(), 82));
+                    getForeground().getBlue(), 82));
             g.fillRect(visibleArea.x, visibleArea.y, visibleArea.width, visibleArea.height);
             g.setColor(getForeground());
             g.draw3DRect(visibleArea.x - 1, visibleArea.y - 1, visibleArea.width + 2, visibleArea.height + 2, true);
@@ -128,7 +128,7 @@ public class NavigationCanvas extends JPanel {
                 if (thumbnailImage == null || thumbnailImage.getWidth() != imageWidth
                         || thumbnailImage.getHeight() != imageHeight) {
                     thumbnailImage = new BufferedImage(imageWidth, imageHeight,
-                                                       BufferedImage.TYPE_3BYTE_BGR);
+                            BufferedImage.TYPE_3BYTE_BGR);
                     imageRendering = new BufferedImageRendering(thumbnailImage);
                 }
                 updateImageContent();
@@ -186,7 +186,15 @@ public class NavigationCanvas extends JPanel {
         graphics.clearRect(0, 0, thumbnailImage.getWidth(), thumbnailImage.getHeight());
 
         configureThumbnailViewport(view, imageRendering.getViewport());
-        view.getRootLayer().render(imageRendering);
+//        view.getRootLayer().render(imageRendering); // todo - discuss API change with nf
+        view.getRootLayer().accept(new Layer.Visitor() {
+            @Override
+            public void visit(Layer layer) {
+                if (layer instanceof ImageLayer) {
+                    layer.render(imageRendering);
+                }
+            }
+        });
     }
 
     private Rectangle getViewportThumbnailBounds(ProductSceneView view, Rectangle thumbnailArea) {
@@ -194,25 +202,25 @@ public class NavigationCanvas extends JPanel {
         configureThumbnailViewport(view, thumbnailViewport);
         final Viewport canvasViewport = view.getLayerCanvas().getViewport();
         final Point2D modelOffset = canvasViewport.getViewToModelTransform()
-                                                  .transform(
-                                                             canvasViewport.getBounds()
-                                                                           .getLocation(), null);
+                .transform(
+                        canvasViewport.getBounds()
+                                .getLocation(), null);
 
         final Point2D tnOffset = thumbnailViewport.getModelToViewTransform().transform(modelOffset,
-                                                                                       null);
+                null);
         double scale = DefaultViewport.getScale(canvasViewport.getViewToModelTransform())
                 * DefaultViewport.getScale(thumbnailViewport.getModelToViewTransform());
 
         return new Rectangle((int) Math.floor(tnOffset.getX()), (int) Math.floor(tnOffset.getY()),
-                             (int) Math.floor(canvasViewport.getBounds().width * scale),
-                             (int) Math.floor(canvasViewport.getBounds().height * scale));
+                (int) Math.floor(canvasViewport.getBounds().width * scale),
+                (int) Math.floor(canvasViewport.getBounds().height * scale));
     }
 
     private void configureThumbnailViewport(ProductSceneView view, Viewport thumbnailViewport) {
         thumbnailViewport.setMaxZoomFactor(-1);
         thumbnailViewport.zoom(getRotatedModelBounds(view));
         thumbnailViewport.moveViewDelta(thumbnailViewport.getBounds().x,
-                                        thumbnailViewport.getBounds().y);
+                thumbnailViewport.getBounds().y);
         thumbnailViewport.rotate(view.getOrientation());
     }
 
@@ -230,17 +238,16 @@ public class NavigationCanvas extends JPanel {
     /**
      * This method ignores the given parameter. It is an empty implementation to
      * prevent from setting borders on this canvas.
-     * 
-     * @param border
-     *            is ignored
+     *
+     * @param border is ignored
      */
     @Override
     public void setBorder(Border border) {
         if (border != null) {
             BeamLogManager.getSystemLogger()
-                          .warning(
-                                   "NavigationCanvas.setBorder() called with "
-                                           + border.getClass().getCanonicalName());
+                    .warning(
+                            "NavigationCanvas.setBorder() called with "
+                                    + border.getClass().getCanonicalName());
             BeamLogManager.getSystemLogger().warning("borders not allowed");
         }
     }
