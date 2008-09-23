@@ -97,14 +97,16 @@ public class NavigationCanvas extends JPanel {
     }
 
     private void updateImageDisplay() {
-        // TODO IMAGING 4.5
         final ProductSceneView view = navigationWindow.getCurrentView();
         if (view != null && thumbnailImage != null) {
-            final Rectangle2D ma = view.getModelBounds();
-            double mpX = ma.getX() + (visibleArea.x - area.x) * ma.getWidth() / area.width;
-            double mpY = ma.getY() + (visibleArea.y - area.y) * ma.getHeight() / area.height;
+            // todo - ask nf to explain why the following code works (rq)
+            final double x = visibleArea.x - area.x;
+            final double y = visibleArea.y - area.y;
+            final Point2D point = new Point.Double(x, y);
+
+            imageRendering.getViewport().getViewToModelTransform().transform(point, point);
             updatingImageDisplay = true;
-            navigationWindow.setModelOffset(mpX, mpY);
+            navigationWindow.setModelOffset(point.getX(), point.getY());
             updatingImageDisplay = false;
         }
     }
@@ -186,7 +188,6 @@ public class NavigationCanvas extends JPanel {
         graphics.clearRect(0, 0, thumbnailImage.getWidth(), thumbnailImage.getHeight());
 
         configureThumbnailViewport(view, imageRendering.getViewport());
-//        view.getRootLayer().render(imageRendering); // todo - discuss API change with nf
         view.getRootLayer().accept(new Layer.Visitor() {
             @Override
             public void visit(Layer layer) {
