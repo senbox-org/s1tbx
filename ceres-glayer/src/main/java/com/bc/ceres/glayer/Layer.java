@@ -238,9 +238,6 @@ public class Layer extends ExtensibleObject {
         for (int i = childLayerList.size() - 1; i >= 0; --i) {
             childLayerList.get(i).render(rendering);
         }
-//        for (Layer childLayer : childLayerList) {
-//            childLayer.render(rendering);
-//        }
     }
 
     /**
@@ -424,5 +421,35 @@ public class Layer extends ExtensibleObject {
                 layer.setParentLayer(null);
             }
         }
+    }
+
+    /**
+     * Accepts a given {@link Visitor}.
+     * <p/>
+     * This method belongs to preliminary API and may be removed or changed in the future.
+     *
+     * @param visitor the {@link Visitor}.
+     */
+    public final void accept(Visitor visitor) {
+        visitor.visit(this);
+
+        for (int i = childLayerList.size() - 1; i >= 0; --i) {
+            childLayerList.get(i).accept(visitor);
+        }
+    }
+
+    /**
+     * Visitor interface.
+     * <p/>
+     * This interface belongs to preliminary API and may be removed or changed in the future.
+     */
+    public interface Visitor {
+        /**
+         * Visits a given {@link Layer} for e.g. extracting information or performing
+         * an action.
+         *
+         * @param layer the {@link Layer}.
+         */
+        void visit(Layer layer);
     }
 }
