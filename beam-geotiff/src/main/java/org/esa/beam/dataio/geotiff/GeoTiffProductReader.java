@@ -298,8 +298,8 @@ public class GeoTiffProductReader extends AbstractProductReader {
                         projection = getProjectionTransverseMercator(keyEntries);
                     } else if (isProjectionLambertConfConic(keyEntries)) {
                         projection = getProjectionLambertConfConic(keyEntries);
-                    } else if (isProjectionPolarStereographic(keyEntries)) {
-                        projection = getProjectionPolarStereographic(keyEntries);
+                    } else if (isProjectionStereographic(keyEntries)) {
+                        projection = getProjectionStereographic(keyEntries);
                     } else if (isProjectionAlbersEqualArea(keyEntries)) {
                         projection = getProjectionAlbersEqualAreaConic(keyEntries);
                     } else {
@@ -352,9 +352,10 @@ public class GeoTiffProductReader extends AbstractProductReader {
                keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_LambertConfConic;
     }
 
-    private static boolean isProjectionPolarStereographic(Map<Integer, GeoKeyEntry> keyEntries) {
+    private static boolean isProjectionStereographic(Map<Integer, GeoKeyEntry> keyEntries) {
         return containsProjCoordTrans(keyEntries) &&
-               keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_PolarStereographic;
+               (keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_PolarStereographic ||
+                keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_Stereographic);
     }
 
     private static boolean isProjectionAlbersEqualArea(Map<Integer, GeoKeyEntry> keyEntries) {
@@ -428,8 +429,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
             values[6] = keyEntries.get(GeoTIFFCodes.ProjFalseNorthingGeoKey).getDblValue()[0];
         }
         final MapTransform transform = descriptor.createTransform(values);
-        final MapProjection mapProjection = new MapProjection(descriptor.getTypeID(), transform);
-        return mapProjection;
+        return new MapProjection(descriptor.getTypeID(), transform);
     }
 
     private static MapProjection getProjectionLambertConfConic(Map<Integer, GeoKeyEntry> keyEntries) {
@@ -443,11 +443,15 @@ public class GeoTiffProductReader extends AbstractProductReader {
         if (keyEntries.containsKey(GeoTIFFCodes.GeogSemiMinorAxisGeoKey)) {
             values[1] = keyEntries.get(GeoTIFFCodes.GeogSemiMinorAxisGeoKey).getDblValue()[0];
         }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLatGeoKey)) {
+        if (keyEntries.containsKey(GeoTIFFCodes.ProjFalseOriginLatGeoKey)) {
+            values[2] = keyEntries.get(GeoTIFFCodes.ProjFalseOriginLatGeoKey).getDblValue()[0];
+        } else if(keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLatGeoKey)) {
             values[2] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLatGeoKey).getDblValue()[0];
         }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLongGeoKey)) {
-            values[3] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLongGeoKey).getDblValue()[0];
+        if (keyEntries.containsKey(GeoTIFFCodes.ProjFalseOriginLongGeoKey)) {
+            values[3] = keyEntries.get(GeoTIFFCodes.ProjFalseOriginLongGeoKey).getDblValue()[0];
+        }else if(keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLongGeoKey)) {
+            values[3] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLongGeoKey).getDblValue()[0];            
         }
         if (keyEntries.containsKey(GeoTIFFCodes.ProjStdParallel1GeoKey)) {
             values[4] = keyEntries.get(GeoTIFFCodes.ProjStdParallel1GeoKey).getDblValue()[0];
@@ -457,13 +461,15 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
         if (keyEntries.containsKey(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey)) {
             values[6] = keyEntries.get(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey).getDblValue()[0];
+        }else if(keyEntries.containsKey(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE)){
+            final GeoKeyEntry scaleField = keyEntries.get(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE);
+            values[6] = scaleField.getDblValue()[0];
         }
         final MapTransform transform = descriptor.createTransform(values);
-        final MapProjection mapProjection = new MapProjection(descriptor.getTypeID(), transform);
-        return mapProjection;
+        return new MapProjection(descriptor.getTypeID(), transform);
     }
 
-    private static MapProjection getProjectionPolarStereographic(Map<Integer, GeoKeyEntry> keyEntries) {
+    private static MapProjection getProjectionStereographic(Map<Integer, GeoKeyEntry> keyEntries) {
         final MapTransformDescriptor descriptor = MapProjectionRegistry.getDescriptor(
                 StereographicDescriptor.TYPE_ID);
         final double[] values = descriptor.getParameterDefaultValues();
@@ -474,10 +480,14 @@ public class GeoTiffProductReader extends AbstractProductReader {
         if (keyEntries.containsKey(GeoTIFFCodes.GeogSemiMinorAxisGeoKey)) {
             values[1] = keyEntries.get(GeoTIFFCodes.GeogSemiMinorAxisGeoKey).getDblValue()[0];
         }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLatGeoKey)) {
+        if (keyEntries.containsKey(GeoTIFFCodes.ProjCenterLatGeoKey)) {
+            values[2] = keyEntries.get(GeoTIFFCodes.ProjCenterLatGeoKey).getDblValue()[0];
+        }else if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLatGeoKey)) {
             values[2] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLatGeoKey).getDblValue()[0];
         }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLongGeoKey)) {
+        if (keyEntries.containsKey(GeoTIFFCodes.ProjCenterLongGeoKey)) {
+            values[3] = keyEntries.get(GeoTIFFCodes.ProjCenterLongGeoKey).getDblValue()[0];
+        } else if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLongGeoKey)) {
             values[3] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLongGeoKey).getDblValue()[0];
         }
         if (keyEntries.containsKey(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey)) {
@@ -490,8 +500,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
             values[6] = keyEntries.get(GeoTIFFCodes.ProjFalseNorthingGeoKey).getDblValue()[0];
         }
         final MapTransform transform = descriptor.createTransform(values);
-        final MapProjection mapProjection = new MapProjection(descriptor.getTypeID(), transform);
-        return mapProjection;
+        return new MapProjection(descriptor.getTypeID(), transform);
     }
 
     private static MapProjection getProjectionAlbersEqualAreaConic(Map<Integer, GeoKeyEntry> keyEntries) {
@@ -527,8 +536,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
             values[8] = keyEntries.get(GeoTIFFCodes.ProjFalseNorthingGeoKey).getDblValue()[0];
         }
         final MapTransform transform = descriptor.createTransform(values);
-        final MapProjection mapProjection = new MapProjection(descriptor.getTypeID(), transform);
-        return mapProjection;
+        return new MapProjection(descriptor.getTypeID(), transform);
     }
 
     private static void applyGeographicGeocoding(TiffFileInfo info, Product product) {

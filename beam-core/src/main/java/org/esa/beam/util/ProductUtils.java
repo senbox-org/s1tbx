@@ -2130,17 +2130,19 @@ public class ProductUtils {
 
                 metadata.addGeoShortParam(GeoTIFFCodes.ProjectedCSTypeGeoKey, GeoTIFFCodes.GTUserDefinedGeoKey);
                 metadata.addGeoShortParam(GeoTIFFCodes.ProjectionGeoKey, GeoTIFFCodes.GTUserDefinedGeoKey);
-                metadata.addGeoShortParam(GeoTIFFCodes.ProjCoordTransGeoKey, GeoTIFFCodes.CT_PolarStereographic);
-
                 final double[] parameterValues = mapTransform.getParameterValues();
+                if(Math.abs(parameterValues[2]) == 90) {
+                    metadata.addGeoShortParam(GeoTIFFCodes.ProjCoordTransGeoKey, GeoTIFFCodes.CT_PolarStereographic);
+                }else {
+                    metadata.addGeoShortParam(GeoTIFFCodes.ProjCoordTransGeoKey, GeoTIFFCodes.CT_Stereographic);
+                }
 
                 metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMajorAxisGeoKey, parameterValues[0]); // semi_major
                 metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMinorAxisGeoKey, parameterValues[1]);  // semi_minor
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLatGeoKey, parameterValues[2]); // latitude_of_origin
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLongGeoKey, parameterValues[3]);   // central_meridian
-                // todo - check which one to use ProjNatOrigin*GeoKey or ProjCenter*GeoKey
-//                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjCenterLatGeoKey, parameterValues[2]); // latitude_of_origin
-//                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjCenterLongGeoKey, parameterValues[3]);   // central_meridian
+                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjCenterLatGeoKey, parameterValues[2]); // latitude_of_origin
+                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjCenterLongGeoKey, parameterValues[3]);   // central_meridian
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey, parameterValues[4]);  // scale_factor
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseEastingGeoKey, parameterValues[5]);  // false_easting
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseNorthingGeoKey, parameterValues[6]);  // false_northing
@@ -2152,13 +2154,16 @@ public class ProductUtils {
                 metadata.addGeoShortParam(GeoTIFFCodes.ProjCoordTransGeoKey, GeoTIFFCodes.CT_LambertConfConic);
 
                 final double[] parameterValues = mapTransform.getParameterValues();
-
                 metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMajorAxisGeoKey, parameterValues[0]); // semi_major
                 metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMinorAxisGeoKey, parameterValues[1]);  // semi_minor
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLatGeoKey, parameterValues[2]); // latitude_of_origin
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLongGeoKey, parameterValues[3]);   // central_meridian
+
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjStdParallel1GeoKey, parameterValues[4]);  // latitude_of_intersection_1
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjStdParallel2GeoKey, parameterValues[5]);  // latitude_of_intersection_2
+                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLongGeoKey, parameterValues[3]);   // central_meridian
+                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseOriginLongGeoKey, parameterValues[3]);   // central_meridian
+                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseOriginLatGeoKey, parameterValues[2]);   // central_meridian
+                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseOriginEastingGeoKey, 0);
+                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseOriginNorthingGeoKey, 0);
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey, parameterValues[6]);  // scale_factor
             } else if (AlbersEqualAreaConicDescriptor.NAME.equals(mapTransform.getDescriptor().getName())) {
                 metadata.addGeoShortParam(GeoTIFFCodes.GTModelTypeGeoKey, GeoTIFFCodes.ModelTypeProjected);
@@ -2171,8 +2176,11 @@ public class ProductUtils {
 
                 metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMajorAxisGeoKey, parameterValues[0]); // semi_major
                 metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMinorAxisGeoKey, parameterValues[1]);  // semi_minor
+                
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLatGeoKey, parameterValues[2]); // latitude_of_origin
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLongGeoKey, parameterValues[3]);   // central_meridian
+                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjCenterLatGeoKey, parameterValues[2]); // latitude_of_origin
+                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjCenterLongGeoKey, parameterValues[3]);   // central_meridian
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjStdParallel1GeoKey, parameterValues[4]);  // latitude_of_intersection_1
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjStdParallel2GeoKey, parameterValues[5]);  // latitude_of_intersection_2
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey, parameterValues[6]);  // scale_factor
