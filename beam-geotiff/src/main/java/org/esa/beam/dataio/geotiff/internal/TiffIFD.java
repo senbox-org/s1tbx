@@ -169,7 +169,7 @@ public class TiffIFD {
         final int numEntries = geoTIFFMetadata.getNumGeoKeyEntries();
         final TiffShort[] directoryTagValues = new TiffShort[numEntries * 4];
         final ArrayList<TiffDouble> doubleValues = new ArrayList<TiffDouble>();
-        final ArrayList<GeoTiffAscii> asciiValues = new ArrayList<GeoTiffAscii>();
+        final ArrayList<String> asciiValues = new ArrayList<String>();
         for (int i = 0; i < numEntries; i++) {
             final GeoTIFFMetadata.KeyEntry entry = geoTIFFMetadata.getGeoKeyEntryAt(i);
             final int[] data = entry.getData();
@@ -184,18 +184,22 @@ public class TiffIFD {
                 }
             }
             if (data[1] == TiffTag.GeoAsciiParamsTag.getValue()) {
-                directoryTagValues[i * 4 + 3] = new TiffShort(asciiValues.size());
-                asciiValues.add(new GeoTiffAscii(geoTIFFMetadata.getGeoAsciiParam(data[0])));
+                int sizeInBytes = 0;
+                for (String asciiValue : asciiValues) {
+                    sizeInBytes = asciiValue.length() + 1;
+                }
+                directoryTagValues[i * 4 + 3] = new TiffShort(sizeInBytes);
+                asciiValues.add(geoTIFFMetadata.getGeoAsciiParam(data[0]));
             }
         }
         setEntry(new TiffDirectoryEntry(TiffTag.GeoKeyDirectoryTag, directoryTagValues));
-        if (doubleValues.size() > 0) {
+        if (!doubleValues.isEmpty()) {
             final TiffDouble[] tiffDoubles = doubleValues.toArray(new TiffDouble[doubleValues.size()]);
             setEntry(new TiffDirectoryEntry(TiffTag.GeoDoubleParamsTag, tiffDoubles));
         }
-        if (asciiValues.size() > 0) {
-            final GeoTiffAscii[] tiffAsciies = asciiValues.toArray(new GeoTiffAscii[asciiValues.size()]);
-            setEntry(new TiffDirectoryEntry(TiffTag.GeoAsciiParamsTag, tiffAsciies));
+        if (!asciiValues.isEmpty()) {
+            final String[] tiffAsciies = asciiValues.toArray(new String[asciiValues.size()]);
+            setEntry(new TiffDirectoryEntry(TiffTag.GeoAsciiParamsTag, new GeoTiffAscii(tiffAsciies)));
         }
         double[] modelTransformation = geoTIFFMetadata.getModelTransformation();
         if (!isZeroArray(modelTransformation)) {
