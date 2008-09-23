@@ -4,6 +4,7 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerListener;
+import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.ViewportScrollPane;
 import com.bc.ceres.glevel.MultiLevelModel;
@@ -584,9 +585,9 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         final ImageLayer roiLayer = getRoiLayer();
         if (roiLayer != null) {
             if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
-                // todo - get color from style, set color
+                final Color color = (Color) roiLayer.getStyle().getProperty("color");
                 final MultiLevelSource multiLevelSource = RoiImageMultiLevelSource.create(getRaster(),
-                        Color.RED, new AffineTransform());
+                        color, roiLayer.getImageToModelTransform());
                 roiLayer.setMultiLevelSource(multiLevelSource);
             } else {
                 roiLayer.setMultiLevelSource(MultiLevelSource.NULL);
@@ -885,15 +886,17 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         layerCanvas.dispose();
     }
 
+    // only called from PropertyEditor
     public void updateNoDataImage(ProgressMonitor pm) throws Exception {
         final String expression = getRaster().getValidMaskExpression();
         final ImageLayer noDataLayer = getNoDataLayer();
 
         if (noDataLayer != null) {
             if (expression != null) {
-                // todo - get color from style, set color
+                final Style style = noDataLayer.getStyle();
+                final Color color = (Color) style.getProperty("color");
                 final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(),
-                        Color.ORANGE, expression, true, new AffineTransform());
+                        color, expression, true, noDataLayer.getImageToModelTransform());
                 noDataLayer.setMultiLevelSource(multiLevelSource);
             } else {
                 noDataLayer.setMultiLevelSource(MultiLevelSource.NULL);
