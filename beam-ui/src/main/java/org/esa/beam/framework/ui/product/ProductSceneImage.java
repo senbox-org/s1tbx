@@ -25,6 +25,8 @@ import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * TODO - Apidoc
@@ -34,13 +36,22 @@ import java.io.IOException;
  */
 public class ProductSceneImage {
 
+    public static final int IMAGE_LAYER_ID = 0;
+    public static final int NO_DATA_LAYER_ID = 1;
+    public static final int BITMASK_LAYER_ID = 2;
+    public static final int ROI_LAYER_ID = 3;
+    public static final int GRATICULE_LAYER_ID = 4;
+    public static final int GCP_LAYER_ID = 5;
+    public static final int PIN_LAYER_ID = 6;
+    public static final int FIGURE_LAYER_ID = 7;
+
     private final String name;
     private final PropertyMap configuration;
     private ImageInfo imageInfo;
     private RasterDataNode[] rasters;
     private Layer rootLayer;
     private MultiLevelSource imageMultiLevelSource;
-
+    private Map<Integer, Layer> layerMap;
 
     /**
      * Creates a color indexed product scene for the given product raster.
@@ -71,7 +82,7 @@ public class ProductSceneImage {
                 view.getImageInfo(),
                 view.getSceneImage().getConfiguration());
         imageMultiLevelSource = view.getSceneImage().getImageMultiLevelSource();
-        rootLayer = view.getRootLayer();
+        initRootLayer();
     }
 
     /**
@@ -89,10 +100,7 @@ public class ProductSceneImage {
                              RasterDataNode blueRaster,
                              PropertyMap configuration,
                              ProgressMonitor pm) {
-        this(name,
-                new RasterDataNode[]{redRaster, greenRaster, blueRaster},
-                null,
-                configuration);
+        this(name, new RasterDataNode[]{redRaster, greenRaster, blueRaster}, null, configuration);
         imageMultiLevelSource = BandImageMultiLevelSource.create(rasters, pm);
         setImageInfo(ImageManager.getInstance().getImageInfo(rasters));
         initRootLayer();
@@ -131,6 +139,38 @@ public class ProductSceneImage {
 
     Layer getRootLayer() {
         return rootLayer;
+    }
+
+    ImageLayer getBaseImageLayer() {
+        return (ImageLayer) layerMap.get(IMAGE_LAYER_ID);
+    }
+
+    ImageLayer getNoDataLayer() {
+        return (ImageLayer) layerMap.get(NO_DATA_LAYER_ID);
+    }
+
+    Layer getBitmaskLayer() {
+        return layerMap.get(BITMASK_LAYER_ID);
+    }
+
+    ImageLayer getRoiLayer() {
+        return (ImageLayer) layerMap.get(ROI_LAYER_ID);
+    }
+
+    GraticuleLayer getGraticuleLayer() {
+        return (GraticuleLayer) layerMap.get(GRATICULE_LAYER_ID);
+    }
+
+    Layer getGcpLayer() {
+        return layerMap.get(GCP_LAYER_ID);
+    }
+
+    Layer getPinLayer() {
+        return layerMap.get(PIN_LAYER_ID);
+    }
+
+    FigureLayer getFigureLayer() {
+        return (FigureLayer) layerMap.get(FIGURE_LAYER_ID);
     }
 
     private RasterDataNode getRaster() {
@@ -172,6 +212,17 @@ public class ProductSceneImage {
                 rootLayer.getChildLayerList().add(createWorldLayer);
             }
         }
+
+        layerMap = new HashMap<Integer, Layer>(12);
+
+        layerMap.put(IMAGE_LAYER_ID, imageLayer);
+        layerMap.put(NO_DATA_LAYER_ID, noDataLayer);
+        layerMap.put(BITMASK_LAYER_ID, bitmaskLayer);
+        layerMap.put(ROI_LAYER_ID, roiLayer);
+        layerMap.put(GRATICULE_LAYER_ID, graticuleLayer);
+        layerMap.put(GCP_LAYER_ID, gcpLayer);
+        layerMap.put(PIN_LAYER_ID, pinLayer);
+        layerMap.put(FIGURE_LAYER_ID, figureLayer);
     }
 
     private Layer createWorldLayer() {

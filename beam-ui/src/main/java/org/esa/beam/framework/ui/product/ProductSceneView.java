@@ -334,7 +334,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
      */
     @Override
     public void dispose() {
-
         getRaster().getProduct().removeProductNodeListener(rasterChangeHandler);
         for (int i = 0; i < getSceneImage().getRasters().length; i++) {
             final RasterDataNode raster = getSceneImage().getRasters()[i];
@@ -472,16 +471,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         fireImageUpdated();
     }
 
-    public ImageLayer getBaseImageLayer() {
-        for (final Layer layer : getSceneImage().getRootLayer().getChildLayerList()) {
-            if (layer.getName().equals(getSceneImage().getName())) {
-                return (ImageLayer) layer;
-            }
-        }
-
-        return null;
-    }
-
     public boolean isNoDataOverlayEnabled() {
         final ImageLayer noDataLayer = getNoDataLayer();
         return noDataLayer != null && noDataLayer.isVisible();
@@ -492,6 +481,10 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
             getNoDataLayer().setVisible(enabled);
             fireImageUpdated();
         }
+    }
+
+    public ImageLayer getBaseImageLayer() {
+        return getSceneImage().getBaseImageLayer();
     }
 
     public boolean isGraticuleOverlayEnabled() {
@@ -999,62 +992,26 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     private ImageLayer getNoDataLayer() {
-        for (final Layer layer : getSceneImage().getRootLayer().getChildLayerList()) {
-            if (layer.getName().startsWith("No-data")) {
-                return (ImageLayer) layer;
-            }
-        }
-
-        return null;
+        return getSceneImage().getNoDataLayer();
     }
 
     private FigureLayer getFigureLayer() {
-        for (final Layer layer : getSceneImage().getRootLayer().getChildLayerList()) {
-            if ("Figures".equals(layer.getName())) {
-                return (FigureLayer) layer;
-            }
-        }
-
-        return null;
+        return getSceneImage().getFigureLayer();
     }
 
     private ImageLayer getRoiLayer() {
-        for (final Layer layer : getSceneImage().getRootLayer().getChildLayerList()) {
-            if (layer.getName().startsWith("ROI")) {
-                return (ImageLayer) layer;
-            }
-        }
-
-        return null;
+        return getSceneImage().getRoiLayer();
     }
 
     private GraticuleLayer getGraticuleLayer() {
-        for (final Layer layer : getSceneImage().getRootLayer().getChildLayerList()) {
-            if (layer.getName().startsWith("Graticule")) {
-                return (GraticuleLayer) layer;
-            }
-        }
-
-        return null;
+        return getSceneImage().getGraticuleLayer();
     }
 
     private Layer getPinLayer() {
-        for (final Layer layer : getSceneImage().getRootLayer().getChildLayerList()) {
-            if ("Pins".equals(layer.getName())) {
-                return layer;
-            }
-        }
-
-        return null;
+        return getSceneImage().getPinLayer();
     }
 
     private Layer getGcpLayer() {
-        for (final Layer layer : getSceneImage().getRootLayer().getChildLayerList()) {
-            if ("GCPs".equals(layer.getName())) {
-                return layer;
-            }
-        }
-
-        return null;
+        return getSceneImage().getGcpLayer();
     }
 }
