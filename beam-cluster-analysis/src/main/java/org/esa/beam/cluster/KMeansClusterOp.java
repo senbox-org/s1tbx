@@ -16,7 +16,6 @@ package org.esa.beam.cluster;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -52,7 +51,7 @@ import java.io.IOException;
                   description = "Performs a K-Means cluster analysis.")
 public class KMeansClusterOp extends Operator {
 
-    private static final int NO_DATA_VALUE = -1;
+    private static final int NO_DATA_VALUE = 0xFF;
 
     @SourceProduct(alias = "source")
     private Product sourceProduct;
@@ -100,7 +99,7 @@ public class KMeansClusterOp extends Operator {
         targetProduct.setStartTime(sourceProduct.getStartTime());
         targetProduct.setEndTime(sourceProduct.getEndTime());
 
-        clusterMapBand = new Band("class_indices", ProductData.TYPE_INT16, width, height);
+        clusterMapBand = new Band("class_indices", ProductData.TYPE_UINT8, width, height);
         clusterMapBand.setDescription("Class_indices");
         clusterMapBand.setNoDataValue(NO_DATA_VALUE);
         clusterMapBand.setNoDataValueUsed(true);

@@ -14,13 +14,8 @@
  */
 package org.esa.beam.cluster;
 
-import java.awt.Rectangle;
-import java.io.IOException;
-import java.util.Comparator;
-import java.util.Map;
-
-import javax.media.jai.ROI;
-
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -37,8 +32,11 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
+import javax.media.jai.ROI;
+import java.awt.Rectangle;
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.Map;
 
 /**
  * Operator for cluster analysis.
@@ -53,7 +51,7 @@ import com.bc.ceres.core.SubProgressMonitor;
                   description = "Performs an expectation-maximization (EM) cluster analysis.")
 public class EMClusterOp extends Operator {
 
-    private static final int NO_DATA_VALUE = -1;
+    private static final int NO_DATA_VALUE = 0xFF;
 
     @SourceProduct(alias = "source")
     private Product sourceProduct;
@@ -125,7 +123,7 @@ public class EMClusterOp extends Operator {
             createProbabilityBands(targetProduct);
         }
 
-        clusterMapBand = new Band("class_indices", ProductData.TYPE_INT16, width, height);
+        clusterMapBand = new Band("class_indices", ProductData.TYPE_UINT8, width, height);
         clusterMapBand.setDescription("Class_indices");
         clusterMapBand.setNoDataValue(NO_DATA_VALUE);
         clusterMapBand.setNoDataValueUsed(true);
