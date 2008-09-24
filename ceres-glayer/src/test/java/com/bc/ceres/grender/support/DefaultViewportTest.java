@@ -175,6 +175,7 @@ public class DefaultViewportTest {
         final double m10 = t.getShearY();
         final double m01 = t.getShearX();
         final double m11 = t.getScaleY();
+        // todo - this code is correct only if sx and sy are the same! (rq)
         final double sx = Math.sqrt(m00 * m00 + m10 * m10);
         final double sy = Math.sqrt(m01 * m01 + m11 * m11);
         t.translate(vc.getX(), vc.getY());
@@ -193,5 +194,4 @@ public class DefaultViewportTest {
     public static Point2D getModelOffset(Viewport vp) {
         return vp.getViewToModelTransform().transform(new Point(0, 0), null);
     }
-
 }
