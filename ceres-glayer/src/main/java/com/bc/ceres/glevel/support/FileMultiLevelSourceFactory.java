@@ -9,6 +9,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.io.File;
 
+// todo - convert into FileMultiLevelSource (nf - 2008.09.24)
 public class FileMultiLevelSourceFactory {
 
     public static MultiLevelSource create(File location, String extension, AffineTransform imageToModelTransform, int levelCount) {
