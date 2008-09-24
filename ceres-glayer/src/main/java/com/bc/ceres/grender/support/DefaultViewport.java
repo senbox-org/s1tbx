@@ -33,44 +33,54 @@ public class DefaultViewport implements Viewport {
         this.maxZoomFactor = 32;
     }
 
+    @Override
     public double getMaxZoomFactor() {
         return maxZoomFactor;
     }
 
+    @Override
     public void setMaxZoomFactor(double maxZoomFactor) {
         this.maxZoomFactor = maxZoomFactor;
     }
 
+    @Override
     public Rectangle getBounds() {
         return new Rectangle(bounds);
     }
 
+    @Override
     public void setBounds(Rectangle bounds) {
         Assert.notNull(bounds, "bounds");
         this.bounds.setRect(bounds);
         fireViewportChanged(false);
     }
 
+    @Override
     public AffineTransform getViewToModelTransform() {
         return new AffineTransform(viewToModelTransform);
     }
 
+    @Override
     public AffineTransform getModelToViewTransform() {
         return new AffineTransform(modelToViewTransform);
     }
 
+    @Override
     public double getOrientation() {
         return orientation;
     }
 
+    @Override
     public double getZoomFactor() {
         return getScale(modelToViewTransform);
     }
 
+    @Override
     public void rotate(double orientation) {
         rotate(orientation, getViewportCenterPoint());
     }
 
+    @Override
     public void rotate(double orientation, Point2D viewCenter) {
         Assert.notNull(viewCenter, "viewCenter");
         if (this.orientation != orientation) {
@@ -84,6 +94,7 @@ public class DefaultViewport implements Viewport {
         }
     }
 
+    @Override
     public void move(double modelPosX, double modelPosY) {
         viewToModelTransform.setTransform(viewToModelTransform.getScaleX(),
                                           viewToModelTransform.getShearY(),
@@ -95,12 +106,14 @@ public class DefaultViewport implements Viewport {
         fireViewportChanged(false);
     }
 
+    @Override
     public void moveViewDelta(double deltaX, double deltaY) {
         viewToModelTransform.translate(-deltaX, -deltaY);
         updateModelToViewTransform();
         fireViewportChanged(false);
     }
 
+    @Override
     public void zoom(Rectangle2D modelArea) {
         final double viewportWidth = bounds.width;
         final double viewportHeight = bounds.height;
@@ -111,6 +124,7 @@ public class DefaultViewport implements Viewport {
              zoomFactor);
     }
 
+    @Override
     public void zoom(double modelCenterX, double modelCenterY, double zoomFactor) {
         zoomFactor = limitZoomFactor(zoomFactor);
         final double viewportWidth = bounds.width;
@@ -132,10 +146,12 @@ public class DefaultViewport implements Viewport {
         return new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
     }
 
+    @Override
     public void zoom(double zoomFactor) {
         zoom(zoomFactor, getViewportCenterPoint());
     }
 
+    @Override
     public void zoom(double zoomFactor, Point2D viewCenter) {
         Assert.notNull(viewCenter, "viewCenter");
         zoomFactor = limitZoomFactor(zoomFactor);
@@ -150,7 +166,7 @@ public class DefaultViewport implements Viewport {
         // correct only when sx and sy are the same
 //        final double sx = Math.sqrt(m00 * m00 + m10 * m10);
 //        final double sy = Math.sqrt(m01 * m01 + m11 * m11);
-        // correct even if sx and sy are different
+        // correct even when sx and sy are different
 //        final double sx = Math.sqrt(m00 * m00 + m01 * m01);
 //        final double sy = Math.sqrt(m10 * m10 + m11 * m11);
         v2m.translate(viewCenter.getX(), viewCenter.getY());
@@ -161,6 +177,7 @@ public class DefaultViewport implements Viewport {
     }
 
 
+    @Override
     public void addListener(ViewportListener listener) {
         Assert.notNull(listener, "listener");
         if (!changeListeners.contains(listener)) {
@@ -168,10 +185,12 @@ public class DefaultViewport implements Viewport {
         }
     }
 
+    @Override
     public void removeListener(ViewportListener listener) {
         changeListeners.remove(listener);
     }
 
+    @Override
     public ViewportListener[] getListeners() {
         return changeListeners.toArray(new ViewportListener[changeListeners.size()]);
     }
@@ -206,12 +225,14 @@ public class DefaultViewport implements Viewport {
 
     // todo - move somewhere else
     public static double getScale(AffineTransform t) {
+        // only correct when scale x and scale y are the same and there is no net shearing! (rq)
         final double m00 = t.getScaleX();
         final double m10 = t.getShearY();
         return m10 == 0.0 ? Math.abs(m00) : Math.sqrt(m00 * m00 + m10 * m10);
     }
 
     private double limitZoomFactor(double viewScale) {
+        Math.sqrt(modelToViewTransform.getDeterminant());
         return limitZoomFactor(viewScale, maxZoomFactor);
     }
 
