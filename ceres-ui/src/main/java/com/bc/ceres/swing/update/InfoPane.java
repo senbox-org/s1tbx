@@ -1,33 +1,19 @@
 package com.bc.ceres.swing.update;
 
 import com.bc.ceres.core.runtime.Module;
-import com.bc.ceres.swing.CollapsiblePane;
-import com.bc.ceres.swing.UriLabel;
 
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.GridLayout;
+import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import java.awt.*;
 
 class InfoPane extends JPanel {
 
-    private static final String MULTIPLE_MODULES_SELECTED = "MultipleModuleSelected";
-    private static final String NO_MODULE_SELECTED = "NoModuleSelected";
-    private static final String SINGLE_MODULE_SELECTED = "SingleModuleSelected";
+    private static final String NOT_AVAILABLE = "Not available.";
 
     private ModuleItem[] selectedModuleItems;
-    private JLabel descriptionArea;
-    private JLabel changelogArea;
-    private CardLayout cardLayout;
-    private JLabel vendorLabel;
-    private JLabel addressLabel;
-    private JLabel copyrightLabel;
-    private UriLabel urlLabel;
-    private UriLabel licenseLabel;
-    private UriLabel aboutLabel;
+    private JEditorPane infoPanel;
+    private JScrollPane infoPanelScrollPane;
 
     public InfoPane() {
         initUi();
@@ -61,95 +47,106 @@ class InfoPane extends JPanel {
             } else {
                 module = currentModule.getModule();
             }
-            vendorLabel.setText(module.getVendor());
-            addressLabel.setText(module.getContactAddress());
-            copyrightLabel.setText(module.getCopyright());
-            setLinkLabel(urlLabel, module.getUrl());
-            setLinkLabel(licenseLabel, module.getLicenseUrl());
-            setLinkLabel(aboutLabel, module.getAboutUrl());
 
-            descriptionArea.setText("<html>" + getDescriptionText(module) + "</html>");
-            changelogArea.setText("<html>" + getChanglogText(module) + "</html>");
+            StringBuilder html = new StringBuilder(1024);
+            html.append("<html>");
+            html.append("<body>");
+            html.append("<p>");
+            html.append("<a id=\"tod\"/>");
+            html.append("<u>Module description:</u><br/>");
+            html.append(getTextValue(module.getDescription()));
+            html.append("</p>");
+            html.append("<p>");
+            html.append("<u>Changelog:</u><br/>");
+            html.append(getTextValue(module.getChangelog()));
+            html.append("</p>");
+            html.append("<p>");
+            html.append("<u>Vendor information:</u><br/>");
+            html.append("<ul>");
+            addText(html, "Name", module.getVendor());
+            addText(html, "Contact address", module.getContactAddress());
+            addText(html, "Copyright", module.getCopyright());
+            addUrl(html, "Home page", module.getUrl());
+            addUrl(html, "License", module.getLicenseUrl());
+            addUrl(html, "About", module.getAboutUrl());
+            html.append("</ul>");
+            html.append("</p>");
+            html.append("</body>");
+            html.append("</html>");
 
-            cardLayout.show(this, SINGLE_MODULE_SELECTED);
+            infoPanel.setText(html.toString());
+            infoPanel.setAutoscrolls(false);
+//            infoPanel.scrollToReference("tod"); // todo - make this work (nf, 2008.09.24)
+            infoPanelScrollPane.getViewport().setViewPosition(new Point(0, 0));
         } else if (selectedModuleItems.length > 1) {
-            cardLayout.show(this, MULTIPLE_MODULES_SELECTED);
+            infoPanel.setText("<html><body></body></html>");
         } else {
-            cardLayout.show(this, NO_MODULE_SELECTED);
+            infoPanel.setText("<html><body></body></html>");
         }
     }
 
-    private static String getDescriptionText(Module module) {
-        String description = module.getDescription();
-        if (description == null) {
-            description = "";
-        }
-        return description;
+    private static void addUrl(StringBuilder html, String label, String url) {
+        addItem(html, label, getUrlValue(url));
     }
 
-    private static String getChanglogText(Module module) {
-        String changelog = module.getChangelog();
-        if (changelog == null) {
-            changelog = "";
-        }
-        return changelog;
+    private static void addText(StringBuilder html, String label, String text) {
+        addItem(html, label, getTextValue(text));
     }
 
-    private static void setLinkLabel(UriLabel uriLabel, String uriString) {
-        uriLabel.setText(uriString);
-        uriLabel.setUri(uriString);
+    private static void addItem(StringBuilder html, String label, String value) {
+        html.append("<li><b>");
+        html.append(label);
+        html.append(":</b> ");
+        html.append(value);
+        html.append("</li>");
+    }
+
+    private static String getUrlValue(String url) {
+        if (!isTextAvailable(url)) {
+            return NOT_AVAILABLE;
+        }
+        StringBuilder html = new StringBuilder(32);
+        html.append("<a href=\"");
+        html.append(url);
+        html.append("\">");
+        html.append(url);
+        html.append("</a>");
+        return html.toString();
+    }
+
+    private static String getTextValue(String text) {
+        if (!isTextAvailable(text)) {
+            return NOT_AVAILABLE;
+        }
+        return text;
+    }
+
+    private static boolean isTextAvailable(String text) {
+        if (text == null || text.length() == 0) {
+            return false;
+        }
+        return true;
     }
 
     private void initUi() {
-        cardLayout = new CardLayout();
-        setLayout(cardLayout);
-        descriptionArea = new JLabel();
-        descriptionArea.setOpaque(true);
-        descriptionArea.setBackground(getBackground().brighter());
-        changelogArea = new JLabel();
-        changelogArea.setOpaque(true);
-        changelogArea.setBackground(getBackground().brighter());
+        setLayout(new BorderLayout());
 
-        vendorLabel = new JLabel();
-        addressLabel = new JLabel();
-        copyrightLabel = new JLabel();
-        urlLabel = new UriLabel();
-        licenseLabel = new UriLabel();
-        aboutLabel = new UriLabel();
-
-        JPanel labelsPanel = new JPanel(new GridLayout(-1, 1, 1, 1));
-        JPanel contentPanel = new JPanel(new GridLayout(-1, 1, 1, 1));
-
-        labelsPanel.add(new JLabel("Name:"));
-        labelsPanel.add(new JLabel("Address:"));
-        labelsPanel.add(new JLabel("Home page:"));
-        labelsPanel.add(new JLabel("License:"));
-        labelsPanel.add(new JLabel("About:"));
-        labelsPanel.add(new JLabel("Copyright:"));
-
-        contentPanel.add(vendorLabel);
-        contentPanel.add(addressLabel);
-        contentPanel.add(urlLabel);
-        contentPanel.add(licenseLabel);
-        contentPanel.add(aboutLabel);
-        contentPanel.add(copyrightLabel);
-
-        JPanel vendorPanel = new JPanel(new BorderLayout(3, 3));
-        vendorPanel.add(labelsPanel, BorderLayout.WEST);
-        vendorPanel.add(contentPanel, BorderLayout.CENTER);
-
-        JPanel collapsiblePaneContainer = CollapsiblePane.createCollapsiblePaneContainer();
-        collapsiblePaneContainer.add(
-                new CollapsiblePane("Description", new JScrollPane(descriptionArea), false, false));
-        collapsiblePaneContainer.add(
-                new CollapsiblePane("Changelog", new JScrollPane(changelogArea), true, false));
-        collapsiblePaneContainer.add(
-                new CollapsiblePane("Vendor", vendorPanel, true, true));
-
-        add(collapsiblePaneContainer, SINGLE_MODULE_SELECTED);
-        add(new JLabel("No module selected."), NO_MODULE_SELECTED);
-        add(new JLabel("Multiple modules selected."), MULTIPLE_MODULES_SELECTED);
+        infoPanel = new JEditorPane("text/html", null);
+        infoPanel.setEditable(false);
+        infoPanel.addHyperlinkListener(new HyperlinkListener() {
+            public void hyperlinkUpdate(HyperlinkEvent e) {
+                System.out.println("e = " + e);
+                if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                    try {
+                        Desktop.getDesktop().browse(e.getURL().toURI());
+                    } catch (Exception e1) {
+                        JOptionPane.showMessageDialog(InfoPane.this, "Failed to open URL:\n" + e.getURL() + ":\n" + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
+        infoPanelScrollPane = new JScrollPane(infoPanel);
         setBorder(BorderFactory.createTitledBorder("Module Information"));
-        cardLayout.show(this, NO_MODULE_SELECTED);
+        add(infoPanelScrollPane, BorderLayout.CENTER);
     }
 }

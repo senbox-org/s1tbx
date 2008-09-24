@@ -417,13 +417,13 @@ public class ModuleManagerPane extends JPanel {
 
     private JTable createModuleTable(ModuleTableModel dm) {
         final JTable table = new JTable(dm);
-        //table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getTableHeader().setReorderingAllowed(false);
         table.getTableHeader().setResizingAllowed(true);
         table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
-                updateUiState();
-                infoPane.setSelectedModuleItems(getSelectedModuleItems());
+                if (!e.getValueIsAdjusting()) {
+                    updateUiState();
+                }
             }
         });
         table.addMouseListener(new MouseAdapter() {
