@@ -140,14 +140,21 @@ public class DefaultViewport implements Viewport {
         Assert.notNull(viewCenter, "viewCenter");
         zoomFactor = limitZoomFactor(zoomFactor);
         final AffineTransform v2m = viewToModelTransform;
-        final double m00 = v2m.getScaleX();
-        final double m10 = v2m.getShearY();
-        final double m01 = v2m.getShearX();
-        final double m11 = v2m.getScaleY();
-        final double sx = Math.sqrt(m00 * m00 + m10 * m10);
-        final double sy = Math.sqrt(m01 * m01 + m11 * m11);
+        // when both x and y scaling are the same and there is no net shearing the following line yields the scaling
+        final double s = Math.sqrt(v2m.getDeterminant());
+        // todo - review the following code with nf (rq)
+//        final double m00 = v2m.getScaleX();
+//        final double m10 = v2m.getShearY();
+//        final double m01 = v2m.getShearX();
+//        final double m11 = v2m.getScaleY();
+        // correct only when sx and sy are the same
+//        final double sx = Math.sqrt(m00 * m00 + m10 * m10);
+//        final double sy = Math.sqrt(m01 * m01 + m11 * m11);
+        // correct even if sx and sy are different
+//        final double sx = Math.sqrt(m00 * m00 + m01 * m01);
+//        final double sy = Math.sqrt(m10 * m10 + m11 * m11);
         v2m.translate(viewCenter.getX(), viewCenter.getY());
-        v2m.scale(1.0 / zoomFactor / sx, 1.0 / zoomFactor / sy);  // preserves signum & rotation of m00, m01, m10 and m11
+        v2m.scale(1.0 / zoomFactor / s, 1.0 / zoomFactor / s);
         v2m.translate(-viewCenter.getX(), -viewCenter.getY());
         updateModelToViewTransform();
         fireViewportChanged(false);
