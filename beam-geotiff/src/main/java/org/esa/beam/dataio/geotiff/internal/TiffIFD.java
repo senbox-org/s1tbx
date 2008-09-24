@@ -169,16 +169,14 @@ public class TiffIFD {
     }
 
     private TiffShort[] createColorMap(Product product) {
-        final TiffShort[] colorMap;
-        try {
-            final ImageInfo imageInfo = product.getBandAt(0).getImageInfo(null, ProgressMonitor.NULL);
-            final ColorPaletteDef paletteDef = imageInfo.getColorPaletteDef();
-            final Color[] colors = paletteDef.getColors();
-            final TiffShort[] redColor = new TiffShort[colors.length];
-            final TiffShort[] greenColor = new TiffShort[colors.length];
-            final TiffShort[] blueColor = new TiffShort[colors.length];
-            final float factor = 65535.0f / 255.0f;
-            for (int i = 0; i < colors.length; i++) {
+        final ImageInfo imageInfo = product.getBandAt(0).getImageInfo(null, ProgressMonitor.NULL);
+        final ColorPaletteDef paletteDef = imageInfo.getColorPaletteDef();
+        final Color[] colors = paletteDef.getColors();
+        final TiffShort[] redColor = new TiffShort[colors.length];
+        final TiffShort[] greenColor = new TiffShort[colors.length];
+        final TiffShort[] blueColor = new TiffShort[colors.length];
+        final float factor = 65535.0f / 255.0f;
+        for (int i = 0; i < colors.length; i++) {
                 Color color = colors[i];
                 final int red = (int) (color.getRed() * factor);
                 final int greeen = (int) (color.getGreen() * factor);
@@ -188,15 +186,11 @@ public class TiffIFD {
                 blueColor[i] = new TiffShort(blue);
             }
 
-            colorMap = new TiffShort[paletteDef.getNumColors() * 3];
-            Arrays.fill(colorMap, new TiffShort(0));
-            System.arraycopy(redColor, 0, colorMap, 0, redColor.length);
-            System.arraycopy(greenColor, 0, colorMap, paletteDef.getNumColors(), greenColor.length);
-            System.arraycopy(blueColor, 0, colorMap, paletteDef.getNumColors()*2 , blueColor.length);
-        } catch (IOException ignore) {
-            ignore.printStackTrace();
-            return null;
-        }
+        final TiffShort[] colorMap = new TiffShort[paletteDef.getNumColors() * 3];
+        Arrays.fill(colorMap, new TiffShort(0));
+        System.arraycopy(redColor, 0, colorMap, 0, redColor.length);
+        System.arraycopy(greenColor, 0, colorMap, paletteDef.getNumColors(), greenColor.length);
+        System.arraycopy(blueColor, 0, colorMap, paletteDef.getNumColors()*2 , blueColor.length);
         return colorMap;
     }
 
