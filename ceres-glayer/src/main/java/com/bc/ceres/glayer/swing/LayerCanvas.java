@@ -23,8 +23,7 @@ import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.DefaultViewport;
 
-import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -37,10 +36,10 @@ import java.awt.geom.Rectangle2D;
  */
 public class LayerCanvas extends JComponent implements AdjustableView {
 
-    private Layer layer;
-    private Viewport viewport;
-    private Rectangle2D modelArea;
-    private CanvasRendering canvasRendering;
+    private final Layer layer;
+    private final Viewport viewport;
+    private final Rectangle2D modelArea;
+    private final CanvasRendering canvasRendering;
 
     private boolean navControlShown;
     private WakefulComponent navControlWrapper;
@@ -101,6 +100,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 
     /**
      * None API. Don't use this method!
+     *
      * @return true, if this canvas uses a {@link NavControl}.
      */
     public boolean isNavControlShown() {
@@ -109,6 +109,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 
     /**
      * None API. Don't use this method!
+     *
      * @param navControlShown true, if this canvas uses a {@link NavControl}.
      */
     public void setNavControlShown(boolean navControlShown) {
