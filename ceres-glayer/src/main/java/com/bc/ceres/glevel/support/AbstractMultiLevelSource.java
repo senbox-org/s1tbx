@@ -16,6 +16,7 @@ public abstract class AbstractMultiLevelSource implements MultiLevelSource {
         this.levelImages = new RenderedImage[multiLevelModel.getLevelCount()];
     }
 
+    @Override
     public MultiLevelModel getModel() {
         return multiLevelModel;
     }
