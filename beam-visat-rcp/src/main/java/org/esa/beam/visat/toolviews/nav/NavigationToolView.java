@@ -136,7 +136,6 @@ public class NavigationToolView extends AbstractToolView {
 
     @Override
     public JComponent createControl() {
-
         zoomInButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomIn24.gif"), false);
         zoomInButton.setToolTipText("Zoom in."); /*I18N*/
         zoomInButton.setName("zoomInButton");
@@ -451,7 +450,6 @@ public class NavigationToolView extends AbstractToolView {
     }
 
     private void updateValues() {
-
         if (canvas.isUpdatingImageDisplay()) {
             return;
         }
