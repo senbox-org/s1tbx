@@ -22,7 +22,6 @@ import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
 import com.sun.media.imageio.plugins.tiff.TIFFField;
 import com.sun.media.imageio.plugins.tiff.TIFFImageReadParam;
 import com.sun.media.imageio.plugins.tiff.TIFFTag;
-import com.sun.media.imageioimpl.plugins.tiff.TIFFIFD;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFImageMetadata;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFRenderedImage;
@@ -69,7 +68,8 @@ public class GeoTiffProductReader extends AbstractProductReader {
     private static final int FIRST_IMAGE = 0;
 
     private ImageInputStream inputStream;
-    private HashMap<Band, Integer> bandMap;
+    private Map<Band, Integer> bandMap;
+
     private TIFFImageReader imageReader;
 
     GeoTiffProductReader(ProductReaderPlugIn readerPlugIn) {
@@ -115,7 +115,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
                 destBuffer.setElemDoubleAt(i, dArray[i]);
             }
             pm.worked(1);
-            
+
         } finally {
             pm.done();
         }
@@ -133,43 +133,22 @@ public class GeoTiffProductReader extends AbstractProductReader {
         imageReader = (TIFFImageReader) imageReaders.next();
         imageReader.setInput(stream);
 
-        final int width = imageReader.getWidth(FIRST_IMAGE);
-        final int height = imageReader.getHeight(FIRST_IMAGE);
-
         final TIFFImageMetadata imageMetadata = (TIFFImageMetadata) imageReader.getImageMetadata(FIRST_IMAGE);
-        final TIFFIFD ifd = imageMetadata.getRootIFD();
-        final TiffFileInfo tiffInfo = new TiffFileInfo(ifd);
-
-
+        final TiffFileInfo tiffInfo = new TiffFileInfo(imageMetadata.getRootIFD());
         final BeamMetadata.Metadata metadata = getBeamMetadata(tiffInfo);
 
-        final String productName;
-        final String productType;
-        if (metadata != null) {
-            productName = metadata.getProductProperty(BeamMetadata.NODE_NAME);
-            productType = metadata.getProductProperty(BeamMetadata.NODE_PRODUCTTYPE);
-        } else {
-            if (tiffInfo.containsField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION)) {
-                final TIFFField field = tiffInfo.getField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION);
-                final String s = field.getAsString(0);
-                productName = s.substring(0, s.length() - 1);
-            } else {
-                productName = FileUtils.getFilenameWithoutExtension(inputFile);
-            }
-            productType = getReaderPlugIn().getFormatNames()[0];
+        final Product product = createProduct(inputFile, tiffInfo, metadata);
+        addBandsToProduct(tiffInfo, metadata, product);
+
+        if (tiffInfo.isGeotiff()) {
+            applyGeoCoding(tiffInfo, product);
         }
 
-        final Product product = new Product(productName, productType, width, height, this);
-        product.setFileLocation(inputFile);
-        final Dimension dimension;
-        if (isBadTiling()) {
-            dimension = JAIUtils.computePreferredTileSize(imageReader.getWidth(FIRST_IMAGE),
-                                                          imageReader.getHeight(FIRST_IMAGE), 1);
-        } else {
-            dimension = new Dimension(imageReader.getTileWidth(FIRST_IMAGE), imageReader.getTileHeight(FIRST_IMAGE));
-        }
-        product.setPreferredTileSize(dimension);
+        return product;
+    }
 
+    private void addBandsToProduct(TiffFileInfo tiffInfo, BeamMetadata.Metadata metadata, Product product) throws
+                                                                                                           IOException {
         final ImageReadParam readParam = imageReader.getDefaultReadParam();
         TIFFRenderedImage baseImage = (TIFFRenderedImage) imageReader.readAsRenderedImage(FIRST_IMAGE, readParam);
         SampleModel sampleModel = baseImage.getSampleModel();
@@ -187,30 +166,49 @@ public class GeoTiffProductReader extends AbstractProductReader {
             configureBand(metadata, band, i);
             bandMap.put(band, i);
 
-            if(tiffInfo.containsField(BaselineTIFFTagSet.TAG_COLOR_MAP) && baseImage.getColorModel() instanceof IndexColorModel) {
+            if (tiffInfo.containsField(
+                    BaselineTIFFTagSet.TAG_COLOR_MAP) && baseImage.getColorModel() instanceof IndexColorModel) {
                 band.setImageInfo(createIndexedImageInfo(product, baseImage, band));
             }
         }
-        if (tiffInfo.isGeotiff()) {
-            applyGeoCoding(tiffInfo, product);
+    }
+
+    private Product createProduct(File inputFile, TiffFileInfo tiffInfo, BeamMetadata.Metadata metadata) throws
+                                                                                                         IOException {
+        final String productName;
+        final String productType;
+        if (metadata != null) {
+            productName = metadata.getProductProperty(BeamMetadata.NODE_NAME);
+            productType = metadata.getProductProperty(BeamMetadata.NODE_PRODUCTTYPE);
+        } else {
+            if (tiffInfo.containsField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION)) {
+                final TIFFField field = tiffInfo.getField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION);
+                final String s = field.getAsString(0);
+                productName = s.substring(0, s.length() - 1);
+            } else {
+                productName = FileUtils.getFilenameWithoutExtension(inputFile);
+            }
+            productType = getReaderPlugIn().getFormatNames()[0];
         }
+
+        final int width = imageReader.getWidth(FIRST_IMAGE);
+        final int height = imageReader.getHeight(FIRST_IMAGE);
+        final Product product = new Product(productName, productType, width, height, this);
+        product.setFileLocation(inputFile);
+        setPreferrdTiling(product);
+
         return product;
     }
 
-    private ImageInfo createIndexedImageInfo(Product product, TIFFRenderedImage baseImage, Band band) {
-        final IndexColorModel colorModel = (IndexColorModel) baseImage.getColorModel();
-        final IndexCoding indexCoding = new IndexCoding("color_map");
-        final int colorCount = colorModel.getMapSize();
-        final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[colorCount];
-        for(int j=0; j < colorCount; j++) {
-            indexCoding.addIndex("I"+j, j,"");
-            points[j] = new ColorPaletteDef.Point(j, new Color(colorModel.getRGB(j)));
+    private void setPreferrdTiling(Product product) throws IOException {
+        final Dimension dimension;
+        if (isBadTiling()) {
+            dimension = JAIUtils.computePreferredTileSize(imageReader.getWidth(FIRST_IMAGE),
+                                                          imageReader.getHeight(FIRST_IMAGE), 1);
+        } else {
+            dimension = new Dimension(imageReader.getTileWidth(FIRST_IMAGE), imageReader.getTileHeight(FIRST_IMAGE));
         }
-        product.getIndexCodingGroup().add(indexCoding);
-        band.setSampleCoding(indexCoding);
-
-        final ImageInfo imageInfo = new ImageInfo(new ColorPaletteDef(points));
-        return imageInfo;
+        product.setPreferredTileSize(dimension);
     }
 
     private boolean isBadTiling() throws IOException {
@@ -221,7 +219,22 @@ public class GeoTiffProductReader extends AbstractProductReader {
         return tileWidth <= 1 || tileHeight <= 1 || imageWidth == tileWidth || imageHeight == tileHeight;
     }
 
-    private void configureBand(BeamMetadata.Metadata metadata, Band band, int bandIndex) {
+    private static ImageInfo createIndexedImageInfo(Product product, TIFFRenderedImage baseImage, Band band) {
+        final IndexColorModel colorModel = (IndexColorModel) baseImage.getColorModel();
+        final IndexCoding indexCoding = new IndexCoding("color_map");
+        final int colorCount = colorModel.getMapSize();
+        final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[colorCount];
+        for (int j = 0; j < colorCount; j++) {
+            indexCoding.addIndex(String.format("I%3d", j), j, "");
+            points[j] = new ColorPaletteDef.Point(j, new Color(colorModel.getRGB(j)));
+        }
+        product.getIndexCodingGroup().add(indexCoding);
+        band.setSampleCoding(indexCoding);
+
+        return new ImageInfo(new ColorPaletteDef(points));
+    }
+
+    private static void configureBand(BeamMetadata.Metadata metadata, Band band, int bandIndex) {
         if (metadata == null) {
             return;
         }
@@ -445,13 +458,13 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
         if (keyEntries.containsKey(GeoTIFFCodes.ProjFalseOriginLatGeoKey)) {
             values[2] = keyEntries.get(GeoTIFFCodes.ProjFalseOriginLatGeoKey).getDblValue()[0];
-        } else if(keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLatGeoKey)) {
+        } else if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLatGeoKey)) {
             values[2] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLatGeoKey).getDblValue()[0];
         }
         if (keyEntries.containsKey(GeoTIFFCodes.ProjFalseOriginLongGeoKey)) {
             values[3] = keyEntries.get(GeoTIFFCodes.ProjFalseOriginLongGeoKey).getDblValue()[0];
-        }else if(keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLongGeoKey)) {
-            values[3] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLongGeoKey).getDblValue()[0];            
+        } else if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLongGeoKey)) {
+            values[3] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLongGeoKey).getDblValue()[0];
         }
         if (keyEntries.containsKey(GeoTIFFCodes.ProjStdParallel1GeoKey)) {
             values[4] = keyEntries.get(GeoTIFFCodes.ProjStdParallel1GeoKey).getDblValue()[0];
@@ -461,7 +474,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
         if (keyEntries.containsKey(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey)) {
             values[6] = keyEntries.get(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey).getDblValue()[0];
-        }else if(keyEntries.containsKey(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE)){
+        } else if (keyEntries.containsKey(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE)) {
             final GeoKeyEntry scaleField = keyEntries.get(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE);
             values[6] = scaleField.getDblValue()[0];
         }
@@ -482,7 +495,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
         if (keyEntries.containsKey(GeoTIFFCodes.ProjCenterLatGeoKey)) {
             values[2] = keyEntries.get(GeoTIFFCodes.ProjCenterLatGeoKey).getDblValue()[0];
-        }else if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLatGeoKey)) {
+        } else if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLatGeoKey)) {
             values[2] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLatGeoKey).getDblValue()[0];
         }
         if (keyEntries.containsKey(GeoTIFFCodes.ProjCenterLongGeoKey)) {

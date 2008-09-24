@@ -79,7 +79,11 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
         outputFile = FileUtils.ensureExtension(file, GeoTiffProductWriterPlugIn.GEOTIFF_FILE_EXTENSION[0]);
         deleteOutput();
 
-        final Product sourceProduct = getSourceProduct();
+        final Product product = removeVirtualBands(getSourceProduct());
+        writeGeoTIFFProduct(new FileImageOutputStream(outputFile), product);
+    }
+
+    private Product removeVirtualBands(Product sourceProduct) throws IOException {
         final ProductSubsetDef def = new ProductSubsetDef();
         final Band[] bands = sourceProduct.getBands();
         for (Band band : bands) {
@@ -89,8 +93,8 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
         }
         def.setIgnoreMetadata(false);
         final Product subset = sourceProduct.createSubset(def, sourceProduct.getName(), sourceProduct.getDescription());
-        writeGeoTIFFProduct(new FileImageOutputStream(outputFile), subset);
-    }
+        return subset;
+    }   
 
     void writeGeoTIFFProduct(ImageOutputStream stream, final Product product) throws IOException {
         outputStream = stream;
