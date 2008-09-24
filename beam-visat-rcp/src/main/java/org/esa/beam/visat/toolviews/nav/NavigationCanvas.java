@@ -99,7 +99,7 @@ public class NavigationCanvas extends JPanel {
     private void updateImageDisplay() {
         final ProductSceneView view = navigationWindow.getCurrentView();
         if (view != null && thumbnailImage != null) {
-            // todo - ask nf to explain why the following code works (rq)
+            // todo - ask nf to explain why offset is needed (rq)
             final double x = visibleArea.x - area.x;
             final double y = visibleArea.y - area.y;
             final Point2D point = new Point.Double(x, y);
