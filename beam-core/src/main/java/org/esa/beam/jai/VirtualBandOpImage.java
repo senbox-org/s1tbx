@@ -103,7 +103,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         RasterDataSymbol[] rasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
         for (RasterDataSymbol rasterDataSymbol : rasterDataSymbols) {
             RasterDataNode sourceRDN = rasterDataSymbol.getRaster();
-            PlanarImage sourceImage = ImageManager.getInstance().getGeophysicalBandImage(sourceRDN, getLevel());
+            PlanarImage sourceImage = ImageManager.getInstance().getGeophysicalImage(sourceRDN, getLevel());
             Raster sourceRaster = sourceImage.getData(destRect);
             Object sourceArray = ImageUtils.getPrimitiveArray(sourceRaster.getDataBuffer());
             ProductData productData = ProductData.createInstance(sourceRDN.getGeophysicalDataType(), sourceArray);

@@ -694,16 +694,7 @@ class ColorManipulationForm {
     }
 
     public RasterDataNode.Stx getStx(RasterDataNode raster) {
-        try {
-            return raster.getStx(ProgressMonitor.NULL); // todo - use PM
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(getContentPanel(),
-                                          "Failed to load statistics for '" +
-                                                  raster.getName() + "':\n" + e.getMessage(),
-                                          "I/O Error",
-                                          JOptionPane.ERROR_MESSAGE);
-            return null;
-        }
+        return raster.getStx(ProgressMonitor.NULL); // todo - use PM
     }
 
     private class ColorManipulationPNL extends ProductNodeListenerAdapter {

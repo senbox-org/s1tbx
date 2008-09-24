@@ -1531,11 +1531,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param pm A progress monitor.
      * @return A valid image information instance.
-     * @throws IOException if an I/O error occurs
      * @see #getImageInfo(double[],ProgressMonitor)
      * @since BEAM 4.2
      */
-    public final ImageInfo getImageInfo(ProgressMonitor pm) throws IOException {
+    public final ImageInfo getImageInfo(ProgressMonitor pm) {
         return getImageInfo(null, pm);
     }
 
@@ -1549,10 +1548,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *                       method).
      * @param pm             A progress monitor.
      * @return The image creation information.
-     * @throws IOException if an I/O error occurs
      * @since BEAM 4.2
      */
-    public final synchronized ImageInfo getImageInfo(double[] histoSkipAreas, ProgressMonitor pm) throws IOException {
+    public final synchronized ImageInfo getImageInfo(double[] histoSkipAreas, ProgressMonitor pm) {
         ImageInfo imageInfo = getImageInfo();
         if (imageInfo == null) {
             imageInfo = createDefaultImageInfo(histoSkipAreas, pm);
@@ -1572,9 +1570,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *                       the entire area is skipped.
      * @param pm             a monitor to inform the user about progress
      * @return a valid image information instance, never <code>null</code>.
-     * @throws IOException if an I/O error occurs
      */
-    public synchronized ImageInfo createDefaultImageInfo(double[] histoSkipAreas, ProgressMonitor pm) throws IOException {
+    public synchronized ImageInfo createDefaultImageInfo(double[] histoSkipAreas, ProgressMonitor pm) {
         Stx stx = getStx(pm);
         Histogram histogram = new Histogram(stx.getSampleFrequencies(),
                                             stx.getMinSample(),
@@ -2047,26 +2044,18 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public Histogram computeRasterDataHistogram(final ROI roi,
                                                 final int numBins,
                                                 Range range, ProgressMonitor pm) throws IOException {
+        Histogram histogram;
         pm.beginTask("Computing histogram for '" + getName() + "'...", range == null ? 2 : 1);
         try {
             if (range == null) {
                 range = computeRasterDataRange(roi, SubProgressMonitor.create(pm, 1));
             }
-            final ProductData rasterData = getRasterData();
-            if (rasterData != null) {
-                return Histogram.computeHistogramGeneric(rasterData.getElems(),
-                                                         rasterData.isUnsigned(),
-                                                         createPixelValidator(0, roi),
-                                                         numBins,
-                                                         range,
-                                                         null,
-                                                         SubProgressMonitor.create(pm, 1));
-            } else {
-                return computeRasterDataHistogramFromFile(roi, numBins, range, SubProgressMonitor.create(pm, 1));
-            }
+            histogram = Histogram.computeHistogram(getSourceImage(), roi, numBins, range);
+            pm.worked(1);
         } finally {
             pm.done();
         }
+        return histogram;
     }
 
     /**
@@ -2080,24 +2069,24 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #isLog10Scaled()
      */
     public Range computeRasterDataRange(final ROI roi, ProgressMonitor pm) throws IOException {
-        final ProductData rasterData = getRasterData();
-        if (rasterData != null) {
-            return Range.computeRangeGeneric(rasterData.getElems(),
-                                             rasterData.isUnsigned(),
-                                             createPixelValidator(0, roi),
-                                             null, pm);
-        } else {
-            return computeRasterDataRangeFromFile(roi, pm);
+        pm.beginTask("computing range", 1);
+        try {
+            return Range.computeRange(getSourceImage(), roi);
+        } finally {
+            pm.done();
         }
     }
 
     /**
      * Computes statistics for this raster data instance.
-     *
-     * @param roi on optional ROI, can be <code>null</code>
-     * @param pm  a monitor to inform the user about progress
+     * 
+     * @param roi
+     *            on optional ROI, can be <code>null</code>
+     * @param pm
+     *            a monitor to inform the user about progress
      * @return the statistics
-     * @throws java.io.IOException if an I/O error occurs
+     * @throws java.io.IOException
+     *             if an I/O error occurs
      */
     public Statistics computeStatistics(final ROI roi, ProgressMonitor pm) throws IOException {
         final ProductData rasterData = getRasterData();
@@ -2128,38 +2117,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                           }, pm);
         final Statistics[] statisticsArray = list.toArray(new Statistics[list.size()]);
         return Statistics.computeStatistics(statisticsArray, null);
-    }
-
-    private Range computeRasterDataRangeFromFile(final ROI roi, ProgressMonitor pm) throws IOException {
-        final Range range = new Range(Double.MAX_VALUE, Double.MAX_VALUE * -1);
-        processRasterData("Computing value range for raster '" + getDisplayName() + "'",
-                          new RasterDataProcessor() {
-                              public void processRasterDataBuffer(ProductData buffer, int y0, int numLines,
-                                                                  ProgressMonitor pm) throws IOException {
-                                  final IndexValidator pixelValidator = createPixelValidator(y0, roi);
-                                  range.aggregate(buffer.getElems(), buffer.isUnsigned(),
-                                                  pixelValidator, pm);
-                              }
-                          }, pm);
-
-        return range;
-    }
-
-    private Histogram computeRasterDataHistogramFromFile(final ROI roi,
-                                                         final int numBins,
-                                                         final Range range,
-                                                         ProgressMonitor pm) throws IOException {
-        final Histogram histogram = new Histogram(new int[numBins], range.getMin(), range.getMax());
-        processRasterData("Computing histogram for raster '" + getDisplayName() + "'",
-                          new RasterDataProcessor() {
-                              public void processRasterDataBuffer(ProductData buffer, int y0, int numLines,
-                                                                  ProgressMonitor pm) throws IOException {
-                                  final IndexValidator pixelValidator = createPixelValidator(y0, roi);
-                                  histogram.aggregate(buffer.getElems(), buffer.isUnsigned(),
-                                                      pixelValidator, pm);
-                              }
-                          }, pm);
-        return histogram;
     }
 
     private void quantizeRasterDataFromFile(final double rawMin,
@@ -2575,10 +2532,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param pm A progress monitor which is used to compute the new statistics, if required.
      * @return The statistics.
-     * @throws java.io.IOException if an I/O error occures
      * @since BEAM 4.2
      */
-    public Stx getStx(ProgressMonitor pm) throws IOException {
+    public Stx getStx(ProgressMonitor pm) {
         Stx stx = getStx();
         if (stx == null || stx.isDirty()) {
             stx = computeStx(pm);
@@ -2610,12 +2566,30 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param pm A progress monitor which is used to compute the new statistics, if required.
      * @return The statistics.
-     * @throws java.io.IOException if an I/O error occures
      * @since BEAM 4.2
      */
-    protected Stx computeStx(ProgressMonitor pm) throws IOException {
-        Histogram histogram = computeRasterDataHistogram(null, 512, null, pm);
-        return new Stx(histogram.getMin(), histogram.getMax(), histogram.getBinCounts());
+    protected Stx computeStx(ProgressMonitor pm) {
+        pm.beginTask("Computing image statistics", 3);
+        try {
+            ImageManager imageManager = ImageManager.getInstance();
+            MultiLevelSource multiLevelSource = imageManager.getMultiLevelSource(getSourceImage());
+            final int levelCount = multiLevelSource.getModel().getLevelCount();
+            final int statisticsLevel = imageManager.getStatisticsLevel(this, levelCount);
+            final PlanarImage statisticsBandImage = imageManager.getBandImage(this, statisticsLevel);
+            ROI roi = null;
+            if (isValidMaskUsed()) {
+                final PlanarImage statisticsValidMaskImage = imageManager.getValidMaskImage(this, statisticsLevel);
+                roi = new ROI(statisticsValidMaskImage);
+            }
+            pm.worked(1);
+            Range range = Range.computeRange(statisticsBandImage, roi);
+            pm.worked(1);
+            Histogram histogram = Histogram.computeHistogram(statisticsBandImage, roi, 512, range);
+            pm.worked(1);
+            return new Stx(histogram.getMin(), histogram.getMax(), histogram.getBinCounts());
+        } finally {
+            pm.done();
+        }
     }
 
     public static interface RasterDataProcessor {

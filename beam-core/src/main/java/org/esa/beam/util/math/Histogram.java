@@ -7,8 +7,16 @@ package org.esa.beam.util.math;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.jai.JAIUtils;
+
+import java.awt.image.RenderedImage;
+
+import javax.media.jai.ROI;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.operator.HistogramDescriptor;
 
 /**
  * Instances of the <code>Histogram</code> class store histogram data.
@@ -1053,7 +1061,56 @@ public class Histogram extends Range {
         return histogram;
     }
 
-
+    public static Histogram computeHistogram(RenderedImage image, ROI roi, int numBins, Range range) {
+        final double min = range.getMin();
+        final double max = range.getMax();
+        Histogram histogram;
+        if (min < max) {
+            final RenderedOp histogramOp = HistogramDescriptor.create(image, 
+                                                                      roi, 
+                                                                      1, 
+                                                                      1, 
+                                                                      new int[]{numBins},
+                                                                      new double[]{min},
+                                                                      new double[]{max},
+                                                                      null);
+            histogram = getBeamHistogram(histogramOp);
+        } else {
+            final long imageSize = (long) image.getWidth() * image.getHeight();
+            final int numPixels = (int) Math.min(Integer.MAX_VALUE, imageSize);
+            histogram = new Histogram(new int[]{numPixels} , min, min);
+        }
+        return histogram;
+    }
+    
+    private static Histogram getBeamHistogram(RenderedOp histogramImage) {
+        javax.media.jai.Histogram jaiHistogram = JAIUtils.getHistogramOf(histogramImage);
+       
+        int[] bins = jaiHistogram.getBins(0);
+        int minIndex = 0;
+        int maxIndex = bins.length - 1;
+        for (int i = 0; i < bins.length; i++) {
+            if (bins[i] > 0) {
+                minIndex = i;
+                break;
+            }
+        }
+        for (int i = bins.length - 1; i >= 0; i--) {
+            if (bins[i] > 0) {
+                maxIndex = i;
+                break;
+            }
+        }
+        double lowValue = jaiHistogram.getLowValue(0);
+        double highValue = jaiHistogram.getHighValue(0);
+        int numBins = jaiHistogram.getNumBins(0);
+        double binWidth = (highValue - lowValue) / numBins;
+        int[] croppedBins = new int[maxIndex - minIndex + 1];
+        System.arraycopy(bins, minIndex, croppedBins, 0, croppedBins.length);
+        return new Histogram(croppedBins, lowValue + minIndex * binWidth, lowValue
+                + (maxIndex + 1.0) * binWidth);
+    }
+    
     /**
      * @deprecated since BEAM 4.2, use {@link #findRangeFor95Percent()} instead.
      */

@@ -18,17 +18,26 @@ package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelSource;
+
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataio.ProductWriter;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.math.IndexValidator;
+import org.esa.beam.util.jai.JAIUtils;
+import org.esa.beam.util.math.Histogram;
+import org.esa.beam.util.math.Range;
 
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Random;
+
+import javax.media.jai.PlanarImage;
+import javax.media.jai.ROI;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.operator.HistogramDescriptor;
 
 
 /**
@@ -480,7 +489,7 @@ public class Band extends AbstractBand {
     }
 
     @Override
-    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, ProgressMonitor pm) throws IOException {
+    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, ProgressMonitor pm) {
         final IndexCoding indexCoding = getIndexCoding();
         if (indexCoding == null) {
             return super.createDefaultImageInfo(histoSkipAreas, pm);
@@ -489,7 +498,7 @@ public class Band extends AbstractBand {
         final int sampleCount = indexCoding.getSampleCount();
         Random random = new Random(0xCAFEBABE);
         ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[sampleCount];
-        for (int i = 0; i < points.length; i++) {
+        for (int i = 0; i < sampleCount; i++) {
             String name = indexCoding.getSampleName(i);
             int value = indexCoding.getSampleValue(i);
             final Color color = new Color(random.nextFloat(),
@@ -497,50 +506,56 @@ public class Band extends AbstractBand {
                                           random.nextFloat());
             points[i] = new ColorPaletteDef.Point(value, color, name);
         }
-        return new ImageInfo(new ColorPaletteDef(points));
+        return new ImageInfo(new ColorPaletteDef(points, points.length));
     }
 
     @Override
-    protected Stx computeStx(ProgressMonitor pm) throws IOException {
+    protected Stx computeStx(ProgressMonitor pm) {
         final IndexCoding indexCoding = getIndexCoding();
         if (indexCoding == null) {
             return super.computeStx(pm);
         }
-
-        final int sampleCount = indexCoding.getSampleCount();
-        final HashMap<Integer, int[]> sampleMap = new HashMap<Integer, int[]>(3 * sampleCount);
-        for (int i = 0; i < sampleCount; i++) {
-            sampleMap.put(indexCoding.getSampleValue(i), new int[1]);
-        }
-
-        processRasterData("Computing statistics for band '" + getDisplayName() + "'", new RasterDataProcessor() {
-            public void processRasterDataBuffer(ProductData buffer, int y0, int numLines, ProgressMonitor pm) throws IOException {
-                final IndexValidator pixelValidator = createPixelValidator(y0, null);
-                final int n = buffer.getNumElems();
-                for (int i = 0; i < n; i++) {
-                    if (pixelValidator.validateIndex(i)) {
-                        final int sample = buffer.getElemIntAt(i);
-                        final int[] bin = sampleMap.get(sample);
-                        if (bin != null) {
-                            bin[0] += 1;
-                        }
-                    }
-                }
+        pm.beginTask("Computing image statistics", 3);
+        try {
+            ImageManager imageManager = ImageManager.getInstance();
+            MultiLevelSource multiLevelSource = imageManager.getMultiLevelSource(getSourceImage());
+            final int levelCount = multiLevelSource.getModel().getLevelCount();
+            final int statisticsLevel = imageManager.getStatisticsLevel(this, levelCount);
+            final PlanarImage statisticsBandImage = imageManager.getBandImage(this, statisticsLevel);
+            ROI roi = null;
+            if (isValidMaskUsed()) {
+                final PlanarImage statisticsValidMaskImage = imageManager.getValidMaskImage(this, statisticsLevel);
+                roi = new ROI(statisticsValidMaskImage);
             }
-        }, pm);
-
-        int minSample = Integer.MAX_VALUE;
-        int maxSample = Integer.MIN_VALUE;
-        int[] sampleFrequencies = new int[sampleCount];
-        for (int i = 0; i < sampleCount; i++) {
-            final int sample = indexCoding.getSampleValue(i);
-            minSample = Math.min(minSample, sample);
-            maxSample = Math.max(maxSample, sample);
-            final int[] bin = sampleMap.get(sample);
-            sampleFrequencies[i] = bin[0];
+            pm.worked(1);
+            final int sampleCount = indexCoding.getSampleCount();
+            int minSample = Integer.MAX_VALUE;
+            int maxSample = Integer.MIN_VALUE;
+            for (int i = 0; i < sampleCount; i++) {
+                final int sample = indexCoding.getSampleValue(i);
+                minSample = Math.min(minSample, sample);
+                maxSample = Math.max(maxSample, sample);
+            }
+            pm.worked(1);
+            final RenderedOp histogramOp = HistogramDescriptor.create(statisticsBandImage, 
+                                                                      roi, 
+                                                                      1, 
+                                                                      1, 
+                                                                      new int[]{maxSample+2},
+                                                                      new double[]{minSample},
+                                                                      new double[]{maxSample+1},
+                                                                      null);
+            javax.media.jai.Histogram jaiHistogram = JAIUtils.getHistogramOf(histogramOp);
+            int[] sampleFrequencies = new int[sampleCount];
+            int[] bins = jaiHistogram.getBins(0);
+            for (int i = 0; i < sampleCount; i++) {
+                sampleFrequencies[i] = bins[indexCoding.getSampleValue(i)];
+            }
+            pm.worked(1);
+            return new Stx(minSample, maxSample, sampleFrequencies);
+        } finally {
+            pm.done();
         }
-
-        return new Stx(minSample, maxSample, sampleFrequencies);
     }
 
     /**

@@ -23,7 +23,10 @@ import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.IntMap;
 
 import javax.media.jai.*;
+import javax.media.jai.operator.ClampDescriptor;
 import javax.media.jai.operator.CompositeDescriptor;
+import javax.media.jai.operator.LookupDescriptor;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -879,15 +882,8 @@ public class JAIUtils {
             table[table.length - 1] = undefinedIndex;
             lookup = new LookupTableJAI(table, keyMin - 1);
         }
-        ParameterBlock pb = new ParameterBlock();
-        pb.addSource(sourceImage);
-        pb.add(new double[]{keyMin - 1});
-        pb.add(new double[]{keyMax + 1});
-        sourceImage = JAI.create("clamp", pb, null);
-        pb = new ParameterBlock();
-        pb.addSource(sourceImage);
-        pb.add(lookup);
-        return JAI.create("lookup", pb, null);
+        sourceImage = ClampDescriptor.create(sourceImage, new double[]{keyMin - 1}, new double[]{keyMax + 1}, null);
+        return LookupDescriptor.create(sourceImage, lookup, null);
     }
 
 

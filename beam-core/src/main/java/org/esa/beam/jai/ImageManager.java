@@ -2,15 +2,14 @@ package org.esa.beam.jai;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.datamodel.RasterDataNode.Stx;
 import org.esa.beam.framework.draw.Figure;
-import org.esa.beam.util.Debug;
 import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.IntMap;
 import org.esa.beam.util.StringUtils;
@@ -29,8 +28,11 @@ import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Random;
 import java.util.WeakHashMap;
 
 
@@ -255,7 +257,7 @@ public class ImageManager {
                 }
 
                 planarImage = JAIUtils.createIndexedImage(planarImage, sampleColorIndexMap,
-                                                          raster.getImageInfo().getColorPaletteDef().getNumPoints() - 1);
+                                                          raster.getImageInfo().getColorPaletteDef().getNumPoints());
             } else {
                 final double newMin = raster.scaleInverse(minSample);
                 final double newMax = raster.scaleInverse(maxSample);
@@ -267,13 +269,20 @@ public class ImageManager {
             }
             sourceImages[i] = planarImage;
         }
-
-        image = performIndexToRgbConversion(rasterDataNodes, sourceImages, validMaskImages);
-
+        if (rasterDataNodes.length == 1) {
+            image = performIndexToRgbConversion1Band(rasterDataNodes[0], sourceImages[0], validMaskImages[0]);
+        } else {
+            image = performIndexToRgbConversion3Bands(rasterDataNodes, sourceImages, validMaskImages);
+        }
 
         return image;
     }
 
+    public PlanarImage getBandImage(RasterDataNode rasterDataNode, int level) {
+        RenderedImage sourceImage = rasterDataNode.getSourceImage();
+        return getLevelImage(sourceImage, level);
+    }
+    
     public PlanarImage[] getBandImages(RasterDataNode[] rasterDataNodes, int level) {
         PlanarImage[] planarImages = new PlanarImage[rasterDataNodes.length];
         for (int i = 0; i < rasterDataNodes.length; i++) {
@@ -282,48 +291,48 @@ public class ImageManager {
         }
         return planarImages;
     }
+    
+    public PlanarImage getValidMaskImage(final RasterDataNode rasterDataNode, int level) {
+        if (rasterDataNode.isValidMaskUsed()) {
+            return getLevelImage(rasterDataNode.getValidMaskImage(), level);
+        }
+        return null;
+    }
 
-    public MultiLevelSource getBandMultiLevelSource(RasterDataNode rasterDataNode) {
-        RenderedImage levelZeroImage = rasterDataNode.getSourceImage();
+    public PlanarImage[] getValidMaskImages(RasterDataNode[] rasterDataNodes, int level) {
+        final PlanarImage[] images = new PlanarImage[rasterDataNodes.length];
+        for (int i = 0; i < rasterDataNodes.length; i++) {
+            images[i] = getValidMaskImage(rasterDataNodes[i], level);
+        }
+        return images;
+    }
+
+    public PlanarImage getGeophysicalImage(RasterDataNode rasterDataNode, int level) {
+        RenderedImage levelZeroImage = rasterDataNode.getGeophysicalImage();
+        return getLevelImage(levelZeroImage, level);
+    }
+    
+    public MultiLevelSource getMultiLevelSource(RenderedImage levelZeroImage) {
         MultiLevelSource multiLevelSource;
         if (levelZeroImage instanceof MultiLevelSource) {
             multiLevelSource = (MultiLevelSource) levelZeroImage;
         } else {
             // TODO - New image instance is created here. This will happen e.g. for all bands created by GPF operators. (nf, 19.09.2008)
-            multiLevelSource = new DefaultMultiLevelSource(levelZeroImage);
-            System.out.println("IMAGING 4.5: Warning: Created an (inefficient) instance of DefaultMultiLevelSource. Source image is a " + levelZeroImage.getClass());
+            final int levelCount = DefaultMultiLevelModel.getLevelCount(levelZeroImage.getWidth(), levelZeroImage.getHeight());
+            multiLevelSource = new DefaultMultiLevelSource(levelZeroImage, 
+                                                           levelCount, 
+                                                           Interpolation.getInstance(Interpolation.INTERP_NEAREST));
+            System.out.println("IMAGING 4.5: " +
+            		"Warning: Created an (inefficient) instance of DefaultMultiLevelSource. " +
+            		"Source image is a " + levelZeroImage.getClass());
         }
         return multiLevelSource;
     }
 
-    public PlanarImage getBandImage(RasterDataNode rasterDataNode, int level) {
-        return getLevelImage(rasterDataNode.getSourceImage(), level);
-    }
-
-    public PlanarImage getGeophysicalBandImage(RasterDataNode rasterDataNode, int level) {
-        RenderedImage levelZeroImage = rasterDataNode.getGeophysicalImage();
-        return getLevelImage(levelZeroImage, level);
-    }
-
     private PlanarImage getLevelImage(RenderedImage levelZeroImage, int level) {
-        RenderedImage image;
-        if (level == 0) {
-            image = levelZeroImage;
-        } else if (levelZeroImage instanceof MultiLevelSource) {
-            image = ((MultiLevelSource) levelZeroImage).getImage(level);
-        } else {
-            image = createLevelImage(levelZeroImage, level);
-        }
+        final MultiLevelSource multiLevelSource = getMultiLevelSource(levelZeroImage);
+        RenderedImage image = multiLevelSource.getImage(level);
         return PlanarImage.wrapRenderedImage(image);
-    }
-
-    private static PlanarImage createLevelImage(RenderedImage levelZeroImage, int level) {
-        PlanarImage image;
-        float scale = (float) Math.pow(2, -level);
-        image = ScaleDescriptor.create(levelZeroImage,
-                                       scale, scale, 0.0f, 0.0f,
-                                       Interpolation.getInstance(Interpolation.INTERP_NEAREST), null);
-        return image;
     }
 
     public SingleBandedOpImage getMaskImage(final Product product, final String expression, int level) {
@@ -344,22 +353,6 @@ public class ImageManager {
             return (SingleBandedOpImage) mrMulti.getImage(level);
         }
     }
-
-    public PlanarImage getValidMaskImage(final RasterDataNode rasterDataNode, int level) {
-        if (rasterDataNode.isValidMaskUsed()) {
-            return getLevelImage(rasterDataNode.getValidMaskImage(), level);
-        }
-        return null;
-    }
-
-    public PlanarImage[] getValidMaskImages(RasterDataNode[] rasterDataNodes, int level) {
-        final PlanarImage[] images = new PlanarImage[rasterDataNodes.length];
-        for (int i = 0; i < rasterDataNodes.length; i++) {
-            images[i] = getValidMaskImage(rasterDataNodes[i], level);
-        }
-        return images;
-    }
-
 
     public ImageInfo getImageInfo(RasterDataNode[] rasters) {
         Assert.notNull(rasters, "rasters");
@@ -398,187 +391,76 @@ public class ImageManager {
         for (RasterDataNode raster : rasterDataNodes) {
             numTaskSteps += raster.getImageInfo() == null ? 1 : 0;
         }
-        numTaskSteps *= 3;
 
         pm.beginTask("Computing image statistics", numTaskSteps);
         try {
             for (int i = 0; i < rasterDataNodes.length; i++) {
                 RasterDataNode raster = rasterDataNodes[i];
 
-                PlanarImage bandImage = bandImages[i];
-                PlanarImage validMaskImage = validMaskImages[i];
                 ImageInfo imageInfo = raster.getImageInfo();
                 if (imageInfo == null) {
-                    if (raster instanceof Band) {
-                        final IndexCoding indexCoding = ((Band) raster).getIndexCoding();
-                        if (indexCoding != null) {
-                            imageInfo = createIndexedImageInfo(indexCoding);
-                            raster.setImageInfo(imageInfo);
-                            // TODO - BLOCKER: Compute frequencies (Stx) here, set Band.stx property (nf, 18.09.2008),
-                        }
-                    }
-                    if (imageInfo == null) {
-                        final PlanarImage statisticsBandImage;
-                        final PlanarImage statisticsValidMaskImage;
-                        final long imageSize = (long) bandImage.getWidth() * bandImage.getHeight();
-                        final int statisticsLevel;
-                        if (imageSize <= DefaultMultiLevelModel.MAX_PIXEL_COUNT) {
-                            statisticsLevel = 0;
-                            statisticsBandImage = bandImage;
-                            statisticsValidMaskImage = validMaskImage;
-                        } else {
-                            statisticsLevel = levelCount - 1;
-                            statisticsBandImage = getBandImage(raster, statisticsLevel);
-                            statisticsValidMaskImage = validMaskImage != null ? getValidMaskImage(raster, statisticsLevel) : null;
-                        }
-
-                        ROI roi = statisticsValidMaskImage != null ? new ROI(statisticsValidMaskImage) : null;
-
-                        pm.worked(1);
-
-                        System.out.println("Computing sample extrema for " + raster.getName() + "...");
-                        final RenderedOp extremaOp = ExtremaDescriptor.create(statisticsBandImage, roi, 1, 1, false, 1, null);
-
-                        final long t0 = System.nanoTime();
-                        final double[][] extrema = (double[][]) extremaOp.getProperty("extrema");
-                        final double min = extrema[0][0];
-                        final double max = extrema[1][0];
-                        final long t1 = System.nanoTime();
-
-                        pm.worked(1);
-
-                        System.out.println("Image Info:");
-                        System.out.println("  name       = " + raster.getName());
-                        System.out.println("  width      = " + bandImage.getWidth());
-                        System.out.println("  height     = " + bandImage.getHeight());
-                        System.out.println("  tileWidth  = " + bandImage.getTileWidth());
-                        System.out.println("  tileHeight = " + bandImage.getTileHeight());
-
-                        System.out.printf("Extrema computed in %f ms:\n", (t1 - t0) / (1000.0 * 1000.0));
-                        System.out.println("  width  = " + statisticsBandImage.getWidth());
-                        System.out.println("  height = " + statisticsBandImage.getHeight());
-                        System.out.println("  min    = " + min);
-                        System.out.println("  max    = " + max);
-
-                        Debug.trace("Sample extrema computed.");
-
-                        if (min < max) {
-                            Debug.trace("Computing sample frequencies for [" + raster.getName() + "]...");
-                            final RenderedOp histogramOp = HistogramDescriptor.create(statisticsBandImage, roi, 1, 1, new int[]{256}, extrema[0], extrema[1], null);
-                            Histogram histogram = getBeamHistogram(histogramOp);
-                            Debug.trace("Sample frequencies computed.");
-                            imageInfo = raster.createDefaultImageInfo(null, histogram);
-                            raster.setImageInfo(imageInfo);
-                            if (raster.getStx() == null) {
-                                raster.setStx(new Stx(min, max, histogram.getBinCounts(), statisticsLevel));
-                            }
-                        } else {
-                            raster.setImageInfo(new ImageInfo(new ColorPaletteDef(min, min + 1.0)));
-                            if (raster.getStx() == null) {
-                                final int numPixels = (int) Math.min((long) Integer.MAX_VALUE, imageSize);
-                                raster.setStx(new Stx(min, min, new int[]{numPixels}, statisticsLevel));
-                            }
-                        }
-
-                        pm.worked(1);
-                    } else {
-                        pm.worked(3);
-                    }
+                    raster.getImageInfo(SubProgressMonitor.create(pm, 1));
                 }
             }
         } finally {
             pm.done();
         }
     }
-
-    private static ImageInfo createIndexedImageInfo(IndexCoding indexCoding) {
-        final MetadataAttribute[] attributes = indexCoding.getAttributes();
-        IntMap sampleToIndexMap = new IntMap();
-        int sampleMin = Integer.MAX_VALUE;
-        int sampleMax = Integer.MIN_VALUE;
-        // Note: we need one colour more, the last element is the "Other" class
-        final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[attributes.length + 1];
-        for (int index = 0; index < attributes.length; index++) {
-            MetadataAttribute attribute = attributes[index];
-            final int sample = attribute.getData().getElemInt();
-            sampleMin = Math.min(sampleMin, sample);
-            sampleMax = Math.max(sampleMax, sample);
-            sampleToIndexMap.putValue(sample, index);
-            double t = (index + 1.0) / attributes.length;
-            points[index] = new ColorPaletteDef.Point(sample,
-                                                      new Color((float) (0.5 + 0.5 * Math.sin(Math.PI / 3. + t * 4. * Math.PI)),
-                                                                (float) (0.5 + 0.5 * Math.sin(Math.PI / 2. + t * 2. * Math.PI)),
-                                                                (float) (0.5 + 0.5 * Math.sin(Math.PI / 4. + t * 3. * Math.PI))),
-                                                      attribute.getName());
-        }
-        points[points.length - 1] = OTHER_POINT;
-        final ColorPaletteDef def = new ColorPaletteDef(points);
-        return new ImageInfo(def);
-    }
-
-    public static PlanarImage performIndexToRgbConversion(RasterDataNode[] rasterDataNodes,
-                                                          PlanarImage[] sourceImages,
-                                                          PlanarImage[] maskOpImages) {
-        PlanarImage image;
-        if (rasterDataNodes.length == 1) {
-            final Color[] palette = rasterDataNodes[0].getImageInfo().getColorPaletteDef().createColorPalette(rasterDataNodes[0]);
-            final byte[][] lutData = new byte[3][palette.length];
-            for (int i = 0; i < palette.length; i++) {
-                lutData[0][i] = (byte) palette[i].getRed();
-                lutData[1][i] = (byte) palette[i].getGreen();
-                lutData[2][i] = (byte) palette[i].getBlue();
-            }
-            image = JAIUtils.createLookupOp(sourceImages[0], lutData);
-            if (maskOpImages[0] != null) {
-                image = BandMergeDescriptor.create(image, maskOpImages[0], null);
-            }
+    
+    public int getStatisticsLevel(RasterDataNode raster, int levelCount) {
+        final long imageSize = (long) raster.getSceneRasterWidth() * raster.getSceneRasterHeight();
+        final int statisticsLevel;
+        if (imageSize <= DefaultMultiLevelModel.MAX_PIXEL_COUNT) {
+            statisticsLevel = 0;
         } else {
-            PlanarImage alpha = null;
-            for (PlanarImage maskOpImage : maskOpImages) {
-                if (maskOpImage != null) {
-                    if (alpha != null) {
-                        alpha = MaxDescriptor.create(alpha, maskOpImage, null);
-                    } else {
-                        alpha = maskOpImage;
-                    }
+            statisticsLevel = levelCount - 1;
+        }
+        return statisticsLevel;
+    }
+    private static PlanarImage performIndexToRgbConversion3Bands(RasterDataNode[] rasterDataNodes,
+                                                           PlanarImage[] sourceImages,
+                                                           PlanarImage[] maskOpImages) {
+        PlanarImage alpha = null;
+        for (PlanarImage maskOpImage : maskOpImages) {
+            if (maskOpImage != null) {
+                if (alpha != null) {
+                    alpha = MaxDescriptor.create(alpha, maskOpImage, null);
+                } else {
+                    alpha = maskOpImage;
                 }
             }
-            image = BandMergeDescriptor.create(sourceImages[0], sourceImages[1], null);
-            image = BandMergeDescriptor.create(image, sourceImages[2], null);
-            if (alpha != null) {
-                image = BandMergeDescriptor.create(image, alpha, null);
-            }
+        }
+        RenderedOp image = BandMergeDescriptor.create(sourceImages[0], sourceImages[1], null);
+        image = BandMergeDescriptor.create(image, sourceImages[2], null);
+        if (alpha != null) {
+            image = BandMergeDescriptor.create(image, alpha, null);
         }
         return image;
     }
-
-    private static Histogram getBeamHistogram(RenderedOp histogramImage) {
-        javax.media.jai.Histogram jaiHistogram = JAIUtils.getHistogramOf(histogramImage);
-
-        int[] bins = jaiHistogram.getBins(0);
-        int minIndex = 0;
-        int maxIndex = bins.length - 1;
-        for (int i = 0; i < bins.length; i++) {
-            if (bins[i] > 0) {
-                minIndex = i;
-                break;
-            }
+    
+    private static PlanarImage performIndexToRgbConversion1Band(RasterDataNode rasterDataNode,
+                                                          PlanarImage sourceImage,
+                                                          PlanarImage maskOpImage) {
+        Color[] palette;
+        ColorPaletteDef colorPaletteDef = rasterDataNode.getImageInfo().getColorPaletteDef();
+        if ((rasterDataNode instanceof Band) && ((Band) rasterDataNode).getIndexCoding() != null) {
+            Color[] origPalette = colorPaletteDef.getColors();
+            palette = Arrays.copyOf(origPalette, origPalette.length + 1);
+            palette[palette.length-1] = rasterDataNode.getImageInfo().getNoDataColor();
+        } else {
+            palette = colorPaletteDef.createColorPalette(rasterDataNode);
         }
-        for (int i = bins.length - 1; i >= 0; i--) {
-            if (bins[i] > 0) {
-                maxIndex = i;
-                break;
-            }
+        final byte[][] lutData = new byte[3][palette.length];
+        for (int i = 0; i < palette.length; i++) {
+            lutData[0][i] = (byte) palette[i].getRed();
+            lutData[1][i] = (byte) palette[i].getGreen();
+            lutData[2][i] = (byte) palette[i].getBlue();
         }
-        double lowValue = jaiHistogram.getLowValue(0);
-        double highValue = jaiHistogram.getHighValue(0);
-        int numBins = jaiHistogram.getNumBins(0);
-        double binWidth = (highValue - lowValue) / numBins;
-        int[] croppedBins = new int[maxIndex - minIndex + 1];
-        System.arraycopy(bins, minIndex, croppedBins, 0, croppedBins.length);
-        return new Histogram(croppedBins,
-                             lowValue + minIndex * binWidth,
-                             lowValue + (maxIndex + 1.0) * binWidth);
+        RenderedOp image = JAIUtils.createLookupOp(sourceImage, lutData);
+        if (maskOpImage != null) {
+            image = BandMergeDescriptor.create(image, maskOpImage, null);
+        }
+        return image;
     }
 
     public PlanarImage createColoredMaskImage(Product product, String expression, Color color, boolean invertMask, int level) {

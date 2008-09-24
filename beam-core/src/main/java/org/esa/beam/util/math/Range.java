@@ -8,6 +8,12 @@ package org.esa.beam.util.math;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.util.Guardian;
 
+import java.awt.image.RenderedImage;
+
+import javax.media.jai.ROI;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.operator.ExtremaDescriptor;
+
 /**
  * Instances of the <code>Range</code> class provide a minimum and a maximum value of type <code>double</code>.
  */
@@ -500,6 +506,14 @@ public class Range {
         return result;
     }
 
+    public static Range computeRange(RenderedImage bandImage, ROI roi) {
+        final RenderedOp extremaOp = ExtremaDescriptor.create(bandImage, roi, 1, 1, false, 1, null);
+        final double[][] extrema = (double[][]) extremaOp.getProperty("extrema");
+        final double min = extrema[0][0];
+        final double max = extrema[1][0];
+        return new Range(min, max);
+    }
+    
     @Override
     public String toString() {
         return getMin() + "," + getMax();
