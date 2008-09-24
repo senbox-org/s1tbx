@@ -54,7 +54,7 @@ public class TiffTag {
     public static final short Predictor = 317;
     public static final short WhitePoint = 318;
     public static final short PrimaryChromaticities = 319;
-    public static final short ColorMap = 320;
+    public static final TiffShort COLOR_MAP = new TiffShort(320);
     public static final short HalftoneHints = 321;
     public static final TiffShort TILE_WIDTH = new TiffShort(322);
     public static final TiffShort TILE_LENGTH = new TiffShort(323);

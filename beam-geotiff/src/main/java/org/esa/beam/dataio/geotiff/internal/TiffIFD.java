@@ -1,6 +1,9 @@
 package org.esa.beam.dataio.geotiff.internal;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Guardian;
@@ -8,9 +11,11 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 
 import javax.imageio.stream.ImageOutputStream;
+import java.awt.Color;
 import java.awt.image.DataBuffer;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * A TIFF IFD implementation for the GeoTIFF format.
@@ -134,7 +139,6 @@ public class TiffIFD {
         setEntry(new TiffDirectoryEntry(TiffTag.IMAGE_LENGTH, new TiffLong(height)));
         setEntry(new TiffDirectoryEntry(TiffTag.BITS_PER_SAMPLE, calculateBitsPerSample(product)));
         setEntry(new TiffDirectoryEntry(TiffTag.COMPRESSION, new TiffShort(1)));
-        setEntry(new TiffDirectoryEntry(TiffTag.PHOTOMETRIC_INTERPRETATION, TiffCode.PHOTOMETRIC_BLACK_IS_ZERO));
         setEntry(new TiffDirectoryEntry(TiffTag.IMAGE_DESCRIPTION, new TiffAscii(product.getName())));
         setEntry(new TiffDirectoryEntry(TiffTag.SAMPLES_PER_PIXEL, new TiffShort(product.getNumBands())));
 
@@ -149,7 +153,56 @@ public class TiffIFD {
         setEntry(new TiffDirectoryEntry(TiffTag.SAMPLE_FORMAT, calculateSampleFormat(product)));
         setEntry(new TiffDirectoryEntry(TiffTag.BEAM_METADATA, getBeamMetadata(product)));
 
+        TiffShort[] colorMap = null;
+        if (isValidColorMapProduct(product)) {
+            colorMap = createColorMap(product);
+        }
+
+        if (colorMap != null) {
+            setEntry(new TiffDirectoryEntry(TiffTag.PHOTOMETRIC_INTERPRETATION, TiffCode.PHOTOMETRIC_RGB_PALETTE));
+            setEntry(new TiffDirectoryEntry(TiffTag.COLOR_MAP, colorMap));
+        } else {
+            setEntry(new TiffDirectoryEntry(TiffTag.PHOTOMETRIC_INTERPRETATION, TiffCode.PHOTOMETRIC_BLACK_IS_ZERO));
+        }
+
         addGeoTiffTags(product);
+    }
+
+    private TiffShort[] createColorMap(Product product) {
+        final TiffShort[] colorMap;
+        try {
+            final ImageInfo imageInfo = product.getBandAt(0).getImageInfo(null, ProgressMonitor.NULL);
+            final ColorPaletteDef paletteDef = imageInfo.getColorPaletteDef();
+            final Color[] colors = paletteDef.getColors();
+            final TiffShort[] redColor = new TiffShort[colors.length];
+            final TiffShort[] greenColor = new TiffShort[colors.length];
+            final TiffShort[] blueColor = new TiffShort[colors.length];
+            final float factor = 65535.0f / 255.0f;
+            for (int i = 0; i < colors.length; i++) {
+                Color color = colors[i];
+                final int red = (int) (color.getRed() * factor);
+                final int greeen = (int) (color.getGreen() * factor);
+                final int blue = (int) (color.getBlue() * factor);
+                redColor[i] = new TiffShort(red);
+                greenColor[i] = new TiffShort(greeen);
+                blueColor[i] = new TiffShort(blue);
+            }
+
+            colorMap = new TiffShort[paletteDef.getNumColors() * 3];
+            Arrays.fill(colorMap, new TiffShort(0));
+            System.arraycopy(redColor, 0, colorMap, 0, redColor.length);
+            System.arraycopy(greenColor, 0, colorMap, paletteDef.getNumColors(), greenColor.length);
+            System.arraycopy(blueColor, 0, colorMap, paletteDef.getNumColors()*2 , blueColor.length);
+        } catch (IOException ignore) {
+            ignore.printStackTrace();
+            return null;
+        }
+        return colorMap;
+    }
+
+    private static boolean isValidColorMapProduct(Product product) {
+        return product.getNumBands() == 1 && product.getBandAt(0).getIndexCoding() != null &&
+            product.getBandAt(0).getDataType() == ProductData.TYPE_UINT8;
     }
 
     private TiffAscii getBeamMetadata(final Product product) {
