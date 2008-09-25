@@ -230,8 +230,10 @@ public class ImageManager {
         Assert.notNull(imageInfo, "imageInfo");
         PlanarImage sourceImage = create1BandImage(raster, imageInfo, getBandImage(raster, level));
         PlanarImage validMaskImage = getValidMaskImage(raster, level);
-        return performIndexToRgbConversion1Band(raster, sourceImage, validMaskImage);
-     // TODO do histogram matching
+        PlanarImage image = performIndexToRgbConversion1Band(raster, sourceImage, validMaskImage);
+        return applyHistogramMatching(image, imageInfo.getHistogramMatching());
+        // TODO improve histogram matching to work 
+        //without generation another histogram of the whole image !!!
     }
     
     private PlanarImage createColored3BandImage(RasterDataNode[] rasters, ImageInfo rgbImageInfo, int level) {
@@ -243,8 +245,12 @@ public class ImageManager {
             sourceImages[i] = create1BandImage(raster, raster.getImageInfo(), bandImage);
             validMaskImages[i] = getValidMaskImage(raster, level);
         }
-        return performIndexToRgbConversion3Bands(sourceImages, validMaskImages);
-        // TODO use rgbImageInfo
+        PlanarImage image = performIndexToRgbConversion3Bands(sourceImages, validMaskImages);
+        return applyHistogramMatching(image, rgbImageInfo.getHistogramMatching());
+        // TODO improve histogram matching to work 
+        //without generation another histogram of the whole image !!!
+        // TODO use imageInfo.noDataColor, really ??
+        // TODO use imageIfo.gamma
     }
     
     private PlanarImage create1BandImage(RasterDataNode raster, ImageInfo imageInfo, PlanarImage planarImage) {
@@ -259,6 +265,7 @@ public class ImageManager {
             for (int colorIndex = 0; colorIndex < points.length; colorIndex++) {
                 sampleColorIndexMap.putValue((int) points[colorIndex].getSample(), colorIndex);
             }
+            // TODO pay more attention to the invaldIndex
             planarImage = JAIUtils.createIndexedImage(planarImage, sampleColorIndexMap,
                                                       colorPaletteDef.getNumPoints());
         } else {
@@ -297,6 +304,7 @@ public class ImageManager {
                                                                 PlanarImage sourceImage,
                                                                 PlanarImage maskOpImage) {
         Color[] palette;
+        //TODO clean up palette creation code
         ColorPaletteDef colorPaletteDef = rasterDataNode.getImageInfo().getColorPaletteDef();
         if ((rasterDataNode instanceof Band) && ((Band) rasterDataNode).getIndexCoding() != null) {
             Color[] origPalette = colorPaletteDef.getColors();
@@ -317,6 +325,20 @@ public class ImageManager {
         }
         return image;
     }
+    
+    private  PlanarImage applyHistogramMatching(PlanarImage sourceImage, ImageInfo.HistogramMatching histogramMatching) {
+        final boolean doEqualize = ImageInfo.HistogramMatching.Equalize == histogramMatching;
+        final boolean doNormalize = ImageInfo.HistogramMatching.Normalize == histogramMatching;
+        if (doEqualize || doNormalize) {
+            if (doEqualize) {
+                sourceImage = JAIUtils.createHistogramEqualizedImage(sourceImage);
+            } else {
+                sourceImage = JAIUtils.createHistogramNormalizedImage(sourceImage);
+            }
+        }
+        return sourceImage;
+    }
+
 
     public PlanarImage getBandImage(RasterDataNode rasterDataNode, int level) {
         RenderedImage sourceImage = rasterDataNode.getSourceImage();
