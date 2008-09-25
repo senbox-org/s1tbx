@@ -43,7 +43,7 @@ class GeoTiffBandWriter {
     private TiffIFD ifd;
     private Product tempProduct;
 
-    public GeoTiffBandWriter(final TiffIFD ifd, final ImageOutputStream ios, final Product product) {
+    GeoTiffBandWriter(final TiffIFD ifd, final ImageOutputStream ios, final Product product) {
         this.ifd = ifd;
         this.ios = ios;
         tempProduct = product;
