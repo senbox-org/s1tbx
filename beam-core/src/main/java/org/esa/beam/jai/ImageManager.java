@@ -14,7 +14,6 @@ import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.IntMap;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.jai.JAIUtils;
-import org.esa.beam.util.math.Histogram;
 
 import javax.media.jai.*;
 import javax.media.jai.operator.*;
@@ -28,17 +27,13 @@ import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Random;
 import java.util.WeakHashMap;
 
 
 public class ImageManager {
-    private static final ColorPaletteDef.Point OTHER_POINT = new ColorPaletteDef.Point(Double.NaN, Color.BLACK, "Other");
-
     private final static ImageManager INSTANCE = new ImageManager();
     private final Map<Object, MultiLevelSource> maskImageMap = new WeakHashMap<Object, MultiLevelSource>(101);
 
@@ -212,69 +207,114 @@ public class ImageManager {
             return result;
         }
     }
-
-    // TODO - BLOCKER: ImageInfo.rgbChannelDef is not used for 3-band images! (nf, 19.09.2008)
-    // Solution: Split into following methods, use ProductUtils code as reference.
-    //
-    //    public PlanarImage createColored1BandImage(RasterDataNode raster, ImageInfo imageInfo,
-    //                                               int level, int levelCount);
-    //
-    //    public PlanarImage createColored3BandImage(RasterDataNode[] rasters, ImageInfo imageInfo,
-    //                                               int level, int levelCount);
-    //
+    
     public PlanarImage createColoredBandImage(final RasterDataNode[] rasterDataNodes,
-                                              final int level,
-                                              int levelCount) {
+                                              ImageInfo imageInfo,
+                                              final int level) {
         Assert.notNull(rasterDataNodes,
                        "rasterDataNodes");
         Assert.state(rasterDataNodes.length == 1
                 || rasterDataNodes.length == 3
                 || rasterDataNodes.length == 4,
                      "invalid number of bands");
-
-        PlanarImage image;
-
-        PlanarImage[] bandImages = getBandImages(rasterDataNodes, level);
-        PlanarImage[] validMaskImages = getValidMaskImages(rasterDataNodes, level);
-        prepareImageInfos(rasterDataNodes, bandImages, validMaskImages, levelCount, ProgressMonitor.NULL);
-
-        PlanarImage[] sourceImages = new PlanarImage[rasterDataNodes.length];
-        for (int i = 0; i < rasterDataNodes.length; i++) {
-            final RasterDataNode raster = rasterDataNodes[i];
-            PlanarImage planarImage = bandImages[i];
-            ImageInfo imageInfo = raster.getImageInfo();
-            Assert.state(imageInfo != null, "imageInfo != null");
-            final double minSample = imageInfo.getColorPaletteDef().getMinDisplaySample();
-            final double maxSample = imageInfo.getColorPaletteDef().getMaxDisplaySample();
-            Assert.notNull(imageInfo, "imageInfo");
-
-            final IndexCoding indexCoding = (raster instanceof Band) ? ((Band) raster).getIndexCoding() : null;
-            if (indexCoding != null) {
-                final IntMap sampleColorIndexMap = new IntMap((int) minSample - 1, 4098);
-                final ColorPaletteDef.Point[] points = imageInfo.getColorPaletteDef().getPoints();
-                for (int colorIndex = 0; colorIndex < points.length; colorIndex++) {
-                    sampleColorIndexMap.putValue((int) points[colorIndex].getSample(), colorIndex);
-                }
-
-                planarImage = JAIUtils.createIndexedImage(planarImage, sampleColorIndexMap,
-                                                          raster.getImageInfo().getColorPaletteDef().getNumPoints());
-            } else {
-                final double newMin = raster.scaleInverse(minSample);
-                final double newMax = raster.scaleInverse(maxSample);
-                planarImage = JAIUtils.createRescaleOp(planarImage,
-                                                       255.0 / (newMax - newMin),
-                                                       255.0 * newMin / (newMin - newMax));
-                planarImage = JAIUtils.createFormatOp(planarImage,
-                                                      DataBuffer.TYPE_BYTE);
-            }
-            sourceImages[i] = planarImage;
-        }
+        
         if (rasterDataNodes.length == 1) {
-            image = performIndexToRgbConversion1Band(rasterDataNodes[0], sourceImages[0], validMaskImages[0]);
+            return createColored1BandImage(rasterDataNodes[0], imageInfo, level);
         } else {
-            image = performIndexToRgbConversion3Bands(rasterDataNodes, sourceImages, validMaskImages);
+            return createColored3BandImage(rasterDataNodes, imageInfo, level);
         }
+    }
+    
+    private PlanarImage createColored1BandImage(RasterDataNode raster, ImageInfo imageInfo, int level) {
+        Assert.notNull(raster, "raster");
+        Assert.notNull(imageInfo, "imageInfo");
+        PlanarImage sourceImage = create1BandImage(raster, imageInfo, getBandImage(raster, level));
+        PlanarImage validMaskImage = getValidMaskImage(raster, level);
+        return performIndexToRgbConversion1Band(raster, sourceImage, validMaskImage);
+     // TODO do histogram matching
+    }
+    
+    private PlanarImage createColored3BandImage(RasterDataNode[] rasters, ImageInfo rgbImageInfo, int level) {
+        PlanarImage[] sourceImages = new PlanarImage[rasters.length];
+        PlanarImage[] validMaskImages = new PlanarImage[rasters.length];
+        for (int i = 0; i < rasters.length; i++) {
+            final RasterDataNode raster = rasters[i];
+            PlanarImage bandImage = getBandImage(raster, level);
+            sourceImages[i] = create1BandImage(raster, raster.getImageInfo(), bandImage);
+            validMaskImages[i] = getValidMaskImage(raster, level);
+        }
+        return performIndexToRgbConversion3Bands(sourceImages, validMaskImages);
+        // TODO use rgbImageInfo
+    }
+    
+    private PlanarImage create1BandImage(RasterDataNode raster, ImageInfo imageInfo, PlanarImage planarImage) {
+        ColorPaletteDef colorPaletteDef = imageInfo.getColorPaletteDef();
+        final double minSample = colorPaletteDef.getMinDisplaySample();
+        final double maxSample = colorPaletteDef.getMaxDisplaySample();
 
+        final IndexCoding indexCoding = (raster instanceof Band) ? ((Band) raster).getIndexCoding() : null;
+        if (indexCoding != null) {
+            final IntMap sampleColorIndexMap = new IntMap((int) minSample - 1, 4098);
+            final ColorPaletteDef.Point[] points = colorPaletteDef.getPoints();
+            for (int colorIndex = 0; colorIndex < points.length; colorIndex++) {
+                sampleColorIndexMap.putValue((int) points[colorIndex].getSample(), colorIndex);
+            }
+            planarImage = JAIUtils.createIndexedImage(planarImage, sampleColorIndexMap,
+                                                      colorPaletteDef.getNumPoints());
+        } else {
+            final double newMin = raster.scaleInverse(minSample);
+            final double newMax = raster.scaleInverse(maxSample);
+            planarImage = JAIUtils.createRescaleOp(planarImage,
+                                                   255.0 / (newMax - newMin),
+                                                   255.0 * newMin / (newMin - newMax));
+            planarImage = JAIUtils.createFormatOp(planarImage,
+                                                  DataBuffer.TYPE_BYTE);
+        }
+        return planarImage;
+    }
+    
+    private static PlanarImage performIndexToRgbConversion3Bands(PlanarImage[] sourceImages,
+                                                                 PlanarImage[] maskOpImages) {
+        PlanarImage alpha = null;
+        for (PlanarImage maskOpImage : maskOpImages) {
+            if (maskOpImage != null) {
+                if (alpha != null) {
+                    alpha = MaxDescriptor.create(alpha, maskOpImage, null);
+                } else {
+                    alpha = maskOpImage;
+                }
+            }
+        }
+        RenderedOp image = BandMergeDescriptor.create(sourceImages[0], sourceImages[1], null);
+        image = BandMergeDescriptor.create(image, sourceImages[2], null);
+        if (alpha != null) {
+            image = BandMergeDescriptor.create(image, alpha, null);
+        }
+        return image;
+    }
+          
+    private static PlanarImage performIndexToRgbConversion1Band(RasterDataNode rasterDataNode,
+                                                                PlanarImage sourceImage,
+                                                                PlanarImage maskOpImage) {
+        Color[] palette;
+        ColorPaletteDef colorPaletteDef = rasterDataNode.getImageInfo().getColorPaletteDef();
+        if ((rasterDataNode instanceof Band) && ((Band) rasterDataNode).getIndexCoding() != null) {
+            Color[] origPalette = colorPaletteDef.getColors();
+            palette = Arrays.copyOf(origPalette, origPalette.length + 1);
+            palette[palette.length-1] = rasterDataNode.getImageInfo().getNoDataColor();
+        } else {
+            palette = colorPaletteDef.createColorPalette(rasterDataNode);
+        }
+        final byte[][] lutData = new byte[3][palette.length];
+        for (int i = 0; i < palette.length; i++) {
+            lutData[0][i] = (byte) palette[i].getRed();
+            lutData[1][i] = (byte) palette[i].getGreen();
+            lutData[2][i] = (byte) palette[i].getBlue();
+        }
+        RenderedOp image = JAIUtils.createLookupOp(sourceImage, lutData);
+        if (maskOpImage != null) {
+            image = BandMergeDescriptor.create(image, maskOpImage, null);
+        }
         return image;
     }
 
@@ -283,28 +323,11 @@ public class ImageManager {
         return getLevelImage(sourceImage, level);
     }
     
-    public PlanarImage[] getBandImages(RasterDataNode[] rasterDataNodes, int level) {
-        PlanarImage[] planarImages = new PlanarImage[rasterDataNodes.length];
-        for (int i = 0; i < rasterDataNodes.length; i++) {
-            RasterDataNode raster = rasterDataNodes[i];
-            planarImages[i] = getBandImage(raster, level);
-        }
-        return planarImages;
-    }
-    
     public PlanarImage getValidMaskImage(final RasterDataNode rasterDataNode, int level) {
         if (rasterDataNode.isValidMaskUsed()) {
             return getLevelImage(rasterDataNode.getValidMaskImage(), level);
         }
         return null;
-    }
-
-    public PlanarImage[] getValidMaskImages(RasterDataNode[] rasterDataNodes, int level) {
-        final PlanarImage[] images = new PlanarImage[rasterDataNodes.length];
-        for (int i = 0; i < rasterDataNodes.length; i++) {
-            images[i] = getValidMaskImage(rasterDataNodes[i], level);
-        }
-        return images;
     }
 
     public PlanarImage getGeophysicalImage(RasterDataNode rasterDataNode, int level) {
@@ -375,18 +398,7 @@ public class ImageManager {
     }
 
 
-    public void prepareImageInfos(RasterDataNode[] rasterDataNodes, int levelCount, ProgressMonitor pm) {
-        PlanarImage[] bandImages = getBandImages(rasterDataNodes, 0);
-        PlanarImage[] validMaskImages = getValidMaskImages(rasterDataNodes, 0);
-        prepareImageInfos(rasterDataNodes, bandImages, validMaskImages, levelCount, pm);
-    }
-
-    private void prepareImageInfos(RasterDataNode[] rasterDataNodes,
-                                   PlanarImage[] bandImages,
-                                   PlanarImage[] validMaskImages,
-                                   int levelCount,
-                                   ProgressMonitor pm) {
-
+    public void prepareImageInfos(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) {
         int numTaskSteps = 0;
         for (RasterDataNode raster : rasterDataNodes) {
             numTaskSteps += raster.getImageInfo() == null ? 1 : 0;
@@ -417,52 +429,7 @@ public class ImageManager {
         }
         return statisticsLevel;
     }
-    private static PlanarImage performIndexToRgbConversion3Bands(RasterDataNode[] rasterDataNodes,
-                                                           PlanarImage[] sourceImages,
-                                                           PlanarImage[] maskOpImages) {
-        PlanarImage alpha = null;
-        for (PlanarImage maskOpImage : maskOpImages) {
-            if (maskOpImage != null) {
-                if (alpha != null) {
-                    alpha = MaxDescriptor.create(alpha, maskOpImage, null);
-                } else {
-                    alpha = maskOpImage;
-                }
-            }
-        }
-        RenderedOp image = BandMergeDescriptor.create(sourceImages[0], sourceImages[1], null);
-        image = BandMergeDescriptor.create(image, sourceImages[2], null);
-        if (alpha != null) {
-            image = BandMergeDescriptor.create(image, alpha, null);
-        }
-        return image;
-    }
     
-    private static PlanarImage performIndexToRgbConversion1Band(RasterDataNode rasterDataNode,
-                                                          PlanarImage sourceImage,
-                                                          PlanarImage maskOpImage) {
-        Color[] palette;
-        ColorPaletteDef colorPaletteDef = rasterDataNode.getImageInfo().getColorPaletteDef();
-        if ((rasterDataNode instanceof Band) && ((Band) rasterDataNode).getIndexCoding() != null) {
-            Color[] origPalette = colorPaletteDef.getColors();
-            palette = Arrays.copyOf(origPalette, origPalette.length + 1);
-            palette[palette.length-1] = rasterDataNode.getImageInfo().getNoDataColor();
-        } else {
-            palette = colorPaletteDef.createColorPalette(rasterDataNode);
-        }
-        final byte[][] lutData = new byte[3][palette.length];
-        for (int i = 0; i < palette.length; i++) {
-            lutData[0][i] = (byte) palette[i].getRed();
-            lutData[1][i] = (byte) palette[i].getGreen();
-            lutData[2][i] = (byte) palette[i].getBlue();
-        }
-        RenderedOp image = JAIUtils.createLookupOp(sourceImage, lutData);
-        if (maskOpImage != null) {
-            image = BandMergeDescriptor.create(image, maskOpImage, null);
-        }
-        return image;
-    }
-
     public PlanarImage createColoredMaskImage(Product product, String expression, Color color, boolean invertMask, int level) {
         PlanarImage image = getMaskImage(product, expression, level);
         return createColoredMaskImage(color, image, invertMask);

@@ -17,7 +17,6 @@ import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.glevel.RoiImageMultiLevelSource;
 import org.esa.beam.glevel.TiledFileMultiLevelSource;
-import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.PropertyMap;
 
 import java.awt.*;
@@ -47,10 +46,9 @@ public class ProductSceneImage {
 
     private final String name;
     private final PropertyMap configuration;
-    private ImageInfo imageInfo;
     private RasterDataNode[] rasters;
     private Layer rootLayer;
-    private MultiLevelSource imageMultiLevelSource;
+    private BandImageMultiLevelSource bandImageMultiLevelSource;
     private Map<Integer, Layer> layerMap;
 
     /**
@@ -63,10 +61,8 @@ public class ProductSceneImage {
     public ProductSceneImage(RasterDataNode raster, PropertyMap configuration, ProgressMonitor pm) {
         this("Image of " + raster.getName(),
                 new RasterDataNode[]{raster},
-                raster.getImageInfo(),
                 configuration);
-        imageMultiLevelSource = BandImageMultiLevelSource.create(raster, pm);
-        setImageInfo(raster.getImageInfo());
+        bandImageMultiLevelSource = BandImageMultiLevelSource.create(raster, pm);
         initRootLayer();
     }
 
@@ -79,9 +75,8 @@ public class ProductSceneImage {
     public ProductSceneImage(RasterDataNode raster, ProductSceneView view) {
         this("Image of " + raster.getName(),
                 new RasterDataNode[]{raster},
-                view.getImageInfo(),
                 view.getSceneImage().getConfiguration());
-        imageMultiLevelSource = view.getSceneImage().getImageMultiLevelSource();
+        bandImageMultiLevelSource = view.getSceneImage().getBandImageMultiLevelSource();
         initRootLayer();
     }
 
@@ -100,16 +95,14 @@ public class ProductSceneImage {
                              RasterDataNode blueRaster,
                              PropertyMap configuration,
                              ProgressMonitor pm) {
-        this(name, new RasterDataNode[]{redRaster, greenRaster, blueRaster}, null, configuration);
-        imageMultiLevelSource = BandImageMultiLevelSource.create(rasters, pm);
-        setImageInfo(ImageManager.getInstance().getImageInfo(rasters));
+        this(name, new RasterDataNode[]{redRaster, greenRaster, blueRaster}, configuration);
+        bandImageMultiLevelSource = BandImageMultiLevelSource.create(rasters, pm);
         initRootLayer();
     }
 
-    private ProductSceneImage(String name, RasterDataNode[] rasters, ImageInfo imageInfo, PropertyMap configuration) {
+    private ProductSceneImage(String name, RasterDataNode[] rasters, PropertyMap configuration) {
         this.name = name;
         this.rasters = rasters;
-        this.imageInfo = imageInfo;
         this.configuration = configuration;
     }
 
@@ -122,11 +115,11 @@ public class ProductSceneImage {
     }
 
     public ImageInfo getImageInfo() {
-        return imageInfo;
+        return bandImageMultiLevelSource.getImageInfo();
     }
 
     public void setImageInfo(ImageInfo imageInfo) {
-        this.imageInfo = imageInfo;
+        bandImageMultiLevelSource.setImageInfo(imageInfo);
     }
 
     public RasterDataNode[] getRasters() {
@@ -183,7 +176,7 @@ public class ProductSceneImage {
 
     private void initRootLayer() {
         rootLayer = new Layer();
-        final ImageLayer imageLayer = new ImageLayer(imageMultiLevelSource);
+        final ImageLayer imageLayer = new ImageLayer(bandImageMultiLevelSource);
         imageLayer.setName(getName());
         imageLayer.setVisible(true);
 
@@ -454,8 +447,8 @@ public class ProductSceneImage {
         return new BitmaskCollectionLayer(getRaster());
     }
 
-    private MultiLevelSource getImageMultiLevelSource() {
-        return imageMultiLevelSource;
+    private BandImageMultiLevelSource getBandImageMultiLevelSource() {
+        return bandImageMultiLevelSource;
     }
 
     private class ColorStyleListener extends LayerStyleListener {

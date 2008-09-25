@@ -6,6 +6,8 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
+
+import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
 
@@ -15,12 +17,13 @@ import java.awt.image.RenderedImage;
 public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
 
     private final RasterDataNode[] rasterDataNodes;
+    private ImageInfo imageInfo;
 
-    public static MultiLevelSource create(RasterDataNode rasterDataNode, ProgressMonitor pm) {
+    public static BandImageMultiLevelSource create(RasterDataNode rasterDataNode, ProgressMonitor pm) {
         return create(new RasterDataNode[]{rasterDataNode}, pm);
     }
 
-    public static MultiLevelSource create(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) {
+    public static BandImageMultiLevelSource create(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) {
         RasterDataNode rdn = rasterDataNodes[0];
         MultiLevelModel model;
         if (rdn.getSourceImage() instanceof MultiLevelSource) {
@@ -31,23 +34,23 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
             final int h = rdn.getSceneRasterHeight();
             model = new DefaultMultiLevelModel(new AffineTransform(), w, h);
         }
-        ImageManager.getInstance().prepareImageInfos(rasterDataNodes, model.getLevelCount(), pm);
+        ImageManager.getInstance().prepareImageInfos(rasterDataNodes, pm);
         return new BandImageMultiLevelSource(model, rasterDataNodes);
     }
 
-    public static MultiLevelSource create(RasterDataNode rasterDataNode,
+    public static BandImageMultiLevelSource create(RasterDataNode rasterDataNode,
                                           AffineTransform i2mTransform, ProgressMonitor pm) {
         return create(new RasterDataNode[]{rasterDataNode}, i2mTransform, pm);
     }
 
-    public static MultiLevelSource create(RasterDataNode[] rasterDataNodes,
+    public static BandImageMultiLevelSource create(RasterDataNode[] rasterDataNodes,
                                           AffineTransform i2mTransform, ProgressMonitor pm) {
         return create(rasterDataNodes, i2mTransform,
                       DefaultMultiLevelModel.getLevelCount(rasterDataNodes[0].getSceneRasterWidth(),
                                                            rasterDataNodes[0].getSceneRasterHeight()), pm);
     }
 
-    private static MultiLevelSource create(RasterDataNode[] rasterDataNodes,
+    private static BandImageMultiLevelSource create(RasterDataNode[] rasterDataNodes,
                                            AffineTransform i2mTransform,
                                            int levelCount,
                                            ProgressMonitor pm) {
@@ -56,18 +59,26 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
         final int w = rasterDataNodes[0].getSceneRasterWidth();
         final int h = rasterDataNodes[0].getSceneRasterHeight();
         MultiLevelModel model = new DefaultMultiLevelModel(levelCount, i2mTransform, w, h);
-        ImageManager.getInstance().prepareImageInfos(rasterDataNodes, levelCount, pm);
+        ImageManager.getInstance().prepareImageInfos(rasterDataNodes, pm);
         return new BandImageMultiLevelSource(model, rasterDataNodes);
     }
 
     public BandImageMultiLevelSource(MultiLevelModel model, RasterDataNode[] rasterDataNodes) {
         super(model);
         this.rasterDataNodes = rasterDataNodes.clone();
+        imageInfo = ImageManager.getInstance().getImageInfo(rasterDataNodes);
+    }
+
+    public void setImageInfo(ImageInfo imageInfo) {
+        this.imageInfo = imageInfo;
+    }
+    
+    public ImageInfo getImageInfo() {
+        return imageInfo;
     }
 
     @Override
     public RenderedImage createImage(int level) {
-        return ImageManager.getInstance().createColoredBandImage(rasterDataNodes, level,
-                                                                 getModel().getLevelCount());
+        return ImageManager.getInstance().createColoredBandImage(rasterDataNodes, imageInfo, level);
     }
 }
