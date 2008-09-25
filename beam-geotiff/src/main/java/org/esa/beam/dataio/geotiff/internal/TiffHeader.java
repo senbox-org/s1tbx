@@ -33,11 +33,10 @@ import java.nio.ByteOrder;
  */
 public class TiffHeader {
 
-    public final static TiffShort MAGIC_NUMBER = new TiffShort(42);
-    public final static TiffLong FIRST_IFD_OFFSET = new TiffLong(10);
-
-    private final static TiffShort LITTLE_ENDIAN = new TiffShort(0x4949);
-    private final static TiffShort BIG_ENDIAN = new TiffShort(0x4D4D);
+    public static final TiffShort MAGIC_NUMBER = new TiffShort(42);
+    private static final TiffShort LITTLE_ENDIAN = new TiffShort(0x4949);
+    private static final TiffShort BIG_ENDIAN = new TiffShort(0x4D4D);
+    public static final TiffLong FIRST_IFD_OFFSET = new TiffLong(10);
 
     private final TiffIFD[] ifds;
     private boolean bigEndianOrder = true;
