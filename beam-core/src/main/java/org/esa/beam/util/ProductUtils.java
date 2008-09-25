@@ -2198,7 +2198,7 @@ public class ProductUtils {
             metadata.addGeoShortParam(GeoTIFFCodes.GTModelTypeGeoKey, GeoTIFFCodes.ModelTypeGeographic);
             metadata.addGeoShortParam(GeoTIFFCodes.GTRasterTypeGeoKey, GeoTIFFCodes.RasterPixelIsArea);
             metadata.addGeoShortParam(GeoTIFFCodes.GeographicTypeGeoKey, EPSGCodes.GCS_WGS_84);
-            final int numTotMax = 32;
+            final int numTotMax = 128;
             int numHor = (int) Math.sqrt(numTotMax * ((double) width / (double) height));
             if (numHor < 2) {
                 numHor = 2;
@@ -2217,8 +2217,7 @@ public class ProductUtils {
                     metadata.addModelTiePoint(pixelPos.x, pixelPos.y, geoPos.lon, geoPos.lat);
                 }
             }
-            // upper left, it's better than center
-            // todo - the accuracy is still not good, but better as without ModelPixelScale
+            
             GeoPos geoPos1 = geoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null);
             GeoPos geoPos2 = geoCoding.getGeoPos(new PixelPos(1.5f, 1.5f), null);
             final float scaleX = Math.abs(geoPos2.lon - geoPos1.lon);
