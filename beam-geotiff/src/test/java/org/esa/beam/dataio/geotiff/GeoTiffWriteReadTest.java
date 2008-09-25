@@ -11,11 +11,13 @@ import org.junit.Test;
 
 import javax.imageio.stream.MemoryCacheImageInputStream;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
+import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+@SuppressWarnings({"InstanceVariableMayNotBeInitialized"})
 public class GeoTiffWriteReadTest {
 
     private Product outProduct;
@@ -32,7 +34,7 @@ public class GeoTiffWriteReadTest {
         final int height = 14;
         outProduct = new Product("P", "T", width, height);
         final Band bandInt16 = outProduct.addBand("int16", ProductData.TYPE_INT16);
-        bandInt16.setDataElems(createProductShorts(getProductSize(), 23));
+        bandInt16.setDataElems(createShortData(getProductSize(), 23));
         bandInt16.setSynthetic(true);
         ImageManager.getInstance().getBandImage(bandInt16, 0);
     }
@@ -75,12 +77,73 @@ public class GeoTiffWriteReadTest {
         outProduct.addBand(virtualBand);
         final Product inProduct = writeReadProduct();
 
-        assertEquals(outProduct.getNumBands(), inProduct.getNumBands());
-        assertEquals(true, inProduct.getBand("VB") != null);
-    }  
+        assertEquals(1, inProduct.getNumBands());
+        assertNull(inProduct.getBand("VB"));
+    }
 
     @Test
-    public void testWriteReadUTMProjectProduct() throws IOException {
+    public void testWriteReadIndexCodingSingle8BitBand() throws IOException {
+        outProduct.removeBand(outProduct.getBandAt(0));
+        final Band bandUInt8 = outProduct.addBand("uint8", ProductData.TYPE_UINT8);
+        bandUInt8.setDataElems(createByteData(getProductSize(), 23));
+        bandUInt8.setSynthetic(true);
+        ImageManager.getInstance().getBandImage(bandUInt8, 0);
+
+        setTiePointGeoCoding(outProduct);
+        final IndexCoding indexCoding = new IndexCoding("color_map");
+        indexCoding.addIndex("i1", 23, "");
+        indexCoding.addIndex("i2", 24, "");
+        indexCoding.addIndex("i3", 27, "");
+        indexCoding.addIndex("i4", 30, "");
+        outProduct.getBandAt(0).setSampleCoding(indexCoding);
+        outProduct.getIndexCodingGroup().add(indexCoding);
+
+        final Product inProduct = writeReadProduct();
+
+        assertEquals(1, inProduct.getIndexCodingGroup().getNodeCount());
+        final Band indexBand = inProduct.getBandAt(0);
+        testIndexCoding(indexBand, 4);
+    }
+
+    @Test
+    public void testWriteReadIndexCodingWith2BandsBand() throws IOException {
+        final Band bandUInt8 = outProduct.addBand("uint8", ProductData.TYPE_UINT8);
+        bandUInt8.setDataElems(createByteData(getProductSize(), 20));
+        bandUInt8.setSynthetic(true);
+        ImageManager.getInstance().getBandImage(bandUInt8, 0);
+
+        setTiePointGeoCoding(outProduct);
+        final IndexCoding indexCoding = new IndexCoding("color_map");
+        indexCoding.addIndex("i1", 23, "");
+        indexCoding.addIndex("i2", 24, "");
+        indexCoding.addIndex("i3", 27, "");
+        indexCoding.addIndex("i4", 30, "");
+        outProduct.getIndexCodingGroup().add(indexCoding);
+
+        outProduct.getBandAt(0).setSampleCoding(indexCoding);
+        outProduct.getBandAt(1).setSampleCoding(indexCoding);
+
+        final Product inProduct = writeReadProduct();
+
+        assertEquals(1, inProduct.getIndexCodingGroup().getNodeCount());
+        testIndexCoding(inProduct.getBandAt(0), 4);
+        testIndexCoding(inProduct.getBandAt(1), 4);
+    }
+
+    private void testIndexCoding(Band indexBand, final int expectedIndices) {
+        assertEquals(true, indexBand.isIndexBand());
+        assertEquals(expectedIndices, indexBand.getIndexCoding().getNumAttributes());
+        final ColorPaletteDef paletteDef = indexBand.getImageInfo(ProgressMonitor.NULL).getColorPaletteDef();
+        assertEquals(expectedIndices, paletteDef.getNumColors());
+        final Color[] colors = paletteDef.getColors();
+        assertNotSame(0, colors[0].getRed() | colors[0].getGreen() | colors[0].getBlue());
+        assertNotSame(0, colors[1].getRed() | colors[1].getGreen() | colors[1].getBlue());
+        assertNotSame(0, colors[2].getRed() | colors[2].getGreen() | colors[2].getBlue());
+        assertNotSame(0, colors[3].getRed() | colors[3].getGreen() | colors[3].getBlue());
+    }
+    
+    @Test
+    public void testWriteReadUTMProjection() throws IOException {
         setUTMGeoCoding(outProduct);
         final Product inProduct = writeReadProduct();
 
@@ -97,7 +160,7 @@ public class GeoTiffWriteReadTest {
     }
 
     @Test
-    public void testWriteReadProductWithLatLonGeocoding() throws IOException {
+    public void testWriteReadLatLonGeocoding() throws IOException {
         setIdentityTransformGeoCoding(outProduct);
         final Product inProduct = writeReadProduct();
 
@@ -114,7 +177,7 @@ public class GeoTiffWriteReadTest {
     }
 
     @Test
-    public void testWriteReadTiePointProduct() throws IOException {
+    public void testWriteReadTiePoint() throws IOException {
         setTiePointGeoCoding(outProduct);
         final Band bandfloat32 = outProduct.addBand("float32", ProductData.TYPE_FLOAT32);
         bandfloat32.setDataElems(createFloats(getProductSize(), 2.343f));
@@ -134,7 +197,7 @@ public class GeoTiffWriteReadTest {
     }
 
     @Test
-    public void testWriteReadTransverseMercatorProduct() throws IOException {
+    public void testWriteReadTransverseMercator() throws IOException {
         setTransverseMercatorGeoCoding(outProduct);
 
         final Product inProduct = writeReadProduct();
@@ -151,7 +214,7 @@ public class GeoTiffWriteReadTest {
     }
 
     @Test
-    public void testWriteReadLambertConformalConicProduct() throws IOException {
+    public void testWriteReadLambertConformalConic() throws IOException {
         setLambertConformalConicGeoCoding(outProduct);
 
         final Product inProduct = writeReadProduct();
@@ -168,7 +231,7 @@ public class GeoTiffWriteReadTest {
     }
 
     @Test
-    public void testWriteReadStereographicProduct() throws IOException {
+    public void testWriteReadStereographic() throws IOException {
         setStereographicGeoCoding(outProduct);
 
         final Product inProduct = writeReadProduct();
@@ -185,7 +248,7 @@ public class GeoTiffWriteReadTest {
     }
 
     @Test
-    public void testWriteReadAlbersEqualAreaProduct() throws IOException {
+    public void testWriteReadAlbersEqualArea() throws IOException {
         setAlbersEqualAreaGeoCoding(outProduct);
 
         final Product inProduct = writeReadProduct();
@@ -289,12 +352,20 @@ public class GeoTiffWriteReadTest {
         assertTrue(e1.getSemiMinor() == e2.getSemiMinor());
     }
 
-    private static short[] createProductShorts(final int size, final int offset) {
+    private static short[] createShortData(final int size, final int offset) {
         final short[] shorts = new short[size];
         for (int i = 0; i < shorts.length; i++) {
             shorts[i] = (short) (i + offset);
         }
         return shorts;
+    }
+
+    private static byte[] createByteData(final int size, final int offset) {
+        final byte[] bytes = new byte[size];
+        for (int i = 0; i < bytes.length; i++) {
+            bytes[i] = (byte) (i + offset);
+        }
+        return bytes;
     }
 
     private static float[] createFloats(final int size, final float offset) {
@@ -411,11 +482,13 @@ public class GeoTiffWriteReadTest {
         writer.writeGeoTIFFProduct(new MemoryCacheImageOutputStream(outputStream), outProduct);
         final Band[] bands = outProduct.getBands();
         for (Band band : bands) {
-            band.readRasterDataFully();
-            writer.writeBandRasterData(band,
-                                       0, 0,
-                                       band.getSceneRasterWidth(), band.getSceneRasterHeight(),
-                                       band.getData(), ProgressMonitor.NULL);
+            if (writer.shouldWrite(band)) {
+                band.readRasterDataFully();
+                writer.writeBandRasterData(band,
+                                           0, 0,
+                                           band.getSceneRasterWidth(), band.getSceneRasterHeight(),
+                                           band.getData(), ProgressMonitor.NULL);
+            }
         }
         writer.flush();
         ByteArraySeekableStream inputStream = new ByteArraySeekableStream(outputStream.toByteArray());

@@ -1,7 +1,11 @@
 package org.esa.beam.dataio.geotiff.internal;
 
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.Product;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -30,12 +34,16 @@ public class BeamMetadata {
     public static final String ROOT_VERSION_0_1 = "0.1";
 
     public static final String NODE_NAME = "name";
+    public static final String NODE_SAMPLE = "sample";
+    public static final String NODE_VALUE = "value";
+    public static final String NODE_COLOUR = "colour";
+    public static final String NODE_DESCRIPTION = "description";
+
 
     public static final String NODE_PRODUCT = "product";
     public static final String NODE_PRODUCTTYPE = "product_type";
 
     public static final String NODE_BAND = "band";
-    public static final String NODE_DESCRIPTION = "description";
     public static final String NODE_UNIT = "unit";
     public static final String NODE_DATATYPE = "data_type";
     public static final String NODE_SCALING_FACTOR = "scaling_factor";
@@ -43,6 +51,8 @@ public class BeamMetadata {
     public static final String NODE_LOG_10_SCALED = "log_10_scaled";
     public static final String NODE_NO_DATA_VALUE = "no_data_value";
     public static final String NODE_NO_DATA_VALUE_USED = "no_data_value_used";
+
+    public static final String NODE_INDEX_CODING = "index_coding";
 
     public static Metadata createMetadata(final Document dom) {
         Assert.notNull(dom);
@@ -148,6 +158,10 @@ public class BeamMetadata {
                 bandNode.addContent(new Element(NODE_NO_DATA_VALUE).setText(getBandProperty(i, NODE_NO_DATA_VALUE)));
                 bandNode.addContent(
                             new Element(NODE_NO_DATA_VALUE_USED).setText(getBandProperty(i, NODE_NO_DATA_VALUE_USED)));
+                final Band band = product.getBandAt(i);
+                if(band.isIndexBand()) {
+                    bandNode.addContent(createIndexCodingNode(band));
+                }
                 productNode.addContent(bandNode);
             }
 
@@ -189,5 +203,27 @@ public class BeamMetadata {
             }
             return null;
         }
+
+        private static Element createIndexCodingNode(Band band) {
+            final IndexCoding indexCoding = band.getIndexCoding();
+            final ImageInfo imageInfo = band.getImageInfo(ProgressMonitor.NULL);
+            final Element indexElem = new Element(NODE_INDEX_CODING);
+            indexElem.addContent(new Element(NODE_NAME).setText(indexCoding.getName()));
+            final MetadataAttribute[] attributes = indexCoding.getAttributes();
+            for (int i = 0; i < attributes.length; i++) {
+                MetadataAttribute attribute = attributes[i];
+                final Element sampleElem = new Element(NODE_SAMPLE);
+                final int sampleValue = attribute.getData().getElemInt();
+                final int sampleColor = imageInfo.getColorPaletteDef().getColors()[i].getRGB();
+
+                sampleElem.addContent(new Element(NODE_NAME).setText(attribute.getName()));
+                sampleElem.addContent(new Element(NODE_VALUE).setText(String.valueOf(sampleValue)));
+                sampleElem.addContent(new Element(NODE_COLOUR).setText(String.valueOf(sampleColor)));
+                sampleElem.addContent(new Element(NODE_DESCRIPTION).setText(attribute.getDescription()));
+                indexElem.addContent(sampleElem);
+            }
+            return indexElem;
+        }
+
     }
 }

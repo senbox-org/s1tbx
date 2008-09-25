@@ -79,25 +79,12 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
         outputFile = FileUtils.ensureExtension(file, GeoTiffProductWriterPlugIn.GEOTIFF_FILE_EXTENSION[0]);
         deleteOutput();
 
-        final Product product = removeVirtualBands(getSourceProduct());
-        writeGeoTIFFProduct(new FileImageOutputStream(outputFile), product);
+        writeGeoTIFFProduct(new FileImageOutputStream(outputFile), getSourceProduct());
     }
 
-    private Product removeVirtualBands(Product sourceProduct) throws IOException {
-        final ProductSubsetDef def = new ProductSubsetDef();
-        final Band[] bands = sourceProduct.getBands();
-        for (Band band : bands) {
-            if (!(band instanceof VirtualBand)) {
-                def.addNodeName(band.getName());
-            }
-        }
-        def.setIgnoreMetadata(false);
-        final Product subset = sourceProduct.createSubset(def, sourceProduct.getName(), sourceProduct.getDescription());
-        return subset;
-    }   
-
-    void writeGeoTIFFProduct(ImageOutputStream stream, final Product product) throws IOException {
+    void writeGeoTIFFProduct(ImageOutputStream stream, final Product sourceProduct) throws IOException {
         outputStream = stream;
+        final Product product = removeVirtualBands(sourceProduct);        
         final TiffHeader tiffHeader = new TiffHeader(new Product[]{product});
         tiffHeader.write(stream);
         bandWriter = new GeoTiffBandWriter(tiffHeader.getIfdAt(0), stream, product);
@@ -113,7 +100,9 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
                                     final int sourceHeight,
                                     final ProductData sourceBuffer,
                                     ProgressMonitor pm) throws IOException {
-
+        if(sourceBand instanceof VirtualBand) {
+            return;
+        }
         bandWriter.writeBandRasterData(sourceBand,
                                         sourceOffsetX, sourceOffsetY,
                                         sourceWidth, sourceHeight,
@@ -165,6 +154,19 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
             outputStream.close();
             outputStream = null;
         }
+    }
+
+    private Product removeVirtualBands(Product sourceProduct) throws IOException {
+        final ProductSubsetDef def = new ProductSubsetDef();
+        final Band[] bands = sourceProduct.getBands();
+        for (Band band : bands) {
+            if (!(band instanceof VirtualBand)) {
+                def.addNodeName(band.getName());
+            }
+        }
+        def.setIgnoreMetadata(false);
+        final Product subset = sourceProduct.createSubset(def, sourceProduct.getName(), sourceProduct.getDescription());
+        return subset;
     }
 
 }

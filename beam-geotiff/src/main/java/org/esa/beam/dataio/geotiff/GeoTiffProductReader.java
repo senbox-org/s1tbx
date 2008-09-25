@@ -38,6 +38,7 @@ import org.esa.beam.util.geotiff.GeoTIFFCodes;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
@@ -56,8 +57,10 @@ import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -163,13 +166,16 @@ public class GeoTiffProductReader extends AbstractProductReader {
                 bandName = String.format("band_%d", i + 1);
             }
             final Band band = product.addBand(bandName, productDataType);
-            configureBand(metadata, band, i);
+            if (metadata == null) {
+                if (tiffInfo.containsField(
+                        BaselineTIFFTagSet.TAG_COLOR_MAP) && baseImage.getColorModel() instanceof IndexColorModel) {
+                    band.setImageInfo(createIndexedImageInfo(product, baseImage, band));
+                }
+            } else {
+                configureBand(metadata, band, i);
+            }
             bandMap.put(band, i);
 
-            if (tiffInfo.containsField(
-                    BaselineTIFFTagSet.TAG_COLOR_MAP) && baseImage.getColorModel() instanceof IndexColorModel) {
-                band.setImageInfo(createIndexedImageInfo(product, baseImage, band));
-            }
         }
     }
 
@@ -225,13 +231,14 @@ public class GeoTiffProductReader extends AbstractProductReader {
         final int colorCount = colorModel.getMapSize();
         final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[colorCount];
         for (int j = 0; j < colorCount; j++) {
-            indexCoding.addIndex(String.format("I%3d", j), j, "");
-            points[j] = new ColorPaletteDef.Point(j, new Color(colorModel.getRGB(j)));
+            final String name = "I%3d";
+            indexCoding.addIndex(String.format(name, j), j, "");
+            points[j] = new ColorPaletteDef.Point(j, new Color(colorModel.getRGB(j)), name);
         }
         product.getIndexCodingGroup().add(indexCoding);
         band.setSampleCoding(indexCoding);
 
-        return new ImageInfo(new ColorPaletteDef(points));
+        return new ImageInfo(new ColorPaletteDef(points, points.length));
     }
 
     private static void configureBand(BeamMetadata.Metadata metadata, Band band, int bandIndex) {
@@ -254,6 +261,32 @@ public class GeoTiffProductReader extends AbstractProductReader {
                 metadata.getBandProperty(bandIndex, BeamMetadata.NODE_NO_DATA_VALUE_USED));
         band.setNoDataValue(noDataValue);
         band.setNoDataValueUsed(noDataValueUsed);
+        final Element root = metadata.getDocument().getRootElement();
+        final Element productNode = root.getChild(BeamMetadata.NODE_PRODUCT);
+        final Element bandElem = (Element) productNode.getChildren(BeamMetadata.NODE_BAND).get(bandIndex);
+        final Element indexElem = bandElem.getChild(BeamMetadata.NODE_INDEX_CODING);
+        if (indexElem != null) {
+            final List<Element> sampleList = indexElem.getChildren(BeamMetadata.NODE_SAMPLE);
+            final String indexCodingName = indexElem.getChildText(BeamMetadata.NODE_NAME);
+            final IndexCoding indexCoding = new IndexCoding(indexCodingName);
+            final List<ColorPaletteDef.Point> points = new ArrayList<ColorPaletteDef.Point>(sampleList.size());
+            for (Element child : sampleList) {
+                final int sampleValue = Integer.parseInt(child.getChildText(BeamMetadata.NODE_VALUE));
+                final int sampleColour = Integer.parseInt(child.getChildText(BeamMetadata.NODE_COLOUR));
+                final String sampleName = child.getChildText(BeamMetadata.NODE_NAME);
+                final String sampleDescr = child.getChildText(BeamMetadata.NODE_DESCRIPTION);
+                indexCoding.addIndex(sampleName, sampleValue, sampleDescr);
+                points.add(new ColorPaletteDef.Point(sampleValue, new Color(sampleColour), sampleName));
+            }
+            final ProductNodeGroup<IndexCoding> indexCodingGroup = band.getProduct().getIndexCodingGroup();
+            if(!indexCodingGroup.contains(indexCodingName)) {
+                indexCodingGroup.add(indexCoding);
+            }
+
+            band.setSampleCoding(indexCodingGroup.get(indexCodingName));
+            final ColorPaletteDef.Point[] pointsArray = points.toArray(new ColorPaletteDef.Point[points.size()]);
+            band.setImageInfo(new ImageInfo(new ColorPaletteDef(pointsArray, points.size())));
+        }
     }
 
     private static BeamMetadata.Metadata getBeamMetadata(TiffFileInfo info) throws ProductIOException {

@@ -27,9 +27,11 @@ import java.util.Arrays;
  */
 public class TiffIFD {
 
-    private final TiffDirectoryEntrySet entrySet;
+    private static final int TIFF_COLORMAP_SIZE = 256;
     private static final int BYTES_FOR_NEXT_IFD_OFFSET = 4;
     private static final int BYTES_FOR_NUMBER_OF_ENTRIES = 2;
+    
+    private final TiffDirectoryEntrySet entrySet;
     private int maxElemSizeBandDataType;
 
     public TiffIFD(final Product product) {
@@ -171,26 +173,27 @@ public class TiffIFD {
     private TiffShort[] createColorMap(Product product) {
         final ImageInfo imageInfo = product.getBandAt(0).getImageInfo(null, ProgressMonitor.NULL);
         final ColorPaletteDef paletteDef = imageInfo.getColorPaletteDef();
-        final Color[] colors = paletteDef.getColors();
-        final TiffShort[] redColor = new TiffShort[colors.length];
-        final TiffShort[] greenColor = new TiffShort[colors.length];
-        final TiffShort[] blueColor = new TiffShort[colors.length];
+        final TiffShort[] redColor = new TiffShort[TIFF_COLORMAP_SIZE];
+        Arrays.fill(redColor, new TiffShort(0));
+        final TiffShort[] greenColor = new TiffShort[TIFF_COLORMAP_SIZE];
+        Arrays.fill(greenColor, new TiffShort(0));
+        final TiffShort[] blueColor = new TiffShort[TIFF_COLORMAP_SIZE];
+        Arrays.fill(blueColor, new TiffShort(0));
         final float factor = 65535.0f / 255.0f;
-        for (int i = 0; i < colors.length; i++) {
-                Color color = colors[i];
-                final int red = (int) (color.getRed() * factor);
-                final int greeen = (int) (color.getGreen() * factor);
-                final int blue = (int) (color.getBlue() * factor);
-                redColor[i] = new TiffShort(red);
-                greenColor[i] = new TiffShort(greeen);
-                blueColor[i] = new TiffShort(blue);
-            }
-
-        final TiffShort[] colorMap = new TiffShort[paletteDef.getNumColors() * 3];
-        Arrays.fill(colorMap, new TiffShort(0));
+        for (ColorPaletteDef.Point point : paletteDef.getPoints()) {
+            final Color color = point.getColor();
+            final int red = (int) (color.getRed() * factor);
+            final int greeen = (int) (color.getGreen() * factor);
+            final int blue = (int) (color.getBlue() * factor);
+            int mapIndex = (int) Math.floor(point.getSample());
+            redColor[mapIndex] = new TiffShort(red);
+            greenColor[mapIndex] = new TiffShort(greeen);
+            blueColor[mapIndex] = new TiffShort(blue);
+        }
+        final TiffShort[] colorMap = new TiffShort[TIFF_COLORMAP_SIZE * 3];
         System.arraycopy(redColor, 0, colorMap, 0, redColor.length);
-        System.arraycopy(greenColor, 0, colorMap, paletteDef.getNumColors(), greenColor.length);
-        System.arraycopy(blueColor, 0, colorMap, paletteDef.getNumColors()*2 , blueColor.length);
+        System.arraycopy(greenColor, 0, colorMap, TIFF_COLORMAP_SIZE, greenColor.length);
+        System.arraycopy(blueColor, 0, colorMap, TIFF_COLORMAP_SIZE *2 , blueColor.length);
         return colorMap;
     }
 
