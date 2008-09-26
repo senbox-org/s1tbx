@@ -72,7 +72,7 @@ public class DefaultViewport implements Viewport {
 
     @Override
     public double getZoomFactor() {
-        return getScale(modelToViewTransform);
+        return Math.sqrt(modelToViewTransform.getDeterminant());
     }
 
     @Override
@@ -221,14 +221,6 @@ public class DefaultViewport implements Viewport {
     @Override
     public String toString() {
         return getClass().getName() + "[viewToModelTransform=" + viewToModelTransform + "]";
-    }
-
-    // todo - move somewhere else
-    public static double getScale(AffineTransform t) {
-        // only correct when scale x and scale y are the same and there is no net shearing! (rq)
-        final double m00 = t.getScaleX();
-        final double m10 = t.getShearY();
-        return m10 == 0.0 ? Math.abs(m00) : Math.sqrt(m00 * m00 + m10 * m10);
     }
 
     private double limitZoomFactor(double viewScale) {
