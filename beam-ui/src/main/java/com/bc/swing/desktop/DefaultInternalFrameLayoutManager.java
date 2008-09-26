@@ -17,6 +17,7 @@
 package com.bc.swing.desktop;
 
 import java.awt.Dimension;
+import java.beans.PropertyVetoException;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
@@ -73,7 +74,7 @@ public class DefaultInternalFrameLayoutManager implements InternalFrameLayoutMan
         if (frames.length == 0) {
             return;
         }
-        final Dimension d = getTileSubdivision(desktopPane, frames);
+        final Dimension d = getTileSubdivision(desktopPane, frames.length);
         final int widthTot = desktopPane.getWidth();
         final int heightTot = desktopPane.getHeight();
         int y = 0;
@@ -91,6 +92,11 @@ public class DefaultInternalFrameLayoutManager implements InternalFrameLayoutMan
                 int tileIndex = j * d.width + i;
                 if (tileIndex < frames.length) {
                     final JInternalFrame internalFrame = frames[tileIndex];
+                    try {
+                        internalFrame.setMaximum(false);
+                    } catch (PropertyVetoException e) {
+                        //ignore
+                    }
                     internalFrame.setBounds(x, y, w, h);
                 }
                 x += w;
@@ -112,6 +118,11 @@ public class DefaultInternalFrameLayoutManager implements InternalFrameLayoutMan
             if (i == n - 1) {
                 w = widthTot - w * (n - 1);
             }
+            try {
+                frames[i].setMaximum(false);
+            } catch (PropertyVetoException e) {
+                //ignore
+            }
             frames[i].setBounds(x, 0, w, heightTot);
             x += w;
         }
@@ -130,13 +141,17 @@ public class DefaultInternalFrameLayoutManager implements InternalFrameLayoutMan
             if (i == n - 1) {
                 h = heightTot - h * (n - 1);
             }
+            try {
+                frames[i].setMaximum(false);
+            } catch (PropertyVetoException e) {
+                //ignore
+            }
             frames[i].setBounds(0, y, widthTot, h);
             y += h;
         }
     }
 
-    private Dimension getTileSubdivision(final JDesktopPane desktopPane, final JInternalFrame[] frames) {
-        final int numTiles = frames.length;
+    private Dimension getTileSubdivision(final JDesktopPane desktopPane, final int numTiles) {
         int numHorTiles = (int) Math.round(Math.sqrt(numTiles));
         if (numHorTiles == 0) {
             numHorTiles = 1;
