@@ -24,7 +24,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.*;
-import java.util.EventListener;
 
 /**
  * A navigation control which appears as a screen overlay.
@@ -37,7 +36,7 @@ public class NavControl extends JComponent {
     private static final Dimension PREFERRED_SIZE = new Dimension(100, 120);
     private static final int TIMER_DELAY = 50;
 
-    private double rotationAngle;
+    private final NavControlModel model;
     private double pannerHandleOffsetX;
     private double pannerHandleOffsetY;
     private double scaleHandleOffsetX;
@@ -52,33 +51,12 @@ public class NavControl extends JComponent {
     private RectangularShape scaleHandle;
     private RectangularShape scaleBar;
 
-    public NavControl() {
+    public NavControl(NavControlModel model) {
+        this.model = model;
         final MouseHandler mouseHandler = new MouseHandler();
         addMouseListener(mouseHandler);
         addMouseMotionListener(mouseHandler);
         setBounds(0, 0, PREFERRED_SIZE.width, PREFERRED_SIZE.height);
-    }
-
-    /**
-     * Gets the model's current rotation angle in degrees.
-     *
-     * @return the model's current rotation angle in degrees.
-     */
-    public double getRotationAngle() {
-        return rotationAngle;
-    }
-
-    /**
-     * Sets the current rotation angle in degrees.
-     *
-     * @param rotationAngle the model's current rotation angle in degrees.
-     */
-    public void setRotationAngle(double rotationAngle) {
-        double oldRotationAngle = this.rotationAngle;
-        if (oldRotationAngle != rotationAngle) {
-            this.rotationAngle = rotationAngle;
-            firePropertyChange("rotationAngle", oldRotationAngle, rotationAngle);
-        }
     }
 
     @Override
@@ -88,7 +66,6 @@ public class NavControl extends JComponent {
         }
         return PREFERRED_SIZE;
     }
-
 
     @Override
     public void setBounds(int x, int y, int width, int height) {
@@ -102,7 +79,7 @@ public class NavControl extends JComponent {
         final AffineTransform oldTransform = graphics2D.getTransform();
         graphics2D.setStroke(new BasicStroke(0.6f));
         graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        graphics2D.rotate(-Math.PI * 0.5 - Math.toRadians(getRotationAngle()),
+        graphics2D.rotate(-Math.PI * 0.5 - Math.toRadians(model.getCurrentAngle()),
                           outerRotationCircle.getCenterX(),
                           outerRotationCircle.getCenterY());
         for (int i = 0; i < rotationUnitShapes.length; i++) {
@@ -262,45 +239,6 @@ public class NavControl extends JComponent {
         return areas;
     }
 
-    public void addSelectionListener(SelectionListener l) {
-        listenerList.add(SelectionListener.class, l);
-    }
-
-    public void removeSelectionListener(SelectionListener l) {
-        listenerList.remove(SelectionListener.class, l);
-    }
-
-    public SelectionListener[] getSelectionListeners() {
-        return listenerList.getListeners(SelectionListener.class);
-    }
-
-    protected void fireRotate(double rotationAngle) {
-        Object[] listeners = listenerList.getListenerList();
-        for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i] == SelectionListener.class) {
-                ((SelectionListener) listeners[i + 1]).handleRotate(rotationAngle);
-            }
-        }
-    }
-
-    protected void fireMove(double moveDirX, double moveDirY) {
-        Object[] listeners = listenerList.getListenerList();
-        for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i] == SelectionListener.class) {
-                ((SelectionListener) listeners[i + 1]).handleMove(moveDirX, moveDirY);
-            }
-        }
-    }
-
-    protected void fireScale(double scaleDir) {
-        Object[] listeners = listenerList.getListenerList();
-        for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i] == SelectionListener.class) {
-                ((SelectionListener) listeners[i + 1]).handleScale(scaleDir);
-            }
-        }
-    }
-
     private double getAngle(Point point) {
         final double a = Math.atan2(-(point.y - innerRotationCircle.getCenterY()),
                                     point.x - innerRotationCircle.getCenterX());
@@ -338,7 +276,9 @@ public class NavControl extends JComponent {
         return ACTION_NONE;
     }
 
-    public static interface SelectionListener extends EventListener {
+    public static interface NavControlModel {
+        double getCurrentAngle();
+        
         void handleRotate(double rotationAngle);
 
         void handleMove(double moveDirX, double moveDirY);
@@ -398,7 +338,7 @@ public class NavControl extends JComponent {
             action = getAction(e.getX(), e.getY());
 
             if (action == ACTION_ROT) {
-                rotationAngle0 = getRotationAngle();
+                rotationAngle0 = model.getCurrentAngle();
             } else if (action == ACTION_SCALE) {
                 doScale(e);
             } else if (action == ACTION_MOVE_N) {
@@ -497,13 +437,12 @@ public class NavControl extends JComponent {
                 double t = 0.5 * 45.0;
                 a = t * Math.floor(a / t);
             }
-            setRotationAngle(a);
+            model.handleRotate(a);
             repaint();
-            fireRotate(a);
         }
 
         private void fireAcceleratedScale() {
-            fireScale(scaleAcc * scaleDir / 4.0);
+            model.handleScale(scaleAcc * scaleDir / 4.0);
             scaleAcc *= 1.1;
             if (scaleAcc > 4.0) {
                 scaleAcc = 4.0;
@@ -511,7 +450,7 @@ public class NavControl extends JComponent {
         }
 
         private void fireAcceleratedMove() {
-            fireMove(moveAcc * moveDirX, moveAcc * moveDirY);
+            model.handleMove(moveAcc * moveDirX, moveAcc * moveDirY);
             moveAcc *= 1.05;
             if (moveAcc > 4.0) {
                 moveAcc = 4.0;
@@ -546,9 +485,15 @@ public class NavControl extends JComponent {
         final JPanel panel = new JPanel(new BorderLayout(3, 3));
         panel.setBackground(Color.GRAY);
         final JLabel label = new JLabel("Angle: ");
-        final NavControl navControl = new NavControl();
-        navControl.addSelectionListener(new SelectionListener() {
+        final NavControl navControl = new NavControl(new NavControlModel() {
+            double angle;
+            @Override
+            public double getCurrentAngle() {
+                return angle;
+            }
+            
             public void handleRotate(double rotationAngle) {
+                angle = rotationAngle;
                 label.setText("Angle: " + rotationAngle);
                 System.out.println("NavControl: rotationAngle = " + rotationAngle);
             }
@@ -560,6 +505,7 @@ public class NavControl extends JComponent {
             public void handleScale(double scaleDir) {
                 System.out.println("NavControl: scaleDir = " + scaleDir);
             }
+
         });
 
         navControl.setBorder(new EmptyBorder(4, 4, 4, 4));

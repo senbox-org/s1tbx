@@ -18,6 +18,7 @@ package com.bc.ceres.glayer.swing;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.LayerViewInvalidationListener;
+import com.bc.ceres.glayer.swing.NavControl.NavControlModel;
 import com.bc.ceres.grender.InteractiveRendering;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
@@ -116,8 +117,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         boolean oldValue = this.navControlShown;
         if (oldValue != navControlShown) {
             if (navControlShown) {
-                final NavControl navControl = new NavControl();
-                navControl.addSelectionListener(new NavControlHandler(viewport));
+                final NavControl navControl = new NavControl(new NavControlModelImpl(viewport));
                 navControlWrapper = new WakefulComponent(navControl);
                 add(navControlWrapper);
             } else {
@@ -203,11 +203,16 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         }
     }
 
-    private static class NavControlHandler implements NavControl.SelectionListener {
+    private static class NavControlModelImpl implements NavControlModel {
         private final Viewport viewport;
 
-        public NavControlHandler(Viewport viewport) {
+        public NavControlModelImpl(Viewport viewport) {
             this.viewport = viewport;
+        }
+
+        @Override
+        public double getCurrentAngle() {
+            return Math.toDegrees(viewport.getOrientation());
         }
 
         @Override
@@ -230,5 +235,6 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 //                System.out.println("  newZoomFactor = " + newZoomFactor);
             viewport.zoom(newZoomFactor);
         }
+
     }
 }
