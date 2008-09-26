@@ -430,7 +430,7 @@ public class Layer extends ExtensibleObject {
      *
      * @param visitor the {@link Visitor}.
      */
-    public final void accept(Visitor visitor) {
+    public void accept(Visitor visitor) {
         visitor.visit(this);
 
         for (int i = childLayerList.size() - 1; i >= 0; --i) {
