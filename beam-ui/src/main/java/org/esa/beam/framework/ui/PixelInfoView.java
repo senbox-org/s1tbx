@@ -240,6 +240,12 @@ public class PixelInfoView extends JPanel {
         _pixelPosValid = pixelPosValid;
         updateDataDisplay();
     }
+    
+    public boolean allDocked() {
+        return _geolocInfoPane.isDocked() && _scanLineInfoPane.isDocked()
+                && _bandPixelInfoPane.isDocked() && _tiePointGridPixelInfoPane.isDocked()
+                && _flagPixelInfoPane.isDocked();
+    }
 
     private void createUI() {
 

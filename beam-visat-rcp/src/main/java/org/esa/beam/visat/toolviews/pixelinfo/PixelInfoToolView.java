@@ -83,6 +83,11 @@ public class PixelInfoToolView extends AbstractToolView {
 
         return pixelInfoViewPanel;
     }
+    
+    @Override
+    public boolean isVisible() {
+        return super.isVisible() || !_pixelInfoView.allDocked();
+    }
 
     private void initOpenedFrames() {
         JInternalFrame[] internalFrames = VisatApp.getApp().getAllInternalFrames();
