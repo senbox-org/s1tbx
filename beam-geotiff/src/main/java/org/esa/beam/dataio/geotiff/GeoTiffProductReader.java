@@ -431,7 +431,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
         final AffineTransform transform = new AffineTransform(m00, m10, m01, m11, m02, m12);
 
         mapInfo.setPixelSizeX((float) transform.getScaleX());
-        mapInfo.setPixelSizeY((float) transform.getScaleY() * -1.0f);
+        mapInfo.setPixelSizeY((float) -transform.getScaleY());
         mapInfo.setEasting((float) transform.getTranslateX());
         mapInfo.setNorthing((float) transform.getTranslateY());
 
@@ -442,8 +442,8 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
         final double a = transform.getScaleX();
         final double c = transform.getShearY();
-        final double aPow = Math.pow(a, 2);
-        final double cPow = Math.pow(c, 2);
+        final double aPow = a * a;
+        final double cPow = c * c;
         final float orientation = (float) Math.toDegrees(Math.acos(a / Math.sqrt(aPow + cPow)));
         mapInfo.setOrientation(orientation);
     }
