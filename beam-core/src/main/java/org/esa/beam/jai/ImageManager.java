@@ -9,6 +9,7 @@ import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.IntMap;
@@ -17,10 +18,7 @@ import org.esa.beam.util.jai.JAIUtils;
 
 import javax.media.jai.*;
 import javax.media.jai.operator.*;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.RenderingHints;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
@@ -55,14 +53,30 @@ public class ImageManager {
         }
         final int w = scene.getRasterWidth();
         final int h = scene.getRasterHeight();
-        // TODO - BLOCKER: Use scene.getGeoCoding().getMapInfo() to construct i2mTransform. SMOS will not work otherwise.  (nf, 19.09.2008)
+
         final AffineTransform i2mTransform = new AffineTransform();
+
+        if (productNode.getProduct() != null && productNode.getProduct().getGeoCoding() != null &&
+                productNode.getProduct().getGeoCoding() instanceof MapGeoCoding) {
+            final MapGeoCoding mapGeoCoding = (MapGeoCoding) productNode.getProduct().getGeoCoding();
+            final MapInfo mapInfo = mapGeoCoding.getMapInfo();
+            final double tx = mapInfo.getEasting() - mapInfo.getPixelX();
+            final double ty = mapInfo.getNorthing() - mapInfo.getPixelY();
+            final double sx = mapInfo.getPixelSizeX();
+            final double sy = mapInfo.getPixelSizeY();
+            final double theta = -Math.toRadians(mapInfo.getOrientation());
+
+            i2mTransform.translate(tx, ty);
+            i2mTransform.scale(sx, sy);
+            i2mTransform.rotate(theta);
+        }
+
         return new DefaultMultiLevelModel(i2mTransform, w, h);
     }
 
     public static ImageLayout createSingleBandedImageLayout(RasterDataNode rasterDataNode) {
         return createSingleBandedImageLayout(rasterDataNode,
-                                             getDataBufferType(rasterDataNode.getDataType()));
+                getDataBufferType(rasterDataNode.getDataType()));
     }
 
     public static ImageLayout createSingleBandedImageLayout(RasterDataNode rasterDataNode, int dataBufferType) {
@@ -97,8 +111,8 @@ public class ImageManager {
         int destWidth = (int) Math.floor(sourceWidth / level.getScale());
         int destHeight = (int) Math.floor(sourceHeight / level.getScale());
         SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataBufferType,
-                                                                           destWidth,
-                                                                           destHeight);
+                destWidth,
+                destHeight);
         ColorModel colorModel = PlanarImage.createColorModel(sampleModel);
         tileSize = tileSize != null ? tileSize : JAIUtils.computePreferredTileSize(destWidth, destHeight, 1);
         return createImageLayout(destWidth, destHeight, tileSize.width, tileSize.height, sampleModel, colorModel);
@@ -111,13 +125,13 @@ public class ImageManager {
                                                  SampleModel sampleModel,
                                                  ColorModel colorModel) {
         return new ImageLayout(0, 0,
-                               width,
-                               height,
-                               0, 0,
-                               tileWidth,
-                               tileHeight,
-                               sampleModel,
-                               colorModel);
+                width,
+                height,
+                0, 0,
+                tileWidth,
+                tileHeight,
+                sampleModel,
+                colorModel);
     }
 
     public static int getDataBufferType(int productDataType) {
@@ -167,7 +181,7 @@ public class ImageManager {
             tileSize = preferredTileSize;
         } else {
             tileSize = JAIUtils.computePreferredTileSize(product.getSceneRasterWidth(),
-                                                         product.getSceneRasterHeight(), 1);
+                    product.getSceneRasterHeight(), 1);
         }
         return tileSize;
     }
@@ -207,24 +221,24 @@ public class ImageManager {
             return result;
         }
     }
-    
+
     public PlanarImage createColoredBandImage(final RasterDataNode[] rasterDataNodes,
                                               ImageInfo imageInfo,
                                               final int level) {
         Assert.notNull(rasterDataNodes,
-                       "rasterDataNodes");
+                "rasterDataNodes");
         Assert.state(rasterDataNodes.length == 1
                 || rasterDataNodes.length == 3
                 || rasterDataNodes.length == 4,
-                     "invalid number of bands");
-        
+                "invalid number of bands");
+
         if (rasterDataNodes.length == 1) {
             return createColored1BandImage(rasterDataNodes[0], imageInfo, level);
         } else {
             return createColored3BandImage(rasterDataNodes, imageInfo, level);
         }
     }
-    
+
     private PlanarImage createColored1BandImage(RasterDataNode raster, ImageInfo imageInfo, int level) {
         Assert.notNull(raster, "raster");
         Assert.notNull(imageInfo, "imageInfo");
@@ -235,7 +249,7 @@ public class ImageManager {
         // TODO improve histogram matching to work 
         //without generation another histogram of the whole image !!!
     }
-    
+
     private PlanarImage createColored3BandImage(RasterDataNode[] rasters, ImageInfo rgbImageInfo, int level) {
         PlanarImage[] sourceImages = new PlanarImage[rasters.length];
         PlanarImage[] validMaskImages = new PlanarImage[rasters.length];
@@ -252,7 +266,7 @@ public class ImageManager {
         // TODO use imageInfo.noDataColor, really ??
         // TODO use imageIfo.gamma
     }
-    
+
     private PlanarImage create1BandImage(RasterDataNode raster, ImageInfo imageInfo, PlanarImage planarImage) {
         ColorPaletteDef colorPaletteDef = imageInfo.getColorPaletteDef();
         final double minSample = colorPaletteDef.getMinDisplaySample();
@@ -267,19 +281,19 @@ public class ImageManager {
             }
             // TODO pay more attention to the invaldIndex
             planarImage = JAIUtils.createIndexedImage(planarImage, sampleColorIndexMap,
-                                                      colorPaletteDef.getNumPoints());
+                    colorPaletteDef.getNumPoints());
         } else {
             final double newMin = raster.scaleInverse(minSample);
             final double newMax = raster.scaleInverse(maxSample);
             planarImage = JAIUtils.createRescaleOp(planarImage,
-                                                   255.0 / (newMax - newMin),
-                                                   255.0 * newMin / (newMin - newMax));
+                    255.0 / (newMax - newMin),
+                    255.0 * newMin / (newMin - newMax));
             planarImage = JAIUtils.createFormatOp(planarImage,
-                                                  DataBuffer.TYPE_BYTE);
+                    DataBuffer.TYPE_BYTE);
         }
         return planarImage;
     }
-    
+
     private static PlanarImage performIndexToRgbConversion3Bands(PlanarImage[] sourceImages,
                                                                  PlanarImage[] maskOpImages) {
         PlanarImage alpha = null;
@@ -299,7 +313,7 @@ public class ImageManager {
         }
         return image;
     }
-          
+
     private static PlanarImage performIndexToRgbConversion1Band(RasterDataNode rasterDataNode,
                                                                 PlanarImage sourceImage,
                                                                 PlanarImage maskOpImage) {
@@ -309,7 +323,7 @@ public class ImageManager {
         if ((rasterDataNode instanceof Band) && ((Band) rasterDataNode).getIndexCoding() != null) {
             Color[] origPalette = colorPaletteDef.getColors();
             palette = Arrays.copyOf(origPalette, origPalette.length + 1);
-            palette[palette.length-1] = rasterDataNode.getImageInfo().getNoDataColor();
+            palette[palette.length - 1] = rasterDataNode.getImageInfo().getNoDataColor();
         } else {
             palette = colorPaletteDef.createColorPalette(rasterDataNode);
         }
@@ -325,8 +339,8 @@ public class ImageManager {
         }
         return image;
     }
-    
-    private  PlanarImage applyHistogramMatching(PlanarImage sourceImage, ImageInfo.HistogramMatching histogramMatching) {
+
+    private PlanarImage applyHistogramMatching(PlanarImage sourceImage, ImageInfo.HistogramMatching histogramMatching) {
         final boolean doEqualize = ImageInfo.HistogramMatching.Equalize == histogramMatching;
         final boolean doNormalize = ImageInfo.HistogramMatching.Normalize == histogramMatching;
         if (doEqualize || doNormalize) {
@@ -344,7 +358,7 @@ public class ImageManager {
         RenderedImage sourceImage = rasterDataNode.getSourceImage();
         return getLevelImage(sourceImage, level);
     }
-    
+
     public PlanarImage getValidMaskImage(final RasterDataNode rasterDataNode, int level) {
         if (rasterDataNode.isValidMaskUsed()) {
             return getLevelImage(rasterDataNode.getValidMaskImage(), level);
@@ -356,7 +370,7 @@ public class ImageManager {
         RenderedImage levelZeroImage = rasterDataNode.getGeophysicalImage();
         return getLevelImage(levelZeroImage, level);
     }
-    
+
     public MultiLevelSource getMultiLevelSource(RenderedImage levelZeroImage) {
         MultiLevelSource multiLevelSource;
         if (levelZeroImage instanceof MultiLevelSource) {
@@ -364,12 +378,12 @@ public class ImageManager {
         } else {
             // TODO - New image instance is created here. This will happen e.g. for all bands created by GPF operators. (nf, 19.09.2008)
             final int levelCount = DefaultMultiLevelModel.getLevelCount(levelZeroImage.getWidth(), levelZeroImage.getHeight());
-            multiLevelSource = new DefaultMultiLevelSource(levelZeroImage, 
-                                                           levelCount, 
-                                                           Interpolation.getInstance(Interpolation.INTERP_NEAREST));
+            multiLevelSource = new DefaultMultiLevelSource(levelZeroImage,
+                    levelCount,
+                    Interpolation.getInstance(Interpolation.INTERP_NEAREST));
             System.out.println("IMAGING 4.5: " +
-            		"Warning: Created an (inefficient) instance of DefaultMultiLevelSource. " +
-            		"Source image is a " + levelZeroImage.getClass());
+                    "Warning: Created an (inefficient) instance of DefaultMultiLevelSource. " +
+                    "Source image is a " + levelZeroImage.getClass());
         }
         return multiLevelSource;
     }
@@ -428,10 +442,8 @@ public class ImageManager {
 
         pm.beginTask("Computing image statistics", numTaskSteps);
         try {
-            for (int i = 0; i < rasterDataNodes.length; i++) {
-                RasterDataNode raster = rasterDataNodes[i];
-
-                ImageInfo imageInfo = raster.getImageInfo();
+            for (final RasterDataNode raster : rasterDataNodes) {
+                final ImageInfo imageInfo = raster.getImageInfo();
                 if (imageInfo == null) {
                     raster.getImageInfo(SubProgressMonitor.create(pm, 1));
                 }
@@ -440,7 +452,7 @@ public class ImageManager {
             pm.done();
         }
     }
-    
+
     public int getStatisticsLevel(RasterDataNode raster, int levelCount) {
         final long imageSize = (long) raster.getSceneRasterWidth() * raster.getSceneRasterHeight();
         final int statisticsLevel;
@@ -451,7 +463,7 @@ public class ImageManager {
         }
         return statisticsLevel;
     }
-    
+
     public PlanarImage createColoredMaskImage(Product product, String expression, Color color, boolean invertMask, int level) {
         PlanarImage image = getMaskImage(product, expression, level);
         return createColoredMaskImage(color, image, invertMask);
@@ -466,11 +478,15 @@ public class ImageManager {
         imageLayout.setTileWidth(alphaImage.getTileWidth());
         imageLayout.setTileHeight(alphaImage.getTileHeight());
         final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
-        final RenderedOp colorImage = ConstantDescriptor.create((float) alphaImage.getWidth(), (float) alphaImage.getHeight(), new Byte[]{
-                (byte) color.getRed(),
-                (byte) color.getGreen(),
-                (byte) color.getBlue(),
-        }, hints);
+        final RenderedOp colorImage =
+                ConstantDescriptor.create(
+                        (float) alphaImage.getWidth(),
+                        (float) alphaImage.getHeight(),
+                        new Byte[]{
+                                (byte) color.getRed(),
+                                (byte) color.getGreen(),
+                                (byte) color.getBlue(),
+                        }, hints);
         return BandMergeDescriptor.create(colorImage, alphaImage, hints);
     }
 
@@ -480,6 +496,7 @@ public class ImageManager {
      * @param rasterDataNode the band
      * @param color          the color
      * @param level          the level
+     *
      * @return the image, or null if the band has no valid ROI definition
      */
     public PlanarImage createColoredRoiImage(RasterDataNode rasterDataNode, Color color, int level) {
@@ -495,6 +512,7 @@ public class ImageManager {
      *
      * @param rasterDataNode the band
      * @param level          the level
+     *
      * @return the ROI, or null if the band has no valid ROI definition
      */
     public PlanarImage createRoiMaskImage(final RasterDataNode rasterDataNode, int level) {
@@ -532,10 +550,10 @@ public class ImageManager {
                         @Override
                         public RenderedImage createImage(int level) {
                             return new PlacemarkMaskOpImage(rasterDataNode.getProduct(),
-                                                            PinDescriptor.INSTANCE, 3,
-                                                            rasterDataNode.getSceneRasterWidth(),
-                                                            rasterDataNode.getSceneRasterHeight(),
-                                                            ResolutionLevel.create(getModel(), level));
+                                    PinDescriptor.INSTANCE, 3,
+                                    rasterDataNode.getSceneRasterWidth(),
+                                    rasterDataNode.getSceneRasterHeight(),
+                                    ResolutionLevel.create(getModel(), level));
                         }
                     };
                     maskImageMap.put(key, placemarkMaskMLS);
@@ -559,9 +577,9 @@ public class ImageManager {
                         @Override
                         public RenderedImage createImage(int level) {
                             return new ShapeMaskOpImage(roiShape,
-                                                        rasterDataNode.getSceneRasterWidth(),
-                                                        rasterDataNode.getSceneRasterHeight(),
-                                                        ResolutionLevel.create(getModel(), level));
+                                    rasterDataNode.getSceneRasterWidth(),
+                                    rasterDataNode.getSceneRasterHeight(),
+                                    ResolutionLevel.create(getModel(), level));
                         }
                     };
                     maskImageMap.put(key, shapeMaskMLS);

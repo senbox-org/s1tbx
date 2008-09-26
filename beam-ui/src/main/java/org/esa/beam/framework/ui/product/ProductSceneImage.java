@@ -175,13 +175,7 @@ public class ProductSceneImage {
     }
 
     private void initRootLayer() {
-        rootLayer = new Layer();
-        final ImageLayer imageLayer = new ImageLayer(bandImageMultiLevelSource);
-
-        imageLayer.setName(getName());
-        imageLayer.setVisible(true);
-        setBaseImageLayerStyle(configuration, imageLayer);
-
+        final ImageLayer baseImageLayer = createBaseImageLayer();
         final ImageLayer noDataLayer = createNoDataLayer();
         final FigureLayer figureLayer = createFigureLayer();
         final ImageLayer roiLayer = createRoiLayer();
@@ -190,6 +184,7 @@ public class ProductSceneImage {
         final PlacemarkLayer gcpLayer = createGcpLayer();
         final Layer bitmaskLayer = createBitmaskCollectionLayer();
 
+        rootLayer = new Layer();
         rootLayer.getChildLayerList().add(figureLayer);
         rootLayer.getChildLayerList().add(pinLayer);
         rootLayer.getChildLayerList().add(gcpLayer);
@@ -197,7 +192,7 @@ public class ProductSceneImage {
         rootLayer.getChildLayerList().add(roiLayer);
         rootLayer.getChildLayerList().add(bitmaskLayer);
         rootLayer.getChildLayerList().add(noDataLayer);
-        rootLayer.getChildLayerList().add(imageLayer);
+        rootLayer.getChildLayerList().add(baseImageLayer);
 
         // TODO: remove this hack!!!
         if (getRaster().getProduct().getProductType().startsWith("MIR_")) {
@@ -210,7 +205,7 @@ public class ProductSceneImage {
 
         layerMap = new HashMap<Integer, Layer>(12);
 
-        layerMap.put(IMAGE_LAYER_ID, imageLayer);
+        layerMap.put(IMAGE_LAYER_ID, baseImageLayer);
         layerMap.put(NO_DATA_LAYER_ID, noDataLayer);
         layerMap.put(BITMASK_LAYER_ID, bitmaskLayer);
         layerMap.put(ROI_LAYER_ID, roiLayer);
@@ -218,6 +213,15 @@ public class ProductSceneImage {
         layerMap.put(GCP_LAYER_ID, gcpLayer);
         layerMap.put(PIN_LAYER_ID, pinLayer);
         layerMap.put(FIGURE_LAYER_ID, figureLayer);
+    }
+
+    private ImageLayer createBaseImageLayer() {
+        final ImageLayer imageLayer = new ImageLayer(bandImageMultiLevelSource);
+
+        imageLayer.setName(getName());
+        imageLayer.setVisible(true);
+        setBaseImageLayerStyle(configuration, imageLayer);
+        return imageLayer;
     }
 
     static void setBaseImageLayerStyle(PropertyMap configuration, Layer layer) {
