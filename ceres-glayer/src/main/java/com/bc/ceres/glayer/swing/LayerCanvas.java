@@ -30,7 +30,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.geom.Rectangle2D;
 
 /**
- * <p>A Swing component capable of drawing a collection of {@link com.bc.ceres.glayer.Layer}s.
+ * A Swing component capable of drawing a collection of {@link com.bc.ceres.glayer.Layer}s.
  *
  * @author Norman Fomferra
  */
