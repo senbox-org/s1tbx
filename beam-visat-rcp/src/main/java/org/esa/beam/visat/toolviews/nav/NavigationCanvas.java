@@ -11,10 +11,15 @@ import com.bc.ceres.grender.support.DefaultViewport;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.logging.BeamLogManager;
 
-import javax.swing.*;
+import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.event.MouseInputAdapter;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -126,7 +131,6 @@ public class NavigationCanvas extends JPanel {
                 imageWidth = (int) Math.round(imageHeight * modelRatio);
             }
             if (imageWidth > 0 && imageHeight > 0) {
-                System.out.println("modelRatio = " + modelRatio);
                 if (thumbnailImage == null || thumbnailImage.getWidth() != imageWidth
                         || thumbnailImage.getHeight() != imageHeight) {
                     thumbnailImage = new BufferedImage(imageWidth, imageHeight,
