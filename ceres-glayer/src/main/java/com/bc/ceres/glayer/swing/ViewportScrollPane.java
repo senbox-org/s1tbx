@@ -20,10 +20,15 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Rectangle2D;
@@ -58,7 +63,7 @@ public class ViewportScrollPane extends JComponent {
     private boolean updatingScrollBars;
     private boolean scrollBarsUpdated;
     private ViewportChangeHandler viewportChangeHandler;
-    private boolean debug = true;
+    private boolean debug = false;
 
     /**
      * Constructs a new view pane with an empty view component.
