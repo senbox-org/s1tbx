@@ -19,6 +19,7 @@ package org.esa.beam.visat;
 
 import com.bc.ceres.swing.update.ConnectionConfigData;
 import com.bc.ceres.swing.update.ConnectionConfigPane;
+import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamExceptionHandler;
@@ -763,7 +764,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             param.getProperties().setLabel("Background colour"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter("image.border.shown", Boolean.TRUE);
+            param = new Parameter("image.border.shown", ImageLayer.DEFAULT_BORDER_SHOWN);
             param.getProperties().setLabel("Show image border"); /*I18N*/
             param.addParamChangeListener(new ParamChangeListener() {
 
@@ -774,11 +775,11 @@ public class VisatPreferencesDialog extends ConfigDialog {
             });
             configParams.addParameter(param);
 
-            param = new Parameter("image.border.size", ProductSceneView.DEFAULT_IMAGE_BORDER_SIZE);
+            param = new Parameter("image.border.size", ImageLayer.DEFAULT_BORDER_WIDTH);
             param.getProperties().setLabel("Image border size"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter("image.border.color", ProductSceneView.DEFAULT_IMAGE_BORDER_COLOR);
+            param = new Parameter("image.border.color", ImageLayer.DEFAULT_BORDER_COLOR);
             param.getProperties().setLabel("Image border colour"); /*I18N*/
             configParams.addParameter(param);
 

@@ -85,9 +85,9 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     public static String IMAGE_INTERPOLATION_BICUBIC = "Bi-Cubic Interpolation";
     public static String IMAGE_INTERPOLATION_SYSTEM_DEFAULT = "System Default";
     public static String DEFAULT_IMAGE_INTERPOLATION_METHOD = IMAGE_INTERPOLATION_SYSTEM_DEFAULT;
-    public static final Color DEFAULT_IMAGE_BORDER_COLOR = new Color(204, 204, 255);
+//    public static final Color DEFAULT_IMAGE_BORDER_COLOR = new Color(204, 204, 255);
     public static final Color DEFAULT_IMAGE_BACKGROUND_COLOR = new Color(51, 51, 51);
-    public static final double DEFAULT_IMAGE_BORDER_SIZE = 2.0;
+//    public static final double DEFAULT_IMAGE_BORDER_SIZE = 2.0;
     public static final int DEFAULT_IMAGE_VIEW_BORDER_SIZE = 64;
     private ArrayList<ImageUpdateListener> imageUpdateListenerList;
     private ArrayList<LayerContentListener> layerContentListenerList;
@@ -623,7 +623,10 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     public void setLayerProperties(PropertyMap configuration) {
         layerCanvas.setNavControlShown(configuration.getPropertyBool(PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true));
 
-//        setImageProperties(propertyMap); todo - implement
+        final ImageLayer imageLayer = getBaseImageLayer();
+        if (imageLayer != null) {
+            ProductSceneImage.setBaseImageLayerStyle(configuration, imageLayer);
+        }
 
         final Layer noDataLayer = getNoDataLayer();
         if (noDataLayer != null) {
@@ -651,6 +654,41 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         }
 
         fireImageUpdated();
+    }
+
+    private void setImageProperties(PropertyMap configuration) {
+        // todo 3 nf,nf - 1) move display properties of imageDisplay to imageLayer
+        // todo 3 nf/nf - 2) move the following code to ImageLayer.setProperties
+        // todo 3 nf,nf - 3) use _imageLayer.setProperties(propertyMap); instead
+
+        // from 4.2 branch - will be removed later (rq)
+        
+//        final boolean pixelBorderShown = configuration.getPropertyBool("pixel.border.shown", true);
+//        final boolean imageBorderShown = configuration.getPropertyBool("image.border.shown", true);
+//        final float imageBorderSize = (float) configuration.getPropertyDouble("image.border.size",
+//                                                                            DEFAULT_IMAGE_BORDER_SIZE);
+//        final Color imageBorderColor = configuration.getPropertyColor("image.border.color", DEFAULT_IMAGE_BORDER_COLOR);
+//        final Color backgroundColor = configuration.getPropertyColor("image.background.color",
+//                                                                   DEFAULT_IMAGE_BACKGROUND_COLOR);
+//        final boolean antialiasing = configuration.getPropertyBool(PROPERTY_KEY_GRAPHICS_ANTIALIASING, false);
+//        final String interpolation = configuration.getPropertyString(PROPERTY_KEY_IMAGE_INTERPOLATION,
+//                                                                   DEFAULT_IMAGE_INTERPOLATION_METHOD);
+//
+//        getImageDisplay().setPixelBorderShown(pixelBorderShown);
+//        getImageDisplay().setImageBorderShown(imageBorderShown);
+//        getImageDisplay().setImageBorderSize(imageBorderSize);
+//        getImageDisplay().setImageBorderColor(imageBorderColor);
+//        getImageDisplay().setBackground(backgroundColor);
+//        getImageDisplay().setAntialiasing(antialiasing ?
+//                RenderingHints.VALUE_ANTIALIAS_ON :
+//                RenderingHints.VALUE_ANTIALIAS_OFF);
+//        getImageDisplay().setInterpolation(interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_BICUBIC) ?
+//                RenderingHints.VALUE_INTERPOLATION_BICUBIC :
+//                interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_BILINEAR) ?
+//                        RenderingHints.VALUE_INTERPOLATION_BILINEAR :
+//                        interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_NEAREST_NEIGHBOUR) ?
+//                                RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR :
+//                                null);
     }
 
     public void addPixelPositionListener(PixelPositionListener listener) {

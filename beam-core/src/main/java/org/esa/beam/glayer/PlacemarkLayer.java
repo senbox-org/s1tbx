@@ -31,12 +31,6 @@ public class PlacemarkLayer extends Layer {
         this.product = product;
         this.placemarkDescriptor = placemarkDescriptor;
         this.imageToModelTransform = new AffineTransform(imageToModelTransform);
-
-        final Style defaultStyle = getStyle().getDefaultStyle();
-        defaultStyle.setProperty(PROPERTY_NAME_TEXT_ENABLED, DEFAULT_TEXT_ENABLED);
-        defaultStyle.setProperty(PROPERTY_NAME_TEXT_FONT, DEFAULT_TEXT_FONT);
-        defaultStyle.setProperty(PROPERTY_NAME_TEXT_FG_COLOR, DEFAULT_TEXT_FG_COLOR);
-        defaultStyle.setProperty(PROPERTY_NAME_TEXT_BG_COLOR, DEFAULT_TEXT_BG_COLOR);
     }
 
     @Override

@@ -16,31 +16,26 @@
  */
 package org.esa.beam.glayer;
 
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.Style;
+import com.bc.ceres.glayer.support.DefaultStyle;
+import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glevel.MultiLevelSource;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glevel.MultiLevelSource;
-
 
 public class BitmaskCollectionLayer extends Layer {
-    
+
     private RasterDataNode rasterDataNode;
     private final ProductNodeListener bitmaskDefListener;
     private final ProductNodeListener bitmaskOverlayInfoListener;
-    
+
     public BitmaskCollectionLayer(RasterDataNode rasterDataNode) {
         this.rasterDataNode = rasterDataNode;
         setName("Bitmasks");
@@ -62,15 +57,15 @@ public class BitmaskCollectionLayer extends Layer {
             rasterDataNode = null;
         }
     }
-    
+
     private Product getProduct() {
         return rasterDataNode.getProduct();
     }
-    
+
     private RasterDataNode getRaster() {
         return rasterDataNode;
     }
-    
+
     private Layer createBitmaskLayer(final BitmaskDef bitmaskDef) {
         final Color color = bitmaskDef.getColor();
         final String expr = bitmaskDef.getExpr();
@@ -81,12 +76,17 @@ public class BitmaskCollectionLayer extends Layer {
         layer.setName(bitmaskDef.getName());
         final BitmaskOverlayInfo overlayInfo = rasterDataNode.getBitmaskOverlayInfo();
         layer.setVisible(overlayInfo != null && overlayInfo.containsBitmaskDef(bitmaskDef));
-        layer.getStyle().setOpacity(bitmaskDef.getAlpha());
-        // todo - add layer icon, bitmask color or even bitmaskDef to layer style?
+
+        final Style style = new DefaultStyle();
+        style.setOpacity(bitmaskDef.getAlpha());
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
+        style.setComposite(layer.getStyle().getComposite());
+        style.setDefaultStyle(layer.getStyle().getDefaultStyle());
+        layer.setStyle(style);
 
         return layer;
     }
-    
+
     private class BitmaskDefListener implements ProductNodeListener {
         private final Layer bitmaskLayer;
         private final Map<BitmaskDef, Layer> layerMap;

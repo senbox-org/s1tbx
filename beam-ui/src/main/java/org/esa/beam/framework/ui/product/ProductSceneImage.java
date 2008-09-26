@@ -177,8 +177,10 @@ public class ProductSceneImage {
     private void initRootLayer() {
         rootLayer = new Layer();
         final ImageLayer imageLayer = new ImageLayer(bandImageMultiLevelSource);
+
         imageLayer.setName(getName());
         imageLayer.setVisible(true);
+        setBaseImageLayerStyle(configuration, imageLayer);
 
         final ImageLayer noDataLayer = createNoDataLayer();
         final FigureLayer figureLayer = createFigureLayer();
@@ -216,6 +218,26 @@ public class ProductSceneImage {
         layerMap.put(GCP_LAYER_ID, gcpLayer);
         layerMap.put(PIN_LAYER_ID, pinLayer);
         layerMap.put(FIGURE_LAYER_ID, figureLayer);
+    }
+
+    static void setBaseImageLayerStyle(PropertyMap configuration, Layer layer) {
+        final boolean borderShown = configuration.getPropertyBool("image.border.shown",
+                ImageLayer.DEFAULT_BORDER_SHOWN);
+        final double borderWidth = configuration.getPropertyDouble("image.border.size",
+                ImageLayer.DEFAULT_BORDER_WIDTH);
+        final Color borderColor = configuration.getPropertyColor("image.border.color",
+                ImageLayer.DEFAULT_BORDER_COLOR);
+
+        final Style style = new DefaultStyle();
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, borderShown);
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, borderWidth);
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR, borderColor);
+        
+        style.setComposite(layer.getStyle().getComposite());
+        style.setDefaultStyle(layer.getStyle().getDefaultStyle());
+        style.setOpacity(layer.getStyle().getOpacity());
+
+        layer.setStyle(style);
     }
 
     private Layer createWorldLayer() {
@@ -262,9 +284,15 @@ public class ProductSceneImage {
         final Color color = configuration.getPropertyColor("noDataOverlay.color", Color.ORANGE);
         final double transparency = configuration.getPropertyDouble("noDataOverlay.transparency", 0.3);
 
-        final Style style = layer.getStyle();
-        style.setOpacity(1.0 - transparency);
+        final Style style = new DefaultStyle();
         style.setProperty("color", color);
+        style.setOpacity(1.0 - transparency);
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
+
+        style.setComposite(layer.getStyle().getComposite());
+        style.setDefaultStyle(layer.getStyle().getDefaultStyle());
+
+        layer.setStyle(style);
     }
 
     private FigureLayer createFigureLayer() {
@@ -330,9 +358,15 @@ public class ProductSceneImage {
         final Color color = configuration.getPropertyColor("roi.color", Color.RED);
         final double transparency = configuration.getPropertyDouble("roi.transparency", 0.5);
 
-        final Style style = layer.getStyle();
-        style.setOpacity(1.0 - transparency);
+        final Style style = new DefaultStyle();
         style.setProperty("color", color);
+        style.setOpacity(1.0 - transparency);
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
+
+        style.setComposite(layer.getStyle().getComposite());
+        style.setDefaultStyle(layer.getStyle().getDefaultStyle());
+
+        layer.setStyle(style);
     }
 
     private GraticuleLayer createGraticuleLayer() {
