@@ -33,6 +33,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+
+import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.grender.ViewportListener;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.text.DecimalFormat;
@@ -59,7 +63,7 @@ public class NavigationToolView extends AbstractToolView {
     private AbstractButton syncViewsButton;
     private JTextField percentField;
     private JSlider zoomSlider;
-    private ViewportHandler viewportHandler;
+    private NavigationViewportListener viewportListener;
     private ImageDisplayResizeHandler imageDisplayRH;
     private DecimalFormat percentFormat;
     private ProductSceneView.ImageUpdateListener imageUpdateHandler;
@@ -67,7 +71,7 @@ public class NavigationToolView extends AbstractToolView {
     private ProductSceneView.LayerContentListener layerContentListener;
 
     public NavigationToolView() {
-        viewportHandler = new ViewportHandler();
+        viewportListener = new NavigationViewportListener();
         imageDisplayRH = new ImageDisplayResizeHandler();
         final DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.ENGLISH);
         percentFormat = new DecimalFormat("#####.##", decimalFormatSymbols);
@@ -110,7 +114,7 @@ public class NavigationToolView extends AbstractToolView {
                 currentView.getProduct().removeProductNodeListener(productNodeListener);
                 if (oldView.getImageDisplayComponent() != null) {
                     oldView.removeLayerContentListener(layerContentListener);
-                    oldView.removeLayerViewportListener(viewportHandler);
+                    currentView.getLayerCanvas().getViewport().removeListener(viewportListener);
                     oldView.getImageDisplayComponent().removeComponentListener(imageDisplayRH);
                 }
             }
@@ -119,7 +123,7 @@ public class NavigationToolView extends AbstractToolView {
                 currentView.addImageUpdateListener(imageUpdateHandler);
                 currentView.getProduct().addProductNodeListener(productNodeListener);
                 if (currentView.getImageDisplayComponent() != null) {
-                    currentView.addLayerViewportListener(viewportHandler);
+                    currentView.getLayerCanvas().getViewport().addListener(viewportListener);
                     currentView.addLayerContentListener(layerContentListener);
                     currentView.getImageDisplayComponent().addComponentListener(imageDisplayRH);
                 }
@@ -465,9 +469,9 @@ public class NavigationToolView extends AbstractToolView {
         }
     }
 
-    private class ViewportHandler implements ProductSceneView.LayerViewportListener {
+    private class NavigationViewportListener implements ViewportListener {
         @Override
-        public void layerViewportChanged(boolean orientationChanged) {
+        public void handleViewportChanged(Viewport viewport, boolean orientationChanged) {
             updateValues();
             if (orientationChanged) {
                 canvas.updateImage();

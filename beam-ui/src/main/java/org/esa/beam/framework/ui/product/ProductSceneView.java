@@ -11,7 +11,6 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.BufferedImageRendering;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
@@ -91,7 +90,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     public static final int DEFAULT_IMAGE_VIEW_BORDER_SIZE = 64;
     private ArrayList<ImageUpdateListener> imageUpdateListenerList;
     private ArrayList<LayerContentListener> layerContentListenerList;
-    private ArrayList<LayerViewportListener> layerViewportListenerList;
     private RasterChangeHandler rasterChangeHandler;
 
     private ProductSceneImage sceneImage;
@@ -108,7 +106,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
         imageUpdateListenerList = new ArrayList<ImageUpdateListener>(5);
         layerContentListenerList = new ArrayList<LayerContentListener>(5);
-        layerViewportListenerList = new ArrayList<LayerViewportListener>(5);
 
         setOpaque(true);
         setBackground(DEFAULT_IMAGE_BACKGROUND_COLOR); // todo - use sceneImage.getConfiguration() (nf, 18.09.2008)
@@ -155,13 +152,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
             @Override
             public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
                 fireLayerContentChanged();
-            }
-        });
-
-        layerCanvas.getViewport().addListener(new ViewportListener() {
-            @Override
-            public void handleViewportChanged(Viewport viewport, boolean orientationChanged) {
-                fireLayerViewportChanged(orientationChanged);
             }
         });
     }
@@ -257,24 +247,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     protected void fireLayerContentChanged() {
         for (LayerContentListener listener : layerContentListenerList) {
             listener.layerContentChanged(getRaster());
-        }
-    }
-
-    public void addLayerViewportListener(LayerViewportListener listener) {
-        if (listener != null && !layerViewportListenerList.contains(listener)) {
-            layerViewportListenerList.add(listener);
-        }
-    }
-
-    public void removeLayerViewportListener(LayerViewportListener listener) {
-        if (listener != null) {
-            layerViewportListenerList.remove(listener);
-        }
-    }
-
-    protected void fireLayerViewportChanged(boolean orientationChanged) {
-        for (LayerViewportListener listener : layerViewportListenerList.toArray(new LayerViewportListener[layerViewportListenerList.size()])) {
-            listener.layerViewportChanged(orientationChanged);
         }
     }
 
@@ -1023,10 +995,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
     public interface LayerContentListener {
         void layerContentChanged(RasterDataNode raster);
-    }
-
-    public interface LayerViewportListener {
-        void layerViewportChanged(boolean orientationChanged);
     }
 
     private ImageLayer getNoDataLayer() {
