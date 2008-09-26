@@ -209,8 +209,8 @@ public class NavigationCanvas extends JPanel {
 
         final Point2D tnOffset = thumbnailViewport.getModelToViewTransform().transform(modelOffset,
                 null);
-        double scale = DefaultViewport.getScale(canvasViewport.getViewToModelTransform())
-                * DefaultViewport.getScale(thumbnailViewport.getModelToViewTransform());
+        double scale = Math.sqrt(canvasViewport.getViewToModelTransform().getDeterminant())
+                * Math.sqrt(thumbnailViewport.getModelToViewTransform().getDeterminant());
 
         return new Rectangle((int) Math.floor(tnOffset.getX()), (int) Math.floor(tnOffset.getY()),
                 (int) Math.floor(canvasViewport.getBounds().width * scale),
