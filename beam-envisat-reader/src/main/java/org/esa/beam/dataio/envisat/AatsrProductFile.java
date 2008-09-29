@@ -23,7 +23,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.StringUtils;
 
 import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -258,9 +258,9 @@ public class AatsrProductFile extends ProductFile {
         _solTiePointSubSamplingY = EnvisatConstants.AATSR_SOL_TIE_POINT_SUBSAMPLING_Y;
 
 //        _locTiePointSubSamplingX = sceneRasterWidth / (locTiePointGridWidth - 1);
-//        _locTiePointSubSamplingY = _sceneRasterHeight / (locTiePointGridHeight - 1);
+//        _locTiePointSubSamplingY = sceneRasterHeight / (locTiePointGridHeight - 1);
 //        _solTiePointSubSamplingX = sceneRasterWidth / (_solTiePointGridWidth - 1);
-//        _solTiePointSubSamplingY = _sceneRasterHeight / (solTiePointGridHeight - 1);
+//        _solTiePointSubSamplingY = sceneRasterHeight / (solTiePointGridHeight - 1);
 
         // Note: the following parameters are NOT used in the DDDB anymore
         // They are provided here for debugging purposes only.
