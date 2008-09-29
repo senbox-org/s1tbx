@@ -69,7 +69,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
     @Override
     protected void computeRect(PlanarImage[] planarImages, WritableRaster writableRaster, Rectangle destRect) {
         final Term term = createTerm();
-        addSourceToRasterDataSymbols(destRect, term);
+        addSourceToRasterDataSymbols(writableRaster.getBounds(), term);
 
         final ProductData productData = ProductData.createInstance(dataType, ImageUtils.getPrimitiveArray(writableRaster.getDataBuffer()));
         final int rasterSize = writableRaster.getDataBuffer().getSize();
