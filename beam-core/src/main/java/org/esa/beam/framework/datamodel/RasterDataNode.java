@@ -27,22 +27,35 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.glevel.support.GenericMultiLevelSource;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Term;
-
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
-import org.esa.beam.util.*;
-import org.esa.beam.util.math.*;
+import org.esa.beam.util.BitRaster;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.ObjectUtils;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.math.DoubleList;
+import org.esa.beam.util.math.Histogram;
+import org.esa.beam.util.math.IndexValidator;
+import org.esa.beam.util.math.MathUtils;
+import org.esa.beam.util.math.Quantizer;
+import org.esa.beam.util.math.Range;
+import org.esa.beam.util.math.Statistics;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
 import javax.media.jai.operator.ExpDescriptor;
 import javax.media.jai.operator.FormatDescriptor;
 import javax.media.jai.operator.RescaleDescriptor;
-
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
@@ -682,7 +695,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param pm The progress monitor.
      * @throws IOException if an I/O error occurs
-     * @deprecated in BEAM 4.5
+     * @deprecated in BEAM 4.5, no replacement
      */
     @Deprecated
     public void ensureValidMaskComputed(ProgressMonitor pm) throws IOException {
@@ -701,7 +714,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @return The expression used for the computation of the mask which identifies valid pixel values,
      *         or {@code null}.
-     * @see #getValidMaskTerm()
      * @see #getValidPixelExpression()
      * @see #getNoDataValue()
      * @since BEAM 4.2
@@ -737,7 +749,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 }
             }
         } else {
-            for (int i = 0; i < (getSceneRasterWidth() * getSceneRasterHeight()); i++) {
+            for (int i = 0; i < getSceneRasterWidth() * getSceneRasterHeight(); i++) {
                 validBitMask.set(i);
             }
         }
@@ -760,7 +772,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
         if (roiDefinition != null) {
             final String bitmaskExpr = roiDefinition.getBitmaskExpr();
-            if (!StringUtils.isNullOrEmpty(bitmaskExpr) && bitmaskExpr.indexOf(oldExternalName) > -1) {
+            if (!StringUtils.isNullOrEmpty(bitmaskExpr) && bitmaskExpr.contains(oldExternalName)) {
                 final String newBitmaskExpression = StringUtils.replaceWord(bitmaskExpr, oldExternalName,
                                                                             newExternalName);
                 final ROIDefinition newRoiDef = roiDefinition.createCopy();
