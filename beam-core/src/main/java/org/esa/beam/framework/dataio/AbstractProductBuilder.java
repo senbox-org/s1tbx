@@ -15,42 +15,42 @@ import java.util.Map;
 
 public abstract class AbstractProductBuilder extends AbstractProductReader {
 
-    protected Product _sourceProduct;
-    protected boolean _sourceProductOwner;
-    protected int _sceneRasterWidth;
-    protected int _sceneRasterHeight;
-    protected String _newProductName;
-    protected String _newProductDesc;
-    protected Map<Band, RasterDataNode> _bandMap;
+    protected Product sourceProduct;
+    protected boolean sourceProductOwner;
+    protected int sceneRasterWidth;
+    protected int sceneRasterHeight;
+    protected String newProductName;
+    protected String newProductDesc;
+    protected Map<Band, RasterDataNode> bandMap;
 
     public AbstractProductBuilder(final boolean sourceProductOwner) {
         super(null);
-        _bandMap = new Hashtable<Band, RasterDataNode>();
-        _sourceProductOwner = sourceProductOwner;
+        bandMap = new Hashtable<Band, RasterDataNode>(16);
+        this.sourceProductOwner = sourceProductOwner;
     }
 
     public Product getSourceProduct() {
-        return _sourceProduct;
+        return sourceProduct;
     }
 
     public boolean isSourceProductOwner() {
-        return _sourceProductOwner;
+        return sourceProductOwner;
     }
 
     public void setNewProductDesc(String newProductDesc) {
-        _newProductDesc = newProductDesc;
+        this.newProductDesc = newProductDesc;
     }
 
     public void setNewProductName(String newProductName) {
-        _newProductName = newProductName;
+        this.newProductName = newProductName;
     }
 
     public int getSceneRasterWidth() {
-        return _sceneRasterWidth;
+        return sceneRasterWidth;
     }
 
     public int getSceneRasterHeight() {
-        return _sceneRasterHeight;
+        return sceneRasterHeight;
     }
 
     protected Product readProductNodes(Product sourceProduct, ProductSubsetDef subsetDef, String name,
@@ -85,10 +85,10 @@ public abstract class AbstractProductBuilder extends AbstractProductReader {
     @Override
     public void close() throws IOException {
         disposeBandMap();
-        if (_sourceProductOwner && _sourceProduct != null) {
-            _sourceProduct.dispose();
+        if (sourceProductOwner && sourceProduct != null) {
+            sourceProduct.dispose();
         }
-        _sourceProduct = null;
+        sourceProduct = null;
         super.close();
     }
 
@@ -192,7 +192,7 @@ public abstract class AbstractProductBuilder extends AbstractProductReader {
     }
 
     protected void disposeBandMap() {
-        _bandMap.clear();
+        bandMap.clear();
     }
 
 

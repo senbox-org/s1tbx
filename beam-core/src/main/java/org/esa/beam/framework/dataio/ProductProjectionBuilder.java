@@ -20,7 +20,11 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.util.CachingObjectArray;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.dem.*;
+import org.esa.beam.framework.dataop.dem.ElevationModel;
+import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
+import org.esa.beam.framework.dataop.dem.Orthorectifier;
+import org.esa.beam.framework.dataop.dem.Orthorectifier2;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.util.Debug;
@@ -30,8 +34,11 @@ import org.esa.beam.util.math.MathUtils;
 
 import java.awt.Rectangle;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A special purpose product reader used to build map-projected data products.
@@ -42,12 +49,12 @@ import java.util.Map;
 public class ProductProjectionBuilder extends AbstractProductBuilder {
 
     private static final int MAX_NUM_PIXELS_PER_BLOCK = 20000;
-    private MapGeoCoding _targetGC;
-    private MapInfo _mapInfo;
-    private boolean _includeTiePointGrids;
-    private Map<Pointing, Segmentation> _segmentationMap;
-    private Map<RasterDataNode, SourceBandLineCache> _sourceLineCacheMap;
-    private ElevationModel _elevationModel;
+    private MapInfo mapInfo;
+    private boolean includeTiePointGrids;
+    private ElevationModel elevationModel;
+    private Map<Pointing, Segmentation> segmentationMap;
+    private Map<Long, Map<RasterDataNode, SourceBandLineCache>> threadHashMap;
+    private final ReentrantLock lock;
 
     public ProductProjectionBuilder(MapInfo mapInfo) {
         this(mapInfo, false);
@@ -55,9 +62,12 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
 
     public ProductProjectionBuilder(MapInfo mapInfo, boolean sourceProductOwner) {
         super(sourceProductOwner);
-        _mapInfo = mapInfo;
-        _sourceLineCacheMap = new HashMap<RasterDataNode, SourceBandLineCache>(19);
-        _segmentationMap = new HashMap<Pointing, Segmentation>(19);
+        this.mapInfo = mapInfo;
+        includeTiePointGrids = false;
+        elevationModel = null;
+        segmentationMap = new HashMap<Pointing, Segmentation>(19);
+        threadHashMap = new HashMap<Long, Map<RasterDataNode, SourceBandLineCache>>(19);
+        lock = new ReentrantLock();
     }
 
     public static Product createProductProjection(Product sourceProduct, MapInfo mapInfo, String name,
@@ -98,34 +108,34 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
     }
 
     public MapInfo getMapInfo() {
-        return _mapInfo;
+        return mapInfo;
     }
 
     public void setMapInfo(MapInfo mapInfo) {
-        _mapInfo = mapInfo;
+        this.mapInfo = mapInfo;
     }
 
     public ElevationModel getElevationModel() {
-        return _elevationModel;
+        return elevationModel;
     }
 
     public void setElevationModel(ElevationModel elevationModel) {
-        _elevationModel = elevationModel;
+        this.elevationModel = elevationModel;
     }
 
     public boolean getIncludeTiePointGrids() {
-        return _includeTiePointGrids;
+        return includeTiePointGrids;
     }
 
     public void setIncludeTiePointGrids(boolean includeTiePointtGrids) {
-        _includeTiePointGrids = includeTiePointtGrids;
+        includeTiePointGrids = includeTiePointtGrids;
     }
 
     /**
      * Sets the subset information. This implemetation is protected to overwrite in the inherided class to ensure that
      * the subset information cannot be set from the <code>readProductNodes</code> method.
      *
-     * @param subsetDef
+     * @param subsetDef the subset definition
      */
     @Override
     protected void setSubsetDef(ProductSubsetDef subsetDef) {
@@ -143,20 +153,18 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         if (getInput() instanceof Product) {
-            _sourceProduct = (Product) getInput();
+            sourceProduct = (Product) getInput();
         } else {
             throw new IllegalArgumentException("unsupported input source: " + getInput());
         }
-        if (_mapInfo == null) {
+        if (mapInfo == null) {
             throw new IllegalStateException("no map info set");
         }
 
-        _targetGC = new MapGeoCoding(_mapInfo);
+        sceneRasterWidth = mapInfo.getSceneWidth();
+        sceneRasterHeight = mapInfo.getSceneHeight();
 
-        _sceneRasterWidth = _mapInfo.getSceneWidth();
-        _sceneRasterHeight = _mapInfo.getSceneHeight();
-
-        return createProduct();
+        return createProduct(new MapGeoCoding(mapInfo));
     }
 
     /**
@@ -172,14 +180,18 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
      */
     @Override
     public void close() throws IOException {
-        if (_elevationModel != null) {
-            _elevationModel.dispose();
-            _elevationModel = null;
+        if (elevationModel != null) {
+            elevationModel.dispose();
+            elevationModel = null;
         }
-        _segmentationMap.clear();
-        _segmentationMap = null;
-        _sourceLineCacheMap.clear();
-        _sourceLineCacheMap = null;
+        segmentationMap.clear();
+        segmentationMap = null;
+        final Collection<Map<RasterDataNode,SourceBandLineCache>> sourceLineCacheMaps = threadHashMap.values();
+        for (Map<RasterDataNode, SourceBandLineCache> lineCacheMap : sourceLineCacheMaps) {
+            lineCacheMap.clear();
+        }
+        threadHashMap.clear();
+        threadHashMap = null;
         super.close();
     }
 
@@ -241,14 +253,12 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                                         final int destHeight,
                                         final ProductData destBuffer,
                                         final ProgressMonitor pm) throws IOException {
-        final RasterDataNode sourceBand = _bandMap.get(destBand);
+        final RasterDataNode sourceBand = bandMap.get(destBand);
         Debug.assertNotNull(sourceBand);
         Debug.assertTrue(getSubsetDef() == null);
 
         final int sourceWidth = sourceBand.getSceneRasterWidth();
         final int sourceHeight = sourceBand.getSceneRasterHeight();
-
-        sourceBand.ensureValidMaskComputed(ProgressMonitor.NULL);
 
         final GeoCoding sourceGeoCoding = getSourceGeoCoding(sourceBand);
 
@@ -256,24 +266,27 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                 destBand.getDataType()) || destBand.isScalingApplied();
 
         final Resampling sourceResampling;
-        if (_mapInfo.getResampling() != null && canInterpolateValues) {
-            sourceResampling = _mapInfo.getResampling();
+        if (mapInfo.getResampling() != null && canInterpolateValues) {
+            sourceResampling = mapInfo.getResampling();
         } else {
             sourceResampling = Resampling.NEAREST_NEIGHBOUR;
         }
-        final Resampling.Index sourceResamplingIndex = sourceResampling.createIndex();
-        final SourceBandLineCache sourceBandLineCache = getSourceBandLineCache(sourceBand);
-        final SourceRaster sourceRaster = new SourceRaster(sourceBandLineCache);
-        final PixelPos[] sourceLineCoords = new PixelPos[destWidth];
 
-        final GeoCoding destGeoCoding = destBand.getProduct().getGeoCoding();
-        final Segmentation destSegmentation = getDestSegmentation(sourceBand.getPointing(),
-                                                                  destOffsetX,
-                                                                  destOffsetY,
-                                                                  destWidth,
-                                                                  destHeight);
+        try {
+            lock.lock();
+            final Resampling.Index sourceResamplingIndex = sourceResampling.createIndex();
+            final SourceBandLineCache sourceBandLineCache = getSourceBandLineCache(sourceBand);
+            final SourceRaster sourceRaster = new SourceRaster(sourceBandLineCache);
+            final PixelPos[] sourceLineCoords = new PixelPos[destWidth];
 
-        // Note: we now get the RAW no-data value, because we write data into RAW ProductData buffers
+            final GeoCoding destGeoCoding = destBand.getProduct().getGeoCoding();
+            final Segmentation destSegmentation = getDestSegmentation(sourceBand.getPointing(),
+                                                                      destOffsetX,
+                                                                      destOffsetY,
+                                                                      destWidth,
+                                                                      destHeight);
+
+            // Note: we now get the RAW no-data value, because we write data into RAW ProductData buffers
         final double destNoDataValue = destBand.getNoDataValue();
 
         final int numBlocks = destSegmentation.getNumBlocks();
@@ -339,13 +352,17 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                 pm.done();
             }
         }
+        } finally {
+            lock.unlock();
+        }
+            
     }
 
     public void getSourceLinePixelCoords(final Band destBand,
                                          final int destOffsetX,
                                          final int destOffsetY,
                                          final PixelPos[] sourceLineCoords) {
-        final RasterDataNode sourceBand = _bandMap.get(destBand);
+        final RasterDataNode sourceBand = bandMap.get(destBand);
         Debug.assertNotNull(sourceBand);
         Debug.assertTrue(getSubsetDef() == null);
 
@@ -382,31 +399,31 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         throw new IllegalStateException("invalid call");
     }
 
-    private Product createProduct() {
+    private Product createProduct(final MapGeoCoding targetGC) {
         Debug.assertNotNull(getSourceProduct());
         Debug.assertTrue(getSceneRasterWidth() > 0);
         Debug.assertTrue(getSceneRasterHeight() > 0);
         final String newProductName;
-        if (_newProductName == null || _newProductName.length() == 0) {
+        if (this.newProductName == null || this.newProductName.length() == 0) {
             newProductName = getSourceProduct().getName();
         } else {
-            newProductName = _newProductName;
+            newProductName = this.newProductName;
         }
         final Product product = new Product(newProductName, getSourceProduct().getProductType(),
                                             getSceneRasterWidth(),
                                             getSceneRasterHeight(),
                                             this);
-        if (_newProductDesc == null || _newProductDesc.length() == 0) {
+        if (newProductDesc == null || newProductDesc.length() == 0) {
             product.setDescription(getSourceProduct().getDescription());
         } else {
-            product.setDescription(_newProductDesc);
+            product.setDescription(newProductDesc);
         }
         if (!isMetadataIgnored()) {
             addMetadataToProduct(product);
             addFlagCodingsToProduct(product);
             addIndexCodingsToProduct(product);
         }
-        addGeoCodingToProduct(product);
+        addGeoCodingToProduct(targetGC, product);
         addBandsToProduct(product);
         addBitmaskDefsToProduct(product);
         copyPlacemarks(getSourceProduct().getPinGroup(), product.getPinGroup(), PinSymbol.createDefaultPinSymbol());
@@ -415,23 +432,25 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         return product;
     }
 
-    private void copyPlacemarks(ProductNodeGroup<Pin> sourcePlacemarkGroup,
+    private static void copyPlacemarks(ProductNodeGroup<Pin> sourcePlacemarkGroup,
                                 ProductNodeGroup<Pin> targetPlacemarkGroup, PinSymbol symbol) {
         final Pin[] pins = sourcePlacemarkGroup.toArray(new Pin[0]);
         for (Pin pin : pins) {
-            targetPlacemarkGroup.add(
-                    new Pin(pin.getName(), pin.getLabel(), pin.getDescription(), null, pin.getGeoPos(),
-                            symbol));
+            final Pin pin1 = new Pin(pin.getName(), pin.getLabel(),
+                                     pin.getDescription(), null, pin.getGeoPos(),
+                                     symbol);
+            targetPlacemarkGroup.add(pin1);
         }
     }
 
     private void addBandsToProduct(Product targetProduct) {
-        ProductUtils.copyBandsForGeomTransform(getSourceProduct(), targetProduct, _includeTiePointGrids, _mapInfo.getNoDataValue(), _bandMap);
+        ProductUtils.copyBandsForGeomTransform(getSourceProduct(), targetProduct, includeTiePointGrids, mapInfo.getNoDataValue(),
+                                               bandMap);
         ProductUtils.copyBitmaskDefsAndOverlays(getSourceProduct(), targetProduct);
     }
 
-    private void addGeoCodingToProduct(Product product) {
-        product.setGeoCoding(_targetGC);
+    private static void addGeoCodingToProduct(final MapGeoCoding targetGC, Product product) {
+        product.setGeoCoding(targetGC);
     }
 
 
@@ -439,15 +458,23 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         return new Orthorectifier2(sourceBand.getSceneRasterWidth(),
                                    sourceBand.getSceneRasterHeight(),
                                    sourceBand.getPointing(),
-                                   _elevationModel, 25);
+                                   elevationModel, 25);
     }
 
 
     private SourceBandLineCache getSourceBandLineCache(final RasterDataNode sourceBand) {
-        SourceBandLineCache sourceLineCache = _sourceLineCacheMap.get(sourceBand);
+        final long threadId = Thread.currentThread().getId();
+        Map<RasterDataNode, SourceBandLineCache> sourceLineCacheMap;
+        if(threadHashMap.containsKey(threadId)) {
+            sourceLineCacheMap = threadHashMap.get(threadId);
+        }else {
+            sourceLineCacheMap = new ConcurrentHashMap<RasterDataNode, SourceBandLineCache>(19);
+            threadHashMap.put(threadId, sourceLineCacheMap);
+        }
+        SourceBandLineCache sourceLineCache = sourceLineCacheMap.get(sourceBand);
         if (sourceLineCache == null) {
             sourceLineCache = new SourceBandLineCache(sourceBand);
-            _sourceLineCacheMap.put(sourceBand, sourceLineCache);
+            sourceLineCacheMap.put(sourceBand, sourceLineCache);
         }
         return sourceLineCache;
     }
@@ -457,7 +484,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                                              final int destOffsetY,
                                              final int destWidth,
                                              final int destHeight) {
-        Segmentation segmentation = _segmentationMap.get(sourcePointing);
+        Segmentation segmentation = segmentationMap.get(sourcePointing);
         if (segmentation != null) {
             if (!segmentation.coversSameRegion(destOffsetX, destOffsetY, destWidth, destHeight)) {
                 segmentation = null;
@@ -466,7 +493,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         if (segmentation == null) {
             segmentation = new Segmentation(MAX_NUM_PIXELS_PER_BLOCK / destWidth, destOffsetX, destOffsetY, destWidth,
                                             destHeight);
-            _segmentationMap.put(sourcePointing, segmentation);
+            segmentationMap.put(sourcePointing, segmentation);
         }
         return segmentation;
     }
@@ -485,71 +512,73 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
 
     static class Segmentation {
 
-        private final int _destOffsetX;
-        private final int _destOffsetY;
-        private final int _destWidth;
-        private final int _destHeight;
-        private final int _numBlocks;
-        private final int _numLinesMax;
-        private PixelPos[] _pixelCoordsOfBlock0;
-        private PixelPos[] _pixelCoords;
+        private final int destOffsetX;
+        private final int destOffsetY;
+        private final int destWidth;
+        private final int destHeight;
+        private final int numBlocks;
+        private final int numLinesMax;
+        private PixelPos[] pixelCoordsOfBlock0;
+        private PixelPos[] pixelCoords;
 
-        public Segmentation(final int maxNumLinesPerBlock,
-                            final int destOffsetX,
-                            final int destOffsetY,
-                            final int destWidth,
-                            final int destHeight) {
-            _destOffsetX = destOffsetX;
-            _destOffsetY = destOffsetY;
-            _destWidth = destWidth;
-            _destHeight = destHeight;
-            _numLinesMax = maxNumLinesPerBlock <= 0 ? 1 : maxNumLinesPerBlock;
-            if (destHeight <= _numLinesMax) {
-                _numBlocks = 1;
+        Segmentation(final int maxNumLinesPerBlock,
+                     final int destOffsetX,
+                     final int destOffsetY,
+                     final int destWidth,
+                     final int destHeight) {
+            this.destOffsetX = destOffsetX;
+            this.destOffsetY = destOffsetY;
+            this.destWidth = destWidth;
+            this.destHeight = destHeight;
+            numLinesMax = maxNumLinesPerBlock <= 0 ? 1 : maxNumLinesPerBlock;
+            if (destHeight <= numLinesMax) {
+                numBlocks = 1;
             } else {
-                _numBlocks = destHeight / _numLinesMax + 1;
+                numBlocks = destHeight / numLinesMax + 1;
             }
+            pixelCoordsOfBlock0 = null;
+            pixelCoords = null;
         }
 
         public int getNumBlocks() {
-            return _numBlocks;
+            return numBlocks;
         }
 
         public int getDestOffsetX() {
-            return _destOffsetX;
+            return destOffsetX;
         }
 
         public int getDestOffsetY() {
-            return _destOffsetY;
+            return destOffsetY;
         }
 
         public int getDestWidth() {
-            return _destWidth;
+            return destWidth;
         }
 
         public int getDestHeight() {
-            return _destHeight;
+            return destHeight;
         }
 
         public int getBlockOffsetY(final int blockIndex) {
-            return blockIndex * _numLinesMax;
+            return blockIndex * numLinesMax;
         }
 
         public int getLineStartY(final int blockIndex) {
-            return _destOffsetY + getBlockOffsetY(blockIndex);
+            return destOffsetY + getBlockOffsetY(blockIndex);
         }
 
         public int getNumLinesMax() {
-            return _numLinesMax;
+            return numLinesMax;
         }
 
         public int getNumLines(final int blockIndex) {
-            final int restHeight = _destHeight - getBlockOffsetY(blockIndex);
-            return restHeight > _numLinesMax ? _numLinesMax : restHeight;
+            final int restHeight = destHeight - getBlockOffsetY(blockIndex);
+            return restHeight > numLinesMax ? numLinesMax : restHeight;
         }
 
         public void getLinePixelCoords(int lineY, final PixelPos[] linePixelCoords) {
-            System.arraycopy(_pixelCoords, lineY * _destWidth, linePixelCoords, 0, _destWidth);
+            System.arraycopy(pixelCoords, lineY * destWidth, linePixelCoords, 0, destWidth);
         }
 
         public boolean coversSameRegion(int destOffsetX,
@@ -569,14 +598,14 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                                           GeoCoding destGeoCoding) {
 
             if (blockIndex == 0) {
-                if (_pixelCoordsOfBlock0 == null) {
-                    _pixelCoordsOfBlock0 = computeSourcePixelCoords(blockIndex, sourceGeoCoding, sourceWidth,
+                if (pixelCoordsOfBlock0 == null) {
+                    pixelCoordsOfBlock0 = computeSourcePixelCoords(blockIndex, sourceGeoCoding, sourceWidth,
                                                                     sourceHeight,
                                                                     destGeoCoding);
                 }
-                _pixelCoords = _pixelCoordsOfBlock0;
+                pixelCoords = pixelCoordsOfBlock0;
             } else {
-                _pixelCoords = computeSourcePixelCoords(blockIndex, sourceGeoCoding, sourceWidth, sourceHeight,
+                pixelCoords = computeSourcePixelCoords(blockIndex, sourceGeoCoding, sourceWidth, sourceHeight,
                                                         destGeoCoding);
             }
         }
@@ -590,9 +619,9 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                                                               sourceWidth,
                                                               sourceHeight,
                                                               destGeoCoding,
-                                                              new Rectangle(_destOffsetX,
+                                                              new Rectangle(destOffsetX,
                                                                             getLineStartY(iBlock),
-                                                                            _destWidth,
+                                                                            destWidth,
                                                                             getNumLines(iBlock)));
         }
     }
@@ -600,18 +629,14 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
     private static class SourceRaster implements Resampling.Raster {
 
         private final SourceBandLineCache _lineCache;
-        private final float _noDataValue;
-        private final boolean _noDataValueUsed;
         private final int _width;
         private final int _height;
 
-        public SourceRaster(SourceBandLineCache lineCache) {
+        private SourceRaster(SourceBandLineCache lineCache) {
             _lineCache = lineCache;
             RasterDataNode sourceBand = lineCache.getSourceBand();
             _width = sourceBand.getSceneRasterWidth();
             _height = sourceBand.getSceneRasterHeight();
-            _noDataValueUsed = sourceBand.isNoDataValueUsed();
-            _noDataValue = (float) sourceBand.getNoDataValue();
         }
 
         public int getWidth() {
@@ -633,7 +658,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
 
     private static class SourceBandLineCache extends CachingObjectArray {
 
-        public SourceBandLineCache(RasterDataNode sourceBand) {
+        private SourceBandLineCache(RasterDataNode sourceBand) {
             super(new SourceBandLineReader(sourceBand));
         }
 
@@ -646,7 +671,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
 
         private final RasterDataNode _sourceBand;
 
-        public SourceBandLineReader(RasterDataNode sourceBand) {
+        private SourceBandLineReader(RasterDataNode sourceBand) {
             _sourceBand = sourceBand;
         }
 
@@ -657,7 +682,6 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         public Object createObject(int line) throws IOException {
             final int lineWidth = _sourceBand.getSceneRasterWidth();
             final float[] floats = new float[lineWidth];
-            _sourceBand.ensureValidMaskComputed(ProgressMonitor.NULL);
             _sourceBand.readPixels(0, line, lineWidth, 1, floats, ProgressMonitor.NULL);
             return floats;
         }

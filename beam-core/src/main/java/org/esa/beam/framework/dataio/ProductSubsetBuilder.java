@@ -62,17 +62,17 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
      */
     protected Product readProductNodesImpl() throws IOException {
         if (getInput() instanceof Product) {
-            _sourceProduct = (Product) getInput();
+            sourceProduct = (Product) getInput();
         } else {
             throw new IllegalArgumentException("unsupported input source: " + getInput());
         }
-        Debug.assertNotNull(_sourceProduct);
-        _sceneRasterWidth = _sourceProduct.getSceneRasterWidth();
-        _sceneRasterHeight = _sourceProduct.getSceneRasterHeight();
+        Debug.assertNotNull(sourceProduct);
+        sceneRasterWidth = sourceProduct.getSceneRasterWidth();
+        sceneRasterHeight = sourceProduct.getSceneRasterHeight();
         if (getSubsetDef() != null) {
-            Dimension s = getSubsetDef().getSceneRasterSize(_sceneRasterWidth, _sceneRasterHeight);
-            _sceneRasterWidth = s.width;
-            _sceneRasterHeight = s.height;
+            Dimension s = getSubsetDef().getSceneRasterSize(sceneRasterWidth, sceneRasterHeight);
+            sceneRasterWidth = s.width;
+            sceneRasterHeight = s.height;
         }
         return createProduct();
     }
@@ -111,7 +111,7 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                                           int destWidth, int destHeight,
                                           ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
-        Band sourceBand = (Band) _bandMap.get(destBand);
+        Band sourceBand = (Band) bandMap.get(destBand);
         // if the band already has an internal raster
         if (sourceBand.getRasterData() != null) {
             // if the destination region equals the entire raster
@@ -293,20 +293,20 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         Debug.assertTrue(getSceneRasterWidth() > 0);
         Debug.assertTrue(getSceneRasterHeight() > 0);
         final String newProductName;
-        if (_newProductName == null || _newProductName.length() == 0) {
+        if (this.newProductName == null || this.newProductName.length() == 0) {
             newProductName = getSourceProduct().getName();
         } else {
-            newProductName = _newProductName;
+            newProductName = this.newProductName;
         }
         final Product product = new Product(newProductName, getSourceProduct().getProductType(),
                                             getSceneRasterWidth(),
                                             getSceneRasterHeight(),
                                             this);
         product.setPointingFactory(getSourceProduct().getPointingFactory());
-        if (_newProductDesc == null || _newProductDesc.length() == 0) {
+        if (newProductDesc == null || newProductDesc.length() == 0) {
             product.setDescription(getSourceProduct().getDescription());
         } else {
-            product.setDescription(_newProductDesc);
+            product.setDescription(newProductDesc);
         }
         if (!isMetadataIgnored()) {
             addMetadataToProduct(product);
@@ -482,7 +482,7 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                 }
 
                 product.addBand(destBand);
-                _bandMap.put(destBand, sourceBand);
+                bandMap.put(destBand, sourceBand);
             }
         }
     }

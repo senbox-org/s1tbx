@@ -36,11 +36,11 @@ import java.io.IOException;
  */
 public class ProductFlipper extends AbstractProductBuilder {
 
-    public final static int FLIP_HORIZONTAL = 1;
-    public final static int FLIP_VERTICAL = 2;
-    public final static int FLIP_BOTH = 3;
+    public static final int FLIP_HORIZONTAL = 1;
+    public static final int FLIP_VERTICAL = 2;
+    public static final int FLIP_BOTH = 3;
 
-    private int _flipType;
+    private int flipType;
 
     public ProductFlipper(int flipType) {
         this(flipType, false);
@@ -51,7 +51,7 @@ public class ProductFlipper extends AbstractProductBuilder {
         if ((flipType != FLIP_HORIZONTAL) && (flipType != FLIP_VERTICAL) && (flipType != FLIP_BOTH)) {
             throw new IllegalArgumentException("invalid flip type");
         }
-        _flipType = flipType;
+        this.flipType = flipType;
     }
 
     public static Product createFlippedProduct(Product sourceProduct, int flipType, String name, String desc) throws
@@ -66,7 +66,7 @@ public class ProductFlipper extends AbstractProductBuilder {
     }
 
     public int getFlipType() {
-        return _flipType;
+        return flipType;
     }
 
     /**
@@ -79,16 +79,16 @@ public class ProductFlipper extends AbstractProductBuilder {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         if (getInput() instanceof Product) {
-            _sourceProduct = (Product) getInput();
+            sourceProduct = (Product) getInput();
         } else {
             throw new IllegalArgumentException("unsupported input source: " + getInput());
         }
-        if (_flipType == 0) {
+        if (flipType == 0) {
             throw new IllegalStateException("no flip type set");
         }
 
-        _sceneRasterWidth = _sourceProduct.getSceneRasterWidth();
-        _sceneRasterHeight = _sourceProduct.getSceneRasterHeight();
+        sceneRasterWidth = sourceProduct.getSceneRasterWidth();
+        sceneRasterHeight = sourceProduct.getSceneRasterHeight();
 
         return createProduct();
     }
@@ -107,7 +107,7 @@ public class ProductFlipper extends AbstractProductBuilder {
     @Override
     public void close() throws IOException {
         disposeBandMap();
-        _sourceProduct = null;
+        sourceProduct = null;
         super.close();
     }
 
@@ -148,7 +148,7 @@ public class ProductFlipper extends AbstractProductBuilder {
                                    ProductData destBuffer,
                                    ProgressMonitor pm) throws IOException {
 
-        Band sourceBand = (Band) _bandMap.get(destBand);
+        Band sourceBand = (Band) bandMap.get(destBand);
         Debug.assertNotNull(sourceBand);
 
         Guardian.assertNotNull("destBand", destBand);
@@ -162,17 +162,16 @@ public class ProductFlipper extends AbstractProductBuilder {
         }
 
 
-        final int sourceW = _sourceProduct.getSceneRasterWidth();
-        final int sourceH = _sourceProduct.getSceneRasterHeight();
-
-        int sourceX;
-        int sourceY;
+        final int sourceW = sourceProduct.getSceneRasterWidth();
+        final int sourceH = sourceProduct.getSceneRasterHeight();
 
         float[] line = new float[sourceW];
 
         pm.beginTask("Flipping raster data...", destHeight);
         try {
-            if (_flipType == FLIP_HORIZONTAL) {
+            int sourceX;
+            int sourceY;
+            if (flipType == FLIP_HORIZONTAL) {
                 for (int j = 0; j < destHeight; j++) {
                     if (pm.isCanceled()) {
                         break;
@@ -184,7 +183,7 @@ public class ProductFlipper extends AbstractProductBuilder {
                         destBuffer.setElemFloatAt(j * destWidth + i, line[sourceX]);
                     }
                 }
-            } else if (_flipType == FLIP_VERTICAL) {
+            } else if (flipType == FLIP_VERTICAL) {
                 for (int j = 0; j < destHeight; j++) {
                     if (pm.isCanceled()) {
                         break;
@@ -263,20 +262,20 @@ public class ProductFlipper extends AbstractProductBuilder {
         Debug.assertTrue(getSceneRasterWidth() > 0);
         Debug.assertTrue(getSceneRasterHeight() > 0);
         final String newProductName;
-        if (_newProductName == null || _newProductName.length() == 0) {
+        if (this.newProductName == null || this.newProductName.length() == 0) {
             newProductName = getSourceProduct().getName();
         } else {
-            newProductName = _newProductName;
+            newProductName = this.newProductName;
         }
         final Product product = new Product(newProductName, getSourceProduct().getProductType(),
                                             getSceneRasterWidth(),
                                             getSceneRasterHeight(),
                                             this);
         product.setPointingFactory(getSourceProduct().getPointingFactory());
-        if (_newProductDesc == null || _newProductDesc.length() == 0) {
+        if (newProductDesc == null || newProductDesc.length() == 0) {
             product.setDescription(getSourceProduct().getDescription());
         } else {
-            product.setDescription(_newProductDesc);
+            product.setDescription(newProductDesc);
         }
         if (!isMetadataIgnored()) {
             addMetadataToProduct(product);
@@ -344,7 +343,7 @@ public class ProductFlipper extends AbstractProductBuilder {
                     destBand.setImageInfo(sourceImageInfo.createDeepCopy());
                 }
                 product.addBand(destBand);
-                _bandMap.put(destBand, sourceBand);
+                bandMap.put(destBand, sourceBand);
             }
         }
     }
@@ -372,17 +371,15 @@ public class ProductFlipper extends AbstractProductBuilder {
                 final int width = sourceTiePointGrid.getRasterWidth();
                 final int height = sourceTiePointGrid.getRasterHeight();
 
-                if (_flipType == FLIP_HORIZONTAL) {
+                if (flipType == FLIP_HORIZONTAL) {
                     for (int y = 0; y < height; y++) {
                         for (int x = 0; x < width; x++) {
                             targetPoints[x + y * width] = sourcePoints[width - x - 1 + y * width];
                         }
                     }
-                } else if (_flipType == FLIP_VERTICAL) {
+                } else if (flipType == FLIP_VERTICAL) {
                     for (int y = 0; y < height; y++) {
-                        for (int x = 0; x < width; x++) {
-                            targetPoints[x + y * width] = sourcePoints[x + (height - y - 1) * width];
-                        }
+                        System.arraycopy(sourcePoints, (height - y - 1) * width, targetPoints, y * width, width);
                     }
                 } else {
                     for (int y = 0; y < height; y++) {
