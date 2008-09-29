@@ -38,7 +38,7 @@ public class TiffIFD_DataTypeTest {
         assertEquals(ProductData.TYPE_UINT16, TiffIFD.getMaxElemSizeBandDataType(new Band[]{uint16Band}));
         assertEquals(ProductData.TYPE_UINT32, TiffIFD.getMaxElemSizeBandDataType(new Band[]{uint32Band}));
         assertEquals(ProductData.TYPE_FLOAT32, TiffIFD.getMaxElemSizeBandDataType(new Band[]{float32Band}));
-        assertEquals(ProductData.TYPE_FLOAT64, TiffIFD.getMaxElemSizeBandDataType(new Band[]{float64Band}));
+        assertEquals(ProductData.TYPE_FLOAT32, TiffIFD.getMaxElemSizeBandDataType(new Band[]{float64Band}));
     }
 
 
@@ -76,13 +76,13 @@ public class TiffIFD_DataTypeTest {
 
     @Test
     public void testReturnDouble_If_Int32_and_Uint32() {
-        assertEquals(ProductData.TYPE_FLOAT64,
+        assertEquals(ProductData.TYPE_FLOAT32,
                      TiffIFD.getMaxElemSizeBandDataType(new Band[]{int32Band, uint32Band}));
     }
 
     @Test
     public void testGreatestFloat() {
-        assertEquals(ProductData.TYPE_FLOAT64,
+        assertEquals(ProductData.TYPE_FLOAT32,
                      TiffIFD.getMaxElemSizeBandDataType(new Band[]{float64Band, float32Band}));
     }
 
@@ -102,9 +102,9 @@ public class TiffIFD_DataTypeTest {
 
     @Test
     public void testReturnDoubleIfFloat32TypeAndInt32() {
-        assertEquals(ProductData.TYPE_FLOAT64,
+        assertEquals(ProductData.TYPE_FLOAT32,
                      TiffIFD.getMaxElemSizeBandDataType(new Band[]{int32Band, float32Band}));
-        assertEquals(ProductData.TYPE_FLOAT64,
+        assertEquals(ProductData.TYPE_FLOAT32,
                      TiffIFD.getMaxElemSizeBandDataType(new Band[]{uint32Band, float32Band}));
     }
 

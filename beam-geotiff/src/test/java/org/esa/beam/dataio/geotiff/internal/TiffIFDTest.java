@@ -61,18 +61,18 @@ public class TiffIFDTest extends TestCase {
         final double[] expWidth = new double[]{WIDTH};
         final double[] expHeight = new double[]{HEIGHT};
         final double[] expBitsPerSample = new double[]{
-                64, 64, 64, 64, 64, 64, 64,
+                32, 32, 32, 32, 32, 32, 32,
         };
         final double[] expCompression = new double[]{1};
         final double[] expPhotoInter = new double[]{TiffCode.PHOTOMETRIC_BLACK_IS_ZERO.getValue()};
         final TiffAscii expImageDescription = new TiffAscii(_product.getName());
         final double[] expStripOffsets = new double[]{
-                0, 1600, 3200, 4800, 6400, 8000, 9600
+                0, 800, 1600, 2400, 3200, 4000, 4800
         };
         final double[] expSamplesPerPixel = new double[]{_product.getNumBands()};
         final double[] expRowsPerStrip = new double[]{HEIGHT};
         final double[] expStripByteCounts = new double[]{
-                1600, 1600, 1600, 1600, 1600, 1600, 1600,
+                800, 800, 800, 800, 800, 800, 800,
         };
         final double[] expPlanarConfig = new double[]{TiffCode.PLANAR_CONFIG_PLANAR.getValue()};
         final double[] expSampleFormat = new double[]{

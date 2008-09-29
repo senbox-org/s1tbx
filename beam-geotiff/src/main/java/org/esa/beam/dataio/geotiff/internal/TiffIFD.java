@@ -309,16 +309,8 @@ public class TiffIFD {
                 }
             }
 
-            if (maxFloatType == ProductData.TYPE_FLOAT64) {
-                return ProductData.TYPE_FLOAT64;
-            }
-
-            if (maxFloatType != -1) {
-                if (maxSignedIntType > ProductData.TYPE_INT16 || maxUnsignedIntType > ProductData.TYPE_UINT16) {
-                    return ProductData.TYPE_FLOAT64;
-                } else {
-                    return ProductData.TYPE_FLOAT32;
-                }
+           if (maxFloatType != -1) {
+                return ProductData.TYPE_FLOAT32;
             }
 
             if (maxUnsignedIntType != -1) {
@@ -328,7 +320,7 @@ public class TiffIFD {
                 if (ProductData.getElemSize(maxUnsignedIntType) >= ProductData.getElemSize(maxSignedIntType)) {
                     int returnType = maxUnsignedIntType - 10 + 1;
                     if (returnType > 12) {
-                        return ProductData.TYPE_FLOAT64;
+                        return ProductData.TYPE_FLOAT32;
                     } else {
                         return returnType;
                     }

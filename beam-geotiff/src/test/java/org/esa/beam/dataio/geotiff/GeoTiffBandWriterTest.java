@@ -288,8 +288,8 @@ public class GeoTiffBandWriterTest extends TestCase {
         assertEquals(expSize, _ios.length());
         _ios.seek(offsets[0].getValue());
         for (int j = 0; j < _WIDTH * _HEIGHT; j++) {
-            final double expValue = startValue + j;
-            assertEquals("index at [" + j + "]", expValue, _ios.readDouble(), 1.0e-6);
+            final float expValue = (float) (startValue + j);
+            assertEquals("index at [" + j + "]", expValue, _ios.readFloat(), 1.0e-6);
         }
     }
 
