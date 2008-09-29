@@ -80,10 +80,6 @@ public class BeamMetadataTest_0_1 {
         assertEquals(band.getName(), domMetadata.getBandProperty(bandindex, name));
         assertEquals(band.getName(), productMetadata.getBandProperty(bandindex, name));
 
-        name = BeamMetadata.NODE_DATATYPE;
-        assertEquals("" + band.getDataType(), domMetadata.getBandProperty(bandindex, name));
-        assertEquals("" + band.getDataType(), productMetadata.getBandProperty(bandindex, name));
-
         name = BeamMetadata.NODE_SCALING_FACTOR;
         assertEquals("" + band.getScalingFactor(), domMetadata.getBandProperty(bandindex, name));
         assertEquals("" + band.getScalingFactor(), productMetadata.getBandProperty(bandindex, name));

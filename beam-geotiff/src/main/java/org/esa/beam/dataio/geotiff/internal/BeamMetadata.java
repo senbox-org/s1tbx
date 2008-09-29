@@ -45,7 +45,6 @@ public class BeamMetadata {
 
     public static final String NODE_BAND = "band";
     public static final String NODE_UNIT = "unit";
-    public static final String NODE_DATATYPE = "data_type";
     public static final String NODE_SCALING_FACTOR = "scaling_factor";
     public static final String NODE_SCALING_OFFSET = "scaling_offset";
     public static final String NODE_LOG_10_SCALED = "log_10_scaled";
@@ -151,7 +150,6 @@ public class BeamMetadata {
                 bandNode.addContent(new Element(NODE_NAME).setText(getBandProperty(i, NODE_NAME)));
                 bandNode.addContent(new Element(NODE_DESCRIPTION).setText(getBandProperty(i, NODE_DESCRIPTION)));
                 bandNode.addContent(new Element(NODE_UNIT).setText(getBandProperty(i, NODE_UNIT)));
-                bandNode.addContent(new Element(NODE_DATATYPE).setText(getBandProperty(i, NODE_DATATYPE)));
                 bandNode.addContent(new Element(NODE_SCALING_FACTOR).setText(getBandProperty(i, NODE_SCALING_FACTOR)));
                 bandNode.addContent(new Element(NODE_SCALING_OFFSET).setText(getBandProperty(i, NODE_SCALING_OFFSET)));
                 bandNode.addContent(new Element(NODE_LOG_10_SCALED).setText(getBandProperty(i, NODE_LOG_10_SCALED)));
@@ -188,8 +186,6 @@ public class BeamMetadata {
                 return band.getDescription();
             } else if (NODE_UNIT.equals(name)) {
                 return band.getUnit();
-            } else if (NODE_DATATYPE.equals(name)) {
-                return String.valueOf(band.getDataType());
             } else if (NODE_SCALING_FACTOR.equals(name)) {
                 return String.valueOf(band.getScalingFactor());
             } else if (NODE_SCALING_OFFSET.equals(name)) {
