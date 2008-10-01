@@ -18,15 +18,18 @@ import org.esa.beam.util.jai.JAIUtils;
 
 import javax.media.jai.*;
 import javax.media.jai.operator.*;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
+import java.awt.image.renderable.ParameterBlock;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -280,40 +283,124 @@ public class ImageManager {
                 sampleColorIndexMap.putValue((int) points[colorIndex].getSample(), colorIndex);
             }
             // TODO pay more attention to the invaldIndex
-            planarImage = JAIUtils.createIndexedImage(planarImage, sampleColorIndexMap,
-                    colorPaletteDef.getNumPoints());
+            final int undefinedIndex = colorPaletteDef.getNumPoints();
+            planarImage = createIndexedImage(planarImage, sampleColorIndexMap, undefinedIndex);
         } else {
             final double newMin = raster.scaleInverse(minSample);
             final double newMax = raster.scaleInverse(maxSample);
-            planarImage = JAIUtils.createRescaleOp(planarImage,
+            planarImage = createRescaleOp(planarImage,
                     255.0 / (newMax - newMin),
                     255.0 * newMin / (newMin - newMax));
-            planarImage = JAIUtils.createFormatOp(planarImage,
-                    DataBuffer.TYPE_BYTE);
+            planarImage = createByteFormatOp(planarImage);
         }
         return planarImage;
+    }
+    
+    private static PlanarImage createRescaleOp(PlanarImage src,
+                                             double scale,
+                                             double offset) {
+        if ( scale==1.0 && offset == 0.0 ) {
+            return src;
+        }
+        RenderingHints hints = new RenderingHints(JAI.KEY_TILE_CACHE, null);
+        return RescaleDescriptor.create(src, new double[]{scale}, new double[]{offset}, hints);
+    }
+    
+    private static PlanarImage createByteFormatOp(PlanarImage src) {
+        /*
+         * @todo 3 nf/nf - make the color model a parameter
+         */
+
+        /*
+         * @todo 3 nf/nf - what about this comment
+         */
+        ColorModel cm = ImageUtils.create8BitGreyscaleColorModel();
+        SampleModel sm = cm.createCompatibleSampleModel(src.getTileWidth(), src.getTileHeight());
+        ImageLayout layout = new ImageLayout(src);
+        layout.setColorModel(cm);
+        layout.setSampleModel(sm);
+
+        Map map = new HashMap(2);
+        map.put(JAI.KEY_IMAGE_LAYOUT, layout);
+        map.put(JAI.KEY_TILE_CACHE, null);
+        RenderingHints rh = new RenderingHints(map);
+        return FormatDescriptor.create(src, DataBuffer.TYPE_BYTE, rh);
+    }
+    
+    private static PlanarImage createIndexedImage(RenderedImage sourceImage, IntMap intMap, int undefinedIndex) {
+        if (sourceImage.getSampleModel().getNumBands() != 1) {
+            throw new IllegalArgumentException();
+        }
+        final int[][] ranges = intMap.getRanges();
+        final int keyMin = ranges[0][0];
+        final int keyMax = ranges[0][1];
+        final int valueMin = ranges[1][0];
+        final int valueMax = ranges[1][1];
+        final int keyRange = 1 + keyMax - keyMin;
+        final int valueRange = 1 + valueMax - valueMin;
+        if (keyRange > Short.MAX_VALUE) {
+            throw new IllegalArgumentException("intMap: keyRange > Short.MAX_VALUE");
+        }
+        LookupTableJAI lookup;
+        if (valueRange <= 256) {
+            final byte[] table = new byte[keyRange + 2];
+            for (int i = 1; i < table.length - 1; i++) {
+                final int value = intMap.getValue(keyMin + i - 1);
+                table[i] = (byte) (value != IntMap.NULL ? value : undefinedIndex);
+            }
+            table[0] = (byte) undefinedIndex;
+            table[table.length - 1] = (byte) undefinedIndex;
+            lookup = new LookupTableJAI(table, keyMin - 1);
+        } else if (valueRange <= 65536) {
+            final short[] table = new short[keyRange + 2];
+            for (int i = 1; i < table.length; i++) {
+                final int value = intMap.getValue(keyMin + i - 1);
+                table[i] = (short) (value != IntMap.NULL ? value : undefinedIndex);
+            }
+            table[0] = (short) undefinedIndex;
+            table[table.length - 1] = (short) undefinedIndex;
+            lookup = new LookupTableJAI(table, keyMin - 1, valueRange > 32767);
+        } else {
+            final int[] table = new int[keyRange + 2];
+            for (int i = 1; i < table.length; i++) {
+                final int value = intMap.getValue(keyMin + i - 1);
+                table[i] = value != IntMap.NULL ? value : undefinedIndex;
+            }
+            table[0] = undefinedIndex;
+            table[table.length - 1] = undefinedIndex;
+            lookup = new LookupTableJAI(table, keyMin - 1);
+        }
+        RenderingHints hints = new RenderingHints(JAI.KEY_TILE_CACHE, null);
+        sourceImage = ClampDescriptor.create(sourceImage, 
+                                             new double[]{keyMin - 1}, 
+                                             new double[]{keyMax + 1}, 
+                                             hints);
+        return LookupDescriptor.create(sourceImage, lookup, hints);
     }
 
     private static PlanarImage performIndexToRgbConversion3Bands(PlanarImage[] sourceImages,
                                                                  PlanarImage[] maskOpImages) {
+        RenderingHints hints = new RenderingHints(JAI.KEY_TILE_CACHE, null);
+        ParameterBlock pb = new ParameterBlock();
         PlanarImage alpha = null;
         for (PlanarImage maskOpImage : maskOpImages) {
             if (maskOpImage != null) {
                 if (alpha != null) {
-                    alpha = MaxDescriptor.create(alpha, maskOpImage, null);
+                    alpha = MaxDescriptor.create(alpha, maskOpImage, hints);
                 } else {
                     alpha = maskOpImage;
                 }
             }
         }
-        RenderedOp image = BandMergeDescriptor.create(sourceImages[0], sourceImages[1], null);
-        image = BandMergeDescriptor.create(image, sourceImages[2], null);
+        pb.addSource(sourceImages[0]);
+        pb.addSource(sourceImages[1]);
+        pb.addSource(sourceImages[2]);
         if (alpha != null) {
-            image = BandMergeDescriptor.create(image, alpha, null);
+            pb.addSource(alpha);
         }
-        return image;
+        return JAI.create("bandmerge", pb, hints);
     }
-
+    
     private static PlanarImage performIndexToRgbConversion1Band(RasterDataNode rasterDataNode,
                                                                 PlanarImage sourceImage,
                                                                 PlanarImage maskOpImage) {
@@ -333,12 +420,20 @@ public class ImageManager {
             lutData[1][i] = (byte) palette[i].getGreen();
             lutData[2][i] = (byte) palette[i].getBlue();
         }
-        RenderedOp image = JAIUtils.createLookupOp(sourceImage, lutData);
+        RenderedOp image = createLookupOp(sourceImage, lutData);
         if (maskOpImage != null) {
-            image = BandMergeDescriptor.create(image, maskOpImage, null);
+            RenderingHints hints = new RenderingHints(JAI.KEY_TILE_CACHE, null);
+            image = BandMergeDescriptor.create(image, maskOpImage, hints);
         }
         return image;
     }
+    
+    private static RenderedOp createLookupOp(RenderedImage src, byte[][] lookupTable) {
+        LookupTableJAI lookup = new LookupTableJAI(lookupTable);
+        RenderingHints hints = new RenderingHints(JAI.KEY_TILE_CACHE, null);
+        return LookupDescriptor.create(src, lookup, hints);
+    }
+
 
     private PlanarImage applyHistogramMatching(PlanarImage sourceImage, ImageInfo.HistogramMatching histogramMatching) {
         final boolean doEqualize = ImageInfo.HistogramMatching.Equalize == histogramMatching;
