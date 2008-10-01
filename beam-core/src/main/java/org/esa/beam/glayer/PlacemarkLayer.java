@@ -103,7 +103,9 @@ public class PlacemarkLayer extends Layer {
 
     @Override
     public Rectangle2D getBounds() {
-        return new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
+        // todo - blocker: product bounds are not model bounds! Which bounds shall be returned here? (rq)
+        return null;
+//        return new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
     }
 
     private void drawTextLabel(Graphics2D g2d, Pin pin) {
