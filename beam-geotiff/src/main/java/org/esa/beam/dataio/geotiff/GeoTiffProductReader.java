@@ -126,7 +126,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
     }
 
     @Override
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
         super.close();
         inputStream.close();
     }
