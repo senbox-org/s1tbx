@@ -232,7 +232,7 @@ public class NavigationCanvas extends JPanel {
     private Rectangle2D getRotatedModelBounds(ProductSceneView view) {
         final Rectangle2D modelBounds = view.getModelBounds();
         final double orientation = view.getOrientation();
-        if (orientation != 0) {
+        if (orientation != 0.0) {
             final AffineTransform t = new AffineTransform();
             t.rotate(orientation, modelBounds.getCenterX(), modelBounds.getCenterY());
             return t.createTransformedShape(modelBounds).getBounds2D();
