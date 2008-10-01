@@ -175,10 +175,11 @@ public class ProductSceneImage {
     }
 
     private void initRootLayer() {
+        final AffineTransform i2mTransform = bandImageMultiLevelSource.getModel().getImageToModelTransform(0);
         final ImageLayer baseImageLayer = createBaseImageLayer();
-        final ImageLayer noDataLayer = createNoDataLayer();
+        final ImageLayer noDataLayer = createNoDataLayer(i2mTransform);
         final FigureLayer figureLayer = createFigureLayer();
-        final ImageLayer roiLayer = createRoiLayer();
+        final ImageLayer roiLayer = createRoiLayer(i2mTransform);
         final GraticuleLayer graticuleLayer = createGraticuleLayer();
         final PlacemarkLayer pinLayer = createPinLayer();
         final PlacemarkLayer gcpLayer = createGcpLayer();
@@ -264,13 +265,13 @@ public class ProductSceneImage {
         return blueMarbleLayer;
     }
 
-    private ImageLayer createNoDataLayer() {
+    private ImageLayer createNoDataLayer(AffineTransform imageToModelTransform) {
         final MultiLevelSource multiLevelSource;
 
         if (getRaster().getValidMaskExpression() != null) {
             final Color color = configuration.getPropertyColor("noDataOverlay.color", Color.ORANGE);
             multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(), color,
-                    getRaster().getValidMaskExpression(), true, new AffineTransform());
+                    getRaster().getValidMaskExpression(), true, imageToModelTransform);
         } else {
             multiLevelSource = MultiLevelSource.NULL;
         }
@@ -339,12 +340,12 @@ public class ProductSceneImage {
         layer.setStyle(style);
     }
 
-    private ImageLayer createRoiLayer() {
+    private ImageLayer createRoiLayer(AffineTransform imageToModelTransform) {
         final MultiLevelSource multiLevelSource;
 
         if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
             final Color color = configuration.getPropertyColor("roi.color", Color.RED);
-            multiLevelSource = RoiImageMultiLevelSource.create(getRaster(), color, new AffineTransform());
+            multiLevelSource = RoiImageMultiLevelSource.create(getRaster(), color, imageToModelTransform);
         } else {
             multiLevelSource = MultiLevelSource.NULL;
         }
