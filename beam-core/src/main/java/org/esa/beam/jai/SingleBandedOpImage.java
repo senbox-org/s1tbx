@@ -5,10 +5,8 @@ import javax.media.jai.JAI;
 import javax.media.jai.SourcelessOpImage;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -28,6 +26,7 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
      * @param tileSize       The tile size for this image.
      * @param configuration  The configuration map (can be null).
      * @param level          The resolution level.
+     * @param scale          The ratio model units per pixel units for given resolution level.
      */
     protected SingleBandedOpImage(int dataBufferType,
                                   int sourceWidth,
@@ -52,7 +51,7 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
                                 Map configuration,
                                 ResolutionLevel level) {
         super(layout,
-              addTileCacheMetric(configuration),
+              configuration,
               layout.getSampleModel(null),
               layout.getMinX(null),
               layout.getMinY(null),
@@ -63,17 +62,6 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
                                                   sourceHeight,
                                                   level);
     }
-
-    private static Map addTileCacheMetric(Map configuration) {
-        if(configuration == null) {
-            configuration = new HashMap(8);
-        }
-        if(!configuration.containsKey(JAI.KEY_TILE_CACHE_METRIC)) {
-            configuration.put(JAI.KEY_TILE_CACHE_METRIC, new BeamTileCacheMetric());
-        }
-        return configuration;
-    }
-
 
     public final int getLevel() {
         return levelImageSupport.getLevel();
@@ -97,21 +85,6 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
 
     protected final int getSourceCoord(double destCoord, int min, int max) {
         return levelImageSupport.getSourceCoord(destCoord, min, max);
-    }
-
-    @Override
-    public Raster computeTile(int i, int i1) {
-        final long t0 = System.nanoTime();
-        final Raster raster = super.computeTile(i, i1);
-        final long t1 = System.nanoTime();
-        final BeamTileCacheMetric cacheMetric = (BeamTileCacheMetric) getTileCacheMetric();
-        cacheMetric.setLastRequestTime(t0);
-        cacheMetric.setComputationTime(t1 - t0);
-        final DataBuffer dataBuffer = raster.getDataBuffer();
-        final int elemSizeInBytes = DataBuffer.getDataTypeSize(dataBuffer.getDataType()) / 8;
-        cacheMetric.setTileSize(dataBuffer.getSize() * elemSizeInBytes);
-        return raster;
-
     }
 
     /**

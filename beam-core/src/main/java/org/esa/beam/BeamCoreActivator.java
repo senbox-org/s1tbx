@@ -28,11 +28,8 @@ import com.bc.ceres.core.runtime.ModuleRuntime;
 import com.bc.ceres.core.runtime.ModuleState;
 import org.esa.beam.framework.datamodel.RGBImageProfile;
 import org.esa.beam.framework.datamodel.RGBImageProfileManager;
-import org.esa.beam.jai.BeamTileCacheComparator;
 import org.esa.beam.util.SystemUtils;
 
-import javax.media.jai.JAI;
-import javax.media.jai.TileCache;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -64,8 +61,6 @@ public class BeamCoreActivator implements Activator {
     public void start(ModuleContext moduleContext) throws CoreException {
         this.moduleContext = moduleContext;
         registerRGBProfiles(moduleContext);
-        final TileCache tileCache = JAI.getDefaultInstance().getTileCache();
-        tileCache.setTileComparator(new BeamTileCacheComparator());
     }
 
     public void stop(ModuleContext moduleContext) throws CoreException {
@@ -141,5 +136,4 @@ public class BeamCoreActivator implements Activator {
 //        }
 //        return executableExtensions;
 //    }
-
 }
