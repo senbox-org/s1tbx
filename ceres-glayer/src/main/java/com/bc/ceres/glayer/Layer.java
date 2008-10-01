@@ -180,11 +180,13 @@ public class Layer extends ExtensibleObject {
         Rectangle2D.Double bounds = null;
         for (Layer layer : childLayerList) {
             Rectangle2D childBounds = layer.getBounds();
-            if (childBounds != null) {
+            if (childBounds != null && !childBounds.isEmpty()) {
                 if (bounds == null) {
-                    bounds = new Rectangle2D.Double();
+                    bounds = new Rectangle2D.Double(childBounds.getX(), childBounds.getY(), childBounds.getWidth(),
+                            childBounds.getHeight());
+                } else {
+                    bounds.add(childBounds);
                 }
-                bounds.add(childBounds);
             }
         }
         return bounds;
