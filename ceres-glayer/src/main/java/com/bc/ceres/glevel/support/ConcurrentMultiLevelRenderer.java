@@ -391,7 +391,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
             }
 
             // add to the cache, just in case it did not happen before!
-            JAI.getDefaultInstance().getTileCache().add(planarImage, tileX, tileY, tile);
+//            JAI.getDefaultInstance().getTileCache().add(planarImage, tileX, tileY, tile);
 
             TileIndex tileIndex = new TileIndex(tileX, tileY, level);
             final TileImage tileImage = createTileImage(deviceConfiguration,
