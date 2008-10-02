@@ -476,6 +476,7 @@ public class NavigationToolView extends AbstractToolView {
             if (orientationChanged) {
                 canvas.updateImage();
             }
+            maybeSynchronizeCompatibleProductViews();
         }
     }
 
