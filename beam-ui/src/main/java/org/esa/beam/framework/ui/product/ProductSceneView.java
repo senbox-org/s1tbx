@@ -12,6 +12,8 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.BufferedImageRendering;
+import com.bc.ceres.grender.support.DefaultViewport;
+
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
@@ -765,10 +767,9 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         if (otherProduct == currentProduct ||
                 otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
 
-            Rectangle2D visibleModelBounds = getVisibleModelBounds();
-            view.move(visibleModelBounds.getX(), visibleModelBounds.getY());
-            view.zoom(getZoomFactor());
-            view.layerCanvas.getViewport().rotate(getOrientation());
+            Viewport viewPortToChange = view.layerCanvas.getViewport();
+            Viewport myViewPort = layerCanvas.getViewport();
+            viewPortToChange.synchronizeWith(myViewPort);
         }
     }
 
