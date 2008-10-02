@@ -67,7 +67,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -1280,17 +1279,13 @@ public class MosaicProcessor extends Processor {
         }
         final ProductRef outputProductRef = getRequest().getOutputProductAt(0);
         if (outputProductRef == null) {
-            throw new ProcessorException("Output product not given."); /*I18N*/
+            throw new ProcessorException("Output product is not given."); /*I18N*/
         }
         if (!outputProductRef.getFileFormat().equalsIgnoreCase(DimapProductConstants.DIMAP_FORMAT_NAME)) {
             final String message = String.format("The output format '%s' is not supported.\n Continuing with '%s'.",
                                                  outputProductRef.getFileFormat(),
                                                  DimapProductConstants.DIMAP_FORMAT_NAME);
-            _logger.log(Level.WARNING, message);
-            File outputFile = FileUtils.exchangeExtension(outputProductRef.getFile(),
-                                                          DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION);
-            outputProductRef.setFile(outputFile);
-            outputProductRef.setFileFormat(DimapProductConstants.DIMAP_FORMAT_NAME);
+            throw new ProcessorException(message);
         }
         final String productName = FileUtils.getFilenameWithoutExtension(new File(outputProductRef.getFilePath()));
         if (productName == null || productName.length() == 0) {
