@@ -234,6 +234,7 @@ public class ImageManager {
                 || rasterDataNodes.length == 4,
                 "invalid number of bands");
 
+        prepareImageInfos(rasterDataNodes, ProgressMonitor.NULL);
         if (rasterDataNodes.length == 1) {
             return createColored1BandImage(rasterDataNodes[0], imageInfo, level);
         } else {
