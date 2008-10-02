@@ -2490,7 +2490,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 } else {
                     image = reformat(image, ImageManager.getDataBufferType(RasterDataNode.this.getGeophysicalDataType()));
                     image = rescale(image, Math.log(10) * RasterDataNode.this.getScalingFactor(), Math.log(10) * RasterDataNode.this.getScalingOffset());
-                    image = ExpDescriptor.create(image, new RenderingHints(JAI.KEY_TILE_CACHE, null));
+                    image = ExpDescriptor.create(image, ImageManager.getTileCacheHint());
                 }
                 return image;
             }
@@ -2502,7 +2502,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         image = RescaleDescriptor.create(image,
                                          new double[]{factor},
                                          new double[]{offset},
-                                         new RenderingHints(JAI.KEY_TILE_CACHE, null));
+                                         ImageManager.getTileCacheHint());
         return image;
     }
 
@@ -2513,7 +2513,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         }
         return FormatDescriptor.create(image, 
                                        databufferDataType, 
-                                       new RenderingHints(JAI.KEY_TILE_CACHE, null));
+                                       ImageManager.getTileCacheHint());
     }
     
     /**

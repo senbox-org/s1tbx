@@ -302,8 +302,16 @@ public class ImageManager {
         if ( scale==1.0 && offset == 0.0 ) {
             return src;
         }
-        RenderingHints hints = new RenderingHints(JAI.KEY_TILE_CACHE, null);
+        RenderingHints hints = getTileCacheHint();
         return RescaleDescriptor.create(src, new double[]{scale}, new double[]{offset}, hints);
+    }
+    
+    public static RenderingHints getTileCacheHint() {
+        boolean useTileCaching = Boolean.getBoolean("beam.gpf.useTileCaching");
+        if (useTileCaching) {
+            return new RenderingHints(JAI.KEY_TILE_CACHE, JAI.getDefaultInstance().getTileCache());
+        }
+        return new RenderingHints(JAI.KEY_TILE_CACHE, null);
     }
     
     private static PlanarImage createByteFormatOp(PlanarImage src) {
@@ -320,10 +328,8 @@ public class ImageManager {
         layout.setColorModel(cm);
         layout.setSampleModel(sm);
 
-        Map map = new HashMap(2);
-        map.put(JAI.KEY_IMAGE_LAYOUT, layout);
-        map.put(JAI.KEY_TILE_CACHE, null);
-        RenderingHints rh = new RenderingHints(map);
+        RenderingHints rh = getTileCacheHint();
+        rh.put(JAI.KEY_IMAGE_LAYOUT, layout);
         return FormatDescriptor.create(src, DataBuffer.TYPE_BYTE, rh);
     }
     
@@ -370,7 +376,7 @@ public class ImageManager {
             table[table.length - 1] = undefinedIndex;
             lookup = new LookupTableJAI(table, keyMin - 1);
         }
-        RenderingHints hints = new RenderingHints(JAI.KEY_TILE_CACHE, null);
+        RenderingHints hints = getTileCacheHint();
         sourceImage = ClampDescriptor.create(sourceImage, 
                                              new double[]{keyMin - 1}, 
                                              new double[]{keyMax + 1}, 
@@ -380,7 +386,7 @@ public class ImageManager {
 
     private static PlanarImage performIndexToRgbConversion3Bands(PlanarImage[] sourceImages,
                                                                  PlanarImage[] maskOpImages) {
-        RenderingHints hints = new RenderingHints(JAI.KEY_TILE_CACHE, null);
+        RenderingHints hints = getTileCacheHint();
         ParameterBlock pb = new ParameterBlock();
         PlanarImage alpha = null;
         for (PlanarImage maskOpImage : maskOpImages) {
@@ -422,7 +428,7 @@ public class ImageManager {
         }
         RenderedOp image = createLookupOp(sourceImage, lutData);
         if (maskOpImage != null) {
-            RenderingHints hints = new RenderingHints(JAI.KEY_TILE_CACHE, null);
+            RenderingHints hints = getTileCacheHint();
             image = BandMergeDescriptor.create(image, maskOpImage, hints);
         }
         return image;
@@ -430,8 +436,7 @@ public class ImageManager {
     
     private static RenderedOp createLookupOp(RenderedImage src, byte[][] lookupTable) {
         LookupTableJAI lookup = new LookupTableJAI(lookupTable);
-        RenderingHints hints = new RenderingHints(JAI.KEY_TILE_CACHE, null);
-        return LookupDescriptor.create(src, lookup, hints);
+        return LookupDescriptor.create(src, lookup, getTileCacheHint());
     }
 
 
