@@ -65,6 +65,10 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         this.dataType = dataType;
         this.mask = mask;
     }
+    
+    public String getExpression() {
+        return expression;
+    }
 
     @Override
     protected void computeRect(PlanarImage[] planarImages, WritableRaster writableRaster, Rectangle destRect) {

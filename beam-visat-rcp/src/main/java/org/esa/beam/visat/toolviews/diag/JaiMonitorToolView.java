@@ -13,6 +13,7 @@ public class JaiMonitorToolView extends AbstractToolView {
     public JaiMonitorToolView() {
     }
 
+    @Override
     protected JComponent createControl() {
         jaiMonitor = new JaiMonitor();
         JPanel panel = jaiMonitor.createPanel();
