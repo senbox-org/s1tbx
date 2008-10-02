@@ -482,17 +482,6 @@ public class GeoTiffProductReader extends AbstractProductReader {
         return new MapProjection(descriptor.getTypeID(), transform);
     }
 
-//    GeogLinearUnitsGeoKey (Short,1): Linear_Meter
-//    GeogAngularUnitsGeoKey (Short,1): Angular_Degree
-//    GeogSemiMajorAxisGeoKey (Double,1): 6378206.4
-//    GeogSemiMinorAxisGeoKey (Double,1): 6356583.8
-//    ProjLinearUnitsGeoKey (Short,1): Linear_Meter
-//    ProjNatOriginLatGeoKey (Double,1): 0
-//    ProjFalseEastingGeoKey (Double,1): 500000
-//    ProjFalseNorthingGeoKey (Double,1): 0
-//    ProjCenterLongGeoKey (Double,1): -105
-//    ProjScaleAtNatOriginGeoKey (Double,1): 0.9996
-
     private static MapProjection getProjectionLambertConfConic(Map<Integer, GeoKeyEntry> keyEntries) {
         final MapTransformDescriptor descriptor = MapProjectionRegistry.getDescriptor(
                 LambertConformalConicDescriptor.TYPE_ID);
