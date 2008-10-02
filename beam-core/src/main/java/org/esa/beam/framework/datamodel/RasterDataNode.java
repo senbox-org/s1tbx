@@ -45,6 +45,7 @@ import org.esa.beam.util.math.Quantizer;
 import org.esa.beam.util.math.Range;
 import org.esa.beam.util.math.Statistics;
 
+import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
 import javax.media.jai.operator.ExpDescriptor;
@@ -2489,7 +2490,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 } else {
                     image = reformat(image, ImageManager.getDataBufferType(RasterDataNode.this.getGeophysicalDataType()));
                     image = rescale(image, Math.log(10) * RasterDataNode.this.getScalingFactor(), Math.log(10) * RasterDataNode.this.getScalingOffset());
-                    image = ExpDescriptor.create(image, null);
+                    image = ExpDescriptor.create(image, new RenderingHints(JAI.KEY_TILE_CACHE, null));
                 }
                 return image;
             }
@@ -2500,7 +2501,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private static PlanarImage rescale(PlanarImage image, double factor, double offset) {
         image = RescaleDescriptor.create(image,
                                          new double[]{factor},
-                                         new double[]{offset}, null);
+                                         new double[]{offset},
+                                         new RenderingHints(JAI.KEY_TILE_CACHE, null));
         return image;
     }
 
@@ -2509,7 +2511,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (dataType == databufferDataType) {
             return image;
         }
-        return FormatDescriptor.create(image, databufferDataType, null);
+        return FormatDescriptor.create(image, 
+                                       databufferDataType, 
+                                       new RenderingHints(JAI.KEY_TILE_CACHE, null));
     }
     
     /**
