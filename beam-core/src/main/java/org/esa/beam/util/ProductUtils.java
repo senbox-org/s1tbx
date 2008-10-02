@@ -2029,7 +2029,7 @@ public class ProductUtils {
     }
 
     public static GeoTIFFMetadata createGeoTIFFMetadata(final Product product) {
-        final GeoCoding geoCoding = product != null ? product.getGeoCoding() : null;
+        final GeoCoding geoCoding = product.getGeoCoding();
         final int w = product.getSceneRasterWidth();
         final int h = product.getSceneRasterHeight();
         return createGeoTIFFMetadata(geoCoding, w, h);
@@ -2663,7 +2663,8 @@ public class ProductUtils {
             path.moveTo(lon, geoPoints[0].getLat());
             for (int i = 1; i < geoPoints.length; i++) {
                 lon = geoPoints[i].getLon();
-                if (Float.isNaN(lon)) {
+                final float lat = geoPoints[i].getLat();
+                if (Float.isNaN(lon) || Float.isNaN(lat) ) {
                     continue;
                 }
                 if (lon < minLon) {
@@ -2672,7 +2673,7 @@ public class ProductUtils {
                 if (lon > maxLon) {
                     maxLon = lon;
                 }
-                path.lineTo(lon, geoPoints[i].getLat());
+                path.lineTo(lon, lat);
             }
             path.closePath();
 

@@ -279,7 +279,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
                 points.add(new ColorPaletteDef.Point(sampleValue, new Color(sampleColour), sampleName));
             }
             final ProductNodeGroup<IndexCoding> indexCodingGroup = band.getProduct().getIndexCodingGroup();
-            if(!indexCodingGroup.contains(indexCodingName)) {
+            if (!indexCodingGroup.contains(indexCodingName)) {
                 indexCodingGroup.add(indexCoding);
             }
 
@@ -330,7 +330,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
             final int pcsCode = keyEntries.get(GeoTIFFCodes.ProjectedCSTypeGeoKey).getIntValue();
             final MapProjection projection;
             if (isUTM_PCSCode(pcsCode)) {
-                final MapInfo mapInfo = createMapInfoPCS(pcsCode);
+                final MapInfo mapInfo = createMapInfoPCS(pcsCode, info);
                 if (mapInfo != null) {
                     mapInfo.setSceneWidth(product.getSceneRasterWidth());
                     mapInfo.setSceneHeight(product.getSceneRasterHeight());
@@ -366,14 +366,14 @@ public class GeoTiffProductReader extends AbstractProductReader {
                     final TIFFField modelTiePointField = info.getField(GeoTIFFTagSet.TAG_MODEL_TIE_POINT);
 
                     if (scaleField != null) {
-                        mapInfo.setPixelSizeX((float) scaleField.getAsDouble(0));
-                        mapInfo.setPixelSizeY((float) scaleField.getAsDouble(1));
+                        mapInfo.setPixelSizeX(scaleField.getAsFloat(0));
+                        mapInfo.setPixelSizeY(scaleField.getAsFloat(1));
                     }
                     if (modelTiePointField != null) {
-                        mapInfo.setPixelX((float) modelTiePointField.getAsDouble(0));
-                        mapInfo.setPixelY((float) modelTiePointField.getAsDouble(1));
-                        mapInfo.setEasting((float) modelTiePointField.getAsDouble(3));
-                        mapInfo.setNorthing((float) modelTiePointField.getAsDouble(4));
+                        mapInfo.setPixelX(modelTiePointField.getAsFloat(0));
+                        mapInfo.setPixelY(modelTiePointField.getAsFloat(1));
+                        mapInfo.setEasting(modelTiePointField.getAsFloat(3));
+                        mapInfo.setNorthing(modelTiePointField.getAsFloat(4));
                     }
                 }
                 mapInfo.setSceneWidth(product.getSceneRasterWidth());
@@ -461,9 +461,13 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
         if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLatGeoKey)) {
             values[2] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLatGeoKey).getDblValue()[0];
+        } else if (keyEntries.containsKey(GeoTIFFCodes.ProjCenterLatGeoKey)) {
+            values[2] = keyEntries.get(GeoTIFFCodes.ProjCenterLatGeoKey).getDblValue()[0];
         }
         if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLongGeoKey)) {
             values[3] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLongGeoKey).getDblValue()[0];
+        } else if (keyEntries.containsKey(GeoTIFFCodes.ProjCenterLongGeoKey)) {
+            values[3] = keyEntries.get(GeoTIFFCodes.ProjCenterLongGeoKey).getDblValue()[0];
         }
         if (keyEntries.containsKey(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey)) {
             values[4] = keyEntries.get(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey).getDblValue()[0];
@@ -477,6 +481,17 @@ public class GeoTiffProductReader extends AbstractProductReader {
         final MapTransform transform = descriptor.createTransform(values);
         return new MapProjection(descriptor.getTypeID(), transform);
     }
+
+//    GeogLinearUnitsGeoKey (Short,1): Linear_Meter
+//    GeogAngularUnitsGeoKey (Short,1): Angular_Degree
+//    GeogSemiMajorAxisGeoKey (Double,1): 6378206.4
+//    GeogSemiMinorAxisGeoKey (Double,1): 6356583.8
+//    ProjLinearUnitsGeoKey (Short,1): Linear_Meter
+//    ProjNatOriginLatGeoKey (Double,1): 0
+//    ProjFalseEastingGeoKey (Double,1): 500000
+//    ProjFalseNorthingGeoKey (Double,1): 0
+//    ProjCenterLongGeoKey (Double,1): -105
+//    ProjScaleAtNatOriginGeoKey (Double,1): 0.9996
 
     private static MapProjection getProjectionLambertConfConic(Map<Integer, GeoKeyEntry> keyEntries) {
         final MapTransformDescriptor descriptor = MapProjectionRegistry.getDescriptor(
@@ -507,9 +522,6 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
         if (keyEntries.containsKey(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey)) {
             values[6] = keyEntries.get(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey).getDblValue()[0];
-        } else if (keyEntries.containsKey(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE)) {
-            final GeoKeyEntry scaleField = keyEntries.get(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE);
-            values[6] = scaleField.getDblValue()[0];
         }
         final MapTransform transform = descriptor.createTransform(values);
         return new MapProjection(descriptor.getTypeID(), transform);
@@ -813,7 +825,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
     }
 
-    private static MapInfo createMapInfoPCS(int pcsCode) {
+    private static MapInfo createMapInfoPCS(int pcsCode, TiffFileInfo tiffInfo) {
         final boolean isUtmNord = isUTM_Nord_PCSCode(pcsCode);
         final boolean isUtmSouth = isUTM_South_PCSCode(pcsCode);
         final boolean isUtm = isUTM_PCSCode(pcsCode);
@@ -825,10 +837,30 @@ public class GeoTiffProductReader extends AbstractProductReader {
                 zoneIdx = pcsCode - EPSGCodes.PCS_WGS84_UTM_zone_1S;
             }
             final UTMProjection projection = UTM.createProjection(zoneIdx, isUtmSouth);
+            float pixelX = 0.5f;
+            float pixelY = 0.5f;
+            float easting = 0.0f;
+            float northing = 0.0f;
+            if (tiffInfo.containsField(GeoTIFFTagSet.TAG_MODEL_TIE_POINT)) {
+                final TIFFField modelTiePoint = tiffInfo.getField(GeoTIFFTagSet.TAG_MODEL_TIE_POINT);
+                pixelX = modelTiePoint.getAsFloat(0);
+                pixelY = modelTiePoint.getAsFloat(1);
+                easting = modelTiePoint.getAsFloat(3);
+                northing = modelTiePoint.getAsFloat(4);
+            }
+
+            float pixelSizeX = 1.0f;
+            float pixelSizeY = 1.0f;
+            if (tiffInfo.containsField(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE)) {
+                final TIFFField modelPixelScale = tiffInfo.getField(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE);
+                pixelSizeX = modelPixelScale.getAsFloat(0);
+                pixelSizeY = modelPixelScale.getAsFloat(1);
+            }
+
             return new MapInfo(projection,
-                               0.5f, 0.5f,
-                               0.0f, 0.0f,
-                               1.0f, 1.0f,
+                               pixelX, pixelY,
+                               easting, northing,
+                               pixelSizeX, pixelSizeY,
                                Datum.WGS_84);
         }
         return null;
