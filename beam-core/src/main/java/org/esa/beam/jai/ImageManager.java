@@ -29,7 +29,6 @@ import java.awt.image.renderable.ParameterBlock;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
