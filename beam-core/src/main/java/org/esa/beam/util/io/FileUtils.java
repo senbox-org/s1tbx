@@ -198,7 +198,7 @@ public class FileUtils {
     }
 
     /**
-     * Returns a file with the given extension. If the given file have no extension or the extension are not equal to
+     * Returns a file with the given extension. If the given file has no extension or the extension is not equal to
      * the given extension, the given extension will be added.
      * <p/>
      * Example1: param file = example.dim param extension = ".dim"
