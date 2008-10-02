@@ -2100,10 +2100,7 @@ public class ProductUtils {
             } else if ("radian".equalsIgnoreCase(mapUnit)) {
                 metadata.addGeoShortParam(GeoTIFFCodes.GeogAngularUnitsGeoKey, EPSGCodes.Angular_Radian);
             }
-/*
-            metadata.addGeoDoubleParam(GeoTIFFCodes.ProjAzimuthAngleGeoKey, mapInfo.getOrientation());
-            metadata.addGeoShortParam(GeoTIFFCodes.GeogAzimuthUnitsGeoKey, EPSGCodes.Angular_Degree);
-*/
+
             if (TransverseMercatorDescriptor.NAME.equals(mapTransform.getDescriptor().getName())) {
                 metadata.addGeoShortParam(GeoTIFFCodes.GTModelTypeGeoKey, GeoTIFFCodes.ModelTypeProjected);
 
