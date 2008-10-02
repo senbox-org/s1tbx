@@ -194,7 +194,17 @@ public class DefaultViewport implements Viewport {
     public ViewportListener[] getListeners() {
         return changeListeners.toArray(new ViewportListener[changeListeners.size()]);
     }
-
+    
+    @Override
+    public void synchronizeWith(Viewport other) {
+        modelToViewTransform.setTransform(other.getModelToViewTransform());
+        viewToModelTransform.setTransform(other.getViewToModelTransform());
+        final boolean rotate = (orientation != other.getOrientation());
+        if (rotate) {
+            orientation = other.getOrientation();
+        }
+        fireViewportChanged(rotate);
+    }
 
     protected void fireViewportChanged(final boolean orientationChanged) {
         for (ViewportListener listener : getListeners()) {

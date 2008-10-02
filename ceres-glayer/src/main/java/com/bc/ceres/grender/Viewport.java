@@ -128,6 +128,13 @@ public interface Viewport {
     void zoom(double modelCenterX, double modelCenterY, double zoomFactor);
 
     /**
+     * Synchronizes this viewport with the given one.
+     * 
+     * @param otherViewport The view port to synchronize with
+     */
+    public void synchronizeWith(Viewport otherViewport);
+    
+    /**
      * Adds a change listener to this viewport.
      *
      * @param listener The listener.
