@@ -21,6 +21,7 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
 import com.bc.jexp.Term;
+import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductProjectionBuilder;
 import org.esa.beam.framework.dataio.ProductSubsetBuilder;
@@ -66,6 +67,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -479,7 +481,7 @@ public class MosaicProcessor extends Processor {
         final int sceneWidth = product.getSceneRasterWidth();
         final int sceneHeight = product.getSceneRasterHeight();
 
-        pm.beginTask("Initializing ouput product...", bands.length);
+        pm.beginTask("Initializing output product...", bands.length);
         try {
             for (Band band : bands) {
                 if (!(band instanceof VirtualBand)) {
@@ -1279,6 +1281,16 @@ public class MosaicProcessor extends Processor {
         final ProductRef outputProductRef = getRequest().getOutputProductAt(0);
         if (outputProductRef == null) {
             throw new ProcessorException("Output product not given."); /*I18N*/
+        }
+        if (!outputProductRef.getFileFormat().equalsIgnoreCase(DimapProductConstants.DIMAP_FORMAT_NAME)) {
+            final String message = String.format("The output format '%s' is not supported.\n Continuing with '%s'.",
+                                                 outputProductRef.getFileFormat(),
+                                                 DimapProductConstants.DIMAP_FORMAT_NAME);
+            _logger.log(Level.WARNING, message);
+            File outputFile = FileUtils.exchangeExtension(outputProductRef.getFile(),
+                                                          DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION);
+            outputProductRef.setFile(outputFile);
+            outputProductRef.setFileFormat(DimapProductConstants.DIMAP_FORMAT_NAME);
         }
         final String productName = FileUtils.getFilenameWithoutExtension(new File(outputProductRef.getFilePath()));
         if (productName == null || productName.length() == 0) {
