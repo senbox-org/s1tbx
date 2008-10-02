@@ -35,7 +35,7 @@
         </action>
         <action>
             <id>exportGeoTIFFProduct</id>
-            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <class>org.esa.beam.dataio.geotiff.GeoTiffExportAction</class>
             <formatName>GeoTIFF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>O</mnemonic>
