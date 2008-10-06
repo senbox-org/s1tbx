@@ -1,6 +1,13 @@
 package org.esa.beam.visat.actions;
 
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.visat.VisatApp;
@@ -10,6 +17,8 @@ public class CreateAsarNrcsBandsAction extends ExecCommand {
     public static final String DIALOG_TITLE = "Create ASAR NRCS Bands";
     public static final String NRCS_BAND_NAME = "nrcs";
     public static final String NRCS_DB_BAND_NAME = "nrcs_db";
+
+    private static final String ATTRIBUTE_EXT_CAL_FACT = "ASAR_Main_ADSR.sd/calibration_factors.1.ext_cal_fact";
 
     @Override
     public void actionPerformed(CommandEvent event) {
@@ -100,16 +109,16 @@ public class CreateAsarNrcsBandsAction extends ExecCommand {
             MetadataElement ads = sourceBand.getProduct().getMetadataRoot().getElement("MAIN_PROCESSING_PARAMS_ADS");
             MetadataAttribute extCalFactAttr = null;
             if (ads != null) {
-                extCalFactAttr = ads.getAttribute("calibration_factors.1.ext_cal_fact");
+                extCalFactAttr = ads.getAttribute(ATTRIBUTE_EXT_CAL_FACT);
                 if (extCalFactAttr == null) {
                     ads = ads.getElement("MAIN_PROCESSING_PARAMS_ADS.1");
                     if (ads != null) {
-                        extCalFactAttr = ads.getAttribute("calibration_factors.1.ext_cal_fact");
+                        extCalFactAttr = ads.getAttribute(ATTRIBUTE_EXT_CAL_FACT);
                     }
                 }
             }
             if (extCalFactAttr == null) {
-                VisatApp.getApp().showErrorDialog(DIALOG_TITLE, "Cant find metadata 'MAIN_PROCESSING_PARAMS_ADS/calibration_factors.1.ext_cal_fact'.");
+                VisatApp.getApp().showErrorDialog(DIALOG_TITLE, "Cant find metadata 'MAIN_PROCESSING_PARAMS_ADS/" + ATTRIBUTE_EXT_CAL_FACT + "'.");
                 return null;
             }
 
