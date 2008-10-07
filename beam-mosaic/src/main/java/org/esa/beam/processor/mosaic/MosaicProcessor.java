@@ -1283,7 +1283,7 @@ public class MosaicProcessor extends Processor {
         }
         if (!outputProductRef.getFileFormat().equalsIgnoreCase(DimapProductConstants.DIMAP_FORMAT_NAME)) {
             final String message = String.format("The output format '%s' is not supported.",
-                                                 DimapProductConstants.DIMAP_FORMAT_NAME);
+                                                 outputProductRef.getFileFormat());
             throw new ProcessorException(message);
         }
         final String productName = FileUtils.getFilenameWithoutExtension(new File(outputProductRef.getFilePath()));
