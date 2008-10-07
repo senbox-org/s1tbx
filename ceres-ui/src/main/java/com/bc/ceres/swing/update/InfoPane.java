@@ -135,7 +135,6 @@ class InfoPane extends JPanel {
         infoPanel.setEditable(false);
         infoPanel.addHyperlinkListener(new HyperlinkListener() {
             public void hyperlinkUpdate(HyperlinkEvent e) {
-                System.out.println("e = " + e);
                 if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
                     try {
                         Desktop.getDesktop().browse(e.getURL().toURI());
