@@ -446,10 +446,16 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
             return;
         }
 
-        final Band[] bandsToBeModified = new Band[bandNamesToBeModified.length];
-        for (int i = 0; i < bandNamesToBeModified.length; i++) {
-            bandsToBeModified[i] = product.getBand(bandNamesToBeModified[i]);
+        final ArrayList<Band> bandsToBeModifiedList = new ArrayList<Band>();
+        for (String name : bandNamesToBeModified) {
+            final Band band = product.getBand(name);
+            if(band != null) {
+                bandsToBeModifiedList.add(band);
+            }
         }
+        final Band[] bandsToBeModified = new Band[bandsToBeModifiedList.size()];
+        bandsToBeModifiedList.toArray(bandsToBeModified);
+        bandsToBeModifiedList.clear();
 
         final BandChooser bandChooser = new BandChooser(getPaneWindow(),
                                                         "Apply to other Bands", getDescriptor().getHelpId(),
