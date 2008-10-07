@@ -29,6 +29,7 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.XmlWriter;
+import org.esa.beam.util.ArrayUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
@@ -37,6 +38,7 @@ import org.esa.beam.visat.dialogs.ProductChooser;
 import org.jdom.Document;
 import org.jdom.input.DOMBuilder;
 import org.xml.sax.SAXException;
+import org.jfree.util.ArrayUtilities;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -105,8 +107,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
     private JPanel shapeToolsRow;
     private final String[] operatorValueSet = new String[]{"OR", "AND"};
     private BeamFileFilter roiDefinitionFileFilter;
-    // TODO -  (nf) replace bandsToBeModified with a String (name) array, memory leaks occur here!!!
-    private Band[] bandsToBeModified;
+    private String[] bandNamesToBeModified;
     private LayerContentHandler layerContentHandler;
     private Figure shapeFigure;
     private final ProductNodeListener productNodeListener;
@@ -135,7 +136,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         propertyMap = visatApp.getPreferences();
         layerContentHandler = new LayerContentHandler();
         productNodeListener = createProductNodeListener();
-        bandsToBeModified = new Band[0];
+        bandNamesToBeModified = new String[0];
         initParams();
         roiDefPane = createRoiDefinitionPane();
 
@@ -428,20 +429,14 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
     private void multiAssignToBands() {
         final RasterDataNode[] protectedRasters = productSceneView.getRasters();
-        Band[] availableBands = productSceneView.getProduct().getBands();
-        final List<Band> availableBandList = new ArrayList<Band>(availableBands.length);
-        for (final Band availableBand : availableBands) {
-            boolean validBand = true;
-            for (RasterDataNode protectedRaster : protectedRasters) {
-                if (availableBand == protectedRaster) {
-                    validBand = false;
-                }
-            }
-            if (validBand) {
+        final Product product = productSceneView.getProduct();
+        final List<Band> availableBandList = new ArrayList<Band>(product.getNumBands());
+        for (final Band availableBand : product.getBands()) {
+            if (!ArrayUtils.isMemberOf(availableBand,  protectedRasters)) {
                 availableBandList.add(availableBand);
             }
         }
-        availableBands = new Band[availableBandList.size()];
+        final Band[] availableBands = new Band[availableBandList.size()];
         availableBandList.toArray(availableBands);
         availableBandList.clear();
 
@@ -450,15 +445,24 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
                                           getDescriptor().getTitle(), JOptionPane.ERROR_MESSAGE);
             return;
         }
+
+        final Band[] bandsToBeModified = new Band[bandNamesToBeModified.length];
+        for (int i = 0; i < bandNamesToBeModified.length; i++) {
+            bandsToBeModified[i] = product.getBand(bandNamesToBeModified[i]);
+        }
+
         final BandChooser bandChooser = new BandChooser(getPaneWindow(),
                                                         "Apply to other Bands", getDescriptor().getHelpId(),
                                                         availableBands,
                                                         bandsToBeModified);
         if (bandChooser.show() == BandChooser.ID_OK) {
             final ROIDefinition roiDefinition = getCurrentROIDefinition();
-            bandsToBeModified = bandChooser.getSelectedBands();
-            for (final Band band : bandsToBeModified) {
-                band.setROIDefinition(roiDefinition.createCopy());
+            final Band[] selectedBands = bandChooser.getSelectedBands();
+            bandNamesToBeModified = new String[selectedBands.length];
+            for (int i = 0; i < selectedBands.length; i++) {
+                final Band selectedBand = selectedBands[i];
+                selectedBand.setROIDefinition(roiDefinition.createCopy());
+                bandNamesToBeModified[i] = selectedBand.getName();
             }
         }
     }
@@ -1090,10 +1094,8 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
         @Override
         public void internalFrameActivated(InternalFrameEvent e) {
-            final Container contentPane = e.getInternalFrame().getContentPane();
-            if (contentPane instanceof ProductSceneView) {
-                final ProductSceneView view = (ProductSceneView) contentPane;
-                setProductSceneView(view);
+            if (getContent(e) instanceof ProductSceneView) {
+                setProductSceneView((ProductSceneView) getContent(e));
             } else {
                 setProductSceneView(null);
             }
@@ -1101,10 +1103,13 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
         @Override
         public void internalFrameDeactivated(InternalFrameEvent e) {
-            final Container contentPane = e.getInternalFrame().getContentPane();
-            if (contentPane instanceof ProductSceneView) {
+            if (getContent(e) instanceof ProductSceneView) {
                 setProductSceneView(null);
             }
+        }
+
+        private Container getContent(InternalFrameEvent e) {
+            return e.getInternalFrame().getContentPane();
         }
     }
 
