@@ -38,7 +38,6 @@ import org.esa.beam.visat.dialogs.ProductChooser;
 import org.jdom.Document;
 import org.jdom.input.DOMBuilder;
 import org.xml.sax.SAXException;
-import org.jfree.util.ArrayUtilities;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
