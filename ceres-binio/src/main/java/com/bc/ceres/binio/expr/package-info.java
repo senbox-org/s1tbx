@@ -1,6 +1,6 @@
 /**
  * <p>This package contains interfaces and classes which shall enable users to describe their data formats
- * using an interpretated language by constructing an evaluatable tree of expressions. This gives much more
+ * using an interpreted language by constructing an evaluatable tree of expressions. This gives much more
  * flexibility than working with a static type tree.
  * </p>
  *
