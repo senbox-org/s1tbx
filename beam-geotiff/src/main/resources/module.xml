@@ -8,7 +8,6 @@
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
-    <url>http://oceancolor.gsfc.nasa.gov/</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
@@ -44,5 +43,12 @@
             <description>Export a GeoTIFF data product or product subset.</description>
             <helpId>exportGeoTIFFProduct</helpId>
         </action>
+    </extension>
+
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/geotiff.hs</path>
+        </helpSet>
     </extension>
 </module>

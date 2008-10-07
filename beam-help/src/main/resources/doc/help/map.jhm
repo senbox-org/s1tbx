@@ -39,7 +39,6 @@
     <mapID target="importEnvisatProduct" url="visat/ImportEnvisat.html"/>
     <mapID target="importErsProduct" url="visat/ImportErs.html"/>
     <mapID target="importMerisBinnedL3Product" url="visat/ImportMerisBinnedL3.html"/>
-    <mapID target="importGeoTIFFProduct" url="visat/ImportGeoTiff.html"/>
     <mapID target="importModisProduct" url="visat/ImportModis.html"/>
     <mapID target="importAtsrProduct" url="visat/ImportATSR.html"/>
     <mapID target="importGETASSE30" url="visat/ImportGETASSE30.html"/>
@@ -58,7 +57,6 @@
     <mapID target="exportKml" url="visat/ExportKml.html"/>
     <mapID target="exportROIPixels" url="visat/ExportROIPixels.html"/>
     <mapID target="exportTransectPixels" url="visat/ExportTransectPixels.html"/>
-    <mapID target="exportGeoTIFFProduct" url="visat/ExportGeoTIFF.html"/>
     <mapID target="exportLegendImageFile" url="visat/ExportColorLegend.html"/>
     <mapID target="exportColorPalette" url="visat/ExportColorPalette.html"/>
     <mapID target="preferences" url="visat/PreferencesDialog.html"/>

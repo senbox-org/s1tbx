@@ -1,0 +1,71 @@
+<html>
+<head>
+    <title>VISAT Help - Export GeoTIFF</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Export GeoTIFF
+        </td>
+
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a></td>
+    </tr>
+</table>
+
+
+<h3>Export GeoTIFF Product</h3>
+
+<p>This command allows to export the data of the current product to GeoTIFF file.</p>
+
+<p>GeoTIFF is an extension to the TIFF 6.0 specification. These image files contain
+    additional information about thier georeference and their spatial resolution. A wide range of
+    projected coordinate systems are supported including UTM, US State Plane, and National Grids.
+    For further information have a look at the following documentations:
+<ul>
+    <li><a href="http://www.remotesensing.org/geotiff/geotiff.html">GeoTIFF Homepage</a></li>
+    <li><a href="http://partners.adobe.com/public/developer/tiff/index.html">TIFF Specification</a></li>
+</ul>
+
+<h3>Constraints of created GeoTIFF product files</h3>
+
+<p>The exported GeoTIFF files contain additional information beside the tags defined by the GeoTIFF specification.
+    This information is used when the file is read in again by BEAM. This allows a better support of several BEAM
+    features.<br/>
+    This includes:
+</p>
+<ul>
+    <li>Name and type of the product.</li>
+    <li>Name, description and unit of each band.</li>
+    <li>The properties of no-data and scaling for each band.</li>
+    <li>The index coding of a band.</li>
+</ul>
+<p>
+    For features and limitations of the GeoTIFF export and constraints of interaction with other GIS tools please see
+    the following list:
+</p>
+<ul>
+    <li>All bands of a GeoTiff file must have the same data type. Therefor a common data type is identified which
+        fits for all bands. Double precision data type is not supported.
+    </li>
+    <li>The data of a band is always written raw and unscaled.
+    </li>
+    <li>Virtual bands are not exported.</li>
+    <li>All <a href="../general/MapProjTable.html">projections available in BEAM</a> are also supported by the GeoTIFF
+        writer.
+        As a fallback, if a map projection or other geocoding is not directly supported a tie-point grid is written to
+        the GeoTiff file.<br/>
+        The exported GeoTiff files were tested for compatibility with ENVI and ArcGis. While the files are fully
+        compatible with ENVI, ArcGIS has problems to understand stereographic projections.
+    </li>
+    <li>An index coded band can only be correctly decoded in other GIS tools, if it is written as an image with one
+        band.
+    </li>
+</ul>
+
+<hr>
+</body>
+</html>
