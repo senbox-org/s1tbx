@@ -326,7 +326,7 @@ public class WorldMapToolView extends AbstractToolView {
 
         public void productRemoved(final Product product) {
             if (getSelectedProduct() == product) {
-                setSelectedProduct(product);
+                setSelectedProduct(null);
             }
             setProducts(visatApp);
         }

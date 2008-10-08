@@ -737,18 +737,22 @@ class ColorManipulationForm {
 
         @Override
         public void internalFrameDeactivated(final InternalFrameEvent e) {
-            final ProductSceneView view = getProductSceneViewByFrame(e);
-            if (getProductSceneView() == view) {
+            if (getProductSceneView() == getProductSceneViewByFrame(e)) {
                 setProductSceneView(null);
             }
         }
 
         private ProductSceneView getProductSceneViewByFrame(final InternalFrameEvent e) {
-            ProductSceneView view = null;
-            if (e.getInternalFrame().getContentPane() instanceof ProductSceneView) {
-                view = (ProductSceneView) e.getInternalFrame().getContentPane();
+            final Container content = getContent(e);
+            if (content instanceof ProductSceneView) {
+                return (ProductSceneView) content;
+            } else {
+                return null;
             }
-            return view;
+        }
+
+        private Container getContent(InternalFrameEvent e) {
+            return e.getInternalFrame().getContentPane();
         }
     }
 

@@ -83,7 +83,7 @@ public class PixelInfoToolView extends AbstractToolView {
 
         return pixelInfoViewPanel;
     }
-    
+
     @Override
     public boolean isVisible() {
         return super.isVisible() || !_pixelInfoView.allDocked();
@@ -182,17 +182,17 @@ public class PixelInfoToolView extends AbstractToolView {
 
         @Override
         public void internalFrameOpened(InternalFrameEvent e) {
-            Container contentPane = e.getInternalFrame().getContentPane();
-            if (contentPane instanceof ProductSceneView) {
-                initView((ProductSceneView) contentPane);
+            Container content = getContent(e);
+            if (content instanceof ProductSceneView) {
+                initView((ProductSceneView) content);
             }
         }
 
         @Override
         public void internalFrameActivated(InternalFrameEvent e) {
-            Container contentPane = e.getInternalFrame().getContentPane();
-            if (contentPane instanceof ProductSceneView) {
-                _currentView = (ProductSceneView) contentPane;
+            Container content = getContent(e);
+            if (content instanceof ProductSceneView) {
+                _currentView = (ProductSceneView) content;
                 final Product product = _currentView.getProduct();
                 product.addProductNodeListener(getOrCreatePinSelectionChangedListener());
                 if (isSnapToPin()) {
@@ -203,9 +203,9 @@ public class PixelInfoToolView extends AbstractToolView {
 
         @Override
         public void internalFrameClosing(InternalFrameEvent e) {
-            final Container contentPane = e.getInternalFrame().getContentPane();
-            if (contentPane instanceof ProductSceneView) {
-                final ProductSceneView view = (ProductSceneView) contentPane;
+            final Container content = getContent(e);
+            if (content instanceof ProductSceneView) {
+                final ProductSceneView view = (ProductSceneView) content;
                 view.removePixelPositionListener(unregisterPPL(view));
                 removePinSelectionChangedListener(e);
             }
@@ -218,15 +218,19 @@ public class PixelInfoToolView extends AbstractToolView {
         }
 
         private void removePinSelectionChangedListener(InternalFrameEvent e) {
-            final Container contentPane = e.getInternalFrame().getContentPane();
-            if (contentPane instanceof ProductSceneView) {
-                final ProductSceneView view = (ProductSceneView) contentPane;
+            final Container content = getContent(e);
+            if (content instanceof ProductSceneView) {
+                final ProductSceneView view = (ProductSceneView) content;
                 final Product product = view.getProduct();
                 product.removeProductNodeListener(getOrCreatePinSelectionChangedListener());
                 if (isSnapToPin()) {
                     _pixelInfoView.updatePixelValues(view, -1, -1, 0, false);
                 }
             }
+        }
+
+        private Container getContent(InternalFrameEvent e) {
+            return e.getInternalFrame().getContentPane();
         }
     }
 

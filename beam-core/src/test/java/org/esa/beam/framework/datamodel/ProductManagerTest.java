@@ -227,7 +227,7 @@ public class ProductManagerTest extends TestCase {
         _productManager.addProduct(_product3);
     }
 
-    private class ProductManagerListener implements ProductManager.ProductManagerListener {
+    private class ProductManagerListener implements ProductManager.Listener {
 
         private Vector _addedProducts = new Vector();
         private Vector _removedProducts = new Vector();

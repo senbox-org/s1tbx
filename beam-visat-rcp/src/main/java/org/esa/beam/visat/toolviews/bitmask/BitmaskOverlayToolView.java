@@ -61,6 +61,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Rectangle;
+import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -1226,9 +1227,9 @@ public class BitmaskOverlayToolView extends AbstractToolView {
 
         @Override
         public void internalFrameActivated(InternalFrameEvent e) {
-            if (e.getInternalFrame().getContentPane() instanceof ProductSceneView) {
-                ProductSceneView view = (ProductSceneView) e.getInternalFrame().getContentPane();
-                setProductSceneView(view);
+            final Container content = getContent(e);
+            if (content instanceof ProductSceneView) {
+                setProductSceneView((ProductSceneView) content);
             } else {
                 setProductSceneView(null);
             }
@@ -1236,9 +1237,13 @@ public class BitmaskOverlayToolView extends AbstractToolView {
 
         @Override
         public void internalFrameDeactivated(InternalFrameEvent e) {
-            if (e.getInternalFrame().getContentPane() instanceof ProductSceneView) {
+            if (getContent(e) instanceof ProductSceneView) {
                 setProductSceneView(null);
             }
+        }
+
+        private Container getContent(InternalFrameEvent e) {
+            return e.getInternalFrame().getContentPane();
         }
     }
 }

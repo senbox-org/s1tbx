@@ -170,7 +170,7 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      * @param title The window's title.
      */
     public void setTitle(String title) {
-        // todo - set title of dockable frame 
+        // todo - set title of dockable frame
         // descriptor.setTitle(title);
     }
 
@@ -216,9 +216,9 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      */
     public void componentFocusLost() {
     }
-    
+
     /**
-     * Returns whether the toolview is visible. 
+     * Returns whether the toolview is visible.
      * @return if the toolview is visible
      */
     public boolean isVisible() {

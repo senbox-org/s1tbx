@@ -45,14 +45,10 @@ public class BandArithmeticAction extends ExecCommand {
         for (Product prod : prods) {
             products.add(prod);
         }
-        if (_bandArithmetikDialog == null) {
-            _bandArithmetikDialog = new BandArithmetikDialog(visatApp,
-                                                             visatApp.getSelectedProduct(),
-                                                             products,
-                                                             helpId);
-        } else {
-            _bandArithmetikDialog.setTargetProduct(visatApp.getSelectedProduct(), products);
-        }
+        _bandArithmetikDialog = new BandArithmetikDialog(visatApp,
+                                                         visatApp.getSelectedProduct(),
+                                                         products,
+                                                         helpId);
         if (_bandArithmetikDialog.show() == ModalDialog.ID_OK) {
             final Product product = _bandArithmetikDialog.getTargetProduct();
             if (!products.contains(product)) {
@@ -62,5 +58,6 @@ public class BandArithmeticAction extends ExecCommand {
             }
 //            visatApp.setSelectedProductNode(product.getBandAt(product.getNumBands() - 1));
         }
+        _bandArithmetikDialog = null;
     }
 }

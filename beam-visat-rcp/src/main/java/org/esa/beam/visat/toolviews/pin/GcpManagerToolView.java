@@ -59,7 +59,6 @@ public class GcpManagerToolView extends PlacemarkManagerToolView {
             }
         }
         super.setProduct(product);
-
     }
 
     @Override
