@@ -19,25 +19,21 @@ package org.esa.beam.framework.datamodel;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelSource;
-
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.jai.JAIUtils;
-import org.esa.beam.util.math.Histogram;
-import org.esa.beam.util.math.Range;
-
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.io.IOException;
-import java.util.Random;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.HistogramDescriptor;
+import java.awt.Color;
+import java.awt.Rectangle;
+import java.io.IOException;
+import java.util.Random;
 
 
 /**
@@ -537,13 +533,13 @@ public class Band extends AbstractBand {
                 maxSample = Math.max(maxSample, sample);
             }
             pm.worked(1);
-            final RenderedOp histogramOp = HistogramDescriptor.create(statisticsBandImage, 
-                                                                      roi, 
-                                                                      1, 
-                                                                      1, 
-                                                                      new int[]{maxSample+2},
+            final RenderedOp histogramOp = HistogramDescriptor.create(statisticsBandImage,
+                                                                      roi,
+                                                                      1,
+                                                                      1,
+                                                                      new int[]{maxSample + 2},
                                                                       new double[]{minSample},
-                                                                      new double[]{maxSample+1},
+                                                                      new double[]{maxSample + 1},
                                                                       null);
             javax.media.jai.Histogram jaiHistogram = JAIUtils.getHistogramOf(histogramOp);
             int[] sampleFrequencies = new int[sampleCount];
