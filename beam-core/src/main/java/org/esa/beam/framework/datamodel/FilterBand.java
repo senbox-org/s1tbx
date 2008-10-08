@@ -53,6 +53,7 @@ public abstract class FilterBand extends Band {
         return _source;
     }
 
+    @Override
     public void dispose() {
         _source = null;
         super.dispose();
