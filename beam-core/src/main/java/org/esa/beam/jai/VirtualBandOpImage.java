@@ -52,7 +52,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         this(products, expression, dataType, false, level);
     }
 
-    public VirtualBandOpImage(Product[] products, String expression, int dataType, boolean mask, ResolutionLevel level) {
+    private VirtualBandOpImage(Product[] products, String expression, int dataType, boolean mask, ResolutionLevel level) {
         super(ImageManager.getDataBufferType(dataType),
               products[0].getSceneRasterWidth(),
               products[0].getSceneRasterHeight(),
