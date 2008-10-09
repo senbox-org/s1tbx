@@ -11,15 +11,10 @@ import com.bc.ceres.grender.support.DefaultViewport;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.logging.BeamLogManager;
 
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.event.MouseInputAdapter;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -93,7 +88,7 @@ public class NavigationCanvas extends JPanel {
             ((Graphics2D) g).drawRenderedImage(thumbnailImage, transform);
 
             g.setColor(new Color(getForeground().getRed(), getForeground().getGreen(),
-                    getForeground().getBlue(), 82));
+                                 getForeground().getBlue(), 82));
             g.fillRect(visibleArea.x, visibleArea.y, visibleArea.width, visibleArea.height);
             g.setColor(getForeground());
             g.draw3DRect(visibleArea.x - 1, visibleArea.y - 1, visibleArea.width + 2, visibleArea.height + 2, true);
@@ -134,7 +129,7 @@ public class NavigationCanvas extends JPanel {
                 if (thumbnailImage == null || thumbnailImage.getWidth() != imageWidth
                         || thumbnailImage.getHeight() != imageHeight) {
                     thumbnailImage = new BufferedImage(imageWidth, imageHeight,
-                            BufferedImage.TYPE_3BYTE_BGR);
+                                                       BufferedImage.TYPE_3BYTE_BGR);
                     imageRendering = new BufferedImageRendering(thumbnailImage);
                 }
                 updateImageContent();
@@ -203,29 +198,29 @@ public class NavigationCanvas extends JPanel {
     }
 
     private Rectangle getViewportThumbnailBounds(ProductSceneView view, Rectangle thumbnailArea) {
-        final Viewport thumbnailViewport = new DefaultViewport(thumbnailArea);
-        configureThumbnailViewport(view, thumbnailViewport);
-        final Viewport canvasViewport = view.getLayerCanvas().getViewport();
-        final Point2D modelOffset = canvasViewport.getViewToModelTransform()
-                .transform(
-                        canvasViewport.getBounds()
-                                .getLocation(), null);
+        Viewport tnViewport = new DefaultViewport(thumbnailArea);
+        configureThumbnailViewport(view, tnViewport);
+        Viewport vwViewport = view.getLayerCanvas().getViewport();
 
-        final Point2D tnOffset = thumbnailViewport.getModelToViewTransform().transform(modelOffset,
-                null);
-        double scale = Math.sqrt(canvasViewport.getViewToModelTransform().getDeterminant())
-                * Math.sqrt(thumbnailViewport.getModelToViewTransform().getDeterminant());
+        AffineTransform vwV2M = vwViewport.getViewToModelTransform();
+        AffineTransform tnM2V = tnViewport.getModelToViewTransform();
 
-        return new Rectangle((int) Math.floor(tnOffset.getX()), (int) Math.floor(tnOffset.getY()),
-                (int) Math.floor(canvasViewport.getBounds().width * scale),
-                (int) Math.floor(canvasViewport.getBounds().height * scale));
+        Rectangle vwViewBounds = vwViewport.getBounds();
+        Point2D vwViewOffset = vwViewBounds.getLocation();
+        Point2D vwModelOffset = vwV2M.transform(vwViewOffset, null);
+        Point2D tnViewOffset = tnM2V.transform(vwModelOffset, null);
+        double scale = Math.sqrt(vwV2M.getDeterminant()) * Math.sqrt(tnM2V.getDeterminant());
+        return new Rectangle((int) Math.floor(tnViewOffset.getX()),
+                             (int) Math.floor(tnViewOffset.getY()),
+                             (int) Math.floor(vwViewBounds.width * scale),
+                             (int) Math.floor(vwViewBounds.height * scale));
     }
 
     private void configureThumbnailViewport(ProductSceneView view, Viewport thumbnailViewport) {
         thumbnailViewport.setMaxZoomFactor(-1);
         thumbnailViewport.zoom(getRotatedModelBounds(view));
         thumbnailViewport.moveViewDelta(thumbnailViewport.getBounds().x,
-                thumbnailViewport.getBounds().y);
+                                        thumbnailViewport.getBounds().y);
         thumbnailViewport.rotate(view.getOrientation());
     }
 
