@@ -16,6 +16,8 @@ import org.esa.beam.util.math.Range;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.LogarithmicAxis;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
@@ -88,6 +90,15 @@ class HistogramPanel extends PagePanel {
                 return;
             }
             chart.setTitle(getRaster() != null ? CHART_TITLE + " for " + getRaster().getName() : CHART_TITLE);
+            if (getRaster().isLog10Scaled()) {
+                LogarithmicAxis logAxisX = new LogarithmicAxis("Values");
+                logAxisX.setAllowNegativesFlag(true);
+                chart.getXYPlot().setDomainAxis(logAxisX); 
+            } else {
+                NumberAxis xAxis = new NumberAxis("Values");
+                chart.getXYPlot().setDomainAxis(xAxis); 
+            }
+                
             histoMinParam.setDefaultValue();
             histoMaxParam.setDefaultValue();
         }
@@ -143,8 +154,8 @@ class HistogramPanel extends PagePanel {
                 dataset,
                 PlotOrientation.VERTICAL,
                 false,  // Legend?
-                true,
-                false
+                true,   // tooltips
+                false   // url
         );
         final XYPlot xyPlot = chart.getXYPlot();
         XYBarRenderer renderer = (XYBarRenderer) xyPlot.getRenderer();
