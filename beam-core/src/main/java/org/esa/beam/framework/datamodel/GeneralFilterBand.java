@@ -17,14 +17,31 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import org.esa.beam.jai.ImageManager;
 
+import javax.media.jai.BorderExtender;
+import javax.media.jai.BorderExtenderCopy;
+import javax.media.jai.JAI;
+import javax.media.jai.KernelJAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.operator.ConvolveDescriptor;
+import javax.media.jai.operator.MaxFilterDescriptor;
+import javax.media.jai.operator.MaxFilterShape;
+import javax.media.jai.operator.MedianFilterDescriptor;
+import javax.media.jai.operator.MedianFilterShape;
+import javax.media.jai.operator.MinFilterDescriptor;
+import javax.media.jai.operator.MinFilterShape;
+import java.awt.RenderingHints;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Arrays;
 
 /**
  * A band that obtains its input data from an underlying source raster and filters
- * its data using an arbitrary {@link GeneralFilterBand.Operator algorithm}.
+ * its data using an arbitrary {@link Operator algorithm}.
  * <p/>
  * <p><i>Note that this class is not yet public API and may change in future releases.</i></p>
  *
@@ -33,110 +50,60 @@ import java.util.Arrays;
  */
 public class GeneralFilterBand extends FilterBand {
 
-    public static final Operator MIN = new Min();
-    public static final Operator MAX = new Max();
-    public static final Operator MEAN = new Mean();
-    public static final Operator MEDIAN = new Median();
-    public static final Operator STDDEV = new StandardDeviation();
-    public static final Operator RMS = new RootMeanSquare();
+    public static final Operator MIN = new Min();               // JAI: MinFilterDescriptor
+    public static final Operator MAX = new Max();               // JAI: MaxFilterDescriptor
+    public static final Operator MEDIAN = new Median();         // JAI: MedianFilterDescriptor
+    public static final Operator MEAN = new Mean();              // JAI: ConvolveDescriptor
+    public static final Operator STDDEV = new StandardDeviation();     // TODO - Write JAI Operator
+    public static final Operator RMS = new RootMeanSquare();           // TODO - Write JAI Operator
 
-    private int _subWindowWidth;
-    private int _subWindowHeight;
-    private Operator _operator;
+    private final int subWindowSize;
+    private final Operator operator;
 
+    /**
+     * Creates a GeneralFilterBand.
+     *
+     * @param name            the name of the band.
+     * @param source          the source which shall be filtered.
+     * @param subWindowWidth  the window width used by the filter
+     * @param subWindowHeight the window height used by the filter
+     * @param operator        the operator which performs the filter operation
+     *
+     * @deprecated since BEAM 4.5; non square windows are not supported, use {@link GeneralFilterBand#GeneralFilterBand(String, RasterDataNode, int, Operator)}.
+     *             It is currently implemented by delegating to the other constructor using {@code subWindowWidth}  as {@code subWindowSize}.
+     */
+    @Deprecated
     public GeneralFilterBand(String name, RasterDataNode source, int subWindowWidth, int subWindowHeight,
                              Operator operator) {
+        this(name, source, subWindowWidth, operator);
+    }
+
+    /**
+     * Creates a GeneralFilterBand.
+     *
+     * @param name            the name of the band.
+     * @param source          the source which shall be filtered.
+     * @param subWindowSize  the window size (width/height) used by the filter
+     * @param operator        the operator which performs the filter operation
+     */
+    public GeneralFilterBand(String name, RasterDataNode source, int subWindowSize, Operator operator) {
         super(name,
-              ProductData.TYPE_FLOAT32,
+              source.getGeophysicalDataType(),
               source.getSceneRasterWidth(),
               source.getSceneRasterHeight(),
               source);
         setOwner(source.getProduct());
-        _subWindowWidth = subWindowWidth;
-        _subWindowHeight = subWindowHeight;
-        _operator = operator;
-        setGeophysicalNoDataValue(-9999);
-        setNoDataValueUsed(true);
+        this.subWindowSize = subWindowSize;
+        this.operator = operator;
     }
 
-    // TODO - (nf) Convoluted bands are currently always read entirely. However, this method wont work anymore for
-    // spatial subsets with width != sceneRasterWidth or height != sceneRasterHeight
-
-    /**
-     * Reads raster data from this dataset into the user-supplied raster data buffer.
-     * <p/>
-     * <p>This method always directly (re-)reads this band's data from its associated data source into the given data
-     * buffer.
-     *
-     * @param offsetX    the X-offset in the raster co-ordinates where reading starts
-     * @param offsetY    the Y-offset in the raster co-ordinates where reading starts
-     * @param width      the width of the raster data buffer
-     * @param height     the height of the raster data buffer
-     * @param rasterData a raster data buffer receiving the pixels to be read
-     * @param pm         a monitor to inform the user about progress
-     *
-     * @throws java.io.IOException      if an I/O error occurs
-     * @throws IllegalArgumentException if the raster is null
-     * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
-     *                                  which this product raster belongs to, has no associated product reader
-     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor) 
-     */
     @Override
-    public void readRasterData(int offsetX, int offsetY, int width, int height, ProductData rasterData,
-                               ProgressMonitor pm) throws IOException {
-        final RasterDataNode source = getSource();
-        final ProductData sourceData = ProductData.createInstance(ProductData.TYPE_FLOAT64, width * height);
-        pm.beginTask("Reading band data", 2);
-        try {
-            source.readPixels(offsetX, offsetY, width, height, (double[]) sourceData.getElems(),
-                              SubProgressMonitor.create(pm, 1));
-
-            final int kw = _subWindowWidth;
-            final int kh = _subWindowHeight;
-            final int kx0 = (kw - 1) >> 1;
-            final int ky0 = (kh - 1) >> 1;
-            int numSourceValues;
-            final double[] sourceValues = new double[kw * kh];
-            double targetValue;
-
-            ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
-            subPm.beginTask("Applying filter...", height);
-            try {
-                for (int y = 0; y < height; y++) {
-                    if (subPm.isCanceled()) {
-                        return;
-                    }
-                    for (int x = 0; x < width; x++) {
-                        numSourceValues = 0;
-                        for (int ky = 0; ky < kh; ky++) {
-                            final int sourceY = y + (ky - ky0);
-                            if (sourceY >= 0 && sourceY < height) {
-                                for (int kx = 0; kx < kw; kx++) {
-                                    final int sourceX = x + (kx - kx0);
-                                    if (sourceX >= 0 && sourceX < width) {
-                                        if (source.isPixelValid(sourceX, sourceY)) {
-                                            sourceValues[numSourceValues++] = source.scale(
-                                                    sourceData.getElemDoubleAt(sourceY * width + sourceX));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        if (numSourceValues > 0) {
-                            targetValue = _operator.evaluate(sourceValues, numSourceValues);
-                        } else {
-                            targetValue = getGeophysicalNoDataValue();
-                        }
-                        rasterData.setElemDoubleAt(y * width + x, targetValue);
-                    }
-                    subPm.worked(1);
-                }
-            } finally {
-                subPm.done();
-            }
-        } finally {
-            pm.done();
-        }
+    protected RenderedImage createSourceImage() {
+        final MultiLevelModel multiLevelModel = ImageManager.getInstance().createMultiLevelModel(
+                this);
+        return new DefaultMultiLevelImage(new GeneralFilterMultiLevelSource(multiLevelModel, getSource(),
+                                                                            BorderExtender.createInstance(
+                                                                                    BorderExtenderCopy.BORDER_COPY)));
     }
 
     /**
@@ -171,16 +138,34 @@ public class GeneralFilterBand extends FilterBand {
         return operator;
     }
 
+    public int getSubWindowSize() {
+         return subWindowSize;
+     }
+
+    /**
+     *
+     * @return return the width of the sub window.
+     *
+     * @deprecated since BEAM 4.5, use {@link #getSubWindowSize()}
+     */
+    @Deprecated
     public int getSubWindowWidth() {
-        return _subWindowWidth;
+        return subWindowSize;
     }
 
+    /**
+     *
+     * @return return the height of the sub window.
+     *
+     * @deprecated since BEAM 4.5, use {@link #getSubWindowSize()}
+     */
+    @Deprecated
     public int getSubWindowHeight() {
-        return _subWindowHeight;
+        return subWindowSize;
     }
 
     public Operator getOperator() {
-        return _operator;
+        return operator;
     }
 
     /**
@@ -295,5 +280,55 @@ public class GeneralFilterBand extends FilterBand {
             }
             return Math.sqrt(sum / n);
         }
+    }
+
+    private class GeneralFilterMultiLevelSource extends AbstractMultiLevelSource {
+
+        private final RasterDataNode sourceRaster;
+        private BorderExtender noDataExtender;
+
+        private GeneralFilterMultiLevelSource(final MultiLevelModel multiLevelModel, RasterDataNode sourceRaster,
+                                              final BorderExtender borderExtender) {
+            super(multiLevelModel);
+            this.sourceRaster = sourceRaster;
+            noDataExtender = borderExtender;
+        }
+
+        @Override
+            public RenderedImage createImage(int level) {
+            final ImageManager imageManager = ImageManager.getInstance();
+            final PlanarImage geophysicalImage = imageManager.getGeophysicalImage(sourceRaster, level);
+            if (getOperator() == MIN) {
+                final MinFilterShape maskSquare = MinFilterDescriptor.MIN_MASK_SQUARE;
+                return MinFilterDescriptor.create(geophysicalImage, maskSquare, subWindowSize, null);
+            }
+            if (getOperator() == MAX) {
+                final MaxFilterShape maskSquare = MaxFilterDescriptor.MAX_MASK_SQUARE;
+                return MaxFilterDescriptor.create(geophysicalImage, maskSquare, subWindowSize, null);
+            }
+            if (getOperator() == MEDIAN) {
+                final MedianFilterShape maskSquare = MedianFilterDescriptor.MEDIAN_MASK_SQUARE;
+                return MedianFilterDescriptor.create(geophysicalImage, maskSquare, subWindowSize, null);
+            }
+            if (getOperator() == MEAN) {
+                final int kernelSize = subWindowSize * subWindowSize;
+                float[] meanFilter = new float[kernelSize];
+                Arrays.fill(meanFilter, 1.0f / kernelSize);
+                int keyOrigin = (int) Math.ceil(subWindowSize / 2.0f);
+                KernelJAI kernel = new KernelJAI(subWindowSize, subWindowSize, keyOrigin, keyOrigin, meanFilter);
+                RenderingHints rh = new RenderingHints(JAI.KEY_BORDER_EXTENDER, noDataExtender);
+                return  ConvolveDescriptor.create(geophysicalImage, kernel, rh);
+            }
+            if (getOperator() == STDDEV) {
+                // TODO - implement a JAI operator
+            }
+            if (getOperator() == RMS) {
+                // TODO - implement a JAI operator
+            }
+            throw new IllegalStateException(
+                    String.format("Operator class %s not supported.", getOperator().getClass()));
+
+        }
+
     }
 }

@@ -42,7 +42,7 @@ public class GeneralFilterBandPersistableSpi implements DimapPersistableSpi {
             if(filterInfo != null) {
                 final String bandType = filterInfo.getAttributeValue(DimapProductConstants.ATTRIB_BAND_TYPE);
                 if (bandType != null) {
-                    return "GeneralFilterBand".equalsIgnoreCase(bandType.trim());
+                    return GeneralFilterBandPersistable.GENERAL_FILTER_BAND_TYPE.equalsIgnoreCase(bandType.trim());
                 }
             }
         }

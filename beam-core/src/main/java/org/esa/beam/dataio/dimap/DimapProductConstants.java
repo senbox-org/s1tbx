@@ -25,15 +25,15 @@ package org.esa.beam.dataio.dimap;
  */
 public final class DimapProductConstants {
 
-    public final static String DIMAP_FORMAT_NAME = "BEAM-DIMAP";
+    public static final String DIMAP_FORMAT_NAME = "BEAM-DIMAP";
     /**
      * BEAM-Dimap XML-File extension
      */
-    public final static String DIMAP_HEADER_FILE_EXTENSION = ".dim";
+    public static final String DIMAP_HEADER_FILE_EXTENSION = ".dim";
     /**
      * BEAM-Dimap data directory extension
      */
-    public final static String DIMAP_DATA_DIRECTORY_EXTENSION = ".data";
+    public static final String DIMAP_DATA_DIRECTORY_EXTENSION = ".data";
     public static final String IMAGE_FILE_EXTENSION = ".img";  /* ENVI specific */
     public static final String TIE_POINT_GRID_DIR_NAME = "tie_point_grids";
 
@@ -234,7 +234,6 @@ public final class DimapProductConstants {
      *      &lt;KERNEL_DATA&gt;kernelData[]&lt;/KERNEL_DATA&gt;
      *    &lt;/Filter_Kernel&gt;
      *  &lt;/Filter_Band_Info&gt;
-     * <p/>
      * <b>GeneralFilterBand</b>
      * &lt;Filter_Band_Info bandType="GeneralFilterBand"&gt;
      *   &lt;FILTER_SOURCE&gt;bandName&lt;/FILTER_SOURCE&gt;
@@ -302,55 +301,67 @@ public final class DimapProductConstants {
      * </pre>
      * </td>
      * </tr>
+     * <tr>
+     * <td valign="top">2.5.0</td>
+     * <td> Since version 4.5 BEAM, the width and height tags within the GeneralFilterBand element are replaced by a size tag:
+     * <pre>
+     * <b>These two tags</b>
+     *   &lt;FILTER_SUB_WINDOW_WIDTH&gt;subWindowWidth&lt;/FILTER_SUB_WINDOW_WIDTH&gt;
+     *   &lt;FILTER_SUB_WINDOW_HEIGHT&gt;subWindowHeight&lt;/FILTER_SUB_WINDOW_HEIGHT&gt;
+     * <b>are replaced by</b>
+     *   &lt;FILTER_SUB_WINDOW_SIZE&gt;subWindowSize&lt;/FILTER_SUB_WINDOW_SIZE&gt;
+     * </pre>
+     * </td>
+     * </tr>
      * </table>
      */
-    public final static String DIMAP_CURRENT_VERSION = "2.4.0";
+    public static final String DIMAP_CURRENT_VERSION = "2.5.0";
 
     // BEAM-Dimap default text
-    public final static String DIMAP_METADATA_PROFILE = "BEAM-DATAMODEL-V1";
-    public final static String DIMAP_DATASET_SERIES = "BEAM-PRODUCT";
-    public final static String DATASET_PRODUCER_NAME = " ";
+    public static final String DIMAP_METADATA_PROFILE = "BEAM-DATAMODEL-V1";
+    public static final String DIMAP_DATASET_SERIES = "BEAM-PRODUCT";
+    public static final String DATASET_PRODUCER_NAME = " ";
     //    public final static String DATASET_PRODUCER_NAME = "Brockmann-Consult | Phone +49 (04152) 889 300";
-    public final static String DATA_FILE_FORMAT = "ENVI";
-    public final static String DATA_FILE_FORMAT_DESCRIPTION = "ENVI File Format";
-    public final static String DATA_FILE_ORGANISATION = "BAND_SEPARATE";
+    public static final String DATA_FILE_FORMAT = "ENVI";
+    public static final String DATA_FILE_FORMAT_DESCRIPTION = "ENVI File Format";
+    public static final String DATA_FILE_ORGANISATION = "BAND_SEPARATE";
 
     // BEAM-Dimap document root tag
-    public final static String TAG_ROOT = "Dimap_Document";
+    public static final String TAG_ROOT = "Dimap_Document";
 
     // BEAM-Dimap metadata ID tags
-    public final static String TAG_METADATA_ID = "Metadata_Id";
-    public final static String TAG_METADATA_FORMAT = "METADATA_FORMAT";
-    public final static String TAG_METADATA_PROFILE = "METADATA_PROFILE";
+    public static final String TAG_METADATA_ID = "Metadata_Id";
+    public static final String TAG_METADATA_FORMAT = "METADATA_FORMAT";
+    public static final String TAG_METADATA_PROFILE = "METADATA_PROFILE";
 
     // BEAM-Dimap production tags
-    public final static String TAG_PRODUCTION = "Production";
-    public final static String TAG_DATASET_PRODUCER_NAME = "DATASET_PRODUCER_NAME";
-    public final static String TAG_DATASET_PRODUCER_URL = "DATASET_PRODUCER_URL";
-    public final static String TAG_DATASET_PRODUCTION_DATE = "DATASET_PRODUCTION_DATE";
-    public final static String TAG_JOB_ID = "JOB_ID";
-    public final static String TAG_PRODUCT_TYPE = "PRODUCT_TYPE";
-    public final static String TAG_PRODUCT_INFO = "PRODUCT_INFO";
-    public final static String TAG_PROCESSING_REQUEST = "PROCESSING_REQUEST";
-    public final static String TAG_REQUEST = "Request";
-    public final static String TAG_PARAMETER = "Parameter";
-    public final static String TAG_INPUTPRODUCT = "InputProduct";
-    public final static String TAG_OUTPUTPRODUCT = "OutputProduct";
-    public final static String TAG_PRODUCT_SCENE_RASTER_START_TIME = "PRODUCT_SCENE_RASTER_START_TIME";
-    public final static String TAG_PRODUCT_SCENE_RASTER_STOP_TIME = "PRODUCT_SCENE_RASTER_STOP_TIME";
-    public final static String TAG_OLD_SCENE_RASTER_START_TIME = "SENSING_START";
-    public final static String TAG_OLD_SCENE_RASTER_STOP_TIME = "SENSING_STOP";
+    public static final String TAG_PRODUCTION = "Production";
+    public static final String TAG_DATASET_PRODUCER_NAME = "DATASET_PRODUCER_NAME";
+    public static final String TAG_DATASET_PRODUCER_URL = "DATASET_PRODUCER_URL";
+    public static final String TAG_DATASET_PRODUCTION_DATE = "DATASET_PRODUCTION_DATE";
+    public static final String TAG_JOB_ID = "JOB_ID";
+    public static final String TAG_PRODUCT_TYPE = "PRODUCT_TYPE";
+    public static final String TAG_PRODUCT_INFO = "PRODUCT_INFO";
+    public static final String TAG_PROCESSING_REQUEST = "PROCESSING_REQUEST";
+    public static final String TAG_REQUEST = "Request";
+    public static final String TAG_PARAMETER = "Parameter";
+    public static final String TAG_INPUTPRODUCT = "InputProduct";
+    public static final String TAG_OUTPUTPRODUCT = "OutputProduct";
+    public static final String TAG_PRODUCT_SCENE_RASTER_START_TIME = "PRODUCT_SCENE_RASTER_START_TIME";
+    public static final String TAG_PRODUCT_SCENE_RASTER_STOP_TIME = "PRODUCT_SCENE_RASTER_STOP_TIME";
+    public static final String TAG_OLD_SCENE_RASTER_START_TIME = "SENSING_START";
+    public static final String TAG_OLD_SCENE_RASTER_STOP_TIME = "SENSING_STOP";
 
     // BEAM-Dimap geocoding tags
-    public final static String TAG_COORDINATE_REFERENCE_SYSTEM = "Coordinate_Reference_System";
-    public final static String TAG_GEOCODING_TIE_POINT_GRIDS = "Geocoding_Tie_Point_Grids";
-    public final static String TAG_TIE_POINT_GRID_NAME_LAT = "TIE_POINT_GRID_NAME_LAT";
-    public final static String TAG_TIE_POINT_GRID_NAME_LON = "TIE_POINT_GRID_NAME_LON";
-    public final static String TAG_GEOCODING_MAP = "Geocoding_Map";
-    public final static String TAG_GEOCODING_MAP_INFO = "MAP_INFO";
+    public static final String TAG_COORDINATE_REFERENCE_SYSTEM = "Coordinate_Reference_System";
+    public static final String TAG_GEOCODING_TIE_POINT_GRIDS = "Geocoding_Tie_Point_Grids";
+    public static final String TAG_TIE_POINT_GRID_NAME_LAT = "TIE_POINT_GRID_NAME_LAT";
+    public static final String TAG_TIE_POINT_GRID_NAME_LON = "TIE_POINT_GRID_NAME_LON";
+    public static final String TAG_GEOCODING_MAP = "Geocoding_Map";
+    public static final String TAG_GEOCODING_MAP_INFO = "MAP_INFO";
 
     //  -since version 2.0.0
-    public final static String TAG_HORIZONTAL_CS_TYPE = "HORIZONTAL_CS_TYPE";
+    public static final String TAG_HORIZONTAL_CS_TYPE = "HORIZONTAL_CS_TYPE";
 
 
     public static final String TAG_MAP_INFO_PIXEL_X = "PIXEL_X";
@@ -369,186 +380,191 @@ public final class DimapProductConstants {
     public static final String TAG_MAP_INFO_SCENE_HEIGHT = "SCENE_HEIGHT";
     public static final String TAG_MAP_INFO_RESAMPLING = "RESAMPLING";
 
-    public final static String TAG_GEOPOSITION = "Geoposition";
-    public final static String TAG_GEOPOSITION_INSERT = "Geoposition_Insert";
-    public final static String TAG_ULX_MAP = "ULXMAP";
-    public final static String TAG_ULY_MAP = "ULYMAP";
-    public final static String TAG_X_DIM = "XDIM";
-    public final static String TAG_Y_DIM = "YDIM";
-    public final static String TAG_SIMPLIFIED_LOCATION_MODEL = "Simplified_Location_Model";
-    public final static String TAG_DIRECT_LOCATION_MODEL = "Direct_Location_Model";
-    public final static String TAG_LC_LIST = "lc_List";
-    public final static String TAG_LC = "lc";
-    public final static String TAG_PC_LIST = "pc_List";
-    public final static String TAG_PC = "pc";
-    public final static String TAG_REVERSE_LOCATION_MODEL = "Reverse_Location_Model";
-    public final static String TAG_IC_LIST = "ic_List";
-    public final static String TAG_IC = "ic";
-    public final static String TAG_JC_LIST = "jc_List";
-    public final static String TAG_JC = "jc";
+    public static final String TAG_GEOPOSITION = "Geoposition";
+    public static final String TAG_GEOPOSITION_INSERT = "Geoposition_Insert";
+    public static final String TAG_ULX_MAP = "ULXMAP";
+    public static final String TAG_ULY_MAP = "ULYMAP";
+    public static final String TAG_X_DIM = "XDIM";
+    public static final String TAG_Y_DIM = "YDIM";
+    public static final String TAG_SIMPLIFIED_LOCATION_MODEL = "Simplified_Location_Model";
+    public static final String TAG_DIRECT_LOCATION_MODEL = "Direct_Location_Model";
+    public static final String TAG_LC_LIST = "lc_List";
+    public static final String TAG_LC = "lc";
+    public static final String TAG_PC_LIST = "pc_List";
+    public static final String TAG_PC = "pc";
+    public static final String TAG_REVERSE_LOCATION_MODEL = "Reverse_Location_Model";
+    public static final String TAG_IC_LIST = "ic_List";
+    public static final String TAG_IC = "ic";
+    public static final String TAG_JC_LIST = "jc_List";
+    public static final String TAG_JC = "jc";
 
     //   - since version 1.4.0
-    public final static String TAG_GEO_TABLES = "GEO_TABLES";
-    public final static String TAG_HORIZONTAL_CS = "Horizontal_CS";
-    public final static String TAG_HORIZONTAL_CS_NAME = "HORIZONTAL_CS_NAME";
-    public final static String TAG_GEOGRAPHIC_CS = "Geographic_CS";
-    public final static String TAG_GEOGRAPHIC_CS_NAME = "GEOGRAPHIC_CS_NAME";
-    public final static String TAG_HORIZONTAL_DATUM = "Horizontal_Datum";
-    public final static String TAG_HORIZONTAL_DATUM_NAME = "HORIZONTAL_DATUM_NAME";
-    public final static String TAG_ELLIPSOID = "Ellipsoid";
-    public final static String TAG_ELLIPSOID_NAME = "ELLIPSOID_NAME";
-    public final static String TAG_ELLIPSOID_PARAMETERS = "Ellipsoid_Parameters";
-    public final static String TAG_ELLIPSOID_MAJ_AXIS = "ELLIPSOID_MAJ_AXIS";
-    public final static String TAG_ELLIPSOID_MIN_AXIS = "ELLIPSOID_MIN_AXIS";
-    public final static String TAG_PROJECTION = "Projection";
-    public final static String TAG_PROJECTION_NAME = "NAME";
-    public final static String TAG_PROJECTION_CT_METHOD = "Projection_CT_Method";
-    public final static String TAG_PROJECTION_CT_NAME = "PROJECTION_CT_NAME";
-    public final static String TAG_PROJECTION_PARAMETERS = "Projection_Parameters";
-    public final static String TAG_PROJECTION_PARAMETER = "Projection_Parameter";
-    public final static String TAG_PROJECTION_PARAMETER_NAME = "PROJECTION_PARAMETER_NAME";
-    public final static String TAG_PROJECTION_PARAMETER_VALUE = "PROJECTION_PARAMETER_VALUE";
+    public static final String TAG_GEO_TABLES = "GEO_TABLES";
+    public static final String TAG_HORIZONTAL_CS = "Horizontal_CS";
+    public static final String TAG_HORIZONTAL_CS_NAME = "HORIZONTAL_CS_NAME";
+    public static final String TAG_GEOGRAPHIC_CS = "Geographic_CS";
+    public static final String TAG_GEOGRAPHIC_CS_NAME = "GEOGRAPHIC_CS_NAME";
+    public static final String TAG_HORIZONTAL_DATUM = "Horizontal_Datum";
+    public static final String TAG_HORIZONTAL_DATUM_NAME = "HORIZONTAL_DATUM_NAME";
+    public static final String TAG_ELLIPSOID = "Ellipsoid";
+    public static final String TAG_ELLIPSOID_NAME = "ELLIPSOID_NAME";
+    public static final String TAG_ELLIPSOID_PARAMETERS = "Ellipsoid_Parameters";
+    public static final String TAG_ELLIPSOID_MAJ_AXIS = "ELLIPSOID_MAJ_AXIS";
+    public static final String TAG_ELLIPSOID_MIN_AXIS = "ELLIPSOID_MIN_AXIS";
+    public static final String TAG_PROJECTION = "Projection";
+    public static final String TAG_PROJECTION_NAME = "NAME";
+    public static final String TAG_PROJECTION_CT_METHOD = "Projection_CT_Method";
+    public static final String TAG_PROJECTION_CT_NAME = "PROJECTION_CT_NAME";
+    public static final String TAG_PROJECTION_PARAMETERS = "Projection_Parameters";
+    public static final String TAG_PROJECTION_PARAMETER = "Projection_Parameter";
+    public static final String TAG_PROJECTION_PARAMETER_NAME = "PROJECTION_PARAMETER_NAME";
+    public static final String TAG_PROJECTION_PARAMETER_VALUE = "PROJECTION_PARAMETER_VALUE";
 
     // BEAM-Dimap dataset id tags
-    public final static String TAG_DATASET_ID = "Dataset_Id";
-    public final static String TAG_DATASET_INDEX = "DATASET_INDEX";
-    public final static String TAG_DATASET_SERIES = "DATASET_SERIES";
-    public final static String TAG_DATASET_NAME = "DATASET_NAME";
-    public final static String TAG_DATASET_DESCRIPTION = "DATASET_DESCRIPTION";
-    public final static String TAG_COPYRIGHT = "COPYRIGHT";
-    public final static String TAG_COUNTRY_NAME = "COUNTRY_NAME";
-    public final static String TAG_COUNTRY_CODE = "COUNTRY_CODE";
-    public final static String TAG_DATASET_LOCATION = "DATASET_LOCATION";
-    public final static String TAG_DATASET_TN_PATH = "DATASET_TN_PATH";
-    public final static String TAG_DATASET_TN_FORMAT = "DATASET_TN_FORMAT";
-    public final static String TAG_DATASET_QL_PATH = "DATASET_QL_PATH";
-    public final static String TAG_DATASET_QL_FORMAT = "DATASET_QL_FORMAT";
+    public static final String TAG_DATASET_ID = "Dataset_Id";
+    public static final String TAG_DATASET_INDEX = "DATASET_INDEX";
+    public static final String TAG_DATASET_SERIES = "DATASET_SERIES";
+    public static final String TAG_DATASET_NAME = "DATASET_NAME";
+    public static final String TAG_DATASET_DESCRIPTION = "DATASET_DESCRIPTION";
+    public static final String TAG_COPYRIGHT = "COPYRIGHT";
+    public static final String TAG_COUNTRY_NAME = "COUNTRY_NAME";
+    public static final String TAG_COUNTRY_CODE = "COUNTRY_CODE";
+    public static final String TAG_DATASET_LOCATION = "DATASET_LOCATION";
+    public static final String TAG_DATASET_TN_PATH = "DATASET_TN_PATH";
+    public static final String TAG_DATASET_TN_FORMAT = "DATASET_TN_FORMAT";
+    public static final String TAG_DATASET_QL_PATH = "DATASET_QL_PATH";
+    public static final String TAG_DATASET_QL_FORMAT = "DATASET_QL_FORMAT";
 
     // BEAM_Dimap dataset use tags
-    public final static String TAG_DATASET_USE = "Dataset_Use";
-    public final static String TAG_DATASET_COMMENTS = "DATASET_COMMENTS";
+    public static final String TAG_DATASET_USE = "Dataset_Use";
+    public static final String TAG_DATASET_COMMENTS = "DATASET_COMMENTS";
 
     // BEAM-Dimap flag coding tags
     // todo - FIXME!!! this is against DIMAP naming convention!!! (nf)
-    public final static String TAG_FLAG_CODING = "Flag_Coding";
-    public final static String TAG_FLAG = "Flag";
-    public final static String TAG_FLAG_NAME = "Flag_Name";
-    public final static String TAG_FLAG_INDEX = "Flag_Index";
-    public final static String TAG_FLAG_DESCRIPTION = "Flag_description";
+    public static final String TAG_FLAG_CODING = "Flag_Coding";
+    public static final String TAG_FLAG = "Flag";
+    public static final String TAG_FLAG_NAME = "Flag_Name";
+    public static final String TAG_FLAG_INDEX = "Flag_Index";
+    public static final String TAG_FLAG_DESCRIPTION = "Flag_description";
 
     // BEAM-Dimap index coding tags
-    public final static String TAG_INDEX_CODING = "Index_Coding";
-    public final static String TAG_INDEX = "Index";
-    public final static String TAG_INDEX_NAME = "INDEX_NAME";
-    public final static String TAG_INDEX_VALUE = "INDEX_VALUE";
-    public final static String TAG_INDEX_DESCRIPTION = "INDEX_DESCRIPTION";
+    public static final String TAG_INDEX_CODING = "Index_Coding";
+    public static final String TAG_INDEX = "Index";
+    public static final String TAG_INDEX_NAME = "INDEX_NAME";
+    public static final String TAG_INDEX_VALUE = "INDEX_VALUE";
+    public static final String TAG_INDEX_DESCRIPTION = "INDEX_DESCRIPTION";
 
     // BEAM-Dimap raster dimension tags
-    public final static String TAG_RASTER_DIMENSIONS = "Raster_Dimensions";
-    public final static String TAG_NCOLS = "NCOLS";
-    public final static String TAG_NROWS = "NROWS";
-    public final static String TAG_NBANDS = "NBANDS";
+    public static final String TAG_RASTER_DIMENSIONS = "Raster_Dimensions";
+    public static final String TAG_NCOLS = "NCOLS";
+    public static final String TAG_NROWS = "NROWS";
+    public static final String TAG_NBANDS = "NBANDS";
 
     // BEAM-Dimap tie point grid tags
-    public final static String TAG_TIE_POINT_GRIDS = "Tie_Point_Grids";
-    public final static String TAG_TIE_POINT_NUM_TIE_POINT_GRIDS = "NUM_TIE_POINT_GRIDS";
-    public final static String TAG_TIE_POINT_GRID_INFO = "Tie_Point_Grid_Info";
-    public final static String TAG_TIE_POINT_GRID_INDEX = "TIE_POINT_GRID_INDEX";
-    public final static String TAG_TIE_POINT_DESCRIPTION = "TIE_POINT_DESCRIPTION";
-    public final static String TAG_TIE_POINT_PHYSICAL_UNIT = "PHYSICAL_UNIT";
-    public final static String TAG_TIE_POINT_GRID_NAME = "TIE_POINT_GRID_NAME";
-    public final static String TAG_TIE_POINT_DATA_TYPE = "DATA_TYPE";
-    public final static String TAG_TIE_POINT_NCOLS = "NCOLS";
-    public final static String TAG_TIE_POINT_NROWS = "NROWS";
-    public final static String TAG_TIE_POINT_OFFSET_X = "OFFSET_X";
-    public final static String TAG_TIE_POINT_OFFSET_Y = "OFFSET_Y";
-    public final static String TAG_TIE_POINT_STEP_X = "STEP_X";
-    public final static String TAG_TIE_POINT_STEP_Y = "STEP_Y";
-    public final static String TAG_TIE_POINT_CYCLIC = "CYCLIC";
+    public static final String TAG_TIE_POINT_GRIDS = "Tie_Point_Grids";
+    public static final String TAG_TIE_POINT_NUM_TIE_POINT_GRIDS = "NUM_TIE_POINT_GRIDS";
+    public static final String TAG_TIE_POINT_GRID_INFO = "Tie_Point_Grid_Info";
+    public static final String TAG_TIE_POINT_GRID_INDEX = "TIE_POINT_GRID_INDEX";
+    public static final String TAG_TIE_POINT_DESCRIPTION = "TIE_POINT_DESCRIPTION";
+    public static final String TAG_TIE_POINT_PHYSICAL_UNIT = "PHYSICAL_UNIT";
+    public static final String TAG_TIE_POINT_GRID_NAME = "TIE_POINT_GRID_NAME";
+    public static final String TAG_TIE_POINT_DATA_TYPE = "DATA_TYPE";
+    public static final String TAG_TIE_POINT_NCOLS = "NCOLS";
+    public static final String TAG_TIE_POINT_NROWS = "NROWS";
+    public static final String TAG_TIE_POINT_OFFSET_X = "OFFSET_X";
+    public static final String TAG_TIE_POINT_OFFSET_Y = "OFFSET_Y";
+    public static final String TAG_TIE_POINT_STEP_X = "STEP_X";
+    public static final String TAG_TIE_POINT_STEP_Y = "STEP_Y";
+    public static final String TAG_TIE_POINT_CYCLIC = "CYCLIC";
 
     // BEAM-Dimap data access tags
-    public final static String TAG_DATA_ACCESS = "Data_Access";
-    public final static String TAG_DATA_FILE_FORMAT = "DATA_FILE_FORMAT";
-    public final static String TAG_DATA_FILE_FORMAT_DESC = "DATA_FILE_FORMAT_DESC";
-    public final static String TAG_DATA_FILE_ORGANISATION = "DATA_FILE_ORGANISATION";
-    public final static String TAG_DATA_FILE = "Data_File";
-    public final static String TAG_DATA_FILE_PATH = "DATA_FILE_PATH";
-    public final static String TAG_BAND_INDEX = "BAND_INDEX";
-    public final static String TAG_TIE_POINT_GRID_FILE = "Tie_Point_Grid_File";
-    public final static String TAG_TIE_POINT_GRID_FILE_PATH = "TIE_POINT_GRID_FILE_PATH";
+    public static final String TAG_DATA_ACCESS = "Data_Access";
+    public static final String TAG_DATA_FILE_FORMAT = "DATA_FILE_FORMAT";
+    public static final String TAG_DATA_FILE_FORMAT_DESC = "DATA_FILE_FORMAT_DESC";
+    public static final String TAG_DATA_FILE_ORGANISATION = "DATA_FILE_ORGANISATION";
+    public static final String TAG_DATA_FILE = "Data_File";
+    public static final String TAG_DATA_FILE_PATH = "DATA_FILE_PATH";
+    public static final String TAG_BAND_INDEX = "BAND_INDEX";
+    public static final String TAG_TIE_POINT_GRID_FILE = "Tie_Point_Grid_File";
+    public static final String TAG_TIE_POINT_GRID_FILE_PATH = "TIE_POINT_GRID_FILE_PATH";
 
     // BEAM-Dimap image display tags
-    public final static String TAG_IMAGE_DISPLAY = "Image_Display";
-    public final static String TAG_BAND_STATISTICS = "Band_Statistics";
-    public final static String TAG_STX_MIN = "STX_MIN";
-    public final static String TAG_STX_MAX = "STX_MAX";
-    public final static String TAG_STX_LEVEL = "STX_RES_LEVEL";
-    public final static String TAG_STX_MEAN = "STX_MEAN";
-    public final static String TAG_STX_STDV = "STX_STDV";
-    public final static String TAG_STX_LIN_MIN = "STX_LIN_MIN";
-    public final static String TAG_STX_LIN_MAX = "STX_LIN_MAX";
-    public final static String TAG_HISTOGRAM = "HISTOGRAM";
-    public final static String TAG_NUM_COLORS = "NUM_COLORS";
-    public final static String TAG_COLOR_PALETTE_POINT = "Color_Palette_Point";
-    public final static String TAG_SAMPLE = "SAMPLE";
-    public final static String TAG_LABEL = "LABEL";
-    public final static String TAG_COLOR = "COLOR";
-    public final static String TAG_GAMMA = "GAMMA";
-    public final static String TAG_NO_DATA_COLOR = "NO_DATA_COLOR";
-    public final static String TAG_HISTOGRAM_MATCHING = "HISTOGRAM_MATCHING";
-    public final static String TAG_BITMASK_OVERLAY = "Bitmask_Overlay";
-    public final static String TAG_BITMASK = "BITMASK";
-    public final static String TAG_ROI_DEFINITION = "ROI_Definition";
-    public final static String TAG_ROI_ONE_DIMENSIONS = "ROI_ONE_DIMENSIONS";
-    public final static String TAG_VALUE_RANGE_MAX = "VALUE_RANGE_MAX";
-    public final static String TAG_VALUE_RANGE_MIN = "VALUE_RANGE_MIN";
-    public final static String TAG_BITMASK_ENABLED = "BITMASK_ENABLED";
-    public final static String TAG_INVERTED = "INVERTED";
-    public final static String TAG_OR_COMBINED = "OR_COMBINED";
-    public final static String TAG_SHAPE_ENABLED = "SHAPE_ENABLED";
-    public final static String TAG_SHAPE_FIGURE = "Shape_Figure";
-    public final static String TAG_VALUE_RANGE_ENABLED = "VALUE_RANGE_ENABLED";
-    public final static String TAG_PATH_SEG = "SEGMENT";
-    public final static String TAG_PIN_USE_ENABLED = "PIN_USE_ENABLED";
+    public static final String TAG_IMAGE_DISPLAY = "Image_Display";
+    public static final String TAG_BAND_STATISTICS = "Band_Statistics";
+    public static final String TAG_STX_MIN = "STX_MIN";
+    public static final String TAG_STX_MAX = "STX_MAX";
+    public static final String TAG_STX_LEVEL = "STX_RES_LEVEL";
+    public static final String TAG_STX_MEAN = "STX_MEAN";
+    public static final String TAG_STX_STDV = "STX_STDV";
+    public static final String TAG_STX_LIN_MIN = "STX_LIN_MIN";
+    public static final String TAG_STX_LIN_MAX = "STX_LIN_MAX";
+    public static final String TAG_HISTOGRAM = "HISTOGRAM";
+    public static final String TAG_NUM_COLORS = "NUM_COLORS";
+    public static final String TAG_COLOR_PALETTE_POINT = "Color_Palette_Point";
+    public static final String TAG_SAMPLE = "SAMPLE";
+    public static final String TAG_LABEL = "LABEL";
+    public static final String TAG_COLOR = "COLOR";
+    public static final String TAG_GAMMA = "GAMMA";
+    public static final String TAG_NO_DATA_COLOR = "NO_DATA_COLOR";
+    public static final String TAG_HISTOGRAM_MATCHING = "HISTOGRAM_MATCHING";
+    public static final String TAG_BITMASK_OVERLAY = "Bitmask_Overlay";
+    public static final String TAG_BITMASK = "BITMASK";
+    public static final String TAG_ROI_DEFINITION = "ROI_Definition";
+    public static final String TAG_ROI_ONE_DIMENSIONS = "ROI_ONE_DIMENSIONS";
+    public static final String TAG_VALUE_RANGE_MAX = "VALUE_RANGE_MAX";
+    public static final String TAG_VALUE_RANGE_MIN = "VALUE_RANGE_MIN";
+    public static final String TAG_BITMASK_ENABLED = "BITMASK_ENABLED";
+    public static final String TAG_INVERTED = "INVERTED";
+    public static final String TAG_OR_COMBINED = "OR_COMBINED";
+    public static final String TAG_SHAPE_ENABLED = "SHAPE_ENABLED";
+    public static final String TAG_SHAPE_FIGURE = "Shape_Figure";
+    public static final String TAG_VALUE_RANGE_ENABLED = "VALUE_RANGE_ENABLED";
+    public static final String TAG_PATH_SEG = "SEGMENT";
+    public static final String TAG_PIN_USE_ENABLED = "PIN_USE_ENABLED";
 
     // BEAM-Dimap image interpretation tags
-    public final static String TAG_IMAGE_INTERPRETATION = "Image_Interpretation";
-    public final static String TAG_SPECTRAL_BAND_INFO = "Spectral_Band_Info";
-    public final static String TAG_VIRTUAL_BAND_INFO = "Virtual_Band_Info";
-    public final static String TAG_BAND_DESCRIPTION = "BAND_DESCRIPTION";
-    public final static String TAG_PHYSICAL_GAIN = "PHYSICAL_GAIN";
-    public final static String TAG_PHYSICAL_BIAS = "PHYSICAL_BIAS";
-    public final static String TAG_PHYSICAL_UNIT = "PHYSICAL_UNIT";
-    public final static String TAG_BAND_NAME = "BAND_NAME";
-    public final static String TAG_DATA_TYPE = "DATA_TYPE";
-    public final static String TAG_SOLAR_FLUX = "SOLAR_FLUX";
-    public final static String TAG_SPECTRAL_BAND_INDEX = "SPECTRAL_BAND_INDEX";
-    public final static String TAG_SOLAR_FLUX_UNIT = "SOLAR_FLUX_UNIT";
-    public final static String TAG_BANDWIDTH = "BANDWIDTH";
-    public final static String TAG_BAND_WAVELEN = "BAND_WAVELEN";
-    public final static String TAG_WAVELEN_UNIT = "WAVELEN_UNIT";
-    public final static String TAG_FLAG_CODING_NAME = "FLAG_CODING_NAME";
-    public final static String TAG_INDEX_CODING_NAME = "INDEX_CODING_NAME";
-    public final static String TAG_SCALING_FACTOR = "SCALING_FACTOR";
-    public final static String TAG_SCALING_OFFSET = "SCALING_OFFSET";
-    public final static String TAG_SCALING_LOG_10 = "LOG10_SCALED";
-    public final static String TAG_VALID_MASK_TERM = "VALID_MASK_TERM";
-    public final static String TAG_NO_DATA_VALUE_USED = "NO_DATA_VALUE_USED";
-    public final static String TAG_NO_DATA_VALUE = "NO_DATA_VALUE";
+    public static final String TAG_IMAGE_INTERPRETATION = "Image_Interpretation";
+    public static final String TAG_SPECTRAL_BAND_INFO = "Spectral_Band_Info";
+    public static final String TAG_VIRTUAL_BAND_INFO = "Virtual_Band_Info";
+    public static final String TAG_BAND_DESCRIPTION = "BAND_DESCRIPTION";
+    public static final String TAG_PHYSICAL_GAIN = "PHYSICAL_GAIN";
+    public static final String TAG_PHYSICAL_BIAS = "PHYSICAL_BIAS";
+    public static final String TAG_PHYSICAL_UNIT = "PHYSICAL_UNIT";
+    public static final String TAG_BAND_NAME = "BAND_NAME";
+    public static final String TAG_DATA_TYPE = "DATA_TYPE";
+    public static final String TAG_SOLAR_FLUX = "SOLAR_FLUX";
+    public static final String TAG_SPECTRAL_BAND_INDEX = "SPECTRAL_BAND_INDEX";
+    public static final String TAG_SOLAR_FLUX_UNIT = "SOLAR_FLUX_UNIT";
+    public static final String TAG_BANDWIDTH = "BANDWIDTH";
+    public static final String TAG_BAND_WAVELEN = "BAND_WAVELEN";
+    public static final String TAG_WAVELEN_UNIT = "WAVELEN_UNIT";
+    public static final String TAG_FLAG_CODING_NAME = "FLAG_CODING_NAME";
+    public static final String TAG_INDEX_CODING_NAME = "INDEX_CODING_NAME";
+    public static final String TAG_SCALING_FACTOR = "SCALING_FACTOR";
+    public static final String TAG_SCALING_OFFSET = "SCALING_OFFSET";
+    public static final String TAG_SCALING_LOG_10 = "LOG10_SCALED";
+    public static final String TAG_VALID_MASK_TERM = "VALID_MASK_TERM";
+    public static final String TAG_NO_DATA_VALUE_USED = "NO_DATA_VALUE_USED";
+    public static final String TAG_NO_DATA_VALUE = "NO_DATA_VALUE";
 
     //Virtual bands support
-    public final static String TAG_VIRTUAL_BAND = "VIRTUAL_BAND";
-    public final static String TAG_VIRTUAL_BAND_CHECK_INVALIDS = "CHECK_INVALIDS";
-    public final static String TAG_VIRTUAL_BAND_EXPRESSION = "EXPRESSION";
-    public final static String TAG_VIRTUAL_BAND_INVALID_VALUE = "INVALID_VALUE";
-    public final static String TAG_VIRTUAL_BAND_USE_INVALID_VALUE = "USE_INVALID_VALUE";
+    public static final String TAG_VIRTUAL_BAND = "VIRTUAL_BAND";
+    public static final String TAG_VIRTUAL_BAND_CHECK_INVALIDS = "CHECK_INVALIDS";
+    public static final String TAG_VIRTUAL_BAND_EXPRESSION = "EXPRESSION";
+    public static final String TAG_VIRTUAL_BAND_INVALID_VALUE = "INVALID_VALUE";
+    public static final String TAG_VIRTUAL_BAND_USE_INVALID_VALUE = "USE_INVALID_VALUE";
 
-    // Filter bands support
+    // Filter bands support -- version 1.0
+    @Deprecated
+    public static final String TAG_FILTER_SUB_WINDOW_WIDTH = "FILTER_SUB_WINDOW_WIDTH";
+    @Deprecated
+    public static final String TAG_FILTER_SUB_WINDOW_HEIGHT = "FILTER_SUB_WINDOW_HEIGHT";
+
+    // Filter bands support -- versions 1.0, 1.1
     public static final String TAG_FILTER_BAND_INFO = "Filter_Band_Info";
     public static final String TAG_FILTER_SOURCE = "FILTER_SOURCE";
     public static final String TAG_FILTER_KERNEL = "Filter_Kernel";
-    public static final String TAG_FILTER_SUB_WINDOW_WIDTH = "FILTER_SUB_WINDOW_WIDTH";
-    public static final String TAG_FILTER_SUB_WINDOW_HEIGHT = "FILTER_SUB_WINDOW_HEIGHT";
+    public static final String TAG_FILTER_SUB_WINDOW_SIZE = "FILTER_SUB_WINDOW_SIZE";
     public static final String TAG_FILTER_OPERATOR_CLASS_NAME = "FILTER_OPERATOR_CLASS_NAME";
 
     // Kernel support
@@ -558,69 +574,69 @@ public final class DimapProductConstants {
     public static final String TAG_KERNEL_DATA = "KERNEL_DATA";
 
     // BEAM-Dimap dataset sources tags
-    public final static String TAG_DATASET_SOURCES = "Dataset_Sources";
-    public final static String TAG_SOURCE_INFORMATION = "Source_Information";
-    public final static String TAG_SOURCE_ID = "SOURCE_ID";
-    public final static String TAG_SOURCE_TYPE = "SOURCE_TYPE";
-    public final static String TAG_SOURCE_DESCRIPTION = "SOURCE_DESCRIPTION";
-    public final static String TAG_SOURCE_FRAME = "Source_Frame";
-    public final static String TAG_VERTEX = "Vertex";
-    public final static String TAG_FRAME_LON = "FRAME_LON";
-    public final static String TAG_FRAME_LAT = "FRAME_LAT";
-    public final static String TAG_FRAME_X = "FRAME_X";
-    public final static String TAG_FRAME_Y = "FRAME_Y";
-    public final static String TAG_SCENE_SOURCE = "Scene_Source";
-    public final static String TAG_MISSION = "MISSION";
-    public final static String TAG_INSTRUMENT = "INSTRUMENT";
-    public final static String TAG_IMAGING_MODE = "IMAGING_MODE";
-    public final static String TAG_IMAGING_DATE = "IMAGING_DATE";
-    public final static String TAG_IMAGING_TIME = "IMAGING_TIME";
-    public final static String TAG_GRID_REFERENCE = "GRID_REFERENCE";
-    public final static String TAG_SCENE_RECTIFICATION_ELEV = "SCENE_RECTIFICATION_ELEV";
-    public final static String TAG_INCIDENCE_ANGLE = "INCIDENCE_ANGLE";
-    public final static String TAG_THEORETICAL_RESOLUTION = "THEORETICAL_RESOLUTION";
-    public final static String TAG_SUN_AZIMUTH = "SUN_AZIMUTH";
-    public final static String TAG_SUN_ELEVATION = "SUN_ELEVATION";
-    public final static String TAG_METADATA_ELEMENT = "MDElem";
-    public final static String TAG_METADATA_VALUE = "VALUE";
-    public final static String TAG_METADATA_ATTRIBUTE = "MDATTR";
+    public static final String TAG_DATASET_SOURCES = "Dataset_Sources";
+    public static final String TAG_SOURCE_INFORMATION = "Source_Information";
+    public static final String TAG_SOURCE_ID = "SOURCE_ID";
+    public static final String TAG_SOURCE_TYPE = "SOURCE_TYPE";
+    public static final String TAG_SOURCE_DESCRIPTION = "SOURCE_DESCRIPTION";
+    public static final String TAG_SOURCE_FRAME = "Source_Frame";
+    public static final String TAG_VERTEX = "Vertex";
+    public static final String TAG_FRAME_LON = "FRAME_LON";
+    public static final String TAG_FRAME_LAT = "FRAME_LAT";
+    public static final String TAG_FRAME_X = "FRAME_X";
+    public static final String TAG_FRAME_Y = "FRAME_Y";
+    public static final String TAG_SCENE_SOURCE = "Scene_Source";
+    public static final String TAG_MISSION = "MISSION";
+    public static final String TAG_INSTRUMENT = "INSTRUMENT";
+    public static final String TAG_IMAGING_MODE = "IMAGING_MODE";
+    public static final String TAG_IMAGING_DATE = "IMAGING_DATE";
+    public static final String TAG_IMAGING_TIME = "IMAGING_TIME";
+    public static final String TAG_GRID_REFERENCE = "GRID_REFERENCE";
+    public static final String TAG_SCENE_RECTIFICATION_ELEV = "SCENE_RECTIFICATION_ELEV";
+    public static final String TAG_INCIDENCE_ANGLE = "INCIDENCE_ANGLE";
+    public static final String TAG_THEORETICAL_RESOLUTION = "THEORETICAL_RESOLUTION";
+    public static final String TAG_SUN_AZIMUTH = "SUN_AZIMUTH";
+    public static final String TAG_SUN_ELEVATION = "SUN_ELEVATION";
+    public static final String TAG_METADATA_ELEMENT = "MDElem";
+    public static final String TAG_METADATA_VALUE = "VALUE";
+    public static final String TAG_METADATA_ATTRIBUTE = "MDATTR";
 
     // BEAM-Dimap bitmask definition tags
-    public final static String TAG_BITMASK_DEFINITIONS = "Bitmask_Definitions";
-    public final static String TAG_BITMASK_DEFINITION = "Bitmask_Definition";
-    public final static String TAG_BITMASK_DESCRIPTION = "DESCRIPTION";
-    public final static String TAG_BITMASK_EXPRESSION = "EXPRESSION";
-    public final static String TAG_BITMASK_COLOR = TAG_COLOR;
-    public final static String TAG_BITMASK_TRANSPARENCY = "TRANSPARENCY";
+    public static final String TAG_BITMASK_DEFINITIONS = "Bitmask_Definitions";
+    public static final String TAG_BITMASK_DEFINITION = "Bitmask_Definition";
+    public static final String TAG_BITMASK_DESCRIPTION = "DESCRIPTION";
+    public static final String TAG_BITMASK_EXPRESSION = "EXPRESSION";
+    public static final String TAG_BITMASK_COLOR = TAG_COLOR;
+    public static final String TAG_BITMASK_TRANSPARENCY = "TRANSPARENCY";
 
     // BEAM-Dimap placemark tags
-    public final static String TAG_PLACEMARK = "Placemark";
-    public final static String TAG_PLACEMARK_LABEL = "LABEL";
-    public final static String TAG_PLACEMARK_DESCRIPTION = "DESCRIPTION";
-    public final static String TAG_PLACEMARK_LATITUDE = "LATITUDE";
-    public final static String TAG_PLACEMARK_LONGITUDE = "LONGITUDE";
-    public final static String TAG_PLACEMARK_PIXEL_X = "PIXEL_X";
-    public final static String TAG_PLACEMARK_PIXEL_Y = "PIXEL_Y";
-    public final static String TAG_PLACEMARK_FILL_COLOR = "FillColor";
-    public final static String TAG_PLACEMARK_OUTLINE_COLOR = "OutlineColor";
+    public static final String TAG_PLACEMARK = "Placemark";
+    public static final String TAG_PLACEMARK_LABEL = "LABEL";
+    public static final String TAG_PLACEMARK_DESCRIPTION = "DESCRIPTION";
+    public static final String TAG_PLACEMARK_LATITUDE = "LATITUDE";
+    public static final String TAG_PLACEMARK_LONGITUDE = "LONGITUDE";
+    public static final String TAG_PLACEMARK_PIXEL_X = "PIXEL_X";
+    public static final String TAG_PLACEMARK_PIXEL_Y = "PIXEL_Y";
+    public static final String TAG_PLACEMARK_FILL_COLOR = "FillColor";
+    public static final String TAG_PLACEMARK_OUTLINE_COLOR = "OutlineColor";
 
     // BEAM-Dimap pin tags
-    public final static String TAG_PIN_GROUP = "Pin_Group";
-    public final static String TAG_PIN = "Pin";
+    public static final String TAG_PIN_GROUP = "Pin_Group";
+    public static final String TAG_PIN = "Pin";
 
     // BEAM-Dimap gcp tags
-    public final static String TAG_GCP_GROUP = "Gcp_Group";
+    public static final String TAG_GCP_GROUP = "Gcp_Group";
 
     /**
      * @deprecated in 4.1, use {@link #TAG_PLACEMARK_LABEL}
      */
     @Deprecated
-    public final static String TAG_PIN_LABEL = TAG_PLACEMARK_LABEL;
+    public static final String TAG_PIN_LABEL = TAG_PLACEMARK_LABEL;
     /**
      * @deprecated in 4.1, use {@link #TAG_PLACEMARK_DESCRIPTION}
      */
     @Deprecated
-    public final static String TAG_PIN_DESCRIPTION;
+    public static final String TAG_PIN_DESCRIPTION;
 
     static {
         TAG_PIN_DESCRIPTION = TAG_PLACEMARK_DESCRIPTION;
@@ -630,50 +646,50 @@ public final class DimapProductConstants {
      * @deprecated in 4.1, use {@link #TAG_PLACEMARK_LATITUDE}
      */
     @Deprecated
-    public final static String TAG_PIN_LATITUDE = TAG_PLACEMARK_LATITUDE;
+    public static final String TAG_PIN_LATITUDE = TAG_PLACEMARK_LATITUDE;
     /**
      * @deprecated in 4.1, use {@link #TAG_PLACEMARK_LONGITUDE}
      */
     @Deprecated
-    public final static String TAG_PIN_LONGITUDE = TAG_PLACEMARK_LONGITUDE;
+    public static final String TAG_PIN_LONGITUDE = TAG_PLACEMARK_LONGITUDE;
     /**
      * @deprecated in 4.1, use {@link #TAG_PLACEMARK_PIXEL_X}
      */
     @Deprecated
-    public final static String TAG_PIN_PIXEL_X = TAG_PLACEMARK_PIXEL_X;
+    public static final String TAG_PIN_PIXEL_X = TAG_PLACEMARK_PIXEL_X;
     /**
      * @deprecated in 4.1, use {@link #TAG_PLACEMARK_PIXEL_Y}
      */
     @Deprecated
-    public final static String TAG_PIN_PIXEL_Y = TAG_PLACEMARK_PIXEL_Y;
+    public static final String TAG_PIN_PIXEL_Y = TAG_PLACEMARK_PIXEL_Y;
     /**
      * @deprecated in 4.1, use {@link #TAG_PLACEMARK_FILL_COLOR}
      */
     @Deprecated
-    public final static String TAG_PIN_FILL_COLOR = TAG_PLACEMARK_FILL_COLOR;
+    public static final String TAG_PIN_FILL_COLOR = TAG_PLACEMARK_FILL_COLOR;
     /**
      * @deprecated in 4.1, use {@link #TAG_PLACEMARK_OUTLINE_COLOR}
      */
     @Deprecated
-    public final static String TAG_PIN_OUTLINE_COLOR = TAG_PLACEMARK_OUTLINE_COLOR;
+    public static final String TAG_PIN_OUTLINE_COLOR = TAG_PLACEMARK_OUTLINE_COLOR;
 
     // attribute
-    public final static String ATTRIB_RED = "red";
-    public final static String ATTRIB_GREEN = "green";
-    public final static String ATTRIB_BLUE = "blue";
-    public final static String ATTRIB_ALPHA = "alpha";
-    public final static String ATTRIB_NAMES = "names";
-    public final static String ATTRIB_DESCRIPTION = "desc";
-    public final static String ATTRIB_UNIT = "unit";
-    public final static String ATTRIB_MODE = "mode";
-    public final static String ATTRIB_TYPE = "type";
-    public final static String ATTRIB_ELEMS = "elems";
-    public final static String ATTRIB_NAME = "name";
-    public final static String ATTRIB_VERSION = "version";
-    public final static String ATTRIB_HREF = "href";
-    public final static String ATTRIB_VALUE = "value";
-    public final static String ATTRIB_ORDER = "order";
-    public final static String ATTRIB_INDEX = "index";
+    public static final String ATTRIB_RED = "red";
+    public static final String ATTRIB_GREEN = "green";
+    public static final String ATTRIB_BLUE = "blue";
+    public static final String ATTRIB_ALPHA = "alpha";
+    public static final String ATTRIB_NAMES = "names";
+    public static final String ATTRIB_DESCRIPTION = "desc";
+    public static final String ATTRIB_UNIT = "unit";
+    public static final String ATTRIB_MODE = "mode";
+    public static final String ATTRIB_TYPE = "type";
+    public static final String ATTRIB_ELEMS = "elems";
+    public static final String ATTRIB_NAME = "name";
+    public static final String ATTRIB_VERSION = "version";
+    public static final String ATTRIB_HREF = "href";
+    public static final String ATTRIB_VALUE = "value";
+    public static final String ATTRIB_ORDER = "order";
+    public static final String ATTRIB_INDEX = "index";
     public static final String ATTRIB_BAND_TYPE = "bandType";
 
 }

@@ -122,7 +122,7 @@ public class DimapHeaderWriterTest extends TestCase {
             "            <BAND_INDEX>3</BAND_INDEX>" + _ls +
             "            <BAND_NAME>cfb1</BAND_NAME>" + _ls +
             "            <BAND_DESCRIPTION />" + _ls +
-            "            <DATA_TYPE>float32</DATA_TYPE>" + _ls +
+            "            <DATA_TYPE>int8</DATA_TYPE>" + _ls +
             "            <PHYSICAL_UNIT />" + _ls +
             "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + _ls +
             "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + _ls +
@@ -130,8 +130,8 @@ public class DimapHeaderWriterTest extends TestCase {
             "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + _ls +
             "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + _ls +
             "            <LOG10_SCALED>false</LOG10_SCALED>" + _ls +
-            "            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>" + _ls +
-            "            <NO_DATA_VALUE>-9999.0</NO_DATA_VALUE>" + _ls +
+            "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + _ls +
+            "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + _ls +
             "            <Filter_Band_Info bandType=\"ConvolutionFilterBand\">" + _ls +
             "                <FILTER_SOURCE>b2</FILTER_SOURCE>" + _ls +
             "                <Filter_Kernel>" + _ls +
@@ -146,7 +146,7 @@ public class DimapHeaderWriterTest extends TestCase {
             "            <BAND_INDEX>4</BAND_INDEX>" + _ls +
             "            <BAND_NAME>gfb1</BAND_NAME>" + _ls +
             "            <BAND_DESCRIPTION />" + _ls +
-            "            <DATA_TYPE>float32</DATA_TYPE>" + _ls +
+            "            <DATA_TYPE>int8</DATA_TYPE>" + _ls +
             "            <PHYSICAL_UNIT />" + _ls +
             "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + _ls +
             "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + _ls +
@@ -154,12 +154,11 @@ public class DimapHeaderWriterTest extends TestCase {
             "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + _ls +
             "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + _ls +
             "            <LOG10_SCALED>false</LOG10_SCALED>" + _ls +
-            "            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>" + _ls +
-            "            <NO_DATA_VALUE>-9999.0</NO_DATA_VALUE>" + _ls +
-            "            <Filter_Band_Info bandType=\"GeneralFilterBand\">" + _ls +
+            "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + _ls +
+            "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + _ls +
+            "            <Filter_Band_Info bandType=\"GeneralFilterBand\" version=\"1.1\">" + _ls +
             "                <FILTER_SOURCE>b2</FILTER_SOURCE>" + _ls +
-            "                <FILTER_SUB_WINDOW_WIDTH>150</FILTER_SUB_WINDOW_WIDTH>" + _ls +
-            "                <FILTER_SUB_WINDOW_HEIGHT>200</FILTER_SUB_WINDOW_HEIGHT>" + _ls +
+            "                <FILTER_SUB_WINDOW_SIZE>150</FILTER_SUB_WINDOW_SIZE>" + _ls +
             "                <FILTER_OPERATOR_CLASS_NAME>org.esa.beam.framework.datamodel.GeneralFilterBand$Mean</FILTER_OPERATOR_CLASS_NAME>" + _ls +
             "            </Filter_Band_Info>" + _ls +
             "        </Spectral_Band_Info>" + _ls +
@@ -615,7 +614,7 @@ public class DimapHeaderWriterTest extends TestCase {
         _product.addBand(new VirtualBand("vb1", ProductData.TYPE_INT8, 200, 300, "b1 * 0.4 + 1"));
         _product.addBand(new ConvolutionFilterBand("cfb1", band2,
                                                    new Kernel(3, 3, 1, new double[]{1, 2, 3, 4, 5, 6, 7, 8, 9})));
-        _product.addBand(new GeneralFilterBand("gfb1", band2, 150, 200, GeneralFilterBand.MEAN));
+        _product.addBand(new GeneralFilterBand("gfb1", band2, 150, GeneralFilterBand.MEAN));
 
 
         band1.setGeoCoding(geoCoding1);

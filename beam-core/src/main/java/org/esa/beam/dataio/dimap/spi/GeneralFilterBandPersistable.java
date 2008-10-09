@@ -24,6 +24,7 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.jdom.Element;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Marco Peters.
@@ -34,22 +35,31 @@ import java.util.ArrayList;
  * @version $Revision$ $Date$
  */
 class GeneralFilterBandPersistable implements DimapPersistable {
-
+    static final String VERSION_1_0 = "1.0";
+    static final String VERSION_1_1 = "1.1";
+    static final String ATTRIBUTE_BAND_TYPE = DimapProductConstants.ATTRIB_BAND_TYPE;
+    static final String ATTRIBUTE_VERSION = "version";
+    static final String GENERAL_FILTER_BAND_TYPE = "GeneralFilterBand";
 
     public Object createObjectFromXml(Element element, Product product) {
         final Element filterBandInfo = element.getChild(DimapProductConstants.TAG_FILTER_BAND_INFO);
-        final int subWindowWidth = Integer.parseInt(
-                filterBandInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_SUB_WINDOW_WIDTH));
-        final int subWindowHeight = Integer.parseInt(
-                filterBandInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_SUB_WINDOW_HEIGHT));
+        final String version = filterBandInfo.getAttributeValue(ATTRIBUTE_VERSION);
+        final int subWindowSize;
+        if (VERSION_1_1.equals(version)) {
+            subWindowSize = Integer.parseInt(
+                    filterBandInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE));
+        } else {
+            // fallback version 1.0
+            subWindowSize = Integer.parseInt(
+                    filterBandInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_SUB_WINDOW_WIDTH));
+        }
         final GeneralFilterBand.Operator operator = GeneralFilterBand.createOperator(
                 filterBandInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_OPERATOR_CLASS_NAME));
 
         final String sourceName = filterBandInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_SOURCE);
         final RasterDataNode sourceNode = product.getRasterDataNode(sourceName);
         final String bandName = element.getChildTextTrim(DimapProductConstants.TAG_BAND_NAME);
-        final GeneralFilterBand gfb = new GeneralFilterBand(bandName, sourceNode,
-                                                            subWindowWidth, subWindowHeight, operator);
+        final GeneralFilterBand gfb = new GeneralFilterBand(bandName, sourceNode, subWindowSize, operator);
 
         gfb.setDescription(element.getChildTextTrim(DimapProductConstants.TAG_BAND_DESCRIPTION));
         gfb.setUnit(element.getChildTextTrim(DimapProductConstants.TAG_PHYSICAL_UNIT));
@@ -68,7 +78,7 @@ class GeneralFilterBandPersistable implements DimapPersistable {
 
     public Element createXmlFromObject(Object object) {
         final GeneralFilterBand gfb = (GeneralFilterBand) object;
-        final ArrayList contentList = new ArrayList();
+        final List<Element> contentList = new ArrayList<Element>(20);
         contentList.add(createElement(DimapProductConstants.TAG_BAND_INDEX, String.valueOf(gfb.getProduct().getBandIndex(gfb.getName()))));
         contentList.add(createElement(DimapProductConstants.TAG_BAND_NAME, gfb.getName()));
         contentList.add(createElement(DimapProductConstants.TAG_BAND_DESCRIPTION, gfb.getDescription()));
@@ -82,15 +92,15 @@ class GeneralFilterBandPersistable implements DimapPersistable {
         contentList.add(createElement(DimapProductConstants.TAG_SCALING_LOG_10, String.valueOf(gfb.isLog10Scaled())));
         contentList.add(createElement(DimapProductConstants.TAG_NO_DATA_VALUE_USED, String.valueOf(gfb.isNoDataValueUsed())));
         contentList.add(createElement(DimapProductConstants.TAG_NO_DATA_VALUE, String.valueOf(gfb.getNoDataValue())));
-        final ArrayList filterBandInfoList = new ArrayList();
+        final List<Element> filterBandInfoList = new ArrayList<Element>(5);
         filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SOURCE, gfb.getSource().getName()));
-        filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SUB_WINDOW_WIDTH, String.valueOf(gfb.getSubWindowWidth())));
-        filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SUB_WINDOW_HEIGHT, String.valueOf(gfb.getSubWindowHeight())));
+        filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE, String.valueOf(gfb.getSubWindowSize())));
         filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_OPERATOR_CLASS_NAME, gfb.getOperator().getClass().getName()));
 
         final Element filterBandInfo = new Element(DimapProductConstants.TAG_FILTER_BAND_INFO);
-        filterBandInfo.setAttribute("bandType", "GeneralFilterBand");
-        filterBandInfo.addContent(filterBandInfoList); 
+        filterBandInfo.setAttribute(ATTRIBUTE_BAND_TYPE, GENERAL_FILTER_BAND_TYPE);
+        filterBandInfo.setAttribute(ATTRIBUTE_VERSION, VERSION_1_1);
+        filterBandInfo.addContent(filterBandInfoList);
         contentList.add(filterBandInfo);
 
         final Element root = new Element(DimapProductConstants.TAG_SPECTRAL_BAND_INFO);

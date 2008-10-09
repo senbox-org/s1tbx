@@ -68,7 +68,7 @@ public class ConvolutionFilterBandPersistableTest extends TestCase {
         assertEquals(1, _product.getBandIndex(cfb.getName()));
         assertEquals("aBand", cfb.getName());
         assertEquals("this is a band", cfb.getDescription());
-        assertEquals(ProductData.TYPE_FLOAT32, cfb.getDataType());
+        assertEquals(_source.getGeophysicalDataType(), cfb.getDataType());
         assertEquals("l", cfb.getUnit());
         assertEquals(0.0, cfb.getSolarFlux(), EPS);
         assertEquals(0.0, cfb.getSpectralWavelength(), EPS);
@@ -77,7 +77,6 @@ public class ConvolutionFilterBandPersistableTest extends TestCase {
         assertEquals(0.0, cfb.getScalingOffset(), EPS);
         assertFalse(cfb.isLog10Scaled());
         assertTrue(cfb.isNoDataValueUsed());
-        assertEquals(-9999.0, cfb.getNoDataValue(), EPS);
         assertEquals(cfb.getSource().getName(), _source.getName());
         assertEquals(3, cfb.getKernel().getWidth());
         assertEquals(3, cfb.getKernel().getHeight());
@@ -159,28 +158,30 @@ public class ConvolutionFilterBandPersistableTest extends TestCase {
         final List expChildren = xmlElement.getChildren();
         final List actChildren = xmlFromObject.getChildren();
         assertEquals(expChildren.size(), actChildren.size());
-        assertEqualElementList(expChildren, actChildren);
+        assertEqualElement(xmlElement, xmlFromObject);
     }
 
-    private static void assertEqualElementList(List expList, List actList) {
-        for (int i = 0; i < expList.size(); i++) {
-            final Element expElement = (Element) expList.get(i);
-            final Element actElement = (Element) actList.get(i);
-            if(expElement.getChildren().size() > 0) {
-                assertEqualElementList(expElement.getChildren(), actElement.getChildren());
-            } else {
-                assertEquals(expElement.getName(), actElement.getName());
-                assertEquals(expElement.getTextTrim(), actElement.getTextTrim());
+    private static void assertEqualElement(Element expElement, Element actElement) {
+        if (!expElement.getChildren().isEmpty()) {
+            final List expList = expElement.getChildren();
+            for (Object expElem : expList) {
+                final Element expSubElement = (Element) expElem;
+                final Element actSubElement = actElement.getChild(expSubElement.getName());
+                assertEqualElement(expSubElement, actSubElement);
             }
+        } else {
+            assertEquals(expElement.getName(), actElement.getName());
+            assertEquals(expElement.getTextTrim(), actElement.getTextTrim());
         }
     }
 
-    private static Element createXmlElement() {
-        final ArrayList contentList = new ArrayList();
+    private Element createXmlElement() {
+        final List<Element> contentList = new ArrayList<Element>(16);
         contentList.add(createElement(DimapProductConstants.TAG_BAND_INDEX, "1"));
         contentList.add(createElement(DimapProductConstants.TAG_BAND_NAME, "aBand"));
         contentList.add(createElement(DimapProductConstants.TAG_BAND_DESCRIPTION, "this is a band"));
-        contentList.add(createElement(DimapProductConstants.TAG_DATA_TYPE, "float32"));
+        final String dataType = ProductData.getTypeString(_source.getGeophysicalDataType());
+        contentList.add(createElement(DimapProductConstants.TAG_DATA_TYPE, dataType));
         contentList.add(createElement(DimapProductConstants.TAG_PHYSICAL_UNIT, "l"));
         contentList.add(createElement(DimapProductConstants.TAG_SOLAR_FLUX, "0.0"));
         contentList.add(createElement(DimapProductConstants.TAG_BAND_WAVELEN, "0.0"));
@@ -189,12 +190,12 @@ public class ConvolutionFilterBandPersistableTest extends TestCase {
         contentList.add(createElement(DimapProductConstants.TAG_SCALING_OFFSET, "0.0"));
         contentList.add(createElement(DimapProductConstants.TAG_SCALING_LOG_10, "false"));
         contentList.add(createElement(DimapProductConstants.TAG_NO_DATA_VALUE_USED, "true"));
-        contentList.add(createElement(DimapProductConstants.TAG_NO_DATA_VALUE, "-9999.0"));
+        contentList.add(createElement(DimapProductConstants.TAG_NO_DATA_VALUE, Double.toString(_source.getGeophysicalNoDataValue())));
 
-        final ArrayList filterBandInfoList = new ArrayList();
+        final List<Element> filterBandInfoList = new ArrayList<Element>(3);
         filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SOURCE, "anyBand"));
 
-        final ArrayList kernelInfoList = new ArrayList();
+        final List<Element> kernelInfoList = new ArrayList<Element>(8);
         kernelInfoList.add(createElement(DimapProductConstants.TAG_KERNEL_WIDTH, "3"));
         kernelInfoList.add(createElement(DimapProductConstants.TAG_KERNEL_HEIGHT, "3"));
         kernelInfoList.add(createElement(DimapProductConstants.TAG_KERNEL_FACTOR, "1.7"));

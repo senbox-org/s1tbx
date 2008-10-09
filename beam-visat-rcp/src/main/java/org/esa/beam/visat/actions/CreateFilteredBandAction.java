@@ -223,10 +223,11 @@ public class CreateFilteredBandAction extends ExecCommand {
             new GeneralFilter("Mean 5x5", 5, 5, GeneralFilterBand.MEAN),
             new GeneralFilter("Median 3x3", 3, 3, GeneralFilterBand.MEDIAN),
             new GeneralFilter("Median 5x5", 5, 5, GeneralFilterBand.MEDIAN),
-            new GeneralFilter("Standard Deviation 3x3", 3, 3, GeneralFilterBand.STDDEV),
-            new GeneralFilter("Standard Deviation 5x5", 5, 5, GeneralFilterBand.STDDEV),
-            new GeneralFilter("Root-Mean-Square 3x3", 3, 3, GeneralFilterBand.RMS),
-            new GeneralFilter("Root-Mean-Square 5x5", 5, 5, GeneralFilterBand.RMS),
+// TODO(mp - 08.10.2008) - removed till the JAI operator is implemented
+//            new GeneralFilter("Standard Deviation 3x3", 3, 3, GeneralFilterBand.STDDEV),
+//            new GeneralFilter("Standard Deviation 5x5", 5, 5, GeneralFilterBand.STDDEV),
+//            new GeneralFilter("Root-Mean-Square 3x3", 3, 3, GeneralFilterBand.RMS),
+//            new GeneralFilter("Root-Mean-Square 5x5", 5, 5, GeneralFilterBand.RMS),
     };
 
     private void applyImageKernel() {

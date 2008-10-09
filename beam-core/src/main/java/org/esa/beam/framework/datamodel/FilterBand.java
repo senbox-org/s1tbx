@@ -16,11 +16,17 @@
  */
 package org.esa.beam.framework.datamodel;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.util.Guardian;
+
+import java.awt.Rectangle;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import java.io.IOException;
 
 /**
  * Represents a band that generates its data by using another band as input and performs some kind of operation on this input.
- *
+ * <p/>
  * <p><i>Note that this class is not yet public API and may change in future releases.</i></p>
  *
  * @author Norman Fomferra
@@ -29,28 +35,33 @@ import org.esa.beam.util.Guardian;
 public abstract class FilterBand extends Band {
 
     private RasterDataNode _source;
-    private String _rasterDataNodeName;
 
-    public FilterBand(String name, int dataType, int width, int height, RasterDataNode source) {
+    protected FilterBand(String name, int dataType, int width, int height, RasterDataNode source) {
         super(name, dataType, width, height);
         Guardian.assertNotNull("source", source);
         _source = source;
         setSynthetic(true);
     }
 
-    public FilterBand(String name, int dataType, int width, int height, String rasterDataNodeName) {
-        super(name, dataType, width, height);
-        Guardian.assertNotNull("rasterDataNodeName", rasterDataNodeName);
-        _rasterDataNodeName = rasterDataNodeName;
-        _source = null;
-        setSynthetic(true);
+    public RasterDataNode getSource() {
+        return _source;
     }
 
-    public RasterDataNode getSource() {
-        if(_source == null) {
-            _source = getProduct().getRasterDataNode(_rasterDataNodeName);
+    @Override
+    public void readRasterData(int offsetX, int offsetY, int width, int height, ProductData rasterData,
+                               ProgressMonitor pm) throws IOException {
+        pm.beginTask("Reading data...", 2);
+        try {
+            final RenderedImage sourceImage = getSourceImage();
+            final Raster data = sourceImage.getData(new Rectangle(offsetX, offsetY, width, height));
+            pm.worked(1);
+            data.getDataElements(offsetX, offsetY, width, height, rasterData.getElems());
+            pm.worked(1);
+        } finally {
+            pm.done();
         }
-        return _source;
+
+
     }
 
     @Override
@@ -58,4 +69,4 @@ public abstract class FilterBand extends Band {
         _source = null;
         super.dispose();
     }
-}
+        }
