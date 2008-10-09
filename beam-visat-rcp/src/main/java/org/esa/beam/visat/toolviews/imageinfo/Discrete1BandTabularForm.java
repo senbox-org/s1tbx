@@ -1,9 +1,9 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
+import com.bc.ceres.core.Assert;
 import com.jidesoft.grid.ColorCellEditor;
 import com.jidesoft.grid.ColorCellRenderer;
 import com.jidesoft.grid.SortableTable;
-import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
@@ -148,13 +148,13 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
                 return Double.isNaN(point.getSample()) ? "Uncoded" : "" + (int) point.getSample();
             } else if (columnIndex == 3) {
                 final RasterDataNode raster = parentForm.getProductSceneView().getRaster();
-                final RasterDataNode.Stx stx = raster.getStx();
+                final Stx stx = raster.getStx();
                 Assert.notNull(stx, "stx");
-                final int[] frequencies = stx.getSampleFrequencies();
+                final int[] frequencies = stx.getHistogramBins();
                 Assert.notNull(frequencies, "frequencies");
                 final double frequency = frequencies[rowIndex];
                 return frequency / stx.getSampleCount();
-            } else  if (columnIndex == 4) {
+            } else if (columnIndex == 4) {
                 final RasterDataNode raster = parentForm.getProductSceneView().getRaster();
                 if (raster instanceof Band) {
                     Band band = (Band) raster;

@@ -11,6 +11,7 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTree;
 import org.esa.beam.framework.ui.product.ProductTreeListener;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
 import org.jfree.chart.ChartPanel;
@@ -18,6 +19,8 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.data.Range;
 
+import javax.media.jai.PlanarImage;
+import javax.media.jai.ROI;
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -138,6 +141,13 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
             this.raster = raster;
             rasterChanged = true;
         }
+    }
+
+    ROI getROI() {
+        ROI roi;
+        final PlanarImage roiMaskImage = ImageManager.getInstance().createRoiMaskImage(getRaster(), 0);
+        roi = roiMaskImage != null ? new ROI(roiMaskImage) : null;
+        return roi;
     }
 
     protected boolean isRasterChanged() {
@@ -384,7 +394,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         }
     }
 
-    protected void handleLayerContentChanged() {        
+    protected void handleLayerContentChanged() {
     }
 
     /**

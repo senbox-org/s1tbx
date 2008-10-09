@@ -472,9 +472,9 @@ public class DimapDocumentTest extends TestCase {
         return roiDefinition;
     }
 
-    private RasterDataNode.Stx createStx() {
+    private Stx createStx() {
         int[] bins = new int[]{4, 5, 4, 7, 5, 8};
-        return new RasterDataNode.Stx(-0.2, 3, bins);
+        return new Stx(-0.2, 3, bins, 0);
     }
 
     private ImageInfo createImageInfo() {
@@ -740,8 +740,11 @@ public class DimapDocumentTest extends TestCase {
         pw.println("    <Image_Display>");
         pw.println("        <Band_Statistics>");
         pw.println("            <BAND_INDEX>0</BAND_INDEX>");
-        pw.println("            <STX_MIN>" + -0.2 + "</STX_MIN>");
-        pw.println("            <STX_MAX>" + 3.0 + "</STX_MAX>");
+        pw.println("            <STX_MIN>-0.2</STX_MIN>");
+        pw.println("            <STX_MAX>3.0</STX_MAX>");
+        pw.println("            <STX_MEAN>0.0</STX_MEAN>");
+        pw.println("            <STX_STDV>0.0</STX_STDV>");
+        pw.println("            <STX_RES_LEVEL>0</STX_RES_LEVEL>");
         pw.println("            <HISTOGRAM>4,5,4,7,5,8</HISTOGRAM>");
         pw.println("            <NUM_COLORS>180</NUM_COLORS>");
         pw.println("            <Color_Palette_Point>");
@@ -1247,7 +1250,7 @@ public class DimapDocumentTest extends TestCase {
             }
         }
 
-        private void addImageDisplayElements() {  //übernommen
+        private void addImageDisplayElements() {
             final Band[] bands = getProduct().getBands();
             Element imageDisplayElem = new Element(DimapProductConstants.TAG_IMAGE_DISPLAY);
             for (int i = 0; i < bands.length; i++) {
@@ -1257,11 +1260,17 @@ public class DimapDocumentTest extends TestCase {
                     Element bandStatisticsElem = new Element(DimapProductConstants.TAG_BAND_STATISTICS);
                     imageDisplayElem.addContent(bandStatisticsElem);
                     JDomHelper.addElement(DimapProductConstants.TAG_BAND_INDEX, i, bandStatisticsElem);
-                    JDomHelper.addElement(DimapProductConstants.TAG_STX_MIN, band.getStx().getMinSample(),
+                    JDomHelper.addElement(DimapProductConstants.TAG_STX_MIN, band.getStx().getMin(),
                                           bandStatisticsElem);
-                    JDomHelper.addElement(DimapProductConstants.TAG_STX_MAX, band.getStx().getMaxSample(),
+                    JDomHelper.addElement(DimapProductConstants.TAG_STX_MAX, band.getStx().getMax(),
                                           bandStatisticsElem);
-                    final int[] bins = band.getStx().getSampleFrequencies();
+                    JDomHelper.addElement(DimapProductConstants.TAG_STX_MEAN, band.getStx().getMean(),
+                                          bandStatisticsElem);
+                    JDomHelper.addElement(DimapProductConstants.TAG_STX_STDV, band.getStx().getStandardDeviation(),
+                                          bandStatisticsElem);
+                    JDomHelper.addElement(DimapProductConstants.TAG_STX_LEVEL, band.getStx().getResolutionLevel(),
+                                          bandStatisticsElem);
+                    final int[] bins = band.getStx().getHistogramBins();
                     if (bins != null && bins.length > 0) {
                         JDomHelper.addElement(DimapProductConstants.TAG_HISTOGRAM, StringUtils.arrayToCsv(bins),
                                               bandStatisticsElem);

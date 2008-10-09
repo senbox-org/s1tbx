@@ -1,26 +1,18 @@
 package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.progress.DialogProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.ROIDefinition;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.ui.application.ToolView;
-import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.math.Statistics;
 
 import javax.media.jai.ROI;
 import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
 import javax.swing.JPanel;
-import javax.swing.AbstractButton;
 import java.awt.BorderLayout;
-import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 /**
  * A general pane within the statistics window.
@@ -54,7 +46,7 @@ class StatisticsPanel extends TextPagePanel {
         rightPanel.add(computePanel, BorderLayout.NORTH);
         final JPanel helpPanel = new JPanel(new BorderLayout());
         helpPanel.add(getHelpButton(), BorderLayout.EAST);
-        rightPanel.add(helpPanel,BorderLayout.SOUTH);
+        rightPanel.add(helpPanel, BorderLayout.SOUTH);
 
         add(rightPanel, BorderLayout.EAST);
     }
@@ -97,63 +89,35 @@ class StatisticsPanel extends TextPagePanel {
     }
 
     private void computeStatistics(final boolean useROI) {
-        final RasterDataNode raster = getRaster();
         final ROI roi;
-        try {
-            roi = useROI ? raster.createROI(ProgressMonitor.NULL) : null;
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                          "Failed to compute statistics.\nAn I/O error occured:" + e.getMessage(),
-                                          /*I18N*/
-                                          "Statistics", /*I18N*/
-                                          JOptionPane.ERROR_MESSAGE);
-            getTextArea().setText(DEFAULT_STATISTICS_TEXT);
-            return;
+        if (useROI) {
+            roi = getROI();
+        } else {
+            roi = null;
         }
 
-        final SwingWorker swingWorker = new SwingWorker() {
-            final ProgressMonitor pm = new DialogProgressMonitor(getParentDialogContentPane(), "Compute Statistic",
-                                                                 Dialog.ModalityType.APPLICATION_MODAL);
-
+        ProgressMonitorSwingWorker<Stx, Object> swingWorker = new ProgressMonitorSwingWorker<Stx, Object>(this, "Computing Statistics") {
             @Override
-            protected Object doInBackground() throws Exception {
-                try {
-                    final Statistics stat = raster.computeStatistics(roi, pm);
-                    return (stat.getNum() > 0) ? stat : null;
-                } catch (IOException e) {
-                    return e;
+            protected Stx doInBackground(ProgressMonitor pm) throws Exception {
+                final Stx stx;
+                if (roi == null) {
+                    stx = getRaster().getStx(true, pm);
+                } else {
+                    stx = Stx.create(getRaster(), roi, pm);
                 }
+                return stx;
             }
+
 
             @Override
             public void done() {
-                if (pm.isCanceled()) {
-                    JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute statistics.\nThe user has cancelled the calculation.",
-                                                  /*I18N*/
-                                                  "Statistics", /*I18N*/
-                                                  JOptionPane.INFORMATION_MESSAGE);
-                    getTextArea().setText(DEFAULT_STATISTICS_TEXT);
-                } else {
-                    Object value = null;
-                    try {
-                        value = get();
-                    } catch (Exception e) {
-                        value = e;
-                    }
-                    if (value instanceof Statistics) {
-                        final Statistics stat = (Statistics) value;
-                        getTextArea().setText(createText(stat, roi));
+
+                try {
+                    final Stx stx = get();
+                    if (stx.getSampleCount() > 0) {
+                        getTextArea().setText(createText(stx, roi));
                         getTextArea().setCaretPosition(0);
-                    } else if (value instanceof Exception) {
-                        final Exception e = (Exception) value;
-                        JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                      "Failed to compute statistics.\nAn internal error occured:" + e.getMessage(),
-                                                      /*I18N*/
-                                                      "Statistics", /*I18N*/
-                                                      JOptionPane.ERROR_MESSAGE);
-                        getTextArea().setText(DEFAULT_STATISTICS_TEXT);
-                    } else if (value == null) {
+                    } else {
                         final String msgPrefix;
                         if (useROI) {
                             msgPrefix = "The ROI is empty.";        /*I18N*/
@@ -162,21 +126,30 @@ class StatisticsPanel extends TextPagePanel {
                         }
                         JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                       msgPrefix +
-                                                      "\nStatistics have not been computed.", /*I18N*/
-                                                                                              "Statistics", /*I18N*/
-                                                                                              JOptionPane.WARNING_MESSAGE);
+                                                              "\nStatistics have not been computed.", /*I18N*/
+                                                                                                      "Statistics", /*I18N*/
+                                                                                                      JOptionPane.WARNING_MESSAGE);
                         getTextArea().setText(DEFAULT_STATISTICS_TEXT);
                     }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(getParentDialogContentPane(),
+                                                  "Failed to compute statistics.\nAn error occured:" + e.getMessage(),
+                                                  /*I18N*/
+                                                  "Statistics", /*I18N*/
+                                                  JOptionPane.ERROR_MESSAGE);
+                    getTextArea().setText(DEFAULT_STATISTICS_TEXT);
                 }
             }
         };
         swingWorker.execute();
     }
 
-    private String createText(final Statistics stat, final ROI roi) {
+    private String createText(final Stx stat, final ROI roi) {
 
         final String unit = (StringUtils.isNotNullAndNotEmpty(getRaster().getUnit()) ? getRaster().getUnit() : "1");
-
+        final long numPixelTotal = getRaster().getSceneRasterWidth() * (long) getRaster().getSceneRasterHeight();
         final StringBuffer sb = new StringBuffer(1024);
 
         sb.append("\n");
@@ -186,15 +159,15 @@ class StatisticsPanel extends TextPagePanel {
         sb.append("\n");
 
         sb.append("Number of pixels total:      \t");
-        sb.append(stat.getNumTotal());
+        sb.append(numPixelTotal);
         sb.append("\n");
 
         sb.append("Number of considered pixels: \t");
-        sb.append(stat.getNum());
+        sb.append(stat.getSampleCount());
         sb.append("\n");
 
         sb.append("Ratio of considered pixels:  \t");
-        sb.append(100 * stat.getRatio());
+        sb.append(100.0 * stat.getSampleCount() / numPixelTotal);
         sb.append("\t ");
         sb.append("%");
         sb.append("\n");
@@ -222,20 +195,7 @@ class StatisticsPanel extends TextPagePanel {
         sb.append("\n");
 
         sb.append("Std-Dev:  \t");
-        sb.append(stat.getStdDev());
-        sb.append("\t ");
-        sb.append(unit);
-        sb.append("\n");
-
-        sb.append("Variance: \t");
-        sb.append(stat.getVar());
-        sb.append("\t ");
-        sb.append(unit);
-        sb.append(" ^ 2");
-        sb.append("\n");
-
-        sb.append("Sum:      \t");
-        sb.append(stat.getSum());
+        sb.append(stat.getStandardDeviation());
         sb.append("\t ");
         sb.append(unit);
         sb.append("\n");

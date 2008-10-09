@@ -83,7 +83,6 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
      * Returns wether the given product node is to be written.
      *
      * @param node the product node
-     *
      * @return <code>true</code> if so
      */
     public boolean shouldWrite(ProductNode node) {
@@ -420,7 +419,7 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
     private void writeMetadataAttribute(int locationID, MetadataAttribute attribute) throws IOException {
         int productDataType = attribute.getDataType();
         if (attribute.getData() instanceof ProductData.ASCII
-            || attribute.getData() instanceof ProductData.UTC) {
+                || attribute.getData() instanceof ProductData.UTC) {
             createScalarAttribute(locationID,
                                   attribute.getName(),
                                   attribute.getData().getElemString());
@@ -537,14 +536,14 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
     }
 
     private void createScalarAttribute(int locationID, String name, int jh5DataType, int typeSize, Object value) throws
-                                                                                                                 IOException {
+            IOException {
         Debug.trace("Hdf5ProductWriter.createScalarAttribute("
-                    + "locationID=" + locationID
-                    + ", name=" + name
-                    + ", jh5DataType=" + jh5DataType
-                    + ", typeSize=" + typeSize
-                    + ", value=" + value
-                    + ")");
+                + "locationID=" + locationID
+                + ", name=" + name
+                + ", jh5DataType=" + jh5DataType
+                + ", typeSize=" + typeSize
+                + ", value=" + value
+                + ")");
         int attrTypeID = -1;
         int attrSpaceID = -1;
         int attributeID = -1;
@@ -570,7 +569,7 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
     }
 
     private void createArrayAttribute(int locationID, String name, int jh5DataType, int arraySize, Object value) throws
-                                                                                                                 IOException {
+            IOException {
         //Debug.trace("creating array attribute " + name + ", JH5 type " + jh5DataType + ", size " + arraySize);
         int attrTypeID = -1;
         int attrSpaceID = -1;
@@ -653,10 +652,12 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
                 createScalarAttribute(datasetID, "CLASS", "IMAGE");
                 createScalarAttribute(datasetID, "IMAGE_VERSION", 1.2F);
 
+                if (band.getStx() != null) {
+                    final Stx stx = band.getStx();
+                    createScalarAttribute(datasetID, "min_sample", stx.getMin());
+                    createScalarAttribute(datasetID, "max_sample", stx.getMax());
+                }
                 if (band.getImageInfo() != null) {
-                    final RasterDataNode.Stx stx = band.getStx(ProgressMonitor.NULL);
-                    createScalarAttribute(datasetID, "min_sample", stx.getMinSample());
-                    createScalarAttribute(datasetID, "max_sample", stx.getMaxSample());
                     final ColorPaletteDef paletteDef = band.getImageInfo().getColorPaletteDef();
                     float[] minmax = new float[]{
                             (float) paletteDef.getMinDisplaySample(),

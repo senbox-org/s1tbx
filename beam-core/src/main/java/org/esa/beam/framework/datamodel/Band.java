@@ -18,18 +18,11 @@ package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataio.ProductWriter;
-import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.jai.JAIUtils;
 
-import javax.media.jai.PlanarImage;
-import javax.media.jai.ROI;
-import javax.media.jai.RenderedOp;
-import javax.media.jai.operator.HistogramDescriptor;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.io.IOException;
@@ -506,52 +499,31 @@ public class Band extends AbstractBand {
     }
 
     @Override
-    protected Stx computeStx(ProgressMonitor pm) {
+    protected Stx computeStxImpl(int level, ProgressMonitor pm) {
         final IndexCoding indexCoding = getIndexCoding();
         if (indexCoding == null) {
-            return super.computeStx(pm);
+            return super.computeStxImpl(level, pm);
         }
-        pm.beginTask("Computing image statistics", 3);
-        try {
-            ImageManager imageManager = ImageManager.getInstance();
-            MultiLevelSource multiLevelSource = imageManager.getMultiLevelSource(getSourceImage());
-            final int levelCount = multiLevelSource.getModel().getLevelCount();
-            final int statisticsLevel = imageManager.getStatisticsLevel(this, levelCount);
-            final PlanarImage statisticsBandImage = imageManager.getBandImage(this, statisticsLevel);
-            ROI roi = null;
-            if (isValidMaskUsed()) {
-                final PlanarImage statisticsValidMaskImage = imageManager.getValidMaskImage(this, statisticsLevel);
-                roi = new ROI(statisticsValidMaskImage);
-            }
-            pm.worked(1);
-            final int sampleCount = indexCoding.getSampleCount();
-            int minSample = Integer.MAX_VALUE;
-            int maxSample = Integer.MIN_VALUE;
-            for (int i = 0; i < sampleCount; i++) {
-                final int sample = indexCoding.getSampleValue(i);
-                minSample = Math.min(minSample, sample);
-                maxSample = Math.max(maxSample, sample);
-            }
-            pm.worked(1);
-            final RenderedOp histogramOp = HistogramDescriptor.create(statisticsBandImage,
-                                                                      roi,
-                                                                      1,
-                                                                      1,
-                                                                      new int[]{maxSample + 2},
-                                                                      new double[]{minSample},
-                                                                      new double[]{maxSample + 1},
-                                                                      null);
-            javax.media.jai.Histogram jaiHistogram = JAIUtils.getHistogramOf(histogramOp);
+        final int sampleCount = indexCoding.getSampleCount();
+        int minSample = Integer.MAX_VALUE;
+        int maxSample = Integer.MIN_VALUE;
+        for (int i = 0; i < sampleCount; i++) {
+            final int sample = indexCoding.getSampleValue(i);
+            minSample = Math.min(minSample, sample);
+            maxSample = Math.max(maxSample, sample);
+        }
+        final int binCount = maxSample - minSample + 1;
+        final double min = minSample;
+        final double max = maxSample;
+
+/*
             int[] sampleFrequencies = new int[sampleCount];
-            int[] bins = jaiHistogram.getBins(0);
+            int[] bins = stx.getSampleFrequencies();
             for (int i = 0; i < sampleCount; i++) {
                 sampleFrequencies[i] = bins[indexCoding.getSampleValue(i)];
             }
-            pm.worked(1);
-            return new Stx(minSample, maxSample, sampleFrequencies);
-        } finally {
-            pm.done();
-        }
+*/
+        return Stx.create(this, level, binCount, min, max, pm);
     }
 
     /**

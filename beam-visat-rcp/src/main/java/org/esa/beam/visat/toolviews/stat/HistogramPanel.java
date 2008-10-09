@@ -3,6 +3,7 @@ package org.esa.beam.visat.toolviews.stat;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
@@ -10,7 +11,6 @@ import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.framework.ui.application.ToolView;
-import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.Range;
 import org.jfree.chart.ChartFactory;
@@ -27,14 +27,11 @@ import javax.media.jai.ROI;
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingWorker;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 /**
  * A pane within the statistcs window which displays a histogram.
@@ -59,7 +56,7 @@ class HistogramPanel extends PagePanel {
     private XIntervalSeriesCollection dataset;
 
     private JFreeChart chart;
-    private Histogram histogram;
+    private Stx stx;
 
 
     public HistogramPanel(final ToolView parentDialog, String helpID) {
@@ -104,7 +101,7 @@ class HistogramPanel extends PagePanel {
     private void initParameters() {
         ParamGroup paramGroup = new ParamGroup();
 
-        numBinsParam = new Parameter("histo.numBins", 500);
+        numBinsParam = new Parameter("histo.numBins", Stx.DEFAULT_BIN_COUNT);
         numBinsParam.getProperties().setLabel("#Bins:");   /*I18N*/
         numBinsParam.getProperties().setDescription("Set the number of bins in the histogram");    /*I18N*/
         numBinsParam.getProperties().setMinValue(2);
@@ -243,17 +240,12 @@ class HistogramPanel extends PagePanel {
 
     private void computeHistogram(final boolean useROI) {
         final ROI roi;
-        try {
-            roi = useROI ? getRaster().createROI(ProgressMonitor.NULL) : null;
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(getParentComponent(),
-                                          "Failed to compute histogram.\nAn I/O error occured:\n" + e.getMessage(),
-                                          /*I18N*/
-                                          CHART_TITLE, /*I18N*/
-                                          JOptionPane.ERROR_MESSAGE);
-            setHistogram(null);
-            return;
+        if (useROI) {
+            roi = getROI();
+        } else {
+            roi = null;
         }
+
         final int numBins = ((Number) numBinsParam.getValue()).intValue();
         final boolean autoMinMaxEnabled = getAutoMinMaxEnabled();
         final Range range;
@@ -265,68 +257,64 @@ class HistogramPanel extends PagePanel {
             range = new Range(getRaster().scaleInverse(min), getRaster().scaleInverse(max));
         }
 
-        final SwingWorker<Histogram, Object> swingWorker = new ProgressMonitorSwingWorker<Histogram, Object>(
-                this.histogramDisplay, "Computing histogram") {
+        ProgressMonitorSwingWorker<Stx, Object> swingWorker = new ProgressMonitorSwingWorker<Stx, Object>(this, "Computing Histogram") {
             @Override
-            protected Histogram doInBackground(ProgressMonitor pm) throws Exception {
-                return getRaster().computeRasterDataHistogram(roi, numBins, range, pm);
+            protected Stx doInBackground(ProgressMonitor pm) throws Exception {
+                final Stx stx;
+                if (roi == null && range == null && numBins == Stx.DEFAULT_BIN_COUNT) {
+                    stx = getRaster().getStx(true, pm);
+                } else if (range == null) {
+                    stx = Stx.create(getRaster(), roi, numBins, pm);
+                } else {
+                    stx = Stx.create(getRaster(), roi, numBins, range.getMin(), range.getMax(), pm);
+                }
+                return stx;
             }
 
             @Override
             public void done() {
-                Histogram histo = null;
-                if (isCancelled()) {
-                    JOptionPane.showMessageDialog(getParentComponent(),
-                                                  "Failed to compute histogram.\nThe user has cancelled the calculation.",
-                                                  /*I18N*/
-                                                  "Statistics", /*I18N*/
-                                                  JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    try {
-                        histo = get();
-                        if (histo != null) {
-                            if (histo.getMaxBinCount() > 0) {
-                                if (autoMinMaxEnabled) {
-                                    final double min = getRaster().scale(histo.getMin());
-                                    final double max = getRaster().scale(histo.getMax());
-                                    final double v = MathUtils.computeRoundFactor(min, max, 4);
-                                    histogramComputing = true;
-                                    histoMinParam.setValue(StatisticsUtils.round(min, v), null);
-                                    histoMaxParam.setValue(StatisticsUtils.round(max, v), null);
-                                    histogramComputing = false;
-                                }
-                            }
-                        } else {
-                            JOptionPane.showMessageDialog(getParentComponent(),
-                                                          "The ROI is empty or no pixels found between min/max.\n"
-                                                          + "A valid histogram could not be computed.",
-                                                          CHART_TITLE,
-                                                          JOptionPane.WARNING_MESSAGE);
+                try {
+                    Stx stx = get();
+                    if (stx.getSampleCount() > 0) {
+                        if (autoMinMaxEnabled) {
+                            final double min = getRaster().scale(stx.getMin());
+                            final double max = getRaster().scale(stx.getMax());
+                            final double v = MathUtils.computeRoundFactor(min, max, 4);
+                            histogramComputing = true;
+                            histoMinParam.setValue(StatisticsUtils.round(min, v), null);
+                            histoMaxParam.setValue(StatisticsUtils.round(max, v), null);
+                            histogramComputing = false;
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } else {
                         JOptionPane.showMessageDialog(getParentComponent(),
-                                                      "Failed to compute histogram.\nAn internal error occured:\n" + e.getMessage(),
+                                                      "The ROI is empty or no pixels found between min/max.\n"
+                                                              + "A valid histogram could not be computed.",
                                                       CHART_TITLE,
-                                                      JOptionPane.ERROR_MESSAGE);
+                                                      JOptionPane.WARNING_MESSAGE);
                     }
+                    setStx(stx);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(getParentComponent(),
+                                                  "Failed to compute histogram.\nAn internal error occured:\n" + e.getMessage(),
+                                                  CHART_TITLE,
+                                                  JOptionPane.ERROR_MESSAGE);
                 }
-                setHistogram(histo);
             }
         };
         swingWorker.execute();
     }
 
-    private void setHistogram(Histogram histogram) {
-        this.histogram = histogram;
+    private void setStx(Stx stx) {
+        this.stx = stx;
         dataset = new XIntervalSeriesCollection();
-        if (this.histogram != null) {
-            final int[] binCounts = this.histogram.getBinCounts();
+        if (this.stx != null) {
+            final int[] binCounts = this.stx.getHistogramBins();
             final RasterDataNode raster = getRaster();
             final XIntervalSeries series = new XIntervalSeries(raster.getName());
             for (int i = 0; i < binCounts.length; i++) {
-                final double xMin = raster.scale(histogram.getRange(i).getMin());
-                final double xMax = raster.scale(histogram.getRange(i).getMax());
+                final double xMin = raster.scale(stx.getHistogramBinMin(i));
+                final double xMax = raster.scale(stx.getHistogramBinMax(i));
                 final double xAvg = (xMin + xMax) * 0.5;
                 series.add(xAvg, xMin, xMax, binCounts[i]);
             }
@@ -334,6 +322,7 @@ class HistogramPanel extends PagePanel {
             chart.getXYPlot().getDomainAxis().setLabel(getAxisLabel(raster));
         }
         chart.getXYPlot().setDataset(dataset);
+        chart.fireChartChanged();
     }
 
     private static String getAxisLabel(RasterDataNode raster) {
@@ -354,14 +343,14 @@ class HistogramPanel extends PagePanel {
 
 
     public String getDataAsText() {
-        if (histogram == null) {
+        if (stx == null) {
             return null;
         }
 
-        final int[] binVals = histogram.getBinCounts();
-        final int numBins = histogram.getNumBins();
-        final double min = getRaster().scale(histogram.getMin());
-        final double max = getRaster().scale(histogram.getMax());
+        final int[] binVals = stx.getHistogramBins();
+        final int numBins = binVals.length;
+        final double min = getRaster().scale(stx.getMin());
+        final double max = getRaster().scale(stx.getMax());
 
         final StringBuilder sb = new StringBuilder(16000);
 
@@ -372,7 +361,7 @@ class HistogramPanel extends PagePanel {
         sb.append("Histogram maximum:\t").append(max).append("\t").append(getRaster().getUnit()).append("\n");
         sb.append("Histogram bin size:\t").append(
                 getRaster().isLog10Scaled() ? ("NA\t") : ((max - min) / numBins + "\t") +
-                                                         getRaster().getUnit() + "\n");
+                        getRaster().getUnit() + "\n");
         sb.append("Histogram #bins:\t").append(numBins).append("\n");
         sb.append('\n');
 

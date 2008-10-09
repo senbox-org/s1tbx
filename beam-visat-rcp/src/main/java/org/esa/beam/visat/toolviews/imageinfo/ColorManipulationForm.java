@@ -693,8 +693,8 @@ class ColorManipulationForm {
         }
     }
 
-    public RasterDataNode.Stx getStx(RasterDataNode raster) {
-        return raster.getStx(ProgressMonitor.NULL); // todo - use PM
+    public Stx getStx(RasterDataNode raster) {
+        return raster.getStx(false, ProgressMonitor.NULL); // todo - use PM
     }
 
     private class ColorManipulationPNL extends ProductNodeListenerAdapter {
@@ -715,12 +715,13 @@ class ColorManipulationForm {
                     childForm.handleRasterPropertyChange(event, raster);
                 } else if (RasterDataNode.PROPERTY_NAME_UNIT.equalsIgnoreCase(propertyName)) {
                     childForm.handleRasterPropertyChange(event, raster);
-                } else if (RasterDataNode.PROPERTY_NAME_STATISTICS.equalsIgnoreCase(propertyName)) {
+                } else if (RasterDataNode.PROPERTY_NAME_STX.equalsIgnoreCase(propertyName)) {
                     childForm.handleRasterPropertyChange(event, raster);
                 } else if (RasterDataNode.isValidMaskProperty(propertyName)) {
-                    if (raster.getStx() != null) {
-                        raster.getStx().setDirty(true); // force recreation of statistics
-                    }
+                    // todo - reactivate !!!! (nf)
+//                    if (raster.getStx() != null) {
+//                        raster.getStx().setDirty(true); // force recreation of statistics
+//                    }
                     getStx(raster);
                 }
             }

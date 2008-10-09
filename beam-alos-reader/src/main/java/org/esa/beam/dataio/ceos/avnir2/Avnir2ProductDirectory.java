@@ -1,5 +1,6 @@
 package org.esa.beam.dataio.ceos.avnir2;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.ceos.CeosHelper;
 import org.esa.beam.dataio.ceos.IllegalCeosFormatException;
 import org.esa.beam.framework.datamodel.*;
@@ -16,8 +17,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
-
-import com.bc.ceres.core.ProgressMonitor;
 
 /**
  * This class represents a product directory of an Avnir-2 product.
@@ -73,8 +72,8 @@ class Avnir2ProductDirectory {
     Product createProduct() throws IOException,
             IllegalCeosFormatException {
         final Product product = new Product(_volumeDirectoryFile.getProductName(),
-                getProductType(),
-                _sceneWidth, _sceneHeight);
+                                            getProductType(),
+                                            _sceneWidth, _sceneHeight);
         product.setFileLocation(_baseDir);
 
         for (int i = 0; i < _imageFiles.length; i++) {
@@ -156,9 +155,9 @@ class Avnir2ProductDirectory {
                 final FXYSum.Cubic funcY = new FXYSum.Cubic(CeosHelper.sortToFXYSumOrder(uncorrectedCoeffs[3]));
 
                 final FXYGeoCoding gc = new FXYGeoCoding(0.0f, 0.0f, 1.0f, 1.0f,
-                        funcX, funcY,
-                        funcLat, funcLon,
-                        Datum.ITRF_97);
+                                                         funcX, funcY,
+                                                         funcLat, funcLon,
+                                                         Datum.ITRF_97);
                 band.setGeoCoding(gc);
             }
 
@@ -179,9 +178,9 @@ class Avnir2ProductDirectory {
             final float orientationAngle = (float) _leaderFile.getUTMOrientationAngle();
 
             final MapInfo mapInfo = new MapInfo(UTM.createProjection(zoneIndex - 1, isSouth),
-                    _sceneWidth * 0.5f, _sceneHeight * 0.5f,
-                    (float) easting, (float) northing,
-                    (float) pixelSizeX, (float) pixelSizeY, Datum.ITRF_97);
+                                                _sceneWidth * 0.5f, _sceneHeight * 0.5f,
+                                                (float) easting, (float) northing,
+                                                (float) pixelSizeX, (float) pixelSizeY, Datum.ITRF_97);
             mapInfo.setOrientation(orientationAngle);
             mapInfo.setSceneWidth(_sceneWidth);
             mapInfo.setSceneHeight(_sceneHeight);
@@ -200,7 +199,7 @@ class Avnir2ProductDirectory {
 
 
             final MapTransform transform = MapTransformFactory.createTransform(StereographicDescriptor.TYPE_ID,
-                    parameterValues);
+                                                                               parameterValues);
             final MapProjection projection = new MapProjection(StereographicDescriptor.NAME, transform);
             final double pixelSizeX = _leaderFile.getNominalInterPixelDistance();
             final double pixelSizeY = _leaderFile.getNominalInterLineDistance();
@@ -209,9 +208,9 @@ class Avnir2ProductDirectory {
             final int sceneRasterWidth = product.getSceneRasterWidth();
             final int sceneRasterHeight = product.getSceneRasterHeight();
             final MapInfo mapInfo = new MapInfo(projection,
-                    sceneRasterWidth * 0.5f, sceneRasterHeight * 0.5f,
-                    (float) easting, (float) northing,
-                    (float) pixelSizeX, (float) pixelSizeY, Datum.ITRF_97);
+                                                sceneRasterWidth * 0.5f, sceneRasterHeight * 0.5f,
+                                                (float) easting, (float) northing,
+                                                (float) pixelSizeX, (float) pixelSizeY, Datum.ITRF_97);
             mapInfo.setOrientation((float) _leaderFile.getPSOrientationAngle());
             mapInfo.setSceneWidth(sceneRasterWidth);
             mapInfo.setSceneHeight(sceneRasterHeight);
@@ -266,7 +265,7 @@ class Avnir2ProductDirectory {
     private Band createBand(final Avnir2ImageFile avnir2ImageFile) throws IOException,
             IllegalCeosFormatException {
         final Band band = new Band(avnir2ImageFile.getBandName(), ProductData.TYPE_UINT8,
-                _sceneWidth, _sceneHeight);
+                                   _sceneWidth, _sceneHeight);
         final int bandIndex = avnir2ImageFile.getBandIndex();
         band.setSpectralBandIndex(bandIndex - 1);
         band.setSpectralWavelength(avnir2ImageFile.getSpectralWavelength());
@@ -280,7 +279,7 @@ class Avnir2ProductDirectory {
         final int[] histogramBins = _trailerFile.getHistogramBinsForBand(bandIndex);
         final float scaledMinSample = (float) (getMinSampleValue(histogramBins) * scalingFactor + scalingOffset);
         final float scaledMaxSample = (float) (getMaxSampleValue(histogramBins) * scalingFactor + scalingOffset);
-        band.setStx(new RasterDataNode.Stx(scaledMinSample, scaledMaxSample, histogramBins));
+        band.setStx(new Stx(scaledMinSample, scaledMaxSample, histogramBins, 0));
         final ImageInfo imageInfo = band.createDefaultImageInfo(null, ProgressMonitor.NULL);
         band.setImageInfo(imageInfo);
         band.setDescription("Radiance band " + avnir2ImageFile.getBandIndex());
@@ -326,8 +325,8 @@ class Avnir2ProductDirectory {
             // stripp of double quotes
             final String strippedData = data.substring(1, data.length() - 1);
             final MetadataAttribute attribute = new MetadataAttribute((String) entry.getKey(),
-                    new ProductData.ASCII(strippedData),
-                    true);
+                                                                      new ProductData.ASCII(strippedData),
+                                                                      true);
             summaryMetadata.addAttribute(attribute);
         }
 
@@ -364,9 +363,9 @@ class Avnir2ProductDirectory {
         for (int i = 0; i < _imageFiles.length; i++) {
             final Avnir2ImageFile imageFile = _imageFiles[i];
             Guardian.assertTrue("_sceneWidth == imageFile[" + i + "].getRasterWidth()",
-                    _sceneWidth == imageFile.getRasterWidth());
+                                _sceneWidth == imageFile.getRasterWidth());
             Guardian.assertTrue("_sceneHeight == imageFile[" + i + "].getRasterHeight()",
-                    _sceneHeight == imageFile.getRasterHeight());
+                                _sceneHeight == imageFile.getRasterHeight());
         }
     }
 

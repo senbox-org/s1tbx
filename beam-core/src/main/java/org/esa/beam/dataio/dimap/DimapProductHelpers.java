@@ -908,8 +908,8 @@ public class DimapProductHelpers {
 
         private void addBitmaskOverlays(Element imageDisplayElem, Product product) {
             final List overlays = imageDisplayElem.getChildren(DimapProductConstants.TAG_BITMASK_OVERLAY);
-            for (Iterator iterator = overlays.iterator(); iterator.hasNext();) {
-                final Element overlayElem = (Element) iterator.next();
+            for (Object overlay : overlays) {
+                final Element overlayElem = (Element) overlay;
                 final Element bitmaskNamesElem = overlayElem.getChild(DimapProductConstants.TAG_BITMASK);
                 String namesCSV = null;
                 if (bitmaskNamesElem != null) {
@@ -954,8 +954,8 @@ public class DimapProductHelpers {
                         }
                     }
                     if (bitmaskOverlayInfo != null) {
-                        for (int i = 0; i < names.length; i++) {
-                            final BitmaskDef def = product.getBitmaskDef(names[i]);
+                        for (String name : names) {
+                            final BitmaskDef def = product.getBitmaskDef(name);
                             bitmaskOverlayInfo.addBitmaskDef(def);
                         }
                     }
@@ -965,26 +965,30 @@ public class DimapProductHelpers {
 
         private void addBandStatistics(Element imageDisplayElem, Product product) {
             final List bandStatisticsElems = imageDisplayElem.getChildren(DimapProductConstants.TAG_BAND_STATISTICS);
-            for (Iterator iteratorBSE = bandStatisticsElems.iterator(); iteratorBSE.hasNext();) {
-                final Element bandStatisticsElem = (Element) iteratorBSE.next();
+            for (Object bandStatistics : bandStatisticsElems) {
+                final Element bandStatisticsElem = (Element) bandStatistics;
                 final String bandIndex = bandStatisticsElem.getChildTextTrim(DimapProductConstants.TAG_BAND_INDEX);
                 final String bandName = getBandName(getRootElement(), bandIndex);
-                if (bandName != null) { // todo - check why this happens
+                if (bandName != null) {
                     final Band band = product.getBand(bandName);
                     if (band != null) {
-                        band.setStx(createStx(bandStatisticsElem));
+                        band.setStx(createStx(band, bandStatisticsElem));
                         band.setImageInfo(createImageInfo(bandStatisticsElem));
                     }
                 }
             }
         }
 
-        private static RasterDataNode.Stx createStx(Element bandStatisticsElem) {
-            final Double minSample = getSample(bandStatisticsElem, DimapProductConstants.TAG_STX_MIN);
-            final Double maxSample = getSample(bandStatisticsElem, DimapProductConstants.TAG_STX_MAX);
+        private static Stx createStx(Band band, Element bandStatisticsElem) {
+            final Double minSample = getElemDouble(bandStatisticsElem, DimapProductConstants.TAG_STX_MIN);
+            final Double maxSample = getElemDouble(bandStatisticsElem, DimapProductConstants.TAG_STX_MAX);
+            final Integer level = getElemInt(bandStatisticsElem, DimapProductConstants.TAG_STX_LEVEL);
             final int[] bins = getHistogramBins(bandStatisticsElem);
             if (minSample != null && maxSample != null) {
-                return new RasterDataNode.Stx(minSample, maxSample, bins);
+                return new Stx(band.scaleInverse(minSample),
+                               band.scaleInverse(maxSample),
+                               bins == null ? new int[0] : bins,
+                               level == null ? 0 : level);
             }
             return null;
         }
@@ -1004,11 +1008,29 @@ public class DimapProductHelpers {
             return imageInfo;
         }
 
-        private static Double getSample(Element bandStatisticsElem, String tag) {
-            final String sampleStr = bandStatisticsElem.getChildTextTrim(tag);
-            if (sampleStr != null) {
+        private static Double getElemDouble(Element element, String tag) {
+            final String text = element.getChildTextTrim(tag);
+            if (text != null) {
                 try {
-                    return Double.parseDouble(sampleStr);
+                    return Double.parseDouble(text);
+                } catch (NumberFormatException e) {
+                    BeamLogManager.getSystemLogger().severe(
+                            "Number format exception at reading DIMAP product tag '" + tag + "'");
+                    BeamLogManager.getSystemLogger().log(Level.SEVERE,
+                                                         "Number format exception at reading DIMAP product tag '" + tag + "'",
+                                                         e);
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        }
+
+        private static Integer getElemInt(Element element, String tag) {
+            final String text = element.getChildTextTrim(tag);
+            if (text != null) {
+                try {
+                    return Integer.parseInt(text);
                 } catch (NumberFormatException e) {
                     BeamLogManager.getSystemLogger().severe(
                             "Number format exception at reading DIMAP product tag '" + tag + "'");
@@ -1074,6 +1096,7 @@ public class DimapProductHelpers {
             }
             return "";
         }
+
         private void addTiePointGrids(Product product) {
             final Element child = getRootElement().getChild(DimapProductConstants.TAG_TIE_POINT_GRIDS);
             if (child != null) {

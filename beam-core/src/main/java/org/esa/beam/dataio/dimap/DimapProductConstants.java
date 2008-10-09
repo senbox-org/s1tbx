@@ -482,6 +482,7 @@ public final class DimapProductConstants {
     public final static String TAG_BAND_STATISTICS = "Band_Statistics";
     public final static String TAG_STX_MIN = "STX_MIN";
     public final static String TAG_STX_MAX = "STX_MAX";
+    public final static String TAG_STX_LEVEL = "STX_RES_LEVEL";
     public final static String TAG_STX_MEAN = "STX_MEAN";
     public final static String TAG_STX_STDV = "STX_STDV";
     public final static String TAG_STX_LIN_MIN = "STX_LIN_MIN";

@@ -5,10 +5,7 @@ import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.BindingContext;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
 
@@ -19,10 +16,10 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.text.MessageFormat;
 
 class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
 
@@ -197,7 +194,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
     @Override
     public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
         imageInfoEditor.getModel().setDisplayProperties(raster);
-        if (event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_STATISTICS)) {
+        if (event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_STX)) {
             imageInfoEditor.compute100Percent();
         }
     }
@@ -253,7 +250,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
 
         final RasterDataNode oldChannelSource = currentChannelSources[channel];
         if (newChannelSource != oldChannelSource) {
-            final RasterDataNode.Stx stx = this.parentForm.getStx(newChannelSource);
+            final Stx stx = this.parentForm.getStx(newChannelSource);
             if (stx != null) {
                 final ImageInfo imageInfo = this.parentForm.getImageInfo();
                 rasterDataUnloader.unloadUnusedRasterData(oldChannelSource);
