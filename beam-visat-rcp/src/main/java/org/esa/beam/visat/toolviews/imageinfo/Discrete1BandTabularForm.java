@@ -152,8 +152,18 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
                 Assert.notNull(stx, "stx");
                 final int[] frequencies = stx.getHistogramBins();
                 Assert.notNull(frequencies, "frequencies");
-                final double frequency = frequencies[rowIndex];
-                return frequency / stx.getSampleCount();
+                if (raster instanceof Band) {
+                    Band band = (Band) raster;
+                    final IndexCoding indexCoding = band.getIndexCoding();
+                    if (indexCoding != null && rowIndex < indexCoding.getSampleCount()) {
+                        final int sampleValue = indexCoding.getSampleValue(rowIndex);
+                        if (sampleValue < frequencies.length) {
+                            final double frequency = frequencies[sampleValue];
+                            return frequency / stx.getSampleCount();
+                        }
+                    }
+                }
+                return 0.0;
             } else if (columnIndex == 4) {
                 final RasterDataNode raster = parentForm.getProductSceneView().getRaster();
                 if (raster instanceof Band) {
