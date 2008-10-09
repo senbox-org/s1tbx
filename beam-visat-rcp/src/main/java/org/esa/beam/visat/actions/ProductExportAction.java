@@ -26,6 +26,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductFileChooser;
+import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
@@ -190,19 +191,12 @@ public class ProductExportAction extends ExecCommand {
         if (!getVisatApp().promptForOverwrite(selectedFile)) {
             return;
         }
-        final ProductSubsetDef productSubsetDef;
-        if (fileChooser.getProductSubsetDef() != null) {
-            productSubsetDef = fileChooser.getProductSubsetDef();
-        } else {
-            productSubsetDef = new ProductSubsetDef();
-            productSubsetDef.setSubsetName(selectedFile.getName());
-        }
-        final String subsetName = productSubsetDef.getSubsetName();
+        final String subsetName = selectedFile.getName();
+        final ProductSubsetDef productSubsetDef = new ProductSubsetDef(subsetName);
         try {
             product = ProductSubsetBuilder.createProductSubset(product, productSubsetDef, subsetName, null);
         } catch (IOException e) {
-            getVisatApp().showErrorDialog("An I/O error occured while creating the product subset:\n" +
-                                          e.getMessage());
+            getVisatApp().showErrorDialog("An I/O error occured while creating the product subset:\n" + e.getMessage());
         } finally {
             // finally implementieren?
         }
@@ -223,23 +217,15 @@ public class ProductExportAction extends ExecCommand {
     }
 
     protected File promptForFile(final Product product) {
-
-        File file = null;
-        boolean canceled = false;
-        while (file == null && !canceled) {
-            // need to call showDialog() instead of showSaveDialog() to ensure correct text for approve button
-            final int result = fileChooser.showDialog(getVisatApp().getMainFrame(), null);
-            file = fileChooser.getSelectedFile();
-            if (file != null && file.getParent() != null) {
-                getVisatApp().getPreferences().setPropertyString(lastDirKey, file.getParent());
+        final BasicApp.MainFrame parent = getVisatApp().getMainFrame();
+        if (fileChooser.showDialog(parent, null) == JFileChooser.APPROVE_OPTION) {
+            final File selectedFile = fileChooser.getSelectedFile();
+            if (selectedFile != null && selectedFile.getParent() != null) {
+                getVisatApp().getPreferences().setPropertyString(lastDirKey, selectedFile.getParent());
             }
-
-            if (result != JFileChooser.APPROVE_OPTION) {
-                canceled = true;
-            }
+            return selectedFile;
         }
-
-        return canceled ? null : file;
+        return null;
     }
 
 
