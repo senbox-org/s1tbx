@@ -90,7 +90,7 @@ class HistogramPanel extends PagePanel {
                 return;
             }
             chart.setTitle(getRaster() != null ? CHART_TITLE + " for " + getRaster().getName() : CHART_TITLE);
-            if (getRaster().isLog10Scaled()) {
+            if (getRaster() != null && getRaster().isLog10Scaled()) {
                 LogarithmicAxis logAxisX = new LogarithmicAxis("Values");
                 logAxisX.setAllowNegativesFlag(true);
                 chart.getXYPlot().setDomainAxis(logAxisX); 
