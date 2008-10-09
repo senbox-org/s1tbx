@@ -333,6 +333,7 @@ class HistogramPanel extends PagePanel {
             chart.getXYPlot().getDomainAxis().setLabel(getAxisLabel(raster));
         }
         chart.getXYPlot().setDataset(dataset);
+        histogramDisplay.restoreAutoBounds();
         chart.fireChartChanged();
     }
 
