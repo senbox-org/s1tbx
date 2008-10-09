@@ -46,7 +46,7 @@ public class SmosL1ValidImage extends SingleBandedOpImage {
         ParameterBlock pb;
 
         pb = new ParameterBlock();
-        pb.addSource(ImageManager.getInstance().getBandImage(smosBand, level.getIndex()));
+        pb.addSource(ImageManager.getInstance().getSourceImage(smosBand, level.getIndex()));
         pb.add(new double[]{0.0});
         pb.add(new double[]{32000.0});
         pb.add(new double[]{255.0});

@@ -36,7 +36,7 @@ public class GeoTiffWriteReadTest {
         final Band bandInt16 = outProduct.addBand("int16", ProductData.TYPE_INT16);
         bandInt16.setDataElems(createShortData(getProductSize(), 23));
         bandInt16.setSynthetic(true);
-        ImageManager.getInstance().getBandImage(bandInt16, 0);
+        ImageManager.getInstance().getSourceImage(bandInt16, 0);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class GeoTiffWriteReadTest {
         final Band bandUInt8 = outProduct.addBand("uint8", ProductData.TYPE_UINT8);
         bandUInt8.setDataElems(createByteData(getProductSize(), 23));
         bandUInt8.setSynthetic(true);
-        ImageManager.getInstance().getBandImage(bandUInt8, 0);
+        ImageManager.getInstance().getSourceImage(bandUInt8, 0);
 
         setTiePointGeoCoding(outProduct);
         final IndexCoding indexCoding = new IndexCoding("color_map");
@@ -110,7 +110,7 @@ public class GeoTiffWriteReadTest {
         final Band bandUInt8 = outProduct.addBand("uint8", ProductData.TYPE_UINT8);
         bandUInt8.setDataElems(createByteData(getProductSize(), 20));
         bandUInt8.setSynthetic(true);
-        ImageManager.getInstance().getBandImage(bandUInt8, 0);
+        ImageManager.getInstance().getSourceImage(bandUInt8, 0);
 
         setTiePointGeoCoding(outProduct);
         final IndexCoding indexCoding = new IndexCoding("color_map");

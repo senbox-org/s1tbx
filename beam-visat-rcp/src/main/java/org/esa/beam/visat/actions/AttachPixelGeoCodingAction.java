@@ -16,12 +16,7 @@ import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.*;
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -78,8 +73,8 @@ public class AttachPixelGeoCodingAction extends ExecCommand {
         if (freeMegas < requiredMegas) {
             // TODO - make this a common dialog, e.g. for RGB image creation etc
             final String message = MessageFormat.format("This operation requires to load at least {0} M\n" +
-                                                        "of additional data into memory.\n\n" +
-                                                        "Do you really want to continue?",
+                    "of additional data into memory.\n\n" +
+                    "Do you really want to continue?",
                                                         requiredMegas);   /*I18N*/
             final int answer = visatApp.showQuestionDialog(ATTACH_TITLE,
                                                            message, null);
@@ -100,7 +95,6 @@ public class AttachPixelGeoCodingAction extends ExecCommand {
                     final PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(latBand, lonBand, validMask, searchRadius,
                                                                              dialogPm);
                     product.setGeoCoding(pixelGeoCoding);
-                    System.gc();
                 } catch (Throwable e) {
                     return e;
                 }

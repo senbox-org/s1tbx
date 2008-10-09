@@ -40,10 +40,8 @@ public class DetachPixelGeoCodingAction extends ExecCommand {
                     final GeoCoding delegate = pixelGeoCoding.getPixelPosEstimator();
                     product.setGeoCoding(delegate);
                     pixelGeoCoding.dispose();
-                    System.gc();
                 } catch (Throwable e) {
                     return e;
-                } finally {
                 }
                 return null;
             }
@@ -58,9 +56,9 @@ public class DetachPixelGeoCodingAction extends ExecCommand {
                 } catch (Exception e) {
                     value = e;
                 }
-                if (value instanceof Throwable) {
+                if (value != null) {
                     visatApp.showErrorDialog(DETACH_TITLE,
-                                             "An internal error occured:\n" + ((Throwable) value).getMessage());
+                                             "An internal error occured:\n" + value.getMessage());
                 } else {
                     visatApp.showInfoDialog(DETACH_TITLE, "Pixel geo-coding has been detached.", null);
                 }

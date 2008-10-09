@@ -210,7 +210,7 @@ public class ImageManager {
     private PlanarImage createColored1BandImage(RasterDataNode raster, ImageInfo imageInfo, int level) {
         Assert.notNull(raster, "raster");
         Assert.notNull(imageInfo, "imageInfo");
-        PlanarImage sourceImage = create1BandImage(raster, imageInfo, getBandImage(raster, level));
+        PlanarImage sourceImage = createByteIndexedImage(raster, getSourceImage(raster, level), imageInfo);
         PlanarImage validMaskImage = getValidMaskImage(raster, level);
         PlanarImage image = performIndexToRgbConversion1Band(raster, sourceImage, validMaskImage);
         return applyHistogramMatching(image, imageInfo.getHistogramMatching());
@@ -223,8 +223,11 @@ public class ImageManager {
         PlanarImage[] validMaskImages = new PlanarImage[rasters.length];
         for (int i = 0; i < rasters.length; i++) {
             final RasterDataNode raster = rasters[i];
-            PlanarImage bandImage = getBandImage(raster, level);
-            sourceImages[i] = create1BandImage(raster, raster.getImageInfo(), bandImage);
+            PlanarImage sourceImage = getSourceImage(raster, level);
+            sourceImages[i] = createByteIndexedImage(raster,
+                                                     sourceImage,
+                                                     rgbImageInfo.getRgbChannelDef().getMinDisplaySample(i),
+                                                     rgbImageInfo.getRgbChannelDef().getMaxDisplaySample(i));
             validMaskImages[i] = getValidMaskImage(raster, level);
         }
         PlanarImage image = performIndexToRgbConversion3Bands(sourceImages, validMaskImages);
@@ -235,7 +238,9 @@ public class ImageManager {
         // TODO use imageIfo.gamma
     }
 
-    private PlanarImage create1BandImage(RasterDataNode raster, ImageInfo imageInfo, PlanarImage planarImage) {
+    private static PlanarImage createByteIndexedImage(RasterDataNode raster,
+                                                      PlanarImage sourceImage,
+                                                      ImageInfo imageInfo) {
         ColorPaletteDef colorPaletteDef = imageInfo.getColorPaletteDef();
         final double minSample = colorPaletteDef.getMinDisplaySample();
         final double maxSample = colorPaletteDef.getMaxDisplaySample();
@@ -248,16 +253,22 @@ public class ImageManager {
                 sampleColorIndexMap.putValue((int) points[colorIndex].getSample(), colorIndex);
             }
             final int undefinedIndex = colorPaletteDef.getNumPoints();
-            planarImage = createIndexedImage(planarImage, sampleColorIndexMap, undefinedIndex);
+            return createIndexedImage(sourceImage, sampleColorIndexMap, undefinedIndex);
         } else {
-            final double newMin = raster.scaleInverse(minSample);
-            final double newMax = raster.scaleInverse(maxSample);
-            planarImage = createRescaleOp(planarImage,
-                                          255.0 / (newMax - newMin),
-                                          255.0 * newMin / (newMin - newMax));
-            planarImage = createByteFormatOp(planarImage);
+            return createByteIndexedImage(raster, sourceImage, minSample, maxSample);
         }
-        return planarImage;
+    }
+
+    private static PlanarImage createByteIndexedImage(RasterDataNode raster,
+                                                      PlanarImage sourceImage,
+                                                      double minSample,
+                                                      double maxSample) {
+        double newMin = raster.scaleInverse(minSample);
+        double newMax = raster.scaleInverse(maxSample);
+        PlanarImage image = createRescaleOp(sourceImage,
+                                            255.0 / (newMax - newMin),
+                                            255.0 * newMin / (newMin - newMax));
+        return createByteFormatOp(image);
     }
 
     private static RenderingHints createDefaultRenderingHints() {
@@ -382,7 +393,7 @@ public class ImageManager {
         return sourceImage;
     }
 
-    public PlanarImage getBandImage(RasterDataNode rasterDataNode, int level) {
+    public PlanarImage getSourceImage(RasterDataNode rasterDataNode, int level) {
         RenderedImage sourceImage = rasterDataNode.getSourceImage();
         return getLevelImage(sourceImage, level);
     }

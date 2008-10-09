@@ -176,7 +176,7 @@ public class Stx {
         Assert.argument(roi == null || level == 0, "level");
         Assert.notNull(pm, "pm");
 
-        final RenderedImage dataImage = ImageManager.getInstance().getBandImage(raster, level);
+        final RenderedImage dataImage = ImageManager.getInstance().getSourceImage(raster, level);
         final SampleModel dataSampleModel = dataImage.getSampleModel();
         if (dataSampleModel.getNumBands() != 1) {
             throw new IllegalStateException("dataSampleModel.numBands != 1");

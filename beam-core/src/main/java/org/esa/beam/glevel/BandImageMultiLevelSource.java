@@ -6,7 +6,6 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
-
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
@@ -39,21 +38,21 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
     }
 
     public static BandImageMultiLevelSource create(RasterDataNode rasterDataNode,
-                                          AffineTransform i2mTransform, ProgressMonitor pm) {
+                                                   AffineTransform i2mTransform, ProgressMonitor pm) {
         return create(new RasterDataNode[]{rasterDataNode}, i2mTransform, pm);
     }
 
     public static BandImageMultiLevelSource create(RasterDataNode[] rasterDataNodes,
-                                          AffineTransform i2mTransform, ProgressMonitor pm) {
+                                                   AffineTransform i2mTransform, ProgressMonitor pm) {
         return create(rasterDataNodes, i2mTransform,
                       DefaultMultiLevelModel.getLevelCount(rasterDataNodes[0].getSceneRasterWidth(),
                                                            rasterDataNodes[0].getSceneRasterHeight()), pm);
     }
 
     private static BandImageMultiLevelSource create(RasterDataNode[] rasterDataNodes,
-                                           AffineTransform i2mTransform,
-                                           int levelCount,
-                                           ProgressMonitor pm) {
+                                                    AffineTransform i2mTransform,
+                                                    int levelCount,
+                                                    ProgressMonitor pm) {
         Assert.notNull(rasterDataNodes);
         Assert.argument(rasterDataNodes.length > 0);
         final int w = rasterDataNodes[0].getSceneRasterWidth();
@@ -72,7 +71,7 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
     public void setImageInfo(ImageInfo imageInfo) {
         this.imageInfo = imageInfo;
     }
-    
+
     public ImageInfo getImageInfo() {
         return imageInfo;
     }
