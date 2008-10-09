@@ -90,7 +90,7 @@ class GeneralFilterBandPersistable implements DimapPersistable {
 
         final Element filterBandInfo = new Element(DimapProductConstants.TAG_FILTER_BAND_INFO);
         filterBandInfo.setAttribute("bandType", "GeneralFilterBand");
-        filterBandInfo.addContent(filterBandInfoList);
+        filterBandInfo.addContent(filterBandInfoList); 
         contentList.add(filterBandInfo);
 
         final Element root = new Element(DimapProductConstants.TAG_SPECTRAL_BAND_INFO);
