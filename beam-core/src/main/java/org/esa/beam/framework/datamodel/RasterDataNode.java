@@ -1776,7 +1776,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return the resulting raw data histogram
      * @throws java.io.IOException if an I/O error occurs
      * @see #isScalingApplied()
-     * @deprecated since BEAM 4.5, use {@link Stx#create(RasterDataNode, int, javax.media.jai.ROI, int, double, double, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated since BEAM 4.5, use {@link Stx#create(RasterDataNode, javax.media.jai.ROI, int, double, double, com.bc.ceres.core.ProgressMonitor)}
      */
     @Deprecated
     public Histogram computeRasterDataHistogram(final ROI roi,
