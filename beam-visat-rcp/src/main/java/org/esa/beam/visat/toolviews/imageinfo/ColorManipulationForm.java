@@ -718,10 +718,6 @@ class ColorManipulationForm {
                 } else if (RasterDataNode.PROPERTY_NAME_STX.equalsIgnoreCase(propertyName)) {
                     childForm.handleRasterPropertyChange(event, raster);
                 } else if (RasterDataNode.isValidMaskProperty(propertyName)) {
-                    // todo - reactivate !!!! (nf)
-//                    if (raster.getStx() != null) {
-//                        raster.getStx().setDirty(true); // force recreation of statistics
-//                    }
                     getStx(raster);
                 }
             }
