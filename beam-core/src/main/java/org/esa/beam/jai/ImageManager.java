@@ -18,7 +18,6 @@ import org.esa.beam.util.jai.JAIUtils;
 
 import javax.media.jai.*;
 import javax.media.jai.operator.*;
-
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.ColorModel;
@@ -32,8 +31,10 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-
 public class ImageManager {
+
+    private static final String CACHE_INTERMEDIATE_TILES_PROPERTY = "beam.imageManager.cacheIntermediateTiles";
+
     private final static ImageManager INSTANCE = new ImageManager();
     private final Map<Object, MultiLevelSource> maskImageMap = new WeakHashMap<Object, MultiLevelSource>(101);
 
@@ -78,7 +79,7 @@ public class ImageManager {
 
     public static ImageLayout createSingleBandedImageLayout(RasterDataNode rasterDataNode) {
         return createSingleBandedImageLayout(rasterDataNode,
-                getDataBufferType(rasterDataNode.getDataType()));
+                                             getDataBufferType(rasterDataNode.getDataType()));
     }
 
     public static ImageLayout createSingleBandedImageLayout(RasterDataNode rasterDataNode, int dataBufferType) {
@@ -113,8 +114,8 @@ public class ImageManager {
         int destWidth = (int) Math.floor(sourceWidth / level.getScale());
         int destHeight = (int) Math.floor(sourceHeight / level.getScale());
         SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataBufferType,
-                destWidth,
-                destHeight);
+                                                                           destWidth,
+                                                                           destHeight);
         ColorModel colorModel = PlanarImage.createColorModel(sampleModel);
         tileSize = tileSize != null ? tileSize : JAIUtils.computePreferredTileSize(destWidth, destHeight, 1);
         return createImageLayout(destWidth, destHeight, tileSize.width, tileSize.height, sampleModel, colorModel);
@@ -127,13 +128,13 @@ public class ImageManager {
                                                  SampleModel sampleModel,
                                                  ColorModel colorModel) {
         return new ImageLayout(0, 0,
-                width,
-                height,
-                0, 0,
-                tileWidth,
-                tileHeight,
-                sampleModel,
-                colorModel);
+                               width,
+                               height,
+                               0, 0,
+                               tileWidth,
+                               tileHeight,
+                               sampleModel,
+                               colorModel);
     }
 
     public static int getDataBufferType(int productDataType) {
@@ -183,56 +184,20 @@ public class ImageManager {
             tileSize = preferredTileSize;
         } else {
             tileSize = JAIUtils.computePreferredTileSize(product.getSceneRasterWidth(),
-                    product.getSceneRasterHeight(), 1);
+                                                         product.getSceneRasterHeight(), 1);
         }
         return tileSize;
-    }
-
-    private static class MaskKey {
-        final WeakReference<Product> product;
-        final String expression;
-
-        private MaskKey(Product product, String expression) {
-            Assert.notNull(product, "product");
-            Assert.notNull(expression, "expression");
-            this.product = new WeakReference<Product>(product);
-            this.expression = expression;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null) {
-                return false;
-            }
-            if (getClass() != o.getClass()) {
-                return false;
-            }
-            MaskKey key = (MaskKey) o;
-            return product.get() == key.product.get() && expression.equals(key.expression);
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result;
-            result = product.get().hashCode();
-            result = 31 * result + expression.hashCode();
-            return result;
-        }
     }
 
     public PlanarImage createColoredBandImage(final RasterDataNode[] rasterDataNodes,
                                               ImageInfo imageInfo,
                                               final int level) {
         Assert.notNull(rasterDataNodes,
-                "rasterDataNodes");
+                       "rasterDataNodes");
         Assert.state(rasterDataNodes.length == 1
                 || rasterDataNodes.length == 3
                 || rasterDataNodes.length == 4,
-                "invalid number of bands");
+                     "invalid number of bands");
 
         prepareImageInfos(rasterDataNodes, ProgressMonitor.NULL);
         if (rasterDataNodes.length == 1) {
@@ -282,57 +247,27 @@ public class ImageManager {
             for (int colorIndex = 0; colorIndex < points.length; colorIndex++) {
                 sampleColorIndexMap.putValue((int) points[colorIndex].getSample(), colorIndex);
             }
-            // TODO pay more attention to the invaldIndex
             final int undefinedIndex = colorPaletteDef.getNumPoints();
             planarImage = createIndexedImage(planarImage, sampleColorIndexMap, undefinedIndex);
         } else {
             final double newMin = raster.scaleInverse(minSample);
             final double newMax = raster.scaleInverse(maxSample);
             planarImage = createRescaleOp(planarImage,
-                    255.0 / (newMax - newMin),
-                    255.0 * newMin / (newMin - newMax));
+                                          255.0 / (newMax - newMin),
+                                          255.0 * newMin / (newMin - newMax));
             planarImage = createByteFormatOp(planarImage);
         }
         return planarImage;
     }
-    
-    private static PlanarImage createRescaleOp(PlanarImage src,
-                                             double scale,
-                                             double offset) {
-        if ( scale==1.0 && offset == 0.0 ) {
-            return src;
-        }
-        RenderingHints hints = getTileCacheHint();
-        return RescaleDescriptor.create(src, new double[]{scale}, new double[]{offset}, hints);
-    }
-    
-    public static RenderingHints getTileCacheHint() {
-        boolean useTileCaching = Boolean.getBoolean("beam.gpf.useTileCaching");
-        if (useTileCaching) {
-            return new RenderingHints(JAI.KEY_TILE_CACHE, JAI.getDefaultInstance().getTileCache());
-        }
-        return new RenderingHints(JAI.KEY_TILE_CACHE, null);
-    }
-    
-    private static PlanarImage createByteFormatOp(PlanarImage src) {
-        /*
-         * @todo 3 nf/nf - make the color model a parameter
-         */
 
-        /*
-         * @todo 3 nf/nf - what about this comment
-         */
-        ColorModel cm = ImageUtils.create8BitGreyscaleColorModel();
-        SampleModel sm = cm.createCompatibleSampleModel(src.getTileWidth(), src.getTileHeight());
-        ImageLayout layout = new ImageLayout(src);
-        layout.setColorModel(cm);
-        layout.setSampleModel(sm);
-
-        RenderingHints rh = getTileCacheHint();
-        rh.put(JAI.KEY_IMAGE_LAYOUT, layout);
-        return FormatDescriptor.create(src, DataBuffer.TYPE_BYTE, rh);
+    private static RenderingHints createDefaultRenderingHints() {
+        boolean cacheIntermediateTiles = Boolean.getBoolean(CACHE_INTERMEDIATE_TILES_PROPERTY);
+        if (!cacheIntermediateTiles) {
+            return new RenderingHints(JAI.KEY_TILE_CACHE, null);
+        }
+        return new RenderingHints(null);
     }
-    
+
     private static PlanarImage createIndexedImage(RenderedImage sourceImage, IntMap intMap, int undefinedIndex) {
         if (sourceImage.getSampleModel().getNumBands() != 1) {
             throw new IllegalArgumentException();
@@ -376,17 +311,17 @@ public class ImageManager {
             table[table.length - 1] = undefinedIndex;
             lookup = new LookupTableJAI(table, keyMin - 1);
         }
-        RenderingHints hints = getTileCacheHint();
-        sourceImage = ClampDescriptor.create(sourceImage, 
-                                             new double[]{keyMin - 1}, 
-                                             new double[]{keyMax + 1}, 
+        RenderingHints hints = createDefaultRenderingHints();
+        sourceImage = ClampDescriptor.create(sourceImage,
+                                             new double[]{keyMin - 1},
+                                             new double[]{keyMax + 1},
                                              hints);
         return LookupDescriptor.create(sourceImage, lookup, hints);
     }
 
     private static PlanarImage performIndexToRgbConversion3Bands(PlanarImage[] sourceImages,
                                                                  PlanarImage[] maskOpImages) {
-        RenderingHints hints = getTileCacheHint();
+        RenderingHints hints = createDefaultRenderingHints();
         ParameterBlock pb = new ParameterBlock();
         PlanarImage alpha = null;
         for (PlanarImage maskOpImage : maskOpImages) {
@@ -406,7 +341,7 @@ public class ImageManager {
         }
         return JAI.create("bandmerge", pb, hints);
     }
-    
+
     private static PlanarImage performIndexToRgbConversion1Band(RasterDataNode rasterDataNode,
                                                                 PlanarImage sourceImage,
                                                                 PlanarImage maskOpImage) {
@@ -426,19 +361,13 @@ public class ImageManager {
             lutData[1][i] = (byte) palette[i].getGreen();
             lutData[2][i] = (byte) palette[i].getBlue();
         }
-        RenderedOp image = createLookupOp(sourceImage, lutData);
+        PlanarImage image = createLookupOp(sourceImage, lutData);
         if (maskOpImage != null) {
-            RenderingHints hints = getTileCacheHint();
+            RenderingHints hints = createDefaultRenderingHints();
             image = BandMergeDescriptor.create(image, maskOpImage, hints);
         }
         return image;
     }
-    
-    private static RenderedOp createLookupOp(RenderedImage src, byte[][] lookupTable) {
-        LookupTableJAI lookup = new LookupTableJAI(lookupTable);
-        return LookupDescriptor.create(src, lookup, getTileCacheHint());
-    }
-
 
     private PlanarImage applyHistogramMatching(PlanarImage sourceImage, ImageInfo.HistogramMatching histogramMatching) {
         final boolean doEqualize = ImageInfo.HistogramMatching.Equalize == histogramMatching;
@@ -453,11 +382,11 @@ public class ImageManager {
         return sourceImage;
     }
 
-
     public PlanarImage getBandImage(RasterDataNode rasterDataNode, int level) {
         RenderedImage sourceImage = rasterDataNode.getSourceImage();
         return getLevelImage(sourceImage, level);
     }
+
 
     public PlanarImage getValidMaskImage(final RasterDataNode rasterDataNode, int level) {
         if (rasterDataNode.isValidMaskUsed()) {
@@ -479,8 +408,8 @@ public class ImageManager {
             // TODO - New image instance is created here. This will happen e.g. for all bands created by GPF operators. (nf, 19.09.2008)
             final int levelCount = DefaultMultiLevelModel.getLevelCount(levelZeroImage.getWidth(), levelZeroImage.getHeight());
             multiLevelSource = new DefaultMultiLevelSource(levelZeroImage,
-                    levelCount,
-                    Interpolation.getInstance(Interpolation.INTERP_NEAREST));
+                                                           levelCount,
+                                                           Interpolation.getInstance(Interpolation.INTERP_NEAREST));
             System.out.println("IMAGING 4.5: " +
                     "Warning: Created an (inefficient) instance of DefaultMultiLevelSource. " +
                     "Source image is a " + levelZeroImage.getClass());
@@ -533,7 +462,6 @@ public class ImageManager {
         }
     }
 
-
     public void prepareImageInfos(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) {
         int numTaskSteps = 0;
         for (RasterDataNode raster : rasterDataNodes) {
@@ -552,6 +480,7 @@ public class ImageManager {
             pm.done();
         }
     }
+
 
     public int getStatisticsLevel(RasterDataNode raster, int levelCount) {
         final long imageSize = (long) raster.getSceneRasterWidth() * raster.getSceneRasterHeight();
@@ -596,7 +525,6 @@ public class ImageManager {
      * @param rasterDataNode the band
      * @param color          the color
      * @param level          the level
-     *
      * @return the image, or null if the band has no valid ROI definition
      */
     public PlanarImage createColoredRoiImage(RasterDataNode rasterDataNode, Color color, int level) {
@@ -612,7 +540,6 @@ public class ImageManager {
      *
      * @param rasterDataNode the band
      * @param level          the level
-     *
      * @return the ROI, or null if the band has no valid ROI definition
      */
     public PlanarImage createRoiMaskImage(final RasterDataNode rasterDataNode, int level) {
@@ -650,10 +577,10 @@ public class ImageManager {
                         @Override
                         public RenderedImage createImage(int level) {
                             return new PlacemarkMaskOpImage(rasterDataNode.getProduct(),
-                                    PinDescriptor.INSTANCE, 3,
-                                    rasterDataNode.getSceneRasterWidth(),
-                                    rasterDataNode.getSceneRasterHeight(),
-                                    ResolutionLevel.create(getModel(), level));
+                                                            PinDescriptor.INSTANCE, 3,
+                                                            rasterDataNode.getSceneRasterWidth(),
+                                                            rasterDataNode.getSceneRasterHeight(),
+                                                            ResolutionLevel.create(getModel(), level));
                         }
                     };
                     maskImageMap.put(key, placemarkMaskMLS);
@@ -677,9 +604,9 @@ public class ImageManager {
                         @Override
                         public RenderedImage createImage(int level) {
                             return new ShapeMaskOpImage(roiShape,
-                                    rasterDataNode.getSceneRasterWidth(),
-                                    rasterDataNode.getSceneRasterHeight(),
-                                    ResolutionLevel.create(getModel(), level));
+                                                        rasterDataNode.getSceneRasterWidth(),
+                                                        rasterDataNode.getSceneRasterHeight(),
+                                                        ResolutionLevel.create(getModel(), level));
                         }
                     };
                     maskImageMap.put(key, shapeMaskMLS);
@@ -712,5 +639,92 @@ public class ImageManager {
         }
 
         return roi;
+    }
+
+    private static PlanarImage createFormatOp(RenderedImage image, int dataType) {
+        if (image.getSampleModel().getDataType() == dataType) {
+            return PlanarImage.wrapRenderedImage(image);
+        }
+        return FormatDescriptor.create(image,
+                                       dataType,
+                                       createDefaultRenderingHints());
+    }
+
+    private static PlanarImage createRescaleOp(RenderedImage src, double factor, double offset) {
+        if (factor == 1.0 && offset == 0.0) {
+            return PlanarImage.wrapRenderedImage(src);
+        }
+        return RescaleDescriptor.create(src,
+                                        new double[]{factor},
+                                        new double[]{offset},
+                                        createDefaultRenderingHints());
+    }
+
+    public static RenderedImage createRescaleOp(RenderedImage src, int dataType, double factor, double offset, boolean log10Scaled) {
+        PlanarImage image = createFormatOp(src, dataType);
+        if (log10Scaled) {
+            image = createRescaleOp(image, Math.log(10) * factor, Math.log(10) * offset);
+            image = createExpOp(image);
+        } else {
+            image = createRescaleOp(image, factor, offset);
+        }
+        return image;
+    }
+
+    private static PlanarImage createExpOp(RenderedImage image) {
+        return ExpDescriptor.create(image, createDefaultRenderingHints());
+    }
+
+    private static PlanarImage createLookupOp(RenderedImage src, byte[][] lookupTable) {
+        LookupTableJAI lookup = new LookupTableJAI(lookupTable);
+        return LookupDescriptor.create(src, lookup, createDefaultRenderingHints());
+    }
+
+    private static PlanarImage createByteFormatOp(RenderedImage src) {
+        ColorModel cm = ImageUtils.create8BitGreyscaleColorModel();
+        SampleModel sm = cm.createCompatibleSampleModel(src.getTileWidth(), src.getTileHeight());
+        ImageLayout layout = new ImageLayout(src);
+        layout.setColorModel(cm);
+        layout.setSampleModel(sm);
+
+        RenderingHints rh = createDefaultRenderingHints();
+        rh.put(JAI.KEY_IMAGE_LAYOUT, layout);
+        return FormatDescriptor.create(src, DataBuffer.TYPE_BYTE, rh);
+    }
+
+    private static class MaskKey {
+        final WeakReference<Product> product;
+        final String expression;
+
+        private MaskKey(Product product, String expression) {
+            Assert.notNull(product, "product");
+            Assert.notNull(expression, "expression");
+            this.product = new WeakReference<Product>(product);
+            this.expression = expression;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null) {
+                return false;
+            }
+            if (getClass() != o.getClass()) {
+                return false;
+            }
+            MaskKey key = (MaskKey) o;
+            return product.get() == key.product.get() && expression.equals(key.expression);
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result;
+            result = product.get().hashCode();
+            result = 31 * result + expression.hashCode();
+            return result;
+        }
     }
 }

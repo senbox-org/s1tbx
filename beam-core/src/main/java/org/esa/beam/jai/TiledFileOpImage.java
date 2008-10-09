@@ -46,7 +46,6 @@ public class TiledFileOpImage extends SourcelessOpImage {
         } else if (this.imageHeader.getTileFormat().equalsIgnoreCase("raw")) {
             inputStreamFactory = new RawImageInputStreamFactory();
         }
-        setTileCache(JAI.getDefaultInstance().getTileCache());
     }
 
     /**

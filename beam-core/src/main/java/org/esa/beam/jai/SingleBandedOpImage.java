@@ -1,10 +1,9 @@
 package org.esa.beam.jai;
 
 import javax.media.jai.ImageLayout;
-import javax.media.jai.JAI;
 import javax.media.jai.SourcelessOpImage;
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import javax.media.jai.JAI;
+import java.awt.*;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.util.Map;
@@ -26,7 +25,6 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
      * @param tileSize       The tile size for this image.
      * @param configuration  The configuration map (can be null).
      * @param level          The resolution level.
-     * @param scale          The ratio model units per pixel units for given resolution level.
      */
     protected SingleBandedOpImage(int dataBufferType,
                                   int sourceWidth,

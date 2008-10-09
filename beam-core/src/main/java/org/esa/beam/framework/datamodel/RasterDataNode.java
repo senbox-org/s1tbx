@@ -34,12 +34,7 @@ import org.esa.beam.util.math.*;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
-import javax.media.jai.operator.ExpDescriptor;
-import javax.media.jai.operator.FormatDescriptor;
-import javax.media.jai.operator.RescaleDescriptor;
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
@@ -2143,7 +2138,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (maskImage != null) {
             return maskImage;
         }
-        final MultiLevelModel model = ImageManager.getInstance().createMultiLevelModel(this); // todo mz,mp where to get model from ???
+        final MultiLevelModel model = ImageManager.getInstance().createMultiLevelModel(this);
         final MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(model) {
 
             @Override
@@ -2209,36 +2204,13 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
             @Override
             protected RenderedImage createImage(RenderedImage[] sourceImages, int level) {
-                PlanarImage image = PlanarImage.wrapRenderedImage(sourceImages[0]);
-                image = reformat(image, ImageManager.getDataBufferType(RasterDataNode.this.getGeophysicalDataType()));
-                if (RasterDataNode.this.isLog10Scaled()) {
-                    image = rescale(image, Math.log(10) * RasterDataNode.this.getScalingFactor(), Math.log(10) * RasterDataNode.this.getScalingOffset());
-                    image = ExpDescriptor.create(image, ImageManager.getTileCacheHint());
-                } else {
-                    image = rescale(image, RasterDataNode.this.getScalingFactor(), RasterDataNode.this.getScalingOffset());
-                }
-                return image;
+                return ImageManager.createRescaleOp(sourceImages[0],
+                                                    ImageManager.getDataBufferType(getGeophysicalDataType()),
+                                                    getScalingFactor(), getScalingOffset(),
+                                                    isLog10Scaled());
             }
         };
         return new DefaultMultiLevelImage(geoSource);
-    }
-
-    private static PlanarImage rescale(PlanarImage image, double factor, double offset) {
-        image = RescaleDescriptor.create(image,
-                                         new double[]{factor},
-                                         new double[]{offset},
-                                         ImageManager.getTileCacheHint());
-        return image;
-    }
-
-    private static PlanarImage reformat(PlanarImage image, int databufferDataType) {
-        final int dataType = image.getSampleModel().getDataType();
-        if (dataType == databufferDataType) {
-            return image;
-        }
-        return FormatDescriptor.create(image,
-                                       databufferDataType,
-                                       ImageManager.getTileCacheHint());
     }
 
     /**

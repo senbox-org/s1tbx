@@ -5,15 +5,12 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ImageUtils;
 
-import javax.media.jai.ImageLayout;
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.SourcelessOpImage;
-import java.awt.Point;
-import java.awt.Rectangle;
+import javax.media.jai.*;
+import java.awt.*;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
@@ -23,10 +20,11 @@ import java.util.Map;
 
 public class OperatorImage extends SourcelessOpImage {
 
+    private static final String DISABLE_TILE_CACHING_PROPERTY = "beam.gpf.disableTileCaching";
+
     private Band band;
     private OperatorContext operatorContext;
     private ProgressMonitor progressMonitor;
-
 
     public OperatorImage(Band targetBand, OperatorContext operatorContext) {
         this(targetBand, operatorContext, ImageManager.createSingleBandedImageLayout(targetBand));
@@ -34,7 +32,7 @@ public class OperatorImage extends SourcelessOpImage {
 
     private OperatorImage(Band targetBand, OperatorContext operatorContext, ImageLayout imageLayout) {
         super(imageLayout,
-              null,
+              createDefaultRenderingHints(),
               imageLayout.getSampleModel(null),
               imageLayout.getMinX(null),
               imageLayout.getMinY(null),
@@ -42,8 +40,18 @@ public class OperatorImage extends SourcelessOpImage {
               imageLayout.getHeight(null));
         this.band = targetBand;
         this.operatorContext = operatorContext;
-        // todo - use rendering hints
-        setTileCache(JAI.getDefaultInstance().getTileCache());
+    }
+
+    private static RenderingHints createDefaultRenderingHints() {
+        boolean disableTileCaching = Boolean.getBoolean(DISABLE_TILE_CACHING_PROPERTY);
+         TileCache cache;
+        if (disableTileCaching) {
+            cache = null;
+        }  else {
+            // note that we could provide a GPF specific tile (with another cache metric) cache here
+            cache = JAI.getDefaultInstance().getTileCache();
+        }
+        return new RenderingHints(JAI.KEY_TILE_CACHE, cache);
     }
 
     public OperatorContext getOperatorContext() {
