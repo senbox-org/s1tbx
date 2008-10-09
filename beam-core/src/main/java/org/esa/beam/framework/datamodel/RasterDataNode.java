@@ -45,7 +45,6 @@ import org.esa.beam.util.math.Quantizer;
 import org.esa.beam.util.math.Range;
 import org.esa.beam.util.math.Statistics;
 
-import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
 import javax.media.jai.operator.ExpDescriptor;
@@ -2482,15 +2481,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             @Override
             protected RenderedImage createImage(RenderedImage[] sourceImages, int level) {
                 PlanarImage image = PlanarImage.wrapRenderedImage(sourceImages[0]);
-                if (!RasterDataNode.this.isScalingApplied()) {
-                    return image;
-                } else if (!RasterDataNode.this.isLog10Scaled()) {
-                    image = reformat(image, ImageManager.getDataBufferType(RasterDataNode.this.getGeophysicalDataType()));
-                    image = rescale(image, RasterDataNode.this.getScalingFactor(), RasterDataNode.this.getScalingOffset());
-                } else {
-                    image = reformat(image, ImageManager.getDataBufferType(RasterDataNode.this.getGeophysicalDataType()));
+                image = reformat(image, ImageManager.getDataBufferType(RasterDataNode.this.getGeophysicalDataType()));
+                if (RasterDataNode.this.isLog10Scaled()) {
                     image = rescale(image, Math.log(10) * RasterDataNode.this.getScalingFactor(), Math.log(10) * RasterDataNode.this.getScalingOffset());
                     image = ExpDescriptor.create(image, ImageManager.getTileCacheHint());
+                } else {
+                    image = rescale(image, RasterDataNode.this.getScalingFactor(), RasterDataNode.this.getScalingOffset());
                 }
                 return image;
             }
