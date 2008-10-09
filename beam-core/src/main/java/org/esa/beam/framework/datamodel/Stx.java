@@ -1,19 +1,22 @@
 package org.esa.beam.framework.datamodel;
 
-import com.bc.ceres.core.Assert;
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.jai.ImageManager;
 
-import javax.media.jai.Histogram;
-import javax.media.jai.PixelAccessor;
-import javax.media.jai.ROI;
-import javax.media.jai.UnpackedImageData;
 import java.awt.Rectangle;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
+import java.util.concurrent.CancellationException;
+
+import javax.media.jai.Histogram;
+import javax.media.jai.PixelAccessor;
+import javax.media.jai.ROI;
+import javax.media.jai.UnpackedImageData;
+
+import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 
 /**
  * Instances of the <code>Stx</code> class provide statistics for a band.
@@ -212,6 +215,9 @@ public class Stx {
             pm.beginTask("Computing " + op.getName(), numXTiles * numYTiles);
             for (int tileY = tileY1; tileY <= tileY2; tileY++) {
                 for (int tileX = tileX1; tileX <= tileX2; tileX++) {
+                    if (pm.isCanceled()) {
+                        throw new CancellationException("Process terminated by user."); /*I18N*/ 
+                    }
                     final Raster dataTile = dataImage.getTile(tileX, tileY);
                     final Raster maskTile = maskImage != null ? maskImage.getTile(tileX, tileY) : null;
                     final Rectangle r = new Rectangle(dataImage.getMinX(), dataImage.getMinY(), dataImage.getWidth(), dataImage.getHeight()).intersection(dataTile.getBounds());
