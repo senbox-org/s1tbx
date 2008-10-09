@@ -141,7 +141,7 @@ public class Stx {
             accumulate(raster, level, roi, histogramOp, SubProgressMonitor.create(pm, 1));
 
             // Create JAI histo, but use our "BEAM" bins
-            final Histogram histogram = new Histogram(binCount, extremaOp.lowValue, extremaOp.highValue, 1);
+            final Histogram histogram = new Histogram(binCount, extremaOp.lowValue, extremaOp.highValue + 1.0, 1);
             System.arraycopy(histogramOp.bins, 0, histogram.getBins(0), 0, binCount);
 
             return new Stx(extremaOp.lowValue, extremaOp.highValue, histogram, level);
@@ -155,7 +155,7 @@ public class Stx {
         accumulate(raster, level, roi, histogramOp, pm);
 
         // Create JAI histo, but use our "BEAM" bins
-        final Histogram histogram = new Histogram(binCount, min, max, 1);
+        final Histogram histogram = new Histogram(binCount, min, max + 1, 1);
         System.arraycopy(histogramOp.bins, 0, histogram.getBins(0), 0, binCount);
 
         return new Stx(min, max, histogram, level);
