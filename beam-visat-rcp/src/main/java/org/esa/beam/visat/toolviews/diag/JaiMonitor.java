@@ -42,6 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.table.AbstractTableModel;
 
 import com.bc.swing.desktop.TabbedDesktopPane;
@@ -134,6 +135,7 @@ public class JaiMonitor {
      */
     private TimeSeriesCollection[] datasets;
     private TileCacheTableModel tableModel;
+    private JTextArea textarea;
 
     /**
      * Creates a new monitor panel.
@@ -177,6 +179,8 @@ public class JaiMonitor {
         tableModel = new TileCacheTableModel();
         JScrollPane tableScrollPane = new JScrollPane(new JTable(tableModel));
         jTabbedPane.add("Table", tableScrollPane);
+        textarea = new JTextArea();
+        jTabbedPane.add("Info", textarea);
         mainPanel.add(jTabbedPane);
 
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 470));
@@ -205,6 +209,17 @@ public class JaiMonitor {
 //                dumpImageTree(tiles);
                 updateTableModel(tiles);
             }
+            StringBuilder sb = new StringBuilder();
+            sb.append("MemoryCapacity: \t");
+            sb.append(stc.getMemoryCapacity()/1024);
+            sb.append(" kB\n");
+            sb.append("MemoryThreshold: \t");
+            sb.append(stc.getMemoryThreshold());
+            sb.append("\n");
+            sb.append("#tilesInCache: \t");
+            sb.append(((Hashtable)stc.getCachedObject()).size());
+            sb.append("\n");
+            textarea.setText(sb.toString());
         }
     }
     
