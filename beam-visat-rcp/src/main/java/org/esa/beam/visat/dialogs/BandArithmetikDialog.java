@@ -18,16 +18,28 @@ package org.esa.beam.visat.dialogs;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
-import com.bc.jexp.*;
+import com.bc.jexp.EvalException;
+import com.bc.jexp.Namespace;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Parser;
+import com.bc.jexp.Term;
 import com.bc.jexp.impl.ParserImpl;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeList;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamProperties;
 import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.framework.ui.*;
+import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.NewBandDialog;
+import org.esa.beam.framework.ui.NewProductDialog;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
@@ -150,20 +162,41 @@ public class BandArithmetikDialog extends ModalDialog {
         _targetBand.setImageInfo(null);
         _targetBand.setGeophysicalNoDataValue(noDataValue);
         _targetBand.setNoDataValueUsed(noDataValueUsed);
-        if (!_targetProduct.containsBand(_targetBand.getName())) {
-            _targetProduct.addBand(_targetBand);
-        }
         if (getCreateVirtualBand()) {
             final VirtualBand virtualBand = (VirtualBand) _targetBand;
             virtualBand.setExpression(_paramExpression.getValueAsText());
             virtualBand.setCheckInvalids(checkInvalids);
+        } else {
+            if (!_targetBand.hasRasterData()) {
+                final int rasterSize = _targetBand.getRasterWidth() * _targetBand.getRasterHeight();
+                final int type = _targetBand.getDataType();
+                final int requiredMemory = rasterSize * ProductData.getElemSize(type);
+                final long freeMemory = Runtime.getRuntime().freeMemory();
+                final float megabyte = 1024.0f * 1024.0f;
+                if (freeMemory <= requiredMemory) {
+                    String message = "Can not create the new band.\n" +
+                                     String.format("\tFree memory    : %f.1 MB\n", freeMemory / megabyte) +
+                                     String.format("\tRequired memory: %f.1 MB\n\n", requiredMemory / megabyte) +
+                                     "The amount of required memory is equal or greater than the available memory.";
+                    _visatApp.showErrorDialog(message); /*I18N*/
+                    BandArithmetikDialog.super.onOK();
+                    return;
+                } else if (requiredMemory > 3 * freeMemory) {
+                    String message = "Creating the new band will cause the system to reach the memory limit.\n" +
+                                     "Ths can cause the system to slow down.\n" +
+                                     String.format("\tFree memory    : %f MB\n", freeMemory / megabyte) +
+                                     String.format("\tRequired memory: %f MB\n\n", requiredMemory / megabyte) +
+                                     "Do you want to create the image anyhow?";
+                    final int answer = _visatApp.showQuestionDialog(message, null);/*I18N*/
+                    if (answer != JOptionPane.YES_OPTION) {
+                        BandArithmetikDialog.super.onOK();
+                        return;
+                    }
+                }
+            }
         }
-
-        try {
-            _targetBand.createCompatibleRasterData();
-        } catch (OutOfMemoryError e) {
-            _visatApp.showOutOfMemoryErrorDialog("The new band could not be created."); /*I18N*/
-            BandArithmetikDialog.super.onOK();
+        if (!_targetProduct.containsBand(_targetBand.getName())) {
+            _targetProduct.addBand(_targetBand);
         }
 
         final String expression = _paramExpression.getValueAsText();
@@ -180,13 +213,16 @@ public class BandArithmetikDialog extends ModalDialog {
             protected Object doInBackground() throws Exception {
                 _errorMessage = null;
                 try {
-                    _numInvalids = _targetBand.computeBand(expression,
-                                                           getCompatibleProducts(),
-                                                           checkInvalids,
-                                                           noDataValueUsed,
-                                                           noDataValue,
-                                                           pm);
-                    _targetBand.fireProductNodeDataChanged();
+                    if (!getCreateVirtualBand()) {
+                        _numInvalids = _targetBand.computeBand(expression,
+                                                               getCompatibleProducts(),
+                                                               checkInvalids,
+                                                               noDataValueUsed,
+                                                               noDataValue,
+                                                               pm);
+                        _targetBand.fireProductNodeDataChanged();
+                    }
+
                 } catch (IOException e) {
                     Debug.trace(e);
                     _errorMessage = "The band could not be created.\nAn I/O error occurred:\n" + e.getMessage();  /*I18N*/

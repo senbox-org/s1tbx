@@ -21,10 +21,10 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-import com.bc.jexp.*;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Term;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
@@ -32,12 +32,12 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.StringUtils;
 
+import java.awt.Rectangle;
+import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Map;
 import java.util.WeakHashMap;
-
-import javax.media.jai.PlanarImage;
 
 /**
  * A band contains the data for geophysical parameter in remote sensing data products. Bands are two-dimensional images
@@ -219,24 +219,16 @@ public class VirtualBand extends Band {
                                final ProductData rasterData, ProgressMonitor pm)
             throws IOException {
         Guardian.assertNotNull("rasterData", rasterData);
-
-        final Term term;
+        pm.beginTask("Reading data...", 2);
         try {
-            term = getTerm(rasterData);
-        } catch (ParseException e) {
-            final IOException ioException = new IOException(e.getMessage());
-            ioException.initCause(e);
-            throw ioException;
+            final RenderedImage sourceImage = getSourceImage();
+            final Raster data = sourceImage.getData(new Rectangle(offsetX, offsetY, width, height));
+            pm.worked(1);
+            data.getDataElements(offsetX, offsetY, width, height, rasterData.getElems());
+            pm.worked(1);
+        } finally {
+            pm.done();
         }
-        BandArithmetic.computeBand(term,
-                                   offsetX, offsetY,
-                                   width, height,
-                                   getCheckInvalids(),
-                                   isNoDataValueUsed(),
-                                   getNoDataValue(),
-                                   rasterData,
-                                   null,
-                                   pm);
     }
 
     /**
@@ -244,19 +236,16 @@ public class VirtualBand extends Band {
      */
     @Override
     public void readRasterDataFully(ProgressMonitor pm) throws IOException {
-        final Product product = getProductSafe();
-        try {
-            final int n = computeBand(getExpression(),
-                                      new Product[]{product},
-                                      getCheckInvalids(),
-                                      isNoDataValueUsed(),
-                                      getNoDataValue(),
-                                      pm);
-            setNumInvalidPixels(n);
-            fireProductNodeDataChanged();
-        } catch (ParseException e) {
-            throw new IOException(e.getMessage());
+        final ProductData rasterData;
+        if (hasRasterData()) {
+            rasterData = getRasterData();
+        } else {
+            rasterData = createCompatibleRasterData(getRasterWidth(), getRasterHeight());
         }
+
+        readRasterData(0,0,getSceneRasterWidth(), getSceneRasterHeight(), rasterData, pm );
+        
+        setRasterData(rasterData);
     }
 
     /**
