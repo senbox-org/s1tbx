@@ -542,19 +542,13 @@ public class PConvertMain {
                 error("invalid RGB band index: " + (i + 1));
             }
             final Band band = product.getBandAt(index);
-            log("loading raster data for band '" + band.getName() + "'...");
-            try {
-                band.loadRasterData(ProgressMonitor.NULL);
-                band.getImageInfo(_histoSkipRatios, ProgressMonitor.NULL);
-                if (colorPaletteDef != null) {
-                    band.getImageInfo().transferColorPaletteDef(colorPaletteDef, true);
-                }
-                if (_noDataColor != null) {
-                    band.getImageInfo().setNoDataColor(_noDataColor);
-                }
-            } catch (IOException e) {
-                Debug.trace(e);
-                error("failed to create image: " + e.getMessage());
+            log("creating histogram for band '" + band.getName() + "'...");
+            band.getImageInfo(_histoSkipRatios, ProgressMonitor.NULL);
+            if (colorPaletteDef != null) {
+                band.getImageInfo().transferColorPaletteDef(colorPaletteDef, true);
+            }
+            if (_noDataColor != null) {
+                band.getImageInfo().setNoDataColor(_noDataColor);
             }
         }
 

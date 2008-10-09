@@ -22,7 +22,12 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.esa.beam.GlobalTestConfig;
 import org.esa.beam.GlobalTestTools;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.util.BeamConstants;
 
 import java.io.File;
@@ -100,9 +105,12 @@ public class DimapWriteAndReadTest extends TestCase {
 
     private static void loadAllBandRasterData(Product product) throws IOException {
         final Band[] bands = product.getBands();
-        for (int i = 0; i < bands.length; i++) {
-            final Band band = bands[i];
-            band.loadRasterData(ProgressMonitor.NULL);
+        double[] pixels = new double[product.getSceneRasterWidth() * product.getSceneRasterHeight()];
+        for (final Band band : bands) {
+            band.readPixels(0, 0,
+                            band.getSceneRasterWidth(), band.getSceneRasterHeight(),
+                            pixels,
+                            ProgressMonitor.NULL);
         }
     }
 
