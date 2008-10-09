@@ -742,8 +742,6 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <BAND_INDEX>0</BAND_INDEX>");
         pw.println("            <STX_MIN>-0.2</STX_MIN>");
         pw.println("            <STX_MAX>3.0</STX_MAX>");
-        pw.println("            <STX_MEAN>0.0</STX_MEAN>");
-        pw.println("            <STX_STDV>0.0</STX_STDV>");
         pw.println("            <STX_RES_LEVEL>0</STX_RES_LEVEL>");
         pw.println("            <HISTOGRAM>4,5,4,7,5,8</HISTOGRAM>");
         pw.println("            <NUM_COLORS>180</NUM_COLORS>");
@@ -1263,10 +1261,6 @@ public class DimapDocumentTest extends TestCase {
                     JDomHelper.addElement(DimapProductConstants.TAG_STX_MIN, band.getStx().getMin(),
                                           bandStatisticsElem);
                     JDomHelper.addElement(DimapProductConstants.TAG_STX_MAX, band.getStx().getMax(),
-                                          bandStatisticsElem);
-                    JDomHelper.addElement(DimapProductConstants.TAG_STX_MEAN, band.getStx().getMean(),
-                                          bandStatisticsElem);
-                    JDomHelper.addElement(DimapProductConstants.TAG_STX_STDV, band.getStx().getStandardDeviation(),
                                           bandStatisticsElem);
                     JDomHelper.addElement(DimapProductConstants.TAG_STX_LEVEL, band.getStx().getResolutionLevel(),
                                           bandStatisticsElem);

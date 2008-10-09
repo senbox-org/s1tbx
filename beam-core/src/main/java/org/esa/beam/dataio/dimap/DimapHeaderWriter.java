@@ -289,9 +289,6 @@ public final class DimapHeaderWriter extends XmlWriter {
                 if (band.getStx() != null) {
                     sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_MIN, band.scale(band.getStx().getMin()));
                     sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_MAX, band.scale(band.getStx().getMax()));
-                    sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_MEAN, band.scale(band.getStx().getMean()));
-                    // todo - use Ralf's error propagation formula to compute scaled stdev (nf - 08.10.2008)
-                    sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_STDV, band.scale(band.getStx().getStandardDeviation()));
                     sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_LEVEL, band.getStx().getResolutionLevel());
                     final int[] bins = band.getStx().getHistogramBins();
                     if (bins != null && bins.length > 0) {

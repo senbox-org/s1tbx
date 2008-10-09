@@ -494,8 +494,6 @@ public final class DimapProductConstants {
     public static final String TAG_STX_MIN = "STX_MIN";
     public static final String TAG_STX_MAX = "STX_MAX";
     public static final String TAG_STX_LEVEL = "STX_RES_LEVEL";
-    public static final String TAG_STX_MEAN = "STX_MEAN";
-    public static final String TAG_STX_STDV = "STX_STDV";
     public static final String TAG_STX_LIN_MIN = "STX_LIN_MIN";
     public static final String TAG_STX_LIN_MAX = "STX_LIN_MAX";
     public static final String TAG_HISTOGRAM = "HISTOGRAM";
