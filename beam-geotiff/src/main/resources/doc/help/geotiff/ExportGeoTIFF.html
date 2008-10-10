@@ -33,7 +33,7 @@
 <h3>Constraints of created GeoTIFF product files</h3>
 
 <p>The exported GeoTIFF files contain additional information beside the tags defined by the GeoTIFF specification.
-    This information is used when the file is read in again by BEAM. This allows a better support of several BEAM
+    This BEAM-DIMAP header is used to these additional informations. This allows a better support of several BEAM
     features.<br/>
     This includes:
 </p>
@@ -42,6 +42,8 @@
     <li>Name, description and unit of each band.</li>
     <li>The properties of no-data and scaling for each band.</li>
     <li>The index coding of a band.</li>
+    <li>Virtual and Filtered bans.</li>
+    <li>etc.</li>
 </ul>
 <p>
     For features and limitations of the GeoTIFF export and constraints of interaction with other GIS tools please see
@@ -53,7 +55,7 @@
     </li>
     <li>The data of a band is always written raw and unscaled.
     </li>
-    <li>Virtual bands are not exported.</li>
+    <li>Virtual and filtered bands can only be reimported by BEAM.</li>
     <li>All <a href="../general/MapProjTable.html">projections available in BEAM</a> are also supported by the GeoTIFF
         writer.
         As a fallback, if a map projection or other geocoding is not directly supported a tie-point grid is written to
@@ -61,7 +63,7 @@
         The exported GeoTiff files were tested for compatibility with ENVI and ArcGis. While the files are fully
         compatible with ENVI, ArcGIS has problems to understand stereographic projections.
     </li>
-    <li>An index coded band can only be correctly decoded in other GIS tools, if it is written as an image with one
+    <li>An index coded band can only be correctly decoded by other GIS tools, if it is written as an image with one
         band.
     </li>
 </ul>
