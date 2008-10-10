@@ -19,10 +19,20 @@ package org.esa.beam.dataio.dimap;
 import org.esa.beam.dataio.dimap.spi.DimapPersistable;
 import org.esa.beam.dataio.dimap.spi.DimapPersistence;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.*;
+import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
+import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
+import org.esa.beam.framework.dataop.maptransf.MapTransform;
+import org.esa.beam.framework.dataop.maptransf.MapTransformDescriptor;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
-import org.esa.beam.util.*;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.XmlWriter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.FXYSum;
@@ -40,7 +50,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -1331,7 +1346,11 @@ public class DimapProductHelpers {
                 final DimapPersistable persistable = DimapPersistence.getPersistable(element);
                 if (persistable != null) {
                     band = (Band) persistable.createObjectFromXml(element, product);
-                    product.addBand(band);
+                    // currently it can be null if the operator of filtered band is of type
+                    // GeneralFilterBand.STDDEV or GeneralFilterBand.RMS
+                    if(band == null) { 
+                        product.addBand(band);
+                    }
                 }
             } else {
                 product.addBand(bandName, type);
