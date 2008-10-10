@@ -1002,6 +1002,7 @@ public class DimapProductHelpers {
             if (minSample != null && maxSample != null) {
                 return new Stx(band.scaleInverse(minSample),
                                band.scaleInverse(maxSample),
+                               ProductData.isIntType(band.getDataType()),
                                bins == null ? new int[0] : bins,
                                level == null ? 0 : level);
             }

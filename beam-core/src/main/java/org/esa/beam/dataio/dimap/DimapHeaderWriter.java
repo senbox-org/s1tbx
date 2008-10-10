@@ -281,12 +281,12 @@ public final class DimapHeaderWriter extends XmlWriter {
         Debug.assertNotNull(bands);
         for (int i = 0; i < bands.length; i++) {
             final Band band = bands[i];
-            if (band.getImageInfo() != null || band.getStx() != null) {
+            if (band.getImageInfo() != null) {
                 final String[] bsTags = createTags(indent + 1, DimapProductConstants.TAG_BAND_STATISTICS);
                 sXmlW.println(bsTags[0]);
                 sXmlW.printLine(indent + 2, DimapProductConstants.TAG_BAND_INDEX, i);
 
-                if (band.getStx() != null) {
+                if (band.isStxSet()) {
                     sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_MIN, band.scale(band.getStx().getMin()));
                     sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_MAX, band.scale(band.getStx().getMax()));
                     sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_LEVEL, band.getStx().getResolutionLevel());

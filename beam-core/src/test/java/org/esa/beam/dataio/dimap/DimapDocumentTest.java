@@ -30,8 +30,7 @@ import org.esa.beam.util.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 
-import java.awt.Color;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
@@ -474,7 +473,7 @@ public class DimapDocumentTest extends TestCase {
 
     private Stx createStx() {
         int[] bins = new int[]{4, 5, 4, 7, 5, 8};
-        return new Stx(-0.2, 3, bins, 0);
+        return new Stx(-0.2, 3, false, bins, 0);
     }
 
     private ImageInfo createImageInfo() {
@@ -1258,16 +1257,19 @@ public class DimapDocumentTest extends TestCase {
                     Element bandStatisticsElem = new Element(DimapProductConstants.TAG_BAND_STATISTICS);
                     imageDisplayElem.addContent(bandStatisticsElem);
                     JDomHelper.addElement(DimapProductConstants.TAG_BAND_INDEX, i, bandStatisticsElem);
-                    JDomHelper.addElement(DimapProductConstants.TAG_STX_MIN, band.getStx().getMin(),
-                                          bandStatisticsElem);
-                    JDomHelper.addElement(DimapProductConstants.TAG_STX_MAX, band.getStx().getMax(),
-                                          bandStatisticsElem);
-                    JDomHelper.addElement(DimapProductConstants.TAG_STX_LEVEL, band.getStx().getResolutionLevel(),
-                                          bandStatisticsElem);
-                    final int[] bins = band.getStx().getHistogramBins();
-                    if (bins != null && bins.length > 0) {
-                        JDomHelper.addElement(DimapProductConstants.TAG_HISTOGRAM, StringUtils.arrayToCsv(bins),
+                    if (band.isStxSet()) {
+                        JDomHelper.addElement(DimapProductConstants.TAG_STX_MIN, band.getStx().getMin(),
                                               bandStatisticsElem);
+                        JDomHelper.addElement(DimapProductConstants.TAG_STX_MAX, band.getStx().getMax(),
+                                              bandStatisticsElem);
+                        JDomHelper.addElement(DimapProductConstants.TAG_STX_LEVEL, band.getStx().getResolutionLevel(),
+                                              bandStatisticsElem);
+
+                        final int[] bins = band.getStx().getHistogramBins();
+                        if (bins != null && bins.length > 0) {
+                            JDomHelper.addElement(DimapProductConstants.TAG_HISTOGRAM, StringUtils.arrayToCsv(bins),
+                                                  bandStatisticsElem);
+                        }
                     }
                     JDomHelper.addElement(DimapProductConstants.TAG_NUM_COLORS, imageInfo.getColorPaletteDef().getNumColors(),
                                           bandStatisticsElem);

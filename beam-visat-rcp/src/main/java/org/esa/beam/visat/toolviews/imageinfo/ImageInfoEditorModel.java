@@ -1,9 +1,7 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
 import com.bc.ceres.core.Assert;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.Scaling;
+import org.esa.beam.framework.datamodel.*;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -36,15 +34,10 @@ abstract class ImageInfoEditorModel {
     public void setDisplayProperties(RasterDataNode raster) {
         setUnit(raster.getUnit());
         setScaling(raster);
-        if (raster.getStx() != null) {
-            setMinSample(raster.scale(raster.getStx().getMin()));
-            setMaxSample(raster.scale(raster.getStx().getMax()));
-            setHistogramBins(raster.getStx().getHistogramBins());
-        } else {
-            setMinSample(imageInfo.getColorPaletteDef().getMinDisplaySample());
-            setMaxSample(imageInfo.getColorPaletteDef().getMaxDisplaySample());
-            setHistogramBins(null);
-        }
+        Stx stx = raster.getStx();
+        setMinSample(raster.scale(stx.getMin()));
+        setMaxSample(raster.scale(stx.getMax()));
+        setHistogramBins(stx.getHistogramBins());
         fireStateChanged();
     }
 

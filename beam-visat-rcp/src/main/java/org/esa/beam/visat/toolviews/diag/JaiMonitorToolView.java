@@ -17,9 +17,11 @@ public class JaiMonitorToolView extends AbstractToolView {
     protected JComponent createControl() {
         jaiMonitor = new JaiMonitor();
         JPanel panel = jaiMonitor.createPanel();
-        timer = new Timer(1000, new ActionListener() {
+        timer = new Timer(2000, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                jaiMonitor.updateState();
+                if (isVisible()) {
+                    jaiMonitor.updateState();
+                }
             }
         });
         timer.setRepeats(true);
@@ -33,7 +35,7 @@ public class JaiMonitorToolView extends AbstractToolView {
      */
     @Override
     public void componentOpened() {
-        timer.start();
+        timer.restart();
     }
 
     /**

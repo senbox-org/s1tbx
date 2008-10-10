@@ -652,7 +652,7 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
                 createScalarAttribute(datasetID, "CLASS", "IMAGE");
                 createScalarAttribute(datasetID, "IMAGE_VERSION", 1.2F);
 
-                if (band.getStx() != null) {
+                if (band.isStxSet()) {
                     final Stx stx = band.getStx();
                     createScalarAttribute(datasetID, "min_sample", stx.getMin());
                     createScalarAttribute(datasetID, "max_sample", stx.getMax());

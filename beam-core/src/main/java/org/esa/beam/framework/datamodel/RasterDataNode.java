@@ -16,6 +16,7 @@
  */
 package org.esa.beam.framework.datamodel;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
@@ -1772,7 +1773,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return the resulting raw data histogram
      * @throws java.io.IOException if an I/O error occurs
      * @see #isScalingApplied()
-     * @deprecated since BEAM 4.5, use {@link Stx#create(RasterDataNode, javax.media.jai.ROI, int, double, double, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated since BEAM 4.5, use {@link Stx#create(RasterDataNode, javax.media.jai.ROI, int, com.bc.ceres.core.ProgressMonitor)}
      */
     @Deprecated
     public Histogram computeRasterDataHistogram(final ROI roi,
@@ -2206,7 +2207,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             protected RenderedImage createImage(RenderedImage[] sourceImages, int level) {
                 return ImageManager.createRescaleOp(sourceImages[0],
                                                     ImageManager.getDataBufferType(getGeophysicalDataType()),
-                                                    getScalingFactor(), getScalingOffset(),
+                                                    getScalingFactor(),
+                                                    getScalingOffset(),
                                                     isLog10Scaled());
             }
         };
@@ -2225,15 +2227,28 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         geophysicalImage = null;
     }
 
+    public synchronized boolean isStxSet() {
+        return stx != null;
+    }
+
     /**
-     * Gets the statistics.
+     * Gets the statistics. If statistcs are not yet available,
+     * the method will compute (possibly inaccurate) statistics and return those.
+     * <p/>
+     * If accurate statistics are required, the {@link #getStx(boolean, com.bc.ceres.core.ProgressMonitor)}
+     * shall be used instead.
+     * <p/>
      * This method belongs to preliminary API and may be removed or changed in the future.
      *
-     * @return The statistics or {@code null} if not yet set.
-     * @see #getStx(boolean,com.bc.ceres.core.ProgressMonitor)
-     * @since BEAM 4.2
+     * @return The statistics.
+     * @see #getStx(boolean, com.bc.ceres.core.ProgressMonitor)
+     * @see #setStx(Stx)
+     * @since BEAM 4.2, revised in BEAM 4.5
      */
-    public Stx getStx() {
+    public synchronized Stx getStx() {
+        if (stx == null) {
+            getStx(false, ProgressMonitor.NULL);
+        }
         return stx;
     }
 
@@ -2243,24 +2258,22 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * If the statistics have not been set before they are computed using the given progress monitor {@code pm} and then set.
      * This method belongs to preliminary API and may be removed or changed in the future.
      *
-     * @param accurate
-     * @param pm       A progress monitor which is used to compute the new statistics, if required. @return The statistics.
-     * @since BEAM 4.2
+     * @param accurate If true, accurate statistics are computed.
+     * @param pm       A progress monitor which is used to compute the new statistics, if required.
+     * @return The statistics.
+     * @since since BEAM 4.5
      */
     public synchronized Stx getStx(boolean accurate, ProgressMonitor pm) {
-        Stx stx = getStx();
-        if (stx == null || stx.isDirty() ||
-                stx.getResolutionLevel() > 0 && accurate) {
+        if (stx == null || stx.getResolutionLevel() > 0 && accurate) {
             if (accurate) {
-                stx = computeStx(0, pm);
+                setStx(computeStxImpl(0, pm));
             } else {
                 ImageManager imageManager = ImageManager.getInstance();
                 MultiLevelSource multiLevelSource = imageManager.getMultiLevelSource(getSourceImage());
                 final int levelCount = multiLevelSource.getModel().getLevelCount();
                 final int statisticsLevel = imageManager.getStatisticsLevel(this, levelCount);
-                stx = computeStx(statisticsLevel, pm);
+                setStx(computeStxImpl(statisticsLevel, pm));
             }
-            setStx(stx);
         }
         return stx;
     }
@@ -2271,32 +2284,16 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * The method fires a property change event for the property {@link #PROPERTY_NAME_STX}.
      * This method belongs to preliminary API and may be removed or changed in the future.
      *
-     * @param stx The statistics. May be {@code null}.
-     * @since BEAM 4.2
+     * @param stx The statistics.
+     * @since BEAM 4.2, revised in BEAM 4.5
      */
     public synchronized void setStx(Stx stx) {
+        Assert.notNull(stx, "stx");
         final Stx oldValue = this.stx;
         if (oldValue != stx) {
             this.stx = stx;
             fireProductNodeChanged(PROPERTY_NAME_STX, oldValue);
         }
-    }
-
-    /**
-     * Computes the statistics.
-     * This method belongs to preliminary API and may be removed or changed in the future.
-     *
-     * @param level The resolution level.
-     * @param pm    A progress monitor.
-     * @return The statistics.
-     * @since BEAM 4.5
-     */
-    private Stx computeStx(int level, ProgressMonitor pm) {
-        final Stx stx = computeStxImpl(level, pm);
-        if (this.stx == null || this.stx.getResolutionLevel() > level) {
-            setStx(stx);
-        }
-        return stx;
     }
 
 

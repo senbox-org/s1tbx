@@ -33,8 +33,6 @@ public class Stx {
     private final int resolutionLevel;
     private final Histogram histogram;
 
-    private boolean dirty;
-
     public static Stx create(RasterDataNode raster, int level, ProgressMonitor pm) {
         return create(raster, level, null, DEFAULT_BIN_COUNT, pm);
     }
@@ -55,8 +53,8 @@ public class Stx {
         return create(raster, 0, roi, binCount, min, max, pm);
     }
 
-    public Stx(double min, double max, int[] sampleFrequencies, int resolutionLevel) {
-        this(min, max, createHistogram(min, max, sampleFrequencies), resolutionLevel);
+    public Stx(double min, double max, boolean intType, int[] sampleFrequencies, int resolutionLevel) {
+        this(min, max, createHistogram(min, max + (intType ? 1.0 : 0.0), sampleFrequencies), resolutionLevel);
     }
 
     private Stx(double min, double max, Histogram histogram, int resolutionLevel) {
@@ -65,7 +63,6 @@ public class Stx {
         this.sampleCount = computeSum(histogram.getBins(0));
         this.histogram = histogram;
         this.resolutionLevel = resolutionLevel;
-        this.dirty = false;
     }
 
     public double getMin() {
@@ -112,16 +109,8 @@ public class Stx {
         return resolutionLevel;
     }
 
-    boolean isDirty() {
-        return dirty;
-    }
-
-    void setDirty(boolean dirty) {
-        this.dirty = dirty;
-    }
-
     private static Histogram createHistogram(double minSample, double maxSample, int[] sampleFrequencies) {
-        final Histogram histogram = new Histogram(sampleFrequencies.length, minSample, maxSample, 1);
+        final Histogram histogram = createHistogram(sampleFrequencies.length, minSample, maxSample);
         System.arraycopy(sampleFrequencies, 0, histogram.getBins(0), 0, sampleFrequencies.length);
         return histogram;
     }
@@ -140,29 +129,43 @@ public class Stx {
             final ExtremaOp extremaOp = new ExtremaOp();
             accumulate(raster, level, roi, extremaOp, SubProgressMonitor.create(pm, 1));
 
-            final HistogramOp histogramOp = new HistogramOp(binCount, extremaOp.lowValue, extremaOp.highValue + 1.0);
+            double min = extremaOp.lowValue;
+            double max = extremaOp.highValue;
+
+            double off = getHighValueOffset(raster);
+
+            final HistogramOp histogramOp = new HistogramOp(binCount, min, max + off);
             accumulate(raster, level, roi, histogramOp, SubProgressMonitor.create(pm, 1));
 
             // Create JAI histo, but use our "BEAM" bins
-            final Histogram histogram = new Histogram(binCount, extremaOp.lowValue, extremaOp.highValue + 1.0, 1);
+            final Histogram histogram = createHistogram(binCount, min, max + off);
             System.arraycopy(histogramOp.bins, 0, histogram.getBins(0), 0, binCount);
 
-            return new Stx(extremaOp.lowValue, extremaOp.highValue, histogram, level);
+            return new Stx(min, max, histogram, level);
         } finally {
             pm.done();
         }
     }
 
     private static Stx create(RasterDataNode raster, int level, ROI roi, int binCount, double min, double max, ProgressMonitor pm) {
-        final HistogramOp histogramOp = new HistogramOp(binCount, min, max + 1);
+        double off = getHighValueOffset(raster);
+
+        final HistogramOp histogramOp = new HistogramOp(binCount, min, max + off);
         accumulate(raster, level, roi, histogramOp, pm);
 
         // Create JAI histo, but use our "BEAM" bins
-        final Histogram histogram = new Histogram(binCount, min, max + 1, 1);
+        final Histogram histogram = createHistogram(binCount, min, max + off);
         System.arraycopy(histogramOp.bins, 0, histogram.getBins(0), 0, binCount);
 
         return new Stx(min, max, histogram, level);
+    }
 
+    private static double getHighValueOffset(RasterDataNode raster) {
+        return ProductData.isIntType(raster.getDataType()) ? 1.0 : 0.0;
+    }
+
+    private static Histogram createHistogram(int binCount, double min, double max) {
+        return min < max ? new Histogram(binCount, min, max, 1) : new Histogram(binCount, min, min + 1e-10, 1);
     }
 
     private static void accumulate(RasterDataNode raster,
@@ -825,8 +828,9 @@ public class Stx {
                 for (int x = 0; x < width; x++) {
                     if ((mask == null || mask[maskPixelOffset] != 0) && (roi == null || roi.contains(r.x + x, r.y + y))) {
                         double d = data[dataPixelOffset];
-                        if (d >= lowValue && d < highValue) {
+                        if (d >= lowValue && d <= highValue) {
                             int i = (int) ((d - lowValue) / binWidth);
+                            i = i == bins.length ? i - 1 : i;
                             bins[i]++;
                         }
                     }
@@ -873,8 +877,9 @@ public class Stx {
                 for (int x = 0; x < width; x++) {
                     if ((mask == null || mask[maskPixelOffset] != 0) && (roi == null || roi.contains(r.x + x, r.y + y))) {
                         double d = data[dataPixelOffset];
-                        if (d >= lowValue && d < highValue) {
+                        if (d >= lowValue && d <= highValue) {
                             int i = (int) ((d - lowValue) / binWidth);
+                            i = i == bins.length ? i - 1 : i;
                             bins[i]++;
                         }
                     }

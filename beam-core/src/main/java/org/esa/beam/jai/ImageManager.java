@@ -234,9 +234,7 @@ public class ImageManager {
             validMaskImages[i] = getValidMaskImage(raster, level);
         }
         // todo - correctly handle no-data color (nf, 10.10.2008)
-        PlanarImage image = createMergeRgbaOp(images, validMaskImages);
-        image = createMatchCdfImage(image, rgbImageInfo.getHistogramMatching(), stxs);
-        return image;
+        return createMergeRgbaOp(images, validMaskImages, rgbImageInfo.getHistogramMatching(), stxs);
     }
 
     private static PlanarImage createByteIndexedImage(RasterDataNode raster,
@@ -269,7 +267,16 @@ public class ImageManager {
         PlanarImage image = createRescaleOp(sourceImage,
                                             255.0 / (newMax - newMin),
                                             255.0 * newMin / (newMin - newMax));
+        // todo - make sure this is not needed, e.g. does "format" auto-clamp?? (nf, 10.2008)
+        // image = createClampOp(image, 0, 255);
         return createByteFormatOp(image);
+    }
+
+    private static PlanarImage createClampOp(RenderedImage image, int min, int max) {
+        return ClampDescriptor.create(image,
+                                             new double[]{min},
+                                             new double[]{max},
+                                             createDefaultRenderingHints());
     }
 
     private static RenderingHints createDefaultRenderingHints() {
@@ -332,9 +339,47 @@ public class ImageManager {
     }
 
     private static PlanarImage createMergeRgbaOp(PlanarImage[] sourceImages,
-                                                 PlanarImage[] maskOpImages) {
+                                                 PlanarImage[] maskOpImages,
+                                                 ImageInfo.HistogramMatching histogramMatching,
+                                                 Stx[] stxs) {
         RenderingHints hints = createDefaultRenderingHints();
-        ParameterBlock pb = new ParameterBlock();
+
+        if (histogramMatching == ImageInfo.HistogramMatching.None) {
+            ParameterBlock pb = new ParameterBlock();
+            pb.addSource(sourceImages[0]);
+            pb.addSource(sourceImages[1]);
+            pb.addSource(sourceImages[2]);
+            PlanarImage alpha = createMapOp(maskOpImages);
+            if (alpha != null) {
+                pb.addSource(alpha);
+            }
+            return JAI.create("bandmerge", pb, hints);
+        } else {
+            ParameterBlock pb = new ParameterBlock();
+            pb.addSource(sourceImages[0]);
+            pb.addSource(sourceImages[1]);
+            pb.addSource(sourceImages[2]);
+            PlanarImage image = JAI.create("bandmerge", pb, hints);
+
+            if (histogramMatching == ImageInfo.HistogramMatching.Equalize)  {
+                image = createMatchCdfEqualizeImage(image, stxs);
+            } else {
+                image = createMatchCdfNormalizeImage(image, stxs);
+            }
+
+            PlanarImage alpha = createMapOp(maskOpImages);
+            if (alpha != null) {
+                pb = new ParameterBlock();
+                pb.addSource(image);
+                pb.addSource(alpha);
+                image = JAI.create("bandmerge", pb, hints);
+            }
+            return image;
+        }
+    }
+
+    private static PlanarImage createMapOp(PlanarImage[] maskOpImages) {
+        RenderingHints hints = createDefaultRenderingHints();
         PlanarImage alpha = null;
         for (PlanarImage maskOpImage : maskOpImages) {
             if (maskOpImage != null) {
@@ -345,13 +390,7 @@ public class ImageManager {
                 }
             }
         }
-        pb.addSource(sourceImages[0]);
-        pb.addSource(sourceImages[1]);
-        pb.addSource(sourceImages[2]);
-        if (alpha != null) {
-            pb.addSource(alpha);
-        }
-        return JAI.create("bandmerge", pb, hints);
+        return alpha;
     }
 
     private static PlanarImage createLookupRgbImage(RasterDataNode rasterDataNode,
@@ -755,7 +794,7 @@ public class ImageManager {
                                         createDefaultRenderingHints());
     }
 
-    public static RenderedImage createRescaleOp(RenderedImage src, int dataType, double factor, double offset, boolean log10Scaled) {
+    public static PlanarImage createRescaleOp(RenderedImage src, int dataType, double factor, double offset, boolean log10Scaled) {
         PlanarImage image = createFormatOp(src, dataType);
         if (log10Scaled) {
             image = createRescaleOp(image, Math.log(10) * factor, Math.log(10) * offset);
