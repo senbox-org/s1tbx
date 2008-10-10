@@ -189,9 +189,9 @@ public class ImageManager {
         return tileSize;
     }
 
-    public PlanarImage createColoredBandImage(final RasterDataNode[] rasterDataNodes,
+    public PlanarImage createColoredBandImage(RasterDataNode[] rasterDataNodes,
                                               ImageInfo imageInfo,
-                                              final int level) {
+                                              int level) {
         Assert.notNull(rasterDataNodes,
                        "rasterDataNodes");
         Assert.state(rasterDataNodes.length == 1
@@ -214,7 +214,7 @@ public class ImageManager {
         PlanarImage validMaskImage = getValidMaskImage(raster, level);
         PlanarImage image = createByteIndexedImage(raster, sourceImage, imageInfo);
         image = createMatchCdfImage(image, imageInfo.getHistogramMatching(), new Stx[]{raster.getStx()});
-        image = createRgbImage(raster, image, validMaskImage, imageInfo);
+        image = createLookupRgbImage(raster, image, validMaskImage, imageInfo);
         return image;
     }
 
@@ -224,7 +224,7 @@ public class ImageManager {
         Stx[] stxs = new Stx[rasters.length];
         for (int i = 0; i < rasters.length; i++) {
             RasterDataNode raster = rasters[i];
-            stxs[i]=raster.getStx();
+            stxs[i] = raster.getStx();
             PlanarImage sourceImage = getSourceImage(raster, level);
             // todo - use gamma non-linearity (nf, 10.10.2008)
             images[i] = createByteIndexedImage(raster,
@@ -354,9 +354,9 @@ public class ImageManager {
         return JAI.create("bandmerge", pb, hints);
     }
 
-    private static PlanarImage createRgbImage(RasterDataNode rasterDataNode,
-                                              PlanarImage sourceImage,
-                                              PlanarImage maskImage, ImageInfo imageInfo) {
+    private static PlanarImage createLookupRgbImage(RasterDataNode rasterDataNode,
+                                                    PlanarImage sourceImage,
+                                                    PlanarImage maskImage, ImageInfo imageInfo) {
         Color[] palette;
         ColorPaletteDef colorPaletteDef = imageInfo.getColorPaletteDef();
         if (rasterDataNode instanceof Band && ((Band) rasterDataNode).getIndexCoding() != null) {

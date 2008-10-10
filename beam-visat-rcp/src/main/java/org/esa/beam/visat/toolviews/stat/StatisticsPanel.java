@@ -175,13 +175,13 @@ class StatisticsPanel extends TextPagePanel {
         sb.append("\n");
 
         sb.append("Minimum:  \t");
-        sb.append(stat.getMin());
+        sb.append(getRaster().scale(stat.getMin()));
         sb.append("\t ");
         sb.append(unit);
         sb.append("\n");
 
         sb.append("Maximum:  \t");
-        sb.append(stat.getMax());
+        sb.append(getRaster().scale(stat.getMax()));
         sb.append("\t ");
         sb.append(unit);
         sb.append("\n");
@@ -189,13 +189,13 @@ class StatisticsPanel extends TextPagePanel {
         sb.append("\n");
 
         sb.append("Mean:     \t");
-        sb.append(stat.getMean());
+        sb.append(getRaster().scale(stat.getMean()));
         sb.append("\t ");
         sb.append(unit);
         sb.append("\n");
 
         sb.append("Std-Dev:  \t");
-        sb.append(stat.getStandardDeviation());
+        sb.append(getRaster().scale(stat.getStandardDeviation()));
         sb.append("\t ");
         sb.append(unit);
         sb.append("\n");
