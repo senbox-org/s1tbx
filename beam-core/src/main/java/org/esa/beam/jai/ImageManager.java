@@ -210,30 +210,31 @@ public class ImageManager {
     private PlanarImage createColored1BandImage(RasterDataNode raster, ImageInfo imageInfo, int level) {
         Assert.notNull(raster, "raster");
         Assert.notNull(imageInfo, "imageInfo");
-        PlanarImage sourceImage = createByteIndexedImage(raster, getSourceImage(raster, level), imageInfo);
+        PlanarImage sourceImage = getSourceImage(raster, level);
         PlanarImage validMaskImage = getValidMaskImage(raster, level);
-        PlanarImage image = performIndexToRgbConversion1Band(raster, sourceImage, validMaskImage);
-        return applyHistogramMatching(image, imageInfo.getHistogramMatching());
-        // TODO improve histogram matching to work 
-        //without generation another histogram of the whole image !!!
+        PlanarImage image = createByteIndexedImage(raster, sourceImage, imageInfo);
+        image = createMatchCdfImage(image, imageInfo.getHistogramMatching(), new Stx[]{raster.getStx()});
+        image = createRgbImage(raster, image, validMaskImage, imageInfo);
+        return image;
     }
 
     private PlanarImage createColored3BandImage(RasterDataNode[] rasters, ImageInfo rgbImageInfo, int level) {
-        PlanarImage[] sourceImages = new PlanarImage[rasters.length];
+        PlanarImage[] images = new PlanarImage[rasters.length];
         PlanarImage[] validMaskImages = new PlanarImage[rasters.length];
+        Stx[] stxs = new Stx[rasters.length];
         for (int i = 0; i < rasters.length; i++) {
-            final RasterDataNode raster = rasters[i];
+            RasterDataNode raster = rasters[i];
+            stxs[i]=raster.getStx();
             PlanarImage sourceImage = getSourceImage(raster, level);
-            sourceImages[i] = createByteIndexedImage(raster,
-                                                     sourceImage,
-                                                     rgbImageInfo.getRgbChannelDef().getMinDisplaySample(i),
-                                                     rgbImageInfo.getRgbChannelDef().getMaxDisplaySample(i));
+            images[i] = createByteIndexedImage(raster,
+                                               sourceImage,
+                                               rgbImageInfo.getRgbChannelDef().getMinDisplaySample(i),
+                                               rgbImageInfo.getRgbChannelDef().getMaxDisplaySample(i));
             validMaskImages[i] = getValidMaskImage(raster, level);
         }
-        PlanarImage image = performIndexToRgbConversion3Bands(sourceImages, validMaskImages);
-        return applyHistogramMatching(image, rgbImageInfo.getHistogramMatching());
-        // TODO improve histogram matching to work 
-        //without generation another histogram of the whole image !!!
+        PlanarImage image = createMergeRgbaOp(images, validMaskImages);
+        image = createMatchCdfImage(image, rgbImageInfo.getHistogramMatching(), stxs);
+        return image;
         // TODO use imageInfo.noDataColor, really ??
         // TODO use imageIfo.gamma
     }
@@ -330,8 +331,8 @@ public class ImageManager {
         return LookupDescriptor.create(sourceImage, lookup, hints);
     }
 
-    private static PlanarImage performIndexToRgbConversion3Bands(PlanarImage[] sourceImages,
-                                                                 PlanarImage[] maskOpImages) {
+    private static PlanarImage createMergeRgbaOp(PlanarImage[] sourceImages,
+                                                 PlanarImage[] maskOpImages) {
         RenderingHints hints = createDefaultRenderingHints();
         ParameterBlock pb = new ParameterBlock();
         PlanarImage alpha = null;
@@ -353,16 +354,15 @@ public class ImageManager {
         return JAI.create("bandmerge", pb, hints);
     }
 
-    private static PlanarImage performIndexToRgbConversion1Band(RasterDataNode rasterDataNode,
-                                                                PlanarImage sourceImage,
-                                                                PlanarImage maskOpImage) {
+    private static PlanarImage createRgbImage(RasterDataNode rasterDataNode,
+                                              PlanarImage sourceImage,
+                                              PlanarImage maskImage, ImageInfo imageInfo) {
         Color[] palette;
-        //TODO clean up palette creation code
-        ColorPaletteDef colorPaletteDef = rasterDataNode.getImageInfo().getColorPaletteDef();
-        if ((rasterDataNode instanceof Band) && ((Band) rasterDataNode).getIndexCoding() != null) {
+        ColorPaletteDef colorPaletteDef = imageInfo.getColorPaletteDef();
+        if (rasterDataNode instanceof Band && ((Band) rasterDataNode).getIndexCoding() != null) {
             Color[] origPalette = colorPaletteDef.getColors();
             palette = Arrays.copyOf(origPalette, origPalette.length + 1);
-            palette[palette.length - 1] = rasterDataNode.getImageInfo().getNoDataColor();
+            palette[palette.length - 1] = imageInfo.getNoDataColor();
         } else {
             palette = colorPaletteDef.createColorPalette(rasterDataNode);
         }
@@ -373,25 +373,107 @@ public class ImageManager {
             lutData[2][i] = (byte) palette[i].getBlue();
         }
         PlanarImage image = createLookupOp(sourceImage, lutData);
-        if (maskOpImage != null) {
-            RenderingHints hints = createDefaultRenderingHints();
-            image = BandMergeDescriptor.create(image, maskOpImage, hints);
+        if (maskImage != null) {
+            // add mask image as alpha channel so that no-data becomes fully transparent
+            image = BandMergeDescriptor.create(image, maskImage, createDefaultRenderingHints());
         }
         return image;
     }
 
-    private PlanarImage applyHistogramMatching(PlanarImage sourceImage, ImageInfo.HistogramMatching histogramMatching) {
+    private PlanarImage createMatchCdfImage(PlanarImage sourceImage, ImageInfo.HistogramMatching histogramMatching, Stx[] stxs) {
         final boolean doEqualize = ImageInfo.HistogramMatching.Equalize == histogramMatching;
         final boolean doNormalize = ImageInfo.HistogramMatching.Normalize == histogramMatching;
         if (doEqualize || doNormalize) {
             if (doEqualize) {
-                sourceImage = JAIUtils.createHistogramEqualizedImage(sourceImage);
+                sourceImage = createMatchCdfEqualizeImage(sourceImage, stxs);
             } else {
-                sourceImage = JAIUtils.createHistogramNormalizedImage(sourceImage);
+                sourceImage = createMatchCdfNormalizeImage(sourceImage, stxs);
             }
         }
         return sourceImage;
     }
+
+    private static PlanarImage createMatchCdfEqualizeImage(PlanarImage sourceImage, Stx[] stxs) {
+
+        Assert.notNull(sourceImage, "sourceImage");
+        Assert.notNull(stxs, "stxs");
+        int numBands = sourceImage.getSampleModel().getNumBands();
+        Assert.argument(stxs.length == numBands, "stxs");
+
+        final Histogram histogram = createHistogram(sourceImage, stxs);
+
+        // Create an equalization CDF.
+        float[][] eqCDF = new float[numBands][];
+        for (int b = 0; b < numBands; b++) {
+            int binCount = histogram.getNumBins(b);
+            eqCDF[b] = new float[binCount];
+            for (int i = 0; i < binCount; i++) {
+                eqCDF[b][i] = (float) (i + 1) / (float) binCount;
+            }
+        }
+        return MatchCDFDescriptor.create(sourceImage, eqCDF, createDefaultRenderingHints());
+    }
+
+    private static Histogram createHistogram(PlanarImage sourceImage, Stx[] stxs) {
+        final Histogram histogram = createHistogram(stxs);
+        sourceImage.setProperty("histogram", histogram);
+        if (sourceImage instanceof RenderedOp) {
+            RenderedOp renderedOp = (RenderedOp) sourceImage;
+            renderedOp.getRendering().setProperty("histogram", histogram);
+        }
+        return histogram;
+    }
+
+    private static Histogram createHistogram(Stx[] stxs) {
+        Histogram histogram = new Histogram(stxs[0].getHistogramBinCount(), 0, 256, stxs.length);
+        for (int i = 0; i < stxs.length; i++) {
+            System.arraycopy(stxs[i].getHistogramBins(), 0, histogram.getBins(i), 0, stxs[0].getHistogramBinCount());
+        }
+        return histogram;
+    }
+
+    private static RenderedOp createMatchCdfNormalizeImage(PlanarImage sourceImage, Stx[] stxs) {
+        final double dev = 256.0;
+        int numBands = sourceImage.getSampleModel().getNumBands();
+        final double[] means = new double[numBands];
+        Arrays.fill(means, 0.5 * dev);
+        final double[] stdDevs = new double[numBands];
+        Arrays.fill(stdDevs, 0.25 * dev);
+        return createHistogramNormalizedImage(sourceImage, stxs, means, stdDevs);
+    }
+
+    private static RenderedOp createHistogramNormalizedImage(PlanarImage sourceImage, Stx[] stxs, double[] mean, double[] stdDev) {
+        int numBands = sourceImage.getSampleModel().getNumBands();
+        Assert.argument(numBands == mean.length, "length of mean must be equal to number of bands in the image");
+        Assert.argument(numBands == stdDev.length, "length of stdDev must be equal to number of bands in the image");
+
+        final Histogram histogram = createHistogram(sourceImage, stxs);
+
+        float[][] normCDF = new float[numBands][];
+        for (int b = 0; b < numBands; b++) {
+            int binCount = histogram.getNumBins(b);
+            normCDF[b] = new float[binCount];
+            double mu = mean[b];
+            double twoSigmaSquared = 2.0 * stdDev[b] * stdDev[b];
+            normCDF[b][0] = (float) Math.exp(-mu * mu / twoSigmaSquared);
+            for (int i = 1; i < binCount; i++) {
+                double deviation = i - mu;
+                normCDF[b][i] = normCDF[b][i - 1] +
+                        (float) Math.exp(-deviation * deviation / twoSigmaSquared);
+            }
+        }
+
+        for (int b = 0; b < numBands; b++) {
+            int binCount = histogram.getNumBins(b);
+            double CDFnormLast = normCDF[b][binCount - 1];
+            for (int i = 0; i < binCount; i++) {
+                normCDF[b][i] /= CDFnormLast;
+            }
+        }
+
+        return MatchCDFDescriptor.create(sourceImage, normCDF, createDefaultRenderingHints());
+    }
+
 
     public PlanarImage getSourceImage(RasterDataNode rasterDataNode, int level) {
         RenderedImage sourceImage = rasterDataNode.getSourceImage();
