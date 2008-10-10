@@ -181,7 +181,7 @@ public class BandArithmetikDialog extends ModalDialog {
                     _visatApp.showErrorDialog(message); /*I18N*/
                     BandArithmetikDialog.super.onOK();
                     return;
-                } else if (requiredMemory > 3 * freeMemory) {
+                } else if (requiredMemory * 2 > freeMemory) {
                     String message = "Creating the new band will cause the system to reach the memory limit.\n" +
                                      "Ths can cause the system to slow down.\n" +
                                      String.format("\tFree memory    : %f MB\n", freeMemory / megabyte) +
