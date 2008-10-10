@@ -60,8 +60,6 @@ public abstract class FilterBand extends Band {
         } finally {
             pm.done();
         }
-
-
     }
 
     @Override
@@ -69,4 +67,4 @@ public abstract class FilterBand extends Band {
         _source = null;
         super.dispose();
     }
-        }
+}
