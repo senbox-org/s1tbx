@@ -702,7 +702,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param pm a monitor to inform the user about progress
      *
      * @throws java.io.IOException if an I/O error occurs
-     * @see #readRasterDataFully
+     * @see #readRasterDataFully(ProgressMonitor)
      */
     @Override
     public void loadRasterData(ProgressMonitor pm) throws IOException {
