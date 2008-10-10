@@ -85,7 +85,7 @@ public class Stx {
     }
 
     public double getHistogramBinMin(int binIndex) {
-        return binIndex * getHistogramBinWidth();
+        return getMin() + binIndex * getHistogramBinWidth();
     }
 
     public double getHistogramBinMax(int binIndex) {
