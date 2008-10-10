@@ -88,7 +88,7 @@ public class TiffIFDTest extends TestCase {
         final double[] expYResolution = new double[]{1 / 1};
         final double[] expResolutionUnit = new double[]{1};
 
-        final TiffAscii beamMetadata = new TiffAscii(BeamMetadata.createMetadata(_product).getAsString());
+        final TiffAscii beamMetadata = TiffIFD.getBeamMetadata(_product);
 
         checkTag(TiffTag.IMAGE_WIDTH, TiffLong.class, expWidth, null, ifd);
         checkTag(TiffTag.IMAGE_LENGTH, TiffLong.class, expHeight, null, ifd);
@@ -157,8 +157,7 @@ public class TiffIFDTest extends TestCase {
         final double[] expXResolution = new double[]{1 / 1};
         final double[] expYResolution = new double[]{1 / 1};
         final double[] expResolutionUnit = new double[]{1};
-        final TiffAscii beamMetadata = new TiffAscii(BeamMetadata.createMetadata(_product).getAsString());
-
+        final TiffAscii beamMetadata = TiffIFD.getBeamMetadata(_product);
 
         checkTag(TiffTag.IMAGE_WIDTH, TiffLong.class, expWidth, null, ifd);
         checkTag(TiffTag.IMAGE_LENGTH, TiffLong.class, expHeight, null, ifd);
@@ -258,7 +257,7 @@ public class TiffIFDTest extends TestCase {
         final TiffLong expOffset17 = null;
         offset += 8;
         final TiffLong expOffset18 = new TiffLong(offset);
-        final TiffAscii beamMetadata = new TiffAscii(BeamMetadata.createMetadata(_product).getAsString());
+        final TiffAscii beamMetadata = TiffIFD.getBeamMetadata(_product);
 
         checkTag(TiffTag.IMAGE_WIDTH, TiffLong.class, expWidth, expOffset1, ifd);
         checkTag(TiffTag.IMAGE_LENGTH, TiffLong.class, expHeight, expOffset2, ifd);
@@ -434,7 +433,7 @@ public class TiffIFDTest extends TestCase {
 
     private void fillBandWithData(final Band band, final int start) {
         final ProductData data = band.createCompatibleRasterData();
-        for (int i = 00; i < WIDTH * HEIGHT; i++) {
+        for (int i = 0; i < WIDTH * HEIGHT; i++) {
             data.setElemIntAt(i, start + i);
         }
         band.setData(data);

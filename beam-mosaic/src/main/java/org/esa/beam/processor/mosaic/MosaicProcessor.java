@@ -1281,7 +1281,8 @@ public class MosaicProcessor extends Processor {
         if (outputProductRef == null) {
             throw new ProcessorException("Output product is not given."); /*I18N*/
         }
-        if (!outputProductRef.getFileFormat().equalsIgnoreCase(DimapProductConstants.DIMAP_FORMAT_NAME)) {
+        if (!(DimapProductConstants.DIMAP_FORMAT_NAME.equalsIgnoreCase(outputProductRef.getFileFormat()) &&
+              "GeoTIFF".equalsIgnoreCase(outputProductRef.getFileFormat()))) {
             final String message = String.format("The output format '%s' is not supported.",
                                                  outputProductRef.getFileFormat());
             throw new ProcessorException(message);

@@ -52,7 +52,6 @@ public class GeoTiffWriteReadTest {
 
         final Product inProduct = writeReadProduct();
 
-//        assertEquals(FileUtils.getFilenameWithoutExtension(location), inProduct.getName());
         assertEquals(outProduct.getName(), inProduct.getName());
         assertEquals(outProduct.getProductType(), inProduct.getProductType());
         assertEquals(outProduct.getNumBands(), inProduct.getNumBands());
@@ -77,8 +76,8 @@ public class GeoTiffWriteReadTest {
         outProduct.addBand(virtualBand);
         final Product inProduct = writeReadProduct();
 
-        assertEquals(1, inProduct.getNumBands());
-        assertNull(inProduct.getBand("VB"));
+        assertEquals(2, inProduct.getNumBands());
+        assertNotNull(inProduct.getBand("VB"));
     }
 
     @Test
@@ -177,7 +176,7 @@ public class GeoTiffWriteReadTest {
     }
 
     @Test
-    public void testWriteReadTiePoint() throws IOException {
+    public void testWriteReadTiePointGeoCoding() throws IOException {
         setTiePointGeoCoding(outProduct);
         final Band bandfloat32 = outProduct.addBand("float32", ProductData.TYPE_FLOAT32);
         bandfloat32.setDataElems(createFloats(getProductSize(), 2.343f));
@@ -189,7 +188,7 @@ public class GeoTiffWriteReadTest {
         assertEquals(outProduct.getProductType(), inProduct.getProductType());
         assertEquals(outProduct.getNumBands(), inProduct.getNumBands());
         for (int i = 0; i < outProduct.getNumBands(); i++) {
-            assertEquality(outProduct.getBandAt(i), inProduct.getBandAt(i), ProductData.TYPE_FLOAT32);
+            assertEquality(outProduct.getBandAt(i), inProduct.getBandAt(i));
         }
         assertEquals(location, inProduct.getFileLocation());
         assertNotNull(inProduct.getGeoCoding());
@@ -206,7 +205,7 @@ public class GeoTiffWriteReadTest {
         assertEquals(outProduct.getProductType(), inProduct.getProductType());
         assertEquals(outProduct.getNumBands(), inProduct.getNumBands());
         for (int i = 0; i < outProduct.getNumBands(); i++) {
-            assertEquality(outProduct.getBandAt(i), inProduct.getBandAt(i), ProductData.TYPE_INT16);
+            assertEquality(outProduct.getBandAt(i), inProduct.getBandAt(i));
         }
         assertEquals(location, inProduct.getFileLocation());
         assertNotNull(inProduct.getGeoCoding());
@@ -223,7 +222,7 @@ public class GeoTiffWriteReadTest {
         assertEquals(outProduct.getProductType(), inProduct.getProductType());
         assertEquals(outProduct.getNumBands(), inProduct.getNumBands());
         for (int i = 0; i < outProduct.getNumBands(); i++) {
-            assertEquality(outProduct.getBandAt(i), inProduct.getBandAt(i), ProductData.TYPE_INT16);
+            assertEquality(outProduct.getBandAt(i), inProduct.getBandAt(i));
         }
         assertEquals(location, inProduct.getFileLocation());
         assertNotNull(inProduct.getGeoCoding());
@@ -240,7 +239,7 @@ public class GeoTiffWriteReadTest {
         assertEquals(outProduct.getProductType(), inProduct.getProductType());
         assertEquals(outProduct.getNumBands(), inProduct.getNumBands());
         for (int i = 0; i < outProduct.getNumBands(); i++) {
-            assertEquality(outProduct.getBandAt(i), inProduct.getBandAt(i), ProductData.TYPE_INT16);
+            assertEquality(outProduct.getBandAt(i), inProduct.getBandAt(i));
         }
         assertEquals(location, inProduct.getFileLocation());
         assertNotNull(inProduct.getGeoCoding());
@@ -257,7 +256,7 @@ public class GeoTiffWriteReadTest {
         assertEquals(outProduct.getProductType(), inProduct.getProductType());
         assertEquals(outProduct.getNumBands(), inProduct.getNumBands());
         for (int i = 0; i < outProduct.getNumBands(); i++) {
-            assertEquality(outProduct.getBandAt(i), inProduct.getBandAt(i), ProductData.TYPE_INT16);
+            assertEquality(outProduct.getBandAt(i), inProduct.getBandAt(i));
         }
         assertEquals(location, inProduct.getFileLocation());
         assertNotNull(inProduct.getGeoCoding());
@@ -271,14 +270,14 @@ public class GeoTiffWriteReadTest {
         return size;
     }
 
-    private static void assertEquality(Band band1, Band band2, int productDataType) throws IOException {
+    private static void assertEquality(Band band1, Band band2) throws IOException {
         assertEquals(band1.getName(), band2.getName());
-        assertEquals(productDataType, band2.getDataType());
+        assertEquals(band1.getDataType(), band2.getDataType());
         assertEquals(band1.getScalingFactor(), band2.getScalingFactor(), 1.0e-6);
         assertEquals(band1.getScalingOffset(), band2.getScalingOffset(), 1.0e-6);
         final int width = band1.getRasterWidth();
         final int height = band1.getRasterHeight();
-        band2.readRasterDataFully();
+        band2.readRasterDataFully(ProgressMonitor.NULL);
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 assertEquals(band1.getPixelDouble(i, j), band2.getPixelDouble(i, j), 1.0e-13);
@@ -483,7 +482,7 @@ public class GeoTiffWriteReadTest {
         final Band[] bands = outProduct.getBands();
         for (Band band : bands) {
             if (writer.shouldWrite(band)) {
-                band.readRasterDataFully();
+                band.readRasterDataFully(ProgressMonitor.NULL);
                 writer.writeBandRasterData(band,
                                            0, 0,
                                            band.getSceneRasterWidth(), band.getSceneRasterHeight(),
@@ -492,7 +491,9 @@ public class GeoTiffWriteReadTest {
         }
         writer.flush();
         ByteArraySeekableStream inputStream = new ByteArraySeekableStream(outputStream.toByteArray());
-        return reader.readGeoTIFFProduct(new MemoryCacheImageInputStream(inputStream), location);
+        final Product product = reader.readGeoTIFFProduct(new MemoryCacheImageInputStream(inputStream), location);
+        product.setProductReader(reader);
+        return product;
     }
 
 }

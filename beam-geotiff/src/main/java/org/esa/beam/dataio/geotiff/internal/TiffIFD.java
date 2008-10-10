@@ -1,6 +1,7 @@
 package org.esa.beam.dataio.geotiff.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.dataio.dimap.DimapHeaderWriter;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
@@ -14,6 +15,7 @@ import javax.imageio.stream.ImageOutputStream;
 import java.awt.Color;
 import java.awt.image.DataBuffer;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -202,9 +204,12 @@ public class TiffIFD {
             product.getBandAt(0).getDataType() == ProductData.TYPE_UINT8;
     }
 
-    private TiffAscii getBeamMetadata(final Product product) {
-        final BeamMetadata.Metadata metadata = BeamMetadata.createMetadata(product);
-        return new TiffAscii(metadata.getAsString());
+    static TiffAscii getBeamMetadata(final Product product) {
+        final StringWriter stringWriter = new StringWriter();
+        final DimapHeaderWriter writer = new DimapHeaderWriter(product, stringWriter, "");
+        writer.writeHeader();
+        writer.close();
+        return new TiffAscii(stringWriter.getBuffer().toString());
     }
 
     private void addGeoTiffTags(final Product product) {

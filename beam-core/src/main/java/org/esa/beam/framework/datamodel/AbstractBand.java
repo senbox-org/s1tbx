@@ -290,7 +290,6 @@ public abstract class AbstractBand extends RasterDataNode {
             final ProductData rawData = readSubRegionRasterData(x, y, w, h, pm);
             final int n = w * h;
             pixels = ensureMinLengthArray(pixels, n);
-            // check for performance boost using native System.arraycopy
             if (!isScalingApplied() && rawData.getElems() instanceof double[]) {
                 System.arraycopy(rawData.getElems(), 0, pixels, 0, n);
             } else {

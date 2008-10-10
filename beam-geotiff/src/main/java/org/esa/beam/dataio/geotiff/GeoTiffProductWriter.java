@@ -19,9 +19,9 @@ package org.esa.beam.dataio.geotiff;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.geotiff.internal.TiffHeader;
 import org.esa.beam.framework.dataio.AbstractProductWriter;
-import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FilterBand;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNode;
@@ -84,10 +84,9 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
 
     void writeGeoTIFFProduct(ImageOutputStream stream, final Product sourceProduct) throws IOException {
         outputStream = stream;
-        final Product product = removeVirtualBands(sourceProduct);        
-        final TiffHeader tiffHeader = new TiffHeader(new Product[]{product});
+        final TiffHeader tiffHeader = new TiffHeader(new Product[]{sourceProduct});
         tiffHeader.write(stream);
-        bandWriter = new GeoTiffBandWriter(tiffHeader.getIfdAt(0), stream, product);
+        bandWriter = new GeoTiffBandWriter(tiffHeader.getIfdAt(0), stream, sourceProduct);
     }
 
     /**
@@ -100,9 +99,6 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
                                     final int sourceHeight,
                                     final ProductData sourceBuffer,
                                     ProgressMonitor pm) throws IOException {
-        if(sourceBand instanceof VirtualBand) {
-            return;
-        }
         bandWriter.writeBandRasterData(sourceBand,
                                         sourceOffsetX, sourceOffsetY,
                                         sourceWidth, sourceHeight,
@@ -113,6 +109,9 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
     @Override
     public boolean shouldWrite(ProductNode node) {
         if(node instanceof VirtualBand) {
+            return false;
+        }
+        if(node instanceof FilterBand) {
             return false;
         }
         return super.shouldWrite(node);
@@ -155,18 +154,4 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
             outputStream = null;
         }
     }
-
-    private Product removeVirtualBands(Product sourceProduct) throws IOException {
-        final ProductSubsetDef def = new ProductSubsetDef();
-        final Band[] bands = sourceProduct.getBands();
-        for (Band band : bands) {
-            if (!(band instanceof VirtualBand)) {
-                def.addNodeName(band.getName());
-            }
-        }
-        def.setIgnoreMetadata(false);
-        final Product subset = sourceProduct.createSubset(def, sourceProduct.getName(), sourceProduct.getDescription());
-        return subset;
-    }
-
 }

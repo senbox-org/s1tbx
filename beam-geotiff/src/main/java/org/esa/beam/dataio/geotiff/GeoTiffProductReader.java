@@ -25,6 +25,7 @@ import com.sun.media.imageio.plugins.tiff.TIFFTag;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFImageMetadata;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFRenderedImage;
+import org.esa.beam.dataio.dimap.DimapProductHelpers;
 import org.esa.beam.dataio.geotiff.internal.BeamMetadata;
 import org.esa.beam.dataio.geotiff.internal.GeoKeyEntry;
 import org.esa.beam.framework.dataio.AbstractProductReader;
@@ -40,12 +41,17 @@ import org.esa.beam.util.jai.JAIUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.input.DOMBuilder;
 import org.jdom.input.SAXBuilder;
+import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -54,8 +60,10 @@ import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -136,22 +144,81 @@ public class GeoTiffProductReader extends AbstractProductReader {
         imageReader = (TIFFImageReader) imageReaders.next();
         imageReader.setInput(stream);
 
+        Product product = null;
+
         final TIFFImageMetadata imageMetadata = (TIFFImageMetadata) imageReader.getImageMetadata(FIRST_IMAGE);
         final TiffFileInfo tiffInfo = new TiffFileInfo(imageMetadata.getRootIFD());
-        final BeamMetadata.Metadata metadata = getBeamMetadata(tiffInfo);
+        final TIFFField field = tiffInfo.getField(BeamMetadata.PRIVATE_TIFF_TAG_NUMBER);
+        if (field != null && field.getType() == TIFFTag.TIFF_ASCII) {
+            final String s = field.getAsString(0).trim();
+            if (s.contains("<Dimap_Document")) { // with DIMAP header
+                InputStream is = null;
+                try {
+                    final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                    final DocumentBuilder builder = factory.newDocumentBuilder();
+                    is = new ByteArrayInputStream(s.getBytes());
+                    final Document document = new DOMBuilder().build(builder.parse(is));
+                    product = DimapProductHelpers.createProduct(document);
+                    removeGeocodingAndTiePointGrids(product);
+                    initBandsMap(product);
+                } catch (ParserConfigurationException ignore) {
+                    // ignore if it can not be read
+                } catch (SAXException ignore) {
+                    // ignore if it can not be read
+                } finally {
+                    if (is != null) {
+                        is.close();
+                    }
+                }
+            }
+        }
 
-        final Product product = createProduct(inputFile, tiffInfo, metadata);
-        addBandsToProduct(tiffInfo, metadata, product);
+        if (product == null) {            // without DIMAP header
+            final String productName;
+            if (tiffInfo.containsField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION)) {
+                final TIFFField field1 = tiffInfo.getField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION);
+                final String s = field1.getAsString(0);
+                productName = s.substring(0, s.length() - 1);
+            } else {
+                productName = FileUtils.getFilenameWithoutExtension(inputFile);
+            }
+            final String productType = getReaderPlugIn().getFormatNames()[0];
+
+            final int width = imageReader.getWidth(FIRST_IMAGE);
+            final int height = imageReader.getHeight(FIRST_IMAGE);
+            product = new Product(productName, productType, width, height, this);
+            addBandsToProduct(tiffInfo, product);
+        }
 
         if (tiffInfo.isGeotiff()) {
             applyGeoCoding(tiffInfo, product);
         }
+        product.setFileLocation(inputFile);
+        setPreferrdTiling(product);
 
         return product;
     }
 
-    private void addBandsToProduct(TiffFileInfo tiffInfo, BeamMetadata.Metadata metadata, Product product) throws
-                                                                                                           IOException {
+    private void initBandsMap(Product product) {
+        final Band[] bands = product.getBands();
+        bandMap = new HashMap<Band, Integer>(bands.length);
+        for (int i = 0; i < bands.length; i++) {
+            if (!(bands[i] instanceof VirtualBand && bands[i] instanceof FilterBand)) {
+                bandMap.put(bands[i], i);
+            }
+        }
+    }
+
+    private void removeGeocodingAndTiePointGrids(Product product) {
+        product.setGeoCoding(null);
+        final TiePointGrid[] pointGrids = product.getTiePointGrids();
+        for (TiePointGrid pointGrid : pointGrids) {
+            product.removeTiePointGrid(pointGrid);
+        }
+    }
+
+    private void addBandsToProduct(TiffFileInfo tiffInfo, Product product) throws
+                                                                           IOException {
         final ImageReadParam readParam = imageReader.getDefaultReadParam();
         TIFFRenderedImage baseImage = (TIFFRenderedImage) imageReader.readAsRenderedImage(FIRST_IMAGE, readParam);
         SampleModel sampleModel = baseImage.getSampleModel();
@@ -159,23 +226,13 @@ public class GeoTiffProductReader extends AbstractProductReader {
         final int productDataType = ImageManager.getProductDataType(sampleModel.getDataType());
         bandMap = new HashMap<Band, Integer>(numBands);
         for (int i = 0; i < numBands; i++) {
-            final String bandName;
-            if (metadata != null) {
-                bandName = metadata.getBandProperty(i, BeamMetadata.NODE_NAME);
-            } else {
-                bandName = String.format("band_%d", i + 1);
-            }
+            final String bandName = String.format("band_%d", i + 1);
             final Band band = product.addBand(bandName, productDataType);
-            if (metadata == null) {
-                if (tiffInfo.containsField(
-                        BaselineTIFFTagSet.TAG_COLOR_MAP) && baseImage.getColorModel() instanceof IndexColorModel) {
-                    band.setImageInfo(createIndexedImageInfo(product, baseImage, band));
-                }
-            } else {
-                configureBand(metadata, band, i);
+            if (tiffInfo.containsField(
+                    BaselineTIFFTagSet.TAG_COLOR_MAP) && baseImage.getColorModel() instanceof IndexColorModel) {
+                band.setImageInfo(createIndexedImageInfo(product, baseImage, band));
             }
             bandMap.put(band, i);
-
         }
     }
 
@@ -337,7 +394,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
                     product.setGeoCoding(new MapGeoCoding(mapInfo));
                     return;
                 }
-                return; //todo message "geocoding is not supported" continuing as standard Tiff reader
+                return;
             } else if (isUserdefinedPCSCode(pcsCode)) {
                 if (isProjectionUserDefined(keyEntries)) {
                     if (isProjectionTransverseMercator(keyEntries)) {
@@ -650,10 +707,11 @@ public class GeoTiffProductReader extends AbstractProductReader {
             lats[arrayIdx] = (float) tiePoints[i + 4];
         }
 
+        String[] names = Utils.findSuitableLatLonNames(product);
         final TiePointGrid latGrid = new TiePointGrid(
-                "latitude", width, height, (float) xMin, (float) yMin, (float) xDiff, (float) yDiff, lats);
+                names[0], width, height, (float) xMin, (float) yMin, (float) xDiff, (float) yDiff, lats);
         final TiePointGrid lonGrid = new TiePointGrid(
-                "longitude", width, height, (float) xMin, (float) yMin, (float) xDiff, (float) yDiff, lons);
+                names[1], width, height, (float) xMin, (float) yMin, (float) xDiff, (float) yDiff, lons);
 
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);

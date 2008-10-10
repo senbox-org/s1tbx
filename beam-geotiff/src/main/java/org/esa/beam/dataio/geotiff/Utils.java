@@ -16,15 +16,15 @@
  */
 package org.esa.beam.dataio.geotiff;
 
-import com.sun.media.jai.codec.TIFFField;
 import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
+import com.sun.media.jai.codec.TIFFField;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 
 import java.io.File;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
-
-import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 
 class Utils {
 
@@ -144,5 +144,27 @@ class Utils {
             }
         }
         return false;
+    }
+
+    static String[] findSuitableLatLonNames(Product product) {
+        final String[] latNames = {"latitude", "latitude_tpg", "lat", "lat_tpg"};
+        final String[] lonNames = {"longitude", "longitude_tpg", "lon", "lon_tpg"};
+        String[] names = new String[2];
+        for (int i = 0; i < latNames.length; i++) {
+            String latName = latNames[i];
+            String lonName = lonNames[i];
+            if (!product.containsRasterDataNode(latName) && !product.containsRasterDataNode(lonName)) {
+                names[0] = latName;
+                names[1] = lonName;
+                return names;
+            }
+        }
+        String lonName = lonNames[0] + "_";
+        String latName = latNames[0] + "_";
+        int index = 1;
+        while (product.containsRasterDataNode(latName + index) || product.containsRasterDataNode(lonName + index)) {
+            index++;
+        }
+        return new String[]{latName + index, lonName + index};
     }
 }

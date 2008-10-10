@@ -17,12 +17,8 @@
 
 package org.esa.beam.framework.datamodel;
 
-import java.awt.Rectangle;
-import java.io.IOException;
-import java.util.Locale;
-
+import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
@@ -30,7 +26,9 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
 
-import com.bc.ceres.core.ProgressMonitor;
+import java.awt.Rectangle;
+import java.io.IOException;
+import java.util.Locale;
 
 public class RasterDataNodeIOTest extends TestCase {
 
@@ -83,17 +81,17 @@ public class RasterDataNodeIOTest extends TestCase {
         assertEquals(2, pr.getNumReads());
 
         p.getBand(VIRT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
-        assertEquals(2, pr.getNumReads());
+        assertEquals(3, pr.getNumReads());
 
         p.getBand(FLOAT_BAND_NAME).unloadRasterData();
         p.getBand(VIRT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
-        assertEquals(2 + SH, pr.getNumReads());
+        assertEquals(3, pr.getNumReads());
 
         p.getBand(SYNT_FLOAT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
-        assertEquals(2 + SH, pr.getNumReads());
+        assertEquals(3, pr.getNumReads());
 
         p.getBand(FLOAT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
-        assertEquals(3 + SH, pr.getNumReads());
+        assertEquals(4, pr.getNumReads());
     }
 
     public void testReadPixelsFromFloatBand() throws IOException {

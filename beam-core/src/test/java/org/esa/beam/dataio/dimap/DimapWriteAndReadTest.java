@@ -103,21 +103,16 @@ public class DimapWriteAndReadTest extends TestCase {
 ///////////////////           E N D     O F     P U B L I C              //////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-    private static void loadAllBandRasterData(Product product) throws IOException {
+     private static void loadAllBandRasterData(Product product) throws IOException {
         final Band[] bands = product.getBands();
-        double[] pixels = new double[product.getSceneRasterWidth() * product.getSceneRasterHeight()];
-        for (final Band band : bands) {
-            band.readPixels(0, 0,
-                            band.getSceneRasterWidth(), band.getSceneRasterHeight(),
-                            pixels,
-                            ProgressMonitor.NULL);
-        }
+         for (final Band band : bands) {
+             band.loadRasterData(ProgressMonitor.NULL);
+         }
     }
 
     private void writeAllBandRasterDataFully() throws IOException {
         final Band[] bands = _product.getBands();
-        for (int i = 0; i < bands.length; i++) {
-            final Band band = bands[i];
+        for (final Band band : bands) {
             if (_product.getProductWriter().shouldWrite(band)) {
                 band.writeRasterDataFully(ProgressMonitor.NULL);
             }
