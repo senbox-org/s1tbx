@@ -175,13 +175,13 @@ class StatisticsPanel extends TextPagePanel {
         sb.append("\n");
 
         sb.append("Minimum:  \t");
-        sb.append(getRaster().scale(stat.getMin()));
+        sb.append(getMin(stat));
         sb.append("\t ");
         sb.append(unit);
         sb.append("\n");
 
         sb.append("Maximum:  \t");
-        sb.append(getRaster().scale(stat.getMax()));
+        sb.append(getMax(stat));
         sb.append("\t ");
         sb.append(unit);
         sb.append("\n");
@@ -189,13 +189,13 @@ class StatisticsPanel extends TextPagePanel {
         sb.append("\n");
 
         sb.append("Mean:     \t");
-        sb.append(getRaster().scale(stat.getMean()));
+        sb.append(getMean(stat));
         sb.append("\t ");
         sb.append(unit);
         sb.append("\n");
 
         sb.append("Std-Dev:  \t");
-        sb.append(getRaster().scale(stat.getStandardDeviation()));
+        sb.append(getStandardDeviation(stat));
         sb.append("\t ");
         sb.append(unit);
         sb.append("\n");
@@ -246,6 +246,29 @@ class StatisticsPanel extends TextPagePanel {
             sb.append("\n");
         }
         return sb.toString();
+    }
+
+    private double getMin(Stx stat) {
+        return getRaster().scale(stat.getMin());
+    }
+
+    private double getMax(Stx stat) {
+        return getRaster().scale(stat.getMax());
+    }
+
+    private double getMean(Stx stat) {
+        return getRaster().scale(stat.getMean());
+    }
+
+    /*
+     * Use error-propagation to compute stddev for log10-scaled bands. (Ask Ralf for details)
+     */
+    private double getStandardDeviation(Stx stat) {
+        if (getRaster().isLog10Scaled()) {
+            return getRaster().getScalingFactor() * Math.log(10.0) * getMean(stat) * stat.getStandardDeviation();
+        } else {
+            return getRaster().scale(stat.getStandardDeviation());
+        }
     }
 
     protected void handleLayerContentChanged() {
