@@ -226,17 +226,17 @@ public class ImageManager {
             RasterDataNode raster = rasters[i];
             stxs[i]=raster.getStx();
             PlanarImage sourceImage = getSourceImage(raster, level);
+            // todo - use gamma non-linearity (nf, 10.10.2008)
             images[i] = createByteIndexedImage(raster,
                                                sourceImage,
                                                rgbImageInfo.getRgbChannelDef().getMinDisplaySample(i),
                                                rgbImageInfo.getRgbChannelDef().getMaxDisplaySample(i));
             validMaskImages[i] = getValidMaskImage(raster, level);
         }
+        // todo - correctly handle no-data color (nf, 10.10.2008)
         PlanarImage image = createMergeRgbaOp(images, validMaskImages);
         image = createMatchCdfImage(image, rgbImageInfo.getHistogramMatching(), stxs);
         return image;
-        // TODO use imageInfo.noDataColor, really ??
-        // TODO use imageIfo.gamma
     }
 
     private static PlanarImage createByteIndexedImage(RasterDataNode raster,
@@ -366,6 +366,7 @@ public class ImageManager {
         } else {
             palette = colorPaletteDef.createColorPalette(rasterDataNode);
         }
+        // todo - correctly handle no-data color (nf, 10.10.2008)
         final byte[][] lutData = new byte[3][palette.length];
         for (int i = 0; i < palette.length; i++) {
             lutData[0][i] = (byte) palette[i].getRed();
@@ -498,7 +499,8 @@ public class ImageManager {
         if (levelZeroImage instanceof MultiLevelSource) {
             multiLevelSource = (MultiLevelSource) levelZeroImage;
         } else {
-            // TODO - New image instance is created here. This will happen e.g. for all bands created by GPF operators. (nf, 19.09.2008)
+            // todo - New image instance is created here. Maintain/keep it? 
+            // This will happen e.g. for all bands created by GPF operators. (nf, 19.09.2008)
             final int levelCount = DefaultMultiLevelModel.getLevelCount(levelZeroImage.getWidth(), levelZeroImage.getHeight());
             multiLevelSource = new DefaultMultiLevelSource(levelZeroImage,
                                                            levelCount,
@@ -710,7 +712,7 @@ public class ImageManager {
 
         if (rois.size() == 0) {
             // todo - null is returned whenever a shape is converted into a ROI for any but the first time
-            // todo - may be this problem is due to concurrency issues
+            // todo - may be this problem is due to concurrency issues (nf, 08.2008)
             return null;
         }
 
