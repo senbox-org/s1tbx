@@ -175,18 +175,18 @@ public class BandArithmetikDialog extends ModalDialog {
                 final float megabyte = 1024.0f * 1024.0f;
                 if (freeMemory <= requiredMemory) {
                     String message = "Can not create the new band.\n" +
+                                     "The amount of required memory is equal or greater than the available memory.\n\n" +
                                      String.format("\tFree memory    : %f.1 MB\n", freeMemory / megabyte) +
-                                     String.format("\tRequired memory: %f.1 MB\n\n", requiredMemory / megabyte) +
-                                     "The amount of required memory is equal or greater than the available memory.";
+                                     String.format("\tRequired memory: %f.1 MB", requiredMemory / megabyte);
                     _visatApp.showErrorDialog(message); /*I18N*/
                     BandArithmetikDialog.super.onOK();
                     return;
                 } else if (requiredMemory * 2 > freeMemory) {
-                    String message = "Creating the new band will cause the system to reach the memory limit.\n" +
-                                     "Ths can cause the system to slow down.\n" +
+                    String message = "Creating the new band will cause the system to reach its memory limit.\n" +
+                                     "This can cause the system to slow down.\n" +
                                      String.format("\tFree memory    : %f MB\n", freeMemory / megabyte) +
                                      String.format("\tRequired memory: %f MB\n\n", requiredMemory / megabyte) +
-                                     "Do you want to create the image anyhow?";
+                                     "Do you really want to create the image?";
                     final int answer = _visatApp.showQuestionDialog(message, null);/*I18N*/
                     if (answer != JOptionPane.YES_OPTION) {
                         BandArithmetikDialog.super.onOK();
