@@ -61,6 +61,17 @@ public class FigureLayer extends Layer {
     public void addFigure(Figure currentShapeFigure) {
         setAttributes(currentShapeFigure);
         figureList.add(currentShapeFigure);
+        Rectangle2D figureBounds = currentShapeFigure.getBounds();
+        Rectangle2D modelBounds = shapeToModelTransform.createTransformedShape(figureBounds).getBounds2D();
+		fireLayerDataChanged(modelBounds);
+    }
+    
+    public void removeFigure(Figure figure) {
+    	figureList.remove(figure);
+    	Rectangle2D figureBounds = figure.getBounds();
+        Rectangle2D modelBounds = shapeToModelTransform.createTransformedShape(figureBounds).getBounds2D();
+		fireLayerDataChanged(modelBounds);
+    	fireLayerDataChanged(getBounds());
     }
 
     private void setAttributes(Figure figure) {

@@ -71,12 +71,6 @@ public class ProductSceneViewTest extends TestCase {
         final ProductSceneView view = new ProductSceneView(new ProductSceneImage(r, new PropertyMap(), ProgressMonitor.NULL));
         view.dispose();
         assertNull(view.getSceneImage());
-
-        try {
-            assertNull(view.getImageUpdateListeners());
-            fail();
-        } catch (NullPointerException expected) {
-        }
     }
 
 

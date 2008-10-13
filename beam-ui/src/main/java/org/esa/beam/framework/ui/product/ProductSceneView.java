@@ -12,7 +12,6 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.BufferedImageRendering;
-import com.bc.ceres.grender.support.DefaultViewport;
 
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
@@ -90,7 +89,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     public static final Color DEFAULT_IMAGE_BACKGROUND_COLOR = new Color(51, 51, 51);
 //    public static final double DEFAULT_IMAGE_BORDER_SIZE = 2.0;
     public static final int DEFAULT_IMAGE_VIEW_BORDER_SIZE = 64;
-    private ArrayList<ImageUpdateListener> imageUpdateListenerList;
     private ArrayList<LayerContentListener> layerContentListenerList;
     private RasterChangeHandler rasterChangeHandler;
 
@@ -106,7 +104,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         rasterChangeHandler = new RasterChangeHandler();
         getRaster().getProduct().addProductNodeListener(rasterChangeHandler);
 
-        imageUpdateListenerList = new ArrayList<ImageUpdateListener>(5);
         layerContentListenerList = new ArrayList<LayerContentListener>(5);
 
         setOpaque(true);
@@ -199,41 +196,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         setLayerProperties(propertyMap);
     }
 
-    /**
-     * @return all layer manager listeners of this layer.
-     */
-    public ImageUpdateListener[] getImageUpdateListeners() {
-        return imageUpdateListenerList.toArray(new ImageUpdateListener[imageUpdateListenerList.size()]);
-    }
-
-    /**
-     * Adds a layer manager listener to this layer.
-     *
-     * @param listener The listener
-     */
-    public void addImageUpdateListener(ImageUpdateListener listener) {
-        if (listener != null && !imageUpdateListenerList.contains(listener)) {
-            imageUpdateListenerList.add(listener);
-        }
-    }
-
-    /**
-     * Removes a layer manager listener from this layer.
-     *
-     * @param listener The listener
-     */
-    public void removeImageUpdateListener(ImageUpdateListener listener) {
-        if (listener != null) {
-            imageUpdateListenerList.remove(listener);
-        }
-    }
-
-    protected void fireImageUpdated() {
-        for (ImageUpdateListener listener : imageUpdateListenerList.toArray(new ImageUpdateListener[imageUpdateListenerList.size()])) {
-            listener.handleImageUpdated(this);
-        }
-    }
-
     public void addLayerContentListener(LayerContentListener listener) {
         if (listener != null && !layerContentListenerList.contains(listener)) {
             layerContentListenerList.add(listener);
@@ -318,8 +280,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
             getSceneImage().getRasters()[i] = null;
         }
         sceneImage = null;
-        imageUpdateListenerList.clear();
-        imageUpdateListenerList = null;
 
         if (getImageDisplayComponent() != null) {
             // ensure that imageDisplay.dispose() is run in the EDT
@@ -442,7 +402,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
     public void updateImage(ProgressMonitor pm) throws IOException {
         getBaseImageLayer().regenerate();
-        fireImageUpdated();
     }
 
     public boolean isNoDataOverlayEnabled() {
@@ -453,7 +412,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     public void setNoDataOverlayEnabled(boolean enabled) {
         if (isNoDataOverlayEnabled() != enabled) {
             getNoDataLayer().setVisible(enabled);
-            fireImageUpdated();
         }
     }
 
@@ -469,7 +427,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     public void setGraticuleOverlayEnabled(boolean enabled) {
         if (isGraticuleOverlayEnabled() != enabled) {
             getGraticuleLayer().setVisible(enabled);
-            fireImageUpdated();
         }
     }
 
@@ -481,7 +438,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     public void setPinOverlayEnabled(boolean enabled) {
         if (isPinOverlayEnabled() != enabled) {
             getPinLayer().setVisible(enabled);
-            fireImageUpdated();
         }
     }
 
@@ -493,7 +449,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     public void setGcpOverlayEnabled(boolean enabled) {
         if (isGcpOverlayEnabled() != enabled) {
             getGcpLayer().setVisible(enabled);
-            fireImageUpdated();
         }
     }
 
@@ -505,7 +460,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     public void setShapeOverlayEnabled(boolean enabled) {
         if (isShapeOverlayEnabled() != enabled) {
             getFigureLayer().setVisible(enabled);
-            fireImageUpdated();
         }
     }
 
@@ -517,7 +471,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     public void setROIOverlayEnabled(boolean enabled) {
         if (isROIOverlayEnabled() != enabled) {
             getRoiLayer().setVisible(enabled);
-            fireImageUpdated();
         }
     }
 
@@ -544,7 +497,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         if (roiLayer != null) {
             MultiLevelModel model = roiLayer.getMultiLevelSource().getModel();
             roiLayer.setMultiLevelSource(new DefaultMultiLevelSource(roiImage, model));
-            fireImageUpdated();
         }
     }
 
@@ -559,8 +511,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
             } else {
                 roiLayer.setMultiLevelSource(MultiLevelSource.NULL);
             }
-
-            fireImageUpdated();
         }
     }
 
@@ -626,8 +576,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         if (graticuleLayer != null) {
             ProductSceneImage.setGraticuleLayerStyle(configuration, graticuleLayer);
         }
-
-        fireImageUpdated();
     }
 
     private void setImageProperties(PropertyMap configuration) {
@@ -826,10 +774,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         final FigureLayer figureLayer = getFigureLayer();
 
         if (figureLayer != null) {
-            figureLayer.getFigureList().remove(figure);
-            if (isShapeOverlayEnabled()) {
-                fireImageUpdated();
-            }
+            figureLayer.removeFigure(figure);
         }
     }
 
@@ -905,8 +850,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
             } else {
                 noDataLayer.setMultiLevelSource(MultiLevelSource.NULL);
             }
-
-            fireImageUpdated();
         }
     }
 
@@ -922,11 +865,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         });
         popupMenu.add(menuItem);
         popupMenu.addSeparator();
-    }
-
-    public static interface ImageUpdateListener {
-
-        void handleImageUpdated(ProductSceneView view);
     }
 
     /**

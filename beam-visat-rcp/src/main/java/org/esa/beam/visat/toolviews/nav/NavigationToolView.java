@@ -66,7 +66,6 @@ public class NavigationToolView extends AbstractToolView {
     private NavigationViewportListener viewportListener;
     private ImageDisplayResizeHandler imageDisplayRH;
     private DecimalFormat percentFormat;
-    private ProductSceneView.ImageUpdateListener imageUpdateHandler;
     private ProductNodeListener productNodeListener;
     private ProductSceneView.LayerContentListener layerContentListener;
 
@@ -77,14 +76,6 @@ public class NavigationToolView extends AbstractToolView {
         percentFormat = new DecimalFormat("#####.##", decimalFormatSymbols);
         percentFormat.setGroupingUsed(false);
         percentFormat.setDecimalSeparatorAlwaysShown(false);
-        imageUpdateHandler = new ProductSceneView.ImageUpdateListener() {
-            @Override
-            public void handleImageUpdated(final ProductSceneView view) {
-                if (isVisible()) {
-                    canvas.updateImage();
-                }
-            }
-        };
         layerContentListener = new ProductSceneView.LayerContentListener() {
             @Override
             public void layerContentChanged(RasterDataNode raster) {
@@ -110,7 +101,6 @@ public class NavigationToolView extends AbstractToolView {
         final ProductSceneView oldView = currentView;
         if (oldView != newView) {
             if (oldView != null) {
-                oldView.removeImageUpdateListener(imageUpdateHandler);
                 currentView.getProduct().removeProductNodeListener(productNodeListener);
                 if (oldView.getImageDisplayComponent() != null) {
                     oldView.removeLayerContentListener(layerContentListener);
@@ -120,7 +110,6 @@ public class NavigationToolView extends AbstractToolView {
             }
             currentView = newView;
             if (currentView != null) {
-                currentView.addImageUpdateListener(imageUpdateHandler);
                 currentView.getProduct().addProductNodeListener(productNodeListener);
                 if (currentView.getImageDisplayComponent() != null) {
                     currentView.getLayerCanvas().getViewport().addListener(viewportListener);

@@ -89,11 +89,7 @@ public class ShowImageViewAction extends ExecCommand {
                     view.setGraticuleOverlayEnabled(false);
                     view.setPinOverlayEnabled(true);
                     view.setLayerProperties(visatApp.getPreferences());
-                    view.addImageUpdateListener(new ProductSceneView.ImageUpdateListener() {
-                        public void handleImageUpdated(final ProductSceneView view) {
-                            visatApp.updateState();
-                        }
-                    });
+                    
                     final String title = createInternalFrameTitle(selectedProductNode);
                     final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
                     final JInternalFrame internalFrame = visatApp.createInternalFrame(title, icon, view, getHelpId());
