@@ -71,7 +71,6 @@ public class FigureLayer extends Layer {
     	Rectangle2D figureBounds = figure.getBounds();
         Rectangle2D modelBounds = shapeToModelTransform.createTransformedShape(figureBounds).getBounds2D();
 		fireLayerDataChanged(modelBounds);
-    	fireLayerDataChanged(getBounds());
     }
 
     private void setAttributes(Figure figure) {
