@@ -739,10 +739,6 @@ public class DimapDocumentTest extends TestCase {
         pw.println("    <Image_Display>");
         pw.println("        <Band_Statistics>");
         pw.println("            <BAND_INDEX>0</BAND_INDEX>");
-        pw.println("            <STX_MIN>-0.2</STX_MIN>");
-        pw.println("            <STX_MAX>3.0</STX_MAX>");
-        pw.println("            <STX_RES_LEVEL>0</STX_RES_LEVEL>");
-        pw.println("            <HISTOGRAM>4,5,4,7,5,8</HISTOGRAM>");
         pw.println("            <NUM_COLORS>180</NUM_COLORS>");
         pw.println("            <Color_Palette_Point>");
         pw.println("                <SAMPLE>0.1</SAMPLE>");

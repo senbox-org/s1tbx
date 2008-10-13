@@ -987,7 +987,10 @@ public class DimapProductHelpers {
                 if (bandName != null) {
                     final Band band = product.getBand(bandName);
                     if (band != null) {
-                        band.setStx(createStx(band, bandStatisticsElem));
+                        Stx stx = createStx(band, bandStatisticsElem);
+                        if (stx != null) {
+                            band.setStx(stx);
+                        }
                         band.setImageInfo(createImageInfo(bandStatisticsElem));
                     }
                 }
