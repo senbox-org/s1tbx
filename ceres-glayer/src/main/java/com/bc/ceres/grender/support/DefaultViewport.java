@@ -108,9 +108,12 @@ public class DefaultViewport implements Viewport {
 
     @Override
     public void moveViewDelta(double deltaX, double deltaY) {
-        viewToModelTransform.translate(-deltaX, -deltaY);
-        updateModelToViewTransform();
-        fireViewportChanged(false);
+    	if (deltaX == 0.0 && deltaY == 0.0) {
+    		return;
+    	}
+    	viewToModelTransform.translate(-deltaX, -deltaY);
+    	updateModelToViewTransform();
+    	fireViewportChanged(false);
     }
 
     @Override
