@@ -23,12 +23,6 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.title.Title;
 import org.jfree.chart.title.TextTitle;
-import org.jfree.chart.event.AxisChangeListener;
-import org.jfree.chart.event.AxisChangeEvent;
-import org.jfree.chart.event.ChartChangeListener;
-import org.jfree.chart.event.ChartChangeEvent;
-import org.jfree.chart.event.PlotChangeListener;
-import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.ui.RectangleInsets;
 
 import javax.media.jai.ROI;
@@ -654,6 +648,7 @@ class ScatterPlotPanel extends PagePanel {
     }
 
 
+    @Override
     protected void handleLayerContentChanged() {
         computePanel.updateRoiCheckBoxState();
     }

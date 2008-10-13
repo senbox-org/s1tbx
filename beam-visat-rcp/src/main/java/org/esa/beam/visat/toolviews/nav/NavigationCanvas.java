@@ -51,16 +51,6 @@ public class NavigationCanvas extends JPanel {
         return updatingImageDisplay;
     }
 
-    public Rectangle getVisibleArea() {
-        return visibleArea;
-    }
-
-    public void setVisibleArea(Rectangle slider) {
-        Rectangle oldSlider = this.visibleArea;
-        this.visibleArea = new Rectangle(slider);
-        firePropertyChange("visibleArea", oldSlider, this.visibleArea);
-    }
-
     /**
      * Causes this container to lay out its components. Most programs should not
      * call this method directly, but should invoke the <code>validate</code>

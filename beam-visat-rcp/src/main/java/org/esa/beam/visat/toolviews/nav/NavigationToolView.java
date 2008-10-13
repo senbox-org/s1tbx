@@ -34,11 +34,16 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerListener;
+import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
@@ -67,7 +72,7 @@ public class NavigationToolView extends AbstractToolView {
     private ImageDisplayResizeHandler imageDisplayRH;
     private DecimalFormat percentFormat;
     private ProductNodeListener productNodeListener;
-    private ProductSceneView.LayerContentListener layerContentListener;
+    private LayerListener layerContentListener;
 
     public NavigationToolView() {
         viewportListener = new NavigationViewportListener();
@@ -76,9 +81,17 @@ public class NavigationToolView extends AbstractToolView {
         percentFormat = new DecimalFormat("#####.##", decimalFormatSymbols);
         percentFormat.setGroupingUsed(false);
         percentFormat.setDecimalSeparatorAlwaysShown(false);
-        layerContentListener = new ProductSceneView.LayerContentListener() {
+        layerContentListener = new AbstractLayerListener() {
+            
             @Override
-            public void layerContentChanged(RasterDataNode raster) {
+            public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
+                if (isVisible()) {
+                    canvas.updateImage();
+                }
+            }
+            
+            @Override
+            public void handleLayerDataChanged(Layer layer, Rectangle2D modelRegion) {
                 if (isVisible()) {
                     canvas.updateImage();
                 }
@@ -103,7 +116,7 @@ public class NavigationToolView extends AbstractToolView {
             if (oldView != null) {
                 currentView.getProduct().removeProductNodeListener(productNodeListener);
                 if (oldView.getImageDisplayComponent() != null) {
-                    oldView.removeLayerContentListener(layerContentListener);
+                    oldView.getRootLayer().removeListener(layerContentListener);
                     currentView.getLayerCanvas().getViewport().removeListener(viewportListener);
                     oldView.getImageDisplayComponent().removeComponentListener(imageDisplayRH);
                 }
@@ -113,7 +126,7 @@ public class NavigationToolView extends AbstractToolView {
                 currentView.getProduct().addProductNodeListener(productNodeListener);
                 if (currentView.getImageDisplayComponent() != null) {
                     currentView.getLayerCanvas().getViewport().addListener(viewportListener);
-                    currentView.addLayerContentListener(layerContentListener);
+                    currentView.getRootLayer().addListener(layerContentListener);
                     currentView.getImageDisplayComponent().addComponentListener(imageDisplayRH);
                 }
             }

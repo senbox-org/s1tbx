@@ -3,7 +3,6 @@ package org.esa.beam.framework.ui.product;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerListener;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.ViewportScrollPane;
@@ -44,9 +43,7 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
-import java.beans.PropertyChangeEvent;
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * The class <code>ProductSceneView</code> is a high-level image display component for color index/RGB images created
@@ -89,7 +86,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     public static final Color DEFAULT_IMAGE_BACKGROUND_COLOR = new Color(51, 51, 51);
 //    public static final double DEFAULT_IMAGE_BORDER_SIZE = 2.0;
     public static final int DEFAULT_IMAGE_VIEW_BORDER_SIZE = 64;
-    private ArrayList<LayerContentListener> layerContentListenerList;
     private RasterChangeHandler rasterChangeHandler;
 
     private ProductSceneImage sceneImage;
@@ -103,8 +99,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
         rasterChangeHandler = new RasterChangeHandler();
         getRaster().getProduct().addProductNodeListener(rasterChangeHandler);
-
-        layerContentListenerList = new ArrayList<LayerContentListener>(5);
 
         setOpaque(true);
         setBackground(DEFAULT_IMAGE_BACKGROUND_COLOR); // todo - use sceneImage.getConfiguration() (nf, 18.09.2008)
@@ -128,29 +122,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
                 final int wheelRotation = e.getWheelRotation();
                 final double newZoomFactor = viewport.getZoomFactor() * Math.pow(1.1, wheelRotation);
                 viewport.zoom(newZoomFactor);
-            }
-        });
-
-        // todo - this change management is for compatibility reasons only, need better control here!!!
-        layerCanvas.getLayer().addListener(new LayerListener() {
-            @Override
-            public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
-                fireLayerContentChanged();
-            }
-
-            @Override
-            public void handleLayerDataChanged(Layer layer, Rectangle2D modelRegion) {
-                fireLayerContentChanged();
-            }
-
-            @Override
-            public void handleLayersAdded(Layer parentLayer, Layer[] childLayers) {
-                fireLayerContentChanged();
-            }
-
-            @Override
-            public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
-                fireLayerContentChanged();
             }
         });
     }
@@ -194,24 +165,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     @Override
     public void propertyMapChanged(PropertyMap propertyMap) {
         setLayerProperties(propertyMap);
-    }
-
-    public void addLayerContentListener(LayerContentListener listener) {
-        if (listener != null && !layerContentListenerList.contains(listener)) {
-            layerContentListenerList.add(listener);
-        }
-    }
-
-    public void removeLayerContentListener(LayerContentListener listener) {
-        if (listener != null) {
-            layerContentListenerList.remove(listener);
-        }
-    }
-
-    protected void fireLayerContentChanged() {
-        for (LayerContentListener listener : layerContentListenerList) {
-            listener.layerContentChanged(getRaster());
-        }
     }
 
     /**
@@ -530,7 +483,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         final Figure oldShapeFigure = getCurrentShapeFigure();
         if (currentShapeFigure != oldShapeFigure) {
             if (oldShapeFigure != null) {
-                getFigureLayer().getFigureList().remove(oldShapeFigure);
+                getFigureLayer().removeFigure(oldShapeFigure);
             }
             if (currentShapeFigure != null) {
                 getFigureLayer().addFigure(currentShapeFigure);
@@ -930,10 +883,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
                 zoom(currentViewScale * 0.9f);
             }
         }
-    }
-
-    public interface LayerContentListener {
-        void layerContentChanged(RasterDataNode raster);
     }
 
     private ImageLayer getNoDataLayer() {

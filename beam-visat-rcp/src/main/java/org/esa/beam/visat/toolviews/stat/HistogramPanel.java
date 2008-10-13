@@ -354,6 +354,7 @@ class HistogramPanel extends PagePanel {
     }
 
 
+    @Override
     public String getDataAsText() {
         if (stx == null) {
             return null;
@@ -392,6 +393,7 @@ class HistogramPanel extends PagePanel {
         return sb.toString();
     }
 
+    @Override
     protected void handleLayerContentChanged() {
         computePanel.updateRoiCheckBoxState();
     }

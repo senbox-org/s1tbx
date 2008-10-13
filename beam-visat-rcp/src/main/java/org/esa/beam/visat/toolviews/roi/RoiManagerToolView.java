@@ -54,6 +54,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
+
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.AbstractLayerListener;
+
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.FlowLayout;
@@ -63,6 +67,7 @@ import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.io.File;
@@ -171,8 +176,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
             return;
         }
         if (this.productSceneView != null) {
-            // TODO IMAGING 4.5
-            this.productSceneView.removeLayerContentListener(layerContentHandler);
+            this.productSceneView.getRootLayer().addListener(layerContentHandler);
             this.productSceneView.getProduct().removeProductNodeListener(productNodeListener);
         }
 
@@ -184,8 +188,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
             if (shapeFigure == null) {
                 shapeFigure = this.productSceneView.getCurrentShapeFigure();
             }
-            // TODO IMAGING 4.5
-            this.productSceneView.addLayerContentListener(layerContentHandler);
+            this.productSceneView.getRootLayer().removeListener(layerContentHandler);
             this.productSceneView.getProduct().addProductNodeListener(productNodeListener);
             roiDefinitionUndo = getCurrentROIDefinition();
             setUIParameterValues(roiDefinitionUndo);
@@ -1081,16 +1084,16 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         };
     }
 
-    private class LayerContentHandler implements ProductSceneView.LayerContentListener {
+    private class LayerContentHandler extends AbstractLayerListener {
+
         @Override
-        @Deprecated
-        public void layerContentChanged(RasterDataNode raster) {
+        public void handleLayerDataChanged(Layer layer, Rectangle2D modelRegion) {
             if (productSceneView != null) {
                 final Figure currentShapeFigure = productSceneView.getCurrentShapeFigure();
-                if (currentShapeFigure != null) {
+                if (currentShapeFigure != null && shapeFigure != currentShapeFigure) {
                     shapeFigure = currentShapeFigure;
+                    updateUIState();
                 }
-                updateUIState();
             }
         }
     }

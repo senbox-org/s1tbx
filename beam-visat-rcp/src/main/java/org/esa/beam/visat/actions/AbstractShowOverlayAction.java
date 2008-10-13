@@ -14,7 +14,6 @@
  */
 package org.esa.beam.visat.actions;
 
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -23,7 +22,12 @@ import org.esa.beam.visat.VisatApp;
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.AbstractLayerListener;
+
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -89,7 +93,7 @@ abstract class AbstractShowOverlayAction extends ExecCommand {
                 if (!layerContentListenerMap.containsKey(view)) {
                     final LCL layerContentListener = new LCL(view);
 
-                    view.addLayerContentListener(layerContentListener);
+                    view.getRootLayer().addListener(layerContentListener);
                     layerContentListenerMap.put(view, layerContentListener);
                 }
             }
@@ -111,7 +115,7 @@ abstract class AbstractShowOverlayAction extends ExecCommand {
 
             if (view != null) {
                 if (layerContentListenerMap.containsKey(view)) {
-                    view.removeLayerContentListener(layerContentListenerMap.get(view));
+                    view.getRootLayer().removeListener(layerContentListenerMap.get(view));
                 }
             }
         }
@@ -127,7 +131,7 @@ abstract class AbstractShowOverlayAction extends ExecCommand {
         }
     }
 
-    private class LCL implements ProductSceneView.LayerContentListener {
+    private class LCL extends AbstractLayerListener {
         private final ProductSceneView view;
 
         public LCL(ProductSceneView view) {
@@ -135,7 +139,7 @@ abstract class AbstractShowOverlayAction extends ExecCommand {
         }
 
         @Override
-        public void layerContentChanged(RasterDataNode raster) {
+        public void handleLayerDataChanged(Layer layer, Rectangle2D modelRegion) {
             updateEnableState(view);
             updateSelectState(view);
         }

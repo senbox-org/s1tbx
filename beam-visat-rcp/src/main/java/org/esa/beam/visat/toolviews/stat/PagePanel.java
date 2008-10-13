@@ -24,6 +24,10 @@ import javax.media.jai.ROI;
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.AbstractLayerListener;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -48,14 +52,14 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
     private final String helpId;
     private final PagePanelPTL pagePanelPTL;
     private final PagePanelIFL pagePanelIFL;
-    private final PagePanelLCL pagePanelLCL;
+    private final PagePanelLL pagePanelLL;
 
     PagePanel(ToolView parentDialog, String helpId) {
         super(new BorderLayout(4, 4));
         this.parentDialog = parentDialog;
         pagePanelPTL = new PagePanelPTL();
         pagePanelIFL = new PagePanelIFL();
-        pagePanelLCL = new PagePanelLCL();
+        pagePanelLL = new PagePanelLL();
         this.helpId = helpId;
         setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         setPreferredSize(new Dimension(600, 320));
@@ -467,7 +471,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
             final Container contentPane = e.getInternalFrame().getContentPane();
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) contentPane;
-                view.addLayerContentListener(pagePanelLCL);
+                view.getRootLayer().addListener(pagePanelLL);
                 selectionChanged(view.getRaster().getProduct(), view.getRaster());
             }
         }
@@ -477,18 +481,17 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
             final Container contentPane = e.getInternalFrame().getContentPane();
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) contentPane;
-                view.removeLayerContentListener(pagePanelLCL);
+                view.getRootLayer().removeListener(pagePanelLL);
                 selectionChanged(view.getRaster().getProduct(), null);
             }
         }
 
     }
 
-    private class PagePanelLCL implements ProductSceneView.LayerContentListener {
-        public void layerContentChanged(RasterDataNode raster) {
-            if (raster == getRaster()) {
-                handleLayerContentChanged();
-            }
+    private class PagePanelLL extends AbstractLayerListener {
+        @Override
+        public void handleLayerDataChanged(Layer layer, Rectangle2D modelRegion) {
+            handleLayerContentChanged();
         }
     }
 }
