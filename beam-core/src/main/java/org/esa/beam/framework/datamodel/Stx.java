@@ -131,6 +131,12 @@ public class Stx {
 
             double min = extremaOp.lowValue;
             double max = extremaOp.highValue;
+            
+            if (min == Double.MAX_VALUE && max == -Double.MAX_VALUE) {
+                final Histogram histogram = createHistogram(1, 0, 1);
+                histogram.getBins(0)[0] = 0;
+                return new Stx(0.0, 1.0, histogram, level);
+            }
 
             double off = getHighValueOffset(raster);
 
