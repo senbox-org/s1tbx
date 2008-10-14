@@ -252,7 +252,7 @@ class HistogramPanel extends PagePanel {
     private void computeHistogram(final boolean useROI) {
         final ROI roi;
         if (useROI) {
-            roi = getROI();
+            roi = getROI(getRaster());
         } else {
             roi = null;
         }

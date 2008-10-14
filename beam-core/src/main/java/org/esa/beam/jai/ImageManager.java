@@ -775,7 +775,7 @@ public class ImageManager {
         return roi;
     }
 
-    private static PlanarImage createFormatOp(RenderedImage image, int dataType) {
+    public static PlanarImage createFormatOp(RenderedImage image, int dataType) {
         if (image.getSampleModel().getDataType() == dataType) {
             return PlanarImage.wrapRenderedImage(image);
         }

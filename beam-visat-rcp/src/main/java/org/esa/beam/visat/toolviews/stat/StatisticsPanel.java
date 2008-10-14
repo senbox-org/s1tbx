@@ -91,7 +91,7 @@ class StatisticsPanel extends TextPagePanel {
     private void computeStatistics(final boolean useROI) {
         final ROI roi;
         if (useROI) {
-            roi = getROI();
+            roi = getROI(getRaster());
         } else {
             roi = null;
         }

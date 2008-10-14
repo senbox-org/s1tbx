@@ -147,9 +147,9 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         }
     }
 
-    ROI getROI() {
+    protected ROI getROI(RasterDataNode raster) {
         ROI roi;
-        final PlanarImage roiMaskImage = ImageManager.getInstance().createRoiMaskImage(getRaster(), 0);
+        final PlanarImage roiMaskImage = ImageManager.getInstance().createRoiMaskImage(raster, 0);
         roi = roiMaskImage != null ? new ROI(roiMaskImage) : null;
         return roi;
     }

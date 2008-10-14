@@ -6,6 +6,7 @@ import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
@@ -371,9 +372,13 @@ class ScatterPlotPanel extends PagePanel {
             return;
         }
 
-        final ROI roi = useROI ? rasterX.createROI(ProgressMonitor.NULL) : null;
-        final SwingWorker<ScatterPlot, Object> swingWorker = new ProgressMonitorSwingWorker<ScatterPlot, Object>(
-                getParentDialogContentPane(), "Compute Statistic") {
+        final ROI roi;
+        if (useROI) {
+            roi = getROI(rasterX);
+        } else {
+            roi = null;
+        }
+        ProgressMonitorSwingWorker<ScatterPlot, Object> swingWorker = new ProgressMonitorSwingWorker<ScatterPlot, Object>(this, "Computing scatter plot") {
 
             @Override
             protected ScatterPlot doInBackground(ProgressMonitor pm) throws Exception {
@@ -475,10 +480,13 @@ class ScatterPlotPanel extends PagePanel {
                                                                                              IOException {
         final boolean autoMinMax = (Boolean) autoMinMaxParams[varIndex].getValue();
         if (autoMinMax) {
-            final Range range = raster.computeRasterDataRange(roi, pm);
-            final double min = raster.scale(range.getMin());
-            final double max = raster.scale(range.getMax());
-            return new Range(min, max);
+            Stx stx;
+            if (roi == null) {
+                stx = raster.getStx(false, pm);
+            } else {
+                stx = Stx.create(raster, roi, pm);
+            }
+            return new Range(raster.scale(stx.getMin()), raster.scale(stx.getMax()));
         } else {
             return new Range((Double) minParams[varIndex].getValue(), (Double) maxParams[varIndex].getValue());
         }

@@ -1461,65 +1461,8 @@ public class ProductUtils {
                                       BufferedImage.TYPE_BYTE_INDEXED,
                                       new IndexColorModel(8, palSize, r, g, b, a));
         }
-
-        final int rasterW = raster1.getSceneRasterWidth();
-        final int rasterH = raster1.getSceneRasterHeight();
         final byte[] pixelValues = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
-
-        final float xScale = width / (sampleMax1 - sampleMin1);
-        final float yScale = height / (sampleMax2 - sampleMin2);
-
-        float sample1;
-        float sample2;
-
-        int pixelX;
-        int pixelY;
-        int pixelIndex;
-        int pixelValue;
-        int numPixels = 0;
-
-        float[] line1 = new float[rasterW];
-        float[] line2 = new float[rasterW];
-        final IndexValidator pixelValidator1 = raster1.createPixelValidator(0, roi);
-        final IndexValidator pixelValidator2 = raster2.createPixelValidator(0, roi);
-        pm.beginTask("Creating scatter plot image...", rasterH * 3);
-        try {
-            for (int y = 0; y < rasterH; y++) {
-                raster1.readPixels(0, y, rasterW, 1, line1, SubProgressMonitor.create(pm, 1));
-                raster2.readPixels(0, y, rasterW, 1, line2, SubProgressMonitor.create(pm, 1));
-                for (int x = 0; x < rasterW; x++) {
-                    final int index = y * rasterW + x;
-                    if (pixelValidator1.validateIndex(index) && pixelValidator2.validateIndex(index)) {
-                        sample1 = line1[x];
-                        if (sample1 >= sampleMin1 && sample1 <= sampleMax1) {
-                            sample2 = line2[x];
-                            if (sample2 >= sampleMin2 && sample2 <= sampleMax2) {
-                                pixelX = MathUtils.floorInt(xScale * (sample1 - sampleMin1));
-                                pixelY = height - 1 - MathUtils.floorInt(yScale * (sample2 - sampleMin2));
-                                if (pixelX >= 0 && pixelX < width && pixelY >= 0 && pixelY < height) {
-                                    pixelIndex = pixelX + pixelY * width;
-                                    pixelValue = (pixelValues[pixelIndex] & 0xff);
-                                    pixelValue++;
-                                    if (pixelValue > 255) {
-                                        pixelValue = 255;
-                                    }
-                                    pixelValues[pixelIndex] = (byte) pixelValue;
-                                    numPixels++;
-                                }
-                            }
-                        }
-                    }
-                }
-                pm.worked(1);
-            }
-        } finally {
-            pm.done();
-        }
-
-        stopWatch.stop();
-        Debug.trace(
-                "RasterDataNode: Ended scatter-plot drawing: " + stopWatch.toString() + ", numPixels = " + numPixels + ", roi=" + roi);
-
+        ScatterPlot.accumulate(raster1, sampleMin1, sampleMax1, raster2, sampleMin2, sampleMax2, roi, width, height, 0, pixelValues, pm);
         return image;
     }
 
