@@ -245,38 +245,49 @@ public class BandLineReader {
      * @param destRasterPos the current line offset within the destination raster
      * @throws java.io.IOException if an I/O error occurs
      */
-    public synchronized void readRasterLine(int sourceMinX,
-                                            int sourceMaxX,
-                                            int sourceStepX,
-                                            int sourceY,
-                                            ProductData destRaster,
-                                            int destRasterPos) throws IOException {
+    public synchronized void readRasterLine(final int sourceMinX,
+                                            final int sourceMaxX,
+                                            final int sourceStepX,
+                                            final int sourceY,
+                                            final ProductData destRaster,
+                                            final int destRasterPos) throws IOException {
         final ProductFile productFile = getProductFile();
         final int mappedMdsrIndex = productFile.getMappedMDSRIndex(sourceY);
         if (mappedMdsrIndex >= 0 && mappedMdsrIndex <= _maxRecordIndex) {
-            readLineRecord(sourceY);
 
-            int destRasterIncr = 1;
-            if (productFile.storesPixelsInChronologicalOrder()) {
+            final int destRasterIncr;
+            final int destPos;
+            final int sMinX;
+            final int sMaxX;
+            if (!productFile.storesPixelsInChronologicalOrder()) {
+                destRasterIncr = 1;
+                destPos = destRasterPos;
+                sMinX = sourceMinX;
+                sMaxX = sourceMaxX;
+            } else {
                 destRasterIncr = -1;
-                destRasterPos += (sourceMaxX - sourceMinX) / sourceStepX;
-                int oldSourceMinX = sourceMinX;
-                sourceMinX = productFile.getSceneRasterWidth() - 1 - sourceMaxX;
-                sourceMaxX = productFile.getSceneRasterWidth() - 1 - oldSourceMinX;
+                destPos = destRasterPos + (sourceMaxX - sourceMinX) / sourceStepX;
+                sMinX = productFile.getSceneRasterWidth() - 1 - sourceMaxX;
+                sMaxX = productFile.getSceneRasterWidth() - 1 - sourceMinX;
             }
 
-            ensureBandLineDecoder().computeLine(getPixelDataField().getElems(),
-                    sourceMinX,
-                    sourceMaxX,
-                    sourceStepX,
-                    destRaster.getElems(),
-                    destRasterPos,
-                    destRasterIncr);
+            readLineRecord(sourceY);
+//            readLineSegment(sMinX, sMaxX, sourceY);
+
+            ensureBandLineDecoder().computeLine(
+                        getPixelDataField().getElems(),
+                        sMinX,
+                        sMaxX,
+                        sourceStepX,
+                        destRaster.getElems(),
+                        destPos,
+                        destRasterIncr);
         } else {
+            int inkrement = destRasterPos;
             final double missingValue = productFile.getMissingMDSRPixelValue();
             for (int index = sourceMinX; index <= sourceMaxX; index += sourceStepX) {
-                destRaster.setElemDoubleAt(destRasterPos, missingValue);
-                destRasterPos++;
+                destRaster.setElemDoubleAt(inkrement, missingValue);
+                inkrement++;
             }
         }
     }
