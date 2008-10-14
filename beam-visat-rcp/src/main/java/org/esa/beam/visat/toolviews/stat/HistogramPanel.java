@@ -18,6 +18,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
@@ -91,14 +92,19 @@ class HistogramPanel extends PagePanel {
             }
             chart.setTitle(getRaster() != null ? CHART_TITLE + " for " + getRaster().getName() : CHART_TITLE);
             if (getRaster() != null && getRaster().isLog10Scaled()) {
-                LogarithmicAxis logAxisX = new LogarithmicAxis("Values");
-                logAxisX.setAllowNegativesFlag(true);
-                chart.getXYPlot().setDomainAxis(logAxisX); 
+                ValueAxis oldDomainAxis = chart.getXYPlot().getDomainAxis();
+                if (!(oldDomainAxis instanceof LogarithmicAxis)) {
+                    LogarithmicAxis logAxisX = new LogarithmicAxis("Values");
+                    logAxisX.setAllowNegativesFlag(true);
+                    chart.getXYPlot().setDomainAxis(logAxisX);
+                }
             } else {
-                NumberAxis xAxis = new NumberAxis("Values");
-                chart.getXYPlot().setDomainAxis(xAxis); 
+                ValueAxis oldDomainAxis = chart.getXYPlot().getDomainAxis();
+                if (oldDomainAxis instanceof LogarithmicAxis) {
+                    NumberAxis xAxis = new NumberAxis("Values");
+                    chart.getXYPlot().setDomainAxis(xAxis);
+                }
             }
-                
             histoMinParam.setDefaultValue();
             histoMaxParam.setDefaultValue();
         }
@@ -333,7 +339,6 @@ class HistogramPanel extends PagePanel {
             chart.getXYPlot().getDomainAxis().setLabel(getAxisLabel(raster));
         }
         chart.getXYPlot().setDataset(dataset);
-        histogramDisplay.restoreAutoBounds();
         chart.fireChartChanged();
     }
 
