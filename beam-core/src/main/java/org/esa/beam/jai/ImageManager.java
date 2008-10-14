@@ -9,8 +9,8 @@ import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.draw.Figure;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.IntMap;
 import org.esa.beam.util.StringUtils;
@@ -57,21 +57,27 @@ public class ImageManager {
         final int w = scene.getRasterWidth();
         final int h = scene.getRasterHeight();
 
+        // TODO - BLOCKER: Use scene.getGeoCoding().getMapInfo() to construct i2mTransform. SMOS will not work otherwise.  (nf, 19.09.2008)
         final AffineTransform i2mTransform = new AffineTransform();
 
+/*      this code constructs the i2mTransform from the map info,
+        but since layer bounds are wrong using this transform breaks the display of map-projected scenes (rq)
+*/
         if (productNode.getProduct() != null && productNode.getProduct().getGeoCoding() != null &&
                 productNode.getProduct().getGeoCoding() instanceof MapGeoCoding) {
             final MapGeoCoding mapGeoCoding = (MapGeoCoding) productNode.getProduct().getGeoCoding();
             final MapInfo mapInfo = mapGeoCoding.getMapInfo();
-            final double tx = mapInfo.getEasting() - mapInfo.getPixelX();
-            final double ty = mapInfo.getNorthing() - mapInfo.getPixelY();
-            final double sx = mapInfo.getPixelSizeX();
-            final double sy = mapInfo.getPixelSizeY();
             final double theta = -Math.toRadians(mapInfo.getOrientation());
+            final double s = Math.sin(theta);
+            final double c = Math.cos(theta);
+            final double m00 = mapInfo.getPixelSizeX() * c;
+            final double m01 = mapInfo.getPixelSizeX() * s;
+            final double m10 = mapInfo.getPixelSizeY() * s;
+            final double m11 = mapInfo.getPixelSizeY() * c;
+            final double m02 = mapInfo.getEasting() - m00 * mapInfo.getPixelX() - m01 * mapInfo.getPixelY();
+            final double m12 = mapInfo.getNorthing() - m10 * mapInfo.getPixelX() - m11 * mapInfo.getPixelY();
 
-            i2mTransform.translate(tx, ty);
-            i2mTransform.scale(sx, sy);
-            i2mTransform.rotate(theta);
+            i2mTransform.setTransform(m00, m10, m01, m11, m02, m12);
         }
 
         return new DefaultMultiLevelModel(i2mTransform, w, h);
@@ -862,3 +868,4 @@ public class ImageManager {
         }
     }
 }
+

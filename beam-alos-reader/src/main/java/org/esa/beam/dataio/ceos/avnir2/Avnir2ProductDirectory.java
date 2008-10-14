@@ -167,11 +167,8 @@ class Avnir2ProductDirectory {
             final boolean isSouth = _leaderFile.isUTMSouthHemisphere();
 
             double easting = _leaderFile.getUTMEasting() * METER_PER_KILOMETER;     // km -> meter
-            easting += UTM_FALSE_EASTING;
             double northing = _leaderFile.getUTMNorthing() * METER_PER_KILOMETER;    // km -> meter
-            if (northing < 0) {
-                northing += UTM_FALSE_NORTHING;
-            }
+            // easting and northing already do take into account false-easting and false-northing (rq - 14.10.2008)
 
             final double pixelSizeX = _leaderFile.getNominalInterPixelDistance();
             final double pixelSizeY = _leaderFile.getNominalInterLineDistance();

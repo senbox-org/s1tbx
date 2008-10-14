@@ -229,8 +229,6 @@ class PrismProductDirectory {
             product.setGeoCoding(gc);
 
         } else if (MAP_PROJECTION_CODE_UTM.equalsIgnoreCase(projectionCode)) {
-            final double utmFalseEasting = 500000.00;
-            final double utmFalseNorthing = 10000000.00;
             final int meterPerKilometer = 1000;
             final int sceneWidth = product.getSceneRasterWidth();
             final int sceneHeight = product.getSceneRasterHeight();
@@ -238,11 +236,7 @@ class PrismProductDirectory {
             final int zoneIndex = (int) _leaderFile.getUTMZoneIndex();
             final boolean isSouth = _leaderFile.isUTMSouthHemisphere();
             double easting = _leaderFile.getUTMEasting() * meterPerKilometer; // km -> meter
-            easting += utmFalseEasting;
             double northing = _leaderFile.getUTMNorthing() * meterPerKilometer;    // km -> meter
-            if (northing < 0) {
-                northing += utmFalseNorthing;
-            }
 
             final double pixelSizeX = _leaderFile.getNominalInterPixelDistance();
             final double pixelSizeY = _leaderFile.getNominalInterLineDistance();
