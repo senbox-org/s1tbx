@@ -68,6 +68,12 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         ImageInfoEditorModel1B model = new ImageInfoEditorModel1B(parentForm.getImageInfo());
         model.setDisplayProperties(productSceneView.getRaster());
         model.addChangeListener(applyEnablerCL);
+        ImageInfoEditorModel oldModel = imageInfoEditor.getModel();
+        if (oldModel != null) {
+            model.setHistogramViewGain(oldModel.getHistogramViewGain());
+            model.setMinHistogramViewSample(oldModel.getMinHistogramViewSample());
+            model.setMaxHistogramViewSample(oldModel.getMaxHistogramViewSample());
+        }
         imageInfoEditor.setModel(model);
         parentForm.revalidateToolViewPaneControl();
     }
