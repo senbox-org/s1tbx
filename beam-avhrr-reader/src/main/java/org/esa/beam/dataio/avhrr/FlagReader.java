@@ -53,7 +53,7 @@ public class FlagReader implements BandReader {
         return ProductData.TYPE_UINT8;
     }
 
-    public void readBandRasterData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
+    public synchronized void readBandRasterData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
                                    int sourceStepX, int sourceStepY, ProductData destBuffer, ProgressMonitor pm) throws
                                                                                                                  IOException {
 
