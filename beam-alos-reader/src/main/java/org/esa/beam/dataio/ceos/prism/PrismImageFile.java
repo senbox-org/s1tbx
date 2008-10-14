@@ -114,9 +114,11 @@ class PrismImageFile {
 
     private void readSourceLine(final int y, final int sourceOffsetX, final byte[] srcLine) throws IOException,
             IllegalCeosFormatException {
-        final ImageRecord imageRecord = getImageRecord(y);
-        _ceosReader.seek(imageRecord.getImageDataStart() + sourceOffsetX);
-        _ceosReader.readB1(srcLine);
+        synchronized (_ceosReader) {
+            final ImageRecord imageRecord = getImageRecord(y);
+            _ceosReader.seek(imageRecord.getImageDataStart() + sourceOffsetX);
+            _ceosReader.readB1(srcLine);
+        }
     }
 
     private ImageRecord getImageRecord(final int line) throws IOException,
