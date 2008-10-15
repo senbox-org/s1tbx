@@ -120,7 +120,7 @@ public class BandLineReader {
     private BandLineDecoder _bandLineDecoder;
     private int _maxRecordIndex;
     private long fieldOffset;
-    private int dataFieldElemSize;
+    private int dataFieldSampleSize;
 
     private BandLineReader(BandInfo bandInfo) {
         _bandInfo = bandInfo;
@@ -138,7 +138,7 @@ public class BandLineReader {
         _pixelDataField = _pixelDataRecord.getFieldAt(pixelDataFieldIndex);
         _bandLineDecoder = null; // will be lazily created for 'real' bands only (on demand)
         _maxRecordIndex = pixelDataReader.getDSD().getNumRecords() - 1;
-        dataFieldElemSize = getDataFieldElemSize(getPixelDataField(), getBandInfo());
+        dataFieldSampleSize = getDataFieldSampleSize(getBandInfo());
         fieldOffset = getDataFieldOffset();
     }
 
@@ -284,8 +284,8 @@ public class BandLineReader {
                 sMaxX = productFile.getSceneRasterWidth() - 1 - sourceMinX;
             }
 
-            readLineRecord(sourceY);
-//            readDataFieldSegment(sourceY, sMinX, sMaxX);
+//            readLineRecord(sourceY);
+            readDataFieldSegment(sourceY, sMinX, sMaxX);
 
             ensureBandLineDecoder().computeLine(
                         getPixelDataField().getElems(),
@@ -318,7 +318,7 @@ public class BandLineReader {
 
     
     private void readDataFieldSegment(int sourceY, int minX, int maxX) throws IOException {
-        getPixelDataReader().readFieldSegment(sourceY, fieldOffset, dataFieldElemSize, minX, maxX, getPixelDataField());
+        getPixelDataReader().readFieldSegment(sourceY, fieldOffset, dataFieldSampleSize, minX, maxX, getPixelDataField());
     }
 
     private long getDataFieldOffset() {
@@ -335,18 +335,16 @@ public class BandLineReader {
         return offset;
     }
     
-    private int getDataFieldElemSize(Field sourceField, BandInfo bandInfo) {
+    private int getDataFieldSampleSize(BandInfo bandInfo) {
         final int sampleModel = bandInfo.getSampleModel();
-        final int srcDataType = sourceField.getDataType();
-        final int elemSize = ProductData.getElemSize(srcDataType);
         if (sampleModel == BandInfo.SMODEL_1OF1) {
-            return elemSize; 
+            return 1; 
         } else if (sampleModel == BandInfo.SMODEL_1OF2
                 || sampleModel == BandInfo.SMODEL_2OF2
                 || sampleModel == BandInfo.SMODEL_2UB_TO_S) {
-            return elemSize * 2;
+            return 2;
         } else if (sampleModel == BandInfo.SMODEL_3UB_TO_I) {
-            return elemSize * 3;
+            return 3;
         }
         throw new IllegalStateException("unknown sample model ID: " + sampleModel); /*I18N*/
     }

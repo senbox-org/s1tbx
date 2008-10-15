@@ -192,7 +192,7 @@ public class RecordReader {
      *                             
      * @param sourceY the record index, must be <code>&gt;=0</code> and <code>&lt;getDSD().getDatasetOffset()</code>
      * @param fieldOffset the offset in byte this field has in its containing record
-     * @param fieldElemSize the size in byte of one field element
+     * @param dataFieldSampleSize the sample rate of the data field element
      * @param minX the first element of the field to read
      * @param maxX the last element of the field to be read
      * @param field the field into which the data is read
@@ -201,15 +201,18 @@ public class RecordReader {
      * @throws java.lang.IndexOutOfBoundsException
      *                             if the index is out of bounds
      */
-    public void readFieldSegment(int sourceY, long fieldOffset, int fieldElemSize, int minX, int maxX, Field field) throws IOException {
+    public void readFieldSegment(int sourceY, long fieldOffset, int dataFieldSampleSize, int minX, int maxX, Field field) throws IOException {
         if (_dsd.getDatasetType() == 'M') {
             sourceY = _productFile.getMappedMDSRIndex(sourceY);
         }
-        final long pos = _dsd.getDatasetOffset() + sourceY * _dsd.getRecordSize() + fieldOffset + fieldElemSize * minX;
+        final long pos = _dsd.getDatasetOffset() + 
+        					sourceY * _dsd.getRecordSize() + 
+        					fieldOffset + 
+        					minX * dataFieldSampleSize * field.getData().getElemSize();
         final ImageInputStream istream = _productFile.getDataInputStream();
         synchronized (istream) {
             istream.seek(pos);
-            field.getData().readFrom(minX, maxX-minX+1, istream);
+            field.getData().readFrom(minX * dataFieldSampleSize, (maxX-minX+1) * dataFieldSampleSize, istream);
         }
         
     }
