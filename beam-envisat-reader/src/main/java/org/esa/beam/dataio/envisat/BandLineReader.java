@@ -20,7 +20,6 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * A <code>BandLineReader</code> instance is used read and decode single lines of the geophysical raster data stored in
@@ -56,43 +55,53 @@ public class BandLineReader {
             return _expression;
         }
 
+        @Override
         public boolean isTiePointBased() {
             return false;
         }
 
+        @Override
         public BandLineDecoder ensureBandLineDecoder() {
             throw new IllegalStateException();
         }
 
+        @Override
         public void readLineRecord(int sourceY) throws IOException {
             throw new IllegalStateException();
         }
 
+        @Override
         public ProductFile getProductFile() {
             throw new IllegalStateException();
         }
 
+        @Override
         public void readRasterLine(int sourceMinX, int sourceMaxX, int sourceStepX, int sourceY,
                                    ProductData destRaster, int destRasterPos) throws IOException {
             throw new IllegalStateException();
         }
 
+        @Override
         public int getRasterWidth() {
             throw new IllegalStateException();
         }
 
+        @Override
         public int getRasterHeight() {
             throw new IllegalStateException();
         }
 
+        @Override
         public Record getPixelDataRecord() {
             throw new IllegalStateException();
         }
 
+        @Override
         public RecordReader getPixelDataReader() {
             throw new IllegalStateException();
         }
 
+        @Override
         public Field getPixelDataField() {
             throw new IllegalStateException();
         }
@@ -110,6 +119,8 @@ public class BandLineReader {
     private Field _pixelDataField;
     private BandLineDecoder _bandLineDecoder;
     private int _maxRecordIndex;
+    private long fieldOffset;
+    private int dataFieldElemSize;
 
     private BandLineReader(BandInfo bandInfo) {
         _bandInfo = bandInfo;
@@ -127,6 +138,8 @@ public class BandLineReader {
         _pixelDataField = _pixelDataRecord.getFieldAt(pixelDataFieldIndex);
         _bandLineDecoder = null; // will be lazily created for 'real' bands only (on demand)
         _maxRecordIndex = pixelDataReader.getDSD().getNumRecords() - 1;
+        dataFieldElemSize = getDataFieldElemSize(getPixelDataField(), getBandInfo());
+        fieldOffset = getDataFieldOffset();
     }
 
     /**
@@ -271,8 +284,7 @@ public class BandLineReader {
                 sMaxX = productFile.getSceneRasterWidth() - 1 - sourceMinX;
             }
 
-            readLineRecord(sourceY);
-//            readLineSegment(sMinX, sMaxX, sourceY);
+            readDataFieldSegment(sourceY, sMinX, sMaxX);
 
             ensureBandLineDecoder().computeLine(
                         getPixelDataField().getElems(),
@@ -303,6 +315,39 @@ public class BandLineReader {
                 getPixelDataRecord());
     }
 
+    
+    private void readDataFieldSegment(int sourceY, int minX, int maxX) throws IOException {
+        getPixelDataReader().readFieldSegment(sourceY, fieldOffset, dataFieldElemSize, minX, maxX, getPixelDataField());
+    }
+
+    private long getDataFieldOffset() {
+        long offset = 0;
+        Record pixelDataRecord = getPixelDataRecord();
+        for (int i = 0; i < pixelDataRecord.getNumFields(); i++) {
+            Field field = pixelDataRecord.getFieldAt(i);
+            if (field == getPixelDataField()) {
+                break;
+            }
+            offset += field.getNumElems() * field.getData().getElemSize() * field.getData().getNumElems();
+        }
+        return offset;
+    }
+    
+    private int getDataFieldElemSize(Field sourceField, BandInfo bandInfo) {
+        final int sampleModel = bandInfo.getSampleModel();
+        final int srcDataType = sourceField.getDataType();
+        final int elemSize = ProductData.getElemSize(srcDataType);
+        if (sampleModel == BandInfo.SMODEL_1OF1) {
+            return elemSize; 
+        } else if (sampleModel == BandInfo.SMODEL_1OF2
+                || sampleModel == BandInfo.SMODEL_2OF2
+                || sampleModel == BandInfo.SMODEL_2UB_TO_S) {
+            return elemSize * 2;
+        } else if (sampleModel == BandInfo.SMODEL_3UB_TO_I) {
+            return elemSize * 3;
+        }
+        throw new IllegalStateException("unknown sample model ID: " + sampleModel); /*I18N*/
+    }
 
     /**
      * Creates a new band decoder appropriate for the band to be read.

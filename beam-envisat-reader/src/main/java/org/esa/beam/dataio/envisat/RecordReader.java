@@ -184,5 +184,35 @@ public class RecordReader {
         return getRecordInfo().createRecord();
     }
 
+    /**
+     * Reads a segment of a single field from the record with the given zero-based index from from the product file.
+     * <p/>
+     * <p> In order to reduce memory allocation, the method accepts an mandantory record argument. 
+     * It will be used to read in the data.
+     *                             
+     * @param sourceY the record index, must be <code>&gt;=0</code> and <code>&lt;getDSD().getDatasetOffset()</code>
+     * @param fieldOffset the offset in byte this field has in its containing record
+     * @param fieldElemSize the size in byte of one field element
+     * @param minX the first element of the field to read
+     * @param maxX the last element of the field to be read
+     * @param field the field into which the data is read
+     * 
+     * @throws java.io.IOException if an I/O error occurs
+     * @throws java.lang.IndexOutOfBoundsException
+     *                             if the index is out of bounds
+     */
+    public void readFieldSegment(int sourceY, long fieldOffset, int fieldElemSize, int minX, int maxX, Field field) throws IOException {
+        if (_dsd.getDatasetType() == 'M') {
+            sourceY = _productFile.getMappedMDSRIndex(sourceY);
+        }
+        final long pos = _dsd.getDatasetOffset() + sourceY * _dsd.getRecordSize() + fieldOffset + fieldElemSize * minX;
+        final ImageInputStream istream = _productFile.getDataInputStream();
+        synchronized (istream) {
+            istream.seek(pos);
+            field.getData().readFrom(minX, maxX-minX+1, istream);
+        }
+        
+    }
+
 }
 
