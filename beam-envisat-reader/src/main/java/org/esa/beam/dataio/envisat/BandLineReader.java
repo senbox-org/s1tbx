@@ -284,7 +284,8 @@ public class BandLineReader {
                 sMaxX = productFile.getSceneRasterWidth() - 1 - sourceMinX;
             }
 
-            readDataFieldSegment(sourceY, sMinX, sMaxX);
+            readLineRecord(sourceY);
+//            readDataFieldSegment(sourceY, sMinX, sMaxX);
 
             ensureBandLineDecoder().computeLine(
                         getPixelDataField().getElems(),
@@ -328,7 +329,8 @@ public class BandLineReader {
             if (field == getPixelDataField()) {
                 break;
             }
-            offset += field.getNumElems() * field.getData().getElemSize() * field.getData().getNumElems();
+            ProductData data = field.getData();
+            offset += data.getElemSize() * data.getNumElems();
         }
         return offset;
     }
