@@ -87,11 +87,11 @@ class SpectraDiagram extends Diagram {
         invalidate();
     }
 
-    public void updateSpectra(int pixelX, int pixelY) {
+    public void updateSpectra(int pixelX, int pixelY, int level) {
         DiagramGraph[] graphs = getGraphs();
         for (DiagramGraph graph : graphs) {
             try {
-                ((SpectrumGraph) graph).readValues(pixelX, pixelY);
+                ((SpectrumGraph) graph).readValues(pixelX, pixelY, level);
             } catch (IOException e) {
                 // ignore
             }

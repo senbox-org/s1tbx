@@ -103,7 +103,7 @@ class SpectrumGraph extends AbstractDiagramGraph {
         Range.computeRangeFloat(energies, IndexValidator.TRUE, energyRange, ProgressMonitor.NULL);
     }
 
-    public void readValues(int pixelX, int pixelY) throws IOException {
+    public void readValues(int pixelX, int pixelY, int level) throws IOException {
         Debug.assertNotNull(bands);
         for (int i = 0; i < bands.length; i++) {
             final Band band = bands[i];

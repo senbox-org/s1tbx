@@ -89,6 +89,7 @@ public class SpectrumToolView extends AbstractToolView {
 //    private AbstractButton showGraphPointsButton;
     private int pixelX;
     private int pixelY;
+    private int level;
 
     public SpectrumToolView() {
         productNodeHandler = new ProductNodeHandler();
@@ -174,13 +175,14 @@ public class SpectrumToolView extends AbstractToolView {
         }
     }
 
-    public void updateSpectra(int pixelX, int pixelY) {
+    public void updateSpectra(int pixelX, int pixelY, int level) {
         diagramCanvas.setMessageText(null);
         this.pixelX = pixelX;
         this.pixelY = pixelY;
+        this.level = level;
         SpectraDiagram spectraDiagram = getSpectraDiagram();
         if (spectraDiagram.getBands().length > 0) {
-            spectraDiagram.updateSpectra(pixelX, pixelY);
+            spectraDiagram.updateSpectra(pixelX, pixelY, level);
         } else {
             diagramCanvas.setMessageText(MSG_NO_SPECTRAL_BANDS);
         }
@@ -483,7 +485,7 @@ public class SpectrumToolView extends AbstractToolView {
         } else {
             spectraDiagram.setBands(getAvailableSpectralBands());
         }
-        spectraDiagram.updateSpectra(pixelX, pixelY);
+        spectraDiagram.updateSpectra(pixelX, pixelY, level);
         setSpectraDiagram(spectraDiagram);
     }
 
@@ -550,7 +552,7 @@ public class SpectrumToolView extends AbstractToolView {
             if (isActive()) {
                 if (pixelPosValid) {
                     getSpectraDiagram().addCursorSpectrumGraph();
-                    updateSpectra(pixelX, pixelY);
+                    updateSpectra(pixelX, pixelY, currentLevel);
                 }
             }
             if (e.isShiftDown()) {
