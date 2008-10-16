@@ -37,6 +37,9 @@ public class LayerDisplay extends LayerCanvas {
     private Tool tool;
     private int pixelX = -1;
     private int pixelY = -1;
+    private int levelPixelX = -1;
+    private int levelPixelY = -1;
+    private int level = -1;
     private ComponentAdapter componentAdapter;
     private MouseInputListener mouseInputListener;
     private KeyListener imageDisplayKeyListener;
@@ -132,7 +135,7 @@ public class LayerDisplay extends LayerCanvas {
     private final void firePixelPosChanged(MouseEvent e, int currentPixelX, int currentPixelY, int currentLevel) {
         boolean pixelPosValid = isPixelPosValid(currentPixelX, currentPixelY);
         for (PixelPositionListener listener : pixelPositionListeners) {
-            listener.pixelPosChanged(baseImageLayer.getImage(), currentPixelX, currentPixelY, currentLevel, pixelPosValid, e);
+            listener.pixelPosChanged(baseImageLayer, currentPixelX, currentPixelY, currentLevel, pixelPosValid, e);
         }
     }
 
@@ -258,29 +261,32 @@ public class LayerDisplay extends LayerCanvas {
     private void setPixelPos(MouseEvent e, boolean showBorder) {
         Point p = e.getPoint();
         Viewport viewport = getViewport();
+        final int currentLevel = baseImageLayer.getLevel(viewport);
         AffineTransform v2mTransform = viewport.getViewToModelTransform();
-        AffineTransform m2iTransform = baseImageLayer.getModelToImageTransform();
         final Point2D modelP = v2mTransform.transform(p, null);
+        
+        AffineTransform m2iTransform = baseImageLayer.getModelToImageTransform();
         Point2D imageP = m2iTransform.transform(modelP, null);
-        int currentPixelX = (int) Math.floor(imageP.getX());
-        int currentPixelY = (int) Math.floor(imageP.getY());
-        if (currentPixelX != pixelX || currentPixelY != pixelY) {
+        pixelX = (int) Math.floor(imageP.getX());
+        pixelY = (int) Math.floor(imageP.getY());
+        
+        AffineTransform m2iLevelTransform = baseImageLayer.getModelToImageTransform(currentLevel);
+        Point2D imageLevelP = m2iLevelTransform.transform(modelP, null);
+        int currentPixelX = (int) Math.floor(imageLevelP.getX());
+        int currentPixelY = (int) Math.floor(imageLevelP.getY());
+        if (currentPixelX != levelPixelX || currentPixelY != levelPixelY || currentLevel != level) {
             // if (isPixelBorderDisplayEnabled() && (showBorder ||
             // pixelBorderDrawn)) {
             // drawPixelBorder(pixelX, pixelY, showBorder);
             // }
-            final int currentLevel = baseImageLayer.getLevel(viewport);
-            setPixelPos(e, currentPixelX, currentPixelY, currentLevel);
-        }
-    }
-
-    private void setPixelPos(MouseEvent e, int currentPixelX, int currentPixelY, int currentLevel) {
-        pixelX = currentPixelX;
-        pixelY = currentPixelY;
-        if (e.getID() != MouseEvent.MOUSE_EXITED) {
-            firePixelPosChanged(e, pixelX, pixelY, currentLevel);
-        } else {
-            firePixelPosNotAvailable();
+            
+            levelPixelX = currentPixelX;
+            levelPixelY = currentPixelY;
+            if (e.getID() != MouseEvent.MOUSE_EXITED) {
+                firePixelPosChanged(e, levelPixelX, levelPixelY, currentLevel);
+            } else {
+                firePixelPosNotAvailable();
+            }
         }
     }
 

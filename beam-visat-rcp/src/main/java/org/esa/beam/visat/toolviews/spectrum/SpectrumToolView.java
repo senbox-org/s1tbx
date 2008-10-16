@@ -45,6 +45,9 @@ import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+
+import com.bc.ceres.glayer.support.ImageLayer;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -537,7 +540,7 @@ public class SpectrumToolView extends AbstractToolView {
             return _product;
         }
 
-        public void pixelPosChanged(RenderedImage sourceImage,
+        public void pixelPosChanged(ImageLayer imageLayer,
                                     int pixelX,
                                     int pixelY,
                                     int currentLevel,

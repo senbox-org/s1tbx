@@ -17,7 +17,10 @@
 package org.esa.beam.visat.plugins;
 
 import java.awt.Container;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -32,6 +35,8 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.AbstractVisatPlugIn;
+
+import com.bc.ceres.glayer.support.ImageLayer;
 import com.jidesoft.status.LabelStatusBarItem;
 
 public class StatusBarPosDisplayVPI extends AbstractVisatPlugIn {
@@ -64,6 +69,7 @@ public class StatusBarPosDisplayVPI extends AbstractVisatPlugIn {
 
         visatApp.addInternalFrameListener(new InternalFrameAdapter() {
 
+            @Override
             public void internalFrameOpened(InternalFrameEvent e) {
                 final Container contentPane = e.getInternalFrame().getContentPane();
                 if (contentPane instanceof ProductSceneView) {
@@ -72,6 +78,7 @@ public class StatusBarPosDisplayVPI extends AbstractVisatPlugIn {
                 }
             }
 
+            @Override
             public void internalFrameClosing(InternalFrameEvent e) {
                 final Container contentPane = e.getInternalFrame().getContentPane();
                 if (contentPane instanceof ProductSceneView) {
@@ -133,32 +140,36 @@ public class StatusBarPosDisplayVPI extends AbstractVisatPlugIn {
             _text = new StringBuilder(64);
         }
 
-        public void pixelPosChanged(RenderedImage sourceImage,
+        public void pixelPosChanged(ImageLayer imageLayer,
                                     int pixelX,
                                     int pixelY,
                                     int currentLevel,
                                     boolean pixelPosValid,
                                     MouseEvent e) {
             LabelStatusBarItem positionStatusBarItem = getPositionStatusBarItem();
-            if (positionStatusBarItem == null) {
+            if (positionStatusBarItem == null
+                    || !positionStatusBarItem.isVisible()) {
                 return;
             }
             if (pixelPosValid) {
+                AffineTransform i2mTransform = imageLayer.getImageToModelTransform(currentLevel);
+                Point2D modelP = i2mTransform.transform(new Point(pixelX, pixelY), null);
+                AffineTransform m2iTransform = imageLayer.getModelToImageTransform();
+                Point2D imageP = m2iTransform.transform(modelP, null);
                 _text.setLength(0);
                 _text.append(_refString);
                 _text.append(' ');
                 if (_showPixelOffsetDecimals) {
-                    _text.append(pixelX + _pixelOffsetX);
+                    _text.append(Math.floor(imageP.getX()) + _pixelOffsetX);
                     _text.append(',');
-                    _text.append(pixelY + _pixelOffsetY);
+                    _text.append(Math.floor(imageP.getY()) + _pixelOffsetY);
                 } else {
-                    _text.append(pixelX);
+                    _text.append((int)Math.floor(imageP.getX()));
                     _text.append(',');
-                    _text.append(pixelY);
+                    _text.append((int)Math.floor(imageP.getY()));
                 }
-                if (positionStatusBarItem.isVisible()) {
-                    positionStatusBarItem.setText(_text.toString());
-                }
+                _text.append(" L"+currentLevel);
+                positionStatusBarItem.setText(_text.toString());
             } else {
                 positionStatusBarItem.setText(_INVALID_POS);
             }

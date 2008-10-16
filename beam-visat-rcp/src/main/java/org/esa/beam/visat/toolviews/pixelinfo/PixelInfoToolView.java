@@ -12,6 +12,9 @@ import org.esa.beam.visat.VisatApp;
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+
+import com.bc.ceres.glayer.support.ImageLayer;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -242,7 +245,7 @@ public class PixelInfoToolView extends AbstractToolView {
             _view = view;
         }
 
-        public void pixelPosChanged(RenderedImage sourceImage, int pixelX, int pixelY, int currentLevel, boolean pixelPosValid, MouseEvent e) {
+        public void pixelPosChanged(ImageLayer imageLayer, int pixelX, int pixelY, int currentLevel, boolean pixelPosValid, MouseEvent e) {
             if (isExecute()) {
                 _pixelInfoView.updatePixelValues(_view, pixelX, pixelY, currentLevel, pixelPosValid);
             }
