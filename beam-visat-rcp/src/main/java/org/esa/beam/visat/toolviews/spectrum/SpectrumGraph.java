@@ -1,11 +1,9 @@
 package org.esa.beam.visat.toolviews.spectrum;
 
-import org.esa.beam.framework.ui.diagram.DiagramGraph;
-import org.esa.beam.framework.ui.diagram.DiagramGraphStyle;
-import org.esa.beam.framework.ui.diagram.DefaultDiagramGraphStyle;
 import org.esa.beam.framework.ui.diagram.AbstractDiagramGraph;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.math.Range;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.MathUtils;
@@ -13,7 +11,11 @@ import org.esa.beam.util.Debug;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.awt.Rectangle;
+import java.awt.image.Raster;
 import java.io.IOException;
+
+import javax.media.jai.PlanarImage;
 
 import com.bc.ceres.core.ProgressMonitor;
 
@@ -111,10 +113,16 @@ class SpectrumGraph extends AbstractDiagramGraph {
                 pixelX = MathUtils.floorInt(pin.getPixelPos().x);
                 pixelY = MathUtils.floorInt(pin.getPixelPos().y);
             }
-            energies[i] = band.readPixels(pixelX, pixelY, 1, 1, new float[1], ProgressMonitor.NULL)[0];
+            energies[i] = getSample(band, pixelX, pixelY, level);
         }
         Range.computeRangeFloat(energies, IndexValidator.TRUE, energyRange, ProgressMonitor.NULL);
         // no invalidate() call here, SpectrumDiagram does this
+    }
+    
+    private float getSample(Band band, int pixelX, int pixelY, int level) {
+    	PlanarImage image = ImageManager.getInstance().getGeophysicalImage(band, level);
+    	Raster data = image.getData(new Rectangle(pixelX, pixelY,1 ,1));
+    	return data.getSampleFloat(pixelX, pixelY, 0);
     }
 
     @Override
