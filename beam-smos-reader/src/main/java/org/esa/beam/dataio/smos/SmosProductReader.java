@@ -149,16 +149,6 @@ public class SmosProductReader extends AbstractProductReader {
         });
     }
 
-    private MultiLevelImage createValidMaksImage(final Band band) {
-        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(dggridMultiLevelSource.getModel()) {
-
-            @Override
-            public RenderedImage createImage(int level) {
-                return new SmosL1ValidImage(band, ResolutionLevel.create(getModel(), level));
-            }
-        });
-    }
-
     private void applyBandProperties(Band band) {
 
         final float min = 67.0f;
@@ -184,7 +174,6 @@ public class SmosProductReader extends AbstractProductReader {
         band.setNoDataValueUsed(true);
         band.setGeophysicalNoDataValue(-999);
         band.setSourceImage(createSourceImage(band));
-        band.setValidMaskImage(createValidMaksImage(band));
     }
 
 //    @Override
