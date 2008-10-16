@@ -16,17 +16,18 @@
  */
 package org.esa.beam.framework.ui;
 
-import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.swing.dock.DockablePane;
 import com.jidesoft.swing.JideSplitPane;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.MathUtils;
 
+import javax.media.jai.PlanarImage;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -37,12 +38,13 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Calendar;
@@ -70,7 +72,6 @@ public class PixelInfoView extends JPanel {
     private static final int _UNIT_COLUMN = 2;
 
     private static final String _INVALID_POS_TEXT = "Invalid pos.";
-    private static final String _NOT_LOADED_TEXT = "Not loaded";
 
     private final GeoPos _geoPos;
     private final PixelPos _pixelPos;
@@ -94,6 +95,8 @@ public class PixelInfoView extends JPanel {
     private int _pixelX;
     private int _pixelY;
     private int _level;
+    private int levelZeroX;
+    private int levelZeroY;
     private boolean _pixelPosValid;
     private DisplayFilter _displayFilter;
 
@@ -238,6 +241,12 @@ public class PixelInfoView extends JPanel {
         _pixelY = pixelY;
         _level = level;
         _pixelPosValid = pixelPosValid;
+        AffineTransform i2mTransform = _currentView.getBaseImageLayer().getImageToModelTransform(level);
+        Point2D modelP = i2mTransform.transform(new Point(pixelX, pixelY), null);
+        AffineTransform m2iTransform = view.getBaseImageLayer().getModelToImageTransform();
+        Point2D levelZeroP = m2iTransform.transform(modelP, null);
+        levelZeroX = (int)Math.floor(levelZeroP.getX());
+        levelZeroY = (int)Math.floor(levelZeroP.getY());
         updateDataDisplay();
     }
     
@@ -415,9 +424,9 @@ public class PixelInfoView extends JPanel {
             return;
         }
         final TableModel model = getGeolocTableModel();
-        final boolean available = isSampleValueAvailable(_pixelX, _pixelY, _pixelPosValid);
-        final float pX = _pixelX + _pixelOffsetX;
-        final float pY = _pixelY + _pixelOffsetY;
+        final boolean available = isSampleValueAvailable(levelZeroX, levelZeroY, _pixelPosValid);
+        final float pX = levelZeroX + _pixelOffsetX;
+        final float pY = levelZeroY + _pixelOffsetY;
 
         String tix, tiy, tmx, tmy, tgx, tgy;
         tix = tiy = tmx = tmy = tgx = tgy = _INVALID_POS_TEXT;
@@ -430,8 +439,8 @@ public class PixelInfoView extends JPanel {
                 tix = String.valueOf(pX);
                 tiy = String.valueOf(pY);
             } else {
-                tix = String.valueOf(_pixelX);
-                tiy = String.valueOf(_pixelY);
+                tix = String.valueOf(levelZeroX);
+                tiy = String.valueOf(levelZeroY);
             }
             if (geoCoding != null) {
                 geoCoding.getGeoPos(_pixelPos, _geoPos);
@@ -469,11 +478,52 @@ public class PixelInfoView extends JPanel {
         for (final Band band : bands) {
             if (shouldDisplayBand(band)) {
                 Debug.assertTrue(band.getName().equals(model.getValueAt(rowIndex, _NAME_COLUMN)));
-                model.setValueAt(band.getPixelString(_pixelX, _pixelY), rowIndex, _VALUE_COLUMN);
+                model.setValueAt(getPixelString(band), rowIndex, _VALUE_COLUMN);
                 rowIndex++;
             }
         }
     }
+    
+    public String getPixelString(Band band) {
+        if (!_pixelPosValid) {
+            return RasterDataNode.INVALID_POS_TEXT;
+        }
+        if (isPixelValid(band, _pixelX, _pixelY, _level)) {
+        	if (band.isFloatingPointType()) {
+        		return String.valueOf(getSampleFloat(band, _pixelX, _pixelY, _level));
+        	}else {
+        		return String.valueOf(getSampleInt(band, _pixelX, _pixelY, _level));
+        	}
+        } else {
+            return RasterDataNode.NO_DATA_TEXT;
+        }
+    }
+
+    private boolean isPixelValid(Band band, int pixelX, int pixelY, int level) {
+    	if (band.isValidMaskUsed()) {
+    		PlanarImage image = ImageManager.getInstance().getValidMaskImage(band, level);
+    		Raster data = image.getData(new Rectangle(pixelX, pixelY,1 ,1));
+    		return data.getSample(pixelX, pixelY, 0) != 0;
+		} else {
+    		return true;
+    	}
+    }
+
+    private float getSampleFloat(Band band, int pixelX, int pixelY, int level) {
+    	Raster data = getRaster(band, pixelX, pixelY, level);
+    	return data.getSampleFloat(pixelX, pixelY, 0);
+    }
+    
+    private int getSampleInt(Band band, int pixelX, int pixelY, int level) {
+    	Raster data = getRaster(band, pixelX, pixelY, level);
+    	return data.getSample(pixelX, pixelY, 0);
+    }
+    
+    private Raster getRaster(Band band, int pixelX, int pixelY, int level) {
+    	PlanarImage image = ImageManager.getInstance().getGeophysicalImage(band, level);
+    	return image.getData(new Rectangle(pixelX, pixelY,1 ,1));
+    }
+
 
     private void updateTiePointGridPixelValues() {
         final DefaultTableModel model = getTiePointGridTableModel();
@@ -486,7 +536,7 @@ public class PixelInfoView extends JPanel {
         for (int i = 0; i < numTiePointGrids; i++) {
             final TiePointGrid grid = getCurrentProduct().getTiePointGridAt(i);
             Debug.assertTrue(grid.getName().equals(model.getValueAt(i, _NAME_COLUMN)));
-            model.setValueAt(grid.getPixelString(_pixelX, _pixelY), rowIndex, _VALUE_COLUMN);
+            model.setValueAt(grid.getPixelString(levelZeroX, levelZeroY), rowIndex, _VALUE_COLUMN);
             rowIndex++;
         }
     }
@@ -497,7 +547,7 @@ public class PixelInfoView extends JPanel {
             return;
         }
 
-        final boolean available = isSampleValueAvailable(_pixelX, _pixelY, _pixelPosValid);
+        final boolean available = isSampleValueAvailable(levelZeroX, levelZeroY, _pixelPosValid);
 
         final DefaultTableModel model = getFlagTableModel();
         if (model.getRowCount() != getFlagRowCount()) {
@@ -506,9 +556,8 @@ public class PixelInfoView extends JPanel {
         int pixelValue;
         int rowIndex = 0;
         for (Band band : _currentFlagBands) {
-            final boolean loaded = band.hasRasterData();
-            if (available && loaded) {
-                pixelValue = band.getPixelInt(_pixelX, _pixelY);
+            if (available) {
+                pixelValue = getSampleInt(band, _pixelX, _pixelY, _level);
             } else {
                 pixelValue = 0;
             }
@@ -518,13 +567,11 @@ public class PixelInfoView extends JPanel {
                 Debug.assertTrue(
                         (band.getName() + "." + attribute.getName()).equals(model.getValueAt(rowIndex, _NAME_COLUMN)));
 
-                if (available && loaded) {
+                if (available) {
                     int mask = attribute.getData().getElemInt();
                     model.setValueAt(String.valueOf((pixelValue & mask) == mask), rowIndex, _VALUE_COLUMN);
-                } else if (loaded) {
-                    model.setValueAt(_INVALID_POS_TEXT, rowIndex, _VALUE_COLUMN);
                 } else {
-                    model.setValueAt(_NOT_LOADED_TEXT, rowIndex, _VALUE_COLUMN);
+                    model.setValueAt(_INVALID_POS_TEXT, rowIndex, _VALUE_COLUMN);
                 }
 
                 rowIndex++;

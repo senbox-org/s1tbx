@@ -112,16 +112,16 @@ public class LayerDisplay extends LayerCanvas {
     }
 
     private ToolInputEvent createToolInputEvent(MouseEvent e) {
-        return new ToolInputEvent(this, e, pixelX, pixelY, isPixelPosValid(pixelX, pixelY));
+        return new ToolInputEvent(this, e, pixelX, pixelY, isPixelPosValid(levelPixelX, levelPixelY, level));
     }
 
     private ToolInputEvent createToolInputEvent(KeyEvent e) {
-        return new ToolInputEvent(this, e, pixelX, pixelY, isPixelPosValid(pixelX, pixelY));
+        return new ToolInputEvent(this, e, pixelX, pixelY, isPixelPosValid(levelPixelX, levelPixelY, level));
     }
 
-    private boolean isPixelPosValid(int currentPixelX, int currentPixelY) {
-        return currentPixelX >= 0 && currentPixelX < baseImageLayer.getImage().getWidth() && currentPixelY >= 0
-                && currentPixelY < baseImageLayer.getImage().getHeight();
+    private boolean isPixelPosValid(int currentPixelX, int currentPixelY, int currentLevel) {
+        return currentPixelX >= 0 && currentPixelX < baseImageLayer.getImage(currentLevel).getWidth() && currentPixelY >= 0
+                && currentPixelY < baseImageLayer.getImage(currentLevel).getHeight();
     }
 
     /**
@@ -133,7 +133,7 @@ public class LayerDisplay extends LayerCanvas {
      * @param currentPixelY pixel position Y
      */
     private final void firePixelPosChanged(MouseEvent e, int currentPixelX, int currentPixelY, int currentLevel) {
-        boolean pixelPosValid = isPixelPosValid(currentPixelX, currentPixelY);
+        boolean pixelPosValid = isPixelPosValid(currentPixelX, currentPixelY, currentLevel);
         for (PixelPositionListener listener : pixelPositionListeners) {
             listener.pixelPosChanged(baseImageLayer, currentPixelX, currentPixelY, currentLevel, pixelPosValid, e);
         }
@@ -282,8 +282,9 @@ public class LayerDisplay extends LayerCanvas {
             
             levelPixelX = currentPixelX;
             levelPixelY = currentPixelY;
+            level = currentLevel;
             if (e.getID() != MouseEvent.MOUSE_EXITED) {
-                firePixelPosChanged(e, levelPixelX, levelPixelY, currentLevel);
+                firePixelPosChanged(e, levelPixelX, levelPixelY, level);
             } else {
                 firePixelPosNotAvailable();
             }
