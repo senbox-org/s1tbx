@@ -215,8 +215,10 @@ public class MerisL3ProductReader extends AbstractProductReader {
                         final int[] idxValues;
                         final short[] binValues;
                         try {
-                            idxValues = (int[]) idxVariable.read(lineOffsets, lineLengths).getStorage();
-                            binValues = (short[]) binVariable.read(lineOffsets, lineLengths).getStorage();
+                            synchronized (_netcdfFile) {
+                                idxValues = (int[]) idxVariable.read(lineOffsets, lineLengths).getStorage();
+                                binValues = (short[]) binVariable.read(lineOffsets, lineLengths).getStorage();
+                            }
                         } catch (InvalidRangeException e) {
                             // ?!?!?!?
                             throw new IOException("Format problem.");
