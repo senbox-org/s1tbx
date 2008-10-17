@@ -40,6 +40,11 @@ public class LayerDisplay extends LayerCanvas {
     private int levelPixelX = -1;
     private int levelPixelY = -1;
     private int level = 0;
+    
+    private boolean pixelBorderShown; // can it be shown?
+    private boolean pixelBorderDrawn; // has it been drawn?
+    private double pixelBorderViewScale;
+    
     private ComponentAdapter componentAdapter;
     private MouseInputListener mouseInputListener;
     private KeyListener imageDisplayKeyListener;
@@ -49,6 +54,7 @@ public class LayerDisplay extends LayerCanvas {
     LayerDisplay(Layer layer, ImageLayer baseImageLayer) {
         super(layer);
         this.baseImageLayer = baseImageLayer;
+        pixelBorderViewScale = 2.0;
         pixelPositionListeners = new Vector<PixelPositionListener>();
         registerListeners();
     }
@@ -234,20 +240,13 @@ public class LayerDisplay extends LayerCanvas {
     }
 
     private void drawToolNoTransf(Graphics2D g2d) {
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_OFF);
         if (tool.getDrawable() != null) {
-            // System.out.println("DRAW_TOOL:" + tool.getClass().toString());
             tool.getDrawable().draw(g2d);
         }
-        // reset rendering hints ?????? TODO
     }
 
     void setTool(Tool tool) {
-        // Tool oldTool = this.tool;
         this.tool = tool;
-        // is anyone listening ???
-        // productSceneView45.firePropertyChange("tool", oldTool, tool);
     }
 
     public Tool getTool() {
@@ -275,11 +274,9 @@ public class LayerDisplay extends LayerCanvas {
         int currentPixelX = (int) Math.floor(imageLevelP.getX());
         int currentPixelY = (int) Math.floor(imageLevelP.getY());
         if (currentPixelX != levelPixelX || currentPixelY != levelPixelY || currentLevel != level) {
-            // if (isPixelBorderDisplayEnabled() && (showBorder ||
-            // pixelBorderDrawn)) {
-            // drawPixelBorder(pixelX, pixelY, showBorder);
-            // }
-            
+            if (isPixelBorderDisplayEnabled() && (showBorder || pixelBorderDrawn)) {
+                drawPixelBorder(currentPixelX, currentPixelY, currentLevel, showBorder);
+            }
             levelPixelX = currentPixelX;
             levelPixelY = currentPixelY;
             level = currentLevel;
@@ -289,6 +286,40 @@ public class LayerDisplay extends LayerCanvas {
                 firePixelPosNotAvailable();
             }
         }
+    }
+    
+    private boolean isPixelBorderDisplayEnabled() {
+        return pixelBorderShown &&
+                (getTool() == null || getTool().getDrawable() != null) &&
+                getViewport().getZoomFactor() >= pixelBorderViewScale;
+    }
+    
+    private void drawPixelBorder(int currentPixelX, int currentPixelY, int currentLevel, boolean showBorder) {
+        final Graphics g = getGraphics();
+        g.setXORMode(Color.white);
+        if (pixelBorderDrawn) {
+            drawPixelBorder(g, levelPixelX, levelPixelY, level);
+            pixelBorderDrawn = false;
+        }
+        if (showBorder) {
+            drawPixelBorder(g, currentPixelX, currentPixelY, currentLevel);
+            pixelBorderDrawn = true;
+        }
+        g.setPaintMode();
+        g.dispose();
+    }
+
+    private void drawPixelBorder(final Graphics g, final int x, final int y, final int l) {
+        AffineTransform i2m = baseImageLayer.getImageToModelTransform(l);
+        AffineTransform m2v = getViewport().getModelToViewTransform();
+        Rectangle imageRect = new Rectangle(x, y, 1, 1);
+        Shape modelRect = i2m.createTransformedShape(imageRect);
+        Rectangle viewRect = m2v.createTransformedShape(modelRect).getBounds();
+        g.drawRect(viewRect.x - 1, viewRect.y - 1, viewRect.width + 2, viewRect.height + 2);
+    }
+    
+    public void setPixelBorderShown(boolean pixelBorderShown) {
+        this.pixelBorderShown = pixelBorderShown;
     }
 
     private final class PixelPosUpdater implements MouseInputListener {
@@ -352,5 +383,4 @@ public class LayerDisplay extends LayerCanvas {
             fireToolEvent(e);
         }
     }
-
 }

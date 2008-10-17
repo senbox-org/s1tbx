@@ -57,6 +57,10 @@ import java.io.IOException;
  */
 public class ProductSceneView extends BasicView implements ProductNodeView, DrawingEditor, PropertyMapChangeListener, PixelInfoFactory {
     /**
+     * Property name for the pixel border
+     */
+    public static final String PROPERTY_KEY_PIXEL_BORDER_SHOWN = "pixel.border.shown";
+    /**
      * Property name for antialiased graphics drawing
      */
     public static final String PROPERTY_KEY_GRAPHICS_ANTIALIASING = "graphics.antialiasing";
@@ -110,7 +114,10 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         final boolean navControlShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true);
         layerCanvas.setNavControlShown(navControlShown);
         layerCanvas.setPreferredSize(new Dimension(400, 400));
-
+        
+        final boolean pixelBorderShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_PIXEL_BORDER_SHOWN, true);
+        layerCanvas.setPixelBorderShown(pixelBorderShown);
+        
         PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
         layerCanvas.addMouseListener(popupMenuHandler);
         layerCanvas.addKeyListener(popupMenuHandler);
