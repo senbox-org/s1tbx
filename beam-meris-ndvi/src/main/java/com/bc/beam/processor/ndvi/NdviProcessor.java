@@ -30,6 +30,7 @@ import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.framework.processor.ProcessorUtils;
 import org.esa.beam.framework.processor.ProductRef;
 import org.esa.beam.framework.processor.Request;
+import org.esa.beam.framework.processor.RequestElementFactory;
 import org.esa.beam.framework.processor.ui.IOParameterPage;
 import org.esa.beam.framework.processor.ui.MultiPageProcessorUI;
 import org.esa.beam.framework.processor.ui.ProcessingParameterPage;
@@ -50,7 +51,7 @@ public class NdviProcessor extends Processor {
 
     // Constants
     public static final String PROCESSOR_NAME = "NDVI Processor";
-    public static final String PROCESSOR_VERSION = "1.2.100";
+    public static final String PROCESSOR_VERSION = "1.2.101";
     public static final String PROCESSOR_COPYRIGHT = "Copyright (C) 2003 by Brockmann Consult (info@brockmann-consult.de)";
 
     public static final String LOGGER_NAME = "beam.processor.processor";
@@ -176,7 +177,13 @@ public class NdviProcessor extends Processor {
         return PROCESSOR_COPYRIGHT;
     }
 
-
+    /**
+     * Retrieves the request element facory for this processor.
+     */
+    @Override
+    public RequestElementFactory getRequestElementFactory() {
+        return NdviRequestElementFactory.getInstance();
+    }
 
     /**
      * Creates the UI for the processor. Override to perform processor specific

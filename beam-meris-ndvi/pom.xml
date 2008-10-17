@@ -14,9 +14,9 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-meris-ndvi</artifactId>
     <name>MERIS NDVI Processor</name>
-    <version>1.2.100</version>
+    <version>1.2.101-SNAPSHOT</version>
     <url>http://envisat.esa.int/beam/</url>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.esa.beam</groupId>

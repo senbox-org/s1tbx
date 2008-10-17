@@ -26,6 +26,13 @@ This file contains all significant changes for each BEAM release.
 
 _____________________________________________________________________________
 
+ Changes from 4.2 to 4.5
+_____________________________________________________________________________
+
+BEAM-867 
+
+_____________________________________________________________________________
+
  Changes from 4.1 to 4.2
 _____________________________________________________________________________
 
@@ -44,7 +51,7 @@ o New product reader for NASA Ocean Color (OBPG) data products:
   - CZCS Level-2
   - OCTS Level-2
   - SeaWiFS Level-2
-o Three new MERIS Processors for Case-2 Waters 
+o Three new MERIS Processors for Case-2 Waters
   - Case-2 Regional Processor
   - Boreal Lakes Processor
   - Eutrophic Lakes Processor
@@ -129,7 +136,7 @@ o New geo-coding based on ground control points
 o The management and display of pins has been greatly enhanced
 o The spectrum tool view has been greatly enhanced
 o Metadata views changed from flat table to hierarchical tree views
-o Image creation is now faster 
+o Image creation is now faster
 o BEAM uses a new installer based on install4J
 
 2) Other changes (consult BEAM issue tracker for detailed information)

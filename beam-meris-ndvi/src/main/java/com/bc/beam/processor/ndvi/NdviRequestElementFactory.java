@@ -25,6 +25,7 @@ import org.esa.beam.framework.processor.DefaultRequestElementFactory;
 import org.esa.beam.framework.processor.ProductRef;
 import org.esa.beam.framework.processor.RequestElementFactory;
 import org.esa.beam.framework.processor.RequestElementFactoryException;
+import org.esa.beam.framework.processor.ProcessorConstants;
 import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
@@ -82,7 +83,6 @@ public class NdviRequestElementFactory implements RequestElementFactory {
         return _defaultFactory.createOutputFormatParameter();
     }
 
-
     public Parameter createDefaultLogPatternParameter(final String prefix) {
         return _defaultFactory.createDefaultLogPatternParameter(prefix);
     }
@@ -93,7 +93,12 @@ public class NdviRequestElementFactory implements RequestElementFactory {
 
     // todo: move this implementation up to DefaultREF
     public Parameter createParameter(final String name, final String value) throws RequestElementFactoryException {
-        final Parameter parameter = createParameter(name);
+        final Parameter parameter;
+        if (ProcessorConstants.OUTPUT_FORMAT_PARAM_NAME.equalsIgnoreCase(name)) {
+            parameter = _factory.createOutputFormatParameter();
+        } else {
+            parameter = createParameter(name);
+        }
         if (parameter == null) {
             throw new RequestElementFactoryException("Unknown processing parameter '" + name + "'");
         }
