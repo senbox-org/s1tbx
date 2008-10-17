@@ -510,15 +510,23 @@ public class PixelInfoView extends JPanel {
     }
     
     private float getSampleFloat(Band band, int pixelX, int pixelY, int level) {
-    	PlanarImage image = ImageManager.getInstance().getGeophysicalImage(band, level);
+    	PlanarImage image = ImageManager.getInstance().getSourceImage(band, level);
         Raster data = getRasterTile(image, pixelX, pixelY);
-    	return data.getSampleFloat(pixelX, pixelY, 0);
+    	float sampleFloat = data.getSampleFloat(pixelX, pixelY, 0);
+    	if (band.isScalingApplied()) {
+    	    sampleFloat = (float) band.scale(sampleFloat);
+    	}
+        return sampleFloat;
     }
     
     private int getSampleInt(Band band, int pixelX, int pixelY, int level) {
-    	PlanarImage image = ImageManager.getInstance().getGeophysicalImage(band, level);
+    	PlanarImage image = ImageManager.getInstance().getSourceImage(band, level);
         Raster data = getRasterTile(image, pixelX, pixelY);
-    	return data.getSample(pixelX, pixelY, 0);
+    	int sampleInt = data.getSample(pixelX, pixelY, 0);
+    	if (band.isScalingApplied()) {
+    	    sampleInt = (int) band.scale(sampleInt);
+    	}
+        return sampleInt;
     }
     
     private Raster getRasterTile(PlanarImage image, int pixelX, int pixelY) {
