@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
-import java.util.regex.Matcher;
 import java.util.logging.Level;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -264,35 +263,17 @@ public class RequestLoader {
      */
     private void startInputProduct(final Attributes attrs) throws RequestElementFactoryException {
         if (_currentRequest != null) {
-            File file = null;
-            final ProductRef prod;
-            String format = "";
-            String typeId = "";
 
-            for (int n = 0; n < attrs.getLength(); n++) {
-                final String qname = attrs.getQName(n);
-
-                // set the url for the file. If the attribute is not an URL,
-                // an URL of type "file" is created
-                if (qname.equalsIgnoreCase(RequestTags.ATTRIB_URL)) {
-                    file = createFileFromURL(attrs.getValue(n));
-                } else if (qname.equalsIgnoreCase(RequestTags.ATTRIB_PATH)
-                        || qname.equalsIgnoreCase(RequestTags.ATTRIB_FILE)) {
-                    file = new File(attrs.getValue(n));
-                } else if (qname.equalsIgnoreCase(RequestTags.ATTRIB_FILE_FORMAT)) {
-                    format = attrs.getValue(n);
-                } else if (qname.equalsIgnoreCase(RequestTags.ATTRIB_FILE_TYPE_ID)) {
-                    typeId = attrs.getValue(n);
-                }
-            }
+            final ProdRefValues values = computeValues(attrs);
 
             // check if we have a factory to create the product or have to
             // do it manually
-            if (file != null) {
+            if (values.file != null) {
+                final ProductRef prod;
                 if (_elemFactory != null) {
-                    prod = _elemFactory.createInputProductRef(file, format, typeId);
+                    prod = _elemFactory.createInputProductRef(values.file, values.format, values.typeId);
                 } else {
-                    prod = new ProductRef(file, format, typeId);
+                    prod = new ProductRef(values.file, values.format, values.typeId);
                 }
                 _currentRequest.addInputProduct(prod);
             }
@@ -306,35 +287,17 @@ public class RequestLoader {
      */
     private void startOutputProduct(final Attributes attrs) throws RequestElementFactoryException {
         if (_currentRequest != null) {
-            File file = null;
-            final ProductRef prod;
-            String format = "";
-            String typeId = "";
 
-            for (int n = 0; n < attrs.getLength(); n++) {
-                // set the url for the file. If the attribute is not an URL,
-                // an URL of type "file" is created
-                final String qname = attrs.getQName(n);
-
-                if (qname.equalsIgnoreCase(RequestTags.ATTRIB_URL)) {
-                    file = createFileFromURL(attrs.getValue(n));
-                } else if (qname.equalsIgnoreCase(RequestTags.ATTRIB_FILE)
-                        || qname.equalsIgnoreCase(RequestTags.ATTRIB_PATH)) {
-                    file = new File(attrs.getValue(n));
-                } else if (qname.equalsIgnoreCase(RequestTags.ATTRIB_FILE_FORMAT)) {
-                    format = attrs.getValue(n);
-                } else if (qname.equalsIgnoreCase(RequestTags.ATTRIB_FILE_TYPE_ID)) {
-                    typeId = attrs.getValue(n);
-                }
-            }
+            final ProdRefValues values = computeValues(attrs);
 
             // check if we have a factory to create the product or have to
             // do it manually
-            if (file != null) {
+            if (values.file != null) {
+                final ProductRef prod;
                 if (_elemFactory != null) {
-                    prod = _elemFactory.createOutputProductRef(file, format, typeId);
+                    prod = _elemFactory.createOutputProductRef(values.file, values.format, values.typeId);
                 } else {
-                    prod = new ProductRef(file, format, typeId);
+                    prod = new ProductRef(values.file, values.format, values.typeId);
                 }
                 _currentRequest.addOutputProduct(prod);
             }
@@ -500,5 +463,33 @@ public class RequestLoader {
         public void endElement(final String nameSpaceURI, final String sName, final String qName) throws SAXException {
             maybeFinishRequest(qName);
         }
+    }
+
+    private class ProdRefValues {
+        File file = null;
+        String format = "";
+        String typeId = "";
+    }
+
+    private ProdRefValues computeValues(Attributes attrs) {
+        final ProdRefValues values = new ProdRefValues();
+
+        for (int n = 0; n < attrs.getLength(); n++) {
+            final String qname = attrs.getQName(n);
+
+            // set the url for the file. If the attribute is not an URL,
+            // an URL of type "file" is created
+            if (qname.equalsIgnoreCase(RequestTags.ATTRIB_URL)) {
+                values.file = createFileFromURL(attrs.getValue(n));
+            } else if (qname.equalsIgnoreCase(RequestTags.ATTRIB_FILE)
+                    || qname.equalsIgnoreCase(RequestTags.ATTRIB_PATH)) {
+                values.file = new File(attrs.getValue(n));
+            } else if (qname.equalsIgnoreCase(RequestTags.ATTRIB_FILE_FORMAT)) {
+                values.format = attrs.getValue(n);
+            } else if (qname.equalsIgnoreCase(RequestTags.ATTRIB_FILE_TYPE_ID)) {
+                values.typeId = attrs.getValue(n);
+            }
+        }
+        return values;
     }
 }
