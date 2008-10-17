@@ -163,7 +163,10 @@ public class NetcdfReader extends AbstractProductReader {
         try {
             for (int y = 0; y < destHeight; y++) {
                 origin[rank - 2] = _yFlipped ? y0 - y : y0 + y;
-                final Array array = variable.read(origin, shape);
+                final Array array;
+                synchronized (_netcdfFile) {
+                    array = variable.read(origin, shape);
+                }
                 final Object storage = array.getStorage();
                 System.arraycopy(storage, 0, destBuffer.getElems(), y * destWidth, destWidth);
                 pm.worked(1);
