@@ -39,7 +39,7 @@ public class LayerDisplay extends LayerCanvas {
     private int pixelY = -1;
     private int levelPixelX = -1;
     private int levelPixelY = -1;
-    private int level = -1;
+    private int level = 0;
     private ComponentAdapter componentAdapter;
     private MouseInputListener mouseInputListener;
     private KeyListener imageDisplayKeyListener;
