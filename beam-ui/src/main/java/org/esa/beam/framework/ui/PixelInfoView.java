@@ -502,28 +502,30 @@ public class PixelInfoView extends JPanel {
     private boolean isPixelValid(Band band, int pixelX, int pixelY, int level) {
     	if (band.isValidMaskUsed()) {
     		PlanarImage image = ImageManager.getInstance().getValidMaskImage(band, level);
-    		Raster data = image.getData(new Rectangle(pixelX, pixelY,1 ,1));
+    		Raster data = getRasterTile(image, pixelX, pixelY);
     		return data.getSample(pixelX, pixelY, 0) != 0;
 		} else {
     		return true;
     	}
     }
-
+    
     private float getSampleFloat(Band band, int pixelX, int pixelY, int level) {
-    	Raster data = getRaster(band, pixelX, pixelY, level);
+    	PlanarImage image = ImageManager.getInstance().getGeophysicalImage(band, level);
+        Raster data = getRasterTile(image, pixelX, pixelY);
     	return data.getSampleFloat(pixelX, pixelY, 0);
     }
     
     private int getSampleInt(Band band, int pixelX, int pixelY, int level) {
-    	Raster data = getRaster(band, pixelX, pixelY, level);
+    	PlanarImage image = ImageManager.getInstance().getGeophysicalImage(band, level);
+        Raster data = getRasterTile(image, pixelX, pixelY);
     	return data.getSample(pixelX, pixelY, 0);
     }
     
-    private Raster getRaster(Band band, int pixelX, int pixelY, int level) {
-    	PlanarImage image = ImageManager.getInstance().getGeophysicalImage(band, level);
-    	return image.getData(new Rectangle(pixelX, pixelY,1 ,1));
+    private Raster getRasterTile(PlanarImage image, int pixelX, int pixelY) {
+        final int tileX = image.XToTileX(pixelX);
+        final int tileY = image.YToTileY(pixelY);
+        return image.getTile(tileX, tileY);
     }
-
 
     private void updateTiePointGridPixelValues() {
         final DefaultTableModel model = getTiePointGridTableModel();
