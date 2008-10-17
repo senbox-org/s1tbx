@@ -21,7 +21,6 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -175,7 +174,7 @@ public class StatusBarPosDisplayVPI extends AbstractVisatPlugIn {
             }
         }
 
-        public void pixelPosNotAvailable(RenderedImage sourceImage) {
+        public void pixelPosNotAvailable() {
             LabelStatusBarItem positionStatusBarItem = getPositionStatusBarItem();
             if (positionStatusBarItem != null) {
                 positionStatusBarItem.setText(_POS_NOT_AVAILABLE);

@@ -11,7 +11,6 @@ import org.esa.beam.util.Debug;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.io.IOException;
 
@@ -120,9 +119,15 @@ class SpectrumGraph extends AbstractDiagramGraph {
     }
     
     private float getSample(Band band, int pixelX, int pixelY, int level) {
-    	PlanarImage image = ImageManager.getInstance().getGeophysicalImage(band, level);
-    	Raster data = image.getData(new Rectangle(pixelX, pixelY,1 ,1));
-    	return data.getSampleFloat(pixelX, pixelY, 0);
+        PlanarImage image = ImageManager.getInstance().getSourceImage(band, level);
+        final int tileX = image.XToTileX(pixelX);
+        final int tileY = image.YToTileY(pixelY);
+        Raster data = image.getTile(tileX, tileY);
+        float sampleFloat = data.getSampleFloat(pixelX, pixelY, 0);
+        if (band.isScalingApplied()) {
+            sampleFloat = (float) band.scale(sampleFloat);
+        }
+        return sampleFloat;
     }
 
     @Override

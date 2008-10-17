@@ -19,7 +19,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -251,7 +250,7 @@ public class PixelInfoToolView extends AbstractToolView {
             }
         }
 
-        public void pixelPosNotAvailable(RenderedImage sourceImage) {
+        public void pixelPosNotAvailable() {
             if (isExecute()) {
                 _pixelInfoView.updatePixelValues(_view, -1, -1, 0, false);
             }

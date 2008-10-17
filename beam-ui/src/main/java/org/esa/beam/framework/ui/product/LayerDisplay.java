@@ -144,7 +144,7 @@ public class LayerDisplay extends LayerCanvas {
      */
     private final void firePixelPosNotAvailable() {
         for (PixelPositionListener listener : pixelPositionListeners) {
-            listener.pixelPosNotAvailable(baseImageLayer.getImage());
+            listener.pixelPosNotAvailable();
         }
     }
 

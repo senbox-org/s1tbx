@@ -17,7 +17,6 @@
 package org.esa.beam.framework.ui;
 
 import java.awt.event.MouseEvent;
-import java.awt.image.RenderedImage;
 
 import com.bc.ceres.glayer.support.ImageLayer;
 
@@ -35,8 +34,8 @@ public interface PixelPositionListener {
      * Informs a client that the pixel position within the image has changed.
      * 
      * @param baseImageLayer the image layer 
-     * @param pixelX        the x position within the image in pixel co-ordinates
-     * @param pixelY        the y position within the image in pixel co-ordinates
+     * @param pixelX        the x position within the image in pixel co-ordinates on the given level
+     * @param pixelY        the y position within the image in pixel co-ordinates on the given level
      * @param currentLevel  the current level at which the image is displayed
      * @param pixelPosValid if <code>true</code>, pixel position is valid
      */
@@ -44,8 +43,6 @@ public interface PixelPositionListener {
 
     /**
      * Informs a client that the pixel positions are no longer available.
-     *
-     * @param sourceImage the source image
      */
-    void pixelPosNotAvailable(RenderedImage sourceImage);
+    void pixelPosNotAvailable();
 }
