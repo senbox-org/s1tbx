@@ -71,6 +71,7 @@ public class PixelInfoView extends JPanel {
     private static final int _UNIT_COLUMN = 2;
 
     private static final String _INVALID_POS_TEXT = "Invalid pos.";
+    private static final String _NOT_LOADED_TEXT = "Not loaded";
 
     private final GeoPos _geoPos;
     private final PixelPos _pixelPos;
@@ -565,24 +566,26 @@ public class PixelInfoView extends JPanel {
         int pixelValue;
         int rowIndex = 0;
         for (Band band : _currentFlagBands) {
-            if (available) {
+            if (available && shouldDisplayBand(band)) {
                 pixelValue = getSampleInt(band, _pixelX, _pixelY, _level);
             } else {
                 pixelValue = 0;
             }
             for (int j = 0; j < band.getFlagCoding().getNumAttributes(); j++) {
-                MetadataAttribute attribute = band.getFlagCoding().getAttributeAt(j);
-
-                Debug.assertTrue(
-                        (band.getName() + "." + attribute.getName()).equals(model.getValueAt(rowIndex, _NAME_COLUMN)));
-
-                if (available) {
-                    int mask = attribute.getData().getElemInt();
-                    model.setValueAt(String.valueOf((pixelValue & mask) == mask), rowIndex, _VALUE_COLUMN);
+                if (!shouldDisplayBand(band)) {
+                    model.setValueAt(_NOT_LOADED_TEXT, rowIndex, _VALUE_COLUMN);
                 } else {
-                    model.setValueAt(_INVALID_POS_TEXT, rowIndex, _VALUE_COLUMN);
-                }
+                    MetadataAttribute attribute = band.getFlagCoding().getAttributeAt(j);
 
+                    Debug.assertTrue((band.getName() + "." + attribute.getName()).equals(model.getValueAt(rowIndex, _NAME_COLUMN)));
+
+                    if (available) {
+                        int mask = attribute.getData().getElemInt();
+                        model.setValueAt(String.valueOf((pixelValue & mask) == mask), rowIndex, _VALUE_COLUMN);
+                    } else {
+                        model.setValueAt(_INVALID_POS_TEXT, rowIndex, _VALUE_COLUMN);
+                    }
+                }
                 rowIndex++;
             }
         }
