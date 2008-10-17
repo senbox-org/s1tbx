@@ -15,6 +15,7 @@ import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.IntMap;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.jai.JAIUtils;
+import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.*;
 import javax.media.jai.operator.*;
@@ -232,11 +233,11 @@ public class ImageManager {
             RasterDataNode raster = rasters[i];
             stxs[i] = raster.getStx();
             PlanarImage sourceImage = getSourceImage(raster, level);
-            // todo - use gamma non-linearity (nf, 10.10.2008)
             images[i] = createByteIndexedImage(raster,
                                                sourceImage,
                                                rgbImageInfo.getRgbChannelDef().getMinDisplaySample(i),
-                                               rgbImageInfo.getRgbChannelDef().getMaxDisplaySample(i));
+                                               rgbImageInfo.getRgbChannelDef().getMaxDisplaySample(i),
+                                               rgbImageInfo.getRgbChannelDef().getGamma(i));
             validMaskImages[i] = getValidMaskImage(raster, level);
         }
         // todo - correctly handle no-data color (nf, 10.10.2008)
@@ -260,14 +261,15 @@ public class ImageManager {
             final int undefinedIndex = colorPaletteDef.getNumPoints();
             return createIndexedImage(sourceImage, sampleColorIndexMap, undefinedIndex);
         } else {
-            return createByteIndexedImage(raster, sourceImage, minSample, maxSample);
+            return createByteIndexedImage(raster, sourceImage, minSample, maxSample, 1.0);
         }
     }
 
     private static PlanarImage createByteIndexedImage(RasterDataNode raster,
                                                       PlanarImage sourceImage,
                                                       double minSample,
-                                                      double maxSample) {
+                                                      double maxSample,
+                                                      double gamma) {
         double newMin = raster.scaleInverse(minSample);
         double newMax = raster.scaleInverse(maxSample);
         PlanarImage image = createRescaleOp(sourceImage,
@@ -275,7 +277,13 @@ public class ImageManager {
                                             255.0 * newMin / (newMin - newMax));
         // todo - make sure this is not needed, e.g. does "format" auto-clamp?? (nf, 10.2008)
         // image = createClampOp(image, 0, 255);
-        return createByteFormatOp(image);
+        image = createByteFormatOp(image);
+        if (gamma != 0.0 && gamma != 1.0) {
+            byte[] gammaCurve = MathUtils.createGammaCurve(gamma, new byte[256]);
+            LookupTableJAI lookupTable = new LookupTableJAI(gammaCurve);
+            image = LookupDescriptor.create(image, lookupTable, createDefaultRenderingHints());
+        }
+        return image;
     }
 
     private static PlanarImage createClampOp(RenderedImage image, int min, int max) {
