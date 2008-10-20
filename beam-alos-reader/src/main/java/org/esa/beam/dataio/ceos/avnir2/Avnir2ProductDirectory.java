@@ -178,7 +178,8 @@ class Avnir2ProductDirectory {
                                                 _sceneWidth * 0.5f, _sceneHeight * 0.5f,
                                                 (float) easting, (float) northing,
                                                 (float) pixelSizeX, (float) pixelSizeY, Datum.ITRF_97);
-            mapInfo.setOrientation(orientationAngle);
+            // the BEAM convention for rotation angle uses opposite sign (rq - 16.10.2008)
+            mapInfo.setOrientation(-orientationAngle);
             mapInfo.setSceneWidth(_sceneWidth);
             mapInfo.setSceneHeight(_sceneHeight);
             product.setGeoCoding(new MapGeoCoding(mapInfo));
