@@ -310,12 +310,15 @@ public class LayerDisplay extends LayerCanvas {
     }
 
     private void drawPixelBorder(final Graphics g, final int x, final int y, final int l) {
+      if (g instanceof Graphics2D) {
+      Graphics2D g2d = (Graphics2D) g;
         AffineTransform i2m = baseImageLayer.getImageToModelTransform(l);
         AffineTransform m2v = getViewport().getModelToViewTransform();
         Rectangle imageRect = new Rectangle(x, y, 1, 1);
         Shape modelRect = i2m.createTransformedShape(imageRect);
-        Rectangle viewRect = m2v.createTransformedShape(modelRect).getBounds();
-        g.drawRect(viewRect.x - 1, viewRect.y - 1, viewRect.width + 2, viewRect.height + 2);
+        Shape transformedShape = m2v.createTransformedShape(modelRect);
+        g2d.draw(transformedShape);
+      }
     }
     
     public void setPixelBorderShown(boolean pixelBorderShown) {
