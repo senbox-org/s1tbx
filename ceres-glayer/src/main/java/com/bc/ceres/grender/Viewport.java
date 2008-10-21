@@ -59,21 +59,6 @@ public interface Viewport {
     double getZoomFactor();
 
     /**
-     * Gets the maximum zoom factor. The minimum zoom factor is defined by {@code 1.0 / getViewScaleMax()}.
-     *
-     * @return The maximum view scale. Negative values indicate that the zoom factor is not limited.
-     */
-    double getMaxZoomFactor();
-
-    /**
-     * Sets the maximum zoom factor.
-     *
-     * @param maxZoomFactor The maximum view scale. Negative values indicate that the zoom factor is not limited.
-     * @see #getZoomFactor()
-     */
-    void setMaxZoomFactor(double maxZoomFactor);
-
-    /**
      * Sets the zoom factor.
      *
      * @param zoomFactor The zoom factor.
@@ -105,7 +90,7 @@ public interface Viewport {
     /**
      * Sets the rotation angle relative to a given center point in view coordinates.
      *
-     * @param orientation the new rotaton angle in radians
+     * @param orientation the new rotation angle in radians
      * @param viewCenter  the center of the zoom in the view CS
      */
     void rotate(double orientation, Point2D viewCenter);

@@ -18,7 +18,6 @@ public class DefaultViewport implements Viewport {
     private final AffineTransform modelToViewTransform;
     private double orientation;
     private final ArrayList<ViewportListener> changeListeners;
-    private double maxZoomFactor;
 
     public DefaultViewport() {
         this(new Rectangle());
@@ -30,17 +29,6 @@ public class DefaultViewport implements Viewport {
         this.viewToModelTransform = new AffineTransform();
         this.modelToViewTransform = new AffineTransform();
         this.changeListeners = new ArrayList<ViewportListener>(3);
-        this.maxZoomFactor = 32;
-    }
-
-    @Override
-    public double getMaxZoomFactor() {
-        return maxZoomFactor;
-    }
-
-    @Override
-    public void setMaxZoomFactor(double maxZoomFactor) {
-        this.maxZoomFactor = maxZoomFactor;
     }
 
     @Override
@@ -129,7 +117,6 @@ public class DefaultViewport implements Viewport {
 
     @Override
     public void zoom(double modelCenterX, double modelCenterY, double zoomFactor) {
-        zoomFactor = limitZoomFactor(zoomFactor);
         final double viewportWidth = bounds.width;
         final double viewportHeight = bounds.height;
         final double modelOffsetX = modelCenterX - 0.5 * viewportWidth / zoomFactor;
@@ -157,7 +144,6 @@ public class DefaultViewport implements Viewport {
     @Override
     public void zoom(double zoomFactor, Point2D viewCenter) {
         Assert.notNull(viewCenter, "viewCenter");
-        zoomFactor = limitZoomFactor(zoomFactor);
         final AffineTransform v2m = viewToModelTransform;
         // X- and Y-scaling are expected to be equal
         final double s = Math.sqrt(v2m.getDeterminant());
@@ -223,11 +209,6 @@ public class DefaultViewport implements Viewport {
     @Override
     public String toString() {
         return getClass().getName() + "[viewToModelTransform=" + viewToModelTransform + "]";
-    }
-
-    private double limitZoomFactor(double viewScale) {
-        Math.sqrt(modelToViewTransform.getDeterminant());
-        return limitZoomFactor(viewScale, maxZoomFactor);
     }
 
     public static double limitZoomFactor(double viewScale, double viewScaleMax) {
