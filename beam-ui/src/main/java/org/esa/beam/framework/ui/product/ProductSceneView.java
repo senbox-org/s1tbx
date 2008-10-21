@@ -128,7 +128,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
                 final Viewport viewport = layerCanvas.getViewport();
                 final int wheelRotation = e.getWheelRotation();
                 final double newZoomFactor = viewport.getZoomFactor() * Math.pow(1.1, wheelRotation);
-                viewport.zoom(newZoomFactor);
+                viewport.setZoomFactor(newZoomFactor);
             }
         });
     }
@@ -658,7 +658,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     public void zoom(double viewScale) {
-        layerCanvas.getViewport().zoom(viewScale);
+        layerCanvas.getViewport().setZoomFactor(viewScale);
     }
 
     public void zoomAll() {

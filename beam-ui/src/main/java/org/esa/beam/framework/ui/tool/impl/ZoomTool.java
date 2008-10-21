@@ -99,7 +99,7 @@ public class ZoomTool extends AbstractTool {
                 boolean zoomOut = e.getMouseEvent().isControlDown() || e.getMouseEvent().getButton() != 1;
                 final double viewScaleOld = viewport.getZoomFactor();
                 final double viewScaleNew = zoomOut ? viewScaleOld / 1.6 : viewScaleOld * 1.6;
-                viewport.zoom(viewScaleNew);
+                viewport.setZoomFactor(viewScaleNew);
             }
         }
         _graphics.dispose();
