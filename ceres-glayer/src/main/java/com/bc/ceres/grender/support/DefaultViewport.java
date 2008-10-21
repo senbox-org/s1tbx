@@ -122,12 +122,14 @@ public class DefaultViewport implements Viewport {
         final double modelOffsetX = modelCenterX - 0.5 * viewportWidth / zoomFactor;
         final double modelOffsetY = modelCenterY - 0.5 * viewportHeight / zoomFactor;
         final double orientation = getOrientation();
+        // todo - use code similar to setZoomFactor(f, vp) (nf - 21.10.2008)
         final AffineTransform m2v = new AffineTransform();
         m2v.scale(zoomFactor, zoomFactor);
         m2v.translate(-modelOffsetX, -modelOffsetY);
         modelToViewTransform.setTransform(m2v);
         updateViewToModelTransform();
         this.orientation = 0;
+        // todo - this call (hack?) fires an additional change event! Not good! (nf - 21.10.2008)
         setOrientation(orientation);
         fireViewportChanged(false);
     }
