@@ -7,14 +7,12 @@ import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 
 import javax.media.jai.*;
-
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.*;
 import java.util.*;
 import java.util.List;
-import java.util.Map.Entry;
 
 public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
@@ -262,37 +260,33 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
     // Called from EDT.
     // Cancels any tiles that are in the scheduled list and not in the visibleTileIndexSet list.
     private void cancelTileRequests(Set<TileIndex> visibleTileIndexSet) {
-        // scan through the scheduled tiles list cancelling any that are no longer in view
-        Set<Entry<TileIndex, TileRequest>> entrySet = scheduledTileRequests.entrySet();
+        final Map<TileIndex, TileRequest> scheduledTileRequestsCopy;
         synchronized (scheduledTileRequests) {
-            Iterator<Entry<TileIndex, TileRequest>> iterator = entrySet.iterator();
-            while (iterator.hasNext()) {
-                Entry<TileIndex, TileRequest> entry = iterator.next();
-                TileIndex tileIndex = entry.getKey();
-                if (!visibleTileIndexSet.contains(tileIndex)) {
-                    TileRequest request = entry.getValue();
-                    // if tile not already removed (concurrently)
-                    if (request != null) {
-                        request.cancelTiles(new Point[]{new Point(tileIndex.tileX, tileIndex.tileY)});
-                        iterator.remove();
-                    }
+            scheduledTileRequestsCopy = new HashMap<TileIndex, TileRequest>(scheduledTileRequests);
+        }
+        // scan through the scheduled tiles list cancelling any that are no longer in view
+        for (TileIndex tileIndex : scheduledTileRequestsCopy.keySet()) {
+            if (!visibleTileIndexSet.contains(tileIndex)) {
+                TileRequest request = scheduledTileRequestsCopy.get(tileIndex);
+                // if tile not already removed (concurrently)
+                if (request != null) {
+                    request.cancelTiles(new Point[]{new Point(tileIndex.tileX, tileIndex.tileY)});
+                    scheduledTileRequests.remove(tileIndex);
                 }
             }
         }
     }
 
     private void cancelTileRequests(int currentLevel) {
-        Set<Entry<TileIndex, TileRequest>> entrySet = scheduledTileRequests.entrySet();
+        final Map<TileIndex, TileRequest> scheduledTileRequestsCopy;
         synchronized (scheduledTileRequests) {
-            Iterator<Entry<TileIndex, TileRequest>> iterator = entrySet.iterator();
-            while (iterator.hasNext()) {
-                Entry<TileIndex, TileRequest> entry = iterator.next();
-                TileIndex tileIndex = entry.getKey();
-                if (tileIndex.level != currentLevel) {
-                    final TileRequest tileRequest = entry.getValue();
-                    tileRequest.cancelTiles(null);
-                    iterator.remove();
-                }
+            scheduledTileRequestsCopy = new HashMap<TileIndex, TileRequest>(scheduledTileRequests);
+        }
+        for (TileIndex tileIndex : scheduledTileRequestsCopy.keySet()) {
+            if (tileIndex.level != currentLevel) {
+                final TileRequest tileRequest = scheduledTileRequestsCopy.get(tileIndex);
+                tileRequest.cancelTiles(null);
+                scheduledTileRequests.remove(tileIndex);
             }
         }
     }
