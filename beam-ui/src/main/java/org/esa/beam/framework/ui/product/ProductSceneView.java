@@ -699,7 +699,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         graphics.fillRect(0, 0, imageWidth, imageHeight);
 
         Viewport snapshotVp = imageRendering.getViewport();
-        snapshotVp.setMaxZoomFactor(-1);
         snapshotVp.zoom(bounds);
         snapshotVp.moveViewDelta(snapshotVp.getBounds().x, snapshotVp.getBounds().y);
 

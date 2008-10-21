@@ -207,7 +207,6 @@ public class NavigationCanvas extends JPanel {
     }
 
     private void configureThumbnailViewport(ProductSceneView view, Viewport thumbnailViewport) {
-        thumbnailViewport.setMaxZoomFactor(-1);
         thumbnailViewport.zoom(getRotatedModelBounds(view));
         thumbnailViewport.moveViewDelta(thumbnailViewport.getBounds().x,
                                         thumbnailViewport.getBounds().y);
