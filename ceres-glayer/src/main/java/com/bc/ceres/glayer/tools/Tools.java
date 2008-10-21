@@ -252,7 +252,7 @@ public class Tools {
         public void mouseWheelMoved(MouseWheelEvent e) {
             final int wheelRotation = e.getWheelRotation();
             final double newZoomFactor = layerCanvas.getViewport().getZoomFactor() * Math.pow(1.1, wheelRotation);
-            layerCanvas.getViewport().zoom(newZoomFactor);
+            layerCanvas.getViewport().setZoomFactor(newZoomFactor);
         }
 
         private class SliderPopUp {
@@ -284,7 +284,7 @@ public class Tools {
                     @Override
                     public void stateChanged(ChangeEvent e) {
                         final double newZoomFactor = Math.pow(2.0, slider.getValue() / 10.0);
-                        layerCanvas.getViewport().zoom(newZoomFactor);
+                        layerCanvas.getViewport().setZoomFactor(newZoomFactor);
                         if (!slider.getValueIsAdjusting()) {
                             hide();
                         }

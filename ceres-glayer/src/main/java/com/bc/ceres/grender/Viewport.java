@@ -63,15 +63,13 @@ public interface Viewport {
      */
     double getZoomFactor();
 
-    // todo - api doc is wrong with respect to current implementation in DefaultViewport (nf - 21.10.2008)
-    // todo - rename zoom(f) to setZoomFactor(f) (nf - 21.10.2008)
     /**
      * Sets the zoom factor relative to the viewport bound's center point.
      *
      * @param zoomFactor The zoom factor.
      * @see #getZoomFactor()
      */
-    void zoom(double zoomFactor);
+    void setZoomFactor(double zoomFactor);
 
     /**
      * Zooms to the given area given in model coordinates.
@@ -81,11 +79,11 @@ public interface Viewport {
     void zoom(Rectangle2D modelArea);
 
     /**
-     * Zooms to the given center point given in model coordinates.
+     * Zooms to the given point given in model coordinates.
      *
-     * @param modelCenterX The center point X in model coordinates
-     * @param modelCenterY The center point Y in model coordinates
-     * @param zoomFactor   The zoom factor.
+     * @param modelCenterX New X of the view's center point in model coordinates.
+     * @param modelCenterY New Y of the view's center point in model coordinates.
+     * @param zoomFactor   The new zoom factor.
      */
     void zoom(double modelCenterX, double modelCenterY, double zoomFactor);
 

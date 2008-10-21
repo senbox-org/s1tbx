@@ -233,7 +233,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 //                System.out.println("  scaleDir      = " + scaleDir);
 //                System.out.println("  oldZoomFactor = " + oldZoomFactor);
 //                System.out.println("  newZoomFactor = " + newZoomFactor);
-            viewport.zoom(newZoomFactor);
+            viewport.setZoomFactor(newZoomFactor);
         }
 
     }

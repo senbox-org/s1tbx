@@ -100,15 +100,8 @@ public class DefaultViewport implements Viewport {
     }
 
     @Override
-    public void zoom(double zoomFactor) {
-        Point2D.Double vc = getViewportCenterPoint();
-        AffineTransform v2m = viewToModelTransform;
-        double s = Math.sqrt(v2m.getDeterminant());
-        v2m.translate(vc.getX(), vc.getY());
-        v2m.scale(1.0 / zoomFactor / s, 1.0 / zoomFactor / s);
-        v2m.translate(-vc.getX(), -vc.getY());
-        updateModelToViewTransform();
-        fireViewportChanged(false);
+    public void setZoomFactor(double zoomFactor) {
+        setZoomFactor(zoomFactor, getViewportCenterPoint());
     }
 
     @Override
@@ -136,6 +129,16 @@ public class DefaultViewport implements Viewport {
         updateViewToModelTransform();
         this.orientation = 0;
         setOrientation(orientation);
+        fireViewportChanged(false);
+    }
+
+    private void setZoomFactor(double zoomFactor, Point2D vc) {
+        AffineTransform v2m = viewToModelTransform;
+        double oldZoomFactor = getZoomFactor();
+        v2m.translate(vc.getX(), vc.getY());
+        v2m.scale(oldZoomFactor / zoomFactor, oldZoomFactor / zoomFactor);
+        v2m.translate(-vc.getX(), -vc.getY());
+        updateModelToViewTransform();
         fireViewportChanged(false);
     }
 
