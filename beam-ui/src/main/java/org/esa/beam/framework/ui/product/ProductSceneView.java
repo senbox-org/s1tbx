@@ -631,7 +631,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
      */
     public Rectangle2D getVisibleModelBounds() {
         final Viewport viewport = layerCanvas.getViewport();
-        return viewport.getViewToModelTransform().createTransformedShape(viewport.getBounds()).getBounds2D();
+        return viewport.getViewToModelTransform().createTransformedShape(viewport.getViewBounds()).getBounds2D();
     }
 
     /**
@@ -700,7 +700,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
         Viewport snapshotVp = imageRendering.getViewport();
         snapshotVp.zoom(bounds);
-        snapshotVp.moveViewDelta(snapshotVp.getBounds().x, snapshotVp.getBounds().y);
+        snapshotVp.moveViewDelta(snapshotVp.getViewBounds().x, snapshotVp.getViewBounds().y);
 
         getSceneImage().getRootLayer().render(imageRendering);
         return bi;

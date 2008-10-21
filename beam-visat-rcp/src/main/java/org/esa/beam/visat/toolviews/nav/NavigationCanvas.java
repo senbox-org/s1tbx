@@ -195,7 +195,7 @@ public class NavigationCanvas extends JPanel {
         AffineTransform vwV2M = vwViewport.getViewToModelTransform();
         AffineTransform tnM2V = tnViewport.getModelToViewTransform();
 
-        Rectangle vwViewBounds = vwViewport.getBounds();
+        Rectangle vwViewBounds = vwViewport.getViewBounds();
         Point2D vwViewOffset = vwViewBounds.getLocation();
         Point2D vwModelOffset = vwV2M.transform(vwViewOffset, null);
         Point2D tnViewOffset = tnM2V.transform(vwModelOffset, null);
@@ -208,9 +208,9 @@ public class NavigationCanvas extends JPanel {
 
     private void configureThumbnailViewport(ProductSceneView view, Viewport thumbnailViewport) {
         thumbnailViewport.zoom(getRotatedModelBounds(view));
-        thumbnailViewport.moveViewDelta(thumbnailViewport.getBounds().x,
-                                        thumbnailViewport.getBounds().y);
-        thumbnailViewport.rotate(view.getOrientation());
+        thumbnailViewport.moveViewDelta(thumbnailViewport.getViewBounds().x,
+                                        thumbnailViewport.getViewBounds().y);
+        thumbnailViewport.setOrientation(view.getOrientation());
     }
 
     private Rectangle2D getRotatedModelBounds(ProductSceneView view) {
