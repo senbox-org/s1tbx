@@ -31,10 +31,5 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-processing</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-shapefile-reader</artifactId>
-            <version>2.0-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 </project>
