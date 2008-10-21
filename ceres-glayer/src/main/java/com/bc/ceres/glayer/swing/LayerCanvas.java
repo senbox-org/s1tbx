@@ -65,12 +65,12 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentMoved(ComponentEvent event) {
-                viewport.setBounds(getBounds());
+                viewport.setViewBounds(getBounds());
             }
 
             @Override
             public void componentResized(ComponentEvent event) {
-                viewport.setBounds(getBounds());
+                viewport.setViewBounds(getBounds());
             }
         });
 
@@ -217,7 +217,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 
         @Override
         public void handleRotate(double rotationAngle) {
-            viewport.rotate(Math.toRadians(rotationAngle));
+            viewport.setOrientation(Math.toRadians(rotationAngle));
         }
 
         @Override

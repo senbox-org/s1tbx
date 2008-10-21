@@ -15,7 +15,7 @@ public class DefaultRendering implements Rendering {
     private Rectangle bounds;
 
     public DefaultRendering(Graphics2D graphics, Viewport viewport) {
-        this(graphics, viewport, viewport.getBounds());
+        this(graphics, viewport, viewport.getViewBounds());
     }
 
     public DefaultRendering(Graphics2D graphics, Viewport viewport, Rectangle bounds) {

@@ -32,12 +32,12 @@ public class DefaultViewport implements Viewport {
     }
 
     @Override
-    public Rectangle getBounds() {
+    public Rectangle getViewBounds() {
         return new Rectangle(bounds);
     }
 
     @Override
-    public void setBounds(Rectangle bounds) {
+    public void setViewBounds(Rectangle bounds) {
         Assert.notNull(bounds, "bounds");
         this.bounds.setRect(bounds);
         fireViewportChanged(false);
@@ -59,23 +59,13 @@ public class DefaultViewport implements Viewport {
     }
 
     @Override
-    public double getZoomFactor() {
-        return Math.sqrt(modelToViewTransform.getDeterminant());
-    }
-
-    @Override
-    public void rotate(double orientation) {
-        rotate(orientation, getViewportCenterPoint());
-    }
-
-    @Override
-    public void rotate(double orientation, Point2D viewCenter) {
-        Assert.notNull(viewCenter, "viewCenter");
+    public void setOrientation(double orientation) {
         if (this.orientation != orientation) {
+            Point2D.Double vc = getViewportCenterPoint();
             final AffineTransform v2m = viewToModelTransform;
-            v2m.translate(viewCenter.getX(), viewCenter.getY());
+            v2m.translate(vc.getX(), vc.getY());
             v2m.rotate(orientation - this.orientation);
-            v2m.translate(-viewCenter.getX(), -viewCenter.getY());
+            v2m.translate(-vc.getX(), -vc.getY());
             updateModelToViewTransform();
             this.orientation = orientation;
             fireViewportChanged(true);
@@ -105,6 +95,23 @@ public class DefaultViewport implements Viewport {
     }
 
     @Override
+    public double getZoomFactor() {
+        return Math.sqrt(modelToViewTransform.getDeterminant());
+    }
+
+    @Override
+    public void zoom(double zoomFactor) {
+        Point2D.Double vc = getViewportCenterPoint();
+        AffineTransform v2m = viewToModelTransform;
+        double s = Math.sqrt(v2m.getDeterminant());
+        v2m.translate(vc.getX(), vc.getY());
+        v2m.scale(1.0 / zoomFactor / s, 1.0 / zoomFactor / s);
+        v2m.translate(-vc.getX(), -vc.getY());
+        updateModelToViewTransform();
+        fireViewportChanged(false);
+    }
+
+    @Override
     public void zoom(Rectangle2D modelArea) {
         final double viewportWidth = bounds.width;
         final double viewportHeight = bounds.height;
@@ -128,32 +135,13 @@ public class DefaultViewport implements Viewport {
         modelToViewTransform.setTransform(m2v);
         updateViewToModelTransform();
         this.orientation = 0;
-        rotate(orientation);
+        setOrientation(orientation);
         fireViewportChanged(false);
     }
 
     private Point2D.Double getViewportCenterPoint() {
         return new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
     }
-
-    @Override
-    public void zoom(double zoomFactor) {
-        zoom(zoomFactor, getViewportCenterPoint());
-    }
-
-    @Override
-    public void zoom(double zoomFactor, Point2D viewCenter) {
-        Assert.notNull(viewCenter, "viewCenter");
-        final AffineTransform v2m = viewToModelTransform;
-        // X- and Y-scaling are expected to be equal
-        final double s = Math.sqrt(v2m.getDeterminant());
-        v2m.translate(viewCenter.getX(), viewCenter.getY());
-        v2m.scale(1.0 / zoomFactor / s, 1.0 / zoomFactor / s);
-        v2m.translate(-viewCenter.getX(), -viewCenter.getY());
-        updateModelToViewTransform();
-        fireViewportChanged(false);
-    }
-
 
     @Override
     public void addListener(ViewportListener listener) {
@@ -177,11 +165,11 @@ public class DefaultViewport implements Viewport {
     public void synchronizeWith(Viewport other) {
         modelToViewTransform.setTransform(other.getModelToViewTransform());
         viewToModelTransform.setTransform(other.getViewToModelTransform());
-        final boolean rotate = (orientation != other.getOrientation());
-        if (rotate) {
+        final boolean orientationChange = (orientation != other.getOrientation());
+        if (orientationChange) {
             orientation = other.getOrientation();
         }
-        fireViewportChanged(rotate);
+        fireViewportChanged(orientationChange);
     }
 
     protected void fireViewportChanged(final boolean orientationChanged) {
@@ -210,18 +198,4 @@ public class DefaultViewport implements Viewport {
     public String toString() {
         return getClass().getName() + "[viewToModelTransform=" + viewToModelTransform + "]";
     }
-
-    public static double limitZoomFactor(double viewScale, double viewScaleMax) {
-        if (viewScaleMax > 1.0) {
-            final double upperLimit = viewScaleMax;
-            final double lowerLimit = 1.0 / upperLimit;
-            if (viewScale < lowerLimit) {
-                viewScale = lowerLimit;
-            } else if (viewScale > upperLimit) {
-                viewScale = upperLimit;
-            }
-        }
-        return viewScale;
-    }
-
 }

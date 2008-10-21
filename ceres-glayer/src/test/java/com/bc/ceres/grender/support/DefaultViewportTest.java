@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNotSame;
 import org.junit.Test;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
@@ -74,16 +75,18 @@ public class DefaultViewportTest {
         /////////////////////////////
         // view center 1
 
+        viewport.setViewBounds(new Rectangle(0, 0, 30, 20));
+
         vc = p(15, 10);
         uc = t(viewport.getViewToModelTransform(), vc);
 
-        viewport.zoom(0.5, vc);
+        viewport.zoom(0.5);
 
         assertEquals(0.5, viewport.getZoomFactor(), 1e-10);
         assertEquals(p(-5.0, 0.0), getModelOffset(viewport));
         assertEquals(uc, t(viewport.getViewToModelTransform(), vc));
 
-        viewport.zoom(2, vc);
+        viewport.zoom(2.0);
         assertEquals(2, viewport.getZoomFactor(), 1e-10);
         assertEquals(p(17.5, 15.0), getModelOffset(viewport));
         assertEquals(uc, t(viewport.getViewToModelTransform(), vc));
@@ -91,16 +94,18 @@ public class DefaultViewportTest {
         /////////////////////////////
         // view center 2
 
+        viewport.setViewBounds(new Rectangle(0, 0, 100, 50));
+
         vc = p(50, 25);
         uc = t(viewport.getViewToModelTransform(), vc);
 
-        viewport.zoom(1 / 1.2, vc);
+        viewport.zoom(1 / 1.2);
 
         assertEquals(1 / 1.2, viewport.getZoomFactor(), 1e-10);
         assertEquals(p(-17.5, -2.5), getModelOffset(viewport));
         assertEquals(uc, t(viewport.getViewToModelTransform(), vc));
 
-        viewport.zoom(1 / 0.8, vc);
+        viewport.zoom(1 / 0.8);
 
         assertEquals(1 / 0.8, viewport.getZoomFactor(), 1e-10);
         assertEquals(p(2.5, 7.5), getModelOffset(viewport));

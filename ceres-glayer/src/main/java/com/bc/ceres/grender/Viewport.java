@@ -18,12 +18,12 @@ public interface Viewport {
     /**
      * @return The bounds in view coordinates.
      */
-    Rectangle getBounds();
+    Rectangle getViewBounds();
 
     /**
      * @param bounds The bounds in view coordinates.
      */
-    void setBounds(Rectangle bounds);
+    void setViewBounds(Rectangle bounds);
 
     /**
      * @return The affine transformation from view to model coordinates.
@@ -35,6 +35,9 @@ public interface Viewport {
      */
     AffineTransform getModelToViewTransform();
 
+    // todo - add method getOffset():mp        (nf - 21.10.2008)
+
+    // todo - change name+signature to setOffset(mp) (nf - 21.10.2008)
     /**
      * Moves the viewport to the absolute position in model coordinates.
      * @param modelPosX The position X in model coordinates.
@@ -42,6 +45,7 @@ public interface Viewport {
      */
     void move(double modelPosX, double modelPosY);
 
+    // todo - rename to dragModelCS(vx, vy)??? (nf - 21.10.2008)
     /**
      * Moves the model CS by translating it into the opposite direction of the given
      * vector in view coordinates.
@@ -52,14 +56,17 @@ public interface Viewport {
     void moveViewDelta(double viewDeltaX, double viewDeltaY);
 
     /**
-     * Gets the zoom factor. The zoom factor is the number of model units per view unit.
+     * Gets the zoom factor.
+     * The zoom factor is equal to the number of model units per view unit.
      *
      * @return The zoom factor.
      */
     double getZoomFactor();
 
+    // todo - api doc is wrong with respect to current implementation in DefaultViewport (nf - 21.10.2008)
+    // todo - rename zoom(f) to setZoomFactor(f) (nf - 21.10.2008)
     /**
-     * Sets the zoom factor.
+     * Sets the zoom factor relative to the viewport bound's center point.
      *
      * @param zoomFactor The zoom factor.
      * @see #getZoomFactor()
@@ -67,44 +74,14 @@ public interface Viewport {
     void zoom(double zoomFactor);
 
     /**
-     * Sets the zoom factor relative to the given center point in view coordinates.
-     *
-     * @param zoomFactor The zoom factor.
-     * @param viewCenter The center point in view coordinates.
-     * @see #getZoomFactor()
-     */
-    void zoom(double zoomFactor, Point2D viewCenter);
-
-    /**
-     * @return The rotation angle in radians.
-     */
-    double getOrientation();
-
-    /**
-     * Sets the rotation angle.
-     *
-     * @param orientation the new rotaton angle in radians
-     */
-    void rotate(double orientation);
-
-    /**
-     * Sets the rotation angle relative to a given center point in view coordinates.
-     *
-     * @param orientation the new rotation angle in radians
-     * @param viewCenter  the center of the zoom in the view CS
-     */
-    void rotate(double orientation, Point2D viewCenter);
-
-
-    /**
-     * Zooms to the given area in model coordinates.
+     * Zooms to the given area given in model coordinates.
      *
      * @param modelArea the area in model coordinates
      */
     void zoom(Rectangle2D modelArea);
 
     /**
-     * Zooms to the given center point in model coordinates.
+     * Zooms to the given center point given in model coordinates.
      *
      * @param modelCenterX The center point X in model coordinates
      * @param modelCenterY The center point Y in model coordinates
@@ -113,11 +90,28 @@ public interface Viewport {
     void zoom(double modelCenterX, double modelCenterY, double zoomFactor);
 
     /**
+     * @return The rotation angle in radians.
+     */
+    double getOrientation();
+
+    // todo - add method setOrientation(mx, my, ang) (nf - 21.10.2008)
+    /**
+     * Sets the orientation angle relative to the viewport bound's center point.
+     *
+     * @param orientation the new orientation angle in radians
+     */
+    void setOrientation(double orientation);
+
+    // todo - api doc: explain what does "synchronize" mean? (nf - 21.10.2008)
+    // todo - discuss options  (nf - 21.10.2008)
+    // (1) rename synchronizeWith(vp) to setTransform(vp)
+    // (2) add method setModelToViewTransform(m2v)
+    /**
      * Synchronizes this viewport with the given one.
      * 
      * @param otherViewport The view port to synchronize with
      */
-    public void synchronizeWith(Viewport otherViewport);
+    void synchronizeWith(Viewport otherViewport);
     
     /**
      * Adds a change listener to this viewport.
@@ -139,5 +133,4 @@ public interface Viewport {
      * @return The listeners.
      */
     ViewportListener[] getListeners();
-
 }
