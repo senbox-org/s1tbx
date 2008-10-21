@@ -172,7 +172,6 @@ public class ImageLayer extends Layer {
         graphics2D.setColor(borderColor);
 
         final Object oldAntialiasing = graphics2D.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
-        final Shape oldClip = graphics2D.getClip();
         final AffineTransform oldTransform = graphics2D.getTransform();
 
         try {
@@ -183,7 +182,6 @@ public class ImageLayer extends Layer {
             transform.concatenate(viewport.getModelToViewTransform());
             transform.concatenate(imageToModelTransform);
 
-            graphics2D.setClip(viewport.getBounds());
             graphics2D.setTransform(transform);
             graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -199,7 +197,6 @@ public class ImageLayer extends Layer {
             graphics2D.draw(border);
         } finally {
             graphics2D.setTransform(oldTransform);
-            graphics2D.setClip(oldClip);
             graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntialiasing);
         }
     }
