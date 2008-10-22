@@ -102,7 +102,7 @@ public class PlacemarkLayer extends Layer {
     }
 
     @Override
-    public Rectangle2D getBounds() {
+    public Rectangle2D getModelBounds() {
         // todo - blocker: product bounds are not model bounds! Which bounds shall be returned here? (rq)
         return null;
 //        return new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());

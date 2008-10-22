@@ -321,7 +321,7 @@ public class GraticuleLayer extends Layer {
             if (event.getSourceNode() == product && Product.PROPERTY_NAME_GEOCODING.equals(event.getPropertyName())) {
                 // Force recreation
                 _graticule = null;
-                fireLayerDataChanged(getBounds());
+                fireLayerDataChanged(getModelBounds());
             }
         }
     }

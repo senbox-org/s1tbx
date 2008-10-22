@@ -105,7 +105,7 @@ public class FigureLayer extends Layer {
     }
 
     @Override
-    public Rectangle2D getBounds() {
+    public Rectangle2D getModelBounds() {
         Rectangle2D boundingBox = new Rectangle2D.Double();
         for (final Figure figure : figureList) {
             boundingBox.add(figure.getShape().getBounds2D());

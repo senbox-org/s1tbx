@@ -638,7 +638,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
      * @return the model bounds in model coordinates
      */
     public Rectangle2D getModelBounds() {
-        return layerCanvas.getLayer().getBounds();
+        return layerCanvas.getLayer().getModelBounds();
     }
 
     public double getOrientation() {
@@ -662,7 +662,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     public void zoomAll() {
-        zoom(layerCanvas.getLayer().getBounds());
+        zoom(layerCanvas.getLayer().getModelBounds());
     }
 
     public void move(double modelOffsetX, double modelOffsetY) {
@@ -684,7 +684,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     public RenderedImage createSnapshotImage(boolean entireImage, boolean useAlpha) {
         final Rectangle2D bounds;
         if (entireImage) {
-            bounds = getBaseImageLayer().getBounds();
+            bounds = getBaseImageLayer().getModelBounds();
         } else {
             bounds = getVisibleModelBounds();
         }

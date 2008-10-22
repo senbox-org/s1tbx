@@ -448,7 +448,7 @@ public class PView {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowOpened(WindowEvent event) {
-                layerCanvas.getViewport().zoom(collectionLayer.getBounds());
+                layerCanvas.getViewport().zoom(collectionLayer.getModelBounds());
             }
 
             @Override
