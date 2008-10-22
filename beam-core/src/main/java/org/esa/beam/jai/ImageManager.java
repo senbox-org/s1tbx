@@ -69,16 +69,21 @@ public class ImageManager {
             final MapGeoCoding mapGeoCoding = (MapGeoCoding) productNode.getProduct().getGeoCoding();
             final MapInfo mapInfo = mapGeoCoding.getMapInfo();
             final double theta = -Math.toRadians(mapInfo.getOrientation());
-            final double s = Math.sin(theta);
-            final double c = Math.cos(theta);
-            final double m00 = mapInfo.getPixelSizeX() * c;
-            final double m01 = mapInfo.getPixelSizeX() * s;
-            final double m10 = mapInfo.getPixelSizeY() * s;
-            final double m11 = mapInfo.getPixelSizeY() * c;
-            final double m02 = mapInfo.getEasting() - m00 * mapInfo.getPixelX() - m01 * mapInfo.getPixelY();
-            final double m12 = mapInfo.getNorthing() - m10 * mapInfo.getPixelX() - m11 * mapInfo.getPixelY();
+            
+            i2mTransform.translate(mapInfo.getEasting(), mapInfo.getNorthing());
+            i2mTransform.scale(mapInfo.getPixelSizeX(), mapInfo.getPixelSizeY());
+            i2mTransform.rotate(theta);
 
-            i2mTransform.setTransform(m00, m10, m01, m11, m02, m12);
+// Ralfs old transformation code. TODO Remove, if above code is verified (mz,22.10.2008)
+//            final double s = Math.sin(theta);
+//            final double c = Math.cos(theta);
+//            final double m00 = mapInfo.getPixelSizeX() * c;
+//            final double m01 = mapInfo.getPixelSizeX() * s;
+//            final double m10 = mapInfo.getPixelSizeY() * s;
+//            final double m11 = mapInfo.getPixelSizeY() * c;
+//            final double m02 = mapInfo.getEasting() - m00 * mapInfo.getPixelX() - m01 * mapInfo.getPixelY();
+//            final double m12 = mapInfo.getNorthing() - m10 * mapInfo.getPixelX() - m11 * mapInfo.getPixelY();
+//            i2mTransform.setTransform(m00, m10, m01, m11, m02, m12);
         }
 
         return new DefaultMultiLevelModel(i2mTransform, w, h);
