@@ -60,16 +60,8 @@ public class DefaultViewport implements Viewport {
 
     @Override
     public void setOrientation(double orientation) {
-        if (this.orientation != orientation) {
-            Point2D.Double vc = getViewportCenterPoint();
-            final AffineTransform v2m = viewToModelTransform;
-            v2m.translate(vc.getX(), vc.getY());
-            v2m.rotate(orientation - this.orientation);
-            v2m.translate(-vc.getX(), -vc.getY());
-            updateModelToViewTransform();
-            this.orientation = orientation;
-            fireViewportChanged(true);
-        }
+        Point2D.Double vc = getViewportCenterPoint();
+        setOrientation(orientation, vc);
     }
 
     @Override
@@ -86,12 +78,12 @@ public class DefaultViewport implements Viewport {
 
     @Override
     public void moveViewDelta(double deltaX, double deltaY) {
-    	if (deltaX == 0.0 && deltaY == 0.0) {
-    		return;
-    	}
-    	viewToModelTransform.translate(-deltaX, -deltaY);
-    	updateModelToViewTransform();
-    	fireViewportChanged(false);
+        if (deltaX == 0.0 && deltaY == 0.0) {
+            return;
+        }
+        viewToModelTransform.translate(-deltaX, -deltaY);
+        updateModelToViewTransform();
+        fireViewportChanged(false);
     }
 
     @Override
@@ -135,14 +127,30 @@ public class DefaultViewport implements Viewport {
     }
 
     private void setZoomFactor(double zoomFactor, Point2D vc) {
-        AffineTransform v2m = viewToModelTransform;
         double oldZoomFactor = getZoomFactor();
-        v2m.translate(vc.getX(), vc.getY());
-        v2m.scale(oldZoomFactor / zoomFactor, oldZoomFactor / zoomFactor);
-        v2m.translate(-vc.getX(), -vc.getY());
-        updateModelToViewTransform();
-        fireViewportChanged(false);
+        if (oldZoomFactor != zoomFactor) {
+            AffineTransform v2m = viewToModelTransform;
+            v2m.translate(vc.getX(), vc.getY());
+            v2m.scale(oldZoomFactor / zoomFactor, oldZoomFactor / zoomFactor);
+            v2m.translate(-vc.getX(), -vc.getY());
+            updateModelToViewTransform();
+            fireViewportChanged(false);
+        }
     }
+
+    private void setOrientation(double orientation, Point2D vc) {
+        double oldOrientation = getOrientation();
+        if (oldOrientation != orientation) {
+            final AffineTransform v2m = viewToModelTransform;
+            v2m.translate(vc.getX(), vc.getY());
+            v2m.rotate(orientation - oldOrientation);
+            v2m.translate(-vc.getX(), -vc.getY());
+            updateModelToViewTransform();
+            this.orientation = orientation;
+            fireViewportChanged(true);
+        }
+    }
+
 
     private Point2D.Double getViewportCenterPoint() {
         return new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
@@ -165,7 +173,7 @@ public class DefaultViewport implements Viewport {
     public ViewportListener[] getListeners() {
         return changeListeners.toArray(new ViewportListener[changeListeners.size()]);
     }
-    
+
     @Override
     public void synchronizeWith(Viewport other) {
         modelToViewTransform.setTransform(other.getModelToViewTransform());

@@ -5,7 +5,7 @@ import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.grender.Rendering;
 
-import java.awt.*;
+import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -183,7 +183,7 @@ public class Layer extends ExtensibleObject {
             if (childBounds != null && !childBounds.isEmpty()) {
                 if (bounds == null) {
                     bounds = new Rectangle2D.Double(childBounds.getX(), childBounds.getY(), childBounds.getWidth(),
-                            childBounds.getHeight());
+                                                    childBounds.getHeight());
                 } else {
                     bounds.add(childBounds);
                 }
@@ -192,15 +192,27 @@ public class Layer extends ExtensibleObject {
         return bounds;
     }
 
+
     /**
-     * Renders the layer. The base class implementation configures the rendering with respect to the
-     * "opacity" and "composite" style properties
-     * and then calls {@link #renderLayer(com.bc.ceres.grender.Rendering)} followed by
-     * {@link #renderChildLayers(com.bc.ceres.grender.Rendering)}.
-     *
+     * Renders the layer. Calls {@code render(rendering, null)}.
      * @param rendering The rendering to which the layer will be rendered.
+     * @see #render(com.bc.ceres.grender.Rendering, com.bc.ceres.glayer.Layer.RenderCustomizer)}
      */
     public void render(Rendering rendering) {
+        render(rendering, null);
+    }
+
+    /**
+     * Renders the layer. The base class implementation configures the rendering with respect to the
+     * "opacity" and "composite" style properties. Then
+     * {@link #renderLayer(com.bc.ceres.grender.Rendering)} followed by
+     * {@link #renderChildLayers(com.bc.ceres.grender.Rendering, com.bc.ceres.glayer.Layer.RenderCustomizer)} are called if
+     * {@code customizer} is {@code null}. Otherwise {@link com.bc.ceres.glayer.Layer.RenderCustomizer#render(com.bc.ceres.grender.Rendering, Layer)} is called.
+     *
+     * @param rendering  The rendering to which the layer will be rendered.
+     * @param customizer An optional customizer for rendering the layer. May be {@code null}.
+     */
+    public void render(Rendering rendering, RenderCustomizer customizer) {
         final double opacity = getStyle().getOpacity();
         if (!isVisible() || opacity == 0.0) {
             return;
@@ -212,8 +224,12 @@ public class Layer extends ExtensibleObject {
                 oldComposite = g.getComposite();
                 g.setComposite(getStyle().getComposite().getAlphaComposite((float) opacity));
             }
-            renderLayer(rendering);
-            renderChildLayers(rendering);
+            if (customizer == null) {
+                renderLayer(rendering);
+                renderChildLayers(rendering, null);
+            } else {
+                customizer.render(rendering, this);
+            }
         } finally {
             if (oldComposite != null) {
                 g.setComposite(oldComposite);
@@ -235,10 +251,11 @@ public class Layer extends ExtensibleObject {
      * The default implementation calls {@link #render(com.bc.ceres.grender.Rendering)} on all child layers.
      *
      * @param rendering The rendering to which the layer will be rendered.
+     * @param customizer An optional customizer for rendering the layer. May be {@code null}.
      */
-    protected void renderChildLayers(Rendering rendering) {
+    protected void renderChildLayers(Rendering rendering, RenderCustomizer customizer) {
         for (int i = childLayerList.size() - 1; i >= 0; --i) {
-            childLayerList.get(i).render(rendering);
+            childLayerList.get(i).render(rendering, customizer);
         }
     }
 
@@ -425,33 +442,51 @@ public class Layer extends ExtensibleObject {
         }
     }
 
-    /**
-     * Accepts a given {@link Visitor}.
-     * <p/>
-     * This method belongs to preliminary API and may be removed or changed in the future.
-     *
-     * @param visitor the {@link Visitor}.
-     */
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
+    // todo - apidoc (nf - 22.10.2008)
+    public static interface RenderCustomizer {
+          void render(Rendering rendering, Layer layer);
+    }
 
-        for (int i = childLayerList.size() - 1; i >= 0; --i) {
-            childLayerList.get(i).accept(visitor);
+    // todo - apidoc (nf - 22.10.2008)
+    public static abstract class DefaultRenderCustomizer implements RenderCustomizer {
+
+        public final void render(Rendering rendering, Layer layer) {
+            renderBackground(rendering, layer);
+            renderForeground(rendering, layer);
+            renderOverlay(rendering, layer);
+        }
+
+        protected void renderBackground(Rendering rendering, Layer layer) {
+        }
+
+        protected void renderForeground(Rendering rendering, Layer layer) {
+            renderLayer(rendering, layer);
+            renderChildLayers(rendering, layer);
+        }
+
+        protected void renderLayer(Rendering rendering, Layer layer) {
+            layer.renderLayer(rendering);
+        }
+
+        protected void renderChildLayers(Rendering rendering, Layer layer) {
+            layer.renderChildLayers(rendering, this);
+        }
+
+        protected void renderOverlay(Rendering rendering, Layer layer) {
         }
     }
 
-    /**
-     * Visitor interface.
-     * <p/>
-     * This interface belongs to preliminary API and may be removed or changed in the future.
-     */
-    public interface Visitor {
-        /**
-         * Visits a given {@link Layer} for e.g. extracting information or performing
-         * an action.
-         *
-         * @param layer the {@link Layer}.
-         */
-        void visit(Layer layer);
+    // todo - apidoc (nf - 22.10.2008)
+    public static abstract class LayerRenderFilter implements RenderCustomizer {
+
+        public final void render(Rendering rendering, Layer layer) {
+            if (accept(layer)) {
+                layer.renderLayer(rendering);
+            }
+            layer.renderChildLayers(rendering, this);
+        }
+
+        public abstract boolean accept(Layer layer);
     }
+
 }
