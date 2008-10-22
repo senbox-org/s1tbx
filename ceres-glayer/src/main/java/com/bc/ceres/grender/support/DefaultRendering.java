@@ -12,18 +12,13 @@ import java.awt.*;
 public class DefaultRendering implements Rendering {
     private Graphics2D graphics;
     private Viewport viewport;
-    private Rectangle bounds;
 
     public DefaultRendering(Graphics2D graphics, Viewport viewport) {
-        this(graphics, viewport, viewport.getViewBounds());
-    }
-
-    public DefaultRendering(Graphics2D graphics, Viewport viewport, Rectangle bounds) {
-        setBounds(bounds);
         setViewport(viewport);
         setGraphics(graphics);
     }
 
+    @Override
     public Graphics2D getGraphics() {
         return graphics;
     }
@@ -33,6 +28,7 @@ public class DefaultRendering implements Rendering {
         this.graphics = graphics;
     }
 
+    @Override
     public Viewport getViewport() {
         return viewport;
     }
@@ -40,14 +36,5 @@ public class DefaultRendering implements Rendering {
     public void setViewport(Viewport viewport) {
         Assert.notNull(viewport, "viewport");
         this.viewport = viewport;
-    }
-
-    public Rectangle getBounds() {
-        return bounds;
-    }
-
-    public void setBounds(Rectangle bounds) {
-        Assert.notNull(bounds, "bounds");
-        this.bounds = bounds;
     }
 }

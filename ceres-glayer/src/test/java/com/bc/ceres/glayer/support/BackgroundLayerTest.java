@@ -1,11 +1,9 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.glayer.Assert2D;
 import com.bc.ceres.glayer.TracingLayerListener;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
-import static com.bc.ceres.glayer.Assert2D.*;
 
 import java.awt.Color;
 
@@ -14,7 +12,7 @@ public class BackgroundLayerTest  {
     public void testConstructor() {
         BackgroundLayer layer = new BackgroundLayer(Color.BLUE);
         assertEquals(Color.BLUE, layer.getPaint());
-        assertNull(layer.getBounds());
+        assertNull(layer.getModelBounds());
     }
 
     @Test

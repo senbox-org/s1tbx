@@ -25,8 +25,8 @@ public class ImageLayerTest  {
         assertNotNull(layer.getModelToImageTransform());
         assertTrue(layer.getModelToImageTransform().isIdentity());
 
-        assertNotNull(layer.getBounds());
-        assertTrue(layer.getBounds().isEmpty());
+        assertNotNull(layer.getModelBounds());
+        assertTrue(layer.getModelBounds().isEmpty());
     }
 
     @Test
@@ -55,12 +55,12 @@ public class ImageLayerTest  {
         final TiledImage image = new TiledImage(new BufferedImage(320, 200, BufferedImage.TYPE_BYTE_GRAY), true);
 
         layer = new ImageLayer(image);
-        assertNotNull(layer.getBounds());
-        assertEquals(new Rectangle2D.Double(0.0, 0.0, 320.0, 200.0), layer.getBounds());
+        assertNotNull(layer.getModelBounds());
+        assertEquals(new Rectangle2D.Double(0.0, 0.0, 320.0, 200.0), layer.getModelBounds());
 
         final AffineTransform i2m = new AffineTransform(0.5, 0, 0, 0.5, -25.5, 50.3);
         layer = new ImageLayer(image, i2m);
-        assertNotNull(layer.getBounds());
-        assertEquals(new Rectangle2D.Double(-25.5, 50.3, 160.0, 100.0), layer.getBounds());
+        assertNotNull(layer.getModelBounds());
+        assertEquals(new Rectangle2D.Double(-25.5, 50.3, 160.0, 100.0), layer.getModelBounds());
     }
 }

@@ -83,7 +83,7 @@ public class ImageLayer extends Layer {
     @Override
     public void regenerate() {
         clearCaches();
-        fireLayerDataChanged(getBounds());
+        fireLayerDataChanged(getModelBounds());
     }
 
     public RenderedImage getImage() {
@@ -143,7 +143,7 @@ public class ImageLayer extends Layer {
     }
 
     @Override
-    public Rectangle2D getBounds() {
+    public Rectangle2D getModelBounds() {
         return multiLevelSource.getModel().getModelBounds();
     }
 

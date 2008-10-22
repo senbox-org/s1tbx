@@ -1,6 +1,6 @@
 package com.bc.ceres.grender;
 
-import java.awt.*;
+import java.awt.Graphics2D;
 
 
 /**
@@ -8,11 +8,6 @@ import java.awt.*;
  * output device such as a printer.
  */
 public interface Rendering {
-    /**
-     * @return The bounds of the rendering in view coordinates.
-     */
-    Rectangle getBounds();
-
     /**
      * @return The graphics context associated with this rendering.
      */

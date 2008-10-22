@@ -131,7 +131,6 @@ public class Layer extends ExtensibleObject {
         }
     }
 
-
     /**
      * Gets the bounds (bounding box) of the layer in model coordinates.
      * The default implementation returns the union of the bounds (if any) returned by
@@ -140,7 +139,7 @@ public class Layer extends ExtensibleObject {
      * @return The bounds of the layer in model coordinates or {@code null} if this layer
      *         has no specified boundary.
      */
-    public Rectangle2D getBounds() {
+    public Rectangle2D getModelBounds() {
         final Rectangle2D layerBounds = getLayerBounds();
         final Rectangle2D childLayersBounds = getChildLayersBounds();
         if (childLayersBounds != null && layerBounds != null) {
@@ -158,7 +157,7 @@ public class Layer extends ExtensibleObject {
 
     /**
      * Gets the bounds (bounding box) of this layer in model coordinates.
-     * Called by {@link #getBounds()}.
+     * Called by {@link #getModelBounds()}.
      * The default implementation returns {@code null}.
      *
      * @return The bounds of the layer in model coordinates or {@code null} if this layer
@@ -170,7 +169,7 @@ public class Layer extends ExtensibleObject {
 
     /**
      * Gets the bounds (bounding box) of the child layers in model coordinates.
-     * Called by {@link #getBounds()}.
+     * Called by {@link #getModelBounds()}.
      * The default implementation returns the union bounds (if any) of all child layers.
      *
      * @return The bounds of the child layers in model coordinates or {@code null} if none of the child layers
@@ -179,7 +178,7 @@ public class Layer extends ExtensibleObject {
     protected Rectangle2D getChildLayersBounds() {
         Rectangle2D.Double bounds = null;
         for (Layer layer : childLayerList) {
-            Rectangle2D childBounds = layer.getBounds();
+            Rectangle2D childBounds = layer.getModelBounds();
             if (childBounds != null && !childBounds.isEmpty()) {
                 if (bounds == null) {
                     bounds = new Rectangle2D.Double(childBounds.getX(), childBounds.getY(), childBounds.getWidth(),

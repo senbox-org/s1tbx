@@ -36,12 +36,12 @@ public class ShapeLayerTest  {
         final Shape shape = new Rectangle2D.Double(0.0, 0.0, 320.0, 200.0);
 
         layer = new ShapeLayer(new Shape[]{shape});
-        assertNotNull(layer.getBounds());
-        assertEquals(new Rectangle2D.Double(0.0, 0.0, 320.0, 200.0), layer.getBounds());
+        assertNotNull(layer.getModelBounds());
+        assertEquals(new Rectangle2D.Double(0.0, 0.0, 320.0, 200.0), layer.getModelBounds());
 
         final AffineTransform s2u = new AffineTransform(0.5, 0, 0, 0.5, -25.5, 50.3);
         layer = new ShapeLayer(new Shape[]{shape}, s2u);
-        assertNotNull(layer.getBounds());
-        assertEquals(new Rectangle2D.Double(-25.5, 50.3, 160.0, 100.0), layer.getBounds());
+        assertNotNull(layer.getModelBounds());
+        assertEquals(new Rectangle2D.Double(-25.5, 50.3, 160.0, 100.0), layer.getModelBounds());
     }
 }

@@ -58,7 +58,7 @@ public class ShapeLayer extends Layer {
         return (AffineTransform) modelToShapeTransform.clone();
     }
 
-    public Rectangle2D getBounds() {
+    public Rectangle2D getModelBounds() {
         Rectangle2D boundingBox = new Rectangle2D.Double();
         for (Shape shape : shapeList) {
             boundingBox.add(shape.getBounds2D());

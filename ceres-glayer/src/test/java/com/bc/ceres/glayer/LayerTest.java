@@ -24,7 +24,7 @@ public class LayerTest {
         assertEquals(Composite.SRC_OVER, layer.getStyle().getComposite());
 
         assertEquals(true, layer.getChildLayerList().isEmpty());
-        assertNull(layer.getBounds());
+        assertNull(layer.getModelBounds());
     }
 
     @Test
@@ -66,8 +66,8 @@ public class LayerTest {
         layer.getChildLayerList().add(new ShapeLayer(new Shape[]{new Rectangle(-20, 10, 30, 50)}));
         layer.getChildLayerList().add(new ShapeLayer(new Shape[]{new Rectangle(-10, 20, 20, 60)}));
         layer.getChildLayerList().add(new ShapeLayer(new Shape[]{new Rectangle(0, 0, 40, 50)}));
-        assertNotNull(layer.getBounds());
-        assertEquals(new Rectangle(-20, 0, 60, 80), layer.getBounds());
+        assertNotNull(layer.getModelBounds());
+        assertEquals(new Rectangle(-20, 0, 60, 80), layer.getModelBounds());
     }
 
     @Test
@@ -248,7 +248,7 @@ public class LayerTest {
     public static class RenderCountingLayer extends Layer {
         int renderCount;
 
-        public Rectangle2D getBounds() {
+        public Rectangle2D getModelBounds() {
             return null;
         }
 

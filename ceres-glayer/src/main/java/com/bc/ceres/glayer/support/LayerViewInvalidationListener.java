@@ -26,7 +26,7 @@ public abstract class LayerViewInvalidationListener implements LayerListener {
         if (propertyChangeEvent.getPropertyName().equals("visible")
                 || propertyChangeEvent.getPropertyName().equals("style")
                 || propertyChangeEvent.getSource() instanceof Style) {
-            handleViewInvalidation(layer, layer.getBounds());
+            handleViewInvalidation(layer, layer.getModelBounds());
         }
     }
 

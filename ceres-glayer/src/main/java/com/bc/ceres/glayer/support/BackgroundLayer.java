@@ -26,7 +26,7 @@ public class BackgroundLayer extends Layer {
     }
 
     @Override
-    public Rectangle2D getBounds() {
+    public Rectangle2D getModelBounds() {
         return null;
     }
 

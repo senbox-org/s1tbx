@@ -4,7 +4,8 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 /**
@@ -21,35 +22,15 @@ public class BufferedImageRendering implements Rendering {
     }
 
     public BufferedImageRendering(BufferedImage image) {
-        this(image, new DefaultViewport(new Rectangle(0,0,image.getWidth(), image.getHeight())));
+        this(image, new DefaultViewport(new Rectangle(0, 0, image.getWidth(), image.getHeight())));
     }
 
     public BufferedImageRendering(BufferedImage image, Viewport viewport) {
-        setImage(image);
-        setViewport(viewport);
-    }
-
-    public Rectangle getBounds() {
-        return new Rectangle(0, 0, image.getWidth(), image.getHeight());
-    }
-
-    public Viewport getViewport() {
-        return viewport;
-    }
-
-    public void setViewport(Viewport viewport) {
-        Assert.notNull(viewport, "viewport");
-        this.viewport = viewport;
-    }
-
-    public BufferedImage getImage() {
-        return image;
-    }
-
-    public void setImage(BufferedImage image) {
         Assert.notNull(image, "image");
-        disposeGraphics();
+        Assert.notNull(viewport, "viewport");
         this.image = image;
+        this.viewport = viewport;
+        updateViewportViewBounds();
     }
 
     public synchronized Graphics2D getGraphics() {
@@ -57,6 +38,28 @@ public class BufferedImageRendering implements Rendering {
             graphics = image.createGraphics();
         }
         return graphics;
+    }
+
+    @Override
+    public synchronized Viewport getViewport() {
+        return viewport;
+    }
+
+    public synchronized void setViewport(Viewport viewport) {
+        Assert.notNull(viewport, "viewport");
+        this.viewport = viewport;
+        updateViewportViewBounds();
+    }
+
+    public synchronized BufferedImage getImage() {
+        return image;
+    }
+
+    public synchronized void setImage(BufferedImage image) {
+        Assert.notNull(image, "image");
+        disposeGraphics();
+        this.image = image;
+        updateViewportViewBounds();
     }
 
     protected void finalize() throws Throwable {
@@ -69,5 +72,12 @@ public class BufferedImageRendering implements Rendering {
             graphics.dispose();
             graphics = null;
         }
+    }
+
+    private void updateViewportViewBounds() {
+        this.viewport.setViewBounds(new Rectangle(this.image.getMinX(),
+                                                  this.image.getMinY(),
+                                                  this.image.getWidth(),
+                                                  this.image.getHeight()));
     }
 }

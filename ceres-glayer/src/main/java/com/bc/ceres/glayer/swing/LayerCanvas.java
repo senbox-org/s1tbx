@@ -29,6 +29,7 @@ import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.AffineTransform;
 
 /**
  * A Swing component capable of drawing a collection of {@link com.bc.ceres.glayer.Layer}s.
@@ -57,28 +58,24 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         setOpaque(false);
 
         this.layer = layer;
+        this.modelArea = layer.getModelBounds();
         this.viewport = viewport;
-        this.modelArea = layer.getBounds(); // todo - check: register PCL for "layer.bounds" ?
+        setBounds(viewport.getViewBounds());
+
+        // todo - check: register PCL for "layer.modelBounds" (nf 21.10.2008)
 
         this.canvasRendering = new CanvasRendering();
-
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentMoved(ComponentEvent event) {
-                viewport.setViewBounds(getBounds());
-            }
-
-            @Override
-            public void componentResized(ComponentEvent event) {
-                viewport.setViewBounds(getBounds());
-            }
-        });
 
         layer.addListener(new LayerViewInvalidationListener() {
             @Override
             public void handleViewInvalidation(Layer layer, Rectangle2D modelRegion) {
-                // todo - convert modelRegion to viewRegion and call repaint(viewRegion)
-                repaint();
+                if (modelRegion != null) {
+                    AffineTransform m2v = viewport.getModelToViewTransform();
+                    Rectangle viewRegion = m2v.createTransformedShape(modelRegion).getBounds();
+                    repaint(viewRegion);
+                } else {
+                    repaint();
+                }
             }
         });
 
@@ -139,6 +136,11 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         return modelArea;
     }
 
+    public void setBounds(int x, int y, int width, int height) {
+        viewport.setViewBounds(new Rectangle(x, y, width, height));
+        super.setBounds(x, y, width, height);
+    }
+
     @Override
     public void doLayout() {
         if (navControlShown && navControlWrapper != null) {
@@ -161,7 +163,6 @@ public class LayerCanvas extends JComponent implements AdjustableView {
             g.fillRect(getX(), getY(), getWidth(), getHeight());
         }
 
-        // todo - check: create new rendering if 'g' changes? (e.g. printing!)
         canvasRendering.setGraphics2D((Graphics2D) g);
         layer.render(canvasRendering);
     }
@@ -185,11 +186,6 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         @Override
         public Viewport getViewport() {
             return viewport;
-        }
-
-        @Override
-        public Rectangle getBounds() {
-            return LayerCanvas.this.getBounds();
         }
 
         @Override

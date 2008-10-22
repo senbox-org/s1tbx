@@ -143,7 +143,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         }
 
         // Cancel any pending tile requests that are not in the visible region
-        final Rectangle visibleImageRegion = getImageRegion(viewport, multiLevelSource, currentLevel, rendering.getBounds());
+        final Rectangle visibleImageRegion = getImageRegion(viewport, multiLevelSource, currentLevel, viewport.getViewBounds());
         final Set<TileIndex> visibleTileIndexSet = getTileIndexes(planarImage, currentLevel, visibleImageRegion);
         if (!visibleTileIndexSet.isEmpty()) {
             cancelTileRequests(visibleTileIndexSet);

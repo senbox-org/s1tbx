@@ -126,7 +126,7 @@ public class Tools {
         final Rectangle viewportBounds = new Rectangle(0, 0, 640, 480);
         layerCanvas.setPreferredSize(new Dimension(640, 480));
         layerCanvas.getViewport().setViewBounds(viewportBounds);
-        layerCanvas.getViewport().zoom(layer.getBounds());
+        layerCanvas.getViewport().zoom(layer.getModelBounds());
         openFrame(layerCanvas, location.getPath(), viewportBounds);
     }
 
