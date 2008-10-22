@@ -175,14 +175,11 @@ public class NavigationCanvas extends JPanel {
         final Graphics2D graphics = imageRendering.getGraphics();
         graphics.setBackground(getBackground());
         graphics.clearRect(0, 0, thumbnailImage.getWidth(), thumbnailImage.getHeight());
-
         configureThumbnailViewport(view, imageRendering.getViewport());
-        view.getRootLayer().accept(new Layer.Visitor() {
+        view.getRootLayer().render(imageRendering, new Layer.LayerRenderFilter() {
             @Override
-            public void visit(Layer layer) {
-                if (layer instanceof ImageLayer) {
-                    layer.render(imageRendering);
-                }
+            public boolean accept(Layer layer) {
+                return layer instanceof ImageLayer;
             }
         });
     }
