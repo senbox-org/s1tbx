@@ -380,7 +380,7 @@ public class PixelInfoView extends JPanel {
         _currentFlagBands = new Band[0];
     }
 
-    public void updateDataDisplay() {
+    private void updateDataDisplay() {
         updateGeolocValues();
         updateScanLineValues();
         updateBandPixelValues();
@@ -484,7 +484,7 @@ public class PixelInfoView extends JPanel {
         }
     }
     
-    public String getPixelString(Band band) {
+    private String getPixelString(Band band) {
         if (!_pixelPosValid) {
             return RasterDataNode.INVALID_POS_TEXT;
         }
