@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The activator for the BEAM UI module. Registers help set extensions.
@@ -219,7 +220,7 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
             return;
         }
 
-        DefaultHelpSetFactory factory = new VerifyingHelpSetFactory();
+        DefaultHelpSetFactory factory = new VerifyingHelpSetFactory(helpSetPath, declaringModule.getName(), moduleContext.getLogger());
         HelpSet helpSet = HelpSet.parse(helpSetUrl, declaringModule.getClassLoader(), factory);
 
         if (helpSet == null) {
@@ -269,9 +270,17 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
     }
     
     private static class VerifyingHelpSetFactory extends DefaultHelpSetFactory {
-        public VerifyingHelpSetFactory() {
+        private final String helpSetPath;
+        private final String moduleName;
+        private final Logger logger;
+        
+        public VerifyingHelpSetFactory(String helpSetPath, String moduleName, Logger logger) {
             super();
+            this.helpSetPath = helpSetPath;
+            this.moduleName = moduleName;
+            this.logger = logger;
         }
+
         @Override
         public void processView(HelpSet hs,
                 String name,
@@ -290,6 +299,9 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
                 }
                 catch(Exception exception)
                 {
+                    String message = String.format("Help set [%s] of module [%s] has no or bad search index. Serach view removed.",
+                                                   helpSetPath, moduleName);
+                    logger.log(Level.SEVERE, message, "");
                     return;
                 }
             }
