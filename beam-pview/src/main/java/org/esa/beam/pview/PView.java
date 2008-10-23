@@ -432,6 +432,7 @@ public class PView {
         final int initialViewWidth = 800;
         final int initialViewHeight = 800;
 
+        // todo - set model Y direction from MapInfo!!! (nf - 23.10.2008)
         final LayerCanvas layerCanvas = new LayerCanvas(collectionLayer);
         layerCanvas.setNavControlShown(true);
         Tools.installLayerCanvasNavigation(layerCanvas);

@@ -185,9 +185,9 @@ public class NavigationCanvas extends JPanel {
     }
 
     private Rectangle getViewportThumbnailBounds(ProductSceneView view, Rectangle thumbnailArea) {
-        Viewport tnViewport = new DefaultViewport(thumbnailArea);
-        configureThumbnailViewport(view, tnViewport);
         Viewport vwViewport = view.getLayerCanvas().getViewport();
+        Viewport tnViewport = new DefaultViewport(thumbnailArea, vwViewport.isModelYAxisDown());
+        configureThumbnailViewport(view, tnViewport);
 
         AffineTransform vwV2M = vwViewport.getViewToModelTransform();
         AffineTransform tnM2V = tnViewport.getModelToViewTransform();

@@ -6,6 +6,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.ViewportScrollPane;
+import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
@@ -141,7 +142,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         return sceneImage.getRootLayer();
     }
 
-    public LayerDisplay getLayerCanvas() {
+    public LayerCanvas getLayerCanvas() {
         return layerCanvas;
     }
 

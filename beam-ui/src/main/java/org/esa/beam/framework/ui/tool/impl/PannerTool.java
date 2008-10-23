@@ -4,23 +4,22 @@
  */
 package org.esa.beam.framework.ui.tool.impl;
 
+import com.bc.ceres.grender.AdjustableView;
+import com.bc.ceres.grender.Viewport;
+import org.esa.beam.framework.draw.Drawable;
+import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.tool.AbstractTool;
+import org.esa.beam.framework.ui.tool.ToolInputEvent;
+
+import javax.swing.ImageIcon;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 
-import javax.swing.ImageIcon;
 
-import org.esa.beam.framework.draw.Drawable;
-import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.ui.product.LayerDisplay;
-import org.esa.beam.framework.ui.tool.AbstractTool;
-import org.esa.beam.framework.ui.tool.ToolInputEvent;
-
-import com.bc.ceres.grender.Viewport;
-
-public class  PannerTool extends AbstractTool {
+public class PannerTool extends AbstractTool {
     private int _viewportX;
     private int _viewportY;
 
@@ -44,9 +43,9 @@ public class  PannerTool extends AbstractTool {
     public void mouseDragged(ToolInputEvent e) {
         Component component = e.getComponent();
         // this should be always the case
-        if (component instanceof LayerDisplay) {
-            LayerDisplay layerDisplay = (LayerDisplay) component;
-            Viewport viewport = layerDisplay.getViewport();
+        if (component instanceof AdjustableView) {
+            AdjustableView view = (AdjustableView) component;
+            Viewport viewport = view.getViewport();
             int viewportX = e.getMouseEvent().getX();
             int viewportY = e.getMouseEvent().getY();
             final double dx = viewportX - _viewportX;

@@ -20,6 +20,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.grender.support.DefaultViewport;
 import org.esa.beam.framework.ui.PixelInfoFactory;
 import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.tool.Tool;
@@ -33,7 +34,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.Vector;
 
-public class LayerDisplay extends LayerCanvas {
+// todo - move code into ProductSceneView, cause no need to extend a JCompoonent here (nf - 23.10.2008)
+class LayerDisplay extends LayerCanvas {
     private Tool tool;
     private int pixelX = -1;
     private int pixelY = -1;
@@ -52,11 +54,15 @@ public class LayerDisplay extends LayerCanvas {
     private final ImageLayer baseImageLayer;
 
     LayerDisplay(Layer layer, ImageLayer baseImageLayer) {
-        super(layer);
+        super(layer, new DefaultViewport(isModelYAxisDown(baseImageLayer)));
         this.baseImageLayer = baseImageLayer;
         pixelBorderViewScale = 2.0;
         pixelPositionListeners = new Vector<PixelPositionListener>();
         registerListeners();
+    }
+
+    private static boolean isModelYAxisDown(ImageLayer baseImageLayer) {
+        return baseImageLayer.getImageToModelTransform().getDeterminant() > 0.0;
     }
 
     @Override

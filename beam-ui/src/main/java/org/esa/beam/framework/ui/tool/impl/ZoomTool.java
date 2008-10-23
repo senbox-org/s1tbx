@@ -4,27 +4,17 @@
  */
 package org.esa.beam.framework.ui.tool.impl;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.Toolkit;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-
-import javax.swing.ImageIcon;
-
+import com.bc.ceres.grender.AdjustableView;
+import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.draw.Drawable;
 import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.ui.product.LayerDisplay;
 import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 
-import com.bc.ceres.grender.Viewport;
+import javax.swing.ImageIcon;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 
 public class ZoomTool extends AbstractTool {
     private int _viewportX;
@@ -87,9 +77,9 @@ public class ZoomTool extends AbstractTool {
         }
         Component component = e.getComponent();
         // this should be always the case
-        if (component instanceof LayerDisplay) {
-            LayerDisplay layerDisplay = (LayerDisplay) component;
-            Viewport viewport = layerDisplay.getViewport();
+        if (component instanceof AdjustableView) {
+            AdjustableView view = (AdjustableView) component;
+            Viewport viewport = view.getViewport();
             if (!_zoomRect.isEmpty()) {
                 AffineTransform viewToModelTransform = viewport.getViewToModelTransform();
                 Shape transformedShape = viewToModelTransform.createTransformedShape(_zoomRect);
