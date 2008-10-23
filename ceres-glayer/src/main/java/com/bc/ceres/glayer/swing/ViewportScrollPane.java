@@ -19,6 +19,7 @@ package com.bc.ceres.glayer.swing;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
+import com.bc.ceres.grender.AdjustableView;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;

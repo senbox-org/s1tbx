@@ -18,11 +18,11 @@ public class BufferedImageRendering implements Rendering {
 
     public BufferedImageRendering(int width, int height) {
         this(new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR),
-             new DefaultViewport(new Rectangle(0, 0, width, height)));
+             new DefaultViewport(new Rectangle(0, 0, width, height), true));
     }
 
     public BufferedImageRendering(BufferedImage image) {
-        this(image, new DefaultViewport(new Rectangle(0, 0, image.getWidth(), image.getHeight())));
+        this(image, new DefaultViewport(new Rectangle(0, 0, image.getWidth(), image.getHeight()), true));
     }
 
     public BufferedImageRendering(BufferedImage image, Viewport viewport) {

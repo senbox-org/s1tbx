@@ -134,13 +134,13 @@ public class Layer extends ExtensibleObject {
     /**
      * Gets the bounds (bounding box) of the layer in model coordinates.
      * The default implementation returns the union of the bounds (if any) returned by
-     * {@link #getLayerBounds()} and {@link #getChildLayersBounds()}.
+     * {@link #getLayerModelBounds()} and {@link #getChildLayersBounds()}.
      *
      * @return The bounds of the layer in model coordinates or {@code null} if this layer
      *         has no specified boundary.
      */
     public Rectangle2D getModelBounds() {
-        final Rectangle2D layerBounds = getLayerBounds();
+        final Rectangle2D layerBounds = getLayerModelBounds();
         final Rectangle2D childLayersBounds = getChildLayersBounds();
         if (childLayersBounds != null && layerBounds != null) {
             Rectangle2D bounds = new Rectangle2D.Double();
@@ -163,7 +163,7 @@ public class Layer extends ExtensibleObject {
      * @return The bounds of the layer in model coordinates or {@code null} if this layer
      *         has no specified boundary.
      */
-    protected Rectangle2D getLayerBounds() {
+    protected Rectangle2D getLayerModelBounds() {
         return null;
     }
 

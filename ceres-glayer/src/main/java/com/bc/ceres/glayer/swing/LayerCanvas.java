@@ -18,16 +18,16 @@ package com.bc.ceres.glayer.swing;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.LayerViewInvalidationListener;
+import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.NavControl.NavControlModel;
 import com.bc.ceres.grender.InteractiveRendering;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
+import com.bc.ceres.grender.AdjustableView;
 import com.bc.ceres.grender.support.DefaultViewport;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 
@@ -45,13 +45,14 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 
     private boolean navControlShown;
     private WakefulComponent navControlWrapper;
+    private boolean painted;
 
     public LayerCanvas() {
         this(new Layer());
     }
 
     public LayerCanvas(Layer layer) {
-        this(layer, new DefaultViewport());
+        this(layer, new DefaultViewport(true));
     }
 
     public LayerCanvas(final Layer layer, final Viewport viewport) {
@@ -136,6 +137,41 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         return modelArea;
     }
 
+    @Override
+    public double getMinZoomFactor() {
+        double vw = viewport.getViewBounds().width;
+        double vh = viewport.getViewBounds().height;
+        double mw = modelArea.getWidth();
+        double mh = modelArea.getHeight();
+        return 0.5 * Math.min(vw / mw, vh / mh);
+    }
+
+    @Override
+    public double getMaxZoomFactor() {
+        return 32 * getDefaultZoomFactor();
+    }
+
+    @Override
+    public double getDefaultZoomFactor() {
+        Layer layer = getLayer();
+        double sI2M = getMinImageToModelScale(layer, 0);
+        return 1.0 / sI2M;
+    }
+
+    private double getMinImageToModelScale(Layer layer, double minScale) {
+        if (layer instanceof ImageLayer) {
+            ImageLayer imageLayer = (ImageLayer) layer;
+            double scale = Math.sqrt(Math.abs(imageLayer.getImageToModelTransform().getDeterminant()));
+            if (scale < minScale) {
+                minScale = scale;
+            }
+        }
+        for (Layer childLayer : layer.getChildLayerList()) {
+            minScale = getMinImageToModelScale(childLayer, minScale);
+        }
+        return minScale;
+    }
+
     public void setBounds(int x, int y, int width, int height) {
         viewport.setViewBounds(new Rectangle(x, y, width, height));
         super.setBounds(x, y, width, height);
@@ -152,6 +188,11 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 
     @Override
     protected void paintComponent(Graphics g) {
+        if (!painted && modelArea != null && !modelArea.isEmpty()) {
+            painted = true;
+            getViewport().zoom(modelArea);
+        }
+                
         // ensure clipping is set
         if (g.getClipBounds() == null) {
             g.setClip(getX(), getY(), getWidth(), getHeight());

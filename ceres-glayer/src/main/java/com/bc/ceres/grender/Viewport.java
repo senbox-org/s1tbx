@@ -15,6 +15,8 @@ import java.awt.geom.Rectangle2D;
  * @author Norman Fomferra
  */
 public interface Viewport {
+    boolean isModelYAxisDown();
+
     /**
      * @return The bounds in view coordinates.
      */

@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package com.bc.ceres.glayer.swing;
+package com.bc.ceres.grender;
 
 import com.bc.ceres.grender.Viewport;
 
@@ -23,7 +23,7 @@ import java.awt.geom.Rectangle2D;
 
 /**
  * {@link javax.swing.JComponent JComponent}s implementing this interface are views which can
- * be adjusted using the {@link ViewportScrollPane}.
+ * be adjusted using the {@link com.bc.ceres.glayer.swing.ViewportScrollPane}.
  */
 public interface AdjustableView {
     /**
@@ -35,4 +35,22 @@ public interface AdjustableView {
      * @return The viewable area in model coordinates.
      */
     Rectangle2D getModelBounds();
+
+    /**
+     * @return The default zoom factor.
+     * @see com.bc.ceres.grender.Viewport#getZoomFactor()
+     */
+    double getDefaultZoomFactor();
+
+    /**
+     * @return The minimum zoom factor.
+     * @see com.bc.ceres.grender.Viewport#getZoomFactor()
+     */
+    double getMinZoomFactor();
+
+    /**
+     * @return The maximum zoom factor.
+     * @see com.bc.ceres.grender.Viewport#getZoomFactor()
+     */
+    double getMaxZoomFactor();
 }

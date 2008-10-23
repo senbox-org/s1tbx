@@ -13,9 +13,10 @@ import java.util.ArrayList;
 
 public class DefaultViewport implements Viewport {
 
-    private final Rectangle bounds;
-    private final AffineTransform viewToModelTransform;
+    private final Rectangle viewBounds;
     private final AffineTransform modelToViewTransform;
+    private final AffineTransform viewToModelTransform;
+    private final boolean modelYAxisDown;
     private double orientation;
     private final ArrayList<ViewportListener> changeListeners;
 
@@ -23,23 +24,36 @@ public class DefaultViewport implements Viewport {
         this(new Rectangle());
     }
 
-    public DefaultViewport(Rectangle bounds) {
-        Assert.notNull(bounds, "bounds");
-        this.bounds = new Rectangle(bounds);
-        this.viewToModelTransform = new AffineTransform();
-        this.modelToViewTransform = new AffineTransform();
+    public DefaultViewport(Rectangle viewBounds) {
+        this(viewBounds, false);
+    }
+
+    public DefaultViewport(boolean modelYAxisDown) {
+        this(new Rectangle(), modelYAxisDown);
+    }
+
+    public DefaultViewport(Rectangle viewBounds, boolean modelYAxisDown) {
+        Assert.notNull(viewBounds, "viewBounds");
+        this.viewBounds = new Rectangle(viewBounds);
+        this.modelYAxisDown = modelYAxisDown;
+        this.modelToViewTransform = AffineTransform.getScaleInstance(1.0, modelYAxisDown ? 1.0 : -1.0);
+        this.viewToModelTransform = AffineTransform.getScaleInstance(1.0, modelYAxisDown ? 1.0 : -1.0);
         this.changeListeners = new ArrayList<ViewportListener>(3);
+    }
+
+    public boolean isModelYAxisDown() {
+        return modelYAxisDown;
     }
 
     @Override
     public Rectangle getViewBounds() {
-        return new Rectangle(bounds);
+        return new Rectangle(viewBounds);
     }
 
     @Override
     public void setViewBounds(Rectangle bounds) {
-        Assert.notNull(bounds, "bounds");
-        this.bounds.setRect(bounds);
+        Assert.notNull(bounds, "viewBounds");
+        this.viewBounds.setRect(bounds);
         fireViewportChanged(false);
     }
 
@@ -88,7 +102,7 @@ public class DefaultViewport implements Viewport {
 
     @Override
     public double getZoomFactor() {
-        return Math.sqrt(modelToViewTransform.getDeterminant());
+        return Math.sqrt(Math.abs(modelToViewTransform.getDeterminant()));
     }
 
     @Override
@@ -98,8 +112,8 @@ public class DefaultViewport implements Viewport {
 
     @Override
     public void zoom(Rectangle2D modelArea) {
-        final double viewportWidth = bounds.width;
-        final double viewportHeight = bounds.height;
+        final double viewportWidth = viewBounds.width;
+        final double viewportHeight = viewBounds.height;
         final double zoomFactor = Math.min(viewportWidth / modelArea.getWidth(),
                                            viewportHeight / modelArea.getHeight());
         zoom(modelArea.getCenterX(),
@@ -109,13 +123,13 @@ public class DefaultViewport implements Viewport {
 
     @Override
     public void zoom(double modelCenterX, double modelCenterY, double zoomFactor) {
-        final double viewportWidth = bounds.width;
-        final double viewportHeight = bounds.height;
+        final double viewportWidth = viewBounds.width;
+        final double viewportHeight = viewBounds.height;
         final double modelOffsetX = modelCenterX - 0.5 * viewportWidth / zoomFactor;
         final double modelOffsetY = modelCenterY - 0.5 * viewportHeight / zoomFactor;
         final double orientation = getOrientation();
         // todo - use code similar to setZoomFactor(f, vp) (nf - 21.10.2008)
-        final AffineTransform m2v = new AffineTransform();
+        final AffineTransform m2v = AffineTransform.getScaleInstance(1.0, modelYAxisDown ? 1.0 : -1.0);
         m2v.scale(zoomFactor, zoomFactor);
         m2v.translate(-modelOffsetX, -modelOffsetY);
         modelToViewTransform.setTransform(m2v);
@@ -153,7 +167,7 @@ public class DefaultViewport implements Viewport {
 
 
     private Point2D.Double getViewportCenterPoint() {
-        return new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
+        return new Point2D.Double(viewBounds.getCenterX(), viewBounds.getCenterY());
     }
 
     @Override

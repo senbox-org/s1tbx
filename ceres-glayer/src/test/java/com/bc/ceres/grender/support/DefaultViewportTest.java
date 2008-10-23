@@ -15,7 +15,7 @@ public class DefaultViewportTest {
 
     @Test
     public void testDefaultSettings() {
-        final DefaultViewport viewport = new DefaultViewport();
+        final DefaultViewport viewport = new DefaultViewport(true);
         assertEquals(new AffineTransform(), viewport.getModelToViewTransform());
         assertEquals(new AffineTransform(), viewport.getViewToModelTransform());
         assertEquals(p(0.0, 0.0), getModelOffset(viewport));
@@ -40,7 +40,7 @@ public class DefaultViewportTest {
 
     @Test
     public void testInverse() {
-        final DefaultViewport viewport = new DefaultViewport();
+        final DefaultViewport viewport = new DefaultViewport(true);
 
         final AffineTransform m2v = viewport.getModelToViewTransform();
         assertNotSame(m2v, viewport.getModelToViewTransform());
@@ -59,7 +59,7 @@ public class DefaultViewportTest {
 
     @Test
     public void testMove() {
-        final DefaultViewport viewport = new DefaultViewport();
+        final DefaultViewport viewport = new DefaultViewport(true);
         viewport.moveViewDelta(15.0, 10.0);
         assertEquals(p(-15.0, -10.0), getModelOffset(viewport));
         viewport.moveViewDelta(-15.0, -10.0);
@@ -68,7 +68,7 @@ public class DefaultViewportTest {
 
     @Test
     public void testZoomFactor() {
-        final DefaultViewport viewport = new DefaultViewport();
+        final DefaultViewport viewport = new DefaultViewport(true);
         Point2D vc, uc;
         viewport.moveViewDelta(-10, -10);
 
