@@ -24,65 +24,61 @@ import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
 
+import java.awt.geom.AffineTransform;
+import java.awt.Point;
+
 public class MapGeoCodingTest extends TestCase {
 
-    private MapGeoCoding _mapGeoCoding;
-
-    public void setUp() {
-        final IdentityTransformDescriptor td = new IdentityTransformDescriptor();
-        final MapTransform transform = td.createTransform(null);
-        final MapProjection projection = new MapProjection("wullidutsch", transform);
-        final MapInfo mapInfo = new MapInfo(projection, 0, 0, 0, 0, 1, 1, Datum.WGS_84);
-        _mapGeoCoding = new MapGeoCoding(mapInfo);
-    }
-
     public void testFail() {
+        MapGeoCoding mapGeoCoding = createIdentityMapGeoCoding();
 
         final GeoPos geoPos = new GeoPos();
 
-        _mapGeoCoding.getGeoPos(new PixelPos(-180, 10), geoPos);
+        mapGeoCoding.getGeoPos(new PixelPos(-180, 10), geoPos);
         assertEquals(-10, geoPos.getLat(), 1e-5);
         assertEquals(-180, geoPos.getLon(), 1e-5);
 
-        _mapGeoCoding.getGeoPos(new PixelPos(-180.00001f, 15), geoPos);
+        mapGeoCoding.getGeoPos(new PixelPos(-180.00001f, 15), geoPos);
         assertEquals(-15, geoPos.getLat(), 1e-5);
         assertEquals(179.99999, geoPos.getLon(), 1e-5);
 
-        _mapGeoCoding.getGeoPos(new PixelPos(180, 20), geoPos);
+        mapGeoCoding.getGeoPos(new PixelPos(180, 20), geoPos);
         assertEquals(-20, geoPos.getLat(), 1e-5);
         assertEquals(180, geoPos.getLon(), 1e-5);
 
-        _mapGeoCoding.getGeoPos(new PixelPos(180.00001f, 25), geoPos);
+        mapGeoCoding.getGeoPos(new PixelPos(180.00001f, 25), geoPos);
         assertEquals(-25, geoPos.getLat(), 1e-5);
         assertEquals(-179.99999, geoPos.getLon(), 1e-5);
 
-        _mapGeoCoding.getGeoPos(new PixelPos(-360 - 180, 10), geoPos);
+        mapGeoCoding.getGeoPos(new PixelPos(-360 - 180, 10), geoPos);
         assertEquals(-10, geoPos.getLat(), 1e-5);
         assertEquals(-180, geoPos.getLon(), 1e-5);
 
-        _mapGeoCoding.getGeoPos(new PixelPos(-360 - 180.0001f, 15), geoPos);
+        mapGeoCoding.getGeoPos(new PixelPos(-360 - 180.0001f, 15), geoPos);
         assertEquals(-15, geoPos.getLat(), 1e-5);
         assertEquals(179.9999, geoPos.getLon(), 1e-4);
 
-        _mapGeoCoding.getGeoPos(new PixelPos(360 + 180, 20), geoPos);
+        mapGeoCoding.getGeoPos(new PixelPos(360 + 180, 20), geoPos);
         assertEquals(-20, geoPos.getLat(), 1e-5);
         assertEquals(180, geoPos.getLon(), 1e-5);
 
-        _mapGeoCoding.getGeoPos(new PixelPos(360 + 180.0001f, 25), geoPos);
+        mapGeoCoding.getGeoPos(new PixelPos(360 + 180.0001f, 25), geoPos);
         assertEquals(-25, geoPos.getLat(), 1e-5);
         assertEquals(-179.9999, geoPos.getLon(), 1e-4);
     }
 
     public void testTransferGeoCodingWithoutSubset() {
+        MapGeoCoding mapGeoCoding = createIdentityMapGeoCoding();
+
         final Band destNode = new Band("destDummy",ProductData.TYPE_INT8, 10,20);
         final Band srcNode = new Band("srcDummy",ProductData.TYPE_INT8, 10,20);
-        srcNode.setGeoCoding(_mapGeoCoding);
+        srcNode.setGeoCoding(mapGeoCoding);
         final Scene destScene = SceneFactory.createScene(destNode);
         final Scene srcScene = SceneFactory.createScene(srcNode);
         srcScene.transferGeoCodingTo(destScene, null);
 
-        assertNotSame(_mapGeoCoding, destScene.getGeoCoding());
-        final MapInfo origMapInfo = _mapGeoCoding.getMapInfo();
+        assertNotSame(mapGeoCoding, destScene.getGeoCoding());
+        final MapInfo origMapInfo = mapGeoCoding.getMapInfo();
         final MapInfo copyMapInfo = ((MapGeoCoding) destScene.getGeoCoding()).getMapInfo();
 
 
@@ -102,8 +98,10 @@ public class MapGeoCodingTest extends TestCase {
     }
 
     public void testTransferGeoCodingWithSubset() {
+        MapGeoCoding mapGeoCoding = createIdentityMapGeoCoding();
+
         final Band srcNode = new Band("srcDummy",ProductData.TYPE_INT8, 10,20);
-        srcNode.setGeoCoding(_mapGeoCoding);
+        srcNode.setGeoCoding(mapGeoCoding);
         final Scene srcScene = SceneFactory.createScene(srcNode);
         final Band destNode = new Band("destDummy",ProductData.TYPE_INT8, 10,20);
         final Scene destScene = SceneFactory.createScene(destNode);
@@ -113,8 +111,8 @@ public class MapGeoCodingTest extends TestCase {
         subsetDef.setRegion(10,10,50,50);
         srcScene.transferGeoCodingTo(destScene, subsetDef);
 
-        assertNotSame(_mapGeoCoding, destNode.getGeoCoding());
-        final MapInfo origMapInfo = _mapGeoCoding.getMapInfo();
+        assertNotSame(mapGeoCoding, destNode.getGeoCoding());
+        final MapInfo origMapInfo = mapGeoCoding.getMapInfo();
         final MapInfo copyMapInfo = ((MapGeoCoding)destNode.getGeoCoding()).getMapInfo();
 
         assertNotSame(origMapInfo, copyMapInfo);
@@ -136,7 +134,85 @@ public class MapGeoCodingTest extends TestCase {
                      copyMapInfo.getPixelY(), 1e-6);
         assertEquals(destScene.getRasterHeight(), copyMapInfo.getSceneHeight(), 1e-6);
         assertEquals(destScene.getRasterWidth(), copyMapInfo.getSceneWidth(), 1e-6);
+    }
 
+    public void testAT() {
+        AffineTransform transform = new AffineTransform();
 
+        transform.translate(1, 2);
+        transform.scale(3, 4);
+
+        assertEquals(new Point(1 + 3 * 10, 2 + 4 * 11), transform.transform(new Point(10, 11), null));
+    }
+
+    public void testThatAffineTransformCanBeUsedInstead() {
+         MapGeoCoding mapGeoCoding = createNonRotatedMapGeoCoding();
+
+        float x, y, lat, lon, cosa, sina;
+
+        x = 0.0f;
+        y = 0.0f;
+        lon = +5.6f + (x - -1.2f) * +0.9f;
+        lat = -7.8f - (y - +3.4f) * -1.0f;
+        testPixelToMapTransform(mapGeoCoding, x, y, lat, lon);
+
+        x = 1.0f;
+        y = -2.0f;
+        lon = +5.6f + (x - -1.2f) * +0.9f;
+        lat = -7.8f - (y - +3.4f) * -1.0f;
+        testPixelToMapTransform(mapGeoCoding, x, y, lat, lon);
+
+        cosa = (float) Math.cos(Math.toRadians(42));
+        sina = (float) Math.sin(Math.toRadians(42));
+
+        mapGeoCoding = createRotatedMapGeoCoding();
+        x = 0.0f;
+        y = 0.0f;
+        lon = +5.6f + ((x - -1.2f)* cosa + (y - +3.4f) * sina) * +0.9f;
+        lat = -7.8f - ((x - -1.2f)* -sina + (y - +3.4f) * cosa) * -1.0f;
+        testPixelToMapTransform(mapGeoCoding, x, y, lat, lon);
+
+        x = 1.0f;
+        y = -2.0f;
+        lon = +5.6f + ((x - -1.2f)* cosa + (y - +3.4f) * sina) * +0.9f;
+        lat = -7.8f - ((x - -1.2f)* -sina + (y - +3.4f) * cosa) * -1.0f;
+        testPixelToMapTransform(mapGeoCoding, x, y, lat, lon);
+    }
+
+    private static void testPixelToMapTransform(MapGeoCoding mapGeoCoding, float x, float y, float lat, float lon) {
+        GeoPos expectedGP = new GeoPos(lat, lon);
+        PixelPos expectedPP = new PixelPos(x, y);
+
+        GeoPos someGP = mapGeoCoding.getGeoPos(expectedPP, null);
+        assertEquals(expectedGP.lon, someGP.lon, 1e-4f);
+        assertEquals(expectedGP.lat, someGP.lat, 1e-4f);
+        PixelPos somePP = mapGeoCoding.getPixelPos(expectedGP, null);
+        assertEquals(expectedPP.x, somePP.x, 1e-4f);
+        assertEquals(expectedPP.y, somePP.y, 1e-4f);
+    }
+
+    private MapGeoCoding createIdentityMapGeoCoding() {
+        final IdentityTransformDescriptor td = new IdentityTransformDescriptor();
+        final MapTransform transform = td.createTransform(null);
+        final MapProjection projection = new MapProjection("wullidutsch", transform);
+        final MapInfo mapInfo = new MapInfo(projection, 0, 0, 0, 0, 1, 1, Datum.WGS_84);
+        return new MapGeoCoding(mapInfo);
+    }
+
+    private MapGeoCoding createNonRotatedMapGeoCoding() {
+        return new MapGeoCoding(createMapInfo());
+    }
+
+    private MapGeoCoding createRotatedMapGeoCoding() {
+        final MapInfo mapInfo = createMapInfo();
+        mapInfo.setOrientation(42.0f);
+        return new MapGeoCoding(mapInfo);
+    }
+
+    private MapInfo createMapInfo() {
+        final IdentityTransformDescriptor td = new IdentityTransformDescriptor();
+        final MapTransform transform = td.createTransform(null);
+        final MapProjection projection = new MapProjection("wullidutsch", transform);
+        return new MapInfo(projection, -1.2f, 3.4f, 5.6f, -7.8f, 0.9f, -1.0f, Datum.WGS_84);
     }
 }

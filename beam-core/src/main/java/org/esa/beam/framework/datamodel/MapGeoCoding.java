@@ -24,6 +24,8 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 
 /**
@@ -35,16 +37,9 @@ import java.awt.geom.Point2D;
 public class MapGeoCoding extends AbstractGeoCoding {
 
     private final MapInfo _mapInfo;
-    private final double _mapOffsetX; // = Easting
-    private final double _mapOffsetY; // = Northing
-    private final double _pixelOffsetX; // = Reference pixel X
-    private final double _pixelOffsetY; // = Reference pixel Y
-    private final double _pixelSizeX;
-    private final double _pixelSizeY;
-    private final boolean _rotated;
-    private final double _sinOrientation;
-    private final double _cosOrientation;
     private final MapTransform _mapTransform;
+    private final AffineTransform pixelToMapTransform;
+    private final AffineTransform mapToPixelTransform;
 
     private final boolean _normalized;
     private final double _normalizedLonMin;
@@ -57,31 +52,28 @@ public class MapGeoCoding extends AbstractGeoCoding {
      * Constructs a map geo-coding based on the given map information.
      *
      * @param mapInfo the map infomation
-     *
      * @throws IllegalArgumentException if the given mapInfo is <code>null</code>.
      */
     public MapGeoCoding(MapInfo mapInfo) {
         Guardian.assertNotNull("mapInfo", mapInfo);
 
         _mapInfo = mapInfo;
-        _mapOffsetX = _mapInfo.getEasting();
-        _mapOffsetY = _mapInfo.getNorthing();
-        _pixelOffsetX = _mapInfo.getPixelX();
-        _pixelOffsetY = _mapInfo.getPixelY();
-        _pixelSizeX = _mapInfo.getPixelSizeX();
-        _pixelSizeY = _mapInfo.getPixelSizeY();
-        _rotated = _mapInfo.getOrientation() != 0;
-        _sinOrientation = Math.sin(Math.toRadians(_mapInfo.getOrientation()));
-        _cosOrientation = Math.cos(Math.toRadians(_mapInfo.getOrientation()));
+
         _mapTransform = _mapInfo.getMapProjection().getMapTransform();
+        pixelToMapTransform = _mapInfo.getPixelToMapTransform();
+        try {
+            mapToPixelTransform = _mapInfo.getPixelToMapTransform().createInverse();
+        } catch (NoninvertibleTransformException e) {
+            throw new IllegalArgumentException("mapInfo", e);
+        }
 
         final Rectangle rect = new Rectangle(0, 0, mapInfo.getSceneWidth(), mapInfo.getSceneHeight());
         if (!rect.isEmpty()) {
             final GeoPos[] geoPoints = createGeoBoundary(rect);
             _normalized = ProductUtils.normalizeGeoPolygon(geoPoints) != 0;
             double normalizedLonMin = Double.MAX_VALUE;
-            for (int i = 0; i < geoPoints.length; i++) {
-                normalizedLonMin = Math.min(normalizedLonMin, geoPoints[i].lon);
+            for (GeoPos geoPoint : geoPoints) {
+                normalizedLonMin = Math.min(normalizedLonMin, geoPoint.lon);
             }
             _normalizedLonMin = normalizedLonMin;
         } else {
@@ -92,6 +84,8 @@ public class MapGeoCoding extends AbstractGeoCoding {
 
     /**
      * Returns the map information on which this geo-coding is based.
+     *
+     * @return the map information
      */
     public MapInfo getMapInfo() {
         return _mapInfo;
@@ -131,7 +125,6 @@ public class MapGeoCoding extends AbstractGeoCoding {
      * @param geoPos   the geographical position as lat/lon.
      * @param pixelPos an instance of <code>PixelPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
-     *
      * @return the pixel co-ordinates as x/y
      */
     public final PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
@@ -146,7 +139,6 @@ public class MapGeoCoding extends AbstractGeoCoding {
      * @param pixelPos the pixel's co-ordinates given as x,y
      * @param geoPos   an instance of <code>GeoPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
-     *
      * @return the geographical position as lat/lon.
      */
     public final GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
@@ -192,34 +184,17 @@ public class MapGeoCoding extends AbstractGeoCoding {
     }
 
     private PixelPos mapToPixel(final Point2D mapPos, PixelPos pixelPos) {
-        double px = +(mapPos.getX() - _mapOffsetX) / _pixelSizeX;
-        double py = -(mapPos.getY() - _mapOffsetY) / _pixelSizeY;
-        if (_rotated) {
-            final double x = px * _cosOrientation - py * _sinOrientation;
-            final double y = px * _sinOrientation + py * _cosOrientation;
-            px = x;
-            py = y;
+        if (pixelPos != null) {
+            mapToPixelTransform.transform(mapPos, pixelPos);
+            return pixelPos;
+        } else {
+            Point2D point2D = mapToPixelTransform.transform(mapPos, pixelPos);
+            return new PixelPos((float) point2D.getX(), (float) point2D.getY());
         }
-        if (pixelPos == null) {
-            pixelPos = new PixelPos();
-        }
-        pixelPos.x = (float) (px + _pixelOffsetX);
-        pixelPos.y = (float) (py + _pixelOffsetY);
-        return pixelPos;
     }
 
     private Point2D pixelToMap(final PixelPos pixelPos, Point2D mapPos) {
-        double px = pixelPos.x - _pixelOffsetX;
-        double py = pixelPos.y - _pixelOffsetY;
-        if (_rotated) {
-            final double x = px;
-            final double y = py;
-            px = x * _cosOrientation + y * _sinOrientation;
-            py = -x * _sinOrientation + y * _cosOrientation;
-        }
-        mapPos.setLocation(_mapOffsetX + px * _pixelSizeX,
-                           _mapOffsetY - py * _pixelSizeY);
-        return mapPos;
+        return pixelToMapTransform.transform(pixelPos, mapPos);
     }
 
     private GeoPos normGeoPos(final GeoPos geoPos, final GeoPos geoPosNorm) {
@@ -265,11 +240,11 @@ public class MapGeoCoding extends AbstractGeoCoding {
      * @param srcScene  the source scene
      * @param destScene the destination scene
      * @param subsetDef the definition of the subset, may be <code>null</code>
-     *
      * @return true, if the geo-coding could be transferred.
      */
+    @Override
     public boolean transferGeoCoding(final Scene srcScene, final Scene destScene, final ProductSubsetDef subsetDef) {
-        final MapGeoCoding srcMapGeoCoding = ((MapGeoCoding)srcScene.getGeoCoding());
+        final MapGeoCoding srcMapGeoCoding = ((MapGeoCoding) srcScene.getGeoCoding());
         final MapInfo srcMapInfo = srcMapGeoCoding.getMapInfo();
         float pixelX = srcMapInfo.getPixelX();
         float pixelY = srcMapInfo.getPixelY();
@@ -311,7 +286,6 @@ public class MapGeoCoding extends AbstractGeoCoding {
         destMapInfo.setNorthing(northing);
         destMapInfo.setPixelSizeX(pixelSizeX);
         destMapInfo.setPixelSizeY(pixelSizeY);
-        // todo: check if this is correct
         destMapInfo.setSceneWidth(destScene.getRasterWidth());
         destMapInfo.setSceneHeight(destScene.getRasterHeight());
         destScene.setGeoCoding(new MapGeoCoding(destMapInfo));

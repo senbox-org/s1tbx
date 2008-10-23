@@ -19,6 +19,9 @@ package org.esa.beam.framework.dataop.maptransf;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.util.Guardian;
 
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+
 
 /**
  * The <code>MapInfo</code> class holds information required to bring the cartographic map co-ordinate system to a
@@ -153,7 +156,7 @@ public class MapInfo implements Cloneable {
      * north (in degrees), with other words, the convergence angle of the projection's vertical axis from true north.
      * A positive angle means clockwise rotation, a negative angle means counter-clockwise rotation.
      *
-     * @return the orientation anlge in degree
+     * @return the orientation angle in degree
      */
     public float getOrientation() {
         return _orientation;
@@ -272,6 +275,7 @@ public class MapInfo implements Cloneable {
         return buffer.toString();
     }
 
+    @Override
     public Object clone() {
         try {
             final MapInfo mapInfo = (MapInfo) super.clone();
@@ -285,5 +289,14 @@ public class MapInfo implements Cloneable {
 
     public MapInfo createDeepClone() {
         return (MapInfo) clone();
+    }
+
+    public AffineTransform getPixelToMapTransform() {
+        AffineTransform transform = new AffineTransform();
+        transform.translate(getEasting(), getNorthing());
+        transform.scale(getPixelSizeX(), -getPixelSizeY());
+        transform.rotate(Math.toRadians(-getOrientation()));
+        transform.translate(-getPixelX(), -getPixelY());
+        return transform;
     }
 }

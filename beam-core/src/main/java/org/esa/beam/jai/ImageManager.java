@@ -58,32 +58,14 @@ public class ImageManager {
         final int w = scene.getRasterWidth();
         final int h = scene.getRasterHeight();
 
-        // TODO - BLOCKER: Use scene.getGeoCoding().getMapInfo() to construct i2mTransform. SMOS will not work otherwise.  (nf, 19.09.2008)
-        final AffineTransform i2mTransform = new AffineTransform();
-
-/*      this code constructs the i2mTransform from the map info,
-        but since layer bounds are wrong using this transform breaks the display of map-projected scenes (rq)
-*/
-        if (productNode.getProduct() != null && productNode.getProduct().getGeoCoding() != null &&
-                productNode.getProduct().getGeoCoding() instanceof MapGeoCoding) {
+        final AffineTransform i2mTransform;
+        if (productNode.getProduct() != null
+                && productNode.getProduct().getGeoCoding() instanceof MapGeoCoding) {
             final MapGeoCoding mapGeoCoding = (MapGeoCoding) productNode.getProduct().getGeoCoding();
             final MapInfo mapInfo = mapGeoCoding.getMapInfo();
-            final double theta = -Math.toRadians(mapInfo.getOrientation());
-            
-            i2mTransform.translate(mapInfo.getEasting(), mapInfo.getNorthing());
-            i2mTransform.scale(mapInfo.getPixelSizeX(), mapInfo.getPixelSizeY());
-            i2mTransform.rotate(theta);
-
-// Ralfs old transformation code. TODO Remove, if above code is verified (mz,22.10.2008)
-//            final double s = Math.sin(theta);
-//            final double c = Math.cos(theta);
-//            final double m00 = mapInfo.getPixelSizeX() * c;
-//            final double m01 = mapInfo.getPixelSizeX() * s;
-//            final double m10 = mapInfo.getPixelSizeY() * s;
-//            final double m11 = mapInfo.getPixelSizeY() * c;
-//            final double m02 = mapInfo.getEasting() - m00 * mapInfo.getPixelX() - m01 * mapInfo.getPixelY();
-//            final double m12 = mapInfo.getNorthing() - m10 * mapInfo.getPixelX() - m11 * mapInfo.getPixelY();
-//            i2mTransform.setTransform(m00, m10, m01, m11, m02, m12);
+            i2mTransform = mapInfo.getPixelToMapTransform();
+        } else {
+            i2mTransform = new AffineTransform();
         }
 
         return new DefaultMultiLevelModel(i2mTransform, w, h);

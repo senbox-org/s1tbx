@@ -133,6 +133,7 @@ public class GeoPos {
      *
      * @return <code>true</code> if this object is the same as the obj argument; <code>false</code> otherwise.
      */
+    @Override
     public boolean equals(Object obj) {
         if (super.equals(obj)) {
             return true;
@@ -149,6 +150,7 @@ public class GeoPos {
      *
      * @return a hash code value for this object.
      */
+    @Override
     public int hashCode() {
         return Float.floatToIntBits(lat) + Float.floatToIntBits(lon);
     }
@@ -159,6 +161,7 @@ public class GeoPos {
      *
      * @return a string representation of the object.
      */
+    @Override
     public String toString() {
         return getClass().getName() + "[" + getLatString() + "," + getLonString() + "]";
     }
