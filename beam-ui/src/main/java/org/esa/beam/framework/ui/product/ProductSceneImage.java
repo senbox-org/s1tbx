@@ -181,8 +181,8 @@ public class ProductSceneImage {
         final FigureLayer figureLayer = createFigureLayer();
         final ImageLayer roiLayer = createRoiLayer(i2mTransform);
         final GraticuleLayer graticuleLayer = createGraticuleLayer(i2mTransform);
-        final PlacemarkLayer pinLayer = createPinLayer();
-        final PlacemarkLayer gcpLayer = createGcpLayer();
+        final PlacemarkLayer pinLayer = createPinLayer(i2mTransform);
+        final PlacemarkLayer gcpLayer = createGcpLayer(i2mTransform);
         final Layer bitmaskLayer = createBitmaskCollectionLayer(i2mTransform);
 
         rootLayer = new Layer();
@@ -428,9 +428,9 @@ public class ProductSceneImage {
         layer.setStyle(style);
     }
 
-    private PlacemarkLayer createPinLayer() {
+    private PlacemarkLayer createPinLayer(AffineTransform i2mTransform) {
         final PlacemarkLayer pinLayer = new PlacemarkLayer(getRaster().getProduct(), PinDescriptor.INSTANCE,
-                new AffineTransform());
+                i2mTransform);
         pinLayer.setName("Pins");
         pinLayer.setVisible(false);
         setPinLayerStyle(configuration, pinLayer);
@@ -455,9 +455,9 @@ public class ProductSceneImage {
         layer.setStyle(style);
     }
 
-    private PlacemarkLayer createGcpLayer() {
+    private PlacemarkLayer createGcpLayer(AffineTransform i2mTransform) {
         final PlacemarkLayer gcpLayer = new PlacemarkLayer(getRaster().getProduct(), GcpDescriptor.INSTANCE,
-                new AffineTransform());
+                i2mTransform);
         gcpLayer.setName("GCPs");
         gcpLayer.setVisible(false);
         setGcpLayerStyle(configuration, gcpLayer);
