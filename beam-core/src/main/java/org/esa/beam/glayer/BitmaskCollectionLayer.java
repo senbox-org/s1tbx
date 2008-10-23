@@ -36,9 +36,11 @@ public class BitmaskCollectionLayer extends Layer {
     private RasterDataNode rasterDataNode;
     private final ProductNodeListener bitmaskDefListener;
     private final ProductNodeListener bitmaskOverlayInfoListener;
+    private final AffineTransform i2mTransform;
 
-    public BitmaskCollectionLayer(RasterDataNode rasterDataNode) {
+    public BitmaskCollectionLayer(RasterDataNode rasterDataNode, AffineTransform i2mTransform) {
         this.rasterDataNode = rasterDataNode;
+        this.i2mTransform = i2mTransform;
         setName("Bitmasks");
         final BitmaskDef[] bitmaskDefs = getProduct().getBitmaskDefs();
         for (final BitmaskDef bitmaskDef : bitmaskDefs) {
@@ -70,26 +72,6 @@ public class BitmaskCollectionLayer extends Layer {
     private Layer createBitmaskLayer(final BitmaskDef bitmaskDef) {
         final Color color = bitmaskDef.getColor();
         final String expr = bitmaskDef.getExpr();
-
-        final AffineTransform i2mTransform = new AffineTransform();
-
-        // todo - the following code is duplicated in ImageManager.createMultiLevelModel() (rq)
-        if (getProduct() != null && getProduct().getGeoCoding() != null &&
-                getProduct().getGeoCoding() instanceof MapGeoCoding) {
-            final MapGeoCoding mapGeoCoding = (MapGeoCoding) getProduct().getGeoCoding();
-            final MapInfo mapInfo = mapGeoCoding.getMapInfo();
-            final double theta = -Math.toRadians(mapInfo.getOrientation());
-            final double s = Math.sin(theta);
-            final double c = Math.cos(theta);
-            final double m00 = mapInfo.getPixelSizeX() * c;
-            final double m01 = mapInfo.getPixelSizeX() * s;
-            final double m10 = mapInfo.getPixelSizeY() * s;
-            final double m11 = mapInfo.getPixelSizeY() * c;
-            final double m02 = mapInfo.getEasting() - m00 * mapInfo.getPixelX() - m01 * mapInfo.getPixelY();
-            final double m12 = mapInfo.getNorthing() - m10 * mapInfo.getPixelX() - m11 * mapInfo.getPixelY();
-
-            i2mTransform.setTransform(m00, m10, m01, m11, m02, m12);
-        }
 
         final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getProduct(), color, expr, false,
                 i2mTransform);

@@ -68,9 +68,11 @@ public class GraticuleLayer extends Layer {
     private RasterDataNode raster;
     private ProductNodeHandler productNodeHandler;
     private Graticule _graticule;
+    private final AffineTransform i2mTransform;
 
-    public GraticuleLayer(Product product, RasterDataNode raster) {
+    public GraticuleLayer(Product product, RasterDataNode raster, AffineTransform i2mTransform) {
         Guardian.assertNotNull("product", product);
+        this.i2mTransform = i2mTransform;
 
         productNodeHandler = new ProductNodeHandler();
 
@@ -98,7 +100,7 @@ public class GraticuleLayer extends Layer {
                 final AffineTransform transform = new AffineTransform();
                 transform.concatenate(transformSave);
                 transform.concatenate(vp.getModelToViewTransform());
-//                transform.concatenate(shapeToModelTransform);
+                transform.concatenate(i2mTransform);
                 g2d.setTransform(transform);
                 final GeneralPath[] linePaths = _graticule.getLinePaths();
                 if (linePaths != null) {

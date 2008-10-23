@@ -180,10 +180,10 @@ public class ProductSceneImage {
         final ImageLayer noDataLayer = createNoDataLayer(i2mTransform);
         final FigureLayer figureLayer = createFigureLayer();
         final ImageLayer roiLayer = createRoiLayer(i2mTransform);
-        final GraticuleLayer graticuleLayer = createGraticuleLayer();
+        final GraticuleLayer graticuleLayer = createGraticuleLayer(i2mTransform);
         final PlacemarkLayer pinLayer = createPinLayer();
         final PlacemarkLayer gcpLayer = createGcpLayer();
-        final Layer bitmaskLayer = createBitmaskCollectionLayer();
+        final Layer bitmaskLayer = createBitmaskCollectionLayer(i2mTransform);
 
         rootLayer = new Layer();
         rootLayer.getChildLayerList().add(figureLayer);
@@ -374,8 +374,8 @@ public class ProductSceneImage {
         layer.setStyle(style);
     }
 
-    private GraticuleLayer createGraticuleLayer() {
-        final GraticuleLayer graticuleLayer = new GraticuleLayer(getProduct(), getRaster());
+    private GraticuleLayer createGraticuleLayer(AffineTransform i2mTransform) {
+        final GraticuleLayer graticuleLayer = new GraticuleLayer(getProduct(), getRaster(), i2mTransform);
         graticuleLayer.setName("Graticule of " + getRaster().getName());
         graticuleLayer.setVisible(false);
         setGraticuleLayerStyle(configuration, graticuleLayer);
@@ -482,8 +482,8 @@ public class ProductSceneImage {
         layer.setStyle(style);
     }
 
-    private Layer createBitmaskCollectionLayer() {
-        return new BitmaskCollectionLayer(getRaster());
+    private Layer createBitmaskCollectionLayer(AffineTransform i2mTransform) {
+        return new BitmaskCollectionLayer(getRaster(), i2mTransform);
     }
 
     private BandImageMultiLevelSource getBandImageMultiLevelSource() {
