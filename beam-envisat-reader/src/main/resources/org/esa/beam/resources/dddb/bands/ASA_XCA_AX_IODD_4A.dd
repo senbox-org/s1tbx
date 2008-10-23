@@ -1,0 +1,21 @@
+#
+# 1) product_name
+# 2) description
+#
+ASA_XCA_AX|ASAR External Calibration Aux data
+#
+# 1) band_name
+# 2) dataset_name
+# 3) sample_offset
+# 4) band_datatype
+# 5) spectr_band_index
+# 6) scaling_method
+# 7) scaling_offset
+# 8) scaling_factor
+# 9) bit_expr
+# 10) flags_definition_file
+# 11) unit
+# 12) description
+#
+#1                |2                             |3   |4     |5|6           |7  |8      |9|10                                |11 |12
+#-----------------|------------------------------|----|------|-|------------|---|-------|-|----------------------------------|---|----------------------------------------------------

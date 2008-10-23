@@ -20,7 +20,7 @@ public class EnvisatOrbitReader extends EnvisatAuxReader {
         }
     }
 
-    private TreeMap orbitVectorMap = new TreeMap(new DateComparator());
+    private TreeMap<Date, OrbitVector> orbitVectorMap = new TreeMap<Date, OrbitVector>(new DateComparator());
 
     public EnvisatOrbitReader() {
         super();
@@ -29,7 +29,7 @@ public class EnvisatOrbitReader extends EnvisatAuxReader {
     public void readOrbitData() throws IOException {
         if (_productFile instanceof DorisOrbitProductFile) {
             DorisOrbitProductFile dorisProdFile = (DorisOrbitProductFile) _productFile;
-            Record orbitRecord = dorisProdFile.readerOrbitData();
+            Record orbitRecord = dorisProdFile.readOrbitData();
 
 
             OrbitVector orb = null;
@@ -91,10 +91,10 @@ public class EnvisatOrbitReader extends EnvisatAuxReader {
         SortedMap tail = orbitVectorMap.tailMap(date);
         if(tail.isEmpty()) return null;
 
-        return (OrbitVector) orbitVectorMap.get(tail.firstKey());
+        return orbitVectorMap.get(tail.firstKey());
     }
 
-    public static class OrbitVector {
+    public final static class OrbitVector {
 
         Date utcTime;
         double delta_ut1;

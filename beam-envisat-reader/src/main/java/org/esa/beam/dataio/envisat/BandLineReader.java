@@ -279,9 +279,10 @@ public class BandLineReader {
                 sMaxX = sourceMaxX;
             } else {
                 destRasterIncr = -1;
+
                 destPos = destRasterPos + (sourceMaxX - sourceMinX) / sourceStepX;
-                sMinX = productFile.getSceneRasterWidth() - 1 - sourceMaxX;
-                sMaxX = productFile.getSceneRasterWidth() - 1 - sourceMinX;
+                sMinX = _bandInfo.getWidth() - 1 - sourceMaxX;
+                sMaxX = _bandInfo.getWidth() - 1 - sourceMinX;
             }
 
 //            readLineRecord(sourceY);

@@ -161,7 +161,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         final BandLineReader bandLineReader = getBandLineReader(destBand);
         final int sourceMinX = sourceOffsetX;
         final int sourceMinY = sourceOffsetY;
-        final int sourceMaxX = sourceMinX + sourceWidth - 1;
+        final int sourceMaxX = Math.min(destBand.getRasterWidth()-1, sourceMinX + sourceWidth - 1);
         final int sourceMaxY = sourceMinY + sourceHeight - 1;
         int destArrayPos = 0;
 
@@ -170,18 +170,14 @@ public class EnvisatProductReader extends AbstractProductReader {
         // For each scan in the data source
         try {
 
-            if (_productFile.getProductType().equalsIgnoreCase("ASA_WSS_1P")) {
-                processWSSImageRecordMetadata(destBand);
-            }
-
             for (int sourceY = sourceMinY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
                 if (pm.isCanceled()) {
                     break;
                 }
 
                 bandLineReader.readRasterLine(sourceMinX, sourceMaxX, sourceStepX,
-                                              sourceY,
-                                              destBuffer, destArrayPos);
+                                                sourceY, 
+                                                destBuffer, destArrayPos);
 
                 destArrayPos += destWidth;
                 pm.worked(sourceStepY);
@@ -191,47 +187,6 @@ public class EnvisatProductReader extends AbstractProductReader {
             pm.done();
         }
 
-    }
-
-    private void processWSSImageRecordMetadata(Band destBand) throws IOException {
-
-        Product product = destBand.getProduct();
-        MetadataElement imgRecElem = product.getMetadataRoot().getElement("Image Record");
-        if (imgRecElem == null) {
-            imgRecElem = new MetadataElement("Image Record");
-            product.getMetadataRoot().addElement(imgRecElem);
-        }
-
-        MetadataElement bandElem = imgRecElem.getElement(destBand.getName());
-        if (bandElem == null) {
-            bandElem = new MetadataElement(destBand.getName());
-            imgRecElem.addElement(bandElem);
-        }
-
-        MetadataElement timeElem = bandElem.getElement("time");
-        if (timeElem == null) {
-            timeElem = new MetadataElement("time");
-            bandElem.addElement(timeElem);
-
-            final BandLineReader bandLineReader = getBandLineReader(destBand);
-            for (int y = 0; y <= destBand.getRasterHeight(); ++y) {
-                bandLineReader.readLineRecord(y);
-
-                saveLineRecord(timeElem, bandLineReader.getPixelDataRecord(), y);
-            }
-        }
-    }
-
-    /**
-     * add line record data into the metadata
-     *
-     * @param lineRecord the line record
-     */
-    private static void saveLineRecord(MetadataElement timeElem, Record lineRecord, int line) {
-        Field field0 = lineRecord.getFieldAt(0);
-        MetadataAttribute attribute = new MetadataAttribute(String.valueOf(line), ProductData.TYPE_FLOAT64, 1);
-        attribute.getData().setElemDouble(((ProductData.UTC) field0.getData()).getMJD());
-        timeElem.addAttribute(attribute);
     }
 
     private Product createProduct() throws IOException {
@@ -269,6 +224,8 @@ public class EnvisatProductReader extends AbstractProductReader {
         addBandsToProduct(product);
         addDefaultBitmaskDefsToProduct(product);
         addDefaultBitmaskDefsToBands(product);
+
+        _productFile.addCustomMetadata(product);
 
         return product;
     }
@@ -448,6 +405,7 @@ public class EnvisatProductReader extends AbstractProductReader {
     private void addHeaderAnnotationsToProduct(Product product) {
         Debug.assertNotNull(_productFile);
         Debug.assertNotNull(product);
+        //product.getMetadataRoot().addElement(new MetadataElement("Abstracted Metadata"));    // used by nest
         product.getMetadataRoot().addElement(createMetadataGroup("MPH", _productFile.getMPH().getParams()));
         product.getMetadataRoot().addElement(createMetadataGroup("SPH", _productFile.getSPH().getParams()));
 
@@ -632,7 +590,7 @@ public class EnvisatProductReader extends AbstractProductReader {
             Record record = recordReader.readRecord(i);
             sb.setLength(0);
             sb.append(name);
-            sb.append(".");
+            sb.append('.');
             sb.append(i + 1);
             metadataTableGroup.addElement(createMetadataGroup(sb.toString(), record));
         }
@@ -640,8 +598,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         return metadataTableGroup;
     }
 
-    private MetadataElement createMetadataGroup(String name, Record record) {
-        Debug.assertNotNull(_productFile);
+    static MetadataElement createMetadataGroup(String name, Record record) {
         Debug.assertNotNullOrEmpty(name);
         Debug.assertNotNull(record);
 

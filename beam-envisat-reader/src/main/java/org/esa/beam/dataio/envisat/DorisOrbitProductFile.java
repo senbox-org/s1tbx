@@ -1,8 +1,6 @@
 package org.esa.beam.dataio.envisat;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.StringUtils;
 
 import javax.imageio.stream.ImageInputStream;
@@ -80,7 +78,7 @@ public class DorisOrbitProductFile extends ProductFile {
         }
     }
 
-    public Record readerOrbitData() throws IOException
+    public Record readOrbitData() throws IOException
     {
         return getRecordReader(ORBIT_RECORD_NAME).readRecord();
     }
@@ -183,5 +181,19 @@ public class DorisOrbitProductFile extends ProductFile {
 
     public boolean storesPixelsInChronologicalOrder() {
         return false;
+    }
+
+    /**
+     * Allow the productFile to add any other metadata not defined in dddb
+     * @param product the product
+     * @throws IOException if reading from files
+     */
+    protected void addCustomMetadata(Product product) throws IOException {
+
+        MetadataElement root = product.getMetadataRoot();
+        Record orbitRecord = readOrbitData();
+
+        MetadataElement elem = EnvisatProductReader.createMetadataGroup("Orbit Vectors", orbitRecord);
+        root.addElement(elem);
     }
 }

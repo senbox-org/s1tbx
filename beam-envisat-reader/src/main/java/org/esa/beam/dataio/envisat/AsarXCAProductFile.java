@@ -1,9 +1,7 @@
 package org.esa.beam.dataio.envisat;
 
 import org.esa.beam.framework.dataio.ProductIOException;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.StringUtils;
 
 import javax.imageio.stream.ImageInputStream;
@@ -260,5 +258,18 @@ public class AsarXCAProductFile extends ProductFile {
         return false;
     }
 
+    /**
+     * Allow the productFile to add any other metadata not defined in dddb
+     * @param product the product
+     * @throws IOException if reading from files
+     */
+    protected void addCustomMetadata(Product product) throws IOException {
 
+        MetadataElement root = product.getMetadataRoot();
+        Record gads = getGADS();
+
+        MetadataElement elem = EnvisatProductReader.createMetadataGroup("XCA", gads);
+        root.addElement(elem);
+
+    }
 }

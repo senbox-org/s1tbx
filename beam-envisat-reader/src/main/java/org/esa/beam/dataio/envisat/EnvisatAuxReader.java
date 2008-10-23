@@ -40,20 +40,20 @@ public class EnvisatAuxReader {
      * @throws java.io.IOException if an I/O error occurs
      */
     public void readProduct(Object input) throws IOException {
-        final String filePath;
+
+        File file;
         if (input instanceof String) {
-            filePath = (String) input;
+            file = getFile((String) input);
         } else if (input instanceof File) {
-            filePath = ( (File) input).getPath();
+            file = (File) input;
         } else {
             throw new IllegalArgumentException("input");
         }
 
-        File file = getFile(filePath);
         ImageInputStream iis = getImageInputStream(file);
         String productType = ProductFile.readProductType(iis);
         if (productType == null) {
-            throw new IOException("Not an ENVISAT product or ENVISAT product type not supported: " + filePath);
+            throw new IOException("Not an ENVISAT product or ENVISAT product type not supported: " + file.toString());
         }
         // We use only the first 9 characters for comparision, since the 10th can be either 'P' or 'C'
         String productTypeUC = productType.toUpperCase().substring(0, 9);
@@ -112,7 +112,7 @@ public class EnvisatAuxReader {
         }
     }
 
-    private File getFile(String filePath) throws FileNotFoundException {
+    private static File getFile(String filePath) throws FileNotFoundException {
         File file = null;
 
         String[] exts = new String[] {"", ".gz", ".zip"};
@@ -135,7 +135,7 @@ public class EnvisatAuxReader {
         return file;
     }
 
-    private ImageInputStream getImageInputStream(File file) throws IOException {
+    private static ImageInputStream getImageInputStream(File file) throws IOException {
         if (file.getName().endsWith(".zip") || file.getName().endsWith(".gz")) {
             return new FileCacheImageInputStream(EnvisatProductReaderPlugIn.getInflaterInputStream(file), null);
         } else {
@@ -143,7 +143,7 @@ public class EnvisatAuxReader {
         }
     }
 
-    private URI getFileURI(String filePath) {
+    private static URI getFileURI(String filePath) {
         URI fileUri = null;
         URL fileUrl = EnvisatAuxReader.class.getClassLoader().getResource(filePath);
         if (fileUrl != null) {

@@ -38,7 +38,15 @@ public class EnvisatOrbitReaderTest extends TestCase {
             if (orbFile1.exists()) {
                 reader.readProduct(doris_por_orbit);
 
-                getOrbitData(reader);
+                EnvisatOrbitReader.OrbitVector orb = getOrbitData(reader);
+
+                assertEquals("Thu Apr 24 21:55:27 EDT 2008", orb.utcTime.toString());
+                assertEquals(43.0, orb.xPos);
+                assertEquals(43.0, orb.yPos);
+                assertEquals(45.0, orb.zPos);
+                assertEquals(43.0, orb.xVel);
+                assertEquals(45.0, orb.yVel);
+                assertEquals(43.0, orb.zVel);
             }
         } catch (IOException e) {
 
@@ -55,14 +63,22 @@ public class EnvisatOrbitReaderTest extends TestCase {
             if (orbFile1.exists()) {
                 reader.readProduct(doris_vor_orbit);
 
-                getOrbitData(reader);
+                EnvisatOrbitReader.OrbitVector orb = getOrbitData(reader);
+
+                assertEquals("Sun Mar 30 21:55:27 EDT 2008", orb.utcTime.toString());
+                assertEquals(43.0, orb.xPos);
+                assertEquals(45.0, orb.yPos);
+                assertEquals(43.0, orb.zPos);
+                assertEquals(45.0, orb.xVel);
+                assertEquals(45.0, orb.yVel);
+                assertEquals(43.0, orb.zVel);
             }
         } catch (IOException e) {
 
         }
     }
 
-    static void getOrbitData(EnvisatOrbitReader reader) throws IOException {
+    static EnvisatOrbitReader.OrbitVector getOrbitData(EnvisatOrbitReader reader) throws IOException {
 
         Date productDate = new Date(12345678);           // from the product
 
@@ -80,19 +96,9 @@ public class EnvisatOrbitReaderTest extends TestCase {
             EnvisatOrbitReader.OrbitVector orb2 = reader.getOrbitVector(stopDate);
             assertNotNull(orb2);
 
-            //print out some values
-            System.out.print("UTC " + orb.utcTime.toString());
-            System.out.print(" xpos " + orb.xPos);
-            System.out.print(" ypos " + orb.yPos);
-            System.out.print(" zpos " + orb.zPos);
-            System.out.print(" xVel " + orb.xVel);
-            System.out.print(" yVel " + orb.yVel);
-            System.out.print(" zVel " + orb.zVel);
-            System.out.println();
+            return orb;
 
         //}
-
     }
-
 
 }

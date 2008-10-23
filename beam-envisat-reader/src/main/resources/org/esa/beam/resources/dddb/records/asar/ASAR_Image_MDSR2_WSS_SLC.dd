@@ -1,0 +1,6 @@
+ASAR_Image_MDSR2_WSS_SLC|Measurement Data Set 2|*
+#
+zero_doppler_time|@/types/UTC.dd|MJD |12|1               |*|Zero Doppler Time (MJD format)|1|
+quality_flag     |UChar         |flag| 1|1               |*|Quality Indicator (-1 for blank MDSR, 0 otherwise)|2|
+line_num         |ULong         |*   | 4|1               |*|Range line number. Numbered sequentially, for each product (or slice) first range line in MDS is 1|3|
+proc_data        |SShort        |*   | 2|2*mdsWidth2|*|SAR Processed Data for SLC products.  Alternates Real Part, Imaginary Part, Real Part Imaginary Part|4|

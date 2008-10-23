@@ -500,7 +500,7 @@ public class DDDB {
                     if (pixelDataReader != null) {
                         bandLineReader = new BandLineReader(bandInfo, pixelDataReader, pixelDataFieldIndex);
                     } else {
-                        bandLineReader = new BandLineReader.Virtual(bandInfo, expression);
+                        bandLineReader = new BandLineReader.Virtual(bandInfo, productFile.updateExpression(expression));
                     }
                     readerList.add(bandLineReader);
                 }

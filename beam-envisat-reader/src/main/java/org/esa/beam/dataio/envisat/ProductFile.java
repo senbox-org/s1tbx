@@ -877,6 +877,16 @@ public abstract class ProductFile {
                             getSceneRasterHeight());
     }
 
+
+    /**
+     * Modifies the expression of a band if for example a band is renamed
+     * @param expression virtual band expression
+     * @return the new expression
+     */
+    public String updateExpression(String expression) {
+        return expression;
+    }
+
     //////////////////////////////////////////////////////////////////////////
     // Implementation helpers.
     //////////////////////////////////////////////////////////////////////////
@@ -913,7 +923,12 @@ public abstract class ProductFile {
         } else if (productTypeUC.startsWith("AT")) {
             productFile = new AatsrProductFile(file, dataInputStream);
         } else if (productTypeUC.startsWith("AS") || productTypeUC.startsWith("SA")) {
-            productFile = new AsarProductFile(file, dataInputStream);
+            if (productTypeUC.startsWith("ASA_XCA"))
+                productFile = new AsarXCAProductFile(file, dataInputStream);
+            else
+                productFile = new AsarProductFile(file, dataInputStream);
+        } else if (productTypeUC.startsWith("DOR")) {
+            productFile = new DorisOrbitProductFile(file, dataInputStream);
         }
 
         if (productFile == null) {
@@ -1002,12 +1017,12 @@ public abstract class ProductFile {
         }
 
         productType = productId.substring(0, EnvisatConstants.PRODUCT_TYPE_STRLEN).toUpperCase();
-        if (!productType.endsWith("P")) {
+ /*       if (!productType.endsWith("P")) {
             final String newType = productType.substring(0, 9) + "P";
             getLogger().warning("mapping to regular product type '" + newType +
                     "' due to missing specification for products of type '" + productType + "'");
             productType = newType;
-        }
+        }    */
     }
 
     /**
@@ -1037,6 +1052,10 @@ public abstract class ProductFile {
             dsdCountValid = 0;
             byte[] dsdBytes = new byte[dsdSize];
             dsdArray = new DSD[numDSDs];
+
+            if(sphSizeActual + numDSDs * dsdSize > sphSize)
+                return;
+            
             for (int i = 0; i < numDSDs; i++) {
                 System.arraycopy(sphBytesAll, sphSizeActual + i * dsdSize, dsdBytes, 0, dsdSize);
                 String dsdKey = "DSD(" + (i + 1) + ")";
@@ -1135,6 +1154,15 @@ public abstract class ProductFile {
             Debug.trace("  " + name + " = " + value);
         }
         Debug.trace("}");
+    }
+
+    /**
+     * Allow the productFile to add any other metadata not defined in dddb
+     * @param product the product
+     * @throws IOException if reading from files
+     */
+    protected void addCustomMetadata(Product product) throws IOException {
+
     }
 
 }

@@ -19,6 +19,8 @@ package org.esa.beam.framework.datamodel;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.util.Guardian;
 
+import java.text.ParseException;
+
 /**
  * A <code>MetadataElement</code> is a data node used to store metadata. Metadata elements can have any number of
  * metadata attributes of the type {@link MetadataAttribute} and any number of inner <code>MetadataElement</code>s.
@@ -158,10 +160,7 @@ public class MetadataElement extends ProductNode {
      */
     public boolean containsElement(String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        if (_elements == null) {
-            return false;
-        }
-        return _elements.contains(name);
+        return _elements != null && _elements.contains(name);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -184,6 +183,23 @@ public class MetadataElement extends ProductNode {
             return;
         }
         addNamedNode(attribute, _attributes);
+    }
+
+    /**
+     * Adds an attribute to this node. It will not check if a node exists
+     *
+     * @param attribute the attribute to be added, <code>null</code> is ignored
+     */
+    public void addAttributeFast(MetadataAttribute attribute) {
+        if (_attributes == null) {
+            _attributes = new ProductNodeList<MetadataAttribute>();
+        }
+        _attributes.add(attribute);
+        //attribute.setOwner(this);
+    }
+
+    public void setOwner(ProductNode own) {
+        super.setOwner(own);
     }
 
     /**
@@ -277,15 +293,49 @@ public class MetadataElement extends ProductNode {
      * @return <code>true</code> if so
      */
     public boolean containsAttribute(String name) {
-        if (_attributes == null) {
-            return false;
-        }
-        return _attributes.contains(name);
+        return _attributes != null && _attributes.contains(name);
     }
 
 
     //////////////////////////////////////////////////////////////////////////
     // Attribute access utility methods
+
+    /**
+     * Returns the double value of the attribute with the given name. <p>The given default value is returned if an
+     * attribute with the given name could not be found in this node.
+     *
+     * @param name         the attribute name
+     * @param defaultValue the default value
+     *
+     * @return the attribute value as double.
+     */
+    public double getAttributeDouble(String name, double defaultValue) {
+        MetadataAttribute attribute = getAttribute(name);
+        if (attribute == null) {
+            return defaultValue;
+        }
+        return attribute.getData().getElemDouble();
+    }
+
+    /**
+     * Returns the UTC value of the attribute with the given name. <p>The given default value is returned if an
+     * attribute with the given name could not be found in this node.
+     *
+     * @param name         the attribute name
+     *
+     * @return the attribute value as UTC.
+     */
+    public ProductData.UTC getAttributeUTC(String name) {
+        try {
+            MetadataAttribute attribute = getAttribute(name);
+            if (attribute != null) {
+                return ProductData.UTC.parse(attribute.getData().getElemString());
+            }
+        } catch(ParseException e) {
+            // continue
+        }
+        return new ProductData.UTC(0);
+    }
 
     /**
      * Returns the integer value of the attribute with the given name. <p>The given default value is returned if an
@@ -345,7 +395,7 @@ public class MetadataElement extends ProductNode {
      * @param value the new value
      */
     public void setAttributeString(String name, String value) {
-        MetadataAttribute attribute = getAndMaybeCreateAttribute(name, value);
+        MetadataAttribute attribute = getAndMaybeCreateAttribute(name, ProductData.TYPE_ASCII, 1);
         attribute.getData().setElems(value);
         attribute.fireProductNodeDataChanged();
         setModified(true);

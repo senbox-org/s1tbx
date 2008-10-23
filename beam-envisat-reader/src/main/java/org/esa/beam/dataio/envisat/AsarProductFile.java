@@ -17,10 +17,7 @@
 package org.esa.beam.dataio.envisat;
 
 import org.esa.beam.framework.dataio.ProductIOException;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.StringUtils;
 
 import javax.imageio.stream.ImageInputStream;
@@ -269,17 +266,22 @@ public class AsarProductFile extends ProductFile {
             sceneRasterWidth = getSPH().getParamInt("LINE_LENGTH");
 
         if (sceneRasterWidth < 0) {                              // handle WSS where LINE_LENGTH is -1
-            int maxHeight = mdsDsds[0].getNumRecords();
-            int maxWidth = mdsDsds[0].getRecordSize();
-            for (DSD mdsDsd : mdsDsds) {
 
-                if (mdsDsd.getNumRecords() > maxHeight)
-                    maxHeight = mdsDsd.getNumRecords();
-                if (mdsDsd.getRecordSize() > maxWidth)
-                    maxWidth = mdsDsd.getRecordSize();
+            int maxWidth = 0;
+            RecordReader recordReader = getRecordReader("MAIN_PROCESSING_PARAMS_ADS");
+            for (int i=0; i < mdsDsds.length; ++i) {
+
+                Record rec = recordReader.readRecord(i);
+
+                Field numSamplesPerLineField = rec.getField("num_samples_per_line");
+                if(numSamplesPerLineField != null) {
+                    int rasterWidth = numSamplesPerLineField.getData().getElemInt();
+                    parameters.put("mdsWidth"+ (i+1), rasterWidth);
+                    if (rasterWidth > maxWidth)
+                        maxWidth = rasterWidth;
+                }
             }
-            sceneRasterHeight = maxHeight;
-            sceneRasterWidth = maxWidth / 5;
+            sceneRasterWidth = maxWidth;
         }
 
         int locTiePointGridWidth = EnvisatConstants.ASAR_LOC_TIE_POINT_GRID_WIDTH;
@@ -308,6 +310,10 @@ public class AsarProductFile extends ProductFile {
         String prod_type = getSPH().getParamString("SPH_DESCRIPTOR");
         if (prod_type != null) {
             chronologicalOrder = prod_type.indexOf("Geocoded") == -1;
+            String pass = getSPH().getParamString("PASS").trim();
+            if(pass.equals("ASCENDING")) {
+                chronologicalOrder = false;
+            }
         }
 
         String firstMDSName = mdsDsds[0].getDatasetName();
@@ -415,27 +421,30 @@ public class AsarProductFile extends ProductFile {
     }
 
     static String getDddbProductTypeReplacement(final String productType, final IODD ioddVersion) {
-        String resource = productType;
+        return productType + getVersionSuffix(productType, ioddVersion);
+    }
+
+    static String getVersionSuffix(final String productType, final IODD ioddVersion) {
+        String suffix = "";
         if (ioddVersion == IODD.ASAR_3K) {
             if (productDDExists(productType + IODD3K_SUFFIX))
-                resource = productType + IODD3K_SUFFIX;
+                suffix = IODD3K_SUFFIX;
         } else if (ioddVersion == IODD.ASAR_4A) {
             if (productDDExists(productType + IODD4A_SUFFIX))
-                resource = productType + IODD4A_SUFFIX;
+                suffix = IODD4A_SUFFIX;
             else if (productDDExists(productType + IODD3K_SUFFIX))
-                resource = productType + IODD3K_SUFFIX;
+                suffix = IODD3K_SUFFIX;
         } else if (ioddVersion == IODD.ASAR_4B) {
             if (productDDExists(productType + IODD4B_SUFFIX))
-                resource = productType + IODD4B_SUFFIX;
+                suffix = IODD4B_SUFFIX;
             else if (productDDExists(productType + IODD4A_SUFFIX))
-                resource = productType + IODD4A_SUFFIX;
+                suffix = IODD4A_SUFFIX;
             else if (productDDExists(productType + IODD3K_SUFFIX))
-                resource = productType + IODD3K_SUFFIX;
+                suffix = IODD3K_SUFFIX;
         } else if (ioddVersion == IODD.VERSION_UNKNOWN) {
-            return productType;
-
+            suffix = "";
         }
-        return resource;
+        return suffix;
     }
 
     private static boolean productDDExists(String productType) {
@@ -518,13 +527,36 @@ public class AsarProductFile extends ProductFile {
 
         if (getProductType().equals("ASA_WSS_1P")) {
 
+            try {
+
             DSD[] mdsDsds = getValidDSDs(EnvisatConstants.DS_TYPE_MEASUREMENT);
-            for (DSD mdsDsd : mdsDsds) {
-                if (mdsDsd.getDatasetName().equals(dataSetName)) {
-                    rasterHeight = mdsDsd.getNumRecords();
-                    //rasterWidth = mdsDsd.getRecordSize() / 5;
+            for (int i=0; i < mdsDsds.length; ++i) {
+
+                if (mdsDsds[i].getDatasetName().equals(dataSetName)) {
+                    RecordReader recordReader = getRecordReader("MAIN_PROCESSING_PARAMS_ADS");
+                    Record rec = recordReader.readRecord(i);
+
+                    Field numOutputLinesField = rec.getField("num_output_lines");
+                    if(numOutputLinesField != null)
+                        rasterHeight = numOutputLinesField.getData().getElemInt();
+
+                    Field numSamplesPerLineField = rec.getField("num_samples_per_line");
+                    if(numSamplesPerLineField != null)
+                        rasterWidth = numSamplesPerLineField.getData().getElemInt();
+
                     break;
                 }
+            }
+
+            } catch(IOException e) {
+                // use defaults
+            }
+        } else {
+
+            if(bandName.endsWith("_1")) {
+                bandName = renameWithPolarization(bandName, "_1", "MDS1_TX_RX_POLAR");
+            } else if(bandName.endsWith("_2")) {
+                bandName = renameWithPolarization(bandName, "_2", "MDS2_TX_RX_POLAR");
             }
         }
 
@@ -542,5 +574,117 @@ public class AsarProductFile extends ProductFile {
                 rasterWidth,
                 rasterHeight);
     }
+
+    /**
+     * Modifies the expression of a band if for example a band is renamed
+     * @param expression virtual band expression
+     * @return the new expression
+     */
+    public String updateExpression(String expression) {
+        try {
+            if (expression != null && !getProductType().equals("ASA_WSS_1P")) {
+
+                String polarization1 = getSPH().getParamString("MDS1_TX_RX_POLAR");
+                if(polarization1 != null && !polarization1.isEmpty()) {
+                    polarization1 = polarization1.replace("/","");
+                    expression = expression.replaceAll("_1", "_"+polarization1);
+                }
+                
+                String polarization2 = getSPH().getParamString("MDS2_TX_RX_POLAR");
+                if(polarization2 != null && !polarization2.isEmpty()) {
+                    polarization2 = polarization2.replace("/","");
+                    expression = expression.replaceAll("_2", "_"+polarization2);
+                }
+            }
+        } catch(HeaderEntryNotFoundException e) {
+            // use defaults
+        }
+        return expression;
+    }
+
+    private String renameWithPolarization(String bandName, String ending, String tag) {
+
+        try {
+            String polarization = getSPH().getParamString(tag);
+            if(polarization != null && !polarization.isEmpty()) {
+                polarization = polarization.replace("/","");
+                bandName = bandName.substring(0, bandName.length()-ending.length()) + '_' + polarization;
+            }
+        } catch(HeaderEntryNotFoundException e) {
+            // use defaults
+        }
+        return bandName;
+    }
+
+    private void processWSSImageRecordMetadata(Product product) {
+
+        for(Band band : product.getBands()) {
+
+            MetadataElement imgRecElem = product.getMetadataRoot().getElement("Image Record");
+            if(imgRecElem == null) {
+                imgRecElem = new MetadataElement("Image Record");
+                product.getMetadataRoot().addElement(imgRecElem);
+            }
+
+            MetadataElement bandElem = imgRecElem.getElement(band.getName());
+            if(bandElem == null) {
+                bandElem = new MetadataElement(band.getName());
+                imgRecElem.addElement(bandElem);
+            }
+
+            RecordInfo recInfo = new RecordInfo("Line");
+            recInfo.add("utc", ProductData.TYPE_UTC, 1, "", "");
+            Record lineRecord = Record.create(recInfo);
+
+            try {
+                final BandLineReader bandLineReader = getBandLineReader(band);
+                final RecordReader recReader = bandLineReader.getPixelDataReader();
+
+                int height = band.getRasterHeight();
+                double[] timeData = new double[height];
+                for (int y = 0; y < height; ++y) {
+
+                    recReader.readRecord(y, lineRecord);
+
+                    Field field0 = lineRecord.getFieldAt(0);
+                    timeData[y] = ((ProductData.UTC)field0.getData()).getMJD();
+                }
+
+                MetadataAttribute attribute = new MetadataAttribute("time", ProductData.TYPE_FLOAT64, height);
+                attribute.setDataElems(timeData);
+                bandElem.addAttributeFast(attribute);
+
+            } catch(IOException e) {
+                System.out.print("processWSSImageRecordMetadata " + e.toString());
+            }
+        }
+    }
+
+    /**
+     * Allow the productFile to add any other metadata not defined in dddb
+     * @param product the product
+     * @throws IOException if reading from files
+     */
+    protected void addCustomMetadata(Product product) throws IOException {
+
+        // wss metadata preprocesing to retrieve image record times
+        if(getProductType().equalsIgnoreCase("ASA_WSS_1P")) {
+            processWSSImageRecordMetadata(product);
+        }
+
+        // set quicklook image
+        for(Band b : product.getBands()) {
+            if(b.getUnit().contains("intensity")) {
+                product.setQuicklookBandName(b.getName());
+                break;
+            }
+        }
+
+        // Abstracted metadata
+        MetadataElement root = product.getMetadataRoot();
+        AsarAbstractMetadata absMetadata = new AsarAbstractMetadata(getProductType(),
+                getVersionSuffix(getProductType(), getIODDVersion()), getFile());
+        absMetadata.addAbstractedMetadataHeader(root);
+    }    
 
 }
