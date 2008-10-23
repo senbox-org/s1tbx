@@ -1017,12 +1017,12 @@ public abstract class ProductFile {
         }
 
         productType = productId.substring(0, EnvisatConstants.PRODUCT_TYPE_STRLEN).toUpperCase();
- /*       if (!productType.endsWith("P")) {
+        if (!productType.endsWith("P")) {
             final String newType = productType.substring(0, 9) + "P";
             getLogger().warning("mapping to regular product type '" + newType +
                     "' due to missing specification for products of type '" + productType + "'");
             productType = newType;
-        }    */
+        }
     }
 
     /**
