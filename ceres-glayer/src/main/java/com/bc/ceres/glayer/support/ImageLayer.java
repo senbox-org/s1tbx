@@ -208,7 +208,6 @@ public class ImageLayer extends Layer {
             multiLevelSource.reset();
             multiLevelSource = null;
         }
-        super.dispose();
     }
 
     private synchronized MultiLevelRenderer getRenderer(Rendering rendering) {
