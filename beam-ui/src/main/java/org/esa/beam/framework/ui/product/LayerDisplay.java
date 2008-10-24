@@ -42,11 +42,11 @@ class LayerDisplay extends LayerCanvas {
     private int levelPixelX = -1;
     private int levelPixelY = -1;
     private int level = 0;
-    
+
     private boolean pixelBorderShown; // can it be shown?
     private boolean pixelBorderDrawn; // has it been drawn?
     private double pixelBorderViewScale;
-    
+
     private ComponentAdapter componentAdapter;
     private MouseInputListener mouseInputListener;
     private KeyListener imageDisplayKeyListener;
@@ -269,12 +269,12 @@ class LayerDisplay extends LayerCanvas {
         final int currentLevel = baseImageLayer.getLevel(viewport);
         AffineTransform v2mTransform = viewport.getViewToModelTransform();
         final Point2D modelP = v2mTransform.transform(p, null);
-        
+
         AffineTransform m2iTransform = baseImageLayer.getModelToImageTransform();
         Point2D imageP = m2iTransform.transform(modelP, null);
         pixelX = (int) Math.floor(imageP.getX());
         pixelY = (int) Math.floor(imageP.getY());
-        
+
         AffineTransform m2iLevelTransform = baseImageLayer.getModelToImageTransform(currentLevel);
         Point2D imageLevelP = m2iLevelTransform.transform(modelP, null);
         int currentPixelX = (int) Math.floor(imageLevelP.getX());
@@ -293,13 +293,13 @@ class LayerDisplay extends LayerCanvas {
             }
         }
     }
-    
+
     private boolean isPixelBorderDisplayEnabled() {
         return pixelBorderShown &&
                 (getTool() == null || getTool().getDrawable() != null) &&
                 getViewport().getZoomFactor() >= pixelBorderViewScale;
     }
-    
+
     private void drawPixelBorder(int currentPixelX, int currentPixelY, int currentLevel, boolean showBorder) {
         final Graphics g = getGraphics();
         g.setXORMode(Color.white);
@@ -316,17 +316,17 @@ class LayerDisplay extends LayerCanvas {
     }
 
     private void drawPixelBorder(final Graphics g, final int x, final int y, final int l) {
-      if (g instanceof Graphics2D) {
-      Graphics2D g2d = (Graphics2D) g;
-        AffineTransform i2m = baseImageLayer.getImageToModelTransform(l);
-        AffineTransform m2v = getViewport().getModelToViewTransform();
-        Rectangle imageRect = new Rectangle(x, y, 1, 1);
-        Shape modelRect = i2m.createTransformedShape(imageRect);
-        Shape transformedShape = m2v.createTransformedShape(modelRect);
-        g2d.draw(transformedShape);
-      }
+        if (g instanceof Graphics2D) {
+            Graphics2D g2d = (Graphics2D) g;
+            AffineTransform i2m = baseImageLayer.getImageToModelTransform(l);
+            AffineTransform m2v = getViewport().getModelToViewTransform();
+            Rectangle imageRect = new Rectangle(x, y, 1, 1);
+            Shape modelRect = i2m.createTransformedShape(imageRect);
+            Shape transformedShape = m2v.createTransformedShape(modelRect);
+            g2d.draw(transformedShape);
+        }
     }
-    
+
     public void setPixelBorderShown(boolean pixelBorderShown) {
         this.pixelBorderShown = pixelBorderShown;
     }

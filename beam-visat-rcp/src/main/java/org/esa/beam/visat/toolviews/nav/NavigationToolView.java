@@ -130,12 +130,9 @@ public class NavigationToolView extends AbstractToolView {
                     currentView.getImageDisplayComponent().addComponentListener(imageDisplayRH);
                 }
             }
-            canvas.updateImage();
+            canvas.handleViewChanged();
             updateState();
             updateValues();
-            // nf: the following repaint() call is for some reason important.
-            // If I remove it, this windows goes into background when VISAT frame is selected! Why?
-            //repaint();
         }
     }
 
@@ -270,7 +267,8 @@ public class NavigationToolView extends AbstractToolView {
         sliderPane.add(percentPane, BorderLayout.WEST);
         sliderPane.add(zoomSlider, BorderLayout.CENTER);
 
-        canvas = new NavigationCanvas(this);
+        canvas = createNavigationCanvas();
+//        canvas = new NavigationCanvas2(this);
         canvas.setBackground(new Color(138, 133, 128)); // image background
         canvas.setForeground(new Color(153, 153, 204)); // slider overlay
 
@@ -297,6 +295,10 @@ public class NavigationToolView extends AbstractToolView {
         setCurrentView(VisatApp.getApp().getSelectedProductSceneView());
 
         return mainPane;
+    }
+
+    NavigationCanvas createNavigationCanvas() {
+        return new NavigationCanvas1(this);
     }
 
     private void applyPercentValue() {
