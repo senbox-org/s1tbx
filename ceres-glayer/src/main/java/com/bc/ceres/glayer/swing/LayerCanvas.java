@@ -177,6 +177,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
             maxZoomFactor = 1000 * minZoomFactor;
         }
         System.out.println("LayerCanvas.updateAdjustableViewProperties():");
+        System.out.println("  zoomFactor            = " + viewport.getZoomFactor());
         System.out.println("  minZoomFactor         = " + minZoomFactor);
         System.out.println("  maxZoomFactor         = " + maxZoomFactor);
         System.out.println("  defaultZoomFactor     = " + defaultZoomFactor);
@@ -220,6 +221,8 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         }
         return minScale;
     }
+
+
 
     static Rectangle2D computeMaxVisibleModelBounds(Rectangle2D modelBounds, double orientation) {
         if (modelBounds == null) {
@@ -338,10 +341,6 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         public void handleScale(double scaleDir) {
             final double oldZoomFactor = viewport.getZoomFactor();
             final double newZoomFactor = (1.0 + 0.1 * scaleDir) * oldZoomFactor;
-            System.out.println("LayerCanvas.NavControlModelImpl.handleScale():");
-            System.out.println("  scaleDir      = " + scaleDir);
-            System.out.println("  oldZoomFactor = " + oldZoomFactor);
-            System.out.println("  newZoomFactor = " + newZoomFactor);
             viewport.setZoomFactor(newZoomFactor);
         }
 
