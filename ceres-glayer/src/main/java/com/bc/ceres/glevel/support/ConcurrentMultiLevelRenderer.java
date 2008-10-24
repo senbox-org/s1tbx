@@ -410,29 +410,34 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
                 localTileCache.add(tileImage);
             }
 
-            if (debug) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    // don't care
-                }
-            }
+// Uncomment for debugging
+//            if (debug) {
+//                try {
+//                    Thread.sleep(100);
+//                } catch (InterruptedException e) {
+//                    // don't care
+//                }
+//            }
 
             final Rectangle tileBounds = tile.getBounds();
 
-            // Invoke in the EDT in order to obtain the
-            // viewRegion for the currently valid viewport settings since the model
-            // may have changed the viewport between the time the tile request was
-            // created and the tile was computed, which is now. The EDT is the only safe
-            // place to access the viewport.
-            rendering.invokeLater(new Runnable() {
-                // Called from EDT.
-                @Override
-                public void run() {
-                    final Rectangle viewRegion = getViewRegion(rendering.getViewport(), multiLevelSource, level, tileBounds);
-                    rendering.invalidateRegion(viewRegion);
-                }
-            });
+//            // Invoke in the EDT in order to obtain the
+//            // viewRegion for the currently valid viewport settings since the model
+//            // may have changed the viewport between the time the tile request was
+//            // created and the tile was computed, which is now. The EDT is the only safe
+//            // place to access the viewport.
+//            rendering.invokeLater(new Runnable() {
+//                // Called from EDT.
+//                @Override
+//                public void run() {
+//                    final Rectangle viewRegion = getViewRegion(rendering.getViewport(), multiLevelSource, level, tileBounds);
+//                    rendering.invalidateRegion(viewRegion);
+//                }
+//            });
+
+
+            final Rectangle viewRegion = getViewRegion(rendering.getViewport(), multiLevelSource, level, tileBounds);
+            rendering.invalidateRegion(viewRegion);
         }
 
         // Called from worker threads of the tile scheduler.

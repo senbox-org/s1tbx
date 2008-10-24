@@ -16,6 +16,7 @@
  */
 package com.bc.ceres.glayer.swing;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.support.LayerViewInvalidationListener;
@@ -23,7 +24,6 @@ import com.bc.ceres.glayer.swing.NavControl.NavControlModel;
 import com.bc.ceres.grender.AdjustableView;
 import com.bc.ceres.grender.InteractiveRendering;
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.DefaultViewport;
 
 import javax.swing.JComponent;
@@ -33,6 +33,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 
 /**
  * A Swing component capable of drawing a collection of {@link com.bc.ceres.glayer.Layer}s.
@@ -41,19 +42,23 @@ import java.awt.geom.Rectangle2D;
  */
 public class LayerCanvas extends JComponent implements AdjustableView {
 
-    private final Layer layer;
-    private final Viewport viewport;
-    private final CanvasRendering canvasRendering;
+    private LayerCanvasModel model;
+    private CanvasRendering canvasRendering;
+    private Layer.RenderCustomizer renderCustomizer;
 
     private boolean navControlShown;
     private WakefulComponent navControlWrapper;
-    private boolean painted;
+    private boolean modelPainted;
 
     // AdjustableView properties
     private Rectangle2D maxVisibleModelBounds;
     private double minZoomFactor;
     private double maxZoomFactor;
     private double defaultZoomFactor;
+
+    private ArrayList<Overlay> overlays;
+
+    private final ModelChangeHandler modelChangeHandler;
 
     public LayerCanvas() {
         this(new Layer());
@@ -64,46 +69,80 @@ public class LayerCanvas extends JComponent implements AdjustableView {
     }
 
     public LayerCanvas(final Layer layer, final Viewport viewport) {
+        this(new DefaultLayerCanvasModel(layer, viewport));
+    }
+
+    public LayerCanvas(LayerCanvasModel model) {
         setOpaque(false);
-
-        this.layer = layer;
-        this.viewport = viewport;
-        setBounds(viewport.getViewBounds());
-
-        // todo - check: register PCL for "layer.maxVisibleModelBounds" (nf 21.10.2008)
-
+        this.model = model;
         this.canvasRendering = new CanvasRendering();
-
-        layer.addListener(new LayerViewInvalidationListener() {
-            @Override
-            public void handleViewInvalidation(Layer layer, Rectangle2D modelRegion) {
-                updateAdjustableViewProperties();
-                if (modelRegion != null) {
-                    AffineTransform m2v = viewport.getModelToViewTransform();
-                    Rectangle viewRegion = m2v.createTransformedShape(modelRegion).getBounds();
-                    repaint(viewRegion);
-                } else {
-                    repaint();
-                }
-            }
-        });
-
-        viewport.addListener(new ViewportListener() {
-            @Override
-            public void handleViewportChanged(Viewport viewport, boolean orientationChanged) {
-                updateAdjustableViewProperties();
-                repaint();
-            }
-        });
-
+        this.modelChangeHandler = new ModelChangeHandler();
+        this.model.addChangeListener(modelChangeHandler);
+        setBounds(model.getViewport().getViewBounds());
         setNavControlShown(false);
+        overlays = new ArrayList<Overlay>(4);
+    }
+
+    public LayerCanvasModel getModel() {
+        return model;
+    }
+
+    public void setModel(LayerCanvasModel newModel) {
+        Assert.notNull(newModel, "newModel");
+        LayerCanvasModel oldModel = this.model;
+        if (newModel != oldModel) {
+            oldModel.removeChangeListener(modelChangeHandler);
+            this.model = newModel;
+            newModel.addChangeListener(modelChangeHandler);
+            modelPainted = false;
+            updateAdjustableViewProperties();
+            repaint();
+            firePropertyChange("model", oldModel, newModel);
+        }
     }
 
     public Layer getLayer() {
-        return layer;
+        return model.getLayer();
+    }
+
+    public Layer.RenderCustomizer getRenderCustomizer() {
+        return renderCustomizer;
+    }
+
+    public void setRenderCustomizer(Layer.RenderCustomizer newRenderCustomizer) {
+        Layer.RenderCustomizer oldRenderCustomizer = this.renderCustomizer;
+        if (oldRenderCustomizer != newRenderCustomizer) {
+            this.renderCustomizer = newRenderCustomizer;
+            repaint();
+            firePropertyChange("renderCustomizer", oldRenderCustomizer, newRenderCustomizer);
+        }
     }
 
     public void dispose() {
+        if (model != null) {
+            model.removeChangeListener(modelChangeHandler);
+        }
+        model = null;
+    }
+
+    /**
+     * None API. Don't use this method!
+     *
+     * @param overlay An overlay
+     */
+    public void addOverlay(Overlay overlay) {
+        overlays.add(overlay);
+        repaint();
+    }
+
+    /**
+     * None API. Don't use this method!
+     *
+     * @param overlay An overlay
+     */
+    public void removeOverlay(Overlay overlay) {
+        overlays.remove(overlay);
+        repaint();
     }
 
     /**
@@ -124,7 +163,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         boolean oldValue = this.navControlShown;
         if (oldValue != navControlShown) {
             if (navControlShown) {
-                final NavControl navControl = new NavControl(new NavControlModelImpl(viewport));
+                final NavControl navControl = new NavControl(new NavControlModelImpl(getViewport()));
                 navControlWrapper = new WakefulComponent(navControl);
                 add(navControlWrapper);
             } else {
@@ -141,7 +180,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 
     @Override
     public Viewport getViewport() {
-        return viewport;
+        return model.getViewport();
     }
 
     @Override
@@ -165,8 +204,8 @@ public class LayerCanvas extends JComponent implements AdjustableView {
     }
 
     private void updateAdjustableViewProperties() {
-        maxVisibleModelBounds = computeMaxVisibleModelBounds(layer.getModelBounds(), viewport.getOrientation());
-        minZoomFactor = computeMinZoomFactor(viewport.getViewBounds(), maxVisibleModelBounds);
+        maxVisibleModelBounds = computeMaxVisibleModelBounds(getLayer().getModelBounds(), getViewport().getOrientation());
+        minZoomFactor = computeMinZoomFactor(getViewport().getViewBounds(), maxVisibleModelBounds);
         Layer layer = getLayer();
         double minScale = computeMinImageToModelScale(layer);
         if (minScale > 0.0) {
@@ -177,7 +216,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
             maxZoomFactor = 1000 * minZoomFactor;
         }
         System.out.println("LayerCanvas.updateAdjustableViewProperties():");
-        System.out.println("  zoomFactor            = " + viewport.getZoomFactor());
+        System.out.println("  zoomFactor            = " + getViewport().getZoomFactor());
         System.out.println("  minZoomFactor         = " + minZoomFactor);
         System.out.println("  maxZoomFactor         = " + maxZoomFactor);
         System.out.println("  defaultZoomFactor     = " + defaultZoomFactor);
@@ -223,20 +262,18 @@ public class LayerCanvas extends JComponent implements AdjustableView {
     }
 
 
-
-    static Rectangle2D computeMaxVisibleModelBounds(Rectangle2D modelBounds, double orientation) {
+    public static Rectangle2D computeMaxVisibleModelBounds(Rectangle2D modelBounds, double orientation) {
         if (modelBounds == null) {
             return new Rectangle();
         }
         if (orientation == 0.0) {
             return modelBounds;
-        }else {
+        } else {
             final AffineTransform t = new AffineTransform();
             t.rotate(orientation, modelBounds.getCenterX(), modelBounds.getCenterY());
             return t.createTransformedShape(modelBounds).getBounds2D();
         }
     }
-
 
     // AdjustableView implementation
     /////////////////////////////////////////////////////////////////////////
@@ -246,7 +283,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 
     @Override
     public void setBounds(int x, int y, int width, int height) {
-        viewport.setViewBounds(new Rectangle(x, y, width, height));
+        getViewport().setViewBounds(new Rectangle(x, y, width, height));
         super.setBounds(x, y, width, height);
     }
 
@@ -261,9 +298,9 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 
     @Override
     protected void paintComponent(Graphics g) {
-        if (!painted && maxVisibleModelBounds != null && !maxVisibleModelBounds.isEmpty()) {
-            painted = true;
-            getViewport().zoom(maxVisibleModelBounds);
+        if (!modelPainted && maxVisibleModelBounds != null && !maxVisibleModelBounds.isEmpty()) {
+            modelPainted = true;
+            zoomAll();
         }
 
         // Ensure clip bounds are set
@@ -278,7 +315,17 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         }
 
         canvasRendering.setGraphics2D((Graphics2D) g);
-        layer.render(canvasRendering);
+        getLayer().render(canvasRendering, renderCustomizer);
+
+        if (!isPaintingForPrint()) {
+            for (Overlay overlay : overlays) {
+                overlay.paint(this, (Graphics2D) g);
+            }
+        }
+    }
+
+    public void zoomAll() {
+        getViewport().zoom(getMaxVisibleModelBounds());
     }
 
     // JComponent overrides
@@ -301,7 +348,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 
         @Override
         public Viewport getViewport() {
-            return viewport;
+            return getModel().getViewport();
         }
 
         @Override
@@ -344,5 +391,33 @@ public class LayerCanvas extends JComponent implements AdjustableView {
             viewport.setZoomFactor(newZoomFactor);
         }
 
+    }
+
+    private class ModelChangeHandler extends LayerViewInvalidationListener implements LayerCanvasModel.ChangeListener {
+
+        @Override
+        public void handleViewInvalidation(Layer layer, Rectangle2D modelRegion) {
+            updateAdjustableViewProperties();
+            if (modelRegion != null) {
+                AffineTransform m2v = getViewport().getModelToViewTransform();
+                Rectangle viewRegion = m2v.createTransformedShape(modelRegion).getBounds();
+                repaint(viewRegion);
+            } else {
+                repaint();
+            }
+        }
+
+        @Override
+        public void handleViewportChanged(Viewport viewport, boolean orientationChanged) {
+            updateAdjustableViewProperties();
+            repaint();
+        }
+    }
+
+    /**
+     * None API. Don't use!
+     */
+    public interface Overlay {
+        void paint(LayerCanvas canvas, Graphics2D graphics);
     }
 }

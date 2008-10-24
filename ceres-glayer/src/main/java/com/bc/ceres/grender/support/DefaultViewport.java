@@ -16,7 +16,7 @@ public class DefaultViewport implements Viewport {
     private final Rectangle viewBounds;
     private final AffineTransform modelToViewTransform;
     private final AffineTransform viewToModelTransform;
-    private final boolean modelYAxisDown;
+    private boolean modelYAxisDown;
     private double orientation;
     private final ArrayList<ViewportListener> changeListeners;
 
@@ -190,6 +190,7 @@ public class DefaultViewport implements Viewport {
     public void synchronizeWith(Viewport other) {
         modelToViewTransform.setTransform(other.getModelToViewTransform());
         viewToModelTransform.setTransform(other.getViewToModelTransform());
+        this.modelYAxisDown = other.isModelYAxisDown();
         final boolean orientationChange = (orientation != other.getOrientation());
         if (orientationChange) {
             orientation = other.getOrientation();
