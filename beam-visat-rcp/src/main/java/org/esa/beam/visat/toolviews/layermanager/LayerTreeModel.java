@@ -29,8 +29,8 @@ class LayerTreeModel extends DefaultTreeModel {
 
                 if (!isUserObjectOfNodeChild(parentNode, newChildLayer)) {
                     super.insertNodeInto(newChild, parent, index);
-                    if (!parentLayer.getChildLayerList().contains(newChildLayer)) {
-                        parentLayer.getChildLayerList().add(index, newChildLayer);
+                    if (!parentLayer.getChildren().contains(newChildLayer)) {
+                        parentLayer.getChildren().add(index, newChildLayer);
                     }
                 }
             }
@@ -47,7 +47,7 @@ class LayerTreeModel extends DefaultTreeModel {
                 super.removeNodeFromParent(node);
 
                 final Layer parentLayer = (Layer) parentUserObject;
-                final List<Layer> childLayerList = parentLayer.getChildLayerList();
+                final List<Layer> childLayerList = parentLayer.getChildren();
                 final Object childUserObject = ((DefaultMutableTreeNode) node).getUserObject();
 
                 //noinspection SuspiciousMethodCalls
@@ -73,8 +73,8 @@ class LayerTreeModel extends DefaultTreeModel {
     private static MutableTreeNode createTreeNodes(Layer layer) {
         final DefaultMutableTreeNode node = new DefaultMutableTreeNode(layer);
 
-        for (final Layer childLayer : layer.getChildLayerList()) {
-            if (layer.getChildLayerList().isEmpty()) {
+        for (final Layer childLayer : layer.getChildren()) {
+            if (layer.getChildren().isEmpty()) {
                 node.add(new DefaultMutableTreeNode(childLayer));
             } else {
                 node.add(createTreeNodes(childLayer));
@@ -120,7 +120,7 @@ class LayerTreeModel extends DefaultTreeModel {
         private void insertNodesIntoTreeModel(Layer parentLayer, Layer[] addedLayers,
                                               DefaultMutableTreeNode parentNode) {
             for (final Layer addedLayer : addedLayers) {
-                final List<Layer> childLayerList = parentLayer.getChildLayerList();
+                final List<Layer> childLayerList = parentLayer.getChildren();
 
                 for (int i = 0; i < childLayerList.size(); ++i) {
                     if (childLayerList.get(i) == addedLayer) {

@@ -108,19 +108,22 @@ public class NavigationCanvas extends JPanel {
             int imageWidth = getWidth() - (insets.left + insets.right);
             int imageHeight = getHeight() - (insets.top + insets.bottom);
             final double imageRatio = (double) imageWidth / (double) imageHeight;
-            final Rectangle2D tma = getRotatedModelBounds(view);
+            final Rectangle2D tma = view.getLayerCanvas().getMaxVisibleModelBounds();
             final double modelRatio = tma.getWidth() / tma.getHeight();
             if (imageRatio < modelRatio) {
                 imageHeight = (int) Math.round(imageWidth / modelRatio);
             } else {
                 imageWidth = (int) Math.round(imageHeight * modelRatio);
             }
+            boolean isModelYAxisDown = view.getLayerCanvas().getViewport().isModelYAxisDown();
             if (imageWidth > 0 && imageHeight > 0) {
-                if (thumbnailImage == null || thumbnailImage.getWidth() != imageWidth
-                        || thumbnailImage.getHeight() != imageHeight) {
+                if (thumbnailImage == null
+                        || thumbnailImage.getWidth() != imageWidth
+                        || thumbnailImage.getHeight() != imageHeight
+                        || imageRendering.getViewport().isModelYAxisDown() != isModelYAxisDown) {
                     thumbnailImage = new BufferedImage(imageWidth, imageHeight,
                                                        BufferedImage.TYPE_3BYTE_BGR);
-                    imageRendering = new BufferedImageRendering(thumbnailImage);
+                    imageRendering = new BufferedImageRendering(thumbnailImage, new DefaultViewport(isModelYAxisDown));
                 }
                 updateImageContent();
                 updateSliderArea();
@@ -162,8 +165,6 @@ public class NavigationCanvas extends JPanel {
     }
 
     private void updateImageContent() {
-        // Will to this totally different later!!! (Use max. level image of
-        // ImageLayerModel).
         final ProductSceneView view = navigationWindow.getCurrentView();
         if (view == null || thumbnailImage == null) {
             return;
@@ -176,9 +177,9 @@ public class NavigationCanvas extends JPanel {
         graphics.setBackground(getBackground());
         graphics.clearRect(0, 0, thumbnailImage.getWidth(), thumbnailImage.getHeight());
         configureThumbnailViewport(view, imageRendering.getViewport());
-        view.getRootLayer().render(imageRendering, new Layer.LayerRenderFilter() {
+        view.getRootLayer().render(imageRendering, new Layer.RenderFilter() {
             @Override
-            public boolean accept(Layer layer) {
+            public boolean canRender(Layer layer) {
                 return layer instanceof ImageLayer;
             }
         });
@@ -196,7 +197,7 @@ public class NavigationCanvas extends JPanel {
         Point2D vwViewOffset = vwViewBounds.getLocation();
         Point2D vwModelOffset = vwV2M.transform(vwViewOffset, null);
         Point2D tnViewOffset = tnM2V.transform(vwModelOffset, null);
-        double scale = Math.sqrt(vwV2M.getDeterminant()) * Math.sqrt(tnM2V.getDeterminant());
+        double scale = Math.sqrt(Math.abs(vwV2M.getDeterminant())) * Math.sqrt(Math.abs(tnM2V.getDeterminant()));
         return new Rectangle((int) Math.floor(tnViewOffset.getX()),
                              (int) Math.floor(tnViewOffset.getY()),
                              (int) Math.floor(vwViewBounds.width * scale),
@@ -204,21 +205,10 @@ public class NavigationCanvas extends JPanel {
     }
 
     private void configureThumbnailViewport(ProductSceneView view, Viewport thumbnailViewport) {
-        thumbnailViewport.zoom(getRotatedModelBounds(view));
+        thumbnailViewport.zoom(view.getLayerCanvas().getMaxVisibleModelBounds());
         thumbnailViewport.moveViewDelta(thumbnailViewport.getViewBounds().x,
                                         thumbnailViewport.getViewBounds().y);
         thumbnailViewport.setOrientation(view.getOrientation());
-    }
-
-    private Rectangle2D getRotatedModelBounds(ProductSceneView view) {
-        final Rectangle2D modelBounds = view.getModelBounds();
-        final double orientation = view.getOrientation();
-        if (orientation != 0.0) {
-            final AffineTransform t = new AffineTransform();
-            t.rotate(orientation, modelBounds.getCenterX(), modelBounds.getCenterY());
-            return t.createTransformedShape(modelBounds).getBounds2D();
-        }
-        return modelBounds;
     }
 
     /**

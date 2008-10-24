@@ -49,11 +49,11 @@ public class LayerTreeModelTest extends TestCase {
         assertSame(bert, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 2)).getUserObject());
         assertSame(bibo, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 3)).getUserObject());
 
-        assertEquals(4, root.getChildLayerList().size());
-        assertSame(ernie, root.getChildLayerList().get(0));
-        assertSame(grobi, root.getChildLayerList().get(1));
-        assertSame(bert, root.getChildLayerList().get(2));
-        assertSame(bibo, root.getChildLayerList().get(3));
+        assertEquals(4, root.getChildren().size());
+        assertSame(ernie, root.getChildren().get(0));
+        assertSame(grobi, root.getChildren().get(1));
+        assertSame(bert, root.getChildren().get(2));
+        assertSame(bibo, root.getChildren().get(3));
     }
 
     public void testNodeInsertedWhenLayerAdded() {
@@ -65,7 +65,7 @@ public class LayerTreeModelTest extends TestCase {
         assertSame(bert, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 1)).getUserObject());
         assertSame(bibo, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 2)).getUserObject());
 
-        root.getChildLayerList().add(1, grobi);
+        root.getChildren().add(1, grobi);
 
         assertEquals(4, layerTreeModel.getChildCount(rootNode));
         assertSame(ernie, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 0)).getUserObject());
@@ -75,7 +75,7 @@ public class LayerTreeModelTest extends TestCase {
     }
 
     public void testLayerRemovedWhenNodeRemoved() {
-        root.getChildLayerList().add(1, grobi);
+        root.getChildren().add(1, grobi);
 
         final LayerTreeModel layerTreeModel = new LayerTreeModel(root);
         final MutableTreeNode rootNode = (DefaultMutableTreeNode) layerTreeModel.getRoot();
@@ -89,14 +89,14 @@ public class LayerTreeModelTest extends TestCase {
         assertSame(bert, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 1)).getUserObject());
         assertSame(bibo, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 2)).getUserObject());
 
-        assertEquals(3, root.getChildLayerList().size());
-        assertSame(ernie, root.getChildLayerList().get(0));
-        assertSame(bert, root.getChildLayerList().get(1));
-        assertSame(bibo, root.getChildLayerList().get(2));
+        assertEquals(3, root.getChildren().size());
+        assertSame(ernie, root.getChildren().get(0));
+        assertSame(bert, root.getChildren().get(1));
+        assertSame(bibo, root.getChildren().get(2));
     }
 
     public void testNodeRemovedWhenLayerRemoved() {
-        root.getChildLayerList().add(1, grobi);
+        root.getChildren().add(1, grobi);
 
         final LayerTreeModel layerTreeModel = new LayerTreeModel(root);
         final MutableTreeNode rootNode = (DefaultMutableTreeNode) layerTreeModel.getRoot();
@@ -107,7 +107,7 @@ public class LayerTreeModelTest extends TestCase {
         assertSame(bert, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 2)).getUserObject());
         assertSame(bibo, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 3)).getUserObject());
 
-        root.getChildLayerList().remove(1);
+        root.getChildren().remove(1);
 
         assertEquals(3, layerTreeModel.getChildCount(rootNode));
         assertSame(ernie, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 0)).getUserObject());
@@ -129,8 +129,8 @@ public class LayerTreeModelTest extends TestCase {
         bibo.setName("Bibo");
         grobi.setName("Grobi");
 
-        root.getChildLayerList().add(ernie);
-        root.getChildLayerList().add(bert);
-        root.getChildLayerList().add(bibo);
+        root.getChildren().add(ernie);
+        root.getChildren().add(bert);
+        root.getChildren().add(bibo);
     }
 }

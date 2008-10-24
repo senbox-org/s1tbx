@@ -81,8 +81,8 @@ public class ZoomTool extends AbstractTool {
             AdjustableView view = (AdjustableView) component;
             Viewport viewport = view.getViewport();
             if (!_zoomRect.isEmpty()) {
-                AffineTransform viewToModelTransform = viewport.getViewToModelTransform();
-                Shape transformedShape = viewToModelTransform.createTransformedShape(_zoomRect);
+                AffineTransform v2m = viewport.getViewToModelTransform();
+                Shape transformedShape = v2m.createTransformedShape(_zoomRect);
                 Rectangle2D bounds2D = transformedShape.getBounds2D();
                 viewport.zoom(bounds2D);
             } else {

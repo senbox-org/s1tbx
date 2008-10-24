@@ -186,21 +186,21 @@ public class ProductSceneImage {
         final Layer bitmaskLayer = createBitmaskCollectionLayer(i2mTransform);
 
         rootLayer = new Layer();
-        rootLayer.getChildLayerList().add(figureLayer);
-        rootLayer.getChildLayerList().add(pinLayer);
-        rootLayer.getChildLayerList().add(gcpLayer);
-        rootLayer.getChildLayerList().add(graticuleLayer);
-        rootLayer.getChildLayerList().add(roiLayer);
-        rootLayer.getChildLayerList().add(bitmaskLayer);
-        rootLayer.getChildLayerList().add(noDataLayer);
-        rootLayer.getChildLayerList().add(baseImageLayer);
+        rootLayer.getChildren().add(figureLayer);
+        rootLayer.getChildren().add(pinLayer);
+        rootLayer.getChildren().add(gcpLayer);
+        rootLayer.getChildren().add(graticuleLayer);
+        rootLayer.getChildren().add(roiLayer);
+        rootLayer.getChildren().add(bitmaskLayer);
+        rootLayer.getChildren().add(noDataLayer);
+        rootLayer.getChildren().add(baseImageLayer);
 
         // TODO: remove this hack!!!
         if (getRaster().getProduct().getProductType().startsWith("MIR_")) {
             // SMOS
             Layer createWorldLayer = createWorldLayer();
             if (createWorldLayer != null) {
-                rootLayer.getChildLayerList().add(createWorldLayer);
+                rootLayer.getChildren().add(createWorldLayer);
             }
         }
 

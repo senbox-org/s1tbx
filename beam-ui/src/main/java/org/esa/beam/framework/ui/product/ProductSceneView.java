@@ -655,7 +655,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     public void zoom(double x, double y, double viewScale) {
-        layerCanvas.getViewport().zoom(x, y, viewScale);
+        layerCanvas.getViewport().setZoomFactor(viewScale, x, y);
     }
 
     public void zoom(double viewScale) {

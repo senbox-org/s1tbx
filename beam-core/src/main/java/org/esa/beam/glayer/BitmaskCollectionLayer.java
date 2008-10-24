@@ -22,7 +22,6 @@ import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 
 import java.awt.*;
@@ -44,7 +43,7 @@ public class BitmaskCollectionLayer extends Layer {
         setName("Bitmasks");
         final BitmaskDef[] bitmaskDefs = getProduct().getBitmaskDefs();
         for (final BitmaskDef bitmaskDef : bitmaskDefs) {
-            getChildLayerList().add(createBitmaskLayer(bitmaskDef));
+            getChildren().add(createBitmaskLayer(bitmaskDef));
         }
         bitmaskDefListener = new BitmaskDefListener(this);
         getProduct().addProductNodeListener(bitmaskDefListener);
@@ -100,7 +99,7 @@ public class BitmaskCollectionLayer extends Layer {
             this.layerMap = new HashMap<BitmaskDef, Layer>();
 
             final Product product = getProduct();
-            for (final Layer layer : bitmaskLayer.getChildLayerList()) {
+            for (final Layer layer : bitmaskLayer.getChildren()) {
                 layerMap.put(product.getBitmaskDef(layer.getName()), layer);
             }
         }
@@ -114,11 +113,11 @@ public class BitmaskCollectionLayer extends Layer {
                 final Layer layer = layerMap.remove(bitmaskDef);
 
                 if (layer != null) {
-                    final int index = bitmaskLayer.getChildLayerList().indexOf(layer);
+                    final int index = bitmaskLayer.getChildren().indexOf(layer);
                     if (index != -1) {
                         final Layer newLayer = createBitmaskLayer(bitmaskDef);
-                        final Layer oldLayer = bitmaskLayer.getChildLayerList().remove(index);
-                        bitmaskLayer.getChildLayerList().add(index, newLayer);
+                        final Layer oldLayer = bitmaskLayer.getChildren().remove(index);
+                        bitmaskLayer.getChildren().add(index, newLayer);
                         layerMap.put(bitmaskDef, newLayer);
                         oldLayer.dispose();
                     }
@@ -141,7 +140,7 @@ public class BitmaskCollectionLayer extends Layer {
                 for (int i = 0; i < bitmaskDefs.length; i++) {
                     if (sourceNode == bitmaskDefs[i]) {
                         final Layer layer = createBitmaskLayer(bitmaskDefs[i]);
-                        bitmaskLayer.getChildLayerList().add(i, layer);
+                        bitmaskLayer.getChildren().add(i, layer);
                         layerMap.put(bitmaskDefs[i], layer);
                         break;
                     }
@@ -157,7 +156,7 @@ public class BitmaskCollectionLayer extends Layer {
                 final BitmaskDef bitmaskDef = (BitmaskDef) sourceNode;
                 final Layer layer = layerMap.remove(bitmaskDef);
                 if (layer != null) {
-                    if (bitmaskLayer.getChildLayerList().remove(layer)) {
+                    if (bitmaskLayer.getChildren().remove(layer)) {
                         layer.dispose();
                     }
                 }
@@ -181,7 +180,7 @@ public class BitmaskCollectionLayer extends Layer {
                 final BitmaskOverlayInfo overlayInfo = getRaster().getBitmaskOverlayInfo();
                 final Product product = getProduct();
 
-                for (final Layer layer : bitmaskLayer.getChildLayerList()) {
+                for (final Layer layer : bitmaskLayer.getChildren()) {
                     layer.setVisible(overlayInfo.containsBitmaskDef(product.getBitmaskDef(layer.getName())));
                 }
             }

@@ -4,7 +4,6 @@ import com.bc.ceres.glayer.Composite;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.glayer.support.LayerStyleListener;
-import com.jidesoft.icons.IconsFactory;
 import com.jidesoft.swing.CheckBoxTree;
 import com.jidesoft.swing.CheckBoxTreeSelectionModel;
 import com.jidesoft.tree.TreeUtils;
@@ -230,7 +229,7 @@ public class LayerManager {
         final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) TreeUtils.findTreeNode(layerTree, layer);
         doSelection(treeNode, layer.isVisible());
 
-        for (final Layer childLayer : layer.getChildLayerList()) {
+        for (final Layer childLayer : layer.getChildren()) {
             initSelection(childLayer);
         }
     }
