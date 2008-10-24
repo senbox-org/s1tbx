@@ -24,8 +24,8 @@ import java.util.List;
  * @version $revision$ $date$
  */
 public class Layer extends ExtensibleObject {
-    private Layer parentLayer;
-    private LayerList childLayerList;
+    private Layer parent;
+    private LayerList children;
     private String name;
     private boolean visible;
     private Style style;
@@ -42,8 +42,8 @@ public class Layer extends ExtensibleObject {
      * </ul>
      */
     public Layer() {
-        parentLayer = null;
-        childLayerList = new LayerList();
+        parent = null;
+        children = new LayerList();
         name = getClass().getName();
         visible = true;
         layerListenerList = new ArrayList<LayerListener>(8);
@@ -54,8 +54,8 @@ public class Layer extends ExtensibleObject {
     /**
      * @return The parent layer, or {@code null} if this layer has no parent.
      */
-    public Layer getParentLayer() {
-        return parentLayer;
+    public Layer getParent() {
+        return parent;
     }
 
     /**
@@ -64,8 +64,8 @@ public class Layer extends ExtensibleObject {
      *
      * @return The child layers of this layer. May be empty.
      */
-    public List<Layer> getChildLayerList() {
-        return childLayerList;
+    public List<Layer> getChildren() {
+        return children;
     }
 
     /**
@@ -132,27 +132,25 @@ public class Layer extends ExtensibleObject {
     }
 
     /**
-     * Gets the bounds (bounding box) of the layer in model coordinates.
-     * The default implementation returns the union of the bounds (if any) returned by
-     * {@link #getLayerModelBounds()} and {@link #getChildLayersBounds()}.
+     * Gets the model bounds (bounding box) of the layer in model coordinates.
+     * The default implementation returns the union of the model bounds (if any) returned by
+     * {@link #getLayerModelBounds()} and {@link #getChildrenModelBounds()}.
      *
      * @return The bounds of the layer in model coordinates or {@code null} if this layer
-     *         has no specified boundary.
+     *         and all children have no specified boundary.
      */
-    public Rectangle2D getModelBounds() {
+    public final Rectangle2D getModelBounds() {
         final Rectangle2D layerBounds = getLayerModelBounds();
-        final Rectangle2D childLayersBounds = getChildLayersBounds();
-        if (childLayersBounds != null && layerBounds != null) {
-            Rectangle2D bounds = new Rectangle2D.Double();
-            bounds.add(layerBounds);
-            bounds.add(childLayersBounds);
-            return bounds;
-        } else if (childLayersBounds != null) {
-            return childLayersBounds;
-        } else if (layerBounds != null) {
+        final Rectangle2D childrenBounds = getChildrenModelBounds();
+        if (layerBounds == null) {
+            return childrenBounds;
+        } else if (childrenBounds == null) {
             return layerBounds;
+        } else {
+            Rectangle2D bounds = (Rectangle2D) layerBounds.clone();
+            bounds.add(childrenBounds);
+            return bounds;
         }
-        return null;
     }
 
     /**
@@ -172,32 +170,30 @@ public class Layer extends ExtensibleObject {
      * Called by {@link #getModelBounds()}.
      * The default implementation returns the union bounds (if any) of all child layers.
      *
-     * @return The bounds of the child layers in model coordinates or {@code null} if none of the child layers
-     *         has a specified boundary.
+     * @return The bounds of the child layers in model coordinates or {@code null}
+     *         none of the children have a specified boundary.
      */
-    protected Rectangle2D getChildLayersBounds() {
-        Rectangle2D.Double bounds = null;
-        for (Layer layer : childLayerList) {
+    protected Rectangle2D getChildrenModelBounds() {
+        Rectangle2D bounds = null;
+        for (Layer layer : children) {
             Rectangle2D childBounds = layer.getModelBounds();
-            if (childBounds != null && !childBounds.isEmpty()) {
+            if (childBounds != null) {
                 if (bounds == null) {
-                    bounds = new Rectangle2D.Double(childBounds.getX(), childBounds.getY(), childBounds.getWidth(),
-                                                    childBounds.getHeight());
+                    bounds = (Rectangle2D) childBounds.clone();
                 } else {
                     bounds.add(childBounds);
                 }
             }
         }
-        return bounds;
+        return bounds ;
     }
-
 
     /**
      * Renders the layer. Calls {@code render(rendering, null)}.
      * @param rendering The rendering to which the layer will be rendered.
      * @see #render(com.bc.ceres.grender.Rendering, com.bc.ceres.glayer.Layer.RenderCustomizer)}
      */
-    public void render(Rendering rendering) {
+    public final void render(Rendering rendering) {
         render(rendering, null);
     }
 
@@ -205,13 +201,13 @@ public class Layer extends ExtensibleObject {
      * Renders the layer. The base class implementation configures the rendering with respect to the
      * "opacity" and "composite" style properties. Then
      * {@link #renderLayer(com.bc.ceres.grender.Rendering)} followed by
-     * {@link #renderChildLayers(com.bc.ceres.grender.Rendering, com.bc.ceres.glayer.Layer.RenderCustomizer)} are called if
+     * {@link #renderChildren(com.bc.ceres.grender.Rendering, com.bc.ceres.glayer.Layer.RenderCustomizer)} are called if
      * {@code customizer} is {@code null}. Otherwise {@link com.bc.ceres.glayer.Layer.RenderCustomizer#render(com.bc.ceres.grender.Rendering, Layer)} is called.
      *
      * @param rendering  The rendering to which the layer will be rendered.
      * @param customizer An optional customizer for rendering the layer. May be {@code null}.
      */
-    public void render(Rendering rendering, RenderCustomizer customizer) {
+    public final void render(Rendering rendering, RenderCustomizer customizer) {
         final double opacity = getStyle().getOpacity();
         if (!isVisible() || opacity == 0.0) {
             return;
@@ -225,7 +221,7 @@ public class Layer extends ExtensibleObject {
             }
             if (customizer == null) {
                 renderLayer(rendering);
-                renderChildLayers(rendering, null);
+                renderChildren(rendering, null);
             } else {
                 customizer.render(rendering, this);
             }
@@ -252,19 +248,19 @@ public class Layer extends ExtensibleObject {
      * @param rendering The rendering to which the layer will be rendered.
      * @param customizer An optional customizer for rendering the layer. May be {@code null}.
      */
-    protected void renderChildLayers(Rendering rendering, RenderCustomizer customizer) {
-        for (int i = childLayerList.size() - 1; i >= 0; --i) {
-            childLayerList.get(i).render(rendering, customizer);
+    protected void renderChildren(Rendering rendering, RenderCustomizer customizer) {
+        for (int i = children.size() - 1; i >= 0; --i) {
+            children.get(i).render(rendering, customizer);
         }
     }
 
     /**
      * Disposes all allocated resources. Called if the layer will no longer be in use.
-     * The default implementation calls {@link #disposeChildLayers()} followed by
+     * The default implementation calls {@link #disposeChildren()} followed by
      * {@link #disposeLayer()}.
      */
-    public void dispose() {
-        disposeChildLayers();
+    public final void dispose() {
+        disposeChildren();
         disposeLayer();
     }
 
@@ -280,8 +276,8 @@ public class Layer extends ExtensibleObject {
      * The default implementation calls {@link #dispose()} on all child layers
      * and removes them from this layer.
      */
-    protected void disposeChildLayers() {
-        childLayerList.dispose();
+    protected void disposeChildren() {
+        children.dispose();
     }
 
     /**
@@ -318,10 +314,10 @@ public class Layer extends ExtensibleObject {
     LayerListener[] getReachableListeners() {
         ArrayList<LayerListener> list = new ArrayList<LayerListener>(16);
         list.addAll(Arrays.asList(getListeners()));
-        Layer parent = getParentLayer();
+        Layer parent = getParent();
         while (parent != null) {
             list.addAll(Arrays.asList(parent.getListeners()));
-            parent = parent.getParentLayer();
+            parent = parent.getParent();
         }
         return list.toArray(new LayerListener[list.size()]);
     }
@@ -360,10 +356,10 @@ public class Layer extends ExtensibleObject {
     }
 
     /**
-     * @param parentLayer The parent layer, or {@code null} if this layer has no parent.
+     * @param parent The parent layer, or {@code null} if this layer has no parent.
      */
-    void setParentLayer(Layer parentLayer) {
-        this.parentLayer = parentLayer;
+    void setParent(Layer parent) {
+        this.parent = parent;
     }
 
     /**
@@ -404,8 +400,8 @@ public class Layer extends ExtensibleObject {
         public Layer set(int i, Layer layer) {
             final Layer oldLayer = layerList.set(i, layer);
             if (layer != oldLayer) {
-                oldLayer.setParentLayer(null);
-                layer.setParentLayer(Layer.this);
+                oldLayer.setParent(null);
+                layer.setParent(Layer.this);
                 fireLayersRemoved(new Layer[]{oldLayer});
                 fireLayersAdded(new Layer[]{layer});
             }
@@ -415,14 +411,14 @@ public class Layer extends ExtensibleObject {
         @Override
         public void add(int i, Layer layer) {
             layerList.add(i, layer);
-            layer.setParentLayer(Layer.this);
+            layer.setParent(Layer.this);
             fireLayersAdded(new Layer[]{layer});
         }
 
         @Override
         public Layer remove(int i) {
             final Layer layer = layerList.remove(i);
-            layer.setParentLayer(null);
+            layer.setParent(null);
             fireLayersRemoved(new Layer[]{layer});
             return layer;
         }
@@ -436,7 +432,7 @@ public class Layer extends ExtensibleObject {
             layerList.clear();
             for (Layer layer : layers) {
                 layer.dispose();
-                layer.setParentLayer(null);
+                layer.setParent(null);
             }
         }
     }
@@ -468,7 +464,7 @@ public class Layer extends ExtensibleObject {
         }
 
         protected void renderChildLayers(Rendering rendering, Layer layer) {
-            layer.renderChildLayers(rendering, this);
+            layer.renderChildren(rendering, this);
         }
 
         protected void renderOverlay(Rendering rendering, Layer layer) {
@@ -476,16 +472,16 @@ public class Layer extends ExtensibleObject {
     }
 
     // todo - apidoc (nf - 22.10.2008)
-    public static abstract class LayerRenderFilter implements RenderCustomizer {
+    public static abstract class RenderFilter implements RenderCustomizer {
 
         public final void render(Rendering rendering, Layer layer) {
-            if (accept(layer)) {
+            if (canRender(layer)) {
                 layer.renderLayer(rendering);
             }
-            layer.renderChildLayers(rendering, this);
+            layer.renderChildren(rendering, this);
         }
 
-        public abstract boolean accept(Layer layer);
+        public abstract boolean canRender(Layer layer);
     }
 
 }

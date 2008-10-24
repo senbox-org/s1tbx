@@ -32,9 +32,9 @@ public interface AdjustableView {
     Viewport getViewport();
 
     /**
-     * @return The viewable area in model coordinates.
+     * @return The maximum visible model bounds in model coordinates.
      */
-    Rectangle2D getModelBounds();
+    Rectangle2D getMaxVisibleModelBounds();
 
     /**
      * @return The default zoom factor.

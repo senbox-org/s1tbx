@@ -58,12 +58,17 @@ public class ShapeLayer extends Layer {
         return (AffineTransform) modelToShapeTransform.clone();
     }
 
-    public Rectangle2D getModelBounds() {
-        Rectangle2D boundingBox = new Rectangle2D.Double();
+    @Override
+    protected Rectangle2D getLayerModelBounds() {
+        Rectangle2D shapeBounds = null;
         for (Shape shape : shapeList) {
-            boundingBox.add(shape.getBounds2D());
+            if (shapeBounds == null) {
+                shapeBounds = shape.getBounds2D();
+            } else {
+                shapeBounds.add(shape.getBounds2D());
+            }
         }
-        return shapeToModelTransform.createTransformedShape(boundingBox).getBounds2D();
+        return shapeBounds != null ? shapeToModelTransform.createTransformedShape(shapeBounds).getBounds2D() : null;
     }
 
     @Override

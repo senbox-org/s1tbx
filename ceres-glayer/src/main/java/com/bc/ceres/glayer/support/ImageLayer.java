@@ -143,7 +143,7 @@ public class ImageLayer extends Layer {
     }
 
     @Override
-    public Rectangle2D getModelBounds() {
+    protected Rectangle2D getLayerModelBounds() {
         return multiLevelSource.getModel().getModelBounds();
     }
 
@@ -202,7 +202,7 @@ public class ImageLayer extends Layer {
     }
 
     @Override
-    public synchronized void dispose() {
+    protected synchronized void disposeLayer() {
         resetRenderer();
         if (multiLevelSource != null) {
             multiLevelSource.reset();

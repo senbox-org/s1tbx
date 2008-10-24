@@ -309,7 +309,7 @@ public class ViewportScrollPane extends JComponent {
         }
 
         // Model bounds in view coordinates
-        final Rectangle2D ma = adjustableView.getViewport().getModelToViewTransform().createTransformedShape(adjustableView.getModelBounds()).getBounds2D();
+        final Rectangle2D ma = adjustableView.getViewport().getModelToViewTransform().createTransformedShape(adjustableView.getMaxVisibleModelBounds()).getBounds2D();
         // Following code make it easier to scroll out of the model area
         ma.add(ma.getX() - MODEL_BOUNDS_EXTENSION, ma.getY() - MODEL_BOUNDS_EXTENSION);
         ma.add(ma.getX() + ma.getWidth() + MODEL_BOUNDS_EXTENSION, ma.getY() + ma.getHeight() + MODEL_BOUNDS_EXTENSION);

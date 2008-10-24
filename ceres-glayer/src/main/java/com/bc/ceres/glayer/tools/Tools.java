@@ -122,7 +122,7 @@ public class Tools {
         final Layer collectionLayer = layerCanvas.getLayer();
         final MultiLevelSource source = FileMultiLevelSourceFactory.create(location, extension, imageToModelTransform, levelCount);
         final ImageLayer layer = new ImageLayer(source);
-        collectionLayer.getChildLayerList().add(layer);
+        collectionLayer.getChildren().add(layer);
         final Rectangle viewportBounds = new Rectangle(0, 0, 640, 480);
         layerCanvas.setPreferredSize(new Dimension(640, 480));
         layerCanvas.getViewport().setViewBounds(viewportBounds);
@@ -152,7 +152,7 @@ public class Tools {
         for (int i = 0; i < images.length; i++) {
             final ImageLayer layer = new ImageLayer(images[i], imageToModelTransforms[i], levelCount);
             layer.setDebug(true);
-            collectionLayer.getChildLayerList().add(layer);
+            collectionLayer.getChildren().add(layer);
         }
 
         openFrame(layerCanvas, title, new Rectangle(0, 0, 512, 512));

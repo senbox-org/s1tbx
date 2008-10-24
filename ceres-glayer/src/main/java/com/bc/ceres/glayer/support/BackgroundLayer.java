@@ -26,11 +26,6 @@ public class BackgroundLayer extends Layer {
     }
 
     @Override
-    public Rectangle2D getModelBounds() {
-        return null;
-    }
-
-    @Override
     protected void renderLayer(Rendering rendering) {
         final Graphics2D g = rendering.getGraphics();
         Paint oldPaint = g.getPaint();

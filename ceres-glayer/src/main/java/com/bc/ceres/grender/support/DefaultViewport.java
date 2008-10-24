@@ -116,13 +116,11 @@ public class DefaultViewport implements Viewport {
         final double viewportHeight = viewBounds.height;
         final double zoomFactor = Math.min(viewportWidth / modelArea.getWidth(),
                                            viewportHeight / modelArea.getHeight());
-        zoom(modelArea.getCenterX(),
-             modelArea.getCenterY(),
-             zoomFactor);
+        setZoomFactor(zoomFactor, modelArea.getCenterX(), modelArea.getCenterY());
     }
 
     @Override
-    public void zoom(double modelCenterX, double modelCenterY, double zoomFactor) {
+    public void setZoomFactor(double zoomFactor, double modelCenterX, double modelCenterY) {
         final double viewportWidth = viewBounds.width;
         final double viewportHeight = viewBounds.height;
         final double modelOffsetX = modelCenterX - 0.5 * viewportWidth / zoomFactor;

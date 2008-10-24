@@ -83,11 +83,11 @@ public interface Viewport {
     /**
      * Zooms to the given point given in model coordinates.
      *
+     * @param zoomFactor   The new zoom factor.
      * @param modelCenterX New X of the view's center point in model coordinates.
      * @param modelCenterY New Y of the view's center point in model coordinates.
-     * @param zoomFactor   The new zoom factor.
      */
-    void zoom(double modelCenterX, double modelCenterY, double zoomFactor);
+    void setZoomFactor(double zoomFactor, double modelCenterX, double modelCenterY);
 
     /**
      * @return The rotation angle in radians.

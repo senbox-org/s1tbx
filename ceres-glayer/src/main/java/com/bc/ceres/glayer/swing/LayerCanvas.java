@@ -17,19 +17,22 @@
 package com.bc.ceres.glayer.swing;
 
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.support.LayerViewInvalidationListener;
 import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glayer.support.LayerViewInvalidationListener;
 import com.bc.ceres.glayer.swing.NavControl.NavControlModel;
+import com.bc.ceres.grender.AdjustableView;
 import com.bc.ceres.grender.InteractiveRendering;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
-import com.bc.ceres.grender.AdjustableView;
 import com.bc.ceres.grender.support.DefaultViewport;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 
 /**
  * A Swing component capable of drawing a collection of {@link com.bc.ceres.glayer.Layer}s.
@@ -40,12 +43,17 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 
     private final Layer layer;
     private final Viewport viewport;
-    private final Rectangle2D modelArea;
     private final CanvasRendering canvasRendering;
 
     private boolean navControlShown;
     private WakefulComponent navControlWrapper;
     private boolean painted;
+
+    // AdjustableView properties
+    private Rectangle2D maxVisibleModelBounds;
+    private double minZoomFactor;
+    private double maxZoomFactor;
+    private double defaultZoomFactor;
 
     public LayerCanvas() {
         this(new Layer());
@@ -59,17 +67,17 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         setOpaque(false);
 
         this.layer = layer;
-        this.modelArea = layer.getModelBounds();
         this.viewport = viewport;
         setBounds(viewport.getViewBounds());
 
-        // todo - check: register PCL for "layer.modelBounds" (nf 21.10.2008)
+        // todo - check: register PCL for "layer.maxVisibleModelBounds" (nf 21.10.2008)
 
         this.canvasRendering = new CanvasRendering();
 
         layer.addListener(new LayerViewInvalidationListener() {
             @Override
             public void handleViewInvalidation(Layer layer, Rectangle2D modelRegion) {
+                updateAdjustableViewProperties();
                 if (modelRegion != null) {
                     AffineTransform m2v = viewport.getModelToViewTransform();
                     Rectangle viewRegion = m2v.createTransformedShape(modelRegion).getBounds();
@@ -83,6 +91,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         viewport.addListener(new ViewportListener() {
             @Override
             public void handleViewportChanged(Viewport viewport, boolean orientationChanged) {
+                updateAdjustableViewProperties();
                 repaint();
             }
         });
@@ -127,51 +136,112 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         }
     }
 
+    /////////////////////////////////////////////////////////////////////////
+    // AdjustableView implementation
+
     @Override
     public Viewport getViewport() {
         return viewport;
     }
 
     @Override
-    public Rectangle2D getModelBounds() {
-        return modelArea;
+    public Rectangle2D getMaxVisibleModelBounds() {
+        return maxVisibleModelBounds;
     }
 
     @Override
     public double getMinZoomFactor() {
-        double vw = viewport.getViewBounds().width;
-        double vh = viewport.getViewBounds().height;
-        double mw = modelArea.getWidth();
-        double mh = modelArea.getHeight();
-        return 0.5 * Math.min(vw / mw, vh / mh);
+        return minZoomFactor;
     }
 
     @Override
     public double getMaxZoomFactor() {
-        return 32 * getDefaultZoomFactor();
+        return maxZoomFactor;
     }
 
     @Override
     public double getDefaultZoomFactor() {
-        Layer layer = getLayer();
-        double sI2M = getMinImageToModelScale(layer, 0);
-        return 1.0 / sI2M;
+        return defaultZoomFactor;
     }
 
-    private double getMinImageToModelScale(Layer layer, double minScale) {
+    private void updateAdjustableViewProperties() {
+        maxVisibleModelBounds = computeMaxVisibleModelBounds(layer.getModelBounds(), viewport.getOrientation());
+        minZoomFactor = computeMinZoomFactor(viewport.getViewBounds(), maxVisibleModelBounds);
+        Layer layer = getLayer();
+        double minScale = computeMinImageToModelScale(layer);
+        if (minScale > 0.0) {
+            defaultZoomFactor = 1.0 / minScale;
+            maxZoomFactor = 100 * defaultZoomFactor;
+        } else {
+            defaultZoomFactor = minZoomFactor;
+            maxZoomFactor = 1000 * minZoomFactor;
+        }
+        System.out.println("LayerCanvas.updateAdjustableViewProperties():");
+        System.out.println("  minZoomFactor         = " + minZoomFactor);
+        System.out.println("  maxZoomFactor         = " + maxZoomFactor);
+        System.out.println("  defaultZoomFactor     = " + defaultZoomFactor);
+        System.out.println("  maxVisibleModelBounds = " + maxVisibleModelBounds);
+    }
+
+    static double computeMinZoomFactor(Rectangle2D viewBounds, Rectangle2D maxVisibleModelBounds) {
+        double vw = viewBounds.getWidth();
+        double vh = viewBounds.getHeight();
+        double mw = maxVisibleModelBounds.getWidth();
+        double mh = maxVisibleModelBounds.getHeight();
+        double sw = mw > 0.0 ? vw / mw : 0.0;
+        double sh = mh > 0.0 ? vh / mh : 0.0;
+        double s;
+        if (sw > 0.0 && sh > 0.0) {
+            s = Math.min(sw, sh);
+        } else if (sw > 0.0) {
+            s = sw;
+        } else if (sh > 0.0) {
+            s = sh;
+        } else {
+            s = 0.0;
+        }
+        return 0.5 * s;
+    }
+
+    static double computeMinImageToModelScale(Layer layer) {
+        return computeMinImageToModelScale(layer, 0.0);
+    }
+
+    private static double computeMinImageToModelScale(Layer layer, double minScale) {
         if (layer instanceof ImageLayer) {
             ImageLayer imageLayer = (ImageLayer) layer;
             double scale = Math.sqrt(Math.abs(imageLayer.getImageToModelTransform().getDeterminant()));
-            if (scale < minScale) {
+            if (scale > 0.0 && (minScale <= 0.0 || scale < minScale)) {
                 minScale = scale;
             }
         }
-        for (Layer childLayer : layer.getChildLayerList()) {
-            minScale = getMinImageToModelScale(childLayer, minScale);
+        for (Layer childLayer : layer.getChildren()) {
+            minScale = computeMinImageToModelScale(childLayer, minScale);
         }
         return minScale;
     }
 
+    static Rectangle2D computeMaxVisibleModelBounds(Rectangle2D modelBounds, double orientation) {
+        if (modelBounds == null) {
+            return new Rectangle();
+        }
+        if (orientation == 0.0) {
+            return modelBounds;
+        }else {
+            final AffineTransform t = new AffineTransform();
+            t.rotate(orientation, modelBounds.getCenterX(), modelBounds.getCenterY());
+            return t.createTransformedShape(modelBounds).getBounds2D();
+        }
+    }
+
+
+    // AdjustableView implementation
+    /////////////////////////////////////////////////////////////////////////
+
+    /////////////////////////////////////////////////////////////////////////
+    // JComponent overrides
+
+    @Override
     public void setBounds(int x, int y, int width, int height) {
         viewport.setViewBounds(new Rectangle(x, y, width, height));
         super.setBounds(x, y, width, height);
@@ -180,25 +250,25 @@ public class LayerCanvas extends JComponent implements AdjustableView {
     @Override
     public void doLayout() {
         if (navControlShown && navControlWrapper != null) {
-// Use the follwoing code to align the nav. control to the RIGHT (nf, 18.09,.2008)
-//            navControlWrapper.setLocation(getWidth() - navControlWrapper.getWidth() - 4, 4);
+            // Use the follwoing code to align the nav. control to the RIGHT (nf, 18.09,.2008)
+            //            navControlWrapper.setLocation(getWidth() - navControlWrapper.getWidth() - 4, 4);
             navControlWrapper.setLocation(4, 4);
         }
     }
 
     @Override
     protected void paintComponent(Graphics g) {
-        if (!painted && modelArea != null && !modelArea.isEmpty()) {
+        if (!painted && maxVisibleModelBounds != null && !maxVisibleModelBounds.isEmpty()) {
             painted = true;
-            getViewport().zoom(modelArea);
+            getViewport().zoom(maxVisibleModelBounds);
         }
-                
-        // ensure clipping is set
+
+        // Ensure clip bounds are set
         if (g.getClipBounds() == null) {
             g.setClip(getX(), getY(), getWidth(), getHeight());
         }
 
-        // paint background
+        // Paint background for opaque canvas
         if (isOpaque()) {
             g.setColor(getBackground());
             g.fillRect(getX(), getY(), getWidth(), getHeight());
@@ -208,6 +278,8 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         layer.render(canvasRendering);
     }
 
+    // JComponent overrides
+    /////////////////////////////////////////////////////////////////////////
 
     private class CanvasRendering implements InteractiveRendering {
         private Graphics2D graphics2D;
@@ -266,10 +338,10 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         public void handleScale(double scaleDir) {
             final double oldZoomFactor = viewport.getZoomFactor();
             final double newZoomFactor = (1.0 + 0.1 * scaleDir) * oldZoomFactor;
-//                System.out.println("LayerCanvas.handleScale():");
-//                System.out.println("  scaleDir      = " + scaleDir);
-//                System.out.println("  oldZoomFactor = " + oldZoomFactor);
-//                System.out.println("  newZoomFactor = " + newZoomFactor);
+            System.out.println("LayerCanvas.NavControlModelImpl.handleScale():");
+            System.out.println("  scaleDir      = " + scaleDir);
+            System.out.println("  oldZoomFactor = " + oldZoomFactor);
+            System.out.println("  newZoomFactor = " + newZoomFactor);
             viewport.setZoomFactor(newZoomFactor);
         }
 

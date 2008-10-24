@@ -30,17 +30,20 @@ public class ShapeLayerTest  {
     }
 
     @Test
-    public void testBoundingBox() {
+    public void testModelBounds() {
         ShapeLayer layer;
 
-        final Shape shape = new Rectangle2D.Double(0.0, 0.0, 320.0, 200.0);
 
+        layer = new ShapeLayer(new Shape[0]);
+        assertEquals(null, layer.getModelBounds());
+
+        Shape shape = new Rectangle2D.Double(10.0, -30.0, 320.0, 200.0);
         layer = new ShapeLayer(new Shape[]{shape});
         assertNotNull(layer.getModelBounds());
-        assertEquals(new Rectangle2D.Double(0.0, 0.0, 320.0, 200.0), layer.getModelBounds());
+        assertEquals(new Rectangle2D.Double(10.0, -30.0, 320.0, 200.0), layer.getModelBounds());
 
-        final AffineTransform s2u = new AffineTransform(0.5, 0, 0, 0.5, -25.5, 50.3);
-        layer = new ShapeLayer(new Shape[]{shape}, s2u);
+        final AffineTransform s2m = new AffineTransform(0.5, 0, 0, 0.5, -25.5, 50.3);
+        layer = new ShapeLayer(new Shape[]{shape}, s2m);
         assertNotNull(layer.getModelBounds());
         assertEquals(new Rectangle2D.Double(-25.5, 50.3, 160.0, 100.0), layer.getModelBounds());
     }

@@ -3,15 +3,16 @@ package com.bc.ceres.glayer;
 import com.bc.ceres.glayer.support.ShapeLayer;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.support.BufferedImageRendering;
-
-import java.awt.Shape;
-import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
-import java.util.*;
-
-import org.junit.Test;
 import static org.junit.Assert.*;
 import static com.bc.ceres.glayer.Assert2D.*;
+import org.junit.Test;
+
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.geom.Rectangle2D;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 public class LayerTest {
 
@@ -23,7 +24,6 @@ public class LayerTest {
         assertEquals(1.0, layer.getStyle().getOpacity(), 1e-10);
         assertEquals(Composite.SRC_OVER, layer.getStyle().getComposite());
 
-        assertEquals(true, layer.getChildLayerList().isEmpty());
         assertNull(layer.getModelBounds());
     }
 
@@ -61,13 +61,38 @@ public class LayerTest {
     }
 
     @Test
-    public void testBounds() {
-        final Layer layer = new Layer();
-        layer.getChildLayerList().add(new ShapeLayer(new Shape[]{new Rectangle(-20, 10, 30, 50)}));
-        layer.getChildLayerList().add(new ShapeLayer(new Shape[]{new Rectangle(-10, 20, 20, 60)}));
-        layer.getChildLayerList().add(new ShapeLayer(new Shape[]{new Rectangle(0, 0, 40, 50)}));
-        assertNotNull(layer.getModelBounds());
-        assertEquals(new Rectangle(-20, 0, 60, 80), layer.getModelBounds());
+    public void testModelBounds() {
+        Layer layer;
+        int x1, x2, y1, y2;
+
+        layer = new Layer();
+        assertEquals(null, layer.getModelBounds());
+
+        layer = new Layer();
+        layer.getChildren().add(new Layer());
+        layer.getChildren().add(new Layer());
+        layer.getChildren().add(new Layer());
+        assertEquals(null, layer.getModelBounds());
+
+        layer = new Layer();
+        layer.getChildren().add(new Layer());
+        layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(20, 10, 30, 50)}));
+        layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(10, 20, 20, 60)}));
+        x1 = Math.min(20, 10);
+        y1 = Math.min(10, 20);
+        x2 = Math.max(20 + 30, 10 + 20);
+        y2 = Math.max(10 + 50, 20 + 60);
+        assertEquals(new Rectangle(x1, y1, x2 - x1, y2 - y1), layer.getModelBounds());
+
+        layer = new Layer();
+        layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(-20, 10, 30, 50)}));
+        layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(-10, 20, 20, 60)}));
+        layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(1, 2, 40, 50)}));
+        x1 = Math.min(Math.min(-20, -10), 1);
+        y1 = Math.min(Math.min(10, 20), 2);
+        x2 = Math.max(Math.max(-20 + 30, -10 + 20), 1 + 40);
+        y2 = Math.max(Math.max(10 + 50, 20 + 60), 2 + 50);
+        assertEquals(new Rectangle(x1, y1, x2 - x1, y2 - y1), layer.getModelBounds());
     }
 
     @Test
@@ -77,9 +102,9 @@ public class LayerTest {
         final RenderCountingLayer l2 = new RenderCountingLayer();
         final RenderCountingLayer l3 = new RenderCountingLayer();
 
-        layer.getChildLayerList().add(l1);
-        layer.getChildLayerList().add(l2);
-        layer.getChildLayerList().add(l3);
+        layer.getChildren().add(l1);
+        layer.getChildren().add(l2);
+        layer.getChildren().add(l3);
 
         final Rendering rendering = new BufferedImageRendering(16, 16);
         layer.render(rendering);
@@ -144,7 +169,7 @@ public class LayerTest {
     @Test
     public void testListInterfaceImplementionSpecConformance() {
 
-        final java.util.List<Layer> list = new Layer().getChildLayerList();
+        final java.util.List<Layer> list = new Layer().getChildren();
 
         assertEquals(true, list.isEmpty());
         assertEquals(0, list.size());
@@ -221,7 +246,7 @@ public class LayerTest {
     public void testChildLayerListIsLife() {
 
         Layer owner = new Layer();
-        final List<Layer> list = owner.getChildLayerList();
+        final List<Layer> list = owner.getChildren();
 
 
         final TracingLayerListener ll = new TracingLayerListener();
@@ -233,24 +258,20 @@ public class LayerTest {
         list.add(new Layer());
         assertEquals("added 1;added 1;", ll.trace);
 
-        assertSame(owner, list.get(0).getParentLayer());
-        assertSame(owner, list.get(1).getParentLayer());
+        assertSame(owner, list.get(0).getParent());
+        assertSame(owner, list.get(1).getParent());
 
         Layer layer0 = list.remove(0);
-        assertNull(layer0.getParentLayer());
+        assertNull(layer0.getParent());
         assertEquals("added 1;added 1;removed 1;", ll.trace);
 
         layer0 = list.set(0, new Layer());
-        assertNull(layer0.getParentLayer());
+        assertNull(layer0.getParent());
         assertEquals("added 1;added 1;removed 1;removed 1;added 1;", ll.trace);
     }
 
     public static class RenderCountingLayer extends Layer {
         int renderCount;
-
-        public Rectangle2D getModelBounds() {
-            return null;
-        }
 
         @Override
         protected void renderLayer(Rendering rendering) {
