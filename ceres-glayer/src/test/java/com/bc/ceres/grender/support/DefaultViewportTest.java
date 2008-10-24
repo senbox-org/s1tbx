@@ -168,6 +168,105 @@ public class DefaultViewportTest {
 
     }
 
+    @Test
+    public void testRelativeZoomWithViewport() {
+        final DefaultViewport viewport = new DefaultViewport(new Rectangle(40, 50), true);
+        viewport.moveViewDelta(10, 10);
+        Point2D vc; // zoom center in view CS
+        final Point2D v0 = p(0, 0);
+        Point2D u0;
+
+        viewport.move(10, 10);
+        AffineTransform v2m = viewport.getViewToModelTransform();
+        u0 = t(v2m, v0);
+
+        assertEquals(1.0, v2m.getScaleX(), 1.0e-10);
+        assertEquals(1.0, v2m.getScaleY(), 1.0e-10);
+        assertEquals(p(10, 10), u0);
+        
+        /////////////////////////////
+        // view center 1
+
+        vc = p(15, 10);
+        assertEquals(p(25.0, 20.0), t(v2m, vc));
+
+        viewport.setZoomFactor(0.5, vc);
+        v2m = viewport.getViewToModelTransform();
+
+        assertEquals(0.5, viewport.getZoomFactor(), 1.0e-10);
+        assertEquals(p(25.0, 20.0), t(v2m, vc));
+        assertEquals(2.0, v2m.getScaleX(), 1.0e-10);
+        assertEquals(2.0, v2m.getScaleY(), 1.0e-10);
+        assertEquals(p(-5.0, 0.0), t(v2m, v0));
+
+        viewport.setZoomFactor(2.0, vc);
+        v2m = viewport.getViewToModelTransform();
+        
+        assertEquals(2.0, viewport.getZoomFactor(), 1.0e-10);
+        assertEquals(p(25.0, 20.0), t(v2m, vc));
+        assertEquals(0.5, v2m.getScaleX(), 1.0e-10);
+        assertEquals(0.5, v2m.getScaleY(), 1.0e-10);
+        assertEquals(p(17.5, 15.0), t(v2m, v0));
+        
+        /////////////////////////////
+        // view center 2
+
+        vc = p(50, 25);
+        assertEquals(p(42.5, 27.5), t(v2m, vc));
+
+        viewport.setZoomFactor(1/1.2, vc);
+        v2m = viewport.getViewToModelTransform();
+        
+        assertEquals(1/1.2, viewport.getZoomFactor(), 1.0e-10);
+        assertEquals(p(42.5, 27.5), t(v2m, vc));
+        assertEquals(1.2, v2m.getScaleX(), 1.0e-10);
+        assertEquals(1.2, v2m.getScaleY(), 1.0e-10);
+        assertEquals(p(-17.5, -2.5), t(v2m, v0));
+
+        viewport.setZoomFactor(1/0.8, vc);
+        v2m = viewport.getViewToModelTransform();
+        
+        assertEquals(1/0.8, viewport.getZoomFactor(), 1.0e-10);
+        assertEquals(p(42.5, 27.5), t(v2m, vc));
+        assertEquals(0.8, v2m.getScaleX(), 1.0e-10);
+        assertEquals(0.8, v2m.getScaleY(), 1.0e-10);
+        assertEquals(p(2.5, 7.5), t(v2m, v0));
+    }
+    
+    @Test
+    public void testZoomToModelPoint() {
+        final DefaultViewport viewport = new DefaultViewport(new Rectangle(40, 50), true);
+        final Point2D m0 = p(3, 3);
+        final Point2D m1 = p(1, 1);
+        
+        viewport.setZoomFactor(2.0, 3.0, 3.0);
+        AffineTransform m2v = viewport.getModelToViewTransform();
+        
+        assertEquals(2.0, viewport.getZoomFactor(), 1.0e-10);
+        assertEquals(2.0, m2v.getScaleX(), 1.0e-10);
+        assertEquals(2.0, m2v.getScaleY(), 1.0e-10);
+        assertEquals(p(20.0, 25.0), t(m2v, m0));
+        assertEquals(p(16.0, 21.0), t(m2v, m1));
+        
+        viewport.setZoomFactor(2.0, 9.0, 9.0);
+        m2v = viewport.getModelToViewTransform();
+        
+        assertEquals(2.0, viewport.getZoomFactor(), 1.0e-10);
+        assertEquals(2.0, m2v.getScaleX(), 1.0e-10);
+        assertEquals(2.0, m2v.getScaleY(), 1.0e-10);
+        assertEquals(p(8.0, 13.0), t(m2v, m0));
+        assertEquals(p(4.0, 9.0), t(m2v, m1));
+        
+        viewport.setZoomFactor(3.0, 3.0, 3.0);
+        m2v = viewport.getModelToViewTransform();
+        
+        assertEquals(3.0, viewport.getZoomFactor(), 1.0e-10);
+        assertEquals(3.0, m2v.getScaleX(), 1.0e-10);
+        assertEquals(3.0, m2v.getScaleY(), 1.0e-10);
+        assertEquals(p(20.0, 25.0), t(m2v, m0));
+        assertEquals(p(14.0, 19.0), t(m2v, m1));
+    }
+    
     // V0 = {0,0}
     // U0 = T x V0
     // Uc = T x Vc

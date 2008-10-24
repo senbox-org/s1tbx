@@ -138,7 +138,7 @@ public class DefaultViewport implements Viewport {
         fireViewportChanged(false);
     }
 
-    private void setZoomFactor(double zoomFactor, Point2D vc) {
+    void setZoomFactor(double zoomFactor, Point2D vc) {
         double oldZoomFactor = getZoomFactor();
         if (oldZoomFactor != zoomFactor) {
             AffineTransform v2m = viewToModelTransform;
