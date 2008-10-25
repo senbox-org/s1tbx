@@ -136,25 +136,14 @@ class LayerDisplay extends LayerCanvas {
                 && currentPixelY < baseImageLayer.getImage(currentLevel).getHeight();
     }
 
-    /**
-     * Fires a 'pixel position changed' event to all registered pixel-pos
-     * listeners.
-     *
-     * @param e             the event
-     * @param currentPixelX pixel position X
-     * @param currentPixelY pixel position Y
-     */
-    private final void firePixelPosChanged(MouseEvent e, int currentPixelX, int currentPixelY, int currentLevel) {
+    private void firePixelPosChanged(MouseEvent e, int currentPixelX, int currentPixelY, int currentLevel) {
         boolean pixelPosValid = isPixelPosValid(currentPixelX, currentPixelY, currentLevel);
         for (PixelPositionListener listener : pixelPositionListeners) {
             listener.pixelPosChanged(baseImageLayer, currentPixelX, currentPixelY, currentLevel, pixelPosValid, e);
         }
     }
 
-    /**
-     * Fires a 'pixel position is invalid' event to all registered listeners.
-     */
-    private final void firePixelPosNotAvailable() {
+    private void firePixelPosNotAvailable() {
         for (PixelPositionListener listener : pixelPositionListeners) {
             listener.pixelPosNotAvailable();
         }
