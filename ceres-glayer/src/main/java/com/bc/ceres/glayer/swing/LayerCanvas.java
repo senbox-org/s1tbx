@@ -26,7 +26,7 @@ import com.bc.ceres.grender.InteractiveRendering;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.DefaultViewport;
 
-import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -40,7 +40,7 @@ import java.util.ArrayList;
  *
  * @author Norman Fomferra
  */
-public class LayerCanvas extends JComponent implements AdjustableView {
+public class LayerCanvas extends JPanel implements AdjustableView {
 
     private LayerCanvasModel model;
     private CanvasRendering canvasRendering;
@@ -73,7 +73,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
     }
 
     public LayerCanvas(LayerCanvasModel model) {
-        setOpaque(false);
+        super(null);
         this.model = model;
         this.canvasRendering = new CanvasRendering();
         this.modelChangeHandler = new ModelChangeHandler();
@@ -173,6 +173,10 @@ public class LayerCanvas extends JComponent implements AdjustableView {
             validate();
             this.navControlShown = navControlShown;
         }
+    }
+
+    public void zoomAll() {
+        getViewport().zoom(getMaxVisibleModelBounds());
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -283,14 +287,14 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 
     @Override
     public void setBounds(int x, int y, int width, int height) {
-        getViewport().setViewBounds(new Rectangle(x, y, width, height));
         super.setBounds(x, y, width, height);
+        getViewport().setViewBounds(new Rectangle(x, y, width, height));
     }
 
     @Override
     public void doLayout() {
         if (navControlShown && navControlWrapper != null) {
-            // Use the follwoing code to align the nav. control to the RIGHT (nf, 18.09,.2008)
+            // Use the following code to align the nav. control to the RIGHT (nf, 18.09,.2008)
             //            navControlWrapper.setLocation(getWidth() - navControlWrapper.getWidth() - 4, 4);
             navControlWrapper.setLocation(4, 4);
         }
@@ -298,20 +302,11 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 
     @Override
     protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
         if (!modelPainted && maxVisibleModelBounds != null && !maxVisibleModelBounds.isEmpty()) {
             modelPainted = true;
             zoomAll();
-        }
-
-        // Ensure clip bounds are set
-        if (g.getClipBounds() == null) {
-            g.setClip(getX(), getY(), getWidth(), getHeight());
-        }
-
-        // Paint background for opaque canvas
-        if (isOpaque()) {
-            g.setColor(getBackground());
-            g.fillRect(getX(), getY(), getWidth(), getHeight());
         }
 
         canvasRendering.setGraphics2D((Graphics2D) g);
@@ -322,10 +317,6 @@ public class LayerCanvas extends JComponent implements AdjustableView {
                 overlay.paint(this, (Graphics2D) g);
             }
         }
-    }
-
-    public void zoomAll() {
-        getViewport().zoom(getMaxVisibleModelBounds());
     }
 
     // JComponent overrides
