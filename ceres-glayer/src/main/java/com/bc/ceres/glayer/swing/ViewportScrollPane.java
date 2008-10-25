@@ -17,9 +17,9 @@
 package com.bc.ceres.glayer.swing;
 
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.grender.AdjustableView;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
-import com.bc.ceres.grender.AdjustableView;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -47,7 +47,7 @@ import java.awt.geom.Rectangle2D;
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  */
-public class ViewportScrollPane extends JComponent {
+public class ViewportScrollPane extends JPanel {
     private static final long serialVersionUID = -2634482999458990218L;
 
     // Extension of model bounds in view coordinates
@@ -77,15 +77,13 @@ public class ViewportScrollPane extends JComponent {
      * Constructs a new view pane with the given view viewComponent
      *
      * @param viewComponent the view viewComponent. If not null, it must implement {@link AdjustableView}.
-     * 
      */
     public ViewportScrollPane(JComponent viewComponent) {
+        super(null);
         Assert.notNull(viewComponent, "viewComponent");
         Assert.argument(viewComponent instanceof AdjustableView, "viewComponent");
         scrollArea = new Rectangle2D.Double();
         viewportChangeHandler = new ViewportChangeHandler();
-        setOpaque(false);
-        setLayout(null);
         setViewComponent(viewComponent);
         setCornerComponent(createCornerComponent());
         final ChangeListener scrollBarCH = new ScrollBarChangeHandler();
