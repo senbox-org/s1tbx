@@ -66,10 +66,6 @@ public abstract class ProductNode {
         Guardian.assertNotNull("name", name);
         name = name.trim();
         Guardian.assertNotNullOrEmpty("name", name);
-        if (!isValidNodeName(name)) {
-            Debug.trace("warning: invalid product node name: '" + name + "'");
-//            throw new IllegalArgumentException("The given name '" + name + "' is not a valid node name");
-        }
         _name = name;
         _description = description;
     }
