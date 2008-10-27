@@ -6,7 +6,6 @@
     <includeBaseDirectory>false</includeBaseDirectory>
 
     <formats>
-        <format>zip</format>
         <format>dir</format>
         <!-- used by installer-files.xml -->
     </formats>
@@ -99,6 +98,13 @@
                 <exclude>org.esa.beam:beam-bootstrap</exclude>
                 <exclude>org.esa.beam:beam-installer</exclude>
                 <exclude>org.esa.beam:beam-gpf-docgen</exclude>
+                <exclude>com.bc.ceres:ceres-launcher</exclude>
+                <!--<exclude>com.bc.ceres:ceres-binio</exclude> smos ?-->
+                <exclude>com.bc.ceres:ceres-deploy</exclude>
+                <exclude>com.bc.ceres:ceres-fs</exclude>
+                <!--<exclude>com.bc.ceres:ceres-glayer</exclude> ? -->
+                <exclude>com.bc.ceres:ceres-launcher</exclude>
+                <exclude>com.bc.ceres:ceres-site</exclude>
             </excludes>
 
             <binaries>
@@ -147,14 +153,14 @@
                     </dependencySet>
 
                     <!-- (3) Put packed Ceres and BEAM artifacts into 'modules' -->
-                    <dependencySet>
-                        <outputDirectory>modules</outputDirectory>
-                        <includes>
-                            <include>com.bc.ceres:ceres-core</include>
-                            <include>com.bc.ceres:ceres-binding</include>
-                            <include>com.bc.ceres:ceres-ui</include>
-                        </includes>
-                    </dependencySet>
+                    <!--<dependencySet>-->
+                        <!--<outputDirectory>modules</outputDirectory>-->
+                        <!--<includes>-->
+                            <!--<include>com.bc.ceres:ceres-core</include>-->
+                            <!--<include>com.bc.ceres:ceres-binding</include>-->
+                            <!--<include>com.bc.ceres:ceres-ui</include>-->
+                        <!--</includes>-->
+                    <!--</dependencySet>-->
 
                 </dependencySets>
             </binaries>

@@ -387,9 +387,10 @@
                     <descriptors>
                         <!-- <descriptor>src/main/assembly/beam-web-help.xml</descriptor> -->
                         <descriptor>src/main/assembly/bin.xml</descriptor>
-                        <descriptor>src/main/assembly/installer-files.xml</descriptor>
+                        <!--<descriptor>src/main/assembly/installer-files.xml</descriptor>-->
                         <descriptor>src/main/assembly/src.xml</descriptor>
                     </descriptors>
+                    <finalName>beam</finalName>
                 </configuration>
             </plugin>
             <plugin>
@@ -402,10 +403,6 @@
                         <exclude>**/TestHelper$1.java</exclude>
                     </excludes>
                     <systemProperties>
-                        <!--<property>
-                            <name>beam.home</name>
-                            <value>.</value>
-                        </property>-->
                         <property>
                             <name>org.esa.beam.testdata.out</name>
                             <value>target/test-data</value>
@@ -449,7 +446,7 @@
                         <template>
                             <source>src/main/bin/win/beam-cli-template.bat</source>
                             <lineEnding>dos</lineEnding>
-                            <outputDirectory>target/${artifactId}-${version}-bin.dir/bin</outputDirectory>
+                            <outputDirectory>target/beam-bin.dir/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
                             <filterSet>
                                 <directory>src/main/filters</directory>
@@ -461,7 +458,7 @@
                         <template>
                             <source>src/main/bin/linux/beam-cli-template.sh</source>
                             <lineEnding>unix</lineEnding>
-                            <outputDirectory>target/${artifactId}-${version}-bin.dir/bin</outputDirectory>
+                            <outputDirectory>target/beam-bin.dir/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
                             <filterSet>
                                 <directory>src/main/filters</directory>
@@ -473,7 +470,7 @@
                         <template>
                             <source>src/main/bin/macosx/beam-cli-template.command</source>
                             <lineEnding>unix</lineEnding>
-                            <outputDirectory>target/${artifactId}-${version}-bin.dir/bin</outputDirectory>
+                            <outputDirectory>target/beam-bin.dir/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
                             <filterSet>
                                 <directory>src/main/filters</directory>
