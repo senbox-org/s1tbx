@@ -114,19 +114,15 @@ public class DefaultMultiLevelModel implements MultiLevelModel {
     @Override
     public Rectangle2D getModelBounds() {
         if (modelBounds != null) {
-            return new Rectangle2D.Double(
-                    modelBounds.getX(), modelBounds.getY(),
-                    modelBounds.getWidth(), modelBounds.getHeight());
+            return (Rectangle2D) modelBounds.clone();
         } else {
-            return modelBounds;
+            return null;
         }
     }
 
     public void setModelBounds(Rectangle2D modelBounds) {
         if (modelBounds != null) {
-            this.modelBounds = new Rectangle2D.Double(
-                    modelBounds.getX(), modelBounds.getY(),
-                    modelBounds.getWidth(), modelBounds.getHeight());
+            this.modelBounds = (Rectangle2D) modelBounds.clone();
         } else {
             this.modelBounds = null;
         }
