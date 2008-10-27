@@ -60,7 +60,7 @@ public interface MultiLevelModel {
     /**
      * Returns the bounding box in model coordinates.
      *
-     * @return The bounding box.
+     * @return The bounding box, may be {@code null} if unspecified.
      */
     Rectangle2D getModelBounds();
 }
