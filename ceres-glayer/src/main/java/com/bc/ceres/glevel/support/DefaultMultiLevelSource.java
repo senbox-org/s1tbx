@@ -85,9 +85,9 @@ public class DefaultMultiLevelSource extends AbstractMultiLevelSource {
     }
 
 
-    private static DefaultMultiLevelSource createNullImage() {
+    private static MultiLevelSource createNullImage() {
         final BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_BYTE_GRAY);
-        final DefaultMultiLevelModel model = new DefaultMultiLevelModel(1, new AffineTransform(), new Rectangle());
+        final DefaultMultiLevelModel model = new DefaultMultiLevelModel(1, new AffineTransform(), null);
         return new DefaultMultiLevelSource(image, model);
     }
 }
