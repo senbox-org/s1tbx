@@ -245,18 +245,18 @@ public class PixelInfoToolView extends AbstractToolView {
         }
 
         public void pixelPosChanged(ImageLayer imageLayer, int pixelX, int pixelY, int currentLevel, boolean pixelPosValid, MouseEvent e) {
-            if (isExecute()) {
+            if (isActive()) {
                 _pixelInfoView.updatePixelValues(_view, pixelX, pixelY, currentLevel, pixelPosValid);
             }
         }
 
         public void pixelPosNotAvailable() {
-            if (isExecute()) {
+            if (isActive()) {
                 _pixelInfoView.updatePixelValues(_view, -1, -1, 0, false);
             }
         }
 
-        private boolean isExecute() {
+        private boolean isActive() {
             return isVisible() && !isSnapToPin();
         }
     }
@@ -264,7 +264,7 @@ public class PixelInfoToolView extends AbstractToolView {
     private class PinSelectionChangedListener implements ProductNodeListener {
 
         public void nodeChanged(ProductNodeEvent event) {
-            if (isExecute()) {
+            if (isActive()) {
                 if (!Pin.PROPERTY_NAME_SELECTED.equals(event.getPropertyName())) {
                     return;
                 }
@@ -273,19 +273,19 @@ public class PixelInfoToolView extends AbstractToolView {
         }
 
         public void nodeDataChanged(ProductNodeEvent event) {
-            if (isExecute()) {
+            if (isActive()) {
                 updatePin(event);
             }
         }
 
         public void nodeAdded(ProductNodeEvent event) {
-            if (isExecute()) {
+            if (isActive()) {
                 updatePin(event);
             }
         }
 
         public void nodeRemoved(ProductNodeEvent event) {
-            if (isExecute()) {
+            if (isActive()) {
                 ProductNode sourceNode = event.getSourceNode();
                 if (sourceNode instanceof Pin && sourceNode.isSelected()) {
                     setToSelectedPin(_currentView);
@@ -300,7 +300,7 @@ public class PixelInfoToolView extends AbstractToolView {
             }
         }
 
-        private boolean isExecute() {
+        private boolean isActive() {
             return isSnapToPin();
         }
     }
