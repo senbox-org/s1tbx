@@ -136,7 +136,7 @@ public class ImageLayer extends Layer {
     }
 
     public int getLevel(Viewport vp) {
-        final double i2mScale = Math.sqrt(getImageToModelTransform().getDeterminant());
+        final double i2mScale = Math.sqrt(Math.abs(getImageToModelTransform().getDeterminant()));
         final double m2vScale = 1.0 / vp.getZoomFactor();
         final double scale = m2vScale / i2mScale;
         return multiLevelSource.getModel().getLevel(scale);
