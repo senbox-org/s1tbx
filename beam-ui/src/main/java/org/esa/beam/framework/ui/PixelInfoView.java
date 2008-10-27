@@ -311,8 +311,9 @@ public class PixelInfoView extends JPanel {
         table.setCellSelectionEnabled(false);
         table.setColumnSelectionAllowed(false);
         table.setRowSelectionAllowed(true);
+        table.setTableHeader(null);
         table.removeEditor();
-        table.getTableHeader().setReorderingAllowed(false);
+        //table.getTableHeader().setReorderingAllowed(false);
         JScrollPane scrollPane = new JScrollPane(table,
                                                  JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                                                  JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
