@@ -63,14 +63,14 @@ public class FigureLayer extends Layer {
         figureList.add(currentShapeFigure);
         Rectangle2D figureBounds = currentShapeFigure.getBounds();
         Rectangle2D modelBounds = shapeToModelTransform.createTransformedShape(figureBounds).getBounds2D();
-		fireLayerDataChanged(modelBounds);
+        fireLayerDataChanged(modelBounds);
     }
-    
+
     public void removeFigure(Figure figure) {
-    	figureList.remove(figure);
-    	Rectangle2D figureBounds = figure.getBounds();
+        figureList.remove(figure);
+        Rectangle2D figureBounds = figure.getBounds();
         Rectangle2D modelBounds = shapeToModelTransform.createTransformedShape(figureBounds).getBounds2D();
-		fireLayerDataChanged(modelBounds);
+        fireLayerDataChanged(modelBounds);
     }
 
     private void setAttributes(Figure figure) {
@@ -106,11 +106,15 @@ public class FigureLayer extends Layer {
 
     @Override
     protected Rectangle2D getLayerModelBounds() {
-        Rectangle2D boundingBox = new Rectangle2D.Double();
+        Rectangle2D boundingBox = null;
         for (final Figure figure : figureList) {
-            boundingBox.add(figure.getShape().getBounds2D());
+            if (boundingBox == null) {
+                boundingBox = figure.getShape().getBounds2D();
+            } else {
+                boundingBox.add(figure.getShape().getBounds2D());
+            }
         }
-        return shapeToModelTransform.createTransformedShape(boundingBox).getBounds2D();
+        return boundingBox != null ? shapeToModelTransform.createTransformedShape(boundingBox).getBounds2D() : null;
     }
 
     @Override
@@ -214,5 +218,5 @@ public class FigureLayer extends Layer {
         }
 
         return DEFAULT_SHAPE_FILL_TRANSPARENCY;
-    }    
+    }
 }
