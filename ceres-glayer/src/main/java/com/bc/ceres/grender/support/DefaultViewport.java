@@ -120,23 +120,32 @@ public class DefaultViewport implements Viewport {
     }
 
     @Override
-    public void zoom(Rectangle2D modelArea) {
+    public void zoom(Rectangle2D modelBounds) {
         final double viewportWidth = viewBounds.width;
         final double viewportHeight = viewBounds.height;
-        final double zoomFactor = Math.min(viewportWidth / modelArea.getWidth(),
-                                           viewportHeight / modelArea.getHeight());
-        setZoomFactor(zoomFactor, modelArea.getCenterX(), modelArea.getCenterY());
+        final double zoomFactor = Math.min(viewportWidth / modelBounds.getWidth(),
+                                           viewportHeight / modelBounds.getHeight());
+        setZoomFactor(zoomFactor, modelBounds.getCenterX(), modelBounds.getCenterY());
+
+        System.out.println(this.getClass() + " ===============================================");
+        System.out.println("  modelBounds         = " + modelBounds);
+        System.out.println("  computedModelBounds = " + getViewToModelTransform().createTransformedShape(viewBounds).getBounds2D());
+        System.out.println("  viewBounds          = " + viewBounds);
+        System.out.println("  computedViewBounds  = " + getModelToViewTransform().createTransformedShape(modelBounds).getBounds2D());
+
     }
 
     @Override
     public void setZoomFactor(double zoomFactor, double modelCenterX, double modelCenterY) {
+        final double sx = 1.0;
+        final double sy = modelYAxisDown ? 1.0 : -1.0;
         final double viewportWidth = viewBounds.width;
         final double viewportHeight = viewBounds.height;
-        final double modelOffsetX = modelCenterX - 0.5 * viewportWidth / zoomFactor;
-        final double modelOffsetY = modelCenterY - 0.5 * viewportHeight / zoomFactor;
+        final double modelOffsetX = modelCenterX - 0.5 * sx * viewportWidth / zoomFactor;
+        final double modelOffsetY = modelCenterY - 0.5 * sy * viewportHeight / zoomFactor;
         final double orientation = getOrientation();
         // todo - use code similar to setZoomFactor(f, vp) (nf - 21.10.2008)
-        final AffineTransform m2v = AffineTransform.getScaleInstance(1.0, modelYAxisDown ? 1.0 : -1.0);
+        final AffineTransform m2v = AffineTransform.getScaleInstance(sx, sy);
         m2v.scale(zoomFactor, zoomFactor);
         m2v.translate(-modelOffsetX, -modelOffsetY);
         modelToViewTransform.setTransform(m2v);
@@ -199,7 +208,7 @@ public class DefaultViewport implements Viewport {
     public void synchronizeWith(Viewport other) {
         modelToViewTransform.setTransform(other.getModelToViewTransform());
         viewToModelTransform.setTransform(other.getViewToModelTransform());
-        this.modelYAxisDown = other.isModelYAxisDown();
+        modelYAxisDown = other.isModelYAxisDown();
         final boolean orientationChange = (orientation != other.getOrientation());
         if (orientationChange) {
             orientation = other.getOrientation();
