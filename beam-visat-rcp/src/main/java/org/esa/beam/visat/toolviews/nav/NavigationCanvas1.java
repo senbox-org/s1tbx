@@ -200,11 +200,11 @@ public class NavigationCanvas1 extends NavigationCanvas {
                              (int) Math.floor(vwViewBounds.height * scale));
     }
 
-    static void configureThumbnailViewport(AdjustableView view, Viewport thumbnailViewport) {
-        thumbnailViewport.zoom(view.getMaxVisibleModelBounds());
+    static void configureThumbnailViewport(AdjustableView adjustableView, Viewport thumbnailViewport) {
+        thumbnailViewport.zoom(adjustableView.getMaxVisibleModelBounds());
         thumbnailViewport.moveViewDelta(thumbnailViewport.getViewBounds().x,
                                         thumbnailViewport.getViewBounds().y);
-        thumbnailViewport.setOrientation(view.getViewport().getOrientation());
+        thumbnailViewport.setOrientation(adjustableView.getViewport().getOrientation());
     }
 
     private class MouseHandler extends MouseInputAdapter {

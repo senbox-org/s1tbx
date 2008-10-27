@@ -7,18 +7,20 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.DefaultLayerCanvasModel;
 import com.bc.ceres.glayer.swing.LayerCanvas;
+import com.bc.ceres.glayer.swing.LayerCanvasModel;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.DefaultViewport;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 
 public class NavigationCanvas2 extends NavigationCanvas {
 
     private LayerCanvas thumbnailCanvas;
     private static final DefaultLayerCanvasModel NULL_MODEL = new DefaultLayerCanvasModel(new Layer(), new DefaultViewport());
-    private ViewportHandler viewportHandler;
+    private ObservedViewportHandler observedViewportHandler;
 
     public NavigationCanvas2(NavigationToolView navigationWindow) {
         super(navigationWindow);
@@ -35,7 +37,7 @@ public class NavigationCanvas2 extends NavigationCanvas {
                 graphics.drawOval(0,0,canvas.getWidth(), canvas.getHeight());
             }
         });
-        viewportHandler = new ViewportHandler();
+        observedViewportHandler = new ObservedViewportHandler();
         add(thumbnailCanvas);
     }
 
@@ -52,6 +54,7 @@ public class NavigationCanvas2 extends NavigationCanvas {
     @Override
     public void setBounds(int x, int y, int width, int height) {
         super.setBounds(x, y, width, height);
+        thumbnailCanvas.getViewport().setViewBounds(new Rectangle(x, y, width, height));
         thumbnailCanvas.zoomAll();
     }
 
@@ -59,13 +62,13 @@ public class NavigationCanvas2 extends NavigationCanvas {
     public void handleViewChanged() {
         ProductSceneView view = getNavigationWindow().getCurrentView();
         if (view != null) {
-            // todo - remove viewportHandler from old view (nf - 24.10.2008)
-            final Viewport viewport = view.getLayerCanvas().getViewport();
-            viewport.addListener(viewportHandler);
-            DefaultLayerCanvasModel model = new DefaultLayerCanvasModel(view.getRootLayer(), new DefaultViewport(getBounds(), viewport.isModelYAxisDown()));
-            model.getViewport().setOrientation(viewport.getOrientation());
-            thumbnailCanvas.setModel(model);
-            //repaint();
+            // todo - remove observedViewportHandler from old view (nf - 24.10.2008)
+            Viewport observedViewport = view.getLayerCanvas().getViewport();
+            observedViewport.addListener(observedViewportHandler);
+            Viewport thumbnailViewport = new DefaultViewport(getBounds(), observedViewport.isModelYAxisDown());
+            LayerCanvasModel thumbnailCanvasModel = new DefaultLayerCanvasModel(view.getRootLayer(), thumbnailViewport);
+            thumbnailCanvasModel.getViewport().setOrientation(observedViewport.getOrientation());
+            thumbnailCanvas.setModel(thumbnailCanvasModel);
         } else {
             thumbnailCanvas.setModel(NULL_MODEL);
         }
@@ -80,12 +83,7 @@ public class NavigationCanvas2 extends NavigationCanvas {
         // todo
     }
 
-    private void lola(Viewport viewport) {
-        thumbnailCanvas.getViewport().setOrientation(viewport.getOrientation());
-        thumbnailCanvas.zoomAll();
-    }
-
-    private class ViewportHandler implements ViewportListener {
+    private class ObservedViewportHandler implements ViewportListener {
 
         public void handleViewportChanged(Viewport viewport, boolean orientationChanged) {
             if (orientationChanged) {
