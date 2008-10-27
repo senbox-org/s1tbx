@@ -8,14 +8,31 @@ import java.awt.geom.Rectangle2D;
 
 /**
  * A {@code Viewport} allows to view a certain part of graphical data representations
- * defined in the model coordinate. Therefore a viewport comprises the view bounds and
- * the affine transformations from model coordinates to
- * view coordinates and vice versa.
- *
+ * given in coordinates defined in some model coordinate system. The {@code Viewport} assumes
+ * that there is an affine similiarity transformation
+ * (translation, rotation, scaling) from the view to the model coordiate system.
+ * Shearing transformations are not supported, but the coordinate system's
+ * Y-axes may point in different directions.
+ * </p>
+ * <p>The view coordinate system is a cartesian coordinate system with the X-axis pointing
+ * to the right and the Y-axis pointing downwards.
+ * </p>
+ * <p>The model coordinate system is assumed to be cartesian coordinate system with the X-axis pointing
+ * to the right and the Y-axis pointing either upwards or downwards.
+ * See method {@link #isModelYAxisDown()}.
+ * </p>
  * @author Norman Fomferra
  */
 public interface Viewport {
+    /**
+     * @return If {@code true}, the model coordinate's Y-axis points downwards. Returns {@code false} by default.
+     */
     boolean isModelYAxisDown();
+
+    /**
+     * @param modelYAxisDown If {@code true}, the model coordinate's Y-axis points downwards.
+     */
+    void setModelYAxisDown(boolean modelYAxisDown);
 
     /**
      * @return The bounds in view coordinates.

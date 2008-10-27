@@ -45,6 +45,15 @@ public class DefaultViewport implements Viewport {
         return modelYAxisDown;
     }
 
+    public void setModelYAxisDown(boolean modelYAxisDown) {
+        if (this.modelYAxisDown != modelYAxisDown) {
+            this.modelYAxisDown = modelYAxisDown;
+            viewToModelTransform.scale(1.0, -1.0);
+            modelToViewTransform.scale(1.0, -1.0);
+            fireViewportChanged(false);
+        }
+    }
+
     @Override
     public Rectangle getViewBounds() {
         return new Rectangle(viewBounds);
