@@ -26,7 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-class Utils {
+public class Utils {
+
+    public static final int PRIVATE_BEAM_TIFF_TAG_NUMBER = 65000;
 
 
     static File getFile(final Object o) {

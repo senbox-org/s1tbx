@@ -26,10 +26,8 @@ import com.sun.media.imageioimpl.plugins.tiff.TIFFImageMetadata;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFRenderedImage;
 import org.esa.beam.dataio.dimap.DimapProductHelpers;
-import org.esa.beam.dataio.geotiff.internal.BeamMetadata;
 import org.esa.beam.dataio.geotiff.internal.GeoKeyEntry;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.*;
@@ -39,10 +37,7 @@ import org.esa.beam.util.geotiff.GeoTIFFCodes;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
 import org.jdom.input.DOMBuilder;
-import org.jdom.input.SAXBuilder;
 import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
@@ -64,11 +59,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -148,7 +140,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
         final TIFFImageMetadata imageMetadata = (TIFFImageMetadata) imageReader.getImageMetadata(FIRST_IMAGE);
         final TiffFileInfo tiffInfo = new TiffFileInfo(imageMetadata.getRootIFD());
-        final TIFFField field = tiffInfo.getField(BeamMetadata.PRIVATE_TIFF_TAG_NUMBER);
+        final TIFFField field = tiffInfo.getField(Utils.PRIVATE_BEAM_TIFF_TAG_NUMBER);
         if (field != null && field.getType() == TIFFTag.TIFF_ASCII) {
             final String s = field.getAsString(0).trim();
             if (s.contains("<Dimap_Document")) { // with DIMAP header
@@ -209,7 +201,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
     }
 
-    private void removeGeocodingAndTiePointGrids(Product product) {
+    private static void removeGeocodingAndTiePointGrids(Product product) {
         product.setGeoCoding(null);
         final TiePointGrid[] pointGrids = product.getTiePointGrids();
         for (TiePointGrid pointGrid : pointGrids) {
@@ -234,33 +226,6 @@ public class GeoTiffProductReader extends AbstractProductReader {
             }
             bandMap.put(band, i);
         }
-    }
-
-    private Product createProduct(File inputFile, TiffFileInfo tiffInfo, BeamMetadata.Metadata metadata) throws
-                                                                                                         IOException {
-        final String productName;
-        final String productType;
-        if (metadata != null) {
-            productName = metadata.getProductProperty(BeamMetadata.NODE_NAME);
-            productType = metadata.getProductProperty(BeamMetadata.NODE_PRODUCTTYPE);
-        } else {
-            if (tiffInfo.containsField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION)) {
-                final TIFFField field = tiffInfo.getField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION);
-                final String s = field.getAsString(0);
-                productName = s.substring(0, s.length() - 1);
-            } else {
-                productName = FileUtils.getFilenameWithoutExtension(inputFile);
-            }
-            productType = getReaderPlugIn().getFormatNames()[0];
-        }
-
-        final int width = imageReader.getWidth(FIRST_IMAGE);
-        final int height = imageReader.getHeight(FIRST_IMAGE);
-        final Product product = new Product(productName, productType, width, height, this);
-        product.setFileLocation(inputFile);
-        setPreferrdTiling(product);
-
-        return product;
     }
 
     private void setPreferrdTiling(Product product) throws IOException {
@@ -296,76 +261,6 @@ public class GeoTiffProductReader extends AbstractProductReader {
         band.setSampleCoding(indexCoding);
 
         return new ImageInfo(new ColorPaletteDef(points, points.length));
-    }
-
-    private static void configureBand(BeamMetadata.Metadata metadata, Band band, int bandIndex) {
-        if (metadata == null) {
-            return;
-        }
-        band.setDescription(metadata.getBandProperty(bandIndex, BeamMetadata.NODE_DESCRIPTION));
-        band.setUnit(metadata.getBandProperty(bandIndex, BeamMetadata.NODE_UNIT));
-        double scalingFactor = Double.parseDouble(
-                metadata.getBandProperty(bandIndex, BeamMetadata.NODE_SCALING_FACTOR));
-        double scalingOffset = Double.parseDouble(
-                metadata.getBandProperty(bandIndex, BeamMetadata.NODE_SCALING_OFFSET));
-        boolean log10Scaled = Boolean.parseBoolean(
-                metadata.getBandProperty(bandIndex, BeamMetadata.NODE_LOG_10_SCALED));
-        band.setScalingFactor(scalingFactor);
-        band.setScalingOffset(scalingOffset);
-        band.setLog10Scaled(log10Scaled);
-        double noDataValue = Double.parseDouble(metadata.getBandProperty(bandIndex, BeamMetadata.NODE_NO_DATA_VALUE));
-        boolean noDataValueUsed = Boolean.parseBoolean(
-                metadata.getBandProperty(bandIndex, BeamMetadata.NODE_NO_DATA_VALUE_USED));
-        band.setNoDataValue(noDataValue);
-        band.setNoDataValueUsed(noDataValueUsed);
-        final Element root = metadata.getDocument().getRootElement();
-        final Element productNode = root.getChild(BeamMetadata.NODE_PRODUCT);
-        final Element bandElem = (Element) productNode.getChildren(BeamMetadata.NODE_BAND).get(bandIndex);
-        final Element indexElem = bandElem.getChild(BeamMetadata.NODE_INDEX_CODING);
-        if (indexElem != null) {
-            final List<Element> sampleList = indexElem.getChildren(BeamMetadata.NODE_SAMPLE);
-            final String indexCodingName = indexElem.getChildText(BeamMetadata.NODE_NAME);
-            final IndexCoding indexCoding = new IndexCoding(indexCodingName);
-            final List<ColorPaletteDef.Point> points = new ArrayList<ColorPaletteDef.Point>(sampleList.size());
-            for (Element child : sampleList) {
-                final int sampleValue = Integer.parseInt(child.getChildText(BeamMetadata.NODE_VALUE));
-                final int sampleColour = Integer.parseInt(child.getChildText(BeamMetadata.NODE_COLOUR));
-                final String sampleName = child.getChildText(BeamMetadata.NODE_NAME);
-                final String sampleDescr = child.getChildText(BeamMetadata.NODE_DESCRIPTION);
-                indexCoding.addIndex(sampleName, sampleValue, sampleDescr);
-                points.add(new ColorPaletteDef.Point(sampleValue, new Color(sampleColour), sampleName));
-            }
-            final ProductNodeGroup<IndexCoding> indexCodingGroup = band.getProduct().getIndexCodingGroup();
-            if (!indexCodingGroup.contains(indexCodingName)) {
-                indexCodingGroup.add(indexCoding);
-            }
-
-            band.setSampleCoding(indexCodingGroup.get(indexCodingName));
-            final ColorPaletteDef.Point[] pointsArray = points.toArray(new ColorPaletteDef.Point[points.size()]);
-            band.setImageInfo(new ImageInfo(new ColorPaletteDef(pointsArray, points.size())));
-        }
-    }
-
-    private static BeamMetadata.Metadata getBeamMetadata(TiffFileInfo info) throws ProductIOException {
-
-        final TIFFField field = info.getField(BeamMetadata.PRIVATE_TIFF_TAG_NUMBER);
-        if (field == null || field.getType() != TIFFTag.TIFF_ASCII) {
-            return null;
-        }
-        final String s = field.getAsString(0).trim();
-        if (s.contains("<beam_metadata")) {
-            try {
-                final Document document = new SAXBuilder().build(new StringReader(s));
-                return BeamMetadata.createMetadata(document);
-            } catch (JDOMException e) {
-                final ProductIOException ioe = new ProductIOException(e.getMessage());
-                ioe.initCause(e);
-                throw ioe;
-            } catch (Exception ignore) {
-                ignore.printStackTrace();
-            }
-        }
-        return null;
     }
 
     private static void applyGeoCoding(TiffFileInfo info, Product product) {
@@ -673,11 +568,11 @@ public class GeoTiffProductReader extends AbstractProductReader {
             xSet.add(tiePoints[i]);
             ySet.add(tiePoints[i + 1]);
         }
-        final double xMin = xSet.first().doubleValue();
-        final double xMax = xSet.last().doubleValue();
+        final double xMin = xSet.first();
+        final double xMax = xSet.last();
         final double xDiff = (xMax - xMin) / (xSet.size() - 1);
-        final double yMin = ySet.first().doubleValue();
-        final double yMax = ySet.last().doubleValue();
+        final double yMin = ySet.first();
+        final double yMax = ySet.last();
         final double yDiff = (yMax - yMin) / (ySet.size() - 1);
 
         final int width = xSet.size();

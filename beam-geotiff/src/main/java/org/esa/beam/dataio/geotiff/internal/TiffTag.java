@@ -1,5 +1,7 @@
 package org.esa.beam.dataio.geotiff.internal;
 
+import org.esa.beam.dataio.geotiff.Utils;
+
 /**
  * TIFF tags for the GeoTIFF format.
  *
@@ -90,5 +92,5 @@ public class TiffTag {
     public static final TiffShort GeoKeyDirectoryTag = new TiffShort(34735);
     public static final TiffShort GeoDoubleParamsTag = new TiffShort(34736);
     public static final TiffShort GeoAsciiParamsTag = new TiffShort(34737);
-    public static final TiffShort BEAM_METADATA = new TiffShort(BeamMetadata.PRIVATE_TIFF_TAG_NUMBER);
+    public static final TiffShort BEAM_METADATA = new TiffShort(Utils.PRIVATE_BEAM_TIFF_TAG_NUMBER);
 }
