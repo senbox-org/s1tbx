@@ -5,7 +5,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glayer.swing.ViewportScrollPane;
+import com.bc.ceres.glayer.swing.AdjustableViewScrollPane;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
@@ -109,7 +109,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         setBackground(DEFAULT_IMAGE_BACKGROUND_COLOR); // todo - use sceneImage.getConfiguration() (nf, 18.09.2008)
         setLayout(new BorderLayout());
         layerCanvas = new LayerDisplay(sceneImage.getRootLayer(), getBaseImageLayer());
-        final ViewportScrollPane scrollPane = new ViewportScrollPane(layerCanvas);
+        final AdjustableViewScrollPane scrollPane = new AdjustableViewScrollPane(layerCanvas);
         add(scrollPane, BorderLayout.CENTER);
 
         final boolean navControlShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true);

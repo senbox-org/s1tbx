@@ -5,7 +5,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
-import com.bc.ceres.glayer.swing.ViewportScrollPane;
+import com.bc.ceres.glayer.swing.AdjustableViewScrollPane;
 import com.bc.ceres.glayer.tools.Tools;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.jidesoft.utils.Lm;
@@ -437,11 +437,11 @@ public class PView {
         layerCanvas.setNavControlShown(true);
         Tools.installLayerCanvasNavigation(layerCanvas);
 
-        ViewportScrollPane viewportScrollPane = new ViewportScrollPane(layerCanvas);
+        AdjustableViewScrollPane adjustableViewScrollPane = new AdjustableViewScrollPane(layerCanvas);
 
         final JFrame frame = new JFrame("View - [" + file.getName() + "] - " + APPNAME);
         frame.setJMenuBar(createMenuBar());
-        frame.getContentPane().add(viewportScrollPane, BorderLayout.CENTER);
+        frame.getContentPane().add(adjustableViewScrollPane, BorderLayout.CENTER);
         frame.setSize(initialViewWidth, initialViewHeight);
         frame.setLocation(frameLocation, frameLocation);
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

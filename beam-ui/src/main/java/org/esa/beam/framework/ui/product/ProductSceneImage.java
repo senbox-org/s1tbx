@@ -221,6 +221,7 @@ public class ProductSceneImage {
 
         imageLayer.setName(getName());
         imageLayer.setVisible(true);
+
         setBaseImageLayerStyle(configuration, imageLayer);
         return imageLayer;
     }
