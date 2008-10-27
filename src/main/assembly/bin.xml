@@ -152,16 +152,6 @@
                         </includes>
                     </dependencySet>
 
-                    <!-- (3) Put packed Ceres and BEAM artifacts into 'modules' -->
-                    <!--<dependencySet>-->
-                        <!--<outputDirectory>modules</outputDirectory>-->
-                        <!--<includes>-->
-                            <!--<include>com.bc.ceres:ceres-core</include>-->
-                            <!--<include>com.bc.ceres:ceres-binding</include>-->
-                            <!--<include>com.bc.ceres:ceres-ui</include>-->
-                        <!--</includes>-->
-                    <!--</dependencySet>-->
-
                 </dependencySets>
             </binaries>
 
