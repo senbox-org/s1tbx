@@ -17,6 +17,9 @@
 package org.esa.beam.framework.ui;
 
 import com.bc.swing.dock.DockablePane;
+import com.bc.swing.dock.FloatingComponentFactory;
+import com.bc.swing.dock.FloatingDockableFrame;
+import com.jidesoft.docking.DockingManager;
 import com.jidesoft.swing.JideSplitPane;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
@@ -99,12 +102,14 @@ public class PixelInfoView extends JPanel {
     private int levelZeroY;
     private boolean _pixelPosValid;
     private DisplayFilter _displayFilter;
+    private final BasicApp app;
 
     /**
      * Constructs a new pixel info view.
      */
-    public PixelInfoView() {
+    public PixelInfoView(BasicApp app) {
         super(new BorderLayout());
+        this.app = app;
         _geoPos = new GeoPos();
         _pixelPos = new PixelPos();
         _mapPoint = new Point2D.Double();
@@ -300,7 +305,7 @@ public class PixelInfoView extends JPanel {
         });
     }
 
-    private static DockablePane createDockablePane(String name, int index, String[] columnNames) {
+    private DockablePane createDockablePane(String name, int index, String[] columnNames) {
         JTable table = new JTable(new DefaultTableModel(columnNames, 0) {
 
             @Override
@@ -320,7 +325,9 @@ public class PixelInfoView extends JPanel {
         scrollPane.setBorder(null);
         scrollPane.setViewportBorder(null);
 
-        return new DockablePane(name, null, scrollPane, index, false);
+        final DockingManager dockingManager = app.getMainFrame().getDockingManager();
+        final FloatingComponentFactory componentFactory = FloatingDockableFrame.getFactory(dockingManager);
+        return new DockablePane(name, null, scrollPane, index, false, componentFactory);
     }
 
     private DefaultTableModel getGeolocTableModel() {

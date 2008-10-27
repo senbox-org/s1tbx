@@ -1,6 +1,13 @@
 package org.esa.beam.visat.toolviews.pixelinfo;
 
-import org.esa.beam.framework.datamodel.*;
+import com.bc.ceres.glayer.support.ImageLayer;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.PixelInfoView;
 import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
@@ -9,13 +16,15 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JInternalFrame;
+import javax.swing.JPanel;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-
-import com.bc.ceres.glayer.support.ImageLayer;
-
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -29,34 +38,35 @@ import java.util.HashMap;
 public class PixelInfoToolView extends AbstractToolView {
     public static final String ID = PixelInfoToolView.class.getName();
 
-    private PixelInfoView _pixelInfoView;
-    private JCheckBox _pinCheckbox;
-    private PinSelectionChangedListener _pinSelectionChangedListener;
-    private ProductSceneView _currentView;
-    private HashMap<ProductSceneView, PixelInfoPPL> _pixelPosListeners;
+    private PixelInfoView pixelInfoView;
+    private JCheckBox pinCheckbox;
+    private PinSelectionChangedListener pinSelectionChangedListener;
+    private ProductSceneView currentView;
+    private HashMap<ProductSceneView, PixelInfoPPL> pixelPosListeners;
 
     public PixelInfoToolView() {
     }
 
     @Override
     public JComponent createControl() {
-        _pinCheckbox = new JCheckBox("Snap to selected pin");
-        _pinCheckbox.setName("pinCheckbox");
-        _pinCheckbox.setSelected(false);
-        _pinCheckbox.addActionListener(new ActionListener() {
+        pinCheckbox = new JCheckBox("Snap to selected pin");
+        pinCheckbox.setName("pinCheckbox");
+        pinCheckbox.setSelected(false);
+        final VisatApp visatApp = VisatApp.getApp();
+        pinCheckbox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (_pinCheckbox.isSelected()) {
-                    _currentView = VisatApp.getApp().getSelectedProductSceneView();
-                    setToSelectedPin(_currentView);
+                if (pinCheckbox.isSelected()) {
+                    currentView = visatApp.getSelectedProductSceneView();
+                    setToSelectedPin(currentView);
                 }
             }
         });
 
-        _pixelInfoView = new PixelInfoView();
-        final DisplayFilter bandDisplayValidator = new DisplayFilter(VisatApp.getApp());
-        _pixelInfoView.setPreferredSize(new Dimension(320, 480));
-        _pixelInfoView.setDisplayFilter(bandDisplayValidator);
-        final PropertyMap preferences = VisatApp.getApp().getPreferences();
+        pixelInfoView = new PixelInfoView(visatApp);
+        final DisplayFilter bandDisplayValidator = new DisplayFilter(visatApp);
+        pixelInfoView.setPreferredSize(new Dimension(320, 480));
+        pixelInfoView.setDisplayFilter(bandDisplayValidator);
+        final PropertyMap preferences = visatApp.getPreferences();
         preferences.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 final String propertyName = evt.getPropertyName();
@@ -77,10 +87,10 @@ public class PixelInfoToolView extends AbstractToolView {
         setPixelOffsetY(preferences);
 
         final JPanel pixelInfoViewPanel = new JPanel(new BorderLayout());
-        pixelInfoViewPanel.add(_pixelInfoView);
-        pixelInfoViewPanel.add(_pinCheckbox, BorderLayout.SOUTH);
+        pixelInfoViewPanel.add(pixelInfoView);
+        pixelInfoViewPanel.add(pinCheckbox, BorderLayout.SOUTH);
 
-        VisatApp.getApp().addInternalFrameListener(new PixelInfoIFL());
+        visatApp.addInternalFrameListener(new PixelInfoIFL());
         initOpenedFrames();
 
         return pixelInfoViewPanel;
@@ -88,7 +98,7 @@ public class PixelInfoToolView extends AbstractToolView {
 
     @Override
     public boolean isVisible() {
-        return super.isVisible() || !_pixelInfoView.allDocked();
+        return super.isVisible() || !pixelInfoView.allDocked();
     }
 
     private void initOpenedFrames() {
@@ -109,24 +119,24 @@ public class PixelInfoToolView extends AbstractToolView {
             setToSelectedPin(productSceneView);
         }
         if (productSceneView == VisatApp.getApp().getSelectedProductSceneView()) {
-            _currentView = productSceneView;
+            currentView = productSceneView;
         }
     }
 
     private void setPixelOffsetY(final PropertyMap preferences) {
-        _pixelInfoView.setPixelOffsetY((float) preferences.getPropertyDouble(
+        pixelInfoView.setPixelOffsetY((float) preferences.getPropertyDouble(
                 VisatApp.PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_Y,
                 VisatApp.PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY));
     }
 
     private void setPixelOffsetX(final PropertyMap preferences) {
-        _pixelInfoView.setPixelOffsetX((float) preferences.getPropertyDouble(
+        pixelInfoView.setPixelOffsetX((float) preferences.getPropertyDouble(
                 VisatApp.PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_X,
                 VisatApp.PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY));
     }
 
     private void setShowPixelPosDecimals(final PropertyMap preferences) {
-        _pixelInfoView.setShowPixelPosDecimals(preferences.getPropertyBool(
+        pixelInfoView.setShowPixelPosDecimals(preferences.getPropertyBool(
                 VisatApp.PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS,
                 VisatApp.PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS));
     }
@@ -139,14 +149,14 @@ public class PixelInfoToolView extends AbstractToolView {
     }
 
     private PinSelectionChangedListener getOrCreatePinSelectionChangedListener() {
-        if (_pinSelectionChangedListener == null) {
-            _pinSelectionChangedListener = new PinSelectionChangedListener();
+        if (pinSelectionChangedListener == null) {
+            pinSelectionChangedListener = new PinSelectionChangedListener();
         }
-        return _pinSelectionChangedListener;
+        return pinSelectionChangedListener;
     }
 
     private boolean isSnapToPin() {
-        return _pinCheckbox.isSelected();
+        return pinCheckbox.isSelected();
     }
 
     private void setToSelectedPin(ProductSceneView sceneView) {
@@ -154,28 +164,28 @@ public class PixelInfoToolView extends AbstractToolView {
             final Product product = sceneView.getProduct();
             final Pin pin = product.getPinGroup().getSelectedNode();
             if (pin == null) {
-                _pixelInfoView.updatePixelValues(sceneView, -1, -1, 0, false);
+                pixelInfoView.updatePixelValues(sceneView, -1, -1, 0, false);
             } else {
                 final PixelPos pos = pin.getPixelPos();
                 final int x = MathUtils.floorInt(pos.x);
                 final int y = MathUtils.floorInt(pos.y);
-                _pixelInfoView.updatePixelValues(sceneView, x, y, 0, true);
+                pixelInfoView.updatePixelValues(sceneView, x, y, 0, true);
             }
         }
     }
 
     private PixelInfoPPL registerPPL(ProductSceneView view) {
-        if (_pixelPosListeners == null) {
-            _pixelPosListeners = new HashMap<ProductSceneView, PixelInfoPPL>();
+        if (pixelPosListeners == null) {
+            pixelPosListeners = new HashMap<ProductSceneView, PixelInfoPPL>();
         }
         final PixelInfoPPL listener = new PixelInfoPPL(view);
-        _pixelPosListeners.put(view, listener);
+        pixelPosListeners.put(view, listener);
         return listener;
     }
 
     private PixelInfoPPL unregisterPPL(ProductSceneView view) {
-        if (_pixelPosListeners != null) {
-            return _pixelPosListeners.remove(view);
+        if (pixelPosListeners != null) {
+            return pixelPosListeners.remove(view);
         }
         return null;
     }
@@ -194,11 +204,11 @@ public class PixelInfoToolView extends AbstractToolView {
         public void internalFrameActivated(InternalFrameEvent e) {
             Container content = getContent(e);
             if (content instanceof ProductSceneView) {
-                _currentView = (ProductSceneView) content;
-                final Product product = _currentView.getProduct();
+                currentView = (ProductSceneView) content;
+                final Product product = currentView.getProduct();
                 product.addProductNodeListener(getOrCreatePinSelectionChangedListener());
                 if (isSnapToPin()) {
-                    setToSelectedPin(_currentView);
+                    setToSelectedPin(currentView);
                 }
             }
         }
@@ -211,7 +221,7 @@ public class PixelInfoToolView extends AbstractToolView {
                 view.removePixelPositionListener(unregisterPPL(view));
                 removePinSelectionChangedListener(e);
             }
-            _pixelInfoView.clearProductNodeRefs();
+            pixelInfoView.clearProductNodeRefs();
         }
 
         @Override
@@ -226,7 +236,7 @@ public class PixelInfoToolView extends AbstractToolView {
                 final Product product = view.getProduct();
                 product.removeProductNodeListener(getOrCreatePinSelectionChangedListener());
                 if (isSnapToPin()) {
-                    _pixelInfoView.updatePixelValues(view, -1, -1, 0, false);
+                    pixelInfoView.updatePixelValues(view, -1, -1, 0, false);
                 }
             }
         }
@@ -240,19 +250,19 @@ public class PixelInfoToolView extends AbstractToolView {
 
         private final ProductSceneView _view;
 
-        public PixelInfoPPL(ProductSceneView view) {
+        private PixelInfoPPL(ProductSceneView view) {
             _view = view;
         }
 
         public void pixelPosChanged(ImageLayer imageLayer, int pixelX, int pixelY, int currentLevel, boolean pixelPosValid, MouseEvent e) {
             if (isActive()) {
-                _pixelInfoView.updatePixelValues(_view, pixelX, pixelY, currentLevel, pixelPosValid);
+                pixelInfoView.updatePixelValues(_view, pixelX, pixelY, currentLevel, pixelPosValid);
             }
         }
 
         public void pixelPosNotAvailable() {
             if (isActive()) {
-                _pixelInfoView.updatePixelValues(_view, -1, -1, 0, false);
+                pixelInfoView.updatePixelValues(_view, -1, -1, 0, false);
             }
         }
 
@@ -288,7 +298,7 @@ public class PixelInfoToolView extends AbstractToolView {
             if (isActive()) {
                 ProductNode sourceNode = event.getSourceNode();
                 if (sourceNode instanceof Pin && sourceNode.isSelected()) {
-                    setToSelectedPin(_currentView);
+                    setToSelectedPin(currentView);
                 }
             }
         }
@@ -296,7 +306,7 @@ public class PixelInfoToolView extends AbstractToolView {
         private void updatePin(ProductNodeEvent event) {
             final ProductNode sourceNode = event.getSourceNode();
             if (sourceNode instanceof Pin && sourceNode.isSelected()) {
-                setToSelectedPin(_currentView);
+                setToSelectedPin(currentView);
             }
         }
 
@@ -310,7 +320,7 @@ public class PixelInfoToolView extends AbstractToolView {
         private final VisatApp _app;
         private boolean _showOnlyLoadedOrDisplayedBands;
 
-        public DisplayFilter(VisatApp app) {
+        private DisplayFilter(VisatApp app) {
             _app = app;
         }
 

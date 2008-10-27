@@ -16,6 +16,16 @@
  */
 package com.bc.swing.dock;
 
+import com.bc.swing.TitledPane;
+
+import javax.swing.AbstractButton;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -26,16 +36,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowListener;
 import java.util.Vector;
 
-import javax.swing.AbstractButton;
-import javax.swing.Icon;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
-
-import com.bc.swing.TitledPane;
 /**
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
  * @version $Revision$ $Date$
@@ -47,39 +47,39 @@ public class DockablePane extends JPanel implements DockableComponent {
     public static final String FLOATING_COMPONENT_FACTORY_PROPERTY_NAME = "floatingComponentFactory";
     public static final String DOCKED_PROPERTY_NAME = "docked";
 
-    private TitledPane _titledPane;
-    private FloatingComponentFactory _floatingComponentFactory;
-    private FloatingComponent _floatingComponent;
-    private boolean _docked;
-    private boolean _closable;
-    private Window _ownerWindow;
-    private Container _parentContainer;
-    private Rectangle _bounds;
-    private Object _constraints;
-    private int _componentIndex;
-    private Vector _windowListeners;
+    private TitledPane titledPane;
+    private FloatingComponentFactory floatingComponentFactory;
+    private FloatingComponent floatingComponent;
+    private boolean docked;
+    private boolean closable;
+    private Window ownerWindow;
+    private Container parentContainer;
+    private Rectangle bounds;
+    private Object constraints;
+    private int componentIndex;
+    private Vector windowListeners;
 
     public DockablePane(String title,
                         Icon icon,
                         JComponent content,
-                        boolean closable) {
-        this(title, icon, content, null, closable);
+                        boolean closable, final FloatingComponentFactory factory) {
+        this(title, icon, content, null, closable, factory);
     }
 
     public DockablePane(String title,
                         Icon icon,
                         JComponent content,
                         Object constraints,
-                        boolean closable) {
-        this(title, icon, content, constraints, -1, closable);
+                        boolean closable, final FloatingComponentFactory factory) {
+        this(title, icon, content, constraints, -1, closable, factory);
     }
 
     public DockablePane(String title,
                         Icon icon,
                         JComponent content,
                         int componentIndex,
-                        boolean closable) {
-        this(title, icon, content, null, componentIndex, closable);
+                        boolean closable, final FloatingComponentFactory factory) {
+        this(title, icon, content, null, componentIndex, closable, factory);
     }
 
     private DockablePane(String title,
@@ -87,97 +87,97 @@ public class DockablePane extends JPanel implements DockableComponent {
                          JComponent content,
                          Object constraints,
                          int componentIndex,
-                         boolean closable) {
-        _constraints = constraints;
-        _componentIndex = componentIndex;
-        _floatingComponentFactory = FloatingWindow.getFactory();
-        _docked = true;
-        _closable = closable;
+                         boolean closable, final FloatingComponentFactory factory) {
+        this.constraints = constraints;
+        this.componentIndex = componentIndex;
+        floatingComponentFactory = factory;
+        docked = true;
+        this.closable = closable;
 
         setBorder(new EmptyBorder(2, 2, 2, 2));
         setLayout(new BorderLayout());
-        _titledPane = new TitledPane(title, icon, content);
+        titledPane = new TitledPane(title, icon, content);
 
         final AbstractButton floatButton = createFloatButton();
-        final JLabel titleBar = _titledPane.getTitleBar();
+        final JLabel titleBar = titledPane.getTitleBar();
         titleBar.add(floatButton);
 
-        if (_closable) {
-            _titledPane.getTitleBar().add(createHideButton());
+        if (this.closable) {
+            titledPane.getTitleBar().add(createHideButton());
         }
-        add(_titledPane, BorderLayout.CENTER);
+        add(titledPane, BorderLayout.CENTER);
     }
 
     public boolean isDocked() {
-        return _docked;
+        return docked;
     }
 
     public void setDocked(boolean docked) {
-        boolean wasDocked = _docked;
+        boolean wasDocked = this.docked;
         if (wasDocked != docked) {
             if (wasDocked) {
                 openFloatingComponent();
             } else {
                 closeFloatingComponent();
             }
-            _docked = docked;
-            firePropertyChange(DOCKED_PROPERTY_NAME, wasDocked, _docked);
+            this.docked = docked;
+            firePropertyChange(DOCKED_PROPERTY_NAME, wasDocked, this.docked);
         }
     }
 
     public FloatingComponentFactory getFloatingComponentFactory() {
-        return _floatingComponentFactory;
+        return floatingComponentFactory;
     }
 
     public void setFloatingComponentFactory(FloatingComponentFactory floatingComponentFactory) {
-        FloatingComponentFactory oldValue = _floatingComponentFactory;
+        FloatingComponentFactory oldValue = this.floatingComponentFactory;
         if (oldValue != floatingComponentFactory) {
-            _floatingComponentFactory = floatingComponentFactory;
-            firePropertyChange(FLOATING_COMPONENT_FACTORY_PROPERTY_NAME, oldValue, _floatingComponentFactory);
+            this.floatingComponentFactory = floatingComponentFactory;
+            firePropertyChange(FLOATING_COMPONENT_FACTORY_PROPERTY_NAME, oldValue, this.floatingComponentFactory);
         }
     }
 
     public Icon getIcon() {
-        return _titledPane.getIcon();
+        return titledPane.getIcon();
     }
 
     public String getTitle() {
-        return _titledPane.getTitle();
+        return titledPane.getTitle();
     }
 
     public Component getContent() {
-        if (_floatingComponent != null) {
-            return _floatingComponent.getContent();
+        if (floatingComponent != null) {
+            return floatingComponent.getContent();
         } else {
-            return _titledPane.getContent();
+            return titledPane.getContent();
         }
     }
 
     public void setContent(Component content) {
-        if (_floatingComponent != null) {
-            _floatingComponent.setContent(content);
+        if (floatingComponent != null) {
+            floatingComponent.setContent(content);
         } else {
-            _titledPane.setContent(content);
+            titledPane.setContent(content);
         }
     }
 
     public void addWindowListener(WindowListener l) {
-        if (_windowListeners == null) {
-            _windowListeners = new Vector();
+        if (windowListeners == null) {
+            windowListeners = new Vector();
         }
-        _windowListeners.add(l);
-        if (!_docked && _floatingComponent != null) {
-            _floatingComponent.addWindowListener(l);
+        windowListeners.add(l);
+        if (!docked && floatingComponent != null) {
+            floatingComponent.addWindowListener(l);
         }
     }
 
     public void removeWindowListener(WindowListener l) {
-        if (_windowListeners == null) {
+        if (windowListeners == null) {
             return;
         }
-        _windowListeners.remove(l);
-        if (!_docked && _floatingComponent != null) {
-            _floatingComponent.removeWindowListener(l);
+        windowListeners.remove(l);
+        if (!docked && floatingComponent != null) {
+            floatingComponent.removeWindowListener(l);
         }
     }
 
@@ -186,34 +186,34 @@ public class DockablePane extends JPanel implements DockableComponent {
 
     private void addThisToParent() {
         setVisible(true);
-        if (_parentContainer != null) {
-            if (_parentContainer instanceof JTabbedPane) {
+        if (parentContainer != null) {
+            if (parentContainer instanceof JTabbedPane) {
                 addThisToTabbedPaneParent();
             } else {
                 addThisToNonTabbedPaneParent();
             }
-            _parentContainer.setVisible(true);
-            _parentContainer.invalidate();
-            _parentContainer.validate();
-            _parentContainer.repaint();
+            parentContainer.setVisible(true);
+            parentContainer.invalidate();
+            parentContainer.validate();
+            parentContainer.repaint();
         }
     }
 
     private void addThisToTabbedPaneParent() {
-        JTabbedPane tabbedPane = (JTabbedPane) _parentContainer;
+        JTabbedPane tabbedPane = (JTabbedPane) parentContainer;
         int tabIndex = -1;
         String tabTitle = getTitle();
         Icon tabIcon = getIcon();
         String tabTip = null;
 
-        if (_constraints instanceof TabInfo) {
-            TabInfo tabInfo = (TabInfo) _constraints;
+        if (constraints instanceof TabInfo) {
+            TabInfo tabInfo = (TabInfo) constraints;
             tabIndex = tabInfo.getIndex();
             tabTitle = tabInfo.getTitle();
             tabIcon = tabInfo.getIcon();
             tabTip = tabInfo.getTip();
-        } else if (_constraints instanceof Integer) {
-            tabIndex = (Integer) _constraints;
+        } else if (constraints instanceof Integer) {
+            tabIndex = (Integer) constraints;
         }
 
         if (tabIndex >= 0 && tabIndex <= tabbedPane.getTabCount()) {
@@ -227,86 +227,86 @@ public class DockablePane extends JPanel implements DockableComponent {
     }
 
     private void addThisToNonTabbedPaneParent() {
-        if (_constraints == null && _componentIndex >= 0) {
-            int componentIndex = _componentIndex;
-            if (componentIndex > getComponentCount()) {
-                componentIndex = getComponentCount();
+        if (constraints == null && componentIndex >= 0) {
+            int componentIdx = componentIndex;
+            if (componentIdx > parentContainer.getComponentCount()) {
+                componentIdx = parentContainer.getComponentCount();
             }
-            _parentContainer.add(this, componentIndex);
+            parentContainer.add(this, componentIdx);
         } else {
-            _parentContainer.add(this, _constraints);
+            parentContainer.add(this, constraints);
         }
     }
 
     private void removeThisFromParent() {
-        _parentContainer = getParent();
-        _ownerWindow = SwingUtilities.windowForComponent(this);
-        if (_bounds == null) {
-            _bounds = new Rectangle(getLocationOnScreen(), getSize());
+        parentContainer = getParent();
+        ownerWindow = SwingUtilities.windowForComponent(this);
+        if (bounds == null) {
+            bounds = new Rectangle(getLocationOnScreen(), getSize());
         }
         setVisible(false);
-        if (_parentContainer != null) {
-            if (_parentContainer instanceof JTabbedPane) {
+        if (parentContainer != null) {
+            if (parentContainer instanceof JTabbedPane) {
                 removeThisFromTabbedPaneParent();
             } else {
                 removeThisFromNonTabbedPaneParent();
             }
-            if (_parentContainer.getComponentCount() == 0) {
-                _parentContainer.setVisible(false);
+            if (parentContainer.getComponentCount() == 0) {
+                parentContainer.setVisible(false);
             }
-            _parentContainer.invalidate();
-            _parentContainer.validate();
-            _parentContainer.repaint();
+            parentContainer.invalidate();
+            parentContainer.validate();
+            parentContainer.repaint();
         }
     }
 
     private void removeThisFromTabbedPaneParent() {
-        final JTabbedPane tabbedPane = (JTabbedPane) _parentContainer;
+        final JTabbedPane tabbedPane = (JTabbedPane) parentContainer;
         final TabInfo tabbedPaneInfo = createTabInfo(tabbedPane);
-        _constraints = tabbedPaneInfo;
+        constraints = tabbedPaneInfo;
         tabbedPane.removeTabAt(tabbedPaneInfo.getIndex());
     }
 
     private void removeThisFromNonTabbedPaneParent() {
-        _componentIndex = getComponentIndex(_parentContainer, this);
-        _parentContainer.remove(this);
+        componentIndex = getComponentIndex(parentContainer, this);
+        parentContainer.remove(this);
     }
 
     private void openFloatingComponent() {
         removeThisFromParent();
 
-        Component content = _titledPane.getContent();
-        _titledPane.setContent(null);
+        Component content = titledPane.getContent();
+        titledPane.setContent(null);
 
-        _floatingComponent = _floatingComponentFactory.createFloatingComponent(_ownerWindow);
-        if (_floatingComponent instanceof FloatingWindow) {
-            FloatingWindow floatingWindow = (FloatingWindow) _floatingComponent;
-            floatingWindow.setClosable(_closable);
+        floatingComponent = floatingComponentFactory.createFloatingComponent(ownerWindow);
+        if (floatingComponent instanceof FloatingWindow) {
+            FloatingWindow floatingWindow = (FloatingWindow) floatingComponent;
+            floatingWindow.setClosable(closable);
         }
-        _floatingComponent.setOriginator(this);
-        _floatingComponent.setIcon(_titledPane.getIcon());
-        _floatingComponent.setTitle(_titledPane.getTitle());
-        _floatingComponent.setContent(content);
-        _floatingComponent.setBounds(_bounds);
-        if (_windowListeners != null) {
-            for (int i = 0; i < _windowListeners.size(); i++) {
-                _floatingComponent.addWindowListener((WindowListener) _windowListeners.get(i));
+        floatingComponent.setOriginator(this);
+        floatingComponent.setIcon(titledPane.getIcon());
+        floatingComponent.setTitle(titledPane.getTitle());
+        floatingComponent.setContent(content);
+        floatingComponent.setBounds(bounds);
+        if (windowListeners != null) {
+            for (Object windowListener : windowListeners) {
+                floatingComponent.addWindowListener((WindowListener) windowListener);
             }
         }
-        _floatingComponent.show();
+        floatingComponent.show();
     }
 
     private void closeFloatingComponent() {
-        Component content = _floatingComponent.getContent();
-        _bounds = _floatingComponent.getBounds();
-        _floatingComponent.close();
-        if (_windowListeners != null) {
-            for (int i = 0; i < _windowListeners.size(); i++) {
-                _floatingComponent.removeWindowListener((WindowListener) _windowListeners.get(i));
+        Component content = floatingComponent.getContent();
+        bounds = floatingComponent.getBounds();
+        floatingComponent.close();
+        if (windowListeners != null) {
+            for (Object windowListener : windowListeners) {
+                floatingComponent.removeWindowListener((WindowListener) windowListener);
             }
         }
-        _floatingComponent = null;
-        _titledPane.setContent(content);
+        floatingComponent = null;
+        titledPane.setContent(content);
 
         addThisToParent();
     }
