@@ -13,7 +13,7 @@ public class DefaultMultiLevelSourceTest extends TestCase {
     public void testNull() {
         final MultiLevelSource mls = DefaultMultiLevelSource.NULL;
         assertEquals(1, mls.getModel().getLevelCount());
-        assertTrue(mls.getModel().getModelBounds().isEmpty());
+        assertNull(mls.getModel().getModelBounds());
     }
 
     public void testLevelImages() {
