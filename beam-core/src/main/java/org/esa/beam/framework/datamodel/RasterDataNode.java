@@ -30,12 +30,24 @@ import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
-import org.esa.beam.util.*;
-import org.esa.beam.util.math.*;
+import org.esa.beam.util.BitRaster;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.ObjectUtils;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.math.DoubleList;
+import org.esa.beam.util.math.Histogram;
+import org.esa.beam.util.math.IndexValidator;
+import org.esa.beam.util.math.MathUtils;
+import org.esa.beam.util.math.Quantizer;
+import org.esa.beam.util.math.Range;
+import org.esa.beam.util.math.Statistics;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
@@ -2074,7 +2086,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public RenderedImage getSourceImage() {
         if (!isSourceImageSet()) {
-            sourceImage = createSourceImage();
+            synchronized (this) {
+                if (!isSourceImageSet()) {
+                    sourceImage = createSourceImage();
+                }
+            }
         }
         return sourceImage;
     }
@@ -2097,7 +2113,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param sourceImage The rendered image.
      * @since BEAM 4.2
      */
-    public void setSourceImage(RenderedImage sourceImage) {
+    public synchronized void setSourceImage(RenderedImage sourceImage) {
         final RenderedImage oldValue = this.sourceImage;
         if (oldValue != sourceImage) {
             this.sourceImage = sourceImage;
@@ -2127,7 +2143,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public RenderedImage getValidMaskImage() {
         if (!isValidMaskImageSet() && isValidMaskUsed()) {
-            validMaskImage = createValidMaskImage();
+            synchronized (this) {
+                if (!isValidMaskImageSet() && isValidMaskUsed()) {
+                    validMaskImage = createValidMaskImage();
+                }
+            }
         }
         return validMaskImage;
     }
@@ -2160,7 +2180,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     private synchronized ROI getValidMaskROI() {
         if (validMaskROI == null) {
-            validMaskROI = new ROI(getValidMaskImage());
+            synchronized (this) {
+                if (validMaskROI == null) {
+                    validMaskROI = new ROI(getValidMaskImage());
+                }
+            }
         }
         return validMaskROI;
     }
@@ -2173,7 +2197,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param image The rendered image.
      * @since BEAM 4.2
      */
-    public void setValidMaskImage(RenderedImage image) {
+    public synchronized void setValidMaskImage(RenderedImage image) {
         final RenderedImage oldValue = this.validMaskImage;
         if (oldValue != image) {
             this.validMaskImage = image;
@@ -2188,7 +2212,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public RenderedImage getGeophysicalImage() {
         if (geophysicalImage == null) {
-            geophysicalImage = createGeophysicalImage();
+            synchronized (this) {
+                if (geophysicalImage == null) {
+                    geophysicalImage = createGeophysicalImage();
+                }
+            }
         }
         return geophysicalImage;
     }
@@ -2245,9 +2273,13 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #setStx(Stx)
      * @since BEAM 4.2, revised in BEAM 4.5
      */
-    public synchronized Stx getStx() {
+    public Stx getStx() {
         if (stx == null) {
-            getStx(false, ProgressMonitor.NULL);
+            synchronized (this) {
+                if (stx == null) {
+                    getStx(false, ProgressMonitor.NULL);
+                }
+            }
         }
         return stx;
     }
