@@ -19,7 +19,17 @@ package org.esa.beam.framework.dataio;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.util.CachingObjectArray;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PinSymbol;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Pointing;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
@@ -186,7 +196,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         }
         segmentationMap.clear();
         segmentationMap = null;
-        final Collection<Map<RasterDataNode,SourceBandLineCache>> sourceLineCacheMaps = threadHashMap.values();
+        final Collection<Map<RasterDataNode, SourceBandLineCache>> sourceLineCacheMaps = threadHashMap.values();
         for (Map<RasterDataNode, SourceBandLineCache> lineCacheMap : sourceLineCacheMaps) {
             lineCacheMap.clear();
         }
@@ -287,75 +297,75 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                                                                       destHeight);
 
             // Note: we now get the RAW no-data value, because we write data into RAW ProductData buffers
-        final double destNoDataValue = destBand.getNoDataValue();
+            final double destNoDataValue = destBand.getNoDataValue();
 
-        final int numBlocks = destSegmentation.getNumBlocks();
-        for (int blockIndex = 0; blockIndex < numBlocks; blockIndex++) {
-            if (pm.isCanceled()) {
-                break;
-            }
-
-            destSegmentation.initSourcePixelCoords(blockIndex,
-                                                   sourceGeoCoding,
-                                                   sourceWidth,
-                                                   sourceHeight,
-                                                   destGeoCoding);
-
-            final int blockOffsetY = destSegmentation.getBlockOffsetY(blockIndex);
-            final int numLinesPerBlock = destSegmentation.getNumLines(blockIndex);
-
-            pm.beginTask("Reading raster data...", numLinesPerBlock);
-            try {
-                for (int destLineIndex = 0; destLineIndex < numLinesPerBlock; destLineIndex++) {
-                    if (pm.isCanceled()) {
-                        break;
-                    }
-                    destSegmentation.getLinePixelCoords(destLineIndex, sourceLineCoords);
-                    final float[] minMaxY = ProductUtils.computeMinMaxY(sourceLineCoords);
-                    if (minMaxY != null) { // any lines found?
-                        final int minY = MathUtils.floorAndCrop(minMaxY[0] - 2, 0, sourceHeight - 1);
-                        final int maxY = MathUtils.floorAndCrop(minMaxY[1] + 2, 0, sourceHeight - 1);
-                        sourceBandLineCache.setCachedRange(minY, maxY);
-                        for (int destX = 0; destX < destWidth; destX++) {
-                            final int destBufferIndex = destWidth * (blockOffsetY + destLineIndex) + destX;
-                            final PixelPos sourcePixelPos = sourceLineCoords[destX];
-                            double destSample = destNoDataValue;
-                            if (sourcePixelPos != null) {
-                                sourceResampling.computeIndex(sourcePixelPos.x,
-                                                              sourcePixelPos.y,
-                                                              sourceWidth,
-                                                              sourceHeight,
-                                                              sourceResamplingIndex);
-                                try {
-                                    // resample in geophysical units
-                                    final float sourceSample = sourceResampling.resample(sourceRaster,
-                                                                                         sourceResamplingIndex);
-                                    if (!Float.isNaN(sourceSample)) {
-                                        // convert to RAW data units
-                                        destSample = destBand.scaleInverse(sourceSample);
-                                    }
-                                } catch (Exception e) {
-                                    throw convertToIOException(e);
-                                }
-                            }
-                            destBuffer.setElemDoubleAt(destBufferIndex, destSample);
-                        }
-                    } else { // no lines found
-                        for (int x = 0; x < destWidth; x++) {
-                            final int destBufferIndex = destWidth * (blockOffsetY + destLineIndex) + x;
-                            destBuffer.setElemDoubleAt(destBufferIndex, destNoDataValue);
-                        }
-                    }
-                    pm.worked(1);
+            final int numBlocks = destSegmentation.getNumBlocks();
+            for (int blockIndex = 0; blockIndex < numBlocks; blockIndex++) {
+                if (pm.isCanceled()) {
+                    break;
                 }
-            } finally {
-                pm.done();
+
+                destSegmentation.initSourcePixelCoords(blockIndex,
+                                                       sourceGeoCoding,
+                                                       sourceWidth,
+                                                       sourceHeight,
+                                                       destGeoCoding);
+
+                final int blockOffsetY = destSegmentation.getBlockOffsetY(blockIndex);
+                final int numLinesPerBlock = destSegmentation.getNumLines(blockIndex);
+
+                pm.beginTask("Reading raster data...", numLinesPerBlock);
+                try {
+                    for (int destLineIndex = 0; destLineIndex < numLinesPerBlock; destLineIndex++) {
+                        if (pm.isCanceled()) {
+                            break;
+                        }
+                        destSegmentation.getLinePixelCoords(destLineIndex, sourceLineCoords);
+                        final float[] minMaxY = ProductUtils.computeMinMaxY(sourceLineCoords);
+                        if (minMaxY != null) { // any lines found?
+                            final int minY = MathUtils.floorAndCrop(minMaxY[0] - 2, 0, sourceHeight - 1);
+                            final int maxY = MathUtils.floorAndCrop(minMaxY[1] + 2, 0, sourceHeight - 1);
+                            sourceBandLineCache.setCachedRange(minY, maxY);
+                            for (int destX = 0; destX < destWidth; destX++) {
+                                final int destBufferIndex = destWidth * (blockOffsetY + destLineIndex) + destX;
+                                final PixelPos sourcePixelPos = sourceLineCoords[destX];
+                                double destSample = destNoDataValue;
+                                if (sourcePixelPos != null) {
+                                    sourceResampling.computeIndex(sourcePixelPos.x,
+                                                                  sourcePixelPos.y,
+                                                                  sourceWidth,
+                                                                  sourceHeight,
+                                                                  sourceResamplingIndex);
+                                    try {
+                                        // resample in geophysical units
+                                        final float sourceSample = sourceResampling.resample(sourceRaster,
+                                                                                             sourceResamplingIndex);
+                                        if (!Float.isNaN(sourceSample)) {
+                                            // convert to RAW data units
+                                            destSample = destBand.scaleInverse(sourceSample);
+                                        }
+                                    } catch (Exception e) {
+                                        throw convertToIOException(e);
+                                    }
+                                }
+                                destBuffer.setElemDoubleAt(destBufferIndex, destSample);
+                            }
+                        } else { // no lines found
+                            for (int x = 0; x < destWidth; x++) {
+                                final int destBufferIndex = destWidth * (blockOffsetY + destLineIndex) + x;
+                                destBuffer.setElemDoubleAt(destBufferIndex, destNoDataValue);
+                            }
+                        }
+                        pm.worked(1);
+                    }
+                } finally {
+                    pm.done();
+                }
             }
-        }
         } finally {
             lock.unlock();
         }
-            
+
     }
 
     public void getSourceLinePixelCoords(final Band destBand,
@@ -428,12 +438,13 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         addBitmaskDefsToProduct(product);
         copyPlacemarks(getSourceProduct().getPinGroup(), product.getPinGroup(), PinSymbol.createDefaultPinSymbol());
         copyPlacemarks(getSourceProduct().getGcpGroup(), product.getGcpGroup(), PinSymbol.createDefaultGcpSymbol());
-
+        // TODO - TESTTESTTEST (nf)
+        product.setPreferredTileSize(64, 64);
         return product;
     }
 
     private static void copyPlacemarks(ProductNodeGroup<Pin> sourcePlacemarkGroup,
-                                ProductNodeGroup<Pin> targetPlacemarkGroup, PinSymbol symbol) {
+                                       ProductNodeGroup<Pin> targetPlacemarkGroup, PinSymbol symbol) {
         final Pin[] pins = sourcePlacemarkGroup.toArray(new Pin[0]);
         for (Pin pin : pins) {
             final Pin pin1 = new Pin(pin.getName(), pin.getLabel(),
@@ -465,9 +476,9 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
     private SourceBandLineCache getSourceBandLineCache(final RasterDataNode sourceBand) {
         final long threadId = Thread.currentThread().getId();
         Map<RasterDataNode, SourceBandLineCache> sourceLineCacheMap;
-        if(threadHashMap.containsKey(threadId)) {
+        if (threadHashMap.containsKey(threadId)) {
             sourceLineCacheMap = threadHashMap.get(threadId);
-        }else {
+        } else {
             sourceLineCacheMap = new ConcurrentHashMap<RasterDataNode, SourceBandLineCache>(19);
             threadHashMap.put(threadId, sourceLineCacheMap);
         }
@@ -600,13 +611,13 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
             if (blockIndex == 0) {
                 if (pixelCoordsOfBlock0 == null) {
                     pixelCoordsOfBlock0 = computeSourcePixelCoords(blockIndex, sourceGeoCoding, sourceWidth,
-                                                                    sourceHeight,
-                                                                    destGeoCoding);
+                                                                   sourceHeight,
+                                                                   destGeoCoding);
                 }
                 pixelCoords = pixelCoordsOfBlock0;
             } else {
                 pixelCoords = computeSourcePixelCoords(blockIndex, sourceGeoCoding, sourceWidth, sourceHeight,
-                                                        destGeoCoding);
+                                                       destGeoCoding);
             }
         }
 
