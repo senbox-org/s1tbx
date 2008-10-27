@@ -17,7 +17,7 @@ import java.util.List;
 public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
     private int lastLevel;
-    private boolean debug;
+    private boolean debug = false;
     private final Map<TileIndex, TileRequest> scheduledTileRequests;
     private final TileImageCache localTileCache;
 
@@ -77,9 +77,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
         // Check clipping rectangle, required for this renderer
         final Rectangle clipBounds = graphics.getClipBounds();
-        if (clipBounds == null) {
-            throw new IllegalStateException("clipBounds == null");
-        }
+        final Rectangle viewBounds = clipBounds != null ? clipBounds : viewport.getViewBounds();
 
         // Check that color model is available, required for this renderer
         final ColorModel colorModel = planarImage.getColorModel();
@@ -88,7 +86,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         }
 
         // Create set of required tile indexes
-        final Rectangle clippedImageRegion = getImageRegion(viewport, multiLevelSource, currentLevel, clipBounds);
+        final Rectangle clippedImageRegion = getImageRegion(viewport, multiLevelSource, currentLevel, viewBounds);
         final Set<TileIndex> requiredTileIndexes = getTileIndexes(planarImage, currentLevel, clippedImageRegion);
         if (requiredTileIndexes.isEmpty()) {
             return; // nothing to render
@@ -200,7 +198,9 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
             }
 
             final Shape oldClip = g.getClip();
-            g.setClip(vp.getModelToViewTransform().createTransformedShape(bounds));
+            Rectangle newClip = vp.getModelToViewTransform().createTransformedShape(bounds).getBounds();
+            newClip = newClip.intersection(vp.getViewBounds());
+            g.setClip(newClip);
             for (TileImage tileImage : tentativeTileImageSet) {
                 drawTileImage(g, vp, tileImage);
             }
@@ -323,8 +323,8 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
                 && deviceConfiguration.getColorModel().isCompatibleRaster(wr)) {
             return bi;
         }
-        // todo <optimize>
-        // The following code is still too slow. Try to use use JAI "format" and "crop" operations instead of
+        // todo: Optimize me!
+        // The following code might still be too slow. Try to use use JAI "format" and "crop" operations instead of
         // matching color model and tile bounds via a BufferedImage. We don't need to create a BufferedImage
         // then, because the resulting RenderedOp can be drawn directly using g.drawRenderedImage()
         final BufferedImage bi2 = deviceConfiguration.createCompatibleImage(r.width, r.height, bi.getTransparency());
@@ -332,7 +332,6 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         g.drawRenderedImage(bi, null);
         g.dispose();
         return bi2;
-        // todo </optimize>
     }
 
     private static Rectangle getImageRegion(Viewport vp, MultiLevelSource multiLevelSource, int level, Rectangle2D viewRegion) {
@@ -421,23 +420,19 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
             final Rectangle tileBounds = tile.getBounds();
 
-//            // Invoke in the EDT in order to obtain the
-//            // viewRegion for the currently valid viewport settings since the model
-//            // may have changed the viewport between the time the tile request was
-//            // created and the tile was computed, which is now. The EDT is the only safe
-//            // place to access the viewport.
-//            rendering.invokeLater(new Runnable() {
-//                // Called from EDT.
-//                @Override
-//                public void run() {
-//                    final Rectangle viewRegion = getViewRegion(rendering.getViewport(), multiLevelSource, level, tileBounds);
-//                    rendering.invalidateRegion(viewRegion);
-//                }
-//            });
-
-
-            final Rectangle viewRegion = getViewRegion(rendering.getViewport(), multiLevelSource, level, tileBounds);
-            rendering.invalidateRegion(viewRegion);
+            // Invoke in the EDT in order to obtain the
+            // viewRegion for the currently valid viewport settings since the model
+            // may have changed the viewport between the time the tile request was
+            // created and the tile was computed, which is now. The EDT is the only safe
+            // place to access the viewport.
+            rendering.invokeLater(new Runnable() {
+                // Called from EDT.
+                @Override
+                public void run() {
+                    final Rectangle viewRegion = getViewRegion(rendering.getViewport(), multiLevelSource, level, tileBounds);
+                    rendering.invalidateRegion(viewRegion);
+                }
+            });
         }
 
         // Called from worker threads of the tile scheduler.

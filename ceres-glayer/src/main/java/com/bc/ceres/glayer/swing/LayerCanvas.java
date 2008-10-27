@@ -74,13 +74,17 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
     public LayerCanvas(LayerCanvasModel model) {
         super(null);
-        this.model = model;
-        this.canvasRendering = new CanvasRendering();
+        Assert.notNull(model, "model");
+        setOpaque(false);
         this.modelChangeHandler = new ModelChangeHandler();
+        this.model = model;
         this.model.addChangeListener(modelChangeHandler);
-        setBounds(model.getViewport().getViewBounds());
+        this.canvasRendering = new CanvasRendering();
+        this.overlays = new ArrayList<Overlay>(4);
         setNavControlShown(false);
-        overlays = new ArrayList<Overlay>(4);
+        if (!model.getViewport().getViewBounds().isEmpty()) {
+            setBounds(model.getViewport().getViewBounds());
+        }
     }
 
     public LayerCanvasModel getModel() {

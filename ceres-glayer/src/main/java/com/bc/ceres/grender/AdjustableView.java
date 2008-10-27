@@ -23,7 +23,7 @@ import java.awt.geom.Rectangle2D;
 
 /**
  * {@link javax.swing.JComponent JComponent}s implementing this interface are views which can
- * be adjusted using the {@link com.bc.ceres.glayer.swing.ViewportScrollPane}.
+ * be adjusted using the {@link com.bc.ceres.glayer.swing.AdjustableViewScrollPane}.
  */
 public interface AdjustableView {
     /**

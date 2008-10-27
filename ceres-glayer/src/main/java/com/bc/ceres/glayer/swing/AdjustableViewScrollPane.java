@@ -34,7 +34,6 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Rectangle2D;
 
-// todo - find better name
 
 /**
  * A <code>ViewPane</code> is an alternative to {@link javax.swing.JScrollPane}
@@ -47,7 +46,7 @@ import java.awt.geom.Rectangle2D;
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  */
-public class ViewportScrollPane extends JPanel {
+public class AdjustableViewScrollPane extends JPanel {
     private static final long serialVersionUID = -2634482999458990218L;
 
     // Extension of model bounds in view coordinates
@@ -65,11 +64,13 @@ public class ViewportScrollPane extends JPanel {
     private boolean scrollBarsUpdated;
     private ViewportChangeHandler viewportChangeHandler;
     private boolean debug = false;
+    private boolean hsbVisible;
+    private boolean vsbVisible;
 
     /**
      * Constructs a new view pane with an empty view component.
      */
-    public ViewportScrollPane() {
+    public AdjustableViewScrollPane() {
         this(null);
     }
 
@@ -78,25 +79,25 @@ public class ViewportScrollPane extends JPanel {
      *
      * @param viewComponent the view viewComponent. If not null, it must implement {@link AdjustableView}.
      */
-    public ViewportScrollPane(JComponent viewComponent) {
+    public AdjustableViewScrollPane(JComponent viewComponent) {
         super(null);
         Assert.notNull(viewComponent, "viewComponent");
         Assert.argument(viewComponent instanceof AdjustableView, "viewComponent");
+        setOpaque(false);
         scrollArea = new Rectangle2D.Double();
         viewportChangeHandler = new ViewportChangeHandler();
         setViewComponent(viewComponent);
         setCornerComponent(createCornerComponent());
         final ChangeListener scrollBarCH = new ScrollBarChangeHandler();
         horizontalScrollBar = createHorizontalScrollbar();
-        horizontalScrollBar.setVisible(false);
         horizontalScrollBar.getModel().addChangeListener(scrollBarCH);
         verticalScrollBar = createVerticalScrollBar();
-        verticalScrollBar.setVisible(false);
         verticalScrollBar.getModel().addChangeListener(scrollBarCH);
-        add(horizontalScrollBar);
-        add(verticalScrollBar);
         addComponentListener(new ViewPaneResizeHandler());
-        scrollBarsUpdated = false;
+    }
+
+    public AdjustableView getAdjustableView() {
+        return (AdjustableView) viewComponent;
     }
 
     public JComponent getViewComponent() {
@@ -104,28 +105,26 @@ public class ViewportScrollPane extends JPanel {
     }
 
     /**
-     * Constructs a new view pane with the given view viewComponent
+     * Constructs a new view pane with the given view which must implement the {@link AdjustableView} interface.
      *
-     * @param viewComponent the view viewComponent. If not null, it must implement {@link AdjustableView}.
+     * @param viewComponent a view component  implement {@link AdjustableView}.
      */
     public void setViewComponent(JComponent viewComponent) {
-        if (this.adjustableView != null) {
-            this.adjustableView.getViewport().removeListener(viewportChangeHandler);
+        if (this.viewComponent != viewComponent) {
+            if (this.viewComponent != null) {
+                this.adjustableView.getViewport().removeListener(viewportChangeHandler);
+                remove(this.viewComponent);
+            }
+            this.viewComponent = viewComponent;
+            this.adjustableView = null;
+            if (viewComponent != null) {
+                this.adjustableView = (AdjustableView) viewComponent;
+                this.adjustableView.getViewport().addListener(viewportChangeHandler);
+                add(this.viewComponent);
+            }
+            revalidate();
+            validate();
         }
-        if (this.viewComponent != null) {
-            remove(this.viewComponent);
-        }
-        this.viewComponent = viewComponent;
-        this.adjustableView = null;
-        if (this.viewComponent != null) {
-            this.adjustableView = (AdjustableView) viewComponent;
-            add(this.viewComponent);
-        }
-        if (this.adjustableView != null) {
-            this.adjustableView.getViewport().addListener(viewportChangeHandler);
-        }
-        revalidate();
-        validate();
     }
 
     public JComponent getCornerComponent() {
@@ -133,15 +132,11 @@ public class ViewportScrollPane extends JPanel {
     }
 
     public void setCornerComponent(JComponent cornerComponent) {
-        if (this.cornerComponent != null) {
-            remove(this.cornerComponent);
+        if (this.cornerComponent != cornerComponent) {
+            this.cornerComponent = cornerComponent;
+            revalidate();
+            validate();
         }
-        this.cornerComponent = cornerComponent;
-        if (this.cornerComponent != null) {
-            add(this.cornerComponent);
-        }
-        revalidate();
-        validate();
     }
 
     @Override
@@ -176,8 +171,7 @@ public class ViewportScrollPane extends JPanel {
         // |             hsb               |   | h2
         // +-------------------------------+---+
         //
-        final boolean hsbVisible = horizontalScrollBar.isVisible();
-        final boolean vsbVisible = verticalScrollBar.isVisible();
+
         if (hsbVisible && vsbVisible) {
             final Dimension hsbSize = horizontalScrollBar.getPreferredSize();
             final Dimension vsbSize = verticalScrollBar.getPreferredSize();
@@ -260,7 +254,7 @@ public class ViewportScrollPane extends JPanel {
     private void updateViewport() {
         if (updatingScrollBars || adjustableView == null) {
             if (debug) {
-                System.out.println("ViewportScrollPane.updateViewport: return!");
+                System.out.println("AdjustableViewScrollPane.updateViewport: return!");
             }
             return;
         }
@@ -268,8 +262,7 @@ public class ViewportScrollPane extends JPanel {
         final Rectangle va = getViewBounds();
         double vx = va.getX();
         double vy = va.getY();
-        final boolean hsbVisible = horizontalScrollBar.isVisible();
-        final boolean vsbVisible = verticalScrollBar.isVisible();
+
         final Rectangle2D sa = scrollArea;
         if (hsbVisible) {
             final int hsbValue = horizontalScrollBar.getValue();
@@ -281,7 +274,7 @@ public class ViewportScrollPane extends JPanel {
         }
         if (hsbVisible || vsbVisible) {
             if (debug) {
-                System.out.println("ViewportScrollPane.updateViewport:");
+                System.out.println("AdjustableViewScrollPane.updateViewport:");
                 System.out.println("  vx = " + vx);
                 System.out.println("  vy = " + vy);
                 System.out.println("");
@@ -293,7 +286,7 @@ public class ViewportScrollPane extends JPanel {
     private void updateScrollBars() {
         if (adjustableView == null) {
             if (debug) {
-                System.out.println("ViewportScrollPane.updateScrollBars: return!");
+                System.out.println("AdjustableViewScrollPane.updateScrollBars: return!");
             }
             return;
         }
@@ -301,8 +294,11 @@ public class ViewportScrollPane extends JPanel {
         //.View bounds in view coordinates
         final Rectangle2D va = getViewBounds();
         if (va.isEmpty()) {
-            horizontalScrollBar.setVisible(false);
-            verticalScrollBar.setVisible(false);
+            remove(horizontalScrollBar);
+            remove(verticalScrollBar);
+            if (cornerComponent != null) {
+                remove(cornerComponent);
+            }
             return;
         }
 
@@ -361,8 +357,32 @@ public class ViewportScrollPane extends JPanel {
         boolean hsbVisible = dx1 < 0 || dx2 < 0;
         boolean vsbVisible = dy1 < 0 || dy2 < 0;
 
+        if (this.hsbVisible != hsbVisible || this.vsbVisible != vsbVisible) {
+            if (this.hsbVisible != hsbVisible) {
+                if (hsbVisible) {
+                    add(horizontalScrollBar);
+                } else {
+                    remove(horizontalScrollBar);
+                }
+            }
+            if (this.vsbVisible != vsbVisible) {
+                if (vsbVisible) {
+                    add(verticalScrollBar);
+                } else {
+                    remove(verticalScrollBar);
+                }
+            }
+            if (cornerComponent != null && hsbVisible && vsbVisible) {
+                add(cornerComponent);
+            } else {
+                remove(cornerComponent);
+            }
+            this.hsbVisible = hsbVisible;
+            this.vsbVisible = vsbVisible;
+        }
+
         if (debug) {
-            System.out.println("ViewportScrollPane.updateScrollBars:");
+            System.out.println("AdjustableViewScrollPane.updateScrollBars:");
             System.out.println("  hsbVisible = " + vsbVisible);
             System.out.println("  hsbVisible = " + hsbVisible);
             System.out.println("  va = " + va);
@@ -370,7 +390,7 @@ public class ViewportScrollPane extends JPanel {
             System.out.println("  sa = " + sa);
             System.out.println("  dx1 = " + dx1 + ", dx2 = " + dx2);
             System.out.println("  dy1 = " + dy1 + ", dy2 = " + dy2);
-            System.out.println("  ");
+            System.out.println();
         }
 
         scrollArea.setRect(sa);
@@ -384,7 +404,6 @@ public class ViewportScrollPane extends JPanel {
             hsbExtend = clamp(hsbExtend, 0, MAX_SB_VALUE);
             horizontalScrollBar.setValues(hsbValue, hsbExtend, 0, MAX_SB_VALUE);
         }
-        horizontalScrollBar.setVisible(hsbVisible);
 
         if (vsbVisible) {
             int vsbValue = (int) Math.round(MAX_SB_VALUE * (va.getY() - sa.getY()) / sa.getHeight());
@@ -392,11 +411,6 @@ public class ViewportScrollPane extends JPanel {
             int vsbExtend = (int) Math.round(MAX_SB_VALUE * va.getHeight() / sa.getHeight());
             vsbExtend = clamp(vsbExtend, 0, MAX_SB_VALUE);
             verticalScrollBar.setValues(vsbValue, vsbExtend, 0, MAX_SB_VALUE);
-        }
-        verticalScrollBar.setVisible(vsbVisible);
-
-        if (cornerComponent != null) {
-            cornerComponent.setVisible(hsbVisible && vsbVisible);
         }
 
         updatingScrollBars = false;

@@ -34,7 +34,7 @@ public class ImageLayer extends Layer {
     public static final Color DEFAULT_BORDER_COLOR = new Color(204, 204, 255);
 
     private MultiLevelSource multiLevelSource;
-    private MultiLevelRenderer concurrentRenderer;
+    private MultiLevelRenderer multiLevelRenderer;
     private boolean debug;
 
     /**
@@ -102,7 +102,7 @@ public class ImageLayer extends Layer {
             final Rectangle2D region = oldBounds.createUnion(newBounds);
             clearCaches();
             this.multiLevelSource = multiLevelSource;
-            concurrentRenderer = null;
+            multiLevelRenderer = null;
             fireLayerDataChanged(region);
         }
     }
@@ -212,18 +212,19 @@ public class ImageLayer extends Layer {
 
     private synchronized MultiLevelRenderer getRenderer(Rendering rendering) {
         if (rendering instanceof InteractiveRendering) {
-            if (concurrentRenderer == null) {
-                concurrentRenderer = new ConcurrentMultiLevelRenderer();
+            if (multiLevelRenderer == null) {
+                multiLevelRenderer = new ConcurrentMultiLevelRenderer();
+                // multiLevelRenderer = new DefaultMultiLevelRenderer();
             }
-            return concurrentRenderer;
+            return multiLevelRenderer;
         } else {
             return new DefaultMultiLevelRenderer();
         }
     }
 
     private void resetRenderer() {
-        if (concurrentRenderer != null) {
-            concurrentRenderer.reset();
+        if (multiLevelRenderer != null) {
+            multiLevelRenderer.reset();
         }
     }
 
