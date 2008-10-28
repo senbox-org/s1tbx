@@ -191,8 +191,14 @@ public class ProductExportAction extends ExecCommand {
         if (!getVisatApp().promptForOverwrite(selectedFile)) {
             return;
         }
-        final String subsetName = selectedFile.getName();
-        final ProductSubsetDef productSubsetDef = new ProductSubsetDef(subsetName);
+        final ProductSubsetDef productSubsetDef;
+        if (fileChooser.getProductSubsetDef() != null) {
+            productSubsetDef = fileChooser.getProductSubsetDef();
+        } else {
+            productSubsetDef = new ProductSubsetDef();
+            productSubsetDef.setSubsetName(selectedFile.getName());
+        }
+        final String subsetName = productSubsetDef.getSubsetName();
         try {
             product = ProductSubsetBuilder.createProductSubset(product, productSubsetDef, subsetName, null);
         } catch (IOException e) {

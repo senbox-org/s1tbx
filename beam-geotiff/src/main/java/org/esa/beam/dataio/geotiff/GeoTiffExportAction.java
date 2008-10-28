@@ -34,6 +34,5 @@ public class GeoTiffExportAction extends ProductExportAction {
 
         }
         return super.promptForFile(product);
-
     }
 }
