@@ -42,11 +42,7 @@ public class BandOpImage extends RasterDataNodeOpImage {
                                          lineData.getNumElems(), 1,
                                          lineData,
                                          ProgressMonitor.NULL);
-                // TODO - optimize this copy loop!!!
-                for (int x = 0; x < destRect.width; x++) {
-                    int i = getSourceCoord(x, 0, sourceWidth - 1);
-                    productData.setElemDoubleAt(y * destRect.width + x, lineData.getElemDoubleAt(i));
-                }
+                copyLine(y, sourceWidth, destRect.width, lineData, productData);
             }
         }
     }
