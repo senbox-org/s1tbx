@@ -10,6 +10,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 public class DefaultViewportTest {
 
@@ -238,15 +239,23 @@ public class DefaultViewportTest {
         final DefaultViewport viewport = new DefaultViewport(new Rectangle(40, 50), true);
         final Point2D m0 = p(3, 3);
         final Point2D m1 = p(1, 1);
+        Rectangle viewBounds = viewport.getViewBounds();
         
         viewport.setZoomFactor(2.0, 3.0, 3.0);
         AffineTransform m2v = viewport.getModelToViewTransform();
         
         assertEquals(2.0, viewport.getZoomFactor(), 1.0e-10);
+        assertEquals(2.0, viewport.getZoomFactor(), 1.0e-10);
         assertEquals(2.0, m2v.getScaleX(), 1.0e-10);
         assertEquals(2.0, m2v.getScaleY(), 1.0e-10);
         assertEquals(p(20.0, 25.0), t(m2v, m0));
         assertEquals(p(16.0, 21.0), t(m2v, m1));
+        Rectangle2D modelBounds = viewport.getViewToModelTransform().createTransformedShape(viewBounds).getBounds2D();
+        double centerX = modelBounds.getCenterX();
+        assertEquals(3.0, centerX, 1.0e-10);
+        double centerY = modelBounds.getCenterY();
+        assertEquals(3.0, centerY, 1.0e-10);
+        assertEquals(new Rectangle2D.Double(-7.0, -9.5, 20.0, 25.0), modelBounds);
         
         viewport.setZoomFactor(2.0, 9.0, 9.0);
         m2v = viewport.getModelToViewTransform();
