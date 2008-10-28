@@ -3,13 +3,26 @@ package com.bc.ceres.core.runtime.internal;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryFactory;
-import com.bc.ceres.core.runtime.*;
+import com.bc.ceres.core.runtime.Activator;
+import com.bc.ceres.core.runtime.ConfigurationElement;
+import com.bc.ceres.core.runtime.Extension;
+import com.bc.ceres.core.runtime.ExtensionPoint;
+import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.core.runtime.ModuleContext;
+import com.bc.ceres.core.runtime.ModuleState;
+import com.bc.ceres.core.runtime.RuntimeRunnable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 public class RuntimeActivator implements Activator {
@@ -86,8 +99,7 @@ public class RuntimeActivator implements Activator {
             if (providerImpl != null) {
                 serviceRegistration.serviceRegistry.addService(providerImpl);
                 serviceRegistration.providerImpl = providerImpl;
-                moduleContext.getLogger().info(
-                        "Service " + providerImplClass + " registered");
+                moduleContext.getLogger().info("Service " + providerImplClass + " registered");
                 this.serviceRegistrations.add(serviceRegistration);
             }
         } else {
@@ -166,7 +178,11 @@ public class RuntimeActivator implements Activator {
                 if (resources != null) {
                     while (resources.hasMoreElements()) {
                         URL url = resources.nextElement();
-                        serviceRegistrations.add(new ServiceRegistration(url, module, serviceRegistry));
+                        ServiceRegistration serviceRegistration = new ServiceRegistration(url, module, serviceRegistry);
+                        if (serviceRegistrations.contains(serviceRegistration)) {
+                            moduleContext.getLogger().warning(String.format("Service already registered: [%s].", serviceRegistration));
+                        }
+                        serviceRegistrations.add(serviceRegistration);
                     }
                 }
             }
@@ -196,6 +212,9 @@ public class RuntimeActivator implements Activator {
         public boolean equals(Object obj) {
             if (this == obj) {
                 return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
             }
             return url.equals(((ServiceRegistration) obj).url);
         }
