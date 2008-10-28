@@ -17,21 +17,41 @@
 package org.esa.beam.visat.dialogs;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.dataio.ProductProjectionBuilder;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductManager;
+import org.esa.beam.framework.datamodel.ProductNodeNameValidator;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
-import org.esa.beam.framework.dataop.maptransf.*;
+import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
+import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
+import org.esa.beam.framework.dataop.maptransf.MapTransformUI;
+import org.esa.beam.framework.dataop.maptransf.UTM;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.framework.ui.*;
+import org.esa.beam.framework.ui.DemSelector;
+import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.ProjectionParamsDialog;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.text.JTextComponent;
 import java.awt.GridBagConstraints;
 import java.awt.Window;
@@ -40,6 +60,7 @@ import java.awt.event.ActionListener;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class MapProjectionDialog extends ModalDialog {
@@ -209,8 +230,6 @@ public class MapProjectionDialog extends ModalDialog {
     private void initParameters() {
         _numNewProjections++;
 
-        String[] projectionDatumValueSet = new String[]{getSourceProduct().getGeoCoding().getDatum().getName()}; // @todo 2 nf/nf - add support for multiple datums
-
         _paramOldProductName = new Parameter("oldProductname", getSourceProduct().getDisplayName());
         _paramOldProductName.getProperties().setLabel("Name");                  /* I18N */
         _paramOldProductName.getProperties().setReadOnly(true);
@@ -257,17 +276,25 @@ public class MapProjectionDialog extends ModalDialog {
             _paramColocationProductName.addParamChangeListener(onRecreateMapInfoAndUpdateUIState);
         }
 
-        final String[] projectionsValueSet = getProjectionsValueSet();
+        String defaultMapProjectionName = IdentityTransformDescriptor.NAME;
+        String[] projectionsValueSet = getProjectionsValueSet();
+        Arrays.sort(projectionsValueSet);
         _paramProjection = new Parameter("projection", projectionsValueSet[0]);
         _paramProjection.getProperties().setValueSet(projectionsValueSet);
         _paramProjection.getProperties().setLabel("Projection"); /* I18N */
         _paramProjection.getProperties().setValueSetBound(true);
+        _paramProjection.setValue(defaultMapProjectionName, null);
         _paramProjection.addParamChangeListener(onRecreateMapInfoAndUpdateUIState);
 
+        // @todo 2 nf/nf - add support for multiple datums
+        String defaultDatumName = getSourceProduct().getGeoCoding().getDatum().getName();
+        String[] projectionDatumValueSet = new String[]{defaultDatumName};
+        Arrays.sort(projectionDatumValueSet);
         _paramDatum = new Parameter("projectionDatum", projectionDatumValueSet[0]);
         _paramDatum.getProperties().setValueSet(projectionDatumValueSet);
         _paramDatum.getProperties().setLabel("Datum"); /* I18N */
         _paramDatum.getProperties().setValueSetBound(true);
+        _paramDatum.setValue(defaultDatumName, null);
         _paramDatum.addParamChangeListener(onRecreateMapInfoAndUpdateUIState);
 
         String[] resamplingValueSet = new String[]{
@@ -528,7 +555,7 @@ public class MapProjectionDialog extends ModalDialog {
                 } else {
                     projection = MapProjectionRegistry.getProjection(projectionName);
                 }
-                assert projection != null;
+                Assert.state(projection != null, "projection != null");
                 if (!projection.isPreDefined()) {
                     projection = (MapProjection) projection.clone();
                 }
@@ -561,6 +588,7 @@ public class MapProjectionDialog extends ModalDialog {
         _paramColocationUsed.setUIEnabled(canUseColocation);
         _paramColocationProductName.setUIEnabled(colocationUsed);
         _paramProjection.setUIEnabled(!colocationUsed);
+        _paramProjection.setValue(_outputMapInfo.getMapProjection().getName(), null);
         _paramDatum.setUIEnabled(!colocationUsed);
 
         if (_outputMapInfo != null) {
