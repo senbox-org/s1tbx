@@ -17,19 +17,23 @@
 package org.esa.beam;
 
 import com.bc.ceres.core.CoreException;
-import com.bc.ceres.core.runtime.*;
+import com.bc.ceres.core.runtime.Activator;
+import com.bc.ceres.core.runtime.ConfigurationElement;
+import com.bc.ceres.core.runtime.Extension;
+import com.bc.ceres.core.runtime.ExtensionPoint;
+import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.core.runtime.ModuleContext;
+import com.bc.ceres.core.runtime.ModuleState;
 import com.sun.java.help.search.QueryEngine;
-
 import org.esa.beam.framework.help.HelpSys;
+import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.application.ToolViewDescriptorRegistry;
-import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.util.TreeNode;
 
 import javax.help.HelpSet;
 import javax.help.HelpSet.DefaultHelpSetFactory;
-
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -294,8 +298,8 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
                 // check if a search engine can be created, this means the search index is available
                 try
                 {
-                    String urldata = (String)dataAttributes.get("data");
-                    QueryEngine qe = new QueryEngine(urldata, hs.getHelpSetURL());
+                    // just for checking if it can be created
+                    QueryEngine qe = new QueryEngine(data, hs.getHelpSetURL());
                 }
                 catch(Exception exception)
                 {
