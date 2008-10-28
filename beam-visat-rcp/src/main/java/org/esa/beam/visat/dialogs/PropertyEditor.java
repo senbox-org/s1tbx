@@ -321,7 +321,8 @@ public class PropertyEditor {
                             final JInternalFrame internalFrame = _visatApp.findInternalFrame(_rasterDataNode);
                             if (internalFrame != null) {
                                 final ProductSceneView psv = getProductSceneView(internalFrame);
-                                psv.updateNoDataImage(SubProgressMonitor.create(pm, 1));
+                                psv.updateNoDataImage();
+                                pm.worked(1);
                             } else {
                                 pm.worked(1);
                             }

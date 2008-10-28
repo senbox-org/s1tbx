@@ -34,7 +34,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.Vector;
 
-// todo - move code into ProductSceneView, cause no need to extend a JCompoonent here (nf - 23.10.2008)
 class LayerDisplay extends LayerCanvas {
     private Tool tool;
     private int pixelX = -1;

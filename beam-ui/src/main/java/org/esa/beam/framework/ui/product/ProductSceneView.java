@@ -37,6 +37,7 @@ import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.glevel.RoiImageMultiLevelSource;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.MouseEventFilterFactory;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.PropertyMapChangeListener;
 import org.esa.beam.util.SystemUtils;
@@ -46,6 +47,7 @@ import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
+import javax.swing.event.MouseInputListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -53,18 +55,26 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.KeyListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
+import java.util.Vector;
 
 /**
  * The class <code>ProductSceneView</code> is a high-level image display component for color index/RGB images created
@@ -90,9 +100,13 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
      */
     public static final String PROPERTY_KEY_IMAGE_INTERPOLATION = "image.interpolation";
     /**
-     * Name of property which switsches display of af a navigataion control in the image view.
+     * Name of property which switches display of af a navigataion control in the image view.
      */
     public static final String PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN = "image.navControlShown";
+    /**
+     * Name of property which switches display of af a navigataion control in the image view.
+     */
+    public static final String PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN = "image.scrollBarsShown";
 
     /**
      * Property name for the image histogram matching type
@@ -102,56 +116,79 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     @Deprecated
     public static final String PROPERTY_KEY_HISTOGRAM_MATCHING = "graphics.histogramMatching";
 
+    @Deprecated
     public static String IMAGE_INTERPOLATION_NEAREST_NEIGHBOUR = "Nearest Neighbour";
+    @Deprecated
     public static String IMAGE_INTERPOLATION_BILINEAR = "Bi-Linear Interpolation";
+    @Deprecated
     public static String IMAGE_INTERPOLATION_BICUBIC = "Bi-Cubic Interpolation";
+    @Deprecated
     public static String IMAGE_INTERPOLATION_SYSTEM_DEFAULT = "System Default";
+    @Deprecated
     public static String DEFAULT_IMAGE_INTERPOLATION_METHOD = IMAGE_INTERPOLATION_SYSTEM_DEFAULT;
-//    public static final Color DEFAULT_IMAGE_BORDER_COLOR = new Color(204, 204, 255);
+
+    //    public static final Color DEFAULT_IMAGE_BORDER_COLOR = new Color(204, 204, 255);
     public static final Color DEFAULT_IMAGE_BACKGROUND_COLOR = new Color(51, 51, 51);
-//    public static final double DEFAULT_IMAGE_BORDER_SIZE = 2.0;
+    //    public static final double DEFAULT_IMAGE_BORDER_SIZE = 2.0;
     public static final int DEFAULT_IMAGE_VIEW_BORDER_SIZE = 64;
-    private RasterChangeHandler rasterChangeHandler;
+
 
     private ProductSceneImage sceneImage;
-    private LayerDisplay layerCanvas;
+    private LayerCanvas layerCanvas;
 
+    // todo - (re)move following variable after BEAM 4.5 (nf - 28.10.2008)
+    // {{
+    private final ImageLayer baseImageLayer;
+    private int pixelX = -1;
+    private int pixelY = -1;
+    private int levelPixelX = -1;
+    private int levelPixelY = -1;
+    private int level = 0;
+    private boolean pixelBorderShown; // can it be shown?
+    private boolean pixelBorderDrawn; // has it been drawn?
+    private double pixelBorderViewScale;
+    private final Vector<PixelPositionListener> pixelPositionListeners;
+    // }}
+
+    private Tool tool;
+
+    private ComponentAdapter layerCanvasComponentHandler;
+    private MouseInputListener layerCanvasMouseInputHandler;
+    private KeyListener layerCanvasKeyHandler;
+    private RasterChangeHandler rasterChangeHandler;
 
     public ProductSceneView(ProductSceneImage sceneImage) {
         Assert.notNull(sceneImage, "sceneImage");
 
-        this.sceneImage = sceneImage;
-
-        rasterChangeHandler = new RasterChangeHandler();
-        getRaster().getProduct().addProductNodeListener(rasterChangeHandler);
-
         setOpaque(true);
         setBackground(DEFAULT_IMAGE_BACKGROUND_COLOR); // todo - use sceneImage.getConfiguration() (nf, 18.09.2008)
         setLayout(new BorderLayout());
-        layerCanvas = new LayerDisplay(sceneImage.getRootLayer(), getBaseImageLayer());
-        final AdjustableViewScrollPane scrollPane = new AdjustableViewScrollPane(layerCanvas);
-        add(scrollPane, BorderLayout.CENTER);
+
+        this.pixelBorderShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_PIXEL_BORDER_SHOWN, true);
+
+        this.sceneImage = sceneImage;
+        this.baseImageLayer = sceneImage.getBaseImageLayer();
+        this.pixelBorderViewScale = 2.0;
+        this.pixelPositionListeners = new Vector<PixelPositionListener>();
+
+        this.layerCanvas = new LayerCanvas(sceneImage.getRootLayer(), new DefaultViewport(isModelYAxisDown(baseImageLayer)));
 
         final boolean navControlShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true);
-        layerCanvas.setNavControlShown(navControlShown);
-        layerCanvas.setPreferredSize(new Dimension(400, 400));
-        
-        final boolean pixelBorderShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_PIXEL_BORDER_SHOWN, true);
-        layerCanvas.setPixelBorderShown(pixelBorderShown);
-        
-        PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
-        layerCanvas.addMouseListener(popupMenuHandler);
-        layerCanvas.addKeyListener(popupMenuHandler);
-        layerCanvas.addMouseWheelListener(new MouseWheelListener() {
+        this.layerCanvas.setNavControlShown(navControlShown);
+        this.layerCanvas.setPreferredSize(new Dimension(400, 400));
 
-            @Override
-            public void mouseWheelMoved(MouseWheelEvent e) {
-                final Viewport viewport = layerCanvas.getViewport();
-                final int wheelRotation = e.getWheelRotation();
-                final double newZoomFactor = viewport.getZoomFactor() * Math.pow(1.1, wheelRotation);
-                viewport.setZoomFactor(newZoomFactor);
-            }
-        });
+        final boolean scrollBarsShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN, false);
+        if (scrollBarsShown) {
+            final AdjustableViewScrollPane scrollPane = new AdjustableViewScrollPane(layerCanvas);
+            add(scrollPane, BorderLayout.CENTER);
+        }else {
+            add(layerCanvas, BorderLayout.CENTER);
+        }
+
+        registerLayerCanvasListeners();
+
+        this.rasterChangeHandler = new RasterChangeHandler();
+        getRaster().getProduct().addProductNodeListener(rasterChangeHandler);
     }
 
     ProductSceneImage getSceneImage() {
@@ -250,8 +287,13 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
      */
     @Override
-    public void dispose() {
-        getRaster().getProduct().removeProductNodeListener(rasterChangeHandler);
+    public synchronized void dispose() {
+        if (pixelPositionListeners != null) {
+            pixelPositionListeners.clear();
+        }
+
+        deregisterLayerCanvasListeners();
+
         for (int i = 0; i < getSceneImage().getRasters().length; i++) {
             final RasterDataNode raster = getSceneImage().getRasters()[i];
             if (raster instanceof RGBChannel) {
@@ -381,10 +423,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         setCurrentShapeFigure(ShapeFigure.createArbitraryArea(area1, figure.getAttributes()));
     }
 
-    public void updateImage(ProgressMonitor pm) throws IOException {
-        getBaseImageLayer().regenerate();
-    }
-
     public boolean isNoDataOverlayEnabled() {
         final ImageLayer noDataLayer = getNoDataLayer();
         return noDataLayer != null && noDataLayer.isVisible();
@@ -481,20 +519,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         }
     }
 
-    public void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception {
-        final ImageLayer roiLayer = getRoiLayer();
-        if (roiLayer != null) {
-            if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
-                final Color color = (Color) roiLayer.getStyle().getProperty("color");
-                final MultiLevelSource multiLevelSource = RoiImageMultiLevelSource.create(getRaster(),
-                        color, roiLayer.getImageToModelTransform());
-                roiLayer.setMultiLevelSource(multiLevelSource);
-            } else {
-                roiLayer.setMultiLevelSource(MultiLevelSource.NULL);
-            }
-        }
-    }
-
     public Figure getRasterROIShapeFigure() {
         if (getRaster().getROIDefinition() != null) {
             return getRaster().getROIDefinition().getShapeFigure();
@@ -559,47 +583,33 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         }
     }
 
-    private void setImageProperties(PropertyMap configuration) {
-        // todo 3 nf,nf - 1) move display properties of imageDisplay to imageLayer
-        // todo 3 nf/nf - 2) move the following code to ImageLayer.setProperties
-        // todo 3 nf,nf - 3) use _imageLayer.setProperties(propertyMap); instead
-
-        // from 4.2 branch - will be removed later (rq)
-        
-//        final boolean pixelBorderShown = configuration.getPropertyBool("pixel.border.shown", true);
-//        final boolean imageBorderShown = configuration.getPropertyBool("image.border.shown", true);
-//        final float imageBorderSize = (float) configuration.getPropertyDouble("image.border.size",
-//                                                                            DEFAULT_IMAGE_BORDER_SIZE);
-//        final Color imageBorderColor = configuration.getPropertyColor("image.border.color", DEFAULT_IMAGE_BORDER_COLOR);
-//        final Color backgroundColor = configuration.getPropertyColor("image.background.color",
-//                                                                   DEFAULT_IMAGE_BACKGROUND_COLOR);
-//        final boolean antialiasing = configuration.getPropertyBool(PROPERTY_KEY_GRAPHICS_ANTIALIASING, false);
-//        final String interpolation = configuration.getPropertyString(PROPERTY_KEY_IMAGE_INTERPOLATION,
-//                                                                   DEFAULT_IMAGE_INTERPOLATION_METHOD);
-//
-//        getImageDisplay().setPixelBorderShown(pixelBorderShown);
-//        getImageDisplay().setImageBorderShown(imageBorderShown);
-//        getImageDisplay().setImageBorderSize(imageBorderSize);
-//        getImageDisplay().setImageBorderColor(imageBorderColor);
-//        getImageDisplay().setBackground(backgroundColor);
-//        getImageDisplay().setAntialiasing(antialiasing ?
-//                RenderingHints.VALUE_ANTIALIAS_ON :
-//                RenderingHints.VALUE_ANTIALIAS_OFF);
-//        getImageDisplay().setInterpolation(interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_BICUBIC) ?
-//                RenderingHints.VALUE_INTERPOLATION_BICUBIC :
-//                interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_BILINEAR) ?
-//                        RenderingHints.VALUE_INTERPOLATION_BILINEAR :
-//                        interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_NEAREST_NEIGHBOUR) ?
-//                                RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR :
-//                                null);
+    /**
+     * Adds a new pixel position listener to this image display component. If
+     * the component already contains the given listener, the method does
+     * nothing.
+     *
+     * @param listener the pixel position listener to be added
+     */
+    public final void addPixelPositionListener(PixelPositionListener listener) {
+        if (listener == null) {
+            return;
+        }
+        if (pixelPositionListeners.contains(listener)) {
+            return;
+        }
+        pixelPositionListeners.add(listener);
     }
 
-    public void addPixelPositionListener(PixelPositionListener listener) {
-        layerCanvas.addPixelPositionListener(listener);
-    }
-
-    public void removePixelPositionListener(PixelPositionListener listener) {
-        layerCanvas.removePixelPositionListener(listener);
+    /**
+     * Removes a pixel position listener from this image display component.
+     *
+     * @param listener the pixel position listener to be removed
+     */
+    public final void removePixelPositionListener(PixelPositionListener listener) {
+        if (listener == null || pixelPositionListeners.isEmpty()) {
+            return;
+        }
+        pixelPositionListeners.remove(listener);
     }
 
     /**
@@ -730,23 +740,26 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         return bi;
     }
 
+
     @Override
     public Tool getTool() {
-        return layerCanvas.getTool();
+        return tool;
     }
 
     @Override
     public void setTool(Tool tool) {
-        if (tool != null && layerCanvas.getTool() != tool) {
-            tool.setDrawingEditor(this);
-            setCursor(tool.getCursor());
-            layerCanvas.setTool(tool);
+        if (this.tool != tool) {
+            if (tool != null) {
+                tool.setDrawingEditor(this);
+                setCursor(tool.getCursor());
+            }
+            this.tool = tool;
         }
     }
 
     @Override
     public void repaintTool() {
-        if (layerCanvas.getTool() != null) {
+        if (getTool() != null) {
             repaint(100);
         }
     }
@@ -810,16 +823,30 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     protected void copyPixelInfoStringToClipboard() {
-        String text = layerCanvas.createPixelInfoString(this);
-        SystemUtils.copyToClipboard(text);
+        SystemUtils.copyToClipboard(createPixelInfoString(pixelX, pixelY));
     }
 
     protected void disposeImageDisplayComponent() {
         layerCanvas.dispose();
     }
 
-    // only called from PropertyEditor
+    @Deprecated
+    public void updateImage(ProgressMonitor pm) throws IOException {
+        updateImage();
+    }
+
+    // only called from VISAT
+    public void updateImage(){
+        getBaseImageLayer().regenerate();
+    }
+
+    @Deprecated
     public void updateNoDataImage(ProgressMonitor pm) throws Exception {
+         updateNoDataImage();
+    }
+
+    // used by PropertyEditor
+    public void updateNoDataImage()  {
         final String expression = getRaster().getValidMaskExpression();
         final ImageLayer noDataLayer = getNoDataLayer();
 
@@ -828,10 +855,30 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
                 final Style style = noDataLayer.getStyle();
                 final Color color = (Color) style.getProperty("color");
                 final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(),
-                        color, expression, true, noDataLayer.getImageToModelTransform());
+                                                                                           color, expression, true, noDataLayer.getImageToModelTransform());
                 noDataLayer.setMultiLevelSource(multiLevelSource);
             } else {
                 noDataLayer.setMultiLevelSource(MultiLevelSource.NULL);
+            }
+        }
+    }
+
+    @Deprecated
+    public void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception {
+        updateROIImage();
+    }
+
+    // used by PropertyEditor
+    public void updateROIImage() {
+        final ImageLayer roiLayer = getRoiLayer();
+        if (roiLayer != null) {
+            if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
+                final Color color = (Color) roiLayer.getStyle().getProperty("color");
+                final MultiLevelSource multiLevelSource = RoiImageMultiLevelSource.create(getRaster(),
+                                                                                          color, roiLayer.getImageToModelTransform());
+                roiLayer.setMultiLevelSource(multiLevelSource);
+            } else {
+                roiLayer.setMultiLevelSource(MultiLevelSource.NULL);
             }
         }
     }
@@ -866,10 +913,10 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
          */
         public RGBChannel(final Product product, final String name, final String expression) {
             super(name,
-                    ProductData.TYPE_FLOAT32,
-                    product.getSceneRasterWidth(),
-                    product.getSceneRasterHeight(),
-                    expression);
+                  ProductData.TYPE_FLOAT32,
+                  product.getSceneRasterWidth(),
+                  product.getSceneRasterHeight(),
+                  expression);
             setOwner(product);
         }
     }
@@ -901,20 +948,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         }
     }
 
-    protected final class ZoomHandler implements MouseWheelListener {
-
-        @Override
-        public void mouseWheelMoved(MouseWheelEvent e) {
-            int notches = e.getWheelRotation();
-            double currentViewScale = getZoomFactor();
-            if (notches < 0) {
-                zoom(currentViewScale * 1.1f);
-            } else {
-                zoom(currentViewScale * 0.9f);
-            }
-        }
-    }
-
     private ImageLayer getNoDataLayer() {
         return getSceneImage().getNoDataLayer();
     }
@@ -937,5 +970,293 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
     private Layer getGcpLayer() {
         return getSceneImage().getGcpLayer();
+    }
+
+    private static boolean isModelYAxisDown(ImageLayer baseImageLayer) {
+        return baseImageLayer.getImageToModelTransform().getDeterminant() > 0.0;
+    }
+
+
+    private void registerLayerCanvasListeners() {
+        layerCanvasComponentHandler = new LayerCanvasComponentHandler();
+        layerCanvasMouseInputHandler = MouseEventFilterFactory.createFilter(new PixelPosUpdater());
+        layerCanvasKeyHandler = new LayerCanvasKeyHandler();
+
+        layerCanvas.addComponentListener(layerCanvasComponentHandler);
+        layerCanvas.addMouseListener(layerCanvasMouseInputHandler);
+        layerCanvas.addMouseMotionListener(layerCanvasMouseInputHandler);
+        layerCanvas.addKeyListener(layerCanvasKeyHandler);
+
+        PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
+        this.layerCanvas.addMouseListener(popupMenuHandler);
+        this.layerCanvas.addKeyListener(popupMenuHandler);
+        this.layerCanvas.addMouseWheelListener(new MouseWheelListener() {
+
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                final Viewport viewport = layerCanvas.getViewport();
+                final int wheelRotation = e.getWheelRotation();
+                final double newZoomFactor = viewport.getZoomFactor() * Math.pow(1.1, wheelRotation);
+                viewport.setZoomFactor(newZoomFactor);
+            }
+        });
+    }
+
+    private void deregisterLayerCanvasListeners() {
+        getRaster().getProduct().removeProductNodeListener(rasterChangeHandler);
+        layerCanvas.removeComponentListener(layerCanvasComponentHandler);
+        layerCanvas.removeMouseListener(layerCanvasMouseInputHandler);
+        layerCanvas.removeMouseMotionListener(layerCanvasMouseInputHandler);
+        layerCanvas.removeKeyListener(layerCanvasKeyHandler);
+    }
+
+    private void fireToolEvent(MouseEvent e) {
+        if (tool != null) {
+            ToolInputEvent toolInputEvent = createToolInputEvent(e);
+            tool.handleEvent(toolInputEvent);
+        }
+    }
+
+    private ToolInputEvent createToolInputEvent(MouseEvent e) {
+        return new ToolInputEvent(layerCanvas, e, pixelX, pixelY, isPixelPosValid(levelPixelX, levelPixelY, level));
+    }
+
+    private ToolInputEvent createToolInputEvent(KeyEvent e) {
+        return new ToolInputEvent(layerCanvas, e, pixelX, pixelY, isPixelPosValid(levelPixelX, levelPixelY, level));
+    }
+
+    private boolean isPixelPosValid(int currentPixelX, int currentPixelY, int currentLevel) {
+        return currentPixelX >= 0 && currentPixelX < baseImageLayer.getImage(currentLevel).getWidth() && currentPixelY >= 0
+                && currentPixelY < baseImageLayer.getImage(currentLevel).getHeight();
+    }
+
+    private void firePixelPosChanged(MouseEvent e, int currentPixelX, int currentPixelY, int currentLevel) {
+        boolean pixelPosValid = isPixelPosValid(currentPixelX, currentPixelY, currentLevel);
+        for (PixelPositionListener listener : pixelPositionListeners) {
+            listener.pixelPosChanged(baseImageLayer, currentPixelX, currentPixelY, currentLevel, pixelPosValid, e);
+        }
+    }
+
+    private void firePixelPosNotAvailable() {
+        for (PixelPositionListener listener : pixelPositionListeners) {
+            listener.pixelPosNotAvailable();
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (g instanceof Graphics2D) {
+            Graphics2D g2d = (Graphics2D) g;
+
+            if (tool != null && tool.isActive()) {
+                final Viewport vp = getLayerCanvas().getViewport();
+                final AffineTransform transformSave = g2d.getTransform();
+                try {
+                    final AffineTransform transform = new AffineTransform();
+                    transform.concatenate(vp.getModelToViewTransform());
+                    g2d.setTransform(transform);
+                    drawToolNoTransf(g2d);
+                } finally {
+                    g2d.setTransform(transformSave);
+                }
+            }
+        }
+    }
+
+    private void drawToolNoTransf(Graphics2D g2d) {
+        if (tool.getDrawable() != null) {
+            tool.getDrawable().draw(g2d);
+        }
+    }
+
+
+    private void setPixelPos(MouseEvent e, boolean showBorder) {
+        Point p = e.getPoint();
+        Viewport viewport = getLayerCanvas().getViewport();
+        final int currentLevel = baseImageLayer.getLevel(viewport);
+        AffineTransform v2mTransform = viewport.getViewToModelTransform();
+        final Point2D modelP = v2mTransform.transform(p, null);
+
+        AffineTransform m2iTransform = baseImageLayer.getModelToImageTransform();
+        Point2D imageP = m2iTransform.transform(modelP, null);
+        pixelX = (int) Math.floor(imageP.getX());
+        pixelY = (int) Math.floor(imageP.getY());
+
+        AffineTransform m2iLevelTransform = baseImageLayer.getModelToImageTransform(currentLevel);
+        Point2D imageLevelP = m2iLevelTransform.transform(modelP, null);
+        int currentPixelX = (int) Math.floor(imageLevelP.getX());
+        int currentPixelY = (int) Math.floor(imageLevelP.getY());
+        if (currentPixelX != levelPixelX || currentPixelY != levelPixelY || currentLevel != level) {
+            if (isPixelBorderDisplayEnabled() && (showBorder || pixelBorderDrawn)) {
+                drawPixelBorder(currentPixelX, currentPixelY, currentLevel, showBorder);
+            }
+            levelPixelX = currentPixelX;
+            levelPixelY = currentPixelY;
+            level = currentLevel;
+            if (e.getID() != MouseEvent.MOUSE_EXITED) {
+                firePixelPosChanged(e, levelPixelX, levelPixelY, level);
+            } else {
+                firePixelPosNotAvailable();
+            }
+        }
+    }
+
+    private boolean isPixelBorderDisplayEnabled() {
+        return pixelBorderShown &&
+                (getTool() == null || getTool().getDrawable() != null) &&
+                getLayerCanvas().getViewport().getZoomFactor() >= pixelBorderViewScale;
+    }
+
+    private void drawPixelBorder(int currentPixelX, int currentPixelY, int currentLevel, boolean showBorder) {
+        final Graphics g = getGraphics();
+        g.setXORMode(Color.white);
+        if (pixelBorderDrawn) {
+            drawPixelBorder(g, levelPixelX, levelPixelY, level);
+            pixelBorderDrawn = false;
+        }
+        if (showBorder) {
+            drawPixelBorder(g, currentPixelX, currentPixelY, currentLevel);
+            pixelBorderDrawn = true;
+        }
+        g.setPaintMode();
+        g.dispose();
+    }
+
+    private void drawPixelBorder(final Graphics g, final int x, final int y, final int l) {
+        if (g instanceof Graphics2D) {
+            Graphics2D g2d = (Graphics2D) g;
+            AffineTransform i2m = getBaseImageLayer().getImageToModelTransform(l);
+            AffineTransform m2v = getLayerCanvas().getViewport().getModelToViewTransform();
+            Rectangle imageRect = new Rectangle(x, y, 1, 1);
+            Shape modelRect = i2m.createTransformedShape(imageRect);
+            Shape transformedShape = m2v.createTransformedShape(modelRect);
+            g2d.draw(transformedShape);
+        }
+    }
+
+    protected final class ZoomHandler implements MouseWheelListener {
+
+        @Override
+        public void mouseWheelMoved(MouseWheelEvent e) {
+            int notches = e.getWheelRotation();
+            double currentViewScale = getZoomFactor();
+            if (notches < 0) {
+                zoom(currentViewScale * 1.1f);
+            } else {
+                zoom(currentViewScale * 0.9f);
+            }
+        }
+    }
+
+    private final class PixelPosUpdater implements MouseInputListener {
+
+        /**
+         * Invoked when the mouse has been clicked on a component.
+         */
+        public final void mouseClicked(MouseEvent e) {
+            updatePixelPos(e, false);
+        }
+
+        /**
+         * Invoked when the mouse enters a component.
+         */
+        public final void mouseEntered(MouseEvent e) {
+            updatePixelPos(e, false);
+        }
+
+        /**
+         * Invoked when a mouse button has been pressed on a component.
+         */
+        public final void mousePressed(MouseEvent e) {
+            updatePixelPos(e, false);
+        }
+
+        /**
+         * Invoked when a mouse button has been released on a component.
+         */
+        public final void mouseReleased(MouseEvent e) {
+            updatePixelPos(e, false);
+        }
+
+        /**
+         * Invoked when the mouse exits a component.
+         */
+        public final void mouseExited(MouseEvent e) {
+            updatePixelPos(e, false);
+        }
+
+        /**
+         * Invoked when a mouse button is pressed on a component and then
+         * dragged. Mouse drag events will continue to be delivered to the
+         * component where the first originated until the mouse button is
+         * released (regardless of whether the mouse position is within the
+         * bounds of the component).
+         */
+        public final void mouseDragged(MouseEvent e) {
+            updatePixelPos(e, true);
+        }
+
+        /**
+         * Invoked when the mouse button has been moved on a component (with no
+         * buttons no down).
+         */
+        public final void mouseMoved(MouseEvent e) {
+            updatePixelPos(e, true);
+        }
+
+        private void updatePixelPos(MouseEvent e, boolean showBorder) {
+            setPixelPos(e, showBorder);
+            fireToolEvent(e);
+        }
+    }
+
+    private class LayerCanvasComponentHandler extends ComponentAdapter {
+
+        /**
+             * Invoked when the component's size changes.
+         */
+        @Override
+        public void componentResized(ComponentEvent e) {
+        }
+
+        /**
+             * Invoked when the component has been made invisible.
+         */
+        @Override
+        public void componentHidden(ComponentEvent e) {
+            firePixelPosNotAvailable();
+        }
+    }
+
+    private class LayerCanvasKeyHandler implements KeyListener {
+
+        /**
+             * Invoked when a key has been pressed.
+         */
+        public void keyPressed(KeyEvent e) {
+            if (tool != null) {
+                tool.handleEvent(createToolInputEvent(e));
+            }
+        }
+
+        /**
+             * Invoked when a key has been released.
+         */
+        public void keyReleased(KeyEvent e) {
+            if (tool != null) {
+                tool.handleEvent(createToolInputEvent(e));
+            }
+        }
+
+        /**
+             * Invoked when a key has been typed. This event occurs when a key
+         * press is followed by a key dispose.
+         */
+        public void keyTyped(KeyEvent e) {
+            if (tool != null) {
+                tool.handleEvent(createToolInputEvent(e));
+            }
+        }
     }
 }

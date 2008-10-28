@@ -998,12 +998,7 @@ public class VisatApp extends BasicApp {
     }
 
     public void updateImage(final ProductSceneView view) {
-        try {
-            view.updateImage(ProgressMonitor.NULL);
-        } catch (IOException e) {
-            showErrorDialog("An I/O error occured during image update:\n" + e.getMessage()); /*I18N*/
-            Debug.trace(e);
-        }
+        view.updateImage();
     }
 
     // not used anywhere
