@@ -34,6 +34,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.Vector;
 
+// todo - remove class, it is not used anymore
 class LayerDisplay extends LayerCanvas {
     private Tool tool;
     private int pixelX = -1;

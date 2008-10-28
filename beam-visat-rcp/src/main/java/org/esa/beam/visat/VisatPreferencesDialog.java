@@ -694,6 +694,11 @@ public class VisatPreferencesDialog extends ConfigDialog {
             param = new Parameter(ProductSceneView.PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, Boolean.TRUE);
             param.getProperties().setLabel("Show a navigation control widget in image views"); /*I18N*/
             configParams.addParameter(param);
+
+            param = new Parameter(ProductSceneView.PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN, Boolean.FALSE);
+            param.getProperties().setLabel("Show scroll bars in image views"); /*I18N*/
+            configParams.addParameter(param);
+
         }
 
         @Override
@@ -721,10 +726,14 @@ public class VisatPreferencesDialog extends ConfigDialog {
             pageUI.add(note, gbc);
             gbc.gridy++;
 
-            gbc.insets.top += 6;
+            gbc.insets.top = _LINE_INSET_TOP;
             param = getConfigParam(ProductSceneView.PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN);
             pageUI.add(param.getEditor().getEditorComponent(), gbc);
-            gbc.insets.top -= 6;
+            gbc.gridy++;
+
+            gbc.insets.top = _LINE_INSET_TOP;
+            param = getConfigParam(ProductSceneView.PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN);
+            pageUI.add(param.getEditor().getEditorComponent(), gbc);
             gbc.gridy++;
 
             return createPageUIContentPane(pageUI);
@@ -746,18 +755,6 @@ public class VisatPreferencesDialog extends ConfigDialog {
             param.getProperties().setPhysicalUnit("M"); /*I18N*/
             param.getProperties().setMinValue(32);
             param.getProperties().setMaxValue(16384);
-            configParams.addParameter(param);
-
-            param = new Parameter(ProductSceneView.PROPERTY_KEY_IMAGE_INTERPOLATION,
-                                  ProductSceneView.IMAGE_INTERPOLATION_SYSTEM_DEFAULT);
-            param.getProperties().setLabel("Pixel interpolation method"); /*I18N*/
-            param.getProperties().setValueSet(new String[]{
-                    ProductSceneView.IMAGE_INTERPOLATION_SYSTEM_DEFAULT,
-                    ProductSceneView.IMAGE_INTERPOLATION_NEAREST_NEIGHBOUR,
-                    ProductSceneView.IMAGE_INTERPOLATION_BILINEAR,
-                    ProductSceneView.IMAGE_INTERPOLATION_BICUBIC,
-            });
-            param.getProperties().setValueSetBound(true);
             configParams.addParameter(param);
 
             param = new Parameter("image.background.color", ProductSceneView.DEFAULT_IMAGE_BACKGROUND_COLOR);
@@ -811,24 +808,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             GridBagConstraints gbc = GridBagUtils.createConstraints("fill=HORIZONTAL,anchor=WEST");
             gbc.gridy = 0;
 
-            param = getConfigParam(ProductSceneView.PROPERTY_KEY_IMAGE_INTERPOLATION);
-            gbc.weightx = 0;
-            pageUI.add(param.getEditor().getLabelComponent(), gbc);
-            gbc.weightx = 1;
-            pageUI.add(param.getEditor().getEditorComponent(), gbc);
-            gbc.gridy++;
-
             gbc.insets.top = _LINE_INSET_TOP;
-
-            gbc.gridwidth = 2;
-            final JLabel note1 = new JLabel(
-                    "Note: For best performance select method '" + ProductSceneView.DEFAULT_IMAGE_INTERPOLATION_METHOD + "'.");
-            configureNoteLabel(note1);
-            pageUI.add(note1, gbc);
-            gbc.gridwidth = 1;
-            gbc.gridy++;
-
-            gbc.insets.top = 3 * _LINE_INSET_TOP;
 
             param = getConfigParam(PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY);
             gbc.weightx = 0;

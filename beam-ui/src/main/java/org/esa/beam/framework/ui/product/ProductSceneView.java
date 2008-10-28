@@ -153,6 +153,8 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     private MouseInputListener layerCanvasMouseInputHandler;
     private KeyListener layerCanvasKeyHandler;
     private RasterChangeHandler rasterChangeHandler;
+    private boolean scrollBarsShown;
+    private AdjustableViewScrollPane scrollPane;
 
     public ProductSceneView(ProductSceneImage sceneImage) {
         Assert.notNull(sceneImage, "sceneImage");
@@ -174,9 +176,9 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         this.layerCanvas.setNavControlShown(navControlShown);
         this.layerCanvas.setPreferredSize(new Dimension(400, 400));
 
-        final boolean scrollBarsShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN, false);
+        this.scrollBarsShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN, false);
         if (scrollBarsShown) {
-            final AdjustableViewScrollPane scrollPane = new AdjustableViewScrollPane(layerCanvas);
+            scrollPane = new AdjustableViewScrollPane(layerCanvas);
             add(scrollPane, BorderLayout.CENTER);
         }else {
             add(layerCanvas, BorderLayout.CENTER);
@@ -540,6 +542,28 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         }
     }
 
+    public boolean areScrollBarsShown() {
+        return scrollBarsShown;
+    }
+
+    public void setScrollBarsShown(boolean scrollBarsShown) {
+        if (scrollBarsShown != this.scrollBarsShown) {
+            this.scrollBarsShown = scrollBarsShown;
+            if (scrollBarsShown) {
+                remove(layerCanvas);
+                scrollPane = new AdjustableViewScrollPane(layerCanvas);
+                add(scrollPane, BorderLayout.CENTER);
+            } else {
+                remove(scrollPane);
+                scrollPane = null;
+                add(layerCanvas, BorderLayout.CENTER);
+            }
+            invalidate();
+            validate();
+            repaint();
+        }
+    }
+
     /**
      * Called after VISAT preferences have changed.
      * This behaviour is deprecated since we want to uswe separate style editors for each layers.
@@ -547,6 +571,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
      * @param configuration the configuration.
      */
     public void setLayerProperties(PropertyMap configuration) {
+        setScrollBarsShown(configuration.getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN, false));
         layerCanvas.setNavControlShown(configuration.getPropertyBool(PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true));
 
         final ImageLayer imageLayer = getBaseImageLayer();
