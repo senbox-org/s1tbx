@@ -602,7 +602,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
             lats[arrayIdx] = (float) tiePoints[i + 4];
         }
 
-        String[] names = Utils.findSuitableLatLonNames(product);
+                String[] names = Utils.findSuitableLatLonNames(product);
         final TiePointGrid latGrid = new TiePointGrid(
                 names[0], width, height, (float) xMin, (float) yMin, (float) xDiff, (float) yDiff, lats);
         final TiePointGrid lonGrid = new TiePointGrid(
@@ -614,6 +614,11 @@ public class GeoTiffProductReader extends AbstractProductReader {
     }
 
     private static boolean isAbleToUseForTiePointGeocoding(final double[] tiePoints) {
+        for (double tiePoint : tiePoints) {
+            if (Double.isNaN(tiePoint)) {
+                return false;
+            }
+        }
         final SortedSet<Double> xSet = new TreeSet<Double>();
         final SortedSet<Double> ySet = new TreeSet<Double>();
         for (int i = 0; i < tiePoints.length; i += 6) {
@@ -691,10 +696,13 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
             final float x = (float) tiePoints[offset + 0];
             final float y = (float) tiePoints[offset + 1];
-            final PixelPos pixelPos = new PixelPos(x, y);
-
-            final float lat = (float) tiePoints[offset + 4];
             final float lon = (float) tiePoints[offset + 3];
+            final float lat = (float) tiePoints[offset + 4];
+
+            if (Double.isNaN(x) || Double.isNaN(y) || Double.isNaN(lon) || Double.isNaN(lat)) {
+                continue;
+            }
+            final PixelPos pixelPos = new PixelPos(x, y);
             final GeoPos geoPos = new GeoPos(lat, lon);
 
             final String name = gcpDescriptor.getRoleName() + "_" + i;

@@ -140,7 +140,7 @@ public class GeoTiffWriteReadTest {
         assertNotSame(0, colors[2].getRed() | colors[2].getGreen() | colors[2].getBlue());
         assertNotSame(0, colors[3].getRed() | colors[3].getGreen() | colors[3].getBlue());
     }
-    
+
     @Test
     public void testWriteReadUTMProjection() throws IOException {
         setUTMGeoCoding(outProduct);
@@ -311,8 +311,8 @@ public class GeoTiffWriteReadTest {
                 final PixelPos pixelPos = new PixelPos(i, j);
                 geoPos1 = gc1.getGeoPos(pixelPos, geoPos1);
                 geoPos2 = gc2.getGeoPos(pixelPos, geoPos2);
-                assertEquals(String.format(msgPattern, "Latitude", i, j), geoPos1.lat, geoPos2.lat, 1.0e-5f);
-                assertEquals(String.format(msgPattern, "Longitude", i, j), geoPos1.lon, geoPos2.lon, 1.0e-5f);
+                assertEquals(String.format(msgPattern, "Latitude", i, j), geoPos1.lat, geoPos2.lat, 2.0e-5f);
+                assertEquals(String.format(msgPattern, "Longitude", i, j), geoPos1.lon, geoPos2.lon, 2.0e-5f);
             }
         }
     }
@@ -460,12 +460,12 @@ public class GeoTiffWriteReadTest {
     }
 
     private static void setTiePointGeoCoding(final Product product) {
-        final TiePointGrid latGrid = new TiePointGrid("lat", 3, 3, 0, 0, 5, 5, new float[]{
+        final TiePointGrid latGrid = new TiePointGrid("lat", 3, 3, 0.5f, 0.5f, 5, 5, new float[]{
                     85, 84, 83,
                     75, 74, 73,
                     65, 64, 63
         });
-        final TiePointGrid lonGrid = new TiePointGrid("lon", 3, 3, 0, 0, 5, 5, new float[]{
+        final TiePointGrid lonGrid = new TiePointGrid("lon", 3, 3, 0.5f, 0.5f, 5, 5, new float[]{
                     -15, -5, 5,
                     -16, -6, 4,
                     -17, -7, 3

@@ -2110,7 +2110,7 @@ public class ProductUtils {
 
                 metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMajorAxisGeoKey, parameterValues[0]); // semi_major
                 metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMinorAxisGeoKey, parameterValues[1]);  // semi_minor
-                
+
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLatGeoKey, parameterValues[2]); // latitude_of_origin
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLongGeoKey, parameterValues[3]);   // central_meridian
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjCenterLatGeoKey, parameterValues[2]); // latitude_of_origin
@@ -2145,13 +2145,13 @@ public class ProductUtils {
             final PixelPos pixelPos = new PixelPos();
             for (int y = 0; y < numVer; y++) {
                 for (int x = 0; x < numHor; x++) {
-                    pixelPos.x = width * (float) x / (numHor - 1.0f);
-                    pixelPos.y = height * (float) y / (numVer - 1.0f);
+                    pixelPos.setLocation(((width - 1) * (double) x / (numHor - 1.0f)) + 0.5,
+                                         ((height - 1) * (double) y / (numVer - 1.0f)) + 0.5);
                     geoCoding.getGeoPos(pixelPos, geoPos);
                     metadata.addModelTiePoint(pixelPos.x, pixelPos.y, geoPos.lon, geoPos.lat);
                 }
             }
-            
+
             GeoPos geoPos1 = geoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null);
             GeoPos geoPos2 = geoCoding.getGeoPos(new PixelPos(1.5f, 1.5f), null);
             final float scaleX = Math.abs(geoPos2.lon - geoPos1.lon);
