@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
 public class ImageLayerTest  {
 
     @Test
-    public void testThatLayerOperattesWithNullImage() {
+    public void testThatLayerOperatesWithNullImage() {
         final ImageLayer layer = new ImageLayer(MultiLevelSource.NULL);
 
         assertNotNull(layer.getMultiLevelSource());
@@ -25,8 +25,7 @@ public class ImageLayerTest  {
         assertNotNull(layer.getModelToImageTransform());
         assertTrue(layer.getModelToImageTransform().isIdentity());
 
-        assertNotNull(layer.getModelBounds());
-        assertTrue(layer.getModelBounds().isEmpty());
+        assertNull(layer.getModelBounds());
     }
 
     @Test
