@@ -248,21 +248,21 @@ public class PixelInfoToolView extends AbstractToolView {
 
     private class PixelInfoPPL implements PixelPositionListener {
 
-        private final ProductSceneView _view;
+        private final ProductSceneView view;
 
         private PixelInfoPPL(ProductSceneView view) {
-            _view = view;
+            this.view = view;
         }
 
         public void pixelPosChanged(ImageLayer imageLayer, int pixelX, int pixelY, int currentLevel, boolean pixelPosValid, MouseEvent e) {
             if (isActive()) {
-                pixelInfoView.updatePixelValues(_view, pixelX, pixelY, currentLevel, pixelPosValid);
+                pixelInfoView.updatePixelValues(view, pixelX, pixelY, currentLevel, pixelPosValid);
             }
         }
 
         public void pixelPosNotAvailable() {
             if (isActive()) {
-                pixelInfoView.updatePixelValues(_view, -1, -1, 0, false);
+                pixelInfoView.updatePixelValues(view, -1, -1, 0, false);
             }
         }
 
@@ -317,17 +317,17 @@ public class PixelInfoToolView extends AbstractToolView {
 
     private class DisplayFilter extends PixelInfoView.DisplayFilter {
 
-        private final VisatApp _app;
-        private boolean _showOnlyLoadedOrDisplayedBands;
+        private final VisatApp app;
+        private boolean showOnlyLoadedOrDisplayedBands;
 
         private DisplayFilter(VisatApp app) {
-            _app = app;
+            this.app = app;
         }
 
         public void setShowOnlyLoadedOrDisplayedBands(boolean v) {
-            if (_showOnlyLoadedOrDisplayedBands != v) {
-                final boolean oldValue = _showOnlyLoadedOrDisplayedBands;
-                _showOnlyLoadedOrDisplayedBands = v;
+            if (showOnlyLoadedOrDisplayedBands != v) {
+                final boolean oldValue = showOnlyLoadedOrDisplayedBands;
+                showOnlyLoadedOrDisplayedBands = v;
                 firePropertyChange("showOnlyLoadedOrDisplayedBands", oldValue, v);
             }
         }
@@ -336,11 +336,11 @@ public class PixelInfoToolView extends AbstractToolView {
         public boolean accept(ProductNode node) {
             if (node instanceof RasterDataNode) {
                 final RasterDataNode rdn = (RasterDataNode) node;
-                if (_showOnlyLoadedOrDisplayedBands) {
+                if (showOnlyLoadedOrDisplayedBands) {
                     if (rdn.hasRasterData()) {
                         return true;
                     }
-                    final JInternalFrame internalFrame = _app.findInternalFrame(rdn);
+                    final JInternalFrame internalFrame = app.findInternalFrame(rdn);
                     return internalFrame != null && internalFrame.getContentPane() instanceof ProductSceneView;
                 }
             }
