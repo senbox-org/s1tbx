@@ -149,13 +149,13 @@ class GeoTiffBandWriter {
                 } else if (bandDataType == ProductData.TYPE_FLOAT32) {
                     final float[] data = new float[regionWidth];
                     for (int x = 0; x < regionWidth; x++) {
-                        data[x] = (float) sourceBand.scale(regionData.getElemDoubleAt(y * regionWidth + x));
+                        data[x] = regionData.getElemFloatAt(y * regionWidth + x);
                     }
                     ios.writeFloats(data, 0, regionWidth);
                 } else if (bandDataType == ProductData.TYPE_FLOAT64) {
                     final double[] data = new double[regionWidth];
                     for (int x = 0; x < regionWidth; x++) {
-                        data[x] = sourceBand.scale(regionData.getElemDoubleAt(y * regionWidth + x));
+                        data[x] = regionData.getElemDoubleAt(y * regionWidth + x);
                     }
                     ios.writeDoubles(data, 0, regionWidth);
                 }
