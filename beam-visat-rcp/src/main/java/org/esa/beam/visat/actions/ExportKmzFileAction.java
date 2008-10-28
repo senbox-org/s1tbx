@@ -1,5 +1,7 @@
 package org.esa.beam.visat.actions;
 
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageEncoder;
 import org.esa.beam.framework.datamodel.*;
@@ -27,6 +29,8 @@ import java.io.FileOutputStream;
 import java.text.MessageFormat;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import jj2000.j2k.util.ISRandomAccessIO;
 
 public class ExportKmzFileAction extends ExecCommand {
 
@@ -121,41 +125,9 @@ public class ExportKmzFileAction extends ExecCommand {
         if (!visatApp.promptForOverwrite(file)) {
             return;
         }
-        visatApp.setStatusBarMessage("Saving KMZ..."); /*I18N*/
-        visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-
-        try {
-            RenderedImage image = ExportImageAction.createImage(sceneView, true, true);
-
-            String imageType = "PNG";
-            String imageName = "overlay.png";
-            ZipOutputStream outStream = new ZipOutputStream(new FileOutputStream(file));
-            try {
-                outStream.putNextEntry(new ZipEntry("overlay.kml"));
-                final String kmlContent = formatKML(sceneView, imageName);
-                outStream.write(kmlContent.getBytes());
-
-                outStream.putNextEntry(new ZipEntry(imageName));
-                ImageEncoder encoder = ImageCodec.createImageEncoder(imageType, outStream, null);
-                encoder.encode(image);
-
-                if (!sceneView.isRGB()) {
-                    outStream.putNextEntry(new ZipEntry("legend.png"));
-                    encoder = ImageCodec.createImageEncoder("PNG", outStream, null);
-                    encoder.encode(createImageLegend(sceneView.getRaster()));
-                }
-            } finally {
-                outStream.close();
-            }
-        } catch (OutOfMemoryError e) {
-            visatApp.showOutOfMemoryErrorDialog("The image could not be exported."); /*I18N*/
-        } catch (Throwable e) {
-            visatApp.handleUnknownException(e);
-        } finally {
-            visatApp.getMainFrame().setCursor(Cursor.getDefaultCursor());
-            visatApp.clearStatusBarMessage();
-        }
+        final SaveKMLSwingWorker worker = new SaveKMLSwingWorker(visatApp, "Save KMZ", sceneView, file);
+        worker.executeWithBlocking();
     }
 
     private static RenderedImage createImageLegend(RasterDataNode raster) {
@@ -255,6 +227,65 @@ public class ExportKmzFileAction extends ExecCommand {
         String unit = raster.getUnit() != null ? raster.getUnit() : "-";
         unit = unit.replace('*', ' ');
         return "(" + unit + ")";
+    }
+    
+    private class SaveKMLSwingWorker extends ProgressMonitorSwingWorker {
+
+        private final VisatApp visatApp;
+        private final ProductSceneView view;
+        private final File file;
+
+        SaveKMLSwingWorker(VisatApp visatApp, String message, ProductSceneView view, File file) {
+            super(visatApp.getMainFrame(), message);
+            this.visatApp = visatApp;
+            this.view = view;
+            this.file = file;
+        }
+
+        @Override
+        protected Object doInBackground(ProgressMonitor pm) throws Exception {
+            try {
+                final String message = "Saving image as \n" + file.getPath() + "...";
+                pm.beginTask(message, view.isRGB()? 4 : 3);
+                visatApp.setStatusBarMessage(message);
+                visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                
+                RenderedImage image = ExportImageAction.createImage(view, true, true);
+                pm.worked(1);
+                String imageType = "PNG";
+                String imageName = "overlay.png";
+                ZipOutputStream outStream = new ZipOutputStream(new FileOutputStream(file));
+                try {
+                    outStream.putNextEntry(new ZipEntry("overlay.kml"));
+                    final String kmlContent = formatKML(view, imageName);
+                    outStream.write(kmlContent.getBytes());
+                    pm.worked(1);
+                    
+                    outStream.putNextEntry(new ZipEntry(imageName));
+                    ImageEncoder encoder = ImageCodec.createImageEncoder(imageType, outStream, null);
+                    encoder.encode(image);
+                    pm.worked(1);
+                    
+                    if (!view.isRGB()) {
+                        outStream.putNextEntry(new ZipEntry("legend.png"));
+                        encoder = ImageCodec.createImageEncoder("PNG", outStream, null);
+                        encoder.encode(createImageLegend(view.getRaster()));
+                        pm.worked(1);
+                    }
+                } finally {
+                    outStream.close();
+                }
+            } catch (OutOfMemoryError e) {
+                visatApp.showOutOfMemoryErrorDialog("The image could not be exported."); /*I18N*/
+            } catch (Throwable e) {
+                visatApp.handleUnknownException(e);
+            } finally {
+                visatApp.getMainFrame().setCursor(Cursor.getDefaultCursor());
+                visatApp.clearStatusBarMessage();
+                pm.done();
+            }
+            return null;
+        }
     }
 
 }
