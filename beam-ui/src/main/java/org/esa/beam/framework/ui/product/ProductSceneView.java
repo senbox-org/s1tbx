@@ -12,8 +12,15 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.BufferedImageRendering;
-
-import org.esa.beam.framework.datamodel.*;
+import com.bc.ceres.grender.support.DefaultViewport;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.framework.ui.BasicView;
@@ -35,9 +42,22 @@ import org.esa.beam.util.PropertyMapChangeListener;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
@@ -683,24 +703,27 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     public RenderedImage createSnapshotImage(boolean entireImage, boolean useAlpha) {
-        final Rectangle2D bounds;
+        Rectangle2D modelBounds;
         if (entireImage) {
-            bounds = getBaseImageLayer().getModelBounds();
+            modelBounds = getBaseImageLayer().getModelBounds();
         } else {
-            bounds = getVisibleModelBounds();
+            modelBounds = getVisibleModelBounds();
         }
-        final int imageWidth = MathUtils.floorInt(bounds.getWidth());
-        final int imageHeight = MathUtils.floorInt(bounds.getHeight());
+
+        Rectangle2D imageBounds = getBaseImageLayer().getModelToImageTransform().createTransformedShape(modelBounds).getBounds2D() ;
+        final int imageWidth = MathUtils.floorInt(imageBounds.getWidth());
+        final int imageHeight = MathUtils.floorInt(imageBounds.getHeight());
         final int imageType = useAlpha ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR;
         final BufferedImage bi = new BufferedImage(imageWidth, imageHeight, imageType);
-        final BufferedImageRendering imageRendering = new BufferedImageRendering(bi);
+        boolean isModelYAxisDown = getLayerCanvas().getViewport().isModelYAxisDown();
+        Viewport snapshotVp = new DefaultViewport(isModelYAxisDown);
+        final BufferedImageRendering imageRendering = new BufferedImageRendering(bi, snapshotVp);
 
         final Graphics2D graphics = imageRendering.getGraphics();
         graphics.setColor(getBackground());
         graphics.fillRect(0, 0, imageWidth, imageHeight);
 
-        Viewport snapshotVp = imageRendering.getViewport();
-        snapshotVp.zoom(bounds);
+        snapshotVp.zoom(modelBounds);
         snapshotVp.moveViewDelta(snapshotVp.getViewBounds().x, snapshotVp.getViewBounds().y);
 
         getSceneImage().getRootLayer().render(imageRendering);
