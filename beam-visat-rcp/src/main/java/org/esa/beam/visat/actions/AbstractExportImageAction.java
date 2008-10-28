@@ -16,6 +16,8 @@
  */
 package org.esa.beam.visat.actions;
 
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageEncoder;
 import org.esa.beam.framework.datamodel.Product;
@@ -180,41 +182,10 @@ public abstract class AbstractExportImageAction extends ExecCommand {
         if (!visatApp.promptForOverwrite(file)) {
             return;
         }
-        visatApp.setStatusBarMessage("Saving image as " + file.getPath() + "...");
-        visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        try {
-            RenderedImage image = createImage(imageFormat, view);
 
-            boolean geoTIFFWritten = false;
-            if (imageFormat.equals("GeoTIFF") && entireImageSelected) {
-                final GeoTIFFMetadata metadata = ProductUtils.createGeoTIFFMetadata(product);
-                if (metadata != null) {
-                    GeoTIFF.writeImage(image, file, metadata);
-                    geoTIFFWritten = true;
-                }
-            }
-
-            if (!geoTIFFWritten) {
-                if ("JPEG".equalsIgnoreCase(imageFormat)) {
-                    image = BandSelectDescriptor.create(image, new int[]{0, 1, 2}, null);
-                }
-                final OutputStream stream = new FileOutputStream(file);
-                try {
-                    ImageEncoder encoder = ImageCodec.createImageEncoder(imageFormat, stream, null);
-                    encoder.encode(image);
-                } finally {
-                    stream.close();
-                }
-            }
-
-        } catch (OutOfMemoryError e) {
-            visatApp.showOutOfMemoryErrorDialog("The image could not be exported.");
-        } catch (Throwable e) {
-            visatApp.handleUnknownException(e);
-        } finally {
-            visatApp.getMainFrame().setCursor(Cursor.getDefaultCursor());
-            visatApp.clearStatusBarMessage();
-        }
+        final SaveImageSwingWorker worker = new SaveImageSwingWorker(visatApp, "Save Image", imageFormat, view,
+                                                                     entireImageSelected, file);
+        worker.executeWithBlocking();
     }
 
     protected abstract RenderedImage createImage(String imageFormat, ProductSceneView view);
@@ -253,4 +224,65 @@ public abstract class AbstractExportImageAction extends ExecCommand {
         return new BeamFileFilter(formatName, formatExt, formatDescr);
     }
 
+    private class SaveImageSwingWorker extends ProgressMonitorSwingWorker {
+
+        private final VisatApp visatApp;
+        private final String imageFormat;
+        private final ProductSceneView view;
+        private final boolean entireImageSelected;
+        private final File file;
+
+        SaveImageSwingWorker(VisatApp visatApp, String message, String imageFormat, ProductSceneView view,
+                             boolean entireImageSelected, File file) {
+            super(visatApp.getMainFrame(), message);
+            this.visatApp = visatApp;
+            this.imageFormat = imageFormat;
+            this.view = view;
+            this.entireImageSelected = entireImageSelected;
+            this.file = file;
+        }
+
+        @Override
+        protected Object doInBackground(ProgressMonitor pm) throws Exception {
+            try {
+                final String message = "Saving image as \n" + file.getPath() + "...";
+                pm.beginTask(message, 1);
+                visatApp.setStatusBarMessage(message);
+                visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                RenderedImage image = createImage(imageFormat, view);
+
+                boolean geoTIFFWritten = false;
+                if (imageFormat.equals("GeoTIFF") && entireImageSelected) {
+                    final GeoTIFFMetadata metadata = ProductUtils.createGeoTIFFMetadata(view.getProduct());
+                    if (metadata != null) {
+                        GeoTIFF.writeImage(image, file, metadata);
+                        geoTIFFWritten = true;
+                    }
+                }
+
+                if (!geoTIFFWritten) {
+                    if ("JPEG".equalsIgnoreCase(imageFormat)) {
+                        image = BandSelectDescriptor.create(image, new int[]{0, 1, 2}, null);
+                    }
+                    final OutputStream stream = new FileOutputStream(file);
+                    try {
+                        ImageEncoder encoder = ImageCodec.createImageEncoder(imageFormat, stream, null);
+                        encoder.encode(image);
+                    } finally {
+                        stream.close();
+                    }
+                }
+
+            } catch (OutOfMemoryError e) {
+                visatApp.showOutOfMemoryErrorDialog("The image could not be exported.");
+            } catch (Throwable e) {
+                visatApp.handleUnknownException(e);
+            } finally {
+                visatApp.getMainFrame().setCursor(Cursor.getDefaultCursor());
+                visatApp.clearStatusBarMessage();
+                pm.done();
+            }
+            return null;
+        }
+    }
 }

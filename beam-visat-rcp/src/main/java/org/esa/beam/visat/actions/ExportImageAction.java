@@ -16,12 +16,23 @@
  */
 package org.esa.beam.visat.actions;
 
+import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.grender.support.BufferedImageRendering;
+import com.bc.ceres.grender.support.DefaultViewport;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.io.BeamFileChooser;
+import org.esa.beam.util.math.MathUtils;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import java.awt.BorderLayout;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 
 /**
@@ -74,7 +85,31 @@ public class ExportImageAction extends AbstractExportImageAction {
     }
 
     static RenderedImage createImage(ProductSceneView view, boolean entireImage, boolean useAlpha) {
-        return view.createSnapshotImage(entireImage, useAlpha);
+        Rectangle2D modelBounds;
+        if (entireImage) {
+            modelBounds = view.getBaseImageLayer().getModelBounds();
+        } else {
+            modelBounds = view.getVisibleModelBounds();
+        }
+
+        Rectangle2D imageBounds = view.getBaseImageLayer().getModelToImageTransform().createTransformedShape(modelBounds).getBounds2D() ;
+        final int imageWidth = MathUtils.floorInt(imageBounds.getWidth());
+        final int imageHeight = MathUtils.floorInt(imageBounds.getHeight());
+        final int imageType = useAlpha ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR;
+        final BufferedImage bi = new BufferedImage(imageWidth, imageHeight, imageType);
+        boolean isModelYAxisDown = view.getLayerCanvas().getViewport().isModelYAxisDown();
+        Viewport snapshotVp = new DefaultViewport(isModelYAxisDown);
+        final BufferedImageRendering imageRendering = new BufferedImageRendering(bi, snapshotVp);
+
+        final Graphics2D graphics = imageRendering.getGraphics();
+        graphics.setColor(view.getBackground());
+        graphics.fillRect(0, 0, imageWidth, imageHeight);
+
+        snapshotVp.zoom(modelBounds);
+        snapshotVp.moveViewDelta(snapshotVp.getViewBounds().x, snapshotVp.getViewBounds().y);
+
+        view.getRootLayer().render(imageRendering);
+        return bi;
     }
 
     @Override

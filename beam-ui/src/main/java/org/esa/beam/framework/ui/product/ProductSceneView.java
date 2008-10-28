@@ -11,7 +11,6 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Product;
@@ -41,7 +40,6 @@ import org.esa.beam.util.MouseEventFilterFactory;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.PropertyMapChangeListener;
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.math.MathUtils;
 
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
@@ -52,26 +50,25 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Vector;
@@ -710,34 +707,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
             Viewport myViewPort = layerCanvas.getViewport();
             viewPortToChange.synchronizeWith(myViewPort);
         }
-    }
-
-    public RenderedImage createSnapshotImage(boolean entireImage, boolean useAlpha) {
-        Rectangle2D modelBounds;
-        if (entireImage) {
-            modelBounds = getBaseImageLayer().getModelBounds();
-        } else {
-            modelBounds = getVisibleModelBounds();
-        }
-
-        Rectangle2D imageBounds = getBaseImageLayer().getModelToImageTransform().createTransformedShape(modelBounds).getBounds2D() ;
-        final int imageWidth = MathUtils.floorInt(imageBounds.getWidth());
-        final int imageHeight = MathUtils.floorInt(imageBounds.getHeight());
-        final int imageType = useAlpha ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR;
-        final BufferedImage bi = new BufferedImage(imageWidth, imageHeight, imageType);
-        boolean isModelYAxisDown = getLayerCanvas().getViewport().isModelYAxisDown();
-        Viewport snapshotVp = new DefaultViewport(isModelYAxisDown);
-        final BufferedImageRendering imageRendering = new BufferedImageRendering(bi, snapshotVp);
-
-        final Graphics2D graphics = imageRendering.getGraphics();
-        graphics.setColor(getBackground());
-        graphics.fillRect(0, 0, imageWidth, imageHeight);
-
-        snapshotVp.zoom(modelBounds);
-        snapshotVp.moveViewDelta(snapshotVp.getViewBounds().x, snapshotVp.getViewBounds().y);
-
-        getSceneImage().getRootLayer().render(imageRendering);
-        return bi;
     }
 
 
