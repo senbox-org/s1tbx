@@ -35,8 +35,7 @@ public abstract class NavigationCanvas extends JPanel {
         }
     }
 
-    public abstract void handleViewChanged();
-
+    public abstract void handleViewChanged(ProductSceneView oldView, ProductSceneView newView);
 
     public abstract boolean isUpdatingImageDisplay();
 

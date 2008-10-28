@@ -130,7 +130,7 @@ public class NavigationToolView extends AbstractToolView {
                     currentView.getImageDisplayComponent().addComponentListener(imageDisplayRH);
                 }
             }
-            canvas.handleViewChanged();
+            canvas.handleViewChanged(oldView, newView);
             updateState();
             updateValues();
         }

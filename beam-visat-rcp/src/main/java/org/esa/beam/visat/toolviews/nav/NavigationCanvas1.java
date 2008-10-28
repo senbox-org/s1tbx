@@ -10,9 +10,7 @@ import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.util.logging.BeamLogManager;
 
-import javax.swing.border.Border;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -77,7 +75,7 @@ public class NavigationCanvas1 extends NavigationCanvas {
     }
 
     @Override
-    public void handleViewChanged() {
+    public void handleViewChanged(ProductSceneView oldView, ProductSceneView newView) {
         updateImage();
     }
 
