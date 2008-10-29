@@ -7,12 +7,15 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductTree;
 import org.esa.beam.framework.ui.product.ProductTreeListener;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.product.ProductMetadataView;
+import org.esa.beam.framework.ui.BasicView;
 import org.esa.beam.util.Debug;
 
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JScrollPane;
 import java.awt.Dimension;
+import java.awt.Container;
 import java.beans.PropertyVetoException;
 
 /**
@@ -90,7 +93,7 @@ public class ProductsToolView extends AbstractToolView {
 
         public void productAdded(final Product product) {
             Debug.trace("VisatApp: product added: " + product.getDisplayName());
-            visatApp.setSelectedProductNode(product);
+            setSelectedProductNode(product);
         }
 
         public void productRemoved(final Product product) {
@@ -103,7 +106,7 @@ public class ProductsToolView extends AbstractToolView {
         }
 
         public void productSelected(final Product product, final int clickCount) {
-            visatApp.setSelectedProductNode(product);
+            setSelectedProductNode(product);
         }
 
         public void tiePointGridSelected(final TiePointGrid tiePointGrid, final int clickCount) {
@@ -114,8 +117,24 @@ public class ProductsToolView extends AbstractToolView {
             rasterDataNodeSelected(band, clickCount);
         }
 
+        public void metadataElementSelected(final MetadataElement group, final int clickCount) {
+            setSelectedProductNode(group);
+            final JInternalFrame frame = visatApp.findInternalFrame(group);
+            if (frame != null) {
+                try {
+                    frame.setSelected(true);
+                } catch (PropertyVetoException e) {
+                    // ok
+                }
+                return;
+            }
+            if (clickCount == 2) {
+                visatApp.createProductMetadataView(group);
+            }
+        }
+
         private void rasterDataNodeSelected(final RasterDataNode raster, final int clickCount) {
-            visatApp.setSelectedProductNode(raster);
+            setSelectedProductNode(raster);
             final JInternalFrame[] internalFrames = visatApp.findInternalFrames(raster);
             JInternalFrame frame = null;
             for (final JInternalFrame internalFrame : internalFrames) {
@@ -137,19 +156,18 @@ public class ProductsToolView extends AbstractToolView {
             }
         }
 
-        public void metadataElementSelected(final MetadataElement group, final int clickCount) {
-            visatApp.setSelectedProductNode(group);
-            final JInternalFrame frame = visatApp.findInternalFrame(group);
-            if (frame != null) {
-                try {
-                    frame.setSelected(true);
-                } catch (PropertyVetoException e) {
-                    // ok
+        private void setSelectedProductNode(ProductNode product) {
+            deselectInternalFrame();
+            visatApp.setSelectedProductNode(product);
+        }
+
+        private void deselectInternalFrame() {
+            try {
+                final JInternalFrame frame = visatApp.getSelectedInternalFrame();
+                if (frame != null) {
+                    frame.setSelected(false);
                 }
-                return;
-            }
-            if (clickCount == 2) {
-                visatApp.createProductMetadataView(group);
+            } catch (PropertyVetoException ignore) {
             }
         }
     }
