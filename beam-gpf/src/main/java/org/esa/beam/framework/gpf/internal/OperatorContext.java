@@ -517,10 +517,7 @@ public class OperatorContext {
             targetProduct.setProductReader(new OperatorProductReader(this));
         }
         if (GPF.KEY_TILE_SIZE.isCompatibleValue(renderingHints.get(GPF.KEY_TILE_SIZE))) {
-            final Dimension tileSize = (Dimension) renderingHints.get(GPF.KEY_TILE_SIZE);
-            if (tileSize.width > 0 && tileSize.height > 0) {
-                targetProduct.setPreferredTileSize(tileSize);
-            }
+            targetProduct.setPreferredTileSize((Dimension) renderingHints.get(GPF.KEY_TILE_SIZE));
         }
     }
 
