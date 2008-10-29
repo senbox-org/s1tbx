@@ -69,14 +69,12 @@ public class PlacemarkLayer extends Layer {
             transform.concatenate(imageToModelTransform);
             g2d.setTransform(transform);
 
-            double zoomFactor = viewport.getZoomFactor();
             ProductNodeGroup<Pin> pinGroup = getPlacemarkGroup();
             Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
             for (final Pin pin : pins) {
                 final PixelPos pixelPos = pin.getPixelPos();
                 if (pixelPos != null) {
                     g2d.translate(pixelPos.getX(), pixelPos.getY());
-                    g2d.scale(1.0 / zoomFactor, 1.0 / zoomFactor);
                     g2d.rotate(viewport.getOrientation());
 
                     if (pin.isSelected()) {
@@ -90,7 +88,6 @@ public class PlacemarkLayer extends Layer {
                     }
 
                     g2d.rotate(-viewport.getOrientation());
-                    g2d.scale(zoomFactor, zoomFactor);
                     g2d.translate(-pixelPos.getX(), -pixelPos.getY());
                 }
             }

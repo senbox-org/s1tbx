@@ -19,7 +19,7 @@ import org.esa.beam.glevel.RoiImageMultiLevelSource;
 import org.esa.beam.glevel.TiledFileMultiLevelSource;
 import org.esa.beam.util.PropertyMap;
 
-import java.awt.*;
+import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
@@ -178,7 +178,7 @@ public class ProductSceneImage {
         final AffineTransform i2mTransform = bandImageMultiLevelSource.getModel().getImageToModelTransform(0);
         final ImageLayer baseImageLayer = createBaseImageLayer();
         final ImageLayer noDataLayer = createNoDataLayer(i2mTransform);
-        final FigureLayer figureLayer = createFigureLayer();
+        final FigureLayer figureLayer = createFigureLayer(i2mTransform);
         final ImageLayer roiLayer = createRoiLayer(i2mTransform);
         final GraticuleLayer graticuleLayer = createGraticuleLayer(i2mTransform);
         final PlacemarkLayer pinLayer = createPinLayer(i2mTransform);
@@ -301,8 +301,8 @@ public class ProductSceneImage {
         layer.setStyle(style);
     }
 
-    private FigureLayer createFigureLayer() {
-        final FigureLayer figureLayer = new FigureLayer(new Figure[0]);
+    private FigureLayer createFigureLayer(AffineTransform i2mTransform) {
+        final FigureLayer figureLayer = new FigureLayer(i2mTransform, new Figure[0]);
         figureLayer.setName("Figures");
         figureLayer.setVisible(true);
         setFigureLayerStyle(configuration, figureLayer);

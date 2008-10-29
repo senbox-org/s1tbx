@@ -50,12 +50,10 @@ public class FigureLayer extends Layer {
 
     private final List<Figure> figureList;
     private final AffineTransform shapeToModelTransform;
-    private final AffineTransform modelToShapeTransform;
 
-    public FigureLayer(Figure[] figures) {
+    public FigureLayer(AffineTransform i2mTransform, Figure[] figures) {
         this.figureList = new ArrayList<Figure>(Arrays.asList(figures));
-        this.shapeToModelTransform = new AffineTransform();
-        this.modelToShapeTransform = new AffineTransform();
+        this.shapeToModelTransform = new AffineTransform(i2mTransform);
     }
 
     public void addFigure(Figure currentShapeFigure) {
@@ -98,10 +96,6 @@ public class FigureLayer extends Layer {
 
     public AffineTransform getShapeToModelTransform() {
         return (AffineTransform) shapeToModelTransform.clone();
-    }
-
-    public AffineTransform getModelToShapeTransform() {
-        return (AffineTransform) modelToShapeTransform.clone();
     }
 
     @Override
