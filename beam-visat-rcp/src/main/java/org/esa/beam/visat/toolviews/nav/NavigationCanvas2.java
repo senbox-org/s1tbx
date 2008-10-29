@@ -40,7 +40,7 @@ public class NavigationCanvas2 extends NavigationCanvas {
             }
         });
         thumbnailCanvas.addOverlay(new LayerCanvas.Overlay() {
-            public void paint(LayerCanvas canvas, Graphics2D g) {
+            public void paintOverlay(LayerCanvas canvas, Graphics2D g) {
                 if (visibleArea != null) {
                     g.setColor(new Color(getForeground().getRed(), getForeground().getGreen(),
                                          getForeground().getBlue(), 82));

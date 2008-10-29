@@ -180,9 +180,11 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         if (scrollBarsShown) {
             scrollPane = new AdjustableViewScrollPane(layerCanvas);
             add(scrollPane, BorderLayout.CENTER);
-        }else {
+        } else {
             add(layerCanvas, BorderLayout.CENTER);
         }
+
+        layerCanvas.addOverlay(new ToolPainter());
 
         registerLayerCanvasListeners();
 
@@ -830,17 +832,17 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     // only called from VISAT
-    public void updateImage(){
+    public void updateImage() {
         getBaseImageLayer().regenerate();
     }
 
     @Deprecated
     public void updateNoDataImage(ProgressMonitor pm) throws Exception {
-         updateNoDataImage();
+        updateNoDataImage();
     }
 
     // used by PropertyEditor
-    public void updateNoDataImage()  {
+    public void updateNoDataImage() {
         final String expression = getRaster().getValidMaskExpression();
         final ImageLayer noDataLayer = getNoDataLayer();
 
@@ -1037,27 +1039,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         }
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        if (g instanceof Graphics2D) {
-            Graphics2D g2d = (Graphics2D) g;
-
-            if (tool != null && tool.isActive()) {
-                final Viewport vp = getLayerCanvas().getViewport();
-                final AffineTransform transformSave = g2d.getTransform();
-                try {
-                    final AffineTransform transform = new AffineTransform();
-                    transform.concatenate(vp.getModelToViewTransform());
-                    g2d.setTransform(transform);
-                    drawToolNoTransf(g2d);
-                } finally {
-                    g2d.setTransform(transformSave);
-                }
-            }
-        }
-    }
-
     private void drawToolNoTransf(Graphics2D g2d) {
         if (tool.getDrawable() != null) {
             tool.getDrawable().draw(g2d);
@@ -1208,14 +1189,14 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     private class LayerCanvasComponentHandler extends ComponentAdapter {
 
         /**
-             * Invoked when the component's size changes.
+         * Invoked when the component's size changes.
          */
         @Override
         public void componentResized(ComponentEvent e) {
         }
 
         /**
-             * Invoked when the component has been made invisible.
+         * Invoked when the component has been made invisible.
          */
         @Override
         public void componentHidden(ComponentEvent e) {
@@ -1226,7 +1207,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     private class LayerCanvasKeyHandler implements KeyListener {
 
         /**
-             * Invoked when a key has been pressed.
+         * Invoked when a key has been pressed.
          */
         public void keyPressed(KeyEvent e) {
             if (tool != null) {
@@ -1235,7 +1216,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         }
 
         /**
-             * Invoked when a key has been released.
+         * Invoked when a key has been released.
          */
         public void keyReleased(KeyEvent e) {
             if (tool != null) {
@@ -1244,12 +1225,30 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         }
 
         /**
-             * Invoked when a key has been typed. This event occurs when a key
+         * Invoked when a key has been typed. This event occurs when a key
          * press is followed by a key dispose.
          */
         public void keyTyped(KeyEvent e) {
             if (tool != null) {
                 tool.handleEvent(createToolInputEvent(e));
+            }
+        }
+    }
+
+    private class ToolPainter implements LayerCanvas.Overlay {
+        @Override
+            public void paintOverlay(LayerCanvas canvas, Graphics2D g2d) {
+            if (tool != null && tool.isActive()) {
+                final Viewport vp = getLayerCanvas().getViewport();
+                final AffineTransform transformSave = g2d.getTransform();
+                try {
+                    final AffineTransform transform = new AffineTransform();
+                    transform.concatenate(vp.getModelToViewTransform());
+                    g2d.setTransform(transform);
+                    drawToolNoTransf(g2d);
+                } finally {
+                    g2d.setTransform(transformSave);
+                }
             }
         }
     }
