@@ -4,7 +4,15 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageEncoder;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.ImageLegend;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
 import org.esa.beam.framework.dataop.maptransf.MapTransformDescriptor;
 import org.esa.beam.framework.help.HelpSys;
@@ -29,8 +37,6 @@ import java.io.FileOutputStream;
 import java.text.MessageFormat;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import jj2000.j2k.util.ISRandomAccessIO;
 
 public class ExportKmzFileAction extends ExecCommand {
 
@@ -245,7 +251,7 @@ public class ExportKmzFileAction extends ExecCommand {
         @Override
         protected Object doInBackground(ProgressMonitor pm) throws Exception {
             try {
-                final String message = "Saving image as \n" + file.getPath() + "...";
+                final String message = "Saving image as " + file.getPath() + "...";
                 pm.beginTask(message, view.isRGB()? 4 : 3);
                 visatApp.setStatusBarMessage(message);
                 visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));

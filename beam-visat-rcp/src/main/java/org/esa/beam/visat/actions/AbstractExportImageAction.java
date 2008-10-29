@@ -245,7 +245,7 @@ public abstract class AbstractExportImageAction extends ExecCommand {
         @Override
         protected Object doInBackground(ProgressMonitor pm) throws Exception {
             try {
-                final String message = "Saving image as \n" + file.getPath() + "...";
+                final String message = "Saving image as " + file.getPath() + "...";
                 pm.beginTask(message, 1);
                 visatApp.setStatusBarMessage(message);
                 visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
