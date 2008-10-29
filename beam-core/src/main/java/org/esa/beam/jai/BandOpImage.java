@@ -36,13 +36,14 @@ public class BandOpImage extends RasterDataNodeOpImage {
         } else {
             final int sourceWidth = getSourceWidth(destRect.width);
             ProductData lineData = ProductData.createInstance(getBand().getDataType(), sourceWidth);
+            int[] sourceCoords = getSourceCoords(sourceWidth, destRect.width);
             for (int y = 0; y < destRect.height; y++) {
                 getBand().readRasterData(getSourceX(destRect.x),
                                          getSourceY(destRect.y + y),
                                          lineData.getNumElems(), 1,
                                          lineData,
                                          ProgressMonitor.NULL);
-                copyLine(y, sourceWidth, destRect.width, lineData, productData);
+                copyLine(y, destRect.width, lineData, productData, sourceCoords);
             }
         }
     }

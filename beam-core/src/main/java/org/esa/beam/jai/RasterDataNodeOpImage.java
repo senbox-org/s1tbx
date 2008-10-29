@@ -83,24 +83,25 @@ public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
         return className + productName + bandName;
     }
     
-    protected void copyLine(final  int y, final int srcWidth, final int destWidth, ProductData src, ProductData dest) {
+    protected int[] getSourceCoords(final int sourceWidth, final int destWidth) {
+        final int[] srcCoords = new int[destWidth];
+        for (int x = 0; x < destWidth; x++) {
+            srcCoords[x] = getSourceCoord(x, 0, sourceWidth - 1);
+        }
+        return srcCoords;
+    }
+    
+    protected void copyLine(final  int y, final int destWidth, ProductData src, ProductData dest, int[] sourceCoords) {
         final int destOffset = y * destWidth;
         final int type = src.getType();
 
-        // TODO -  remove after sped comparison (mz) (28.10.2008)
-//        for (int x = 0; x < destWidth; x++) {
-//            int i = getSourceCoord(x, 0, srcWidth - 1);
-//            dest.setElemDoubleAt(destOffset + x, src.getElemDoubleAt(i));
-//        }
-        
         switch (type) {
             case ProductData.TYPE_INT8:
             case ProductData.TYPE_UINT8:
                 byte[] srcArrayB = (byte[]) src.getElems();
                 byte[] destArrayB = (byte[]) dest.getElems();
                 for (int x = 0; x < destWidth; x++) {
-                    int i = getSourceCoord(x, 0, srcWidth - 1);
-                    destArrayB[destOffset + x] =  srcArrayB[i];
+                    destArrayB[destOffset + x] =  srcArrayB[sourceCoords[x]];
                 }
                 return;
             case ProductData.TYPE_INT16:
@@ -108,8 +109,7 @@ public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
                 short[] srcArrayS = (short[]) src.getElems();
                 short[] destArrayS = (short[]) dest.getElems();
                 for (int x = 0; x < destWidth; x++) {
-                    int i = getSourceCoord(x, 0, srcWidth - 1);
-                    destArrayS[destOffset + x] =  srcArrayS[i];
+                    destArrayS[destOffset + x] =  srcArrayS[sourceCoords[x]];
                 }
                 return;
             case ProductData.TYPE_INT32:
@@ -117,24 +117,21 @@ public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
                 int[] srcArrayI = (int[]) src.getElems();
                 int[] destArrayI = (int[]) dest.getElems();
                 for (int x = 0; x < destWidth; x++) {
-                    int i = getSourceCoord(x, 0, srcWidth - 1);
-                    destArrayI[destOffset + x] =  srcArrayI[i];
+                    destArrayI[destOffset + x] =  srcArrayI[sourceCoords[x]];
                 }
                 return;
             case ProductData.TYPE_FLOAT32:
                 float[] srcArrayF = (float[]) src.getElems();
                 float[] destArrayF = (float[]) dest.getElems();
                 for (int x = 0; x < destWidth; x++) {
-                    int i = getSourceCoord(x, 0, srcWidth - 1);
-                    destArrayF[destOffset + x] =  srcArrayF[i];
+                    destArrayF[destOffset + x] =  srcArrayF[sourceCoords[x]];
                 }
                 return;
             case ProductData.TYPE_FLOAT64:
                 double[] srcArrayD = (double[]) src.getElems();
                 double[] destArrayD = (double[]) dest.getElems();
                 for (int x = 0; x < destWidth; x++) {
-                    int i = getSourceCoord(x, 0, srcWidth - 1);
-                    destArrayD[destOffset + x] =  srcArrayD[i];
+                    destArrayD[destOffset + x] =  srcArrayD[sourceCoords[x]];
                 }
                 return;
             case ProductData.TYPE_ASCII:
