@@ -115,7 +115,7 @@ public class StatisticsToolView extends AbstractToolView {
             final Component selectedComponent = _tabbedPane.getSelectedComponent();
             if (selectedComponent instanceof PagePanel) {
                 final PagePanel pagePanel = (PagePanel) selectedComponent;
-                setTitle(pagePanel.getTitle());
+                pagePanel.getParentDialog().getDescriptor().setTitle(pagePanel.getTitle());
             } else {
                 setTitle("");
             }
