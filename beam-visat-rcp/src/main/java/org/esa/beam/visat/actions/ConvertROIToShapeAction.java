@@ -62,8 +62,6 @@ public class ConvertROIToShapeAction extends ExecCommand {
             if (roiDefinitionWindow != null) {
                 roiDefinitionWindow.setUIParameterValues(roiDefinition);
             }
-
-            VisatApp.getApp().updateROIImage(productSceneView, true);
         }
         VisatApp.getApp().updateState();
     }

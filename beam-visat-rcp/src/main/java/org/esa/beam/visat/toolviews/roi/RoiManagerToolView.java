@@ -1154,8 +1154,6 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
                     if (contentPane instanceof ProductSceneView) {
                         final ProductSceneView view = (ProductSceneView) contentPane;
                         VisatApp.getApp().updateROIImage(view, true);
-                        // TODO IMAGING 4.5
-                        view.getImageDisplayComponent().repaint();
                     }
                 }
             }
