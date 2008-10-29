@@ -48,7 +48,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
     private boolean navControlShown;
     private WakefulComponent navControlWrapper;
-    private boolean modelPainted;
+    private boolean zoomedAll;
 
     // AdjustableView properties
     private Rectangle2D maxVisibleModelBounds;
@@ -59,6 +59,8 @@ public class LayerCanvas extends JPanel implements AdjustableView {
     private ArrayList<Overlay> overlays;
 
     private final ModelChangeHandler modelChangeHandler;
+
+    private boolean debug = true;
 
     public LayerCanvas() {
         this(new Layer());
@@ -98,7 +100,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
             oldModel.removeChangeListener(modelChangeHandler);
             this.model = newModel;
             newModel.addChangeListener(modelChangeHandler);
-            modelPainted = false;
+            zoomedAll = false;
             updateAdjustableViewProperties();
             repaint();
             firePropertyChange("model", oldModel, newModel);
@@ -130,7 +132,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
     }
 
     /**
-     * None API. Don't use this method!
+     * Adds an overlay to the canvas.
      *
      * @param overlay An overlay
      */
@@ -140,7 +142,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
     }
 
     /**
-     * None API. Don't use this method!
+     * Removes an overlay from the canvas.
      *
      * @param overlay An overlay
      */
@@ -218,17 +220,19 @@ public class LayerCanvas extends JPanel implements AdjustableView {
         double minScale = computeMinImageToModelScale(layer);
         if (minScale > 0.0) {
             defaultZoomFactor = 1.0 / minScale;
-            maxZoomFactor = 100 * defaultZoomFactor;
+            maxZoomFactor = 32.0 / minScale; // empiric!
         } else {
             defaultZoomFactor = minZoomFactor;
-            maxZoomFactor = 1000 * minZoomFactor;
+            maxZoomFactor = 1000.0 * minZoomFactor;
         }
-        System.out.println("LayerCanvas.updateAdjustableViewProperties():");
-        System.out.println("  zoomFactor            = " + getViewport().getZoomFactor());
-        System.out.println("  minZoomFactor         = " + minZoomFactor);
-        System.out.println("  maxZoomFactor         = " + maxZoomFactor);
-        System.out.println("  defaultZoomFactor     = " + defaultZoomFactor);
-        System.out.println("  maxVisibleModelBounds = " + maxVisibleModelBounds);
+        if (debug) {
+            System.out.println("LayerCanvas.updateAdjustableViewProperties():");
+            System.out.println("  zoomFactor            = " + getViewport().getZoomFactor());
+            System.out.println("  minZoomFactor         = " + minZoomFactor);
+            System.out.println("  maxZoomFactor         = " + maxZoomFactor);
+            System.out.println("  defaultZoomFactor     = " + defaultZoomFactor);
+            System.out.println("  maxVisibleModelBounds = " + maxVisibleModelBounds);
+        }
     }
 
     static double computeMinZoomFactor(Rectangle2D viewBounds, Rectangle2D maxVisibleModelBounds) {
@@ -306,10 +310,13 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
     @Override
     protected void paintComponent(Graphics g) {
+
+        long t0 = debug ? System.nanoTime() : 0L;
+
         super.paintComponent(g);
 
-        if (!modelPainted && maxVisibleModelBounds != null && !maxVisibleModelBounds.isEmpty()) {
-            modelPainted = true;
+        if (!zoomedAll && maxVisibleModelBounds != null && !maxVisibleModelBounds.isEmpty()) {
+            zoomedAll = true;
             zoomAll();
         }
 
@@ -320,6 +327,11 @@ public class LayerCanvas extends JPanel implements AdjustableView {
             for (Overlay overlay : overlays) {
                 overlay.paintOverlay(this, (Graphics2D) g);
             }
+        }
+
+        if (debug) {
+            double dt = (System.nanoTime() - t0) / (1000.0 * 1000.0);
+            System.out.println("LayerCanvas.paintComponent() took " + dt + " ms");
         }
     }
 
@@ -388,6 +400,10 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
     }
 
+    public interface Overlay {
+        void paintOverlay(LayerCanvas canvas, Graphics2D graphics);
+    }
+
     private class ModelChangeHandler extends LayerViewInvalidationListener implements LayerCanvasModel.ChangeListener {
 
         @Override
@@ -407,12 +423,5 @@ public class LayerCanvas extends JPanel implements AdjustableView {
             updateAdjustableViewProperties();
             repaint();
         }
-    }
-
-    /**
-     * None API. Don't use!
-     */
-    public interface Overlay {
-        void paintOverlay(LayerCanvas canvas, Graphics2D graphics);
     }
 }

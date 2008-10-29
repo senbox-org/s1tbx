@@ -31,5 +31,5 @@ public abstract class LayerStyleListener extends AbstractLayerListener {
      * @param layer The layer which triggered the change.
      * @param event The layer style property change event.
      */
-    public abstract void handleLayerStylePropertyChanged(Layer layer, PropertyChangeEvent event);
+    protected abstract void handleLayerStylePropertyChanged(Layer layer, PropertyChangeEvent event);
 }

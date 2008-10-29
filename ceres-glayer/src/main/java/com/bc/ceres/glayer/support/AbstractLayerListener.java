@@ -2,6 +2,7 @@ package com.bc.ceres.glayer.support;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerListener;
+import com.bc.ceres.glayer.Style;
 
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
@@ -13,6 +14,7 @@ import java.beans.PropertyChangeEvent;
  * @version $revision$ $date$
  */
 public abstract class AbstractLayerListener implements LayerListener {
+
     /**
      * Called if a property of the given layer has changed. The source of the property change event
      * may be either the layer itself or its style (see {@link Layer#getStyle()}).
@@ -52,5 +54,15 @@ public abstract class AbstractLayerListener implements LayerListener {
      */
     @Override
     public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
+    }
+
+    /**
+     * @param propertyChangeEvent A property change event fired by a {@link Layer}.
+     * @return {@code true} if the change event is visible, e.g. causes (re)rendering of some kind of view
+     */
+    protected boolean isVisibleChangeEvent(PropertyChangeEvent propertyChangeEvent) {
+        return propertyChangeEvent.getPropertyName().equals("visible")
+                || propertyChangeEvent.getPropertyName().equals("style")
+                || propertyChangeEvent.getSource() instanceof Style;
     }
 }
