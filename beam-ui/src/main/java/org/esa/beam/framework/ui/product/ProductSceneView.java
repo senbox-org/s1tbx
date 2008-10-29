@@ -871,7 +871,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
             if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
                 final Color color = (Color) roiLayer.getStyle().getProperty("color");
                 final MultiLevelSource multiLevelSource = RoiImageMultiLevelSource.create(getRaster(),
-                                                                                          color, roiLayer.getImageToModelTransform());
+                                                                                          color, getBaseImageLayer().getImageToModelTransform());
                 roiLayer.setMultiLevelSource(multiLevelSource);
             } else {
                 roiLayer.setMultiLevelSource(MultiLevelSource.NULL);
