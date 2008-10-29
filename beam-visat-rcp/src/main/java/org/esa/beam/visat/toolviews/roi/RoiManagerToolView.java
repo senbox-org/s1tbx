@@ -1,15 +1,13 @@
 package org.esa.beam.visat.toolviews.roi;
 
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.AbstractLayerListener;
+import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.framework.help.HelpSys;
-import org.esa.beam.framework.param.ParamChangeEvent;
-import org.esa.beam.framework.param.ParamChangeListener;
-import org.esa.beam.framework.param.ParamException;
-import org.esa.beam.framework.param.ParamExceptionHandler;
-import org.esa.beam.framework.param.ParamGroup;
-import org.esa.beam.framework.param.Parameter;
+import org.esa.beam.framework.param.*;
 import org.esa.beam.framework.param.editors.BooleanExpressionEditor;
 import org.esa.beam.framework.param.editors.ComboBoxEditor;
 import org.esa.beam.framework.param.validators.BooleanExpressionValidator;
@@ -22,14 +20,7 @@ import org.esa.beam.framework.ui.command.ToolCommand;
 import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.PropertyMap;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.XmlWriter;
-import org.esa.beam.util.ArrayUtils;
+import org.esa.beam.util.*;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
@@ -39,33 +30,17 @@ import org.jdom.Document;
 import org.jdom.input.DOMBuilder;
 import org.xml.sax.SAXException;
 
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.support.AbstractLayerListener;
-
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Rectangle;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.Raster;
@@ -630,7 +605,9 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         int maxY = 0;
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (data.getSample(x, y, 0) != 0) {
+                // checking the 3. band for s != 0
+                // this indicates the roi
+                if (data.getSample(x, y, 3) != 0) {
                     minX = Math.min(x, minX);
                     maxX = Math.max(x, maxX);
                     minY = Math.min(y, minY);
@@ -638,12 +615,15 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
                 }
             }
         }
-        final Rectangle rect = new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
+        Rectangle rect = new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
         if (rect.isEmpty()) {
             return;
         }
+        final ImageLayer layer = productSceneView.getBaseImageLayer();
+        final int currentLevel = layer.getLevel(productSceneView.getLayerCanvas().getViewport());
+        final AffineTransform imageToModelTransform = layer.getImageToModelTransform(currentLevel);
         rect.grow(50, 50);
-        // TODO IMAGING 4.5
+        rect = imageToModelTransform.createTransformedShape(rect).getBounds();
         productSceneView.zoom(rect);
     }
 

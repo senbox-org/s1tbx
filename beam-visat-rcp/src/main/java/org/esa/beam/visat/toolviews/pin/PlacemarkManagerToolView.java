@@ -1,5 +1,6 @@
 package org.esa.beam.visat.toolviews.pin;
 
+import com.bc.ceres.glayer.support.ImageLayer;
 import com.jidesoft.grid.SortableTable;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.datamodel.*;
@@ -12,8 +13,8 @@ import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.application.support.PageComponentListenerAdapter;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.BandChooser;
-import org.esa.beam.framework.ui.product.ProductTreeListener;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.product.ProductTreeListener;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.*;
 import org.esa.beam.util.io.BeamFileChooser;
@@ -40,6 +41,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -527,8 +530,12 @@ class PlacemarkManagerToolView extends AbstractToolView {
         Guardian.assertNotNull("activePin", activePin);
         final ProductSceneView view = getSceneView();
         if (view != null) {
-            final PixelPos pos = activePin.getPixelPos();
-            view.zoom(pos.getX(), pos.getY(), view.getZoomFactor());
+            final PixelPos imagePos = activePin.getPixelPos();  // in image coordinates
+            final ImageLayer layer = view.getBaseImageLayer();
+            final int currentLevel = layer.getLevel(view.getLayerCanvas().getViewport());
+            final AffineTransform imageToModelTransform = layer.getImageToModelTransform(currentLevel);
+            final Point2D modelPos = imageToModelTransform.transform(imagePos, null);
+            view.zoom(modelPos.getX(), modelPos.getY(), view.getZoomFactor());
             updateUIState();
         }
     }
