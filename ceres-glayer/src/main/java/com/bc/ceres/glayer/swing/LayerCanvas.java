@@ -262,9 +262,11 @@ public class LayerCanvas extends JPanel implements AdjustableView {
     private static double computeMinImageToModelScale(Layer layer, double minScale) {
         if (layer instanceof ImageLayer) {
             ImageLayer imageLayer = (ImageLayer) layer;
-            double scale = Math.sqrt(Math.abs(imageLayer.getImageToModelTransform().getDeterminant()));
-            if (scale > 0.0 && (minScale <= 0.0 || scale < minScale)) {
-                minScale = scale;
+            if (imageLayer.getModelBounds() != null) {
+                double scale = Math.sqrt(Math.abs(imageLayer.getImageToModelTransform().getDeterminant()));
+                if (scale > 0.0 && (minScale <= 0.0 || scale < minScale)) {
+                    minScale = scale;
+                }
             }
         }
         for (Layer childLayer : layer.getChildren()) {
