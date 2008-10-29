@@ -11,6 +11,7 @@ import org.esa.beam.framework.ui.application.PageComponent;
 import org.esa.beam.framework.ui.application.PageComponentPane;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
+import org.esa.beam.framework.ui.application.ToolViewDescriptor.State;
 import org.esa.beam.framework.ui.application.support.AbstractApplicationPage;
 import org.esa.beam.framework.ui.application.support.DefaultToolViewPane;
 
@@ -64,6 +65,9 @@ public class VisatApplicationPage extends AbstractApplicationPage {
     @Override
     protected void doShowToolView(ToolView toolView) {
         dockingManager.showFrame(toolView.getId());
+        if (shouldFloat(toolView)) {
+            dockingManager.floatFrame(toolView.getId(), null, false);
+        }
     }
 
     @Override
@@ -119,12 +123,13 @@ public class VisatApplicationPage extends AbstractApplicationPage {
     }
 
     private boolean shouldFloat(ToolView toolView) {
+        ToolViewDescriptor toolViewDescriptor = getToolViewDescriptor(toolView.getId());
+        State initState = toolViewDescriptor.getInitState();
         DockableFrame frame = dockingManager.getFrame(toolView.getId());
         return frame != null
-               && frame.getContext().getHiddenPreviousState() == null
                && frame.getContext().getDockPreviousState() == null
                && frame.getContext().getFloatPreviousState() == null
-               && frame.getInitMode() == DockContext.STATE_HIDDEN;
+               && initState == State.HIDDEN;
     }
 
 
