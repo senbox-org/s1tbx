@@ -1,5 +1,7 @@
 package org.esa.beam.visat.toolviews.stat;
 
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.AbstractLayerListener;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.TableLayout;
@@ -15,7 +17,6 @@ import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.data.Range;
 
@@ -24,10 +25,6 @@ import javax.media.jai.ROI;
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.support.AbstractLayerListener;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -254,40 +251,9 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
     }
 
     protected static JPanel createChartButtonPanel(final ChartPanel chartPanel) {
-        final TableLayout tableLayout = new TableLayout(3);
+        final TableLayout tableLayout = new TableLayout(2);
         JPanel buttonPane = new JPanel(tableLayout);
         buttonPane.setBorder(BorderFactory.createTitledBorder("Plot"));
-        final AbstractButton zoomInButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomIn24.gif"),
-                                                                           false);
-        zoomInButton.setToolTipText("Zoom in.");
-        zoomInButton.setName("zoomInButton.");
-        zoomInButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                final Rectangle2D chartArea = chartPanel.getChartRenderingInfo().getChartArea();
-                chartPanel.zoomInBoth(chartArea.getCenterX(), chartArea.getCenterY());
-            }
-        });
-        final AbstractButton zoomOutButton = ToolButtonFactory.createButton(
-                UIUtils.loadImageIcon("icons/ZoomOut24.gif"),
-                false);
-        zoomOutButton.setToolTipText("Zoom out.");
-        zoomOutButton.setName("zoomOutButton.");
-        zoomOutButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                final JFreeChart chart = chartPanel.getChart();
-                final boolean rangeAxisOOR = isAxisOutOfRange(chartPanel, chart.getXYPlot().getRangeAxis());
-                final boolean domainAxisOOR = isAxisOutOfRange(chartPanel, chart.getXYPlot().getDomainAxis());
-                // prevent from zooming out to far
-                if (rangeAxisOOR || domainAxisOOR) {
-                    chartPanel.restoreAutoBounds();
-                } else {
-                    final Rectangle2D chartArea = chartPanel.getChartRenderingInfo().getChartArea();
-                    chartPanel.zoomOutBoth(chartArea.getCenterX(), chartArea.getCenterY());
-                }
-
-
-            }
-        });
         final AbstractButton zoomAllButton = ToolButtonFactory.createButton(
                 UIUtils.loadImageIcon("icons/ZoomAll24.gif"),
                 false);
@@ -338,8 +304,6 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
             }
         });
 
-        buttonPane.add(zoomInButton);
-        buttonPane.add(zoomOutButton);
         buttonPane.add(zoomAllButton);
         buttonPane.add(propertiesButton);
         buttonPane.add(saveButton);
