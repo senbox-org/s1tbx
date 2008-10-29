@@ -16,6 +16,9 @@
  */
 package org.esa.beam.visat.actions;
 
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.Layer.RenderFilter;
+import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
@@ -101,14 +104,22 @@ public class ExportImageAction extends AbstractExportImageAction {
         Viewport snapshotVp = new DefaultViewport(isModelYAxisDown);
         final BufferedImageRendering imageRendering = new BufferedImageRendering(bi, snapshotVp);
 
-        final Graphics2D graphics = imageRendering.getGraphics();
-        graphics.setColor(view.getBackground());
-        graphics.fillRect(0, 0, imageWidth, imageHeight);
+        if (!useAlpha) {
+            final Graphics2D graphics = imageRendering.getGraphics();
+            graphics.setColor(view.getBackground());
+            graphics.fillRect(0, 0, imageWidth, imageHeight);
+        }
 
         snapshotVp.zoom(modelBounds);
         snapshotVp.moveViewDelta(snapshotVp.getViewBounds().x, snapshotVp.getViewBounds().y);
 
-        view.getRootLayer().render(imageRendering);
+        RenderFilter renderFilter = new Layer.RenderFilter() {
+            @Override
+            public boolean canRender(Layer layer) {
+                return layer instanceof ImageLayer;
+            }
+        };
+        view.getRootLayer().render(imageRendering, renderFilter);
         return bi;
     }
 
