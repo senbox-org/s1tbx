@@ -191,7 +191,8 @@ public class Layer extends ExtensibleObject {
     /**
      * Renders the layer. Calls {@code render(rendering, null)}.
      * @param rendering The rendering to which the layer will be rendered.
-     * @see #render(com.bc.ceres.grender.Rendering, com.bc.ceres.glayer.Layer.RenderCustomizer)}
+     * @see #render(com.bc.ceres.grender.Rendering, com.bc.ceres.glayer.Layer.RenderCustomizer)
+     * 
      */
     public final void render(Rendering rendering) {
         render(rendering, null);
