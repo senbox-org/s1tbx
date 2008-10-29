@@ -851,7 +851,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
                 final Style style = noDataLayer.getStyle();
                 final Color color = (Color) style.getProperty("color");
                 final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(),
-                                                                                           color, expression, true, noDataLayer.getImageToModelTransform());
+                                                                                           color, expression, true, getBaseImageLayer().getImageToModelTransform());
                 noDataLayer.setMultiLevelSource(multiLevelSource);
             } else {
                 noDataLayer.setMultiLevelSource(MultiLevelSource.NULL);
