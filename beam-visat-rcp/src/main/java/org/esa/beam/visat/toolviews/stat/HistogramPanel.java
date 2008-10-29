@@ -44,7 +44,9 @@ import java.awt.event.ActionListener;
  */
 class HistogramPanel extends PagePanel {
 
-    private static final String NO_DATA_MESSAGE = "No histogram computed yet.";  /*I18N*/
+    private static final String NO_DATA_MESSAGE = "No histogram computed yet.\n" +
+                                                  "TIP: To zoom within the chart draw a rectangle\n" +
+                                                  "with the mouse or use the context menu.";  /*I18N*/
     private static final String CHART_TITLE = "Histogram";
     private static final String TITLE_PREFIX = CHART_TITLE;    /*I18N*/
 

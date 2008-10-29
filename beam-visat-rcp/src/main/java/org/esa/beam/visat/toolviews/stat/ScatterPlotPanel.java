@@ -3,11 +3,7 @@ package org.esa.beam.visat.toolviews.stat;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.Stx;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
@@ -18,19 +14,18 @@ import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.math.Range;
 import org.esa.beam.util.math.MathUtils;
+import org.esa.beam.util.math.Range;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.title.Title;
 import org.jfree.chart.title.TextTitle;
+import org.jfree.chart.title.Title;
 import org.jfree.ui.RectangleInsets;
 
 import javax.media.jai.ROI;
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingWorker;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
@@ -55,7 +50,9 @@ import java.util.concurrent.ExecutionException;
  */
 class ScatterPlotPanel extends PagePanel {
 
-    private static final String NO_DATA_MESSAGE = "No scatter plot computed yet.";  /*I18N*/
+    private static final String NO_DATA_MESSAGE = "No scatter plot computed yet.\n" +
+                                                  "TIP: To zoom within the chart draw a rectangle\n" +
+                                                  "with the mouse or use the context menu.";  /*I18N*/
     private static final String CHART_TITLE = "Scatter Plot";
     private static final String TITLE_PREFIX = CHART_TITLE;
 
