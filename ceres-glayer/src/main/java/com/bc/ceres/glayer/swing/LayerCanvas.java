@@ -318,7 +318,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
         if (!isPaintingForPrint()) {
             for (Overlay overlay : overlays) {
-                overlay.paint(this, (Graphics2D) g);
+                overlay.paintOverlay(this, (Graphics2D) g);
             }
         }
     }
@@ -413,6 +413,6 @@ public class LayerCanvas extends JPanel implements AdjustableView {
      * None API. Don't use!
      */
     public interface Overlay {
-        void paint(LayerCanvas canvas, Graphics2D graphics);
+        void paintOverlay(LayerCanvas canvas, Graphics2D graphics);
     }
 }
