@@ -18,6 +18,7 @@ package org.esa.beam.visat.toolviews.nav;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.swing.LayerCanvasModel;
+import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.grender.AdjustableView;
 import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.datamodel.*;
@@ -300,7 +301,12 @@ public class NavigationToolView extends AbstractToolView {
     }
 
     private void zoomToPixelResolution() {
-        zoom(1.0);
+        final ProductSceneView view = getCurrentView();
+        if (view != null) {
+            final LayerCanvas layerCanvas = view.getLayerCanvas();
+            layerCanvas.getViewport().setZoomFactor(layerCanvas.getDefaultZoomFactor());
+            maybeSynchronizeCompatibleProductViews();
+        }
     }
 
     public void zoom(final double zoomFactor) {
