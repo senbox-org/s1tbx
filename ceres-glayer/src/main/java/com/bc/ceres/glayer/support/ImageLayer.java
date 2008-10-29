@@ -97,9 +97,16 @@ public class ImageLayer extends Layer {
     public void setMultiLevelSource(MultiLevelSource multiLevelSource) {
         Assert.notNull(multiLevelSource);
         if (multiLevelSource != this.multiLevelSource) {
+            final Rectangle2D region;
             final Rectangle2D oldBounds = this.multiLevelSource.getModel().getModelBounds();
             final Rectangle2D newBounds = multiLevelSource.getModel().getModelBounds();
-            final Rectangle2D region = oldBounds.createUnion(newBounds);
+            if (oldBounds == null) {
+                region = newBounds;
+            } else if (newBounds == null) {
+                region = oldBounds;
+            } else {
+                region = oldBounds.createUnion(newBounds);
+            }
             clearCaches();
             this.multiLevelSource = multiLevelSource;
             multiLevelRenderer = null;
