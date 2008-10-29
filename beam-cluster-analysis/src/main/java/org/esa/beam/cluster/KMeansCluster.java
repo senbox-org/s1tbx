@@ -21,20 +21,20 @@ package org.esa.beam.cluster;
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-public class KMeansCluster {
+class KMeansCluster {
     private final double[] mean;
     private final int memberCount;
 
-    public KMeansCluster(double[] mean, int memberCount) {
+    KMeansCluster(double[] mean, int memberCount) {
         this.mean = mean;
         this.memberCount = memberCount;
     }
 
-    public double[] getMean() {
+    double[] getMean() {
         return mean;
     }
-    
-    public int getMemberCount() {
+
+    int getMemberCount() {
         return memberCount;
     }
 }

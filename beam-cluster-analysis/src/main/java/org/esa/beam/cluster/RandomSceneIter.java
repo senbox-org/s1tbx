@@ -14,18 +14,16 @@
  */
 package org.esa.beam.cluster;
 
-import java.awt.Rectangle;
-import java.util.Random;
-
-import javax.media.jai.ROI;
-
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.Tile;
 
-import com.bc.ceres.core.ProgressMonitor;
+import javax.media.jai.ROI;
+import java.awt.*;
+import java.util.Random;
 
-public class RandomSceneIter {
+class RandomSceneIter {
     private final Operator operator;
     private final Random random;
     private final RasterDataNode[] rdn;
@@ -33,7 +31,7 @@ public class RandomSceneIter {
     private final int[] yValue;
     private final int roiMemberCount;
 
-    public RandomSceneIter(Operator operator, RasterDataNode[] rdn, ROI roi, int seed) {
+    RandomSceneIter(Operator operator, RasterDataNode[] rdn, ROI roi, int seed) {
         this.operator = operator;
         this.rdn = rdn;
         random = new Random(seed);
@@ -60,14 +58,14 @@ public class RandomSceneIter {
             roiMemberCount = i;
         }
     }
-    
-    public int getRoiMemberCount() {
+
+    int getRoiMemberCount() {
         return roiMemberCount;
     }
 
-    public double[] getNextValue() {
+    double[] getNextValue() {
         final double[] value = new double[rdn.length];
-        
+
         final int x;
         final int y;
         if (xValue == null) {

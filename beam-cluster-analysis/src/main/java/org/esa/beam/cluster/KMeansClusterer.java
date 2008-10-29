@@ -18,13 +18,13 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 /**
- * todo - add API doc
+ * K-means clustering algorithm.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-public class KMeansClusterer {
+class KMeansClusterer {
 
     private final int dimensionCount;
     private final int clusterCount;
@@ -38,17 +38,14 @@ public class KMeansClusterer {
      * @param clusterCount      the number of clusters.
      * @param dimensionCount    the number of dimensions.
      */
-    public KMeansClusterer(int clusterCount, int dimensionCount) {
+    KMeansClusterer(int clusterCount, int dimensionCount) {
         this.clusterCount = clusterCount;
         this.dimensionCount = dimensionCount;
         this.memberCounts = new int[clusterCount];
         this.means = new double[clusterCount][dimensionCount];
     }
     
-    /**
-     * Randomly initializes the clusters using the k-means method.
-     */
-    public void initialize(RandomSceneIter sceneIter) {
+    void initialize(RandomSceneIter sceneIter) {
         for (int c = 0; c < clusterCount; ++c) {
             boolean accepted = true;
             do {
@@ -63,15 +60,12 @@ public class KMeansClusterer {
         }
     }
     
-    public void startIteration() {
+    void startIteration() {
         sums = new double[clusterCount][dimensionCount];
         Arrays.fill(memberCounts, 0);
     }
     
-    /**
-     * Carries out a single k-means iteration.
-     */
-    public void iterateTile(PixelIter iter) {
+    void iterateTile(PixelIter iter) {
         final double[] point = new double[dimensionCount];
         iter.next();
         while (iter.hasNext()) {
@@ -85,7 +79,7 @@ public class KMeansClusterer {
         }
     }
     
-    public boolean endIteration() {
+    boolean endIteration() {
         double diff = 0;
         for (int c = 0; c < clusterCount; ++c) {
             for (int d = 0; d < dimensionCount; ++d) {
@@ -104,7 +98,7 @@ public class KMeansClusterer {
      *
      * @return the clusters found.
      */
-    public KMeansClusterSet getClusters() {
+    KMeansClusterSet getClusters() {
         final KMeansCluster[] clusters = new KMeansCluster[clusterCount];
         for (int c = 0; c < clusterCount; ++c) {
             clusters[c] = new KMeansCluster(means[c], memberCounts[c]);
@@ -113,7 +107,7 @@ public class KMeansClusterer {
         return new KMeansClusterSet(clusters);
     }
     
-    public static int getClosestCluster(double[][] mean, final double[] point) {
+    static int getClosestCluster(double[][] mean, final double[] point) {
         double minDistance = Double.MAX_VALUE;
         int closestCluster = 0;
         for (int c = 0; c < mean.length; ++c) {
@@ -134,7 +128,7 @@ public class KMeansClusterer {
      *
      * @return squared Euclidean distance between x and y.
      */
-    public static double squaredDistance(double[] x, double[] y) {
+    private static double squaredDistance(double[] x, double[] y) {
         double distance = 0.0;
         for (int d = 0; d < x.length; ++d) {
             final double difference = y[d] - x[d];
@@ -147,10 +141,10 @@ public class KMeansClusterer {
     /**
      * Cluster comparator.
      * <p/>
-     * Compares two clusters according to their membershipCounts.
+     * Compares two clusters according to their membership counts.
      */
     private static class ClusterComparator implements Comparator<KMeansCluster> {
-
+        @Override
         public int compare(KMeansCluster c1, KMeansCluster c2) {
             return Double.compare(c2.getMemberCount(), c1.getMemberCount());
         }

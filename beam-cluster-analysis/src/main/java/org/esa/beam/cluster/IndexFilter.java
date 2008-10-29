@@ -1,4 +1,5 @@
-/* Copyright (C) 2002-2008 by Brockmann Consult
+/*
+ * Copyright (C) 2002-2008 by Brockmann Consult
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,27 +15,13 @@
 package org.esa.beam.cluster;
 
 /**
- * Distribution interface.
+ * Index filter interface.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
+ * @since BEAM 4.5
  */
-public interface Distribution {
-    /**
-     * Returns the probability density for a given vector.
-     *
-     * @param y the vector.
-     *
-     * @return the probability density for the vector y.
-     */
-    double probabilityDensity(double[] y);
+public interface IndexFilter {
 
-    /**
-     * Returns the logarithm of the probability density for a given vector.
-     *
-     * @param y the vector.
-     *
-     * @return the logarithm of the probability density for the vector y.
-     */
-    double logProbabilityDensity(double[] y);
+    boolean accept(int index);
 }

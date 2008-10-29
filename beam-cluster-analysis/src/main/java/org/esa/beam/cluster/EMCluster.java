@@ -23,35 +23,39 @@ package org.esa.beam.cluster;
  */
 public class EMCluster {
 
-    final MultinormalDistribution distribution;
-    final double priorProbability;
+    private final double[] mean;
+    private final double[][] covariances;
+    private final double priorProbability;
 
-    public EMCluster(MultinormalDistribution distribution, double priorProbability) {
+    public EMCluster(double[] mean, double[][] covariances, double priorProbability) {
+        this.mean = mean;
+        this.covariances = covariances;
         this.priorProbability = priorProbability;
-        this.distribution = distribution;
     }
 
     public final double getPriorProbability() {
         return priorProbability;
     }
 
-    public final double getLogProbabilityDensity(double[] point) {
-        return distribution.logProbabilityDensity(point);
-    }
-
-    public final double getProbabilityDensity(double[] point) {
-        return distribution.probabilityDensity(point);
-    }
-
-    public final double getMahalanobisSquaredDistance(double[] point) {
-       return distribution.mahalanobisSquaredDistance(point);
-    }
-    
     public final double[] getMean() {
-        return distribution.getMean();
+        return mean.clone();
     }
-    
-    public Distribution getDistribution() {
-        return distribution;
+
+    public final double getMean(int i) {
+        return mean[i];
+    }
+
+    public final double[][] getCovariances() {
+        final double[][] covariances = this.covariances.clone();
+
+        for (int i = 0; i < covariances.length; i++) {
+            covariances[i] = covariances[i].clone();
+        }
+
+        return covariances;
+    }
+
+    public final double getCovariance(int i, int j) {
+        return covariances[i][j];
     }
 }

@@ -16,35 +16,44 @@ package org.esa.beam.cluster;
 
 import junit.framework.TestCase;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Random;
 
 /**
  * Tests for class {@link EMClusterer}.
  *
  * @author Ralf Quast
- * @version $Revision: 2229 $ $Date: 2008-06-16 15:49:49 +0200 (Mo, 16 Jun 2008) $
+ * @version $Revision$ $Date$
  */
 public class EMClustererTest extends TestCase {
+    private static final double A = 1.0;
+    private static final double B = 2.0;
 
     public void testFindClusters() {
         final double[][] points = createRandomPoints(new double[]{
-                4, 4, 4, 1, 1, 1, 1, 1,
-                4, 4, 4, 1, 1, 1, 1, 1,
-                2, 2, 2, 3, 3, 3, 3, 3,
-                2, 2, 2, 3, 3, 3, 3, 3,
-                2, 2, 2, 3, 3, 3, 3, 3,
-                2, 2, 2, 3, 3, 3, 3, 3,
-                2, 2, 2, 3, 3, 3, 3, 3,
-                2, 2, 2, 3, 3, 3, 3, 3,
+                A, B, A, B, A, B, A, B,
+                B, A, B, A, B, A, B, A,
+                A, B, A, B, A, B, A, B,
+                B, A, B, A, B, A, B, A,
+                A, B, A, B, A, B, A, B,
+                B, A, B, A, B, A, B, A,
+                A, B, A, B, A, B, A, B,
+                B, A, B, A, B, A, B, A,
         });
 
-        final EMClusterSet clusters = EMClusterer.findClusters(points, 4, 10, 5489);
-        assertEquals(4, clusters.getClusterCount());
+        final EMCluster[] clusters = EMClusterer.findClusters(points, 2, 100, 5489);
+        assertEquals(2, clusters.length);
 
-//        assertEquals(3.0, clusters.getMean(0)[0], 0.01);
-//        assertEquals(2.0, clusters.getMean(1)[0], 0.01);
-//        assertEquals(1.0, clusters.getMean(2)[0], 0.01);
-//        assertEquals(4.0, clusters.getMean(3)[0], 0.01);
+        Arrays.sort(clusters, new Comparator<EMCluster>() {
+            @Override
+            public int compare(EMCluster o1, EMCluster o2) {
+                return Double.compare(o1.getMean(0), o2.getMean(0));
+            }
+        });
+
+        assertEquals(A, clusters[0].getMean(0), 0.1);
+        assertEquals(B, clusters[1].getMean(0), 0.1);
     }
 
     private static double[][] createRandomPoints(double[] doubles) {
@@ -52,7 +61,7 @@ public class EMClustererTest extends TestCase {
 
         final Random random = new Random(5489);
         for (int i = 0; i < doubles.length; ++i) {
-            points[i][0] = doubles[i] + 0.01 * random.nextGaussian();
+            points[i][0] = doubles[i] + 0.1 * random.nextGaussian();
         }
 
         return points;

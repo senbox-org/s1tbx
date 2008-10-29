@@ -16,11 +16,7 @@ package org.esa.beam.cluster;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -34,15 +30,14 @@ import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.ROI;
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.IOException;
 
 /**
  * Operator for k-means cluster analysis.
  *
  * @author Ralf Quast
- * @version $Revision: 2223 $ $Date: 2008-06-16 11:59:40 +0200 (Mo, 16 Jun 2008) $
+ * @version $Revision$ $Date$
  */
 @OperatorMetadata(alias = "KMeansClusterAnalysis",
                   version = "1.0",
@@ -63,7 +58,7 @@ public class KMeansClusterOp extends Operator {
     @Parameter(label = "Number of iterations", defaultValue = "30", interval = "(0,10000]")
     private int iterationCount;
     @Parameter(label = "Random seed", defaultValue = "31415",
-            description = "Seed for the random generator, used for initialising the algorithm.")
+               description = "Seed for the random generator, used for initialising the algorithm.")
     private int randomSeed;
     @Parameter(label = "Source band names",
                description = "The names of the bands being used for the cluster analysis.",
@@ -79,7 +74,7 @@ public class KMeansClusterOp extends Operator {
     private transient Band clusterMapBand;
     private transient KMeansClusterSet clusterSet;
     private transient MetadataElement clusterAnalysis;
-   
+
 
     public KMeansClusterOp() {
     }
@@ -111,10 +106,10 @@ public class KMeansClusterOp extends Operator {
         }
         targetProduct.getIndexCodingGroup().add(indexCoding);
         clusterMapBand.setSampleCoding(indexCoding);
-        
+
         clusterAnalysis = new MetadataElement("Cluster_Analysis");
         targetProduct.getMetadataRoot().addElement(clusterAnalysis);
-        
+
         setTargetProduct(targetProduct);
     }
 
@@ -178,7 +173,7 @@ public class KMeansClusterOp extends Operator {
                 pm.worked(1);
                 final KMeansClusterer clusterer = createClusterer();
                 pm.worked(1);
-                
+
                 boolean endIteration = false;
                 for (int i = 0; (i < iterationCount && !endIteration); ++i) {
                     clusterer.startIteration();
@@ -191,7 +186,7 @@ public class KMeansClusterOp extends Operator {
                     endIteration = clusterer.endIteration();
                 }
                 clusterSet = clusterer.getClusters();
-                
+
                 ClusterMetaDataUtils.addCenterToIndexCoding(
                         clusterMapBand.getIndexCoding(), sourceBands, clusterSet.getMeans());
                 ClusterMetaDataUtils.addCenterToMetadata(

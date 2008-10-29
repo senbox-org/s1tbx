@@ -15,28 +15,28 @@
 package org.esa.beam.cluster;
 
 /**
- * todo - add API doc
+ * A set of k-means clusters.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-public class KMeansClusterSet {
+class KMeansClusterSet {
 
     private final double[][] means;
 
-    public KMeansClusterSet(KMeansCluster[] clusters) {
+    KMeansClusterSet(KMeansCluster[] clusters) {
         this.means = new double[clusters.length][0];
         for (int c = 0; c < clusters.length; c++) {
             means[c] = clusters[c].getMean().clone();
         }
     }
 
-    public int getMembership(double[] point) {
+    int getMembership(double[] point) {
         return KMeansClusterer.getClosestCluster(means, point);
     }
     
-    public double[][] getMeans() {
+    double[][] getMeans() {
         return means;
     }
 }

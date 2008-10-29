@@ -13,7 +13,6 @@
  */
 package org.esa.beam.cluster;
 
-import static java.lang.Math.exp;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
@@ -21,24 +20,50 @@ import java.util.Random;
 /**
  * Expectation maximization (EM) cluster algorithm.
  * <p/>
- * todo - observer notifications
- * todo - make algorithm use tiles
+ * todo - make algorithm use a point acessor instead of a point array
+ * todo - revise API to reduce the number of fields
  *
  * @author Ralf Quast
- * @version $Revision: 2221 $ $Date: 2008-06-16 11:19:52 +0200 (Mo, 16 Jun 2008) $
+ * @version $Revision$ $Date$
  */
-public class EMClusterer {
+class EMClusterer {
 
     private final int pointCount;
     private final int dimensionCount;
-    private final double[][] points;
     private final int clusterCount;
 
-    private final double[] p;
-    private final double[][] h;
+    private final double[][] points;
+
+    // prior cluster probabilities
+    private final double[] priors;
+    // cluster means
     private final double[][] means;
+    // cluster covariances
     private final double[][][] covariances;
-    private final MultinormalDistribution[] distributions;
+    // cluster distributions
+    private final Distribution[] distributions;
+
+    // strategy for calculating posterior cluster probabilities
+    private final ProbabilityCalculator calculator;
+
+    /**
+     * Creates a probability calculator for a set of clusters.
+     *
+     * @param clusters the set of clusters.
+     *
+     * @return the probability calculator.
+     */
+    static ProbabilityCalculator createProbabilityCalculator(final EMCluster[] clusters) {
+        final Distribution[] distributions = new Distribution[clusters.length];
+        final double[] priors = new double[clusters.length];
+
+        for (int i = 0; i < clusters.length; i++) {
+            distributions[i] = new MultinormalDistribution(clusters[i].getMean(), clusters[i].getCovariances());
+            priors[i] = clusters[i].getPriorProbability();
+        }
+
+        return new ProbabilityCalculator(distributions, priors);
+    }
 
     /**
      * Finds a collection of clusters for a given set of data points.
@@ -50,7 +75,7 @@ public class EMClusterer {
      *
      * @return the cluster decomposition.
      */
-    static EMClusterSet findClusters(double[][] points, int clusterCount, int iterationCount, int randomSeed) {
+    static EMCluster[] findClusters(double[][] points, int clusterCount, int iterationCount, int randomSeed) {
         return new EMClusterer(points, clusterCount, randomSeed).findClusters(iterationCount);
     }
 
@@ -61,17 +86,19 @@ public class EMClusterer {
      * @param clusterCount the number of clusters.
      * @param randomSeed   the seed used to initialize the cluster algorithm
      */
-    public EMClusterer(double[][] points, int clusterCount, int randomSeed) {
+    EMClusterer(double[][] points, int clusterCount, int randomSeed) {
         pointCount = points.length;
         dimensionCount = points[0].length;
+
         this.points = points;
         this.clusterCount = clusterCount;
 
-        p = new double[clusterCount];
-        h = new double[clusterCount][pointCount];
+        priors = new double[clusterCount];
+
         means = new double[clusterCount][dimensionCount];
         covariances = new double[clusterCount][dimensionCount][dimensionCount];
         distributions = new MultinormalDistribution[clusterCount];
+        calculator = new ProbabilityCalculator(distributions, priors);
 
         initialize(new Random(randomSeed));
     }
@@ -83,42 +110,34 @@ public class EMClusterer {
      *
      * @return the cluster decomposition.
      */
-    private EMClusterSet findClusters(int iterationCount) {
+    private EMCluster[] findClusters(int iterationCount) {
         while (iterationCount > 0) {
             iterate();
             iterationCount--;
-            // todo - notify observer
+            // todo - logging
         }
 
         return getClusters();
     }
 
     /**
-     * Carries out a single EM iteration.
-     */
-    public void iterate() {
-        stepE();
-        stepM();
-    }
-
-    /**
      * Returns the clusters found.
-     * todo - make private when observer notifications implemented
      *
      * @return the clusters found.
      */
-    public EMClusterSet getClusters() {
+    EMCluster[] getClusters() {
         return getClusters(new PriorProbabilityClusterComparator());
     }
 
-    public EMClusterSet getClusters(Comparator<EMCluster> clusterComparator) {
+    EMCluster[] getClusters(Comparator<EMCluster> clusterComparator) {
         final EMCluster[] clusters = new EMCluster[clusterCount];
+
         for (int k = 0; k < clusterCount; ++k) {
-            clusters[k] = new EMCluster(distributions[k], p[k]);
+            clusters[k] = new EMCluster(means[k], covariances[k], priors[k]);
         }
         Arrays.sort(clusters, clusterComparator);
 
-        return new EMClusterSet(clusters);
+        return clusters;
     }
 
     /**
@@ -132,7 +151,8 @@ public class EMClusterer {
         }
 
         for (int k = 0; k < clusterCount; ++k) {
-            p[k] = 1.0;
+            priors[k] = 1.0; // same prior probability for all clusters
+
             for (int l = 0; l < dimensionCount; ++l) {
                 // initialization of diagonal elements with unity comes close
                 // to an initial run with the k-means algorithm
@@ -144,100 +164,65 @@ public class EMClusterer {
     }
 
     /**
-     * Performs an E-step.
+     * Carries out a single EM iteration.
      */
-    private void stepE() {
+    void iterate() {
+        final double[] sums = new double[clusterCount];
+        final double[] posteriors = new double[clusterCount];
+
         for (int i = 0; i < pointCount; ++i) {
-            // this code is duplicated in EMClusterSet.getPosteriorProbabilities()
+            calculator.calculate(points[i], posteriors);
+
+            // ensure non-zero probabilities for all clusters to prevent the
+            // covariance matrixes from becoming singular
             double sum = 0.0;
             for (int k = 0; k < clusterCount; ++k) {
-                h[k][i] = p[k] * distributions[k].probabilityDensity(points[i]);
-                sum += h[k][i];
+                posteriors[k] += 1.0E-4;
+                sum += posteriors[k];
             }
-            if (sum > 0.0) {
+            for (int k = 0; k < clusterCount; ++k) {
+                posteriors[k] /= sum;
+            }
+
+            // calculate cluster means and covariances in a single pass
+            // D. H. D. West (1979, Communications of the ACM, 22, 532)
+            if (i == 0) {
                 for (int k = 0; k < clusterCount; ++k) {
-                    h[k][i] /= sum;
+                    for (int l = 0; l < dimensionCount; ++l) {
+                        means[k][l] = points[0][l];
+                        for (int m = l; m < dimensionCount; ++m) {
+                            covariances[k][l][m] = 0.0;
+                        }
+                    }
+                    sums[k] = posteriors[k];
                 }
             } else {
-                // numerical underflow - compute probabilities using inverse Mahalanobis distance
                 for (int k = 0; k < clusterCount; ++k) {
-                    h[k][i] = p[k] / (1.0 + distributions[k].mahalanobisSquaredDistance(points[i]));
-                    sum += h[k][i];
-                }
-                if (sum > 0.0) {
-                    for (int k = 0; k < clusterCount; ++k) {
-                        h[k][i] /= sum;
+                    final double temp = posteriors[k] + sums[k];
+
+                    for (int l = 0; l < dimensionCount; ++l) {
+                        for (int m = l; m < dimensionCount; ++m) {
+                            covariances[k][l][m] += sums[k] * posteriors[k] * (points[i][l] - means[k][l]) * (points[i][m] - means[k][m]) / temp;
+                        }
+                        means[k][l] += posteriors[k] * (points[i][l] - means[k][l]) / temp;
                     }
-                } else {
-                    for (int k = 0; k < clusterCount; ++k) {
-                        h[k][i] = 1.0 / clusterCount;
-                    }
+
+                    sums[k] = temp;
                 }
-            }
-            // ensure non-zero probabilities everywhere
-            sum = 0.0;
-            for (int k = 0; k < clusterCount; ++k) {
-                h[k][i] += 1.0E-4;
-                sum += h[k][i];
-            }
-            // renormalize probabilities
-            for (int k = 0; k < clusterCount; ++k) {
-                h[k][i] /= sum;
             }
         }
-    }
 
-    /**
-     * Performs an M-step.
-     */
-    private void stepM() {
         for (int k = 0; k < clusterCount; ++k) {
-            p[k] = calculateMoments(h[k], means[k], covariances[k]);
+            for (int l = 0; l < dimensionCount; ++l) {
+                for (int m = l; m < dimensionCount; ++m) {
+                    covariances[k][l][m] /= sums[k];
+                    covariances[k][m][l] = covariances[k][l][m];
+                }
+            }
+
+            priors[k] = sums[k] / pointCount;
             distributions[k] = new MultinormalDistribution(means[k], covariances[k]);
         }
-    }
-
-    /**
-     * Calculates the statistical moments.
-     *
-     * @param h           the posterior probabilities associated with the data points.
-     * @param mean        the mean of the data points.
-     * @param covariances the covariances of the data points.
-     *
-     * @return the mean posterior probability.
-     */
-    private double calculateMoments(double[] h, double[] mean, double[][] covariances) {
-        for (int k = 0; k < dimensionCount; ++k) {
-            for (int l = k; l < dimensionCount; ++l) {
-                covariances[k][l] = 0.0;
-            }
-            mean[k] = 0.0;
-        }
-        double sum = 0.0;
-        for (int i = 0; i < pointCount; ++i) {
-            for (int k = 0; k < dimensionCount; ++k) {
-                mean[k] += h[i] * points[i][k];
-            }
-            sum += h[i];
-        }
-        for (int k = 0; k < dimensionCount; ++k) {
-            mean[k] /= sum;
-        }
-        for (int i = 0; i < pointCount; ++i) {
-            for (int k = 0; k < dimensionCount; ++k) {
-                for (int l = k; l < dimensionCount; ++l) {
-                    covariances[k][l] += h[i] * (points[i][k] - mean[k]) * (points[i][l] - mean[l]);
-                }
-            }
-        }
-        for (int k = 0; k < dimensionCount; ++k) {
-            for (int l = k; l < dimensionCount; ++l) {
-                covariances[k][l] /= sum;
-                covariances[l][k] = covariances[k][l];
-            }
-        }
-
-        return sum / pointCount;
     }
 
     /**
@@ -247,6 +232,7 @@ public class EMClusterer {
      */
     private static class PriorProbabilityClusterComparator implements Comparator<EMCluster> {
 
+        @Override
         public int compare(EMCluster c1, EMCluster c2) {
             return Double.compare(c2.getPriorProbability(), c1.getPriorProbability());
         }

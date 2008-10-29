@@ -13,22 +13,19 @@
  */
 package org.esa.beam.cluster;
 
-import static java.lang.Math.*;
-import java.text.MessageFormat;
-
 /**
  * Multinormal distribution.
  *
  * @author Ralf Quast
- * @version $Revision: 2221 $ $Date: 2008-06-16 11:19:52 +0200 (Mo, 16 Jun 2008) $
+ * @version $Revision$ $Date$
  */
-public class MultinormalDistribution implements Distribution {
+class MultinormalDistribution implements Distribution {
 
     private final double[] mean;
-    private final double[][] covariances;
-
     private final double logNormFactor;
-    private final Eigendecomposition eigendecomposition;
+
+    private double[] eigenvalues;
+    private double[][] v;
 
     /**
      * Constructs a new multinormal distribution.
@@ -36,33 +33,32 @@ public class MultinormalDistribution implements Distribution {
      * @param mean        the distribution mean.
      * @param covariances the distribution covariances.
      */
-    public MultinormalDistribution(double[] mean, double[][] covariances) {
-        if (covariances.length != mean.length) {
-            throw new IllegalArgumentException("covariances.length != mean.length");
+    MultinormalDistribution(double[] mean, double[][] covariances) {
+        this.mean = mean.clone();
+
+        final Eigendecomposition decomposition = new Eigendecomposition(covariances.length, covariances);
+        eigenvalues = decomposition.getEigenvalues();
+        v = decomposition.getV();
+
+        double det = eigenvalues[0];
+        for (int i = 1; i < eigenvalues.length; ++i) {
+            det *= eigenvalues[i];
         }
-        for (int i = 0; i < mean.length; ++i) {
-            if (covariances[i].length != mean.length) {
-                throw new IllegalArgumentException(MessageFormat.format("covariances[{0}].length != mean.length", i));
-            }
-        }
+        final double logDet = Math.log(det);
 
-        this.mean = mean;
-        this.covariances = covariances;
-
-        eigendecomposition = new Eigendecomposition(mean.length, covariances);
-
-        double logDet = Math.log(product(eigendecomposition.getEigenvalues()));
         if (Double.isNaN(logDet) || Double.isInfinite(logDet)) {
-            throw new ArithmeticException("Matrix is ill-conditioned.");
+            throw new ArithmeticException("Matrix is numerically singular.");
         }
 
-        logNormFactor = -0.5 * (mean.length * log(2.0 * PI) + logDet);
+        logNormFactor = -0.5 * (mean.length * Math.log(2.0 * Math.PI) + logDet);
     }
 
+    @Override
     public final double probabilityDensity(double[] y) {
-        return exp(logProbabilityDensity(y));
+        return Math.exp(logProbabilityDensity(y));
     }
 
+    @Override
     public final double logProbabilityDensity(double[] y) {
         if (y.length != mean.length) {
             throw new IllegalArgumentException("y.length != mean.length");
@@ -71,62 +67,41 @@ public class MultinormalDistribution implements Distribution {
         return logNormFactor - 0.5 * mahalanobisSquaredDistance(y);
     }
 
-    public double[] getMean() {
-        return mean;
-    }
-
-    public double[][] getCovariances() {
-        return covariances;
-    }
-
-    public double mahalanobisSquaredDistance(double[] y) {
+    private double mahalanobisSquaredDistance(double[] y) {
         double u = 0.0;
 
         for (int i = 0; i < mean.length; ++i) {
             double d = 0.0;
 
             for (int j = 0; j < mean.length; ++j) {
-                d += eigendecomposition.getV(i, j) * (y[j] - mean[j]);
+                d += v[i][j] * (y[j] - mean[j]);
             }
 
-            u += (d * d) / eigendecomposition.getEigenvalue(i);
+            u += (d * d) / eigenvalues[i];
         }
 
         return u;
     }
 
-    private static double product(double[] values) {
-        double product = values[0];
-
-        for (int i = 1; i < values.length; ++i) {
-            product *= values[i];
-        }
-
-        return product;
-    }
-
+    // todo - replace Jama SVD with something else
     private static class Eigendecomposition {
 
         private double[] eigenvalues;
         private double[][] v;
 
-        private Eigendecomposition(int n, double[][] symmetricMatrix) {
-            final Jama.SingularValueDecomposition svd = new Jama.Matrix(symmetricMatrix, n, n).svd();
+        private Eigendecomposition(int n, double[][] matrix) {
+            final Jama.SingularValueDecomposition svd = new Jama.Matrix(matrix, n, n).svd();
 
             eigenvalues = svd.getSingularValues();
-            v = svd.getV().getArray();
+            v = svd.getV().getArrayCopy();
         }
 
-        public double[] getEigenvalues() {
+        public final double[] getEigenvalues() {
             return eigenvalues;
         }
 
-        public final double getEigenvalue(int i) {
-            return eigenvalues[i];
-        }
-
-        public final double getV(int i, int j) {
-            return v[i][j];
+        public final double[][] getV() {
+            return v;
         }
     }
 }
