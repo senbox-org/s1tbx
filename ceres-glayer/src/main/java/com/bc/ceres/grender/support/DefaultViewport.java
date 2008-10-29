@@ -60,10 +60,12 @@ public class DefaultViewport implements Viewport {
     }
 
     @Override
-    public void setViewBounds(Rectangle bounds) {
-        Assert.notNull(bounds, "viewBounds");
-        this.viewBounds.setRect(bounds);
-        fireViewportChanged(false);
+    public void setViewBounds(Rectangle viewBounds) {
+        Assert.notNull(viewBounds, "viewBounds");
+        if (!viewBounds.equals(this.viewBounds)) {
+            this.viewBounds.setRect(viewBounds);
+            fireViewportChanged(false);
+        }
     }
 
     @Override
