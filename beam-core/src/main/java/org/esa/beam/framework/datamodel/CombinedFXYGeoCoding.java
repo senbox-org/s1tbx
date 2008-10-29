@@ -35,11 +35,12 @@ import java.util.ArrayList;
 public class CombinedFXYGeoCoding extends AbstractGeoCoding {
 
     private CodingWrapper[] _codingWrappers;
+    private final Datum _datum;
     private int _lastIndex;
 
     public CombinedFXYGeoCoding(final CodingWrapper[] codingWrappers) {
         Guardian.assertNotNull("codingWrappers", codingWrappers);
-        final ArrayList wrappers = new ArrayList();
+        final ArrayList<CodingWrapper> wrappers = new ArrayList<CodingWrapper>();
         for (int i = 0; i < codingWrappers.length; i++) {
             final CodingWrapper codingWrapper = codingWrappers[i];
             if (codingWrapper != null) {
@@ -47,7 +48,8 @@ public class CombinedFXYGeoCoding extends AbstractGeoCoding {
             }
         }
         Guardian.assertGreaterThan("number of coding wrappers", wrappers.size(), 0);
-        _codingWrappers = (CodingWrapper[]) wrappers.toArray(new CodingWrapper[wrappers.size()]);
+        _codingWrappers = wrappers.toArray(new CodingWrapper[wrappers.size()]);
+        _datum = _codingWrappers[0].getGeoGoding().getDatum();
         _lastIndex = 0;
     }
 
@@ -170,20 +172,22 @@ public class CombinedFXYGeoCoding extends AbstractGeoCoding {
     }
 
     public PixelPos getPixelPos(final GeoPos geoPos, PixelPos pixelPos) {
-        int index = _lastIndex;
-        do {
-            final CodingWrapper wrapper = _codingWrappers[index];
-            pixelPos = wrapper.getPixelPos(geoPos, pixelPos);
-            if (wrapper.contains(pixelPos)) {
-                _lastIndex = index;
-                break;
-            }
-            index++;
-            if (index == _codingWrappers.length) {
-                index = 0;
-            }
-        } while (index != _lastIndex);
-        return pixelPos;
+        synchronized (this) {
+            int index = _lastIndex;
+            do {
+                final CodingWrapper wrapper = _codingWrappers[index];
+                pixelPos = wrapper.getPixelPos(geoPos, pixelPos);
+                if (wrapper.contains(pixelPos)) {
+                    _lastIndex = index;
+                    break;
+                }
+                index++;
+                if (index == _codingWrappers.length) {
+                    index = 0;
+                }
+            } while (index != _lastIndex);
+            return pixelPos;
+        }
     }
 
     public GeoPos getGeoPos(final PixelPos pixelPos, GeoPos geoPos) {
@@ -200,7 +204,7 @@ public class CombinedFXYGeoCoding extends AbstractGeoCoding {
     }
 
     public Datum getDatum() {
-        return null;
+        return _datum;
     }
 
     public void dispose() {
