@@ -18,28 +18,16 @@ package org.esa.beam.visat.dialogs;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
-import com.bc.jexp.EvalException;
-import com.bc.jexp.Namespace;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Parser;
-import com.bc.jexp.Term;
+import com.bc.jexp.*;
 import com.bc.jexp.impl.ParserImpl;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNodeList;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamProperties;
 import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.NewBandDialog;
-import org.esa.beam.framework.ui.NewProductDialog;
-import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.*;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
@@ -171,20 +159,24 @@ public class BandArithmetikDialog extends ModalDialog {
                 final int rasterSize = _targetBand.getRasterWidth() * _targetBand.getRasterHeight();
                 final int type = _targetBand.getDataType();
                 final int requiredMemory = rasterSize * ProductData.getElemSize(type);
-                final long freeMemory = Runtime.getRuntime().freeMemory();
+                final Runtime runtime = Runtime.getRuntime();
+                final long usedMemory = runtime.totalMemory() - runtime.freeMemory();
+                final long availableMemory = runtime.maxMemory() - usedMemory;
+
                 final float megabyte = 1024.0f * 1024.0f;
-                if (freeMemory <= requiredMemory) {
+                if (requiredMemory > availableMemory) {
                     String message = "Can not create the new band.\n" +
                                      "The amount of required memory is equal or greater than the available memory.\n\n" +
-                                     String.format("Free memory: %.1f MB\n", freeMemory / megabyte) +
+                                     String.format("Available memory: %.1f MB\n", availableMemory / megabyte) +
                                      String.format("Required memory: %.1f MB", requiredMemory / megabyte);
                     _visatApp.showErrorDialog(message); /*I18N*/
                     BandArithmetikDialog.super.onOK();
                     return;
-                } else if (requiredMemory * 2 > freeMemory) {
+                }
+                if (requiredMemory * 1.3 > availableMemory ) {
                     String message = "Creating the new band will cause the system to reach its memory limit.\n" +
                                      "This can cause the system to slow down.\n" +
-                                     String.format("Free memory: %.1f MB\n", freeMemory / megabyte) +
+                                     String.format("Available memory: %.1f MB\n", availableMemory / megabyte) +
                                      String.format("Required memory: %.1f MB\n\n", requiredMemory / megabyte) +
                                      "Do you really want to create the image?";
                     final int answer = _visatApp.showQuestionDialog(message, null);/*I18N*/
@@ -232,6 +224,9 @@ public class BandArithmetikDialog extends ModalDialog {
                 } catch (EvalException e) {
                     Debug.trace(e);
                     _errorMessage = "The band could not be created.\nAn expression evaluation error occured:\n" + e.getMessage();/*I18N*/
+                } catch(Exception e){
+                    Debug.trace(e);
+                    _errorMessage = "The band could not be created.:\n" + e.getMessage();/*I18N*/
                 } finally {
                 }
                 return null;
