@@ -62,6 +62,7 @@ public class BufferedImageRendering implements Rendering {
         updateViewportViewBounds();
     }
 
+    @Override
     protected void finalize() throws Throwable {
         super.finalize();
         disposeGraphics();
