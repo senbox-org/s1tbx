@@ -17,6 +17,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.awt.*;
 
 public class GPFFacadeTest extends TestCase {
 
@@ -119,6 +120,30 @@ public class GPFFacadeTest extends TestCase {
 
     }
 
+    public void testTileSizeRenderingHint() {
+        final RenderingHints renderingHints = new RenderingHints(null);
+
+        try {
+            renderingHints.put(GPF.KEY_TILE_SIZE, null);
+            fail();
+        } catch (Exception expected) {
+        }
+        try {
+            renderingHints.put(GPF.KEY_TILE_SIZE, new Object());
+            fail();
+        } catch (Exception expected) {
+        }
+        try {
+            renderingHints.put(GPF.KEY_TILE_SIZE, new Dimension());
+            fail();
+        } catch (Exception expected) {
+        }
+
+        final Dimension tileSize = new Dimension(1, 1);
+        renderingHints.put(GPF.KEY_TILE_SIZE, tileSize);
+
+        assertSame(tileSize, renderingHints.get(GPF.KEY_TILE_SIZE));
+    }
 
     @OperatorMetadata(alias = "Foo")
     public static class FooOp extends Operator {

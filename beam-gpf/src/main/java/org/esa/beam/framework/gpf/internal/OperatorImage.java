@@ -5,11 +5,13 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ImageUtils;
 
-import javax.media.jai.*;
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.SourcelessOpImage;
 import java.awt.*;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
@@ -32,7 +34,7 @@ public class OperatorImage extends SourcelessOpImage {
 
     private OperatorImage(Band targetBand, OperatorContext operatorContext, ImageLayout imageLayout) {
         super(imageLayout,
-              createDefaultRenderingHints(),
+              addDefaultRenderingHints(operatorContext.getRenderingHints()),
               imageLayout.getSampleModel(null),
               imageLayout.getMinX(null),
               imageLayout.getMinY(null),
@@ -42,16 +44,19 @@ public class OperatorImage extends SourcelessOpImage {
         this.operatorContext = operatorContext;
     }
 
-    private static RenderingHints createDefaultRenderingHints() {
-        boolean disableTileCaching = Boolean.getBoolean(DISABLE_TILE_CACHING_PROPERTY);
-         TileCache cache;
+    private static RenderingHints addDefaultRenderingHints(RenderingHints renderingHints) {
+        final boolean disableTileCaching = Boolean.getBoolean(DISABLE_TILE_CACHING_PROPERTY);
+
         if (disableTileCaching) {
-            cache = null;
-        }  else {
-            // note that we could provide a GPF specific tile (with another cache metric) cache here
-            cache = JAI.getDefaultInstance().getTileCache();
+            renderingHints.put(JAI.KEY_TILE_CACHE, null);
+        } else {
+            if (renderingHints.get(JAI.KEY_TILE_CACHE) == null) {
+                // note that we could provide a GPF specific tile (with another cache metric) cache here
+                renderingHints.put(JAI.KEY_TILE_CACHE, JAI.getDefaultInstance().getTileCache());
+            }
         }
-        return new RenderingHints(JAI.KEY_TILE_CACHE, cache);
+
+        return renderingHints;
     }
 
     public OperatorContext getOperatorContext() {
@@ -160,7 +165,8 @@ public class OperatorImage extends SourcelessOpImage {
 
     public WritableRaster createWritableRaster(Rectangle rectangle) {
         final int dataBufferType = ImageManager.getDataBufferType(band.getDataType());
-        SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataBufferType, rectangle.width, rectangle.height);
+        SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataBufferType, rectangle.width,
+                                                                           rectangle.height);
         final Point location = new Point(rectangle.x, rectangle.y);
         return createWritableRaster(sampleModel, location);
     }

@@ -29,14 +29,14 @@ import org.esa.beam.framework.gpf.graph.OperatorConfiguration;
 import org.esa.beam.framework.gpf.graph.OperatorConfiguration.Reference;
 import org.esa.beam.util.jai.JAIUtils;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -65,6 +65,7 @@ public class OperatorContext {
     private Logger logger;
     private boolean disposed;
     private ValueContainer valueContainer;
+    private RenderingHints renderingHints;
 
     public OperatorContext(Operator operator) {
         this.operator = operator;
@@ -74,6 +75,7 @@ public class OperatorContext {
         this.sourceProductMap = new HashMap<String, Product>(3);
         this.targetPropertyMap = new HashMap<String, Object>(3);
         this.logger = Logger.getAnonymousLogger();
+        this.renderingHints = new RenderingHints(null);
     }
 
     public String getId() {
@@ -194,6 +196,17 @@ public class OperatorContext {
         this.parameters = new HashMap<String, Object>(parameters);
     }
 
+    public RenderingHints getRenderingHints() {
+        return (RenderingHints) renderingHints.clone();
+    }
+
+    public void setRenderingHints(RenderingHints renderingHints) {
+        if (renderingHints == null) {
+            this.renderingHints = new RenderingHints(null);
+        } else {
+            this.renderingHints = (RenderingHints) renderingHints.clone();
+        }
+    }
 
     public void setConfiguration(OperatorConfiguration opConfiguration) {
         this.configuration = opConfiguration;
@@ -361,12 +374,16 @@ public class OperatorContext {
             } else {
                 sourceNodeId = "product:" + sourceProduct.getDisplayName();
             }
-            final MetadataAttribute sourceAttribute = new MetadataAttribute(sourceId, ProductData.createInstance(sourceNodeId), false);
+            final MetadataAttribute sourceAttribute = new MetadataAttribute(sourceId,
+                                                                            ProductData.createInstance(sourceNodeId),
+                                                                            false);
             targetSourcesME.addAttribute(sourceAttribute);
         }
         targetNodeME.addElement(targetSourcesME);
 
-        final DefaultDomConverter domConverter = new DefaultDomConverter(context.operator.getClass(), new ParameterDescriptorFactory(sourceProductMap));
+        final DefaultDomConverter domConverter = new DefaultDomConverter(context.operator.getClass(),
+                                                                         new ParameterDescriptorFactory(
+                                                                                 sourceProductMap));
         final Xpp3DomElement parametersDom = Xpp3DomElement.createDomElement("parameters");
         domConverter.convertValueToDom(context.operator, parametersDom);
         final MetadataElement targetParametersME = new MetadataElement("parameters");
@@ -375,7 +392,8 @@ public class OperatorContext {
     }
 
     private static void addDomToMetadata(DomElement parentDE, MetadataElement parentME) {
-        final HashMap<String, List<DomElement>> map = new HashMap<String, List<DomElement>>(parentDE.getChildCount() + 5);
+        final HashMap<String, List<DomElement>> map = new HashMap<String, List<DomElement>>(
+                parentDE.getChildCount() + 5);
         for (DomElement childDE : parentDE.getChildren()) {
             final String name = childDE.getName();
             List<DomElement> elementList = map.get(name);
@@ -438,7 +456,7 @@ public class OperatorContext {
     private void initTargetImages() {
         if (targetProduct.getPreferredTileSize() == null) {
             Dimension tileSize = null;
-            for (Product sourceProduct : sourceProductList) {
+            for (final Product sourceProduct : sourceProductList) {
                 if (sourceProduct.getPreferredTileSize() != null &&
                         sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
                         sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
@@ -453,17 +471,17 @@ public class OperatorContext {
             targetProduct.setPreferredTileSize(tileSize);
         }
 
-        Band[] bands = targetProduct.getBands();
-        targetImageMap = new HashMap<Band, OperatorImage>(bands.length * 2);
-        for (Band band : bands) {
+        final Band[] targetBands = targetProduct.getBands();
+        targetImageMap = new HashMap<Band, OperatorImage>(targetBands.length * 2);
+        for (final Band targetBand : targetBands) {
             // Set OperatorImage, "instanceof" has intentionally not been used
-            if (band.getClass() == Band.class) {
-                OperatorImage image = new OperatorImage(band, this);
+            if (targetBand.getClass() == Band.class) {
+                final OperatorImage image = new OperatorImage(targetBand, this);
                 // Note: pass-through operators have source band=target band, in this case an OperatorImage is already set
-                if (!band.isSourceImageSet()) {
-                    band.setSourceImage(image);
+                if (!targetBand.isSourceImageSet()) {
+                    targetBand.setSourceImage(image);
                 }
-                targetImageMap.put(band, image);
+                targetImageMap.put(targetBand, image);
             }
         }
     }
@@ -498,6 +516,12 @@ public class OperatorContext {
         if (targetProduct.getProductReader() == null) {
             targetProduct.setProductReader(new OperatorProductReader(this));
         }
+        if (GPF.KEY_TILE_SIZE.isCompatibleValue(renderingHints.get(GPF.KEY_TILE_SIZE))) {
+            final Dimension tileSize = (Dimension) renderingHints.get(GPF.KEY_TILE_SIZE);
+            if (tileSize.width > 0 && tileSize.height > 0) {
+                targetProduct.setPreferredTileSize(tileSize);
+            }
+        }
     }
 
     private void initTargetProperties() throws OperatorException {
@@ -508,16 +532,18 @@ public class OperatorContext {
                 Object propertyValue = getOperatorFieldValue(declaredField);
                 String fieldName = declaredField.getName();
                 if (targetPropertyMap.containsKey(fieldName)) {
-                    final String message = formatExceptionMessage("Name of field '%s' is already used as target property alias.",
-                                                                  fieldName);
+                    final String message = formatExceptionMessage(
+                            "Name of field '%s' is already used as target property alias.",
+                            fieldName);
                     throw new OperatorException(message);
                 }
                 targetPropertyMap.put(fieldName, propertyValue);
                 if (!targetPropertyAnnotation.alias().isEmpty()) {
                     String aliasName = targetPropertyAnnotation.alias();
                     if (targetPropertyMap.containsKey(aliasName)) {
-                        final String message = formatExceptionMessage("Alias of field '%s' is already used by another target property.",
-                                                                      aliasName);
+                        final String message = formatExceptionMessage(
+                                "Alias of field '%s' is already used by another target property.",
+                                aliasName);
                         throw new OperatorException(message);
                     }
                     targetPropertyMap.put(aliasName, propertyValue);

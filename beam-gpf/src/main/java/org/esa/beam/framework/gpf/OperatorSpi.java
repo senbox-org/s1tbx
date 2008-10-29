@@ -3,6 +3,7 @@ package org.esa.beam.framework.gpf;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 
+import java.awt.*;
 import java.util.Map;
 
 /**
@@ -60,6 +61,7 @@ public abstract class OperatorSpi {
      * in order to set the operator's SPI.</p>
      *
      * @return the operator instance
+     *
      * @throws OperatorException if the instance could not be created
      */
     public Operator createOperator() throws OperatorException {
@@ -81,15 +83,41 @@ public abstract class OperatorSpi {
      * Implementors should call {@link Operator#setSpi(OperatorSpi) operator.setSpi(this)}
      * in order to set the operator's SPI.</p>
      *
-     * @param parameters     the processing parameters
-     * @param sourceProducts the source products
-     * @return the operator instance
-     * @throws OperatorException if the operator could not be created
+     * @param parameters     the processing parameters.
+     * @param sourceProducts the source products.
+     *
+     * @return the operator instance.
+     *
+     * @throws OperatorException if the operator could not be created.
      */
-    public Operator createOperator(Map<String, Object> parameters, Map<String, Product> sourceProducts) throws OperatorException {
-        Operator operator = createOperator();
+    public Operator createOperator(Map<String, Object> parameters,
+                                   Map<String, Product> sourceProducts) throws OperatorException {
+        return createOperator(parameters, sourceProducts, null);
+    }
+
+    /**
+     * <p>Creates an operator instance for the given source products and processing parameters.</p>
+     * <p>This method may be overridden by clients in order to process the passed parameters and
+     * source products and optionally construct the operator in a specific way.
+     * Implementors should call {@link Operator#setSpi(OperatorSpi) operator.setSpi(this)}
+     * in order to set the operator's SPI.</p>
+     *
+     * @param parameters     the processing parameters.
+     * @param sourceProducts the source products.
+     * @param renderingHints the rendering hints, may be {@code null}.
+     *
+     * @return the operator instance.
+     *
+     * @throws OperatorException if the operator could not be created.
+     */
+    public Operator createOperator(Map<String, Object> parameters,
+                                   Map<String, Product> sourceProducts,
+                                   RenderingHints renderingHints) throws OperatorException {
+        final Operator operator = createOperator();
         operator.context.setSourceProducts(sourceProducts);
         operator.context.setParameters(parameters);
+        operator.context.setRenderingHints(renderingHints);
+
         return operator;
     }
 

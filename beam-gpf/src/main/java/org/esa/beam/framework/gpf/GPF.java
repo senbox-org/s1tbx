@@ -1,18 +1,13 @@
 package org.esa.beam.framework.gpf;
 
-import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
-import org.esa.beam.framework.gpf.internal.OperatorContext;
-import org.esa.beam.framework.gpf.internal.OperatorImage;
-import org.esa.beam.framework.gpf.internal.OperatorProductReader;
 import org.esa.beam.framework.gpf.internal.OperatorSpiRegistryImpl;
 import org.esa.beam.util.Guardian;
 
-import javax.media.jai.JAI;
-import java.awt.image.RenderedImage;
+import javax.media.jai.TileCache;
+import java.awt.*;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,9 +32,29 @@ public class GPF {
     public static final String SOURCE_PRODUCT_FIELD_NAME = "sourceProduct";
     public static final String TARGET_PRODUCT_FIELD_NAME = "targetProduct";
 
+    /**
+     * Key for GPF tile size {@link RenderingHints}.
+     * <p/>
+     * The value for this key must be an instance of {@link Dimension} with
+     * both width and height positive.
+     */
+    public static final RenderingHints.Key KEY_TILE_SIZE =
+            new RenderingKey<Dimension>(1, Dimension.class, new RenderingKey.Validator<Dimension>() {
+                @Override
+                public boolean isValid(Dimension val) {
+                    return val.width > 0 && val.height > 0;
+                }
+            });
+    /**
+     * Key for GPF tile cache {@link RenderingHints}.
+     * <p/>
+     * The value for this key must be an instance of {@link TileCache}.
+     */
+    private static final RenderingHints.Key KEY_TILE_CACHE = new RenderingKey<TileCache>(2, TileCache.class);
 
     /**
      * An unmodifiable empty {@link Map Map}.
+     * <p/>
      * Can be used for convenience as a parameter for {@code createProduct()} if no
      * parameters are needed for the operator.
      *
@@ -52,6 +67,7 @@ public class GPF {
 
     /**
      * An unmodifiable empty {@link Map Map}.
+     * <p/>
      * Can be used for convenience as a parameter for {@code createProduct()} if no
      * source products are needed for the operator.
      *
@@ -74,10 +90,12 @@ public class GPF {
      * The resulting product can be used as input product for a further call to {@code createProduct()}.
      * By concatenating multiple calls it is possible to set up a processing graph.
      *
-     * @param operatorName the name of the operator to use
-     * @param parameters   the named parameters needed by the operator
-     * @return the product created by the operator
-     * @throws OperatorException if the product could not be created
+     * @param operatorName the name of the operator to use.
+     * @param parameters   the named parameters needed by the operator.
+     *
+     * @return the product created by the operator.
+     *
+     * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(String operatorName,
                                         Map<String, Object> parameters) throws OperatorException {
@@ -89,16 +107,18 @@ public class GPF {
      * The resulting product can be used as input product for a further call to {@code createProduct()}.
      * By concatenating multiple calls it is possible to set up a processing graph.
      *
-     * @param operatorName  the name of the operator to use
-     * @param parameters    the named parameters needed by the operator
-     * @param sourceProduct a source product
-     * @return the product created by the operator
-     * @throws OperatorException if the product could not be created
+     * @param operatorName   the name of the operator to use.
+     * @param parameters     the named parameters needed by the operator.
+     * @param renderingHints the rendering hints may be {@code null}.
+     *
+     * @return the product created by the operator.
+     *
+     * @throws OperatorException if the product could not be created.
      */
-    public static Product createProduct(final String operatorName,
-                                        final Map<String, Object> parameters,
-                                        final Product sourceProduct) throws OperatorException {
-        return createProduct(operatorName, parameters, new Product[]{sourceProduct});
+    public static Product createProduct(String operatorName,
+                                        Map<String, Object> parameters,
+                                        RenderingHints renderingHints) throws OperatorException {
+        return createProduct(operatorName, parameters, NO_SOURCES, renderingHints);
     }
 
     /**
@@ -106,15 +126,78 @@ public class GPF {
      * The resulting product can be used as input product for a further call to {@code createProduct()}.
      * By concatenating multiple calls it is possible to set up a processing graph.
      *
-     * @param operatorName   the name of the operator to use
-     * @param parameters     the named parameters needed by the operator
-     * @param sourceProducts an array of  source products
-     * @return the product created by the operator
-     * @throws OperatorException if the product could not be created
+     * @param operatorName  the name of the operator to use.
+     * @param parameters    the named parameters needed by the operator.
+     * @param sourceProduct a source product.
+     *
+     * @return the product created by the operator.
+     *
+     * @throws OperatorException if the product could not be created.
+     */
+    public static Product createProduct(final String operatorName,
+                                        final Map<String, Object> parameters,
+                                        final Product sourceProduct) throws OperatorException {
+        return createProduct(operatorName, parameters, sourceProduct, null);
+    }
+
+    /**
+     * Creates a product by using the operator specified by the given name.
+     * The resulting product can be used as input product for a further call to {@code createProduct()}.
+     * By concatenating multiple calls it is possible to set up a processing graph.
+     *
+     * @param operatorName   the name of the operator to use.
+     * @param parameters     the named parameters needed by the operator.
+     * @param sourceProduct  the source product.
+     * @param renderingHints the rendering hints may be {@code null}.
+     *
+     * @return the product created by the operator.
+     *
+     * @throws OperatorException if the product could not be created.
+     */
+    public static Product createProduct(final String operatorName,
+                                        final Map<String, Object> parameters,
+                                        final Product sourceProduct,
+                                        RenderingHints renderingHints) throws OperatorException {
+        return createProduct(operatorName, parameters, new Product[]{sourceProduct}, renderingHints);
+    }
+
+    /**
+     * Creates a product by using the operator specified by the given name.
+     * The resulting product can be used as input product for a further call to {@code createProduct()}.
+     * By concatenating multiple calls it is possible to set up a processing graph.
+     *
+     * @param operatorName   the name of the operator to use.
+     * @param parameters     the named parameters needed by the operator.
+     * @param sourceProducts the source products.
+     *
+     * @return the product created by the operator.
+     *
+     * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(final String operatorName,
                                         final Map<String, Object> parameters,
                                         final Product[] sourceProducts) throws OperatorException {
+        return createProduct(operatorName, parameters, sourceProducts, null);
+    }
+
+    /**
+     * Creates a product by using the operator specified by the given name.
+     * The resulting product can be used as input product for a further call to {@code createProduct()}.
+     * By concatenating multiple calls it is possible to set up a processing graph.
+     *
+     * @param operatorName   the name of the operator to use.
+     * @param parameters     the named parameters needed by the operator.
+     * @param sourceProducts the source products.
+     * @param renderingHints the rendering hints may be {@code null}.
+     *
+     * @return the product created by the operator.
+     *
+     * @throws OperatorException if the product could not be created.
+     */
+    public static Product createProduct(String operatorName,
+                                        Map<String, Object> parameters,
+                                        Product[] sourceProducts,
+                                        RenderingHints renderingHints) throws OperatorException {
         Map<String, Product> sourceProductMap = NO_SOURCES;
         if (sourceProducts.length > 0) {
             sourceProductMap = new HashMap<String, Product>(sourceProducts.length);
@@ -134,7 +217,8 @@ public class GPF {
                 }
             }
         }
-        return defaultInstance.createProductNS(operatorName, parameters, sourceProductMap);
+
+        return defaultInstance.createProductNS(operatorName, parameters, sourceProductMap, renderingHints);
     }
 
     /**
@@ -142,16 +226,58 @@ public class GPF {
      * The resulting product can be used as input product for a further call to {@code createProduct()}.
      * By concatenating multiple calls it is possible to set up a processing graph.
      *
-     * @param operatorName   the name of the operator to use
-     * @param parameters     the named parameters needed by the operator
-     * @param sourceProducts a map of named source products
-     * @return the product created by the operator
-     * @throws OperatorException if the product could not be created
+     * @param operatorName   the name of the operator to use.
+     * @param parameters     the named parameters needed by the operator.
+     * @param sourceProducts the map of named source products.
+     *
+     * @return the product created by the operator.
+     *
+     * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(String operatorName,
                                         Map<String, Object> parameters,
                                         Map<String, Product> sourceProducts) throws OperatorException {
-        return defaultInstance.createProductNS(operatorName, parameters, sourceProducts);
+        return createProduct(operatorName, parameters, sourceProducts, null);
+    }
+
+    /**
+     * Creates a product by using the operator specified by the given name.
+     * The resulting product can be used as input product for a further call to {@code createProduct()}.
+     * By concatenating multiple calls it is possible to set up a processing graph.
+     *
+     * @param operatorName   the name of the operator to use.
+     * @param parameters     the named parameters needed by the operator.
+     * @param sourceProducts the map of named source products.
+     * @param renderingHints the rendering hints, may be {@code null}.
+     *
+     * @return the product created by the operator.
+     *
+     * @throws OperatorException if the product could not be created.
+     */
+    public static Product createProduct(String operatorName,
+                                        Map<String, Object> parameters,
+                                        Map<String, Product> sourceProducts,
+                                        RenderingHints renderingHints) throws OperatorException {
+        return defaultInstance.createProductNS(operatorName, parameters, sourceProducts, renderingHints);
+    }
+
+    /**
+     * This method is deprecated. Use {@link GPF#createProductNS(String name, Map parameters,
+     * Map sourceProducts, RenderingHints renderingHints)} instead.
+     *
+     * @param operatorName   the name of the operator to use.
+     * @param parameters     the named parameters needed by the operator.
+     * @param sourceProducts a map of named source products.
+     *
+     * @return the product created by the operator.
+     *
+     * @throws OperatorException if the product could not be created.
+     */
+    @Deprecated
+    public Product createProductNS(String operatorName,
+                                   Map<String, Object> parameters,
+                                   Map<String, Product> sourceProducts) throws OperatorException {
+        return createProductNS(operatorName, parameters, sourceProducts, null);
     }
 
     /**
@@ -162,20 +288,24 @@ public class GPF {
      * It can be overriden by clients in order to alter product creation behaviour of the static
      * {@code createProduct} methods of the current GPF instance.</p>
      *
-     * @param operatorName   the name of the operator to use
-     * @param parameters     the named parameters needed by the operator
-     * @param sourceProducts a map of named source products
-     * @return the product created by the operator
-     * @throws OperatorException if the product could not be created
+     * @param operatorName   the name of the operator to use.
+     * @param parameters     the named parameters needed by the operator.
+     * @param sourceProducts the map of named source products.
+     * @param renderingHints the rendering hints, may be {@code null}.
+     *
+     * @return the product created by the operator.
+     *
+     * @throws OperatorException if the product could not be created.
      */
     public Product createProductNS(String operatorName,
                                    Map<String, Object> parameters,
-                                   Map<String, Product> sourceProducts) throws OperatorException {
+                                   Map<String, Product> sourceProducts,
+                                   RenderingHints renderingHints) {
         OperatorSpi operatorSpi = spiRegistry.getOperatorSpi(operatorName);
         if (operatorSpi == null) {
             throw new OperatorException("No SPI found for operator '" + operatorName + "'");
         }
-        Operator operator = operatorSpi.createOperator(parameters, sourceProducts);
+        Operator operator = operatorSpi.createOperator(parameters, sourceProducts, renderingHints);
         return operator.getTargetProduct();
     }
 
@@ -201,7 +331,7 @@ public class GPF {
     /**
      * Gets the default GPF instance.
      *
-     * @return the singelton instance
+     * @return the singelton instance.
      */
     public static GPF getDefaultInstance() {
         return defaultInstance;
@@ -210,9 +340,40 @@ public class GPF {
     /**
      * Sets the default GPF instance.
      *
-     * @param defaultInstance the GPF default instance
+     * @param defaultInstance the GPF default instance.
      */
     public static void setDefaultInstance(GPF defaultInstance) {
         GPF.defaultInstance = defaultInstance;
     }
+
+    static class RenderingKey<T> extends RenderingHints.Key {
+        private final Class<T> objectClass;
+        private final Validator<T> validator;
+
+        RenderingKey(int privateKey, Class<T> objectClass) {
+            this(privateKey, objectClass, new Validator<T>() {
+                @Override
+                public boolean isValid(T val) {
+                    return true;
+                }
+            });
+        }
+
+        RenderingKey(int privateKey, Class<T> objectClass, Validator<T> validator) {
+            super(privateKey);
+            this.objectClass = objectClass;
+            this.validator = validator;
+        }
+
+        @Override
+        public final boolean isCompatibleValue(Object val) {
+            //noinspection unchecked
+            return val != null && objectClass.isAssignableFrom(val.getClass()) && validator.isValid((T) val);
+        }
+
+        interface Validator<T> {
+            boolean isValid(T val);
+        }
+    }
+
 }
