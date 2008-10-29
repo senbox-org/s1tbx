@@ -156,14 +156,6 @@
             <initIndex>1</initIndex>
         </toolView>
 
-        <!--<toolView>-->
-            <!--<id>org.esa.beam.visat.toolviews.nav.NavigationToolView2</id>-->
-            <!--<class>org.esa.beam.visat.toolviews.nav.NavigationToolView2</class>-->
-            <!--<title>Navigation 2</title>-->
-            <!--<smallIcon>/org/esa/beam/resources/images/icons/Navigation16.gif</smallIcon>-->
-            <!--<largeIcon>/org/esa/beam/resources/images/icons/Navigation24.gif</largeIcon>-->
-        <!--</toolView>-->
-
         <toolView>
             <id>org.esa.beam.visat.toolviews.pixelinfo.PixelInfoToolView</id>
             <class>org.esa.beam.visat.toolviews.pixelinfo.PixelInfoToolView</class>

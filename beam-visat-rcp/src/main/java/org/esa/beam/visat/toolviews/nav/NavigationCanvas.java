@@ -1,23 +1,68 @@
 package org.esa.beam.visat.toolviews.nav;
 
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glayer.swing.DefaultLayerCanvasModel;
+import com.bc.ceres.glayer.swing.LayerCanvas;
+import com.bc.ceres.glayer.swing.LayerCanvasModel;
+import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.grender.ViewportListener;
+import com.bc.ceres.grender.support.DefaultViewport;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.swing.JPanel;
 import javax.swing.border.Border;
-import java.awt.Graphics;
+import javax.swing.event.MouseInputAdapter;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 
 
-public abstract class NavigationCanvas extends JPanel {
+public class NavigationCanvas extends JPanel {
     private final NavigationToolView navigationWindow;
+    private LayerCanvas thumbnailCanvas;
+    private static final DefaultLayerCanvasModel NULL_MODEL = new DefaultLayerCanvasModel(new Layer(), new DefaultViewport());
+    private ObservedViewportHandler observedViewportHandler;
+    private Rectangle moveSliderRect;
+    private boolean adjustingObservedViewport;
 
     public NavigationCanvas(NavigationToolView navigationWindow) {
-        super(null);
+        super(new BorderLayout());
+        setOpaque(true);
         this.navigationWindow = navigationWindow;
+        thumbnailCanvas = new LayerCanvas();
+        thumbnailCanvas.setRenderCustomizer(new Layer.RenderFilter() {
+            @Override
+            public boolean canRender(Layer layer) {
+                return layer instanceof ImageLayer;
+            }
+        });
+        thumbnailCanvas.addOverlay(new LayerCanvas.Overlay() {
+            public void paintOverlay(LayerCanvas canvas, Graphics2D g) {
+                if (moveSliderRect != null) {
+                    g.setColor(new Color(getForeground().getRed(), getForeground().getGreen(),
+                                         getForeground().getBlue(), 82));
+                    g.fillRect(moveSliderRect.x, moveSliderRect.y, moveSliderRect.width, moveSliderRect.height);
+                    g.setColor(getForeground());
+                    g.draw3DRect(moveSliderRect.x - 1, moveSliderRect.y - 1, moveSliderRect.width + 2, moveSliderRect.height + 2, true);
+                    g.draw3DRect(moveSliderRect.x, moveSliderRect.y, moveSliderRect.width, moveSliderRect.height, false);
+                }
+            }
+        });
+        add(thumbnailCanvas, BorderLayout.CENTER);
+
+        final MouseHandler mouseHandler = new MouseHandler();
+        addMouseListener(mouseHandler);
+        addMouseMotionListener(mouseHandler);
+
+        observedViewportHandler = new ObservedViewportHandler();
     }
 
-    public NavigationToolView getNavigationWindow() {
-        return navigationWindow;
+    @Override
+    public void setBounds(int x, int y, int width, int height) {
+        super.setBounds(x, y, width, height);
+        thumbnailCanvas.getViewport().setViewBounds(new Rectangle(x, y, width, height));
+        thumbnailCanvas.zoomAll();
     }
 
     /**
@@ -28,18 +73,97 @@ public abstract class NavigationCanvas extends JPanel {
      */
     @Override
     public void setBorder(Border border) {
-        if (border != null) {
-            BeamLogManager.getSystemLogger().warning("NavigationCanvas.setBorder() called with "
-                    + border.getClass().getCanonicalName());
-            BeamLogManager.getSystemLogger().warning("borders not allowed");
+    }
+
+    void handleViewChanged(ProductSceneView oldView, ProductSceneView newView) {
+        if (oldView != null) {
+            Viewport observedViewport = oldView.getLayerCanvas().getViewport();
+            observedViewport.addListener(observedViewportHandler);
+        }
+        if (newView != null) {
+            Viewport observedViewport = newView.getLayerCanvas().getViewport();
+            observedViewport.addListener(observedViewportHandler);
+            Viewport thumbnailViewport = new DefaultViewport(getBounds(), observedViewport.isModelYAxisDown());
+            LayerCanvasModel thumbnailCanvasModel = new DefaultLayerCanvasModel(newView.getRootLayer(), thumbnailViewport);
+            thumbnailCanvasModel.getViewport().setOrientation(observedViewport.getOrientation());
+            thumbnailCanvas.setModel(thumbnailCanvasModel);
+        } else {
+            thumbnailCanvas.setModel(NULL_MODEL);
+        }
+        updateMoveSliderRect();
+    }
+
+    private void updateMoveSliderRect() {
+        ProductSceneView view = getNavigationWindow().getCurrentView();
+        if (view != null) {
+            Viewport viewport = view.getLayerCanvas().getViewport();
+            Rectangle viewBounds = viewport.getViewBounds();
+            AffineTransform m2vTN = thumbnailCanvas.getViewport().getModelToViewTransform();
+            AffineTransform v2mVP = viewport.getViewToModelTransform();
+            moveSliderRect = m2vTN.createTransformedShape(v2mVP.createTransformedShape(viewBounds)).getBounds();
+        } else {
+            moveSliderRect = new Rectangle();
+        }
+        repaint();
+    }
+
+    private void handleMoveSliderRectChanged() {
+        ProductSceneView view = getNavigationWindow().getCurrentView();
+        if (view != null) {
+            adjustingObservedViewport = true;
+            Point location = moveSliderRect.getLocation();
+            thumbnailCanvas.getViewport().getViewToModelTransform().transform(location, location);
+            getNavigationWindow().setModelOffset(location.getX(), location.getY());
+            adjustingObservedViewport = false;
         }
     }
 
-    public abstract void handleViewChanged(ProductSceneView oldView, ProductSceneView newView);
+    private NavigationToolView getNavigationWindow() {
+        return navigationWindow;
+    }
 
-    public abstract boolean isUpdatingImageDisplay();
+    private class ObservedViewportHandler implements ViewportListener {
 
-    public abstract void updateImage();
+        public void handleViewportChanged(Viewport viewport, boolean orientationChanged) {
+            if (!adjustingObservedViewport) {
+                if (orientationChanged) {
+                    thumbnailCanvas.getViewport().setOrientation(viewport.getOrientation());
+                    thumbnailCanvas.zoomAll();
+                }
+                updateMoveSliderRect();
+            }
+        }
+    }
 
-    public abstract void updateSlider();
+    private class MouseHandler extends MouseInputAdapter {
+
+        private Point pickPoint;
+        private Point sliderPoint;
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            pickPoint = e.getPoint();
+            if (!moveSliderRect.contains(pickPoint)) {
+                moveSliderRect.x = pickPoint.x - moveSliderRect.width / 2;
+                moveSliderRect.y = pickPoint.y - moveSliderRect.height / 2;
+                repaint();
+            }
+            sliderPoint = moveSliderRect.getLocation();
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            repaint();
+            handleMoveSliderRectChanged();
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            moveSliderRect.x = sliderPoint.x + (e.getX() - pickPoint.x);
+            moveSliderRect.y = sliderPoint.y + (e.getY() - pickPoint.y);
+            repaint();
+            handleMoveSliderRectChanged();
+        }
+    }
+
 }

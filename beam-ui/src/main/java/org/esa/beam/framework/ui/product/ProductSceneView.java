@@ -12,14 +12,7 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.DefaultViewport;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.framework.ui.BasicView;
@@ -36,7 +29,6 @@ import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.glevel.RoiImageMultiLevelSource;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.MouseEventFilterFactory;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.PropertyMapChangeListener;
 import org.esa.beam.util.SystemUtils;
@@ -46,29 +38,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputListener;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.*;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Vector;
@@ -150,7 +122,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     private Tool tool;
 
     private ComponentAdapter layerCanvasComponentHandler;
-    private MouseInputListener layerCanvasMouseInputHandler;
+    private LayerCanvasMouseHandler layerCanvasMouseHandler;
     private KeyListener layerCanvasKeyHandler;
     private RasterChangeHandler rasterChangeHandler;
     private boolean scrollBarsShown;
@@ -712,18 +684,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         layerCanvas.getViewport().setZoomFactor(viewScale, x, y);
     }
 
-    public void zoom(double viewScale) {
-        layerCanvas.getViewport().setZoomFactor(viewScale);
-    }
-
-    public void zoomAll() {
-        zoom(layerCanvas.getLayer().getModelBounds());
-    }
-
-    public void move(double modelOffsetX, double modelOffsetY) {
-        layerCanvas.getViewport().move(modelOffsetX, modelOffsetY);
-    }
-
     public void synchronizeViewport(ProductSceneView view) {
         final Product currentProduct = getRaster().getProduct();
         final Product otherProduct = view.getRaster().getProduct();
@@ -975,34 +935,25 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
     private void registerLayerCanvasListeners() {
         layerCanvasComponentHandler = new LayerCanvasComponentHandler();
-        layerCanvasMouseInputHandler = MouseEventFilterFactory.createFilter(new PixelPosUpdater());
+        layerCanvasMouseHandler = new LayerCanvasMouseHandler();
         layerCanvasKeyHandler = new LayerCanvasKeyHandler();
 
         layerCanvas.addComponentListener(layerCanvasComponentHandler);
-        layerCanvas.addMouseListener(layerCanvasMouseInputHandler);
-        layerCanvas.addMouseMotionListener(layerCanvasMouseInputHandler);
+        layerCanvas.addMouseListener(layerCanvasMouseHandler);
+        layerCanvas.addMouseMotionListener(layerCanvasMouseHandler);
+        layerCanvas.addMouseWheelListener(layerCanvasMouseHandler);
         layerCanvas.addKeyListener(layerCanvasKeyHandler);
 
         PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
-        this.layerCanvas.addMouseListener(popupMenuHandler);
-        this.layerCanvas.addKeyListener(popupMenuHandler);
-        this.layerCanvas.addMouseWheelListener(new MouseWheelListener() {
-
-            @Override
-            public void mouseWheelMoved(MouseWheelEvent e) {
-                final Viewport viewport = layerCanvas.getViewport();
-                final int wheelRotation = e.getWheelRotation();
-                final double newZoomFactor = viewport.getZoomFactor() * Math.pow(1.1, wheelRotation);
-                viewport.setZoomFactor(newZoomFactor);
-            }
-        });
+        layerCanvas.addMouseListener(popupMenuHandler);
+        layerCanvas.addKeyListener(popupMenuHandler);
     }
 
     private void deregisterLayerCanvasListeners() {
         getRaster().getProduct().removeProductNodeListener(rasterChangeHandler);
         layerCanvas.removeComponentListener(layerCanvasComponentHandler);
-        layerCanvas.removeMouseListener(layerCanvasMouseInputHandler);
-        layerCanvas.removeMouseMotionListener(layerCanvasMouseInputHandler);
+        layerCanvas.removeMouseListener(layerCanvasMouseHandler);
+        layerCanvas.removeMouseMotionListener(layerCanvasMouseHandler);
         layerCanvas.removeKeyListener(layerCanvasKeyHandler);
     }
 
@@ -1045,11 +996,11 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         }
     }
 
-
     private void setPixelPos(MouseEvent e, boolean showBorder) {
         Point p = e.getPoint();
+
         Viewport viewport = getLayerCanvas().getViewport();
-        final int currentLevel = baseImageLayer.getLevel(viewport);
+        int currentLevel = baseImageLayer.getLevel(viewport);
         AffineTransform v2mTransform = viewport.getViewToModelTransform();
         final Point2D modelP = v2mTransform.transform(p, null);
 
@@ -1110,74 +1061,50 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         }
     }
 
-    protected final class ZoomHandler implements MouseWheelListener {
+    private final class LayerCanvasMouseHandler implements MouseInputListener, MouseWheelListener {
 
         @Override
-        public void mouseWheelMoved(MouseWheelEvent e) {
-            int notches = e.getWheelRotation();
-            double currentViewScale = getZoomFactor();
-            if (notches < 0) {
-                zoom(currentViewScale * 1.1f);
-            } else {
-                zoom(currentViewScale * 0.9f);
-            }
-        }
-    }
-
-    private final class PixelPosUpdater implements MouseInputListener {
-
-        /**
-         * Invoked when the mouse has been clicked on a component.
-         */
         public final void mouseClicked(MouseEvent e) {
             updatePixelPos(e, false);
         }
 
-        /**
-         * Invoked when the mouse enters a component.
-         */
+        @Override
         public final void mouseEntered(MouseEvent e) {
             updatePixelPos(e, false);
         }
 
-        /**
-         * Invoked when a mouse button has been pressed on a component.
-         */
+        @Override
         public final void mousePressed(MouseEvent e) {
             updatePixelPos(e, false);
         }
 
-        /**
-         * Invoked when a mouse button has been released on a component.
-         */
+        @Override
         public final void mouseReleased(MouseEvent e) {
             updatePixelPos(e, false);
         }
 
-        /**
-         * Invoked when the mouse exits a component.
-         */
+        @Override
         public final void mouseExited(MouseEvent e) {
             updatePixelPos(e, false);
         }
 
-        /**
-         * Invoked when a mouse button is pressed on a component and then
-         * dragged. Mouse drag events will continue to be delivered to the
-         * component where the first originated until the mouse button is
-         * released (regardless of whether the mouse position is within the
-         * bounds of the component).
-         */
+        @Override
         public final void mouseDragged(MouseEvent e) {
             updatePixelPos(e, true);
         }
 
-        /**
-         * Invoked when the mouse button has been moved on a component (with no
-         * buttons no down).
-         */
+        @Override
         public final void mouseMoved(MouseEvent e) {
             updatePixelPos(e, true);
+        }
+
+        @Override
+        public void mouseWheelMoved(MouseWheelEvent e) {
+            Viewport viewport = layerCanvas.getViewport();
+            int wheelRotation = e.getWheelRotation();
+            double oldZoomFactor = viewport.getZoomFactor();
+            double newZoomFactor = oldZoomFactor * Math.pow(1.1, wheelRotation);
+            viewport.setZoomFactor(newZoomFactor);
         }
 
         private void updatePixelPos(MouseEvent e, boolean showBorder) {
@@ -1187,14 +1114,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     private class LayerCanvasComponentHandler extends ComponentAdapter {
-
-        /**
-         * Invoked when the component's size changes.
-         */
-        @Override
-        public void componentResized(ComponentEvent e) {
-        }
-
         /**
          * Invoked when the component has been made invisible.
          */
@@ -1237,7 +1156,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
     private class ToolPainter implements LayerCanvas.Overlay {
         @Override
-            public void paintOverlay(LayerCanvas canvas, Graphics2D g2d) {
+        public void paintOverlay(LayerCanvas canvas, Graphics2D g2d) {
             if (tool != null && tool.isActive()) {
                 final Viewport vp = getLayerCanvas().getViewport();
                 final AffineTransform transformSave = g2d.getTransform();
@@ -1252,4 +1171,5 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
             }
         }
     }
+
 }
