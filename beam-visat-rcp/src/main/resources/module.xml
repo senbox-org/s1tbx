@@ -111,34 +111,19 @@
         </toolView>
 
         <toolView>
-            <id>org.esa.beam.visat.toolviews.lm.LayersToolView</id>
-            <class>org.esa.beam.visat.toolviews.lm.LayersToolView</class>
-            <title>Layer Manager</title>
-            <tabTitle>Layers</tabTitle>
-            <mnemonic>L</mnemonic>
-            <accelerator>ctrl alt L</accelerator>
-            <smallIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay16.png</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay24.png</largeIcon>
-            <!--<helpId>TODO</helpId>-->
-            <description>Display and modify layers of an image view.</description>
+            <id>org.esa.beam.visat.toolviews.pixelinfo.PixelInfoToolView</id>
+            <class>org.esa.beam.visat.toolviews.pixelinfo.PixelInfoToolView</class>
+            <title>Pixel Info View</title>
+            <tabTitle>Pixel Info</tabTitle>
+            <mnemonic>i</mnemonic>
+            <accelerator>ctrl alt I</accelerator>
+            <description>Display detailed pixel information in a table view.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/PixelInfo16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/PixelInfo24.gif</largeIcon>
+            <helpId>pixelInfoView</helpId>
             <initState>DOCKED</initState>
             <initSide>WEST</initSide>
             <initIndex>0</initIndex>
-        </toolView>
-
-        <toolView>
-            <id>org.esa.beam.visat.toolviews.imageinfo.ColorManipulationToolView</id>
-            <class>org.esa.beam.visat.toolviews.imageinfo.ColorManipulationToolView</class>
-            <title>Colour Manipulation</title>
-            <mnemonic>C</mnemonic>
-            <accelerator>ctrl alt C</accelerator>
-            <description>Allows image colour manipulation and contrast stretching.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/ContrastStretch16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/ContrastStretch24.gif</largeIcon>
-            <helpId>showColorManipulationWnd</helpId>
-            <initState>DOCKED</initState>
-            <initSide>WEST</initSide>
-            <initIndex>1</initIndex>
         </toolView>
 
         <toolView>
@@ -157,18 +142,32 @@
         </toolView>
 
         <toolView>
-            <id>org.esa.beam.visat.toolviews.pixelinfo.PixelInfoToolView</id>
-            <class>org.esa.beam.visat.toolviews.pixelinfo.PixelInfoToolView</class>
-            <title>Pixel Info View</title>
-            <tabTitle>Pixel Info</tabTitle>
-            <mnemonic>i</mnemonic>
-            <accelerator>ctrl alt I</accelerator>
-            <description>Display detailed pixel information in a table view.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/PixelInfo16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/PixelInfo24.gif</largeIcon>
-            <helpId>pixelInfoView</helpId>
+            <id>org.esa.beam.visat.toolviews.imageinfo.ColorManipulationToolView</id>
+            <class>org.esa.beam.visat.toolviews.imageinfo.ColorManipulationToolView</class>
+            <title>Colour Manipulation</title>
+            <mnemonic>C</mnemonic>
+            <accelerator>ctrl alt C</accelerator>
+            <description>Image coulour manipulation and enhancements.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/ContrastStretch16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/ContrastStretch24.gif</largeIcon>
+            <helpId>showColorManipulationWnd</helpId>
             <initState>DOCKED</initState>
             <initSide>WEST</initSide>
+            <initIndex>1</initIndex>
+        </toolView>
+
+        <toolView>
+            <id>org.esa.beam.visat.toolviews.layermanager.LayerManagerToolView</id>
+            <class>org.esa.beam.visat.toolviews.layermanager.LayerManagerToolView</class>
+            <title>Layer Manager</title>
+            <mnemonic>L</mnemonic>
+            <accelerator>ctrl alt L</accelerator>
+            <description>Manage view layer visibility and transparency.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/LayerManager16.png</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/LayerManager24.png</largeIcon>
+            <helpId>showLayerManagerWnd</helpId><!-- todo provide help -->
+            <initState>HIDDEN</initState>
+            <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
         </toolView>
 
@@ -186,7 +185,6 @@
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
         </toolView>
-
 
         <toolView>
             <id>org.esa.beam.visat.toolviews.pin.PinManagerToolView</id>
@@ -282,29 +280,19 @@
         </toolView>
 
         <toolView>
-            <id>org.esa.beam.visat.toolviews.diag.JaiMonitorToolView</id>
-            <class>org.esa.beam.visat.toolviews.diag.JaiMonitorToolView</class>
-            <title>Tile Cache Diagnostics</title>
-            <tabTitle>Diagnostics</tabTitle>
+            <id>org.esa.beam.visat.toolviews.diag.TileCacheDiagnosisToolView</id>
+            <class>org.esa.beam.visat.toolviews.diag.TileCacheDiagnosisToolView</class>
+            <title>Tile Cache Diagnosis</title>
+            <tabTitle>Tile Cache</tabTitle>
+            <mnemonic>D</mnemonic>
+            <accelerator>ctrl alt D</accelerator>
             <initState>HIDDEN</initState>
             <initSide>WEST</initSide>
             <initIndex>0</initIndex>
+            <smallIcon>/org/esa/beam/resources/images/icons/TileCacheDiagnosis16.png</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/TileCacheDiagnosis24.png</largeIcon>
         </toolView>
 
-        <toolView>
-            <id>org.esa.beam.visat.toolviews.layermanager.LayerManagerToolView</id>
-            <class>org.esa.beam.visat.toolviews.layermanager.LayerManagerToolView</class>
-            <title>Layer Manager</title>
-            <mnemonic>L</mnemonic>
-            <accelerator>ctrl alt L</accelerator>
-            <description>Manage view layer visibility and transparency.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/LayerManager16.png</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/LayerManager24.png</largeIcon>
-            <helpId/>
-            <initState>HIDDEN</initState>
-            <initSide>SOUTH</initSide>
-            <initIndex>0</initIndex>
-        </toolView>
 
     </extension>
 

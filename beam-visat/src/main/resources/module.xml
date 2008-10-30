@@ -72,8 +72,8 @@
             <applicationId>VisatMain</applicationId>
             <displayName>VISAT</displayName>
             <excludedToolViews>
-<!--                <id>org.esa.beam.visat.toolviews.diag.JaiMonitorToolView</id>-->
-                <id>org.esa.beam.visat.toolviews.lm.LayersToolView</id>
+                <!-- place tool view IDs here you wish to exclude from your application -->
+                <!-- e.g. <id>org.esa.beam.visat.toolviews.lm.LayersToolView</id> -->
             </excludedToolViews>
         </applicationDescriptor>
     </extension>

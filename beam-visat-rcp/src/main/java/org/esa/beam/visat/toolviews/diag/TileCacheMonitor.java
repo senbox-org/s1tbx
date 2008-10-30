@@ -33,7 +33,7 @@ import java.util.*;
 import java.util.List;
 
 
-public class JaiMonitor {
+public class TileCacheMonitor {
     private JTabbedPane tabbedPane;
     private static final String CACHE_INFO_TAB = "Cache Info";
     private static final String CACHE_CHART_TAB = "Cache Chart";

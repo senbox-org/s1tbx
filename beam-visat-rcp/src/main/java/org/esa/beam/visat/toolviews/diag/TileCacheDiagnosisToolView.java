@@ -6,21 +6,22 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class JaiMonitorToolView extends AbstractToolView {
+public class TileCacheDiagnosisToolView extends AbstractToolView {
+    public static final String ID = TileCacheDiagnosisToolView.class.getName();
     private Timer timer;
-    private JaiMonitor jaiMonitor;
+    private TileCacheMonitor tileCacheMonitor;
 
-    public JaiMonitorToolView() {
+    public TileCacheDiagnosisToolView() {
     }
 
     @Override
     protected JComponent createControl() {
-        jaiMonitor = new JaiMonitor();
-        JPanel panel = jaiMonitor.createPanel();
+        tileCacheMonitor = new TileCacheMonitor();
+        JPanel panel = tileCacheMonitor.createPanel();
         timer = new Timer(2000, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (isVisible()) {
-                    jaiMonitor.updateState();
+                    tileCacheMonitor.updateState();
                 }
             }
         });
