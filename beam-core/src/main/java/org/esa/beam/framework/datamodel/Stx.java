@@ -11,8 +11,9 @@ import java.util.concurrent.CancellationException;
 
 import javax.media.jai.Histogram;
 import javax.media.jai.PixelAccessor;
-import javax.media.jai.ROI;
+import javax.media.jai.PlanarImage;
 import javax.media.jai.UnpackedImageData;
+import javax.media.jai.operator.MinDescriptor;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
@@ -20,7 +21,7 @@ import com.bc.ceres.core.SubProgressMonitor;
 
 /**
  * Instances of the <code>Stx</code> class provide statistics for a band.
- * Premininary API. Use at your own risk.
+ * Preliminary API. Use at your own risk.
  *
  * @since BEAM 4.2
  */
@@ -41,16 +42,16 @@ public class Stx {
         return create(raster, level, null, binCount, min, max, pm);
     }
 
-    public static Stx create(RasterDataNode raster, ROI roi, ProgressMonitor pm) {
-        return create(raster, 0, roi, DEFAULT_BIN_COUNT, pm);
+    public static Stx create(RasterDataNode raster, PlanarImage roiImage, ProgressMonitor pm) {
+        return create(raster, 0, roiImage, DEFAULT_BIN_COUNT, pm);
     }
 
-    public static Stx create(RasterDataNode raster, ROI roi, int binCount, ProgressMonitor pm) {
-        return create(raster, 0, roi, binCount, pm);
+    public static Stx create(RasterDataNode raster, PlanarImage roiImage, int binCount, ProgressMonitor pm) {
+        return create(raster, 0, roiImage, binCount, pm);
     }
 
-    public static Stx create(RasterDataNode raster, ROI roi, int binCount, double min, double max, ProgressMonitor pm) {
-        return create(raster, 0, roi, binCount, min, max, pm);
+    public static Stx create(RasterDataNode raster, PlanarImage roiImage, int binCount, double min, double max, ProgressMonitor pm) {
+        return create(raster, 0, roiImage, binCount, min, max, pm);
     }
 
     public Stx(double min, double max, boolean intType, int[] sampleFrequencies, int resolutionLevel) {
@@ -123,11 +124,11 @@ public class Stx {
         return sum;
     }
 
-    private static Stx create(RasterDataNode raster, int level, ROI roi, int binCount, ProgressMonitor pm) {
+    private static Stx create(RasterDataNode raster, int level, PlanarImage roiImage, int binCount, ProgressMonitor pm) {
         try {
             pm.beginTask("Computing statistics", 2);
             final ExtremaOp extremaOp = new ExtremaOp();
-            accumulate(raster, level, roi, extremaOp, SubProgressMonitor.create(pm, 1));
+            accumulate(raster, level, roiImage, extremaOp, SubProgressMonitor.create(pm, 1));
 
             double min = extremaOp.lowValue;
             double max = extremaOp.highValue;
@@ -141,7 +142,7 @@ public class Stx {
             double off = getHighValueOffset(raster);
 
             final HistogramOp histogramOp = new HistogramOp(binCount, min, max + off);
-            accumulate(raster, level, roi, histogramOp, SubProgressMonitor.create(pm, 1));
+            accumulate(raster, level, roiImage, histogramOp, SubProgressMonitor.create(pm, 1));
 
             // Create JAI histo, but use our "BEAM" bins
             final Histogram histogram = createHistogram(binCount, min, max + off);
@@ -153,11 +154,11 @@ public class Stx {
         }
     }
 
-    private static Stx create(RasterDataNode raster, int level, ROI roi, int binCount, double min, double max, ProgressMonitor pm) {
+    private static Stx create(RasterDataNode raster, int level, PlanarImage roiImage, int binCount, double min, double max, ProgressMonitor pm) {
         double off = getHighValueOffset(raster);
 
         final HistogramOp histogramOp = new HistogramOp(binCount, min, max + off);
-        accumulate(raster, level, roi, histogramOp, pm);
+        accumulate(raster, level, roiImage, histogramOp, pm);
 
         // Create JAI histo, but use our "BEAM" bins
         final Histogram histogram = createHistogram(binCount, min, max + off);
@@ -176,13 +177,13 @@ public class Stx {
 
     private static void accumulate(RasterDataNode raster,
                                    int level,
-                                   ROI roi,
+                                   PlanarImage roiImage,
                                    Op op,
                                    ProgressMonitor pm) {
 
         Assert.notNull(raster, "raster");
         Assert.argument(level >= 0, "level");
-        Assert.argument(roi == null || level == 0, "level");
+        Assert.argument(roiImage == null || level == 0, "level");
         Assert.notNull(pm, "pm");
 
         final RenderedImage dataImage = ImageManager.getInstance().getSourceImage(raster, level);
@@ -192,7 +193,15 @@ public class Stx {
         }
         final PixelAccessor dataAccessor = new PixelAccessor(dataSampleModel, null);
 
-        final RenderedImage maskImage = ImageManager.getInstance().getValidMaskImage(raster, level);
+        RenderedImage maskImage = ImageManager.getInstance().getValidMaskImage(raster, level);
+        if (roiImage != null) {
+            if (maskImage != null) {
+                maskImage = MinDescriptor.create(maskImage, roiImage, null);
+            } else {
+                maskImage = roiImage;
+            }
+        }
+            
         final PixelAccessor maskAccessor;
         if (maskImage != null) {
             SampleModel maskSampleModel = maskImage.getSampleModel();
@@ -233,22 +242,22 @@ public class Stx {
                     switch (dataAccessor.sampleType) {
                         case PixelAccessor.TYPE_BIT:
                         case DataBuffer.TYPE_BYTE:
-                            op.accumulateDataUByte(dataAccessor, dataTile, maskAccessor, maskTile, r, roi);
+                            op.accumulateDataUByte(dataAccessor, dataTile, maskAccessor, maskTile, r);
                             break;
                         case DataBuffer.TYPE_USHORT:
-                            op.accumulateDataUShort(dataAccessor, dataTile, maskAccessor, maskTile, r, roi);
+                            op.accumulateDataUShort(dataAccessor, dataTile, maskAccessor, maskTile, r);
                             break;
                         case DataBuffer.TYPE_SHORT:
-                            op.accumulateDataShort(dataAccessor, dataTile, maskAccessor, maskTile, r, roi);
+                            op.accumulateDataShort(dataAccessor, dataTile, maskAccessor, maskTile, r);
                             break;
                         case DataBuffer.TYPE_INT:
-                            op.accumulateDataInt(dataAccessor, dataTile, maskAccessor, maskTile, r, roi);
+                            op.accumulateDataInt(dataAccessor, dataTile, maskAccessor, maskTile, r);
                             break;
                         case DataBuffer.TYPE_FLOAT:
-                            op.accumulateDataFloat(dataAccessor, dataTile, maskAccessor, maskTile, r, roi);
+                            op.accumulateDataFloat(dataAccessor, dataTile, maskAccessor, maskTile, r);
                             break;
                         case DataBuffer.TYPE_DOUBLE:
-                            op.accumulateDataDouble(dataAccessor, dataTile, maskAccessor, maskTile, r, roi);
+                            op.accumulateDataDouble(dataAccessor, dataTile, maskAccessor, maskTile, r);
                             break;
                     }
                     pm.worked(1);
@@ -262,17 +271,17 @@ public class Stx {
     private interface Op {
         String getName();
 
-        void accumulateDataUByte(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r, ROI roi);
+        void accumulateDataUByte(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
 
-        void accumulateDataShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r, ROI roi);
+        void accumulateDataShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
 
-        void accumulateDataUShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r, ROI roi);
+        void accumulateDataUShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
 
-        void accumulateDataInt(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r, ROI roi);
+        void accumulateDataInt(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
 
-        void accumulateDataFloat(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r, ROI roi);
+        void accumulateDataFloat(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
 
-        void accumulateDataDouble(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r, ROI roi);
+        void accumulateDataDouble(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
 
     }
 
@@ -289,7 +298,7 @@ public class Stx {
             return "Extrema";
         }
 
-        public void accumulateDataUByte(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r, ROI roi) {
+        public void accumulateDataUByte(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
             double lowValue = this.lowValue;
             double highValue = this.highValue;
 
@@ -320,7 +329,7 @@ public class Stx {
                 int dataPixelOffset = dataLineOffset;
                 int maskPixelOffset = maskLineOffset;
                 for (int x = 0; x < width; x++) {
-                    if ((mask == null || mask[maskPixelOffset] != 0) && (roi == null || roi.contains(r.x + x, r.y + y))) {
+                    if (mask == null || mask[maskPixelOffset] != 0) {
                         double d = data[dataPixelOffset] & 0xff;
                         if (d < lowValue) {
                             lowValue = d;
@@ -338,7 +347,7 @@ public class Stx {
             this.highValue = highValue;
         }
 
-        public void accumulateDataUShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r, ROI roi) {
+        public void accumulateDataUShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
             double lowValue = this.lowValue;
             double highValue = this.highValue;
 
@@ -369,7 +378,7 @@ public class Stx {
                 int dataPixelOffset = dataLineOffset;
                 int maskPixelOffset = maskLineOffset;
                 for (int x = 0; x < width; x++) {
-                    if ((mask == null || mask[maskPixelOffset] != 0) && (roi == null || roi.contains(r.x + x, r.y + y))) {
+                    if (mask == null || mask[maskPixelOffset] != 0) {
                         double d = data[dataPixelOffset] & 0xffff;
                         if (d < lowValue) {
                             lowValue = d;
@@ -388,7 +397,7 @@ public class Stx {
             this.highValue = highValue;
         }
 
-        public void accumulateDataShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r, ROI roi) {
+        public void accumulateDataShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
             double lowValue = this.lowValue;
             double highValue = this.highValue;
 
@@ -419,7 +428,7 @@ public class Stx {
                 int dataPixelOffset = dataLineOffset;
                 int maskPixelOffset = maskLineOffset;
                 for (int x = 0; x < width; x++) {
-                    if ((mask == null || mask[maskPixelOffset] != 0) && (roi == null || roi.contains(r.x + x, r.y + y))) {
+                    if (mask == null || mask[maskPixelOffset] != 0) {
                         double d = data[dataPixelOffset];
                         if (d < lowValue) {
                             lowValue = d;
@@ -438,7 +447,7 @@ public class Stx {
             this.highValue = highValue;
         }
 
-        public void accumulateDataInt(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r, ROI roi) {
+        public void accumulateDataInt(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
             double lowValue = this.lowValue;
             double highValue = this.highValue;
 
@@ -469,7 +478,7 @@ public class Stx {
                 int dataPixelOffset = dataLineOffset;
                 int maskPixelOffset = maskLineOffset;
                 for (int x = 0; x < width; x++) {
-                    if ((mask == null || mask[maskPixelOffset] != 0) && (roi == null || roi.contains(r.x + x, r.y + y))) {
+                    if (mask == null || mask[maskPixelOffset] != 0) {
                         double d = data[dataPixelOffset];
                         if (d < lowValue) {
                             lowValue = d;
@@ -488,7 +497,7 @@ public class Stx {
             this.highValue = highValue;
         }
 
-        public void accumulateDataFloat(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r, ROI roi) {
+        public void accumulateDataFloat(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
             double lowValue = this.lowValue;
             double highValue = this.highValue;
 
@@ -519,7 +528,7 @@ public class Stx {
                 int dataPixelOffset = dataLineOffset;
                 int maskPixelOffset = maskLineOffset;
                 for (int x = 0; x < width; x++) {
-                    if ((mask == null || mask[maskPixelOffset] != 0) && (roi == null || roi.contains(r.x + x, r.y + y))) {
+                    if (mask == null || mask[maskPixelOffset] != 0) {
                         double d = data[dataPixelOffset];
                         if (d < lowValue) {
                             lowValue = d;
@@ -538,7 +547,7 @@ public class Stx {
             this.highValue = highValue;
         }
 
-        public void accumulateDataDouble(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r, ROI roi) {
+        public void accumulateDataDouble(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
             double lowValue = this.lowValue;
             double highValue = this.highValue;
 
@@ -569,7 +578,7 @@ public class Stx {
                 int dataPixelOffset = dataLineOffset;
                 int maskPixelOffset = maskLineOffset;
                 for (int x = 0; x < width; x++) {
-                    if ((mask == null || mask[maskPixelOffset] != 0) && (roi == null || roi.contains(r.x + x, r.y + y))) {
+                    if (mask == null || mask[maskPixelOffset] != 0) {
                         double d = data[dataPixelOffset];
                         if (d < lowValue) {
                             lowValue = d;
@@ -607,7 +616,7 @@ public class Stx {
             return "Histogram";
         }
 
-        public void accumulateDataUByte(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r, ROI roi) {
+        public void accumulateDataUByte(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
             final int[] bins = this.bins;
             final double lowValue = this.lowValue;
             final double highValue = this.highValue;
@@ -640,7 +649,7 @@ public class Stx {
                 int dataPixelOffset = dataLineOffset;
                 int maskPixelOffset = maskLineOffset;
                 for (int x = 0; x < width; x++) {
-                    if ((mask == null || mask[maskPixelOffset] != 0) && (roi == null || roi.contains(r.x + x, r.y + y))) {
+                    if (mask == null || mask[maskPixelOffset] != 0) {
                         double d = data[dataPixelOffset] & 0xff;
                         if (d >= lowValue && d < highValue) {
                             int i = (int) ((d - lowValue) / binWidth);
@@ -655,7 +664,7 @@ public class Stx {
             }
         }
 
-        public void accumulateDataUShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r, ROI roi) {
+        public void accumulateDataUShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
             final int[] bins = this.bins;
             final double lowValue = this.lowValue;
             final double highValue = this.highValue;
@@ -688,7 +697,7 @@ public class Stx {
                 int dataPixelOffset = dataLineOffset;
                 int maskPixelOffset = maskLineOffset;
                 for (int x = 0; x < width; x++) {
-                    if ((mask == null || mask[maskPixelOffset] != 0) && (roi == null || roi.contains(r.x + x, r.y + y))) {
+                    if (mask == null || mask[maskPixelOffset] != 0) {
                         double d = data[dataPixelOffset] & 0xffff;
                         if (d >= lowValue && d < highValue) {
                             int i = (int) ((d - lowValue) / binWidth);
@@ -703,7 +712,7 @@ public class Stx {
             }
         }
 
-        public void accumulateDataShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r, ROI roi) {
+        public void accumulateDataShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
             final int[] bins = this.bins;
             final double lowValue = this.lowValue;
             final double highValue = this.highValue;
@@ -736,7 +745,7 @@ public class Stx {
                 int dataPixelOffset = dataLineOffset;
                 int maskPixelOffset = maskLineOffset;
                 for (int x = 0; x < width; x++) {
-                    if ((mask == null || mask[maskPixelOffset] != 0) && (roi == null || roi.contains(r.x + x, r.y + y))) {
+                    if (mask == null || mask[maskPixelOffset] != 0) {
                         double d = data[dataPixelOffset];
                         if (d >= lowValue && d < highValue) {
                             int i = (int) ((d - lowValue) / binWidth);
@@ -751,7 +760,7 @@ public class Stx {
             }
         }
 
-        public void accumulateDataInt(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r, ROI roi) {
+        public void accumulateDataInt(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
             final int[] bins = this.bins;
             final double lowValue = this.lowValue;
             final double highValue = this.highValue;
@@ -784,7 +793,7 @@ public class Stx {
                 int dataPixelOffset = dataLineOffset;
                 int maskPixelOffset = maskLineOffset;
                 for (int x = 0; x < width; x++) {
-                    if ((mask == null || mask[maskPixelOffset] != 0) && (roi == null || roi.contains(r.x + x, r.y + y))) {
+                    if (mask == null || mask[maskPixelOffset] != 0) {
                         double d = data[dataPixelOffset];
                         if (d >= lowValue && d < highValue) {
                             int i = (int) ((d - lowValue) / binWidth);
@@ -799,7 +808,7 @@ public class Stx {
             }
         }
 
-        public void accumulateDataFloat(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r, ROI roi) {
+        public void accumulateDataFloat(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
             final int[] bins = this.bins;
             final double lowValue = this.lowValue;
             final double highValue = this.highValue;
@@ -832,7 +841,7 @@ public class Stx {
                 int dataPixelOffset = dataLineOffset;
                 int maskPixelOffset = maskLineOffset;
                 for (int x = 0; x < width; x++) {
-                    if ((mask == null || mask[maskPixelOffset] != 0) && (roi == null || roi.contains(r.x + x, r.y + y))) {
+                    if (mask == null || mask[maskPixelOffset] != 0) {
                         double d = data[dataPixelOffset];
                         if (d >= lowValue && d <= highValue) {
                             int i = (int) ((d - lowValue) / binWidth);
@@ -848,7 +857,7 @@ public class Stx {
             }
         }
 
-        public void accumulateDataDouble(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r, ROI roi) {
+        public void accumulateDataDouble(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
             final int[] bins = this.bins;
             final double lowValue = this.lowValue;
             final double highValue = this.highValue;
@@ -881,7 +890,7 @@ public class Stx {
                 int dataPixelOffset = dataLineOffset;
                 int maskPixelOffset = maskLineOffset;
                 for (int x = 0; x < width; x++) {
-                    if ((mask == null || mask[maskPixelOffset] != 0) && (roi == null || roi.contains(r.x + x, r.y + y))) {
+                    if (mask == null || mask[maskPixelOffset] != 0) {
                         double d = data[dataPixelOffset];
                         if (d >= lowValue && d <= highValue) {
                             int i = (int) ((d - lowValue) / binWidth);

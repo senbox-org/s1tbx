@@ -1381,9 +1381,10 @@ public class ProductUtils {
                                                        final int height,
                                                        final Color background,
                                                        BufferedImage image) throws IOException {
+        PlanarImage roiImage = roi.getAsImage();
         return createScatterPlotImage(raster1, sampleMin1, sampleMax1,
                                       raster2, sampleMin2, sampleMax2,
-                                      roi,
+                                      roiImage,
                                       width, height,
                                       background,
                                       image,
@@ -1399,7 +1400,7 @@ public class ProductUtils {
      * @param raster2    the second raster data node
      * @param sampleMin2 the minimum sample value to be considered in the second raster
      * @param sampleMax2 the maximum sample value to be considered in the second raster
-     * @param roi        an otional ROI to be used for the computation
+     * @param roiImage   an optional image to be used as a ROI for the computation
      * @param width      the width of the output image
      * @param height     the height of the output image
      * @param background the background color of the output image
@@ -1412,7 +1413,7 @@ public class ProductUtils {
                                                        final RasterDataNode raster2,
                                                        final float sampleMin2,
                                                        final float sampleMax2,
-                                                       final ROI roi,
+                                                       final PlanarImage roiImage,
                                                        final int width,
                                                        final int height,
                                                        final Color background,
@@ -1462,7 +1463,7 @@ public class ProductUtils {
                                       new IndexColorModel(8, palSize, r, g, b, a));
         }
         final byte[] pixelValues = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
-        ScatterPlot.accumulate(raster1, sampleMin1, sampleMax1, raster2, sampleMin2, sampleMax2, roi, width, height, 0, pixelValues, pm);
+        ScatterPlot.accumulate(raster1, sampleMin1, sampleMax1, raster2, sampleMin2, sampleMax2, roiImage, width, height, pixelValues, pm);
         return image;
     }
 

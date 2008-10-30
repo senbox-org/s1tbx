@@ -22,7 +22,7 @@ import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.title.Title;
 import org.jfree.ui.RectangleInsets;
 
-import javax.media.jai.ROI;
+import javax.media.jai.PlanarImage;
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -369,11 +369,11 @@ class ScatterPlotPanel extends PagePanel {
             return;
         }
 
-        final ROI roi;
+        final PlanarImage roiImage;
         if (useROI) {
-            roi = getROI(rasterX);
+            roiImage = getROIImage(rasterX);
         } else {
-            roi = null;
+            roiImage = null;
         }
         ProgressMonitorSwingWorker<ScatterPlot, Object> swingWorker = new ProgressMonitorSwingWorker<ScatterPlot, Object>(this, "Computing scatter plot") {
 
@@ -381,15 +381,15 @@ class ScatterPlotPanel extends PagePanel {
             protected ScatterPlot doInBackground(ProgressMonitor pm) throws Exception {
                 pm.beginTask("Computing scatter plot...", 100);
                 try {
-                    final Range rangeX = getRange(X_VAR, rasterX, roi, SubProgressMonitor.create(pm, 15));
-                    final Range rangeY = getRange(Y_VAR, rasterY, roi, SubProgressMonitor.create(pm, 15));
+                    final Range rangeX = getRange(X_VAR, rasterX, roiImage, SubProgressMonitor.create(pm, 15));
+                    final Range rangeY = getRange(Y_VAR, rasterY, roiImage, SubProgressMonitor.create(pm, 15));
                     final BufferedImage image = ProductUtils.createScatterPlotImage(rasterX,
                                                                                     (float) rangeX.getMin(),
                                                                                     (float) rangeX.getMax(),
                                                                                     rasterY,
                                                                                     (float) rangeY.getMin(),
                                                                                     (float) rangeY.getMax(),
-                                                                                    roi,
+                                                                                    roiImage,
                                                                                     512,
                                                                                     512,
                                                                                     new Color(255, 255, 255, 0),
@@ -473,15 +473,15 @@ class ScatterPlotPanel extends PagePanel {
         return raster.getName();
     }
 
-    private Range getRange(int varIndex, RasterDataNode raster, ROI roi, ProgressMonitor pm) throws
+    private Range getRange(int varIndex, RasterDataNode raster, PlanarImage roiImage, ProgressMonitor pm) throws
                                                                                              IOException {
         final boolean autoMinMax = (Boolean) autoMinMaxParams[varIndex].getValue();
         if (autoMinMax) {
             Stx stx;
-            if (roi == null) {
+            if (roiImage == null) {
                 stx = raster.getStx(false, pm);
             } else {
-                stx = Stx.create(raster, roi, pm);
+                stx = Stx.create(raster, roiImage, pm);
             }
             return new Range(raster.scale(stx.getMin()), raster.scale(stx.getMax()));
         } else {

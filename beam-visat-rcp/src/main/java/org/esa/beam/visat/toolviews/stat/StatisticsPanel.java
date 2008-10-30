@@ -7,7 +7,7 @@ import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.StringUtils;
 
-import javax.media.jai.ROI;
+import javax.media.jai.PlanarImage;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
@@ -89,21 +89,21 @@ class StatisticsPanel extends TextPagePanel {
     }
 
     private void computeStatistics(final boolean useROI) {
-        final ROI roi;
+        final PlanarImage roiImage;
         if (useROI) {
-            roi = getROI(getRaster());
+            roiImage = getROIImage(getRaster());
         } else {
-            roi = null;
+            roiImage = null;
         }
 
         ProgressMonitorSwingWorker<Stx, Object> swingWorker = new ProgressMonitorSwingWorker<Stx, Object>(this, "Computing Statistics") {
             @Override
             protected Stx doInBackground(ProgressMonitor pm) throws Exception {
                 final Stx stx;
-                if (roi == null) {
+                if (roiImage == null) {
                     stx = getRaster().getStx(true, pm);
                 } else {
-                    stx = Stx.create(getRaster(), roi, pm);
+                    stx = Stx.create(getRaster(), roiImage, pm);
                 }
                 return stx;
             }
@@ -115,7 +115,7 @@ class StatisticsPanel extends TextPagePanel {
                 try {
                     final Stx stx = get();
                     if (stx.getSampleCount() > 0) {
-                        getTextArea().setText(createText(stx, roi));
+                        getTextArea().setText(createText(stx, roiImage != null));
                         getTextArea().setCaretPosition(0);
                     } else {
                         final String msgPrefix;
@@ -146,7 +146,7 @@ class StatisticsPanel extends TextPagePanel {
         swingWorker.execute();
     }
 
-    private String createText(final Stx stat, final ROI roi) {
+    private String createText(final Stx stat, final boolean hasROI) {
 
         final String unit = (StringUtils.isNotNullAndNotEmpty(getRaster().getUnit()) ? getRaster().getUnit() : "1");
         final long numPixelTotal = getRaster().getSceneRasterWidth() * (long) getRaster().getSceneRasterHeight();
@@ -155,7 +155,7 @@ class StatisticsPanel extends TextPagePanel {
         sb.append("\n");
 
         sb.append("Only ROI pixels considered:  \t");
-        sb.append(roi != null ? "Yes" : "No");
+        sb.append(hasROI ? "Yes" : "No");
         sb.append("\n");
 
         sb.append("Number of pixels total:      \t");
@@ -200,7 +200,7 @@ class StatisticsPanel extends TextPagePanel {
         sb.append(unit);
         sb.append("\n");
 
-        if (roi != null) {
+        if (hasROI) {
             final ROIDefinition roiDefinition = getRaster().getROIDefinition();
 
             sb.append("\n");

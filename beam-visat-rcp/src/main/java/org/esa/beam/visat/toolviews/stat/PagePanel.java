@@ -21,7 +21,6 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.data.Range;
 
 import javax.media.jai.PlanarImage;
-import javax.media.jai.ROI;
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -144,11 +143,8 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         }
     }
 
-    protected ROI getROI(RasterDataNode raster) {
-        ROI roi;
-        final PlanarImage roiMaskImage = ImageManager.getInstance().createRoiMaskImage(raster, 0);
-        roi = roiMaskImage != null ? new ROI(roiMaskImage) : null;
-        return roi;
+    protected PlanarImage getROIImage(RasterDataNode rdn) {
+        return ImageManager.getInstance().createRoiMaskImage(rdn, 0);
     }
 
     protected boolean isRasterChanged() {

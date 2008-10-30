@@ -26,7 +26,7 @@ import org.jfree.data.xy.XIntervalSeries;
 import org.jfree.data.xy.XIntervalSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
-import javax.media.jai.ROI;
+import javax.media.jai.PlanarImage;
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -258,11 +258,11 @@ class HistogramPanel extends PagePanel {
     }
 
     private void computeHistogram(final boolean useROI) {
-        final ROI roi;
+        final PlanarImage roiImage;
         if (useROI) {
-            roi = getROI(getRaster());
+            roiImage = getROIImage(getRaster());
         } else {
-            roi = null;
+            roiImage = null;
         }
 
         final int numBins = ((Number) numBinsParam.getValue()).intValue();
@@ -280,12 +280,12 @@ class HistogramPanel extends PagePanel {
             @Override
             protected Stx doInBackground(ProgressMonitor pm) throws Exception {
                 final Stx stx;
-                if (roi == null && range == null && numBins == Stx.DEFAULT_BIN_COUNT) {
+                if (roiImage == null && range == null && numBins == Stx.DEFAULT_BIN_COUNT) {
                     stx = getRaster().getStx(true, pm);
                 } else if (range == null) {
-                    stx = Stx.create(getRaster(), roi, numBins, pm);
+                    stx = Stx.create(getRaster(), roiImage, numBins, pm);
                 } else {
-                    stx = Stx.create(getRaster(), roi, numBins, range.getMin(), range.getMax(), pm);
+                    stx = Stx.create(getRaster(), roiImage, numBins, range.getMin(), range.getMax(), pm);
                 }
                 return stx;
             }
