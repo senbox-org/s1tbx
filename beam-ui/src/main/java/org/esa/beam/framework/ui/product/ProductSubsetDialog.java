@@ -344,6 +344,14 @@ public class ProductSubsetDialog extends ModalDialog {
             tabbedPane.addTab("Spatial Subset", spatialSubsetPane); /*I18N*/
         }
 
+        JPanel contentPane = new JPanel(new BorderLayout(4, 4));
+        setComponentName(contentPane, "ContentPane");
+        setContent(contentPane);
+        contentPane.add(tabbedPane, BorderLayout.CENTER);
+        contentPane.add(memLabel, BorderLayout.SOUTH);
+        getJDialog().pack();
+        tabbedPane.setPreferredSize(tabbedPane.getSize());
+
         bandSubsetPane = createBandSubsetPane();
         setComponentName(bandSubsetPane, "BandSubsetPane");
         if (bandSubsetPane != null) {
@@ -362,16 +370,7 @@ public class ProductSubsetDialog extends ModalDialog {
             tabbedPane.addTab("Metadata Subset", metadataSubsetPane); /*I18N*/
         }
 
-        tabbedPane.setPreferredSize(new Dimension(512, 320));
         tabbedPane.setSelectedIndex(0);
-
-        JPanel contentPane = new JPanel(new BorderLayout(4, 4));
-        setComponentName(contentPane, "ContentPane");
-
-        contentPane.add(tabbedPane, BorderLayout.CENTER);
-        contentPane.add(memLabel, BorderLayout.SOUTH);
-        setContent(contentPane);
-
         updateSubsetDefNodeNameList();
     }
 
@@ -703,7 +702,7 @@ public class ProductSubsetDialog extends ModalDialog {
             paramY1.setValue(0, null);
             paramX2.setValue(w-1, null);
             paramY2.setValue(h-1, null);
-            
+
             paramX1.setValue(x1, null);
             paramY1.setValue(y1, null);
             paramX2.setValue(x2, null);
@@ -864,14 +863,14 @@ public class ProductSubsetDialog extends ModalDialog {
                 snapshotVp.zoom(imageLayer.getModelBounds());
                 snapshotVp.moveViewDelta(snapshotVp.getViewBounds().x, snapshotVp.getViewBounds().y);
                 imageLayer.render(imageRendering);
-                
+
                 pm.worked(4);
             } finally {
                 pm.done();
             }
             return image;
         }
-        
+
         private boolean isModelYAxisDown(ImageLayer baseImageLayer) {
             return baseImageLayer.getImageToModelTransform().getDeterminant() > 0.0;
         }
