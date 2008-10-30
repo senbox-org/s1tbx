@@ -23,8 +23,10 @@ import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.util.Guardian;
 
-import java.awt.Color;
-import java.awt.Rectangle;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Random;
 
@@ -109,6 +111,7 @@ public class Band extends AbstractBand {
      * Sets the flag coding for this band.
      *
      * @param flagCoding a non-null value representing the flag coding
+     *
      * @throws IllegalStateException if this band does not contain integer pixels
      * @deprecated since 4.2, use {@link #setSampleCoding(SampleCoding)} instead
      */
@@ -157,6 +160,7 @@ public class Band extends AbstractBand {
      * Sets the sample coding for this band.
      *
      * @param sampleCoding the sample coding
+     *
      * @throws IllegalArgumentException if this band does not contain integer pixels
      */
     public void setSampleCoding(SampleCoding sampleCoding) {
@@ -280,6 +284,7 @@ public class Band extends AbstractBand {
      * @param height     the height of the raster data buffer
      * @param rasterData a raster data buffer receiving the pixels to be read
      * @param pm         a monitor to inform the user about progress
+     *
      * @throws java.io.IOException      if an I/O error occurs
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to which
@@ -406,10 +411,57 @@ public class Band extends AbstractBand {
         }
     }
 
+    // method for writing the source image of a band, might be used in the future (rq - 30.10.2008)
+    private static void writeSourceImage(Band band, int offsetX, int offsetY, int width, int height,
+                                         ProgressMonitor pm) throws IOException {
+        final RenderedImage image = band.getSourceImage();
+
+        final int minTileX = image.getMinTileX();
+        final int minTileY = image.getMinTileY();
+
+        final int numXTiles = image.getNumXTiles();
+        final int numYTiles = image.getNumYTiles();
+
+        final Rectangle targetRectangle = new Rectangle(offsetX, offsetY, width, height);
+        try {
+            pm.beginTask("Writing raster data...", numXTiles * numYTiles);
+
+            for (int tileX = minTileX; tileX < minTileX + numXTiles; ++tileX) {
+                for (int tileY = minTileY; tileY < minTileY + numYTiles; ++tileY) {
+                    if (pm.isCanceled()) {
+                        break;
+                    }
+                    final Rectangle tileRectangle = new Rectangle(
+                            image.getTileGridXOffset() + tileX * image.getTileWidth(),
+                            image.getTileGridYOffset() + tileY * image.getTileHeight(),
+                            image.getTileWidth(), image.getTileHeight());
+
+                    final Rectangle rectangle = targetRectangle.intersection(tileRectangle);
+                    if (!rectangle.isEmpty()) {
+                        final Raster raster = image.getData(rectangle);
+
+                        final int x = rectangle.x;
+                        final int y = rectangle.y;
+                        final int w = rectangle.width;
+                        final int h = rectangle.height;
+                        final ProductData rasterData = band.createCompatibleRasterData(w, h);
+
+                        raster.getDataElements(x, y, w, h, rasterData.getElems());
+                        band.writeRasterData(x, y, w, h, rasterData);
+                    }
+                    pm.worked(1);
+                }
+            }
+        } finally {
+            pm.done();
+        }
+    }
+
     /**
      * Gets an estimated raw storage size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
+     *
      * @return the size in bytes.
      */
     @Override
