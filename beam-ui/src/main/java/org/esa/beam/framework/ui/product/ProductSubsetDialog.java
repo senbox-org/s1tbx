@@ -20,9 +20,8 @@ package org.esa.beam.framework.ui.product;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.Layer.RenderFilter;
 import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
@@ -41,11 +40,11 @@ import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.SliderBoxImageDisplay;
 import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.util.BeamConstants;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 
@@ -849,28 +848,22 @@ public class ProductSubsetDialog extends ModalDialog {
             pm.beginTask("Creating thumbnail image", 5);
             BufferedImage image = null;
             try {
-                ProductSceneImage sceneImage = new ProductSceneImage(thumbNailBand, new PropertyMap(), SubProgressMonitor.create(pm, 1));
-                ImageLayer baseImageLayer = sceneImage.getBaseImageLayer();
+                MultiLevelSource multiLevelSource = BandImageMultiLevelSource.create(thumbNailBand, SubProgressMonitor.create(pm, 1));
+                final ImageLayer imageLayer = new ImageLayer(multiLevelSource);
                 final int imageWidth = imgSize.width;
                 final int imageHeight = imgSize.height;
                 final int imageType = BufferedImage.TYPE_3BYTE_BGR;
                 image = new BufferedImage(imageWidth, imageHeight, imageType);
-                Viewport snapshotVp = new DefaultViewport(isModelYAxisDown(baseImageLayer));
+                Viewport snapshotVp = new DefaultViewport(isModelYAxisDown(imageLayer));
                 final BufferedImageRendering imageRendering = new BufferedImageRendering(image, snapshotVp);
 
                 final Graphics2D graphics = imageRendering.getGraphics();
                 graphics.setColor(getBackground());
                 graphics.fillRect(0, 0, imageWidth, imageHeight);
 
-                snapshotVp.zoom(baseImageLayer.getModelBounds());
+                snapshotVp.zoom(imageLayer.getModelBounds());
                 snapshotVp.moveViewDelta(snapshotVp.getViewBounds().x, snapshotVp.getViewBounds().y);
-                final RenderFilter renderFilter = new Layer.RenderFilter() {
-                    @Override
-                    public boolean canRender(Layer layer) {
-                        return layer instanceof ImageLayer;
-                    }
-                };
-                sceneImage.getRootLayer().render(imageRendering, renderFilter);
+                imageLayer.render(imageRendering);
                 
                 pm.worked(4);
             } finally {
