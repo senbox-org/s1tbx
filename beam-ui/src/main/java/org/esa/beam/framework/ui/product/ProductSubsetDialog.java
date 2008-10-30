@@ -344,6 +344,14 @@ public class ProductSubsetDialog extends ModalDialog {
             tabbedPane.addTab("Spatial Subset", spatialSubsetPane); /*I18N*/
         }
 
+        JPanel contentPane = new JPanel(new BorderLayout(4, 4));
+        setComponentName(contentPane, "ContentPane");
+        setContent(contentPane);
+        contentPane.add(tabbedPane, BorderLayout.CENTER);
+        contentPane.add(memLabel, BorderLayout.SOUTH);
+        getJDialog().pack();
+        tabbedPane.setPreferredSize(tabbedPane.getSize());
+
         bandSubsetPane = createBandSubsetPane();
         setComponentName(bandSubsetPane, "BandSubsetPane");
         if (bandSubsetPane != null) {
@@ -362,16 +370,7 @@ public class ProductSubsetDialog extends ModalDialog {
             tabbedPane.addTab("Metadata Subset", metadataSubsetPane); /*I18N*/
         }
 
-        tabbedPane.setPreferredSize(new Dimension(512, 400));
         tabbedPane.setSelectedIndex(0);
-
-        JPanel contentPane = new JPanel(new BorderLayout(4, 4));
-        setComponentName(contentPane, "ContentPane");
-
-        contentPane.add(tabbedPane, BorderLayout.CENTER);
-        contentPane.add(memLabel, BorderLayout.SOUTH);
-        setContent(contentPane);
-
         updateSubsetDefNodeNameList();
     }
 
@@ -540,6 +539,12 @@ public class ProductSubsetDialog extends ModalDialog {
             imageScrollPane.getViewport().setExtentSize(new Dimension(MAX_THUMBNAIL_WIDTH, 2 * MAX_THUMBNAIL_WIDTH));
             setComponentName(imageScrollPane, "ImageScrollPane");
 
+            final Dimension preferredSize = imageScrollPane.getPreferredSize();
+            final int maxHeight = 2 * MAX_THUMBNAIL_WIDTH;
+            if (preferredSize.height > maxHeight) {
+                preferredSize.height = maxHeight;
+            }
+            imageScrollPane.setPreferredSize(preferredSize);
 
             subsetWidthLabel = new JLabel("####", JLabel.RIGHT);
             subsetHeightLabel = new JLabel("####", JLabel.RIGHT);
