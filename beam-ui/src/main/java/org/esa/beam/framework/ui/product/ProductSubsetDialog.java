@@ -344,14 +344,6 @@ public class ProductSubsetDialog extends ModalDialog {
             tabbedPane.addTab("Spatial Subset", spatialSubsetPane); /*I18N*/
         }
 
-        JPanel contentPane = new JPanel(new BorderLayout(4, 4));
-        setComponentName(contentPane, "ContentPane");
-        setContent(contentPane);
-        contentPane.add(tabbedPane, BorderLayout.CENTER);
-        contentPane.add(memLabel, BorderLayout.SOUTH);
-        getJDialog().pack();
-        tabbedPane.setPreferredSize(tabbedPane.getSize());
-
         bandSubsetPane = createBandSubsetPane();
         setComponentName(bandSubsetPane, "BandSubsetPane");
         if (bandSubsetPane != null) {
@@ -370,7 +362,16 @@ public class ProductSubsetDialog extends ModalDialog {
             tabbedPane.addTab("Metadata Subset", metadataSubsetPane); /*I18N*/
         }
 
+        tabbedPane.setPreferredSize(new Dimension(512, 400));
         tabbedPane.setSelectedIndex(0);
+
+        JPanel contentPane = new JPanel(new BorderLayout(4, 4));
+        setComponentName(contentPane, "ContentPane");
+
+        contentPane.add(tabbedPane, BorderLayout.CENTER);
+        contentPane.add(memLabel, BorderLayout.SOUTH);
+        setContent(contentPane);
+
         updateSubsetDefNodeNameList();
     }
 
