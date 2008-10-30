@@ -83,7 +83,7 @@ public class AdjustableViewScrollPane extends JPanel {
         super(null);
         Assert.notNull(viewComponent, "viewComponent");
         Assert.argument(viewComponent instanceof AdjustableView, "viewComponent");
-        setOpaque(false);
+        setOpaque(true);
         scrollArea = new Rectangle2D.Double();
         viewportChangeHandler = new ViewportChangeHandler();
         setViewComponent(viewComponent);
