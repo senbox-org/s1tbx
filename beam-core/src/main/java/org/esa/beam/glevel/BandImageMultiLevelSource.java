@@ -29,9 +29,7 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
             MultiLevelSource multiLevelSource = (MultiLevelSource) rdn.getSourceImage();
             model = multiLevelSource.getModel();
         } else {
-            final int w = rdn.getSceneRasterWidth();
-            final int h = rdn.getSceneRasterHeight();
-            model = new DefaultMultiLevelModel(new AffineTransform(), w, h);
+            model = ImageManager.getInstance().createMultiLevelModel(rdn);
         }
         ImageManager.getInstance().prepareImageInfos(rasterDataNodes, pm);
         return new BandImageMultiLevelSource(model, rasterDataNodes);
