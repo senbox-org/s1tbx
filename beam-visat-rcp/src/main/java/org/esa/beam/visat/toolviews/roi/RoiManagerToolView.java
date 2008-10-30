@@ -596,7 +596,6 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
             return;
         }
         final RenderedImage roiImage = productSceneView.getROIImage();
-        final Raster data = roiImage.getData();
         final int width = roiImage.getWidth();
         final int height = roiImage.getHeight();
         int minX = width;
@@ -604,10 +603,12 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         int minY = height;
         int maxY = 0;
         for (int y = 0; y < height; y++) {
+            final Raster data = roiImage.getData(new Rectangle(0, y, width, 1));
             for (int x = 0; x < width; x++) {
-                // checking the 3. band for s != 0
+                // checking the the last band (alpha) for s != 0
                 // this indicates the roi
-                if (data.getSample(x, y, 3) != 0) {
+                final int bandIndex = roiImage.getSampleModel().getNumBands() -1;
+                if (data.getSample(x, y, bandIndex) != 0) {
                     minX = Math.min(x, minX);
                     maxX = Math.max(x, maxX);
                     minY = Math.min(y, minY);
@@ -851,7 +852,6 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         final boolean roiPossible = productSceneView != null; //&& ProductData.isFloatingPointType(productSceneView.getRaster().getDataType());
         final boolean valueRangeCritSet = (Boolean) valueRangeEnabledParam.getValue();
         final boolean shapesCritPossible = shapeFigure != null;
-        final boolean zoomToPossible = productSceneView != null && productSceneView.getROIImage() != null;
         final boolean shapesCritSet = (Boolean) shapesEnabledParam.getValue();
         boolean bitmaskCritPossible = false;
         boolean bitmaskCritSet = (Boolean) bitmaskEnabledParam.getValue();
@@ -922,7 +922,8 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         if (!shapesCritPossible) {
             shapesEnabledParam.setValue(Boolean.FALSE, null);
         }
-
+        
+        final boolean zoomToPossible = productSceneView != null && productSceneView.getRaster().isROIUsable();
         zoomToButton.setEnabled(zoomToPossible);
     }
 
