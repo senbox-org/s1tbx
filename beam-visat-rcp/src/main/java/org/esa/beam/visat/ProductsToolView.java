@@ -4,18 +4,18 @@ import com.jidesoft.swing.JideScrollPane;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTree;
 import org.esa.beam.framework.ui.product.ProductTreeListener;
-import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.ui.product.ProductMetadataView;
-import org.esa.beam.framework.ui.BasicView;
 import org.esa.beam.util.Debug;
 
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JScrollPane;
-import java.awt.Dimension;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.beans.PropertyVetoException;
 
 /**
@@ -65,17 +65,36 @@ public class ProductsToolView extends AbstractToolView {
         productTree.addProductTreeListener(new VisatPTL());
         productTree.setCommandManager(visatApp.getCommandManager());
         productTree.setCommandUIFactory(visatApp.getCommandUIFactory());
-        VisatApp.getApp().getProductManager().addListener(new ProductManager.Listener() {
+        visatApp.getProductManager().addListener(new ProductManager.Listener() {
             public void productAdded(final ProductManager.Event event) {
                 productTree.addProduct(event.getProduct());
-                VisatApp.getApp().getPage().showToolView(ID);
+                visatApp.getPage().showToolView(ID);
             }
 
             public void productRemoved(final ProductManager.Event event) {
                 final Product product = event.getProduct();
                 productTree.removeProduct(product);
-                if (VisatApp.getApp().getSelectedProduct() == product) {
-                    VisatApp.getApp().setSelectedProductNode((ProductNode) null);
+                if (visatApp.getSelectedProduct() == product) {
+                    visatApp.setSelectedProductNode((ProductNode) null);
+                }
+            }
+        });
+
+        visatApp.addInternalFrameListener(new InternalFrameAdapter() {
+
+            @Override
+            public void internalFrameOpened(InternalFrameEvent e) {
+                final Container contentPane = e.getInternalFrame().getContentPane();
+                if (contentPane instanceof ProductSceneView) {
+                    productTree.sceneViewOpened((ProductSceneView) contentPane);
+                }
+            }
+
+            @Override
+            public void internalFrameClosed(InternalFrameEvent e) {
+                final Container contentPane = e.getInternalFrame().getContentPane();
+                if (contentPane instanceof ProductSceneView) {
+                    productTree.sceneViewClosed((ProductSceneView) contentPane);
                 }
             }
         });

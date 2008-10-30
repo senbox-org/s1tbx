@@ -16,8 +16,6 @@
  */
 package org.esa.beam.framework.ui.product;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.ExceptionHandler;
 import org.esa.beam.framework.ui.PopupMenuFactory;
@@ -28,31 +26,14 @@ import org.esa.beam.framework.ui.command.CommandUIFactory;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
 
-import javax.swing.ImageIcon;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
-import javax.swing.JTree;
-import javax.swing.SwingWorker;
-import javax.swing.ToolTipManager;
+import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
+import javax.swing.tree.*;
 import java.awt.Component;
-import java.awt.Dialog;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 
 /**
  * A tree-view component for multiple <code>Product</code>s. Clients can register one or more
@@ -80,6 +61,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
     private ExceptionHandler exceptionHandler;
     private CommandUIFactory commandUIFactory;
+    private Map<RasterDataNode, Integer> openedRasterMap;
 
     /**
      * Constructs a new single selection <code>ProductTree</code>.
@@ -112,6 +94,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         final PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
         addMouseListener(popupMenuHandler);
         addKeyListener(popupMenuHandler);
+        openedRasterMap = new HashMap<RasterDataNode, Integer>();
     }
 
     public JPopupMenu createPopupMenu(final Component component) {
@@ -356,6 +339,34 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         return indexCodingsGroupTreeNode;
     }
 
+    public void sceneViewOpened(ProductSceneView view) {
+        final RasterDataNode[] rasters = view.getRasters();
+        for (RasterDataNode raster : rasters) {
+            Integer count = 1;
+            if(openedRasterMap.containsKey(raster)) {
+                count += openedRasterMap.get(raster);
+            }
+            openedRasterMap.put(raster, count);
+        }
+        updateUI();
+    }
+
+    public void sceneViewClosed(ProductSceneView view) {
+        final RasterDataNode[] rasters = view.getRasters();
+        for (RasterDataNode raster : rasters) {
+            Integer count = -1;
+            if(openedRasterMap.containsKey(raster)) {
+                count += openedRasterMap.get(raster);
+            }
+            if(count <= 0) {
+                openedRasterMap.remove(raster);
+            }else {
+                openedRasterMap.put(raster, count);
+            }
+        }
+        updateUI();
+    }
+
     private class PTMouseListener extends MouseAdapter {
 
         @Override
@@ -377,19 +388,10 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             if (node != null) {
                 fireNodeSelected(node.getUserObject(), 1);
             }
-//            DefaultMutableTreeNode node = (DefaultMutableTreeNode) getLastSelectedPathComponent();
-//            if (node != null) {
-//                Object userObject = node.getUserObject();
-//                if (node.isLeaf()) {
-//                    Debug.trace("Leaf: " + userObject);
-//                } else {
-//                    Debug.trace("Node: " + userObject);
-//                }
-//            }
         }
     }
 
-    private static class PTCellRenderer extends DefaultTreeCellRenderer {
+    private class PTCellRenderer extends DefaultTreeCellRenderer {
 
         ImageIcon productIcon;
         ImageIcon groupOpenIcon;
@@ -487,28 +489,29 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                         toolTipBuffer.append(" nm");
                     }
 
+                    final boolean isBandOpen = openedRasterMap.containsKey(band);
                     if (band instanceof VirtualBand) {
                         toolTipBuffer.append(", expr = ");
                         toolTipBuffer.append(((VirtualBand) band).getExpression());
-                        if (band.hasRasterData()) {
+                        if (isBandOpen) {
                             this.setIcon(bandVirtualIcon);
                         } else {
                             this.setIcon(bandVirtualIconUnloaded);
                         }
                     } else if (band.getFlagCoding() != null) {
-                        if (band.hasRasterData()) {
+                        if (isBandOpen) {
                             this.setIcon(bandFlagsIcon);
                         } else {
                             this.setIcon(bandFlagsIconUnloaded);
                         }
                     } else if (band.getIndexCoding() != null) {
-                        if (band.hasRasterData()) {
+                        if (isBandOpen) {
                             this.setIcon(bandIndexesIcon);
                         } else {
                             this.setIcon(bandIndexesIconUnloaded);
                         }
                     } else {
-                        if (band.hasRasterData()) {
+                        if (isBandOpen) {
                             this.setIcon(bandAsSwathIcon);
                         } else {
                             this.setIcon(bandAsSwathIconUnloaded);
@@ -520,7 +523,11 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                     toolTipBuffer.append(band.getRasterHeight());
                 } else if (productNode instanceof TiePointGrid) {
                     TiePointGrid grid = (TiePointGrid) productNode;
-                    this.setIcon(bandAsSwathIcon);
+                    if (openedRasterMap.containsKey(grid)) {
+                            this.setIcon(bandAsSwathIcon);
+                        } else {
+                            this.setIcon(bandAsSwathIconUnloaded);
+                        }
                     toolTipBuffer.append(", raster size = ");
                     toolTipBuffer.append(grid.getRasterWidth());
                     toolTipBuffer.append(" x ");
@@ -584,29 +591,6 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                     commandUIFactory.addContextDependentMenuItems("tiePointGrid", popup);
                 }
             } else if (context instanceof Band) {
-                final Band band = (Band) context;
-                menuItem = createMenuItem("Load Data"); /*I18N*/
-                menuItem.addActionListener(new ActionListener() {
-
-                    public void actionPerformed(ActionEvent e) {
-                        loadRasterData(band);
-                    }
-                });
-                menuItem.setEnabled(!band.hasRasterData());
-                popup.add(menuItem);
-
-                menuItem = createMenuItem("Unload Data"); /*I18N*/
-                menuItem.addActionListener(new ActionListener() {
-
-                    public void actionPerformed(ActionEvent e) {
-                        unloadRasterData(band);
-                    }
-                });
-                menuItem.setEnabled(band.hasRasterData());
-                popup.add(menuItem);
-
-                popup.addSeparator();
-
                 if (commandUIFactory != null) {
                     commandUIFactory.addContextDependentMenuItems("band", popup);
                 }
@@ -621,52 +605,6 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         }
 
         return popup;
-    }
-
-    private void loadRasterData(final Band band) {
-        if (!band.hasRasterData()) {
-            final SwingWorker worker = new SwingWorker() {
-                ProgressMonitor pm = new DialogProgressMonitor(UIUtils.getRootJFrame(ProductTree.this),
-                                                               "Load Band Data", Dialog.ModalityType.APPLICATION_MODAL);
-
-                @Override
-                protected Object doInBackground() throws Exception {
-                    try {
-                        band.loadRasterData(pm);
-                    } catch (IOException e1) {
-                        if (exceptionHandler != null) {
-                            exceptionHandler.handleException(
-                                    new Exception("IOException occurred!\nCannot load raster data!"));
-                        }
-                    }
-                    return null;
-                }
-
-                @Override
-                public void done() {
-                    if (pm.isCanceled()) {
-                        band.unloadRasterData();
-                    }
-                }
-            };
-            worker.execute();
-        }
-    }
-
-    private void unloadRasterData(final Band band) {
-        if (band.isSynthetic()) {
-            JOptionPane.showMessageDialog(this, "This is a synthetic band.\nIts data cannot be unloaded.");
-            return;
-        }
-        if (band.hasRasterData()) {
-            band.unloadRasterData();
-        }
-    }
-
-    private static JMenuItem createMenuItem(final String text) {
-        JMenuItem menuItem;
-        menuItem = new JMenuItem(text);
-        return menuItem;
     }
 
 
