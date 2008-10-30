@@ -184,7 +184,7 @@ public class BindingContext {
 
     /**
      * Sets the <i>enabled</i> state of the components associated with {@code targetProperty}.
-     * If the current value of {@code targetProperty} equals {@code sourcePropertyValue} then
+     * If the current value of {@code sourceProperty} equals {@code sourcePropertyValue} then
      * the enabled state will be set to the value of {@code enabled}, otherwise it is the negated value
      * of {@code enabled}. The source property doesn't need to have an active binding.
      *
