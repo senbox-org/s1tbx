@@ -84,10 +84,18 @@ public class ExportImageAction extends AbstractExportImageAction {
 
     @Override
     protected RenderedImage createImage(String imageFormat, ProductSceneView view) {
-        return createImage(view, isEntireImageSelected(), !"BMP".equals(imageFormat));
+        final boolean useAlpha = !"BMP".equals(imageFormat);
+        final boolean entireImage = isEntireImageSelected();
+        final RenderFilter renderFilter = new Layer.RenderFilter() {
+            @Override
+            public boolean canRender(Layer layer) {
+                return layer instanceof ImageLayer;
+            }
+        };
+        return createImage(view, entireImage, useAlpha, renderFilter);
     }
 
-    static RenderedImage createImage(ProductSceneView view, boolean entireImage, boolean useAlpha) {
+    static RenderedImage createImage(ProductSceneView view, boolean entireImage, boolean useAlpha, RenderFilter renderFilter) {
         Rectangle2D modelBounds;
         if (entireImage) {
             modelBounds = view.getBaseImageLayer().getModelBounds();
@@ -113,12 +121,6 @@ public class ExportImageAction extends AbstractExportImageAction {
         snapshotVp.zoom(modelBounds);
         snapshotVp.moveViewDelta(snapshotVp.getViewBounds().x, snapshotVp.getViewBounds().y);
 
-        RenderFilter renderFilter = new Layer.RenderFilter() {
-            @Override
-            public boolean canRender(Layer layer) {
-                return layer instanceof ImageLayer;
-            }
-        };
         view.getRootLayer().render(imageRendering, renderFilter);
         return bi;
     }

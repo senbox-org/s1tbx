@@ -1,6 +1,9 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.Layer.RenderFilter;
+import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageEncoder;
@@ -256,7 +259,14 @@ public class ExportKmzFileAction extends ExecCommand {
                 visatApp.setStatusBarMessage(message);
                 visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 
-                RenderedImage image = ExportImageAction.createImage(view, true, true);
+                final RenderFilter renderFilter = new Layer.RenderFilter() {
+                    @Override
+                    public boolean canRender(Layer layer) {
+                        return (layer instanceof ImageLayer) &&
+                                !layer.getName().startsWith("No-data");
+                    }
+                };
+                RenderedImage image = ExportImageAction.createImage(view, true, true, renderFilter);
                 pm.worked(1);
                 String imageType = "PNG";
                 String imageName = "overlay.png";
