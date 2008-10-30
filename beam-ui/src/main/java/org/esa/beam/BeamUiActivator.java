@@ -303,7 +303,7 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
                 }
                 catch(Exception exception)
                 {
-                    String message = String.format("Help set [%s] of module [%s] has no or bad search index. Serach view removed.",
+                    String message = String.format("Help set [%s] of module [%s] has no or bad search index. Search view removed.",
                                                    helpSetPath, moduleName);
                     logger.log(Level.SEVERE, message, "");
                     return;
