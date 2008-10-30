@@ -699,6 +699,12 @@ public class ProductSubsetDialog extends ModalDialog {
             if (y2 > h - 1) {
                 y2 = h - 1;
             }
+            // first reset the bounds, otherwise negative regions can occur
+            paramX1.setValue(0, null);
+            paramY1.setValue(0, null);
+            paramX2.setValue(w-1, null);
+            paramY2.setValue(h-1, null);
+            
             paramX1.setValue(x1, null);
             paramY1.setValue(y1, null);
             paramX2.setValue(x2, null);
