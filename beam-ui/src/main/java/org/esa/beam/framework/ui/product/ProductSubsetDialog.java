@@ -20,6 +20,12 @@ package org.esa.beam.framework.ui.product;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.Layer.RenderFilter;
+import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.grender.support.BufferedImageRendering;
+import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Term;
@@ -39,10 +45,10 @@ import org.esa.beam.util.BeamConstants;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.media.jai.PlanarImage;
 import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -50,6 +56,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
 import java.awt.Window;
@@ -483,7 +490,7 @@ public class ProductSubsetDialog extends ModalDialog {
         private int thumbNailSubSampling;
         private JButton setToVisibleButton;
         private JScrollPane imageScrollPane;
-        private ProgressMonitorSwingWorker thumbnailLoader;
+        private ProgressMonitorSwingWorker<BufferedImage, Object> thumbnailLoader;
 
         public SpatialSubsetPane() {
             initParameters();
@@ -493,13 +500,14 @@ public class ProductSubsetDialog extends ModalDialog {
         private void createUI() {
 
             setThumbnailSubsampling();
-            final ProductSubsetDef psd = createThumbnailSubsetDef();
+            final Dimension imgSize = new Dimension((product.getSceneRasterWidth() - 1) / thumbNailSubSampling + 1,
+                                                    (product.getSceneRasterHeight() - 1) / thumbNailSubSampling + 1);
 
             thumbnailLoader = new ProgressMonitorSwingWorker<BufferedImage, Object>(this, "Loading thumbnail image...") {
 
                 @Override
                 protected BufferedImage doInBackground(ProgressMonitor pm) throws Exception {
-                    return  createThumbNailImage(psd, pm);
+                    return  createThumbNailImage(imgSize, pm);
                 }
 
                 @Override
@@ -522,8 +530,6 @@ public class ProductSubsetDialog extends ModalDialog {
             };
             thumbnailLoader.execute();
 
-            Dimension imgSize = psd.getSceneRasterSize(product.getSceneRasterWidth(),
-                                                       product.getSceneRasterHeight());
             imageCanvas = new SliderBoxImageDisplay(imgSize.width, imgSize.height, this);
             imageCanvas.setSize(imgSize.width, imgSize.height);
             setComponentName(imageCanvas, "ImageCanvas");
@@ -827,53 +833,48 @@ public class ProductSubsetDialog extends ModalDialog {
             imageCanvas.setSliderBoxBounds(sliderBoxX1, sliderBoxY1, sliderBoxW, sliderBoxH);
         }
 
-        private BufferedImage createThumbNailImage(ProductSubsetDef psd, ProgressMonitor pm) throws IOException {
+        private BufferedImage createThumbNailImage(Dimension imgSize, ProgressMonitor pm) {
             Assert.notNull(pm, "pm");
-            Product productSubset = product.createSubset(psd, null, null);
 
-            Band thumbNailBand = productSubset.getBandAt(0);
-            String thumbNailBandName = thumbNailBand.getName();
+            String thumbNailBandName = getThumbnailBandName();
+            Band thumbNailBand = product.getBand(thumbNailBandName);
 
             Debug.trace("ProductSubsetDialog: Reading thumbnail data for band '" + thumbNailBandName + "'...");
-            pm.beginTask("Creating thumbnail image", 3);
-            final BufferedImage image;
+            pm.beginTask("Creating thumbnail image", 5);
+            BufferedImage image = null;
             try {
-                thumbNailBand.readRasterDataFully(SubProgressMonitor.create(pm, 1));
-                Debug.trace("ProductSubsetDialog: Thumbnail data read.");
+                ProductSceneImage sceneImage = new ProductSceneImage(thumbNailBand, new PropertyMap(), SubProgressMonitor.create(pm, 1));
+                ImageLayer baseImageLayer = sceneImage.getBaseImageLayer();
+                final int imageWidth = imgSize.width;
+                final int imageHeight = imgSize.height;
+                final int imageType = BufferedImage.TYPE_3BYTE_BGR;
+                image = new BufferedImage(imageWidth, imageHeight, imageType);
+                Viewport snapshotVp = new DefaultViewport(isModelYAxisDown(baseImageLayer));
+                final BufferedImageRendering imageRendering = new BufferedImageRendering(image, snapshotVp);
 
-                Debug.trace("ProductSubsetDialog: Creating thumbnail image for band '" + thumbNailBandName + "'...");
+                final Graphics2D graphics = imageRendering.getGraphics();
+                graphics.setColor(getBackground());
+                graphics.fillRect(0, 0, imageWidth, imageHeight);
 
-                image = thumbNailBand.createRgbImage(SubProgressMonitor.create(pm, 1));
-                Debug.trace("ProductSubsetDialog: Thumbnail image created.");
-
-                productSubset.dispose();
-                pm.worked(1);
+                snapshotVp.zoom(baseImageLayer.getModelBounds());
+                snapshotVp.moveViewDelta(snapshotVp.getViewBounds().x, snapshotVp.getViewBounds().y);
+                final RenderFilter renderFilter = new Layer.RenderFilter() {
+                    @Override
+                    public boolean canRender(Layer layer) {
+                        return layer instanceof ImageLayer;
+                    }
+                };
+                sceneImage.getRootLayer().render(imageRendering, renderFilter);
+                
+                pm.worked(4);
             } finally {
                 pm.done();
             }
             return image;
         }
-
-        private ProductSubsetDef createThumbnailSubsetDef() {
-            ProductSubsetDef psd = new ProductSubsetDef("undefined");
-            psd.setIgnoreMetadata(false);
-            psd.setNodeNames(new String[]{getThumbnailBandName()});
-            psd.addNodeNames(getFlagBandNames());
-            psd.setSubSampling(thumbNailSubSampling, thumbNailSubSampling);
-            return psd;
-        }
-
-        private String[] getFlagBandNames() {
-            final List<String> flagBandNames = new ArrayList<String>(10);
-            for (int i = 0; i < product.getNumFlagCodings(); i++) {
-                for (int j = 0; j < product.getNumBands(); j++) {
-                    final Band band = product.getBandAt(j);
-                    if (band.getFlagCoding() == product.getFlagCodingAt(i)) {
-                        flagBandNames.add(band.getName());
-                    }
-                }
-            }
-            return flagBandNames.toArray(new String[flagBandNames.size()]);
+        
+        private boolean isModelYAxisDown(ImageLayer baseImageLayer) {
+            return baseImageLayer.getImageToModelTransform().getDeterminant() > 0.0;
         }
 
         private String getThumbnailBandName() {
