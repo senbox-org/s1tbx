@@ -15,15 +15,9 @@ import com.bc.ceres.grender.support.DefaultViewport;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
-import org.esa.beam.framework.ui.BasicView;
-import org.esa.beam.framework.ui.PixelInfoFactory;
-import org.esa.beam.framework.ui.PixelPositionListener;
-import org.esa.beam.framework.ui.PopupMenuHandler;
+import org.esa.beam.framework.ui.*;
 import org.esa.beam.framework.ui.command.CommandUIFactory;
-import org.esa.beam.framework.ui.tool.AbstractTool;
-import org.esa.beam.framework.ui.tool.DrawingEditor;
-import org.esa.beam.framework.ui.tool.Tool;
-import org.esa.beam.framework.ui.tool.ToolInputEvent;
+import org.esa.beam.framework.ui.tool.*;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
@@ -33,10 +27,7 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.PropertyMapChangeListener;
 import org.esa.beam.util.SystemUtils;
 
-import javax.swing.JComponent;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.event.*;
@@ -132,8 +123,9 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         Assert.notNull(sceneImage, "sceneImage");
 
         setOpaque(true);
-        setBackground(DEFAULT_IMAGE_BACKGROUND_COLOR); // todo - use sceneImage.getConfiguration() (nf, 18.09.2008)
         setLayout(new BorderLayout());
+        // todo - use sceneImage.getConfiguration() (nf, 18.09.2008)
+       setBackground(DEFAULT_IMAGE_BACKGROUND_COLOR);
 
         this.pixelBorderShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_PIXEL_BORDER_SHOWN, true);
 
@@ -143,14 +135,13 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         this.pixelPositionListeners = new Vector<PixelPositionListener>();
 
         this.layerCanvas = new LayerCanvas(sceneImage.getRootLayer(), new DefaultViewport(isModelYAxisDown(baseImageLayer)));
-
         final boolean navControlShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true);
         this.layerCanvas.setNavControlShown(navControlShown);
         this.layerCanvas.setPreferredSize(new Dimension(400, 400));
 
         this.scrollBarsShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN, false);
         if (scrollBarsShown) {
-            scrollPane = new AdjustableViewScrollPane(layerCanvas);
+            this.scrollPane = createScrollPane();
             add(scrollPane, BorderLayout.CENTER);
         } else {
             add(layerCanvas, BorderLayout.CENTER);
@@ -162,6 +153,23 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
         this.rasterChangeHandler = new RasterChangeHandler();
         getRaster().getProduct().addProductNodeListener(rasterChangeHandler);
+    }
+
+    private AdjustableViewScrollPane createScrollPane() {
+        AbstractButton zoomAllButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomAll13.gif"), false);
+        zoomAllButton.setFocusable(false);
+        zoomAllButton.setFocusPainted(false);
+        zoomAllButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                getLayerCanvas().zoomAll();
+            }
+        });
+
+        AdjustableViewScrollPane scrollPane = new AdjustableViewScrollPane(layerCanvas);
+        // todo - use sceneImage.getConfiguration() (nf, 18.09.2008)
+        scrollPane.setBackground(DEFAULT_IMAGE_BACKGROUND_COLOR);
+        scrollPane.setCornerComponent(zoomAllButton);
+        return scrollPane;
     }
 
     ProductSceneImage getSceneImage() {
@@ -220,10 +228,12 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     public Dimension getPreferredSize() {
         if (isPreferredSizeSet()) {
             return super.getPreferredSize();
-        } else if (getImageDisplayComponent() != null) {
-            return getImageDisplayComponent().getPreferredSize();
         } else {
-            return super.getPreferredSize();
+            if (getLayerCanvas() != null) {
+                return getLayerCanvas().getPreferredSize();
+            } else {
+                return super.getPreferredSize();
+            }
         }
     }
 
@@ -277,7 +287,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         }
         sceneImage = null;
 
-        if (getImageDisplayComponent() != null) {
+        if (getLayerCanvas() != null) {
             // ensure that imageDisplay.dispose() is run in the EDT
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
@@ -525,7 +535,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
             this.scrollBarsShown = scrollBarsShown;
             if (scrollBarsShown) {
                 remove(layerCanvas);
-                scrollPane = new AdjustableViewScrollPane(layerCanvas);
+                scrollPane = createScrollPane();
                 add(scrollPane, BorderLayout.CENTER);
             } else {
                 remove(scrollPane);
@@ -619,10 +629,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
     public void disposeLayers() {
         getSceneImage().getRootLayer().dispose();
-    }
-
-    public JComponent getImageDisplayComponent() {
-        return layerCanvas;
     }
 
     public AffineTransform getBaseImageToViewTransform() {

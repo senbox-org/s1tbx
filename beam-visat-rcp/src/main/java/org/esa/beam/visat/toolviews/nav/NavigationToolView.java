@@ -63,7 +63,7 @@ public class NavigationToolView extends AbstractToolView {
 
     private NavigationCanvas canvas;
     private AbstractButton zoomInButton;
-    private AbstractButton zoomZeroButton;
+    private AbstractButton zoomDefaultButton;
     private AbstractButton zoomOutButton;
     private AbstractButton zoomAllButton;
     private AbstractButton syncViewsButton;
@@ -91,10 +91,10 @@ public class NavigationToolView extends AbstractToolView {
             }
         });
 
-        zoomZeroButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomZero24.gif"), false);
-        zoomZeroButton.setToolTipText("Actual Pixels."); /*I18N*/
-        zoomZeroButton.setName("zoomZeroButton");
-        zoomZeroButton.addActionListener(new ActionListener() {
+        zoomDefaultButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomDefault24.gif"), false);
+        zoomDefaultButton.setToolTipText("Actual Pixels."); /*I18N*/
+        zoomDefaultButton.setName("zoomDefaultButton");
+        zoomDefaultButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 zoomToPixelResolution();
@@ -147,7 +147,7 @@ public class NavigationToolView extends AbstractToolView {
         eastPane.add(zoomInButton, gbc);
 
         gbc.gridy++;
-        eastPane.add(zoomZeroButton, gbc);
+        eastPane.add(zoomDefaultButton, gbc);
 
         gbc.gridy++;
         eastPane.add(zoomOutButton, gbc);
@@ -400,7 +400,7 @@ public class NavigationToolView extends AbstractToolView {
     private void updateState() {
         final boolean canNavigate = getCurrentView() != null;
         zoomInButton.setEnabled(canNavigate);
-        zoomZeroButton.setEnabled(canNavigate);
+        zoomDefaultButton.setEnabled(canNavigate);
         zoomOutButton.setEnabled(canNavigate);
         zoomAllButton.setEnabled(canNavigate);
         zoomSlider.setEnabled(canNavigate);

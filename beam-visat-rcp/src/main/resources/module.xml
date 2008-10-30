@@ -117,8 +117,8 @@
             <tabTitle>Layers</tabTitle>
             <mnemonic>L</mnemonic>
             <accelerator>ctrl alt L</accelerator>
-            <smallIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay24.gif</largeIcon>
+            <smallIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay16.png</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay24.png</largeIcon>
             <!--<helpId>TODO</helpId>-->
             <description>Display and modify layers of an image view.</description>
             <initState>DOCKED</initState>
@@ -179,8 +179,8 @@
             <mnemonic>B</mnemonic>
             <accelerator>ctrl alt B</accelerator>
             <description>Overlay bitmasks on top of an image view.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay24.gif</largeIcon>
+            <smallIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay16.png</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay24.png</largeIcon>
             <helpId>showBitmaskOverlayWnd</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
@@ -297,9 +297,9 @@
             <title>Layer Manager</title>
             <mnemonic>L</mnemonic>
             <accelerator>ctrl alt L</accelerator>
-            <description>Manage the display of image layers.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay24.gif</largeIcon>
+            <description>Manage view layer visibility and transparency.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/LayerManager16.png</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/LayerManager24.png</largeIcon>
             <helpId/>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
