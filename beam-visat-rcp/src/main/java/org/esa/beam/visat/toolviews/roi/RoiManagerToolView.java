@@ -602,12 +602,12 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         int maxX = 0;
         int minY = height;
         int maxY = 0;
+        final int bandIndex = roiImage.getSampleModel().getNumBands() -1;
         for (int y = 0; y < height; y++) {
             final Raster data = roiImage.getData(new Rectangle(0, y, width, 1));
             for (int x = 0; x < width; x++) {
                 // checking the the last band (alpha) for s != 0
                 // this indicates the roi
-                final int bandIndex = roiImage.getSampleModel().getNumBands() -1;
                 if (data.getSample(x, y, bandIndex) != 0) {
                     minX = Math.min(x, minX);
                     maxX = Math.max(x, maxX);
