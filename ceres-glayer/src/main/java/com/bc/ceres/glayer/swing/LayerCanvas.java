@@ -98,12 +98,13 @@ public class LayerCanvas extends JPanel implements AdjustableView {
         LayerCanvasModel oldModel = this.model;
         if (newModel != oldModel) {
             oldModel.removeChangeListener(modelChangeHandler);
-            this.model = newModel;
-            newModel.addChangeListener(modelChangeHandler);
             zoomedAll = false;
+            this.model = newModel;
+            this.model.getViewport().setViewBounds(getBounds());
             updateAdjustableViewProperties();
-            repaint();
+            this.model.addChangeListener(modelChangeHandler);
             firePropertyChange("model", oldModel, newModel);
+            repaint();
         }
     }
 
@@ -298,7 +299,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
     @Override
     public void setBounds(int x, int y, int width, int height) {
         super.setBounds(x, y, width, height);
-        getViewport().setViewBounds(new Rectangle(x, y, width, height));
+        getViewport().setViewBounds(getBounds());
     }
 
     @Override
