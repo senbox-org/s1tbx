@@ -71,7 +71,7 @@ public class NavigationToolView extends AbstractToolView {
     private JSlider zoomSlider;
     private boolean inUpdateMode;
 
-    private boolean debug = true;
+    private boolean debug;
 
     public NavigationToolView() {
     }
