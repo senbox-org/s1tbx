@@ -113,10 +113,6 @@ public class VisatPreferencesDialog extends ConfigDialog {
             param.getProperties().setMaxValue(1000);
             configParams.addParameter(param);
 
-            param = new Parameter(PROPERTY_KEY_AUTO_UNLOAD_DATA, Boolean.TRUE);
-            param.getProperties().setLabel("On image close, unload raster data"); /*I18N*/
-            configParams.addParameter(param);
-
             param = new Parameter(PROPERTY_KEY_AUTO_SHOW_NEW_BANDS, Boolean.TRUE);
             param.getProperties().setLabel("Open image view for new (virtual) bands"); /*I18N*/
             configParams.addParameter(param);
@@ -196,10 +192,6 @@ public class VisatPreferencesDialog extends ConfigDialog {
             GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getEditorComponent(), gbc, "weightx=1");
             GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getPhysUnitLabelComponent(), gbc,
                                     "weightx=0");
-            gbc.gridy++;
-
-            param = getConfigParam(PROPERTY_KEY_AUTO_UNLOAD_DATA);
-            GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getEditorComponent(), gbc, "gridwidth=3");
             gbc.gridy++;
 
             //////////////////////////////////////////////////////////////////////////////////////

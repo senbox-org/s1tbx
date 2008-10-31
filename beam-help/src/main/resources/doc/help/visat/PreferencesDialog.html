@@ -19,7 +19,7 @@
     interface behavior can be edited.<br>
     <br>
 
-<p align="center"><img src="images/PreferencesDialog.jpg" border="0"></p>
+<p align="center"><img src="images/PreferencesDialog.png" border="0"></p>
 
 
 <h4><a name="uibehavior">UI Behavior</a></h4>
@@ -64,15 +64,7 @@
         If you set this value to zero, VISAT will never load and store raster data in memory for image
         creation and will reload missing raster data from the product file any time it requests it.
     </li>
-    <li><b>Un-load raster data when closing images</b><br>
-        In order to display images, VISAT holds a raster data buffer which contains
-        the geophysical measurement values for the tie point grid or band being displayed.
-        Depending on the product size, these buffers require huge amounts of memory.
-        After these buffers have been un-loaded and an image view is opened again
-        for the same band, VISAT needs to reallocate the buffer memory and to read
-        the data from disk again.
-    </li>
-
+    
 
     <li><b>Check for new version on VISAT start</b><br>
         Checks on application start, if a new version of VISAT is available.
@@ -194,18 +186,6 @@
     </li>
 </ul>
 <h4><a name="imagedisplay">Image Display</a></h4>
-<ul>
-    <li><b>Interpolation method </b><br>
-        Here you can choose how neighboring pixel colours are interpolated. Choose
-        <ul>
-            <li><em>Nearest Neighbour</em> to prevent colours from being mixed,</li>
-            <li><em>Bi-linear</em> or <em>Bi-Cubic</em> to smooth the image.</li>
-        </ul>
-    </li>
-</ul>
-
-<p class="inote">Note: choosing other than Nearest Neighbour may slow down image handling. But: on Mac OS X is Bi-linear
-    the System Default and therefore fastest. </p>
 
 <ul>
     <li><b>Tile cache capacity</b><br>
@@ -306,9 +286,6 @@
     <li><b>Text background layer:</b><br>
         Sets the background colour for the lables.
     </li>
-    <li><b>Text background transparency:</b><br>
-        Sets the transparency of the background for the lables.
-    </li>
 </ul>
 
 
@@ -324,9 +301,6 @@
     </li>
     <li><b>Text background layer:</b><br>
         Sets the background colour for the lables.
-    </li>
-    <li><b>Text background transparency:</b><br>
-        Sets the transparency of the background for the lables.
     </li>
 </ul>
 

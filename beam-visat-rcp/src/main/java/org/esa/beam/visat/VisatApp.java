@@ -221,10 +221,6 @@ public class VisatApp extends BasicApp {
      */
     public static final int PROPERTY_DEFAULT_AUTO_LOAD_DATA_LIMIT = 512;
     /**
-     * Preferences key for automatic data unload
-     */
-    public static final String PROPERTY_KEY_AUTO_UNLOAD_DATA = "visat.autounload.enabled";
-    /**
      * Preferences key for automatically showing new bands
      */
     public static final String PROPERTY_KEY_AUTO_SHOW_NEW_BANDS = "visat.autoshowbands.enabled";
@@ -2297,17 +2293,6 @@ public class VisatApp extends BasicApp {
                 for (int i = 0; i < numRasters; i++) {
                     final RasterDataNode raster = productSceneView.getRaster(i);
                     otherFrame = findInternalFrame(raster);
-                    // If this band is not referenced by other frames anymore:
-                    if (otherFrame == null) {
-                        final boolean autoUnload = getPreferences().getPropertyBool(PROPERTY_KEY_AUTO_UNLOAD_DATA,
-                                                                                    true);
-                        // If auto-unload is on, unload data
-                        if (autoUnload && !raster.isSynthetic() && !raster.isReadOnly()) {
-                            Debug.trace("Unloading raster data of '" + raster.getName() + "'...");
-                            raster.unloadRasterData();
-                            Debug.trace("Raster data unloaded.");
-                        }
-                    }
                 }
 
                 // Save view-associtated objects before we dispose the view
