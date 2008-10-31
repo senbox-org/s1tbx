@@ -104,6 +104,7 @@ public class NavigationCanvas extends JPanel {
             Viewport thumbnailViewport = new DefaultViewport(bounds, observedViewport.isModelYAxisDown());
             LayerCanvasModel thumbnailCanvasModel = new DefaultLayerCanvasModel(newView.getRootLayer(), thumbnailViewport);
             thumbnailCanvas.setModel(thumbnailCanvasModel);
+            thumbnailCanvas.getViewport().setOrientation(observedViewport.getOrientation());
             thumbnailCanvas.zoomAll();
         } else {
             thumbnailCanvas.setModel(NULL_MODEL);
@@ -152,10 +153,10 @@ public class NavigationCanvas extends JPanel {
 
     private class ObservedViewportHandler implements ViewportListener {
 
-        public void handleViewportChanged(Viewport viewport, boolean orientationChanged) {
+        public void handleViewportChanged(Viewport observedViewport, boolean orientationChanged) {
             if (!adjustingObservedViewport) {
                 if (orientationChanged) {
-                    thumbnailCanvas.getViewport().setOrientation(viewport.getOrientation());
+                    thumbnailCanvas.getViewport().setOrientation(observedViewport.getOrientation());
                     thumbnailCanvas.zoomAll();
                 }
                 updateMoveSliderRect();
