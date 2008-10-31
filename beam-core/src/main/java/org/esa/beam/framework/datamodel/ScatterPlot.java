@@ -24,7 +24,6 @@ import java.awt.image.SampleModel;
 import java.util.concurrent.CancellationException;
 
 import javax.media.jai.PixelAccessor;
-import javax.media.jai.PlanarImage;
 import javax.media.jai.UnpackedImageData;
 import javax.media.jai.operator.MinDescriptor;
 
@@ -69,7 +68,7 @@ public class ScatterPlot {
      */
     public static void accumulate(final RasterDataNode raster1, final double sampleMin1, final double sampleMax1,
                                   final RasterDataNode raster2, final double sampleMin2, final double sampleMax2,
-                                  final PlanarImage roiImage, final int width, final int height,
+                                  final RenderedImage roiImage, final int width, final int height,
                                   final byte[] pixelValues, final ProgressMonitor pm) {
         Assert.notNull(raster1, "raster1");
         Assert.notNull(raster2, "raster2");
@@ -117,7 +116,7 @@ public class ScatterPlot {
             }
         }
 
-        public void accumulate(RasterDataNode raster1, RasterDataNode raster2, PlanarImage roiImage, byte[] pixelValues, ProgressMonitor pm) {
+        public void accumulate(RasterDataNode raster1, RasterDataNode raster2, RenderedImage roiImage, byte[] pixelValues, ProgressMonitor pm) {
 
             RenderedImage dataImage1 = raster1.getSourceImage();
             RenderedImage dataImage2 = raster2.getSourceImage();

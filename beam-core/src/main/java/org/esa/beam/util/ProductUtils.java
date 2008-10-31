@@ -1381,10 +1381,9 @@ public class ProductUtils {
                                                        final int height,
                                                        final Color background,
                                                        BufferedImage image) throws IOException {
-        PlanarImage roiImage = roi.getAsImage();
         return createScatterPlotImage(raster1, sampleMin1, sampleMax1,
                                       raster2, sampleMin2, sampleMax2,
-                                      roiImage,
+                                      roi.getAsImage(),
                                       width, height,
                                       background,
                                       image,
@@ -1413,7 +1412,7 @@ public class ProductUtils {
                                                        final RasterDataNode raster2,
                                                        final float sampleMin2,
                                                        final float sampleMax2,
-                                                       final PlanarImage roiImage,
+                                                       final RenderedImage roiImage,
                                                        final int width,
                                                        final int height,
                                                        final Color background,
