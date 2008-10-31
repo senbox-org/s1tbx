@@ -152,7 +152,7 @@ public class StatusBarPosDisplayVPI extends AbstractVisatPlugIn {
             }
             if (pixelPosValid) {
                 AffineTransform i2mTransform = imageLayer.getImageToModelTransform(currentLevel);
-                Point2D modelP = i2mTransform.transform(new Point(pixelX, pixelY), null);
+                Point2D modelP = i2mTransform.transform(new Point2D.Double(pixelX + 0.5, pixelY + 0.5), null);
                 AffineTransform m2iTransform = imageLayer.getModelToImageTransform();
                 Point2D imageP = m2iTransform.transform(modelP, null);
                 _text.setLength(0);
@@ -167,7 +167,7 @@ public class StatusBarPosDisplayVPI extends AbstractVisatPlugIn {
                     _text.append(',');
                     _text.append((int)Math.floor(imageP.getY()));
                 }
-                _text.append(" L"+currentLevel);
+                _text.append(" (L").append(currentLevel).append(")");
                 positionStatusBarItem.setText(_text.toString());
             } else {
                 positionStatusBarItem.setText(_INVALID_POS);

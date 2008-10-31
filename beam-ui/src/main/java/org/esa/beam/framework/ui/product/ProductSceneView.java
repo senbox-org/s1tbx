@@ -27,7 +27,10 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.PropertyMapChangeListener;
 import org.esa.beam.util.SystemUtils;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.event.*;
@@ -125,7 +128,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         setOpaque(true);
         setLayout(new BorderLayout());
         // todo - use sceneImage.getConfiguration() (nf, 18.09.2008)
-       setBackground(DEFAULT_IMAGE_BACKGROUND_COLOR);
+        setBackground(DEFAULT_IMAGE_BACKGROUND_COLOR);
 
         this.pixelBorderShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_PIXEL_BORDER_SHOWN, true);
 
@@ -1004,7 +1007,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     private void setPixelPos(MouseEvent e, boolean showBorder) {
-        Point p = e.getPoint();
+        Point2D p = new Point2D.Double(e.getX() + 0.5, e.getY() + 0.5);
 
         Viewport viewport = getLayerCanvas().getViewport();
         int currentLevel = baseImageLayer.getLevel(viewport);

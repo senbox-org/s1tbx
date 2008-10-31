@@ -247,7 +247,7 @@ public class PixelInfoView extends JPanel {
         _level = level;
         _pixelPosValid = pixelPosValid;
         AffineTransform i2mTransform = _currentView.getBaseImageLayer().getImageToModelTransform(level);
-        Point2D modelP = i2mTransform.transform(new Point(pixelX, pixelY), null);
+        Point2D modelP = i2mTransform.transform(new Point2D.Double(pixelX + 0.5, pixelY + 0.5), null);
         AffineTransform m2iTransform = view.getBaseImageLayer().getModelToImageTransform();
         Point2D levelZeroP = m2iTransform.transform(modelP, null);
         levelZeroX = (int)Math.floor(levelZeroP.getX());
