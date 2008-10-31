@@ -105,14 +105,6 @@ public class VisatPreferencesDialog extends ConfigDialog {
             param.getProperties().setMaxValue(500);
             configParams.addParameter(param);
 
-            param = new Parameter(PROPERTY_KEY_AUTO_LOAD_DATA_LIMIT,
-                                  PROPERTY_DEFAULT_AUTO_LOAD_DATA_LIMIT);
-            param.getProperties().setLabel("On image open, load raster data only if size is below: ");/*I18N*/
-            param.getProperties().setPhysicalUnit("M"); /*I18N*/
-            param.getProperties().setMinValue(0);
-            param.getProperties().setMaxValue(1000);
-            configParams.addParameter(param);
-
             param = new Parameter(PROPERTY_KEY_AUTO_SHOW_NEW_BANDS, Boolean.TRUE);
             param.getProperties().setLabel("Open image view for new (virtual) bands"); /*I18N*/
             configParams.addParameter(param);
@@ -121,15 +113,8 @@ public class VisatPreferencesDialog extends ConfigDialog {
             param.getProperties().setLabel("Show navigation window when image views are opened"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter(PROPERTY_KEY_BIG_PRODUCT_SIZE, 100);
-            param.getProperties().setLabel("On product open, warn if product size exceeds: "); /*I18N*/
-            param.getProperties().setPhysicalUnit("M"); /*I18N*/
-            param.getProperties().setMinValue(10);
-            param.getProperties().setMaxValue(1000);
-            configParams.addParameter(param);
-
-            param = new Parameter(PixelInfoView.PROPERTY_KEY_SHOW_ONLY_LOADED_OR_DISPLAYED_BAND_PIXEL_VALUES,
-                                  PixelInfoView.PROPERTY_DEFAULT_SHOW_ONLY_LOADED_OR_DISPLAYED_BAND_PIXEL_VALUES);
+            param = new Parameter(PixelInfoView.PROPERTY_KEY_SHOW_ONLY_DISPLAYED_BAND_PIXEL_VALUES,
+                                  PixelInfoView.PROPERTY_DEFAULT_SHOW_DISPLAYED_BAND_PIXEL_VALUES);
             param.getProperties().setLabel("Show only pixel values of loaded or displayed bands"); /*I18N*/
             configParams.addParameter(param);
 
@@ -159,7 +144,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             displaySettingsPane.add(param.getEditor().getEditorComponent(), gbc);
             gbc.gridy++;
 
-            param = getConfigParam(PixelInfoView.PROPERTY_KEY_SHOW_ONLY_LOADED_OR_DISPLAYED_BAND_PIXEL_VALUES);
+            param = getConfigParam(PixelInfoView.PROPERTY_KEY_SHOW_ONLY_DISPLAYED_BAND_PIXEL_VALUES);
             displaySettingsPane.add(param.getEditor().getEditorComponent(), gbc);
             gbc.gridy++;
 
@@ -171,23 +156,9 @@ public class VisatPreferencesDialog extends ConfigDialog {
             gbc = GridBagUtils.createConstraints("fill=HORIZONTAL, anchor=WEST, weightx=1, gridy=1");
             gbc.gridy++;
 
-            param = getConfigParam(PROPERTY_KEY_BIG_PRODUCT_SIZE);
-            GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getLabelComponent(), gbc, "weightx=0");
-            GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getEditorComponent(), gbc, "weightx=1");
-            GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getPhysUnitLabelComponent(), gbc,
-                                    "weightx=0");
-            gbc.gridy++;
-
             gbc.insets.top = _LINE_INSET_TOP;
 
             param = getConfigParam(PROPERTY_KEY_LOW_MEMORY_LIMIT);
-            GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getLabelComponent(), gbc, "weightx=0");
-            GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getEditorComponent(), gbc, "weightx=1");
-            GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getPhysUnitLabelComponent(), gbc,
-                                    "weightx=0");
-            gbc.gridy++;
-
-            param = getConfigParam(PROPERTY_KEY_AUTO_LOAD_DATA_LIMIT);
             GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getLabelComponent(), gbc, "weightx=0");
             GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getEditorComponent(), gbc, "weightx=1");
             GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getPhysUnitLabelComponent(), gbc,

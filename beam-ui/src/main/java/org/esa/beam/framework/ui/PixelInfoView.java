@@ -47,7 +47,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Calendar;
@@ -67,15 +66,15 @@ public class PixelInfoView extends JPanel {
     /**
      * Preferences key for show all band pixel values in pixel info view
      */
-    public static final String PROPERTY_KEY_SHOW_ONLY_LOADED_OR_DISPLAYED_BAND_PIXEL_VALUES = "pixelview.showonlyloadedbands";
-    public static final boolean PROPERTY_DEFAULT_SHOW_ONLY_LOADED_OR_DISPLAYED_BAND_PIXEL_VALUES = true;
+    public static final String PROPERTY_KEY_SHOW_ONLY_DISPLAYED_BAND_PIXEL_VALUES = "pixelview.showOnlyDisplayedBands";
+    public static final boolean PROPERTY_DEFAULT_SHOW_DISPLAYED_BAND_PIXEL_VALUES = true;
 
     private static final int _NAME_COLUMN = 0;
     private static final int _VALUE_COLUMN = 1;
     private static final int _UNIT_COLUMN = 2;
 
     private static final String _INVALID_POS_TEXT = "Invalid pos.";
-    private static final String _NOT_LOADED_TEXT = "Not loaded";
+    private static final String _NOT_LOADED_TEXT = "Not diplayed";
 
     private final GeoPos _geoPos;
     private final PixelPos _pixelPos;
@@ -92,7 +91,7 @@ public class PixelInfoView extends JPanel {
     private RasterDataNode _currentRaster;
     private ProductSceneView _currentView;
     private Band[] _currentFlagBands;
-    private boolean _showOnlyLoadedBands = PROPERTY_DEFAULT_SHOW_ONLY_LOADED_OR_DISPLAYED_BAND_PIXEL_VALUES;
+    private boolean _showOnlyLoadedBands = PROPERTY_DEFAULT_SHOW_DISPLAYED_BAND_PIXEL_VALUES;
     private boolean _showPixelPosDecimals;
     private float _pixelOffsetX;
     private float _pixelOffsetY;

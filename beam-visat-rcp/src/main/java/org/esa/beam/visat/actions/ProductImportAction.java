@@ -42,7 +42,6 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import java.awt.Component;
@@ -65,7 +64,6 @@ import java.util.Iterator;
  */
 public class ProductImportAction extends ExecCommand {
 
-    private int memWarnLimit;
     private ProductReaderPlugIn readerPlugIn;
     private ProductImportAction.ProductFileChooser fileChooser;
     private String formatName;
@@ -181,7 +179,6 @@ public class ProductImportAction extends ExecCommand {
     protected void importProduct() {
 
         VisatApp visatApp = VisatApp.getApp();
-        memWarnLimit = visatApp.getPreferences().getPropertyInt(VisatApp.PROPERTY_KEY_BIG_PRODUCT_SIZE, 100);
 
         if (readerPlugIn == null) {
             // Should not come here...
@@ -270,23 +267,6 @@ public class ProductImportAction extends ExecCommand {
                                     + "Please use 'Open' in the file menu to open such product types.\n"
                                     , null);
                             file = null;
-                        } else if (fileChooser.getSubsetProduct() == null
-                                   && memWarnLimit >= 0.0
-                                   && fileSize > memWarnLimit) {
-                            int status = visatApp.showQuestionDialog("\"Big\" Product",
-                                                                     "The product size exceeds " + memWarnLimit + " M.\n"
-                                                                     + "You can reduce the amount of memory by\n"
-                                                                     + "specifying a subset for this product.\n\n"
-                                                                     + "Do you wish to open the subset dialog now?\n",
-                                                                     true, null);
-                            if (status == JOptionPane.YES_OPTION) {
-                                fileChooser.openProductSubsetDialog();
-                                if (fileChooser.getSubsetProduct() == null) {
-                                    canceled = true;
-                                }
-                            } else if (status == JOptionPane.CANCEL_OPTION) {
-                                canceled = true;
-                            }
                         }
                     }
                 }
@@ -464,7 +444,7 @@ public class ProductImportAction extends ExecCommand {
             if (product != null) {
                 VisatApp visatApp = VisatApp.getApp();
                 JFrame mainFrame = visatApp.getMainFrame();
-                ProductSubsetDialog productSubsetDialog = new ProductSubsetDialog(mainFrame, product, memWarnLimit);
+                ProductSubsetDialog productSubsetDialog = new ProductSubsetDialog(mainFrame, product);
                 if (productSubsetDialog.show() == ProductSubsetDialog.ID_OK) {
                     ProductNodeList<Product> products = new ProductNodeList<Product>();
                     products.add(product);

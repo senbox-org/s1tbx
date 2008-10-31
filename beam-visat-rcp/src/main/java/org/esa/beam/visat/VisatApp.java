@@ -177,10 +177,6 @@ public class VisatApp extends BasicApp {
      */
     public static final String APP_DEFAULT_PLUGIN_DIR = SystemUtils.EXTENSION_DIR_NAME;
     /**
-     * Preferences key for big-product size
-     */
-    public static final String PROPERTY_KEY_BIG_PRODUCT_SIZE = "big.product.size";
-    /**
      * Preferences key for save product headers (MPH, SPH) or not
      */
     public static final String PROPERTY_KEY_SAVE_PRODUCT_HEADERS = "save.product.headers";
@@ -212,14 +208,6 @@ public class VisatApp extends BasicApp {
      * Preferences key for the memory capacity of the JAI tile cache in megabytes
      */
     public static final String PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY = "jai.tileCache.memoryCapacity";
-    /**
-     * Preferences key for limit for automatic data load
-     */
-    public static final String PROPERTY_KEY_AUTO_LOAD_DATA_LIMIT = "visat.autoload.limit";
-    /**
-     * Default value for limit for automatic data load
-     */
-    public static final int PROPERTY_DEFAULT_AUTO_LOAD_DATA_LIMIT = 512;
     /**
      * Preferences key for automatically showing new bands
      */
@@ -1531,10 +1519,9 @@ public class VisatApp extends BasicApp {
         return status;
     }
 
+    @Deprecated
     public long getDataAutoLoadLimit() {
-        final long megabyte = 1024 * 1024;
-        return megabyte * getPreferences().getPropertyInt(PROPERTY_KEY_AUTO_LOAD_DATA_LIMIT,
-                                                          PROPERTY_DEFAULT_AUTO_LOAD_DATA_LIMIT);
+        return Long.MAX_VALUE;
     }
 
     public ExecutorService getExecutorService() {

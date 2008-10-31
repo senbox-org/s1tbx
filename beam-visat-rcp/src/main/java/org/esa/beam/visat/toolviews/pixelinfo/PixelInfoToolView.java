@@ -70,7 +70,7 @@ public class PixelInfoToolView extends AbstractToolView {
         preferences.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 final String propertyName = evt.getPropertyName();
-                if (PixelInfoView.PROPERTY_KEY_SHOW_ONLY_LOADED_OR_DISPLAYED_BAND_PIXEL_VALUES.equals(propertyName)) {
+                if (PixelInfoView.PROPERTY_KEY_SHOW_ONLY_DISPLAYED_BAND_PIXEL_VALUES.equals(propertyName)) {
                     setShowOnlyLoadedBands(preferences, bandDisplayValidator);
                 } else if (VisatApp.PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS.equals(propertyName)) {
                     setShowPixelPosDecimals(preferences);
@@ -143,8 +143,8 @@ public class PixelInfoToolView extends AbstractToolView {
 
     private void setShowOnlyLoadedBands(final PropertyMap preferences, DisplayFilter validator) {
         final boolean showOnlyLoadedOrDisplayedBands = preferences.getPropertyBool(
-                PixelInfoView.PROPERTY_KEY_SHOW_ONLY_LOADED_OR_DISPLAYED_BAND_PIXEL_VALUES,
-                PixelInfoView.PROPERTY_DEFAULT_SHOW_ONLY_LOADED_OR_DISPLAYED_BAND_PIXEL_VALUES);
+                PixelInfoView.PROPERTY_KEY_SHOW_ONLY_DISPLAYED_BAND_PIXEL_VALUES,
+                PixelInfoView.PROPERTY_DEFAULT_SHOW_DISPLAYED_BAND_PIXEL_VALUES);
         validator.setShowOnlyLoadedOrDisplayedBands(showOnlyLoadedOrDisplayedBands);
     }
 

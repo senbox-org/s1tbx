@@ -46,25 +46,11 @@
         an impact of VISAT's runtime performance.
     </li>
 
-
-    <li><b>On product open, warn if product size exceeds</b> <br>
-        If a product being opened has a file size greater than the size put in here,
-        then VISAT asks you whether or not you want to create a spectral or spatial
-        subset of this product in order to reduce the required memory.
-    </li>
     <li><b>On low memory, warn if free RAM falls below</b><br>
         Here you can enter a value in megabytes, which uses VISAT to decide to pop-up
         a low memory message box. Set this value to zero, if you don't want to get
         any warnings.
-    </li>
-    <li><b>On image open, load raster data only if size is below</b><br>
-        The value entered here is the number of megabytes a band's raster can have so that it is completely loaded into
-        memory before the image is displayed. If raster data is completely loaded into memory, VISAT can perform
-        many computations much faster.
-        If you set this value to zero, VISAT will never load and store raster data in memory for image
-        creation and will reload missing raster data from the product file any time it requests it.
-    </li>
-    
+    </li>    
 
     <li><b>Check for new version on VISAT start</b><br>
         Checks on application start, if a new version of VISAT is available.

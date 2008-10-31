@@ -142,8 +142,7 @@ public class ShowImageViewRGBAction extends ExecCommand {
         ProductSceneImage productSceneImage = null;
         try {
             pm.beginTask("Creating RGB image...", 2);
-            rgbBands = allocateRgbBands(product, rgbaExpressions, visatApp.getDataAutoLoadLimit(),
-                                        SubProgressMonitor.create(pm, 1));
+            rgbBands = allocateRgbBands(product, rgbaExpressions);
             productSceneImage = new ProductSceneImage(name, rgbBands[0].band,
                                                          rgbBands[1].band,
                                                          rgbBands[2].band,
@@ -162,11 +161,8 @@ public class ShowImageViewRGBAction extends ExecCommand {
     }
 
     private  RGBBand[] allocateRgbBands(final Product product,
-                                              final String[] rgbaExpressions,
-                                              final long dataAutoLoadMemLimit,
-                                              final ProgressMonitor pm) throws IOException {
+                                        final String[] rgbaExpressions) throws IOException {
         final RGBBand[] rgbBands = new RGBBand[3]; // todo - set to [4] as soon as we support alpha
-        long storageMem = 0;
         for (int i = 0; i < rgbBands.length; i++) {
             final RGBBand rgbBand = new RGBBand();
             String expression = rgbaExpressions[i].isEmpty() ? "0" : rgbaExpressions[i];
@@ -177,7 +173,6 @@ public class ShowImageViewRGBAction extends ExecCommand {
                                                                expression);
             }
             rgbBands[i] = rgbBand;
-            storageMem += rgbBand.band.getRawStorageSize();
         }
         return rgbBands;
     }
