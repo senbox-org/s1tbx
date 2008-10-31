@@ -172,37 +172,26 @@ public class ImageLayer extends Layer {
     private void renderImageBorder(Rendering rendering, int level) {
         final Graphics2D graphics2D = rendering.getGraphics();
         final Viewport viewport = rendering.getViewport();
-        final double borderWidth = Math.min(1.0, getBorderWidth() * viewport.getZoomFactor());
-        final Color borderColor = getBorderColor();
-
-        graphics2D.setStroke(new BasicStroke((float) borderWidth));
-        graphics2D.setColor(borderColor);
 
         final Object oldAntialiasing = graphics2D.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
         final AffineTransform oldTransform = graphics2D.getTransform();
+        final Paint oldPaint = graphics2D.getPaint();
+        final Stroke oldStroke = graphics2D.getStroke();
 
         try {
-            final AffineTransform modelToImageTransform = multiLevelSource.getModel().getModelToImageTransform(level);
-            final AffineTransform imageToModelTransform = multiLevelSource.getModel().getImageToModelTransform(level);
-            final AffineTransform transform = new AffineTransform();
-            transform.concatenate(oldTransform);
-            transform.concatenate(viewport.getModelToViewTransform());
-            transform.concatenate(imageToModelTransform);
+            AffineTransform i2m = multiLevelSource.getModel().getImageToModelTransform(level);
+            AffineTransform m2v = viewport.getModelToViewTransform();
+            RenderedImage image = multiLevelSource.getImage(level);
+            final Shape modelShape = i2m.createTransformedShape(new Rectangle(image.getMinX(), image.getMinY(), image.getWidth(), image.getHeight()));
+            Shape viewShape = m2v.createTransformedShape(modelShape);
 
-            graphics2D.setTransform(transform);
+            graphics2D.setStroke(new BasicStroke((float) Math.max(0.0, getBorderWidth())));
+            graphics2D.setColor(getBorderColor());
             graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            final Rectangle2D modelBounds = multiLevelSource.getModel().getModelBounds();
-            final Rectangle2D imageBounds = modelToImageTransform.createTransformedShape(modelBounds).getBounds2D();
-
-            final double x = imageBounds.getX() - borderWidth / 2.0;
-            final double y = imageBounds.getY() - borderWidth / 2.0;
-            final double w = imageBounds.getWidth() + borderWidth;
-            final double h = imageBounds.getHeight() + borderWidth;
-            final Rectangle2D border = new Rectangle.Double(x, y, w, h);
-
-            graphics2D.draw(border);
+            graphics2D.draw(viewShape);
         } finally {
+            graphics2D.setPaint(oldPaint);
+            graphics2D.setStroke(oldStroke);
             graphics2D.setTransform(oldTransform);
             graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntialiasing);
         }

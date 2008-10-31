@@ -60,7 +60,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
     private final ModelChangeHandler modelChangeHandler;
 
-    private boolean debug;
+    private boolean debug = false;
 
     public LayerCanvas() {
         this(new Layer());
@@ -77,7 +77,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
     public LayerCanvas(LayerCanvasModel model) {
         super(null);
         Assert.notNull(model, "model");
-        setOpaque(false);
+        setOpaque(true);
         this.modelChangeHandler = new ModelChangeHandler();
         this.model = model;
         this.model.addChangeListener(modelChangeHandler);
