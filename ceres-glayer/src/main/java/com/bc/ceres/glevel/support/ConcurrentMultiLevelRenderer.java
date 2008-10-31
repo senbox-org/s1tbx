@@ -17,7 +17,7 @@ import java.util.List;
 public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
     private int lastLevel;
-    private boolean debug = false;
+    private boolean debug;
     private final Map<TileIndex, TileRequest> scheduledTileRequests;
     private final TileImageCache localTileCache;
 
