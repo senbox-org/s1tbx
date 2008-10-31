@@ -36,7 +36,7 @@ The aim of BEAM version 4.5 is to efficiently handle high resolution data
 products in terms of number of pixels per image. This has been achieved by
 a total rewrite of the imaging code used in BEAM so far. BEAM now uses
 tiled images and image pyramids for a number of imaging operations. The result
-is a greatly improved image display performance and and memory usage.
+is a greatly improved image display performance and memory usage.
 
 o VISAT can now rapidly display, pan and zoom Envisat MERIS FRS and ASAR WSM
   products with up to 50000 x 6000 pixels per image. Also users of LANDSAT
