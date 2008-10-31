@@ -117,7 +117,6 @@ public abstract class OperatorSpi {
         operator.context.setSourceProducts(sourceProducts);
         operator.context.setParameters(parameters);
         operator.context.setRenderingHints(renderingHints);
-
         return operator;
     }
 

@@ -34,7 +34,7 @@ public class OperatorImage extends SourcelessOpImage {
 
     private OperatorImage(Band targetBand, OperatorContext operatorContext, ImageLayout imageLayout) {
         super(imageLayout,
-              addDefaultRenderingHints(operatorContext.getRenderingHints()),
+              operatorContext.getRenderingHints(),
               imageLayout.getSampleModel(null),
               imageLayout.getMinX(null),
               imageLayout.getMinY(null),
@@ -42,21 +42,12 @@ public class OperatorImage extends SourcelessOpImage {
               imageLayout.getHeight(null));
         this.band = targetBand;
         this.operatorContext = operatorContext;
-    }
-
-    private static RenderingHints addDefaultRenderingHints(RenderingHints renderingHints) {
         final boolean disableTileCaching = Boolean.getBoolean(DISABLE_TILE_CACHING_PROPERTY);
-
         if (disableTileCaching) {
-            renderingHints.put(JAI.KEY_TILE_CACHE, null);
-        } else {
-            if (renderingHints.get(JAI.KEY_TILE_CACHE) == null) {
-                // note that we could provide a GPF specific tile (with another cache metric) cache here
-                renderingHints.put(JAI.KEY_TILE_CACHE, JAI.getDefaultInstance().getTileCache());
-            }
+            setTileCache(null);
+        } else if (getTileCache() == null) {
+            setTileCache(JAI.getDefaultInstance().getTileCache());
         }
-
-        return renderingHints;
     }
 
     public OperatorContext getOperatorContext() {

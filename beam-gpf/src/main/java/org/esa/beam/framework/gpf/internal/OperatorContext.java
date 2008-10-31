@@ -75,7 +75,6 @@ public class OperatorContext {
         this.sourceProductMap = new HashMap<String, Product>(3);
         this.targetPropertyMap = new HashMap<String, Object>(3);
         this.logger = Logger.getAnonymousLogger();
-        this.renderingHints = new RenderingHints(null);
     }
 
     public String getId() {
@@ -197,15 +196,11 @@ public class OperatorContext {
     }
 
     public RenderingHints getRenderingHints() {
-        return (RenderingHints) renderingHints.clone();
+        return renderingHints;
     }
 
     public void setRenderingHints(RenderingHints renderingHints) {
-        if (renderingHints == null) {
-            this.renderingHints = new RenderingHints(null);
-        } else {
-            this.renderingHints = (RenderingHints) renderingHints.clone();
-        }
+        this.renderingHints = renderingHints;
     }
 
     public void setConfiguration(OperatorConfiguration opConfiguration) {
@@ -516,7 +511,7 @@ public class OperatorContext {
         if (targetProduct.getProductReader() == null) {
             targetProduct.setProductReader(new OperatorProductReader(this));
         }
-        if (GPF.KEY_TILE_SIZE.isCompatibleValue(renderingHints.get(GPF.KEY_TILE_SIZE))) {
+        if (renderingHints != null && GPF.KEY_TILE_SIZE.isCompatibleValue(renderingHints.get(GPF.KEY_TILE_SIZE))) {
             targetProduct.setPreferredTileSize((Dimension) renderingHints.get(GPF.KEY_TILE_SIZE));
         }
     }

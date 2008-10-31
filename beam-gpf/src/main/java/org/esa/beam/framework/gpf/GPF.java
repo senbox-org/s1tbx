@@ -6,8 +6,8 @@ import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.internal.OperatorSpiRegistryImpl;
 import org.esa.beam.util.Guardian;
 
-import javax.media.jai.TileCache;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.RenderingHints;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,12 +45,6 @@ public class GPF {
                     return val.width > 0 && val.height > 0;
                 }
             });
-    /**
-     * Key for GPF tile cache {@link RenderingHints}.
-     * <p/>
-     * The value for this key must be an instance of {@link TileCache}.
-     */
-    private static final RenderingHints.Key KEY_TILE_CACHE = new RenderingKey<TileCache>(2, TileCache.class);
 
     /**
      * An unmodifiable empty {@link Map Map}.
@@ -92,9 +86,7 @@ public class GPF {
      *
      * @param operatorName the name of the operator to use.
      * @param parameters   the named parameters needed by the operator.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(String operatorName,
@@ -110,9 +102,7 @@ public class GPF {
      * @param operatorName   the name of the operator to use.
      * @param parameters     the named parameters needed by the operator.
      * @param renderingHints the rendering hints may be {@code null}.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(String operatorName,
@@ -129,9 +119,7 @@ public class GPF {
      * @param operatorName  the name of the operator to use.
      * @param parameters    the named parameters needed by the operator.
      * @param sourceProduct a source product.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(final String operatorName,
@@ -149,9 +137,7 @@ public class GPF {
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProduct  the source product.
      * @param renderingHints the rendering hints may be {@code null}.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(final String operatorName,
@@ -169,9 +155,7 @@ public class GPF {
      * @param operatorName   the name of the operator to use.
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProducts the source products.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(final String operatorName,
@@ -189,9 +173,7 @@ public class GPF {
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProducts the source products.
      * @param renderingHints the rendering hints may be {@code null}.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(String operatorName,
@@ -229,9 +211,7 @@ public class GPF {
      * @param operatorName   the name of the operator to use.
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProducts the map of named source products.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(String operatorName,
@@ -249,9 +229,7 @@ public class GPF {
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProducts the map of named source products.
      * @param renderingHints the rendering hints, may be {@code null}.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(String operatorName,
@@ -268,9 +246,7 @@ public class GPF {
      * @param operatorName   the name of the operator to use.
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProducts a map of named source products.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     @Deprecated
@@ -292,9 +268,7 @@ public class GPF {
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProducts the map of named source products.
      * @param renderingHints the rendering hints, may be {@code null}.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     public Product createProductNS(String operatorName,
