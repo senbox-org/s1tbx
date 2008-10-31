@@ -14,6 +14,7 @@ import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.IntMap;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.Debug;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.math.MathUtils;
 
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.text.MessageFormat;
 
 public class ImageManager {
 
@@ -539,15 +541,19 @@ public class ImageManager {
         if (levelZeroImage instanceof MultiLevelSource) {
             multiLevelSource = (MultiLevelSource) levelZeroImage;
         } else {
-            // todo - New image instance is created here. Maintain/keep it? 
-            // This will happen e.g. for all bands created by GPF operators. (nf, 19.09.2008)
+            // todo - IMAGING 4.5: A new DefaultMultiLevelSource created here, which is an inefficient factory for level images!  (nf, 19.09.2008)
+            //        This will happen e.g. for all bands created by GPF operators which use a
+            //        org.esa.beam.framework.gpf.internal.OperatorImage as source image (as of status from 10.2008).
+            // todo - IMAGING 4.5: The new DefaultMultiLevelSource references will not be stored, (nf, 19.09.2008)
+            //        Possible solution: Call Band.setSourceImage(new DefaultMultiLevelImage(multiLevelSource))
+            //        --> Problem: GPF may expect a org.esa.beam.framework.gpf.internal.OperatorImage in a band
+            //            created by a GPF Operator (check!)
             final int levelCount = DefaultMultiLevelModel.getLevelCount(levelZeroImage.getWidth(), levelZeroImage.getHeight());
             multiLevelSource = new DefaultMultiLevelSource(levelZeroImage,
                                                            levelCount,
                                                            Interpolation.getInstance(Interpolation.INTERP_NEAREST));
-            System.out.println("IMAGING 4.5: " +
-                    "Warning: Created an (inefficient) instance of DefaultMultiLevelSource. " +
-                    "Source image is a " + levelZeroImage.getClass());
+            Debug.trace(MessageFormat.format("WARNING: Inefficient usage of {0}.", multiLevelSource.getClass().getName()));
+            Debug.trace(MessageFormat.format("         Source image is a {0}.", levelZeroImage.getClass().getName()));
         }
         return multiLevelSource;
     }
