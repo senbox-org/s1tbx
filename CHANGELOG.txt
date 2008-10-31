@@ -1,11 +1,12 @@
                                  CHANGELOG
 
                          MERIS/(A)ATSR Toolbox (BEAM)
-                                Version 4.2
+                                Version 4.5
 
 
 This file contains all significant changes for each BEAM release.
 
+    o 31.10.2008: Version 4.5
     o 11.07.2008: Version 4.2
     o 31.10.2007: Version 4.1
     o 20.04.2007: Version 4.0
@@ -29,7 +30,15 @@ _____________________________________________________________________________
  Changes from 4.2 to 4.5
 _____________________________________________________________________________
 
-BEAM-867 
+// TODO - New Imaging technology
+
+// TODO - Layer manager
+
+// TODO - GeoTIFF
+
+// TODO - API-Doc and source code now includes Ceres
+
+// TODO BEAM-867
 
 _____________________________________________________________________________
 
