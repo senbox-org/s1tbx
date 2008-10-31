@@ -36,6 +36,7 @@ public class NavigationCanvas extends JPanel {
         setOpaque(true);
         this.navigationWindow = navigationWindow;
         thumbnailCanvas = new LayerCanvas();
+        thumbnailCanvas.setBackground(ProductSceneView.DEFAULT_IMAGE_BACKGROUND_COLOR);
         thumbnailCanvas.setRenderCustomizer(new Layer.RenderFilter() {
             @Override
             public boolean canRender(Layer layer) {

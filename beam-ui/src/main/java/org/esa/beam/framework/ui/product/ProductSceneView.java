@@ -557,6 +557,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     public void setLayerProperties(PropertyMap configuration) {
         setScrollBarsShown(configuration.getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN, false));
         layerCanvas.setNavControlShown(configuration.getPropertyBool(PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true));
+        layerCanvas.setBackground(configuration.getPropertyColor("image.background.color", DEFAULT_IMAGE_BACKGROUND_COLOR));
 
         final ImageLayer imageLayer = getBaseImageLayer();
         if (imageLayer != null) {
