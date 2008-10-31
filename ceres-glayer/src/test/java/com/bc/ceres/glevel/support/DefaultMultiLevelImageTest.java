@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
 public class DefaultMultiLevelImageTest extends TestCase {
     public void testAllProperties() {
         final PlanarImage sourceImage = createSourceImage(2, 2);
-        final DefaultMultiLevelSource mls = new DefaultMultiLevelSource(sourceImage);
+        final DefaultMultiLevelSource mls = new DefaultMultiLevelSource(sourceImage, 1);
         final DefaultMultiLevelImage mli = new DefaultMultiLevelImage(mls);
 
         assertSame(mls, mli.getSource());

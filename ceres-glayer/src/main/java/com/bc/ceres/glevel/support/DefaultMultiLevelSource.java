@@ -5,35 +5,62 @@ import com.bc.ceres.glevel.MultiLevelSource;
 
 import javax.media.jai.Interpolation;
 import javax.media.jai.operator.ScaleDescriptor;
-import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 
+/**
+ * A default implementation for the {@#link MultiLevelSource} interface.
+ */
 public class DefaultMultiLevelSource extends AbstractMultiLevelSource {
 
-    public static final Interpolation DEFAULT_INTERPOLATION = Interpolation.getInstance(Interpolation.INTERP_BICUBIC);
-    public static final MultiLevelSource NULL = createNullImage();
+    /**
+     * Default interpolation is "Nearest Neighbour".
+     */
+    public static final Interpolation DEFAULT_INTERPOLATION = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
+    public static final MultiLevelSource NULL = createNull();
 
     private final RenderedImage sourceImage;
     private final Interpolation interpolation;
 
-    public DefaultMultiLevelSource(RenderedImage sourceImage) {
-        this(sourceImage, 1);
-    }
-
+    /**
+     * Constructs a new instance with {@link #DEFAULT_INTERPOLATION}.
+     *
+     * @param sourceImage The source image.
+     * @param levelCount  The level count.
+     */
     public DefaultMultiLevelSource(RenderedImage sourceImage, int levelCount) {
         this(sourceImage, levelCount, DEFAULT_INTERPOLATION);
     }
 
+    /**
+     * Constructs a new instance.
+     *
+     * @param sourceImage   The source image.
+     * @param levelCount    The level count.
+     * @param interpolation The interpolation.
+     */
     public DefaultMultiLevelSource(RenderedImage sourceImage, int levelCount, Interpolation interpolation) {
         this(sourceImage, createDefaultMultiLevelModel(sourceImage, levelCount), interpolation);
     }
 
+    /**
+     * Constructs a new instance with {@link #DEFAULT_INTERPOLATION}.
+     *
+     * @param sourceImage     The source image.
+     * @param multiLevelModel The multi level model.
+     */
     public DefaultMultiLevelSource(RenderedImage sourceImage, MultiLevelModel multiLevelModel) {
         this(sourceImage, multiLevelModel, DEFAULT_INTERPOLATION);
     }
 
+    /**
+     * Constructs a new instance with {@link #DEFAULT_INTERPOLATION}.
+     *
+     * @param sourceImage     The source image.
+     * @param multiLevelModel The multi level model.
+     * @param interpolation   The interpolation.
+     */
     public DefaultMultiLevelSource(RenderedImage sourceImage, MultiLevelModel multiLevelModel, Interpolation interpolation) {
         super(multiLevelModel);
         this.sourceImage = sourceImage;
@@ -85,7 +112,7 @@ public class DefaultMultiLevelSource extends AbstractMultiLevelSource {
     }
 
 
-    private static MultiLevelSource createNullImage() {
+    private static MultiLevelSource createNull() {
         final BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_BYTE_GRAY);
         final DefaultMultiLevelModel model = new DefaultMultiLevelModel(1, new AffineTransform(), null);
         return new DefaultMultiLevelSource(image, model);

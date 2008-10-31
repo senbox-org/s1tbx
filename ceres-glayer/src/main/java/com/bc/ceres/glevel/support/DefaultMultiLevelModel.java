@@ -10,11 +10,12 @@ import java.awt.image.RenderedImage;
 
 public class DefaultMultiLevelModel implements MultiLevelModel {
 
+    public final static int DEFAULT_MAX_LEVEL_PIXEL_COUNT = 256 * 256;
+    
     private final int levelCount;
     private final AffineTransform[] imageToModelTransforms;
     private final AffineTransform[] modelToImageTransforms;
     private Rectangle2D modelBounds;
-    public final static int MAX_PIXEL_COUNT = 256 * 256;
 
     public DefaultMultiLevelModel(AffineTransform i2mTransform,
                                   int width, int height) {
@@ -143,7 +144,7 @@ public class DefaultMultiLevelModel implements MultiLevelModel {
     public static int getLevelCount(int width, int height) {
         int level = 1;
         double scale = 1.0;
-        while ((scale * width) * (scale * height) >= MAX_PIXEL_COUNT) {
+        while ((scale * width) * (scale * height) >= DEFAULT_MAX_LEVEL_PIXEL_COUNT) {
             level++;
             scale *= 0.5;
         }
