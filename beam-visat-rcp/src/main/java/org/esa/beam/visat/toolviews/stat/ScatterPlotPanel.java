@@ -22,7 +22,6 @@ import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.title.Title;
 import org.jfree.ui.RectangleInsets;
 
-import javax.media.jai.PlanarImage;
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -35,6 +34,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -51,8 +51,8 @@ import java.util.concurrent.ExecutionException;
 class ScatterPlotPanel extends PagePanel {
 
     private static final String NO_DATA_MESSAGE = "No scatter plot computed yet.\n" +
-                                                  "TIP: To zoom within the chart draw a rectangle\n" +
-                                                  "with the mouse or use the context menu.";  /*I18N*/
+            "TIP: To zoom within the chart draw a rectangle\n" +
+            "with the mouse or use the context menu.";  /*I18N*/
     private static final String CHART_TITLE = "Scatter Plot";
     private static final String TITLE_PREFIX = CHART_TITLE;
 
@@ -106,8 +106,8 @@ class ScatterPlotPanel extends PagePanel {
         final JFreeChart chart = scatterPlotDisplay.getChart();
         final List<Title> subtitles = new ArrayList<Title>(7);
         subtitles.add(new TextTitle(MessageFormat.format("{0}, {1}",
-                                           rasterNameParams[X_VAR].getValueAsText(), 
-                                           rasterNameParams[Y_VAR].getValueAsText())));
+                                                         rasterNameParams[X_VAR].getValueAsText(),
+                                                         rasterNameParams[Y_VAR].getValueAsText())));
         chart.setSubtitles(subtitles);
     }
 
@@ -369,9 +369,9 @@ class ScatterPlotPanel extends PagePanel {
             return;
         }
 
-        final PlanarImage roiImage;
+        final RenderedImage roiImage;
         if (useROI) {
-            roiImage = getROIImage(rasterX);
+            roiImage = getRoiImage(rasterX);
         } else {
             roiImage = null;
         }
@@ -409,14 +409,14 @@ class ScatterPlotPanel extends PagePanel {
                     double maxX = scatterPlot.getRangeX().getMax();
                     double minY = scatterPlot.getRangeY().getMin();
                     double maxY = scatterPlot.getRangeY().getMax();
-                    if(minX > maxX || minY > maxY) {
+                    if (minX > maxX || minY > maxY) {
                         JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                       "Failed to compute scatter plot.\n" +
-                                                      "No Pixels considered..",
+                                                              "No Pixels considered..",
                                                       /*I18N*/
                                                       CHART_TITLE, /*I18N*/
                                                       JOptionPane.ERROR_MESSAGE);
-                        plot.setDataset(null);                        
+                        plot.setDataset(null);
                         return;
 
                     }
@@ -439,7 +439,7 @@ class ScatterPlotPanel extends PagePanel {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute scatter plot.\n" +
-                                                  "Calculation canceled.",
+                                                          "Calculation canceled.",
                                                   /*I18N*/
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
@@ -447,7 +447,7 @@ class ScatterPlotPanel extends PagePanel {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute scatter plot.\n" +
-                                                  "Calculation canceled.",
+                                                          "Calculation canceled.",
                                                   /*I18N*/
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
@@ -455,8 +455,8 @@ class ScatterPlotPanel extends PagePanel {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute scatter plot.\n" +
-                                                  "An error occured:\n" +
-                                                  e.getCause().getMessage(),
+                                                          "An error occured:\n" +
+                                                          e.getCause().getMessage(),
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
                 }
@@ -473,8 +473,7 @@ class ScatterPlotPanel extends PagePanel {
         return raster.getName();
     }
 
-    private Range getRange(int varIndex, RasterDataNode raster, PlanarImage roiImage, ProgressMonitor pm) throws
-                                                                                             IOException {
+    private Range getRange(int varIndex, RasterDataNode raster, RenderedImage roiImage, ProgressMonitor pm) throws IOException {
         final boolean autoMinMax = (Boolean) autoMinMaxParams[varIndex].getValue();
         if (autoMinMax) {
             Stx stx;
@@ -533,18 +532,18 @@ class ScatterPlotPanel extends PagePanel {
             String excelNote = "";
             if (numNonEmptyBins > excelLimit - 100) {
                 excelNote = "Note that e.g., Microsoft® Excel 2002 only supports a total of "
-                            + excelLimit + " rows in a sheet.\n";   /*I18N*/
+                        + excelLimit + " rows in a sheet.\n";   /*I18N*/
             }
             final String message = MessageFormat.format(
                     "This scatter plot diagram contains {0} non-empty bins.\n" +
-                    "For each bin, a text data row containing an x, y and z value will be created.\n" +
-                    "{1}\nPress ''Yes'' if you really want to copy this amount of data to the system clipboard.\n",
+                            "For each bin, a text data row containing an x, y and z value will be created.\n" +
+                            "{1}\nPress ''Yes'' if you really want to copy this amount of data to the system clipboard.\n",
                     numNonEmptyBins, excelNote);
             final int status = JOptionPane.showConfirmDialog(this,
                                                              message, /*I18N*/
-                                                                 "Copy Data to Clipboard", /*I18N*/
-                                                                 JOptionPane.YES_NO_OPTION,
-                                                                 JOptionPane.WARNING_MESSAGE);
+                                                             "Copy Data to Clipboard", /*I18N*/
+                                                             JOptionPane.YES_NO_OPTION,
+                                                             JOptionPane.WARNING_MESSAGE);
             if (status != JOptionPane.YES_OPTION) {
                 return false;
             }
@@ -554,8 +553,8 @@ class ScatterPlotPanel extends PagePanel {
 
     private byte[] getValidData(BufferedImage image) {
         if (image != null &&
-            image.getColorModel() instanceof IndexColorModel &&
-            image.getData().getDataBuffer() instanceof DataBufferByte) {
+                image.getColorModel() instanceof IndexColorModel &&
+                image.getData().getDataBuffer() instanceof DataBufferByte) {
             return ((DataBufferByte) image.getData().getDataBuffer()).getData();
         }
         return null;

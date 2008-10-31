@@ -807,7 +807,7 @@ public abstract class AbstractBand extends RasterDataNode {
 
     @Override
     protected RenderedImage createSourceImage() {
-        final MultiLevelModel model = ImageManager.getInstance().createMultiLevelModel(this); // todo mz,mp where to get model from ???
+        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(this); 
         MultiLevelImage multiLevelImage = new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
 
             @Override

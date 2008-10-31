@@ -339,9 +339,9 @@ public class VirtualBand extends Band {
 
     @Override
     protected RenderedImage createSourceImage() {
-        final MultiLevelModel model = ImageManager.getInstance().createMultiLevelModel(this); // todo mz,mp where to get model from ???
+        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(this);
         final VirtualBand vb = this;
-        MultiLevelImage multiLevelImage = new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
 
             @Override
             public RenderedImage createImage(int level) {
@@ -351,7 +351,6 @@ public class VirtualBand extends Band {
                                               ResolutionLevel.create(getModel(), level));
             }
         });
-        return multiLevelImage;
     }
     
     private synchronized Term getTerm(final ProductData pd) throws ParseException {

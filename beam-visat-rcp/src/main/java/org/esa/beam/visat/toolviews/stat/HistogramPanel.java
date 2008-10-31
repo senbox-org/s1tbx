@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
+import java.awt.image.RenderedImage;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -258,9 +259,9 @@ class HistogramPanel extends PagePanel {
     }
 
     private void computeHistogram(final boolean useROI) {
-        final PlanarImage roiImage;
+        final RenderedImage roiImage;
         if (useROI) {
-            roiImage = getROIImage(getRaster());
+            roiImage = getRoiImage(getRaster());
         } else {
             roiImage = null;
         }

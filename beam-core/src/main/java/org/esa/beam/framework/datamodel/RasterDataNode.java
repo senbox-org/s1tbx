@@ -19,17 +19,13 @@ package org.esa.beam.framework.datamodel;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
-import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.glevel.support.GenericMultiLevelSource;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.jai.ResolutionLevel;
-import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.*;
 import org.esa.beam.util.math.*;
 
@@ -1713,7 +1709,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     @Deprecated
     public synchronized ROI createROI(ProgressMonitor pm) throws IOException {
-        final PlanarImage roiMaskImage = ImageManager.getInstance().createRoiMaskImage(this, 0);
+        final RenderedImage roiMaskImage = ImageManager.getInstance().createRoiMaskImage(this, 0);
         return roiMaskImage != null ? new ROI(roiMaskImage) : null;
     }
 
@@ -1728,8 +1724,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     @Deprecated
     public synchronized BufferedImage createROIImage(final Color color, ProgressMonitor pm) throws IOException {
-        final PlanarImage roiMaskImage = ImageManager.getInstance().createColoredRoiImage(this, color, 0);
-        return roiMaskImage != null ? roiMaskImage.getAsBufferedImage() : null;
+        final RenderedImage roiMaskImage = ImageManager.getInstance().createColoredRoiImage(this, color, 0);
+        return roiMaskImage != null ? PlanarImage.wrapRenderedImage(roiMaskImage).getAsBufferedImage() : null;
     }
 
     public byte[] quantizeRasterData(final double newMin, final double newMax, final double gamma,
@@ -2135,31 +2131,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (!isValidMaskImageSet() && isValidMaskUsed()) {
             synchronized (this) {
                 if (!isValidMaskImageSet() && isValidMaskUsed()) {
-                    validMaskImage = createValidMaskImage();
+                    validMaskImage = ImageManager.getInstance().getValidMaskMultiLevelImage(this);
                 }
             }
         }
         return validMaskImage;
-    }
-
-    private RenderedImage createValidMaskImage() {
-        final String validMaskKey = getValidMaskExpression();
-        Product product = getProductSafe();
-        RenderedImage maskImage = product.getValidMaskImage(validMaskKey);
-        if (maskImage != null) {
-            return maskImage;
-        }
-        final MultiLevelModel model = ImageManager.getInstance().createMultiLevelModel(this);
-        final MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(model) {
-
-            @Override
-            public RenderedImage createImage(int level) {
-                return VirtualBandOpImage.createMaskOpImage(RasterDataNode.this, ResolutionLevel.create(getModel(), level));
-            }
-        };
-        MultiLevelImage multiLevelImage = new DefaultMultiLevelImage(multiLevelSource);
-        product.setValidMaskImage(validMaskKey, multiLevelImage);
-        return multiLevelImage;
     }
 
     /**
@@ -2212,12 +2188,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     private RenderedImage createGeophysicalImage() {
-        RenderedImage rawSourceImage = getSourceImage();
+        RenderedImage rawSourceImage = getSourceImage(); // rawSourceImage is never null
         MultiLevelSource multiLevelSource;
         if (rawSourceImage instanceof MultiLevelSource) {
             multiLevelSource = (MultiLevelSource) rawSourceImage;
         } else {
-            final MultiLevelModel multiLevelModel = ImageManager.getInstance().createMultiLevelModel(this);
+            final MultiLevelModel multiLevelModel = ImageManager.getInstance().getMultiLevelModel(this);
             multiLevelSource = new DefaultMultiLevelSource(rawSourceImage, multiLevelModel);
         }
         final MultiLevelSource geoSource = new GenericMultiLevelSource(multiLevelSource) {

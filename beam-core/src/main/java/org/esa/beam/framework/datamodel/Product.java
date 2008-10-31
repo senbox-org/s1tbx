@@ -27,13 +27,11 @@ import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.util.*;
 import org.esa.beam.util.math.MathUtils;
 
-import java.awt.*;
+import java.awt.Dimension;
 import java.awt.geom.Point2D;
-import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.List;
 
 /**
  * <code>Product</code> instances are an in-memory representation of a remote sensing data product. The product is more
@@ -134,7 +132,6 @@ public class Product extends ProductNode {
 
     private ProductManager productManager;
     private Map<String, BitRaster> validMasks;
-    private Map<String, RenderedImage> validMaskImages;
 
     private PointingFactory pointingFactory;
 
@@ -1555,30 +1552,6 @@ public class Product extends ProductNode {
     public void releasePixelMask(final byte[] pixelMask) {
         // do nothing
     }
-
-
-    public RenderedImage getValidMaskImage(final String id) {
-        if (validMaskImages != null) {
-            return validMaskImages.get(id);
-        }
-        return null;
-    }
-
-    public void setValidMaskImage(final String id, RenderedImage newImage) {
-        if (newImage != null) {
-            Guardian.assertEquals("newImage", newImage.getWidth(), getSceneRasterWidth());
-            Guardian.assertEquals("newImage", newImage.getHeight(), getSceneRasterHeight());
-            if (validMaskImages == null) {
-                validMaskImages = new HashMap<String, RenderedImage>();
-            }
-            validMaskImages.put(id, newImage);
-        } else {
-            if (validMaskImages != null) {
-                validMaskImages.remove(id);
-            }
-        }
-    }
-
 
     /**
      * Gets a valid-mask for the given ID.

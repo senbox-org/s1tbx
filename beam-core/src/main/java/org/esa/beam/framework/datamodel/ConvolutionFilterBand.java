@@ -10,7 +10,6 @@ import javax.media.jai.BorderExtender;
 import javax.media.jai.BorderExtenderCopy;
 import javax.media.jai.JAI;
 import javax.media.jai.KernelJAI;
-import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConvolveDescriptor;
 import java.awt.RenderingHints;
 import java.awt.image.RenderedImage;
@@ -51,14 +50,14 @@ public class ConvolutionFilterBand extends FilterBand {
 
     @Override
     protected RenderedImage createSourceImage() {
-        final MultiLevelModel model = ImageManager.getInstance().createMultiLevelModel(this);
+        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(this);
         final AbstractMultiLevelSource multiLevelSource = new AbstractMultiLevelSource(model) {
             @Override
             protected RenderedImage createImage(int level) {
                 RenderingHints rh = new RenderingHints(JAI.KEY_BORDER_EXTENDER, BorderExtender.createInstance(
-                                                                                    BorderExtenderCopy.BORDER_COPY));
+                        BorderExtenderCopy.BORDER_COPY));
                 final ImageManager imageManager = ImageManager.getInstance();
-                final PlanarImage geophysicalSourceImage = imageManager.getGeophysicalImage(getSource(), level);
+                final RenderedImage geophysicalSourceImage = imageManager.getGeophysicalImage(getSource(), level);
                 return ConvolveDescriptor.create(geophysicalSourceImage, jaiKernel, rh);
             }
         };

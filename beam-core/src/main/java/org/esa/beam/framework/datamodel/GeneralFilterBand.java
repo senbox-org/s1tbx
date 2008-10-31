@@ -99,8 +99,7 @@ public class GeneralFilterBand extends FilterBand {
 
     @Override
     protected RenderedImage createSourceImage() {
-        final MultiLevelModel multiLevelModel = ImageManager.getInstance().createMultiLevelModel(
-                this);
+        final MultiLevelModel multiLevelModel = ImageManager.getInstance().getMultiLevelModel(this);
         return new DefaultMultiLevelImage(new GeneralFilterMultiLevelSource(multiLevelModel, getSource(),
                                                                             BorderExtender.createInstance(
                                                                                     BorderExtenderCopy.BORDER_COPY)));
@@ -297,7 +296,7 @@ public class GeneralFilterBand extends FilterBand {
         @Override
             public RenderedImage createImage(int level) {
             final ImageManager imageManager = ImageManager.getInstance();
-            final PlanarImage geophysicalImage = imageManager.getGeophysicalImage(sourceRaster, level);
+            final RenderedImage geophysicalImage = imageManager.getGeophysicalImage(sourceRaster, level);
             if (getOperator() == MIN) {
                 final MinFilterShape maskSquare = MinFilterDescriptor.MIN_MASK_SQUARE;
                 return MinFilterDescriptor.create(geophysicalImage, maskSquare, subWindowSize, null);

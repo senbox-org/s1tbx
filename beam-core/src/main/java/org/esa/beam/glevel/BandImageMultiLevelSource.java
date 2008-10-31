@@ -24,14 +24,9 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
 
     public static BandImageMultiLevelSource create(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) {
         RasterDataNode rdn = rasterDataNodes[0];
-        MultiLevelModel model;
-        if (rdn.getSourceImage() instanceof MultiLevelSource) {
-            MultiLevelSource multiLevelSource = (MultiLevelSource) rdn.getSourceImage();
-            model = multiLevelSource.getModel();
-        } else {
-            model = ImageManager.getInstance().createMultiLevelModel(rdn);
-        }
-        ImageManager.getInstance().prepareImageInfos(rasterDataNodes, pm);
+        final ImageManager imageManager = ImageManager.getInstance();
+        MultiLevelModel model = imageManager.getMultiLevelModel(rdn);
+        imageManager.prepareImageInfos(rasterDataNodes, pm);
         return new BandImageMultiLevelSource(model, rasterDataNodes);
     }
 

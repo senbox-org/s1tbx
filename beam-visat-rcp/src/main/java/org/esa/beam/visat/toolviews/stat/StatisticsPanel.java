@@ -7,12 +7,12 @@ import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.StringUtils;
 
-import javax.media.jai.PlanarImage;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.RenderedImage;
 
 /**
  * A general pane within the statistics window.
@@ -89,9 +89,9 @@ class StatisticsPanel extends TextPagePanel {
     }
 
     private void computeStatistics(final boolean useROI) {
-        final PlanarImage roiImage;
+        final RenderedImage roiImage;
         if (useROI) {
-            roiImage = getROIImage(getRaster());
+            roiImage = getRoiImage(getRaster());
         } else {
             roiImage = null;
         }

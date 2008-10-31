@@ -1,23 +1,20 @@
 package org.esa.beam.framework.datamodel;
 
+import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.jai.ImageManager;
 
+import javax.media.jai.Histogram;
+import javax.media.jai.PixelAccessor;
+import javax.media.jai.UnpackedImageData;
+import javax.media.jai.operator.MinDescriptor;
 import java.awt.Rectangle;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.util.concurrent.CancellationException;
-
-import javax.media.jai.Histogram;
-import javax.media.jai.PixelAccessor;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.UnpackedImageData;
-import javax.media.jai.operator.MinDescriptor;
-
-import com.bc.ceres.core.Assert;
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
 
 /**
  * Instances of the <code>Stx</code> class provide statistics for a band.
@@ -42,15 +39,15 @@ public class Stx {
         return create(raster, level, null, binCount, min, max, pm);
     }
 
-    public static Stx create(RasterDataNode raster, PlanarImage roiImage, ProgressMonitor pm) {
+    public static Stx create(RasterDataNode raster, RenderedImage roiImage, ProgressMonitor pm) {
         return create(raster, 0, roiImage, DEFAULT_BIN_COUNT, pm);
     }
 
-    public static Stx create(RasterDataNode raster, PlanarImage roiImage, int binCount, ProgressMonitor pm) {
+    public static Stx create(RasterDataNode raster, RenderedImage roiImage, int binCount, ProgressMonitor pm) {
         return create(raster, 0, roiImage, binCount, pm);
     }
 
-    public static Stx create(RasterDataNode raster, PlanarImage roiImage, int binCount, double min, double max, ProgressMonitor pm) {
+    public static Stx create(RasterDataNode raster, RenderedImage roiImage, int binCount, double min, double max, ProgressMonitor pm) {
         return create(raster, 0, roiImage, binCount, min, max, pm);
     }
 
@@ -124,7 +121,7 @@ public class Stx {
         return sum;
     }
 
-    private static Stx create(RasterDataNode raster, int level, PlanarImage roiImage, int binCount, ProgressMonitor pm) {
+    private static Stx create(RasterDataNode raster, int level, RenderedImage roiImage, int binCount, ProgressMonitor pm) {
         try {
             pm.beginTask("Computing statistics", 2);
             final ExtremaOp extremaOp = new ExtremaOp();
@@ -132,7 +129,7 @@ public class Stx {
 
             double min = extremaOp.lowValue;
             double max = extremaOp.highValue;
-            
+
             if (min == Double.MAX_VALUE && max == -Double.MAX_VALUE) {
                 final Histogram histogram = createHistogram(1, 0, 1);
                 histogram.getBins(0)[0] = 0;
@@ -154,7 +151,7 @@ public class Stx {
         }
     }
 
-    private static Stx create(RasterDataNode raster, int level, PlanarImage roiImage, int binCount, double min, double max, ProgressMonitor pm) {
+    private static Stx create(RasterDataNode raster, int level, RenderedImage roiImage, int binCount, double min, double max, ProgressMonitor pm) {
         double off = getHighValueOffset(raster);
 
         final HistogramOp histogramOp = new HistogramOp(binCount, min, max + off);
@@ -177,7 +174,7 @@ public class Stx {
 
     private static void accumulate(RasterDataNode raster,
                                    int level,
-                                   PlanarImage roiImage,
+                                   RenderedImage roiImage,
                                    Op op,
                                    ProgressMonitor pm) {
 
@@ -201,7 +198,7 @@ public class Stx {
                 maskImage = roiImage;
             }
         }
-            
+
         final PixelAccessor maskAccessor;
         if (maskImage != null) {
             SampleModel maskSampleModel = maskImage.getSampleModel();
@@ -234,7 +231,7 @@ public class Stx {
             for (int tileY = tileY1; tileY <= tileY2; tileY++) {
                 for (int tileX = tileX1; tileX <= tileX2; tileX++) {
                     if (pm.isCanceled()) {
-                        throw new CancellationException("Process terminated by user."); /*I18N*/ 
+                        throw new CancellationException("Process terminated by user."); /*I18N*/
                     }
                     final Raster dataTile = dataImage.getTile(tileX, tileY);
                     final Raster maskTile = maskImage != null ? maskImage.getTile(tileX, tileY) : null;
