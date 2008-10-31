@@ -30,18 +30,8 @@ import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
-import org.esa.beam.util.BitRaster;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.ObjectUtils;
-import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.math.DoubleList;
-import org.esa.beam.util.math.Histogram;
-import org.esa.beam.util.math.IndexValidator;
-import org.esa.beam.util.math.MathUtils;
-import org.esa.beam.util.math.Quantizer;
-import org.esa.beam.util.math.Range;
-import org.esa.beam.util.math.Statistics;
+import org.esa.beam.util.*;
+import org.esa.beam.util.math.*;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
@@ -1785,7 +1775,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return the resulting raw data histogram
      * @throws java.io.IOException if an I/O error occurs
      * @see #isScalingApplied()
-     * @deprecated since BEAM 4.5, use {@link Stx#create(RasterDataNode, javax.media.jai.ROI, int, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated since BEAM 4.5, use {@link org.esa.beam.framework.datamodel.Stx#create(RasterDataNode, javax.media.jai.PlanarImage, int, com.bc.ceres.core.ProgressMonitor)}
      */
     @Deprecated
     public Histogram computeRasterDataHistogram(final ROI roi,
@@ -1814,7 +1804,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws java.io.IOException if an I/O error occurs
      * @see #isScalingApplied()
      * @see #isLog10Scaled()
-     * @deprecated since BEAM 4.5, use {@link Stx#create(RasterDataNode, javax.media.jai.ROI, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated since BEAM 4.5, use {@link org.esa.beam.framework.datamodel.Stx#create(RasterDataNode, javax.media.jai.PlanarImage, com.bc.ceres.core.ProgressMonitor)}
      */
     @Deprecated
     public Range computeRasterDataRange(final ROI roi, ProgressMonitor pm) throws IOException {
@@ -1833,7 +1823,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param pm  a monitor to inform the user about progress
      * @return the statistics
      * @throws java.io.IOException if an I/O error occurs
-     * @deprecated since BEAM 4.5, use {@link Stx#create(RasterDataNode, javax.media.jai.ROI, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated since BEAM 4.5, use {@link org.esa.beam.framework.datamodel.Stx#create(RasterDataNode, javax.media.jai.PlanarImage, com.bc.ceres.core.ProgressMonitor)}
      */
     @Deprecated
     public Statistics computeStatistics(final ROI roi, ProgressMonitor pm) throws IOException {
@@ -2227,7 +2217,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (rawSourceImage instanceof MultiLevelSource) {
             multiLevelSource = (MultiLevelSource) rawSourceImage;
         } else {
-            multiLevelSource = new DefaultMultiLevelSource(rawSourceImage);
+            final MultiLevelModel multiLevelModel = ImageManager.getInstance().createMultiLevelModel(this);
+            multiLevelSource = new DefaultMultiLevelSource(rawSourceImage, multiLevelModel);
         }
         final MultiLevelSource geoSource = new GenericMultiLevelSource(multiLevelSource) {
 
