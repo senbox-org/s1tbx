@@ -179,10 +179,12 @@ public class RuntimeActivator implements Activator {
                     while (resources.hasMoreElements()) {
                         URL url = resources.nextElement();
                         ServiceRegistration serviceRegistration = new ServiceRegistration(url, module, serviceRegistry);
-                        if (serviceRegistrations.contains(serviceRegistration)) {
-                            moduleContext.getLogger().warning(String.format("Service already registered: [%s].", serviceRegistration));
+                        if (!serviceRegistrations.contains(serviceRegistration)) {
+                            serviceRegistrations.add(serviceRegistration);
+                        } else {
+                            // remove logging, we know services are registered multiple times
+                            //moduleContext.getLogger().warning(String.format("Service already registered: [%s].", serviceRegistration));
                         }
-                        serviceRegistrations.add(serviceRegistration);
                     }
                 }
             }
