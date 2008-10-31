@@ -27,19 +27,21 @@ import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.RsMathUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.media.jai.ROI;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import java.awt.Dialog;
 import java.awt.GridBagConstraints;
-import java.io.IOException;
+import java.awt.Rectangle;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
 import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
 
@@ -89,15 +91,8 @@ public class ComputeRoiAreaAction extends ExecCommand {
         final RasterDataNode raster = view.getRaster();
         assert raster != null;
 
-        final ROI roi;
-        try {
-            roi = raster.createROI(ProgressMonitor.NULL);
-        } catch (IOException e) {
-            VisatApp.getApp().showErrorDialog(DIALOG_TITLE,
-                                              errMsgBase + "An I/O error occured:\n" + e.getMessage());
-            return;
-        }
-        if (roi == null) {
+        final RenderedImage roiImage = ImageManager.getInstance().createRoiMaskImage(raster, 0);
+        if (roiImage == null) {
             VisatApp.getApp().showErrorDialog(DIALOG_TITLE, errMsgBase + "No ROI defined.");
             return;
         }
@@ -109,7 +104,7 @@ public class ComputeRoiAreaAction extends ExecCommand {
             return;
         }
 
-        final SwingWorker<RoiAreaStatistics, Object> swingWorker = new RoiAreaSwingWorker(raster, roi, errMsgBase);
+        final SwingWorker<RoiAreaStatistics, Object> swingWorker = new RoiAreaSwingWorker(raster, roiImage, errMsgBase);
         swingWorker.execute();
     }
 
@@ -174,12 +169,12 @@ public class ComputeRoiAreaAction extends ExecCommand {
     private class RoiAreaSwingWorker extends SwingWorker<RoiAreaStatistics, Object> {
 
         private final RasterDataNode raster;
-        private final ROI roi;
+        private final RenderedImage roiImage;
         private final String errMsgBase;
 
-        private RoiAreaSwingWorker(RasterDataNode raster, ROI roi, String errMsgBase) {
+        private RoiAreaSwingWorker(RasterDataNode raster, RenderedImage roiImage, String errMsgBase) {
             this.raster = raster;
-            this.roi = roi;
+            this.roiImage = roiImage;
             this.errMsgBase = errMsgBase;
         }
 
@@ -187,13 +182,21 @@ public class ComputeRoiAreaAction extends ExecCommand {
             protected RoiAreaStatistics doInBackground() throws Exception {
             ProgressMonitor pm = new DialogProgressMonitor(VisatApp.getApp().getMainFrame(), "Computing ROI area",
                                                            Dialog.ModalityType.APPLICATION_MODAL);
-            return computeRoiAreaStatistics(raster, roi, pm);
+            return computeRoiAreaStatistics(raster, roiImage, pm);
         }
 
-        private RoiAreaStatistics computeRoiAreaStatistics(RasterDataNode raster, ROI roi,
+        private RoiAreaStatistics computeRoiAreaStatistics(RasterDataNode raster, RenderedImage roiImage,
                                                         ProgressMonitor pm) {
+            
+            final int minTileX = roiImage.getMinTileX();
+            final int minTileY = roiImage.getMinTileY();
+
+            final int numXTiles = roiImage.getNumXTiles();
+            final int numYTiles = roiImage.getNumYTiles();
+            
             final int w = raster.getSceneRasterWidth();
             final int h = raster.getSceneRasterHeight();
+            final Rectangle imageRect = new Rectangle(0, 0, w, h);
 
             final PixelPos[] pixelPoints = new PixelPos[5];
             final GeoPos[] geoPoints = new GeoPos[5];
@@ -203,37 +206,54 @@ public class ComputeRoiAreaAction extends ExecCommand {
             }
 
             RoiAreaStatistics areaStatistics = new RoiAreaStatistics(RsMathUtils.MEAN_EARTH_RADIUS / 1000.0);
+            GeoCoding geoCoding = raster.getGeoCoding();
 
-            pm.beginTask("Computing ROI area...", h);
+            pm.beginTask("Computing ROI area...", numXTiles * numYTiles);
             try {
-                for (int y = 0; y < h; y++) {
-                    for (int x = 0; x < w; x++) {
-                        if (roi.contains(x, y)) {
-                            // 0: pixel center point
-                            pixelPoints[0].setLocation(x + 0.5f, y + 0.5f);
-                            // 1 --> 2 : parallel (geogr. hor. line) crossing pixel center point
-                            pixelPoints[1].setLocation(x + 0.0f, y + 0.5f);
-                            pixelPoints[2].setLocation(x + 1.0f, y + 0.5f);
-                            // 3 --> 4 : meridian (geogr. ver. line) crossing pixel center point
-                            pixelPoints[3].setLocation(x + 0.5f, y + 0.0f);
-                            pixelPoints[4].setLocation(x + 0.5f, y + 1.0f);
-
-                            for (int i = 0; i < geoPoints.length; i++) {
-                                raster.getGeoCoding().getGeoPos(pixelPoints[i], geoPoints[i]);
-                            }
-                            float deltaLon = Math.abs(geoPoints[2].getLon() - geoPoints[1].getLon());
-                            float deltaLat = Math.abs(geoPoints[4].getLat() - geoPoints[3].getLat());
-                            double r2 = areaStatistics.getEarthRadius() * Math.cos(geoPoints[0].getLat() * MathUtils.DTOR);
-                            double a = r2 * deltaLon * MathUtils.DTOR;
-                            double b = areaStatistics.getEarthRadius() * deltaLat * MathUtils.DTOR;
-                            double pixelArea = a * b;
-                            areaStatistics.setPixelAreaMin(Math.min(areaStatistics.getPixelAreaMin(), pixelArea));
-                            areaStatistics.setPixelAreaMax(Math.max(areaStatistics.getPixelAreaMax(), pixelArea));
-                            areaStatistics.setRoiArea(areaStatistics.getRoiArea() + a * b);
-                            areaStatistics.setNumPixels(areaStatistics.getNumPixels() + 1);
+                for (int tileX = minTileX; tileX < minTileX + numXTiles; ++tileX) {
+                    for (int tileY = minTileY; tileY < minTileY + numYTiles; ++tileY) {
+                        if (pm.isCanceled()) {
+                            break;
                         }
+                        final Rectangle tileRectangle = new Rectangle(
+                                roiImage.getTileGridXOffset() + tileX * roiImage.getTileWidth(),
+                                roiImage.getTileGridYOffset() + tileY * roiImage.getTileHeight(),
+                                roiImage.getTileWidth(), roiImage.getTileHeight());
+                        
+                        final Rectangle r = imageRect.intersection(tileRectangle);
+                        if (!r.isEmpty()) {
+                            Raster roiTile = roiImage.getTile(tileX, tileY);
+                            for (int y = r.y; y < r.y + r.height; y++) {
+                                for (int x = r.x; x < r.x + r.width; x++) {
+                                    if (roiTile.getSample(x, y, 0) != 0) {
+                                        // 0: pixel center point
+                                        pixelPoints[0].setLocation(x + 0.5f, y + 0.5f);
+                                        // 1 --> 2 : parallel (geogr. hor. line) crossing pixel center point
+                                        pixelPoints[1].setLocation(x + 0.0f, y + 0.5f);
+                                        pixelPoints[2].setLocation(x + 1.0f, y + 0.5f);
+                                        // 3 --> 4 : meridian (geogr. ver. line) crossing pixel center point
+                                        pixelPoints[3].setLocation(x + 0.5f, y + 0.0f);
+                                        pixelPoints[4].setLocation(x + 0.5f, y + 1.0f);
+
+                                        for (int i = 0; i < geoPoints.length; i++) {
+                                            geoCoding.getGeoPos(pixelPoints[i], geoPoints[i]);
+                                        }
+                                        float deltaLon = Math.abs(geoPoints[2].getLon() - geoPoints[1].getLon());
+                                        float deltaLat = Math.abs(geoPoints[4].getLat() - geoPoints[3].getLat());
+                                        double r2 = areaStatistics.getEarthRadius() * Math.cos(geoPoints[0].getLat() * MathUtils.DTOR);
+                                        double a = r2 * deltaLon * MathUtils.DTOR;
+                                        double b = areaStatistics.getEarthRadius() * deltaLat * MathUtils.DTOR;
+                                        double pixelArea = a * b;
+                                        areaStatistics.setPixelAreaMin(Math.min(areaStatistics.getPixelAreaMin(), pixelArea));
+                                        areaStatistics.setPixelAreaMax(Math.max(areaStatistics.getPixelAreaMax(), pixelArea));
+                                        areaStatistics.setRoiArea(areaStatistics.getRoiArea() + a * b);
+                                        areaStatistics.setNumPixels(areaStatistics.getNumPixels() + 1);
+                                    }
+                                }
+                            }
+                        }
+                        pm.worked(1);
                     }
-                    pm.worked(1);
                 }
             } finally {
                 pm.done();
