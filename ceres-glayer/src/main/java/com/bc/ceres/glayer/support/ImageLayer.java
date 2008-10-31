@@ -174,7 +174,6 @@ public class ImageLayer extends Layer {
         final Viewport viewport = rendering.getViewport();
 
         final Object oldAntialiasing = graphics2D.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
-        final AffineTransform oldTransform = graphics2D.getTransform();
         final Paint oldPaint = graphics2D.getPaint();
         final Stroke oldStroke = graphics2D.getStroke();
 
@@ -192,7 +191,6 @@ public class ImageLayer extends Layer {
         } finally {
             graphics2D.setPaint(oldPaint);
             graphics2D.setStroke(oldStroke);
-            graphics2D.setTransform(oldTransform);
             graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntialiasing);
         }
     }
