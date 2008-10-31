@@ -8,13 +8,13 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.5-SNAPSHOT</version>
+        <version>4.5</version>
     </parent>
 
     <name>BEAM GPF Documentation Generator</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-gpf-docgen</artifactId>
-    <version>4.5-SNAPSHOT</version>
+    <version>4.5</version>
     <packaging>jar</packaging>
 
     <dependencies>

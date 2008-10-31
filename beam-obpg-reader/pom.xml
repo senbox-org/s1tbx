@@ -6,14 +6,14 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.5-SNAPSHOT</version>
+        <version>4.5</version>
     </parent>
 
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-obpg-reader</artifactId>
     <name>NASA Ocean Color Product Reader</name>
-    <version>1.0.101-SNAPSHOT</version>
+    <version>1.0.101</version>
     <url>http://envisat.esa.int/beam/</url>
     <description>A reader for NASA Ocean Color (OBPG) Level-2 Data Products</description>
 

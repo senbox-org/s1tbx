@@ -6,13 +6,13 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.5-SNAPSHOT</version>
+        <version>4.5</version>
     </parent>
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-netcdf-reader</artifactId>
     <name>NetCDF Product Reader</name>
-    <version>1.0.201-SNAPSHOT</version>
+    <version>1.0.201</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>

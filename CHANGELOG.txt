@@ -27,14 +27,19 @@ This file contains all significant changes for each BEAM release.
 
 _____________________________________________________________________________
 
+
+_____________________________________________________________________________
+
  Changes from 4.2 to 4.5
 _____________________________________________________________________________
 
 1) New BEAM Features and Improvements
 
+1.1) VISAT Imaging
+
 The aim of BEAM version 4.5 is to efficiently handle high resolution data
 products in terms of number of pixels per image. This has been achieved by
-a total rewrite of the imaging code used in BEAM so far. BEAM now uses
+totally rewriting the imaging code used of BEAM. BEAM now uses
 tiled images and image pyramids for a number of imaging operations. The result
 is a greatly improved image display performance and memory usage.
 
@@ -45,13 +50,15 @@ o VISAT can now rapidly display, pan and zoom Envisat MERIS FRS and ASAR WSM
 o VISAT image views now comprise a semi-transparent navigation control field
   (similar to the one of Google Earth) used to move, scale and also rotate
   the current viewport. The control field can be switched on/off in the user
-  preferences dialog. Usage of scroll bars is now also optional. 
+  preferences dialog. Usage of scroll bars is now also optional.
 
 o VISAT now also comprises a layer manager used to quickly show/hide layers such
   such as bitmask overlays and to modify their transparency on the fly.
 
 o Due to the new imaging technology used, the VISAT colour manipulation tool
   and statistics computation now perform very fast.
+
+1.2) GeoTIFF Reader and Writer
 
 o The GeoTIFF writer has been redesigned in order better adhere to the GeoTIFF
   specification. GeoTIFF files written by BEAM now also contain BEAM related
@@ -60,14 +67,14 @@ o The GeoTIFF writer has been redesigned in order better adhere to the GeoTIFF
 o A new GeoTIFF reader also recognises BEAM related product metadata.
 
 
-2) Other changes (consult BEAM issue tracker for detailed information)
+2) Other improvements and bug fixes (consult BEAM issue tracker for detailed information)
 
-BEAM-876   	Remove "Load Data" and "Unload Data" actions from context menu 
+BEAM-876   	Remove "Load Data" and "Unload Data" actions from context menu
 BEAM-875    The drop down list of projections in the map projection dialog should be sorted alphabetically
 BEAM-874   	Ensure thread safety of product reader
 BEAM-872   	Adapt Navigation View to new imaging behavior
 BEAM-871    Envisat reader inefficiently reads single lines when tiles are requested
-BEAM-870   	Remove the "Zoom-Plus" and "Zoom-Minus" buttons from statistic panels 
+BEAM-870   	Remove the "Zoom-Plus" and "Zoom-Minus" buttons from statistic panels
 BEAM-869    Provide a layer manager
 BEAM-868    Imaging shall be based on tiling and image pyramids
 BEAM-867   	NDVI processor fails with a ClassCastException in non-interactive mode
@@ -90,6 +97,7 @@ BEAM-839   	Improper initialization of EM clustering algorithm
 BEAM-495    Provide reader for GeoTIFF
 BEAM-828   	New ASAR products for envisat reader
 BEAM-791   	Inaccuracy in geo-coding for AVNIR2
+
 _____________________________________________________________________________
 
  Changes from 4.1 to 4.2

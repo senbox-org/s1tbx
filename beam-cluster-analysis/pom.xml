@@ -8,13 +8,13 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.5-SNAPSHOT</version>
+        <version>4.5</version>
     </parent>
 
     <name>BEAM Cluster Analysis</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-cluster-analysis</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.1</version>
 
     <dependencies>
         <dependency>
