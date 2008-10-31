@@ -209,7 +209,6 @@ public class NavigationToolView extends AbstractToolView {
         sliderPane.add(zoomSlider, BorderLayout.CENTER);
 
         canvas = createNavigationCanvas();
-//        canvas = new NavigationCanvas2(this);
         canvas.setBackground(new Color(138, 133, 128)); // image background
         canvas.setForeground(new Color(153, 153, 204)); // slider overlay
 
@@ -411,7 +410,7 @@ public class NavigationToolView extends AbstractToolView {
     }
 
     private void updateTitle() {
-// todo - activate when we can use ToolView.setTitle()  
+// todo - activate when we can use ToolView.setTitle()
 /*
         if (currentView != null) {
             if (currentView.isRGB()) {
