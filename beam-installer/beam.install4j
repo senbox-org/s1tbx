@@ -351,7 +351,7 @@
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.RegisterAddRemoveAction">
                       <void property="itemName">
-                        <string>BEAM 4.2-20080118</string>
+                        <string>${compiler:sys.shortName}-${compiler:sys.version}</string>
                       </void>
                     </object>
                   </java>
