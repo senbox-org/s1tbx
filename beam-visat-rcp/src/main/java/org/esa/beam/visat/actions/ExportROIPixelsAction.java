@@ -1,7 +1,8 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.progress.DialogProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -15,14 +16,15 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.media.jai.ROI;
 import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
-import java.awt.Dialog;
+import java.awt.Rectangle;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -82,16 +84,10 @@ public class ExportROIPixelsAction extends ExecCommand {
         // Get the displayed raster data node (band or tie-point grid)
         final RasterDataNode raster = view.getRaster();
         // Get the ROI of the displayed raster data node
-        final ROI roi;
-        try {
-            roi = raster.createROI(ProgressMonitor.NULL);
-        } catch (IOException e) {
-            VisatApp.getApp().showErrorDialog(DLG_TITLE,
-                                              ERR_MSG_BASE + "An I/O error occured:\n" + e.getMessage());   /*I18N*/
-            return;
-        }
+        final RenderedImage roiImage = ImageManager.getInstance().createRoiMaskImage(raster, 0);
+        
         // Compute total number of ROI pixels
-        final int numROIPixels = getNumROIPixels(raster, roi);
+        final long numROIPixels = getNumROIPixels(raster, roiImage);
 
         final String questionText = "How do you want to export the pixel values?\n"; /*I18N*/
         String numPixelsText;
@@ -132,16 +128,15 @@ public class ExportROIPixelsAction extends ExecCommand {
             return; // Cancel
         }
 
-        final SwingWorker swingWorker = new SwingWorker<Exception, Object>() {
+        final ProgressMonitorSwingWorker<Exception, Object> swingWorker = new ProgressMonitorSwingWorker<Exception, Object>(
+                VisatApp.getApp().getMainFrame(), DLG_TITLE) {
 
             @Override
-            protected Exception doInBackground() throws Exception {
+            protected Exception doInBackground(ProgressMonitor pm) throws Exception {
                 boolean success;
                 Exception returnValue = null;
                 try {
-                    ProgressMonitor pm = new DialogProgressMonitor(VisatApp.getApp().getMainFrame(), DLG_TITLE,
-                                                                   Dialog.ModalityType.APPLICATION_MODAL);
-                    success = exportROIPixels(out, raster.getProduct(), roi, pm);
+                    success = exportROIPixels(out, raster.getProduct(), roiImage, pm);
                     if (success && clipboardText != null) {
                         SystemUtils.copyToClipboard(clipboardText.toString());
                         clipboardText.setLength(0);
@@ -238,37 +233,57 @@ public class ExportROIPixelsAction extends ExecCommand {
     /**
      * Writes all pixel values of the given product within the given ROI to the specified out.
      *
-     * @param out     the data output writer
-     * @param product the product providing the pixel values
-     * @param roi     the ROI
+     * @param out       the data output writer
+     * @param product   the product providing the pixel values
+     * @param roiImage  the mask image for the ROI
      *
      * @return <code>true</code> for success, <code>false</code> if export has been terminated (by user)
      */
     private static boolean exportROIPixels(final PrintWriter out,
                                            final Product product,
-                                           final ROI roi, ProgressMonitor pm) throws IOException {
+                                           final RenderedImage roiImage, ProgressMonitor pm) throws IOException {
 
         final Band[] bands = product.getBands();
         final TiePointGrid[] tiePointGrids = product.getTiePointGrids();
         final GeoCoding geoCoding = product.getGeoCoding();
+        
+        final int minTileX = roiImage.getMinTileX();
+        final int minTileY = roiImage.getMinTileY();
+
+        final int numXTiles = roiImage.getNumXTiles();
+        final int numYTiles = roiImage.getNumYTiles();
+        
         final int w = product.getSceneRasterWidth();
         final int h = product.getSceneRasterHeight();
-
+        final Rectangle imageRect = new Rectangle(0, 0, w, h);
+        
         writeHeaderLine(out, geoCoding, bands, tiePointGrids);
 
-        pm.beginTask("Writing pixel data...", h);
+        pm.beginTask("Writing pixel data...", numXTiles * numYTiles);
         try {
-            for (int y = 0; y < h; y++) {
-                if (pm.isCanceled()) {
-                    return false;
-                }
-                for (int x = 0; x < w; x++) {
-                    if (roi.contains(x, y)) {
-                        writeDataLine(out, geoCoding, bands, tiePointGrids, x, y);
+            for (int tileX = minTileX; tileX < minTileX + numXTiles; ++tileX) {
+                for (int tileY = minTileY; tileY < minTileY + numYTiles; ++tileY) {
+                    if (pm.isCanceled()) {
+                        return false;
+                    }
+                    final Rectangle tileRectangle = new Rectangle(roiImage.getTileGridXOffset() + tileX * roiImage.getTileWidth(),
+                                                                  roiImage.getTileGridYOffset() + tileY * roiImage.getTileHeight(),
+                                                                  roiImage.getTileWidth(), roiImage.getTileHeight());
+                                                          
+                    final Rectangle r = imageRect.intersection(tileRectangle);
+                    if (!r.isEmpty()) {
+                        Raster roiTile = roiImage.getTile(tileX, tileY);
+                        for (int y = r.y; y < r.y + r.height; y++) {
+                            for (int x = r.x; x < r.x + r.width; x++) {
+                                if (roiTile.getSample(x, y, 0) != 0) {
+                                    writeDataLine(out, geoCoding, bands, tiePointGrids, x, y);
+                                }
+                            }
+                        }
                     }
                 }
-                pm.worked(1);
             }
+            pm.worked(1);
         } finally {
             pm.done();
         }
@@ -359,18 +374,38 @@ public class ExportROIPixelsAction extends ExecCommand {
      * Computes the total number of pixels within the specified ROI.
      *
      * @param raster the raster data node
-     * @param roi    the ROI
+     * @param roiImage   the rendered image masking out the ROI
      *
      * @return the total number of pixels in the ROI
      */
-    private static int getNumROIPixels(final RasterDataNode raster, final ROI roi) {
+    private static long getNumROIPixels(final RasterDataNode raster, final RenderedImage roiImage) {
+        final int minTileX = roiImage.getMinTileX();
+        final int minTileY = roiImage.getMinTileY();
+
+        final int numXTiles = roiImage.getNumXTiles();
+        final int numYTiles = roiImage.getNumYTiles();
+        
         final int w = raster.getSceneRasterWidth();
         final int h = raster.getSceneRasterHeight();
-        int numROIPixels = 0;
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                if (roi.contains(x, y)) {
-                    numROIPixels++;
+        final Rectangle imageRect = new Rectangle(0, 0, w, h);
+        
+        long numROIPixels = 0;
+        for (int tileX = minTileX; tileX < minTileX + numXTiles; ++tileX) {
+            for (int tileY = minTileY; tileY < minTileY + numYTiles; ++tileY) {
+                final Rectangle tileRectangle = new Rectangle(roiImage.getTileGridXOffset() + tileX * roiImage.getTileWidth(),
+                                                              roiImage.getTileGridYOffset() + tileY * roiImage.getTileHeight(),
+                                                              roiImage.getTileWidth(), roiImage.getTileHeight());
+                                                      
+                final Rectangle r = imageRect.intersection(tileRectangle);
+                if (!r.isEmpty()) {
+                    Raster roiTile = roiImage.getTile(tileX, tileY);
+                    for (int y = r.y; y < r.y + r.height; y++) {
+                        for (int x = r.x; x < r.x + r.width; x++) {
+                            if (roiTile.getSample(x, y, 0) != 0) {
+                                numROIPixels++;
+                            }
+                        }
+                    }
                 }
             }
         }
