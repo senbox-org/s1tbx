@@ -91,16 +91,6 @@ public class NavigationToolView extends AbstractToolView {
             }
         });
 
-        zoomDefaultButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomDefault24.gif"), false);
-        zoomDefaultButton.setToolTipText("Actual Pixels."); /*I18N*/
-        zoomDefaultButton.setName("zoomDefaultButton");
-        zoomDefaultButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                zoomToPixelResolution();
-            }
-        });
-
         zoomOutButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomOut24.gif"), false);
         zoomOutButton.setName("zoomOutButton");
         zoomOutButton.setToolTipText("Zoom out."); /*I18N*/
@@ -108,6 +98,16 @@ public class NavigationToolView extends AbstractToolView {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 zoom(getCurrentView().getZoomFactor() / 1.2);
+            }
+        });
+
+        zoomDefaultButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomPixel24.gif"), false);
+        zoomDefaultButton.setToolTipText("Actual Pixels (image pixel = view pixel)."); /*I18N*/
+        zoomDefaultButton.setName("zoomDefaultButton");
+        zoomDefaultButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                zoomToPixelResolution();
             }
         });
 
@@ -147,10 +147,10 @@ public class NavigationToolView extends AbstractToolView {
         eastPane.add(zoomInButton, gbc);
 
         gbc.gridy++;
-        eastPane.add(zoomDefaultButton, gbc);
+        eastPane.add(zoomOutButton, gbc);
 
         gbc.gridy++;
-        eastPane.add(zoomOutButton, gbc);
+        eastPane.add(zoomDefaultButton, gbc);
 
         gbc.gridy++;
         eastPane.add(zoomAllButton, gbc);
