@@ -47,7 +47,7 @@ import java.util.Map;
  */
 public class ImageManager {
 
-    private static final String CACHE_INTERMEDIATE_TILES_PROPERTY = "beam.imageManager.cacheIntermediateTiles";
+    private static final String CACHE_INTERMEDIATE_TILES_PROPERTY = "beam.imageManager.enableIntermediateTileCaching";
 
     private final static ImageManager INSTANCE = new ImageManager();
     private final Map<MaskKey, MultiLevelImage> maskImageMap = new HashMap<MaskKey, MultiLevelImage>(101);

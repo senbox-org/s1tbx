@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class OperatorImage extends SourcelessOpImage {
 
-    private static final String DISABLE_TILE_CACHING_PROPERTY = "beam.gpf.disableTileCaching";
+    private static final String DISABLE_TILE_CACHING_PROPERTY = "beam.gpf.disableOperatorTileCaching";
 
     private Band band;
     private OperatorContext operatorContext;
