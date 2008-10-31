@@ -127,8 +127,6 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         }
 
         updateTitle();
-
-//        firePropertyChange("productSceneView", productSceneViewOld, productSceneView);
     }
 
     private void updateTitle() {
