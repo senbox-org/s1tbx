@@ -62,8 +62,34 @@ o A new GeoTIFF reader also recognises BEAM related product metadata.
 
 2) Other changes (consult BEAM issue tracker for detailed information)
 
-// TODO BEAM-867
-
+BEAM-876   	Remove "Load Data" and "Unload Data" actions from context menu 
+BEAM-875    The drop down list of projections in the map projection dialog should be sorted alphabetically
+BEAM-874   	Ensure thread safety of product reader
+BEAM-872   	Adapt Navigation View to new imaging behavior
+BEAM-871    Envisat reader inefficiently reads single lines when tiles are requested
+BEAM-870   	Remove the "Zoom-Plus" and "Zoom-Minus" buttons from statistic panels 
+BEAM-869    Provide a layer manager
+BEAM-868    Imaging shall be based on tiling and image pyramids
+BEAM-867   	NDVI processor fails with a ClassCastException in non-interactive mode
+BEAM-864   	Filtered bands shall use JAI
+BEAM-863    Improved behaviour when windows are tiled
+BEAM-862   	Creating ASAR NRCS band leads to exception
+BEAM-861   	Histogram on color manipulation editor showing wrong max value
+BEAM-855   	Reader plugin does not close SD interface
+BEAM-854   	ROI shifted by one pixel compared to shape
+BEAM-853   	Context menu is not shown correctly on Mac OS X
+BEAM-852   	Importing pins from txt file using date as "name" causes death of visat
+BEAM-851   	Missing NetCDF command in import menu
+BEAM-849   	RESTEC ALOS PRISM & AVNIR-2 Longitude Coordinates not being read correctly
+BEAM-845   	Created JPEG Images have false colours
+BEAM-844   	False computation of bitmask overlay colours
+BEAM-842   	Context menu is not triggered on linux
+BEAM-841   	EM clustering does not come to an end for small scenes
+BEAM-840   	MODIS L2 "*.x.hdf" read error
+BEAM-839   	Improper initialization of EM clustering algorithm
+BEAM-495    Provide reader for GeoTIFF
+BEAM-828   	New ASAR products for envisat reader
+BEAM-791   	Inaccuracy in geo-coding for AVNIR2
 _____________________________________________________________________________
 
  Changes from 4.1 to 4.2

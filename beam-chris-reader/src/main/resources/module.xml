@@ -16,6 +16,7 @@
         <![CDATA[
         <p>Changes in Version 1.4.101
         <ul>
+        <li>[BEAM-874] Ensure thread safety of product reader</li>
         <li>[CBOX-57] Incorrect RGB profiles</li>
         </ul>
         <p>Changes in Version 1.4

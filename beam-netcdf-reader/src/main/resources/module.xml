@@ -11,6 +11,7 @@
     <changelog>
         <![CDATA[
         Changes in 1.0.201:<br/>
+        [BEAM-874] Ensure thread safety of product reader<br/>
         [BEAM-851] Missing NetCDF command in import menu<br/>
         <br/>Changes in 1.0.100:<br/>
         [BEAM-821] MERIS L3 MGVI cannot be opened in BEAM<br/>

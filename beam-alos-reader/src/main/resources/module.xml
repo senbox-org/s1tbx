@@ -25,7 +25,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in Version 1.1<br/>
-        Version 1.1 is thread safe. Besides thread safety, the following issiues have been fixed:<br/>
+        [BEAM-874] Ensure thread safety of product reader<br/>
         [BEAM-791] Inaccuracy in geo-coding for AVNIR2<br/>
         [BEAM-849] RESTEC ALOS PRISM & AVNIR-2 Longitude Coordinates not being read correctly<br/>
         </p>

@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-avhrr-reader</symbolicName>
-    <version>1.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>AVHRR Product Reader</name>
 
     <description>Enables BEAM to read AVHRR/3 Level-1b data products.</description>
@@ -12,7 +12,12 @@
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
-
+    <changelog>
+        <![CDATA[
+        Changes in 1.0.1:<br/>
+        [BEAM-874] Ensure thread safety of product reader<br/>
+        ]]>
+    </changelog>
     <dependency>
         <module>beam-core</module>
     </dependency>

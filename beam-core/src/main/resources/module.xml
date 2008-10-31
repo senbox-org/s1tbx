@@ -23,6 +23,8 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.5:<br/>
+        [BEAM-868] Imaging shall be based on tiling and image pyramids<br/>
+        [BEAM-864] Filtered bands shall use JAI<br/>        
         [BEAM-854] ROI shifted by one pixel compared to shape<br/>
         [BEAM-844] False computation of bitmask overlay colours<br/>
         </p>
