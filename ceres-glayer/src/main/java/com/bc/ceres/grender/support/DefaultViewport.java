@@ -19,6 +19,7 @@ public class DefaultViewport implements Viewport {
     private boolean modelYAxisDown;
     private double orientation;
     private final ArrayList<ViewportListener> changeListeners;
+    private boolean debug;
 
     public DefaultViewport() {
         this(new Rectangle());
@@ -128,13 +129,13 @@ public class DefaultViewport implements Viewport {
         final double zoomFactor = Math.min(viewportWidth / modelBounds.getWidth(),
                                            viewportHeight / modelBounds.getHeight());
         setZoomFactor(zoomFactor, modelBounds.getCenterX(), modelBounds.getCenterY());
-
-        System.out.println(this.getClass() + " ===============================================");
-        System.out.println("  modelBounds         = " + modelBounds);
-        System.out.println("  computedModelBounds = " + getViewToModelTransform().createTransformedShape(viewBounds).getBounds2D());
-        System.out.println("  viewBounds          = " + viewBounds);
-        System.out.println("  computedViewBounds  = " + getModelToViewTransform().createTransformedShape(modelBounds).getBounds2D());
-
+        if (debug) {
+            System.out.println(this.getClass() + " ===============================================");
+            System.out.println("  modelBounds         = " + modelBounds);
+            System.out.println("  computedModelBounds = " + getViewToModelTransform().createTransformedShape(viewBounds).getBounds2D());
+            System.out.println("  viewBounds          = " + viewBounds);
+            System.out.println("  computedViewBounds  = " + getModelToViewTransform().createTransformedShape(modelBounds).getBounds2D());
+        }
     }
 
     @Override
