@@ -8,9 +8,11 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Image View</td>
-        
-    <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a></td>
+            Image View
+        </td>
+
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a></td>
     </tr>
 </table>
 
@@ -20,71 +22,106 @@
     The image view displays the sample values of raster datasets such as bands and tie-point grids as an image.
 </p>
 
-<p align="center"><img src="images/ImageView.jpg" width="598" height="399"></p>
+<p style="margin-bottom:0;">
+    In VISAT 4.5, the display of prodcut scene images has been enhanced.<br>
+    The view uses tiled images and image pyramids, this results in greatly improved image display performance
+    and memory usage.<br/>
+    Additionally the view is enhanced with a navigation control which can be used to to pan, zoom and rotate the
+    image.
+</p>
 
-<p style="margin-bottom:0;">In VISAT 3.0, the handling and inspection of products has been tremendously enhanced. Be
-    sure to get acquainted with the concept of the <a href="NavigationWindow.html">Navigation Window</a> and the <a
-        href="../Changelog30/GUIChanges.html">GUI enhancements</a>. Note that the image view window now has scrollbars.
-    So, if you adjust the size of the image view, you are also able to change the visible part of the image by moving
-    the scrollbars.<br>
-    In the bottom right corner of the image view window, there is a small button: <img
-        src="images/icons/ZoomAll13.gif">. A click on this button will adjust the magnification of the image to
-    fit into the window. This has the same effect like using the &quot;<a href="NavigationWindow.html#zoomall">Zoom
-    All</a>&quot; tool button of the Navigation Window.<br>
-    Besides this, there are two new important tools to navigate through an image
-    and to inspect pixels in detail:</p>
-<ul style="margin-top:0;">
-    <li><a href="Toolbars.html#pannertool">The Panner Tool</a></li>
-    <li><a href="Toolbars.html#zoomtool">The Zoom Tool</a></li>
-</ul>
+<p align="center"><img src="images/ImageView.png"></p>
 
-<p style="margin-bottom:0;"></p>
+
+<h4><a name="sliderBar"/>Slider Bar</h4>
+
+<p>
+    By default the horizontal and vertical slider bars are disabled for the image view.
+    You can activate the sliders again in the preferences dialog in the section
+    <a href="PreferencesDialog.html#layerproperties">Layer Properties</a>.<br/>
+    If the slider bars are visible you have also a small button <img src="images/icons/ZoomAll13.gif"> in the
+    lower right corner of the image view which zooms to the fill image bounds if you click on it
+</p>
+
+<h4><a name="navControl"/>Navigation Control</h4>
+
+<p>
+    The navigation control, which is located in the upper left corner of the image view, can be used to
+    pan, zoom and rotate the image. The visibility of the control is dimmed if the mouse pointer is not
+    located over the and it becomes visible when the mouse gets near the control.<br/>
+    If you rotate the image, you can use the <b>CTRL</b>-Key to change the stepping of the rotation angle from
+    continuous values to discrete 45&deg; values.<br/>
+    The left image shows the dimmed version of the control the right one shows the active control with a rotation.
+    You can deactivate the navigation control in the preferences dialog in the section <a
+        href="PreferencesDialog.html#layerproperties">Layer Properties</a>
+</p>
+
+<p align="center"><img src="images/NavControlDimmed.png"><img src="images/NavControlHighlighted.png"></p>
+
+
+<p style="margin-bottom:0;"/>
 <h4>Multiple Windows of the same band</h4>
 
-<p>It is now possible to open more than one window of the same band to have several views on the band. This can be done
-    by right-clicking on the band name in the <b>Product Scene View</b>. The windows will be numbered according to their
-    appearance:</p>
+<p>It is possible to open more than one window of the same band to have several views. This can be done
+    by selecting <b>Open Image View</b> from the context menu of the band name in the <b>Product Tree</b>.
+    The will open a new view and will be numbered according to their appearance:</p>
 
-<p><img src="images/MultipleImageViews.jpg" width="789" height="649"></p>
-<h4><a name="contextmenu"></a>Context Menu
-</h4>
+<p align="center"><img src="images/MultipleImageViews.png"></p>
+
+<h4><a name="contextmenu"/>Context Menu</h4>
 
 <p>When you right-click the mouse over the image view a popup menu comes up:
 </p>
 
-<p align="center"><img src="images/PopupMenuImageView.jpg" width="297" height="394"></p>
+<p align="center"><img src="images/PopupMenuImageView.png"></p>
 
 <p style="margin-bottom:0;">Entries:</p>
 <ul style="margin-top:0;">
     <li><b>Copy Pixel Info to Clipboard</b> - copies all sample values at the current
         pixel position, their names and physical units (which you also can see in
-        the pixel view) to the clipboard</li>
+        the pixel view) to the clipboard. This copies information as tabulator-separated
+        text and may therefore be pasted directly into a spreadsheet application (e.g. MS Excel)
+    </li>
     <li><b>Delete Shape</b> - deletes the current geometric shape from this image
-        view, if there is any</li>
+        view, if there is any
+    </li>
     <li><b><a href="ExportImage.html">Export Displayed Image</a></b> - exports
-        the current image to an image file format (JPEG, PNG, TIFF, BMP)</li>
+        the current image to an image file format (JPEG, PNG, TIFF, BMP)
+    </li>
     <li><b><a href="ExportROIOverlay.html">Export ROI Overlay</a></b>
-        - exports the current ROI overlay from this image view as a bitmask image</li>
-    <li><a href="ExportColorLegend.html"><b>Export Color Legend</b></a> - exports an image of the colour legend</li>
-    <li><a href="ExportKml.html"><b>Export KML</b></a> - exports the current Image to a KML file supported by Google
-        Earth</li>
-    <li><b><a href="ShapeAndROIHandling.html">Show ROI Overlay</a></b>
-        - toggles the visibility state of the ROI overlay</li>
-    <li><b><a href="ExportROIPixels.html">Export ROI pixels</a></b> - export pixel values of a ROI to clipboard or file
+        - exports the current ROI overlay from this image view as a bitmask image
     </li>
     <li><b><a href="ShowGraticuleOverlay.html">Show Graticule
-        Overlay</a></b> - toggles the visibility state of the graticule overlay</li>
+        Overlay</a></b> - toggles the visibility state of the graticule overlay
+    </li>
+    <li><b><a href="ShapeAndROIHandling.html">Show Shape
+        Overlay</a></b> - toggles the visibility state of the shape overlay
+    </li>
+    <li><b><a href="NoDataOverlay.html">Show No-Data
+        Overlay</a></b> - toggles the visibility state of the no-data overlay
+    </li>
+    <li><b><a href="BandArithmetics.html">Band Arithmetic...</a></b> - opens the Band Arithmetic dialog</li>
+    <li><b><a href="ExportTransectPixels.html">Export Transect Pixels</a></b> - exports the pixels of a transect</li>
+    <li><a href="ExportColorLegend.html"><b>Export Color Legend</b></a> - exports an image of the colour legend</li>
+    <li><a href="ExportKml.html"><b>Export Google Earth KMZ</b></a> - exports the current Image to a KMZ file supported
+        by Google
+        Earth
+    </li>
+    <li><b><a href="ShapeAndROIHandling.html">Show ROI Overlay</a></b>
+        - toggles the visibility state of the ROI overlay
+    </li>
+    <li><b><a href="ExportROIPixels.html">Export ROI pixels</a></b> - export pixel values of a ROI to clipboard or file
+    </li>
     <li><b><a href="PinManagement.html">Show Pin Overlay</a></b>
-        - toggles the visibility state of the pin overlay</li>
+        - toggles the visibility state of the pin overlay
+    </li>
+    <li><b><a href="GcpManagement.html">Show GCP Overlay</a></b>
+        - toggles the visibility state of the GCP overlay
+    </li>
     <li><b><a href="ProductSubsetDialog.html">Create Subset from View</a></b> - opens a new product subset dialog,
-        with predefined spatial subset scene by the actual image view</li>
+        with predefined spatial subset scene by the actual image view
+    </li>
 </ul>
-
-
-<p class="inote"><b>Note:</b> The <b>Copy Pixel Info to Clipboard</b> command copies information as tabulator-separated
-    text
-    into the clipboard and may therefore be pasted directly into a spreadsheet application (e.g. MS Excel).</p>
-
 
 <h4><a name="rgbSupport">RGB Image Support</a></h4>
 On creating an RGB image view you are prompted to select or create a <a href="RGBImageProfile.html">RGB-Profile</a>.
