@@ -136,7 +136,8 @@ public class ChrisProductReader extends AbstractProductReader {
         addRciAndMaskBands(product);
         addFlagCodingsAndBitmasks(product);
 
-        product.setPreferredTileSize(sceneRasterWidth, sceneRasterHeight / 2);
+        // due to mask refinement the preferred tile size has full size
+        product.setPreferredTileSize(sceneRasterWidth, sceneRasterHeight);
 
         return product;
     }
@@ -374,11 +375,11 @@ public class ChrisProductReader extends AbstractProductReader {
                 pm.worked(1);
             }
             dropoutCorrection.compute(rciData, maskData, sceneRasterWidth, tileHeight,
-                    new Rectangle(targetOffsetX, targetOffsetY - tileOffsetY, targetWidth,
-                            targetHeight));
+                    new Rectangle(targetOffsetX, targetOffsetY - tileOffsetY, targetWidth, targetHeight));
             pm.worked(3);
 
             for (int i = 0; i < targetHeight; ++i) {
+                //noinspection SuspiciousSystemArraycopy
                 System.arraycopy(rciData[0], targetOffsetX + (targetOffsetY - tileOffsetY + i) * sceneRasterWidth,
                         targetBuffer.getElems(), i * targetWidth, targetWidth);
             }
@@ -404,6 +405,7 @@ public class ChrisProductReader extends AbstractProductReader {
             readFullWidthTile(bandIndex, rciData, maskData, targetOffsetY, targetHeight);
 
             for (int i = 0; i < targetHeight; ++i) {
+                //noinspection SuspiciousSystemArraycopy
                 System.arraycopy(maskData, targetOffsetX + i * sceneRasterWidth, targetBuffer.getElems(),
                         i * targetWidth, targetWidth);
                 pm.worked(1);
@@ -419,9 +421,11 @@ public class ChrisProductReader extends AbstractProductReader {
         final Band maskBand = maskBands[bandIndex];
 
         if (maskBand.hasRasterData()) {
+            //noinspection SuspiciousSystemArraycopy
             System.arraycopy(maskBand.getRasterData().getElems(), tileOffsetY * sceneRasterWidth,
                     maskData, 0, maskData.length);
             if (rciBand.hasRasterData()) {
+                //noinspection SuspiciousSystemArraycopy
                 System.arraycopy(rciBand.getRasterData().getElems(), tileOffsetY * sceneRasterWidth,
                         rciData, 0, rciData.length);
             } else {
