@@ -493,6 +493,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludeResources>true</excludeResources>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -502,16 +505,20 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.5</version>
                 <configuration>
+                    <links>
+                        <link>http://java.sun.com/javase/6/docs/api/</link>
+                    </links>
                     <aggregate>true</aggregate>
                     <subpackages>
-                        org.esa.beam.framework:org.esa.beam.util:org.esa.beam.visat:com.bc.jexp
+                        com.bc.ceres:org.esa.beam.framework:org.esa.beam.util:org.esa.beam.visat:com.bc.jexp
                     </subpackages>
                     <excludePackageNames>
-                        *.internal:org.esa.beam.visat.toolviews:org.esa.beam.visat.actions:org.esa.beam.visat.dialogs:org.esa.beam.visat.plugins
+                        *.internal:com.bc.ceres.site:org.esa.beam.visat.toolviews:org.esa.beam.visat.actions:org.esa.beam.visat.dialogs:org.esa.beam.visat.plugins
                     </excludePackageNames>
                     <maxmemory>256m</maxmemory>
-                    <quiet>true</quiet>
+                    <quiet>false</quiet>
                 </configuration>
             </plugin>
         </plugins>
