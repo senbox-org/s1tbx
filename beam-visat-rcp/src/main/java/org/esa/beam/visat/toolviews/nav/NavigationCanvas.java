@@ -95,7 +95,13 @@ public class NavigationCanvas extends JPanel {
         if (newView != null) {
             Viewport observedViewport = newView.getLayerCanvas().getViewport();
             observedViewport.addListener(observedViewportHandler);
-            Viewport thumbnailViewport = new DefaultViewport(getBounds().isEmpty() ? new Rectangle(0,0,100,100) : getBounds(), observedViewport.isModelYAxisDown());
+            final Rectangle bounds;
+            if (getBounds().isEmpty()) {
+                bounds = new Rectangle(0, 0, 100, 100);
+            } else {
+                bounds = getBounds();
+            }
+            Viewport thumbnailViewport = new DefaultViewport(bounds, observedViewport.isModelYAxisDown());
             LayerCanvasModel thumbnailCanvasModel = new DefaultLayerCanvasModel(newView.getRootLayer(), thumbnailViewport);
             thumbnailCanvas.setModel(thumbnailCanvasModel);
             thumbnailCanvas.zoomAll();
