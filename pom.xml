@@ -137,6 +137,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.5</version>
                 <configuration>
                     <excludePackageNames>*.internal:com.bc.ceres.site</excludePackageNames>
                     <aggregate>true</aggregate>
