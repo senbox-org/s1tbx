@@ -13,7 +13,11 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.event.MouseInputAdapter;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 
@@ -25,6 +29,7 @@ public class NavigationCanvas extends JPanel {
     private ObservedViewportHandler observedViewportHandler;
     private Rectangle moveSliderRect;
     private boolean adjustingObservedViewport;
+    private boolean debug = false;
 
     public NavigationCanvas(NavigationToolView navigationWindow) {
         super(new BorderLayout());
@@ -39,7 +44,7 @@ public class NavigationCanvas extends JPanel {
         });
         thumbnailCanvas.addOverlay(new LayerCanvas.Overlay() {
             public void paintOverlay(LayerCanvas canvas, Graphics2D g) {
-                if (moveSliderRect != null) {
+                if (moveSliderRect != null && !moveSliderRect.isEmpty()) {
                     g.setColor(new Color(getForeground().getRed(), getForeground().getGreen(),
                                          getForeground().getBlue(), 82));
                     g.fillRect(moveSliderRect.x, moveSliderRect.y, moveSliderRect.width, moveSliderRect.height);
@@ -63,6 +68,7 @@ public class NavigationCanvas extends JPanel {
         super.setBounds(x, y, width, height);
         thumbnailCanvas.getViewport().setViewBounds(new Rectangle(x, y, width, height));
         thumbnailCanvas.zoomAll();
+        updateMoveSliderRect();
     }
 
     /**
@@ -76,17 +82,22 @@ public class NavigationCanvas extends JPanel {
     }
 
     void handleViewChanged(ProductSceneView oldView, ProductSceneView newView) {
+        if (debug) {
+            System.out.println("NavigationCanvas.handleViewChanged(): " + System.currentTimeMillis());
+            System.out.println("  oldView = " + (oldView == null ? "null" : oldView.getSceneName()));
+            System.out.println("  newView = " + (newView == null ? "null" : newView.getSceneName()));
+        }
         if (oldView != null) {
             Viewport observedViewport = oldView.getLayerCanvas().getViewport();
-            observedViewport.addListener(observedViewportHandler);
+            observedViewport.removeListener(observedViewportHandler);
         }
         if (newView != null) {
             Viewport observedViewport = newView.getLayerCanvas().getViewport();
             observedViewport.addListener(observedViewportHandler);
             Viewport thumbnailViewport = new DefaultViewport(getBounds(), observedViewport.isModelYAxisDown());
             LayerCanvasModel thumbnailCanvasModel = new DefaultLayerCanvasModel(newView.getRootLayer(), thumbnailViewport);
-            thumbnailCanvasModel.getViewport().setOrientation(observedViewport.getOrientation());
             thumbnailCanvas.setModel(thumbnailCanvasModel);
+            thumbnailCanvas.zoomAll();
         } else {
             thumbnailCanvas.setModel(NULL_MODEL);
         }
@@ -94,15 +105,25 @@ public class NavigationCanvas extends JPanel {
     }
 
     private void updateMoveSliderRect() {
-        ProductSceneView view = getNavigationWindow().getCurrentView();
-        if (view != null) {
-            Viewport viewport = view.getLayerCanvas().getViewport();
+        ProductSceneView currentView = getNavigationWindow().getCurrentView();
+        if (currentView != null) {
+            Viewport viewport = currentView.getLayerCanvas().getViewport();
             Rectangle viewBounds = viewport.getViewBounds();
             AffineTransform m2vTN = thumbnailCanvas.getViewport().getModelToViewTransform();
             AffineTransform v2mVP = viewport.getViewToModelTransform();
             moveSliderRect = m2vTN.createTransformedShape(v2mVP.createTransformedShape(viewBounds)).getBounds();
         } else {
             moveSliderRect = new Rectangle();
+        }
+        if (debug) {
+            System.out.println("NavigationCanvas.updateMoveSliderRect(): " + System.currentTimeMillis());
+            if (currentView != null) {
+                Viewport viewport = currentView.getLayerCanvas().getViewport();
+                System.out.println("  currentView    = " + currentView.getSceneName() + ", viewBounds = " + viewport.getViewBounds() + ", viewBounds = " + viewport.getViewBounds());
+            } else {
+                System.out.println("  currentView    = null");
+            }
+            System.out.println("  moveSliderRect = " + moveSliderRect);
         }
         repaint();
     }
