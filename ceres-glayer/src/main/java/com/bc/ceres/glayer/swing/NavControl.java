@@ -390,12 +390,10 @@ public class NavControl extends JComponent {
         }
 
         private void startTriggeringActions() {
-            System.out.println("NavControl.startTriggeringActions() >>>");
             actionTrigger.restart();
         }
 
         private void stopTriggeringActions() {
-            System.out.println("NavControl.stopTriggeringActions() <<<");
             actionTrigger.stop();
         }
 
