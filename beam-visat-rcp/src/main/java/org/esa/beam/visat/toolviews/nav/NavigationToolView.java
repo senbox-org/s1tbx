@@ -17,11 +17,15 @@
 package org.esa.beam.visat.toolviews.nav;
 
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.swing.LayerCanvasModel;
 import com.bc.ceres.glayer.swing.LayerCanvas;
+import com.bc.ceres.glayer.swing.LayerCanvasModel;
 import com.bc.ceres.grender.AdjustableView;
 import com.bc.ceres.grender.Viewport;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.UIUtils;
@@ -33,12 +37,23 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
@@ -46,6 +61,9 @@ import java.awt.event.FocusEvent;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import static java.lang.Math.*;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 /**
  * A window which displays product spectra.
@@ -70,6 +88,7 @@ public class NavigationToolView extends AbstractToolView {
     private JTextField zoomFactorField;
     private JSlider zoomSlider;
     private boolean inUpdateMode;
+    private DecimalFormat scaleFormat;
 
     private boolean debug;
 
@@ -80,6 +99,11 @@ public class NavigationToolView extends AbstractToolView {
     public JComponent createControl() {
         layerCanvasModelChangeChangeHandler = new LayerCanvasModelChangeHandler();
         productNodeChangeHandler = createProductNodeListener();
+
+        final DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.ENGLISH);
+        scaleFormat = new DecimalFormat("#####.##", decimalFormatSymbols);
+        scaleFormat.setGroupingUsed(false);
+        scaleFormat.setDecimalSeparatorAlwaysShown(false);
 
         zoomInButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomIn24.gif"), false);
         zoomInButton.setToolTipText("Zoom in."); /*I18N*/
@@ -169,18 +193,18 @@ public class NavigationToolView extends AbstractToolView {
         eastPane.add(helpButton, gbc);
 
         zoomFactorField = new JTextField();
-        zoomFactorField.setColumns(5);
-        zoomFactorField.setHorizontalAlignment(JTextField.RIGHT);
+        zoomFactorField.setColumns(8);
+        zoomFactorField.setHorizontalAlignment(JTextField.CENTER);
         zoomFactorField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                applyZoomFactorFieldValue();
+                handleZoomFactorFieldUserInput();
             }
         });
         zoomFactorField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(final FocusEvent e) {
-                applyZoomFactorFieldValue();
+                handleZoomFactorFieldUserInput();
             }
         });
 
@@ -271,21 +295,19 @@ public class NavigationToolView extends AbstractToolView {
         return new NavigationCanvas(this);
     }
 
-    private void applyZoomFactorFieldValue() {
-        Integer value = getZoomFactorFieldValue();
-        if (value != null) {
-            int adjustedValue = max(MIN_SLIDER_VALUE, min(MAX_SLIDER_VALUE, value));
-            if (value != adjustedValue) {
-                zoomFactorField.setText(String.valueOf(adjustedValue));
-            }
-            zoom(sliderValueToZoomFactor(adjustedValue));
+    private void handleZoomFactorFieldUserInput() {
+        Double zf = getZoomFactorFieldValue();
+        if (zf != null) {
+            updateScaleField(zf);
+            zoom(zf);
         }
     }
 
-    private Integer getZoomFactorFieldValue() {
+    private Double getZoomFactorFieldValue() {
         final String text = zoomFactorField.getText();
         try {
-            return Integer.parseInt(text);
+            double v = Double.parseDouble(text);
+            return v > 0 ? v : null;
         } catch (NumberFormatException e) {
             return null;
         }
@@ -352,11 +374,13 @@ public class NavigationToolView extends AbstractToolView {
      */
     private double sliderValueToZoomFactor(final int sv) {
         AdjustableView adjustableView = getCurrentView().getLayerCanvas();
-        double f1 = floor(log10(adjustableView.getMinZoomFactor()));
-        double f2 = floor(log10(adjustableView.getMaxZoomFactor())) + 1.0;
-        double v1 = (double) (sv - zoomSlider.getMinimum()) / (double) (zoomSlider.getMaximum() - zoomSlider.getMinimum());
+        double f1 = scaleExp2Min(adjustableView);
+        double f2 = scaleExp2Max(adjustableView);
+        double s1 = zoomSlider.getMinimum();
+        double s2 = zoomSlider.getMaximum();
+        double v1 = (sv - s1) / (s2 - s1);
         double v2 = f1 + v1 * (f2 - f1);
-        double zf = pow(10.0, v2);
+        double zf = exp2(v2);
 
         if (debug) {
             System.out.println("NavigationToolView.sliderValueToZoomFactor:");
@@ -377,11 +401,13 @@ public class NavigationToolView extends AbstractToolView {
      */
     private int zoomFactorToSliderValue(final double zf) {
         AdjustableView adjustableView = getCurrentView().getLayerCanvas();
-        double f1 = floor(log10(adjustableView.getMinZoomFactor()));
-        double f2 = floor(log10(adjustableView.getMaxZoomFactor())) + 1.0;
-        double v2 = log10(zf);
+        double f1 = scaleExp2Min(adjustableView);
+        double f2 = scaleExp2Max(adjustableView);
+        double s1 = zoomSlider.getMinimum();
+        double s2 = zoomSlider.getMaximum();
+        double v2 = log2(zf);
         double v1 = max(0.0, min(1.0, (v2 - f1) / (f2 - f1)));
-        int sv = (int) (zoomSlider.getMinimum() + v1 * (zoomSlider.getMaximum() - zoomSlider.getMinimum()));
+        int sv = (int) round((s1 + v1 * (s2 - s1)));
 
         if (debug) {
             System.out.println("NavigationToolView.zoomFactorToSliderValue:");
@@ -429,11 +455,57 @@ public class NavigationToolView extends AbstractToolView {
         if (view != null) {
             boolean oldState = inUpdateMode;
             inUpdateMode = true;
-            final int sliderValue = zoomFactorToSliderValue(view.getZoomFactor());
-            zoomSlider.setValue(sliderValue);
-            zoomFactorField.setText(String.valueOf(sliderValue));
+
+            double zf = view.getZoomFactor();
+            updateZoomSlider(zf);
+            updateScaleField(zf);
+
             inUpdateMode = oldState;
         }
+    }
+
+    private void updateZoomSlider(double zf) {
+        int sv = zoomFactorToSliderValue(zf);
+        zoomSlider.setValue(sv);
+    }
+
+    private void updateScaleField(double zf) {
+        String text;
+        if (zf > 1.0) {
+            text = scaleFormat.format(roundScale(zf)) + " : 1";
+        } else if (zf < 1.0) {
+            text = "1 : " + scaleFormat.format(roundScale(1.0 / zf));
+        } else {
+            text = "1 : 1";
+        }
+        zoomFactorField.setText(text);
+    }
+
+    private static double roundScale(double x) {
+        double e = floor((log10(x)));
+        double f = 10.0 * pow(10.0, e);
+        double fx = x * f;
+        double rfx = round(fx);
+        if (abs((rfx + 0.5) - fx) <= abs(rfx - fx)) {
+            rfx += 0.5;
+        }
+        return rfx / f;
+    }
+
+    private static double scaleExp2Min(AdjustableView adjustableView) {
+        return floor(log2(adjustableView.getMinZoomFactor()));
+    }
+
+    private static double scaleExp2Max(AdjustableView adjustableView) {
+        return floor(log2(adjustableView.getMaxZoomFactor()) + 1);
+    }
+
+    private static double log2(double x) {
+        return log(x) / log(2.0);
+    }
+
+    private static double exp2(double x) {
+        return pow(2.0, x);
     }
 
     private ProductNodeListener createProductNodeListener() {
@@ -450,7 +522,6 @@ public class NavigationToolView extends AbstractToolView {
             }
         };
     }
-
 
     private class NavigationIFL extends InternalFrameAdapter {
 

@@ -303,7 +303,7 @@
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.CreateStartMenuEntryAction">
                       <void property="arguments">
-                        <string>/K ${installer:sys.installationDir}\bin\beam-cli.bat</string>
+                        <string>/K "${installer:sys.installationDir}\bin\beam-cli.bat"</string>
                       </void>
                       <void property="entryName">
                         <string>${installer:sys.programGroupDir}\Command Line</string>
