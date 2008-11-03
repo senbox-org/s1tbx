@@ -1,11 +1,12 @@
                                  CHANGELOG
 
                          MERIS/(A)ATSR Toolbox (BEAM)
-                                Version 4.5
+                                Version 4.6
 
 
 This file contains all significant changes for each BEAM release.
 
+    o xx.xx.2009: Version 4.6
     o 31.10.2008: Version 4.5
     o 11.07.2008: Version 4.2
     o 31.10.2007: Version 4.1
@@ -30,6 +31,12 @@ _____________________________________________________________________________
 
 _____________________________________________________________________________
 
+ Changes from 4.5 to 4.6
+_____________________________________________________________________________
+
+TODO
+_____________________________________________________________________________
+
  Changes from 4.2 to 4.5
 _____________________________________________________________________________
 
@@ -45,7 +52,7 @@ is a greatly improved image display performance and memory usage.
 
 o VISAT can now rapidly display, pan and zoom Envisat MERIS FRS and ASAR WSM
   products with up to 50000 x 6000 pixels per image. Also users of LANDSAT
-  and ALOS AVNIR and PRISM will pretty much apprechiate this enhancement.
+  and ALOS AVNIR and PRISM will pretty much appreciate this enhancement.
 
 o VISAT image views now comprise a semi-transparent navigation control field
   (similar to the one of Google Earth) used to move, scale and also rotate
