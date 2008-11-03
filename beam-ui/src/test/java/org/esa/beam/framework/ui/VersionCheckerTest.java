@@ -23,7 +23,7 @@ public class VersionCheckerTest extends TestCase {
 
     public void testCurrentLocalVersionString() throws IOException {
         // Failed? --> Adapt current version number here.
-        assertEquals("VERSION 4.2", _versionChecker.getLocalVersion());
+        assertEquals("VERSION 4.6-SNAPSHOT", _versionChecker.getLocalVersion());
     }
 
     public void testCurrentRemoteVersionString() throws IOException {
