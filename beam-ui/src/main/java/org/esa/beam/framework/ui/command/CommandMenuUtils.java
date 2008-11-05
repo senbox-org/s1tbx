@@ -17,23 +17,22 @@
 package org.esa.beam.framework.ui.command;
 
 
+import org.esa.beam.framework.ui.UIUtils;
+
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.JSeparator;
-
-import org.esa.beam.framework.ui.UIUtils;
-
-// @todo 1 nf/nf - place class API docu here
 
 /**
- * The <code>CommandMenuUtils</code> is a ...
+ * The <code>CommandMenuUtils</code> is a helper class
+ * to build up menus.
  *
  * @author Norman Fomferra
  * @version $Revision$  $Date$
@@ -43,12 +42,19 @@ public class CommandMenuUtils {
     protected CommandMenuUtils() {
     }
 
+    /**
+     * Inserts the given <code>command</command> at the end of the <code>popupMenu</code>.
+     *
+     * @param popupMenu The popup menu to add the given <code>command</code> to.
+     * @param command The command to insert.
+     * @param manager The command manager.
+     */
     public static void insertCommandMenuItem(final JPopupMenu popupMenu, final Command command,
                                              final CommandManager manager) {
         Command[] commands = getCommands(popupMenu, manager, command);
         commands = sort(commands);
 
-        final HashMap popupMenues = new HashMap();
+        final Map<String, Component> popupMenues = new HashMap<String, Component>();
         int count = popupMenu.getComponentCount();
         for (int i = 0; i < count; i++) {
             final Component component = popupMenu.getComponent(i);
@@ -58,11 +64,9 @@ public class CommandMenuUtils {
         }
 
         popupMenu.removeAll();
-        for (int i = 0; i < commands.length; i++) {
-            insertCommandMenuItem(popupMenu, commands[i], popupMenu.getComponentCount());
+        for (Command command1 : commands) {
+            insertCommandMenuItem(popupMenu, command1, popupMenu.getComponentCount());
         }
-
-        // se - i dont understand for which purpose is this iteration
         count = popupMenu.getComponentCount();
         for (int i = 0; i < count; i++) {
             final Component component = popupMenu.getComponent(i);
@@ -77,14 +81,21 @@ public class CommandMenuUtils {
         }
     }
 
+    /**
+     * Finds the insert position of the given <code>command</command> within the <code>popupMenu</code>.
+     *
+     * @param popupMenu The popup menu.
+     * @param command The command to insert.
+     * @param manager The command manager.
+     */
     public static int findMenuInsertPosition(final JPopupMenu popupMenu, final Command command,
                                              final CommandManager manager) {
         int pbi = popupMenu.getComponentCount();
-        int pai = -1;
         String placeBefore = command.getPlaceBefore();
         if (placeBefore != null) {
             pbi = UIUtils.findMenuItemPosition(popupMenu, placeBefore);
         }
+        int pai = -1;
         String placeAfter = command.getPlaceAfter();
         if (placeAfter != null) {
             pai = UIUtils.findMenuItemPosition(popupMenu, placeAfter) + 1;
@@ -124,6 +135,13 @@ public class CommandMenuUtils {
         return insertPos;
     }
 
+    /**
+     * Inserts the given <code>command</command> to the <code>popupMenu</code> at the given <code>position</code>.
+     *
+     * @param popupMenu The popup menu to add the given <code>command</code> to.
+     * @param command The command to insert.
+     * @param pos the position where to insert the <code>command</code>.
+     */
     public static void insertCommandMenuItem(final JPopupMenu popupMenu, final Command command, final int pos) {
         final JMenuItem menuItem = command.createMenuItem();
         if (menuItem == null) {
@@ -168,56 +186,27 @@ public class CommandMenuUtils {
     }
 
     static Command[] sort(final Command[] commands) {
-//        final List keyList = new ArrayList();
-//        final List commandList = new ArrayList();
-//
-//        for (int i = 0; i < commands.length; i++) {
-//            Command unsortedCommand = commands[i];
-//            if (i == 0) {
-//                keyList.add(unsortedCommand.getCommandID());
-//                commandList.add(unsortedCommand);
-//            } else {
-//                final String placeBefore = unsortedCommand.getPlaceBefore();
-//                final int beforeIndex;
-//                if (keyList.contains(placeBefore)) {
-//                    beforeIndex = keyList.indexOf(placeBefore);
-//                } else {
-//                    beforeIndex = -1;
-//                }
-//                final String placeAfter = unsortedCommand.getPlaceBefore();
-//                final int afterIndex;
-//                if (keyList.contains(placeAfter)) {
-//                    afterIndex = keyList.indexOf(placeAfter);
-//                } else {
-//                    afterIndex = -1;
-//                }
-//                if
-//            }
-//        }
-//        return (Command[]) commandList.toArray(new Command[0]);
-        final List sortedCommandsList = new ArrayList();
+        final List<Command> sortedCommandsList = new ArrayList<Command>();
         if (commands != null) {
-            final Map wrappersMap = new HashMap();
-            for (int i = 0; i < commands.length; i++) {
-                final Command command = commands[i];
+            final Map<String, CommandWrapper> wrappersMap = new HashMap<String, CommandWrapper>();
+            for (final Command command : commands) {
                 final CommandWrapper wrapper = new CommandWrapper(command);
                 wrappersMap.put(wrapper.getName(), wrapper);
             }
-            for (int i = 0; i < commands.length; i++) {
-                final Command command = commands[i];
+            for (final Command command : commands) {
                 final String placeBefore = command.getPlaceBefore();
                 final String placeAfter = command.getPlaceAfter();
                 if (placeAfter != null || placeBefore != null) {
-                    final CommandWrapper commandWrapper = (CommandWrapper) wrappersMap.get(command.getCommandID());
+                    final CommandWrapper commandWrapper = wrappersMap.get(command.getCommandID());
                     if (placeAfter != null) {
-                        final CommandWrapper beforeCommand = (CommandWrapper) wrappersMap.get(placeAfter);
+                        final CommandWrapper beforeCommand = wrappersMap.get(placeAfter);
                         if (beforeCommand != null) {
                             commandWrapper.addBefore(beforeCommand);
                             beforeCommand.addAfter(commandWrapper);
                         }
                     }
                     if (placeBefore != null) {
-                        final CommandWrapper afterCommand = (CommandWrapper) wrappersMap.get(placeBefore);
+                        final CommandWrapper afterCommand = wrappersMap.get(placeBefore);
                         if (afterCommand != null) {
                             commandWrapper.addAfter(afterCommand);
                             afterCommand.addBefore(commandWrapper);
@@ -226,11 +215,11 @@ public class CommandMenuUtils {
                 }
             }
             while (!wrappersMap.isEmpty()) {
-                CommandWrapper wrapper = (CommandWrapper) wrappersMap.values().iterator().next();
+                CommandWrapper wrapper = wrappersMap.values().iterator().next();
                 while (!wrapper.beforeWrappers.isEmpty()) {
                     final List linksBefore = wrapper.beforeWrappers;
-                    for (int i = 0; i < linksBefore.size(); i++) {
-                        final CommandWrapper cw = (CommandWrapper) linksBefore.get(i);
+                    for (Object aLinksBefore : linksBefore) {
+                        final CommandWrapper cw = (CommandWrapper) aLinksBefore;
                         final Object o = wrappersMap.get(cw.getName());
                         if (o != null) {
                             wrapper = (CommandWrapper) o;
@@ -243,17 +232,19 @@ public class CommandMenuUtils {
                 appendSorted(sortedCommandsList, wrapper, wrappersMap);
             }
         }
-        return (Command[]) sortedCommandsList.toArray(new Command[sortedCommandsList.size()]);
+        return sortedCommandsList.toArray(new Command[sortedCommandsList.size()]);
     }
 
-    private static void appendSorted(final List commandsList, final CommandWrapper wrapper, final Map wrappers) {
+    private static void appendSorted(final List<Command> commandsList,
+                                     final CommandWrapper wrapper,
+                                     final Map<String, CommandWrapper> wrappers) {
         if (!wrapper.afterWrappers.isEmpty()) {
-            final List afterWrappersList = wrapper.afterWrappers;
-            final CommandWrapper[] afterWrappers = (CommandWrapper[]) afterWrappersList.toArray(new CommandWrapper[0]);
-            for (int i = 0; i < afterWrappers.length; i++) {
-                CommandWrapper afterWrapper = afterWrappers[i];
+            final List<CommandWrapper> afterWrappersList = wrapper.afterWrappers;
+            final CommandWrapper[] afterWrappers = afterWrappersList.toArray(
+                    new CommandWrapper[afterWrappersList.size()]);
+            for (CommandWrapper afterWrapper : afterWrappers) {
                 for (int j = 0; j < afterWrapper.afterWrappers.size(); j++) {
-                    CommandWrapper ownAfterWrapper = (CommandWrapper) afterWrapper.afterWrappers.get(j);
+                    CommandWrapper ownAfterWrapper = afterWrapper.afterWrappers.get(j);
                     if (afterWrappersList.contains(ownAfterWrapper)) {
                         afterWrappersList.remove(afterWrapper);
                         final int insertIndex = afterWrappersList.indexOf(ownAfterWrapper);
@@ -261,24 +252,22 @@ public class CommandMenuUtils {
                     }
                 }
             }
-            for (int i = 0; i < afterWrappersList.size(); i++) {
-                final CommandWrapper cw = (CommandWrapper) afterWrappersList.get(i);
-                final CommandWrapper cwFromMap = (CommandWrapper) wrappers.get(cw.getName());
+            for (CommandWrapper anAfterWrapper : afterWrappersList) {
+                final CommandWrapper cwFromMap = wrappers.get(anAfterWrapper.getName());
                 if (cwFromMap != null) {
                     commandsList.add(cwFromMap.command);
                     wrappers.remove(cwFromMap.getName());
                 }
             }
-            for (int i = 0; i < afterWrappersList.size(); i++) {
-                final CommandWrapper cw = (CommandWrapper) afterWrappersList.get(i);
-                appendSorted(commandsList, cw, wrappers);
+            for (CommandWrapper anAfterWrapper : afterWrappersList) {
+                appendSorted(commandsList, anAfterWrapper, wrappers);
             }
         }
     }
 
     private static Command[] getCommands(final JPopupMenu popupMenu, final CommandManager manager,
                                          final Command command) {
-        final List commands = new ArrayList();
+        final List<Command> commands = new ArrayList<Command>();
         final int count = popupMenu.getComponentCount();
         for (int i = 0; i < count; i++) {
             final Component component = popupMenu.getComponent(i);
@@ -293,19 +282,19 @@ public class CommandMenuUtils {
             }
         }
         commands.add(command);
-        return (Command[]) commands.toArray(new Command[commands.size()]);
+        return commands.toArray(new Command[commands.size()]);
     }
 
     private static final class CommandWrapper {
 
         private final Command command;
-        private final List beforeWrappers;
-        private final List afterWrappers;
+        private final List<CommandWrapper> beforeWrappers;
+        private final List<CommandWrapper> afterWrappers;
 
         private CommandWrapper(final Command command) {
             this.command = command;
-            beforeWrappers = new ArrayList();
-            afterWrappers = new ArrayList();
+            beforeWrappers = new ArrayList<CommandWrapper>();
+            afterWrappers = new ArrayList<CommandWrapper>();
         }
 
         private String getName() {
