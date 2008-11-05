@@ -46,6 +46,8 @@ public class BilinearInterpolationResamplingTest extends TestCase {
 
         testIndexAndSample(index, 5.0f, 0.0f, 4, 4, 0, 0, 0.5f, 0.5f, 50.0f);
         testIndexAndSample(index, 5.5f, 0.0f, 4, 4, 0, 0, 0.0f, 0.5f, 50.0f);
+
+        testIndexAndSample(index, 2.2f, 2.3f, 1, 2, 1, 2, 0.7f, 0.8f, 26.2f);
     }
 
     private void testIndexAndSample(final Resampling.Index index,

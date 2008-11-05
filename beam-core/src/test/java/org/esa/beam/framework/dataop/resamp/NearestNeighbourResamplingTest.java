@@ -34,6 +34,7 @@ public class NearestNeighbourResamplingTest extends TestCase {
         test(index, 0.5f, 3.9f, 0, 3, 20f);
         test(index, 2.5f, 1.0f, 2, 1, 30f);
         test(index, 4.5f, 4.0f, 4, 4, 70f);
+        test(index, 2.9f, 2.9f, 2, 2, 20f);
     }
 
     private void test(final Resampling.Index index, float x, float y, int iExp, int jExp, float sampleExp) throws Exception {
