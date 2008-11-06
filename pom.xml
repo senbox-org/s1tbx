@@ -379,7 +379,6 @@
                     <encoding>ISO-8859-1</encoding>
                 </configuration>
             </plugin>
-
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.2-beta-1</version>
@@ -387,7 +386,6 @@
                     <descriptors>
                         <!-- <descriptor>src/main/assembly/beam-web-help.xml</descriptor> -->
                         <descriptor>src/main/assembly/bin.xml</descriptor>
-                        <!--<descriptor>src/main/assembly/installer-files.xml</descriptor>-->
                         <descriptor>src/main/assembly/src.xml</descriptor>
                     </descriptors>
                     <finalName>beam</finalName>

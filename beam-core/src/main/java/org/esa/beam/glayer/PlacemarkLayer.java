@@ -75,9 +75,8 @@ public class PlacemarkLayer extends Layer {
                 final PixelPos pixelPos = pin.getPixelPos();
                 if (pixelPos != null) {
                     g2d.translate(pixelPos.getX(), pixelPos.getY());
-                    final double scaleX = g2d.getTransform().getScaleX();
-                    final double scaleY = g2d.getTransform().getScaleY();
-                    g2d.scale(1 / scaleX, 1 / scaleY);
+                    final double scale = Math.sqrt(Math.abs(g2d.getTransform().getDeterminant()));
+                    g2d.scale(1 / scale, 1 / scale);
                     g2d.rotate(viewport.getOrientation());
 
                     if (pin.isSelected()) {
@@ -91,7 +90,7 @@ public class PlacemarkLayer extends Layer {
                     }
 
                     g2d.rotate(-viewport.getOrientation());
-                    g2d.scale(scaleX, scaleY);
+                    g2d.scale(scale, scale);
                     g2d.translate(-pixelPos.getX(), -pixelPos.getY());
                 }
             }

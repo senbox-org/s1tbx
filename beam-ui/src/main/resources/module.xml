@@ -9,15 +9,20 @@
     <description>This module provides user interface components used e.g. by VISAT.</description>
     <changelog>
         <![CDATA[
-        Changes in 4.2<br>
+        <p>Changes in 4.5.1<br/>
+        [BEAM-880] Pixel info view has a typo<br/>
+        </p>
+        <p>Changes in 4.2<br/>
         [BEAM-820] Deactivate auto docking of tool views by default<br/>
         [BEAM-819] Newly opened products should not be expanded<br/>
-        [BEAM-726] Memory not fully released after closing a product<br>
-        [BEAM-712] Processors produce visat.exe zombies<br>
-        [BEAM-694] Bandarithmetic gives acces to latitude and longitude using the provided geocoding<br>
-        <br>Changes in 4.0.1<br>
-        [BEAM-622] Use mouse wheel for zooming<br>
-        [BEAM-614] Not possible to re-select item in Arithmetic Expression Editor<br>
+        [BEAM-726] Memory not fully released after closing a product<br/>
+        [BEAM-712] Processors produce visat.exe zombies<br/>
+        [BEAM-694] Bandarithmetic gives acces to latitude and longitude using the provided geocoding<br/>
+        </p>
+        <p>Changes in 4.0.1<br/>
+        [BEAM-622] Use mouse wheel for zooming<br/>
+        [BEAM-614] Not possible to re-select item in Arithmetic Expression Editor<br/>
+        </p>
         ]]>
     </changelog>
 

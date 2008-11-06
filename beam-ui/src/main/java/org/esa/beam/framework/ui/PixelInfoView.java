@@ -74,7 +74,7 @@ public class PixelInfoView extends JPanel {
     private static final int _UNIT_COLUMN = 2;
 
     private static final String _INVALID_POS_TEXT = "Invalid pos.";
-    private static final String _NOT_LOADED_TEXT = "Not diplayed";
+    private static final String _NOT_LOADED_TEXT = "Not displayed";
 
     private final GeoPos _geoPos;
     private final PixelPos _pixelPos;
