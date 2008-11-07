@@ -25,6 +25,10 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
 import org.esa.beam.glevel.TiledFileMultiLevelSource;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.util.io.FileUtils;
@@ -85,8 +89,8 @@ public class SmosProductReader extends AbstractProductReader {
         }
 
         final File file = FileUtils.exchangeExtension(getInputFile(), ".DBL");
-        final int productWidth = 16384;
-        final int productHeight = 8192;
+        final int productSceneRasterWidth = dggridMultiLevelSource.getImage(0).getWidth();
+        final int productSceneRasterHeight = dggridMultiLevelSource.getImage(0).getHeight();
 
         final String filenameWithoutExtension = FileUtils.getFilenameWithoutExtension(file);
 
@@ -106,9 +110,10 @@ public class SmosProductReader extends AbstractProductReader {
             throw new IllegalStateException("format == null");
         }
         smosFile = new SmosFile(file, format);
-        Product product = new Product(filenameWithoutExtension, formatName, productWidth, productHeight);
+        Product product = new Product(filenameWithoutExtension, formatName, productSceneRasterWidth, productSceneRasterHeight);
         product.setPreferredTileSize(512, 512);
         product.setFileLocation(file);
+        product.setGeoCoding(createGeoCoding(product));
 
         if ("MIR_BWLD1C".equals(formatName)
                 || "MIR_BWLF1C".equals(formatName)
@@ -132,6 +137,18 @@ public class SmosProductReader extends AbstractProductReader {
         }
 
         return product;
+    }
+
+    private GeoCoding createGeoCoding(Product product) {
+        final MapInfo mapInfo = new MapInfo(MapProjectionRegistry.getProjection(IdentityTransformDescriptor.NAME),
+                                            0.0f, 0.0f,
+                                            -180.0f, +90.0f,
+                                            360.0f / product.getSceneRasterWidth(),
+                                            180.0f / product.getSceneRasterHeight(),
+                                            Datum.WGS_84);
+        mapInfo.setSceneWidth(product.getSceneRasterWidth());
+        mapInfo.setSceneHeight(product.getSceneRasterHeight());
+        return new MapGeoCoding(mapInfo);
     }
 
     private MultiLevelImage createSourceImage(final Band band) {

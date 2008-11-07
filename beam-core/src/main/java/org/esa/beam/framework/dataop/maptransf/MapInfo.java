@@ -20,7 +20,6 @@ import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.util.Guardian;
 
 import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
 
 
 /**
@@ -243,6 +242,7 @@ public class MapInfo implements Cloneable {
      *
      * @return a string representation of the object.
      */
+    @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append(getMapProjection().getName());

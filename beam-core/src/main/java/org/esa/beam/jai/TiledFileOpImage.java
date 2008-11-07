@@ -26,7 +26,6 @@ public class TiledFileOpImage extends SourcelessOpImage {
 
     public static TiledFileOpImage create(File imageDir, Properties defaultImageProperties) throws IOException {
         final ImageHeader imageHeader = ImageHeader.load(imageDir, defaultImageProperties);
-
         return new TiledFileOpImage(imageHeader, null, imageDir);
     }
 
@@ -46,7 +45,9 @@ public class TiledFileOpImage extends SourcelessOpImage {
         } else if (this.imageHeader.getTileFormat().equalsIgnoreCase("raw")) {
             inputStreamFactory = new RawImageInputStreamFactory();
         }
-        setTileCache(JAI.getDefaultInstance().getTileCache());
+        if (getTileCache() == null) {
+            setTileCache(JAI.getDefaultInstance().getTileCache());
+        }
     }
 
     /**

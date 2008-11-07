@@ -32,8 +32,6 @@ public class PyramidBuilder {
     }
 
     public static void main(String[] args) throws IOException {
-
-
         final File imageFile = new File(args[0]);
         final File outputDir = new File(args[1]);
         final String tileFormat = args[2];
@@ -61,11 +59,13 @@ public class PyramidBuilder {
         boolean rawZip = tileFormat.equalsIgnoreCase("raw.zip");
         boolean raw = tileFormat.equalsIgnoreCase("raw") || rawZip;
         if (raw) {
+            // Raw data images
             interpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
             image0 = TiledFileOpImage.create(imageFile, new Properties());
         } else {
-            image0 = FileLoadDescriptor.create(imageFile.getPath(), null, true, null);
+            // Visual RGB images
             interpolation = Interpolation.getInstance(Interpolation.INTERP_BICUBIC);
+            image0 = FileLoadDescriptor.create(imageFile.getPath(), null, true, null);
         }
 
         dataType = image0.getSampleModel().getDataType();
