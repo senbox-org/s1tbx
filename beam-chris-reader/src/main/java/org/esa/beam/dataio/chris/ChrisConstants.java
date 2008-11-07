@@ -15,8 +15,8 @@ package org.esa.beam.dataio.chris;
 public class ChrisConstants {
 
     public static final String DEFAULT_FILE_EXTENSION = "hdf";
-    public static final String READER_DESCRIPTION = "CHRIS/PROBA HDF4 Data Products";
-    public static final String FORMAT_NAME = "CHRIS/PROBA";
+    public static final String READER_DESCRIPTION = "CHRIS/Proba HDF4 Data Products";
+    public static final String FORMAT_NAME = "CHRIS/Proba";
 
     public static final String MPH_NAME = "MPH";
     public static final String SPH_NAME = "SPH";
