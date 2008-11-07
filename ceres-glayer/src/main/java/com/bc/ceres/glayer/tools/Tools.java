@@ -4,7 +4,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glevel.MultiLevelSource;
-import com.bc.ceres.glevel.support.FileMultiLevelSourceFactory;
+import com.bc.ceres.glevel.support.FileMultiLevelSource;
 import com.sun.media.jai.codec.TIFFEncodeParam;
 
 import javax.media.jai.*;
@@ -120,7 +120,7 @@ public class Tools {
         final LayerCanvas layerCanvas = new LayerCanvas();
         installLayerCanvasNavigation(layerCanvas);
         final Layer collectionLayer = layerCanvas.getLayer();
-        final MultiLevelSource source = FileMultiLevelSourceFactory.create(location, extension, imageToModelTransform, levelCount);
+        final MultiLevelSource source = FileMultiLevelSource.create(location, extension, imageToModelTransform, levelCount);
         final ImageLayer layer = new ImageLayer(source);
         collectionLayer.getChildren().add(layer);
         final Rectangle viewportBounds = new Rectangle(0, 0, 640, 480);
