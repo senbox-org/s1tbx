@@ -21,11 +21,9 @@ import org.esa.beam.dataio.geotiff.internal.TiffHeader;
 import org.esa.beam.framework.dataio.AbstractProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FilterBand;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.util.io.FileUtils;
 
 import javax.imageio.stream.FileImageOutputStream;
@@ -108,14 +106,7 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
 
     @Override
     public boolean shouldWrite(ProductNode node) {
-        if(node instanceof VirtualBand) {
-            return false;
-        }
-        if(node instanceof FilterBand) {
-            return false;
-        }
-        return super.shouldWrite(node);
-
+        return Utils.shouldWriteNode(node);
     }
 
     /**

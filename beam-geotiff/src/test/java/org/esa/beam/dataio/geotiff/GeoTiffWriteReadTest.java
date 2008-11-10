@@ -1,6 +1,8 @@
 package org.esa.beam.dataio.geotiff;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
+import com.sun.media.imageioimpl.plugins.tiff.TIFFRenderedImage;
 import com.sun.media.jai.codec.ByteArraySeekableStream;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.*;
@@ -9,6 +11,9 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
 import javax.imageio.stream.MemoryCacheImageInputStream;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 import java.awt.Color;
@@ -16,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Iterator;
 
 @SuppressWarnings({"InstanceVariableMayNotBeInitialized"})
 public class GeoTiffWriteReadTest {
@@ -69,7 +75,7 @@ public class GeoTiffWriteReadTest {
     }
 
     @Test
-    public void testWriteReadVirtualBandIsNotExcluded() throws IOException {
+    public void testWriteReadVirtualBandIsNotExcludedInProduct() throws IOException {
         final VirtualBand virtualBand = new VirtualBand("VB", ProductData.TYPE_FLOAT32,
                                                         outProduct.getSceneRasterWidth(),
                                                         outProduct.getSceneRasterHeight(), "X * Y");
@@ -78,6 +84,40 @@ public class GeoTiffWriteReadTest {
 
         assertEquals(2, inProduct.getNumBands());
         assertNotNull(inProduct.getBand("VB"));
+    }
+
+    @Test
+    public void testWriteReadVirtualBandIsExcludedInImageFile() throws IOException {
+        final VirtualBand virtualBand = new VirtualBand("VB", ProductData.TYPE_FLOAT32,
+                                                        outProduct.getSceneRasterWidth(),
+                                                        outProduct.getSceneRasterHeight(), "X * Y");
+        outProduct.addBand(virtualBand);
+        final GeoTiffProductWriter writer = (GeoTiffProductWriter) new GeoTiffProductWriterPlugIn().createWriterInstance();
+        outProduct.setProductWriter(writer);
+        writer.writeGeoTIFFProduct(new MemoryCacheImageOutputStream(outputStream), outProduct);
+        final Band[] bands = outProduct.getBands();
+        for (Band band : bands) {
+            if (writer.shouldWrite(band)) {
+                band.readRasterDataFully(ProgressMonitor.NULL);
+                writer.writeBandRasterData(band,
+                                           0, 0,
+                                           band.getSceneRasterWidth(), band.getSceneRasterHeight(),
+                                           band.getData(), ProgressMonitor.NULL);
+            }
+        }
+        writer.flush();
+        ByteArraySeekableStream inputStream = new ByteArraySeekableStream(outputStream.toByteArray());
+        final MemoryCacheImageInputStream imageStream = new MemoryCacheImageInputStream(inputStream);
+        Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(imageStream);
+        TIFFImageReader imageReader = (TIFFImageReader) imageReaders.next();
+        imageReader.setInput(imageStream);
+
+        assertEquals(1, imageReader.getNumImages(true));
+
+        final ImageReadParam readParam = imageReader.getDefaultReadParam();
+        TIFFRenderedImage image = (TIFFRenderedImage) imageReader.readAsRenderedImage(0, readParam);
+        assertEquals(1, image.getSampleModel().getNumBands());
+        inputStream.close();
     }
 
     @Test

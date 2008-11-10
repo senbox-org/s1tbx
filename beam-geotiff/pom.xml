@@ -4,7 +4,7 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-geotiff</artifactId>
     <packaging>jar</packaging>
-    <version>1.0</version>
+    <version>1.101-SNAPSHOT</version>
     <name>GeoTIFF Product IO</name>
 
     <parent>

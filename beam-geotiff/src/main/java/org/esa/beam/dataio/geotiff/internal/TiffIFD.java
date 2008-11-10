@@ -2,11 +2,8 @@ package org.esa.beam.dataio.geotiff.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.dimap.DimapHeaderWriter;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.dataio.geotiff.Utils;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
@@ -18,6 +15,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * A TIFF IFD implementation for the GeoTIFF format.
@@ -144,7 +142,7 @@ public class TiffIFD {
         setEntry(new TiffDirectoryEntry(TiffTag.BITS_PER_SAMPLE, calculateBitsPerSample(product)));
         setEntry(new TiffDirectoryEntry(TiffTag.COMPRESSION, new TiffShort(1)));
         setEntry(new TiffDirectoryEntry(TiffTag.IMAGE_DESCRIPTION, new TiffAscii(product.getName())));
-        setEntry(new TiffDirectoryEntry(TiffTag.SAMPLES_PER_PIXEL, new TiffShort(product.getNumBands())));
+        setEntry(new TiffDirectoryEntry(TiffTag.SAMPLES_PER_PIXEL, new TiffShort(getNumBands(product))));
 
         setEntry(new TiffDirectoryEntry(TiffTag.STRIP_OFFSETS, calculateStripOffsets()));
         setEntry(new TiffDirectoryEntry(TiffTag.ROWS_PER_STRIP, new TiffLong(height)));
@@ -170,6 +168,17 @@ public class TiffIFD {
         }
 
         addGeoTiffTags(product);
+    }
+
+    private static int getNumBands(Product product) {
+        final Band[] bands = product.getBands();
+        final List<Band> bandList = new ArrayList<Band>(bands.length);
+        for (Band band : bands) {
+            if (Utils.shouldWriteNode(band)) {
+                bandList.add(band);
+            }
+        }
+        return bandList.size();
     }
 
     private TiffShort[] createColorMap(Product product) {
@@ -200,7 +209,7 @@ public class TiffIFD {
     }
 
     private static boolean isValidColorMapProduct(Product product) {
-        return product.getNumBands() == 1 && product.getBandAt(0).getIndexCoding() != null &&
+        return getNumBands(product) == 1 && product.getBandAt(0).getIndexCoding() != null &&
             product.getBandAt(0).getDataType() == ProductData.TYPE_UINT8;
     }
 
@@ -350,7 +359,7 @@ public class TiffIFD {
             sampleFormat = TiffCode.SAMPLE_FORMAT_FLOAT;
         }
 
-        final TiffShort[] tiffValues = new TiffShort[product.getNumBands()];
+        final TiffShort[] tiffValues = new TiffShort[getNumBands(product)];
         for (int i = 0; i < tiffValues.length; i++) {
             tiffValues[i] = sampleFormat;
         }
@@ -389,7 +398,7 @@ public class TiffIFD {
     private TiffShort[] calculateBitsPerSample(final Product product) {
         int dataType = getBandDataType();
         int elemSize = ProductData.getElemSize(dataType);
-        final TiffShort[] tiffValues = new TiffShort[product.getNumBands()];
+        final TiffShort[] tiffValues = new TiffShort[getNumBands(product)];
         for (int i = 0; i < tiffValues.length; i++) {
             tiffValues[i] = new TiffShort(8 * elemSize);
         }

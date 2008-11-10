@@ -1,14 +1,22 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-geotiff</symbolicName>
-    <version>1.0</version>
+    <version>1.101-SNAPSHOT</version>
     <name>GeoTIFF Product Module</name>
-    <description>A module for GeoTIFF Data Products</description>
+    <description>A module for reading and writing GeoTIFF Data Products</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <changelog>
+        <![CDATA[
+        <p>From 1.0 to 1.101:<br/>
+            [BEAM-889] Virtual bands are added as empty images to GeoTIFF files<br/>
+        </p>
+        ]]>
+    </changelog>
 
     <dependency>
         <module>beam-core</module>

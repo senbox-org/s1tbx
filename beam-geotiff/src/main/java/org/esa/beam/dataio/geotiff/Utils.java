@@ -18,7 +18,10 @@ package org.esa.beam.dataio.geotiff;
 
 import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
 import com.sun.media.jai.codec.TIFFField;
+import org.esa.beam.framework.datamodel.FilterBand;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 
 import java.io.File;
@@ -168,5 +171,12 @@ public class Utils {
             index++;
         }
         return new String[]{latName + index, lonName + index};
+    }
+
+    public static boolean shouldWriteNode(ProductNode node) {
+        if (node instanceof VirtualBand || node instanceof FilterBand) {
+            return false;
+        }
+        return true;
     }
 }
