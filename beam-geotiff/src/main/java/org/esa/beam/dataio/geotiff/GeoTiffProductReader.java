@@ -17,11 +17,7 @@
 package org.esa.beam.dataio.geotiff;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.sun.media.imageio.plugins.tiff.BaselineTIFFTagSet;
-import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
-import com.sun.media.imageio.plugins.tiff.TIFFField;
-import com.sun.media.imageio.plugins.tiff.TIFFImageReadParam;
-import com.sun.media.imageio.plugins.tiff.TIFFTag;
+import com.sun.media.imageio.plugins.tiff.*;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFImageMetadata;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFRenderedImage;
@@ -59,12 +55,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 public class GeoTiffProductReader extends AbstractProductReader {
 
@@ -280,17 +271,17 @@ public class GeoTiffProductReader extends AbstractProductReader {
         final Datum datum = getDatum(keyEntries);
         if (keyEntries.containsKey(GeoTIFFCodes.ProjectedCSTypeGeoKey)) {
             final int pcsCode = keyEntries.get(GeoTIFFCodes.ProjectedCSTypeGeoKey).getIntValue();
-            final MapProjection projection;
+            MapProjection projection = null;
+            MapInfo mapInfo = null;
             if (isUTM_PCSCode(pcsCode)) {
-                final MapInfo mapInfo = createMapInfoPCS(pcsCode, info);
+                mapInfo = createMapInfoPCS(pcsCode, info);
                 if (mapInfo != null) {
+                    projection = mapInfo.getMapProjection();
                     mapInfo.setSceneWidth(product.getSceneRasterWidth());
                     mapInfo.setSceneHeight(product.getSceneRasterHeight());
-                    product.setGeoCoding(new MapGeoCoding(mapInfo));
-                    return;
                 }
-                return;
             } else if (isUserdefinedPCSCode(pcsCode)) {
+                mapInfo = new MapInfo(projection, 0, 0, 0, 0, 1, 1, datum);
                 if (isProjectionUserDefined(keyEntries)) {
                     if (isProjectionTransverseMercator(keyEntries)) {
                         projection = getProjectionTransverseMercator(keyEntries);
@@ -310,7 +301,6 @@ public class GeoTiffProductReader extends AbstractProductReader {
                 projection = null;
             }
             if (projection != null) {
-                final MapInfo mapInfo = new MapInfo(projection, 0, 0, 0, 0, 1, 1, datum);
                 if (info.containsField(GeoTIFFTagSet.TAG_MODEL_TRANSFORMATION)) {
                     applyTransform(mapInfo, info);
                 } else {
@@ -789,8 +779,8 @@ public class GeoTiffProductReader extends AbstractProductReader {
             final UTMProjection projection = UTM.createProjection(zoneIdx, isUtmSouth);
             float pixelX = 0.5f;
             float pixelY = 0.5f;
-            float easting = 0.0f;
-            float northing = 0.0f;
+            float easting = (float) projection.getMapTransform().getParameterValues()[5];
+            float northing = (float) projection.getMapTransform().getParameterValues()[6];
             if (tiffInfo.containsField(GeoTIFFTagSet.TAG_MODEL_TIE_POINT)) {
                 final TIFFField modelTiePoint = tiffInfo.getField(GeoTIFFTagSet.TAG_MODEL_TIE_POINT);
                 pixelX = modelTiePoint.getAsFloat(0);
