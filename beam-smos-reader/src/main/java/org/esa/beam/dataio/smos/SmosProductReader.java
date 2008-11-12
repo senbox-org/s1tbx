@@ -17,6 +17,9 @@
 package org.esa.beam.dataio.smos;
 
 import com.bc.ceres.binio.Format;
+import com.bc.ceres.binio.CompoundType;
+import com.bc.ceres.binio.Type;
+import com.bc.ceres.binio.SimpleType;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelSource;
@@ -40,34 +43,14 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
-
 
 public class SmosProductReader extends AbstractProductReader {
     private static final String SMOS_DGG_DIR_PROPERTY_NAME = "org.esa.beam.pview.smosDggDir";
 
-    private static class BandDescr {
-        final String bandName;
-        final int btDataIndex;
-
-        private BandDescr(String bandName, int btDataIndex) {
-            this.bandName = bandName;
-            this.btDataIndex = btDataIndex;
-        }
-    }
-
-    private static final Map<String, BandDescr> bandDescrMap;
     private SmosFile smosFile;
 
-    static {
-        bandDescrMap = new HashMap<String, BandDescr>(6);
-        bandDescrMap.put("BT_Value", new BandDescr("BT_Value", 1));
-        bandDescrMap.put("BT_Value_Real", new BandDescr("BT_Value_Real", 1));
-        bandDescrMap.put("BT_Value_Imag", new BandDescr("BT_Value_Imag", 2));
-    }
-
     private static MultiLevelSource dggridMultiLevelSource;
+    private static MultiLevelImage dggridMultiLevelImage;
 
     SmosProductReader(final SmosProductReaderPlugIn productReaderPlugIn) {
         super(productReaderPlugIn);
@@ -87,6 +70,8 @@ public class SmosProductReader extends AbstractProductReader {
                 throw new IOException(MessageFormat.format("Failed to load SMOS DDG ''{0}''", dirPath), e);
             }
         }
+
+        dggridMultiLevelImage = new DefaultMultiLevelImage(dggridMultiLevelSource);
 
         final File file = FileUtils.exchangeExtension(getInputFile(), ".DBL");
         final int productSceneRasterWidth = dggridMultiLevelSource.getImage(0).getWidth();
@@ -119,24 +104,62 @@ public class SmosProductReader extends AbstractProductReader {
                 || "MIR_BWLF1C".equals(formatName)
                 || "MIR_BWSD1C".equals(formatName)
                 || "MIR_BWSF1C".equals(formatName)) {
-            final Band band = product.addBand("BT_Value", ProductData.TYPE_FLOAT32);
-            applyBandProperties(band);
+            addGridCellIdBand(product);
+            CompoundType.Member[] members = SmosFormats.BROWSE_BT_DATA_TYPE.getMembers();
+            for (int fieldIndex = 0; fieldIndex < members.length; fieldIndex++) {
+                CompoundType.Member member = members[fieldIndex];
+                addBand(product, fieldIndex, member.getName(), memberTypeToBandType(member.getType()), "", -999);
+            }
 
         } else if ("MIR_SCLD1C".equals(formatName)
                 || "MIR_SCSD1C".equals(formatName)) {
-            final Band band = product.addBand("BT_Value", ProductData.TYPE_FLOAT32);
-            applyBandProperties(band);
+            addGridCellIdBand(product);
+            addBand(product, 1, "BT_Value", ProductData.TYPE_FLOAT32, "K", -999);
         } else if ("MIR_SCLF1C".equals(formatName)
                 || "MIR_SCSF1C".equals(formatName)) {
-            final Band band1 = product.addBand("BT_Value_Real", ProductData.TYPE_FLOAT32);
-            applyBandProperties(band1);
-            final Band band2 = product.addBand("BT_Value_Imag", ProductData.TYPE_FLOAT32);
-            applyBandProperties(band2);
+            addGridCellIdBand(product);
+            addBand(product, 1, "BT_Value_Real", ProductData.TYPE_FLOAT32, "K", -999);
+            addBand(product, 2, "BT_Value_Imag", ProductData.TYPE_FLOAT32, "K", -999);
         } else {
             throw new IllegalStateException("?");
         }
 
         return product;
+    }
+
+    private static int memberTypeToBandType(Type type) {
+        int bandType;
+        if (type.equals(SimpleType.BYTE)) {
+            bandType = ProductData.TYPE_INT8;
+        }else if (type.equals(SimpleType.UBYTE)) {
+            bandType = ProductData.TYPE_UINT8;
+        }else if (type.equals(SimpleType.SHORT)) {
+            bandType = ProductData.TYPE_INT16;
+        }else if (type.equals(SimpleType.USHORT)) {
+            bandType = ProductData.TYPE_UINT16;
+        }else if (type.equals(SimpleType.INT)) {
+            bandType = ProductData.TYPE_INT32;
+        }else if (type.equals(SimpleType.UINT)) {
+            bandType = ProductData.TYPE_UINT32;
+        }else if (type.equals(SimpleType.FLOAT)) {
+            bandType = ProductData.TYPE_FLOAT32;
+        }else if (type.equals(SimpleType.DOUBLE)) {
+            bandType = ProductData.TYPE_FLOAT64;
+        }else {
+            throw new IllegalStateException("type="+type);
+        }
+        return bandType;
+    }
+
+    private void addBand(Product product, int fieldIndex, String bandName, int bandType, String bandUnit, int noDataValue) {
+        final Band band = product.addBand(bandName, bandType);
+        applyBandProperties(band, bandUnit, fieldIndex, noDataValue);
+    }
+
+    private void addGridCellIdBand(Product product) {
+        Band band = product.addBand("Grid_Cell_ID", ProductData.TYPE_UINT32);
+        band.setDescription("ID of the cell within the SMOS Discrete Global Grid (ISEA9H)");
+        band.setSourceImage(dggridMultiLevelImage);
     }
 
     private GeoCoding createGeoCoding(Product product) {
@@ -151,22 +174,11 @@ public class SmosProductReader extends AbstractProductReader {
         return new MapGeoCoding(mapInfo);
     }
 
-    private MultiLevelImage createSourceImage(final Band band) {
-        final int btDataIndex = bandDescrMap.get(band.getName()).btDataIndex;
-        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(dggridMultiLevelSource.getModel()) {
-
-            @Override
-            public RenderedImage createImage(int level) {
-                return new SmosL1BandOpImage(smosFile,
-                                             band,
-                                             btDataIndex,
-                                             dggridMultiLevelSource.getImage(level),
-                                             ResolutionLevel.create(getModel(), level));
-            }
-        });
+    private MultiLevelImage createBTempSourceImage(final Band band, int fieldIndex, Number noDataValue) {
+        return new DefaultMultiLevelImage(new SmosMultiLevelSourceFloat(band, fieldIndex, noDataValue));
     }
 
-    private void applyBandProperties(Band band) {
+    private void applyBandProperties(Band band, String unit, int fieldIndex, Number noDataValue) {
 
         final float min = 67.0f;
         final float max = 317.0f;
@@ -188,16 +200,17 @@ public class SmosProductReader extends AbstractProductReader {
         final ImageInfo imageInfo = new ImageInfo(def);
         band.setImageInfo(imageInfo);
 
+        band.setUnit(unit);
+
         band.setNoDataValueUsed(true);
-        band.setGeophysicalNoDataValue(-999);
-        band.setSourceImage(createSourceImage(band));
+        band.setNoDataValue(noDataValue.doubleValue());
+        band.setSourceImage(createBTempSourceImage(band, fieldIndex, noDataValue));
     }
 
-//    @Override
-//    public void close() throws IOException {
-//        imageInputStream.close();
-//        super.close();
-//    }
+    @Override
+    public void close() throws IOException {
+        super.close();
+    }
 
     private File getInputFile() {
         final Object input = getInput();
@@ -243,5 +256,29 @@ public class SmosProductReader extends AbstractProductReader {
         final File file = new File(dir, dir.getName() + ".DBL");
         Product product = smosProductReader.readProductNodes(file, null);
         ProductIO.writeProduct(product, "smosproduct_2.dim", null);
+    }
+
+    private class SmosMultiLevelSourceFloat extends AbstractMultiLevelSource {
+        private final Band band;
+        private final int fieldIndex;
+        private final Number noDataValue;
+
+        public SmosMultiLevelSourceFloat(Band band, int fieldIndex, Number noDataValue) {
+            super(dggridMultiLevelSource.getModel());
+            this.band = band;
+            this.fieldIndex = fieldIndex;
+            this.noDataValue = noDataValue;
+        }
+
+        @Override
+            public RenderedImage createImage(int level) {
+            return new SmosL1BandOpImage(smosFile,
+                                         band,
+                                         fieldIndex,
+                                         noDataValue,
+                                         dggridMultiLevelSource.getImage(level),
+                                         ResolutionLevel.create(getModel(), level));
+        }
+
     }
 }

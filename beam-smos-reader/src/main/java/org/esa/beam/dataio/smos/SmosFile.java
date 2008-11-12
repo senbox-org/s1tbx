@@ -33,12 +33,16 @@ import java.util.Arrays;
  */
 public class SmosFile {
 
+    private final File file;
+    private final Format format;
     private final SequenceData gridPointList;
     private int[] gridPointIndexes;
 
     public SmosFile(File file, Format format) throws IOException {
-        System.out.println("SmosFile: file = " + file);
-        System.out.println("SmosFile: format = " + format.getName());
+        this.file = file;
+        this.format = format;
+        System.out.println("SmosFile: file = " + this.file);
+        System.out.println("SmosFile: format = " + this.format.getName());
         RandomAccessFile raf = new RandomAccessFile(file, "r");
         final IOHandler handler = new RandomAccessFileIOHandler(raf);
         final IOContext context = new IOContext(format, handler);
@@ -47,17 +51,48 @@ public class SmosFile {
         initGridPointIndexes();
     }
 
-    public float getMeanBtData(int gridPointIndex, int btDataIndex) throws IOException {
-        CompoundData gridPointEntry = gridPointList.getCompound(gridPointIndex);
-        SequenceData btDataList = gridPointEntry.getSequence(6);
+    public File getFile() {
+        return file;
+    }
+
+    public Format getFormat() {
+        return format;
+    }
+
+    public short getL1CBrowseBtDataShort(int gridPointIndex, int btDataIndex) throws IOException {
+        SequenceData btDataList = getBtDataList(gridPointIndex);
+        CompoundData btData = btDataList.getCompound(0);
+        return btData.getShort(btDataIndex);
+    }
+
+    public int getL1CBrowseBtDataInt(int gridPointIndex, int btDataIndex) throws IOException {
+        SequenceData btDataList = getBtDataList(gridPointIndex);
+        CompoundData btData = btDataList.getCompound(0);
+        return btData.getInt(btDataIndex);
+    }
+
+    public float getL1CBrowseBtDataFloat(int gridPointIndex, int btDataIndex) throws IOException {
+        SequenceData btDataList = getBtDataList(gridPointIndex);
+        CompoundData btData = btDataList.getCompound(0);
+        return btData.getInt(btDataIndex);
+    }
+
+    public float getL1CBtDataFloat(int gridPointIndex, int btDataIndex) throws IOException {
+        SequenceData btDataList = getBtDataList(gridPointIndex);
         final int btDataListCount = btDataList.getElementCount();
         float mean = 0.0f;
+        // todo - collect values around incidence angle 42.5 degrees and average
         int n = Math.min(1, btDataListCount);
         for (int i = 0; i < n; i++) {
             CompoundData btData = btDataList.getCompound(i);
             mean += btData.getFloat(btDataIndex);
         }
         return mean / n;
+    }
+
+    private SequenceData getBtDataList(int gridPointIndex) throws IOException {
+        CompoundData gridPointEntry = gridPointList.getCompound(gridPointIndex);
+        return gridPointEntry.getSequence(6);
     }
 
     public int getGridPointId(int seqNum) {
