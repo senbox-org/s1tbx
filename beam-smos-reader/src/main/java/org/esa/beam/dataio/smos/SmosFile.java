@@ -25,25 +25,21 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
 
-/**
- * Created by marcoz.
- *
- * @author marcoz
- * @version $Revision: $ $Date: $
- */
-public class SmosFile {
+
+class SmosFile {
 
     private final File file;
     private final Format format;
     private final SequenceData gridPointList;
     private int[] gridPointIndexes;
+    private final RandomAccessFile raf;
 
     public SmosFile(File file, Format format) throws IOException {
         this.file = file;
         this.format = format;
         System.out.println("SmosFile: file = " + this.file);
         System.out.println("SmosFile: format = " + this.format.getName());
-        RandomAccessFile raf = new RandomAccessFile(file, "r");
+        this.raf = new RandomAccessFile(file, "r");
         final IOHandler handler = new RandomAccessFileIOHandler(raf);
         final IOContext context = new IOContext(format, handler);
         CompoundData smosBinaryData = context.getData();
@@ -119,5 +115,13 @@ public class SmosFile {
             }
         }
         System.out.println("SmosFile: number of gridPointIndexes != -1: " + n);
+    }
+
+    public void close() {
+        try {
+            raf.close();
+        } catch (IOException e) {
+            // cannot do anything about this
+        }
     }
 }

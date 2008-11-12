@@ -15,15 +15,15 @@ import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 
-public class SmosL1BandOpImage extends SingleBandedOpImage {
+class SmosBandOpImage extends SingleBandedOpImage {
 
     private final SmosFile smosFile;
-    private Band smosBand;
+    private final Band smosBand;
     private final int fieldIndex;
     private final PlanarImage seqnumImage;
-    private Number noDataValue;
+    private final Number noDataValue;
 
-    public SmosL1BandOpImage(SmosFile smosFile,
+    public SmosBandOpImage(SmosFile smosFile,
                              Band smosBand,
                              int fieldIndex,
                              Number noDataValue,
@@ -246,12 +246,6 @@ public class SmosL1BandOpImage extends SingleBandedOpImage {
             srcBandOffset += srcScanlineStride;
             dstBandOffset += dstScanlineStride;
         }
-    }
-
-    @Override
-    public synchronized void dispose() {
-        smosBand = null;
-        super.dispose();
     }
 
     @Override
