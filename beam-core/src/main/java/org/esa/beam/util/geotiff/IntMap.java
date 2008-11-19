@@ -21,15 +21,14 @@ import java.util.HashMap;
 
 public class IntMap {
 
-    private static HashMap _valueMap;
-    private static HashMap _nameMap;
+    private HashMap<String, Integer> _valueMap;
+    private HashMap<Integer, String> _nameMap;
 
-    protected static void init(Field[] fields) {
-        _valueMap = new HashMap();
-        _nameMap = new HashMap();
-        for (int i = 0; i < fields.length; i++) {
+    protected void init(Field[] fields) {
+        _valueMap = new HashMap<String, Integer>();
+        _nameMap = new HashMap<Integer, String>();
+        for (Field field : fields) {
             try {
-                final Field field = fields[i];
                 final String name = field.getName();
                 final Integer value = (Integer) field.get(null);
                 _valueMap.put(name, value);
@@ -40,12 +39,12 @@ public class IntMap {
         }
     }
 
-    public static int getCode(String name) {
-        return (Integer) _valueMap.get(name);
+    public int getCode(String name) {
+        return _valueMap.get(name);
     }
 
-    public static String getName(int code) {
-        return (String) _nameMap.get(new Integer(code));
+    public String getName(int code) {
+        return _nameMap.get(Integer.valueOf(code));
     }
 
     protected IntMap() {

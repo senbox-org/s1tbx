@@ -176,6 +176,9 @@ public class GeoTiffProductReader extends AbstractProductReader {
         if (tiffInfo.isGeotiff()) {
             applyGeoCoding(tiffInfo, product);
         }
+
+        TiffTagToMetadataConverter.addTiffTagsToMetadata(imageMetadata, tiffInfo, product.getMetadataRoot());
+
         product.setFileLocation(inputFile);
         setPreferrdTiling(product);
 
@@ -592,7 +595,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
             lats[arrayIdx] = (float) tiePoints[i + 4];
         }
 
-                String[] names = Utils.findSuitableLatLonNames(product);
+        String[] names = Utils.findSuitableLatLonNames(product);
         final TiePointGrid latGrid = new TiePointGrid(
                 names[0], width, height, (float) xMin, (float) yMin, (float) xDiff, (float) yDiff, lats);
         final TiePointGrid lonGrid = new TiePointGrid(

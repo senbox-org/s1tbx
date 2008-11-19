@@ -1732,11 +1732,17 @@ public class EPSGCodes extends IntMap {
     public static final int Datum_WGS84 = 6326;
     public static final int Datum_Ancienne_Triangulation_Francaise = 6901;
     public static final int Datum_Nord_de_Guerre = 6902;
+    
+    private static EPSGCodes instance = null;
 
-    static {
-        init(EPSGCodes.class.getFields());
+    public static synchronized EPSGCodes getInstance() {
+        if(instance == null) {
+            instance = new EPSGCodes();
+        }
+        return instance;
     }
 
     private EPSGCodes() {
+        init(EPSGCodes.class.getFields());
     }
 }
