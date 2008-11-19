@@ -23,6 +23,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.5.1:<br/>
+        [BEAM-900] BEAM-DIMAP writer fails, if resulting XML has more than 20 indentation levels<br/>
         [BEAM-882] Pin and GCP shapes grow when image is rotated<br/>
         </p>
         <p>Changes in 4.5:<br/>

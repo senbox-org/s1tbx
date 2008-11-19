@@ -39,7 +39,6 @@ public class XmlWriter {
 
     public final static String XML_HEADER_LINE = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>";
 
-    private final static String[] _indents = initIndents();
     private final PrintWriter _pWriter;
     private static XMLOutputter _xmlOutputter;
 
@@ -85,7 +84,7 @@ public class XmlWriter {
                 final BufferedReader br = new BufferedReader(new StringReader(buffer.toString()));
                 String line;
                 while ((line = br.readLine()) != null) {
-                    _pWriter.write(_indents[indent]);
+                    _pWriter.write(getIndentWhiteSpace(indent));
                     _pWriter.write(line);
                     _pWriter.println();
                 }
@@ -101,8 +100,9 @@ public class XmlWriter {
 
     public static String[] createTags(int indent, String name) {
         final String[] tags = new String[2];
-        tags[0] = _indents[indent] + "<" + name + ">";
-        tags[1] = _indents[indent] + "</" + name + ">";
+        final String ws = getIndentWhiteSpace(indent);
+        tags[0] = ws + "<" + name + ">";
+        tags[1] = ws + "</" + name + ">";
         return tags;
     }
 
@@ -110,7 +110,8 @@ public class XmlWriter {
         Debug.assertNotNullOrEmpty(name);
         Debug.assertNotNull(attributes);
         final StringBuffer tag = new StringBuffer();
-        tag.append(_indents[indent]);
+        final String indentWs = getIndentWhiteSpace(indent);
+        tag.append(indentWs);
         tag.append("<");
         tag.append(name);
         for (int i = 0; i < attributes.length; i++) {
@@ -130,7 +131,7 @@ public class XmlWriter {
         tag.append(">");
         final String[] tags = new String[2];
         tags[0] = tag.toString();
-        tags[1] = _indents[indent] + "</" + name + ">";
+        tags[1] = indentWs + "</" + name + ">";
         return tags;
     }
 
@@ -170,14 +171,11 @@ public class XmlWriter {
         }
     }
 
-    private static String[] initIndents() {
-        final String[] indents = new String[20];
-        indents[0] = "";
-        indents[1] = "    "; // four spaces per indent level
-        for (int j = 2; j < indents.length; j++) {
-            indents[j] = indents[j - 1] + indents[1];
-        }
-        return indents;
+    private static String getIndentWhiteSpace(int indent) {
+        final int length = indent * 4;
+        char newStr[] = new char[length];
+        for(int i=0; i<newStr.length; i++) newStr[i]=' ';
+        return new String(newStr);
     }
 
     private static String encode(String text) {
