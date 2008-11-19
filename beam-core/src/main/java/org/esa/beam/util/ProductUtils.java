@@ -42,21 +42,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.IndexColorModel;
-import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
-import java.awt.image.SampleModel;
-import java.awt.image.WritableRaster;
+import java.awt.geom.*;
+import java.awt.image.*;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -1368,7 +1355,7 @@ public class ProductUtils {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #createScatterPlotImage(RasterDataNode,float,float,RasterDataNode,float,float,ROI,int,int,Color,BufferedImage,ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #createScatterPlotImage(org.esa.beam.framework.datamodel.RasterDataNode, float, float, org.esa.beam.framework.datamodel.RasterDataNode, float, float, java.awt.image.RenderedImage, int, int, java.awt.Color, java.awt.image.BufferedImage, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static BufferedImage createScatterPlotImage(final RasterDataNode raster1,
                                                        final float sampleMin1,
