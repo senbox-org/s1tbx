@@ -57,14 +57,6 @@ public class Format {
         this.byteOrder = byteOrder;
     }
 
-    public ByteOrder getByteOrder(Type type) {
-        return byteOrder;
-    }
-
-    public void setByteOrder(Type type, ByteOrder byteOrder) {
-        throw new IllegalStateException("not implemented yet");
-    }
-
     public void addSequenceTypeMapper(CompoundType.Member member, SequenceTypeMapper sequenceTypeMapper) {
         if (!(member.getType() instanceof SequenceType)) {
             throw new IllegalArgumentException("member");
