@@ -16,6 +16,56 @@ class LayerTreeModel extends DefaultTreeModel {
         layer.addListener(new LayerListener());
     }
 
+    public Layer getRootLayer() {
+        return (Layer) ((DefaultMutableTreeNode) getRoot()).getUserObject();
+    }
+
+    public Layer getLayer(String name) {
+        return getLayer(getRootLayer(), name);
+    }
+
+    public Layer getParentLayer(Layer layer) {
+        return getParentLayer(getRootLayer(), layer);
+    }
+
+    public Layer removeLayer(Layer layer) {
+        Layer parentLayer = getParentLayer(layer);
+        if (parentLayer != null) {
+            parentLayer.getChildren().remove(parentLayer);
+        }
+        return parentLayer;
+    }
+
+    private Layer getLayer(Layer rootLayer, String name) {
+        List<Layer> children = rootLayer.getChildren();
+        for (Layer child : children) {
+            if (child.getName().equalsIgnoreCase(name)) {
+                return child;
+            }
+        }
+        for (Layer child : children) {
+            Layer layer = getLayer(child, name);
+            if (layer != null) {
+                return layer;
+            }
+        }
+        return null;
+    }
+
+    private Layer getParentLayer(Layer rootLayer, Layer layer) {
+        List<Layer> children = rootLayer.getChildren();
+        if (children.contains(layer)) {
+            return rootLayer;
+        }
+        for (Layer child : children) {
+            Layer parentLayer = getParentLayer(child, layer);
+            if (parentLayer != null) {
+                return parentLayer;
+            }
+        }
+        return null;
+    }
+
     @Override
     public void insertNodeInto(MutableTreeNode newChild, MutableTreeNode parent, int index) {
         if (newChild instanceof DefaultMutableTreeNode) {
@@ -27,7 +77,7 @@ class LayerTreeModel extends DefaultTreeModel {
                 final Layer parentLayer = (Layer) parentUserObject;
                 final Layer newChildLayer = (Layer) newChildNode.getUserObject();
 
-                if (!isUserObjectOfNodeChild(parentNode, newChildLayer)) {
+                if (!containsLayer(parentNode, newChildLayer)) {
                     super.insertNodeInto(newChild, parent, index);
                     if (!parentLayer.getChildren().contains(newChildLayer)) {
                         parentLayer.getChildren().add(index, newChildLayer);
@@ -59,7 +109,28 @@ class LayerTreeModel extends DefaultTreeModel {
         }
     }
 
-    private static boolean isUserObjectOfNodeChild(DefaultMutableTreeNode parentNode, Layer newChildLayer) {
+    public static DefaultMutableTreeNode getLayerNode(DefaultMutableTreeNode parentNode, String layerName) {
+        if (isLayerNode(parentNode, layerName)) {
+            return parentNode;
+        }
+        //noinspection unchecked
+        final Enumeration<DefaultMutableTreeNode> enumeration = parentNode.children();
+        while (enumeration.hasMoreElements()) {
+            DefaultMutableTreeNode childNode = enumeration.nextElement();
+            DefaultMutableTreeNode someNode = getLayerNode(childNode, layerName);
+            if (someNode != null) {
+                return someNode;
+            }
+        }
+        return null;
+    }
+
+    private static boolean isLayerNode(DefaultMutableTreeNode parentNode, String layerName) {
+        Object o = parentNode.getUserObject();
+        return o instanceof Layer && ((Layer) o).getName().equalsIgnoreCase(layerName);
+    }
+
+    public static boolean containsLayer(DefaultMutableTreeNode parentNode, Layer newChildLayer) {
         //noinspection unchecked
         final Enumeration<DefaultMutableTreeNode> enumeration = parentNode.children();
         while (enumeration.hasMoreElements()) {
@@ -70,7 +141,7 @@ class LayerTreeModel extends DefaultTreeModel {
         return false;
     }
 
-    private static MutableTreeNode createTreeNodes(Layer layer) {
+    public static MutableTreeNode createTreeNodes(Layer layer) {
         final DefaultMutableTreeNode node = new DefaultMutableTreeNode(layer);
 
         for (final Layer childLayer : layer.getChildren()) {

@@ -7,6 +7,8 @@ import com.bc.ceres.glayer.support.LayerStyleListener;
 import com.jidesoft.swing.CheckBoxTree;
 import com.jidesoft.swing.CheckBoxTreeSelectionModel;
 import com.jidesoft.tree.TreeUtils;
+import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -14,23 +16,33 @@ import javax.swing.event.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 
-public class LayerManager {
+public class LayerManagerForm {
 
     private final Layer rootLayer;
-    private final CheckBoxTree layerTree;
-    private final JSlider transparencySlider;
-    private final JComboBox alphaCompositeBox;
-    private final JPanel control;
+    private final LayerProvider layerProvider;
+
+    private CheckBoxTree layerTree;
+    private JSlider transparencySlider;
+    private JComboBox alphaCompositeBox;
+    private JPanel control;
+
 
     private boolean adjusting;
 
-    public LayerManager(final Layer rootLayer) {
+    public LayerManagerForm(final Layer rootLayer, LayerProvider layerProvider) {
         this.rootLayer = rootLayer;
+        this.layerProvider = layerProvider;
+
+        initUI(rootLayer, layerProvider);
+    }
+
+    private void initUI(Layer rootLayer, final LayerProvider layerProvider) {
         layerTree = createCheckBoxTree(rootLayer);
         initSelection(rootLayer);
 
@@ -66,7 +78,7 @@ public class LayerManager {
                 if (path != null) {
                     Layer layer = getLayer(path);
                     adjusting = true;
-                    final Composite composite = (com.bc.ceres.glayer.Composite) alphaCompositeBox.getSelectedItem();
+                    final Composite composite = (Composite) alphaCompositeBox.getSelectedItem();
                     layer.getStyle().setComposite(composite);
                     adjusting = false;
                 }
@@ -105,9 +117,48 @@ public class LayerManager {
             }
         });
 
+
+        AbstractButton addButton = createToolButton("icons/Plus24.gif");
+        addButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                layerProvider.addLayers(SwingUtilities.getWindowAncestor(layerTree),
+                                        getLayerTreeModel(),
+                                        getSelectedLayer());
+            }
+        });
+        AbstractButton removeButton = createToolButton("icons/Minus24.gif");
+        removeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                layerProvider.removeLayers(SwingUtilities.getWindowAncestor(layerTree),
+                                           getLayerTreeModel(),
+                                           getSelectedLayer());
+            }
+        });
+
+        JPanel actionBar = new JPanel(new GridLayout(-1, 1, 2, 2));
+        actionBar.add(addButton);
+        actionBar.add(removeButton);
+        JPanel actionPanel = new JPanel(new BorderLayout());
+        actionPanel.add(actionBar, BorderLayout.NORTH);
+
+
         control = new JPanel(new BorderLayout(4, 4));
         control.add(new JScrollPane(layerTree), BorderLayout.CENTER);
         control.add(sliderPanel, BorderLayout.SOUTH);
+        control.add(actionPanel, BorderLayout.EAST);
+    }
+
+    private LayerTreeModel getLayerTreeModel() {
+        return (LayerTreeModel) layerTree.getModel();
+    }
+
+    public Layer getSelectedLayer() {
+        TreePath path = layerTree.getSelectionPath();
+        Layer selectedLayer = null;
+        if (path != null) {
+            selectedLayer = (Layer) ((DefaultMutableTreeNode) path.getLastPathComponent()).getUserObject();
+        }
+        return selectedLayer;
     }
 
     private void doSelection(DefaultMutableTreeNode treeNode, boolean selected) {
@@ -180,8 +231,8 @@ public class LayerManager {
         checkBoxTree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent event) {
-                Layer layer = getLayer(event.getPath());
-                updateLayerStyleUI(layer);
+                Layer selectedLayer = getLayer(event.getPath());
+                updateLayerStyleUI(selectedLayer);
             }
         });
 
@@ -232,6 +283,10 @@ public class LayerManager {
         for (final Layer childLayer : layer.getChildren()) {
             initSelection(childLayer);
         }
+    }
+
+    public static AbstractButton createToolButton(final String iconPath) {
+        return ToolButtonFactory.createButton(UIUtils.loadImageIcon(iconPath), false);
     }
 }
 

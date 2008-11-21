@@ -21,7 +21,8 @@ import org.esa.beam.visat.VisatApp;
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Container;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,38 +35,38 @@ import java.util.Map;
  */
 public class LayerManagerToolView extends AbstractToolView {
 
-    private JPanel panel;
-    private Map<Container, LayerManager> layerManagerMap;
+    private JPanel control;
+    private Map<Container, LayerManagerForm> layerManagerMap;
 
     @Override
     protected JComponent createControl() {
-        panel = new JPanel(new BorderLayout());
-        layerManagerMap = new HashMap<Container, LayerManager>();
+        control = new JPanel(new BorderLayout());
+        layerManagerMap = new HashMap<Container, LayerManagerForm>();
 
         final ProductSceneView sceneView = VisatApp.getApp().getSelectedProductSceneView();
         setProductSceneView(sceneView);
 
         VisatApp.getApp().addInternalFrameListener(new LayerManagerIFL());
 
-        return panel;
+        return control;
     }
 
     private void setProductSceneView(final ProductSceneView sceneView) {
-        if (panel.getComponentCount() > 0) {
-            panel.remove(0);
+        if (control.getComponentCount() > 0) {
+            control.remove(0);
         }
         if (sceneView != null) {
-            final LayerManager layerManager;
+            final LayerManagerForm layerManagerForm;
             if (layerManagerMap.containsKey(sceneView)) {
-                layerManager = layerManagerMap.get(sceneView);
+                layerManagerForm = layerManagerMap.get(sceneView);
             } else {
-                  layerManager = new LayerManager(sceneView.getRootLayer());
-                layerManagerMap.put(sceneView, layerManager);
+                layerManagerForm = new LayerManagerForm(sceneView.getRootLayer(), new BandLayerProvider(this, sceneView.getProduct()));
+                layerManagerMap.put(sceneView, layerManagerForm);
             }
-            panel.add(layerManager.getControl(), BorderLayout.CENTER);
+            control.add(layerManagerForm.getControl(), BorderLayout.CENTER);
         }
-        panel.validate();
-        panel.repaint();
+        control.validate();
+        control.repaint();
     }
 
     private class LayerManagerIFL extends InternalFrameAdapter {
@@ -100,4 +101,5 @@ public class LayerManagerToolView extends AbstractToolView {
             }
         }
     }
+
 }
