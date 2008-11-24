@@ -16,22 +16,20 @@
  */
 package org.esa.beam.framework.datamodel;
 
+import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.math.MathUtils;
+
+import javax.media.jai.PixelAccessor;
+import javax.media.jai.UnpackedImageData;
+import javax.media.jai.operator.MinDescriptor;
 import java.awt.Rectangle;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.util.concurrent.CancellationException;
-
-import javax.media.jai.PixelAccessor;
-import javax.media.jai.UnpackedImageData;
-import javax.media.jai.operator.MinDescriptor;
-
-import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.math.MathUtils;
-
-import com.bc.ceres.core.Assert;
-import com.bc.ceres.core.ProgressMonitor;
 
 /**
  * Creates an Scatterplot from two given bands.
@@ -151,8 +149,12 @@ public class ScatterPlot {
                 if (maskImage2 != null) {
                     maskImage = maskImage2;
                 }
-                if (maskImage != null && roiImage != null) {
-                    maskImage = MinDescriptor.create(maskImage, roiImage, null);
+                if (maskImage != null) {
+                    if (roiImage != null) {
+                        maskImage = MinDescriptor.create(maskImage, roiImage, null);
+                    }
+                } else if (roiImage != null){
+                    maskImage = roiImage;
                 }
             }
             
