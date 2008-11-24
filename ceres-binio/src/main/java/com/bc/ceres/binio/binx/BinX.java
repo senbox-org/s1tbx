@@ -2,8 +2,6 @@ package com.bc.ceres.binio.binx;
 
 import com.bc.ceres.binio.*;
 import com.bc.ceres.binio.util.SequenceElementCountResolver;
-import static com.bc.ceres.binio.util.TypeBuilder.COMP;
-import static com.bc.ceres.binio.util.TypeBuilder.MEMBER;
 import static com.bc.ceres.binio.util.TypeBuilder.*;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -20,8 +18,9 @@ import java.util.*;
  * See the <a href="http://www.edikt.org/binx/">BinX Project</a>.
  */
 public class BinX {
-    private static final String VAR_SEQUENCE_COMPOUND_PREFIX = "VarSequenceCompound@";
-    private static final String ANONYMOUS_COMPOUND_PREFIX = "AnonymousCompound@";
+    static final String ANONYMOUS_COMPOUND_PREFIX = "AnonymousCompound@";
+    static final String DEFAULT_LENGTH_MEMBER_NAME = "Length";
+    static final String DEFAULT_DATA_MEMBER_NAME = "Data";
 
     private final URI uri;
 
@@ -35,7 +34,6 @@ public class BinX {
     private Namespace namespace;
 
     private static int anonymousCompoundId = 0;
-    private static int varSequenceCompoundId = 0;
 
     public BinX(URI uri) throws IOException, BinXException {
         this.uri = uri;
@@ -133,6 +131,9 @@ public class BinX {
                 if (definitions.containsKey(typeName)) {
                     throw new BinXException(MessageFormat.format("Element ''{0}'': Duplicate type definition ''{1}''", definitionsElement.getName(), typeName));
                 }
+                if (type instanceof CompoundType && type.getName().startsWith(ANONYMOUS_COMPOUND_PREFIX)) {
+                    type = COMP(typeName, ((CompoundType) type).getMembers());
+                }
                 definitions.put(typeName, type);
             }
         }
@@ -140,20 +141,8 @@ public class BinX {
 
     private void parseDataset(Element binxElement) throws BinXException, IOException {
         Element datasetElement = getChild(binxElement, "dataset", true);
-        List children = getChildren(datasetElement, true);
-        ArrayList<CompoundType.Member> members = new ArrayList<CompoundType.Member>(children.size());
-        for (int i = 0; i < children.size(); i++) {
-            Element element = (Element) children.get(i);
-            String memberName = getAttributeValue(element, "varName", true);
-            Type memberType = parseAnyType(element);
-            members.add(MEMBER(memberName, memberType));
-        }
-        if (members.size() == 1 && members.get(0).getType() instanceof CompoundType) {
-            CompoundType.Member member = members.get(0);
-            dataset = COMP(member.getName(), ((CompoundType) member.getType()).getMembers());
-        } else {
-            dataset = COMP("_dataset", members.toArray(new CompoundType.Member[members.size()]));
-        }
+        CompoundType compoundType = parseStruct(datasetElement);
+        dataset = COMP("Dataset", compoundType.getMembers());
     }
 
     private Type parseNonSimpleType(Element typeElement) throws BinXException {
@@ -207,30 +196,23 @@ public class BinX {
     //        <unsignedInteger-32 varName="Microseconds"/>
     //    </struct>
     //
-    private Type parseStruct(Element typeElement) throws BinXException {
+    private CompoundType parseStruct(Element typeElement) throws BinXException {
         List memberElements = getChildren(typeElement, false);
         ArrayList<CompoundType.Member> members = new ArrayList<CompoundType.Member>();
+
         for (int i = 0; i < memberElements.size(); i++) {
             Element memberElement = (Element) memberElements.get(i);
             String memberName = getAttributeValue(memberElement, "varName", true);
             Type memberType = parseAnyType(memberElement);
-            // inline variable-length arrays
-            if (memberType instanceof CompoundType) {
-                CompoundType compoundType = (CompoundType) memberType;
-                if (compoundType.getName().startsWith(VAR_SEQUENCE_COMPOUND_PREFIX)) {
-                    Type counterType = compoundType.getMember(0).getType();
-                    Type listType = compoundType.getMember(1).getType();
-                    members.add(MEMBER(memberName + "_Count", counterType));
-                    members.add(MEMBER(memberName + "_List", listType));
-                    sequenceElementCountResolvers.put((SequenceType) listType, new VariableArrayResolver(i));
-                } else {
-                    members.add(MEMBER(memberName, memberType));
-                }
-            } else {
-                members.add(MEMBER(memberName, memberType));
-            }
+            members.add(MEMBER(memberName, memberType));
         }
-        return COMP(generateCoumpoundName(), members.toArray(new CompoundType.Member[members.size()]));
+
+        // inline single variable-length array
+        if (members.size() == 1 && members.get(0).getType() instanceof CompoundType) {
+            return (CompoundType) members.get(0).getType();
+        } else {
+            return COMP(generateCompoundName(), members.toArray(new CompoundType.Member[members.size()]));
+        }
     }
 
     //    <arrayVariable varName="SM_SWATH" byteOrder="littleEndian">
@@ -241,26 +223,44 @@ public class BinX {
     //        <dim/>
     //    </arrayVariable>
     //
-    private Type parseArrayVariable(Element typeElement) throws BinXException {
+    private CompoundType parseArrayVariable(Element typeElement) throws BinXException {
         Element sizeRefElement = getChild(typeElement, "sizeRef", 0, true);
         Element arrayTypeElement = getChild(typeElement, 1, true);
         Element dimElement = getChild(typeElement, "dim", 2, true);
 
         Element sizeRefTypeElement = getChild(sizeRefElement, true);
-        String sizeRefName = getAttributeValue(sizeRefTypeElement, "varName", true);
-        Type sizeRefType = parseAnyType(sizeRefTypeElement); // must be integer!
+        String sizeRefName = getAttributeValue(sizeRefTypeElement, "varName", false);
+        if (sizeRefName == null) {
+            sizeRefName = DEFAULT_LENGTH_MEMBER_NAME;
+        }
+
+        Type sizeRefType = parseAnyType(sizeRefTypeElement);
+        if (!isIntegerType(sizeRefType)) {
+            throw new BinXException(MessageFormat.format("Element ''{0}'': 'sizeRef' must be an integer type", typeElement.getName()));
+        }
 
         Type arrayType = parseAnyType(arrayTypeElement);
         SequenceType dimType = SEQ(arrayType);
+        sequenceElementCountResolvers.put(dimType, new ArrayVariableResolver());
 
         String dimName = getAttributeValue(dimElement, "name", false);
         if (dimName == null) {
-            dimName = "Data";
+            dimName = DEFAULT_DATA_MEMBER_NAME;
         }
 
-        return COMP(generateVarSequenceCompoundName(),
+        return COMP(generateCompoundName(),
                     MEMBER(sizeRefName, sizeRefType),
                     MEMBER(dimName, dimType));
+    }
+
+    private boolean isIntegerType(Type sizeRefType) {
+        return sizeRefType == SimpleType.BYTE
+                || sizeRefType == SimpleType.UBYTE
+                || sizeRefType == SimpleType.SHORT
+                || sizeRefType == SimpleType.USHORT
+                || sizeRefType == SimpleType.INT
+                || sizeRefType == SimpleType.UINT
+                || sizeRefType == SimpleType.LONG;
     }
 
     private Type parseUnion(Element typeElement) throws BinXException {
@@ -338,26 +338,16 @@ public class BinX {
         return children;
     }
 
-    private String generateCoumpoundName() {
+    private String generateCompoundName() {
         return ANONYMOUS_COMPOUND_PREFIX + anonymousCompoundId++;
     }
-    private String generateVarSequenceCompoundName() {
-        return VAR_SEQUENCE_COMPOUND_PREFIX + varSequenceCompoundId++;
-    }
 
-    private static class VariableArrayResolver extends SequenceElementCountResolver {
-        final int index;
-
-        private VariableArrayResolver(int index) {
-            this.index = index;
-        }
-
-
+    private static class ArrayVariableResolver extends SequenceElementCountResolver {
 
         @Override
         public int getElementCount(CollectionData parent, SequenceType unresolvedSequenceType) throws IOException {
             // in BinX, variable arrays always have their length element at position zero 
-            return parent.getInt(index);
+            return parent.getInt(0);
         }
     }
 }

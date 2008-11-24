@@ -13,7 +13,7 @@ import com.bc.ceres.binio.Type;
 import com.bc.ceres.binio.CompoundType;
 
 
-public class BinXTest extends TestCase {
+public class DBL_SM_XXXX_MIR_SMUDP2_0100_Test extends TestCase {
 
     public void testBinXIO() throws URISyntaxException, IOException, BinXException {
         URL resource = getClass().getResource("DBL_SM_XXXX_MIR_SMUDP2_0100.binXschema.xml");
@@ -34,8 +34,12 @@ public class BinXTest extends TestCase {
         assertTrue(definitions.get("Data_Block_Type") instanceof CompoundType);
 
         assertNotNull(binx.getDataset());
-        assertEquals("Data_Block", binx.getDataset().getName());
+        assertEquals("Dataset", binx.getDataset().getName());
         assertEquals(2, binx.getDataset().getMemberCount());
+        assertEquals("N_Grid_Points", binx.getDataset().getMember(0).getName());
+        assertEquals("Data", binx.getDataset().getMember(1).getName());
+
+        assertEquals("Grid_Point_Data_Type[]", binx.getDataset().getMember(1).getType().getName());
 
         Format format = binx.getFormat("DBL_SM_XXXX_MIR_SMUDP2_0100");
         assertNotNull(format);
