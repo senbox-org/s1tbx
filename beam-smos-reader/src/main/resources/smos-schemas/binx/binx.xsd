@@ -1,0 +1,576 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for binx 1.2 -->
+<!-- binx.xsd, v 1.1 20/01/2005 -->
+<!-- edikt::BinX -->
+<!-- www.edikt.org -->
+<!-- support@edikt.org -->
+<!-- Copyright (c) 2005 The University of Edinburgh. -->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.edikt.org/binx/2003/06/binx" targetNamespace="http://www.edikt.org/binx/2003/06/binx" elementFormDefault="qualified" version="1.1">
+	<xsd:annotation>
+		<xsd:documentation>
+            Schema for eDIKT BinX specification 1.2
+            This schema is for the Schema BinX. There's another schema for DataBinx, DataBinx.xsd.
+            Naming rules:  Types start with a uppercase letter and end with "Type". Elements start with lowercase letters.
+        </xsd:documentation>
+	</xsd:annotation>
+	<!-- root element -->
+	<xsd:element name="binx">
+		<xsd:annotation>
+			<xsd:documentation>a binx document has an optional parameters section, an optional definitions section and a compulsory dataset section</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="parameters" type="ParametersType" minOccurs="0">
+					<xsd:unique name="uniqueParamName">
+						<xsd:selector xpath="param"/>
+						<xsd:field xpath="@name"/>
+					</xsd:unique>
+				</xsd:element>
+				<xsd:element name="definitions" type="DefinitionsType" minOccurs="0">
+					<xsd:unique name="uniqueTypeName">
+						<xsd:selector xpath="defineType"/>
+						<xsd:field xpath="@typeName"/>
+					</xsd:unique>
+				</xsd:element>
+				<xsd:element name="dataset" type="DatasetType">
+					<!--gjlendrino xsd:unique name="uniqueVarName">
+						<xsd:selector xpath="./child::*"/>
+						<xsd:selector xpath="./child:*"/>
+						<xsd:field xpath="@varName"/>
+					</xsd:unique-->
+				</xsd:element>
+			</xsd:sequence>
+			<xsd:attribute name="version" type="VersionType"/>
+			<xsd:attribute name="docType" type="DocumentType"/>
+			<xsd:attributeGroup ref="GlobalAttributes"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:complexType name="ParametersType">
+		<xsd:annotation>
+			<xsd:documentation>parameters element contains one or more param elements only</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="param" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:attribute name="name" type="xsd:string" use="required"/>
+					<xsd:attribute name="value" type="xsd:string" use="required"/>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="DefinitionsType">
+		<xsd:annotation>
+			<xsd:documentation>definitions element contains one or more defineType elements only</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="defineType" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:annotation>
+						<xsd:documentation>struct, array or union only</xsd:documentation>
+					</xsd:annotation>
+					<xsd:choice>
+						<xsd:element ref="struct"/>
+						<xsd:element ref="arrayFixed"/>
+						<xsd:element ref="arrayVariable"/>
+						<xsd:element ref="arrayStreamed"/>
+						<xsd:element ref="union"/>
+					</xsd:choice>
+					<xsd:attribute name="typeName" type="xsd:string" use="required"/>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="DatasetType">
+		<xsd:annotation>
+			<xsd:documentation>dataset element contains one or more elements of any primitive, complex or useType</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element ref="anyData" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="src" type="xsd:string" use="required"/>
+		<xsd:attributeGroup ref="GlobalAttributes"/>
+	</xsd:complexType>
+	<xsd:simpleType name="VersionType">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="3"/>
+			<xsd:maxLength value="5"/>
+			<xsd:pattern value="[1-9]?[0-9].[0-9]?[0-9]"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="DocumentType">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="BinX"/>
+			<xsd:enumeration value="SchemaBinX"/>
+			<xsd:enumeration value="DataBinX"/>
+			<xsd:enumeration value="LinkBinX"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="OrderType">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="bigEndian"/>
+			<xsd:enumeration value="littleEndian"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="FormatType">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="Binary"/>
+			<xsd:enumeration value="Text"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="PrimitiveTypes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="byte-8"/>
+			<xsd:enumeration value="short-16"/>
+			<xsd:enumeration value="integer-32"/>
+			<xsd:enumeration value="long-64"/>
+			<xsd:enumeration value="unsignedByte-8"/>
+			<xsd:enumeration value="unsignedShort-16"/>
+			<xsd:enumeration value="unsignedInteger-32"/>
+			<xsd:enumeration value="unsignedLong-64"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- data types and elements -->
+	<xsd:complexType name="AnyDataType">
+		<xsd:annotation>
+			<xsd:documentation>base type to derive primitive and complex types</xsd:documentation>
+		</xsd:annotation>
+		<xsd:attributeGroup ref="AnyDataAttributes"/>
+	</xsd:complexType>
+	<xsd:complexType name="PrimitiveDataType">
+		<xsd:annotation>
+			<xsd:documentation>integers and floating point numbers</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="AnyDataType">
+				<xsd:attribute name="bits" type="xsd:positiveInteger"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:complexType name="IntegerDataType">
+		<xsd:annotation>
+			<xsd:documentation>integers only, added minValue and maxValue attributes for description only</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="PrimitiveDataType">
+				<xsd:attribute name="minValue" type="xsd:integer"/>
+				<xsd:attribute name="maxValue" type="xsd:integer"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:complexType name="ComplexDataType">
+		<xsd:annotation>
+			<xsd:documentation>for arrays, struct and union, added blockSize attribute</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="AnyDataType">
+				<xsd:attribute name="blockSize" type="xsd:nonNegativeInteger"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="anyData" type="AnyDataType" abstract="true"/>
+	<xsd:element name="primitiveData" type="PrimitiveDataType" abstract="true" substitutionGroup="anyData"/>
+	<xsd:element name="integerData" type="IntegerDataType" abstract="true" substitutionGroup="primitiveData"/>
+	<xsd:element name="complexData" type="ComplexDataType" abstract="true" substitutionGroup="anyData"/>
+	<!-- primitive elements -->
+	<xsd:element name="byte-8" substitutionGroup="integerData">
+		<xsd:annotation>
+			<xsd:documentation>type for SchemaBinX, implemented as xsd:byte [-128..127]</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:restriction base="IntegerDataType">
+					<xsd:attribute name="bits" type="xsd:positiveInteger" fixed="8"/>
+					<xsd:attribute name="minValue" type="xsd:integer" fixed="-128"/>
+					<xsd:attribute name="maxValue" type="xsd:integer" fixed="127"/>
+				</xsd:restriction>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="short-16" substitutionGroup="integerData">
+		<xsd:annotation>
+			<xsd:documentation>type for SchemaBinX, implemented as xsd:short [-32768..32767]</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:restriction base="IntegerDataType">
+					<xsd:attribute name="bits" type="xsd:positiveInteger" fixed="16"/>
+					<xsd:attribute name="minValue" type="xsd:integer" fixed="-32768"/>
+					<xsd:attribute name="maxValue" type="xsd:integer" fixed="32767"/>
+				</xsd:restriction>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="integer-32" substitutionGroup="integerData">
+		<xsd:annotation>
+			<xsd:documentation>type for SchemaBinX, implemented as xsd:int [-2147483648..2147483647]</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:restriction base="IntegerDataType">
+					<xsd:attribute name="bits" type="xsd:positiveInteger" fixed="32"/>
+					<xsd:attribute name="minValue" type="xsd:integer" fixed="-2147483648"/>
+					<xsd:attribute name="maxValue" type="xsd:integer" fixed="2147483647"/>
+				</xsd:restriction>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="long-64" substitutionGroup="integerData">
+		<xsd:annotation>
+			<xsd:documentation>type for SchemaBinX, implemented as xsd:long [-9,223,372,036,854,775,808..9,223,372,036,854,775,807]</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:restriction base="IntegerDataType">
+					<xsd:attribute name="bits" type="xsd:positiveInteger" fixed="64"/>
+					<xsd:attribute name="minValue" type="xsd:integer" fixed="-9223372036854775808"/>
+					<xsd:attribute name="maxValue" type="xsd:integer" fixed="9223372036854775807"/>
+				</xsd:restriction>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="unsignedByte-8" substitutionGroup="integerData">
+		<xsd:annotation>
+			<xsd:documentation>type for SchemaBinX, implemented as xsd:unsignedByte [0..255]</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:restriction base="IntegerDataType">
+					<xsd:attribute name="bits" type="xsd:positiveInteger" fixed="8"/>
+					<xsd:attribute name="minValue" type="xsd:integer" fixed="0"/>
+					<xsd:attribute name="maxValue" type="xsd:integer" fixed="255"/>
+				</xsd:restriction>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="unsignedShort-16" substitutionGroup="integerData">
+		<xsd:annotation>
+			<xsd:documentation>type for SchemaBinX, implemented as xsd:unsignedShort [0..65535]</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:restriction base="IntegerDataType">
+					<xsd:attribute name="bits" type="xsd:positiveInteger" fixed="16"/>
+					<xsd:attribute name="minValue" type="xsd:integer" fixed="0"/>
+					<xsd:attribute name="maxValue" type="xsd:integer" fixed="65535"/>
+				</xsd:restriction>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="unsignedInteger-32" substitutionGroup="integerData">
+		<xsd:annotation>
+			<xsd:documentation>type for SchemaBinX, implemented as xsd:unsignedInt [0..4294967295]</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:restriction base="IntegerDataType">
+					<xsd:attribute name="bits" type="xsd:positiveInteger" fixed="32"/>
+					<xsd:attribute name="minValue" type="xsd:integer" fixed="0"/>
+					<xsd:attribute name="maxValue" type="xsd:integer" fixed="4294967295"/>
+				</xsd:restriction>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="unsignedLong-64" substitutionGroup="integerData">
+		<xsd:annotation>
+			<xsd:documentation>type for SchemaBinX, implemented as xsd:unsignedLong [0..18,446,744,073,709,551,615]</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:restriction base="IntegerDataType">
+					<xsd:attribute name="bits" type="xsd:positiveInteger" fixed="64"/>
+					<xsd:attribute name="minValue" type="xsd:integer" fixed="0"/>
+					<xsd:attribute name="maxValue" type="xsd:integer" fixed="18446744073709551615"/>
+				</xsd:restriction>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="float-32" substitutionGroup="primitiveData">
+		<xsd:annotation>
+			<xsd:documentation>type for SchemaBinX, implemented as xsd:float</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:restriction base="PrimitiveDataType">
+					<xsd:attribute name="bits" type="xsd:positiveInteger" fixed="32"/>
+				</xsd:restriction>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="double-64" substitutionGroup="primitiveData">
+		<xsd:annotation>
+			<xsd:documentation>type for SchemaBinX, implemented as xsd:double</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:restriction base="PrimitiveDataType">
+					<xsd:attribute name="bits" type="xsd:positiveInteger" fixed="64"/>
+				</xsd:restriction>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="extended-80" substitutionGroup="primitiveData">
+		<xsd:annotation>
+			<xsd:documentation>type for SchemaBinX, 80-bit floating point number</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:restriction base="PrimitiveDataType">
+					<xsd:attribute name="bits" type="xsd:positiveInteger" fixed="80"/>
+				</xsd:restriction>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="extended-96" substitutionGroup="primitiveData">
+		<xsd:annotation>
+			<xsd:documentation>type for SchemaBinX, 96-bit floating point number</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:restriction base="PrimitiveDataType">
+					<xsd:attribute name="bits" type="xsd:positiveInteger" fixed="96"/>
+				</xsd:restriction>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="quadruple-128" substitutionGroup="primitiveData">
+		<xsd:annotation>
+			<xsd:documentation>type for SchemaBinX, 128-bit floating point number</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:restriction base="PrimitiveDataType">
+					<xsd:attribute name="bits" type="xsd:positiveInteger" fixed="128"/>
+				</xsd:restriction>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="character-8" substitutionGroup="primitiveData">
+		<xsd:annotation>
+			<xsd:documentation>type for SchemaBinX, Latin-1 character</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:restriction base="PrimitiveDataType">
+					<xsd:attribute name="bits" type="xsd:positiveInteger" fixed="8"/>
+				</xsd:restriction>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="unicode-16" substitutionGroup="primitiveData">
+		<xsd:annotation>
+			<xsd:documentation>type for SchemaBinX, 16-bit unicode</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:restriction base="PrimitiveDataType">
+					<xsd:attribute name="bits" type="xsd:positiveInteger" fixed="16"/>
+				</xsd:restriction>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="unicode-32" substitutionGroup="primitiveData">
+		<xsd:annotation>
+			<xsd:documentation>type for SchemaBinX, 32-bit unicode</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:restriction base="PrimitiveDataType">
+					<xsd:attribute name="bits" type="xsd:positiveInteger" fixed="32"/>
+				</xsd:restriction>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="string" substitutionGroup="primitiveData">
+		<xsd:annotation>
+			<xsd:documentation>type for SchemaBinX, string</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="PrimitiveDataType">
+					<xsd:attribute name="size" type="xsd:positiveInteger"/>
+					<xsd:attribute name="sizeType" type="PrimitiveTypes"/>
+					<xsd:attribute name="delim" type="xsd:string"/>
+				</xsd:extension>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!-- struct type and element -->
+	<xsd:complexType name="StructDataType">
+		<xsd:annotation>
+			<xsd:documentation>type of struct data element, containing a sequence of any data elements</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="ComplexDataType">
+				<xsd:sequence>
+					<xsd:element ref="anyData" maxOccurs="unbounded"/>
+				</xsd:sequence>
+				<xsd:attribute name="dim" type="xsd:positiveInteger"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="struct" type="StructDataType" substitutionGroup="complexData"/>
+	<!-- array related types and elements -->
+	<xsd:complexType name="DimType">
+		<xsd:annotation>
+			<xsd:documentation>basic dim type without index attribute</xsd:documentation>
+		</xsd:annotation>
+		<xsd:attribute name="name" type="xsd:string"/>
+	</xsd:complexType>
+	<xsd:element name="dim" type="dim"/>
+	<xsd:complexType name="dim">
+		<xsd:annotation>
+			<xsd:documentation>recursive dim type, with indexTo attribute</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="DimType">
+				<xsd:sequence>
+					<xsd:element ref="dim" minOccurs="0"/>
+				</xsd:sequence>
+				<xsd:attribute name="indexFrom" type="xsd:nonNegativeInteger"/>
+				<xsd:attribute name="indexTo" type="xsd:string" use="required"/>
+			</xsd:extension>
+			<!-- may be URI or variable -->
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:complexType name="NonFixedDimType">
+		<xsd:annotation>
+			<xsd:documentation>outer dim type, without indexTo attribute, but child dim has</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="DimType">
+				<xsd:sequence>
+					<xsd:element ref="dim" minOccurs="0"/>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:complexType name="FixedArrayType">
+		<xsd:annotation>
+			<xsd:documentation>fixed array, data type and a dim element</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="ComplexDataType">
+				<xsd:sequence>
+					<xsd:element ref="anyData"/>
+					<xsd:element ref="dim"/>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:complexType name="VariableArrayType">
+		<xsd:annotation>
+			<xsd:documentation>variable array, first dim count in sizeRef</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="ComplexDataType">
+				<xsd:sequence>
+					<xsd:element name="sizeRef">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element ref="integerData"/>
+							</xsd:sequence>
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element ref="anyData"/>
+					<xsd:element name="dim" type="NonFixedDimType"/>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:complexType name="StreamedArrayType">
+		<xsd:annotation>
+			<xsd:documentation>streamed array, first dim no count</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="ComplexDataType">
+				<xsd:sequence>
+					<xsd:element ref="anyData"/>
+					<xsd:element name="dim" type="NonFixedDimType"/>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="arrayFixed" type="FixedArrayType" substitutionGroup="complexData"/>
+	<xsd:element name="arrayVariable" type="VariableArrayType" substitutionGroup="complexData"/>
+	<xsd:element name="arrayStreamed" type="StreamedArrayType" substitutionGroup="complexData"/>
+	<!-- union related types and elements -->
+	<xsd:simpleType name="DiscriminantValueType">
+		<xsd:annotation>
+			<xsd:documentation>discriminant value can be a number, character, or a range separated by comma</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="1"/>
+			<xsd:pattern value=".|,[0-9]{1,}|[0-9]{1,}(,([0-9]{1,})?)*"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="UnionDataType">
+		<xsd:annotation>
+			<xsd:documentation>type of union data element, containing a discriminant and a list of conditional elements</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="ComplexDataType">
+				<xsd:sequence>
+					<xsd:element name="discriminant">
+						<xsd:complexType>
+							<xsd:choice>
+								<xsd:element ref="byte-8"/>
+								<xsd:element ref="short-16"/>
+								<xsd:element ref="integer-32"/>
+								<xsd:element ref="long-64"/>
+								<xsd:element ref="unsignedByte-8"/>
+								<xsd:element ref="unsignedShort-16"/>
+								<xsd:element ref="unsignedInteger-32"/>
+								<xsd:element ref="unsignedLong-64"/>
+								<xsd:element ref="character-8"/>
+								<!-- ? -->
+							</xsd:choice>
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="case" maxOccurs="unbounded">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element ref="anyData"/>
+							</xsd:sequence>
+							<xsd:attribute name="discriminantValue" type="DiscriminantValueType" default="0"/>
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="union" type="UnionDataType" substitutionGroup="complexData"/>
+	<!-- useType -->
+	<xsd:element name="useType" substitutionGroup="complexData">
+		<xsd:annotation>
+			<xsd:documentation>element for use a define type</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="ComplexDataType">
+					<xsd:attribute name="typeName" type="xsd:string" use="required"/>
+				</xsd:extension>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!-- attributes in groups -->
+	<xsd:attributeGroup name="GlobalAttributes">
+		<xsd:annotation>
+			<xsd:documentation>Attributes applicable to all elements</xsd:documentation>
+		</xsd:annotation>
+		<xsd:attribute name="byteOrder" type="OrderType" default="littleEndian"/>
+		<xsd:attribute name="dataFormat" type="FormatType" default="Binary"/>
+		<!--
+        <xsd:attribute name="delimiter" type="xsd:string" />
+        <xsd:attribute name="length" type="xsd:nonNegativeInteger" />
+    -->
+	</xsd:attributeGroup>
+	<xsd:attributeGroup name="AnyDataAttributes">
+		<xsd:annotation>
+			<xsd:documentation>Attributes applicable to all data elements</xsd:documentation>
+		</xsd:annotation>
+		<xsd:attributeGroup ref="GlobalAttributes"/>
+		<xsd:attribute name="offset" type="xsd:integer"/>
+		<xsd:attribute name="varName" type="xsd:string"/>
+		<xsd:attribute name="href" type="xsd:anyURI"/>
+	</xsd:attributeGroup>
+</xsd:schema>

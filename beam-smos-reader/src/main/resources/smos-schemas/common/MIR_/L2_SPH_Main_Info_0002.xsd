@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 2.0 07/11/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0002">
+	<xs:include schemaLocation="../common/Basic_Types_0002.xsd"/>
+	<xs:include schemaLocation="../../common/MIR_/L2_SPH_Sub_Satellite_Points_0001.xsd"/>
+	<xs:complexType name="s_double_04p6lf_Unit_Type">
+		<xs:simpleContent>
+			<xs:extension base="double_04p6lf_Type">
+				<xs:attribute name="unit" type="string_Type" default="s"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="s_double_07p3lf_Unit_Type">
+		<xs:simpleContent>
+			<xs:extension base="double_07p3lf_Type">
+				<xs:attribute name="unit" type="string_Type" default="s"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="Time_Info_Type">
+		<xs:sequence>
+			<xs:element name="Precise_Validity_Start" type="string_date_30_Type" default="UTC=2007-01-01T00:00:00.000000"/>
+			<xs:element name="Precise_Validity_Stop" type="string_date_30_Type" default="UTC=2007-01-01T00:00:00.000000"/>
+			<xs:element name="Abs_Orbit_Start" type="integer_s06d_Type" default="+00000"/>
+			<xs:element name="Start_Time_ANX_T" type="s_double_04p6lf_Unit_Type" default="0000.000000"/>
+			<xs:element name="Abs_Orbit_Stop" type="integer_s06d_Type" default="+00000"/>
+			<xs:element name="Stop_Time_ANX_T" type="s_double_04p6lf_Unit_Type" default="0000.000000"/>
+			<xs:element name="UTC_at_ANX" type="string_date_30_Type" default="UTC=2007-01-01T00:00:00.000000"/>
+			<xs:element name="Long_at_ANX" type="deg_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Ascending_Flag" type="string_Ascending_Flag_1_Type" default="A"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

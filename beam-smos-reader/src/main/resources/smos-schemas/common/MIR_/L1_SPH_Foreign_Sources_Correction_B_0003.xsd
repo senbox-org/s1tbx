@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 3.0 15/12/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0003">
+	<xs:include schemaLocation="../common/Basic_Types_0005.xsd"/>
+	<xs:complexType name="Foreign_Sources_Correction_Type">
+		<xs:sequence>
+			<xs:element name="Flat_Correction_Type" type="integer_01d_Flat_Correction_Type_Type" default="1"/>
+			<xs:element name="Direct_Sun_Correction_Type" type="integer_s02d_Direct_Sun_Correction_Type_Type" default="0"/>
+			<xs:element name="Reflected_Sun_Correction_Type" type="integer_s02d_Reflected_Correction_Type_Type" default="1"/>
+			<xs:element name="Reflected_Moon_Correction_Type" type="integer_s02d_Reflected_Correction_Type_Type" default="1"/>
+			<xs:element name="Earth_Contribution_Removed" type="integer_s02d_Contribution_Removed_Type" default="0"/>
+			<xs:element name="Sky_Contribution_Removed" type="integer_s02d_Contribution_Removed_Type" default="0"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

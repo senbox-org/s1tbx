@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 1.0 18/12/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0001">
+	<xs:include schemaLocation="../common/Basic_Types_0005.xsd"/>
+	<xs:include schemaLocation="../common/Complex_Unit_Types_0003.xsd"/>
+	<xs:complexType name="Quality_Information_Type">
+		<xs:sequence>
+			<xs:element name="Overall_Quality" type="integer_01d_Overall_Type" default="0"/>
+			<xs:element name="Percentage_of_Good_Retrieval" type="percentage_10Exp-2_integer_05d_Unit_Type" default="00000"/>
+			<xs:element name="Overall_Quality_Threshold_Low" type="percentage_10Exp-2_integer_05d_Unit_Type" default="00000"/>
+			<xs:element name="Overall_Quality_Threshold_High" type="percentage_10Exp-2_integer_05d_Unit_Type" default="00000"/>
+			<xs:element name="GP_Average_Measurement_percentage" type="double_s04p6lf_Type" default="+000.000000"/>
+			<xs:element name="GP_Average_Valid_Measurement_percentage" type="double_s04p6lf_Type" default="+000.000000"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

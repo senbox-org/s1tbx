@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 1.0 24/02/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0001">
+	<xs:include schemaLocation="../common/Basic_Types_0001.xsd"/>
+	<xs:complexType name="percent_integer_s06d_Unit_Type">
+		<xs:simpleContent>
+			<xs:extension base="integer_s06d_Type">
+				<xs:attribute name="unit" type="string_Type" fixed="10-2 %"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="Grid_Points_integer_04d_Unit_Type">
+		<xs:simpleContent>
+			<xs:extension base="integer_04d_Type">
+				<xs:attribute name="unit" type="string_Type" fixed="Grid Points"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="K_integer_03d_Unit_Type">
+		<xs:simpleContent>
+			<xs:extension base="integer_03d_Type">
+				<xs:attribute name="unit" type="string_Type" fixed="K"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="km_integer_03d_Unit_Type">
+		<xs:simpleContent>
+			<xs:extension base="integer_03d_Type">
+				<xs:attribute name="unit" type="string_Type" fixed="km"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="Quality_Information_C_Type">
+		<xs:sequence>
+			<xs:element name="L1C_Err_Flag" type="integer_01d_Flag_Type" default="0"/>
+			<xs:element name="L1C_Quality" type="percent_integer_s06d_Unit_Type" default="+00000"/>
+			<xs:element name="L1C_Err_Threshold" type="percent_integer_s06d_Unit_Type" default="+00000"/>
+			<xs:element name="L1C_Missing_Points" type="Grid_Points_integer_04d_Unit_Type" default="0000"/>
+			<xs:element name="Radiometric_Accuracy_Scale" type="K_integer_03d_Unit_Type" default="000"/>
+			<xs:element name="Pixel_Footprint_Scale" type="km_integer_03d_Unit_Type" default="000"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 8.0 14/06/2007 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://213.170.46.150/smos/schemas" version="0008" xmlns="http://213.170.46.150/smos/schemas" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:include schemaLocation="../../common/common/Basic_Types_0012.xsd"/>
+	<xs:include schemaLocation="../../common/common/Fixed_Header_0011.xsd"/>
+	<xs:include schemaLocation="../../common/MIR_/L2_Main_Product_Header_0009.xsd"/>
+	<xs:include schemaLocation="../../common/MIR_/L2_SPH_Specific_Product_Location_Salinity_0007.xsd"/>
+	<xs:include schemaLocation="../../common/MIR_/L2_SPH_Main_Info_0009.xsd"/>
+	<xs:include schemaLocation="../../common/MIR_/L2_SPH_Data_Sets_0009.xsd"/>
+	<xs:include schemaLocation="../../common/MIR_/L2_SPH_Quality_Information_Salinity_0006.xsd"/>
+	<xs:complexType name="Specific_Product_Header_Type">
+		<xs:sequence>
+			<xs:element name="Main_Info" type="Main_Info_Type"/>
+			<xs:element name="Quality_Information" type="Quality_Information_Type"/>
+			<xs:element name="L2_Product_Location" type="L2_Product_Location_Type"/>
+			<xs:element name="List_of_Data_Sets" type="List_Data_Sets_Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Variable_Header_Type">
+		<xs:sequence>
+			<xs:element name="Main_Product_Header" type="Main_Product_Header_Type"/>
+			<xs:element name="Specific_Product_Header" type="Specific_Product_Header_Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Header_Type">
+		<xs:sequence>
+			<xs:element name="Fixed_Header" type="Fixed_Header_Type"/>
+			<xs:element name="Variable_Header" type="Variable_Header_Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="Earth_Explorer_Header" type="Header_Type"/>
+</xs:schema>

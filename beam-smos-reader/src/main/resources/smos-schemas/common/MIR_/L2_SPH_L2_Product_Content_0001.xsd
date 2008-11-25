@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 1.0 07/1/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0001">
+	<xs:include schemaLocation="../common/Basic_Types_0002.xsd"/>
+	<xs:complexType name="L2_Product_Content_Type">
+		<xs:sequence>
+			<xs:element name="GP_Average_Measurement_percentage" type="float_03p3f_Type" default="000.000"/>
+			<xs:element name="GP_Average_Valid_Measurement_percentage" type="float_03p3f_Type" default="000.000"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

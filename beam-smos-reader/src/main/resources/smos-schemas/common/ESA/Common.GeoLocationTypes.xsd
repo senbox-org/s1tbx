@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 1.0 30/03/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0001">
+   <xs:include schemaLocation="Common.BasicTypes.xsd"/>
+   <xs:annotation>
+      <xs:documentation>Geodetic data types</xs:documentation>
+   </xs:annotation>
+   <xs:complexType name="Longitude_Type" mixed="false">
+      <xs:simpleContent>
+         <xs:restriction base="Angle_Type">
+            <xs:minInclusive value="-360"/>
+            <xs:maxInclusive value="360"/>
+         </xs:restriction>
+      </xs:simpleContent>
+   </xs:complexType>
+   <!--xs:complexType name="Latitude" mixed="false">
+      <xs:simpleContent>
+         <xs:restriction base="Angle">
+            <xs:minInclusive value="-90"/>
+            <xs:maxInclusive value="90"/>
+         </xs:restriction>
+      </xs:simpleContent>
+   </xs:complexType>
+   <xs:complexType name="Azimuth" mixed="false">
+      <xs:simpleContent>
+         <xs:restriction base="Longitude"/>
+      </xs:simpleContent>
+   </xs:complexType>
+   <xs:complexType name="Elevation" mixed="false">
+      <xs:simpleContent>
+         <xs:restriction base="Latitude"/>
+      </xs:simpleContent>
+   </xs:complexType>
+   <xs:complexType name="Geo_Location_2D">
+      <xs:sequence>
+         <xs:element name="Long" type="Longitude"/>
+         <xs:element name="Lat" type="Latitude"/>
+      </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name="Geo_Location">
+      <xs:complexContent>
+         <xs:extension base="Geo_Location_2D">
+            <xs:sequence>
+               <xs:element name="Alt" type="Height"/>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="Pointing_Direction">
+      <xs:sequence>
+         <xs:element name="Az" type="Azimuth"/>
+         <xs:element name="El" type="Elevation"/>
+      </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name="Polygon">
+      <xs:sequence>
+         <xs:element name="Polygon_Pt" type="Geo_Location_2D" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute name="count" type="xs:nonNegativeInteger" use="required"/>
+   </xs:complexType-->
+</xs:schema>

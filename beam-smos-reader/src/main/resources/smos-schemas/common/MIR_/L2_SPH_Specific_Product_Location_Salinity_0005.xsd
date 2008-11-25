@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 5.0 18/05/2007 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0005">
+	<xs:include schemaLocation="../common/Basic_Types_0010.xsd"/>
+	<xs:include schemaLocation="../common/Complex_Unit_Types_0008.xsd"/>
+	<xs:complexType name="L2_Product_Location_Type">
+		<xs:sequence>
+			<xs:element name="Start_Lat" type="deg_10Exp-6_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Start_Long" type="deg_10Exp-6_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Stop_Lat" type="deg_10Exp-6_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Stop_Long" type="deg_10Exp-6_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Mid_Lat" type="deg_10Exp-6_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Mid_Lon" type="deg_10Exp-6_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Southernmost_Latitude" type="deg_10Exp-6_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Southernmost_Gridpoint_ID" type="integer_s07d_Type" default="+000000"/>
+			<xs:element name="Northernmost_Latitude" type="deg_10Exp-6_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Northernmost_Gridpoint_ID" type="integer_s07d_Type" default="+000000"/>
+			<xs:element name="Easternmost_Longitude" type="deg_10Exp-6_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Easternmost_Gridpoint_ID" type="integer_s07d_Type" default="+000000"/>
+			<xs:element name="Westernmost_Longitude" type="deg_10Exp-6_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Westernmost_Gridpoint_ID" type="integer_s07d_Type" default="+000000"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

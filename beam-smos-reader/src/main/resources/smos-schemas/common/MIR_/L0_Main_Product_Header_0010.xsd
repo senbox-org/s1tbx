@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 10.0 28/05/2007 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0010">
+	<xs:include schemaLocation="../common/Basic_Types_0011.xsd"/>
+	<xs:include schemaLocation="../MIR_/L0_MPH_Orbit_Information_Type_0008.xsd"/>
+	<xs:complexType name="Main_Product_Header_Type">
+		<xs:sequence>
+			<xs:element name="Ref_Doc" type="string_17_Type" default="SO-TN-IDR-GS-0003"/>
+			<xs:element name="Acquisition_Station" type="string_4_Type" default="xxxx"/>
+			<xs:element name="Processing_Centre" type="string_4_Type" default="xxxx"/>
+			<xs:element name="Logical_Proc_Centre" type="string_3_Type" default="xxx"/>
+			<xs:element name="Orbit_Information" type="Orbit_Information_Type"/>
+			<xs:element name="Product_Confidence" type="string_Product_Confidence_Type" default="NOMINAL"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

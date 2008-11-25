@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 2.0 07/1/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0002">
+	<xs:include schemaLocation="../common/Basic_Types_0002.xsd"/>
+	<xs:complexType name="deg_10Exp-6_double_s04p6lf_Unit_Type">
+		<xs:simpleContent>
+			<xs:extension base="double_s04p6lf_Type">
+				<xs:attribute name="unit" type="string_Type" default="10^-6 deg"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="L2_Product_Location_Type">
+		<xs:sequence>
+			<xs:element name="Start_Lat" type="deg_10Exp-6_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Start_Long" type="deg_10Exp-6_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Stop_Lat" type="deg_10Exp-6_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Stop_Long" type="deg_10Exp-6_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Mid_Lat" type="deg_10Exp-6_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Mid_Long" type="deg_10Exp-6_double_s04p6lf_Unit_Type" default="+000.000000"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

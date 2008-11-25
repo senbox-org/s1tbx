@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- binX schema for smos product -->
+
+<binx xmlns="http://www.edikt.org/binx/2003/06/binx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.edikt.org/binx/2003/06/binx binx.xsd">
+	<definitions>
+	<defineType typeName="Science_Descriptors_Type">
+			<struct>
+				<unsignedByte-8 varName="Dg_sky"/>
+			</struct>	
+		</defineType>	
+		<defineType typeName="Product_Confidence_Descriptor_Type">
+			<struct>
+				<unsignedShort-16 varName="Dg_chi2_1"/>
+				<unsignedShort-16 varName="Dg_chi2_2"/>
+				<unsignedShort-16 varName="Dg_chi2_3"/>
+				<unsignedShort-16 varName="Dg_chi2_Acard"/>
+								
+				<unsignedShort-16 varName="Dg_chi2_P_1"/>
+				<unsignedShort-16 varName="Dg_chi2_P_2"/>
+				<unsignedShort-16 varName="Dg_chi2_P_3"/>
+				<unsignedShort-16 varName="Dg_chi2_P_Acard"/>
+								
+				<unsignedShort-16 varName="Dg_quality_SSS_1"/>
+				<unsignedShort-16 varName="Dg_quality_SSS_2"/>
+				<unsignedShort-16 varName="Dg_quality_SSS_3"/>
+				<unsignedShort-16 varName="Dg_quality_Acard"/>				
+
+				<unsignedByte-8 varName="Dg_num_iter_1"/>
+				<unsignedByte-8 varName="Dg_num_iter_2"/>
+				<unsignedByte-8 varName="Dg_num_iter_3"/>				
+				<unsignedByte-8 varName="Dg_num_iter_4"/>	
+				
+				<unsignedByte-8 varName="Dg_num_meas_l1c"/>
+				<unsignedByte-8 varName="Dg_num_meas_valid"/>
+				<unsignedByte-8 varName="Dg_border_fov"/>
+				<unsignedByte-8 varName="Dg_eaf_fov"/>
+				<unsignedByte-8 varName="Dg_af_fov"/>
+				<unsignedByte-8 varName="Dg_sun_tails"/>
+				<unsignedByte-8 varName="Dg_sun_glint_area"/>
+				<unsignedByte-8 varName="Dg_sun_glint_fov"/>
+				
+				<unsignedByte-8 varName="Dg_sun_fov"/>
+								
+				<unsignedByte-8 varName="Dg_sun_glint_L2"/>
+				<unsignedByte-8 varName="Dg_Suspect_ice"/>
+				<unsignedByte-8 varName="Dg_galactic_Noise_Error"/>
+				<unsignedByte-8 varName="Dg_moonglint"/>
+			</struct>	
+		</defineType>	
+
+		<defineType typeName="Geophysical_Parameters_Data_Type">
+			<struct>
+				<float-32 varName="Equiv_ftprt_diam"/>
+				<float-32 varName="Mean_acq_time"/>
+				<float-32 varName="SSS1"/>
+				<float-32 varName="Sigma_SSS1"/>
+				<float-32 varName="SSS2"/>
+				<float-32 varName="Sigma_SSS2"/>
+				<float-32 varName="SSS3"/>
+				<float-32 varName="Sigma_SSS3"/>
+				<!-- 			added parameters	 -->
+				<float-32 varName="A_card"/>	
+				<float-32 varName="Sigma_Acard"/>	
+											
+				<float-32 varName="WS"/>
+				<float-32 varName="Sigma_WS"/>
+				<float-32 varName="SST"/>
+				<float-32 varName="Sigma_SST"/>
+				
+				<float-32 varName="Tb_42.5H"/>
+				<float-32 varName="Sigma_Tb_42.5H"/>
+				<float-32 varName="Tb_42.5V"/>
+				<float-32 varName="Sigma_Tb_42.5V"/>
+				<!-- 			added parameters	 -->		
+				<float-32 varName="Tb_42.5X"/>
+				<float-32 varName="Sigma_Tb_42.5X"/>
+				<float-32 varName="Tb_42.5Y"/>
+				<float-32 varName="Sigma_Tb_42.5Y"/>
+				
+			</struct>	
+		</defineType>	
+		<defineType typeName="Grid_Point_Data_Type">
+			<struct>
+				<unsignedInteger-32 varName="Grid_Point_ID"/>
+				<float-32 varName="Latitude"/>
+				<float-32 varName="Longitude"/>
+				<useType typeName="Geophysical_Parameters_Data_Type" varName="Geophysical_Parameters_Data"/>
+				<unsignedInteger-32 varName="Control_Flags_1"/>
+				<unsignedInteger-32 varName="Control_Flags_2"/>
+				<unsignedInteger-32 varName="Control_Flags_3"/>
+				<unsignedInteger-32 varName="Control_Flags_4"/>
+																
+				<useType typeName="Product_Confidence_Descriptor_Type" varName="Product_Confidence_Descriptor"/>
+				<unsignedInteger-32 varName="Science_Flags_1"/>
+				<unsignedInteger-32 varName="Science_Flags_2"/>
+				<unsignedInteger-32 varName="Science_Flags_3"/>
+				<unsignedInteger-32 varName="Science_Flags_4"/>
+																
+				<useType typeName="Science_Descriptors_Type" varName="Science_Descriptors"/>
+			</struct>	
+		</defineType>	
+		<defineType typeName="Data_Block_Type">
+			<struct>
+				<arrayVariable varName="SSS_SWATH " byteOrder="littleEndian">
+					<sizeRef>
+						<unsignedInteger-32 varName="N_Grid_Points"/>
+					</sizeRef>
+					<useType typeName="Grid_Point_Data_Type"/>
+					<dim/>
+				</arrayVariable>
+			</struct>
+		</defineType>
+	</definitions>
+	<dataset src=" ">
+		<useType typeName="Data_Block_Type" varName="Data_Block"/>
+	</dataset>
+</binx>
+
+

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 9.0 14/06/2007 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://213.170.46.150/smos/schemas" version="0009" xmlns="http://213.170.46.150/smos/schemas" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:include schemaLocation="../common/Basic_Types_0012.xsd"/>
+	<xs:complexType name="Geolocation_Information_Type">
+		<xs:sequence>
+			<xs:element default="000.000" name="Percentage_of_Mixed_Pixels" type="float_03p3f_Type"/>
+			<xs:element default="1" name="Geometric_Correction_Type" type="integer_01d_Geometric_Correction_Type_Type"/>
+			<xs:element default="000" name="Apodisation_Window" type="integer_03d_Apodisation_Window_Type"/>
+			<xs:element default="000000" name="Total_Num_Grid_Points" type="integer_06d_Type"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

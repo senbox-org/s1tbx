@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 1.0 24/02/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0001">
+	<xs:include schemaLocation="../common/Basic_Types_0001.xsd"/>
+	<xs:complexType name="NIR_Calibration_Segment_Type">
+		<xs:sequence>
+			<xs:element name="NIR_Mode" type="string_200_Type"/>
+			<xs:element name="NIR_Sensing_Start_Time" type="string_date_30_Type" default="UTC=2007-01-01T00:00:00.000000"/>
+			<xs:element name="NIR_Sensing_Stop_Time" type="string_date_30_Type" default="UTC=2007-01-01T00:00:00.000000"/>
+			<xs:element name="Average_Physical_Temperatures" type="deg_float_03p3f_Unit_Type" default="000.000"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="List_NIR_Calibration_Segments_Type">
+		<xs:sequence>
+			<xs:element name="NIR_Calibration_Segment" type="NIR_Calibration_Segment_Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="count" type="unsigned_Short_hu_Type" default="0"/>
+	</xs:complexType>
+	<xs:complexType name="NIR_Calibration_Features_Type">
+		<xs:sequence>
+			<xs:element name="List_of_NIR_Calibration_Segments" type="List_NIR_Calibration_Segments_Type"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

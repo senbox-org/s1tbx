@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 1.0 24/02/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0001">
+	<xs:include schemaLocation="../common/Basic_Types_0001.xsd"/>
+	<xs:complexType name="Data_Set_Type">
+		<xs:sequence>
+			<xs:element name="Data_Set_Name" type="string_28_Type" default="xxxxxxxxxxxxxxxxxxxxxxxxxxxx"/>
+			<xs:element name="Data_Set_Type" type="string_Data_Set_Type_1_Type" default="M"/>
+			<xs:element name="Ref_Filename" type="string_60_Type" default="XX_XXXX_XXXXXXXXXX_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"/>
+			<xs:element name="Num_MDR" type="integer_s06d_Type" default="+00000"/>
+			<xs:element name="MDR_Size" type="integer_s08d_Type" default="+0000000"/>
+			<xs:element name="MDR_Offset" type="integer_s08d_Type" default="+0000000"/>
+			<xs:element name="MDR_Qual" type="integer_s06d_Type" default="+00000"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="List_Data_Set_Type">
+		<xs:sequence>
+			<xs:element name="Data_Set" type="Data_Set_Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="count" type="unsigned_Short_hu_Type" use="optional" default="0"/>
+	</xs:complexType>
+</xs:schema>

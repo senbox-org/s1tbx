@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 1.0 30/03/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0001">
+	<xs:include schemaLocation="../../common/common/Basic_Types_0001.xsd"/>
+	<xs:include schemaLocation="../../common/common/Fixed_Header_0001.xsd"/>
+	<xs:include schemaLocation="../../common/MIR_/L2_Main_Product_Header_0001.xsd"/>
+	<xs:include schemaLocation="../../common/MIR_/L2_SPH_Specific_Product_Location_0001.xsd"/>
+	<xs:include schemaLocation="../../common/MIR_/L2_SPH_Main_Info_0001.xsd"/>
+	<xs:include schemaLocation="../../common/MIR_/L2_SPH_Data_Sets_0001.xsd"/>
+	<xs:include schemaLocation="../../common/MIR_/L2_SPH_Specific_Confidence_Quality_0001.xsd"/>
+	<xs:include schemaLocation="../../common/MIR_/L2_SPH_Measurement_Gaps_0001.xsd"/>
+	<xs:include schemaLocation="../../common/MIR_/L2_SPH_Geolocation_Information_0001.xsd"/>
+	<xs:complexType name="Specific_Product_Header_Type">
+		<xs:sequence>
+			<xs:element name="SPH_Descriptor" type="string_28_Type" default="SM_TEST_MIR_BWLD1C_0001"/>
+			<xs:element name="Time_Info" type="Time_Info_Type"/>
+			<xs:element name="Instrument_Config" type="Instrument_Config_Type"/>
+			<xs:element name="Datablock_Schema" type="string_Type" default="DBL_SM_TEST_MIR_BWLD1C_0001.binXschema.xml"/>
+			<xs:element name="Byte_Order" type="string_Byte_Order_4_Type" default="3210"/>
+			<xs:element name="List_of_Data_Set" type="List_Data_Set_Type"/>
+			<xs:element name="Product_Location" type="Product_Location_Type"/>
+			<xs:element name="L1c_Confidence_Data" type="L1c_Confidence_Data_Type"/>
+			<xs:element name="Quality_Information" type="Quality_Information_Type"/>
+			<xs:element name="Measurement_Gaps" type="Measurement_Gaps_Type"/>
+			<xs:element name="Geolocation_Information" type="Geolocation_Information_Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Variable_Header_Type">
+		<xs:sequence>
+			<xs:element name="Main_Product_Header" type="Main_Product_Header_Type"/>
+			<xs:element name="Specific_Product_Header" type="Specific_Product_Header_Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Header_Type">
+		<xs:sequence>
+			<xs:element name="Fixed_Header" type="Fixed_Header_Type"/>
+			<xs:element name="Variable_Header" type="Variable_Header_Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="Earth_Explorer_Header" type="Header_Type"/>
+</xs:schema>

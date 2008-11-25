@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 4.0 07/02/2007 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0004">
+	<xs:include schemaLocation="../common/Basic_Types_0008.xsd"/>
+	<xs:include schemaLocation="../common/Complex_Unit_Types_0006.xsd"/>
+	<xs:complexType name="FWF_Quality_Data_Type">
+		<xs:sequence>
+			<xs:element name="FWF_Time_Delay" type="MHz_1__55p84_integer_s02d_Type" default="0"/>
+			<xs:element name="N_Averaged_Measurements" type="float_1f_Type" default="0"/>
+			<xs:element name="FWF_Quality" type="integer_01d_Flag_Type" default="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="List_FWF_Quality_Datas_Type">
+		<xs:sequence>
+			<xs:element name="FWF_Quality_Data" type="FWF_Quality_Data_Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="count" type="unsigned_Short_hu_Type" default="0"/>
+	</xs:complexType>
+	<xs:complexType name="FWF_Quality_Information_Type">
+		<xs:sequence>
+			<xs:element name="List_of_FWF_Quality_Datas" type="List_FWF_Quality_Datas_Type"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>
