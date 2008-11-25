@@ -30,12 +30,14 @@ public final class SequenceType extends Type {
 
     @Override
     public final String getName() {
-        synchronized (this) {
-            if (name == null) {
-                name = elementType.getName() + (elementCount >= 0 ? "[" + elementCount + "]" : "[]");
+        if (name == null) {
+            synchronized (this) {
+                if (name == null) {
+                    name = elementType.getName() + (elementCount >= 0 ? "[" + elementCount + "]" : "[]");
+                }
             }
-            return name;
         }
+        return name;
     }
 
     @Override
