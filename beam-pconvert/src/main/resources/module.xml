@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-pconvert</symbolicName>
-    <version>1.2.101</version>
+    <version>1.3-SNAPSHOT</version>
     <name>Product Conversion Tool</name>
 
 
@@ -14,7 +14,11 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <changelog>
-        <![CDATA[<p>Changes in 1.2.101:<br/>
+        <![CDATA[
+        <p>Changes in 1.3:<br/>
+          [BEAM-907] PConvert fails with an IOException<br/>
+         </p>
+        <p>Changes in 1.2.101:<br/>
           [BEAM-845] Created JPEG Images have false colours<br/>
          </p>
          ]]>
