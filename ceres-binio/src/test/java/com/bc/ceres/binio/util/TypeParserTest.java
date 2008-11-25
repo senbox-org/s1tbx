@@ -85,27 +85,6 @@ public class TypeParserTest extends TestCase {
         assertEquals(512, sequenceType.getElementCount());
     }
 
-    public void testSimpleVarSequence() throws IOException, ParseException {
-        String code = "" +
-                "Scanline {" +
-                "  int flags;" +
-                "  double[] data;" +
-                "}";
-        Reader reader = new StringReader(code);
-        CompoundType[] types = TypeParser.parseUnit(reader);
-        assertNotNull(types);
-        assertEquals(1, types.length);
-        assertEquals("Scanline", types[0].getName());
-        assertEquals(2, types[0].getMemberCount());
-        assertEquals("flags", types[0].getMember(0).getName());
-        assertSame(SimpleType.INT, types[0].getMember(0).getType());
-        assertEquals("data", types[0].getMember(1).getName());
-        assertTrue(types[0].getMember(1).getType() instanceof SequenceType);
-        SequenceType sequenceType = (SequenceType) types[0].getMember(1).getType();
-        assertSame(SimpleType.DOUBLE, sequenceType.getElementType());
-        assertEquals(-1, sequenceType.getElementCount());
-    }
-
     public void testSequenceOfSequences() throws IOException, ParseException {
         String code = "" +
                 "Matrix {" +
@@ -127,30 +106,49 @@ public class TypeParserTest extends TestCase {
         assertSame(SimpleType.DOUBLE, sequenceType2.getElementType());
     }
 
-//    public void testSimpleVarSequenceWithReference() throws IOException, ParseException {
-//        String code = "" +
-//                "Dataset {" +
-//                "  int lineCount;" +
-//                "  Scanline[$lineCount] scanlines;" +
-//                "}" +
-//                "" +
-//                "Scanline {" +
-//                "  int flags;" +
-//                "  double[512] data;" +
-//                "}";
-//        Reader reader = new StringReader(code);
-//        CompoundType[] types = TypeParser.parseCompoundTypes(reader);
-//        assertNotNull(types);
-//        assertEquals(1, types.length);
-//        assertEquals("Scanline", types[0].getName());
-//        assertEquals(2, types[0].getMemberCount());
-//        assertEquals("flags", types[0].getMember(0).getName());
-//        assertSame(SimpleType.INT, types[0].getMember(0).getType());
-//        assertEquals("scan", types[0].getMember(1).getName());
-//        assertTrue(types[0].getMember(1).getType() instanceof SequenceType);
-//        SequenceType sequenceType = (SequenceType) types[0].getMember(1).getType();
-//        assertSame(SimpleType.DOUBLE, sequenceType.getElementType());
-//        assertEquals(-1, sequenceType.getElementCount());
-//    }
+    public void testSimpleVarSequenceWithReference() throws IOException, ParseException {
+        String code = "" +
+                "Dataset {" +
+                "  int lineCount;" +
+                "  Scanline[lineCount] scanlines;" +
+                "}" +
+                "" +
+                "Scanline {" +
+                "  uint flags;" +
+                "  float[512] data;" +
+                "}";
+        Reader reader = new StringReader(code);
+        CompoundType[] types = TypeParser.parseUnit(reader);
+        assertNotNull(types);
+        assertEquals(2, types.length);
+        CompoundType datasetType = types[0];
+        CompoundType scanlineType = types[1];
+
+        assertEquals("Dataset", datasetType.getName());
+        assertEquals(2, datasetType.getMemberCount());
+        CompoundType.Member datasetMember0 = datasetType.getMember(0);
+        CompoundType.Member datasetMember1 = datasetType.getMember(1);
+
+        assertEquals("lineCount", datasetMember0.getName());
+        assertSame(SimpleType.INT, datasetMember0.getType());
+
+        assertEquals("scanlines", datasetMember1.getName());
+        assertTrue(datasetMember1.getType() instanceof SequenceType);
+        assertSame(scanlineType, ((SequenceType) datasetMember1.getType()).getElementType());
+        assertEquals(-1, ((SequenceType) datasetMember1.getType()).getElementCount());
+
+        assertEquals("Scanline", scanlineType.getName());
+        assertEquals(2, scanlineType.getMemberCount());
+        CompoundType.Member scanlineMember0 = scanlineType.getMember(0);
+        CompoundType.Member scanlineMember1 = scanlineType.getMember(1);
+
+        assertEquals("flags", scanlineMember0.getName());
+        assertSame(SimpleType.UINT, scanlineMember0.getType());
+
+        assertEquals("data", scanlineMember1.getName());
+        assertTrue(scanlineMember1.getType() instanceof SequenceType);
+        assertSame(SimpleType.FLOAT, ((SequenceType) scanlineMember1.getType()).getElementType());
+        assertEquals(512, ((SequenceType) scanlineMember1.getType()).getElementCount());
+    }
 
 }

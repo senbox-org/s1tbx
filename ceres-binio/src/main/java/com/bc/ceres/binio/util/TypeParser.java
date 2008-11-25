@@ -1,6 +1,9 @@
 package com.bc.ceres.binio.util;
 
-import com.bc.ceres.binio.*;
+import com.bc.ceres.binio.CompoundType;
+import com.bc.ceres.binio.SequenceType;
+import com.bc.ceres.binio.SimpleType;
+import com.bc.ceres.binio.Type;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -61,14 +64,15 @@ import java.util.HashMap;
 public class TypeParser {
     private final HashMap<String, SimpleType> simpleTypeMap;
     private final HashMap<String, CompoundType> compoundTypeMap;
-    private final HashMap<String, Typedef> typedefMap;
     private final StreamTokenizer st;
+    private static final String UNRESOLVED = "Unresolved@";
+    private HashMap<SequenceType, String> lengthRefMap;
 
     private TypeParser(StreamTokenizer st) {
         this.st = st;
         this.compoundTypeMap = new HashMap<String, CompoundType>(11);
-        this.typedefMap = new HashMap<String, Typedef>(11);
         this.simpleTypeMap = new HashMap<String, SimpleType>(11);
+        lengthRefMap = new HashMap<SequenceType, String>();
         for (SimpleType type : SimpleType.TYPES) {
             registerSimpleType(type);
         }
@@ -103,21 +107,9 @@ public class TypeParser {
         }
     }
 
-    private CompoundType resolve(CompoundType compoundType) throws ParseException {
-        for (int i = 0; i < compoundType.getMemberCount(); i++) {
-            CompoundType.Member member = compoundType.getMember(i);
-            Type memberType = member.getType();
-            Type resolvedMemberType = resolveType(memberType);
-            compoundType.setMember(i, new CompoundType.Member(member.getName(), resolvedMemberType));
-        }
-        return compoundType;
-    }
-
     private Type resolveType(Type type) throws ParseException {
         Type resolvedType;
-        if (type instanceof Typedef) {
-            resolvedType = resolve((Typedef) type);
-        } else if (type instanceof CompoundType) {
+        if (type instanceof CompoundType) {
             resolvedType = resolve((CompoundType) type);
         } else if (type instanceof SequenceType) {
             resolvedType = resolve((SequenceType) type);
@@ -127,19 +119,25 @@ public class TypeParser {
         return resolvedType;
     }
 
-    private Type resolve(Typedef typedef) throws ParseException {
-        Type resolvedType;
-        if (typedef.getType() != null) {
-            resolvedType = typedef.getType();
-        } else {
-            CompoundType compoundType = compoundTypeMap.get(typedef.getName());
-            if (compoundType == null) {
-                error(st, "Unresolved type: " + typedef.getName() + ".");
+    private CompoundType resolve(CompoundType compoundType) throws ParseException {
+
+        if (compoundType.getName().startsWith(UNRESOLVED)) {
+            String name = compoundType.getName().substring(UNRESOLVED.length());
+            CompoundType resolvedType = compoundTypeMap.get(name);
+            if (resolvedType == null) {
+                throw new ParseException("Unresolved compound type: " + name, -1);
             }
-            typedef.setType(compoundType);
-            resolvedType = compoundType;
+            return resolvedType;
         }
-        return resolvedType;
+
+        for (int i = 0; i < compoundType.getMemberCount(); i++) {
+            CompoundType.Member member = compoundType.getMember(i);
+            Type memberType = member.getType();
+            Type resolvedMemberType = resolveType(memberType);
+            compoundType.setMember(i, new CompoundType.Member(member.getName(), resolvedMemberType));
+        }
+
+        return compoundType;
     }
 
     private Type resolve(SequenceType sequenceType) throws ParseException {
@@ -170,7 +168,7 @@ public class TypeParser {
         if (token != '{') {
             error(st, "'{' expected.");
         }
-        CompoundType.Member[] members = parseMembers();
+        CompoundType.Member[] members = parseMembers(name);
         token = st.nextToken();
         if (token != '}') {
             st.pushBack();
@@ -197,10 +195,10 @@ public class TypeParser {
         return name;
     }
 
-    private CompoundType.Member[] parseMembers() throws IOException, ParseException {
+    private CompoundType.Member[] parseMembers(String parentCompoundName) throws IOException, ParseException {
         ArrayList<CompoundType.Member> list = new ArrayList<CompoundType.Member>(32);
         while (true) {
-            final CompoundType.Member member = parseMember();
+            final CompoundType.Member member = parseMember(parentCompoundName);
             if (member == null) {
                 break;
             }
@@ -209,8 +207,8 @@ public class TypeParser {
         return list.toArray(new CompoundType.Member[list.size()]);
     }
 
-    private CompoundType.Member parseMember() throws IOException, ParseException {
-        Type type = parseType();
+    private CompoundType.Member parseMember(String parentCompoundName) throws IOException, ParseException {
+        Type type = parseType(parentCompoundName);
         if (type == null) {
             return null;
         }
@@ -226,7 +224,7 @@ public class TypeParser {
         return new CompoundType.Member(name, type);
     }
 
-    private Type parseType() throws IOException, ParseException {
+    private Type parseType(String parentCompoundName) throws IOException, ParseException {
         String name = parseName();
         if (name == null) {
             return null;
@@ -235,12 +233,9 @@ public class TypeParser {
         if (type == null) {
             type = compoundTypeMap.get(name);
             if (type == null) {
-                type = typedefMap.get(name);
-                if (type == null) {
-                    Typedef typedef = new Typedef(name);
-                    typedefMap.put(name, typedef);
-                    type = typedef;
-                }
+                CompoundType unresolvedType = new CompoundType(UNRESOLVED + name, new CompoundType.Member[0]);
+                compoundTypeMap.put(name, unresolvedType);
+                type = unresolvedType;
             }
         }
         while (true) {
@@ -257,11 +252,21 @@ public class TypeParser {
                         error(st, "']' expected.");
                     }
                     type = new SequenceType(type, elementCount);
-                } else if (token == ']') {
-                    type = new SequenceType(type);
+                } else if (token == StreamTokenizer.TT_WORD) {
+                    String lengthRefName = st.sval;
+                    if (lengthRefName.indexOf('.') == -1) {
+                        lengthRefName = parentCompoundName + "." + lengthRefName;
+                    }
+                    SequenceType stype = new SequenceType(type);
+                    lengthRefMap.put(stype, lengthRefName);
+                    type = stype;
+                    token = st.nextToken();
+                    if (token != ']') {
+                        error(st, "']' expected.");
+                    }
                 } else {
                     st.pushBack();
-                    error(st, "Element count expected after '['.");
+                    error(st, "Array length specifier expected after '['.");
                 }
             } else {
                 st.pushBack();
@@ -273,54 +278,5 @@ public class TypeParser {
 
     private static void error(StreamTokenizer st, String s) throws ParseException {
         throw new ParseException(s, st.lineno());
-    }
-
-    private static class Typedef extends Type {
-        private final String name;
-        private Type type;
-
-        private Typedef(String name) {
-            this.name = name;
-        }
-
-        public Type getType() {
-            return type;
-        }
-
-        public void setType(Type type) {
-            this.type = type;
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public int getSize() {
-            return type != null ? type.getSize() : -1;
-        }
-
-        @Override
-        public boolean isSimpleType() {
-            return type != null && type.isSimpleType();
-        }
-
-        @Override
-        public boolean isSequenceType() {
-            return type != null && type.isSequenceType();
-        }
-
-        @Override
-        public boolean isCompoundType() {
-            return type != null && type.isCompoundType();
-        }
-
-        @Override
-        public void visit(TypeVisitor visitor) {
-            if (type != null) {
-                type.visit(visitor);
-            }
-        }
     }
 }
