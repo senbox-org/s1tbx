@@ -16,10 +16,10 @@
  */
 package org.esa.beam.dataio.smos;
 
-import com.bc.ceres.binio.Format;
 import com.bc.ceres.binio.CompoundType;
-import com.bc.ceres.binio.Type;
+import com.bc.ceres.binio.Format;
 import com.bc.ceres.binio.SimpleType;
+import com.bc.ceres.binio.Type;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelSource;
@@ -53,55 +53,55 @@ public class SmosProductReader extends AbstractProductReader {
 
     SmosProductReader(final SmosProductReaderPlugIn productReaderPlugIn) {
         super(productReaderPlugIn);
-        registerBandInfo("Grid_Cell_ID", "", 0.0, 1.0, -999, 0, 1<<31,
-              "Unique identifier for Earth fixed grid point (ISEA4H9 DGG).");
-        registerBandInfo("Flags", "", 0.0, 1.0, -1, 0, 1<<16,
-              "L1c flags applicable to the pixel for this " +
-                "particular integration time.");
-        registerBandInfo("BT_Value", "K", 0.0, 1.0,  -999, 50.0, 350.0,
-              "Brightness temperature measurement over current " +
-                "Earth fixed grid point, obtained by DFT " +
-                "interpolation from L1b data.");
-        registerBandInfo("BT_Value_Real", "K", 0.0, 1.0,  -999, 50.0, 350.0,
-              "Real component of HH, HV or VV polarisation brightness temperature measurement over current " +
-                "Earth fixed grid point, obtained by DFT " +
-                "interpolation from L1b data.");
-        registerBandInfo("BT_Value_Imag", "K", 0.0, 1.0,  -999, 50.0, 350.0,
-              "Imaginary component of HH, HV or VV polarisation brightness temperature measurement over current " +
-                "Earth fixed grid point, obtained by DFT " +
-                "interpolation from L1b data.");
-        registerBandInfo("Radiometric_Accuracy_of_Pixel", "K", 0.0, 50.0/(1<<16),  -999, 0.0, 5.0,
-              "Error accuracy measurement in the Brightness " +
-                "Temperature presented in the previous field, " +
-                "extracted in the direction of the pixel.");
-        registerBandInfo("Incidence_Angle", "deg", 0.0, 90.0/(1<<16),  -999, 0.0, 90.0,
-              "Incidence angle value corresponding to the " +
-                      "measured BT value over current Earth fixed " +
-                      "grid point. Measured as angle from pixel to " +
-                      "S/C with respect to the pixel local normal (0º " +
-                      "if vertical)");
-        registerBandInfo("Azimuth_Angle", "deg", 0.0, 360.0/(1<<16),  -999, 0.0, 360.0,
-              "Azimuth angle value corresponding to the " +
-                "measured BT value over current Earth fixed " +
-                "grid point. Measured as angle in pixel local " +
-                "tangent plane from projected pixel to S/C " +
-                "direction with respect to the local North (0º if" +
-                "local North)");
-        registerBandInfo("Faraday_Rotation_Angle", "deg", 0.0, 360.0/(1<<16),  -999, 0.0, 360.0,
-              "Faraday rotation angle value corresponding " +
-                      "to the measured BT value over current Earth " +
-                      "fixed grid point. It is computed as the rotation " +
-                      "from antenna to surface (i.e. inverse angle)");
-        registerBandInfo("Geometric_Rotation_Angle", "deg", 0.0, 360.0/(1<<16),  -999, 0.0, 360.0,
-              "Geometric rotation angle value " +
-                      "corresponding to the measured BT value " +
-                      "over current Earth fixed grid point. It is " +
-                      "computed as the rotation from surface to " +
-                      "antenna (i.e. direct angle).");
-        registerBandInfo("Footprint_Axis1", "km", 0.0, 100.0/(1<<16),  -999, 20.0, 30.0,
-              "Elliptical footprint major semi-axis value.");
-        registerBandInfo("Footprint_Axis2", "km", 0.0, 100.0/(1<<16),  -999, 20.0, 30.0,
-              "Elliptical footprint minor semi-axis value.");
+        registerBandInfo("Grid_Cell_ID", "", 0.0, 1.0, -999, 0, 1 << 31,
+                         "Unique identifier for Earth fixed grid point (ISEA4H9 DGG).");
+        registerBandInfo("Flags", "", 0.0, 1.0, -1, 0, 1 << 16,
+                         "L1c flags applicable to the pixel for this " +
+                                 "particular integration time.");
+        registerBandInfo("BT_Value", "K", 0.0, 1.0, -999, 50.0, 350.0,
+                         "Brightness temperature measurement over current " +
+                                 "Earth fixed grid point, obtained by DFT " +
+                                 "interpolation from L1b data.");
+        registerBandInfo("BT_Value_Real", "K", 0.0, 1.0, -999, 50.0, 350.0,
+                         "Real component of HH, HV or VV polarisation brightness temperature measurement over current " +
+                                 "Earth fixed grid point, obtained by DFT " +
+                                 "interpolation from L1b data.");
+        registerBandInfo("BT_Value_Imag", "K", 0.0, 1.0, -999, 50.0, 350.0,
+                         "Imaginary component of HH, HV or VV polarisation brightness temperature measurement over current " +
+                                 "Earth fixed grid point, obtained by DFT " +
+                                 "interpolation from L1b data.");
+        registerBandInfo("Radiometric_Accuracy_of_Pixel", "K", 0.0, 50.0 / (1 << 16), -999, 0.0, 5.0,
+                         "Error accuracy measurement in the Brightness " +
+                                 "Temperature presented in the previous field, " +
+                                 "extracted in the direction of the pixel.");
+        registerBandInfo("Incidence_Angle", "deg", 0.0, 90.0 / (1 << 16), -999, 0.0, 90.0,
+                         "Incidence angle value corresponding to the " +
+                                 "measured BT value over current Earth fixed " +
+                                 "grid point. Measured as angle from pixel to " +
+                                 "S/C with respect to the pixel local normal (0º " +
+                                 "if vertical)");
+        registerBandInfo("Azimuth_Angle", "deg", 0.0, 360.0 / (1 << 16), -999, 0.0, 360.0,
+                         "Azimuth angle value corresponding to the " +
+                                 "measured BT value over current Earth fixed " +
+                                 "grid point. Measured as angle in pixel local " +
+                                 "tangent plane from projected pixel to S/C " +
+                                 "direction with respect to the local North (0º if" +
+                                 "local North)");
+        registerBandInfo("Faraday_Rotation_Angle", "deg", 0.0, 360.0 / (1 << 16), -999, 0.0, 360.0,
+                         "Faraday rotation angle value corresponding " +
+                                 "to the measured BT value over current Earth " +
+                                 "fixed grid point. It is computed as the rotation " +
+                                 "from antenna to surface (i.e. inverse angle)");
+        registerBandInfo("Geometric_Rotation_Angle", "deg", 0.0, 360.0 / (1 << 16), -999, 0.0, 360.0,
+                         "Geometric rotation angle value " +
+                                 "corresponding to the measured BT value " +
+                                 "over current Earth fixed grid point. It is " +
+                                 "computed as the rotation from surface to " +
+                                 "antenna (i.e. direct angle).");
+        registerBandInfo("Footprint_Axis1", "km", 0.0, 100.0 / (1 << 16), -999, 20.0, 30.0,
+                         "Elliptical footprint major semi-axis value.");
+        registerBandInfo("Footprint_Axis2", "km", 0.0, 100.0 / (1 << 16), -999, 20.0, 30.0,
+                         "Elliptical footprint minor semi-axis value.");
     }
 
     @Override
@@ -164,7 +164,7 @@ public class SmosProductReader extends AbstractProductReader {
             addGridCellIdBand(product);
             addSmosBands(product, SmosFormats.F1C_BT_DATA_TYPE);
         } else {
-            throw new IllegalStateException("Illegal SMOS format: "+formatName);
+            throw new IllegalStateException("Illegal SMOS format: " + formatName);
         }
 
         return product;
@@ -186,22 +186,22 @@ public class SmosProductReader extends AbstractProductReader {
         int bandType;
         if (type.equals(SimpleType.BYTE)) {
             bandType = ProductData.TYPE_INT8;
-        }else if (type.equals(SimpleType.UBYTE)) {
+        } else if (type.equals(SimpleType.UBYTE)) {
             bandType = ProductData.TYPE_UINT8;
-        }else if (type.equals(SimpleType.SHORT)) {
+        } else if (type.equals(SimpleType.SHORT)) {
             bandType = ProductData.TYPE_INT16;
-        }else if (type.equals(SimpleType.USHORT)) {
+        } else if (type.equals(SimpleType.USHORT)) {
             bandType = ProductData.TYPE_UINT16;
-        }else if (type.equals(SimpleType.INT)) {
+        } else if (type.equals(SimpleType.INT)) {
             bandType = ProductData.TYPE_INT32;
-        }else if (type.equals(SimpleType.UINT)) {
+        } else if (type.equals(SimpleType.UINT)) {
             bandType = ProductData.TYPE_UINT32;
-        }else if (type.equals(SimpleType.FLOAT)) {
+        } else if (type.equals(SimpleType.FLOAT)) {
             bandType = ProductData.TYPE_FLOAT32;
-        }else if (type.equals(SimpleType.DOUBLE)) {
+        } else if (type.equals(SimpleType.DOUBLE)) {
             bandType = ProductData.TYPE_FLOAT64;
-        }else {
-            throw new IllegalStateException("type="+type);
+        } else {
+            throw new IllegalStateException("type=" + type);
         }
         return bandType;
     }
@@ -295,16 +295,6 @@ public class SmosProductReader extends AbstractProductReader {
                                                                  destWidth,
                                                                  destHeight));
         data.getDataElements(destOffsetX, destOffsetY, destWidth, destHeight, destBuffer.getElems());
-
-//        Assert.state(sourceOffsetX == destOffsetX, "sourceOffsetX != destOffsetX");
-//        Assert.state(sourceOffsetY == destOffsetY, "sourceOffsetY != destOffsetY");
-//        Assert.state(sourceStepX == 1, "sourceStepX != 1");
-//        Assert.state(sourceStepY == 1, "sourceStepY != 1");
-//        Assert.state(sourceWidth == destWidth, "sourceWidth != destWidth");
-//        Assert.state(sourceHeight == destHeight, "sourceHeight != destHeight");
-//
-
-
     }
 
     public static void main(String[] args) throws IOException {
@@ -316,6 +306,7 @@ public class SmosProductReader extends AbstractProductReader {
         ProductIO.writeProduct(product, "smosproduct_2.dim", null);
     }
 
+    // todo - use this metadata in ceres-binio 
     private class BandInfo {
         String name;
         String unit = "";
