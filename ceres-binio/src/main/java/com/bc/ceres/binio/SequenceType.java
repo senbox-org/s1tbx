@@ -5,7 +5,7 @@ package com.bc.ceres.binio;
  * all having the same data type.
  */
 public final class SequenceType extends Type {
-    private String name;
+    private volatile String name;
     private final Type elementType;
     private final int elementCount;
     private final int size;
