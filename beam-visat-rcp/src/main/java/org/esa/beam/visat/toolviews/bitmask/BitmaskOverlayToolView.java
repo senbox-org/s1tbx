@@ -18,6 +18,7 @@ package org.esa.beam.visat.toolviews.bitmask;
 
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.Parameter;
@@ -27,11 +28,10 @@ import org.esa.beam.framework.param.validators.NumberValidator;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.framework.ui.application.support.AbstractToolView;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
@@ -54,14 +54,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Rectangle;
-import java.awt.Container;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -159,12 +152,12 @@ public class BitmaskOverlayToolView extends AbstractToolView {
     }
 
     private void apply() {
-        getWindowAncestor().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        getPaneWindow().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         applyActions();
         applyImageUpdate();
         updateUIState();
         applyButton.setEnabled(false);
-        getWindowAncestor().setCursor(Cursor.getDefaultCursor());
+        getPaneWindow().setCursor(Cursor.getDefaultCursor());
     }
 
     private void applyActions() {
@@ -198,8 +191,6 @@ public class BitmaskOverlayToolView extends AbstractToolView {
             }
         }
         raster.setBitmaskOverlayInfo(bitmaskOverlayInfo);
-        // todo - only needed by ProductSceneView42
-//        visatApp.updateImage(productSceneView);
     }
 
     private void newBitmaskDef() {
@@ -248,16 +239,16 @@ public class BitmaskOverlayToolView extends AbstractToolView {
 
         if (isBitmaskDefOfAnotherProduct(bitmaskDefOld)) {
             showInformationDialog("The bitmask '"
-                                  + bitmaskDefOld.getName()
-                                  + "' does not belong to the selected\n"
-                                  + "product and cannot be removed.");              /*I18N*/
+                    + bitmaskDefOld.getName()
+                    + "' does not belong to the selected\n"
+                    + "product and cannot be removed.");              /*I18N*/
             return;
         }
         if (isBitmaskDefReferencedByOtherNodes(bitmaskDefOld)) {
             showInformationDialog("The bitmask '"
-                                  + bitmaskDefOld.getName()
-                                  + "' is still referenced by other\n"
-                                  + "images and cannot be removed.");           /*I18N*/
+                    + bitmaskDefOld.getName()
+                    + "' is still referenced by other\n"
+                    + "images and cannot be removed.");           /*I18N*/
             return;
         }
 
@@ -269,7 +260,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         fileChooser.setDialogTitle("Import Bitmask Definition");                /*I18N*/
         fileChooser.setFileFilter(getOrCreateBitmaskDefinitionFileFilter());
         fileChooser.setCurrentDirectory(getIODir());
-        final int result = fileChooser.showOpenDialog(getWindowAncestor());
+        final int result = fileChooser.showOpenDialog(getPaneWindow());
         if (result == JFileChooser.APPROVE_OPTION) {
             final File file = fileChooser.getSelectedFile();
             if (file != null) {
@@ -297,7 +288,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         fileChooser.setDialogTitle("Import Bitmask Definitions From XML File");         /*I18N*/
         fileChooser.setFileFilter(getOrCreateBitmaskDefinitionXmlFileFilter());
         fileChooser.setCurrentDirectory(getIODir());
-        if (fileChooser.showOpenDialog(getWindowAncestor()) == JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showOpenDialog(getPaneWindow()) == JFileChooser.APPROVE_OPTION) {
             final File file = fileChooser.getSelectedFile();
             if (file != null) {
                 setIODir(file.getAbsoluteFile().getParentFile());
@@ -345,8 +336,8 @@ public class BitmaskOverlayToolView extends AbstractToolView {
                 doNewAction(bitmaskDef, bitmaskDefTable.getModel().getRowCount());
             }
         } else {
-            JOptionPane.showMessageDialog(getWindowAncestor(), "Failed to import bitmask definition:\n" +
-                                                               "Invalid expression: " + bitmaskDef.getExpr());     /*I18N*/
+            JOptionPane.showMessageDialog(getPaneWindow(), "Failed to import bitmask definition:\n" +
+                    "Invalid expression: " + bitmaskDef.getExpr());     /*I18N*/
         }
     }
 
@@ -372,7 +363,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         fileChooser.setFileFilter(getOrCreateBitmaskDefinitionFileFilter());
         fileChooser.setCurrentDirectory(getIODir());
         fileChooser.setSelectedFile(new File(getIODir(), bitmaskDef.getName()));
-        final int result = fileChooser.showSaveDialog(getWindowAncestor());
+        final int result = fileChooser.showSaveDialog(getPaneWindow());
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             if (file != null) {
@@ -406,7 +397,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         fileChooser.setDialogTitle("Export All Bitmask Definitions");               /*I18N*/
         fileChooser.setFileFilter(getOrCreateBitmaskDefinitionXmlFileFilter());
         fileChooser.setCurrentDirectory(getIODir());
-        final int result = fileChooser.showSaveDialog(getWindowAncestor());
+        final int result = fileChooser.showSaveDialog(getPaneWindow());
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             if (file != null) {
@@ -434,8 +425,8 @@ public class BitmaskOverlayToolView extends AbstractToolView {
     private void addProductManagerBMDs(final Product referenceProduct) {
         final ProductManager productManager = referenceProduct.getProductManager();
         if (productManager != null) {
-            for (int i = 0; i < productManager.getNumProducts(); i++) {
-                final Product product = productManager.getProductAt(i);
+            for (int i = 0; i < productManager.getProductCount(); i++) {
+                final Product product = productManager.getProduct(i);
                 if (product != referenceProduct) {
                     addProductBMDs(product, referenceProduct);
                 }
@@ -472,9 +463,9 @@ public class BitmaskOverlayToolView extends AbstractToolView {
     private void toggleShowCompatibleBitmasks() {
         boolean rebuild = true;
         if (getNumActions() > 0) {
-            final int status = JOptionPane.showConfirmDialog(getWindowAncestor(),
+            final int status = JOptionPane.showConfirmDialog(getPaneWindow(),
                                                              "This will undo your last changes to the bitmask list.\n"
-                                                             + "Continue anyway?",
+                                                                     + "Continue anyway?",
                                                              getDescriptor().getTitle() + " - Confirm",
                                                              JOptionPane.YES_NO_OPTION);      /*I18N*/
             if (status == JOptionPane.NO_OPTION) {
@@ -514,8 +505,8 @@ public class BitmaskOverlayToolView extends AbstractToolView {
 
         boolean moreProducts = false;
         if (getSelectedProduct() != null
-            && getSelectedProduct().getProductManager() != null
-            && getSelectedProduct().getProductManager().getNumProducts() > 1) {
+                && getSelectedProduct().getProductManager() != null
+                && getSelectedProduct().getProductManager().getProductCount() > 1) {
             moreProducts = true;
         }
         showCompatibleCheck.setEnabled(moreProducts);
@@ -571,14 +562,15 @@ public class BitmaskOverlayToolView extends AbstractToolView {
 
 
         final ProductExpressionPane exprPane = ProductExpressionPane.createBooleanExpressionPane(new Product[]{product},
-                                                                                                 product, VisatApp.getApp().getPreferences());
+                                                                                                 product,
+                                                                                                 VisatApp.getApp().getPreferences());
         exprPane.setCode(expr);
         final BitmaskDefEditPane bitmaskDefPane = new BitmaskDefEditPane(
                 new BitmaskDef(name, desc, expr, color, transp));
         exprPane.setTopAccessory(bitmaskDefPane);
 
         while (true) {
-            if (exprPane.showModalDialog(getWindowAncestor(), dialogTitle) == ModalDialog.ID_OK) {
+            if (exprPane.showModalDialog(getPaneWindow(), dialogTitle) == ModalDialog.ID_OK) {
                 name = bitmaskDefPane.getName();
                 desc = bitmaskDefPane.getDescription();
                 expr = exprPane.getCode();
@@ -586,7 +578,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
                 transp = bitmaskDefPane.getTransparency();
                 if (mustNotExist && bitmaskDefTable.getRowIndex(name) != -1) {
                     showErrorDialog("A bitmask with the name '" + name + "' already exists.\n" +
-                                    "Please choose another one.");                  /*I18N*/
+                            "Please choose another one.");                  /*I18N*/
                     continue;
                 }
                 if (expr == null || !product.isCompatibleBandArithmeticExpression(expr)) {
@@ -730,14 +722,14 @@ public class BitmaskOverlayToolView extends AbstractToolView {
     }
 
     private void showErrorDialog(final String message) {
-        JOptionPane.showMessageDialog(getWindowAncestor(),
+        JOptionPane.showMessageDialog(getPaneWindow(),
                                       message,
                                       getDescriptor().getTitle() + " - Error",
                                       JOptionPane.ERROR_MESSAGE);           /*I18N*/
     }
 
     private void showInformationDialog(final String message) {
-        JOptionPane.showMessageDialog(getWindowAncestor(),
+        JOptionPane.showMessageDialog(getPaneWindow(),
                                       message,
                                       getDescriptor().getTitle() + " - Information",
                                       JOptionPane.INFORMATION_MESSAGE);     /*I18N*/
@@ -761,6 +753,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         if (owner == null) {
             return false;
         }
+        //noinspection SimplifiableIfStatement
         if (owner.getProduct() == null) {
             return false;
         }
@@ -825,7 +818,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
                 if (event.getPropertyName().equalsIgnoreCase(Product.PROPERTY_NAME_NAME)) {
                     final ProductNode sourceNode = event.getSourceNode();
                     if ((productSceneView.isRGB() && sourceNode == productSceneView.getProduct())
-                        || sourceNode == productSceneView.getRaster()) {
+                            || sourceNode == productSceneView.getRaster()) {
                         updateTitle();
                     }
                 }
@@ -833,11 +826,13 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         };
     }
 
+    @Override
     public JComponent createControl() {
         bitmaskDefTable = new BitmaskDefTable();
         bitmaskDefTable.setName("bitmaskDefTable");
         bitmaskDefTable.getModel().addTableModelListener(new TableModelListener() {
 
+            @Override
             public void tableChanged(final TableModelEvent e) {
                 applyButton.setEnabled(true);
             }
@@ -996,7 +991,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         final AbstractButton helpButton = createButton("icons/Help24.gif");
         helpButton.setName("helpButton");
         if (getDescriptor().getHelpId() != null) {
-            HelpSys.enableHelpKey(this.getContentPane(), getDescriptor().getHelpId());
+            HelpSys.enableHelpKey(getPaneControl(), getDescriptor().getHelpId());
             HelpSys.enableHelpOnButton(helpButton, getDescriptor().getHelpId());
         }
 
@@ -1072,6 +1067,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
             _destIndex = destIndex;
         }
 
+        @Override
         public void doAction(final Product product) {
             Debug.trace("Applying action: move bitmask '" + _bitmaskDef.getName() + "' to index " + _destIndex);
             product.moveBitmaskDef(_bitmaskDef, _destIndex);
@@ -1086,6 +1082,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
             _bitmaskDefOld = bitmaskDefOld;
         }
 
+        @Override
         public void doAction(final Product product) {
             Debug.trace("Applying action: remove bitmask '" + _bitmaskDefOld.getName() + "'");
             product.removeBitmaskDef(_bitmaskDefOld);
@@ -1100,6 +1097,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
             _bitmaskDefNew = bitmaskDefNew;
         }
 
+        @Override
         public void doAction(final Product product) {
             Debug.trace("Applying action: add bitmask '" + _bitmaskDefNew.getName() + "'");
             product.addBitmaskDef(_bitmaskDefNew);
@@ -1138,7 +1136,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
             public void parameterValueChanged(final ParamChangeEvent event) {
                 updateUIState();
                 firePropertyChange(event.getParameter().getName(), event.getOldValue(),
-                        event.getParameter().getValue());
+                                   event.getParameter().getValue());
             }
         };
         public BitmaskDef _bitmask;
