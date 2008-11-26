@@ -78,15 +78,13 @@ public class BitmaskOverlayToolView extends AbstractToolView {
     private static final String BMD_FILE_EXTENSION = ".bmd";
     private static final String BMD_FILE_EXTENSION_XML = ".bmdx";
 
-    private VisatApp visatApp;
+    private final List<BmdAction> bitmaskDefActions;
+    private final ProductNodeListener productNodeListener;
+
     private ProductSceneView productSceneView;
-    private PropertyMap propertyMap;
-
-    private List<BmdAction> bitmaskDefActions;
-
     private BitmaskDefTable bitmaskDefTable;
-    private JCheckBox showCompatibleCheck;
 
+    private JCheckBox showCompatibleCheck;
     private AbstractButton applyButton;
     private AbstractButton newButton;
     private AbstractButton copyButton;
@@ -97,15 +95,12 @@ public class BitmaskOverlayToolView extends AbstractToolView {
     private AbstractButton importNButton;
     private AbstractButton exportNButton;
     private AbstractButton moveUpButton;
-    private AbstractButton moveDownButton;
 
+    private AbstractButton moveDownButton;
     private BeamFileFilter beamFileFilter;
     private BeamFileFilter beamFileFilterXml;
-    private ProductNodeListener productNodeListener;
 
     public BitmaskOverlayToolView() {
-        this.visatApp = VisatApp.getApp();
-        this.propertyMap = visatApp.getPreferences();
         this.bitmaskDefActions = new ArrayList<BmdAction>();
         this.productNodeListener = createProductNodeListener();
     }
@@ -381,7 +376,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             if (file != null) {
-                if (!visatApp.promptForOverwrite(file)) {
+                if (!VisatApp.getApp().promptForOverwrite(file)) {
                     return;
                 }
                 setIODir(file.getAbsoluteFile().getParentFile());
@@ -415,14 +410,14 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             if (file != null) {
-                if (!visatApp.promptForOverwrite(file)) {
+                if (!VisatApp.getApp().promptForOverwrite(file)) {
                     return;
                 }
                 setIODir(file.getAbsoluteFile().getParentFile());
                 file = FileUtils.ensureExtension(file, BMD_FILE_EXTENSION_XML);
                 try {
                     final XmlWriter xmlWriter = new XmlWriter(file);
-                    final String[] tags = XmlWriter.createTags(0, visatApp.getAppName() + "-BITMASKS");
+                    final String[] tags = XmlWriter.createTags(0, VisatApp.getApp().getAppName() + "-BITMASKS");
                     xmlWriter.println(tags[0]);
                     for (final BitmaskDef bitmaskDef : bitmaskDefs) {
                         bitmaskDef.writeXML(xmlWriter, 1);
@@ -533,15 +528,15 @@ public class BitmaskOverlayToolView extends AbstractToolView {
 
 
     private void setIODir(final File dir) {
-        if (propertyMap != null) {
-            propertyMap.setPropertyString("bitmask.io.dir", dir.getPath());
+        if (VisatApp.getApp().getPreferences() != null) {
+            VisatApp.getApp().getPreferences().setPropertyString("bitmask.io.dir", dir.getPath());
         }
     }
 
     private File getIODir() {
         File dir = SystemUtils.getUserHomeDir();
-        if (propertyMap != null) {
-            dir = new File(propertyMap.getPropertyString("bitmask.io.dir", dir.getPath()));
+        if (VisatApp.getApp().getPreferences() != null) {
+            dir = new File(VisatApp.getApp().getPreferences().getPropertyString("bitmask.io.dir", dir.getPath()));
         }
         return dir;
     }
@@ -576,7 +571,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
 
 
         final ProductExpressionPane exprPane = ProductExpressionPane.createBooleanExpressionPane(new Product[]{product},
-                                                                                                 product, propertyMap);
+                                                                                                 product, VisatApp.getApp().getPreferences());
         exprPane.setCode(expr);
         final BitmaskDefEditPane bitmaskDefPane = new BitmaskDefEditPane(
                 new BitmaskDef(name, desc, expr, color, transp));
@@ -839,7 +834,6 @@ public class BitmaskOverlayToolView extends AbstractToolView {
     }
 
     public JComponent createControl() {
-
         bitmaskDefTable = new BitmaskDefTable();
         bitmaskDefTable.setName("bitmaskDefTable");
         bitmaskDefTable.getModel().addTableModelListener(new TableModelListener() {
@@ -1050,12 +1044,12 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         contentPane1.add(BorderLayout.CENTER, mainPane);
         contentPane1.add(BorderLayout.EAST, buttonPane);
 
-        setProductSceneView(visatApp.getSelectedProductSceneView());
+        setProductSceneView(VisatApp.getApp().getSelectedProductSceneView());
 
         // Add an internal frame listsner to VISAT so that we can update our
         // bitmask overlay window with the information of the currently activated
         // product scene view.
-        visatApp.addInternalFrameListener(new BitmaskOverlayIFL());
+        VisatApp.getApp().addInternalFrameListener(new BitmaskOverlayIFL());
 
 
         updateUIState();
