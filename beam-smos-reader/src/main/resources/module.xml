@@ -22,5 +22,20 @@
         <optional>true</optional>
     </dependency>
 
-    <categories>Reader,VISAT</categories>
+    <categories>Reader,SMOS</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <id>importSmosProduct</id>
+            <helpId/>
+            <formatName>SMOS</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>Import SMOS Product...</text>
+            <mnemonic/>
+            <shortDescr>Import a SMOS data product or product subset.</shortDescr>
+            <description>Import a SMOS data product or product subset.</description>
+        </action>
+    </extension>
+
 </module>
