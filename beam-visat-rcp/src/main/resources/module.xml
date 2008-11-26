@@ -10,7 +10,11 @@
     </description>
 
     <changelog>
-        <![CDATA[<p>Changes in 4.5:<br/>
+        <![CDATA[
+        <p>Changes in 4.6:<br/>
+          [BEAM-782] Using spatial subset when creating new arithmetic band causes exception<br/>
+        </p>
+        <p>Changes in 4.5:<br/>
           [BEAM-876] Remove "Load Data" and "Unload Data" actions from context menu<br/>
           [BEAM-875] The drop down list of projection in the map projection dialog should be sorted alphabetically<br/>
           [BEAM-873] Provide a new navigation control within the scene view<br/>

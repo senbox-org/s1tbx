@@ -57,66 +57,66 @@ public class BandArithmetikDialog extends ModalDialog {
     private static final String _PARAM_NAME_PRODUCT = "product";
     private static final String _PARAM_NAME_BAND = "targetBand";
 
-    private final VisatApp _visatApp;
-    private Parameter _paramUseNewBand;
-    private Parameter _paramUseNewProduct;
-    private Parameter _paramProduct;
-    private Parameter _paramBand;
-    private Parameter _paramExpression;
-    private Parameter _paramNoDataValue;
-    private Product _targetProduct;
-    private Band _targetBand;
-    private ProductNodeList<Product> _productsList;
-    private JButton _newProductButton;
-    private JButton _newBandButton;
-    private String _oldSelectedProduct;
-    private String _oldSelectedBand;
-    private JButton _editExpressionButton;
-    private Parameter _paramNoDataValueUsed;
-    private Parameter _paramWarnOnErrors;
-    private Parameter _paramCreateVirtualBand;
+    private final VisatApp visatApp;
+    private Parameter paramUseNewBand;
+    private Parameter paramUseNewProduct;
+    private Parameter paramProduct;
+    private Parameter paramBand;
+    private Parameter paramExpression;
+    private Parameter paramNoDataValue;
+    private Product targetProduct;
+    private Band targetBand;
+    private ProductNodeList<Product> productsList;
+    private JButton newProductButton;
+    private JButton newBandButton;
+    private String oldSelectedProduct;
+    private String oldSelectedBand;
+    private JButton editExpressionButton;
+    private Parameter paramNoDataValueUsed;
+    private Parameter paramWarnOnErrors;
+    private Parameter paramCreateVirtualBand;
 
     public BandArithmetikDialog(final VisatApp visatApp, Product currentProduct, ProductNodeList<Product> productsList,
                                 String helpId) {
-        super(visatApp.getMainFrame(), "Band Arithmetic", ModalDialog.ID_OK_CANCEL_HELP, helpId); /* I18N */
+        super(visatApp.getMainFrame(), "Band Arithmetic", ID_OK_CANCEL_HELP, helpId); /* I18N */
         Guardian.assertNotNull("currentProduct", currentProduct);
         Guardian.assertNotNull("productsList", productsList);
         Guardian.assertGreaterThan("productsList must be not empty", productsList.size(), 0);
-        _visatApp = visatApp;
-        _targetProduct = currentProduct;
-        _productsList = productsList;
+        this.visatApp = visatApp;
+        targetProduct = currentProduct;
+        this.productsList = productsList;
         initParameter();
         createUI();
     }
 
     public Product getTargetProduct() {
-        return _targetProduct;
+        return targetProduct;
     }
 
     public ProductNodeList getProductsList() {
-        return _productsList;
+        return productsList;
     }
 
     public void setTargetProduct(Product targetProduct, ProductNodeList<Product> productsList) {
         Guardian.assertNotNull("targetProduct", targetProduct);
         Guardian.assertNotNull("productsList", productsList);
         Guardian.assertGreaterThan("productsList must be not empty", productsList.size(), 0);
-        _targetProduct = targetProduct;
-        _productsList = productsList;
+        this.targetProduct = targetProduct;
+        this.productsList = productsList;
 
-        _paramProduct.getProperties().setValueSetBound(false);
-        _paramProduct.setValueSet(_productsList.getDisplayNames());
-        if ((Boolean) _paramUseNewProduct.getValue()) {
-            _paramProduct.setValue("", null);
+        paramProduct.getProperties().setValueSetBound(false);
+        paramProduct.setValueSet(this.productsList.getDisplayNames());
+        if ((Boolean) paramUseNewProduct.getValue()) {
+            paramProduct.setValue("", null);
         } else {
-            _paramProduct.setValue(_targetProduct.getDisplayName(), null);
-            _paramProduct.getProperties().setValueSetBound(true);
+            paramProduct.setValue(this.targetProduct.getDisplayName(), null);
+            paramProduct.getProperties().setValueSetBound(true);
         }
 
-        _paramBand.setValueSet(getTargetBandNames());
+        paramBand.setValueSet(getTargetBandNames());
         if (isUseNewBand()) {
-            _targetBand = null;
-            _paramBand.setValue("", null);
+            targetBand = null;
+            paramBand.setValue("", null);
         }
         updateUIState(null);
     }
@@ -143,21 +143,21 @@ public class BandArithmetikDialog extends ModalDialog {
 
     @Override
     protected void onOK() {
-        final boolean checkInvalids = (Boolean) _paramWarnOnErrors.getValue();
-        final boolean noDataValueUsed = (Boolean) _paramNoDataValueUsed.getValue();
-        final float noDataValue = (Float) _paramNoDataValue.getValue();
+        final boolean checkInvalids = (Boolean) paramWarnOnErrors.getValue();
+        final boolean noDataValueUsed = (Boolean) paramNoDataValueUsed.getValue();
+        final float noDataValue = (Float) paramNoDataValue.getValue();
 
-        _targetBand.setImageInfo(null);
-        _targetBand.setGeophysicalNoDataValue(noDataValue);
-        _targetBand.setNoDataValueUsed(noDataValueUsed);
+        targetBand.setImageInfo(null);
+        targetBand.setGeophysicalNoDataValue(noDataValue);
+        targetBand.setNoDataValueUsed(noDataValueUsed);
         if (getCreateVirtualBand()) {
-            final VirtualBand virtualBand = (VirtualBand) _targetBand;
-            virtualBand.setExpression(_paramExpression.getValueAsText());
+            final VirtualBand virtualBand = (VirtualBand) targetBand;
+            virtualBand.setExpression(paramExpression.getValueAsText());
             virtualBand.setCheckInvalids(checkInvalids);
         } else {
-            if (!_targetBand.hasRasterData()) {
-                final int rasterSize = _targetBand.getRasterWidth() * _targetBand.getRasterHeight();
-                final int type = _targetBand.getDataType();
+            if (!targetBand.hasRasterData()) {
+                final int rasterSize = targetBand.getRasterWidth() * targetBand.getRasterHeight();
+                final int type = targetBand.getDataType();
                 final int requiredMemory = rasterSize * ProductData.getElemSize(type);
                 final Runtime runtime = Runtime.getRuntime();
                 final long usedMemory = runtime.totalMemory() - runtime.freeMemory();
@@ -169,7 +169,7 @@ public class BandArithmetikDialog extends ModalDialog {
                                      "The amount of required memory is equal or greater than the available memory.\n\n" +
                                      String.format("Available memory: %.1f MB\n", availableMemory / megabyte) +
                                      String.format("Required memory: %.1f MB", requiredMemory / megabyte);
-                    _visatApp.showErrorDialog(message); /*I18N*/
+                    visatApp.showErrorDialog(message); /*I18N*/
                     BandArithmetikDialog.super.onOK();
                     return;
                 }
@@ -179,7 +179,7 @@ public class BandArithmetikDialog extends ModalDialog {
                                      String.format("Available memory: %.1f MB\n", availableMemory / megabyte) +
                                      String.format("Required memory: %.1f MB\n\n", requiredMemory / megabyte) +
                                      "Do you really want to create the image?";
-                    final int answer = _visatApp.showQuestionDialog(message, null);/*I18N*/
+                    final int answer = visatApp.showQuestionDialog(message, null);/*I18N*/
                     if (answer != JOptionPane.YES_OPTION) {
                         BandArithmetikDialog.super.onOK();
                         return;
@@ -187,46 +187,46 @@ public class BandArithmetikDialog extends ModalDialog {
                 }
             }
         }
-        if (!_targetProduct.containsBand(_targetBand.getName())) {
-            _targetProduct.addBand(_targetBand);
+        if (!targetProduct.containsBand(targetBand.getName())) {
+            targetProduct.addBand(targetBand);
         }
 
-        final String expression = _paramExpression.getValueAsText();
-        _targetBand.setSynthetic(true);
+        final String expression = paramExpression.getValueAsText();
+        targetBand.setSynthetic(true);
 
         SwingWorker swingWorker = new SwingWorker() {
-            final ProgressMonitor pm = new DialogProgressMonitor(getJDialog(), "Band Arithmetic",
+            private final ProgressMonitor pm = new DialogProgressMonitor(getJDialog(), "Band Arithmetic",
                                                                  Dialog.ModalityType.APPLICATION_MODAL);
 
-            String _errorMessage;
-            int _numInvalids;
+            private String errorMessage;
+            private int numInvalids;
 
             @Override
             protected Object doInBackground() throws Exception {
-                _errorMessage = null;
+                errorMessage = null;
                 try {
                     if (!getCreateVirtualBand()) {
-                        _numInvalids = _targetBand.computeBand(expression,
+                        numInvalids = targetBand.computeBand(expression,
                                                                getCompatibleProducts(),
                                                                checkInvalids,
                                                                noDataValueUsed,
                                                                noDataValue,
                                                                pm);
-                        _targetBand.fireProductNodeDataChanged();
+                        targetBand.fireProductNodeDataChanged();
                     }
 
                 } catch (IOException e) {
                     Debug.trace(e);
-                    _errorMessage = "The band could not be created.\nAn I/O error occurred:\n" + e.getMessage();  /*I18N*/
+                    errorMessage = "The band could not be created.\nAn I/O error occurred:\n" + e.getMessage();  /*I18N*/
                 } catch (ParseException e) {
                     Debug.trace(e);
-                    _errorMessage = "The band could not be created.\nAn expression parse error occurred:\n" + e.getMessage(); /*I18N*/
+                    errorMessage = "The band could not be created.\nAn expression parse error occurred:\n" + e.getMessage(); /*I18N*/
                 } catch (EvalException e) {
                     Debug.trace(e);
-                    _errorMessage = "The band could not be created.\nAn expression evaluation error occured:\n" + e.getMessage();/*I18N*/
+                    errorMessage = "The band could not be created.\nAn expression evaluation error occured:\n" + e.getMessage();/*I18N*/
                 } catch(Exception e){
                     Debug.trace(e);
-                    _errorMessage = "The band could not be created.:\n" + e.getMessage();/*I18N*/
+                    errorMessage = "The band could not be created.:\n" + e.getMessage();/*I18N*/
                 } finally {
                 }
                 return null;
@@ -236,19 +236,19 @@ public class BandArithmetikDialog extends ModalDialog {
             @Override
             public void done() {
                 boolean ok = true;
-                if (_errorMessage != null) {
-                    showErrorDialog(_errorMessage);
+                if (errorMessage != null) {
+                    showErrorDialog(errorMessage);
                     ok = false;
                 } else if (pm.isCanceled()) {
                     showErrorDialog("Band arithmetic has been canceled.");/*I18N*/
                     ok = false;
-                } else if (_numInvalids > 0 && checkInvalids) {
-                    int numPixelsTotal = _targetBand.getRasterWidth() * _targetBand.getRasterHeight();
-                    int percentage = MathUtils.floorInt(100.0 * _numInvalids / numPixelsTotal);
+                } else if (numInvalids > 0 && checkInvalids) {
+                    int numPixelsTotal = targetBand.getRasterWidth() * targetBand.getRasterHeight();
+                    int percentage = MathUtils.floorInt(100.0 * numInvalids / numPixelsTotal);
                     if (percentage == 0) {
                         percentage = 1;
                     }
-                    String message = _numInvalids + " of " + numPixelsTotal + " pixels (< " + percentage + "%) are invalid due to arithmetic exceptions.\n"; /*I18N*/
+                    String message = numInvalids + " of " + numPixelsTotal + " pixels (< " + percentage + "%) are invalid due to arithmetic exceptions.\n"; /*I18N*/
                     if (noDataValueUsed) {
                         message += "These pixels have been set to " + noDataValue + ".\n\n";  /*I18N*/
                     } else {
@@ -272,16 +272,16 @@ public class BandArithmetikDialog extends ModalDialog {
     private void finalOnOk(boolean ok) {
         if (ok) {
             BandArithmetikDialog.super.onOK();
-            _targetBand.setModified(true);
-            if (_visatApp.getPreferences().getPropertyBool(VisatApp.PROPERTY_KEY_AUTO_SHOW_NEW_BANDS, true)
-                    && !_visatApp.hasRasterProductSceneView(_targetBand)) {
-                _visatApp.openProductSceneView(_targetBand);
+            targetBand.setModified(true);
+            if (visatApp.getPreferences().getPropertyBool(VisatApp.PROPERTY_KEY_AUTO_SHOW_NEW_BANDS, true)
+                    && !visatApp.hasRasterProductSceneView(targetBand)) {
+                visatApp.openProductSceneView(targetBand);
             } else {
-                _visatApp.updateImages(new Band[]{_targetBand});
+                visatApp.updateImages(new Band[]{targetBand});
             }
         } else {
             if (isUseNewBand()) {
-                _targetProduct.removeBand(_targetProduct.getBand(_targetBand.getName()));
+                targetProduct.removeBand(targetProduct.getBand(targetBand.getName()));
             }
         }
     }
@@ -289,17 +289,17 @@ public class BandArithmetikDialog extends ModalDialog {
     @Override
     protected void onCancel() {
         super.onCancel();
-        _targetProduct = null;
+        targetProduct = null;
     }
 
     @Override
     protected boolean verifyUserInput() {
-        if (_targetProduct == null) {
+        if (targetProduct == null) {
             showErrorDialog("Please either select or create a target product."); /*I18N*/
             return false;
         }
 
-        if (_targetBand == null) {
+        if (targetBand == null) {
             showErrorDialog("Please either select or create a target band.");  /*I18N*/
             return false;
         }
@@ -310,24 +310,24 @@ public class BandArithmetikDialog extends ModalDialog {
         }
 
         if (isTargetBandReferencedInExpression()) {
-            showErrorDialog("You cannot reference the target band '" + _targetBand.getName() +
+            showErrorDialog("You cannot reference the target band '" + targetBand.getName() +
                     "' within the expression.");
             return false;
         }
 
         if (!isUseNewBand()) {
-            final String bandName = _targetBand.getName();
+            final String bandName = targetBand.getName();
             final StringBuffer message = new StringBuffer();
-            if (!ProductData.isFloatingPointType(_targetBand.getDataType())) {
+            if (!ProductData.isFloatingPointType(targetBand.getDataType())) {
                 message.append("The band '" + bandName + "' has an integer data type.\n"); /*I18N*/
-            } else if (_targetBand.isScalingApplied()) {
+            } else if (targetBand.isScalingApplied()) {
                 message.append("The band '" + bandName + "' uses an internal scaling.\n"); /*I18N*/
             }
             message.append("Overwriting this band's raster data may result in a loss of accuracy or\n" +
                     "even a value range overflow!\n\n" +
                     "Do you really want to overwrite the existing target band?"); /*I18N*/
 
-            final int status = JOptionPane.showConfirmDialog(_paramUseNewBand.getEditor().getComponent(),
+            final int status = JOptionPane.showConfirmDialog(paramUseNewBand.getEditor().getComponent(),
                                                              message.toString(),
                                                              "Really Overwrite", /*I18N*/
                                                              JOptionPane.YES_NO_OPTION);
@@ -340,112 +340,112 @@ public class BandArithmetikDialog extends ModalDialog {
     }
 
     private boolean isUseNewBand() {
-        return (Boolean) _paramUseNewBand.getValue();
+        return (Boolean) paramUseNewBand.getValue();
     }
 
     private void initParameter() {
         final ParamChangeListener paramChangeListener = createParamChangeListener();
 
-        _paramUseNewProduct = new Parameter(_PARAM_NAME_USE_NEW_PRODUCT, false);
-        _paramUseNewProduct.getProperties().setLabel("Use new Product"); /*I18N*/
-        _paramUseNewProduct.addParamChangeListener(paramChangeListener);
+        paramUseNewProduct = new Parameter(_PARAM_NAME_USE_NEW_PRODUCT, false);
+        paramUseNewProduct.getProperties().setLabel("Use new Product"); /*I18N*/
+        paramUseNewProduct.addParamChangeListener(paramChangeListener);
 
-        _paramProduct = new Parameter(_PARAM_NAME_PRODUCT, _targetProduct.getDisplayName());
-        _paramProduct.setValueSet(_productsList.getDisplayNames());
-        _paramProduct.getProperties().setValueSetBound(true);
-        _paramProduct.getProperties().setLabel("Target Product"); /*I18N*/
-        _paramProduct.addParamChangeListener(paramChangeListener);
+        paramProduct = new Parameter(_PARAM_NAME_PRODUCT, targetProduct.getDisplayName());
+        paramProduct.setValueSet(productsList.getDisplayNames());
+        paramProduct.getProperties().setValueSetBound(true);
+        paramProduct.getProperties().setLabel("Target Product"); /*I18N*/
+        paramProduct.addParamChangeListener(paramChangeListener);
 
-        _paramCreateVirtualBand = new Parameter(_PARAM_NAME_CREATE_VIRTUAL_BAND, false);
-        _paramCreateVirtualBand.getProperties().setLabel("Create virtual Band"); /*I18N*/
-        _paramCreateVirtualBand.addParamChangeListener(paramChangeListener);
+        paramCreateVirtualBand = new Parameter(_PARAM_NAME_CREATE_VIRTUAL_BAND, false);
+        paramCreateVirtualBand.getProperties().setLabel("Create virtual Band"); /*I18N*/
+        paramCreateVirtualBand.addParamChangeListener(paramChangeListener);
 
-        _paramUseNewBand = new Parameter(_PARAM_NAME_USE_NEW_BAND, true);
-        _paramUseNewBand.getProperties().setLabel("Use new Band"); /*I18N*/
-        _paramUseNewBand.addParamChangeListener(paramChangeListener);
+        paramUseNewBand = new Parameter(_PARAM_NAME_USE_NEW_BAND, true);
+        paramUseNewBand.getProperties().setLabel("Use new Band"); /*I18N*/
+        paramUseNewBand.addParamChangeListener(paramChangeListener);
 
-        _paramBand = new Parameter(_PARAM_NAME_BAND, "");
-        _paramBand.setValueSet(getTargetBandNames());
-        _paramBand.getProperties().setValueSetBound(false);
-        _paramBand.getProperties().setLabel("Target Band"); /*I18N*/
-        _paramBand.addParamChangeListener(paramChangeListener);
+        paramBand = new Parameter(_PARAM_NAME_BAND, "");
+        paramBand.setValueSet(getTargetBandNames());
+        paramBand.getProperties().setValueSetBound(false);
+        paramBand.getProperties().setLabel("Target Band"); /*I18N*/
+        paramBand.addParamChangeListener(paramChangeListener);
 
-        _paramExpression = new Parameter("arithmetikExpr", "");
-        _paramExpression.getProperties().setLabel("Expression"); /*I18N*/
-        _paramExpression.getProperties().setDescription("Arithmetic expression"); /*I18N*/
-        _paramExpression.getProperties().setNumRows(3);
-//        _paramExpression.getProperties().setEditorClass(ArithmetikExpressionEditor.class);
-//        _paramExpression.getProperties().setValidatorClass(BandArithmeticExprValidator.class);
+        paramExpression = new Parameter("arithmetikExpr", "");
+        paramExpression.getProperties().setLabel("Expression"); /*I18N*/
+        paramExpression.getProperties().setDescription("Arithmetic expression"); /*I18N*/
+        paramExpression.getProperties().setNumRows(3);
+//        paramExpression.getProperties().setEditorClass(ArithmetikExpressionEditor.class);
+//        paramExpression.getProperties().setValidatorClass(BandArithmeticExprValidator.class);
 
-        _paramWarnOnErrors = new Parameter("warnOnArithmErrorParam", true);
-        _paramWarnOnErrors.getProperties().setLabel("Warn, if any arithmetic exception is detected"); /*I18N*/
-        _paramWarnOnErrors.addParamChangeListener(paramChangeListener);
+        paramWarnOnErrors = new Parameter("warnOnArithmErrorParam", true);
+        paramWarnOnErrors.getProperties().setLabel("Warn, if any arithmetic exception is detected"); /*I18N*/
+        paramWarnOnErrors.addParamChangeListener(paramChangeListener);
 
-        _paramNoDataValueUsed = new Parameter("noDataValueUsedParam", true);
-        _paramNoDataValueUsed.getProperties().setLabel("No-data value to be used on arithmetic exceptions: "); /*I18N*/
-        _paramNoDataValueUsed.addParamChangeListener(paramChangeListener);
+        paramNoDataValueUsed = new Parameter("noDataValueUsedParam", true);
+        paramNoDataValueUsed.getProperties().setLabel("No-data value to be used on arithmetic exceptions: "); /*I18N*/
+        paramNoDataValueUsed.addParamChangeListener(paramChangeListener);
 
-        _paramNoDataValue = new Parameter("noDataValueParam", 0.0F);
-        _paramNoDataValue.setUIEnabled(false);
+        paramNoDataValue = new Parameter("noDataValueParam", 0.0F);
+        paramNoDataValue.setUIEnabled(false);
 
         setArithmetikValues();
     }
 
     private void createUI() {
-        _newProductButton = new JButton("New...");
-        _newProductButton.setName("newProductButton");
-        _newProductButton.addActionListener(createNewProductButtonListener());
+        newProductButton = new JButton("New...");
+        newProductButton.setName("newProductButton");
+        newProductButton.addActionListener(createNewProductButtonListener());
 
-        _newBandButton = new JButton("New...");
-        _newBandButton.setName("newBandButton");
-        _newBandButton.addActionListener(createNewBandButtonListener());
+        newBandButton = new JButton("New...");
+        newBandButton.setName("newBandButton");
+        newBandButton.addActionListener(createNewBandButtonListener());
 
-        _editExpressionButton = new JButton("Edit Expression...");
-        _editExpressionButton.setName("editExpressionButton");
-        _editExpressionButton.addActionListener(createEditExpressionButtonListener());
+        editExpressionButton = new JButton("Edit Expression...");
+        editExpressionButton.setName("editExpressionButton");
+        editExpressionButton.addActionListener(createEditExpressionButtonListener());
 
         final JPanel panel = GridBagUtils.createPanel();
         int line = 0;
         GridBagConstraints gbc = new GridBagConstraints();
 
         gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, _paramProduct.getEditor().getLabelComponent(), gbc,
+        GridBagUtils.addToPanel(panel, paramProduct.getEditor().getLabelComponent(), gbc,
                                 "gridwidth=3, fill=BOTH, weightx=1");
         gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, _paramProduct.getEditor().getComponent(), gbc,
+        GridBagUtils.addToPanel(panel, paramProduct.getEditor().getComponent(), gbc,
                                 "insets.top=3, gridwidth=3, fill=BOTH, anchor=WEST");
         gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, _paramUseNewProduct.getEditor().getComponent(), gbc,
+        GridBagUtils.addToPanel(panel, paramUseNewProduct.getEditor().getComponent(), gbc,
                                 "fill=NONE, anchor=EAST, gridwidth=2");
-        GridBagUtils.addToPanel(panel, _newProductButton, gbc, "weightx=0, gridwidth=1");
+        GridBagUtils.addToPanel(panel, newProductButton, gbc, "weightx=0, gridwidth=1");
 
         gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, _paramBand.getEditor().getLabelComponent(), gbc,
+        GridBagUtils.addToPanel(panel, paramBand.getEditor().getLabelComponent(), gbc,
                                 "insets.top=4, gridwidth=3, fill=BOTH, anchor=WEST");
         gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, _paramBand.getEditor().getComponent(), gbc,
+        GridBagUtils.addToPanel(panel, paramBand.getEditor().getComponent(), gbc,
                                 "insets.top=3, gridwidth=3, fill=BOTH, anchor=WEST");
         gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, _paramCreateVirtualBand.getEditor().getComponent(), gbc,
+        GridBagUtils.addToPanel(panel, paramCreateVirtualBand.getEditor().getComponent(), gbc,
                                 "weightx=1, fill=NONE, gridwidth=1, anchor=EAST");
-        GridBagUtils.addToPanel(panel, _paramUseNewBand.getEditor().getComponent(), gbc, "weightx=0");
-        GridBagUtils.addToPanel(panel, _newBandButton, gbc);
+        GridBagUtils.addToPanel(panel, paramUseNewBand.getEditor().getComponent(), gbc, "weightx=0");
+        GridBagUtils.addToPanel(panel, newBandButton, gbc);
 
         gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, _paramExpression.getEditor().getLabelComponent(), gbc,
+        GridBagUtils.addToPanel(panel, paramExpression.getEditor().getLabelComponent(), gbc,
                                 "insets.top=4, gridwidth=3, anchor=WEST");
         gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, _paramExpression.getEditor().getComponent(), gbc,
+        GridBagUtils.addToPanel(panel, paramExpression.getEditor().getComponent(), gbc,
                                 "weighty=1, insets.top=3, gridwidth=3, fill=BOTH, anchor=WEST");
         gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, _editExpressionButton, gbc,
+        GridBagUtils.addToPanel(panel, editExpressionButton, gbc,
                                 "weighty=0, insets.top=3, gridwidth=3, fill=NONE, anchor=EAST");
 
         JPanel jPanel = new JPanel(new BorderLayout());
         jPanel.setBorder(UIUtils.createGroupBorder("Exception Handling"));
-        jPanel.add(_paramWarnOnErrors.getEditor().getComponent(), BorderLayout.NORTH);
-        jPanel.add(_paramNoDataValueUsed.getEditor().getComponent(), BorderLayout.WEST);
-        jPanel.add(_paramNoDataValue.getEditor().getComponent());
+        jPanel.add(paramWarnOnErrors.getEditor().getComponent(), BorderLayout.NORTH);
+        jPanel.add(paramNoDataValueUsed.getEditor().getComponent(), BorderLayout.WEST);
+        jPanel.add(paramNoDataValue.getEditor().getComponent());
 
         gbc.gridy = ++line;
         GridBagUtils.addToPanel(panel, jPanel, gbc, "insets.top=10, gridwidth=3, fill=BOTH, anchor=WEST");
@@ -454,70 +454,74 @@ public class BandArithmetikDialog extends ModalDialog {
     }
 
     private void updateUIState(String parameterName) {
-        boolean useNewProduct = (Boolean) _paramUseNewProduct.getValue();
-        final String productDisplayName = _paramProduct.getValueAsText();
+        boolean useNewProduct = (Boolean) paramUseNewProduct.getValue();
+        final String productDisplayName = paramProduct.getValueAsText();
         boolean productIsSelected = productDisplayName != null && productDisplayName.length() > 0;
-        String[] bandValueSet = _paramBand.getProperties().getValueSet();
+        String[] bandValueSet = paramBand.getProperties().getValueSet();
         boolean paramBandHasValidValueSet = bandValueSet != null && bandValueSet.length > 0;
         boolean createVirtualBand = getCreateVirtualBand();
-        _newProductButton.setEnabled(!createVirtualBand && useNewProduct);
-        _paramUseNewProduct.setUIEnabled(!createVirtualBand);
-        _paramProduct.setUIEnabled(!useNewProduct);
-        _paramUseNewBand.setUIEnabled(!createVirtualBand && productIsSelected && paramBandHasValidValueSet);
-        _paramBand.setUIEnabled(!isUseNewBand() && productIsSelected);
-        _newBandButton.setEnabled(isUseNewBand() && productIsSelected);
-        _paramNoDataValue.setUIEnabled((Boolean) _paramNoDataValueUsed.getValue());
+        newProductButton.setEnabled(!createVirtualBand && useNewProduct);
+        paramUseNewProduct.setUIEnabled(!createVirtualBand);
+        paramProduct.setUIEnabled(!useNewProduct);
+        paramUseNewBand.setUIEnabled(!createVirtualBand && productIsSelected && paramBandHasValidValueSet);
+        paramBand.setUIEnabled(!isUseNewBand() && productIsSelected);
+        newBandButton.setEnabled(isUseNewBand() && productIsSelected);
+        paramNoDataValue.setUIEnabled((Boolean) paramNoDataValueUsed.getValue());
         if (parameterName == null) {
             return;
         }
 
         if (parameterName.equals(_PARAM_NAME_USE_NEW_PRODUCT)) {
             if (useNewProduct) {
-                _oldSelectedProduct = _paramProduct.getValueAsText();
-                _targetProduct = null;
+                oldSelectedProduct = paramProduct.getValueAsText();
+                targetProduct = null;
             }
-            _paramProduct.getProperties().setValueSetBound(!useNewProduct);
-            _paramProduct.setValue(useNewProduct ? "" : _oldSelectedProduct, null);
+            paramProduct.getProperties().setValueSetBound(!useNewProduct);
+            paramProduct.setValue(useNewProduct ? "" : oldSelectedProduct, null);
         } else if (parameterName.equals(_PARAM_NAME_USE_NEW_BAND)) {
             if (isUseNewBand()) {
-                _oldSelectedBand = _paramBand.getValueAsText();
-                _targetBand = null;
+                oldSelectedBand = paramBand.getValueAsText();
+                targetBand = null;
             } else {
-                if (_oldSelectedBand == null || _oldSelectedBand.trim().length() == 0 || !_targetProduct.containsBand(
-                        _oldSelectedBand)) {
-                    _oldSelectedBand = _paramBand.getProperties().getValueSet()[0];
+                if (oldSelectedBand == null || oldSelectedBand.trim().length() == 0 || !targetProduct.containsBand(
+                        oldSelectedBand)) {
+                    oldSelectedBand = paramBand.getProperties().getValueSet()[0];
                 }
             }
-            _paramBand.getProperties().setValueSetBound(!isUseNewBand());
-            _paramBand.setValue(isUseNewBand() ? "" : _oldSelectedBand, null);
+            paramBand.getProperties().setValueSetBound(!isUseNewBand());
+            paramBand.setValue(isUseNewBand() ? "" : oldSelectedBand, null);
         } else if (parameterName.equals(_PARAM_NAME_PRODUCT)) {
-            _oldSelectedBand = null;
-            _paramUseNewBand.setValue(true, null);
-            String selectedProdcutDisplayName = _paramProduct.getValueAsText();
-            Product product = _productsList.getByDisplayName(selectedProdcutDisplayName);
+            oldSelectedBand = null;
+            paramUseNewBand.setValue(true, null);
+            String selectedProductDisplayName = paramProduct.getValueAsText();
+            Product product = productsList.getByDisplayName(selectedProductDisplayName);
             if (product != null) {
                 if (useNewProduct) {
-                    showErrorDialog("A product with the name '" + selectedProdcutDisplayName + "' already exists.\n"
+                    showErrorDialog("A product with the name '" + selectedProductDisplayName + "' already exists.\n"
                             + "Please choose a another one."); /*I18N*/
-                    _paramProduct.setValue("", null);
-                    _targetProduct = null;
+                    paramProduct.setValue("", null);
+                    targetProduct = null;
                 } else {
-                    _targetProduct = product;
+                    targetProduct = product;
                 }
             }
-            boolean b = productIsSelected && _targetProduct != null;
-            _paramExpression.setUIEnabled(b);
-            _editExpressionButton.setEnabled(b);
+            if(targetBand != null) {
+                targetBand = null;
+                paramBand.setValueAsText("", null);
+            }
+            boolean b = productIsSelected && targetProduct != null;
+            paramExpression.setUIEnabled(b);
+            editExpressionButton.setEnabled(b);
             if (b) {
-                _paramBand.setValueSet(getTargetBandNames());
+                paramBand.setValueSet(getTargetBandNames());
                 setArithmetikValues();
             }
         } else if (parameterName.equals(_PARAM_NAME_BAND)) {
-            String selectedBandName = _paramBand.getValueAsText();
+            String selectedBandName = paramBand.getValueAsText();
             Band band = null;
-            if (_targetProduct != null) {
+            if (targetProduct != null) {
                 if (selectedBandName != null && selectedBandName.length() > 0) {
-                    band = _targetProduct.getBand(selectedBandName);
+                    band = targetProduct.getBand(selectedBandName);
                 }
             }
             if (band != null) {
@@ -525,24 +529,24 @@ public class BandArithmetikDialog extends ModalDialog {
                     showErrorDialog(
                             "A band with the name '" + selectedBandName + "' already exists in the selected product.\n"
                                     + "Please choose another one."); /*I18N*/
-                    _targetBand = null;
+                    targetBand = null;
                 } else {
-                    _targetBand = band;
+                    targetBand = band;
                 }
             }
         } else if (parameterName.equals(_PARAM_NAME_CREATE_VIRTUAL_BAND)) {
             if (createVirtualBand) {
-                _paramUseNewBand.setValueAsText("true", null);
-                _paramUseNewProduct.setValueAsText("false", null);
+                paramUseNewBand.setValueAsText("true", null);
+                paramUseNewProduct.setValueAsText("false", null);
             }
-            _targetBand = null;
-            _paramBand.setValue("", null);
+            targetBand = null;
+            paramBand.setValue("", null);
         }
     }
 
     private String[] getTargetBandNames() {
         final List<String> names = new ArrayList<String>();
-        final Band[] bands = _targetProduct.getBands();
+        final Band[] bands = targetProduct.getBands();
         for (final Band band : bands) {
             if (!(band instanceof VirtualBand)) {
                 names.add(band.getName());
@@ -552,29 +556,29 @@ public class BandArithmetikDialog extends ModalDialog {
     }
 
     private void setArithmetikValues() {
-        final ParamProperties props = _paramExpression.getProperties();
+        final ParamProperties props = paramExpression.getProperties();
         props.setPropertyValue(ParamProperties.COMP_PRODUCTS_FOR_BAND_ARITHMETHIK_KEY
                 , getCompatibleProducts());
         props.setPropertyValue(ParamProperties.SEL_PRODUCT_FOR_BAND_ARITHMETHIK_KEY
-                , _targetProduct);
+                , targetProduct);
     }
 
     private Product[] getCompatibleProducts() {
-        if (_targetProduct == null) {
+        if (targetProduct == null) {
             return null;
         }
         Vector<Product> compatibleProducts = new Vector<Product>();
-        compatibleProducts.add(_targetProduct);
+        compatibleProducts.add(targetProduct);
         if (!getCreateVirtualBand()) {
             final float geolocationEps = getGeolocationEps();
             Debug.trace("BandArithmetikDialog.geolocationEps = " + geolocationEps);
             Debug.trace("BandArithmetikDialog.getCompatibleProducts:");
-            Debug.trace("  comparing: " + _targetProduct.getName());
-            for (int i = 0; i < _productsList.size(); i++) {
-                final Product product = _productsList.getAt(i);
-                if (_targetProduct != product) {
+            Debug.trace("  comparing: " + targetProduct.getName());
+            for (int i = 0; i < productsList.size(); i++) {
+                final Product product = productsList.getAt(i);
+                if (targetProduct != product) {
                     Debug.trace("  with:      " + product.getDisplayName());
-                    final boolean compatibleProduct = _targetProduct.isCompatibleProduct(product, geolocationEps);
+                    final boolean compatibleProduct = targetProduct.isCompatibleProduct(product, geolocationEps);
                     Debug.trace("  result:    " + compatibleProduct);
                     if (compatibleProduct) {
                         compatibleProducts.add(product);
@@ -598,18 +602,18 @@ public class BandArithmetikDialog extends ModalDialog {
         return new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                final Product product = _productsList.getByDisplayName(_oldSelectedProduct);
-                final int selectedSourceIndex = _productsList.indexOf(product);
+                final Product product = productsList.getByDisplayName(oldSelectedProduct);
+                final int selectedSourceIndex = productsList.indexOf(product);
 
                 final NewProductDialog dialog = new NewProductDialog(getJDialog(),
-                                                                     _productsList,
+                                                                     productsList,
                                                                      selectedSourceIndex,
                                                                      false,
                                                                      "arithm");
 
                 if (dialog.show() == NewProductDialog.ID_OK) {
-                    _targetProduct = dialog.getResultProduct();
-                    _paramProduct.setValue(_targetProduct.getName(), null);
+                    targetProduct = dialog.getResultProduct();
+                    paramProduct.setValue(targetProduct.getName(), null);
                 }
             }
         };
@@ -619,19 +623,19 @@ public class BandArithmetikDialog extends ModalDialog {
         return new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                NewBandDialog dialog = new NewBandDialog(getJDialog(), _targetProduct);
+                NewBandDialog dialog = new NewBandDialog(getJDialog(), targetProduct);
                 if (dialog.show() == NewBandDialog.ID_OK) {
-                    int width = _targetProduct.getSceneRasterWidth();
-                    int height = _targetProduct.getSceneRasterHeight();
+                    int width = targetProduct.getSceneRasterWidth();
+                    int height = targetProduct.getSceneRasterHeight();
                     if (getCreateVirtualBand()) {
-                        _targetBand = new VirtualBand(dialog.getNewBandsName(), dialog.getNewBandsDataType(), width,
+                        targetBand = new VirtualBand(dialog.getNewBandsName(), dialog.getNewBandsDataType(), width,
                                                       height, "0");
                     } else {
-                        _targetBand = new Band(dialog.getNewBandsName(), dialog.getNewBandsDataType(), width, height);
+                        targetBand = new Band(dialog.getNewBandsName(), dialog.getNewBandsDataType(), width, height);
                     }
-                    _targetBand.setDescription(dialog.getNewBandsDesc());
-                    _targetBand.setUnit(dialog.getNewBandsUnit());
-                    _paramBand.setValue(_targetBand.getName(), null);
+                    targetBand.setDescription(dialog.getNewBandsDesc());
+                    targetBand.setUnit(dialog.getNewBandsUnit());
+                    paramBand.setValue(targetBand.getName(), null);
                 }
             }
         };
@@ -642,12 +646,12 @@ public class BandArithmetikDialog extends ModalDialog {
 
             public void actionPerformed(ActionEvent e) {
                 ProductExpressionPane pep = ProductExpressionPane.createGeneralExpressionPane(getCompatibleProducts(),
-                                                                                              _targetProduct,
-                                                                                              _visatApp.getPreferences());
-                pep.setCode(_paramExpression.getValueAsText());
+                                                                                              targetProduct,
+                                                                                              visatApp.getPreferences());
+                pep.setCode(paramExpression.getValueAsText());
                 int status = pep.showModalDialog(getJDialog(), "Arithmetic Expression Editor");
                 if (status == ModalDialog.ID_OK) {
-                    _paramExpression.setValue(pep.getCode(), null);
+                    paramExpression.setValue(pep.getCode(), null);
                     Debug.trace("BandArithmetikDialog: expression is: " + pep.getCode());
                 }
                 pep.dispose();
@@ -662,12 +666,12 @@ public class BandArithmetikDialog extends ModalDialog {
             return false;
         }
 
-        final String expression = _paramExpression.getValueAsText();
+        final String expression = paramExpression.getValueAsText();
         if (expression == null || expression.length() == 0) {
             return false;
         }
 
-        final int defaultIndex = Arrays.asList(products).indexOf(_visatApp.getSelectedProduct());
+        final int defaultIndex = Arrays.asList(products).indexOf(visatApp.getSelectedProduct());
         final Namespace namespace = BandArithmetic.createDefaultNamespace(products,
                                                                           defaultIndex == -1 ? 0 : defaultIndex);
         final Parser parser = new ParserImpl(namespace, false);
@@ -685,20 +689,20 @@ public class BandArithmetikDialog extends ModalDialog {
             return false;
         }
 
-        final String expression = _paramExpression.getValueAsText();
+        final String expression = paramExpression.getValueAsText();
         if (expression == null || expression.trim().length() == 0) {
             return false;
         }
 
-        final int defaultIndex = Arrays.asList(products).indexOf(_visatApp.getSelectedProduct());
+        final int defaultIndex = Arrays.asList(products).indexOf(visatApp.getSelectedProduct());
         final Namespace namespace = BandArithmetic.createDefaultNamespace(products,
                                                                           defaultIndex == -1 ? 0 : defaultIndex);
         final Parser parser = new ParserImpl(namespace, false);
         try {
             final Term term = parser.parse(expression);
             final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
-            final String targetBandName = _paramBand.getValueAsText();
-            if (_targetProduct != null && _targetProduct.containsRasterDataNode(targetBandName)) {
+            final String targetBandName = paramBand.getValueAsText();
+            if (targetProduct != null && targetProduct.containsRasterDataNode(targetBandName)) {
                 for (final RasterDataSymbol refRasterDataSymbol : refRasterDataSymbols) {
                     final String refRasterName = refRasterDataSymbol.getRaster().getName();
                     if (targetBandName.equalsIgnoreCase(refRasterName)) {
@@ -713,11 +717,11 @@ public class BandArithmetikDialog extends ModalDialog {
     }
 
     private boolean getCreateVirtualBand() {
-        return (Boolean) _paramCreateVirtualBand.getValue();
+        return (Boolean) paramCreateVirtualBand.getValue();
     }
 
     private float getGeolocationEps() {
-        return (float) _visatApp.getPreferences().getPropertyDouble(VisatApp.PROPERTY_KEY_GEOLOCATION_EPS,
+        return (float) visatApp.getPreferences().getPropertyDouble(VisatApp.PROPERTY_KEY_GEOLOCATION_EPS,
                                                                     VisatApp.PROPERTY_DEFAULT_GEOLOCATION_EPS);
     }
 }
