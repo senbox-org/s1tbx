@@ -30,7 +30,7 @@
             <readerPlugin>org.esa.beam.dataio.smos.SmosProductReaderPlugIn</readerPlugin>
             <id>importSmosProduct</id>
             <helpId/>
-            <formatName>SMOS Earth Explorer</formatName>
+            <formatName>SMOS</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>Import SMOS Product...</text>
             <mnemonic/>
