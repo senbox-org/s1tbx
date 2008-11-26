@@ -2,12 +2,17 @@ package org.esa.beam.dataio.smos;
 
 import com.bc.ceres.binio.CompoundType;
 import com.bc.ceres.binio.Format;
+import com.bc.ceres.binio.binx.BinX;
+import com.bc.ceres.binio.binx.BinXException;
 import static com.bc.ceres.binio.util.TypeBuilder.*;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.ByteOrder;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Defines the formats of all supported SOMS product types.
@@ -125,16 +130,16 @@ public class SmosFormats {
     private final Map<String, Format> formatMap;
 
     private SmosFormats() {
-        formatMap = new HashMap<String, Format>(17);
-        registerSmosFormat("MIR_BWLD1C", MIR_BROWSE_TYPE, BROWSE_GRID_POINT_DATA_TYPE, true);
-        registerSmosFormat("MIR_BWLF1C", MIR_BROWSE_TYPE, BROWSE_GRID_POINT_DATA_TYPE, true);
-        registerSmosFormat("MIR_BWSD1C", MIR_BROWSE_TYPE, BROWSE_GRID_POINT_DATA_TYPE, true);
-        registerSmosFormat("MIR_BWSF1C", MIR_BROWSE_TYPE, BROWSE_GRID_POINT_DATA_TYPE, true);
-
-        registerSmosFormat("MIR_SCLD1C", MIR_SCXD1C_TYPE, D1C_GRID_POINT_DATA_TYPE, false);
-        registerSmosFormat("MIR_SCLF1C", MIR_SCXF1C_TYPE, F1C_GRID_POINT_DATA_TYPE, false);
-        registerSmosFormat("MIR_SCSD1C", MIR_SCXD1C_TYPE, D1C_GRID_POINT_DATA_TYPE, false);
-        registerSmosFormat("MIR_SCSF1C", MIR_SCXF1C_TYPE, F1C_GRID_POINT_DATA_TYPE, false);
+        formatMap = new ConcurrentHashMap<String, Format>(17);
+//        registerSmosFormat("MIR_BWLD1C", MIR_BROWSE_TYPE, BROWSE_GRID_POINT_DATA_TYPE, true);
+//        registerSmosFormat("MIR_BWLF1C", MIR_BROWSE_TYPE, BROWSE_GRID_POINT_DATA_TYPE, true);
+//        registerSmosFormat("MIR_BWSD1C", MIR_BROWSE_TYPE, BROWSE_GRID_POINT_DATA_TYPE, true);
+//        registerSmosFormat("MIR_BWSF1C", MIR_BROWSE_TYPE, BROWSE_GRID_POINT_DATA_TYPE, true);
+//
+//        registerSmosFormat("MIR_SCLD1C", MIR_SCXD1C_TYPE, D1C_GRID_POINT_DATA_TYPE, false);
+//        registerSmosFormat("MIR_SCLF1C", MIR_SCXF1C_TYPE, F1C_GRID_POINT_DATA_TYPE, false);
+//        registerSmosFormat("MIR_SCSD1C", MIR_SCXD1C_TYPE, D1C_GRID_POINT_DATA_TYPE, false);
+//        registerSmosFormat("MIR_SCSF1C", MIR_SCXF1C_TYPE, F1C_GRID_POINT_DATA_TYPE, false);
     }
 
     public static SmosFormats getInstance() {
@@ -147,20 +152,42 @@ public class SmosFormats {
     }
 
     public Format getFormat(String name) {
+        if (!formatMap.containsKey(name)) {
+            final URL schemaUrl = getSchemaResource(name);
+
+            try {
+                final Format format = new BinX(schemaUrl.toURI()).getFormat(name);
+                formatMap.put(name, format);
+            } catch (BinXException e) {
+                throw new IllegalStateException(e);
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            } catch (URISyntaxException e) {
+                throw new IllegalStateException("Cannot convert URL '" + schemaUrl + "' into an URI");
+            }
+        }
+
         return formatMap.get(name);
     }
 
-    private void registerSmosFormat(String formatName, CompoundType type, CompoundType gridPointType, boolean browse) {
-        final Format smosFormat = new Format(type);
-        smosFormat.setName(formatName);
-        smosFormat.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-        if (!browse) {
-            smosFormat.addSequenceElementCountResolver("Snapshot_List", "Snapshot_Counter");
-        }
-        smosFormat.addSequenceElementCountResolver("Grid_Point_List", "Grid_Point_Counter");
-        smosFormat.addSequenceElementCountResolver(gridPointType,
-                                                   "BT_Data_List", "BT_Data_Counter");
-        formatMap.put(formatName, smosFormat);
-    }
+//    private void registerSmosFormat(String formatName, CompoundType type, CompoundType gridPointType, boolean browse) {
+//        final Format smosFormat = new Format(type);
+//        smosFormat.setName(formatName);
+//        smosFormat.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+//        if (!browse) {
+//            smosFormat.addSequenceElementCountResolver("Snapshot_List", "Snapshot_Counter");
+//        }
+//        smosFormat.addSequenceElementCountResolver("Grid_Point_List", "Grid_Point_Counter");
+//        smosFormat.addSequenceElementCountResolver(gridPointType,
+//                                                   "BT_Data_List", "BT_Data_Counter");
+//        formatMap.put(formatName, smosFormat);
+//    }
 
+    static URL getSchemaResource(String name) {
+        final StringBuilder sb = new StringBuilder("/smos-schemas/");
+        final String fc = name.substring(12, 16);
+        final String sd = name.substring(16, 22);
+
+        return SmosFormats.class.getResource(sb.append(fc).append("/").append(sd).append("/").append(name).toString());
+    }
 }

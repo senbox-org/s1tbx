@@ -433,4 +433,11 @@
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
+	<xs:complexType name="s_double_06p6lf_Unit_Type">
+		<xs:simpleContent>
+			<xs:extension base="double_06p6lf_Type">
+				<xs:attribute name="unit" type="string_Type" use="required" fixed="s"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
 </xs:schema>

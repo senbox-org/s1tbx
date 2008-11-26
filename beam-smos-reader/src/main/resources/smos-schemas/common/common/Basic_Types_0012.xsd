@@ -218,6 +218,11 @@
 			<xs:pattern value="IG|FP|FR"/>
 		</xs:restriction>
 	</xs:simpleType>
+	<xs:simpleType name="string_Vector_Source_With_Blank_Type">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="IG|FP|FR|  "/>
+		</xs:restriction>
+	</xs:simpleType>
 	<xs:simpleType name="integer_010d_Type">
 		<xs:restriction base="xs:string">
 			<xs:pattern value="[0-9\-][0-9]{9}"/>

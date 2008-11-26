@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 12.0 19/05/2008 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns="http://213.170.46.150/smos/schemas" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0012">
+	<xs:include schemaLocation="../common/Basic_Types_0013.xsd"/>
+	<xs:include schemaLocation="../common/Complex_Unit_Types_0012.xsd"/>
+	<xs:complexType name="Product_Location_Type">
+		<xs:sequence>
+			<xs:element name="Start_Lat" type="deg_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Start_Long" type="deg_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Stop_Lat" type="deg_double_s04p6lf_Unit_Type" default="+000.000000"/>
+			<xs:element name="Stop_Long" type="deg_double_s04p6lf_Unit_Type" default="+000.000000"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Product_Information_Type">
+		<xs:sequence>
+			<xs:element name="Header_Schema" type="string_31_Type" default="HDR_MM_CCCC_TTTTTTTTTT_0000.xsd"/>
+			<xs:element name="Datablock_Schema" type="string_42_Type" default="DBL_MM_CCCC_TTTTTTTTTT_0000.binXschema.xml"/>
+			<xs:element name="Header_Size" type="bytes_integer_06d_Unit_Type" default="000000"/>
+			<xs:element name="Datablock_Size" type="bytes_long_011ld_Unit_Type" default="00000000000"/>
+			<xs:element name="Checksum" type="long_010ld_Type" default="0000000000"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

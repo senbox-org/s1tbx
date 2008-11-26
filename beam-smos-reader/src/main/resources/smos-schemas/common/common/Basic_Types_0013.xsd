@@ -221,6 +221,11 @@
 			<xs:pattern value="IG|FP|FR"/>
 		</xs:restriction>
 	</xs:simpleType>
+	<xs:simpleType name="string_Vector_Source_With_Blank_Type">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="IG|FP|FR|  "/>
+		</xs:restriction>
+	</xs:simpleType>
 	<xs:simpleType name="integer_010d_Type">
 		<xs:restriction base="xs:string">
 			<xs:pattern value="[0-9\-][0-9]{9}"/>
@@ -303,7 +308,7 @@
 	</xs:simpleType>
 	<xs:simpleType name="string_Overlap_Included_3_Type">
 		<xs:restriction base="xs:string">
-			<xs:pattern value="Yes|No|N/A"/>
+			<xs:pattern value="Yes|N/A|No"/>
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="integer_01d_Type_Gap_Type">
@@ -460,7 +465,7 @@
 	</xs:simpleType>
 	<xs:simpleType name="string_Mode_15_Type">
 		<xs:restriction base="xs:string">
-			<xs:pattern value="APID_DUAL|APID_EXC_DUAL|APID_FULL|APID_EXC_FULL|APID_U_CAL|APID_C_CAL|APID_TEST"/>
+			<xs:pattern value="APID_EXC_DUAL|APID_EXC_FULL|APID_C_CAL|APID_U_CAL|APID_DUAL||APID_FULL|APID_TEST"/>
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="integer_01d_Overall_Type">
@@ -505,7 +510,7 @@
 	</xs:simpleType>
 	<xs:simpleType name="string_Attitude_4_Flag_Type">
 		<xs:restriction base="xs:string">
-			<xs:pattern value="NOMINAL_POINTING|TRANSITION_TO_NOMINAL_POINTING|TRANSITION_TO_EXTERNAL_POINTING|EXTERNAL_POINTING"/>
+			<xs:pattern value="NOMINAL_POINTING|TRANSITION_TO_EXTERNAL_POINTING|TRANSITION_TO_NOMINAL_POINTING|EXTERNAL_POINTING"/>
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="integer_1d_Logical_Proc_Centre_Type">
@@ -1090,7 +1095,7 @@
 	</xs:simpleType>
 	<xs:simpleType name="string_File_Type_DBL_REP_Type">
 		<xs:restriction base="xs:string">
-			<xs:pattern value="Constants|Configuration|Auxiliary|Calibration|Measurements"/>
+			<xs:pattern value="Configuration|Calibration|Constants|Auxiliary|Measurements"/>
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="string_Subtitle_3_Type">
@@ -1130,7 +1135,8 @@
 	</xs:simpleType>
 	<xs:simpleType name="double_01p8g_Type">
 		<xs:restriction base="xs:string">
-			<xs:pattern value="[0-9]\.[0-9]{8}|[0-9]\.[0-9]{8}e[+\-][0-9]{3}"/>
+			<xs:pattern value="([0-9]\.[0-9]{8})(e[+\-][0-9]{3})?"/>
+			<!--<xs:pattern value="[0-9]\.[0-9]{8}|[0-9]\.[0-9]{8}e[+\-][0-9]{3}"/>-->
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="integer_01d_UNCN_Correction_Type">
@@ -1169,4 +1175,3 @@
 		</xs:restriction>
 	</xs:simpleType>
 </xs:schema>
-

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 0010 21/11/2008 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns="http://213.170.46.150/smos/schemas" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0010">
+	<xs:include schemaLocation="../common/Basic_Types_0015.xsd"/>
+	<xs:include schemaLocation="../common/Complex_Unit_Types_0014.xsd"/>
+	<xs:complexType name="FWF_Quality_Information_Type">
+		<xs:sequence>
+			<xs:element name="FWF_Averaged_Measurements_Threshold" type="integer_04d_Type" default="0000"/>
+			<xs:element name="N_Averaged_Measurements" type="integer_04d_Type" default="0000"/>
+			<xs:element name="FWF_Quality" type="integer_01d_Flag_Type" default="0"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 11.0 16/08/2007 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema targetNamespace="http://213.170.46.150/smos/schemas" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0011">
+	<xs:include schemaLocation="../common/Basic_Types_0013.xsd"/>
+	<xs:include schemaLocation="../common/Basic_Types_DMS_0001.xsd"/>
+	<xs:complexType name="Km_float_s06p1f_Unit_Type">
+		<xs:simpleContent>
+			<xs:extension base="float_s06p1f_Type">
+				<xs:attribute name="unit" type="string_Type" default="Km"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="epochs_integer_04d_Unit_Type">
+		<xs:simpleContent>
+			<xs:extension base="integer_04d_Type">
+				<xs:attribute name="unit" type="string_Type" default="epochs"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="orbits_integer_04d_Unit_Type">
+		<xs:simpleContent>
+			<xs:extension base="integer_04d_Type">
+				<xs:attribute name="unit" type="string_Type" default="orbits"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="days_integer_04d_Unit_Type">
+		<xs:simpleContent>
+			<xs:extension base="integer_04d_Type">
+				<xs:attribute name="unit" type="string_Type" use="required" fixed="days"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:schema>
