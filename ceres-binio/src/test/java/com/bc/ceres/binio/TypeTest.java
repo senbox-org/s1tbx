@@ -23,6 +23,7 @@ public class TypeTest extends TestCase {
         testSimpleType(SimpleType.INT, "int", 4);
         testSimpleType(SimpleType.UINT, "uint", 4);
         testSimpleType(SimpleType.LONG, "long", 8);
+        testSimpleType(SimpleType.ULONG, "ulong", 8);
         testSimpleType(SimpleType.FLOAT, "float", 4);
         testSimpleType(SimpleType.DOUBLE, "double", 8);
     }

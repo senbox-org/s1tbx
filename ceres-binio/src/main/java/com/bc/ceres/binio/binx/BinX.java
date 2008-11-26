@@ -49,7 +49,7 @@ public class BinX {
         primitiveTypes.put("integer-32", SimpleType.INT);
         primitiveTypes.put("unsignedInteger-32", SimpleType.UINT);
         primitiveTypes.put("integer-64", SimpleType.LONG);
-        primitiveTypes.put("unsignedInteger-64", SimpleType.LONG); // care, we don't have an ULONG!
+        primitiveTypes.put("unsignedInteger-64", SimpleType.ULONG);
         primitiveTypes.put("float-32", SimpleType.FLOAT);
         primitiveTypes.put("float-64", SimpleType.DOUBLE);
 
@@ -263,7 +263,8 @@ public class BinX {
                 || sizeRefType == SimpleType.USHORT
                 || sizeRefType == SimpleType.INT
                 || sizeRefType == SimpleType.UINT
-                || sizeRefType == SimpleType.LONG;
+                || sizeRefType == SimpleType.LONG
+                || sizeRefType == SimpleType.ULONG;
     }
 
     private Type parseUnion(Element typeElement) throws BinXException {

@@ -67,13 +67,20 @@ public class TypeParser {
     private final StreamTokenizer st;
     private static final String UNRESOLVED = "Unresolved@";
     private HashMap<SequenceType, String> lengthRefMap;
+    public final static SimpleType[] SIMPLE_TYPES = new SimpleType[]{
+            SimpleType.BYTE, SimpleType.UBYTE,
+            SimpleType.SHORT, SimpleType.USHORT,
+            SimpleType.INT, SimpleType.UINT,
+            SimpleType.LONG, SimpleType.ULONG,
+            SimpleType.FLOAT, SimpleType.DOUBLE
+    };
 
     private TypeParser(StreamTokenizer st) {
         this.st = st;
         this.compoundTypeMap = new HashMap<String, CompoundType>(11);
         this.simpleTypeMap = new HashMap<String, SimpleType>(11);
         lengthRefMap = new HashMap<SequenceType, String>();
-        for (SimpleType type : SimpleType.TYPES) {
+        for (SimpleType type : SIMPLE_TYPES) {
             registerSimpleType(type);
         }
     }

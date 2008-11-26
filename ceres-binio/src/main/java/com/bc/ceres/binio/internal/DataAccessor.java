@@ -57,6 +57,8 @@ abstract class DataAccessor {
             return new UInt(byteOrder);
         } else if (type == SimpleType.LONG) {
             return new Long(byteOrder);
+        } else if (type == SimpleType.ULONG) {
+            return new Long(byteOrder); // Note: ULONG handled as signed long!
         } else if (type == SimpleType.FLOAT) {
             return new Float(byteOrder);
         } else if (type == SimpleType.DOUBLE) {

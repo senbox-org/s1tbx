@@ -13,6 +13,7 @@ public class ExpressionBuilder {
     public final static SimpleType INT = SimpleType.INT;
     public final static SimpleType UINT = SimpleType.UINT;
     public final static SimpleType LONG = SimpleType.LONG;
+    public final static SimpleType ULONG = SimpleType.ULONG;
     public final static SimpleType FLOAT = SimpleType.FLOAT;
     public final static SimpleType DOUBLE = SimpleType.DOUBLE;
 

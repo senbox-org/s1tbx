@@ -109,6 +109,8 @@ public class DataPrinter {
             stream.print(collectionData.getUInt(index));
         } else if (type.equals(SimpleType.LONG)) {
             stream.print(collectionData.getLong(index));
+        } else if (type.equals(SimpleType.ULONG)) {
+            stream.print(collectionData.getLong(index));
         } else if (type.equals(SimpleType.FLOAT)) {
             stream.print(collectionData.getFloat(index));
         } else if (type.equals(SimpleType.DOUBLE)) {
