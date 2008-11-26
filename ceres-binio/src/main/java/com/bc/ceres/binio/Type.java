@@ -2,7 +2,7 @@ package com.bc.ceres.binio;
 
 public abstract class Type {
 
-    protected Type() {
+    Type() {
     }
 
     public abstract String getName();
@@ -30,6 +30,16 @@ public abstract class Type {
     }
 
     public abstract void visit(TypeVisitor visitor);
+
+    @Override
+    public final int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 
     @Override
     public String toString() {
