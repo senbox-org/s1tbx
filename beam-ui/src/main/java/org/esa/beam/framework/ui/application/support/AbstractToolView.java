@@ -146,7 +146,7 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      * {@code null} if it is (currently) not contained inside a {@code Window}.
      *
      * @return The first {@code Window} ancestor, or {@code null}.
-     * @deprecated since 4.2, use {@link #getPaneControl()}
+     * @deprecated since 4.2, use {@link #getPaneWindow()}
      */
     @Deprecated
     public Window getWindowAncestor() {
