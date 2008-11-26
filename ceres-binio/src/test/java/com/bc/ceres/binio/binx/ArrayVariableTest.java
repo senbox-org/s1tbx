@@ -1,6 +1,7 @@
 package com.bc.ceres.binio.binx;
 
 import com.bc.ceres.binio.CompoundType;
+import com.bc.ceres.binio.Format;
 import com.bc.ceres.binio.Type;
 import junit.framework.TestCase;
 
@@ -11,11 +12,8 @@ import java.net.URL;
 import java.util.Map;
 
 public class ArrayVariableTest extends TestCase {
-    public void testArrayVariable() throws IOException, BinXException, URISyntaxException {
-        URL resource = getClass().getResource("ArrayVariable.binXschema.xml");
-        assertNotNull(resource);
-        URI uri = resource.toURI();
-        BinX binx = new BinX(uri);
+    public void testBinX() throws IOException, BinXException, URISyntaxException {
+        BinX binx = createBinX();
 
         Map<String, Type> definitions = binx.getDefinitions();
         assertTrue(definitions.get("VarFloat32ArrayType") instanceof CompoundType);
@@ -37,6 +35,24 @@ public class ArrayVariableTest extends TestCase {
 
         assertSame(arrayCompoundType, binx.getDataset().getMember(1).getType());
         assertSame(arrayCompoundType, binx.getDataset().getMember(3).getType());
+    }
+
+    public void testFormat() throws URISyntaxException, IOException, BinXException {
+        BinX binx = createBinX();
+
+        Format format = binx.getFormat("ArrayVariableTest");
+        assertEquals("ArrayVariableTest", format.getName());
+        assertNotNull(format.getType());
+        assertEquals("Dataset", format.getType().getName());
+        assertEquals(true, format.isTypeDef("VarFloat32ArrayType"));
+        assertTrue(format.getTypeDef("VarFloat32ArrayType") instanceof CompoundType);
+    }
+
+    private BinX createBinX() throws URISyntaxException, IOException, BinXException {
+        URL resource = getClass().getResource("ArrayVariable.binXschema.xml");
+        assertNotNull(resource);
+        URI uri = resource.toURI();
+        return new BinX(uri);
     }
 
 }

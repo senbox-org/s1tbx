@@ -102,6 +102,9 @@ public class BinX {
     public Format getFormat(String formatName) throws BinXException {
         Format format = new Format(dataset);
         format.setName(formatName);
+        for (Map.Entry<String, Type> entry : definitions.entrySet()) {
+            format.addTypeDef(entry.getKey(), entry.getValue());
+        }
         for (Map.Entry<SequenceType, SequenceElementCountResolver> entry : sequenceElementCountResolvers.entrySet()) {
             format.addSequenceTypeMapper(entry.getKey(), entry.getValue());
         }
