@@ -505,9 +505,8 @@ public class BandArithmetikDialog extends ModalDialog {
                     targetProduct = product;
                 }
             }
-            if(targetBand != null) {
-                targetBand = null;
-                paramBand.setValueAsText("", null);
+            if(targetBand != null && targetProduct != null) {
+                targetBand = createTargetBand(targetBand.getName(),targetBand.getDataType(),targetProduct.getSceneRasterWidth(), targetProduct.getSceneRasterHeight());
             }
             boolean b = productIsSelected && targetProduct != null;
             paramExpression.setUIEnabled(b);
@@ -627,18 +626,23 @@ public class BandArithmetikDialog extends ModalDialog {
                 if (dialog.show() == NewBandDialog.ID_OK) {
                     int width = targetProduct.getSceneRasterWidth();
                     int height = targetProduct.getSceneRasterHeight();
-                    if (getCreateVirtualBand()) {
-                        targetBand = new VirtualBand(dialog.getNewBandsName(), dialog.getNewBandsDataType(), width,
-                                                      height, "0");
-                    } else {
-                        targetBand = new Band(dialog.getNewBandsName(), dialog.getNewBandsDataType(), width, height);
-                    }
+                    targetBand = createTargetBand(dialog.getNewBandsName(), dialog.getNewBandsDataType(), width, height);
                     targetBand.setDescription(dialog.getNewBandsDesc());
                     targetBand.setUnit(dialog.getNewBandsUnit());
                     paramBand.setValue(targetBand.getName(), null);
                 }
             }
         };
+    }
+
+    private Band createTargetBand(String newBandName, int newBandDataType, int width, int height) {
+        final Band band;
+        if (getCreateVirtualBand()) {
+            band = new VirtualBand(newBandName, newBandDataType, width, height, "0");
+        } else {
+            band = new Band(newBandName, newBandDataType, width, height);
+        }
+        return band;
     }
 
     private ActionListener createEditExpressionButtonListener() {
