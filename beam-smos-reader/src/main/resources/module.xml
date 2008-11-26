@@ -27,9 +27,10 @@
     <extension point="beam-ui:actions">
         <action>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <readerPlugin>org.esa.beam.dataio.smos.SmosProductReaderPlugIn</readerPlugin>
             <id>importSmosProduct</id>
             <helpId/>
-            <formatName>SMOS</formatName>
+            <formatName>SMOS Earth Explorer</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>Import SMOS Product...</text>
             <mnemonic/>
