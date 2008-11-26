@@ -1,9 +1,11 @@
 package com.bc.ceres.binio;
 
 import com.bc.ceres.binio.util.SequenceElementCountResolver;
+import com.bc.ceres.core.Assert;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,26 +13,33 @@ import java.util.Map;
  * A binary format.
  */
 public class Format {
-    private final CompoundType type;
+    private CompoundType type;
     private String name;
     private String version;
     private ByteOrder byteOrder;
     private Map<SequenceType, SequenceTypeMapper> sequenceTypeResolverMap;
+    private Map<String, Type> typeDefMap;
 
     public Format(CompoundType type) {
         this(type, ByteOrder.BIG_ENDIAN);
     }
 
     public Format(CompoundType type, ByteOrder byteOrder) {
-        this.type = type;
-        this.name = type.getName();
-        this.version = "1.0.0";
-        this.byteOrder = byteOrder;
+        setType(type);
+        setName(type.getName());
+        setVersion("1.0.0");
+        setByteOrder(byteOrder);
         this.sequenceTypeResolverMap = new HashMap<SequenceType, SequenceTypeMapper>(16);
+        this.typeDefMap = new HashMap<String, Type>(16);
     }
 
     public CompoundType getType() {
         return type;
+    }
+
+    public void setType(CompoundType type) {
+        Assert.notNull(type, "type");
+        this.type = type;
     }
 
     public String getName() {
@@ -38,6 +47,7 @@ public class Format {
     }
 
     public void setName(String name) {
+        Assert.notNull(name, "name");
         this.name = name;
     }
 
@@ -46,6 +56,7 @@ public class Format {
     }
 
     public void setVersion(String version) {
+        Assert.notNull(version, "version");
         this.version = version;
     }
 
@@ -54,8 +65,41 @@ public class Format {
     }
 
     public void setByteOrder(ByteOrder byteOrder) {
+        Assert.notNull(byteOrder, "byteOrder");
         this.byteOrder = byteOrder;
     }
+
+    public boolean isTypeDef(String name) {
+        Assert.notNull(name, "name");
+        return typeDefMap.containsKey(name);
+    }
+
+    public Type getTypeDef(String name) {
+        Assert.notNull(name, "name");
+        Type type = typeDefMap.get(name);
+        if (type == null) {
+            throw new IllegalArgumentException(MessageFormat.format("Type definition ''{0}'' not found", name));
+        }
+        return type;
+    }
+
+    public void addTypeDef(String name, Type type) {
+        Assert.notNull(name, "name");
+        Assert.notNull(type, "type");
+        Type oldType = typeDefMap.get(name);
+        if (oldType != null && !oldType.equals(type)) {
+            throw new IllegalArgumentException(MessageFormat.format("Type definition ''{0}'' already exists as ''{1}''", name, oldType));
+        }
+        typeDefMap.put(name, type);
+    }
+
+    public Type removeTypeDef(String name) {
+        Assert.notNull(name, "name");
+        return typeDefMap.remove(name);
+    }
+
+    /////////////////////////////////////////////////////////////////////////
+    // todo - Remove following API
 
     public void addSequenceTypeMapper(CompoundType.Member member, SequenceTypeMapper sequenceTypeMapper) {
         if (!(member.getType() instanceof SequenceType)) {
