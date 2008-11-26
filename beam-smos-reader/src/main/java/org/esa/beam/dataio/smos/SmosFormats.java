@@ -13,6 +13,7 @@ import java.nio.ByteOrder;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Defines the formats of all supported SOMS product types.
@@ -127,7 +128,7 @@ public class SmosFormats {
 
 
     private static final SmosFormats INSTANCE = new SmosFormats();
-    private final Map<String, Format> formatMap;
+    private final ConcurrentMap<String, Format> formatMap;
 
     private SmosFormats() {
         formatMap = new ConcurrentHashMap<String, Format>(17);
@@ -157,7 +158,7 @@ public class SmosFormats {
 
             try {
                 final Format format = new BinX(schemaUrl.toURI()).getFormat(name);
-                formatMap.put(name, format);
+                formatMap.putIfAbsent(name, format);
             } catch (BinXException e) {
                 throw new IllegalStateException(e);
             } catch (IOException e) {
