@@ -14,11 +14,17 @@ import java.util.Map;
  */
 public class Format {
     private CompoundType type;
+    private Format basisFormat;
     private String name;
     private String version;
     private ByteOrder byteOrder;
-    private Map<SequenceType, SequenceTypeMapper> sequenceTypeResolverMap;
-    private Map<String, Type> typeDefMap;
+    private final Map<SequenceType, SequenceTypeMapper> sequenceTypeResolverMap;
+    private final Map<String, Type> typeDefMap;
+
+    public Format() {
+        this.sequenceTypeResolverMap = new HashMap<SequenceType, SequenceTypeMapper>(16);
+        this.typeDefMap = new HashMap<String, Type>(16);
+    }
 
     public Format(CompoundType type) {
         this(type, ByteOrder.BIG_ENDIAN);
@@ -31,6 +37,14 @@ public class Format {
         setByteOrder(byteOrder);
         this.sequenceTypeResolverMap = new HashMap<SequenceType, SequenceTypeMapper>(16);
         this.typeDefMap = new HashMap<String, Type>(16);
+    }
+
+    public Format getBasisFormat() {
+        return basisFormat;
+    }
+
+    public void setBasisFormat(Format basisFormat) {
+        this.basisFormat = basisFormat;
     }
 
     public CompoundType getType() {
@@ -71,12 +85,15 @@ public class Format {
 
     public boolean isTypeDef(String name) {
         Assert.notNull(name, "name");
-        return typeDefMap.containsKey(name);
+        return typeDefMap.containsKey(name) || (basisFormat != null && basisFormat.isTypeDef(name));
     }
 
     public Type getTypeDef(String name) {
         Assert.notNull(name, "name");
         Type type = typeDefMap.get(name);
+        if (type == null) {
+            type =  basisFormat != null ? basisFormat.getTypeDef(name) : null;
+        }
         if (type == null) {
             throw new IllegalArgumentException(MessageFormat.format("Type definition ''{0}'' not found", name));
         }
@@ -88,7 +105,7 @@ public class Format {
         Assert.notNull(type, "type");
         Type oldType = typeDefMap.get(name);
         if (oldType != null && !oldType.equals(type)) {
-            throw new IllegalArgumentException(MessageFormat.format("Type definition ''{0}'' already exists as ''{1}''", name, oldType));
+            throw new IllegalArgumentException(MessageFormat.format("Type definition ''{0}'' already known as ''{1}''", name, oldType.getName()));
         }
         typeDefMap.put(name, type);
     }

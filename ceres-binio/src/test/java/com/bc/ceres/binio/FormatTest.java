@@ -4,6 +4,30 @@ import com.bc.ceres.binio.util.TypeBuilder;
 import junit.framework.TestCase;
 
 public class FormatTest extends TestCase {
+
+    public void testBasisFormat() {
+        Format basisFormat = new Format();
+        Format format = new Format();
+        assertNull(format.getBasisFormat());
+        format.setBasisFormat(basisFormat);
+        assertSame(basisFormat, format.getBasisFormat());
+
+        basisFormat.addTypeDef("string80", TypeBuilder.SEQ(SimpleType.BYTE, 80));
+        assertTrue(format.isTypeDef("string80"));
+        assertTrue(format.getTypeDef("string80") == basisFormat.getTypeDef("string80"));
+        
+        format.addTypeDef("string80", TypeBuilder.SEQ(SimpleType.USHORT, 80));
+        assertTrue(format.isTypeDef("string80"));
+        assertTrue(format.getTypeDef("string80") != basisFormat.getTypeDef("string80"));
+
+        format.removeTypeDef("string80");
+        assertTrue(format.isTypeDef("string80"));
+        assertTrue(format.getTypeDef("string80") == basisFormat.getTypeDef("string80"));
+
+        basisFormat.removeTypeDef("string80");
+        assertFalse(format.isTypeDef("string80"));
+    }
+
     public void testTypeDef() {
         Format format = new Format(TypeBuilder.COMP("Point",
                                                     TypeBuilder.MEMBER("x", SimpleType.FLOAT),
