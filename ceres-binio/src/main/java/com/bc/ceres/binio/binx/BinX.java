@@ -1,6 +1,12 @@
 package com.bc.ceres.binio.binx;
 
-import com.bc.ceres.binio.*;
+import com.bc.ceres.binio.CompoundMember;
+import com.bc.ceres.binio.CompoundType;
+import com.bc.ceres.binio.DataFormat;
+import com.bc.ceres.binio.SequenceType;
+import com.bc.ceres.binio.SimpleType;
+import com.bc.ceres.binio.Type;
+import com.bc.ceres.binio.TypeBuilder;
 import static com.bc.ceres.binio.TypeBuilder.*;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -11,7 +17,11 @@ import org.jdom.input.SAXBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * See the <a href="http://www.edikt.org/binx/">BinX Project</a>.
@@ -275,25 +285,20 @@ public class BinX {
         if (!dimElement.getChildren().isEmpty()) {
             // todo - implement multi-dimensional arrays
             throw new BinXException(
-                    MessageFormat.format("Element ''{0}'': Multidimensional arrays not implemented",
+                    MessageFormat.format("Element ''{0}'': Multi-dimensional arrays not yet implemented",
                                          typeElement.getName()));
         }
 
         final Type arrayType = parseAnyType(arrayTypeElement);
-        final String dimElementAttributeName = "indexTo";
-        final String indexToAttribute = getAttributeValue(dimElement, dimElementAttributeName, true);
-        final int elementCount;
-
-        try {
-            elementCount = Integer.parseInt(indexToAttribute);
-        } catch (NumberFormatException e) {
+        final int indexFrom = getAttributeIntValue(dimElement, "indexFrom", 0);
+        if (indexFrom != 0) {
             throw new BinXException(
-                    MessageFormat.format("Element ''{0}'': attribute ''{1}'' is not an integer.",
-                                         dimElement.getName(),
-                                         dimElementAttributeName));
+                    MessageFormat.format("Element ''{0}'': Attribute 'indexFrom' other than zero not supported.",
+                                         typeElement.getName()));
         }
+        final int indexTo = getAttributeIntValue(dimElement, "indexTo");
 
-        return TypeBuilder.SEQUENCE(arrayType, elementCount);
+        return TypeBuilder.SEQUENCE(arrayType, indexTo);
     }
 
     private Type parseArrayStreamed(Element typeElement) throws BinXException {
@@ -307,6 +312,32 @@ public class BinX {
             throw new BinXException(MessageFormat.format("Element ''{0}'': attribute ''{1}'' not found.", element.getName(), name));
         }
         return value;
+    }
+
+    private int getAttributeIntValue(Element element, String attributeName) throws BinXException {
+        return getAttributeIntValue(element, attributeName, true);
+    }
+
+    private int getAttributeIntValue(Element element, String attributeName, int defaultValue) throws BinXException {
+        Integer value = getAttributeIntValue(element, attributeName, false);
+        if (value != null) {
+            return value;
+        }
+        return defaultValue;
+    }
+
+    private Integer getAttributeIntValue(Element element, String attributeName, boolean required) throws BinXException {
+        final String value = getAttributeValue(element, attributeName, required);
+        if (value == null) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException e) {
+            throw new BinXException(MessageFormat.format("Element ''{0}'': Attribute ''{1}'' must be an integer.",
+                                                         element.getName(),
+                                                         attributeName));
+        }
     }
 
     private Element getChild(Element element, boolean require) throws BinXException {
