@@ -1,6 +1,6 @@
 package org.esa.beam.pview;
 
-import com.bc.ceres.binio.Format;
+import com.bc.ceres.binio.DataFormat;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
@@ -128,7 +128,7 @@ public class PView {
 
         AffineTransform i2m = createImageToModelTransform(product, worldMode);
 
-        final Format smosFormat = SmosFormats.getInstance().getFormat(product.getProductType());
+        final DataFormat smosFormat = SmosFormats.getInstance().getFormat(product.getProductType());
         if (smosFormat != null) {
 //            String dirPath = System.getProperty(SMOS_DGG_DIR_PROPERTY_NAME);
 //            if (dirPath == null || !new File(dirPath).exists()) {

@@ -14,13 +14,10 @@
  */
 package org.esa.beam.dataio.smos;
 
-import com.bc.ceres.binio.Format;
-import com.bc.ceres.binio.binx.BinXException;
+import com.bc.ceres.binio.DataFormat;
 import junit.framework.TestCase;
 
 import java.net.URL;
-import java.net.URISyntaxException;
-import java.io.IOException;
 
 /**
  * todo - add API doc
@@ -34,7 +31,7 @@ public class SmosFormatsTest extends TestCase {
     public void testGetFormat() {
         final SmosFormats formats = SmosFormats.getInstance();
 
-        final Format format = formats.getFormat("DBL_SM_XXXX_MIR_BWLD1C_0200.binXschema.xml");
+        final DataFormat format = formats.getFormat("DBL_SM_XXXX_MIR_BWLD1C_0200.binXschema.xml");
         assertNotNull(format);
     }
 

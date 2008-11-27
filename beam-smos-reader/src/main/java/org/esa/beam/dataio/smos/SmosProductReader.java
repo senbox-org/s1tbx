@@ -136,7 +136,7 @@ public class SmosProductReader extends AbstractProductReader {
             throw new IOException("Unrecognized SMOS format.");
         }
 
-        Format format = SmosFormats.getInstance().getFormat(formatName);
+        DataFormat format = SmosFormats.getInstance().getFormat(formatName);
         if (format == null) {
             throw new IllegalStateException("format == null");
         }

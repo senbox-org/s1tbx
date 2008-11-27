@@ -1,7 +1,7 @@
 package org.esa.beam.dataio.smos;
 
 import com.bc.ceres.binio.CompoundType;
-import com.bc.ceres.binio.Format;
+import com.bc.ceres.binio.DataFormat;
 import com.bc.ceres.binio.binx.BinX;
 import com.bc.ceres.binio.binx.BinXException;
 import static com.bc.ceres.binio.util.TypeBuilder.*;
@@ -9,8 +9,6 @@ import static com.bc.ceres.binio.util.TypeBuilder.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.ByteOrder;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -128,10 +126,10 @@ public class SmosFormats {
 
 
     private static final SmosFormats INSTANCE = new SmosFormats();
-    private final ConcurrentMap<String, Format> formatMap;
+    private final ConcurrentMap<String, DataFormat> formatMap;
 
     private SmosFormats() {
-        formatMap = new ConcurrentHashMap<String, Format>(17);
+        formatMap = new ConcurrentHashMap<String, DataFormat>(17);
 //        registerSmosFormat("MIR_BWLD1C", MIR_BROWSE_TYPE, BROWSE_GRID_POINT_DATA_TYPE, true);
 //        registerSmosFormat("MIR_BWLF1C", MIR_BROWSE_TYPE, BROWSE_GRID_POINT_DATA_TYPE, true);
 //        registerSmosFormat("MIR_BWSD1C", MIR_BROWSE_TYPE, BROWSE_GRID_POINT_DATA_TYPE, true);
@@ -152,12 +150,12 @@ public class SmosFormats {
         return names.toArray(new String[names.size()]);
     }
 
-    public Format getFormat(String name) {
+    public DataFormat getFormat(String name) {
         if (!formatMap.containsKey(name)) {
             final URL schemaUrl = getSchemaResource(name);
 
             try {
-                final Format format = new BinX(schemaUrl.toURI()).getFormat(name);
+                final DataFormat format = new BinX(schemaUrl.toURI()).getFormat(name);
                 formatMap.putIfAbsent(name, format);
             } catch (BinXException e) {
                 throw new IllegalStateException(e);

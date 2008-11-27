@@ -18,6 +18,7 @@ package org.esa.beam.dataio.smos;
 
 
 import com.bc.ceres.binio.*;
+import com.bc.ceres.binio.internal.DataContextImpl;
 import com.bc.ceres.binio.util.RandomAccessFileIOHandler;
 
 import java.io.File;
@@ -29,19 +30,18 @@ import java.util.Arrays;
 class SmosFile {
 
     private final File file;
-    private final Format format;
+    private final DataFormat format;
     private final SequenceData gridPointList;
     private int[] gridPointIndexes;
     private final RandomAccessFile raf;
 
-    public SmosFile(File file, Format format) throws IOException {
+    public SmosFile(File file, DataFormat format) throws IOException {
         this.file = file;
         this.format = format;
         System.out.println("SmosFile: file = " + this.file);
         System.out.println("SmosFile: format = " + this.format.getName());
         this.raf = new RandomAccessFile(file, "r");
-        final IOHandler handler = new RandomAccessFileIOHandler(raf);
-        final IOContext context = new IOContext(format, handler);
+        final DataContext context = format.createContext(raf);
         CompoundData smosBinaryData = context.getData();
         gridPointList = smosBinaryData.getSequence("Grid_Point_List");
         initGridPointIndexes();
@@ -51,7 +51,7 @@ class SmosFile {
         return file;
     }
 
-    public Format getFormat() {
+    public DataFormat getFormat() {
         return format;
     }
 
