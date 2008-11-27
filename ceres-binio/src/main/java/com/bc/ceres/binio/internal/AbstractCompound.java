@@ -10,7 +10,7 @@ abstract class AbstractCompound extends AbstractCollection implements CompoundIn
     private final long position;
     private final MemberInstance[] members;
 
-    protected AbstractCompound(IOContext context, CollectionData parent, CompoundType compoundType, long position) {
+    protected AbstractCompound(DataContext context, CollectionData parent, CompoundType compoundType, long position) {
         super(context, parent);
         this.compoundType = compoundType;
         this.position = position;

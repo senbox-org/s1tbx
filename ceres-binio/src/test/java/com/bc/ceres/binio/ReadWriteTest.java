@@ -24,7 +24,7 @@ public class ReadWriteTest extends TestCase {
 
         ByteArrayIOHandler byteArrayIOHandler = new ByteArrayIOHandler();
         TracingIOHandler tracingIOHandler = new TracingIOHandler(byteArrayIOHandler);
-        IOContext context = new IOContext(new Format(type), tracingIOHandler);
+        DataContext context = new DataFormat(type).createContext(tracingIOHandler);
         CompoundData complex = context.getData();
         complex.setDouble("x", 23.04);
         complex.setDouble("y", 10.12);
@@ -38,7 +38,7 @@ public class ReadWriteTest extends TestCase {
         final byte[] byteData = byteArrayIOHandler.toByteArray();
         byteArrayIOHandler = new ByteArrayIOHandler(byteData);
         tracingIOHandler = new TracingIOHandler(byteArrayIOHandler);
-        context = new IOContext(new Format(type), tracingIOHandler);
+        context = new DataFormat(type).createContext(tracingIOHandler);
         complex = context.getData();
         assertEquals(23.04, complex.getDouble("x"), 1e-10);
         assertEquals(10.12, complex.getDouble("y"), 1e-10);
@@ -56,7 +56,7 @@ public class ReadWriteTest extends TestCase {
 
         ByteArrayIOHandler byteArrayIOHandler = new ByteArrayIOHandler();
         TracingIOHandler tracingIOHandler = new TracingIOHandler(byteArrayIOHandler);
-        IOContext context = new IOContext(new Format(type), tracingIOHandler);
+        DataContext context = new DataFormat(type).createContext(tracingIOHandler);
         CompoundData data = context.getData();
         SequenceData seq = data.getSequence("Complex_List");
         for (int i = 0; i < 5; i++) {
@@ -78,7 +78,7 @@ public class ReadWriteTest extends TestCase {
         final byte[] byteData = byteArrayIOHandler.toByteArray();
         byteArrayIOHandler = new ByteArrayIOHandler(byteData);
         tracingIOHandler = new TracingIOHandler(byteArrayIOHandler);
-        context = new IOContext(new Format(type), tracingIOHandler);
+        context = new DataFormat(type).createContext(tracingIOHandler);
         data = context.getData();
         seq = data.getSequence("Complex_List");
         for (int i = 0; i < 5; i++) {

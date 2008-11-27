@@ -10,7 +10,7 @@ final class VarCompound extends AbstractCompound {
     private final CompoundTypeImpl resolvedCompoundType;
     private int maxResolvedIndex;
 
-    public VarCompound(IOContext context, CollectionData parent, CompoundType compoundType, long position) {
+    public VarCompound(DataContext context, CollectionData parent, CompoundType compoundType, long position) {
         super(context, parent, compoundType, position);
         this.resolvedCompoundType = new CompoundTypeImpl(compoundType.getName(), compoundType.getMembers());
         this.maxResolvedIndex = -1;
@@ -87,7 +87,7 @@ final class VarCompound extends AbstractCompound {
     }
 
     private MemberInstance createMemberInstance(int index) throws IOException {
-        final IOContext context = getContext();
+        final DataContext context = getContext();
         final Type memberType = getCompoundType().getMemberType(index);
         final long position;
         if (index > 0) {

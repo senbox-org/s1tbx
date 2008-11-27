@@ -6,8 +6,8 @@ import junit.framework.TestCase;
 public class FormatTest extends TestCase {
 
     public void testBasisFormat() {
-        Format basisFormat = new Format();
-        Format format = new Format();
+        DataFormat basisFormat = new DataFormat();
+        DataFormat format = new DataFormat();
         assertNull(format.getBasisFormat());
         format.setBasisFormat(basisFormat);
         assertSame(basisFormat, format.getBasisFormat());
@@ -15,7 +15,7 @@ public class FormatTest extends TestCase {
         basisFormat.addTypeDef("string80", TypeBuilder.SEQ(SimpleType.BYTE, 80));
         assertTrue(format.isTypeDef("string80"));
         assertTrue(format.getTypeDef("string80") == basisFormat.getTypeDef("string80"));
-        
+
         format.addTypeDef("string80", TypeBuilder.SEQ(SimpleType.USHORT, 80));
         assertTrue(format.isTypeDef("string80"));
         assertTrue(format.getTypeDef("string80") != basisFormat.getTypeDef("string80"));
@@ -29,9 +29,9 @@ public class FormatTest extends TestCase {
     }
 
     public void testTypeDef() {
-        Format format = new Format(TypeBuilder.COMP("Point",
-                                                    TypeBuilder.MEMBER("x", SimpleType.FLOAT),
-                                                    TypeBuilder.MEMBER("y", SimpleType.FLOAT)));
+        DataFormat format = new DataFormat(TypeBuilder.COMP("Point",
+                                                            TypeBuilder.MEMBER("x", SimpleType.FLOAT),
+                                                            TypeBuilder.MEMBER("y", SimpleType.FLOAT)));
 
         assertEquals(false, format.isTypeDef("bool"));
         try {

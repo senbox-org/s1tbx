@@ -2,7 +2,7 @@ package com.bc.ceres.binio.internal;
 
 import com.bc.ceres.binio.CollectionData;
 import com.bc.ceres.binio.DataAccessException;
-import com.bc.ceres.binio.IOContext;
+import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.SequenceType;
 
 import java.io.IOException;
@@ -11,7 +11,7 @@ import java.io.IOException;
 final class VarSequenceOfFixCollections extends AbstractSequenceOfFixCollections {
     private SequenceType resolvedSequenceType;
 
-    public VarSequenceOfFixCollections(IOContext context, CollectionData parent, SequenceType sequenceType, long position) {
+    public VarSequenceOfFixCollections(DataContext context, CollectionData parent, SequenceType sequenceType, long position) {
         super(context, parent, sequenceType, position);
     }
 

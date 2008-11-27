@@ -6,14 +6,14 @@ import java.io.IOException;
 
 
 final class SimpleMember implements MemberInstance {
-    private final IOContext context;
+    private final DataContext context;
     private final CollectionData parent;
     private final SimpleType simpleType;
     private final Segment segment;
     private final int segmentOffset;
     private DataAccessor dataAccessor;
 
-    protected SimpleMember(IOContext context,
+    protected SimpleMember(DataContext context,
                            CollectionData parent,
                            SimpleType simpleType,
                            Segment segment,

@@ -26,7 +26,7 @@ public interface IOHandler {
      *                 must be non-negative.
      * @throws IOException If an I/O error occurs.
      */
-    void read(IOContext context, byte[] data, long position) throws IOException;
+    void read(DataContext context, byte[] data, long position) throws IOException;
 
     /**
      * <p> Writes a sequence of up to {@code data.length} bytes to the file,
@@ -41,5 +41,5 @@ public interface IOHandler {
      *                 must be non-negative.
      * @throws IOException If an I/O error occurs.
      */
-    void write(IOContext context, byte[] data, long position) throws IOException;
+    void write(DataContext context, byte[] data, long position) throws IOException;
 }

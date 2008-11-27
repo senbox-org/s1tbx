@@ -1,49 +1,104 @@
 package com.bc.ceres.binio;
 
-import com.bc.ceres.binio.util.SequenceElementCountResolver;
+import com.bc.ceres.binio.internal.DataContextImpl;
+import com.bc.ceres.binio.util.FileChannelIOHandler;
+import com.bc.ceres.binio.util.RandomAccessFileIOHandler;
 import com.bc.ceres.core.Assert;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A binary format.
+ * A binary data format.
  */
-public class Format {
+public class DataFormat {
     private CompoundType type;
-    private Format basisFormat;
+    private DataFormat basisFormat;
     private String name;
     private String version;
     private ByteOrder byteOrder;
-    private final Map<SequenceType, SequenceTypeMapper> sequenceTypeResolverMap;
     private final Map<String, Type> typeDefMap;
 
-    public Format() {
-        this.sequenceTypeResolverMap = new HashMap<SequenceType, SequenceTypeMapper>(16);
+    public DataFormat() {
         this.typeDefMap = new HashMap<String, Type>(16);
     }
 
-    public Format(CompoundType type) {
+    public DataFormat(CompoundType type) {
         this(type, ByteOrder.BIG_ENDIAN);
     }
 
-    public Format(CompoundType type, ByteOrder byteOrder) {
+    public DataFormat(CompoundType type, ByteOrder byteOrder) {
         setType(type);
         setName(type.getName());
         setVersion("1.0.0");
         setByteOrder(byteOrder);
-        this.sequenceTypeResolverMap = new HashMap<SequenceType, SequenceTypeMapper>(16);
         this.typeDefMap = new HashMap<String, Type>(16);
     }
 
-    public Format getBasisFormat() {
+    /**
+     * Creates a new random access file data context.
+     *
+     * @param file the file object
+     * @param mode the access mode, one of <tt>"r"</tt>, <tt>"rw"</tt>, <tt>"rws"</tt>, or
+     *             <tt>"rwd"</tt>. See also mode description in {@link RandomAccessFile#RandomAccessFile(java.io.File, String)}.
+     * @return The context.
+     * @throws FileNotFoundException If in read-only mode and the file could nt be found.
+     */
+    public DataContext createContext(File file, String mode) throws FileNotFoundException {
+        Assert.notNull(file, "file");
+        Assert.notNull(mode, "mode");
+        final RandomAccessFile raf = new RandomAccessFile(file, mode);
+        return new DataContextImpl(this, new RandomAccessFileIOHandler(raf)) {
+            private boolean disposed;
+
+            @Override
+            public void dispose() {
+                disposed = true;
+                try {
+                    raf.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+
+            @Override
+            protected void finalize() throws Throwable {
+                super.finalize();
+                if (!disposed) {
+                    dispose();
+                }
+            }
+
+        };
+    }
+
+    public DataContext createContext(RandomAccessFile raf) {
+        Assert.notNull(raf, "raf");
+        return new DataContextImpl(this, new RandomAccessFileIOHandler(raf));
+    }
+
+    public DataContext createContext(FileChannel fileChannel) {
+        Assert.notNull(fileChannel, "fileChannel");
+        return new DataContextImpl(this, new FileChannelIOHandler(fileChannel));
+    }
+
+    public DataContext createContext(IOHandler ioHandler) {
+        Assert.notNull(ioHandler, "ioHandler");
+        return new DataContextImpl(this, ioHandler);
+    }
+
+    public DataFormat getBasisFormat() {
         return basisFormat;
     }
 
-    public void setBasisFormat(Format basisFormat) {
+    public void setBasisFormat(DataFormat basisFormat) {
         this.basisFormat = basisFormat;
     }
 
@@ -113,46 +168,5 @@ public class Format {
     public Type removeTypeDef(String name) {
         Assert.notNull(name, "name");
         return typeDefMap.remove(name);
-    }
-
-    /////////////////////////////////////////////////////////////////////////
-    // todo - Remove following API
-
-    public void addSequenceTypeMapper(CompoundMember member, SequenceTypeMapper sequenceTypeMapper) {
-        if (!(member.getType() instanceof SequenceType)) {
-            throw new IllegalArgumentException("member");
-        }
-        addSequenceTypeMapper((SequenceType) member.getType(), sequenceTypeMapper);
-    }
-
-    public void addSequenceTypeMapper(SequenceType sequenceType, SequenceTypeMapper sequenceTypeMapper) {
-        if (sequenceType.isSizeKnown()) {
-            throw new IllegalArgumentException("sequenceType");
-        }
-        sequenceTypeResolverMap.put(sequenceType, sequenceTypeMapper);
-    }
-
-    public void addSequenceElementCountResolver(String compoundMemberName, String referencedMemberName) {
-        addSequenceElementCountResolver(getType(), compoundMemberName, referencedMemberName);
-    }
-
-    public void addSequenceElementCountResolver(CompoundType compoundType, String compoundMemberName, String referencedMemberName) {
-        // todo - check indexes
-        final int sequenceMemberIndex = compoundType.getMemberIndex(compoundMemberName);
-        final int elementCountMemberIndex = compoundType.getMemberIndex(referencedMemberName);
-        final CompoundMember sequenceMember = compoundType.getMember(sequenceMemberIndex);
-        // todo - check type
-        final SequenceType sequenceType = (SequenceType) sequenceMember.getType();
-        final SequenceElementCountResolver sequenceElementCountResolver = new SequenceElementCountResolver() {
-            @Override
-            public int getElementCount(CollectionData parent, SequenceType unresolvedSequenceType) throws IOException {
-                return parent.getInt(elementCountMemberIndex);
-            }
-        };
-        addSequenceTypeMapper(sequenceType, sequenceElementCountResolver);
-    }
-
-    public SequenceTypeMapper getSequenceTypeMapper(SequenceType sequenceType) {
-        return sequenceTypeResolverMap.get(sequenceType);
     }
 }

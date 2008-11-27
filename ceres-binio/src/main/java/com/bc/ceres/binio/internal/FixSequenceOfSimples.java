@@ -1,6 +1,9 @@
 package com.bc.ceres.binio.internal;
 
-import com.bc.ceres.binio.*;
+import com.bc.ceres.binio.CollectionData;
+import com.bc.ceres.binio.DataContext;
+import com.bc.ceres.binio.SequenceType;
+import com.bc.ceres.binio.Type;
 
 import java.io.IOException;
 
@@ -9,11 +12,11 @@ final class FixSequenceOfSimples extends AbstractSequenceOfSimples {
     private final Segment segment;
     private final int segmentOffset;
 
-    public FixSequenceOfSimples(IOContext context, CollectionData parent, SequenceType sequenceType, long position) {
+    public FixSequenceOfSimples(DataContext context, CollectionData parent, SequenceType sequenceType, long position) {
         this(context, parent, sequenceType, new Segment(position, sequenceType.getSize()), 0);
     }
 
-    public FixSequenceOfSimples(IOContext context, CollectionData parent, SequenceType sequenceType, Segment segment, int segmentOffset) {
+    public FixSequenceOfSimples(DataContext context, CollectionData parent, SequenceType sequenceType, Segment segment, int segmentOffset) {
         super(context, parent, sequenceType);
         this.segment = segment;
         this.segmentOffset = segmentOffset;

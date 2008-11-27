@@ -1,7 +1,7 @@
 package com.bc.ceres.binio.smos;
 
 import com.bc.ceres.binio.CompoundData;
-import com.bc.ceres.binio.IOContext;
+import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.SequenceData;
 import com.bc.ceres.binio.TracingIOHandler;
 import static com.bc.ceres.binio.smos.SmosProduct.*;
@@ -16,7 +16,7 @@ public class SmosTest extends TestCase {
     public void testSequentialProductReading() throws IOException {
         byte[] byteData = createTestProductData(ByteOrder.LITTLE_ENDIAN);
         final TracingIOHandler reader = new TracingIOHandler(new ByteArrayIOHandler(byteData));
-        final IOContext context = new IOContext(MIR_SCLF1C_FORMAT, reader);
+        final DataContext context = MIR_SCLF1C_FORMAT.createContext(reader);
         final CompoundData data = context.getData();
 
         assertEquals(0L, data.getPosition());
@@ -94,7 +94,7 @@ public class SmosTest extends TestCase {
     public void testRandomAccessProductReading() throws IOException {
         byte[] byteData = createTestProductData(ByteOrder.LITTLE_ENDIAN);
         final TracingIOHandler handler = new TracingIOHandler(new ByteArrayIOHandler(byteData));
-        final IOContext context = new IOContext(MIR_SCLF1C_FORMAT, handler);
+        final DataContext context = MIR_SCLF1C_FORMAT.createContext(handler);
         final CompoundData data = context.getData();
 
         SequenceData gridPointList = data.getSequence(3);

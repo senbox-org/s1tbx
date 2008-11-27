@@ -1,6 +1,8 @@
 package com.bc.ceres.binio.internal;
 
-import com.bc.ceres.binio.*;
+import com.bc.ceres.binio.CollectionData;
+import com.bc.ceres.binio.CompoundData;
+import com.bc.ceres.binio.Type;
 
 import java.io.IOException;
 
@@ -13,13 +15,13 @@ public final class VarElementCountSequenceTypeImpl extends VarElementCountSequen
     private volatile int memberIndex;
 
     public VarElementCountSequenceTypeImpl(Type elementType, int memberIndex) {
-        super(elementType + "[$" + memberIndex + "]", elementType);
+        super(elementType.getName() + "[$" + memberIndex + "]", elementType);
         this.memberName = null;
         this.memberIndex = memberIndex;
     }
 
     public VarElementCountSequenceTypeImpl(Type elementType, String memberName) {
-        super(elementType + "[$" + memberName + "]", elementType);
+        super(elementType.getName() + "[$" + memberName + "]", elementType);
         this.memberName = memberName;
         this.memberIndex = -1;
     }

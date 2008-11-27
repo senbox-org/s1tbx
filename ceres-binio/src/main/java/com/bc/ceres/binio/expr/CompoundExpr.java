@@ -3,7 +3,8 @@ package com.bc.ceres.binio.expr;
 import com.bc.ceres.binio.CompoundData;
 import com.bc.ceres.binio.CompoundMember;
 import com.bc.ceres.binio.Type;
-import static com.bc.ceres.binio.util.TypeBuilder.*;
+import static com.bc.ceres.binio.util.TypeBuilder.COMP;
+import static com.bc.ceres.binio.util.TypeBuilder.MEMBER;
 
 import java.io.IOException;
 

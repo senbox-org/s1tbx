@@ -20,13 +20,13 @@ public class TracingIOHandler extends FilterIOHandler {
     }
 
     @Override
-    public void read(IOContext context, byte[] data, long position) throws IOException {
+    public void read(DataContext context, byte[] data, long position) throws IOException {
         trace.append("R(").append(position).append(",").append(data.length).append(")");
         getDelegate().read(context, data, position);
     }
 
     @Override
-    public void write(IOContext context, byte[] data, long position) throws IOException {
+    public void write(DataContext context, byte[] data, long position) throws IOException {
         trace.append("W(").append(position).append(",").append(data.length).append(")");
         getDelegate().write(context, data, position);
     }

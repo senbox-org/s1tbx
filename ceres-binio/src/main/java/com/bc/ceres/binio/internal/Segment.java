@@ -1,6 +1,6 @@
 package com.bc.ceres.binio.internal;
 
-import com.bc.ceres.binio.IOContext;
+import com.bc.ceres.binio.DataContext;
 
 import java.io.IOException;
 
@@ -41,7 +41,7 @@ final class Segment {
         return data != null;
     }
 
-    public void makeDataAccessible(IOContext context) throws IOException {
+    public void makeDataAccessible(DataContext context) throws IOException {
         if (data == null) {
             data = new byte[size];
             setDirty(false);
@@ -49,7 +49,7 @@ final class Segment {
         }
     }
 
-    public synchronized void flushData(IOContext context) throws IOException {
+    public synchronized void flushData(DataContext context) throws IOException {
         if (isDirty()) {
             context.getHandler().write(context, data, position);
             setDirty(false);

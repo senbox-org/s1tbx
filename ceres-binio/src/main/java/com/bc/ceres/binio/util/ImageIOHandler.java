@@ -1,6 +1,6 @@
 package com.bc.ceres.binio.util;
 
-import com.bc.ceres.binio.IOContext;
+import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.IOHandler;
 
 import javax.imageio.stream.ImageInputStream;
@@ -21,14 +21,14 @@ public class ImageIOHandler implements IOHandler {
         this.imageOutputStream = imageOutputStream;
     }
 
-    public void read(IOContext context, byte[] data, long position) throws IOException {
+    public void read(DataContext context, byte[] data, long position) throws IOException {
         synchronized (imageInputStream) {
             imageInputStream.seek(position);
             imageInputStream.readFully(data, 0, data.length);
         }
     }
 
-    public void write(IOContext context, byte[] data, long position) throws IOException {
+    public void write(DataContext context, byte[] data, long position) throws IOException {
         if (imageOutputStream == null) {
             throw new IOException("Read only.");
         }

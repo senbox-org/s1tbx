@@ -1,6 +1,6 @@
 package com.bc.ceres.binio.util;
 
-import com.bc.ceres.binio.IOContext;
+import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.IOHandler;
 
 import java.io.IOException;
@@ -16,11 +16,11 @@ public abstract class FilterIOHandler implements IOHandler {
         return delegate;
     }
 
-    public void read(IOContext context, byte[] data, long position) throws IOException {
+    public void read(DataContext context, byte[] data, long position) throws IOException {
         delegate.read(context, data, position);
     }
 
-    public void write(IOContext context, byte[] data, long position) throws IOException {
+    public void write(DataContext context, byte[] data, long position) throws IOException {
         delegate.write(context, data, position);
     }
 }

@@ -15,7 +15,7 @@ final class FixSequenceOfVarCollections extends AbstractSequenceOfCollections {
     private CollectionInstance lastAccessedElementInstance;
     private long size;
 
-    FixSequenceOfVarCollections(IOContext context, CollectionData parent, SequenceType sequenceType, long position) {
+    FixSequenceOfVarCollections(DataContext context, CollectionData parent, SequenceType sequenceType, long position) {
         super(context, parent, sequenceType, position);
         unresolvedElementType = sequenceType.getElementType();
         if (unresolvedElementType.isSizeKnown()) {

@@ -1,6 +1,6 @@
 package com.bc.ceres.binio.binx;
 
-public class BinXException extends Exception{
+public class BinXException extends Exception {
     /**
      * Constructs a new exception with the specified detail message.  The
      * cause is not initialized, and may subsequently be initialized by

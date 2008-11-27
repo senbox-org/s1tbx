@@ -10,7 +10,7 @@ import java.nio.ByteOrder;
  */
 public class InstanceFactory {
 
-    public static CompoundInstance createCompound(IOContext context, CollectionData parent, CompoundType compoundType, long position, ByteOrder byteOrder) {
+    public static CompoundInstance createCompound(DataContext context, CollectionData parent, CompoundType compoundType, long position, ByteOrder byteOrder) {
         if (compoundType.isSizeKnown()) {
             // COMPOUND(all members have known size)
             return new FixCompound(context, parent, compoundType, position);
@@ -20,7 +20,7 @@ public class InstanceFactory {
         }
     }
 
-    static SequenceInstance createSequence(IOContext context, CollectionData parent, SequenceType sequenceType, long position, ByteOrder byteOrder) {
+    static SequenceInstance createSequence(DataContext context, CollectionData parent, SequenceType sequenceType, long position, ByteOrder byteOrder) {
         final Type elementType = sequenceType.getElementType();
         if (elementType.isSimpleType()) {
             if (sequenceType.getElementCount() >= 0) {
@@ -49,7 +49,7 @@ public class InstanceFactory {
         }
     }
 
-    static CollectionInstance createCollection(IOContext context, CollectionData parent, Type type, long position, ByteOrder byteOrder) throws IOException {
+    static CollectionInstance createCollection(DataContext context, CollectionData parent, Type type, long position, ByteOrder byteOrder) throws IOException {
         if (type.isCompoundType()) {
             return createCompound(context, parent, (CompoundType) type, position, byteOrder);
         } else if (type.isSequenceType()) {
@@ -59,7 +59,7 @@ public class InstanceFactory {
         }
     }
 
-    static MemberInstance createMember(IOContext context, CompoundData parent, Type type, long position, ByteOrder byteOrder) throws IOException {
+    static MemberInstance createMember(DataContext context, CompoundData parent, Type type, long position, ByteOrder byteOrder) throws IOException {
         if (type.isSimpleType()) {
             return createFixMember(context, parent, type, new Segment(position, type.getSize()), 0);
         } else {
@@ -67,7 +67,7 @@ public class InstanceFactory {
         }
     }
 
-    static MemberInstance createFixMember(IOContext context, CollectionData parent, Type type, Segment segment, int segmentOffset) {
+    static MemberInstance createFixMember(DataContext context, CollectionData parent, Type type, Segment segment, int segmentOffset) {
         if (!type.isSizeKnown()) {
             throw new IllegalArgumentException("illegal type: " + type);
         }
@@ -82,12 +82,12 @@ public class InstanceFactory {
         }
     }
 
-    static CompoundInstance createFixCompound(IOContext context, CollectionData parent, CompoundType compoundType, Segment segment, int segmentOffset) {
+    static CompoundInstance createFixCompound(DataContext context, CollectionData parent, CompoundType compoundType, Segment segment, int segmentOffset) {
         // COMPOUND(all members have known size)
         return new FixCompound(context, parent, compoundType, segment, segmentOffset);
     }
 
-    static SequenceInstance createFixSequence(IOContext context, CollectionData parent, SequenceType sequenceType, Segment segment, int segmentOffset) {
+    static SequenceInstance createFixSequence(DataContext context, CollectionData parent, SequenceType sequenceType, Segment segment, int segmentOffset) {
         final Type elementType = sequenceType.getElementType();
         if (elementType.isSimpleType()) {
             // SEQUENCE(elementType=SIMPLE, elementCount=N)

@@ -7,7 +7,7 @@ import java.io.IOException;
 
 abstract class AbstractSequenceOfFixCollections extends AbstractSequenceOfCollections {
 
-    protected AbstractSequenceOfFixCollections(IOContext context, CollectionData parent, SequenceType sequenceType, long position) {
+    protected AbstractSequenceOfFixCollections(DataContext context, CollectionData parent, SequenceType sequenceType, long position) {
         super(context, parent, sequenceType, position);
     }
 

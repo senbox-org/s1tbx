@@ -1,7 +1,7 @@
 package com.bc.ceres.binio.binx;
 
 import com.bc.ceres.binio.CompoundType;
-import com.bc.ceres.binio.Format;
+import com.bc.ceres.binio.DataFormat;
 import com.bc.ceres.binio.Type;
 import junit.framework.TestCase;
 
@@ -22,7 +22,7 @@ public class ArrayVariableTest extends TestCase {
         assertEquals(2, arrayCompoundType.getMemberCount());
         assertEquals("Length", arrayCompoundType.getMember(0).getName());
         assertEquals("Data", arrayCompoundType.getMember(1).getName());
-        assertEquals("float[]", arrayCompoundType.getMember(1).getType().getName());
+        assertEquals("float[$Length]", arrayCompoundType.getMember(1).getType().getName());
 
         assertNotNull(binx.getDataset());
         assertEquals("Dataset", binx.getDataset().getName());
@@ -40,7 +40,7 @@ public class ArrayVariableTest extends TestCase {
     public void testFormat() throws URISyntaxException, IOException, BinXException {
         BinX binx = createBinX();
 
-        Format format = binx.getFormat("ArrayVariableTest");
+        DataFormat format = binx.getFormat("ArrayVariableTest");
         assertEquals("ArrayVariableTest", format.getName());
         assertNotNull(format.getType());
         assertEquals("Dataset", format.getType().getName());

@@ -2,7 +2,7 @@ package com.bc.ceres.binio.internal;
 
 import com.bc.ceres.binio.CollectionData;
 import com.bc.ceres.binio.DataAccessException;
-import com.bc.ceres.binio.IOContext;
+import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.SequenceType;
 
 import java.io.IOException;
@@ -11,7 +11,7 @@ abstract class AbstractSequenceOfSimples extends AbstractSequence {
     private final int elementSize;
     private DataAccessor dataAccessor;
 
-    protected AbstractSequenceOfSimples(IOContext context, CollectionData parent, SequenceType sequenceType) {
+    protected AbstractSequenceOfSimples(DataContext context, CollectionData parent, SequenceType sequenceType) {
         super(context, parent, sequenceType);
         this.elementSize = sequenceType.getElementType().getSize();
     }

@@ -1,6 +1,6 @@
 package com.bc.ceres.binio.util;
 
-import com.bc.ceres.binio.IOContext;
+import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.IOHandler;
 
 import java.io.IOException;
@@ -23,7 +23,7 @@ public class ByteArrayIOHandler implements IOHandler {
         return copyByteArray(size);
     }
 
-    public void read(IOContext context, byte[] data, long position) throws IOException {
+    public void read(DataContext context, byte[] data, long position) throws IOException {
         int r = data.length;
         if (position + r > (long) Integer.MAX_VALUE) {
             throw new IOException();
@@ -39,7 +39,7 @@ public class ByteArrayIOHandler implements IOHandler {
         System.arraycopy(byteArray, pos, data, 0, n);
     }
 
-    public void write(IOContext context, byte[] data, long position) throws IOException {
+    public void write(DataContext context, byte[] data, long position) throws IOException {
         int n = data.length;
         if (position + n > (long) Integer.MAX_VALUE) {
             throw new IOException();

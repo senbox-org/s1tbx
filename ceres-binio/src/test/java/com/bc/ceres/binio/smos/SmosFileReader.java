@@ -1,7 +1,7 @@
 package com.bc.ceres.binio.smos;
 
 import com.bc.ceres.binio.CompoundData;
-import com.bc.ceres.binio.IOContext;
+import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.IOHandler;
 import com.bc.ceres.binio.SequenceData;
 import com.bc.ceres.binio.util.RandomAccessFileIOHandler;
@@ -32,7 +32,7 @@ public class SmosFileReader {
         IOHandler handler = createIOHandler(file);
 
 
-        final IOContext context = new IOContext(SmosProduct.MIR_SCLF1C_FORMAT, handler);
+        final DataContext context = SmosProduct.MIR_SCLF1C_FORMAT.createContext(handler);
 
         final CompoundData data = context.getData();
         final long snapshotCounter = data.getUInt("Snapshot_Counter");

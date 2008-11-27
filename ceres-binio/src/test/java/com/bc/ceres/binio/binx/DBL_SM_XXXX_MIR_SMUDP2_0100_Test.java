@@ -1,7 +1,7 @@
 package com.bc.ceres.binio.binx;
 
 import com.bc.ceres.binio.CompoundType;
-import com.bc.ceres.binio.Format;
+import com.bc.ceres.binio.DataFormat;
 import com.bc.ceres.binio.Type;
 import junit.framework.TestCase;
 
@@ -38,9 +38,9 @@ public class DBL_SM_XXXX_MIR_SMUDP2_0100_Test extends TestCase {
         assertEquals("N_Grid_Points", binx.getDataset().getMember(0).getName());
         assertEquals("Data", binx.getDataset().getMember(1).getName());
 
-        assertEquals("Grid_Point_Data_Type[]", binx.getDataset().getMember(1).getType().getName());
+        assertEquals("Grid_Point_Data_Type[$N_Grid_Points]", binx.getDataset().getMember(1).getType().getName());
 
-        Format format = binx.getFormat("DBL_SM_XXXX_MIR_SMUDP2_0100");
+        DataFormat format = binx.getFormat("DBL_SM_XXXX_MIR_SMUDP2_0100");
         assertNotNull(format);
         assertEquals("DBL_SM_XXXX_MIR_SMUDP2_0100", format.getName());
         assertSame(binx.getDataset(), format.getType());

@@ -1,6 +1,5 @@
 package com.bc.ceres.binio.internal;
 
-import com.bc.ceres.binio.internal.AbstractType;
 import com.bc.ceres.binio.SequenceType;
 import com.bc.ceres.binio.Type;
 import com.bc.ceres.binio.TypeVisitor;

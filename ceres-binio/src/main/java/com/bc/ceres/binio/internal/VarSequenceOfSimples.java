@@ -10,7 +10,7 @@ final class VarSequenceOfSimples extends AbstractSequenceOfSimples {
     private Segment segment;
     private final long position;
 
-    public VarSequenceOfSimples(IOContext context, CollectionData parent, SequenceType sequenceType, long position) {
+    public VarSequenceOfSimples(DataContext context, CollectionData parent, SequenceType sequenceType, long position) {
         super(context, parent, sequenceType);
         this.position = position;
     }

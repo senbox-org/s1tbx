@@ -1,7 +1,6 @@
 package com.bc.ceres.binio.binx;
 
 import com.bc.ceres.binio.*;
-import com.bc.ceres.binio.util.SequenceElementCountResolver;
 import static com.bc.ceres.binio.util.TypeBuilder.*;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -28,7 +27,6 @@ public class BinX {
     private Map<String, Type> definitions;
     private CompoundType dataset;
 
-    private Map<SequenceType, SequenceElementCountResolver> sequenceElementCountResolvers;
     private Map<String, SimpleType> primitiveTypes;
 
     private Namespace namespace;
@@ -52,8 +50,6 @@ public class BinX {
         primitiveTypes.put("unsignedInteger-64", SimpleType.ULONG);
         primitiveTypes.put("float-32", SimpleType.FLOAT);
         primitiveTypes.put("float-64", SimpleType.DOUBLE);
-
-        sequenceElementCountResolvers = new HashMap<SequenceType, SequenceElementCountResolver>();
 
         parseDocument();
     }
@@ -99,14 +95,11 @@ public class BinX {
         parseDataset(binxElement);
     }
 
-    public Format getFormat(String formatName) throws BinXException {
-        Format format = new Format(dataset);
+    public DataFormat getFormat(String formatName) throws BinXException {
+        DataFormat format = new DataFormat(dataset);
         format.setName(formatName);
         for (Map.Entry<String, Type> entry : definitions.entrySet()) {
             format.addTypeDef(entry.getKey(), entry.getValue());
-        }
-        for (Map.Entry<SequenceType, SequenceElementCountResolver> entry : sequenceElementCountResolvers.entrySet()) {
-            format.addSequenceTypeMapper(entry.getKey(), entry.getValue());
         }
         return format;
     }
@@ -114,7 +107,7 @@ public class BinX {
     private void parseParameters(Element binxElement) throws BinXException {
         Element parametersElement = getChild(binxElement, "parameters", false);
         if (parametersElement != null) {
-            // todo - implement parameters
+            // todo - implement parameters (nf - 2008-11-27)
             throw new BinXException(MessageFormat.format("Element ''{0}'': Not implemented", parametersElement.getName()));
         }
     }
@@ -243,8 +236,7 @@ public class BinX {
         }
 
         Type arrayType = parseAnyType(arrayTypeElement);
-        SequenceType dimType = SEQ(arrayType);
-        sequenceElementCountResolvers.put(dimType, new ArrayVariableResolver());
+        SequenceType dimType = SEQ(arrayType, sizeRefName);
 
         String dimName = getAttributeValue(dimElement, "name", false);
         if (dimName == null) {
@@ -268,17 +260,17 @@ public class BinX {
     }
 
     private Type parseUnion(Element typeElement) throws BinXException {
-        // todo - implement union
+        // todo - implement union  (nf - 2008-11-27)
         throw new BinXException(MessageFormat.format("Element ''{0}'': Type not implemented", typeElement.getName()));
     }
 
     private Type parseArrayFixed(Element typeElement) throws BinXException {
-        // todo - implement arrayFixed
+        // todo - implement arrayFixed  (nf - 2008-11-27)
         throw new BinXException(MessageFormat.format("Element ''{0}'': Type not implemented", typeElement.getName()));
     }
 
     private Type parseArrayStreamed(Element typeElement) throws BinXException {
-        // todo - implement arrayStreamed
+        // todo - implement arrayStreamed  (nf - 2008-11-27)
         throw new BinXException(MessageFormat.format("Element ''{0}'': Type not implemented", typeElement.getName()));
     }
 
@@ -344,14 +336,5 @@ public class BinX {
 
     private String generateCompoundName() {
         return ANONYMOUS_COMPOUND_PREFIX + anonymousCompoundId++;
-    }
-
-    private static class ArrayVariableResolver extends SequenceElementCountResolver {
-
-        @Override
-        public int getElementCount(CollectionData parent, SequenceType unresolvedSequenceType) throws IOException {
-            // in BinX, variable arrays always have their length element at position zero 
-            return parent.getInt(0);
-        }
     }
 }

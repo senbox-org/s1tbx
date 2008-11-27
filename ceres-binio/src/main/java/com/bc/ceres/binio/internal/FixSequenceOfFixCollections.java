@@ -9,7 +9,7 @@ final class FixSequenceOfFixCollections extends AbstractSequenceOfFixCollections
 
     private final Segment segment;
 
-    public FixSequenceOfFixCollections(IOContext context,
+    public FixSequenceOfFixCollections(DataContext context,
                                        CollectionData parent,
                                        SequenceType sequenceType,
                                        long position) {
@@ -24,7 +24,7 @@ final class FixSequenceOfFixCollections extends AbstractSequenceOfFixCollections
         }
     }
 
-    public FixSequenceOfFixCollections(IOContext context,
+    public FixSequenceOfFixCollections(DataContext context,
                                        CollectionData parent,
                                        SequenceType sequenceType,
                                        Segment segment,

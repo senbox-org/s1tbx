@@ -4,7 +4,6 @@ import com.bc.ceres.binio.*;
 import com.bc.ceres.binio.smos.SmosProduct;
 import com.bc.ceres.binio.util.ByteArrayIOHandler;
 import com.bc.ceres.binio.util.ImageIOHandler;
-import com.bc.ceres.binio.util.SequenceElementCountResolver;
 import static com.bc.ceres.binio.util.TypeBuilder.*;
 import junit.framework.TestCase;
 
@@ -22,7 +21,7 @@ public class InstanceTest extends TestCase {
     public void testGeneratedInstanceTypes() throws IOException {
         final byte[] byteData = SmosProduct.createTestProductData(SmosProduct.MIR_SCLF1C_FORMAT.getByteOrder());
         final TracingIOHandler ioHandler = new TracingIOHandler(new ByteArrayIOHandler(byteData));
-        final IOContext context = new IOContext(SmosProduct.MIR_SCLF1C_FORMAT, ioHandler);
+        final DataContext context = SmosProduct.MIR_SCLF1C_FORMAT.createContext(ioHandler);
 
         final CompoundData mirSclf1cData = context.getData();
         final SequenceData snapshotList = mirSclf1cData.getSequence("Snapshot_List");
@@ -53,7 +52,7 @@ public class InstanceTest extends TestCase {
         ios.close();
 
         final ImageInputStream iis = new MemoryCacheImageInputStream(new ByteArrayInputStream(baos.toByteArray()));
-        final IOContext context = new IOContext(new Format(COMP("UNDEFINED"), ByteOrder.LITTLE_ENDIAN), new ImageIOHandler(iis));
+        final DataContext context = new DataFormat(COMP("UNDEFINED"), ByteOrder.LITTLE_ENDIAN).createContext(new ImageIOHandler(iis));
 
         SequenceType type = SEQ(SimpleType.INT, 3);
         final FixSequenceOfSimples sequenceInstance = new FixSequenceOfSimples(context, null, type, 0);
@@ -88,7 +87,7 @@ public class InstanceTest extends TestCase {
 
         final byte[] byteData = baos.toByteArray();
         assertEquals(3 * 4, byteData.length);
-        final IOContext context = new IOContext(new Format(type, ByteOrder.LITTLE_ENDIAN), new ByteArrayIOHandler(byteData));
+        final DataContext context = new DataFormat(type, ByteOrder.LITTLE_ENDIAN).createContext(new ByteArrayIOHandler(byteData));
 
         CompoundInstance compoundInstance = InstanceFactory.createCompound(context, null, type, 4, ByteOrder.LITTLE_ENDIAN);
         assertSame(FixCompound.class, compoundInstance.getClass());
@@ -116,15 +115,14 @@ public class InstanceTest extends TestCase {
                                  MEMBER("count", SimpleType.INT),
                                  MEMBER("list", SEQ(SimpleType.DOUBLE, "count")));
 
-        Format format = new Format(type, ByteOrder.BIG_ENDIAN);
-        format.addSequenceElementCountResolver(type, "list", "count");
+        DataFormat format = new DataFormat(type, ByteOrder.BIG_ENDIAN);
         assertFalse(FixCompound.isCompoundTypeWithinSizeLimit(type, 4));
         assertFalse(FixCompound.isCompoundTypeWithinSizeLimit(type, 10));
         assertFalse(FixCompound.isCompoundTypeWithinSizeLimit(type, 10000));
 
         final byte[] byteData = baos.toByteArray();
         assertEquals(4 + 3 * 8, byteData.length);
-        final IOContext context = new IOContext(format, new ByteArrayIOHandler(byteData));
+        final DataContext context = format.createContext(new ByteArrayIOHandler(byteData));
 
         CompoundData compoundData = context.getData();
         assertTrue(compoundData instanceof CompoundInstance);
@@ -181,7 +179,7 @@ public class InstanceTest extends TestCase {
 
         final byte[] byteData = baos.toByteArray();
         assertEquals(4 + n * (8 + 8) + 4, byteData.length);
-        final IOContext context = new IOContext(new Format(type), new ByteArrayIOHandler(byteData));
+        final DataContext context = new DataFormat(type).createContext(new ByteArrayIOHandler(byteData));
         final CompoundData compoundData = context.getData();
 
         assertSame(FixCompound.class, compoundData.getClass());
@@ -204,7 +202,7 @@ public class InstanceTest extends TestCase {
         final SequenceType seqType1 = _SEQ(pointType, ni);
         final SequenceType seqType2 = _SEQ(seqType1, nj);
         final CompoundType type = COMP("C", MEMBER("M", seqType2));
-        final Format format = new Format(type, ByteOrder.BIG_ENDIAN);
+        final DataFormat format = new DataFormat(type, ByteOrder.BIG_ENDIAN);
         assertFalse(type.isSizeKnown());
         assertEquals(-1, type.getSize());
 
@@ -221,7 +219,7 @@ public class InstanceTest extends TestCase {
 
         final byte[] byteData = baos.toByteArray();
         assertEquals(ni * nj * 2 * 8, byteData.length);
-        final IOContext context = new IOContext(format, new ByteArrayIOHandler(byteData));
+        final DataContext context = format.createContext(new ByteArrayIOHandler(byteData));
         final CompoundData compoundData = context.getData();
 
         assertSame(VarCompound.class, compoundData.getClass());
@@ -247,7 +245,7 @@ public class InstanceTest extends TestCase {
         final SequenceType seqType1 = _SEQ(pointType, nj);
         final SequenceType seqType2 = _SEQ(seqType1, nk);
         final CompoundType type = COMP("Polygon", MEMBER("PointList", seqType2));
-        final Format format = new Format(type, ByteOrder.BIG_ENDIAN);
+        final DataFormat format = new DataFormat(type, ByteOrder.BIG_ENDIAN);
 
         assertFalse(type.isSizeKnown());
         assertEquals(-1, type.getSize());
@@ -265,7 +263,7 @@ public class InstanceTest extends TestCase {
         ios.close();
         final byte[] byteData = baos.toByteArray();
         assertEquals(ni * nj * nk * 8, byteData.length);
-        final IOContext context = new IOContext(format, new ByteArrayIOHandler(byteData));
+        final DataContext context = format.createContext(new ByteArrayIOHandler(byteData));
         final CompoundData compoundData = context.getData();
 
         assertSame(VarCompound.class, compoundData.getClass());

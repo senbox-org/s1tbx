@@ -2,21 +2,21 @@ package com.bc.ceres.binio.internal;
 
 import com.bc.ceres.binio.CollectionData;
 import com.bc.ceres.binio.DataAccessException;
-import com.bc.ceres.binio.IOContext;
+import com.bc.ceres.binio.DataContext;
 
 import java.io.IOException;
 
 
 abstract class AbstractCollection implements CollectionInstance {
-    private final IOContext context;
+    private final DataContext context;
     private final CollectionData parent;
 
-    protected AbstractCollection(IOContext context, CollectionData parent) {
+    protected AbstractCollection(DataContext context, CollectionData parent) {
         this.context = context;
         this.parent = parent;
     }
 
-    public IOContext getContext() {
+    public DataContext getContext() {
         return context;
     }
 

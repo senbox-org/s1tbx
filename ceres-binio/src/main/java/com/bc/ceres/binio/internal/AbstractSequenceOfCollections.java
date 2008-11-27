@@ -2,7 +2,7 @@ package com.bc.ceres.binio.internal;
 
 import com.bc.ceres.binio.CollectionData;
 import com.bc.ceres.binio.DataAccessException;
-import com.bc.ceres.binio.IOContext;
+import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.SequenceType;
 
 import java.io.IOException;
@@ -12,7 +12,7 @@ abstract class AbstractSequenceOfCollections extends AbstractSequence {
 
     private final long position;
 
-    protected AbstractSequenceOfCollections(IOContext context, CollectionData parent, SequenceType sequenceType, long position) {
+    protected AbstractSequenceOfCollections(DataContext context, CollectionData parent, SequenceType sequenceType, long position) {
         super(context, parent, sequenceType);
         this.position = position;
     }

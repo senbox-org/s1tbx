@@ -7,15 +7,15 @@
  * <pre>
  *     // Static format declaration:
  *     {@link CompoundType} type = {@link TypeBuilder}.COMP("dataset", ...);
- *     {@link Format} format = new Format(type);
+ *     {@link DataFormat} format = new Format(type);
  *
  *     // Reading/writing a file using the given format:
  *     RandomAccessFile raf = new RandomAccessFile(file, "rw");
  *     {@link IOHandler} handler = new RandomAccessFileIOHandler(raf);
- *     {@link IOContext} context = new IOContext(format, handler);
+ *     {@link com.bc.ceres.binio.internal.DataContextImpl} context = format.createContext(file);
  *     {@link CompoundData} compoundData = context.getData();
  *     // Here: Invoke methods on {@code compoundData} ...
- *     raf.close();
+ *     context.dispose();
  * </pre>
  *
  * <p>Note that you can use the {@link com.bc.ceres.binio.util.TypeBuilder} class to easily construct

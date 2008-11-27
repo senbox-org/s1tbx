@@ -7,7 +7,7 @@ import java.io.IOException;
  */
 public interface CollectionData {
 
-    IOContext getContext();
+    DataContext getContext();
 
     CollectionData getParent();
 

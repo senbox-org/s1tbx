@@ -1,7 +1,7 @@
 package com.bc.ceres.binio.smos;
 
 import com.bc.ceres.binio.CompoundType;
-import com.bc.ceres.binio.Format;
+import com.bc.ceres.binio.DataFormat;
 import static com.bc.ceres.binio.util.TypeBuilder.*;
 import junit.framework.Assert;
 
@@ -55,27 +55,18 @@ public class SmosProduct {
                  MEMBER("Grid_Point_Altitude", FLOAT), /*16*/
                  MEMBER("Grid_Point_Mask", UBYTE),    /*17*/
                  MEMBER("BT_Data_Counter", UBYTE),    /*18*/
-                 MEMBER("Bt_Data_List", SEQ(F1C_BT_DATA_TYPE)));
+                 MEMBER("Bt_Data_List", SEQ(F1C_BT_DATA_TYPE, "BT_Data_Counter")));
     public static final CompoundType MIR_SCLF1C_TYPE =
             COMP("MIR_SCLF1C",
                  MEMBER("Snapshot_Counter", UINT),
-                 MEMBER("Snapshot_List", SEQ(SNAPSHOT_INFO_TYPE)),
+                 MEMBER("Snapshot_List", SEQ(SNAPSHOT_INFO_TYPE, "Snapshot_Counter")),
                  MEMBER("Grid_Point_Counter", UINT),
-                 MEMBER("Grid_Point_List", SEQ(F1C_GRID_POINT_DATA_TYPE)));
+                 MEMBER("Grid_Point_List", SEQ(F1C_GRID_POINT_DATA_TYPE, "Grid_Point_Counter")));
 
-    public static final Format MIR_SCLF1C_FORMAT;
+    public static final DataFormat MIR_SCLF1C_FORMAT;
 
     static {
-        final Format format = new Format(SmosProduct.MIR_SCLF1C_TYPE);
-        format.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-        format.addSequenceElementCountResolver(MIR_SCLF1C_TYPE,
-                                               "Snapshot_List", "Snapshot_Counter");
-        format.addSequenceElementCountResolver(MIR_SCLF1C_TYPE,
-                                               "Grid_Point_List", "Grid_Point_Counter");
-        format.addSequenceElementCountResolver(F1C_GRID_POINT_DATA_TYPE,
-                                               "Bt_Data_List", "BT_Data_Counter");
-
-        MIR_SCLF1C_FORMAT = format;
+        MIR_SCLF1C_FORMAT = new DataFormat(SmosProduct.MIR_SCLF1C_TYPE, ByteOrder.LITTLE_ENDIAN);
     }
 
 

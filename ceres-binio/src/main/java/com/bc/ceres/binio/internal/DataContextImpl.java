@@ -1,20 +1,17 @@
-package com.bc.ceres.binio;
+package com.bc.ceres.binio.internal;
 
-import com.bc.ceres.binio.internal.InstanceFactory;
+import com.bc.ceres.binio.*;
 
-/**
- * The context provides the means to read from or write to a random access stream.
- */
-public class IOContext {
-    private final Format format;
+public class DataContextImpl implements DataContext {
+    private final DataFormat format;
     private final IOHandler handler;
 
-    public IOContext(Format format, IOHandler handler) {
+    public DataContextImpl(DataFormat format, IOHandler handler) {
         this.format = format;
         this.handler = handler;
     }
 
-    public Format getFormat() {
+    public DataFormat getFormat() {
         return format;
     }
 
@@ -32,5 +29,8 @@ public class IOContext {
 
     public CompoundData getData(CompoundType type, long position) {
         return InstanceFactory.createCompound(this, null, type, position, format.getByteOrder());
+    }
+
+    public void dispose() {
     }
 }

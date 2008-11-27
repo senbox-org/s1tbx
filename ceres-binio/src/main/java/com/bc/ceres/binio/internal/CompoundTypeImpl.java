@@ -1,6 +1,9 @@
 package com.bc.ceres.binio.internal;
 
-import com.bc.ceres.binio.*;
+import com.bc.ceres.binio.CompoundMember;
+import com.bc.ceres.binio.CompoundType;
+import com.bc.ceres.binio.Type;
+import com.bc.ceres.binio.TypeVisitor;
 
 public final class CompoundTypeImpl extends AbstractType implements CompoundType {
     private final String name;

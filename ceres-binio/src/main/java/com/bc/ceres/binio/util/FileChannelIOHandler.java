@@ -1,6 +1,6 @@
 package com.bc.ceres.binio.util;
 
-import com.bc.ceres.binio.IOContext;
+import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.IOHandler;
 
 import java.io.IOException;
@@ -14,13 +14,13 @@ public class FileChannelIOHandler implements IOHandler {
         this.fileChannel = fileChannel;
     }
 
-    public void read(IOContext context, byte[] data, long position) throws IOException {
+    public void read(DataContext context, byte[] data, long position) throws IOException {
         synchronized (fileChannel) {
             fileChannel.read(ByteBuffer.wrap(data), position);
         }
     }
 
-    public void write(IOContext context, byte[] data, long position) throws IOException {
+    public void write(DataContext context, byte[] data, long position) throws IOException {
         synchronized (fileChannel) {
             fileChannel.write(ByteBuffer.wrap(data), position);
         }
