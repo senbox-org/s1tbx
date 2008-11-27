@@ -16,10 +16,7 @@
  */
 package org.esa.beam.dataio.smos;
 
-import com.bc.ceres.binio.CompoundType;
-import com.bc.ceres.binio.Format;
-import com.bc.ceres.binio.SimpleType;
-import com.bc.ceres.binio.Type;
+import com.bc.ceres.binio.*;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelSource;
@@ -171,9 +168,9 @@ public class SmosProductReader extends AbstractProductReader {
     }
 
     private void addSmosBands(Product product, CompoundType compoundDataType) {
-        CompoundType.Member[] members = compoundDataType.getMembers();
+        CompoundMember[] members = compoundDataType.getMembers();
         for (int fieldIndex = 0; fieldIndex < members.length; fieldIndex++) {
-            CompoundType.Member member = members[fieldIndex];
+            CompoundMember member = members[fieldIndex];
             String bandName = member.getName();
             BandInfo bandInfo = bandInfos.get(bandName);
             if (bandInfo != null) {
