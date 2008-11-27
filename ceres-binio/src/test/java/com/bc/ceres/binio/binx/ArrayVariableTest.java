@@ -54,5 +54,4 @@ public class ArrayVariableTest extends TestCase {
         URI uri = resource.toURI();
         return new BinX(uri);
     }
-
 }

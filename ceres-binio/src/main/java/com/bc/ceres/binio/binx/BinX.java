@@ -46,10 +46,10 @@ public class BinX {
         primitiveTypes.put("unsignedShort-16", SimpleType.USHORT);
         primitiveTypes.put("integer-32", SimpleType.INT);
         primitiveTypes.put("unsignedInteger-32", SimpleType.UINT);
-        primitiveTypes.put("integer-64", SimpleType.LONG);
-        primitiveTypes.put("unsignedInteger-64", SimpleType.ULONG);
+        primitiveTypes.put("long-64", SimpleType.LONG);
+        primitiveTypes.put("unsignedLong-64", SimpleType.ULONG);
         primitiveTypes.put("float-32", SimpleType.FLOAT);
-        primitiveTypes.put("float-64", SimpleType.DOUBLE);
+        primitiveTypes.put("double-64", SimpleType.DOUBLE);
 
         parseDocument();
     }
@@ -264,9 +264,36 @@ public class BinX {
         throw new BinXException(MessageFormat.format("Element ''{0}'': Type not implemented", typeElement.getName()));
     }
 
+    //    <arrayFixed varName="Radiometric_Accuracy">
+    //        <float-32/>
+    //        <dim indexTo="1"/>
+    //    </arrayFixed>
     private Type parseArrayFixed(Element typeElement) throws BinXException {
-        // todo - implement arrayFixed  (nf - 2008-11-27)
-        throw new BinXException(MessageFormat.format("Element ''{0}'': Type not implemented", typeElement.getName()));
+        Element arrayTypeElement = getChild(typeElement, 0, true);
+        Element dimElement = getChild(typeElement, "dim", 1, true);
+
+        if (!dimElement.getChildren().isEmpty()) {
+            // todo - implement multi-dimensional arrays
+            throw new BinXException(
+                    MessageFormat.format("Element ''{0}'': Multidimensional arrays not implemented",
+                                         typeElement.getName()));
+        }
+
+        final Type arrayType = parseAnyType(arrayTypeElement);
+        final String dimElementAttributeName = "indexTo";
+        final String indexToAttribute = getAttributeValue(dimElement, dimElementAttributeName, true);
+        final int elementCount;
+
+        try {
+            elementCount = Integer.parseInt(indexToAttribute);
+        } catch (NumberFormatException e) {
+            throw new BinXException(
+                    MessageFormat.format("Element ''{0}'': attribute ''{1}'' is not an integer.",
+                                         dimElement.getName(),
+                                         dimElementAttributeName));
+        }
+
+        return TypeBuilder.SEQUENCE(arrayType, elementCount);
     }
 
     private Type parseArrayStreamed(Element typeElement) throws BinXException {
