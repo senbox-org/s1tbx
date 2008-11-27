@@ -6,6 +6,9 @@ import java.io.IOException;
  * A compound of members of any type.
  */
 public interface CompoundData extends CollectionData {
+    /**
+     * @return The resolved instance type of the compound.
+     */
     CompoundType getCompoundType();
 
     int getMemberCount();
