@@ -14,16 +14,16 @@ import com.bc.ceres.binio.internal.VarElementCountSequenceTypeImpl;
  * import static binio.util.TypeBuilder.*;
  * ...
  * CompoundType scanlineType =
- *     COMP("Scanline",
+ *     COMPOUND("Scanline",
  *        MEMBER("flags", USHORT),
- *        MEMBER("data", SEQ(DOUBLE, 512))
+ *        MEMBER("samples", SEQUENCE(DOUBLE, 512))
  *     );
  * };
- * <p/>
+ *
  * CompoundType datasetType =
- *     COMP("Dataset",
+ *     COMPOUND("Dataset",
  *        MEMBER("lineCount", UINT),
- *        MEMBER("scanlines", SEQ(scanlineType))
+ *        MEMBER("scanlines", VAR_SEQUENCE(scanlineType, "lineCount"))
  *     );
  * };
  * ...
