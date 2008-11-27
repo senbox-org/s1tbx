@@ -38,12 +38,17 @@ abstract class AbstractSequence extends AbstractCollection implements SequenceIn
     }
 
     static SequenceType mapSequenceType(CollectionData parent, SequenceType sequenceType) throws IOException {
-        final SequenceType mappedSequenceType;
         SequenceTypeMapper mapper = parent.getContext().getFormat().getSequenceTypeMapper(sequenceType);
+        SequenceType mappedSequenceType;
         if (mapper != null) {
             mappedSequenceType = mapper.mapSequenceType(parent, sequenceType);
         } else {
             mappedSequenceType = sequenceType;
+        }
+        if (mappedSequenceType instanceof VarSequenceType) {
+            VarSequenceType varSequenceType = (VarSequenceType) mappedSequenceType;
+            mappedSequenceType = varSequenceType.resolve(parent);
+            mappedSequenceType = mapSequenceType(parent, mappedSequenceType);
         }
         return mappedSequenceType;
     }

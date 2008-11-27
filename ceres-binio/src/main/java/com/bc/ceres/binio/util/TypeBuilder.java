@@ -4,6 +4,7 @@ import com.bc.ceres.binio.*;
 import com.bc.ceres.binio.internal.CompoundTypeImpl;
 import com.bc.ceres.binio.internal.SequenceTypeImpl;
 import com.bc.ceres.binio.internal.CompoundMemberImpl;
+import com.bc.ceres.binio.internal.VarElementCountSequenceTypeImpl;
 
 /**
  * A utility class which fosters the construction of complex type defintions.
@@ -42,6 +43,10 @@ public class TypeBuilder {
 
     public static SequenceType SEQ(Type elementType) {
         return new SequenceTypeImpl(elementType);
+    }
+
+    public static VarSequenceType SEQ(Type elementType, String memberName) {
+        return new VarElementCountSequenceTypeImpl(elementType, memberName);
     }
 
     public static SequenceType SEQ(Type elementType, int elementCount) {

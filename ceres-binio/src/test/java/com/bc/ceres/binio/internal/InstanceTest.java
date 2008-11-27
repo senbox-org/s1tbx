@@ -114,7 +114,7 @@ public class InstanceTest extends TestCase {
 
         CompoundType type = COMP("compoundTestType",
                                  MEMBER("count", SimpleType.INT),
-                                 MEMBER("list", SEQ(SimpleType.DOUBLE)));
+                                 MEMBER("list", SEQ(SimpleType.DOUBLE, "count")));
 
         Format format = new Format(type, ByteOrder.BIG_ENDIAN);
         format.addSequenceElementCountResolver(type, "list", "count");
@@ -201,22 +201,10 @@ public class InstanceTest extends TestCase {
         final int ni = 2;
         final int nj = 3;
         final CompoundType pointType = COMP("Point", MEMBER("X", DOUBLE), MEMBER("Y", DOUBLE));
-        final SequenceType seqType1 = SEQ(pointType);
-        final SequenceType seqType2 = SEQ(seqType1);
+        final SequenceType seqType1 = _SEQ(pointType, ni);
+        final SequenceType seqType2 = _SEQ(seqType1, nj);
         final CompoundType type = COMP("C", MEMBER("M", seqType2));
         final Format format = new Format(type, ByteOrder.BIG_ENDIAN);
-        format.addSequenceTypeMapper(seqType1, new SequenceElementCountResolver() {
-            @Override
-            public int getElementCount(CollectionData parent, SequenceType sequenceType) throws IOException {
-                return ni;
-            }
-        });
-        format.addSequenceTypeMapper(seqType2, new SequenceElementCountResolver() {
-            @Override
-            public int getElementCount(CollectionData parent, SequenceType sequenceType) throws IOException {
-                return nj;
-            }
-        });
         assertFalse(type.isSizeKnown());
         assertEquals(-1, type.getSize());
 
@@ -254,30 +242,12 @@ public class InstanceTest extends TestCase {
         final int ni = 4;
         final int nj = 2;
         final int nk = 3;
-        final SequenceType seqType0 = SEQ(DOUBLE);
+        final SequenceType seqType0 = _SEQ(DOUBLE, ni);
         final CompoundType pointType = COMP("Point", MEMBER("Coords", seqType0));
-        final SequenceType seqType1 = SEQ(pointType);
-        final SequenceType seqType2 = SEQ(seqType1);
+        final SequenceType seqType1 = _SEQ(pointType, nj);
+        final SequenceType seqType2 = _SEQ(seqType1, nk);
         final CompoundType type = COMP("Polygon", MEMBER("PointList", seqType2));
         final Format format = new Format(type, ByteOrder.BIG_ENDIAN);
-        format.addSequenceTypeMapper(seqType0, new SequenceElementCountResolver() {
-            @Override
-            public int getElementCount(CollectionData parent, SequenceType sequenceType) throws IOException {
-                return ni;
-            }
-        });
-        format.addSequenceTypeMapper(seqType1, new SequenceElementCountResolver() {
-            @Override
-            public int getElementCount(CollectionData parent, SequenceType sequenceType) throws IOException {
-                return nj;
-            }
-        });
-        format.addSequenceTypeMapper(seqType2, new SequenceElementCountResolver() {
-            @Override
-            public int getElementCount(CollectionData parent, SequenceType sequenceType) throws IOException {
-                return nk;
-            }
-        });
 
         assertFalse(type.isSizeKnown());
         assertEquals(-1, type.getSize());
@@ -322,5 +292,15 @@ public class InstanceTest extends TestCase {
                 }
             }
         }
+    }
+
+    // create a pseudo VarSequenceType
+    static VarSequenceType _SEQ(final Type elementType, final int elementCount) {
+        return new VarElementCountSequenceType(elementType) {
+            @Override
+            protected int resolveElementCount(CollectionData parent) throws IOException {
+                return elementCount;
+            }
+        };
     }
 }
