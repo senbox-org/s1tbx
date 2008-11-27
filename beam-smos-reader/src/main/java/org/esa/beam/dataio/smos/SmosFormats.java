@@ -4,7 +4,7 @@ import com.bc.ceres.binio.CompoundType;
 import com.bc.ceres.binio.DataFormat;
 import com.bc.ceres.binio.binx.BinX;
 import com.bc.ceres.binio.binx.BinXException;
-import static com.bc.ceres.binio.util.TypeBuilder.*;
+import static com.bc.ceres.binio.TypeBuilder.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
