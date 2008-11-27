@@ -3,7 +3,7 @@ package com.bc.ceres.binio.expr;
 import com.bc.ceres.binio.CompoundData;
 import com.bc.ceres.binio.CompoundMember;
 import com.bc.ceres.binio.Type;
-import static com.bc.ceres.binio.util.TypeBuilder.COMP;
+import static com.bc.ceres.binio.util.TypeBuilder.COMPOUND;
 import static com.bc.ceres.binio.util.TypeBuilder.MEMBER;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class CompoundExpr extends AbstractExpression {
             final Type memberType = (Type) member.type.evaluate(context);
             typeMembers[i] = MEMBER(member.name, memberType);
         }
-        return COMP(name, typeMembers);
+        return COMPOUND(name, typeMembers);
     }
 
     public static boolean isConstant(Member[] members) {

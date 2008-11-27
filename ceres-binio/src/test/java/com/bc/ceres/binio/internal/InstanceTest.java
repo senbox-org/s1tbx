@@ -52,9 +52,9 @@ public class InstanceTest extends TestCase {
         ios.close();
 
         final ImageInputStream iis = new MemoryCacheImageInputStream(new ByteArrayInputStream(baos.toByteArray()));
-        final DataContext context = new DataFormat(COMP("UNDEFINED"), ByteOrder.LITTLE_ENDIAN).createContext(new ImageIOHandler(iis));
+        final DataContext context = new DataFormat(COMPOUND("UNDEFINED"), ByteOrder.LITTLE_ENDIAN).createContext(new ImageIOHandler(iis));
 
-        SequenceType type = SEQ(SimpleType.INT, 3);
+        SequenceType type = SEQUENCE(SimpleType.INT, 3);
         final FixSequenceOfSimples sequenceInstance = new FixSequenceOfSimples(context, null, type, 0);
 
         assertEquals(3, sequenceInstance.getElementCount());
@@ -78,7 +78,7 @@ public class InstanceTest extends TestCase {
         ios.writeFloat(27.88f);
         ios.close();
 
-        CompoundType type = COMP("compoundTestType",
+        CompoundType type = COMPOUND("compoundTestType",
                                  MEMBER("a", SimpleType.UINT),
                                  MEMBER("b", SimpleType.FLOAT));
         assertFalse(FixCompound.isCompoundTypeWithinSizeLimit(type, 7));
@@ -111,9 +111,9 @@ public class InstanceTest extends TestCase {
         ios.writeDouble(333.3);
         ios.close();
 
-        CompoundType type = COMP("compoundTestType",
+        CompoundType type = COMPOUND("compoundTestType",
                                  MEMBER("count", SimpleType.INT),
-                                 MEMBER("list", SEQ(SimpleType.DOUBLE, "count")));
+                                 MEMBER("list", VAR_SEQUENCE(SimpleType.DOUBLE, "count")));
 
         DataFormat format = new DataFormat(type, ByteOrder.BIG_ENDIAN);
         assertFalse(FixCompound.isCompoundTypeWithinSizeLimit(type, 4));
@@ -151,11 +151,11 @@ public class InstanceTest extends TestCase {
 
         final int n = 11;
         final CompoundType type =
-                COMP("U",
+                COMPOUND("U",
                      MEMBER("A", INT),
                      MEMBER("B",
-                            SEQ(
-                                    COMP("P",
+                            SEQUENCE(
+                                    COMPOUND("P",
                                          MEMBER("X", DOUBLE),
                                          MEMBER("Y", DOUBLE)),
                                     n
@@ -198,10 +198,10 @@ public class InstanceTest extends TestCase {
 
         final int ni = 2;
         final int nj = 3;
-        final CompoundType pointType = COMP("Point", MEMBER("X", DOUBLE), MEMBER("Y", DOUBLE));
+        final CompoundType pointType = COMPOUND("Point", MEMBER("X", DOUBLE), MEMBER("Y", DOUBLE));
         final SequenceType seqType1 = _SEQ(pointType, ni);
         final SequenceType seqType2 = _SEQ(seqType1, nj);
-        final CompoundType type = COMP("C", MEMBER("M", seqType2));
+        final CompoundType type = COMPOUND("C", MEMBER("M", seqType2));
         final DataFormat format = new DataFormat(type, ByteOrder.BIG_ENDIAN);
         assertFalse(type.isSizeKnown());
         assertEquals(-1, type.getSize());
@@ -241,10 +241,10 @@ public class InstanceTest extends TestCase {
         final int nj = 2;
         final int nk = 3;
         final SequenceType seqType0 = _SEQ(DOUBLE, ni);
-        final CompoundType pointType = COMP("Point", MEMBER("Coords", seqType0));
+        final CompoundType pointType = COMPOUND("Point", MEMBER("Coords", seqType0));
         final SequenceType seqType1 = _SEQ(pointType, nj);
         final SequenceType seqType2 = _SEQ(seqType1, nk);
-        final CompoundType type = COMP("Polygon", MEMBER("PointList", seqType2));
+        final CompoundType type = COMPOUND("Polygon", MEMBER("PointList", seqType2));
         final DataFormat format = new DataFormat(type, ByteOrder.BIG_ENDIAN);
 
         assertFalse(type.isSizeKnown());

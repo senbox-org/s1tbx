@@ -12,11 +12,11 @@ public class FormatTest extends TestCase {
         format.setBasisFormat(basisFormat);
         assertSame(basisFormat, format.getBasisFormat());
 
-        basisFormat.addTypeDef("string80", TypeBuilder.SEQ(SimpleType.BYTE, 80));
+        basisFormat.addTypeDef("string80", TypeBuilder.SEQUENCE(SimpleType.BYTE, 80));
         assertTrue(format.isTypeDef("string80"));
         assertTrue(format.getTypeDef("string80") == basisFormat.getTypeDef("string80"));
 
-        format.addTypeDef("string80", TypeBuilder.SEQ(SimpleType.USHORT, 80));
+        format.addTypeDef("string80", TypeBuilder.SEQUENCE(SimpleType.USHORT, 80));
         assertTrue(format.isTypeDef("string80"));
         assertTrue(format.getTypeDef("string80") != basisFormat.getTypeDef("string80"));
 
@@ -29,7 +29,7 @@ public class FormatTest extends TestCase {
     }
 
     public void testTypeDef() {
-        DataFormat format = new DataFormat(TypeBuilder.COMP("Point",
+        DataFormat format = new DataFormat(TypeBuilder.COMPOUND("Point",
                                                             TypeBuilder.MEMBER("x", SimpleType.FLOAT),
                                                             TypeBuilder.MEMBER("y", SimpleType.FLOAT)));
 

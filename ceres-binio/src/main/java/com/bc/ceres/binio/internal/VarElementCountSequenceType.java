@@ -26,7 +26,7 @@ public abstract class VarElementCountSequenceType extends AbstractType implement
         if (elementCount < 0) {
             throw new IllegalStateException("elementCount < 0");
         }
-        return TypeBuilder.SEQ(elementType, elementCount);
+        return TypeBuilder.SEQUENCE(elementType, elementCount);
     }
 
     protected abstract int resolveElementCount(CollectionData parent) throws IOException;

@@ -41,23 +41,23 @@ public class TypeBuilder {
     public final static SimpleType FLOAT = SimpleType.FLOAT;
     public final static SimpleType DOUBLE = SimpleType.DOUBLE;
 
-    public static SequenceType SEQ(Type elementType) {
-        return new SequenceTypeImpl(elementType);
+    public static SequenceType SEQUENCE(Type elementType, int elementCount) {
+        return new SequenceTypeImpl(elementType, elementCount);
     }
 
-    public static VarSequenceType SEQ(Type elementType, String memberName) {
+    public static VarSequenceType VAR_SEQUENCE(Type elementType, String memberName) {
         return new VarElementCountSequenceTypeImpl(elementType, memberName);
     }
 
-    public static SequenceType SEQ(Type elementType, int elementCount) {
-        return new SequenceTypeImpl(elementType, elementCount);
+    public static VarSequenceType VAR_SEQUENCE(Type elementType, int memberIndex) {
+        return new VarElementCountSequenceTypeImpl(elementType, memberIndex);
     }
 
     public static CompoundMember MEMBER(String name, Type type) {
         return new CompoundMemberImpl(name, type);
     }
 
-    public static CompoundType COMP(String name, CompoundMember... members) {
+    public static CompoundType COMPOUND(String name, CompoundMember... members) {
         return new CompoundTypeImpl(name, members);
     }
 

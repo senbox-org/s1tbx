@@ -20,7 +20,7 @@ public class ReadWriteTest extends TestCase {
 
     public void testFixCompound() throws IOException {
 
-        CompoundType type = COMP("Complex", MEMBER("x", DOUBLE), MEMBER("y", DOUBLE));
+        CompoundType type = COMPOUND("Complex", MEMBER("x", DOUBLE), MEMBER("y", DOUBLE));
 
         ByteArrayIOHandler byteArrayIOHandler = new ByteArrayIOHandler();
         TracingIOHandler tracingIOHandler = new TracingIOHandler(byteArrayIOHandler);
@@ -48,9 +48,9 @@ public class ReadWriteTest extends TestCase {
     public void testCompoundWithFixSequenceOfFixCompounds() throws IOException {
 
         CompoundType type =
-                COMP("Data",
+                COMPOUND("Data",
                      MEMBER("Complex_List",
-                            SEQ(COMP("Complex",
+                            SEQUENCE(COMPOUND("Complex",
                                      MEMBER("x", DOUBLE),
                                      MEMBER("y", DOUBLE)), 5)));
 

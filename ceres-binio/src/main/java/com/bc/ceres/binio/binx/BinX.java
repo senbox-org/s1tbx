@@ -128,7 +128,7 @@ public class BinX {
                     throw new BinXException(MessageFormat.format("Element ''{0}'': Duplicate type definition ''{1}''", definitionsElement.getName(), typeName));
                 }
                 if (type instanceof CompoundType && type.getName().startsWith(ANONYMOUS_COMPOUND_PREFIX)) {
-                    type = COMP(typeName, ((CompoundType) type).getMembers());
+                    type = COMPOUND(typeName, ((CompoundType) type).getMembers());
                 }
                 definitions.put(typeName, type);
             }
@@ -138,7 +138,7 @@ public class BinX {
     private void parseDataset(Element binxElement) throws BinXException, IOException {
         Element datasetElement = getChild(binxElement, "dataset", true);
         CompoundType compoundType = parseStruct(datasetElement);
-        dataset = COMP("Dataset", compoundType.getMembers());
+        dataset = COMPOUND("Dataset", compoundType.getMembers());
     }
 
     private Type parseNonSimpleType(Element typeElement) throws BinXException {
@@ -207,7 +207,7 @@ public class BinX {
         if (members.size() == 1 && members.get(0).getType() instanceof CompoundType) {
             return (CompoundType) members.get(0).getType();
         } else {
-            return COMP(generateCompoundName(), members.toArray(new CompoundMember[members.size()]));
+            return COMPOUND(generateCompoundName(), members.toArray(new CompoundMember[members.size()]));
         }
     }
 
@@ -236,14 +236,14 @@ public class BinX {
         }
 
         Type arrayType = parseAnyType(arrayTypeElement);
-        SequenceType dimType = SEQ(arrayType, sizeRefName);
+        SequenceType dimType = VAR_SEQUENCE(arrayType, sizeRefName);
 
         String dimName = getAttributeValue(dimElement, "name", false);
         if (dimName == null) {
             dimName = DEFAULT_DATA_MEMBER_NAME;
         }
 
-        return COMP(generateCompoundName(),
+        return COMPOUND(generateCompoundName(),
                     MEMBER(sizeRefName, sizeRefType),
                     MEMBER(dimName, dimType));
     }

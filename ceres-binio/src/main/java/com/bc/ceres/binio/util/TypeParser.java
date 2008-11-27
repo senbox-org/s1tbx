@@ -65,7 +65,6 @@ public class TypeParser {
     private final HashMap<String, CompoundType> compoundTypeMap;
     private final StreamTokenizer st;
     private static final String UNRESOLVED = "Unresolved@";
-    private HashMap<SequenceType, String> lengthRefMap;
     public final static SimpleType[] SIMPLE_TYPES = new SimpleType[]{
             SimpleType.BYTE, SimpleType.UBYTE,
             SimpleType.SHORT, SimpleType.USHORT,
@@ -78,7 +77,6 @@ public class TypeParser {
         this.st = st;
         this.compoundTypeMap = new HashMap<String, CompoundType>(11);
         this.simpleTypeMap = new HashMap<String, SimpleType>(11);
-        lengthRefMap = new HashMap<SequenceType, String>();
         for (SimpleType type : SIMPLE_TYPES) {
             registerSimpleType(type);
         }
@@ -147,7 +145,7 @@ public class TypeParser {
     }
 
     private Type resolve(SequenceType sequenceType) throws ParseException {
-        return SEQ(resolveType(sequenceType.getElementType()), sequenceType.getElementCount());
+        return SEQUENCE(resolveType(sequenceType.getElementType()), sequenceType.getElementCount());
     }
 
     public CompoundType[] parseCompoundTypes() throws IOException, ParseException {
@@ -184,7 +182,7 @@ public class TypeParser {
         if (token != ';') {
             st.pushBack();
         }
-        return COMP(name, members);
+        return COMPOUND(name, members);
     }
 
     private String parseName() throws IOException {
@@ -239,7 +237,7 @@ public class TypeParser {
         if (type == null) {
             type = compoundTypeMap.get(name);
             if (type == null) {
-                CompoundType unresolvedType = COMP(UNRESOLVED + name);
+                CompoundType unresolvedType = COMPOUND(UNRESOLVED + name);
                 compoundTypeMap.put(name, unresolvedType);
                 type = unresolvedType;
             }
@@ -257,15 +255,13 @@ public class TypeParser {
                     if (token != ']') {
                         error(st, "']' expected.");
                     }
-                    type = SEQ(type, elementCount);
+                    type = SEQUENCE(type, elementCount);
                 } else if (token == StreamTokenizer.TT_WORD) {
                     String lengthRefName = st.sval;
                     if (lengthRefName.indexOf('.') == -1) {
                         lengthRefName = parentCompoundName + "." + lengthRefName;
                     }
-                    SequenceType stype = SEQ(type);
-                    lengthRefMap.put(stype, lengthRefName);
-                    type = stype;
+                    type = VAR_SEQUENCE(type, lengthRefName);
                     token = st.nextToken();
                     if (token != ']') {
                         error(st, "']' expected.");
