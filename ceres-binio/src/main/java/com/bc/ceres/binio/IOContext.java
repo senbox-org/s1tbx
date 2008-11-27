@@ -27,6 +27,10 @@ public class IOContext {
     }
 
     public CompoundData getData(long position) {
-        return InstanceFactory.createCompound(this, null, format.getType(), position, format.getByteOrder());
+        return getData(format.getType(), position);
+    }
+
+    public CompoundData getData(CompoundType type, long position) {
+        return InstanceFactory.createCompound(this, null, type, position, format.getByteOrder());
     }
 }
