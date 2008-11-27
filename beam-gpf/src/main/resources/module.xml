@@ -3,7 +3,7 @@
     <symbolicName>beam-gpf</symbolicName>
     <version>4.6-SNAPSHOT</version>
     <name>BEAM Graph Processing Framework (GPF)</name>
-    
+
     <description>The basic framework for processing using Operators and the GPT.</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
@@ -11,9 +11,13 @@
     <copyright>(C) 2008 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-    
+
     <changelog>
-        <![CDATA[<p>From 4.1 to 4.2:<br/>
+        <![CDATA[
+        <p>From 4.2 to 4.6:<br/>
+            [BEAM-918] Source product selector label and tool tip text are not set</br>
+        </p>
+        <p>From 4.1 to 4.2:<br/>
             [BEAM-836] Update product header if changed during computation<br/>
             [BEAM-833] GPT computes incomplete output rasters<br/>
             [BEAM-827] Standard dialogs for operators should be modeless<br/>

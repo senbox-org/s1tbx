@@ -61,8 +61,9 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 
         // Fetch source products
         initSourceProductSelectors(operatorSpi);
-        if (sourceProductSelectorList.size() > 1) {
+        if (sourceProductSelectorList.size() > 0) {
             setSourceProductSelectorLabels();
+            setSourceProductSelectorToolTipTexts();
         }
 
         final TableLayout tableLayout = new TableLayout(1);
@@ -160,6 +161,18 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                 label += ":";
             }
             selector.getProductNameLabel().setText(label);
+        }
+    }
+
+    private void setSourceProductSelectorToolTipTexts() {
+        for (Field field : sourceProductSelectorMap.keySet()) {
+            final SourceProductSelector selector = sourceProductSelectorMap.get(field);
+
+            final SourceProduct annot = field.getAnnotation(SourceProduct.class);
+            final String description = annot.description();
+            if (!description.isEmpty()) {
+                selector.getProductNameComboBox().setToolTipText(description);
+            }
         }
     }
 
