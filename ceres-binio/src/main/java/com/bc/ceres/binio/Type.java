@@ -15,6 +15,4 @@ public interface Type {
     boolean isSequenceType();
 
     boolean isCompoundType();
-
-    void visit(TypeVisitor visitor);
 }

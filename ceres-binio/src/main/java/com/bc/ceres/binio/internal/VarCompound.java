@@ -1,7 +1,6 @@
 package com.bc.ceres.binio.internal;
 
 import com.bc.ceres.binio.*;
-import com.bc.ceres.binio.util.TypeBuilder;
 
 import java.io.IOException;
 

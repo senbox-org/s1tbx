@@ -1,7 +1,7 @@
 package com.bc.ceres.binio.binx;
 
 import com.bc.ceres.binio.*;
-import static com.bc.ceres.binio.util.TypeBuilder.*;
+import static com.bc.ceres.binio.TypeBuilder.*;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -244,8 +244,8 @@ public class BinX {
         }
 
         return COMPOUND(generateCompoundName(),
-                    MEMBER(sizeRefName, sizeRefType),
-                    MEMBER(dimName, dimType));
+                        MEMBER(sizeRefName, sizeRefType),
+                        MEMBER(dimName, dimType));
     }
 
     private boolean isIntegerType(Type sizeRefType) {

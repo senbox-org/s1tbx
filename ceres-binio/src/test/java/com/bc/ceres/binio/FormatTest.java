@@ -1,6 +1,5 @@
 package com.bc.ceres.binio;
 
-import com.bc.ceres.binio.util.TypeBuilder;
 import junit.framework.TestCase;
 
 public class FormatTest extends TestCase {
@@ -30,8 +29,8 @@ public class FormatTest extends TestCase {
 
     public void testTypeDef() {
         DataFormat format = new DataFormat(TypeBuilder.COMPOUND("Point",
-                                                            TypeBuilder.MEMBER("x", SimpleType.FLOAT),
-                                                            TypeBuilder.MEMBER("y", SimpleType.FLOAT)));
+                                                                TypeBuilder.MEMBER("x", SimpleType.FLOAT),
+                                                                TypeBuilder.MEMBER("y", SimpleType.FLOAT)));
 
         assertEquals(false, format.isTypeDef("bool"));
         try {

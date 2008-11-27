@@ -2,7 +2,6 @@ package com.bc.ceres.binio.internal;
 
 import com.bc.ceres.binio.SequenceType;
 import com.bc.ceres.binio.Type;
-import com.bc.ceres.binio.TypeVisitor;
 
 /**
  * Represents a data type that is composed of a sequence of zero or more elements
@@ -57,11 +56,5 @@ public final class SequenceTypeImpl extends AbstractType implements SequenceType
     @Override
     public final boolean isSequenceType() {
         return true;
-    }
-
-    @Override
-    public final void visit(TypeVisitor visitor) {
-        getElementType().visit(visitor);
-        visitor.accept(this);
     }
 }

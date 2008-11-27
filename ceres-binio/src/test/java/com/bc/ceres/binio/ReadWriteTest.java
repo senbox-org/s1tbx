@@ -1,7 +1,7 @@
 package com.bc.ceres.binio;
 
+import static com.bc.ceres.binio.TypeBuilder.*;
 import com.bc.ceres.binio.util.ByteArrayIOHandler;
-import static com.bc.ceres.binio.util.TypeBuilder.*;
 import junit.framework.TestCase;
 
 import java.io.File;
@@ -49,10 +49,10 @@ public class ReadWriteTest extends TestCase {
 
         CompoundType type =
                 COMPOUND("Data",
-                     MEMBER("Complex_List",
-                            SEQUENCE(COMPOUND("Complex",
-                                     MEMBER("x", DOUBLE),
-                                     MEMBER("y", DOUBLE)), 5)));
+                         MEMBER("Complex_List",
+                                SEQUENCE(COMPOUND("Complex",
+                                                  MEMBER("x", DOUBLE),
+                                                  MEMBER("y", DOUBLE)), 5)));
 
         ByteArrayIOHandler byteArrayIOHandler = new ByteArrayIOHandler();
         TracingIOHandler tracingIOHandler = new TracingIOHandler(byteArrayIOHandler);

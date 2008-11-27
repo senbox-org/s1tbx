@@ -1,8 +1,8 @@
 package com.bc.ceres.binio.util;
 
 import com.bc.ceres.binio.*;
+import static com.bc.ceres.binio.TypeBuilder.*;
 import com.bc.ceres.binio.internal.CompoundTypeImpl;
-import static com.bc.ceres.binio.util.TypeBuilder.*;
 
 import java.io.IOException;
 import java.io.Reader;

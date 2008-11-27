@@ -3,7 +3,6 @@ package com.bc.ceres.binio.internal;
 import com.bc.ceres.binio.CompoundMember;
 import com.bc.ceres.binio.CompoundType;
 import com.bc.ceres.binio.Type;
-import com.bc.ceres.binio.TypeVisitor;
 
 public final class CompoundTypeImpl extends AbstractType implements CompoundType {
     private final String name;
@@ -88,14 +87,6 @@ public final class CompoundTypeImpl extends AbstractType implements CompoundType
     @Override
     public boolean isCompoundType() {
         return true;
-    }
-
-    @Override
-    public void visit(TypeVisitor visitor) {
-        for (CompoundMember member : members) {
-            member.getType().visit(visitor);
-        }
-        visitor.accept(this);
     }
 
     private void updateSize() {

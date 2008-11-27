@@ -1,7 +1,6 @@
 package com.bc.ceres.binio.internal;
 
 import com.bc.ceres.binio.*;
-import com.bc.ceres.binio.util.TypeBuilder;
 import com.bc.ceres.core.Assert;
 
 import java.io.IOException;
@@ -59,11 +58,5 @@ public abstract class VarElementCountSequenceType extends AbstractType implement
     @Override
     public final boolean isSequenceType() {
         return true;
-    }
-
-    @Override
-    public final void visit(TypeVisitor visitor) {
-        getElementType().visit(visitor);
-        visitor.accept(this);
     }
 }

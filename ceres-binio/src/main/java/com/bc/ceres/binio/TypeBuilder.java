@@ -1,6 +1,5 @@
-package com.bc.ceres.binio.util;
+package com.bc.ceres.binio;
 
-import com.bc.ceres.binio.*;
 import com.bc.ceres.binio.internal.CompoundMemberImpl;
 import com.bc.ceres.binio.internal.CompoundTypeImpl;
 import com.bc.ceres.binio.internal.SequenceTypeImpl;
@@ -19,7 +18,7 @@ import com.bc.ceres.binio.internal.VarElementCountSequenceTypeImpl;
  *        MEMBER("samples", SEQUENCE(DOUBLE, 512))
  *     );
  * };
- *
+ * <p/>
  * CompoundType datasetType =
  *     COMPOUND("Dataset",
  *        MEMBER("lineCount", UINT),

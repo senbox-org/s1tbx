@@ -1,10 +1,10 @@
 package com.bc.ceres.binio.internal;
 
 import com.bc.ceres.binio.*;
+import static com.bc.ceres.binio.TypeBuilder.*;
 import com.bc.ceres.binio.smos.SmosProduct;
 import com.bc.ceres.binio.util.ByteArrayIOHandler;
 import com.bc.ceres.binio.util.ImageIOHandler;
-import static com.bc.ceres.binio.util.TypeBuilder.*;
 import junit.framework.TestCase;
 
 import javax.imageio.stream.ImageInputStream;
@@ -79,8 +79,8 @@ public class InstanceTest extends TestCase {
         ios.close();
 
         CompoundType type = COMPOUND("compoundTestType",
-                                 MEMBER("a", SimpleType.UINT),
-                                 MEMBER("b", SimpleType.FLOAT));
+                                     MEMBER("a", SimpleType.UINT),
+                                     MEMBER("b", SimpleType.FLOAT));
         assertFalse(FixCompound.isCompoundTypeWithinSizeLimit(type, 7));
         assertTrue(FixCompound.isCompoundTypeWithinSizeLimit(type, 8));
         assertTrue(FixCompound.isCompoundTypeWithinSizeLimit(type, 9));
@@ -112,8 +112,8 @@ public class InstanceTest extends TestCase {
         ios.close();
 
         CompoundType type = COMPOUND("compoundTestType",
-                                 MEMBER("count", SimpleType.INT),
-                                 MEMBER("list", VAR_SEQUENCE(SimpleType.DOUBLE, "count")));
+                                     MEMBER("count", SimpleType.INT),
+                                     MEMBER("list", VAR_SEQUENCE(SimpleType.DOUBLE, "count")));
 
         DataFormat format = new DataFormat(type, ByteOrder.BIG_ENDIAN);
         assertFalse(FixCompound.isCompoundTypeWithinSizeLimit(type, 4));
@@ -152,16 +152,16 @@ public class InstanceTest extends TestCase {
         final int n = 11;
         final CompoundType type =
                 COMPOUND("U",
-                     MEMBER("A", INT),
-                     MEMBER("B",
-                            SEQUENCE(
-                                    COMPOUND("P",
-                                         MEMBER("X", DOUBLE),
-                                         MEMBER("Y", DOUBLE)),
-                                    n
-                            )
-                     ),
-                     MEMBER("C", INT)
+                         MEMBER("A", INT),
+                         MEMBER("B",
+                                SEQUENCE(
+                                        COMPOUND("P",
+                                                 MEMBER("X", DOUBLE),
+                                                 MEMBER("Y", DOUBLE)),
+                                        n
+                                )
+                         ),
+                         MEMBER("C", INT)
                 );
 
         assertTrue(type.isSizeKnown());

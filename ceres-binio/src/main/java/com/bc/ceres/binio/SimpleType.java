@@ -54,9 +54,4 @@ public final class SimpleType implements Type {
     public final boolean isCompoundType() {
         return false;
     }
-
-    @Override
-    public final void visit(TypeVisitor visitor) {
-        visitor.accept(this);
-    }
 }
