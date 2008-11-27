@@ -39,8 +39,16 @@ public final class CompoundType extends Type {
         updateSize();
     }
 
+    public String getMemberName(int memberIndex) {
+        return getMember(memberIndex).getName();
+    }
+
     public Type getMemberType(int memberIndex) {
-        return members[memberIndex].getType();
+        return getMember(memberIndex).getType();
+    }
+
+    public int getMemberSize(int memberIndex) {
+        return getMember(memberIndex).getType().getSize();
     }
 
     @Override
@@ -79,13 +87,10 @@ public final class CompoundType extends Type {
                 size += memberSize;
             } else {
                 size = -1;
+                break;
             }
         }
         this.size = size;
-    }
-
-    public int getMemberSize(int memberIndex) {
-        return getMember(memberIndex).getType().getSize();
     }
 
     public static final class Member {
