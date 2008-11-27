@@ -6,7 +6,6 @@ import com.bc.ceres.binio.DataFormat;
 import com.bc.ceres.binio.SequenceType;
 import com.bc.ceres.binio.SimpleType;
 import com.bc.ceres.binio.Type;
-import com.bc.ceres.binio.TypeBuilder;
 import static com.bc.ceres.binio.TypeBuilder.*;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -283,7 +282,7 @@ public class BinX {
         Element dimElement = getChild(typeElement, "dim", 1, true);
 
         if (!dimElement.getChildren().isEmpty()) {
-            // todo - implement multi-dimensional arrays
+            // todo - implement multi-dimensional arrays (rq - 2008-11-27)
             throw new BinXException(
                     MessageFormat.format("Element ''{0}'': Multi-dimensional arrays not yet implemented",
                                          typeElement.getName()));
@@ -298,7 +297,7 @@ public class BinX {
         }
         final int indexTo = getAttributeIntValue(dimElement, "indexTo");
 
-        return TypeBuilder.SEQUENCE(arrayType, indexTo);
+        return SEQUENCE(arrayType, indexTo);
     }
 
     private Type parseArrayStreamed(Element typeElement) throws BinXException {
