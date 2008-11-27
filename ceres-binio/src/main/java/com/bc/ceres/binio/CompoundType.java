@@ -1,14 +1,28 @@
 package com.bc.ceres.binio;
 
-public final class CompoundType extends Type {
+public final class CompoundType extends Type implements MetadataAware {
     private final String name;
     private final Member[] members;
+    private Object metadata;
     private int size;
 
     public CompoundType(String name, Member[] members) {
+        this(name, members, null);
+    }
+
+    public CompoundType(String name, Member[] members, Object metadata) {
         this.name = name;
         this.members = members.clone();
+        this.metadata = metadata;
         updateSize();
+    }
+
+    public Object getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Object metadata) {
+        this.metadata = metadata;
     }
 
     public Member[] getMembers() {
@@ -93,13 +107,19 @@ public final class CompoundType extends Type {
         this.size = size;
     }
 
-    public static final class Member {
+    public static final class Member implements MetadataAware {
         private final String name;
         private final Type type;
+        private Object metadata;
 
         public Member(String name, Type type) {
+            this(name, type, null);
+        }
+
+        public Member(String name, Type type, Object metadata) {
             this.name = name;
             this.type = type;
+            this.metadata = metadata;
         }
 
         public String getName() {
@@ -108,6 +128,14 @@ public final class CompoundType extends Type {
 
         public Type getType() {
             return type;
+        }
+
+        public Object getMetadata() {
+            return metadata;
+        }
+
+        public void setMetadata(Object metadata) {
+            this.metadata = metadata;
         }
     }
 }
