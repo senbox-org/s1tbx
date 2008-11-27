@@ -1,16 +1,15 @@
 package com.bc.ceres.binio.binx;
 
+import com.bc.ceres.binio.CompoundType;
+import com.bc.ceres.binio.Format;
+import com.bc.ceres.binio.Type;
 import junit.framework.TestCase;
 
 import java.io.IOException;
-import java.net.URL;
-import java.net.URISyntaxException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Map;
-
-import com.bc.ceres.binio.Format;
-import com.bc.ceres.binio.Type;
-import com.bc.ceres.binio.CompoundType;
 
 
 public class DBL_SM_XXXX_MIR_SMUDP2_0100_Test extends TestCase {
@@ -24,7 +23,7 @@ public class DBL_SM_XXXX_MIR_SMUDP2_0100_Test extends TestCase {
         assertSame(uri, binx.getURI());
         assertEquals("http://www.edikt.org/binx/2003/06/binx", binx.getNamespace());
 
-        Map<String,Type> definitions = binx.getDefinitions();
+        Map<String, Type> definitions = binx.getDefinitions();
         assertTrue(definitions.get("UTC_Type") instanceof CompoundType);
         assertTrue(definitions.get("Processing_Descriptors_Data_Type") instanceof CompoundType);
         assertTrue(definitions.get("Science_Descriptors_Data_Type") instanceof CompoundType);

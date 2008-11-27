@@ -1,20 +1,18 @@
 package com.bc.ceres.binio.internal;
 
-import com.bc.ceres.binio.CollectionData;
-import com.bc.ceres.binio.CompoundType;
-import com.bc.ceres.binio.IOContext;
-import com.bc.ceres.binio.Type;
+import com.bc.ceres.binio.*;
+import com.bc.ceres.binio.util.TypeBuilder;
 
 import java.io.IOException;
 
 
 final class VarCompound extends AbstractCompound {
-    private final CompoundType resolvedCompoundType;
+    private final CompoundTypeImpl resolvedCompoundType;
     private int maxResolvedIndex;
 
     public VarCompound(IOContext context, CollectionData parent, CompoundType compoundType, long position) {
         super(context, parent, compoundType, position);
-        this.resolvedCompoundType = new CompoundType(compoundType.getName(), compoundType.getMembers());
+        this.resolvedCompoundType = new CompoundTypeImpl(compoundType.getName(), compoundType.getMembers());
         this.maxResolvedIndex = -1;
 
         // todo - OPT: do this in resolve()
@@ -70,7 +68,7 @@ final class VarCompound extends AbstractCompound {
             if (!memberInstance.isSizeResolved()) {
                 memberInstance.resolveSize();
             }
-            final CompoundType.Member resolvedMember = new CompoundType.Member(getCompoundType().getMember(i).getName(), memberInstance.getType());
+            final CompoundMember resolvedMember = TypeBuilder.MEMBER(getCompoundType().getMember(i).getName(), memberInstance.getType());
             resolvedCompoundType.setMember(i, resolvedMember);
         }
         if (maxResolvedIndex < index) {

@@ -1,7 +1,6 @@
 package com.bc.ceres.binio.util;
 
 import com.bc.ceres.binio.*;
-import com.bc.ceres.binio.CompoundType.Member;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -43,7 +42,7 @@ public class DataPrinter {
         printComplexTypeName(prefix, name, compoundType, compoundData);
         final int memberCount = compoundType.getMemberCount();
         for (int i = 0; i < memberCount; i++) {
-            Member member = compoundType.getMember(i);
+            CompoundMember member = compoundType.getMember(i);
             Type type = member.getType();
             if (type.isCompoundType()) {
                 printCompound(prefix + INDENT, member.getName(), compoundData.getCompound(i));

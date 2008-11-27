@@ -201,7 +201,7 @@ public class BinX {
     //
     private CompoundType parseStruct(Element typeElement) throws BinXException {
         List memberElements = getChildren(typeElement, false);
-        ArrayList<CompoundType.Member> members = new ArrayList<CompoundType.Member>();
+        ArrayList<CompoundMember> members = new ArrayList<CompoundMember>();
 
         for (int i = 0; i < memberElements.size(); i++) {
             Element memberElement = (Element) memberElements.get(i);
@@ -214,7 +214,7 @@ public class BinX {
         if (members.size() == 1 && members.get(0).getType() instanceof CompoundType) {
             return (CompoundType) members.get(0).getType();
         } else {
-            return COMP(generateCompoundName(), members.toArray(new CompoundType.Member[members.size()]));
+            return COMP(generateCompoundName(), members.toArray(new CompoundMember[members.size()]));
         }
     }
 

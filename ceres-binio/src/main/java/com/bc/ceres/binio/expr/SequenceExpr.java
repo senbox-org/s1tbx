@@ -1,8 +1,8 @@
 package com.bc.ceres.binio.expr;
 
 import com.bc.ceres.binio.CompoundData;
-import com.bc.ceres.binio.SequenceType;
 import com.bc.ceres.binio.Type;
+import com.bc.ceres.binio.internal.SequenceTypeImpl;
 
 import java.io.IOException;
 
@@ -39,6 +39,6 @@ public class SequenceExpr extends AbstractExpression {
         // todo - wrong child parent used here, parent for children must be instance of "this" sequence
         final Type elementType = (Type) this.elementType.evaluate(context);
         final int elementCount = ((Number) this.elementCount.evaluate(context)).intValue();
-        return new SequenceType(elementType, elementCount);
+        return new SequenceTypeImpl(elementType, elementCount);
     }
 }

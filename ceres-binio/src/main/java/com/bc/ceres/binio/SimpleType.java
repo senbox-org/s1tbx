@@ -1,6 +1,6 @@
 package com.bc.ceres.binio;
 
-public final class SimpleType extends Type {
+public final class SimpleType implements Type {
     public final static SimpleType BYTE = new SimpleType("byte", 1);
     public final static SimpleType UBYTE = new SimpleType("ubyte", 1);
     public final static SimpleType SHORT = new SimpleType("short", 2);
@@ -42,6 +42,16 @@ public final class SimpleType extends Type {
 
     @Override
     public final boolean isCollectionType() {
+        return false;
+    }
+
+    @Override
+    public final boolean isSequenceType() {
+        return false;
+    }
+
+    @Override
+    public final boolean isCompoundType() {
         return false;
     }
 

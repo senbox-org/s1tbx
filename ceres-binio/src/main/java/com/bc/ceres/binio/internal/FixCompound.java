@@ -1,9 +1,6 @@
 package com.bc.ceres.binio.internal;
 
-import com.bc.ceres.binio.CollectionData;
-import com.bc.ceres.binio.CompoundType;
-import com.bc.ceres.binio.IOContext;
-import com.bc.ceres.binio.Type;
+import com.bc.ceres.binio.*;
 
 
 final class FixCompound extends AbstractCompound {

@@ -8,7 +8,7 @@ import com.bc.ceres.binio.Type;
 import java.io.IOException;
 
 /**
- * An implementation of a {@link SequenceTypeMapper} which returns a {@link SequenceType}
+ * An implementation of a {@link SequenceTypeMapper} which returns a {@link com.bc.ceres.binio.internal.SequenceTypeImpl}
  * with a number of elements computed by the abstract {@link #getElementCount} method.
  */
 public abstract class SequenceElementCountResolver implements SequenceTypeMapper {
@@ -16,7 +16,7 @@ public abstract class SequenceElementCountResolver implements SequenceTypeMapper
     public SequenceType mapSequenceType(CollectionData parentData, SequenceType sequenceType) throws IOException {
         final Type elementType = sequenceType.getElementType();
         final int elementCount = getElementCount(parentData, sequenceType);
-        return new SequenceType(elementType, elementCount);
+        return TypeBuilder.SEQ(elementType, elementCount);
     }
 
     public abstract int getElementCount(CollectionData parent, SequenceType sequenceType) throws IOException;

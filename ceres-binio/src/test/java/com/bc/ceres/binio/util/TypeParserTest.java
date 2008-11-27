@@ -1,5 +1,6 @@
 package com.bc.ceres.binio.util;
 
+import com.bc.ceres.binio.CompoundMember;
 import com.bc.ceres.binio.CompoundType;
 import com.bc.ceres.binio.SequenceType;
 import com.bc.ceres.binio.SimpleType;
@@ -126,8 +127,8 @@ public class TypeParserTest extends TestCase {
 
         assertEquals("Dataset", datasetType.getName());
         assertEquals(2, datasetType.getMemberCount());
-        CompoundType.Member datasetMember0 = datasetType.getMember(0);
-        CompoundType.Member datasetMember1 = datasetType.getMember(1);
+        CompoundMember datasetMember0 = datasetType.getMember(0);
+        CompoundMember datasetMember1 = datasetType.getMember(1);
 
         assertEquals("lineCount", datasetMember0.getName());
         assertSame(SimpleType.INT, datasetMember0.getType());
@@ -139,8 +140,8 @@ public class TypeParserTest extends TestCase {
 
         assertEquals("Scanline", scanlineType.getName());
         assertEquals(2, scanlineType.getMemberCount());
-        CompoundType.Member scanlineMember0 = scanlineType.getMember(0);
-        CompoundType.Member scanlineMember1 = scanlineType.getMember(1);
+        CompoundMember scanlineMember0 = scanlineType.getMember(0);
+        CompoundMember scanlineMember1 = scanlineType.getMember(1);
 
         assertEquals("flags", scanlineMember0.getName());
         assertSame(SimpleType.UINT, scanlineMember0.getType());

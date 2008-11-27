@@ -92,7 +92,7 @@ public class Format {
         Assert.notNull(name, "name");
         Type type = typeDefMap.get(name);
         if (type == null) {
-            type =  basisFormat != null ? basisFormat.getTypeDef(name) : null;
+            type = basisFormat != null ? basisFormat.getTypeDef(name) : null;
         }
         if (type == null) {
             throw new IllegalArgumentException(MessageFormat.format("Type definition ''{0}'' not found", name));
@@ -118,7 +118,7 @@ public class Format {
     /////////////////////////////////////////////////////////////////////////
     // todo - Remove following API
 
-    public void addSequenceTypeMapper(CompoundType.Member member, SequenceTypeMapper sequenceTypeMapper) {
+    public void addSequenceTypeMapper(CompoundMember member, SequenceTypeMapper sequenceTypeMapper) {
         if (!(member.getType() instanceof SequenceType)) {
             throw new IllegalArgumentException("member");
         }
@@ -140,7 +140,7 @@ public class Format {
         // todo - check indexes
         final int sequenceMemberIndex = compoundType.getMemberIndex(compoundMemberName);
         final int elementCountMemberIndex = compoundType.getMemberIndex(referencedMemberName);
-        final CompoundType.Member sequenceMember = compoundType.getMember(sequenceMemberIndex);
+        final CompoundMember sequenceMember = compoundType.getMember(sequenceMemberIndex);
         // todo - check type
         final SequenceType sequenceType = (SequenceType) sequenceMember.getType();
         final SequenceElementCountResolver sequenceElementCountResolver = new SequenceElementCountResolver() {

@@ -1,9 +1,9 @@
 package com.bc.ceres.binio.util;
 
-import com.bc.ceres.binio.CompoundType;
-import com.bc.ceres.binio.SequenceType;
-import com.bc.ceres.binio.SimpleType;
-import com.bc.ceres.binio.Type;
+import com.bc.ceres.binio.*;
+import com.bc.ceres.binio.internal.CompoundTypeImpl;
+import com.bc.ceres.binio.internal.SequenceTypeImpl;
+import com.bc.ceres.binio.internal.CompoundMemberImpl;
 
 /**
  * A utility class which fosters the construction of complex type defintions.
@@ -41,19 +41,19 @@ public class TypeBuilder {
     public final static SimpleType DOUBLE = SimpleType.DOUBLE;
 
     public static SequenceType SEQ(Type elementType) {
-        return new SequenceType(elementType);
+        return new SequenceTypeImpl(elementType);
     }
 
     public static SequenceType SEQ(Type elementType, int elementCount) {
-        return new SequenceType(elementType, elementCount);
+        return new SequenceTypeImpl(elementType, elementCount);
     }
 
-    public static CompoundType.Member MEMBER(String name, Type type) {
-        return new CompoundType.Member(name, type);
+    public static CompoundMember MEMBER(String name, Type type) {
+        return new CompoundMemberImpl(name, type);
     }
 
-    public static CompoundType COMP(String name, CompoundType.Member... members) {
-        return new CompoundType(name, members);
+    public static CompoundType COMP(String name, CompoundMember... members) {
+        return new CompoundTypeImpl(name, members);
     }
 
     private TypeBuilder() {

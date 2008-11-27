@@ -1,9 +1,8 @@
 package com.bc.ceres.binio.util;
 
-import com.bc.ceres.binio.CompoundType;
-import com.bc.ceres.binio.SequenceType;
-import com.bc.ceres.binio.SimpleType;
-import com.bc.ceres.binio.Type;
+import com.bc.ceres.binio.*;
+import com.bc.ceres.binio.internal.CompoundTypeImpl;
+import static com.bc.ceres.binio.util.TypeBuilder.*;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -138,17 +137,17 @@ public class TypeParser {
         }
 
         for (int i = 0; i < compoundType.getMemberCount(); i++) {
-            CompoundType.Member member = compoundType.getMember(i);
+            CompoundMember member = compoundType.getMember(i);
             Type memberType = member.getType();
             Type resolvedMemberType = resolveType(memberType);
-            compoundType.setMember(i, new CompoundType.Member(member.getName(), resolvedMemberType));
+            ((CompoundTypeImpl) compoundType).setMember(i, MEMBER(member.getName(), resolvedMemberType));
         }
 
         return compoundType;
     }
 
     private Type resolve(SequenceType sequenceType) throws ParseException {
-        return new SequenceType(resolveType(sequenceType.getElementType()), sequenceType.getElementCount());
+        return SEQ(resolveType(sequenceType.getElementType()), sequenceType.getElementCount());
     }
 
     public CompoundType[] parseCompoundTypes() throws IOException, ParseException {
@@ -175,7 +174,7 @@ public class TypeParser {
         if (token != '{') {
             error(st, "'{' expected.");
         }
-        CompoundType.Member[] members = parseMembers(name);
+        CompoundMember[] members = parseMembers(name);
         token = st.nextToken();
         if (token != '}') {
             st.pushBack();
@@ -185,7 +184,7 @@ public class TypeParser {
         if (token != ';') {
             st.pushBack();
         }
-        return new CompoundType(name, members);
+        return COMP(name, members);
     }
 
     private String parseName() throws IOException {
@@ -202,19 +201,19 @@ public class TypeParser {
         return name;
     }
 
-    private CompoundType.Member[] parseMembers(String parentCompoundName) throws IOException, ParseException {
-        ArrayList<CompoundType.Member> list = new ArrayList<CompoundType.Member>(32);
+    private CompoundMember[] parseMembers(String parentCompoundName) throws IOException, ParseException {
+        ArrayList<CompoundMember> list = new ArrayList<CompoundMember>(32);
         while (true) {
-            final CompoundType.Member member = parseMember(parentCompoundName);
+            final CompoundMember member = parseMember(parentCompoundName);
             if (member == null) {
                 break;
             }
             list.add(member);
         }
-        return list.toArray(new CompoundType.Member[list.size()]);
+        return list.toArray(new CompoundMember[list.size()]);
     }
 
-    private CompoundType.Member parseMember(String parentCompoundName) throws IOException, ParseException {
+    private CompoundMember parseMember(String parentCompoundName) throws IOException, ParseException {
         Type type = parseType(parentCompoundName);
         if (type == null) {
             return null;
@@ -228,7 +227,7 @@ public class TypeParser {
             st.pushBack();
             error(st, "';' expected.");
         }
-        return new CompoundType.Member(name, type);
+        return MEMBER(name, type);
     }
 
     private Type parseType(String parentCompoundName) throws IOException, ParseException {
@@ -240,7 +239,7 @@ public class TypeParser {
         if (type == null) {
             type = compoundTypeMap.get(name);
             if (type == null) {
-                CompoundType unresolvedType = new CompoundType(UNRESOLVED + name, new CompoundType.Member[0]);
+                CompoundType unresolvedType = COMP(UNRESOLVED + name);
                 compoundTypeMap.put(name, unresolvedType);
                 type = unresolvedType;
             }
@@ -258,13 +257,13 @@ public class TypeParser {
                     if (token != ']') {
                         error(st, "']' expected.");
                     }
-                    type = new SequenceType(type, elementCount);
+                    type = SEQ(type, elementCount);
                 } else if (token == StreamTokenizer.TT_WORD) {
                     String lengthRefName = st.sval;
                     if (lengthRefName.indexOf('.') == -1) {
                         lengthRefName = parentCompoundName + "." + lengthRefName;
                     }
-                    SequenceType stype = new SequenceType(type);
+                    SequenceType stype = SEQ(type);
                     lengthRefMap.put(stype, lengthRefName);
                     type = stype;
                     token = st.nextToken();

@@ -53,9 +53,9 @@ public class InstanceTest extends TestCase {
         ios.close();
 
         final ImageInputStream iis = new MemoryCacheImageInputStream(new ByteArrayInputStream(baos.toByteArray()));
-        final IOContext context = new IOContext(new Format(new CompoundType("UNDEFINED", new CompoundType.Member[0]), ByteOrder.LITTLE_ENDIAN), new ImageIOHandler(iis));
+        final IOContext context = new IOContext(new Format(COMP("UNDEFINED"), ByteOrder.LITTLE_ENDIAN), new ImageIOHandler(iis));
 
-        SequenceType type = new SequenceType(SimpleType.INT, 3);
+        SequenceType type = SEQ(SimpleType.INT, 3);
         final FixSequenceOfSimples sequenceInstance = new FixSequenceOfSimples(context, null, type, 0);
 
         assertEquals(3, sequenceInstance.getElementCount());
@@ -79,10 +79,9 @@ public class InstanceTest extends TestCase {
         ios.writeFloat(27.88f);
         ios.close();
 
-        CompoundType type = new CompoundType("compoundTestType", new CompoundType.Member[]{
-                new CompoundType.Member("a", SimpleType.UINT),
-                new CompoundType.Member("b", SimpleType.FLOAT)
-        });
+        CompoundType type = COMP("compoundTestType",
+                                 MEMBER("a", SimpleType.UINT),
+                                 MEMBER("b", SimpleType.FLOAT));
         assertFalse(FixCompound.isCompoundTypeWithinSizeLimit(type, 7));
         assertTrue(FixCompound.isCompoundTypeWithinSizeLimit(type, 8));
         assertTrue(FixCompound.isCompoundTypeWithinSizeLimit(type, 9));
@@ -113,11 +112,9 @@ public class InstanceTest extends TestCase {
         ios.writeDouble(333.3);
         ios.close();
 
-        CompoundType type = new CompoundType("compoundTestType",
-                                             new CompoundType.Member[]{
-                                                     new CompoundType.Member("count", SimpleType.INT),
-                                                     new CompoundType.Member("list", new SequenceType(SimpleType.DOUBLE))
-                                             });
+        CompoundType type = COMP("compoundTestType",
+                                 MEMBER("count", SimpleType.INT),
+                                 MEMBER("list", SEQ(SimpleType.DOUBLE)));
 
         Format format = new Format(type, ByteOrder.BIG_ENDIAN);
         format.addSequenceElementCountResolver(type, "list", "count");

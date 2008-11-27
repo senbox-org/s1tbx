@@ -6,7 +6,7 @@
  *
  * <pre>
  *     // Static format declaration:
- *     {@link CompoundType} type = new CompoundType(...);
+ *     {@link CompoundType} type = {@link TypeBuilder}.COMP("dataset", ...);
  *     {@link Format} format = new Format(type);
  *
  *     // Reading/writing a file using the given format:
