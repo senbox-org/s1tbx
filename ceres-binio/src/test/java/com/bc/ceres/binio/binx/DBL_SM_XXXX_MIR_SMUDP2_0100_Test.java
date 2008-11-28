@@ -18,31 +18,26 @@ public class DBL_SM_XXXX_MIR_SMUDP2_0100_Test extends TestCase {
         URL resource = getClass().getResource("DBL_SM_XXXX_MIR_SMUDP2_0100.binXschema.xml");
         assertNotNull(resource);
         URI uri = resource.toURI();
-        BinX binx = new BinX(uri);
+        BinX binx = new BinX();
 
-        assertSame(uri, binx.getURI());
-        assertEquals("http://www.edikt.org/binx/2003/06/binx", binx.getNamespace());
+        DataFormat dataFormat = binx.readDataFormat(uri, "DBL_SM_XXXX_MIR_SMUDP2_0100");
+        assertNotNull(dataFormat);
+        assertEquals("DBL_SM_XXXX_MIR_SMUDP2_0100", dataFormat.getName());
 
-        Map<String, Type> definitions = binx.getDefinitions();
-        assertTrue(definitions.get("UTC_Type") instanceof CompoundType);
-        assertTrue(definitions.get("Processing_Descriptors_Data_Type") instanceof CompoundType);
-        assertTrue(definitions.get("Science_Descriptors_Data_Type") instanceof CompoundType);
-        assertTrue(definitions.get("Confidence_Descriptors_Data_Type") instanceof CompoundType);
-        assertTrue(definitions.get("Retrieval_Results_Data_Type") instanceof CompoundType);
-        assertTrue(definitions.get("Grid_Point_Data_Type") instanceof CompoundType);
-        assertTrue(definitions.get("Data_Block_Type") instanceof CompoundType);
+        assertTrue(binx.getDefinition("UTC_Type") instanceof CompoundType);
+        assertTrue(binx.getDefinition("Processing_Descriptors_Data_Type") instanceof CompoundType);
+        assertTrue(binx.getDefinition("Science_Descriptors_Data_Type") instanceof CompoundType);
+        assertTrue(binx.getDefinition("Confidence_Descriptors_Data_Type") instanceof CompoundType);
+        assertTrue(binx.getDefinition("Retrieval_Results_Data_Type") instanceof CompoundType);
+        assertTrue(binx.getDefinition("Grid_Point_Data_Type") instanceof CompoundType);
+        assertTrue(binx.getDefinition("Data_Block_Type") instanceof CompoundType);
 
-        assertNotNull(binx.getDataset());
-        assertEquals("Data_Block", binx.getDataset().getName());
-        assertEquals(2, binx.getDataset().getMemberCount());
-        assertEquals("N_Grid_Points", binx.getDataset().getMember(0).getName());
-        assertEquals("SM_SWATH", binx.getDataset().getMember(1).getName());
+        assertNotNull(dataFormat.getType());
+        assertEquals("Data_Block", dataFormat.getType().getName());
+        assertEquals(2, dataFormat.getType().getMemberCount());
+        assertEquals("N_Grid_Points", dataFormat.getType().getMember(0).getName());
+        assertEquals("SM_SWATH", dataFormat.getType().getMember(1).getName());
 
-        assertEquals("Grid_Point_Data_Type[$N_Grid_Points]", binx.getDataset().getMember(1).getType().getName());
-
-        DataFormat format = binx.getFormat("DBL_SM_XXXX_MIR_SMUDP2_0100");
-        assertNotNull(format);
-        assertEquals("DBL_SM_XXXX_MIR_SMUDP2_0100", format.getName());
-        assertSame(binx.getDataset(), format.getType());
+        assertEquals("Grid_Point_Data_Type[$N_Grid_Points]", dataFormat.getType().getMember(1).getType().getName());
     }
 }

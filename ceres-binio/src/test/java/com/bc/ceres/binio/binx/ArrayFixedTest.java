@@ -20,38 +20,43 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URI;
-import java.util.Map;
 
-import com.bc.ceres.binio.Type;
 import com.bc.ceres.binio.CompoundType;
 import com.bc.ceres.binio.DataFormat;
 
 public class ArrayFixedTest extends TestCase {
     public void testBinX() throws IOException, BinXException, URISyntaxException {
-        BinX binx = createBinX();
+        URL resource = getClass().getResource("ArrayFixed.binXschema.xml");
+        assertNotNull(resource);
+        URI uri = resource.toURI();
+        BinX binx = new BinX();
+        DataFormat dataFormat = binx.readDataFormat(uri);
 
-        Map<String, Type> definitions = binx.getDefinitions();
-        assertTrue(definitions.get("FixedFloat32ArrayType") instanceof CompoundType);
-        CompoundType arrayCompoundType = (CompoundType) definitions.get("FixedFloat32ArrayType");
+        assertTrue(binx.getDefinition("FixedFloat32ArrayType") instanceof CompoundType);
+        CompoundType arrayCompoundType = (CompoundType) binx.getDefinition("FixedFloat32ArrayType");
         assertEquals("FixedFloat32ArrayType", arrayCompoundType.getName());
         assertEquals(1, arrayCompoundType.getMemberCount());
         assertEquals("af", arrayCompoundType.getMember(0).getName());
         assertEquals("float[7]", arrayCompoundType.getMember(0).getType().getName());
 
-        assertNotNull(binx.getDataset());
-        assertEquals("Dataset", binx.getDataset().getName());
-        assertEquals(3, binx.getDataset().getMemberCount());
-        assertEquals("magic1", binx.getDataset().getMember(0).getName());
-        assertEquals("data1", binx.getDataset().getMember(1).getName());
-        assertEquals("magic2", binx.getDataset().getMember(2).getName());
+        CompoundType datasetType = dataFormat.getType();
+        assertNotNull(datasetType);
+        assertEquals("Dataset", datasetType.getName());
+        assertEquals(3, datasetType.getMemberCount());
+        assertEquals("magic1", datasetType.getMember(0).getName());
+        assertEquals("data1", datasetType.getMember(1).getName());
+        assertEquals("magic2", datasetType.getMember(2).getName());
 
-        assertSame(arrayCompoundType, binx.getDataset().getMember(1).getType());
+        assertSame(arrayCompoundType, datasetType.getMember(1).getType());
     }
 
     public void testFormat() throws URISyntaxException, IOException, BinXException {
-        BinX binx = createBinX();
+        URL resource = getClass().getResource("ArrayFixed.binXschema.xml");
+        assertNotNull(resource);
+        URI uri = resource.toURI();
+        BinX binx = new BinX();
 
-        DataFormat format = binx.getFormat("ArrayFixedTest");
+        DataFormat format = binx.readDataFormat(uri, "ArrayFixedTest");
         assertEquals("ArrayFixedTest", format.getName());
         assertNotNull(format.getType());
         assertEquals("Dataset", format.getType().getName());
@@ -59,10 +64,4 @@ public class ArrayFixedTest extends TestCase {
         assertTrue(format.getTypeDef("FixedFloat32ArrayType") instanceof CompoundType);
     }
 
-    private BinX createBinX() throws URISyntaxException, IOException, BinXException {
-        URL resource = getClass().getResource("ArrayFixed.binXschema.xml");
-        assertNotNull(resource);
-        URI uri = resource.toURI();
-        return new BinX(uri);
-    }
 }

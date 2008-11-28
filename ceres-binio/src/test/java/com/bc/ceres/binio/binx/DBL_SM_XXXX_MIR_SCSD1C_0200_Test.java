@@ -39,9 +39,10 @@ public class DBL_SM_XXXX_MIR_SCSD1C_0200_Test extends TestCase {
         URL resource = getClass().getResource("DBL_SM_XXXX_MIR_SCSD1C_0200.binXschema.xml");
         assertNotNull(resource);
         URI uri = resource.toURI();
-        BinX binx = new BinX(uri);
-
-        assertSame(uri, binx.getURI());
-        assertEquals("http://www.edikt.org/binx/2003/06/binx", binx.getNamespace());
+        BinX binx = new BinX();
+        DataFormat dataFormat = binx.readDataFormat(uri);
+        assertNotNull(dataFormat);
+        assertNotNull(dataFormat.getType());
+        assertEquals("Data_Block", dataFormat.getType().getName());
     }
 }

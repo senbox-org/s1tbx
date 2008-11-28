@@ -1,7 +1,6 @@
 package com.bc.ceres.binio.binx;
 
 import com.bc.ceres.binio.*;
-import com.bc.ceres.binio.internal.CompoundMemberImpl;
 import static com.bc.ceres.binio.TypeBuilder.*;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -20,13 +19,14 @@ import java.util.*;
 public class BinX {
     static final String ANONYMOUS_COMPOUND_PREFIX = "AnonymousCompound@";
     static final String ARRAY_VARIABLE_PREFIX = "ArrayVariable@";
-    static final String ELEMENT_COUNT_POSTFIX = "_Counter";
+    static final String DEFAULT_ELEMENT_COUNT_POSTFIX = "_Counter";
 
-    private final URI uri;
+    private  URI uri;
 
-    private Map<String, Type> parameters;
-    private Map<String, Type> definitions;
-    private CompoundType dataset;
+    private final Map<String, String> parameters;
+    private final Map<String, Type> definitions;
+
+    private String elementCountPostfix;
 
     private Map<String, SimpleType> primitiveTypes;
 
@@ -34,10 +34,9 @@ public class BinX {
 
     private static int anonymousCompoundId = 0;
 
-    public BinX(URI uri) throws IOException, BinXException {
-        this.uri = uri;
+    public BinX() {
 
-        parameters = new HashMap<String, Type>();
+        parameters = new HashMap<String, String>();
         definitions = new HashMap<String, Type>();
 
         primitiveTypes = new HashMap<String, SimpleType>();
@@ -52,35 +51,31 @@ public class BinX {
         primitiveTypes.put("float-32", SimpleType.FLOAT);
         primitiveTypes.put("double-64", SimpleType.DOUBLE);
 
-        parseDocument();
+        elementCountPostfix = DEFAULT_ELEMENT_COUNT_POSTFIX;
     }
 
-
-    public URI getURI() {
-        return uri;
+    public String getParameter(String name) {
+        return parameters.get(name);
     }
 
-    public String getNamespace() {
-        return namespace.getURI();
+    public String setParameter(String name, String value) {
+        return parameters.put(name, value);
     }
 
-    public Map<String, Type> getParameters() {
-        return Collections.unmodifiableMap(parameters);
+    public Type getDefinition(String name) {
+        return definitions.get(name);
     }
 
-    public Map<String, Type> getDefinitions() {
-        return Collections.unmodifiableMap(definitions);
-    }
-
-    public CompoundType getDataset() {
-        return dataset;
+    public Type setDefinition(String name, Type value) {
+        return definitions.put(name, value);
     }
 
     Map<String, SimpleType> getPrimitiveTypes() {
-        return Collections.unmodifiableMap(primitiveTypes);
+        return primitiveTypes;
     }
 
-    private void parseDocument() throws IOException, BinXException {
+    private CompoundType parseDocument(URI uri) throws IOException, BinXException {
+        this.uri = uri;
         SAXBuilder builder = new SAXBuilder();
         Document document;
         try {
@@ -90,14 +85,17 @@ public class BinX {
         }
         Element binxElement = document.getRootElement();
         namespace = binxElement.getNamespace();
-
         parseParameters(binxElement);
         parseDefinitions(binxElement);
-        parseDataset(binxElement);
+        return parseDataset(binxElement);
     }
 
-    public DataFormat getFormat(String formatName) throws BinXException {
-        DataFormat format = new DataFormat(dataset);
+    public DataFormat readDataFormat(URI uri) throws BinXException, IOException {
+        return readDataFormat(uri, uri.toString());
+    }
+
+    public DataFormat readDataFormat(URI uri, String formatName) throws BinXException, IOException {
+        DataFormat format = new DataFormat(parseDocument(uri));
         format.setName(formatName);
         for (Map.Entry<String, Type> entry : definitions.entrySet()) {
             format.addTypeDef(entry.getKey(), entry.getValue());
@@ -136,7 +134,7 @@ public class BinX {
         }
     }
 
-    private void parseDataset(Element binxElement) throws BinXException, IOException {
+    private CompoundType parseDataset(Element binxElement) throws BinXException, IOException {
         Element datasetElement = getChild(binxElement, "dataset", true);
         CompoundType compoundType = parseStruct(datasetElement);
 
@@ -144,9 +142,9 @@ public class BinX {
         // todo - introduce property for this behaviour (rq - 28.11.2008)
         if (compoundType.getMemberCount() == 1 && compoundType.getMember(0).getType() instanceof CompoundType) {
             final CompoundMember member = compoundType.getMember(0);
-            dataset = COMPOUND(member.getName(), ((CompoundType)member.getType()).getMembers());
+            return COMPOUND(member.getName(), ((CompoundType)member.getType()).getMembers());
         } else {
-            dataset = COMPOUND("Dataset", compoundType.getMembers());
+            return  COMPOUND("Dataset", compoundType.getMembers());
         }
     }
 
@@ -247,7 +245,7 @@ public class BinX {
         Element sizeRefTypeElement = getChild(sizeRefElement, true);
         String sizeRefName = getAttributeValue(sizeRefTypeElement, "varName", false);
         if (sizeRefName == null) {
-            sizeRefName = sequenceName + ELEMENT_COUNT_POSTFIX;
+            sizeRefName = sequenceName + DEFAULT_ELEMENT_COUNT_POSTFIX;
         }
 
         Type sizeRefType = parseAnyType(sizeRefTypeElement);
