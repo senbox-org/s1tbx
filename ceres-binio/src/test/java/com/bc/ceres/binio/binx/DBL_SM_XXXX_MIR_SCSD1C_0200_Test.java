@@ -26,25 +26,39 @@ import com.bc.ceres.binio.Type;
 import com.bc.ceres.binio.CompoundType;
 import com.bc.ceres.binio.DataFormat;
 
-/**
- * todo - add API doc
- *
- * @author Ralf Quast
- * @version $Revision$ $Date$
- * @since BEAM 4.2
- */
 public class DBL_SM_XXXX_MIR_SCSD1C_0200_Test extends TestCase {
 
     public void testBinXIO() throws URISyntaxException, IOException, BinXException {
-        URL resource = getClass().getResource("DBL_SM_XXXX_MIR_SCSD1C_0200.binXschema.xml");
+        final URL resource = getClass().getResource("DBL_SM_XXXX_MIR_SCSD1C_0200.binXschema.xml");
         assertNotNull(resource);
-        URI uri = resource.toURI();
+
+        final URI uri = resource.toURI();
         BinX binx = new BinX();
         binx.setSingleDatasetStructInlined(true);
         binx.setArrayVariableInlined(true);
-        DataFormat dataFormat = binx.readDataFormat(uri);
+        binx.setVarNameMapping("Temp_Swath_Dual", "Grid_Point_Data");
+        binx.setVarNameMapping("Swath_Snapshot_List", "Snapshot_Information");
+
+        final DataFormat dataFormat = binx.readDataFormat(uri, "DBL_SM_XXXX_MIR_SCSD1C_0200");
         assertNotNull(dataFormat);
         assertNotNull(dataFormat.getType());
+        assertEquals("DBL_SM_XXXX_MIR_SCSD1C_0200", dataFormat.getName());
+
+        assertTrue(binx.getDefinition("Quality_Information_Type") instanceof CompoundType);
+        assertTrue(binx.getDefinition("UTC_Type") instanceof CompoundType);
+        assertTrue(binx.getDefinition("BT_Data_Type") instanceof CompoundType);
+        assertTrue(binx.getDefinition("Snapshot_Information_Type") instanceof CompoundType);
+        assertTrue(binx.getDefinition("Grid_Point_Data_Type") instanceof CompoundType);
+        assertTrue(binx.getDefinition("Data_Block_Type") instanceof CompoundType);
+
         assertEquals("Data_Block", dataFormat.getType().getName());
+        assertEquals(4, dataFormat.getType().getMemberCount());
+        assertEquals("Snapshot_Counter", dataFormat.getType().getMember(0).getName());
+        assertEquals("Snapshot_Information", dataFormat.getType().getMember(1).getName());
+        assertEquals("Grid_Point_Counter", dataFormat.getType().getMember(2).getName());
+        assertEquals("Grid_Point_Data", dataFormat.getType().getMember(3).getName());
+
+        assertEquals("Snapshot_Information_Type[$Snapshot_Counter]", dataFormat.getType().getMember(1).getType().getName());
+        assertEquals("Grid_Point_Data_Type[$Grid_Point_Counter]", dataFormat.getType().getMember(3).getType().getName());
     }
 }

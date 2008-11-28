@@ -1,11 +1,6 @@
 package com.bc.ceres.binio.binx;
 
-import com.bc.ceres.binio.CompoundMember;
-import com.bc.ceres.binio.CompoundType;
-import com.bc.ceres.binio.DataFormat;
-import com.bc.ceres.binio.SequenceType;
-import com.bc.ceres.binio.SimpleType;
-import com.bc.ceres.binio.Type;
+import com.bc.ceres.binio.*;
 import static com.bc.ceres.binio.TypeBuilder.*;
 import com.bc.ceres.core.Assert;
 import org.jdom.Document;
@@ -35,19 +30,20 @@ public class BinX {
 
     private final Map<String, String> parameters;
     private final Map<String, Type> definitions;
+    private final Map<String, String> varNameMap;
 
     private String elementCountPostfix;
     private boolean singleDatasetStructInlined;
-    private boolean arrayVariableInlined;
 
+    private boolean arrayVariableInlined;
     private Map<String, SimpleType> primitiveTypes;
     private Namespace namespace;
     private static int anonymousCompoundId = 0;
 
     public BinX() {
-
         parameters = new HashMap<String, String>();
         definitions = new HashMap<String, Type>();
+        varNameMap = new HashMap<String, String>();
 
         primitiveTypes = new HashMap<String, SimpleType>();
         primitiveTypes.put("byte-8", SimpleType.BYTE);
@@ -145,7 +141,8 @@ public class BinX {
         Element parametersElement = getChild(binxElement, "parameters", false);
         if (parametersElement != null) {
             // todo - implement parameters (nf - 2008-11-27)
-            throw new BinXException(MessageFormat.format("Element ''{0}'': Not implemented", parametersElement.getName()));
+            throw new BinXException(
+                    MessageFormat.format("Element ''{0}'': Not implemented", parametersElement.getName()));
         }
     }
 
@@ -155,14 +152,16 @@ public class BinX {
             List defineTypeElements = getChildren(definitionsElement, "defineType", false);
             for (int i = 0; i < defineTypeElements.size(); i++) {
                 Element defineTypeElement = (Element) defineTypeElements.get(i);
-                String typeName = getAttributeValue(defineTypeElement, "typeName", true);
+                String typeName = getTypeName(defineTypeElement, true);
                 Element child = getChild(defineTypeElement, true);
                 Type type = parseNonSimpleType(child);
                 if (type == null) {
-                    throw new BinXException(MessageFormat.format("Element ''{0}'': ''{1}'' not expected here", defineTypeElement.getName(), child.getName()));
+                    throw new BinXException(MessageFormat.format("Element ''{0}'': ''{1}'' not expected here",
+                                                                 defineTypeElement.getName(), child.getName()));
                 }
                 if (definitions.containsKey(typeName)) {
-                    throw new BinXException(MessageFormat.format("Element ''{0}'': Duplicate type definition ''{1}''", definitionsElement.getName(), typeName));
+                    throw new BinXException(MessageFormat.format("Element ''{0}'': Duplicate type definition ''{1}''",
+                                                                 definitionsElement.getName(), typeName));
                 }
                 if (type instanceof CompoundType && type.getName().startsWith(ANONYMOUS_COMPOUND_PREFIX)) {
                     type = COMPOUND(typeName, ((CompoundType) type).getMembers());
@@ -213,7 +212,8 @@ public class BinX {
             if (type == null) {
                 type = primitiveTypes.get(typeElement.getName());
                 if (type == null) {
-                    throw new BinXException(MessageFormat.format("Element ''{0}'': Unknown type: {1}", typeElement.getName(), typeName));
+                    throw new BinXException(MessageFormat.format("Element ''{0}'': Unknown type: {1}",
+                                                                 typeElement.getName(), typeName));
                 }
             }
         }
@@ -223,10 +223,11 @@ public class BinX {
     //    <useType typeName="Confidence_Descriptors_Data_Type" varName="Confidence_Descriptors_Data"/>
     //
     private Type parseUseType(Element typeElement) throws BinXException {
-        String typeName = getAttributeValue(typeElement, "typeName", true);
+        String typeName = getTypeName(typeElement, true);
         Type type = definitions.get(typeName);
         if (type == null) {
-            throw new BinXException(MessageFormat.format("Element ''{0}'': Unknown type definition: {1}", typeElement.getName(), typeName));
+            throw new BinXException(MessageFormat.format("Element ''{0}'': Unknown type definition: {1}",
+                                                         typeElement.getName(), typeName));
         }
         return type;
     }
@@ -243,7 +244,7 @@ public class BinX {
 
         for (int i = 0; i < memberElements.size(); i++) {
             Element memberElement = (Element) memberElements.get(i);
-            String memberName = getAttributeValue(memberElement, "varName", true);
+            String memberName = getVarName(memberElement, true);
             Type memberType = parseAnyType(memberElement);
             // inline variable-length arrays
             if (arrayVariableInlined
@@ -271,25 +272,25 @@ public class BinX {
     private CompoundType parseArrayVariable(Element typeElement) throws BinXException {
         Element sizeRefElement = getChild(typeElement, "sizeRef", 0, true);
         Element arrayTypeElement = getChild(typeElement, 1, true);
-        Element dimElement = getChild(typeElement, "dim", 2, true);
 
-        String sequenceName = getAttributeValue(typeElement, "varName", false);
+        String sequenceName = getVarName(arrayTypeElement, false);
         if (sequenceName == null) {
-            sequenceName = getAttributeValue(dimElement, "name", false);
+            sequenceName = getVarName(typeElement, false);
             if (sequenceName == null) {
                 throw new BinXException(MessageFormat.format("Element ''{0}'': Missing name", typeElement.getName()));
             }
         }
 
         Element sizeRefTypeElement = getChild(sizeRefElement, true);
-        String sizeRefName = getAttributeValue(sizeRefTypeElement, "varName", false);
+        String sizeRefName = getVarName(sizeRefTypeElement, false);
         if (sizeRefName == null) {
             sizeRefName = sequenceName + elementCountPostfix;
         }
 
         Type sizeRefType = parseAnyType(sizeRefTypeElement);
         if (!isIntegerType(sizeRefType)) {
-            throw new BinXException(MessageFormat.format("Element ''{0}'': 'sizeRef' must be an integer type", typeElement.getName()));
+            throw new BinXException(
+                    MessageFormat.format("Element ''{0}'': 'sizeRef' must be an integer type", typeElement.getName()));
         }
 
         Type arrayType = parseAnyType(arrayTypeElement);
@@ -351,9 +352,24 @@ public class BinX {
     private String getAttributeValue(Element element, String name, boolean require) throws BinXException {
         String value = element.getAttributeValue(name);
         if (require && value == null) {
-            throw new BinXException(MessageFormat.format("Element ''{0}'': attribute ''{1}'' not found.", element.getName(), name));
+            throw new BinXException(
+                    MessageFormat.format("Element ''{0}'': attribute ''{1}'' not found.", element.getName(), name));
         }
         return value;
+    }
+
+    private String getVarName(Element element, boolean require) throws BinXException {
+        final String name = getAttributeValue(element, "varName", require);
+
+        if (varNameMap.containsKey(name)) {
+            return varNameMap.get(name);
+        }
+
+        return name;
+    }
+
+    private String getTypeName(Element element, boolean require) throws BinXException {
+        return getAttributeValue(element, "typeName", require);
     }
 
     private int getAttributeIntValue(Element element, String attributeName) throws BinXException {
@@ -393,7 +409,8 @@ public class BinX {
     private Element getChild(Element element, String name, boolean require) throws BinXException {
         Element child = element.getChild(name, namespace);
         if (require && child == null) {
-            throw new BinXException(MessageFormat.format("Element ''{0}}': child ''{1}'' not found.", element.getName(), name));
+            throw new BinXException(
+                    MessageFormat.format("Element ''{0}}': child ''{1}'' not found.", element.getName(), name));
         }
         return child;
     }
@@ -403,9 +420,12 @@ public class BinX {
         if (children.size() <= index) {
             if (require) {
                 if (name != null) {
-                    throw new BinXException(MessageFormat.format("Element ''{0}'': Expected to have a child ''{1}'' at index {2}", element.getName(), name, index));
+                    throw new BinXException(MessageFormat.format(
+                            "Element ''{0}'': Expected to have a child ''{1}'' at index {2}", element.getName(), name,
+                            index));
                 } else {
-                    throw new BinXException(MessageFormat.format("Element ''{0}'': Expected to have a child at index {1}", element.getName(), index));
+                    throw new BinXException(MessageFormat.format(
+                            "Element ''{0}'': Expected to have a child at index {1}", element.getName(), index));
                 }
             } else {
                 return null;
@@ -413,7 +433,8 @@ public class BinX {
         }
         Element child = (Element) children.get(index);
         if (name != null && !name.equals(child.getName())) {
-            throw new BinXException(MessageFormat.format("Element ''{0}'': Expected child ''{1}'' at index {2}", element.getName(), name, index));
+            throw new BinXException(MessageFormat.format("Element ''{0}'': Expected child ''{1}'' at index {2}",
+                                                         element.getName(), name, index));
         }
         return child;
     }
@@ -426,9 +447,11 @@ public class BinX {
         List children = element.getChildren(name, namespace);
         if (require && children.isEmpty()) {
             if (name != null) {
-                throw new BinXException(MessageFormat.format("Element ''{0}'': Expected to have at least one child of ''{1}''", element.getName(), name));
+                throw new BinXException(MessageFormat.format(
+                        "Element ''{0}'': Expected to have at least one child of ''{1}''", element.getName(), name));
             } else {
-                throw new BinXException(MessageFormat.format("Element ''{0}'': Expected to have at least one child", element.getName()));
+                throw new BinXException(MessageFormat.format("Element ''{0}'': Expected to have at least one child",
+                                                             element.getName()));
             }
         }
         return children;
@@ -440,5 +463,13 @@ public class BinX {
 
     private String generateArrayVariableCompoundName(String sequenceName) {
         return ARRAY_VARIABLE_PREFIX + sequenceName;
+    }
+
+    public String setVarNameMapping(String sourceName, String targetName) {
+        if (targetName == null) {
+            return varNameMap.remove(sourceName);
+        }
+
+        return varNameMap.put(sourceName, targetName);
     }
 }
