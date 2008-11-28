@@ -44,10 +44,6 @@ public class MapGeoCoding extends AbstractGeoCoding {
     private final boolean _normalized;
     private final double _normalizedLonMin;
 
-    private final Point2D _mapPos = new Point2D.Double();
-    private final GeoPos _geoPosNorm = new GeoPos();
-
-
     /**
      * Constructs a map geo-coding based on the given map information.
      *
@@ -128,8 +124,8 @@ public class MapGeoCoding extends AbstractGeoCoding {
      * @return the pixel co-ordinates as x/y
      */
     public final PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
-        final GeoPos geoPosNorm = normGeoPos(geoPos, _geoPosNorm);
-        final Point2D mapPos = geoToMap(geoPosNorm, _mapPos);
+        final GeoPos geoPosNorm = normGeoPos(geoPos, new GeoPos());
+        final Point2D mapPos = geoToMap(geoPosNorm, new Point2D.Double());
         return mapToPixel(mapPos, pixelPos);
     }
 
@@ -142,8 +138,8 @@ public class MapGeoCoding extends AbstractGeoCoding {
      * @return the geographical position as lat/lon.
      */
     public final GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
-        final Point2D mapPos = pixelToMap(pixelPos, _mapPos);
-        final GeoPos geoPosNorm = mapToGeo(mapPos, _geoPosNorm);
+        final Point2D mapPos = pixelToMap(pixelPos, new Point2D.Double());
+        final GeoPos geoPosNorm = mapToGeo(mapPos, new GeoPos());
         return denormGeoPos(geoPosNorm, geoPos);
     }
 
