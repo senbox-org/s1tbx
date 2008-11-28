@@ -39,4 +39,22 @@
         </action>
     </extension>
 
+    <extension point="beam-ui:toolViews">
+
+        <toolView>
+            <id>org.esa.beam.smos.visat.SmosIncidenceAngleChartToolView</id>
+            <class>org.esa.beam.smos.visat.SmosIncidenceAngleChartToolView</class>
+            <title>SMOS Incidence Angle Plots</title>
+            <tabTitle>SMOS Plots</tabTitle>
+        </toolView>
+
+        <toolView>
+            <id>org.esa.beam.smos.visat.SmosSnapshotImageToolView</id>
+            <class>org.esa.beam.smos.visat.SmosSnapshotImageToolView</class>
+            <title>SMOS Snapshot Image</title>
+            <tabTitle>SMOS Snapshot</tabTitle>
+        </toolView>
+
+    </extension>
+
 </module>

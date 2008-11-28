@@ -92,7 +92,7 @@ class SmosBandOpImage extends SingleBandedOpImage {
             int dstPixelOffset = dstBandOffset;
             for (int x = 0; x < dstWidth; x++) {
                 final int seqnum = srcDataArray[srcPixelOffset];
-                final int gridPointIndex = smosFile.getGridPointId(seqnum);
+                final int gridPointIndex = smosFile.getGridPointIndex(seqnum);
                 short btValue = noDataValue;
                 if (gridPointIndex != -1) {
                     if (x > 0 && gridPointIndexCache[1][x - 1] == gridPointIndex) {
@@ -151,7 +151,7 @@ class SmosBandOpImage extends SingleBandedOpImage {
             int dstPixelOffset = dstBandOffset;
             for (int x = 0; x < dstWidth; x++) {
                 final int seqnum = srcDataArray[srcPixelOffset];
-                final int gridPointIndex = smosFile.getGridPointId(seqnum);
+                final int gridPointIndex = smosFile.getGridPointIndex(seqnum);
                 int btValue = noDataValue;
                 if (gridPointIndex != -1) {
                     if (x > 0 && gridPointIndexCache[1][x - 1] == gridPointIndex) {
@@ -210,7 +210,7 @@ class SmosBandOpImage extends SingleBandedOpImage {
             int dstPixelOffset = dstBandOffset;
             for (int x = 0; x < dstWidth; x++) {
                 final int seqnum = srcDataArray[srcPixelOffset];
-                final int gridPointIndex = smosFile.getGridPointId(seqnum);
+                final int gridPointIndex = smosFile.getGridPointIndex(seqnum);
                 float btValue = noDataValue;
                 if (gridPointIndex != -1) {
                     if (x > 0 && gridPointIndexCache[1][x - 1] == gridPointIndex) {

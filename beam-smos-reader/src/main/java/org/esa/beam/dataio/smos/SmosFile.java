@@ -17,33 +17,30 @@
 package org.esa.beam.dataio.smos;
 
 
-import com.bc.ceres.binio.*;
-import com.bc.ceres.binio.internal.DataContextImpl;
-import com.bc.ceres.binio.util.RandomAccessFileIOHandler;
+import com.bc.ceres.binio.CompoundData;
+import com.bc.ceres.binio.DataContext;
+import com.bc.ceres.binio.DataFormat;
+import com.bc.ceres.binio.SequenceData;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.Arrays;
 
 
-class SmosFile {
+public class SmosFile {
 
     private final File file;
     private final DataFormat format;
     private final SequenceData gridPointList;
     private int[] gridPointIndexes;
-    private final RandomAccessFile raf;
+    private final DataContext dataContext;
 
     public SmosFile(File file, DataFormat format) throws IOException {
         this.file = file;
         this.format = format;
-        System.out.println("SmosFile: file = " + this.file);
-        System.out.println("SmosFile: format = " + this.format.getName());
-        this.raf = new RandomAccessFile(file, "r");
-        final DataContext context = format.createContext(raf);
-        CompoundData smosBinaryData = context.getData();
-        gridPointList = smosBinaryData.getSequence("Grid_Point_List");
+        this.dataContext = format.createContext(file, "r");
+        CompoundData smosDataset = dataContext.getData();
+        this.gridPointList = smosDataset.getSequence("Grid_Point_List");
         initGridPointIndexes();
     }
 
@@ -53,6 +50,14 @@ class SmosFile {
 
     public DataFormat getFormat() {
         return format;
+    }
+
+    public DataContext getDataContext() {
+        return dataContext;
+    }
+
+    public SequenceData getGridPointList() {
+        return gridPointList;
     }
 
     public short getL1CBrowseBtDataShort(int gridPointIndex, int btDataIndex) throws IOException {
@@ -86,13 +91,13 @@ class SmosFile {
         return mean / n;
     }
 
-    private SequenceData getBtDataList(int gridPointIndex) throws IOException {
+    public SequenceData getBtDataList(int gridPointIndex) throws IOException {
         CompoundData gridPointEntry = gridPointList.getCompound(gridPointIndex);
         return gridPointEntry.getSequence(6);
     }
 
-    public int getGridPointId(int seqNum) {
-        return gridPointIndexes[seqNum];
+    public int getGridPointIndex(int seqnum) {
+        return gridPointIndexes[seqnum];
     }
 
     public void initGridPointIndexes() throws IOException {
@@ -118,10 +123,6 @@ class SmosFile {
     }
 
     public void close() {
-        try {
-            raf.close();
-        } catch (IOException e) {
-            // cannot do anything about this
-        }
+        dataContext.dispose();
     }
 }

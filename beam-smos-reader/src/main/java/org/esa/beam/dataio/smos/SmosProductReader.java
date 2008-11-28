@@ -167,6 +167,14 @@ public class SmosProductReader extends AbstractProductReader {
         return product;
     }
 
+    public SmosFile getSmosFile() {
+        return smosFile;
+    }
+
+    public MultiLevelImage getDggridMultiLevelImage() {
+        return dggridMultiLevelImage;
+    }
+
     private void addSmosBands(Product product, CompoundType compoundDataType) {
         CompoundMember[] members = compoundDataType.getMembers();
         for (int fieldIndex = 0; fieldIndex < members.length; fieldIndex++) {

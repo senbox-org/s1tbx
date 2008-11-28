@@ -30,5 +30,9 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-ui</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-visat-rcp</artifactId>
+        </dependency>
     </dependencies>
 </project>
