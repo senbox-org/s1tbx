@@ -19,6 +19,8 @@ public class DBL_SM_XXXX_MIR_SMUDP2_0100_Test extends TestCase {
         assertNotNull(resource);
         URI uri = resource.toURI();
         BinX binx = new BinX();
+        binx.setSingleDatasetStructInlined(true);
+        binx.setArrayVariableInlined(true);
 
         DataFormat dataFormat = binx.readDataFormat(uri, "DBL_SM_XXXX_MIR_SMUDP2_0100");
         assertNotNull(dataFormat);

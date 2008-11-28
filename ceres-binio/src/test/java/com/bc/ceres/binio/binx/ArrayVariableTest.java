@@ -15,6 +15,8 @@ public class ArrayVariableTest extends TestCase {
         assertNotNull(resource);
         URI uri = resource.toURI();
         BinX binx = new BinX();
+        binx.setSingleDatasetStructInlined(true);
+        binx.setArrayVariableInlined(true);
         DataFormat dataFormat = binx.readDataFormat(uri);
 
         assertTrue(binx.getDefinition("Ernie") instanceof CompoundType);

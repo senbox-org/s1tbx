@@ -40,6 +40,8 @@ public class DBL_SM_XXXX_MIR_SCSD1C_0200_Test extends TestCase {
         assertNotNull(resource);
         URI uri = resource.toURI();
         BinX binx = new BinX();
+        binx.setSingleDatasetStructInlined(true);
+        binx.setArrayVariableInlined(true);
         DataFormat dataFormat = binx.readDataFormat(uri);
         assertNotNull(dataFormat);
         assertNotNull(dataFormat.getType());

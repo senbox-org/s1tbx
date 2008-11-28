@@ -1,7 +1,13 @@
 package com.bc.ceres.binio.binx;
 
-import com.bc.ceres.binio.*;
+import com.bc.ceres.binio.CompoundMember;
+import com.bc.ceres.binio.CompoundType;
+import com.bc.ceres.binio.DataFormat;
+import com.bc.ceres.binio.SequenceType;
+import com.bc.ceres.binio.SimpleType;
+import com.bc.ceres.binio.Type;
 import static com.bc.ceres.binio.TypeBuilder.*;
+import com.bc.ceres.core.Assert;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -11,27 +17,31 @@ import org.jdom.input.SAXBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
+ * Utlity class used to read BinX schema files.
  * See the <a href="http://www.edikt.org/binx/">BinX Project</a>.
+ * <p/>
+ * This class is not thread-safe.
  */
 public class BinX {
     static final String ANONYMOUS_COMPOUND_PREFIX = "AnonymousCompound@";
     static final String ARRAY_VARIABLE_PREFIX = "ArrayVariable@";
     static final String DEFAULT_ELEMENT_COUNT_POSTFIX = "_Counter";
 
-    private  URI uri;
-
     private final Map<String, String> parameters;
     private final Map<String, Type> definitions;
 
     private String elementCountPostfix;
+    private boolean singleDatasetStructInlined;
+    private boolean arrayVariableInlined;
 
     private Map<String, SimpleType> primitiveTypes;
-
     private Namespace namespace;
-
     private static int anonymousCompoundId = 0;
 
     public BinX() {
@@ -52,6 +62,8 @@ public class BinX {
         primitiveTypes.put("double-64", SimpleType.DOUBLE);
 
         elementCountPostfix = DEFAULT_ELEMENT_COUNT_POSTFIX;
+        singleDatasetStructInlined = false;
+        arrayVariableInlined = false;
     }
 
     public String getParameter(String name) {
@@ -59,6 +71,9 @@ public class BinX {
     }
 
     public String setParameter(String name, String value) {
+        if (value == null) {
+            return parameters.remove(name);
+        }
         return parameters.put(name, value);
     }
 
@@ -67,27 +82,35 @@ public class BinX {
     }
 
     public Type setDefinition(String name, Type value) {
+        if (value == null) {
+            return definitions.remove(name);
+        }
         return definitions.put(name, value);
     }
 
-    Map<String, SimpleType> getPrimitiveTypes() {
-        return primitiveTypes;
+    public String getElementCountPostfix() {
+        return elementCountPostfix;
     }
 
-    private CompoundType parseDocument(URI uri) throws IOException, BinXException {
-        this.uri = uri;
-        SAXBuilder builder = new SAXBuilder();
-        Document document;
-        try {
-            document = builder.build(uri.toURL());
-        } catch (JDOMException e) {
-            throw new BinXException(MessageFormat.format("Failed to read ''{0}''", uri), e);
-        }
-        Element binxElement = document.getRootElement();
-        namespace = binxElement.getNamespace();
-        parseParameters(binxElement);
-        parseDefinitions(binxElement);
-        return parseDataset(binxElement);
+    public void setElementCountPostfix(String elementCountPostfix) {
+        Assert.notNull(elementCountPostfix, "elementCountPostfix");
+        this.elementCountPostfix = elementCountPostfix;
+    }
+
+    public boolean isSingleDatasetStructInlined() {
+        return singleDatasetStructInlined;
+    }
+
+    public void setSingleDatasetStructInlined(boolean singleDatasetStructInlined) {
+        this.singleDatasetStructInlined = singleDatasetStructInlined;
+    }
+
+    public boolean isArrayVariableInlined() {
+        return arrayVariableInlined;
+    }
+
+    public void setArrayVariableInlined(boolean arrayVariableInlined) {
+        this.arrayVariableInlined = arrayVariableInlined;
     }
 
     public DataFormat readDataFormat(URI uri) throws BinXException, IOException {
@@ -101,6 +124,21 @@ public class BinX {
             format.addTypeDef(entry.getKey(), entry.getValue());
         }
         return format;
+    }
+
+    private CompoundType parseDocument(URI uri) throws IOException, BinXException {
+        SAXBuilder builder = new SAXBuilder();
+        Document document;
+        try {
+            document = builder.build(uri.toURL());
+        } catch (JDOMException e) {
+            throw new BinXException(MessageFormat.format("Failed to read ''{0}''", uri), e);
+        }
+        Element binxElement = document.getRootElement();
+        this.namespace = binxElement.getNamespace();
+        parseParameters(binxElement);
+        parseDefinitions(binxElement);
+        return parseDataset(binxElement);
     }
 
     private void parseParameters(Element binxElement) throws BinXException {
@@ -137,14 +175,14 @@ public class BinX {
     private CompoundType parseDataset(Element binxElement) throws BinXException, IOException {
         Element datasetElement = getChild(binxElement, "dataset", true);
         CompoundType compoundType = parseStruct(datasetElement);
-
         // inline single compound member
-        // todo - introduce property for this behaviour (rq - 28.11.2008)
-        if (compoundType.getMemberCount() == 1 && compoundType.getMember(0).getType() instanceof CompoundType) {
+        if (singleDatasetStructInlined
+                && compoundType.getMemberCount() == 1
+                && compoundType.getMember(0).getType() instanceof CompoundType) {
             final CompoundMember member = compoundType.getMember(0);
-            return COMPOUND(member.getName(), ((CompoundType)member.getType()).getMembers());
+            return COMPOUND(member.getName(), ((CompoundType) member.getType()).getMembers());
         } else {
-            return  COMPOUND("Dataset", compoundType.getMembers());
+            return COMPOUND("Dataset", compoundType.getMembers());
         }
     }
 
@@ -208,8 +246,9 @@ public class BinX {
             String memberName = getAttributeValue(memberElement, "varName", true);
             Type memberType = parseAnyType(memberElement);
             // inline variable-length arrays
-            // todo - introduce property for this behaviour (rq - 28.11.2008)
-            if (memberType instanceof CompoundType && memberType.getName().startsWith(ARRAY_VARIABLE_PREFIX)) {
+            if (arrayVariableInlined
+                    && memberType instanceof CompoundType
+                    && memberType.getName().startsWith(ARRAY_VARIABLE_PREFIX)) {
                 CompoundType compoundType = (CompoundType) memberType;
                 members.add(MEMBER(compoundType.getMemberName(0), compoundType.getMemberType(0)));
                 members.add(MEMBER(compoundType.getMemberName(1), compoundType.getMemberType(1)));
@@ -245,7 +284,7 @@ public class BinX {
         Element sizeRefTypeElement = getChild(sizeRefElement, true);
         String sizeRefName = getAttributeValue(sizeRefTypeElement, "varName", false);
         if (sizeRefName == null) {
-            sizeRefName = sequenceName + DEFAULT_ELEMENT_COUNT_POSTFIX;
+            sizeRefName = sequenceName + elementCountPostfix;
         }
 
         Type sizeRefType = parseAnyType(sizeRefTypeElement);
