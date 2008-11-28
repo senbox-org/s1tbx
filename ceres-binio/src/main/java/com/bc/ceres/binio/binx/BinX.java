@@ -12,10 +12,7 @@ import org.jdom.input.SAXBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Utlity class used to read BinX schema files.
@@ -90,6 +87,19 @@ public class BinX {
         }
 
         return varNameMap.put(sourceName, targetName);
+    }
+
+    public void setVarNameMappings(Properties properties) {
+        if (properties != null) {
+            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+                if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
+                    final String sourceName = (String) entry.getKey();
+                    final String targetName = (String) entry.getValue();
+
+                    setVarNameMapping(sourceName, targetName);
+                }
+            }
+        }
     }
 
     public String getElementCountPostfix() {
@@ -471,5 +481,5 @@ public class BinX {
                 || sizeRefType == SimpleType.UINT
                 || sizeRefType == SimpleType.LONG
                 || sizeRefType == SimpleType.ULONG;
-    }    
+    }
 }
