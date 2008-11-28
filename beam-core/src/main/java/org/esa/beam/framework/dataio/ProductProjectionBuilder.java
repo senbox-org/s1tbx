@@ -19,22 +19,8 @@ package org.esa.beam.framework.dataio;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.util.CachingObjectArray;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PinSymbol;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Pointing;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.dataop.dem.ElevationModel;
-import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
-import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
-import org.esa.beam.framework.dataop.dem.Orthorectifier;
-import org.esa.beam.framework.dataop.dem.Orthorectifier2;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.dem.*;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.util.Debug;
@@ -457,7 +443,6 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
     private void addBandsToProduct(Product targetProduct) {
         ProductUtils.copyBandsForGeomTransform(getSourceProduct(), targetProduct, includeTiePointGrids, mapInfo.getNoDataValue(),
                                                bandMap);
-        ProductUtils.copyBitmaskDefsAndOverlays(getSourceProduct(), targetProduct);
     }
 
     private static void addGeoCodingToProduct(final MapGeoCoding targetGC, Product product) {

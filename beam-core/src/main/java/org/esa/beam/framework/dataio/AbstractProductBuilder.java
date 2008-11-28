@@ -8,6 +8,7 @@ package org.esa.beam.framework.dataio;
 
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ProductUtils;
 
 import java.io.IOException;
 import java.util.Hashtable;
@@ -120,12 +121,7 @@ public abstract class AbstractProductBuilder extends AbstractProductReader {
     }
 
     protected void addBitmaskDefsToProduct(Product product) {
-        for (int i = 0; i < getSourceProduct().getNumBitmaskDefs(); i++) {
-            BitmaskDef bitmaskDef = getSourceProduct().getBitmaskDefAt(i);
-            if (product.isCompatibleBitmaskDef(bitmaskDef)) {
-                product.addBitmaskDef(bitmaskDef.createCopy());
-            }
-        }
+        ProductUtils.copyBitmaskDefsAndOverlays(getSourceProduct(), product);
     }
 
     protected void addBitmaskOverlayInfosToBandAndTiePointGrids(final Product product) {
