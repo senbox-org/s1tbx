@@ -84,6 +84,14 @@ public class BinX {
         return definitions.put(name, value);
     }
 
+    public String setVarNameMapping(String sourceName, String targetName) {
+        if (targetName == null) {
+            return varNameMap.remove(sourceName);
+        }
+
+        return varNameMap.put(sourceName, targetName);
+    }
+
     public String getElementCountPostfix() {
         return elementCountPostfix;
     }
@@ -301,17 +309,6 @@ public class BinX {
                         MEMBER(sequenceName, sequenceType));
     }
 
-    private boolean isIntegerType(Type sizeRefType) {
-        return sizeRefType == SimpleType.BYTE
-                || sizeRefType == SimpleType.UBYTE
-                || sizeRefType == SimpleType.SHORT
-                || sizeRefType == SimpleType.USHORT
-                || sizeRefType == SimpleType.INT
-                || sizeRefType == SimpleType.UINT
-                || sizeRefType == SimpleType.LONG
-                || sizeRefType == SimpleType.ULONG;
-    }
-
     private Type parseUnion(Element typeElement) throws BinXException {
         // todo - implement union  (nf - 2008-11-27)
         throw new BinXException(MessageFormat.format("Element ''{0}'': Type not implemented", typeElement.getName()));
@@ -349,15 +346,6 @@ public class BinX {
         throw new BinXException(MessageFormat.format("Element ''{0}'': Type not implemented", typeElement.getName()));
     }
 
-    private String getAttributeValue(Element element, String name, boolean require) throws BinXException {
-        String value = element.getAttributeValue(name);
-        if (require && value == null) {
-            throw new BinXException(
-                    MessageFormat.format("Element ''{0}'': attribute ''{1}'' not found.", element.getName(), name));
-        }
-        return value;
-    }
-
     private String getVarName(Element element, boolean require) throws BinXException {
         final String name = getAttributeValue(element, "varName", require);
 
@@ -368,34 +356,8 @@ public class BinX {
         return name;
     }
 
-    private String getTypeName(Element element, boolean require) throws BinXException {
+    private static String getTypeName(Element element, boolean require) throws BinXException {
         return getAttributeValue(element, "typeName", require);
-    }
-
-    private int getAttributeIntValue(Element element, String attributeName) throws BinXException {
-        return getAttributeIntValue(element, attributeName, true);
-    }
-
-    private int getAttributeIntValue(Element element, String attributeName, int defaultValue) throws BinXException {
-        Integer value = getAttributeIntValue(element, attributeName, false);
-        if (value != null) {
-            return value;
-        }
-        return defaultValue;
-    }
-
-    private Integer getAttributeIntValue(Element element, String attributeName, boolean required) throws BinXException {
-        final String value = getAttributeValue(element, attributeName, required);
-        if (value == null) {
-            return null;
-        }
-        try {
-            return Integer.valueOf(value);
-        } catch (NumberFormatException e) {
-            throw new BinXException(MessageFormat.format("Element ''{0}'': Attribute ''{1}'' must be an integer.",
-                                                         element.getName(),
-                                                         attributeName));
-        }
     }
 
     private Element getChild(Element element, boolean require) throws BinXException {
@@ -457,19 +419,57 @@ public class BinX {
         return children;
     }
 
-    private String generateCompoundName() {
+    private static String getAttributeValue(Element element, String name, boolean require) throws BinXException {
+        String value = element.getAttributeValue(name);
+        if (require && value == null) {
+            throw new BinXException(
+                    MessageFormat.format("Element ''{0}'': attribute ''{1}'' not found.", element.getName(), name));
+        }
+        return value;
+    }
+
+    private static int getAttributeIntValue(Element element, String attributeName) throws BinXException {
+        return getAttributeIntValue(element, attributeName, true);
+    }
+
+    private static int getAttributeIntValue(Element element, String attributeName, int defaultValue) throws BinXException {
+        Integer value = getAttributeIntValue(element, attributeName, false);
+        if (value != null) {
+            return value;
+        }
+        return defaultValue;
+    }
+
+    private static Integer getAttributeIntValue(Element element, String attributeName, boolean required) throws BinXException {
+        final String value = getAttributeValue(element, attributeName, required);
+        if (value == null) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException e) {
+            throw new BinXException(MessageFormat.format("Element ''{0}'': Attribute ''{1}'' must be an integer.",
+                                                         element.getName(),
+                                                         attributeName));
+        }
+    }
+
+    private static String generateCompoundName() {
         return ANONYMOUS_COMPOUND_PREFIX + anonymousCompoundId++;
     }
 
-    private String generateArrayVariableCompoundName(String sequenceName) {
+    private static String generateArrayVariableCompoundName(String sequenceName) {
         return ARRAY_VARIABLE_PREFIX + sequenceName;
     }
 
-    public String setVarNameMapping(String sourceName, String targetName) {
-        if (targetName == null) {
-            return varNameMap.remove(sourceName);
-        }
-
-        return varNameMap.put(sourceName, targetName);
-    }
+    private static boolean isIntegerType(Type sizeRefType) {
+        return sizeRefType == SimpleType.BYTE
+                || sizeRefType == SimpleType.UBYTE
+                || sizeRefType == SimpleType.SHORT
+                || sizeRefType == SimpleType.USHORT
+                || sizeRefType == SimpleType.INT
+                || sizeRefType == SimpleType.UINT
+                || sizeRefType == SimpleType.LONG
+                || sizeRefType == SimpleType.ULONG;
+    }    
 }
