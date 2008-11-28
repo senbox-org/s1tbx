@@ -284,16 +284,19 @@ public class GeoTiffProductReader extends AbstractProductReader {
                     mapInfo.setSceneHeight(product.getSceneRasterHeight());
                 }
             } else if (isUserdefinedPCSCode(pcsCode)) {
-                mapInfo = new MapInfo(projection, 0, 0, 0, 0, 1, 1, datum);
                 if (isProjectionUserDefined(keyEntries)) {
                     if (isProjectionTransverseMercator(keyEntries)) {
                         projection = getProjectionTransverseMercator(keyEntries);
+                        mapInfo = new MapInfo(projection, 0, 0, 0, 0, 1, 1, datum);
                     } else if (isProjectionLambertConfConic(keyEntries)) {
                         projection = getProjectionLambertConfConic(keyEntries);
+                        mapInfo = new MapInfo(projection, 0, 0, 0, 0, 1, 1, datum);
                     } else if (isProjectionStereographic(keyEntries)) {
                         projection = getProjectionStereographic(keyEntries);
+                        mapInfo = new MapInfo(projection, 0, 0, 0, 0, 1, 1, datum);
                     } else if (isProjectionAlbersEqualArea(keyEntries)) {
                         projection = getProjectionAlbersEqualAreaConic(keyEntries);
+                        mapInfo = new MapInfo(projection, 0, 0, 0, 0, 1, 1, datum);
                     } else {
                         projection = null;
                     }
