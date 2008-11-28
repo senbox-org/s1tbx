@@ -156,7 +156,10 @@ public class SmosFormats {
             final URL schemaUrl = getSchemaResource(name);
 
             try {
-                final DataFormat format = new BinX(schemaUrl.toURI()).getFormat(name);
+                final BinX binX = new BinX();
+                binX.setSingleDatasetStructInlined(true);
+                binX.setArrayVariableInlined(true);
+                final DataFormat format = binX.readDataFormat(schemaUrl.toURI(), name);
                 formatMap.putIfAbsent(name, format);
             } catch (BinXException e) {
                 throw new IllegalStateException(e);
