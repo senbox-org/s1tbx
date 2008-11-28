@@ -1,11 +1,7 @@
 package com.bc.ceres.binio.binx;
 
-import com.bc.ceres.binio.CompoundMember;
-import com.bc.ceres.binio.CompoundType;
-import com.bc.ceres.binio.DataFormat;
-import com.bc.ceres.binio.SequenceType;
-import com.bc.ceres.binio.SimpleType;
-import com.bc.ceres.binio.Type;
+import com.bc.ceres.binio.*;
+import com.bc.ceres.binio.internal.CompoundMemberImpl;
 import static com.bc.ceres.binio.TypeBuilder.*;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -16,19 +12,15 @@ import org.jdom.input.SAXBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * See the <a href="http://www.edikt.org/binx/">BinX Project</a>.
  */
 public class BinX {
     static final String ANONYMOUS_COMPOUND_PREFIX = "AnonymousCompound@";
-    static final String DEFAULT_LENGTH_MEMBER_NAME = "Length";
-    static final String DEFAULT_DATA_MEMBER_NAME = "Data";
+    static final String ARRAY_VARIABLE_PREFIX = "ArrayVariable@";
+    static final String ELEMENT_COUNT_POSTFIX = "_Counter";
 
     private final URI uri;
 
@@ -147,7 +139,15 @@ public class BinX {
     private void parseDataset(Element binxElement) throws BinXException, IOException {
         Element datasetElement = getChild(binxElement, "dataset", true);
         CompoundType compoundType = parseStruct(datasetElement);
-        dataset = COMPOUND("Dataset", compoundType.getMembers());
+
+        // inline single compound member
+        // todo - introduce property for this behaviour (rq - 28.11.2008)
+        if (compoundType.getMemberCount() == 1 && compoundType.getMember(0).getType() instanceof CompoundType) {
+            final CompoundMember member = compoundType.getMember(0);
+            dataset = COMPOUND(member.getName(), ((CompoundType)member.getType()).getMembers());
+        } else {
+            dataset = COMPOUND("Dataset", compoundType.getMembers());
+        }
     }
 
     private Type parseNonSimpleType(Element typeElement) throws BinXException {
@@ -209,15 +209,18 @@ public class BinX {
             Element memberElement = (Element) memberElements.get(i);
             String memberName = getAttributeValue(memberElement, "varName", true);
             Type memberType = parseAnyType(memberElement);
-            members.add(MEMBER(memberName, memberType));
+            // inline variable-length arrays
+            // todo - introduce property for this behaviour (rq - 28.11.2008)
+            if (memberType instanceof CompoundType && memberType.getName().startsWith(ARRAY_VARIABLE_PREFIX)) {
+                CompoundType compoundType = (CompoundType) memberType;
+                members.add(MEMBER(compoundType.getMemberName(0), compoundType.getMemberType(0)));
+                members.add(MEMBER(compoundType.getMemberName(1), compoundType.getMemberType(1)));
+            } else {
+                members.add(MEMBER(memberName, memberType));
+            }
         }
 
-        // inline single variable-length array
-        if (members.size() == 1 && members.get(0).getType() instanceof CompoundType) {
-            return (CompoundType) members.get(0).getType();
-        } else {
-            return COMPOUND(generateCompoundName(), members.toArray(new CompoundMember[members.size()]));
-        }
+        return COMPOUND(generateCompoundName(), members.toArray(new CompoundMember[members.size()]));
     }
 
     //    <arrayVariable varName="SM_SWATH" byteOrder="littleEndian">
@@ -233,10 +236,18 @@ public class BinX {
         Element arrayTypeElement = getChild(typeElement, 1, true);
         Element dimElement = getChild(typeElement, "dim", 2, true);
 
+        String sequenceName = getAttributeValue(typeElement, "varName", false);
+        if (sequenceName == null) {
+            sequenceName = getAttributeValue(dimElement, "name", false);
+            if (sequenceName == null) {
+                throw new BinXException(MessageFormat.format("Element ''{0}'': Missing name", typeElement.getName()));
+            }
+        }
+
         Element sizeRefTypeElement = getChild(sizeRefElement, true);
         String sizeRefName = getAttributeValue(sizeRefTypeElement, "varName", false);
         if (sizeRefName == null) {
-            sizeRefName = DEFAULT_LENGTH_MEMBER_NAME;
+            sizeRefName = sequenceName + ELEMENT_COUNT_POSTFIX;
         }
 
         Type sizeRefType = parseAnyType(sizeRefTypeElement);
@@ -245,16 +256,11 @@ public class BinX {
         }
 
         Type arrayType = parseAnyType(arrayTypeElement);
-        SequenceType dimType = VAR_SEQUENCE(arrayType, sizeRefName);
+        SequenceType sequenceType = VAR_SEQUENCE(arrayType, sizeRefName);
 
-        String dimName = getAttributeValue(dimElement, "name", false);
-        if (dimName == null) {
-            dimName = DEFAULT_DATA_MEMBER_NAME;
-        }
-
-        return COMPOUND(generateCompoundName(),
+        return COMPOUND(generateArrayVariableCompoundName(sequenceName),
                         MEMBER(sizeRefName, sizeRefType),
-                        MEMBER(dimName, dimType));
+                        MEMBER(sequenceName, sequenceType));
     }
 
     private boolean isIntegerType(Type sizeRefType) {
@@ -393,5 +399,9 @@ public class BinX {
 
     private String generateCompoundName() {
         return ANONYMOUS_COMPOUND_PREFIX + anonymousCompoundId++;
+    }
+
+    private String generateArrayVariableCompoundName(String sequenceName) {
+        return ARRAY_VARIABLE_PREFIX + sequenceName;
     }
 }

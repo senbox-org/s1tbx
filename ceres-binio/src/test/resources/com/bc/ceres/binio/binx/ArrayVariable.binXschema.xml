@@ -2,9 +2,9 @@
 <binx xmlns="http://www.edikt.org/binx/2003/06/binx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.edikt.org/binx/2003/06/binx binx.xsd">
     <definitions>
-        <defineType typeName="VarFloat32ArrayType">
+        <defineType typeName="Ernie">
             <struct>
-                <arrayVariable varName="av">
+                <arrayVariable varName="af32">
                     <sizeRef>
                         <integer-32/>
                     </sizeRef>
@@ -13,12 +13,24 @@
                 </arrayVariable>
             </struct>
         </defineType>
+        <defineType typeName="Bert">
+            <struct>
+                <arrayVariable varName="ai32">
+                    <sizeRef>
+                        <integer-32 varName="ai32_count"/>
+                    </sizeRef>
+                    <integer-32/>
+                    <dim/>
+                </arrayVariable>
+                <integer-32 varName="flags"/>
+            </struct>
+        </defineType>
     </definitions>
     <dataset src=" ">
         <unsignedByte-8 varName="magic1"/>
-        <useType typeName="VarFloat32ArrayType" varName="data1"/>
+        <useType typeName="Ernie" varName="data1"/>
         <unsignedByte-8 varName="magic2"/>
-        <useType typeName="VarFloat32ArrayType" varName="data2"/>
+        <useType typeName="Bert" varName="data2"/>
         <unsignedByte-8 varName="magic3"/>
     </dataset>
 </binx>

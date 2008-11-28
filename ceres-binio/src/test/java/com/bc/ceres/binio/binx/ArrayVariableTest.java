@@ -16,13 +16,22 @@ public class ArrayVariableTest extends TestCase {
         BinX binx = createBinX();
 
         Map<String, Type> definitions = binx.getDefinitions();
-        assertTrue(definitions.get("VarFloat32ArrayType") instanceof CompoundType);
-        CompoundType arrayCompoundType = (CompoundType) definitions.get("VarFloat32ArrayType");
-        assertEquals("VarFloat32ArrayType", arrayCompoundType.getName());
-        assertEquals(2, arrayCompoundType.getMemberCount());
-        assertEquals("Length", arrayCompoundType.getMember(0).getName());
-        assertEquals("Data", arrayCompoundType.getMember(1).getName());
-        assertEquals("float[$Length]", arrayCompoundType.getMember(1).getType().getName());
+        assertTrue(definitions.get("Ernie") instanceof CompoundType);
+        CompoundType ernieType = (CompoundType) definitions.get("Ernie");
+        assertEquals("Ernie", ernieType.getName());
+        assertEquals(2, ernieType.getMemberCount());
+        assertEquals("af32_Counter", ernieType.getMember(0).getName());
+        assertEquals("af32", ernieType.getMember(1).getName());
+        assertEquals("float[$af32_Counter]", ernieType.getMember(1).getType().getName());
+
+        assertTrue(definitions.get("Bert") instanceof CompoundType);
+        CompoundType bertType = (CompoundType) definitions.get("Bert");
+        assertEquals("Bert", bertType.getName());
+        assertEquals(3, bertType.getMemberCount());
+        assertEquals("ai32_count", bertType.getMember(0).getName());
+        assertEquals("ai32", bertType.getMember(1).getName());
+        assertEquals("int[$ai32_count]", bertType.getMember(1).getType().getName());
+        assertEquals("flags", bertType.getMember(2).getName());
 
         assertNotNull(binx.getDataset());
         assertEquals("Dataset", binx.getDataset().getName());
@@ -33,8 +42,8 @@ public class ArrayVariableTest extends TestCase {
         assertEquals("data2", binx.getDataset().getMember(3).getName());
         assertEquals("magic3", binx.getDataset().getMember(4).getName());
 
-        assertSame(arrayCompoundType, binx.getDataset().getMember(1).getType());
-        assertSame(arrayCompoundType, binx.getDataset().getMember(3).getType());
+        assertSame(ernieType, binx.getDataset().getMember(1).getType());
+        assertSame(bertType, binx.getDataset().getMember(3).getType());
     }
 
     public void testFormat() throws URISyntaxException, IOException, BinXException {
@@ -44,8 +53,8 @@ public class ArrayVariableTest extends TestCase {
         assertEquals("ArrayVariableTest", format.getName());
         assertNotNull(format.getType());
         assertEquals("Dataset", format.getType().getName());
-        assertEquals(true, format.isTypeDef("VarFloat32ArrayType"));
-        assertTrue(format.getTypeDef("VarFloat32ArrayType") instanceof CompoundType);
+        assertEquals(true, format.isTypeDef("Ernie"));
+        assertTrue(format.getTypeDef("Ernie") instanceof CompoundType);
     }
 
     private BinX createBinX() throws URISyntaxException, IOException, BinXException {

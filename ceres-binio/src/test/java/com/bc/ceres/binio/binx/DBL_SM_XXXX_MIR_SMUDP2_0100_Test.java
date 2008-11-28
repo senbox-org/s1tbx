@@ -33,10 +33,10 @@ public class DBL_SM_XXXX_MIR_SMUDP2_0100_Test extends TestCase {
         assertTrue(definitions.get("Data_Block_Type") instanceof CompoundType);
 
         assertNotNull(binx.getDataset());
-        assertEquals("Dataset", binx.getDataset().getName());
+        assertEquals("Data_Block", binx.getDataset().getName());
         assertEquals(2, binx.getDataset().getMemberCount());
         assertEquals("N_Grid_Points", binx.getDataset().getMember(0).getName());
-        assertEquals("Data", binx.getDataset().getMember(1).getName());
+        assertEquals("SM_SWATH", binx.getDataset().getMember(1).getName());
 
         assertEquals("Grid_Point_Data_Type[$N_Grid_Points]", binx.getDataset().getMember(1).getType().getName());
 
