@@ -4,10 +4,13 @@ import com.bc.ceres.binio.CompoundMember;
 import com.bc.ceres.binio.CompoundType;
 import com.bc.ceres.binio.Type;
 
+import java.util.HashMap;
+
 public final class CompoundTypeImpl extends AbstractType implements CompoundType {
     private final String name;
     private final CompoundMember[] members;
-    private Object metadata;
+    private volatile HashMap<String, Integer> indices;
+    private volatile Object metadata;
     private int size;
 
     public CompoundTypeImpl(String name, CompoundMember[] members) {
@@ -38,14 +41,19 @@ public final class CompoundTypeImpl extends AbstractType implements CompoundType
     }
 
     public int getMemberIndex(String name) {
-        // todo - OPT: trivial implementation, optimize using a Map<String, int>
-        for (int i = 0; i < members.length; i++) {
-            CompoundMember member = members[i];
-            if (name.equalsIgnoreCase(member.getName())) {
-                return i;
+        if (indices == null) {
+            synchronized (this) {
+                if (indices == null) {
+                    indices = new HashMap<String, Integer>(2 * getMemberCount());
+                    for (int i = 0; i < members.length; i++) {
+                        CompoundMember member = members[i];
+                        indices.put(member.getName(), i);
+                    }
+                }
             }
         }
-        return -1;
+        Integer index = indices.get(name);
+        return index != null ? index : -1;
     }
 
     public CompoundMember getMember(int memberIndex) {

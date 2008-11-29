@@ -27,11 +27,20 @@ public class CompoundTypeImplTest extends TestCase {
         assertEquals(SimpleType.DOUBLE, cr.getMemberType(2));
         assertEquals(SimpleType.DOUBLE, cr.getMemberType(3));
         assertEquals(SimpleType.DOUBLE, cr.getMemberType(4));
+        assertEquals(-1, cr.getMemberIndex("ID"));
+        assertEquals(0, cr.getMemberIndex("id"));
+        assertEquals(1, cr.getMemberIndex("flags"));
+        assertEquals(2, cr.getMemberIndex("x"));
+        assertEquals(3, cr.getMemberIndex("y"));
+        assertEquals(4, cr.getMemberIndex("z"));
 
         final CompoundType cd = DATASET_TYPE;
         assertEquals("Dataset", cd.getName());
         assertEquals(-1, cd.getSize());
         assertEquals(2, cd.getMemberCount());
         assertEquals(SimpleType.INT, cd.getMemberType(0));
+        assertEquals(-1, cd.getMemberIndex("recordcount"));
+        assertEquals(0, cd.getMemberIndex("recordCount"));
+        assertEquals(1, cd.getMemberIndex("records"));
     }
 }
