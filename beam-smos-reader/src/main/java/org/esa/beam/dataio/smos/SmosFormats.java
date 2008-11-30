@@ -84,7 +84,7 @@ public class SmosFormats {
                  MEMBER("Grid_Point_Altitude", FLOAT), /*16*/
                  MEMBER("Grid_Point_Mask", UBYTE),    /*17*/
                  MEMBER("BT_Data_Counter", UBYTE),    /*18*/
-                 MEMBER("BT_Data_List", VAR_SEQUENCE(D1C_BT_DATA_TYPE, "BT_Data_Counter")));
+                 MEMBER("BT_Data", VAR_SEQUENCE(D1C_BT_DATA_TYPE, "BT_Data_Counter")));
 
     public static final CompoundType F1C_GRID_POINT_DATA_TYPE =
             COMPOUND("Grid_Point_Data",
@@ -94,7 +94,7 @@ public class SmosFormats {
                  MEMBER("Grid_Point_Altitude", FLOAT), /*16*/
                  MEMBER("Grid_Point_Mask", UBYTE),    /*17*/
                  MEMBER("BT_Data_Counter", UBYTE),    /*18*/
-                 MEMBER("BT_Data_List", VAR_SEQUENCE(F1C_BT_DATA_TYPE, "BT_Data_Counter")));
+                 MEMBER("BT_Data", VAR_SEQUENCE(F1C_BT_DATA_TYPE, "BT_Data_Counter")));
 
     public static final CompoundType BROWSE_GRID_POINT_DATA_TYPE =
             COMPOUND("Grid_Point_Data",
@@ -104,7 +104,7 @@ public class SmosFormats {
                  MEMBER("Grid_Point_Altitude", FLOAT), /*16*/
                  MEMBER("Grid_Point_Mask", UBYTE),    /*17*/
                  MEMBER("BT_Data_Counter", UBYTE),    /*18*/
-                 MEMBER("BT_Data_List", VAR_SEQUENCE(BROWSE_BT_DATA_TYPE, "BT_Data_Counter")));
+                 MEMBER("BT_Data", VAR_SEQUENCE(BROWSE_BT_DATA_TYPE, "BT_Data_Counter")));
 
     public static final CompoundType MIR_SCXD1C_TYPE =
             COMPOUND("MIR_SCXD1C",

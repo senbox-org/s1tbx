@@ -16,6 +16,7 @@ import javax.swing.*;
 import java.awt.Container;
 import java.awt.BorderLayout;
 import java.awt.event.MouseEvent;
+import java.net.URL;
 
 public abstract class AbstractSmosToolView extends AbstractToolView {
 
@@ -36,7 +37,12 @@ public abstract class AbstractSmosToolView extends AbstractToolView {
     @Override
     protected JComponent createControl() {
         panel = new JPanel(new BorderLayout());
-        defaultControl = new JLabel(new ImageIcon(getClass().getResource("smos-icon.png")));
+        URL resource = getClass().getResource("smos-icon.png");
+        if (resource != null) {
+            defaultControl = new JLabel(new ImageIcon(resource));
+        } else {
+            defaultControl = new JLabel();
+        }
         defaultControl.setIconTextGap(10);
         defaultControl.setText("No SMOS image selected.");
         panel.add(defaultControl);        

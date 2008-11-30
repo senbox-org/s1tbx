@@ -42,10 +42,10 @@
     <extension point="beam-ui:toolViews">
 
         <toolView>
-            <id>org.esa.beam.smos.visat.SmosIncidenceAngleChartToolView</id>
-            <class>org.esa.beam.smos.visat.SmosIncidenceAngleChartToolView</class>
-            <title>SMOS Incidence Angle Plots</title>
-            <tabTitle>SMOS Plots</tabTitle>
+            <id>org.esa.beam.smos.visat.SmosGridPointInfoToolView</id>
+            <class>org.esa.beam.smos.visat.SmosGridPointInfoToolView</class>
+            <title>SMOS DGG Point Info</title>
+            <tabTitle>SMOS Point</tabTitle>
         </toolView>
 
         <toolView>

@@ -18,9 +18,11 @@ package org.esa.beam.dataio.smos;
 
 
 import com.bc.ceres.binio.CompoundData;
+import com.bc.ceres.binio.CompoundType;
 import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.DataFormat;
 import com.bc.ceres.binio.SequenceData;
+import com.bc.ceres.binio.SequenceType;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +36,9 @@ public class SmosFile {
     private final SequenceData gridPointList;
     private int[] gridPointIndexes;
     private final DataContext dataContext;
+    private final CompoundType gridPointType;
+    private final int btDataIndex;
+    private final CompoundType btDataType;
 
     public SmosFile(File file, DataFormat format) throws IOException {
         this.file = file;
@@ -41,6 +46,16 @@ public class SmosFile {
         this.dataContext = format.createContext(file, "r");
         CompoundData smosDataset = dataContext.getData();
         this.gridPointList = smosDataset.getSequence("Grid_Point_List");
+        if (this.gridPointList == null) {
+            throw new IllegalStateException("Missing dataset 'Grid_Point_List' in SMOS file.");
+        }
+        this.gridPointType = (CompoundType) gridPointList.getSequenceType().getElementType();
+        btDataIndex = this.gridPointType.getMemberIndex("BT_Data");
+        if (btDataIndex != -1 && gridPointType.getMemberType(btDataIndex) instanceof SequenceType) {
+            btDataType = (CompoundType) ((SequenceType) gridPointType.getMemberType(btDataIndex)).getElementType();
+        } else {
+            btDataType = null;
+        }
         initGridPointIndexes();
     }
 
@@ -58,6 +73,14 @@ public class SmosFile {
 
     public SequenceData getGridPointList() {
         return gridPointList;
+    }
+
+    public CompoundType getGridPointType() {
+        return gridPointType;
+    }
+
+    public CompoundType getBtDataType() {
+        return btDataType;
     }
 
     public short getL1CBrowseBtDataShort(int gridPointIndex, int btDataIndex) throws IOException {
@@ -93,7 +116,7 @@ public class SmosFile {
 
     public SequenceData getBtDataList(int gridPointIndex) throws IOException {
         CompoundData gridPointEntry = gridPointList.getCompound(gridPointIndex);
-        return gridPointEntry.getSequence(6);
+        return gridPointEntry.getSequence(btDataIndex);
     }
 
     public int getGridPointIndex(int seqnum) {
