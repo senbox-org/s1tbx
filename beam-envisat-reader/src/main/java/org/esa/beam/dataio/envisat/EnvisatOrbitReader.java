@@ -1,5 +1,7 @@
 package org.esa.beam.dataio.envisat;
 
+import org.esa.beam.framework.dataio.IllegalFileFormatException;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,7 +51,7 @@ public class EnvisatOrbitReader extends EnvisatAuxReader {
                     try {
                         orb.utcTime = dateFormat.parse(f.getData().getElemString());
                     } catch (ParseException e) {
-                        throw new IOException("Failed to parse UTC time " + e.getMessage());
+                        throw new IllegalFileFormatException("Failed to parse UTC time " + e.getMessage());
                     }
                 } else if (fieldName.contains("delta_ut1")) {
                     if (orb != null)

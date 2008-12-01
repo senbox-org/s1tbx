@@ -4,6 +4,7 @@ import org.esa.beam.dataio.modis.hdf.HdfAttributes;
 import org.esa.beam.dataio.modis.hdf.HdfDataField;
 import org.esa.beam.dataio.modis.hdf.HdfEosStructMetadata;
 import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.util.io.FileUtils;
 
@@ -69,7 +70,7 @@ class ModisDaacAttributes implements ModisGlobalAttributes {
     /////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
 
-    final private void decode(final HdfAttributes hdfAttributes) throws ProductIOException {
+    private void decode(final HdfAttributes hdfAttributes) throws ProductIOException {
         decodeECSCore(hdfAttributes);
 
         final String structMetaString = hdfAttributes.getStringAttributeValue(ModisConstants.STRUCT_META_KEY);
@@ -79,7 +80,7 @@ class ModisDaacAttributes implements ModisGlobalAttributes {
         hdfEosStructMetadata = new HdfEosStructMetadata(structMetaString);
     }
 
-    final private void decodeECSCore(HdfAttributes hdfAttributes) throws ProductIOException {
+    private void decodeECSCore(HdfAttributes hdfAttributes) throws ProductIOException {
         final String coreString = ModisDaacUtils.extractCoreString(hdfAttributes);
         if (coreString == null) {
             throw new ProductIOException("Unknown MODIS format: no ECSCore metadata available");
@@ -97,7 +98,7 @@ class ModisDaacAttributes implements ModisGlobalAttributes {
         extractStartAndStopTimes(coreString);
     }
 
-    final private void extractStartAndStopTimes(String coreString) throws ProductIOException {
+    private void extractStartAndStopTimes(String coreString) throws ProductIOException {
         try {
             final String startDate = ModisUtils.extractValueForKey(coreString, ModisConstants.RANGE_BEGIN_DATE_KEY);
             final String startTime = ModisUtils.extractValueForKey(coreString, ModisConstants.RANGE_BEGIN_TIME_KEY);
@@ -105,12 +106,12 @@ class ModisDaacAttributes implements ModisGlobalAttributes {
             final String endTime = ModisUtils.extractValueForKey(coreString, ModisConstants.RANGE_END_TIME_KEY);
 
             if (startDate == null || startTime == null) {
-                throw new ProductIOException("Unable to retrieve sensing start time from metadata");
+                throw new IllegalFileFormatException("Unable to retrieve sensing start time from metadata");
             }
             _sensingStart = ModisUtils.createDateFromStrings(startDate, startTime);
 
             if (endDate == null || endTime == null) {
-                throw new ProductIOException("Unable to retrieve sensing stop time from metadata");
+                throw new IllegalFileFormatException("Unable to retrieve sensing stop time from metadata");
             }
             _sensingStop = ModisUtils.createDateFromStrings(endDate, endTime);
         } catch (ParseException e) {

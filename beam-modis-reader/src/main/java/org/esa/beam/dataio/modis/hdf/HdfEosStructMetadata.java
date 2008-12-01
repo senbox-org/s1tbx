@@ -14,6 +14,7 @@ package org.esa.beam.dataio.modis.hdf;
 
 import org.esa.beam.dataio.modis.ModisConstants;
 import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
@@ -89,7 +90,7 @@ public class HdfEosStructMetadata {
     /////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
 
-    final private void parse(String metaString) throws ProductIOException {
+    private void parse(String metaString) throws ProductIOException {
         final String ssStartKey = "GROUP=SwathStructure";
         final String ssEndKey = "END_GROUP=SwathStructure";
         final String gsStartKey = "GROUP=GridStructure";
@@ -189,7 +190,7 @@ public class HdfEosStructMetadata {
                 dim.setIncrement(Integer.parseInt(getAssignedValue(line)));
             } else if (line.startsWith(ModisConstants.OBJECT_END_KEY)) {
                 final String geoDim = dim.getGeoDim();
-                if (dim != null && geoDim != null && !"".equals(geoDim)) {
+                if (geoDim != null && !"".equals(geoDim)) {
                     dimensionMaps.put(geoDim, dim);
                     dim = null;
                 }
@@ -469,7 +470,7 @@ public class HdfEosStructMetadata {
                     }
                 }
             } catch (IOException e) {
-                throw new ProductIOException(e.getMessage());
+                throw new IllegalFileFormatException(e.getMessage());
             }
 
             return new GridMetadata(productDimension, dataFields, geoCodingParams);

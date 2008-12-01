@@ -19,6 +19,7 @@ package org.esa.beam.dataio.envisat;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import javax.imageio.stream.ImageInputStream;
@@ -183,12 +184,12 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
     private static InputStream createZIPInputStream(File file) throws IOException {
         final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
         if (productZip.size() != 1) {
-            throw new IOException("Illegal ZIP format, single file entry expected.");
+            throw new IllegalFileFormatException("Illegal ZIP format, single file entry expected.");
         }
         final Enumeration<? extends ZipEntry> entries = productZip.entries();
         final ZipEntry zipEntry = entries.nextElement();
         if (zipEntry == null || zipEntry.isDirectory()) {
-            throw new IOException("Illegal ZIP format, single file entry expected.");
+            throw new IllegalFileFormatException("Illegal ZIP format, single file entry expected.");
         }
         return productZip.getInputStream(zipEntry);
     }

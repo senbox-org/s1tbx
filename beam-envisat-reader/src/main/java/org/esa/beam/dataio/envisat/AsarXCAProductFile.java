@@ -1,6 +1,6 @@
 package org.esa.beam.dataio.envisat;
 
-import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.StringUtils;
 
@@ -88,7 +88,7 @@ public class AsarXCAProductFile extends ProductFile {
 
         DSD[] mdsDsds = getValidDSDs(EnvisatConstants.DS_TYPE_GLOBAL_ANNOTATION);
         if (mdsDsds.length == 0) {
-            throw new ProductIOException("no valid gloabal annotation datasets found in this ASAR product");
+            throw new IllegalFileFormatException("no valid gloabal annotation datasets found in this ASAR product");
         }
 
         setIODDVersion();
@@ -260,6 +260,7 @@ public class AsarXCAProductFile extends ProductFile {
 
     /**
      * Allow the productFile to add any other metadata not defined in dddb
+     *
      * @param product the product
      * @throws IOException if reading from files
      */

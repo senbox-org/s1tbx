@@ -1,6 +1,7 @@
 package org.esa.beam.dataio.envisat;
 
 import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.ProductData;
 
 import javax.imageio.stream.FileCacheImageInputStream;
@@ -53,7 +54,7 @@ public class EnvisatAuxReader {
         ImageInputStream iis = getImageInputStream(file);
         String productType = ProductFile.readProductType(iis);
         if (productType == null) {
-            throw new IOException("Not an ENVISAT product or ENVISAT product type not supported: " + file.toString());
+            throw new IllegalFileFormatException("Not an ENVISAT product or ENVISAT product type not supported: " + file.toString());
         }
         // We use only the first 9 characters for comparision, since the 10th can be either 'P' or 'C'
         String productTypeUC = productType.toUpperCase().substring(0, 9);
@@ -63,7 +64,7 @@ public class EnvisatAuxReader {
         } else if (productTypeUC.startsWith("DOR")) {
             _productFile = new DorisOrbitProductFile(file, iis);
         } else {
-            throw new IOException("Not an ENVISAT product or ENVISAT product type not supported.");
+            throw new IllegalFileFormatException("Not an ENVISAT product or ENVISAT product type not supported.");
         }
 
     }
@@ -83,7 +84,7 @@ public class EnvisatAuxReader {
 
         Record gads = _productFile.getGADS();
         if (gads == null) {
-            throw new ProductIOException("GADS not found in Auxiliary data file");
+            throw new IllegalFileFormatException("GADS not found in Auxiliary data file");
         }
 
         Field field = gads.getField(name);

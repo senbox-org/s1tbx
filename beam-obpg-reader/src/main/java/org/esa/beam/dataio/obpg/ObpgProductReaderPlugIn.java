@@ -136,7 +136,7 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
     public ProductReader createReaderInstance() {
         if (!hdfLibAvailable) {
             return null;
-        }
+        }                                       
 
         return new ObpgProductReader(this);
     }

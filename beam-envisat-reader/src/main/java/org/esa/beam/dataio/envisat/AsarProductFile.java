@@ -16,14 +16,8 @@
  */
 package org.esa.beam.dataio.envisat;
 
-import org.esa.beam.framework.dataio.ProductIOException;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.dataio.IllegalFileFormatException;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.StringUtils;
 
 import javax.imageio.stream.ImageInputStream;
@@ -254,14 +248,14 @@ public class AsarProductFile extends ProductFile {
 
         DSD[] mdsDsds = getValidDSDs(EnvisatConstants.DS_TYPE_MEASUREMENT);
         if (mdsDsds.length == 0) {
-            throw new ProductIOException("no valid measurements datasets found in this ASAR product");
+            throw new IllegalFileFormatException("no valid measurements datasets found in this ASAR product");
         }
 
         setIODDVersion();
 
         DSD dsdGeoLocationAds = getDSD("GEOLOCATION_GRID_ADS");
         if (dsdGeoLocationAds == null) {
-            throw new ProductIOException("invalid product: missing DSD for dataset 'GEOLOCATION_GRID_ADS'"); /*I18N*/
+            throw new IllegalFileFormatException("invalid product: missing DSD for dataset 'GEOLOCATION_GRID_ADS'"); /*I18N*/
         }
 
         sceneRasterHeight = mdsDsds[0].getNumRecords();
@@ -567,18 +561,18 @@ public class AsarProductFile extends ProductFile {
         }
 
         return new BandInfo(bandName,
-                            dataType,
-                            spectralBandIndex,
-                            sampleModel,
-                            scalingMethod,
-                            scalingOffset,
-                            scalingFactor,
-                            validExpression,
-                            flagCoding,
-                            physicalUnit,
-                            description,
-                            rasterWidth,
-                            rasterHeight);
+                dataType,
+                spectralBandIndex,
+                sampleModel,
+                scalingMethod,
+                scalingOffset,
+                scalingFactor,
+                validExpression,
+                flagCoding,
+                physicalUnit,
+                description,
+                rasterWidth,
+                rasterHeight);
     }
 
     /**
@@ -691,7 +685,7 @@ public class AsarProductFile extends ProductFile {
         // Abstracted metadata
         MetadataElement root = product.getMetadataRoot();
         AsarAbstractMetadata absMetadata = new AsarAbstractMetadata(getProductType(),
-                                                                    getVersionSuffix(getProductType(), getIODDVersion()), getFile());
+                getVersionSuffix(getProductType(), getIODDVersion()), getFile());
         absMetadata.addAbstractedMetadataHeader(root);
     }
 

@@ -17,6 +17,7 @@
 package org.esa.beam.dataio.envisat;
 
 import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
@@ -642,7 +643,7 @@ public abstract class ProductFile {
         DSD dsd = getDSD(datasetName);
         // Not found
         if (dsd == null) {
-            throw new IOException("no DSD found for dataset with name '" + datasetName + "'");
+            throw new IllegalFileFormatException("no DSD found for dataset with name '" + datasetName + "'");
         }
 
         // Now get the record info for the dataset from the DDDB
@@ -1013,7 +1014,7 @@ public abstract class ProductFile {
                 getLogger().warning("failed to parse header parameter 'SENSING_STOP': " + e.getMessage());
             }
         } catch (HeaderParseException e) {
-            throw new ProductIOException(e.getMessage());
+            throw new IllegalFileFormatException(e.getMessage());
         }
 
         productType = productId.substring(0, EnvisatConstants.PRODUCT_TYPE_STRLEN).toUpperCase();
@@ -1079,7 +1080,7 @@ public abstract class ProductFile {
                 dsdCountValid++;
             }
         } catch (HeaderParseException e) {
-            throw new ProductIOException(e.getMessage());
+            throw new IllegalFileFormatException(e.getMessage());
         }
 
         numDSDs = dsdCountValid;

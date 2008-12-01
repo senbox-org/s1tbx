@@ -16,14 +16,14 @@
  */
 package org.esa.beam.dataio.envisat;
 
-import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.StringUtils;
 
 import javax.imageio.stream.ImageInputStream;
-import java.awt.Color;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -233,11 +233,11 @@ public class AatsrProductFile extends ProductFile {
         }
         DSD dsdGeoLocationAds = getDSD("GEOLOCATION_ADS");
         if (dsdGeoLocationAds == null) {
-            throw new ProductIOException("invalid product: missing DSD for dataset 'GEOLOCATION_ADS'"); /*I18N*/
+            throw new IllegalFileFormatException("invalid product: missing DSD for dataset 'GEOLOCATION_ADS'"); /*I18N*/
         }
         DSD dsdNadirViewSolarAnglesAds = getDSD("NADIR_VIEW_SOLAR_ANGLES_ADS");
         if (dsdNadirViewSolarAnglesAds == null) {
-            throw new ProductIOException("invalid product: missing DSD for dataset 'NADIR_VIEW_SOLAR_ANGLES_ADS'"); /*I18N*/
+            throw new IllegalFileFormatException("invalid product: missing DSD for dataset 'NADIR_VIEW_SOLAR_ANGLES_ADS'"); /*I18N*/
         }
 
         _sceneRasterHeight = calculateSceneRasterHeight(dsdGeoLocationAds, numMDSR);

@@ -17,6 +17,7 @@
 package org.esa.beam.dataio.envisat;
 
 import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -322,7 +323,7 @@ public class MerisProductFile extends ProductFile {
     protected void postProcessSPH(final Map parameters) throws IOException {
         final String[] validDatasetNames = getValidDatasetNames(EnvisatConstants.DS_TYPE_MEASUREMENT);
         if (validDatasetNames.length == 0) {
-            throw new ProductIOException("no valid datasets found in this MERIS product");
+            throw new IllegalFileFormatException("no valid datasets found in this MERIS product");
         }
 
         final String firstMDSName = validDatasetNames[0];
@@ -338,7 +339,7 @@ public class MerisProductFile extends ProductFile {
 
         final DSD dsdTiePointsADS = getDSD("Tie_points_ADS");
         if (dsdTiePointsADS == null) {
-            throw new ProductIOException("invalid product: missing DSD for dataset 'Tie_points_ADS'");
+            throw new IllegalFileFormatException("invalid product: missing DSD for dataset 'Tie_points_ADS'");
         }
 
         final int numTiePointLinesFound = dsdTiePointsADS.getNumRecords();

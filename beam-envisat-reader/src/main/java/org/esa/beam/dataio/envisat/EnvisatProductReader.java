@@ -19,6 +19,7 @@ package org.esa.beam.dataio.envisat;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.ArrayUtils;
@@ -545,7 +546,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                     tiePointIndex++;
                 }
             } else {
-                throw new IOException("unhandled tie-point data type"); /*I18N*/
+                throw new IllegalFileFormatException("unhandled tie-point data type"); /*I18N*/
             }
         }
         float offsetX = getProductFile().getTiePointGridOffsetX(gridWidth);
