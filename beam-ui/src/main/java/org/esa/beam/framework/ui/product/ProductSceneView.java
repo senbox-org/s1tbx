@@ -37,6 +37,8 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -70,6 +72,8 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
      * Name of property which switches display of af a navigataion control in the image view.
      */
     public static final String PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN = "image.scrollBarsShown";
+
+    public static final String PROPERTY_NAME_IMAGE_INFO = "imageInfo";
 
     /**
      * Property name for the image histogram matching type
@@ -319,7 +323,9 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     public void setImageInfo(ImageInfo imageInfo) {
+        final ImageInfo oldImageInfo = getImageInfo();
         getSceneImage().setImageInfo(imageInfo);
+        firePropertyChange(PROPERTY_NAME_IMAGE_INFO, oldImageInfo, imageInfo);
     }
 
     /**
@@ -891,26 +897,47 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
         @Override
         public void nodeChanged(final ProductNodeEvent event) {
-            repaintView();
+            repaintView(event);
         }
 
         @Override
         public void nodeDataChanged(final ProductNodeEvent event) {
-            repaintView();
+            repaintView(event);
         }
 
         @Override
         public void nodeAdded(final ProductNodeEvent event) {
-            repaintView();
+            repaintView(event);
         }
 
         @Override
         public void nodeRemoved(final ProductNodeEvent event) {
-            repaintView();
+            repaintView(event);
         }
 
-        private void repaintView() {
+        private final List<String> imageChangingProperties = Arrays.asList(RasterDataNode.PROPERTY_NAME_DATA,
+                                                                           RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE,
+                                                                           RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE_USED,
+                                                                           RasterDataNode.PROPERTY_NAME_VALID_PIXEL_EXPRESSION,
+                                                                           VirtualBand.PROPERTY_NAME_EXPRESSION);
+        private void repaintView(final ProductNodeEvent event) {
+            final RasterDataNode[] rasters = getRasters();
+            final ProductNode productNode = event.getSourceNode();
+            if (imageChangingProperties.contains(event.getPropertyName()) &&
+                Arrays.asList(rasters).contains(productNode)) {
+
+                RasterDataNode raster = (RasterDataNode) productNode;
+                regenerateStx(raster);
+                final ImageInfo imageInfo = raster.createDefaultImageInfo(null, ProgressMonitor.NULL);
+                raster.setImageInfo(imageInfo);
+                setImageInfo(imageInfo);
+            }
             repaint(100);
+        }
+
+        private void regenerateStx(RasterDataNode raster) {
+            raster.setStx(null);
+            raster.getStx();
         }
     }
 

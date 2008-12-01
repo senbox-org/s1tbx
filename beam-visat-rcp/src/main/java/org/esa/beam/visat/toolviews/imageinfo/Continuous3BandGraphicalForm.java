@@ -163,13 +163,8 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
             if (models[i] != null) {
                 models[i].removeChangeListener(applyEnablerCL);
             }
-            ImageInfoEditorModel3B oldModel = models[i];
             models[i] = new ImageInfoEditorModel3B(parentForm.getImageInfo(), i);
-            if (oldModel != null) {
-                models[i].setHistogramViewGain(oldModel.getHistogramViewGain());
-                models[i].setMinHistogramViewSample(oldModel.getMinHistogramViewSample());
-                models[i].setMaxHistogramViewSample(oldModel.getMaxHistogramViewSample());
-            }
+            models[i].setDisplayProperties(currentChannelSources[i]);
             models[i].addChangeListener(applyEnablerCL);
         }
 
@@ -201,7 +196,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
     public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
         imageInfoEditor.getModel().setDisplayProperties(raster);
         if (event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_STX)) {
-            imageInfoEditor.compute100Percent();
+            acknowledgeChannel();
         }
     }
 
@@ -258,14 +253,19 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
         if (newChannelSource != oldChannelSource) {
             final Stx stx = this.parentForm.getStx(newChannelSource);
             if (stx != null) {
-                final ImageInfo imageInfo = this.parentForm.getImageInfo();
                 rasterDataUnloader.unloadUnusedRasterData(oldChannelSource);
                 currentChannelSources[channel] = newChannelSource;
+                final ImageInfo imageInfo = this.parentForm.getImageInfo();
+                imageInfo.getRgbChannelDef().setSourceName(channel, channelSourceName);
+                final ImageInfo info = newChannelSource.getImageInfo(com.bc.ceres.core.ProgressMonitor.NULL);
+                final ColorPaletteDef def = info.getColorPaletteDef();
+                if (def != null) {
+                    imageInfo.getRgbChannelDef().setMinDisplaySample(channel, def.getMinDisplaySample());
+                    imageInfo.getRgbChannelDef().setMaxDisplaySample(channel, def.getMaxDisplaySample());
+                }
                 models[channel] = new ImageInfoEditorModel3B(imageInfo, channel);
                 models[channel].setDisplayProperties(newChannelSource);
-                imageInfo.getRgbChannelDef().setSourceName(channel, channelSourceName);
                 acknowledgeChannel();
-                imageInfoEditor.compute95Percent();
                 this.parentForm.setApplyEnabled(true);
             } else {
                 final Object value = evt.getOldValue();

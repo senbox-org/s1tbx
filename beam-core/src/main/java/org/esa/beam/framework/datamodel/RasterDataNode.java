@@ -16,7 +16,6 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelModel;
@@ -1771,7 +1770,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return the resulting raw data histogram
      * @throws java.io.IOException if an I/O error occurs
      * @see #isScalingApplied()
-     * @deprecated since BEAM 4.5, use {@link org.esa.beam.framework.datamodel.Stx#create(RasterDataNode, javax.media.jai.PlanarImage, int, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated since BEAM 4.5, use {@link org.esa.beam.framework.datamodel.Stx#create(RasterDataNode, java.awt.image.RenderedImage, int, com.bc.ceres.core.ProgressMonitor)}
      */
     @Deprecated
     public Histogram computeRasterDataHistogram(final ROI roi,
@@ -1800,7 +1799,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws java.io.IOException if an I/O error occurs
      * @see #isScalingApplied()
      * @see #isLog10Scaled()
-     * @deprecated since BEAM 4.5, use {@link org.esa.beam.framework.datamodel.Stx#create(RasterDataNode, javax.media.jai.PlanarImage, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated since BEAM 4.5, use {@link org.esa.beam.framework.datamodel.Stx#create(RasterDataNode, java.awt.image.RenderedImage, com.bc.ceres.core.ProgressMonitor)}
      */
     @Deprecated
     public Range computeRasterDataRange(final ROI roi, ProgressMonitor pm) throws IOException {
@@ -1819,7 +1818,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param pm  a monitor to inform the user about progress
      * @return the statistics
      * @throws java.io.IOException if an I/O error occurs
-     * @deprecated since BEAM 4.5, use {@link org.esa.beam.framework.datamodel.Stx#create(RasterDataNode, javax.media.jai.PlanarImage, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated since BEAM 4.5, use {@link org.esa.beam.framework.datamodel.Stx#create(RasterDataNode, java.awt.image.RenderedImage, com.bc.ceres.core.ProgressMonitor)}
      */
     @Deprecated
     public Statistics computeStatistics(final ROI roi, ProgressMonitor pm) throws IOException {
@@ -2287,7 +2286,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @since BEAM 4.2, revised in BEAM 4.5
      */
     public synchronized void setStx(Stx stx) {
-        Assert.notNull(stx, "stx");
         final Stx oldValue = this.stx;
         if (oldValue != stx) {
             this.stx = stx;

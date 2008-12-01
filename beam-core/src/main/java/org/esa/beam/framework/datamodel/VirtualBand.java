@@ -17,12 +17,9 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Term;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.jai.ImageManager;
@@ -36,8 +33,6 @@ import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
-import java.util.Map;
-import java.util.WeakHashMap;
 
 /**
  * A band contains the data for geophysical parameter in remote sensing data products. Bands are two-dimensional images
@@ -71,7 +66,6 @@ public class VirtualBand extends Band {
     public static final String PROPERTY_NAME_EXPRESSION = "expression";
 
     private String expression;
-    private Map<ProductData, Term> termMap;
     private boolean checkInvalids;
     private int numInvalidPixels;
 
@@ -100,13 +94,14 @@ public class VirtualBand extends Band {
     public void setExpression(final String expression) {
         if (!ObjectUtils.equalObjects(this.expression, expression)) {
             this.expression = expression;
-            disposeTermMap();
             if (isSourceImageSet()) {
                 setSourceImage(null);
             }
             setImageInfo(null);
             setModified(true);
             fireProductNodeChanged(PROPERTY_NAME_EXPRESSION);
+            fireProductNodeChanged(PROPERTY_NAME_DATA);
+            fireProductNodeDataChanged();
         }
     }
 
@@ -115,9 +110,9 @@ public class VirtualBand extends Band {
      */
     @Override
     public void updateExpression(final String oldExternalName, final String newExternalName) {
-        final String expression = StringUtils.replaceWord(this.expression, oldExternalName, newExternalName);
-        if (!this.expression.equals(expression)) {
-            this.expression = expression;
+        final String updatedExpression = StringUtils.replaceWord(this.expression, oldExternalName, newExternalName);
+        if (!expression.equals(updatedExpression)) {
+            expression = updatedExpression;
             setModified(true);
         }
         super.updateExpression(oldExternalName, newExternalName);
@@ -139,10 +134,10 @@ public class VirtualBand extends Band {
         return numInvalidPixels;
     }
 
-    private void setNumInvalidPixels(final int numInvalidPixels) {
-        this.numInvalidPixels = numInvalidPixels;
-    }
+    public VirtualBand(String name, int dataType, int width, int height) {
+        super(name, dataType, width, height);
 
+    }
 
     @Override
     public void setPixelInt(final int x, final int y, final int pixelValue) {
@@ -333,7 +328,6 @@ public class VirtualBand extends Band {
      */
     @Override
     public void dispose() {
-        disposeTermMap();
         super.dispose();
     }
 
@@ -352,25 +346,7 @@ public class VirtualBand extends Band {
             }
         });
     }
-    
-    private synchronized Term getTerm(final ProductData pd) throws ParseException {
-        if (termMap == null) {
-            termMap = new WeakHashMap<ProductData, Term>(10);
-        }
-        Term term = termMap.get(pd);
-        if (term == null) {
-            term = getProductSafe().createTerm(expression, this);
-            termMap.put(pd, term);
-        }
-        return term;
-    }
 
-    private void disposeTermMap() {
-        if (termMap != null) {
-            termMap.clear();
-            termMap = null;
-        }
-    }
 }
 
 

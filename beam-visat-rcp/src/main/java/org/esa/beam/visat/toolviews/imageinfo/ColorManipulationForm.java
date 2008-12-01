@@ -42,6 +42,8 @@ import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -84,12 +86,14 @@ class ColorManipulationForm {
     private JPanel editorPanel;
     private ImageInfo imageInfo; // our model!
     private MoreOptionsPane moreOptionsPane;
+    private SceneViewImageInfoChangeListener sceneViewChangeListener;
 
     public ColorManipulationForm(ColorManipulationToolView colorManipulationToolView) {
         this.toolView = colorManipulationToolView;
         visatApp = VisatApp.getApp();
         preferences = visatApp.getPreferences();
         productNodeListener = new ColorManipulationPNL();
+        sceneViewChangeListener = new SceneViewImageInfoChangeListener();
     }
 
     public ProductSceneView getProductSceneView() {
@@ -141,10 +145,12 @@ class ColorManipulationForm {
         ProductSceneView productSceneViewOld = this.productSceneView;
         if (productSceneViewOld != null) {
             productSceneViewOld.getProduct().removeProductNodeListener(productNodeListener);
+            productSceneViewOld.removePropertyChangeListener(sceneViewChangeListener);
         }
         this.productSceneView = productSceneView;
         if (this.productSceneView != null) {
             this.productSceneView.getProduct().addProductNodeListener(productNodeListener);
+            this.productSceneView.addPropertyChangeListener(sceneViewChangeListener);
         }
 
         if (this.productSceneView != null) {
@@ -681,7 +687,7 @@ class ColorManipulationForm {
         return new File(SystemUtils.getApplicationDataDir(), "beam-ui/auxdata/color-palettes");
     }
 
-    public ImageInfo createDefaultImageInfo() {
+    private ImageInfo createDefaultImageInfo() {
         try {
             return ProductUtils.createImageInfo(productSceneView.getRasters(), false, ProgressMonitor.NULL);
         } catch (IOException e) {
@@ -693,7 +699,7 @@ class ColorManipulationForm {
         }
     }
 
-    public Stx getStx(RasterDataNode raster) {
+    Stx getStx(RasterDataNode raster) {
         return raster.getStx(false, ProgressMonitor.NULL); // todo - use PM
     }
 
@@ -753,7 +759,7 @@ class ColorManipulationForm {
         }
     }
 
-    class ApplyEnablerCL implements ChangeListener {
+    private class ApplyEnablerCL implements ChangeListener {
 
         public void stateChanged(ChangeEvent e) {
             setApplyEnabled(true);
@@ -761,11 +767,20 @@ class ColorManipulationForm {
     }
 
 
-    class ApplyEnablerTML implements TableModelListener {
+    private class ApplyEnablerTML implements TableModelListener {
 
         public void tableChanged(TableModelEvent e) {
             setApplyEnabled(true);
         }
     }
 
+    private class SceneViewImageInfoChangeListener implements PropertyChangeListener {
+
+        public void propertyChange(PropertyChangeEvent evt) {
+            if(ProductSceneView.PROPERTY_NAME_IMAGE_INFO.equals(evt.getPropertyName())) {
+                setImageInfoCopy((ImageInfo) evt.getNewValue());
+                childForm.updateFormModel(getProductSceneView());                
+            }
+        }
+    }
 }

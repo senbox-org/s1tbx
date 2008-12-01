@@ -67,12 +67,6 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     public void updateFormModel(ProductSceneView productSceneView) {
         ImageInfoEditorModel1B model = new ImageInfoEditorModel1B(parentForm.getImageInfo());
         model.addChangeListener(applyEnablerCL);
-        ImageInfoEditorModel oldModel = imageInfoEditor.getModel();
-        if (oldModel != null) {
-            model.setHistogramViewGain(oldModel.getHistogramViewGain());
-            model.setMinHistogramViewSample(oldModel.getMinHistogramViewSample());
-            model.setMaxHistogramViewSample(oldModel.getMaxHistogramViewSample());
-        }
         imageInfoEditor.setModel(model);
         model.setDisplayProperties(productSceneView.getRaster());
         parentForm.revalidateToolViewPaneControl();
@@ -83,7 +77,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
         imageInfoEditor.getModel().setDisplayProperties(raster);
         if (event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_STX)) {
-            imageInfoEditor.compute100Percent();
+            updateFormModel(parentForm.getProductSceneView());
         }
     }
 
