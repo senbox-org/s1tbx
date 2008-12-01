@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-envisat-reader</symbolicName>
-    <version>1.2.2</version>
+    <version>1.3-SNAPSHOT</version>
     <name>Envisat Product Reader</name>
 
     <description>Enables BEAM to read ENVISAT data products.</description>
@@ -13,7 +13,7 @@
 
 
     <changelog><![CDATA[
-       <p>Changes from version 1.2.1 to 1.2.2:<br/>
+       <p>Changes from version 1.2.1 to 1.3:<br/>
        [BEAM-922] Wrong exception type thrown on format errors<br/>
        </p>
        <p>Changes from version 1.2 to 1.2.1:<br/>
