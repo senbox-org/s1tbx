@@ -37,7 +37,7 @@ public class ArrayFixedTest extends TestCase {
         assertEquals("FixedFloat32ArrayType", arrayCompoundType.getName());
         assertEquals(1, arrayCompoundType.getMemberCount());
         assertEquals("af", arrayCompoundType.getMember(0).getName());
-        assertEquals("float[7]", arrayCompoundType.getMember(0).getType().getName());
+        assertEquals("float[8]", arrayCompoundType.getMember(0).getType().getName());
 
         CompoundType datasetType = dataFormat.getType();
         assertNotNull(datasetType);

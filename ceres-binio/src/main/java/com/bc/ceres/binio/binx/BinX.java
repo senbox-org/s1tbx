@@ -348,7 +348,7 @@ public class BinX {
         }
         final int indexTo = getAttributeIntValue(dimElement, "indexTo");
 
-        return SEQUENCE(arrayType, indexTo);
+        return SEQUENCE(arrayType, indexTo + 1);
     }
 
     private Type parseArrayStreamed(Element typeElement) throws BinXException {
