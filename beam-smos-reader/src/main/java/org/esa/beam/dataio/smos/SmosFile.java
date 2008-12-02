@@ -173,7 +173,7 @@ public class SmosFile {
         final boolean hasValue1 = deltaMin1 < Integer.MAX_VALUE;
         final boolean hasValue2 = deltaMin2 < Integer.MAX_VALUE;
         if (hasValue1 && hasValue2) {
-            return btValue1 + CENTER_INCIDENCE_ANGLE * (btValue2 - btValue1) / (incidenceAngle2 - incidenceAngle1);
+            return btValue1 + (CENTER_INCIDENCE_ANGLE - incidenceAngle1) * (btValue2 - btValue1) / (incidenceAngle2 - incidenceAngle1);
         } else {
             return noDataValue;
         }
