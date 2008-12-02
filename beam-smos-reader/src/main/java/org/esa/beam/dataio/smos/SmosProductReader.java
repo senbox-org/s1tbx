@@ -126,7 +126,7 @@ public class SmosProductReader extends AbstractProductReader {
         if (format == null) {
             throw new IOException(MessageFormat.format("File ''{0}'': Unknown SMOS data format", inputFile));
         }
-        if (!(format.getTypeDef("BT_Data_Type") instanceof CompoundType)) {
+        if (!(format.getTypeDef(SmosFile.BT_DATA_TYPE_NAME) instanceof CompoundType)) {
             throw new IOException(MessageFormat.format("File ''{0}'': Illegal SMOS data format", inputFile));
         }
 
@@ -143,7 +143,7 @@ public class SmosProductReader extends AbstractProductReader {
         product.setGeoCoding(createGeoCoding(product));
         final String formatName = format.getName();
 
-        final Type someType = format.getTypeDef("BT_Data_Type");
+        final Type someType = format.getTypeDef(SmosFile.BT_DATA_TYPE_NAME);
         if (someType instanceof CompoundType) {
             CompoundType btDataType = (CompoundType) someType;
             if (formatName.contains("MIR_BWLD1C")

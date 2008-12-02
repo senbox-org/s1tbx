@@ -26,14 +26,20 @@ import java.util.Arrays;
 
 public class SmosFile {
 
-    private final int POL_MASK = 0x00000003;
+    public final int POL_MASK = 0x00000003;
     public static final int POL_MODE_HH = 0;
     public static final int POL_MODE_VV = 1;
     public static final int POL_MODE_HV_REAL = 2;
     public static final int POL_MODE_HV_IMAG = 3;
 
-    private static final int CENTER_INCIDENCE_ANGLE = 42500;
-    private static final int INCIDENCE_ANGLE_RANGE = 10000;
+    public static final String GRID_POINT_LIST_NAME = "Grid_Point_List";
+    public static final String BT_DATA_LIST_NAME = "BT_Data_List";
+    public static final String FLAGS_FIELD_NAME = "Flags";
+    public static final String INCIDENCE_ANGLE_FIELD_NAME = "Incidence_Angle";
+    public static final String BT_DATA_TYPE_NAME = "BT_Data_Type";
+
+    public static final int CENTER_INCIDENCE_ANGLE = 42500;
+    public static final int INCIDENCE_ANGLE_RANGE = 10000;
 
     private final File file;
     private final DataFormat format;
@@ -41,8 +47,8 @@ public class SmosFile {
     private int[] gridPointIndexes;
     private final DataContext dataContext;
     private final CompoundType gridPointType;
-    private final int btDataIndex;
     private final CompoundType btDataType;
+    private final int btDataIndex;
     private final int incidenceAngleIndex;
     private final int flagsIndex;
 
@@ -51,20 +57,20 @@ public class SmosFile {
         this.format = format;
         this.dataContext = format.createContext(file, "r");
         CompoundData smosDataset = dataContext.getData();
-        this.gridPointList = smosDataset.getSequence("Grid_Point_List");
+        this.gridPointList = smosDataset.getSequence(GRID_POINT_LIST_NAME);
         if (this.gridPointList == null) {
-            throw new IllegalStateException("Missing dataset 'Grid_Point_List' in SMOS file.");
+            throw new IllegalStateException("Missing dataset '"+GRID_POINT_LIST_NAME+"' in SMOS file.");
         }
         this.gridPointType = (CompoundType) gridPointList.getSequenceType().getElementType();
 
         initGridPointIndexes();
 
         // todo - the following code is L1C sepecific. Create subclasses? (nf - 01.12.2008)
-        btDataIndex = this.gridPointType.getMemberIndex("BT_Data");
-        if (btDataIndex != -1 && gridPointType.getMemberType(btDataIndex) instanceof SequenceType) {
-            btDataType = (CompoundType) ((SequenceType) gridPointType.getMemberType(btDataIndex)).getElementType();
-            flagsIndex = btDataType.getMemberIndex("Flags");
-            incidenceAngleIndex = btDataType.getMemberIndex("Incidence_Angle");
+        btDataIndex = this.gridPointType.getMemberIndex(BT_DATA_LIST_NAME);
+        if (btDataIndex != -1) {
+            btDataType = (CompoundType) format.getTypeDef(BT_DATA_TYPE_NAME);
+            flagsIndex = this.btDataType.getMemberIndex(FLAGS_FIELD_NAME);
+            incidenceAngleIndex = this.btDataType.getMemberIndex(INCIDENCE_ANGLE_FIELD_NAME);
         } else {
             btDataType = null;
             flagsIndex = -1;
@@ -119,7 +125,7 @@ public class SmosFile {
      *
      * @param gridPointIndex The grid point index.
      * @param btDataIndex    The index of the requested 'BT_Data' field.
-     * @param polMode           {@link #POL_MODE_HH},{@link #POL_MODE_VV}, {@link #POL_MODE_HV_REAL} or {@link #POL_MODE_HV_IMAG}
+     * @param polMode        {@link #POL_MODE_HH},{@link #POL_MODE_VV}, {@link #POL_MODE_HV_REAL} or {@link #POL_MODE_HV_IMAG}
      * @param noDataValue    The no data value which is returned if no value could be found.
      * @return the value read or {@code noDataValue}
      * @throws IOException if an I/O error occurs
