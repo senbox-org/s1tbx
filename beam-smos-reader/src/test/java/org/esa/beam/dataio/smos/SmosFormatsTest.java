@@ -18,13 +18,14 @@ import com.bc.ceres.binio.DataFormat;
 import junit.framework.TestCase;
 
 import java.net.URL;
+import java.nio.ByteOrder;
 
 /**
- * todo - add API doc
+ * Tests for class {@link SmosFormats}.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
- * @since BEAM 4.2
+ * @since BEAM 4.5
  */
 public class SmosFormatsTest extends TestCase {
 
@@ -33,6 +34,11 @@ public class SmosFormatsTest extends TestCase {
 
         final DataFormat format = formats.getFormat("DBL_SM_XXXX_MIR_BWLD1C_0200.binXschema.xml");
         assertNotNull(format);
+        assertEquals(ByteOrder.LITTLE_ENDIAN, format.getByteOrder());
+    }
+
+    public void testGetFormatForSchemaWhichDoesNotExist() {
+        assertNull(SmosFormats.getInstance().getFormat("SCHEMA_DOES_NOT_EXIST.binXschema.xml"));
     }
 
     public void testGetSchemaResource() {
@@ -40,5 +46,6 @@ public class SmosFormatsTest extends TestCase {
 
         assertNotNull(url);
         assertTrue(url.getPath().endsWith("DBL_SM_XXXX_MIR_BWLD1C_0200.binXschema.xml"));
+        assertEquals(url, SmosFormats.getSchemaResource("DBL_SM_XXXX_MIR_BWLD1C_0200"));
     }
 }

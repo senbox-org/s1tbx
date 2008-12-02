@@ -23,9 +23,12 @@ import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Locale;
 
-
+/**
+ * Plugin providing the SMOS product reader.
+ */
 public class SmosProductReaderPlugIn implements ProductReaderPlugIn {
 
     @Override
@@ -36,22 +39,23 @@ public class SmosProductReaderPlugIn implements ProductReaderPlugIn {
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
         final File file = input instanceof File ? (File) input : new File(input.toString());
+
         if (file.getName().endsWith(".DBL") || file.getName().endsWith(".HDR")) {
-            boolean bothExist = FileUtils.exchangeExtension(file, ".HDR").exists()
-                    && FileUtils.exchangeExtension(file, ".DBL").exists();
-            if (!bothExist) {
-                return DecodeQualification.UNABLE;
-            }
-            final String[] formatNames = getFormatNames();
-            for (String formatName : formatNames) {
-                if (file.getName().contains(formatName)) {
-                    return DecodeQualification.INTENDED;
+            final File hdrFile = FileUtils.exchangeExtension(file, ".HDR");
+            final File dblFile = FileUtils.exchangeExtension(file, ".DBL");
+
+            if (hdrFile.exists() && dblFile.exists()) {
+                try {
+                    if (SmosFormats.getFormat(hdrFile) != null) {
+                        return DecodeQualification.INTENDED;
+                    }
+                } catch (IOException e) {
+                    // ignore
                 }
             }
-            return DecodeQualification.UNABLE;
-        } else {
-            return DecodeQualification.UNABLE;
         }
+
+        return DecodeQualification.UNABLE;
     }
 
     @Override
@@ -71,7 +75,7 @@ public class SmosProductReaderPlugIn implements ProductReaderPlugIn {
 
     @Override
     public String[] getFormatNames() {
-        return SmosFormats.getInstance().getFormatNames();
+        return new String[]{"SMOS"};
     }
 
     @Override

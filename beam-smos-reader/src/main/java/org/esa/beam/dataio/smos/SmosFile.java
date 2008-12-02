@@ -17,19 +17,20 @@
 package org.esa.beam.dataio.smos;
 
 
-import com.bc.ceres.binio.CompoundData;
-import com.bc.ceres.binio.CompoundType;
-import com.bc.ceres.binio.DataContext;
-import com.bc.ceres.binio.DataFormat;
-import com.bc.ceres.binio.SequenceData;
-import com.bc.ceres.binio.SequenceType;
+import com.bc.ceres.binio.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Arrays;
 
-
+/**
+ * Representation of a SMOS product file.
+ */
 public class SmosFile {
+
+    static final String GRID_POINT_LIST_NAME = "Grid_Point_List";
+    static final String BT_DATA_LIST_NAME = "BT_Data_List";
 
     private final File file;
     private final DataFormat format;
@@ -43,19 +44,24 @@ public class SmosFile {
     public SmosFile(File file, DataFormat format) throws IOException {
         this.file = file;
         this.format = format;
+
         this.dataContext = format.createContext(file, "r");
-        CompoundData smosDataset = dataContext.getData();
-        this.gridPointList = smosDataset.getSequence("Grid_Point_List");
-        if (this.gridPointList == null) {
-            throw new IllegalStateException("Missing dataset 'Grid_Point_List' in SMOS file.");
+        this.gridPointList = dataContext.getData().getSequence(GRID_POINT_LIST_NAME);
+
+        if (gridPointList == null) {
+            throw new IOException(MessageFormat.format(
+                    "File ''{0}'': missing dataset ''{1}''", file.getPath(), GRID_POINT_LIST_NAME));
         }
+
         this.gridPointType = (CompoundType) gridPointList.getSequenceType().getElementType();
-        btDataIndex = this.gridPointType.getMemberIndex("BT_Data");
-        if (btDataIndex != -1 && gridPointType.getMemberType(btDataIndex) instanceof SequenceType) {
-            btDataType = (CompoundType) ((SequenceType) gridPointType.getMemberType(btDataIndex)).getElementType();
-        } else {
+        btDataIndex = gridPointType.getMemberIndex(BT_DATA_LIST_NAME);
+
+        if (btDataIndex == -1 || !(gridPointType.getMemberType(btDataIndex) instanceof SequenceType)) {
             btDataType = null;
+        } else {
+            btDataType = (CompoundType) ((SequenceType) gridPointType.getMemberType(btDataIndex)).getElementType();
         }
+
         initGridPointIndexes();
     }
 

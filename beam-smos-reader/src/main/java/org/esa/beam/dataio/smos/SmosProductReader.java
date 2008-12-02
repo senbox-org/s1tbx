@@ -32,8 +32,7 @@ import org.esa.beam.glevel.TiledFileMultiLevelSource;
 import org.esa.beam.util.io.FileUtils;
 
 import javax.media.jai.JAI;
-import java.awt.Color;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
@@ -43,10 +42,10 @@ import java.util.HashMap;
 public class SmosProductReader extends AbstractProductReader {
     private static final String SMOS_DGG_DIR_PROPERTY_NAME = "org.esa.beam.pview.smosDggDir";
 
-    private static MultiLevelImage dggridMultiLevelImage;
+    private static volatile MultiLevelImage dggridMultiLevelImage;
 
+    private final HashMap<String, BandInfo> bandInfos = new HashMap<String, BandInfo>(17);
     private SmosFile smosFile;
-    HashMap<String, BandInfo> bandInfos = new HashMap<String, BandInfo>(17);
 
     SmosProductReader(final SmosProductReaderPlugIn productReaderPlugIn) {
         super(productReaderPlugIn);
@@ -101,13 +100,23 @@ public class SmosProductReader extends AbstractProductReader {
                          "Elliptical footprint minor semi-axis value.");
     }
 
+    public SmosFile getSmosFile() {
+        return smosFile;
+    }
+
+    public MultiLevelImage getDggridMultiLevelImage() {
+        return dggridMultiLevelImage;
+    }
+
     @Override
     protected synchronized Product readProductNodesImpl() throws IOException {
         if (dggridMultiLevelImage == null) {
             String dirPath = System.getProperty(SMOS_DGG_DIR_PROPERTY_NAME);
             if (dirPath == null || !new File(dirPath).exists()) {
                 throw new IOException(
-                        MessageFormat.format("SMOS products require a DGG image.\nPlease set system property ''{0}''to a valid DGG image directory.", SMOS_DGG_DIR_PROPERTY_NAME));
+                        MessageFormat.format(
+                                "SMOS products require a DGG image.\nPlease set system property ''{0}''to a valid DGG image directory.",
+                                SMOS_DGG_DIR_PROPERTY_NAME));
             }
 
             try {
@@ -118,61 +127,34 @@ public class SmosProductReader extends AbstractProductReader {
             }
         }
 
+        final File inputFile = getInputFile();
+        final File hdrFile = FileUtils.exchangeExtension(inputFile, ".HDR");
+        final File dblFile = FileUtils.exchangeExtension(inputFile, ".DBL");
 
-        final File file = FileUtils.exchangeExtension(getInputFile(), ".DBL");
-        final int productSceneRasterWidth = dggridMultiLevelImage.getWidth();
-        final int productSceneRasterHeight = dggridMultiLevelImage.getHeight();
-
-        final String filenameWithoutExtension = FileUtils.getFilenameWithoutExtension(file);
-
-        String formatName = null;
-        final String[] formatNames = SmosFormats.getInstance().getFormatNames();
-        for (String formatName1 : formatNames) {
-            if (filenameWithoutExtension.contains(formatName1)) {
-                formatName = formatName1;
-            }
-        }
-        if (formatName == null) {
-            throw new IOException("Unrecognized SMOS format.");
-        }
-
-        DataFormat format = SmosFormats.getInstance().getFormat(formatName);
+        final DataFormat format = SmosFormats.getFormat(hdrFile);
         if (format == null) {
-            throw new IllegalStateException("format == null");
+            throw new IOException(MessageFormat.format("File ''{0}'': Unknown SMOS data format", inputFile));
         }
-        smosFile = new SmosFile(file, format);
-        Product product = new Product(filenameWithoutExtension, formatName, productSceneRasterWidth, productSceneRasterHeight);
+        if (!(format.getTypeDef("BT_Data_Type") instanceof CompoundType)) {
+            throw new IOException(MessageFormat.format("File ''{0}'': Illegal SMOS data format", inputFile));
+        }
+
+        smosFile = new SmosFile(dblFile, format);
+        final int sceneWidth = dggridMultiLevelImage.getWidth();
+        final int sceneHeight = dggridMultiLevelImage.getHeight();
+
+        final String productName = FileUtils.getFilenameWithoutExtension(dblFile);
+        final String productType = format.getName().substring(12, 22);
+
+        final Product product = new Product(productName, productType, sceneWidth, sceneHeight);
         product.setPreferredTileSize(512, 512);
-        product.setFileLocation(file);
+        product.setFileLocation(dblFile);
         product.setGeoCoding(createGeoCoding(product));
 
-        if ("MIR_BWLD1C".equals(formatName)
-                || "MIR_BWLF1C".equals(formatName)
-                || "MIR_BWSD1C".equals(formatName)
-                || "MIR_BWSF1C".equals(formatName)) {
-            addGridCellIdBand(product);
-            addSmosBands(product, SmosFormats.BROWSE_BT_DATA_TYPE);
-        } else if ("MIR_SCLD1C".equals(formatName)
-                || "MIR_SCSD1C".equals(formatName)) {
-            addGridCellIdBand(product);
-            addSmosBands(product, SmosFormats.D1C_BT_DATA_TYPE);
-        } else if ("MIR_SCLF1C".equals(formatName)
-                || "MIR_SCSF1C".equals(formatName)) {
-            addGridCellIdBand(product);
-            addSmosBands(product, SmosFormats.F1C_BT_DATA_TYPE);
-        } else {
-            throw new IllegalStateException("Illegal SMOS format: " + formatName);
-        }
+        addGridCellIdBand(product);
+        addSmosBands(product, (CompoundType) format.getTypeDef("BT_Data_Type"));
 
         return product;
-    }
-
-    public SmosFile getSmosFile() {
-        return smosFile;
-    }
-
-    public MultiLevelImage getDggridMultiLevelImage() {
-        return dggridMultiLevelImage;
     }
 
     private void addSmosBands(Product product, CompoundType compoundDataType) {
@@ -238,7 +220,8 @@ public class SmosProductReader extends AbstractProductReader {
         };
         final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[colors.length];
         for (int i = 0; i < colors.length; i++) {
-            points[i] = new ColorPaletteDef.Point(bandInfo.min + ((bandInfo.max - bandInfo.min) * i / (colors.length - 1)), colors[i]);
+            points[i] = new ColorPaletteDef.Point(
+                    bandInfo.min + ((bandInfo.max - bandInfo.min) * i / (colors.length - 1)), colors[i]);
         }
         final ColorPaletteDef def = new ColorPaletteDef(points);
         return new ImageInfo(def);
@@ -265,8 +248,22 @@ public class SmosProductReader extends AbstractProductReader {
     }
 
     private MultiLevelImage createBTempSourceImage(final Band band, int fieldIndex, Number noDataValue) {
-        SmosMultiLevelSource smosMultiLevelSource = new SmosMultiLevelSource(dggridMultiLevelImage, smosFile, band, fieldIndex, noDataValue);
-        return new DefaultMultiLevelImage(smosMultiLevelSource);
+        return new DefaultMultiLevelImage(
+                new SmosMultiLevelSource(dggridMultiLevelImage, smosFile, band, fieldIndex, noDataValue));
+    }
+
+    @Override
+    protected synchronized void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY,
+                                                       int sourceWidth, int sourceHeight, int sourceStepX,
+                                                       int sourceStepY, Band destBand, int destOffsetX, int destOffsetY,
+                                                       int destWidth, int destHeight, ProductData destBuffer,
+                                                       ProgressMonitor pm) throws IOException {
+        RenderedImage image = destBand.getSourceImage();
+        java.awt.image.Raster data = image.getData(new Rectangle(destOffsetX,
+                                                                 destOffsetY,
+                                                                 destWidth,
+                                                                 destHeight));
+        data.getDataElements(destOffsetX, destOffsetY, destWidth, destHeight, destBuffer.getElems());
     }
 
     @Override
@@ -288,19 +285,6 @@ public class SmosProductReader extends AbstractProductReader {
         throw new IllegalArgumentException(MessageFormat.format("Unsupported input: {0}", input));
     }
 
-    @Override
-    protected synchronized void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY,
-                                                       int sourceWidth, int sourceHeight, int sourceStepX,
-                                                       int sourceStepY, Band destBand, int destOffsetX, int destOffsetY,
-                                                       int destWidth, int destHeight, ProductData destBuffer,
-                                                       ProgressMonitor pm) throws IOException {
-        RenderedImage image = destBand.getSourceImage();
-        java.awt.image.Raster data = image.getData(new Rectangle(destOffsetX,
-                                                                 destOffsetY,
-                                                                 destWidth,
-                                                                 destHeight));
-        data.getDataElements(destOffsetX, destOffsetY, destWidth, destHeight, destBuffer.getElems());
-    }
 
     public static void main(String[] args) throws IOException {
         JAI.getDefaultInstance().getTileCache().setMemoryCapacity(512 * (1024 * 1024));
@@ -311,7 +295,7 @@ public class SmosProductReader extends AbstractProductReader {
         ProductIO.writeProduct(product, "smosproduct_2.dim", null);
     }
 
-    // todo - use this metadata in ceres-binio 
+    // todo - use this metadata in ceres-binio
     private class BandInfo {
         String name;
         String unit = "";
@@ -322,7 +306,14 @@ public class SmosProductReader extends AbstractProductReader {
         double max;
         String description;
 
-        private BandInfo(String name, String unit, double scaleOffset, double scaleFactor, Number noDataValue, double min, double max, String description) {
+        private BandInfo(String name,
+                         String unit,
+                         double scaleOffset,
+                         double scaleFactor,
+                         Number noDataValue,
+                         double min,
+                         double max,
+                         String description) {
             this.name = name;
             this.unit = unit;
             this.scaleOffset = scaleOffset;
@@ -334,12 +325,18 @@ public class SmosProductReader extends AbstractProductReader {
         }
     }
 
-    private void registerBandInfo(String name, String unit, double scaleOffset, double scaleFactor, Number noDataValue, double min, double max, String description) {
-        regBD(new BandInfo(name, unit, scaleOffset, scaleFactor, noDataValue, min, max, description));
+    private void registerBandInfo(String name,
+                                  String unit,
+                                  double scaleOffset,
+                                  double scaleFactor,
+                                  Number noDataValue,
+                                  double min,
+                                  double max,
+                                  String description) {
+        registerBandInfo(new BandInfo(name, unit, scaleOffset, scaleFactor, noDataValue, min, max, description));
     }
 
-    private void regBD(BandInfo value) {
-        bandInfos.put(value.name, value);
+    private void registerBandInfo(BandInfo bandInfo) {
+        bandInfos.put(bandInfo.name, bandInfo);
     }
-
 }

@@ -1,20 +1,18 @@
 package org.esa.beam.smos.visat;
 
 import com.bc.ceres.glayer.support.ImageLayer;
+import org.esa.beam.dataio.smos.SmosProductReader;
+import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.visat.VisatApp;
-import org.esa.beam.dataio.smos.SmosProductReader;
-import org.esa.beam.dataio.smos.SmosFile;
 
+import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import javax.swing.*;
-import java.awt.Container;
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.net.URL;
 
@@ -45,7 +43,7 @@ public abstract class AbstractSmosToolView extends AbstractToolView {
         }
         defaultControl.setIconTextGap(10);
         defaultControl.setText("No SMOS image selected.");
-        panel.add(defaultControl);        
+        panel.add(defaultControl);
         activateToolView();
         return panel;
     }
@@ -115,7 +113,7 @@ public abstract class AbstractSmosToolView extends AbstractToolView {
                 } else {
                     handleNoSmos();
                 }
-            }  else {
+            } else {
                 handleNoSmos();
             }
             handleProductSceneViewChanged(oldSmosView, smosView);
@@ -215,14 +213,14 @@ public abstract class AbstractSmosToolView extends AbstractToolView {
     }
 
     private class PPL implements PixelPositionListener {
+        @Override
         public void pixelPosChanged(ImageLayer baseImageLayer, int pixelX, int pixelY, int currentLevel, boolean pixelPosValid, MouseEvent e) {
             handlePixelPosChanged(baseImageLayer, pixelX, pixelY, currentLevel, pixelPosValid);
         }
 
+        @Override
         public void pixelPosNotAvailable() {
             handlePixelPosNotAvailable();
         }
     }
-
-
 }
