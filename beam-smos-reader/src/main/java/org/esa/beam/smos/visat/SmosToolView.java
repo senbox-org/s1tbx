@@ -1,20 +1,22 @@
 package org.esa.beam.smos.visat;
 
 import com.bc.ceres.glayer.support.ImageLayer;
+import org.esa.beam.dataio.smos.SmosProductReader;
+import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.visat.VisatApp;
-import org.esa.beam.dataio.smos.SmosProductReader;
-import org.esa.beam.dataio.smos.SmosFile;
 
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import javax.swing.*;
-import java.awt.Container;
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.event.MouseEvent;
 import java.net.URL;
 
@@ -25,7 +27,7 @@ public abstract class SmosToolView extends AbstractToolView {
     private IFL ifl;
     private JPanel panel;
     private JLabel defaultControl;
-    private JComponent smosControl;
+    private JComponent smosComponent;
     private Product smosProduct;
     private SmosProductReader smosProductReader;
 
@@ -45,7 +47,7 @@ public abstract class SmosToolView extends AbstractToolView {
         }
         defaultControl.setIconTextGap(10);
         defaultControl.setText("No SMOS image selected.");
-        panel.add(defaultControl);        
+        panel.add(defaultControl);
         activateToolView();
         return panel;
     }
@@ -107,18 +109,18 @@ public abstract class SmosToolView extends AbstractToolView {
                     smosProductReader = (SmosProductReader) productReader;
                     smosProduct = product;
                     smosView = view;
-                    if (smosControl == null) {
-                        smosControl = createSmosControl();
+                    if (smosComponent == null) {
+                        smosComponent = createSmosComponent(smosView);
                     }
-                    setControl(smosControl);
+                    setToolViewComponent(smosComponent);
                     installPPL();
                 } else {
                     handleNoSmos();
                 }
-            }  else {
+            } else {
                 handleNoSmos();
             }
-            handleProductSceneViewChanged(oldSmosView, smosView);
+            updateSmosComponent(oldSmosView, smosView);
         }
     }
 
@@ -126,10 +128,10 @@ public abstract class SmosToolView extends AbstractToolView {
         smosProductReader = null;
         smosProduct = null;
         smosView = null;
-        setControl(defaultControl);
+        setToolViewComponent(defaultControl);
     }
 
-    private void setControl(JComponent comp) {
+    private void setToolViewComponent(JComponent comp) {
         panel.removeAll();
         panel.add(comp, BorderLayout.CENTER);
         panel.invalidate();
@@ -171,19 +173,15 @@ public abstract class SmosToolView extends AbstractToolView {
                                          int pixelY,
                                          int currentLevel,
                                          boolean pixelPosValid) {
-
     }
 
     protected void handlePixelPosNotAvailable() {
-
     }
 
-    protected void handleProductSceneViewChanged(ProductSceneView oldView,
-                                                 ProductSceneView newView) {
+    protected abstract JComponent createSmosComponent(ProductSceneView smosView);
+
+    protected void updateSmosComponent(ProductSceneView oldView, ProductSceneView newView) {
     }
-
-    protected abstract JComponent createSmosControl();
-
 
     private class IFL extends InternalFrameAdapter {
 

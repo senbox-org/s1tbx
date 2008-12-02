@@ -4,6 +4,7 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.dataio.smos.SmosFile;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.*;
 import java.awt.BorderLayout;
@@ -36,15 +37,23 @@ public abstract class SmosGridPointInfoToolView extends SmosToolView {
     }
 
     @Override
-    protected JComponent createSmosControl() {
-        final JCheckBox checkBox = new JCheckBox("Snap to selected pin");
-        JPanel panel = new JPanel(new BorderLayout(2, 2));
+    protected JComponent createSmosComponent(ProductSceneView smosView) {
         infoLabel = new JLabel();
-        snapToSelectedPinCheckBox = checkBox;
+        snapToSelectedPinCheckBox = new JCheckBox("Snap to selected pin");
+
+        final JPanel optionsPanel = new JPanel(new BorderLayout(6, 0));
+        optionsPanel.add(snapToSelectedPinCheckBox, BorderLayout.WEST);
+        optionsPanel.add(createGridPointComponentOptionsComponent(), BorderLayout.CENTER);
+
+        JPanel panel = new JPanel(new BorderLayout(2, 2));
         panel.add(infoLabel, BorderLayout.CENTER);
         panel.add(createGridPointComponent(), BorderLayout.CENTER);
-        panel.add(snapToSelectedPinCheckBox, BorderLayout.SOUTH);
+        panel.add(optionsPanel, BorderLayout.SOUTH);
         return panel;
+    }
+
+    protected JComponent createGridPointComponentOptionsComponent() {
+        return new JPanel();
     }
 
     boolean isSnappedToPin() {

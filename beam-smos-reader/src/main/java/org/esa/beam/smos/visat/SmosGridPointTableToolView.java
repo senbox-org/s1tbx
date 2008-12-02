@@ -1,26 +1,72 @@
 package org.esa.beam.smos.visat;
 
-import javax.swing.JComponent;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import com.bc.ceres.binio.CompoundType;
+import com.bc.ceres.binio.CompoundMember;
+import com.jidesoft.swing.CheckBoxList;
+
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.FlowLayout;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import java.io.IOException;
+
+import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.ModalDialog;
 
 public class SmosGridPointTableToolView extends SmosGridPointInfoToolView {
     public static final String ID = SmosGridPointTableToolView.class.getName();
 
     private JTable table;
     private DefaultTableModel nullModel;
+    private JButton columnsButton;
 
     public SmosGridPointTableToolView() {
         nullModel = new DefaultTableModel();
     }
 
     @Override
+    protected void updateSmosComponent(ProductSceneView oldView, ProductSceneView newView) {
+        table.setEnabled(newView != null);
+        columnsButton.setEnabled(newView != null);
+    }
+
+
+    @Override
     protected JComponent createGridPointComponent() {
         table = new JTable();
         return new JScrollPane(table);
     }
+
+    @Override
+    protected JComponent createGridPointComponentOptionsComponent() {
+        columnsButton = new JButton("Columns...");
+        columnsButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                final CompoundType btDataType = getSmosProductReader().getSmosFile().getBtDataType();
+                final CompoundMember[] members = btDataType.getMembers();
+                String[] names = new String[members.length];
+                for (int i = 0; i < members.length; i++) {
+                    CompoundMember member = members[i];
+                    names[i] = member.getName();
+                }
+                CheckBoxList checkBoxList = new CheckBoxList(names);
+
+                final ModalDialog dialog = new ModalDialog(SwingUtilities.windowForComponent(columnsButton), "Select Columns",
+                                                           new JScrollPane(checkBoxList),
+                                                           ModalDialog.ID_OK_CANCEL, null);
+                final int i = dialog.show();
+                if (i == ModalDialog.ID_OK) {
+                    
+                }
+
+            }
+        });
+        final JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2, 2));
+        optionsPanel.add(columnsButton);
+        return optionsPanel;
+    }
+
 
     @Override
     protected void updateGridPointComponent(GridPointDataset ds) {

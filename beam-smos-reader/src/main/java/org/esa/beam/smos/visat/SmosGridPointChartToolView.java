@@ -1,6 +1,7 @@
 package org.esa.beam.smos.visat;
 
 import org.esa.beam.dataio.smos.SmosFile;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -10,7 +11,10 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
+import java.awt.FlowLayout;
 import java.io.IOException;
 
 public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
@@ -20,6 +24,7 @@ public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
     private JFreeChart chart;
     private XYSeriesCollection dataset;
     private XYPlot plot;
+    private JCheckBox[] modeCheckers;
 
     public SmosGridPointChartToolView() {
     }
@@ -43,6 +48,29 @@ public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
     }
 
     @Override
+    protected void updateSmosComponent(ProductSceneView oldView, ProductSceneView newView) {
+        // todo - enable/disable HV modes depending on D1C/F1C
+        for (JCheckBox modeChecker : modeCheckers) {
+            modeChecker.setEnabled(newView != null);
+        }
+    }
+
+    @Override
+    protected JComponent createGridPointComponentOptionsComponent() {
+        modeCheckers = new JCheckBox[]{
+                new JCheckBox("H", true),
+                new JCheckBox("V", true),
+                new JCheckBox("HV_Real", true),
+                new JCheckBox("HV_Imag", true)
+        };
+        final JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2, 2));
+        for (JCheckBox modeChecker : modeCheckers) {
+            optionsPanel.add(modeChecker);
+        }
+        return optionsPanel;
+    }
+
+    @Override
     protected void updateGridPointComponent(GridPointDataset ds) {
         dataset.removeAllSeries();
 
@@ -55,12 +83,14 @@ public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
 
                 XYSeries series1 = new XYSeries("BT_HH");
                 XYSeries series2 = new XYSeries("BT_VV");
+                boolean m1 = modeCheckers[0].isSelected();
+                boolean m2 = modeCheckers[1].isSelected();
                 int length = ds.data.length;
                 for (int i = 0; i < length; i++) {
                     int polMode = ds.data[i][iq].intValue() & SmosFile.POL_MODE_MASK;
-                    if (polMode == SmosFile.POL_MODE_HH) {
+                    if (m1 && polMode == SmosFile.POL_MODE_HH) {
                         series1.add(ds.data[i][ix], ds.data[i][iy1]);
-                    } else if (polMode == SmosFile.POL_MODE_VV) {
+                    } else if (m2 && polMode == SmosFile.POL_MODE_VV) {
                         series2.add(ds.data[i][ix], ds.data[i][iy1]);
                     }
                 }
@@ -79,17 +109,21 @@ public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
                     XYSeries series4 = new XYSeries("BTI_HVR");
                     XYSeries series5 = new XYSeries("BTI_HVI");
                     XYSeries series6 = new XYSeries("BTI_HVI");
+                    boolean m1 = modeCheckers[0].isSelected();
+                    boolean m2 = modeCheckers[1].isSelected();
+                    boolean m3 = modeCheckers[2].isSelected();
+                    boolean m4 = modeCheckers[3].isSelected();
                     int length = ds.data.length;
                     for (int i = 0; i < length; i++) {
                         int polMode = ds.data[i][iq].intValue() & SmosFile.POL_MODE_MASK;
-                        if (polMode == SmosFile.POL_MODE_HH) {
+                        if (m1 && polMode == SmosFile.POL_MODE_HH) {
                             series1.add(ds.data[i][ix], ds.data[i][iy1]);
-                        } else if (polMode == SmosFile.POL_MODE_VV) {
+                        } else if (m2 && polMode == SmosFile.POL_MODE_VV) {
                             series2.add(ds.data[i][ix], ds.data[i][iy1]);
-                        } else if (polMode == SmosFile.POL_MODE_HV_REAL) {
+                        } else if (m3 && polMode == SmosFile.POL_MODE_HV_REAL) {
                             series3.add(ds.data[i][ix], ds.data[i][iy1]);
                             series4.add(ds.data[i][ix], ds.data[i][iy2]);
-                        } else if (polMode == SmosFile.POL_MODE_HV_IMAG) {
+                        } else if (m4 && polMode == SmosFile.POL_MODE_HV_IMAG) {
                             series5.add(ds.data[i][ix], ds.data[i][iy1]);
                             series6.add(ds.data[i][ix], ds.data[i][iy2]);
                         }
