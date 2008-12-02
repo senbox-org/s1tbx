@@ -1,5 +1,6 @@
 package org.esa.beam.smos.visat;
 
+import org.esa.beam.dataio.smos.SmosFile;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -45,29 +46,60 @@ public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
     protected void updateGridPointComponent(GridPointDataset ds) {
         dataset.removeAllSeries();
 
+
         int ix = ds.getColumnIndex("Incidence_Angle");
         if (ix != -1) {
-            int iy = ds.getColumnIndex("BT_Value");
-            if (iy != -1) {
-                XYSeries series = new XYSeries("BT_Value");
+            int iy1 = ds.getColumnIndex("BT_Value");
+            if (iy1 != -1) {
+                int iq = ds.getColumnIndex("Flags");
+
+                XYSeries series1 = new XYSeries("BT_HH");
+                XYSeries series2 = new XYSeries("BT_VV");
                 int length = ds.data.length;
                 for (int i = 0; i < length; i++) {
-                    series.add(ds.data[i][ix], ds.data[i][iy]);
+                    int polMode = ds.data[i][iq].intValue() & SmosFile.POL_MODE_MASK;
+                    if (polMode == SmosFile.POL_MODE_HH) {
+                        series1.add(ds.data[i][ix], ds.data[i][iy1]);
+                    } else if (polMode == SmosFile.POL_MODE_VV) {
+                        series2.add(ds.data[i][ix], ds.data[i][iy1]);
+                    }
                 }
-                dataset.addSeries(series);
+                dataset.addSeries(series1);
+                dataset.addSeries(series2);
             } else {
-                int iy1 = ds.getColumnIndex("BT_Value_Real");
-                int iy2 = ds.getColumnIndex("BT_Value_Imag");
+                int iy2;
+                iy1 = ds.getColumnIndex("BT_Value_Real");
+                iy2 = ds.getColumnIndex("BT_Value_Imag");
                 if (iy1 != -1 && iy2 != -1) {
-                    XYSeries series1 = new XYSeries("BT_Value_Real");
-                    XYSeries series2 = new XYSeries("BT_Value_Imag");
+                    int iq = ds.getColumnIndex("Flags");
+
+                    XYSeries series1 = new XYSeries("BTR_HH");
+                    XYSeries series2 = new XYSeries("BTR_VV");
+                    XYSeries series3 = new XYSeries("BTR_HVR");
+                    XYSeries series4 = new XYSeries("BTI_HVR");
+                    XYSeries series5 = new XYSeries("BTI_HVI");
+                    XYSeries series6 = new XYSeries("BTI_HVI");
                     int length = ds.data.length;
                     for (int i = 0; i < length; i++) {
-                        series1.add(ds.data[i][ix], ds.data[i][iy1]);
-                        series2.add(ds.data[i][ix], ds.data[i][iy2]);
+                        int polMode = ds.data[i][iq].intValue() & SmosFile.POL_MODE_MASK;
+                        if (polMode == SmosFile.POL_MODE_HH) {
+                            series1.add(ds.data[i][ix], ds.data[i][iy1]);
+                        } else if (polMode == SmosFile.POL_MODE_VV) {
+                            series2.add(ds.data[i][ix], ds.data[i][iy1]);
+                        } else if (polMode == SmosFile.POL_MODE_HV_REAL) {
+                            series3.add(ds.data[i][ix], ds.data[i][iy1]);
+                            series4.add(ds.data[i][ix], ds.data[i][iy2]);
+                        } else if (polMode == SmosFile.POL_MODE_HV_IMAG) {
+                            series5.add(ds.data[i][ix], ds.data[i][iy1]);
+                            series6.add(ds.data[i][ix], ds.data[i][iy2]);
+                        }
                     }
                     dataset.addSeries(series1);
                     dataset.addSeries(series2);
+                    dataset.addSeries(series3);
+                    dataset.addSeries(series4);
+                    dataset.addSeries(series5);
+                    dataset.addSeries(series6);
                 }
             }
         } else {

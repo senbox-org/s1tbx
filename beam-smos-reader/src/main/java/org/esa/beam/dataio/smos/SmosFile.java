@@ -26,7 +26,7 @@ import java.util.Arrays;
 
 public class SmosFile {
 
-    public final int POL_MASK = 0x00000003;
+    public static final int POL_MODE_MASK = 0x00000003;
     public static final int POL_MODE_HH = 0;
     public static final int POL_MODE_VV = 1;
     public static final int POL_MODE_HV_REAL = 2;
@@ -146,7 +146,7 @@ public class SmosFile {
         for (int i = 0; i < btDataListCount; i++) {
             CompoundData btData = btDataList.getCompound(i);
             flags = btData.getInt(flagsIndex);
-            if ((flags & POL_MASK) == polMode) {
+            if ((flags & POL_MODE_MASK) == polMode) {
                 incidenceAngle = btData.getInt(incidenceAngleIndex);
                 delta = CENTER_INCIDENCE_ANGLE - incidenceAngle;
                 deltaAbs = Math.abs(delta);
