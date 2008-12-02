@@ -77,9 +77,16 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
         outputFile = FileUtils.ensureExtension(file, GeoTiffProductWriterPlugIn.GEOTIFF_FILE_EXTENSION[0]);
         deleteOutput();
 
+        ensureNamingConvention();
+
         writeGeoTIFFProduct(new FileImageOutputStream(outputFile), getSourceProduct());
     }
 
+    private void ensureNamingConvention() {
+        if (outputFile != null) {
+            getSourceProduct().setName(FileUtils.getFilenameWithoutExtension(outputFile));
+        }
+    }
     void writeGeoTIFFProduct(ImageOutputStream stream, final Product sourceProduct) throws IOException {
         outputStream = stream;
         final TiffHeader tiffHeader = new TiffHeader(new Product[]{sourceProduct});

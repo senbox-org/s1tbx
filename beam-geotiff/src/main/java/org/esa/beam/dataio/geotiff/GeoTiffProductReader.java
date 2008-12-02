@@ -188,9 +188,9 @@ public class GeoTiffProductReader extends AbstractProductReader {
     private void initBandsMap(Product product) {
         final Band[] bands = product.getBands();
         bandMap = new HashMap<Band, Integer>(bands.length);
-        for (int i = 0; i < bands.length; i++) {
-            if (!(bands[i] instanceof VirtualBand && bands[i] instanceof FilterBand)) {
-                bandMap.put(bands[i], i);
+        for (Band band : bands) {
+            if (!(band instanceof VirtualBand) && !(band instanceof FilterBand)) {
+                bandMap.put(band, bandMap.size());
             }
         }
     }

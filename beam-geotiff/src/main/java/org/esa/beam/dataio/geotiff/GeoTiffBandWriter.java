@@ -28,6 +28,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 
 import javax.imageio.stream.ImageOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * A band writer implementation for the GeoTIFF format.
@@ -42,11 +43,19 @@ class GeoTiffBandWriter {
     private ImageOutputStream ios;
     private TiffIFD ifd;
     private Product tempProduct;
+    private ArrayList<Band> bandsList;
 
     GeoTiffBandWriter(final TiffIFD ifd, final ImageOutputStream ios, final Product product) {
         this.ifd = ifd;
         this.ios = ios;
         tempProduct = product;
+        final Band[] bands = tempProduct.getBands();
+        bandsList = new ArrayList<Band>(bands.length);
+        for (Band band : bands) {
+            if(Utils.shouldWriteNode(band)) {
+                bandsList.add(band);
+            }
+        }
     }
 
     public void dispose() {
@@ -96,7 +105,7 @@ class GeoTiffBandWriter {
             throw new IllegalArgumentException("'" + sourceBand.getName() + "' is not a band of the product");
         }
         int bandDataType = ifd.getBandDataType();
-        final int stripIndex = tempProduct.getBandIndex(sourceBand.getName());
+        final int stripIndex = getStripIndex(sourceBand);
         final TiffValue[] offsetValues = ifd.getEntry(TiffTag.STRIP_OFFSETS).getValues();
         final long stripOffset = ((TiffLong) offsetValues[stripIndex]).getValue();
         final TiffValue[] bitsPerSampleValues = ifd.getEntry(TiffTag.BITS_PER_SAMPLE).getValues();
@@ -164,5 +173,10 @@ class GeoTiffBandWriter {
         } finally {
             pm.done();
         }
+    }
+
+    private int getStripIndex(Band sourceBand) {
+        return bandsList.indexOf(sourceBand);
+//        return tempProduct.getBandIndex(sourceBand.getName());
     }
 }
