@@ -5,6 +5,7 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
@@ -43,7 +44,14 @@ public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
         plot = chart.getXYPlot();
         plot.setNoDataMessage("No data");
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
-        plot.getDomainAxis().setLabel("Incidence Angle (deg)");
+
+        final NumberAxis xAxis = (NumberAxis) plot.getDomainAxis();
+        xAxis.setLabel("Incidence Angle (deg)");
+        xAxis.setAutoRangeIncludesZero(false);
+
+        final NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
+        yAxis.setAutoRangeIncludesZero(false);
+
         return new ChartPanel(chart);
     }
 

@@ -5,7 +5,6 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.SymbolAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.LookupPaintScale;
 import org.jfree.chart.renderer.xy.XYBlockRenderer;
@@ -39,24 +38,38 @@ public class SmosGridPointFlagmatrixToolView extends SmosGridPointInfoToolView {
         }
 
         NumberAxis xAxis = new NumberAxis("Incidence Angle (deg)");
+        xAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        xAxis.setAutoRangeIncludesZero(false);
         xAxis.setLowerMargin(0.0);
         xAxis.setUpperMargin(0.0);
 
-        SymbolAxis yAxis = new SymbolAxis("Flag", flagNames);
+        // NumberAxis yAxis = new SymbolAxis(null, flagNames);
+        NumberAxis yAxis = new NumberAxis(null);
+        yAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        yAxis.setAutoRangeIncludesZero(false);
+        yAxis.setLowerMargin(0.0);
+        yAxis.setUpperMargin(0.0);
         yAxis.setInverted(true);
 
-        LookupPaintScale paintScale = new LookupPaintScale(0.0, 1.0, Color.WHITE);
-        paintScale.add(0.0, Color.GRAY);
-        paintScale.add(1.0, Color.BLACK);
+        LookupPaintScale paintScale = new LookupPaintScale(0.0, 4.0, Color.WHITE);
+        paintScale.add(0.0, Color.BLACK);
+        paintScale.add(1.0, Color.RED);
+        paintScale.add(2.0, Color.GREEN);
+        paintScale.add(3.0, Color.BLUE);
+        paintScale.add(4.0, Color.YELLOW);
 
         XYBlockRenderer renderer = new XYBlockRenderer();
         renderer.setPaintScale(paintScale);
 
         plot = new XYPlot(dataset, xAxis, yAxis, renderer);
+        plot.setBackgroundPaint(Color.LIGHT_GRAY);
+        plot.setDomainGridlinePaint(Color.WHITE);
+        plot.setRangeGridlinePaint(Color.WHITE);
+        plot.setForegroundAlpha(0.5f);
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
         plot.setNoDataMessage("No data");
 
-        chart = new JFreeChart("Flagmatrix", plot);
+        chart = new JFreeChart(null, plot);
         chart.removeLegend();
 
         return new ChartPanel(chart);
@@ -73,13 +86,15 @@ public class SmosGridPointFlagmatrixToolView extends SmosGridPointInfoToolView {
         int ix = ds.getColumnIndex("Incidence_Angle");
         int iq = ds.getColumnIndex("Flags");
         if (ix != -1 && iq != -1) {
-            double[][] data = new double[3][ds.data.length];
-            for (int i = 0; i < ds.data.length; i++) {
-                final int flags = ds.data[i][iq].intValue();
-                for (int j = 0; j < SmosFormats.L1C_FLAGS.length; j++) {
-                    data[0][i] = ds.data[i][ix].doubleValue();
-                    data[1][i] = j;
-                    data[2][i] = ((flags & (1 >> i)) != 0) ? 1.0 : 0.0;
+            final int m = ds.data.length;
+            final int n = SmosFormats.L1C_FLAGS.length;
+            double[][] data = new double[3][n * m];
+            for (int x = 0; x < m; x++) {
+                final int flags = ds.data[x][iq].intValue();
+                for (int y = 0; y < n; y++) {
+                    data[0][y * m + x] = x; // ds.data[x][ix].doubleValue();
+                    data[1][y * m + x] = y;
+                    data[2][y * m + x] = ((flags & (1 << y)) != 0) ? (1 + y % 3) : 0.0;
                 }
             }
             dataset.addSeries("Flags", data);
