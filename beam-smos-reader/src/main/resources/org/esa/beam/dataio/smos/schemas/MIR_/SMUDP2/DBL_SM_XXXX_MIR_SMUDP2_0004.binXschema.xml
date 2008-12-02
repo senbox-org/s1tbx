@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- binX schema for smos product -->
+<!-- v 1.0 30/03/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<binx xmlns="http://www.edikt.org/binx/2003/06/binx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.edikt.org/binx/2003/06/binx binx.xsd">
+	<definitions>	
+		<defineType typeName="UTC_Type">
+			<struct>
+				<integer-32 varName="Days"/>
+				<unsignedInteger-32 varName="Seconds"/>
+				<unsignedInteger-32 varName="Microseconds"/>
+			</struct>
+		</defineType>
+		<defineType typeName="Processing_Descriptors_Data_Type">
+			<struct>
+				<unsignedShort-16 varName="Processing_Flags"/>
+				<character-8 varName="S_Tree_1"/>
+				<character-8 varName="S_Tree_2"/>
+			</struct>
+		</defineType>	
+		<defineType typeName="Science_Descriptors_Data_Type">
+			<struct>
+				<unsignedInteger-32 varName="Science_Flags"/>
+				<character-8 varName="N_Sky"/>
+			</struct>
+		</defineType>	
+		<defineType typeName="Confidence_Descriptors_Data_Type">
+			<struct>
+				<unsignedShort-16 varName="Confidence_Flags"/>
+				<character-8 varName="GQX"/>
+				<character-8 varName="Chi_2"/>
+				<character-8 varName="Chi_2_P"/>
+				<character-8 varName="N_Wild"/>
+				<character-8 varName="M_AVA0"/>
+				<character-8 varName="M_AVA"/>
+				<float-32 varName="AFP"/>
+				<character-8 varName="N_Border_FOV"/>
+				<character-8 varName="N_AF_FOV"/>
+				<character-8 varName="N_Sun_Tails"/>
+				<character-8 varName="N_Sun_Glint_Area"/>
+				<character-8 varName="N_Sun_FOV"/>	
+			</struct>
+		</defineType>	
+		<defineType typeName="Retrieval_Results_Data_Type">
+			<struct>
+				<float-32 varName="Soil_Moisture"/>
+				<float-32 varName="Soil_Moisture_DQX"/>
+				<float-32 varName="Optical_Thickness_Nad"/>
+				<float-32 varName="Optical_Thickness_Nad_DQX"/>
+				<float-32 varName="Physical_Temperature"/>
+				<float-32 varName="Physical_Temperature_DQX"/>
+				<float-32 varName="TTH"/>
+				<float-32 varName="TTH_DQX"/>
+				<float-32 varName="RTT"/>
+				<float-32 varName="RTT_DQX"/>
+				<float-32 varName="Scattering_Albedo_H"/>
+				<float-32 varName="Scattering_Albedo_H_DQX"/>
+				<float-32 varName="DIFF_Albedos"/>
+				<float-32 varName="DIFF_Albedos_DQX"/>
+				<float-32 varName="Roughness_Param"/>
+				<float-32 varName="Roughness_Param_DQX"/>
+				<float-32 varName="Dielect_Const_MD_RE"/>
+				<float-32 varName="Dielect_Const_MD_RE_DQX"/>
+				<float-32 varName="Dielect_Const_MD_ IM"/>
+				<float-32 varName="Dielect_Const_MD_IM_DQX"/>
+				<float-32 varName="Dielect_Const_Non_MD_RE"/>
+				<float-32 varName="Dielect_Const_Non_MD_RE_DQX"/>
+				<float-32 varName="Dielect_Const_Non_MD_IM"/>
+				<float-32 varName="Dielect_Const_Non_MD_IM_DQX"/>
+				<float-32 varName="TB_ASL_Theta_B_H"/>
+				<float-32 varName="TB_ASL_Theta_B_H_ DQX"/>
+				<float-32 varName="TB_ASL_Theta_B_V"/>
+				<float-32 varName="TB_ASL_Theta_B_V_ DQX"/>
+				<float-32 varName="TB_TOA_Theta_B_H"/>
+				<float-32 varName="TB_TOA_Theta_B_H_ DQX"/>
+				<float-32 varName="TB_TOA_Theta_B_V"/>
+				<float-32 varName="TB_TOA_Theta_B_V_ DQX"/>
+			</struct>
+		</defineType>	
+		<defineType typeName="Grid_Point_Data_Type">
+			<struct>
+				<unsignedInteger-32 varName="Grid_Point_ID"/>
+				<integer-32 varName="Latitude"/>
+				<integer-32 varName="Longitude"/>
+				<integer-32 varName="Altitude"/>
+				<useType typeName="UTC_Type" varName="Mean_Acq_Time"/>
+				<float-32 varName="Spatial_Resolution"/>
+				<unsignedShort-16 varName="Num_InputMsmnt_Valid"/>
+				<unsignedShort-16 varName="Num_InputMsmnt_Invalid"/>
+				<useType typeName="Retrieval_Results_Data_Type" varName="Retrieval_Results_Data"/>
+				<useType typeName="Confidence_Descriptors_Data_Type" varName="Confidence_Descriptors_Data"/>
+				<useType typeName="Science_Descriptors_Data_Type" varName="Science_Descriptors_Data"/>
+				<useType typeName="Processing_Descriptors_Data_Type" varName="Processing_Descriptors_Data"/>
+			</struct>	
+		</defineType>	
+		<defineType typeName="Data_Block_Type">
+			<struct>
+				<arrayVariable varName="SM_SWATH" byteOrder="littleEndian">
+					<sizeRef>
+						<unsignedInteger-32 varName="N_Grid_Points"/>
+					</sizeRef>
+					<useType typeName="Grid_Point_Data_Type"/>
+					<dim/>
+				</arrayVariable>
+			</struct>
+		</defineType>
+	</definitions>
+	<dataset src=" ">
+		<useType typeName="Data_Block_Type" varName="Data_Block"/>
+	</dataset>
+</binx>
+
+

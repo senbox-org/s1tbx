@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 1.0 30/11/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0001">
+	<xs:include schemaLocation="../common/Basic_Types_0003.xsd"/>
+	<xs:complexType name="Uncorrelated_Quality_Information_Type">
+		<xs:sequence>
+			<xs:element name="N_Averaged_Measurements" type="float_1f_Type" default="0"/>
+			<xs:element name="Uncorrelated_Quality" type="integer_01d_Flag_Type" default="0"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

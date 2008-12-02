@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- binX schema for smos product -->
+<!-- v 1.0 30/03/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<binx xmlns="http://www.edikt.org/binx/2003/06/binx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.edikt.org/binx/2003/06/binx binx.xsd">
+	<definitions>
+		<defineType typeName="UTC_Type">
+			<struct>
+				<integer-32 varName="Days"/>
+				<unsignedInteger-32 varName="Seconds"/>
+				<unsignedInteger-32 varName="Microseconds"/>
+			</struct>
+		</defineType>
+		<defineType typeName="BT_Data_Type">
+			<struct>
+				<unsignedShort-16 varName="Flags"/>
+				<float-32 varName="BT_Value"/>
+				<unsignedShort-16 varName="Pixel_Radiometric_Accuracy"/>				
+				<unsignedShort-16 varName="Incidence_Angle"/>				
+				<unsignedShort-16 varName="Azimuth_Angle"/>
+				<unsignedShort-16 varName="Faraday_Rotation_Angle"/>
+				<unsignedShort-16 varName="Geometric_Rotation_Angle"/>
+				<unsignedInteger-32 varName="Snapshot_ID_of_Pixel"/>
+				<unsignedShort-16 varName="Footprint_Axis1"/>
+				<unsignedShort-16 varName="Footprint_Axis2"/>
+			</struct>
+		</defineType>
+		<defineType typeName="Snapshot_Information_Type">
+			<struct>
+				<useType typeName="UTC_Type" varName="Snapshot_Time"/>
+				<unsignedInteger-32 varName="Snapshot_ID"/>
+				<unsignedLong-64 varName="Snapshot_OBET"/>				
+				<double-64 varName="X_Position"/>
+				<double-64 varName="Y_Position"/>
+				<double-64 varName="Z_Position"/>
+				<double-64 varName="X_Velocity"/>
+				<double-64 varName="Y_Velocity"/>
+				<double-64 varName="Z_Velocity"/>
+				<byte-8 varName="Vector_Source"/>
+				<double-64 varName="Q0"/>
+				<double-64 varName="Q1"/>
+				<double-64 varName="Q2"/>
+				<double-64 varName="Q3"/>
+				<double-64 varName="TEC"/>
+				<double-64 varName="Geomag_F"/>
+				<double-64 varName="Geomag_D"/>
+				<double-64 varName="Geomag_I"/>
+				<float-32 varName="Sun_RA"/>
+				<float-32 varName="Sun_DEC"/>
+				<float-32 varName="Sun_BT"/>
+				<float-32 varName="Accuracy"/>
+				<float-32 varName="Radiometric_Accuracy"/>				
+			</struct>
+		</defineType>
+		<defineType typeName="Grid_Point_Data_Type">
+			<struct>
+				<unsignedInteger-32 varName="Grid_Point_ID"/>	
+				<float-32 varName="Grid_Point_Latitude"/>
+				<float-32 varName="Grid_Point_Longitude"/>
+				<byte-8 varName="Grid_Point_Mask"/>
+				<arrayVariable varName="BT_Data">
+					<sizeRef>
+						<unsignedByte-8 varName="BT_Data_Counter"/>
+					</sizeRef>
+					<useType typeName="BT_Data_Type"/>
+					<dim/>
+				</arrayVariable>			
+			</struct>
+		</defineType>
+		<defineType typeName="Data_Block_Type">
+			<struct>
+				<arrayVariable varName="Swath_Snapshot_List" byteOrder="littleEndian">
+					<sizeRef>
+						<unsignedInteger-32 varName="Snapshot_Counter"/>
+					</sizeRef>
+					<useType typeName="Snapshot_Information_Type"/>
+					<dim/>
+				</arrayVariable>
+				<arrayVariable varName="Temp_Swath_Dual" byteOrder="littleEndian">
+					<sizeRef>
+						<unsignedInteger-32 varName="Grid_Point_Counter"/>
+					</sizeRef>
+					<useType typeName="Grid_Point_Data_Type"/>
+					<dim/>
+				</arrayVariable>
+			</struct>
+		</defineType>
+	</definitions>
+	<dataset src=" ">
+		<useType typeName="Data_Block_Type" varName="Data_Block"/>
+	</dataset>
+</binx>

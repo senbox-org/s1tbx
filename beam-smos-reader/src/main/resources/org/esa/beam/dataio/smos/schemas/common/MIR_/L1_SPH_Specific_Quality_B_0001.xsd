@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 1.0 24/02/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0001">
+	<xs:include schemaLocation="../common/Basic_Types_0001.xsd"/>
+	<xs:complexType name="percent_integer_s06d_Unit_Type">
+		<xs:simpleContent>
+			<xs:extension base="integer_s06d_Type">
+				<xs:attribute name="unit" type="string_Type" fixed="10-2 %"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="epochs_unsigned_Integer_04u_Unit_Type">
+		<xs:simpleContent>
+			<xs:extension base="integer_04u_Type">
+				<xs:attribute name="unit" type="string_Type" fixed="epochs"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="Quality_Information_B_Type">
+		<xs:sequence>
+			<xs:element name="L1B_Err_Flag" type="integer_01d_Flag_Type" default="0"/>
+			<xs:element name="L1B_Quality" type="percent_integer_s06d_Unit_Type" default="+00000"/>
+			<xs:element name="L1B_Err_Threshold" type="percent_integer_s06d_Unit_Type" default="+00000"/>
+			<xs:element name="L1B_Missing_Epochs" type="epochs_unsigned_Integer_04u_Unit_Type" default="0000"/>
+			<xs:element name="L1B_Maximum_Gap" type="epochs_unsigned_Integer_04u_Unit_Type" default="0000"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

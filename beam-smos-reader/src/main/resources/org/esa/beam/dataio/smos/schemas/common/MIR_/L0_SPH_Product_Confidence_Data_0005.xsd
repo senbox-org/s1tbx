@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 5.0 15/12/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0005">
+	<xs:include schemaLocation="../common/Basic_Types_0005.xsd"/>
+	<xs:include schemaLocation="../common/Complex_Unit_Types_0003.xsd"/>
+	<xs:complexType name="List_of_Passes_Type">
+		<xs:sequence>
+			<xs:element name="Pass" type="Pass_Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="count" type="unsigned_Short_hu_Type" default="00"/>
+	</xs:complexType>
+	<xs:complexType name="Pass_Type">
+		<xs:sequence>
+			<xs:element name="Pass_Start_Time" type="string_date_30_Type" default="UTC=2007-01-01T00:00:00.000000"/>
+			<xs:element name="Pass_Stop_Time" type="string_date_30_Type" default="UTC=2007-01-01T00:00:00.000000"/>
+			<xs:element name="N_Missing_24packet_Blocks" type="integer_06d_Type" default="000000"/>
+			<xs:element name="N_RS_Corrected_Bytes" type="integer_06d_Type" default="000000"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="L0_Product_Confidence_Data_Type">
+		<xs:sequence>
+			<xs:element name="N_Valid_Packets" type="integer_06d_Type" default="000000"/>
+			<xs:element name="N_Missing_Packets" type="integer_06d_Type" default="000000"/>
+			<xs:element name="N_Invalid_Blocks" type="integer_06d_Type" default="000000"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="L0_Product_Derived_Confidence_Data_Type">
+		<xs:sequence>
+			<xs:element name="Missing_ISP_Threshold" type="percentage_10Exp-2_integer_06d_Unit_Type" default="000000"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

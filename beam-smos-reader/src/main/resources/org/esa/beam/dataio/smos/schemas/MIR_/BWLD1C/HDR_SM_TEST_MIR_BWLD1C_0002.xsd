@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 U (http://www.altova.com) by mtmpalomares (EMBRACE) -->
+<!-- XML schema for smos product -->
+<!--  v 1.0 30/03/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0001">
+	<xs:include schemaLocation="../../common/common/Basic_Types_0001.xsd"/>
+	<xs:include schemaLocation="../../common/common/Fixed_Header_0001.xsd"/>
+	<xs:include schemaLocation="../../common/MIR_/L1_Main_Product_Header_0001.xsd"/>
+	<xs:include schemaLocation="../../common/MIR_/L1_SPH_Main_Info_0001.xsd"/>
+	<xs:include schemaLocation="../../common/MIR_/L1_SPH_Data_Sets_0001.xsd"/>
+	<xs:include schemaLocation="../../common/MIR_/L1_SPH_Specific_Quality_Browse_C_0001.xsd"/>
+	<xs:include schemaLocation="../../common/MIR_/L1_SPH_Specific_Product_Location_Browse_C_0001.xsd"/>
+	<xs:complexType name="Specific_Product_Header_Type">
+		<xs:sequence>
+			<xs:element name="SPH_Descriptor" type="string_14_Type" default="MIR_BWLD1C_SPH"/>
+			<xs:element name="Time_Info" type="Time_Info_Type"/>
+			<xs:element name="Checksum" type="integer_010d_Type" default="0000000000"/>
+			<xs:element name="Product_Location" type="Product_Location_Type"/>
+			<xs:element name="Quality_Information" type="Quality_Information_Browse_C_Type"/>
+			<xs:element name="List_of_Data_Set" type="List_Data_Sets_Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Main_Product_Header_Type">
+		<xs:sequence>
+			<xs:element name="Ref_Doc" type="string_200_Type" default="SO-TN-IDR-GS-0005 L1 Spec"/>
+			<xs:element name="Acquisition_Station" type="string_200_Type" default="SMOS XBAS"/>
+			<xs:element name="Proc_Centre" type="string_200_Type" default="ESAC"/>
+			<xs:element name="Logical_Proc_Centre" type="string_200_Type" default="x"/>
+			<xs:element name="Orbit_Information" type="Orbit_Information_Type"/>
+			<xs:element name="Product_Confidence" type="string_200_Type" default="x"/>
+			<xs:element name="Datablock_Schema" type="string_200_Type" default="DBL_SM_TEST_MIR_BWLD1C_0001.binXschema.xml"/>
+			<xs:element name="Total_Size" type="integer_011d_Type" default="00000000000"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Variable_Header_Type">
+		<xs:sequence>
+			<xs:element name="Main_Product_Header" type="Main_Product_Header_Type"/>
+			<xs:element name="Specific_Product_Header" type="Specific_Product_Header_Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Header_Type">
+		<xs:sequence>
+			<xs:element name="Fixed_Header" type="Fixed_Header_Type"/>
+			<xs:element name="Variable_Header" type="Variable_Header_Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="Earth_Explorer_Header" type="Header_Type"/>
+</xs:schema>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 1.0 30/03/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0001">
+	<xs:annotation>
+		<xs:documentation>File Class enumeration</xs:documentation>
+	</xs:annotation>
+	<xs:simpleType name="File_Class_Type">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="OPER|OFFL|NRT_|RPRO|STV0|STV1|STV2|STV3|GSOV|TD00|TD01|TD02|TD03|TD04|TD05|TD06|TD07|TD08|TD09|TD10|TD11|TD12|TD13|TD14|TD15|TD16|TD17|TD18|TD19|TD20|TD21|TD22|TD23|TD24|TD25|TD26|TD27|TD28|TD29|TD30|TD31|TD32|TD33|TD34|TD35|TD36|TD37|TD38|TD39|TD40|TD41|TD42|TD43|TD44|TD45|TD46|TD47|TD48|TD49|TD50|TD51|TD52|TD53|TD54|TD55|TD56|TD57|TD58|TD59|TD60|TD61|TD62|TD63|TD64|TD65|TD66|TD67|TD68|TD69|TD70|TD71|TD72|TD73|TD74|TD75|TD76|TD77|TD78|TD79|TD80|TD81|TD82|TD83|TD84|TD85|TD86|TD87|TD88|TD89|TD90|TD91|TD92|TD93|TD94|TD95|TD96|TD97|TD98|TD99"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

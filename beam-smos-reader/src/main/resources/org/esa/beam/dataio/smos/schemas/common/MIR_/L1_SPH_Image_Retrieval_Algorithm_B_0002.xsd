@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 2.0 29/11/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0002">
+	<xs:include schemaLocation="../common/Basic_Types_0003.xsd"/>
+	<xs:complexType name="Image_Retrieval_Algorithm_Type">
+		<xs:sequence>
+			<xs:element name="Reconstruction_Image_Algorithm" type="integer_01d_Algorithm_Name_Type" default="1"/>
+			<xs:element name="J_Matrix_Pseudoinversion_Type" type="integer_01d_J_Matrix_Pseudoinversion_Type_Type" default="1"/>
+			<xs:element name="Xi_Eta_Resolution" type="integer_04d_Xi_Eta_Resolution_Type" default="0064"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

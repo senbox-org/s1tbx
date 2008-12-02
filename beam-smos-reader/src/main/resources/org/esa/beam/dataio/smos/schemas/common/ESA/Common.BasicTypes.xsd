@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML schema for smos product -->
+<!--  v 1.0 30/03/2006 -->
+<!-- www.indra.es -->
+<!-- teledeteccion@indra.es -->
+<!-- Copyright (c) 2006 Indra Espacio -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://213.170.46.150/smos/schemas" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0001">
+	<xs:include schemaLocation="Common.FileClass.xsd"/>
+	<xs:annotation>
+		<xs:documentation>Basic data types</xs:documentation>
+	</xs:annotation>
+	<!--xs:simpleType name="Null">
+		<xs:restriction base="xs:string">
+			<xs:length value="0"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Non_Null_String">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType-->
+	<xs:complexType name="Angle_Type" mixed="false">
+		<xs:simpleContent>
+			<xs:extension base="xs:decimal">
+				<xs:attribute name="unit" type="xs:string" use="required" fixed="deg"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--xs:complexType name="Distance" mixed="false">
+		<xs:simpleContent>
+			<xs:extension base="xs:decimal">
+				<xs:attribute name="unit" type="xs:string" use="required" fixed="m"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="Height" mixed="false">
+		<xs:simpleContent>
+			<xs:extension base="Distance"/>
+		</xs:simpleContent>
+	</xs:complexType-->
+	<xs:simpleType name="File_Type_Type">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[A-Z0-9_]{10}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--xs:simpleType name="Station_Id">
+		<xs:restriction base="xs:string">
+			<xs:length value="8"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Zone_Id">
+		<xs:restriction base="Station_Id"/>
+	</xs:simpleType-->
+</xs:schema>
