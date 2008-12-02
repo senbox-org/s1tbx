@@ -19,7 +19,7 @@ class SmosL1cOpImage extends SingleBandedOpImage {
 
     private final SmosFile smosFile;
     private final Band smosBand;
-    private final boolean browse;
+    private final boolean scientific;
     private final int polMode;
     private final int fieldIndex;
     private final PlanarImage seqnumImage;
@@ -27,7 +27,7 @@ class SmosL1cOpImage extends SingleBandedOpImage {
 
     public SmosL1cOpImage(SmosFile smosFile,
                           Band smosBand,
-                          boolean browse,
+                          boolean scientific,
                           int polMode,
                           int fieldIndex,
                           Number noDataValue,
@@ -43,7 +43,7 @@ class SmosL1cOpImage extends SingleBandedOpImage {
         this.smosBand = smosBand;
         this.fieldIndex = fieldIndex;
         this.polMode = polMode;
-        this.browse = browse;
+        this.scientific = scientific;
         this.noDataValue = noDataValue;
         this.seqnumImage = PlanarImage.wrapRenderedImage(seqnumImage);
     }
@@ -114,7 +114,7 @@ class SmosL1cOpImage extends SingleBandedOpImage {
                         // last line, pixel to the right
                         btValue = valueCache[0][x + 1];
                     } else {
-                        if (browse) {
+                        if (scientific) {
                             btValue = (short) smosFile.getL1cInterpolatedBtDataFloat(gridPointIndex, fieldIndex, polMode, noDataValue);
                         } else {
                             btValue = smosFile.getL1cBrowseBtDataShort(gridPointIndex, fieldIndex, polMode);
@@ -177,7 +177,7 @@ class SmosL1cOpImage extends SingleBandedOpImage {
                         // last line, pixel to the right
                         btValue = valueCache[0][x + 1];
                     } else {
-                        if (browse) {
+                        if (scientific) {
                             btValue = (int) smosFile.getL1cInterpolatedBtDataFloat(gridPointIndex, fieldIndex, polMode, noDataValue);
                         } else {
                             btValue = smosFile.getL1cBrowseBtDataInt(gridPointIndex, fieldIndex, polMode);
@@ -240,7 +240,7 @@ class SmosL1cOpImage extends SingleBandedOpImage {
                         // last line, pixel to the right
                         btValue = valueCache[0][x + 1];
                     } else {
-                        if (browse) {
+                        if (scientific) {
                             btValue = smosFile.getL1cInterpolatedBtDataFloat(gridPointIndex, fieldIndex, polMode, noDataValue);
                         } else {
                             btValue = smosFile.getL1cBrowseBtDataFloat(gridPointIndex, fieldIndex, polMode);
