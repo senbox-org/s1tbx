@@ -40,10 +40,10 @@ public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
                                                true, // Legend?
                                                true,
                                                false);
-
         plot = chart.getXYPlot();
         plot.setNoDataMessage("No data");
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
+        plot.getDomainAxis().setLabel("Incidence Angle (deg)");
         return new ChartPanel(chart);
     }
 

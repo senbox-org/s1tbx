@@ -62,6 +62,15 @@
             <title>SMOS L1C Chart</title>
             <tabTitle>SMOS L1C Chart</tabTitle>
         </toolView>
+
+        <toolView>
+            <id>org.esa.beam.smos.visat.SmosGridPointFlagmatrixToolView</id>
+            <class>org.esa.beam.smos.visat.SmosGridPointFlagmatrixToolView</class>
+            <title>SMOS L1C Flag-Matrix</title>
+            <tabTitle>SMOS L1C Flags</tabTitle>
+        </toolView>
+
+
     </extension>
 
 </module>
