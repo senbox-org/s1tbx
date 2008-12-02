@@ -15,20 +15,24 @@ import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 
-class SmosBandOpImage extends SingleBandedOpImage {
+class SmosL1cOpImage extends SingleBandedOpImage {
 
     private final SmosFile smosFile;
     private final Band smosBand;
+    private final boolean browse;
+    private final int polMode;
     private final int fieldIndex;
     private final PlanarImage seqnumImage;
     private final Number noDataValue;
 
-    public SmosBandOpImage(SmosFile smosFile,
-                             Band smosBand,
-                             int fieldIndex,
-                             Number noDataValue,
-                             RenderedImage seqnumImage,
-                             ResolutionLevel level) {
+    public SmosL1cOpImage(SmosFile smosFile,
+                          Band smosBand,
+                          boolean browse,
+                          int polMode,
+                          int fieldIndex,
+                          Number noDataValue,
+                          RenderedImage seqnumImage,
+                          ResolutionLevel level) {
         super(ImageManager.getDataBufferType(smosBand.getDataType()),
               smosBand.getSceneRasterWidth(),
               smosBand.getSceneRasterHeight(),
@@ -38,6 +42,8 @@ class SmosBandOpImage extends SingleBandedOpImage {
         this.smosFile = smosFile;
         this.smosBand = smosBand;
         this.fieldIndex = fieldIndex;
+        this.polMode = polMode;
+        this.browse = browse;
         this.noDataValue = noDataValue;
         this.seqnumImage = PlanarImage.wrapRenderedImage(seqnumImage);
     }
@@ -108,7 +114,11 @@ class SmosBandOpImage extends SingleBandedOpImage {
                         // last line, pixel to the right
                         btValue = valueCache[0][x + 1];
                     } else {
-                        btValue = smosFile.getL1CBrowseBtDataShort(gridPointIndex, fieldIndex);
+                        if (browse) {
+                            btValue = (short) smosFile.getL1cInterpolatedBtDataFloat(gridPointIndex, fieldIndex, polMode, noDataValue);
+                        } else {
+                            btValue = smosFile.getL1cBrowseBtDataShort(gridPointIndex, fieldIndex, polMode);
+                        }
                     }
                 }
                 valueCache[1][x] = btValue;
@@ -167,7 +177,11 @@ class SmosBandOpImage extends SingleBandedOpImage {
                         // last line, pixel to the right
                         btValue = valueCache[0][x + 1];
                     } else {
-                        btValue = smosFile.getL1CBrowseBtDataInt(gridPointIndex, fieldIndex);
+                        if (browse) {
+                            btValue = (int) smosFile.getL1cInterpolatedBtDataFloat(gridPointIndex, fieldIndex, polMode, noDataValue);
+                        } else {
+                            btValue = smosFile.getL1cBrowseBtDataInt(gridPointIndex, fieldIndex, polMode);
+                        }
                     }
                 }
                 valueCache[1][x] = btValue;
@@ -226,7 +240,11 @@ class SmosBandOpImage extends SingleBandedOpImage {
                         // last line, pixel to the right
                         btValue = valueCache[0][x + 1];
                     } else {
-                        btValue = smosFile.getL1CBtDataFloat(gridPointIndex, fieldIndex);
+                        if (browse) {
+                            btValue = smosFile.getL1cInterpolatedBtDataFloat(gridPointIndex, fieldIndex, polMode, noDataValue);
+                        } else {
+                            btValue = smosFile.getL1cBrowseBtDataFloat(gridPointIndex, fieldIndex, polMode);
+                        }
                     }
                 }
                 valueCache[1][x] = btValue;

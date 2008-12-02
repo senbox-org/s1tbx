@@ -41,20 +41,27 @@
 
     <extension point="beam-ui:toolViews">
 
-        <toolView>
-            <id>org.esa.beam.smos.visat.SmosGridPointInfoToolView</id>
-            <class>org.esa.beam.smos.visat.SmosGridPointInfoToolView</class>
-            <title>SMOS DGG Point Info</title>
-            <tabTitle>SMOS Point</tabTitle>
-        </toolView>
 
         <toolView>
             <id>org.esa.beam.smos.visat.SmosSnapshotImageToolView</id>
             <class>org.esa.beam.smos.visat.SmosSnapshotImageToolView</class>
-            <title>SMOS Snapshot Image</title>
-            <tabTitle>SMOS Snapshot</tabTitle>
+            <title>SMOS L1C Snapshot</title>
+            <tabTitle>SMOS L1C Snapshot</tabTitle>
         </toolView>
 
+        <toolView>
+            <id>org.esa.beam.smos.visat.SmosGridPointTableToolView</id>
+            <class>org.esa.beam.smos.visat.SmosGridPointTableToolView</class>
+            <title>SMOS L1C Table</title>
+            <tabTitle>SMOS L1C Table</tabTitle>
+        </toolView>
+
+        <toolView>
+            <id>org.esa.beam.smos.visat.SmosGridPointChartToolView</id>
+            <class>org.esa.beam.smos.visat.SmosGridPointChartToolView</class>
+            <title>SMOS L1C Chart</title>
+            <tabTitle>SMOS L1C Chart</tabTitle>
+        </toolView>
     </extension>
 
 </module>

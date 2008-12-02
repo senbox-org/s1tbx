@@ -21,16 +21,19 @@ import com.bc.ceres.binio.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.Arrays;
 
-/**
- * Representation of a SMOS product file.
- */
+
 public class SmosFile {
 
-    static final String GRID_POINT_LIST_NAME = "Grid_Point_List";
-    static final String BT_DATA_LIST_NAME = "BT_Data_List";
+    private final int POL_MASK = 0x00000003;
+    public static final int POL_MODE_HH = 0;
+    public static final int POL_MODE_VV = 1;
+    public static final int POL_MODE_HV_REAL = 2;
+    public static final int POL_MODE_HV_IMAG = 3;
+
+    private static final int CENTER_INCIDENCE_ANGLE = 42500;
+    private static final int INCIDENCE_ANGLE_RANGE = 10000;
 
     private final File file;
     private final DataFormat format;
@@ -40,29 +43,33 @@ public class SmosFile {
     private final CompoundType gridPointType;
     private final int btDataIndex;
     private final CompoundType btDataType;
+    private final int incidenceAngleIndex;
+    private final int flagsIndex;
 
     public SmosFile(File file, DataFormat format) throws IOException {
         this.file = file;
         this.format = format;
-
         this.dataContext = format.createContext(file, "r");
-        this.gridPointList = dataContext.getData().getSequence(GRID_POINT_LIST_NAME);
-
-        if (gridPointList == null) {
-            throw new IOException(MessageFormat.format(
-                    "File ''{0}'': missing dataset ''{1}''", file.getPath(), GRID_POINT_LIST_NAME));
+        CompoundData smosDataset = dataContext.getData();
+        this.gridPointList = smosDataset.getSequence("Grid_Point_List");
+        if (this.gridPointList == null) {
+            throw new IllegalStateException("Missing dataset 'Grid_Point_List' in SMOS file.");
         }
-
         this.gridPointType = (CompoundType) gridPointList.getSequenceType().getElementType();
-        btDataIndex = gridPointType.getMemberIndex(BT_DATA_LIST_NAME);
-
-        if (btDataIndex == -1 || !(gridPointType.getMemberType(btDataIndex) instanceof SequenceType)) {
-            btDataType = null;
-        } else {
-            btDataType = (CompoundType) ((SequenceType) gridPointType.getMemberType(btDataIndex)).getElementType();
-        }
 
         initGridPointIndexes();
+
+        // todo - the following code is L1C sepecific. Create subclasses? (nf - 01.12.2008)
+        btDataIndex = this.gridPointType.getMemberIndex("BT_Data");
+        if (btDataIndex != -1 && gridPointType.getMemberType(btDataIndex) instanceof SequenceType) {
+            btDataType = (CompoundType) ((SequenceType) gridPointType.getMemberType(btDataIndex)).getElementType();
+            flagsIndex = btDataType.getMemberIndex("Flags");
+            incidenceAngleIndex = btDataType.getMemberIndex("Incidence_Angle");
+        } else {
+            btDataType = null;
+            flagsIndex = -1;
+            incidenceAngleIndex = -1;
+        }
     }
 
     public File getFile() {
@@ -89,35 +96,81 @@ public class SmosFile {
         return btDataType;
     }
 
-    public short getL1CBrowseBtDataShort(int gridPointIndex, int btDataIndex) throws IOException {
+    public short getL1cBrowseBtDataShort(int gridPointIndex, int btDataIndex, int polMode) throws IOException {
         SequenceData btDataList = getBtDataList(gridPointIndex);
-        CompoundData btData = btDataList.getCompound(0);
+        CompoundData btData = btDataList.getCompound(polMode);
         return btData.getShort(btDataIndex);
     }
 
-    public int getL1CBrowseBtDataInt(int gridPointIndex, int btDataIndex) throws IOException {
+    public int getL1cBrowseBtDataInt(int gridPointIndex, int btDataIndex, int polMode) throws IOException {
         SequenceData btDataList = getBtDataList(gridPointIndex);
-        CompoundData btData = btDataList.getCompound(0);
+        CompoundData btData = btDataList.getCompound(polMode);
         return btData.getInt(btDataIndex);
     }
 
-    public float getL1CBrowseBtDataFloat(int gridPointIndex, int btDataIndex) throws IOException {
+    public float getL1cBrowseBtDataFloat(int gridPointIndex, int btDataIndex, int polMode) throws IOException {
         SequenceData btDataList = getBtDataList(gridPointIndex);
-        CompoundData btData = btDataList.getCompound(0);
-        return btData.getInt(btDataIndex);
+        CompoundData btData = btDataList.getCompound(polMode);
+        return btData.getFloat(btDataIndex);
     }
 
-    public float getL1CBtDataFloat(int gridPointIndex, int btDataIndex) throws IOException {
-        SequenceData btDataList = getBtDataList(gridPointIndex);
+    /**
+     * Gets the value of a 'BT_Data' field for a given grid point.
+     *
+     * @param gridPointIndex The grid point index.
+     * @param btDataIndex    The index of the requested 'BT_Data' field.
+     * @param polMode           {@link #POL_MODE_HH},{@link #POL_MODE_VV}, {@link #POL_MODE_HV_REAL} or {@link #POL_MODE_HV_IMAG}
+     * @param noDataValue    The no data value which is returned if no value could be found.
+     * @return the value read or {@code noDataValue}
+     * @throws IOException if an I/O error occurs
+     */
+    public float getL1cInterpolatedBtDataFloat(int gridPointIndex, int btDataIndex, int polMode, float noDataValue) throws IOException {
+        final SequenceData btDataList = getBtDataList(gridPointIndex);
         final int btDataListCount = btDataList.getElementCount();
-        float mean = 0.0f;
-        // todo - collect values around incidence angle 42.5 degrees and average
-        int n = Math.min(1, btDataListCount);
-        for (int i = 0; i < n; i++) {
+        int flags;
+        int delta, deltaAbs;
+        int deltaMin1 = Integer.MAX_VALUE;
+        int deltaMin2 = Integer.MAX_VALUE;
+        int incidenceAngle;
+        float incidenceAngle1 = 0;
+        float incidenceAngle2 = 0;
+        float btValue;
+        float btValue1 = 0;
+        float btValue2 = 0;
+        for (int i = 0; i < btDataListCount; i++) {
             CompoundData btData = btDataList.getCompound(i);
-            mean += btData.getFloat(btDataIndex);
+            flags = btData.getInt(flagsIndex);
+            if ((flags & POL_MASK) == polMode) {
+                incidenceAngle = btData.getInt(incidenceAngleIndex);
+                delta = CENTER_INCIDENCE_ANGLE - incidenceAngle;
+                deltaAbs = Math.abs(delta);
+                if (deltaAbs < INCIDENCE_ANGLE_RANGE) {
+                    btValue = btData.getFloat(btDataIndex);
+                    if (delta < 0) {
+                        if (deltaAbs < deltaMin1) {
+                            deltaMin1 = deltaAbs;
+                            incidenceAngle1 = incidenceAngle;
+                            btValue1 = btValue;
+                        }
+                    } else if (delta > 0) {
+                        if (deltaAbs < deltaMin2) {
+                            deltaMin2 = deltaAbs;
+                            incidenceAngle2 = incidenceAngle;
+                            btValue2 = btValue;
+                        }
+                    } else {
+                        return btValue;
+                    }
+                }
+            }
         }
-        return mean / n;
+        final boolean hasValue1 = deltaMin1 < Integer.MAX_VALUE;
+        final boolean hasValue2 = deltaMin2 < Integer.MAX_VALUE;
+        if (hasValue1 && hasValue2) {
+            return btValue1 + CENTER_INCIDENCE_ANGLE * (btValue2 - btValue1) / (incidenceAngle2 - incidenceAngle1);
+        } else {
+            return noDataValue;
+        }
     }
 
     public SequenceData getBtDataList(int gridPointIndex) throws IOException {

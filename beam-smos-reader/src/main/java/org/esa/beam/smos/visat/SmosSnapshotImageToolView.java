@@ -1,11 +1,9 @@
 package org.esa.beam.smos.visat;
 
-import org.esa.beam.framework.ui.application.support.AbstractToolView;
-
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
-public class SmosSnapshotImageToolView extends AbstractSmosToolView {
+public class SmosSnapshotImageToolView extends SmosToolView {
 
     public static final String ID =SmosSnapshotImageToolView.class.getName();
 

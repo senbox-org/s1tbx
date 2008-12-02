@@ -26,6 +26,38 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class SmosFormats {
 
+// todo - externalise (nf - 02.12.2008)
+//    public static final class FlagDescriptor {
+//        String name;
+//        int mask;
+//        String description;
+//
+//        public FlagDescriptor(int mask, String name, String description) {
+//            this.name = name;
+//            this.mask = mask;
+//            this.description = description;
+//        }
+//    }
+//
+//
+//    public static final FlagDescriptor[] MIR_SCXD1C_FLAGS = {
+//            new FlagDescriptor(1 << 0, "VV_Polarisation", ""),
+//            new FlagDescriptor(1 << 2, "SUN_FOV", ""),
+//            new FlagDescriptor(1 << 3, "SUN_GLINT_FOV", ""),
+//            new FlagDescriptor(1 << 4, "MOON_GLINT_FOV", ""),
+//            new FlagDescriptor(1 << 5, "SINGLE_SNAPSHOT", ""),
+//            new FlagDescriptor(1 << 6, "FTT", ""),
+//            new FlagDescriptor(1 << 7, "SUN_POINT", ""),
+//            new FlagDescriptor(1 << 8, "SUN_GLINT_AREA", ""),
+//            new FlagDescriptor(1 << 9, "MOON_POINT", ""),
+//            new FlagDescriptor(1 << 10, "AF_FOV", ""),
+//            new FlagDescriptor(1 << 11, "EAF_FOV", ""),
+//            new FlagDescriptor(1 << 12, "BORDER_FOV", ""),
+//            new FlagDescriptor(1 << 13, "SUN_TAILS", ""),
+//            new FlagDescriptor(1 << 14, "RFI", ""),
+//    };
+//
+
     private static final SmosFormats INSTANCE = new SmosFormats();
 
     private final ConcurrentMap<String, DataFormat> formatMap;
