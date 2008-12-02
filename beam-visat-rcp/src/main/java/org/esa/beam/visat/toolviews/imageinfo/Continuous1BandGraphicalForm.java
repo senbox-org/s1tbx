@@ -75,6 +75,10 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
             model.setMinHistogramViewSample(oldModel.getMinHistogramViewSample());
             model.setMaxHistogramViewSample(oldModel.getMaxHistogramViewSample());
         }
+        if(model.getSliderSample(0) < model.getMinHistogramViewSample() ||
+           model.getSliderSample(model.getSliderCount()-1) > model.getMaxHistogramViewSample()) {
+            imageInfoEditor.computeZoomInToSliderLimits();
+        }
         parentForm.revalidateToolViewPaneControl();
     }
 
