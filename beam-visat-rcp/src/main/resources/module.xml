@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.6:<br/>
+          [BEAM-916] Colour manipulation shall allow values outside of histogram range<br/>
           [BEAM-913] Histogram disappears for RGB channel in colour manipulation<br/>
           [BEAM-899] Colour manipulation window disregards RGB source band changes<br/>
           [BEAM-896] Missing "Color Manipulation" histogram<br/>

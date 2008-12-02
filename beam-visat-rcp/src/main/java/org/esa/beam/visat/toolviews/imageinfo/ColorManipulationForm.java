@@ -779,7 +779,7 @@ class ColorManipulationForm {
         public void propertyChange(PropertyChangeEvent evt) {
             if(ProductSceneView.PROPERTY_NAME_IMAGE_INFO.equals(evt.getPropertyName())) {
                 setImageInfoCopy((ImageInfo) evt.getNewValue());
-                childForm.updateFormModel(getProductSceneView());                
+                childForm.updateFormModel(getProductSceneView());
             }
         }
     }

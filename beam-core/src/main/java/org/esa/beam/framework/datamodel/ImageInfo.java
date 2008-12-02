@@ -281,8 +281,6 @@ public class ImageInfo implements Cloneable {
                 b = 1.0;
             } else {
                 // --> sourcerange overlaps this range, sample conversion
-                min1 = currentCPD.getMinDisplaySample();
-                max1 = currentCPD.getMaxDisplaySample();
                 double delta1 = (max1 > min1) ? max1 - min1 : 1;
                 double delta2 = (max2 > min2) ? max2 - min2 : 1;
                 a = min1 - min2 * delta1 / delta2;

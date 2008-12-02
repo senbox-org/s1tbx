@@ -228,8 +228,8 @@ class ImageInfoEditor extends JPanel {
         final double minViewSample = scale(firstSliderValue - tenPercentOffset);
         final double maxViewSample = scale(lastSliderValue + tenPercentOffset);
 
-        getModel().setMinHistogramViewSample(Math.max(minViewSample, getMinSample()));
-        getModel().setMaxHistogramViewSample(Math.min(maxViewSample, getMaxSample()));
+        getModel().setMinHistogramViewSample(minViewSample);
+        getModel().setMaxHistogramViewSample(maxViewSample);
         repaint();
     }
 
@@ -501,7 +501,7 @@ class ImageInfoEditor extends JPanel {
             double numVisibleBins = getHistogramViewBinCount();
             if (numVisibleBins > 0 && maxHistogramCounts > 0) {
                 g2d.setStroke(new BasicStroke(1.0f));
-                final double binWidth = histoRect.width / numVisibleBins;
+                final double binWidth = histoRect.width / getDisplayableBinCount();
                 final double pixelOffs = indexDelta * binWidth;
                 final double countsScale = (gain * maxHistoRectHeight) / maxHistogramCounts;
                 if ((numVisibleBins + firstVisibleBinIndex) < histogramBins.length) {
@@ -708,8 +708,16 @@ class ImageInfoEditor extends JPanel {
     }
 
     public double getHistogramViewBinCount() {
+        return Math.min(getDisplayableBinCount(), getModel().getHistogramBins().length);
+    }
+
+    // Gets the possible displayable bin count
+    private double getDisplayableBinCount() {
         if (!isHistogramAvailable()) {
             return -1;
+        }
+        if(getModel().getMinHistogramViewSample() >= getMaxSample() || getModel().getMaxHistogramViewSample() <= getMinSample()) {
+            return 0;
         }
         if (getMinSample() != getModel().getMinHistogramViewSample() || getMaxSample() != getModel().getMaxHistogramViewSample()) {
             return getModel().getHistogramBins().length
@@ -774,8 +782,15 @@ class ImageInfoEditor extends JPanel {
         vc.addModel(ValueModel.createValueModel("sample", getSliderSample(sliderIndex)));
         vc.getDescriptor("sample").setDisplayName("sample");
         vc.getDescriptor("sample").setUnit(getModel().getUnit());
-        vc.getDescriptor("sample").setValueRange(new ValueRange(round(getMinSliderSample(sliderIndex)),
-                                                                round(getMaxSliderSample(sliderIndex))));
+        final ValueRange valueRange;
+        if(sliderIndex == 0) {
+            valueRange = new ValueRange(Double.NEGATIVE_INFINITY, round(getMaxSliderSample(sliderIndex)));
+        }else if(sliderIndex == getSliderCount()-1) {
+            valueRange = new ValueRange(round(getMinSliderSample(sliderIndex)), Double.POSITIVE_INFINITY);
+        }else {
+            valueRange = new ValueRange(round(getMinSliderSample(sliderIndex)), round(getMaxSliderSample(sliderIndex)));
+        }
+        vc.getDescriptor("sample").setValueRange(valueRange);
 
         final BindingContext ctx = new BindingContext(vc);
         final NumberFormatter formatter = new NumberFormatter(new DecimalFormat("#0.0#"));
@@ -792,6 +807,7 @@ class ImageInfoEditor extends JPanel {
             public void propertyChange(PropertyChangeEvent pce) {
                 hidePopup();
                 setSliderSample(sliderIndex, (Double) ctx.getBinding("sample").getPropertyValue());
+                computeZoomInToSliderLimits();
             }
         });
     }

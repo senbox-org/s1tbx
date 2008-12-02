@@ -167,13 +167,9 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
             models[i] = new ImageInfoEditorModel3B(parentForm.getImageInfo(), i);
             models[i].setDisplayProperties(currentChannelSources[i]);
             if (oldModel != null) {
-                boolean minViewSmaller = models[i].getMinSample() <= oldModel.getMinHistogramViewSample();
-                boolean maxViewGreater = models[i].getMaxSample() >= oldModel.getMaxHistogramViewSample();
-                if (minViewSmaller && maxViewGreater) {
-                    models[i].setHistogramViewGain(oldModel.getHistogramViewGain());
-                    models[i].setMinHistogramViewSample(oldModel.getMinHistogramViewSample());
-                    models[i].setMaxHistogramViewSample(oldModel.getMaxHistogramViewSample());
-                }
+                models[i].setHistogramViewGain(oldModel.getHistogramViewGain());
+                models[i].setMinHistogramViewSample(oldModel.getMinHistogramViewSample());
+                models[i].setMaxHistogramViewSample(oldModel.getMaxHistogramViewSample());
             }
 
             models[i].addChangeListener(applyEnablerCL);
