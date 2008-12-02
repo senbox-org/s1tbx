@@ -45,10 +45,9 @@ public class SmosGridPointFlagmatrixToolView extends SmosGridPointInfoToolView {
         SymbolAxis yAxis = new SymbolAxis("Flag", flagNames);
         yAxis.setInverted(true);
 
-        LookupPaintScale paintScale = new LookupPaintScale(1.0, 3.0, Color.WHITE);
-        paintScale.add(1.0, Color.RED);
-        paintScale.add(2.0, Color.GREEN);
-        paintScale.add(3.0, Color.BLUE);
+        LookupPaintScale paintScale = new LookupPaintScale(0.0, 1.0, Color.WHITE);
+        paintScale.add(0.0, Color.GRAY);
+        paintScale.add(1.0, Color.BLACK);
 
         XYBlockRenderer renderer = new XYBlockRenderer();
         renderer.setPaintScale(paintScale);
@@ -59,7 +58,6 @@ public class SmosGridPointFlagmatrixToolView extends SmosGridPointInfoToolView {
 
         chart = new JFreeChart("Flagmatrix", plot);
         chart.removeLegend();
-        chart.setBackgroundPaint(Color.white);
 
         return new ChartPanel(chart);
     }
