@@ -22,7 +22,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     private final MoreOptionsForm moreOptionsForm;
     private ChangeListener applyEnablerCL;
 
-    public Continuous1BandGraphicalForm(final ColorManipulationForm parentForm) {
+    Continuous1BandGraphicalForm(final ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
         imageInfoEditor = new ImageInfoEditor();
         imageInfoEditorSupport = new ImageInfoEditorSupport(imageInfoEditor);
@@ -67,8 +67,18 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     public void updateFormModel(ProductSceneView productSceneView) {
         ImageInfoEditorModel1B model = new ImageInfoEditorModel1B(parentForm.getImageInfo());
         model.addChangeListener(applyEnablerCL);
+        ImageInfoEditorModel oldModel = imageInfoEditor.getModel();
         imageInfoEditor.setModel(model);
         model.setDisplayProperties(productSceneView.getRaster());
+        if (oldModel != null) {
+            boolean minViewSmaller = model.getMinSample() <= oldModel.getMinHistogramViewSample();
+            boolean maxViewGreater = model.getMaxSample() >= oldModel.getMaxHistogramViewSample();
+            if (minViewSmaller && maxViewGreater) {
+                model.setHistogramViewGain(oldModel.getHistogramViewGain());
+                model.setMinHistogramViewSample(oldModel.getMinHistogramViewSample());
+                model.setMaxHistogramViewSample(oldModel.getMaxHistogramViewSample());
+            }
+        }
         parentForm.revalidateToolViewPaneControl();
     }
 

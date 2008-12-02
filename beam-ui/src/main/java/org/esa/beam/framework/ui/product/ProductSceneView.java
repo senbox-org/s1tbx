@@ -927,17 +927,11 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
                 Arrays.asList(rasters).contains(productNode)) {
 
                 RasterDataNode raster = (RasterDataNode) productNode;
-                regenerateStx(raster);
                 final ImageInfo imageInfo = raster.createDefaultImageInfo(null, ProgressMonitor.NULL);
                 raster.setImageInfo(imageInfo);
                 setImageInfo(imageInfo);
+                repaint(100);
             }
-            repaint(100);
-        }
-
-        private void regenerateStx(RasterDataNode raster) {
-            raster.setStx(null);
-            raster.getStx();
         }
     }
 

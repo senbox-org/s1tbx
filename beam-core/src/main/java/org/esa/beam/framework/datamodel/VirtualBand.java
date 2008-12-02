@@ -97,6 +97,7 @@ public class VirtualBand extends Band {
             if (isSourceImageSet()) {
                 setSourceImage(null);
             }
+            setStx(null);
             setImageInfo(null);
             setModified(true);
             fireProductNodeChanged(PROPERTY_NAME_EXPRESSION);

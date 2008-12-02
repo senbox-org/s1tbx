@@ -14,7 +14,8 @@
         <p>Changes in 4.6:<br/>
           [BEAM-913] Histogram disappears for RGB channel in colour manipulation<br/>
           [BEAM-899] Colour manipulation window disregards RGB source band changes<br/>
-          [BEAM-896] Missing "Color Manipulation" histogram<br/>        
+          [BEAM-896] Missing "Color Manipulation" histogram<br/>
+          [BEAM-893] Inconsistent handling of colour palettes in VISAT colour manipulation window<br/>
           [BEAM-782] Using spatial subset when creating new arithmetic band causes exception<br/>
         </p>
         <p>Changes in 4.5:<br/>
