@@ -82,6 +82,12 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         parentForm.revalidateToolViewPaneControl();
     }
 
+    @Override
+    public void resetFormModel(ProductSceneView productSceneView) {
+        updateFormModel(productSceneView);
+        imageInfoEditor.computeZoomOutToFullHistogramm();
+        parentForm.revalidateToolViewPaneControl();
+    }
 
     @Override
     public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {

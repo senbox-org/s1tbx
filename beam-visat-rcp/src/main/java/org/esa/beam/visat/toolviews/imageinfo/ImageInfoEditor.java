@@ -401,10 +401,15 @@ class ImageInfoEditor extends JPanel {
         } else {
             sUnitValue = "";
         }
-        final int xStartPosPrefix = histoRect.x + histoRect.width - 5 - maxPrefixWidth - maxValueWidth;
-        final int xStartPosValues = histoRect.x + histoRect.width - 2 - maxValueWidth;
+        final StringBuilder builder = new StringBuilder(getModel().isHistogramAccurate() ? "High" : "Low");
+        final String sHistoAccuracy = builder.append(" histogram accuracy").toString();
+        final int sHistoAccuracyWidth = metrics.stringWidth(sHistoAccuracy);
 
-        String[] strings = new String[]{sMin, sMinValue, sMax, sMaxValue, sUnit, sUnitValue};
+        final int maxDataTableWidth = maxPrefixWidth + maxValueWidth;
+        final int xStartPosPrefix = histoRect.x + histoRect.width - 5 - Math.max(maxDataTableWidth, sHistoAccuracyWidth);
+        final int xStartPosValues = xStartPosPrefix + 3 + maxPrefixWidth;
+
+        String[] strings = new String[]{sMin, sMinValue, sMax, sMaxValue, sUnit, sUnitValue, sHistoAccuracy};
 
         final int yStartPos = histoRect.y + 1;
 
@@ -434,6 +439,8 @@ class ImageInfoEditor extends JPanel {
             g2d.drawString(strings[4], xStartPosPrefix, yStartPos + FONT_SIZE * line);
             g2d.drawString(strings[5], xStartPosValues, yStartPos + FONT_SIZE * line);
         }
+        line++;
+        g2d.drawString(strings[6], xStartPosPrefix, yStartPos + FONT_SIZE * line);
     }
 
     private void drawGradationCurve(Graphics2D g2d) {
@@ -498,10 +505,10 @@ class ImageInfoEditor extends JPanel {
                                                                     histogramBins.length - 1);
             final double indexDelta = firstVisibleBinIndexFloat - firstVisibleBinIndex;
             final double maxHistoRectHeight = 0.9 * histoRect.height;
-            double numVisibleBins = getHistogramViewBinCount();
+            double numVisibleBins = Math.floor(getHistogramViewBinCount());
             if (numVisibleBins > 0 && maxHistogramCounts > 0) {
                 g2d.setStroke(new BasicStroke(1.0f));
-                final double binWidth = histoRect.width / getDisplayableBinCount();
+                final double binWidth = getBinWidth(histoRect.width);
                 final double pixelOffs = indexDelta * binWidth;
                 final double countsScale = (gain * maxHistoRectHeight) / maxHistogramCounts;
                 if ((numVisibleBins + firstVisibleBinIndex) < histogramBins.length) {
@@ -524,6 +531,12 @@ class ImageInfoEditor extends JPanel {
             }
             g2d.setPaint(oldPaint);
         }
+    }
+
+    private double getBinWidth(int width) {
+        final double min = getModel().getMinHistogramViewSample();
+        final double max = getModel().getMaxHistogramViewSample();
+        return width / getBinsInRange(min, max);
     }
 
     private static double getMaxVisibleHistogramCounts(final int[] histogramBins, double ratio) {
@@ -713,6 +726,12 @@ class ImageInfoEditor extends JPanel {
 
     // Gets the possible displayable bin count
     private double getDisplayableBinCount() {
+        final double max = Math.min(getMaxSample(), getModel().getMaxHistogramViewSample());
+        final double min = Math.max(getMinSample(), getModel().getMinHistogramViewSample());
+        return getBinsInRange(min, max);
+    }
+
+    private double getBinsInRange(double minSample, double maxSample) {
         if (!isHistogramAvailable()) {
             return -1;
         }
@@ -722,8 +741,7 @@ class ImageInfoEditor extends JPanel {
         if (getMinSample() != getModel().getMinHistogramViewSample() || getMaxSample() != getModel().getMaxHistogramViewSample()) {
             return getModel().getHistogramBins().length
                    / (scaleInverse(getMaxSample()) - scaleInverse(getMinSample()))
-                   * (scaleInverse(getModel().getMaxHistogramViewSample()) - scaleInverse(
-                    getModel().getMinHistogramViewSample()));
+                   * (scaleInverse(maxSample) - scaleInverse(minSample));
         }
         return getModel().getHistogramBins().length;
     }

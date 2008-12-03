@@ -200,6 +200,12 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
     }
 
     @Override
+    public void resetFormModel(ProductSceneView productSceneView) {
+        updateFormModel(productSceneView);
+        imageInfoEditor.computeZoomOutToFullHistogramm();
+    }
+
+    @Override
     public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
         imageInfoEditor.getModel().setDisplayProperties(raster);
         if (event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_STX)) {

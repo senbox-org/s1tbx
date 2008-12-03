@@ -73,6 +73,11 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
     }
 
     @Override
+    public void resetFormModel(ProductSceneView productSceneView) {
+        childForm.resetFormModel(productSceneView);
+    }
+
+    @Override
     public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
         childForm.handleRasterPropertyChange(event, raster);
     }

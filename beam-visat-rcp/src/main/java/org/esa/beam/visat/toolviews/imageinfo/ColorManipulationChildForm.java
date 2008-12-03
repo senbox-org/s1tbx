@@ -15,6 +15,8 @@ interface ColorManipulationChildForm {
 
     void updateFormModel(ProductSceneView productSceneView);
 
+    void resetFormModel(ProductSceneView productSceneView);
+
     void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster);
 
     Component getContentPanel();

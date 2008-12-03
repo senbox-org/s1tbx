@@ -17,6 +17,7 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.BeamUiActivator;
 import org.esa.beam.framework.datamodel.*;
@@ -67,6 +68,7 @@ class ColorManipulationForm {
     private AbstractButton multiApplyButton;
     private AbstractButton importButton;
     private AbstractButton exportButton;
+    private AbstractButton computeExactHistogram;
     private SuppressibleOptionPane suppressibleOptionPane;
 
     private ProductSceneView productSceneView;
@@ -114,6 +116,7 @@ class ColorManipulationForm {
         getToolViewPaneControl().invalidate();
         getToolViewPaneControl().validate();
         getToolViewPaneControl().repaint();
+        updateToolButtons();
     }
 
     public static AbstractButton createButton(final String iconPath) {
@@ -232,6 +235,7 @@ class ColorManipulationForm {
         resetButton.setEnabled(hasSceneView);
         importButton.setEnabled(hasSceneView && !isRgbMode());
         exportButton.setEnabled(hasSceneView && !isRgbMode());
+        computeExactHistogram.setEnabled(hasSceneView && canComputeExactHistogram());
     }
 
     private ColorManipulationChildForm getContinuous3BandGraphicalForm() {
@@ -329,6 +333,35 @@ class ColorManipulationForm {
         });
         exportButton.setEnabled(true);
 
+        computeExactHistogram = createButton("icons/Histogram24.gif");
+        computeExactHistogram.setName("ComputeExactHistogram");
+        computeExactHistogram.setToolTipText("Compute exact histogram");
+        computeExactHistogram.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                SwingWorker sw = new ProgressMonitorSwingWorker(computeExactHistogram, "Computing Histogram") {
+                    protected Object doInBackground(ProgressMonitor pm) throws Exception {
+                        UIUtils.setRootFrameWaitCursor(getContentPanel());
+                        final RasterDataNode[] rasters = getProductSceneView().getRasters();
+                        pm.beginTask("Computing exact histogram", rasters.length);
+                        for (RasterDataNode raster : rasters) {
+                            raster.getStx(true, new SubProgressMonitor(pm, 1));
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    protected void done() {
+                        UIUtils.setRootFrameDefaultCursor(getContentPanel());
+                    }
+                };
+
+                computeExactHistogram.setEnabled(false);
+                sw.execute();
+            }
+        });
+
+
         helpButton = createButton("icons/Help24.gif");
         helpButton.setToolTipText("Help."); /*I18N*/
         helpButton.setName("helpButton");
@@ -388,6 +421,8 @@ class ColorManipulationForm {
                 gbc.gridy++;
             }
         }
+        toolButtonsPanel.add(computeExactHistogram, gbc);
+
         gbc.gridy++;
         gbc.fill = GridBagConstraints.VERTICAL;
         gbc.weighty = 1.0;
@@ -454,7 +489,7 @@ class ColorManipulationForm {
     private void resetToDefaults() {
         if (productSceneView != null) {
             setImageInfoCopy(createDefaultImageInfo());
-            childForm.updateFormModel(getProductSceneView());
+            childForm.resetFormModel(getProductSceneView());
             applyButton.setEnabled(true);
         }
     }
@@ -630,6 +665,18 @@ class ColorManipulationForm {
 
     private boolean isRgbMode() {
         return productSceneView != null && isContinuous3BandImage();
+    }
+
+    private boolean canComputeExactHistogram() {
+        boolean canComputeExact = false;
+        if(productSceneView != null) {
+            final RasterDataNode[] rasters = productSceneView.getRasters();
+            for (RasterDataNode raster : rasters) {
+                final int resolutionLevel = raster.getStx().getResolutionLevel();
+                canComputeExact = resolutionLevel > 0;
+            }
+        }
+        return canComputeExact;
     }
 
     private void showErrorDialog(final String message) {

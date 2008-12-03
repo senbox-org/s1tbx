@@ -64,6 +64,11 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
     }
 
     @Override
+    public void resetFormModel(ProductSceneView productSceneView) {
+        updateFormModel(productSceneView);
+    }
+
+    @Override
     public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
     }
 

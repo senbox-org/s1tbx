@@ -23,6 +23,9 @@ class EmptyImageInfoForm implements ColorManipulationChildForm {
     public void updateFormModel(ProductSceneView productSceneView) {
     }
 
+    public void resetFormModel(ProductSceneView productSceneView) {
+    }
+
     public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
     }
 

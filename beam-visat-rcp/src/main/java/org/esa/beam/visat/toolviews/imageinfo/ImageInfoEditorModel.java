@@ -21,6 +21,7 @@ abstract class ImageInfoEditorModel {
     private Double histogramViewGain;
     private Double minHistogramViewSample;
     private Double maxHistogramViewSample;
+    private boolean histogramAccurate;
 
     protected ImageInfoEditorModel(ImageInfo imageInfo) {
         this.imageInfo = imageInfo;
@@ -38,6 +39,7 @@ abstract class ImageInfoEditorModel {
         setMinSample(raster.scale(stx.getMin()));
         setMaxSample(raster.scale(stx.getMax()));
         setHistogramBins(stx.getHistogramBins());
+        setHistogramAccurate(stx.getResolutionLevel() == 0);
         fireStateChanged();
     }
 
@@ -143,6 +145,14 @@ abstract class ImageInfoEditorModel {
 
     public void setHistogramViewGain(double gain) {
         histogramViewGain = gain;
+    }
+    
+    private void setHistogramAccurate(boolean isAccurate) {
+          histogramAccurate = isAccurate;
+    }
+
+    public boolean isHistogramAccurate() {
+        return histogramAccurate;
     }
 
     public void addChangeListener(ChangeListener l) {

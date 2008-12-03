@@ -64,6 +64,11 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
     }
 
     @Override
+    public void resetFormModel(ProductSceneView productSceneView) {
+        tableModel.fireTableDataChanged();
+    }
+
+    @Override
     public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
     }
 
