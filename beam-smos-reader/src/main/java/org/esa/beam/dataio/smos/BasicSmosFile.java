@@ -59,43 +59,23 @@ public class BasicSmosFile implements GridPointDataProvider {
         initGridPointIndexes();
     }
 
-    public File getFile() {
-        return file;
-    }
-
-    public DataFormat getFormat() {
-        return format;
-    }
-
-    public DataContext getDataContext() {
-        return dataContext;
-    }
-
-    public final SequenceData getGridPointList() {
-        return gridPointList;
+    @Override
+    public final int getGridPointIndex(int seqnum) {
+        return gridPointIndexes[seqnum];
     }
 
     @Override
-    public CompoundType getGridPointType() {
+    public final CompoundType getGridPointType() {
         return gridPointType;
     }
 
     @Override
-    public CompoundData getGridPointData(int gridPointIndex) throws IOException {
+    public final CompoundData getGridPointData(int gridPointIndex) throws IOException {
         return gridPointList.getCompound(gridPointIndex);
-    }
-
-    public void close() {
-        dataContext.dispose();
     }
 
     public final int getGridPointCount() {
         return gridPointList.getElementCount();
-    }
-
-    @Override
-    public final int getGridPointIndex(int seqnum) {
-        return gridPointIndexes[seqnum];
     }
 
     public final int getGridPointId(int i) throws IOException {
@@ -104,6 +84,26 @@ public class BasicSmosFile implements GridPointDataProvider {
 
     public final int getGridPointSeqnum(int i) throws IOException {
         return SmosDgg.smosGridPointIdToDggridSeqnum(getGridPointId(i));
+    }
+
+    public final File getFile() {
+        return file;
+    }
+
+    public final DataFormat getFormat() {
+        return format;
+    }
+
+    public final DataContext getDataContext() {
+        return dataContext;
+    }
+
+    public final SequenceData getGridPointList() {
+        return gridPointList;
+    }
+
+    public void close() {
+        dataContext.dispose();
     }
 
     private void initGridPointIndexes() throws IOException {
