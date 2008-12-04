@@ -2,6 +2,8 @@ package com.bc.ceres.binio.binx;
 
 import com.bc.ceres.binio.CompoundType;
 import com.bc.ceres.binio.DataFormat;
+import com.bc.ceres.binio.SequenceType;
+import com.bc.ceres.binio.Type;
 import junit.framework.TestCase;
 
 import java.io.IOException;
@@ -21,6 +23,10 @@ public class DBL_SM_XXXX_MIR_SMUDP2_0100_Test extends TestCase {
         binx.setArrayVariableInlined(true);
         binx.setVarNameMapping("N_Grid_Points", "Grid_Point_Counter");
         binx.setVarNameMapping("SM_SWATH", "Grid_Point_Data");
+        binx.setStructInlined("Retrieval_Results_Data", true);
+        binx.setStructInlined("Confidence_Descriptors_Data", true);
+        binx.setStructInlined("Science_Descriptors_Data", true);
+        binx.setStructInlined("Processing_Descriptors_Data", true);
 
         DataFormat dataFormat = binx.readDataFormat(uri, "DBL_SM_XXXX_MIR_SMUDP2_0100");
         assertNotNull(dataFormat);
@@ -41,5 +47,9 @@ public class DBL_SM_XXXX_MIR_SMUDP2_0100_Test extends TestCase {
         assertEquals("Grid_Point_Data", dataFormat.getType().getMember(1).getName());
 
         assertEquals("Grid_Point_Data_Type[$Grid_Point_Counter]", dataFormat.getType().getMember(1).getType().getName());
+
+        final SequenceType sequenceType = (SequenceType) dataFormat.getType().getMember(1).getType();
+        final CompoundType elementType = (CompoundType) sequenceType.getElementType();
+        assertEquals(57, elementType.getMemberCount());
     }
 }

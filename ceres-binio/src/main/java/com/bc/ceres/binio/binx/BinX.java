@@ -28,10 +28,11 @@ public class BinX {
     private final Map<String, String> parameters;
     private final Map<String, Type> definitions;
     private final Map<String, String> varNameMap;
+    private final Set<String> inlinedStructs;
 
     private String elementCountPostfix;
-    private boolean singleDatasetStructInlined;
 
+    private boolean singleDatasetStructInlined;
     private boolean arrayVariableInlined;
     private Map<String, SimpleType> primitiveTypes;
     private Namespace namespace;
@@ -41,6 +42,7 @@ public class BinX {
         parameters = new HashMap<String, String>();
         definitions = new HashMap<String, Type>();
         varNameMap = new HashMap<String, String>();
+        inlinedStructs = new HashSet<String>();
 
         primitiveTypes = new HashMap<String, SimpleType>();
         primitiveTypes.put("byte-8", SimpleType.BYTE);
@@ -97,6 +99,26 @@ public class BinX {
                     final String targetName = (String) entry.getValue();
 
                     setVarNameMapping(sourceName, targetName);
+                }
+            }
+        }
+    }
+
+    public boolean setStructInlined(String varName, boolean b) {
+        if (!b) {
+            return inlinedStructs.remove(varName);
+        }
+
+        return inlinedStructs.add(varName);
+    }
+
+    public void setStructsInlined(Properties properties) {
+        if (properties != null) {
+            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+                if (entry.getKey() instanceof String) {
+                    final String varName = (String) entry.getKey();
+
+                    setStructInlined(varName, "true".equals(entry.getValue()));
                 }
             }
         }
@@ -257,23 +279,33 @@ public class BinX {
     //    </struct>
     //
     private CompoundType parseStruct(Element typeElement) throws BinXException {
-        List memberElements = getChildren(typeElement, false);
-        ArrayList<CompoundMember> members = new ArrayList<CompoundMember>();
+        final List memberElements = getChildren(typeElement, false);
+        final ArrayList<CompoundMember> members = new ArrayList<CompoundMember>();
 
         for (int i = 0; i < memberElements.size(); i++) {
-            Element memberElement = (Element) memberElements.get(i);
-            String memberName = getVarName(memberElement, true);
-            Type memberType = parseAnyType(memberElement);
-            // inline variable-length arrays
-            if (arrayVariableInlined
-                    && memberType instanceof CompoundType
-                    && memberType.getName().startsWith(ARRAY_VARIABLE_PREFIX)) {
-                CompoundType compoundType = (CompoundType) memberType;
-                members.add(MEMBER(compoundType.getMemberName(0), compoundType.getMemberType(0)));
-                members.add(MEMBER(compoundType.getMemberName(1), compoundType.getMemberType(1)));
-            } else {
-                members.add(MEMBER(memberName, memberType));
+            final Element memberElement = (Element) memberElements.get(i);
+            final String memberName = getVarName(memberElement, true);
+            final Type memberType = parseAnyType(memberElement);
+
+            if (memberType instanceof CompoundType) {
+                final CompoundType compoundType = (CompoundType) memberType;
+
+                // inline compound, if applicable
+                if (inlinedStructs.contains(memberName)) {
+                    for (final CompoundMember compoundMember : compoundType.getMembers()) {
+                        members.add(MEMBER(compoundMember.getName(), compoundMember.getType()));
+                    }
+                    continue;
+                }
+                // inline variable-length array, if applicable
+                if (isArrayVariableInlined() && memberType.getName().startsWith(ARRAY_VARIABLE_PREFIX)) {
+                    members.add(MEMBER(compoundType.getMemberName(0), compoundType.getMemberType(0)));
+                    members.add(MEMBER(compoundType.getMemberName(1), compoundType.getMemberType(1)));
+                    continue;
+                }
             }
+
+            members.add(MEMBER(memberName, memberType));
         }
 
         return COMPOUND(generateCompoundName(), members.toArray(new CompoundMember[members.size()]));
@@ -379,16 +411,16 @@ public class BinX {
     }
 
     private Element getChild(Element element, String name, boolean require) throws BinXException {
-        Element child = element.getChild(name, namespace);
+        final Element child = element.getChild(name, namespace);
         if (require && child == null) {
-            throw new BinXException(
-                    MessageFormat.format("Element ''{0}}': child ''{1}'' not found.", element.getName(), name));
+            throw new BinXException(MessageFormat.format(
+                    "Element ''{0}}': child ''{1}'' not found.", element.getName(), name));
         }
         return child;
     }
 
     private Element getChild(Element element, String name, int index, boolean require) throws BinXException {
-        List children = getChildren(element, null, require);
+        final List children = getChildren(element, null, require);
         if (children.size() <= index) {
             if (require) {
                 if (name != null) {
@@ -403,10 +435,10 @@ public class BinX {
                 return null;
             }
         }
-        Element child = (Element) children.get(index);
+        final Element child = (Element) children.get(index);
         if (name != null && !name.equals(child.getName())) {
-            throw new BinXException(MessageFormat.format("Element ''{0}'': Expected child ''{1}'' at index {2}",
-                                                         element.getName(), name, index));
+            throw new BinXException(MessageFormat.format(
+                    "Element ''{0}'': Expected child ''{1}'' at index {2}", element.getName(), name, index));
         }
         return child;
     }
@@ -416,26 +448,26 @@ public class BinX {
     }
 
     private List getChildren(Element element, String name, boolean require) throws BinXException {
-        List children = element.getChildren(name, namespace);
+        final List children = element.getChildren(name, namespace);
         if (require && children.isEmpty()) {
             if (name != null) {
                 throw new BinXException(MessageFormat.format(
                         "Element ''{0}'': Expected to have at least one child of ''{1}''", element.getName(), name));
             } else {
-                throw new BinXException(MessageFormat.format("Element ''{0}'': Expected to have at least one child",
-                                                             element.getName()));
+                throw new BinXException(MessageFormat.format(
+                        "Element ''{0}'': Expected to have at least one child", element.getName()));
             }
         }
         return children;
     }
 
     private static String getAttributeValue(Element element, String name, boolean require) throws BinXException {
-        String value = element.getAttributeValue(name);
+        final String value = element.getAttributeValue(name);
         if (require && value == null) {
-            throw new BinXException(
-                    MessageFormat.format("Element ''{0}'': attribute ''{1}'' not found.", element.getName(), name));
+            throw new BinXException(MessageFormat.format(
+                    "Element ''{0}'': attribute ''{1}'' not found.", element.getName(), name));
         }
-        return value;
+        return value != null ? value.trim() : value;
     }
 
     private static int getAttributeIntValue(Element element, String attributeName) throws BinXException {
