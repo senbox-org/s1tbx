@@ -111,7 +111,9 @@ public class SmosProductReader extends AbstractProductReader {
             String dirPath = System.getProperty(SMOS_DGG_DIR_PROPERTY_NAME);
             if (dirPath == null || !new File(dirPath).exists()) {
                 throw new IOException(
-                        MessageFormat.format("SMOS products require a DGG image.\nPlease set system property ''{0}''to a valid DGG image directory.", SMOS_DGG_DIR_PROPERTY_NAME));
+                        MessageFormat.format(
+                                "SMOS products require a DGG image.\nPlease set system property ''{0}''to a valid DGG image directory.",
+                                SMOS_DGG_DIR_PROPERTY_NAME));
             }
 
             try {
@@ -192,13 +194,19 @@ public class SmosProductReader extends AbstractProductReader {
             BandInfo bandInfo = bandInfos.get(bandName);
             if (bandInfo != null) {
                 if (dualPol) {
-                    addBand(product, scientific, SmosFile.POL_MODE_H, fieldIndex, bandName + "_H", memberTypeToBandType(member.getType()), bandInfo);
-                    addBand(product, scientific, SmosFile.POL_MODE_V, fieldIndex, bandName + "_V", memberTypeToBandType(member.getType()), bandInfo);
+                    addL1cBand(product, scientific, SmosFile.POL_MODE_H, fieldIndex, bandName + "_H",
+                               memberTypeToBandType(member.getType()), bandInfo);
+                    addL1cBand(product, scientific, SmosFile.POL_MODE_V, fieldIndex, bandName + "_V",
+                               memberTypeToBandType(member.getType()), bandInfo);
                 } else {
-                    addBand(product, scientific, SmosFile.POL_MODE_H, fieldIndex, bandName + "_H", memberTypeToBandType(member.getType()), bandInfo);
-                    addBand(product, scientific, SmosFile.POL_MODE_V, fieldIndex, bandName + "_V", memberTypeToBandType(member.getType()), bandInfo);
-                    addBand(product, scientific, SmosFile.POL_MODE_HV2, fieldIndex, bandName + "_HV_Imag", memberTypeToBandType(member.getType()), bandInfo);
-                    addBand(product, scientific, SmosFile.POL_MODE_HV1, fieldIndex, bandName + "_HV_Real", memberTypeToBandType(member.getType()), bandInfo);
+                    addL1cBand(product, scientific, SmosFile.POL_MODE_H, fieldIndex, bandName + "_H",
+                               memberTypeToBandType(member.getType()), bandInfo);
+                    addL1cBand(product, scientific, SmosFile.POL_MODE_V, fieldIndex, bandName + "_V",
+                               memberTypeToBandType(member.getType()), bandInfo);
+                    addL1cBand(product, scientific, SmosFile.POL_MODE_HV1, fieldIndex, bandName + "_HV_Real",
+                               memberTypeToBandType(member.getType()), bandInfo);
+                    addL1cBand(product, scientific, SmosFile.POL_MODE_HV2, fieldIndex, bandName + "_HV_Imag",
+                               memberTypeToBandType(member.getType()), bandInfo);
                 }
             }
         }
@@ -228,13 +236,13 @@ public class SmosProductReader extends AbstractProductReader {
         return bandType;
     }
 
-    private void addBand(Product product,
-                         boolean scientific,
-                         int polMode,
-                         int fieldIndex,
-                         String bandName,
-                         int bandType,
-                         BandInfo bandInfo) {
+    private void addL1cBand(Product product,
+                            boolean scientific,
+                            int polMode,
+                            int fieldIndex,
+                            String bandName,
+                            int bandType,
+                            BandInfo bandInfo) {
         final Band band = product.addBand(bandName, bandType);
         band.setScalingFactor(bandInfo.scaleFactor);
         band.setScalingOffset(bandInfo.scaleOffset);
@@ -244,11 +252,15 @@ public class SmosProductReader extends AbstractProductReader {
             band.setNoDataValueUsed(true);
             band.setNoDataValue(bandInfo.noDataValue.doubleValue());
         }
-        band.setSourceImage(createL1cSourceImage(band,
-                                                 scientific,
-                                                 polMode,
-                                                 fieldIndex,
-                                                 bandInfo.noDataValue));
+
+        final GridPointValueProvider gpvp;
+        if (scientific) {
+            gpvp = new L1cScienceGridPointValueProvider(smosFile, fieldIndex, polMode);
+        } else {
+            gpvp = new L1cBrowseGridPointValueProvider(smosFile, fieldIndex, polMode);
+        }
+        band.setSourceImage(createSourceImage(gpvp, band, bandInfo.noDataValue));
+
         band.setImageInfo(createDefaultImageInfo(bandInfo));
     }
 
@@ -292,19 +304,8 @@ public class SmosProductReader extends AbstractProductReader {
         return new MapGeoCoding(mapInfo);
     }
 
-    private MultiLevelImage createL1cSourceImage(Band band,
-                                                 boolean scientific,
-                                                 int polMode,
-                                                 int fieldIndex,
-                                                 Number noDataValue) {
-        SmosMultiLevelSource smosMultiLevelSource = new SmosMultiLevelSource(dggridMultiLevelImage,
-                                                                             smosFile,
-                                                                             band,
-                                                                             scientific,
-                                                                             polMode,
-                                                                             fieldIndex,
-                                                                             noDataValue);
-        return new DefaultMultiLevelImage(smosMultiLevelSource);
+    private MultiLevelImage createSourceImage(GridPointValueProvider gpvp, Band band, Number noDataValue) {
+        return new DefaultMultiLevelImage(new SmosMultiLevelSource(gpvp, dggridMultiLevelImage, band, noDataValue));
     }
 
     @Override
