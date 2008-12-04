@@ -22,10 +22,10 @@ public class DBL_SM_XXXX_MIR_SMUDP2_0100_Test extends TestCase {
         binx.setArrayVariableInlined(true);
         binx.setVarNameMapping("N_Grid_Points", "Grid_Point_Counter");
         binx.setVarNameMapping("SM_SWATH", "Grid_Point_Data");
-        binx.setMembersInlined("Retrieval_Results_Data_Type", true);
-        binx.setMembersInlined("Confidence_Descriptors_Data_Type", true);
-        binx.setMembersInlined("Science_Descriptors_Data_Type", true);
-        binx.setMembersInlined("Processing_Descriptors_Data_Type", true);
+        binx.setTypeMembersInlined("Retrieval_Results_Data_Type", true);
+        binx.setTypeMembersInlined("Confidence_Descriptors_Data_Type", true);
+        binx.setTypeMembersInlined("Science_Descriptors_Data_Type", true);
+        binx.setTypeMembersInlined("Processing_Descriptors_Data_Type", true);
 
         DataFormat dataFormat = binx.readDataFormat(uri, "DBL_SM_XXXX_MIR_SMUDP2_0100");
         assertNotNull(dataFormat);

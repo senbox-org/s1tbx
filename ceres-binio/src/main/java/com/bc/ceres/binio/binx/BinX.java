@@ -104,7 +104,7 @@ public class BinX {
         }
     }
 
-    public boolean setMembersInlined(String typeName, boolean b) {
+    public boolean setTypeMembersInlined(String typeName, boolean b) {
         if (!b) {
             return inlinedStructs.remove(typeName);
         }
@@ -112,13 +112,13 @@ public class BinX {
         return inlinedStructs.add(typeName);
     }
 
-    public void setMembersInlined(Properties properties) {
+    public void setTypeMembersInlined(Properties properties) {
         if (properties != null) {
             for (Map.Entry<Object, Object> entry : properties.entrySet()) {
                 if (entry.getKey() instanceof String) {
                     final String typeName = (String) entry.getKey();
 
-                    setMembersInlined(typeName, "true".equals(entry.getValue()));
+                    setTypeMembersInlined(typeName, "true".equals(entry.getValue()));
                 }
             }
         }
