@@ -18,6 +18,7 @@ import com.bc.ceres.binio.*;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.awt.geom.Point2D;
 
 /**
  * todo - add API doc
@@ -94,19 +95,26 @@ class L1cScienceGridPointValueProvider implements GridPointValueProvider {
         final SequenceData btDataList = provider.getGridPointData(gridPointIndex).getSequence(btDataListIndex);
         final int elementCount = btDataList.getSequenceType().getElementCount();
 
+        final SimpleLinearRegressor regressor = new SimpleLinearRegressor(new DefaultPointFilter());
         for (int i = 0; i < elementCount; ++i) {
             final CompoundData data = btDataList.getCompound(i);
 
             if (mode == (data.getInt(flagsIndex) & 3) && accept(data)) {
-                // todo - interpolation
-                return data.getDouble(fieldIndex);
+                // todo - use incidence angle for x
+                regressor.add(i, data.getDouble(fieldIndex));
             }
         }
+        if (regressor.getPointCount() < 2) {
+            return noDataValue;
+        }
 
-        return noDataValue;
+        final Point2D point2D = regressor.getRegression();
+        // todo - use incidence angle of 42.5
+        return point2D.getX() * (regressor.getPointCount() / 2) + point2D.getY();
     }
 
     private boolean accept(CompoundData data) {
+        // todo - implement
         return true;
     }
 }

@@ -203,9 +203,9 @@ public class SmosProductReader extends AbstractProductReader {
                                memberTypeToBandType(member.getType()), bandInfo);
                     addL1cBand(product, scientific, SmosFile.POL_MODE_V, fieldIndex, bandName + "_V",
                                memberTypeToBandType(member.getType()), bandInfo);
-                    addL1cBand(product, scientific, SmosFile.POL_MODE_HV1, fieldIndex, bandName + "_HV_Real",
+                    addL1cBand(product, scientific, SmosFile.POL_MODE_HV1, fieldIndex, bandName + "_HV1",
                                memberTypeToBandType(member.getType()), bandInfo);
-                    addL1cBand(product, scientific, SmosFile.POL_MODE_HV2, fieldIndex, bandName + "_HV_Imag",
+                    addL1cBand(product, scientific, SmosFile.POL_MODE_HV2, fieldIndex, bandName + "_HV2",
                                memberTypeToBandType(member.getType()), bandInfo);
                 }
             }
