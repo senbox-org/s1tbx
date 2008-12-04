@@ -16,8 +16,6 @@ package org.esa.beam.dataio.smos;
 
 import junit.framework.TestCase;
 
-import java.awt.geom.Point2D;
-
 public class SimpleLinearRegressorTest extends TestCase {
 
     /**
@@ -26,13 +24,13 @@ public class SimpleLinearRegressorTest extends TestCase {
     public void testRegressionWithoutPoints() {
         final SimpleLinearRegressor r = new SimpleLinearRegressor(new DefaultPointFilter());
 
-        r.add(new Point2D.Double(Double.NaN, Double.NaN));
+        r.add(Double.NaN, Double.NaN);
         assertEquals(0, r.getPointCount());
 
-        r.add(new Point2D.Double(Double.POSITIVE_INFINITY, Double.NaN));
+        r.add(Double.POSITIVE_INFINITY, Double.NaN);
         assertEquals(0, r.getPointCount());
 
-        r.add(new Point2D.Double(Double.NaN, Double.NEGATIVE_INFINITY));
+        r.add(Double.NaN, Double.NEGATIVE_INFINITY);
         assertEquals(0, r.getPointCount());
 
         assertTrue(Double.isNaN(r.getRegression().getX()));
@@ -42,7 +40,7 @@ public class SimpleLinearRegressorTest extends TestCase {
     public void testRegressionWithOnePoint() {
         final SimpleLinearRegressor r = new SimpleLinearRegressor();
 
-        r.add(new Point2D.Double());
+        r.add(0.0, 0.0);
 
         assertEquals(1, r.getPointCount());
         assertTrue(Double.isNaN(r.getRegression().getX()));
@@ -55,8 +53,8 @@ public class SimpleLinearRegressorTest extends TestCase {
     public void testRegressionWithTwoPoints() {
         final SimpleLinearRegressor r = new SimpleLinearRegressor();
 
-        r.add(new Point2D.Double(0.0, 0.0));
-        r.add(new Point2D.Double(1.0, 1.0));
+        r.add(0.0, 0.0);
+        r.add(1.0, 1.0);
 
         assertEquals(2, r.getPointCount());
         assertEquals(1.0, r.getRegression().getX(), 0.0);
@@ -70,11 +68,11 @@ public class SimpleLinearRegressorTest extends TestCase {
     public void testTextbookExample() {
         final SimpleLinearRegressor r = new SimpleLinearRegressor();
 
-        r.add(new Point2D.Double(1.0, 1.0));
-        r.add(new Point2D.Double(2.0, 1.0));
-        r.add(new Point2D.Double(3.0, 2.0));
-        r.add(new Point2D.Double(4.0, 2.0));
-        r.add(new Point2D.Double(5.0, 4.0));
+        r.add(1.0, 1.0);
+        r.add(2.0, 1.0);
+        r.add(3.0, 2.0);
+        r.add(4.0, 2.0);
+        r.add(5.0, 4.0);
 
         assertEquals(5, r.getPointCount());
         assertEquals(0.7, r.getRegression().getX(), 0.0);

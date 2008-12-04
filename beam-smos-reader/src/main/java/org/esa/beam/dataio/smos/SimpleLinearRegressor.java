@@ -34,19 +34,18 @@ public class SimpleLinearRegressor {
     }
 
     /**
-     * Adds a point to the regression, if accepted.
+     * Adds a point (x, y) to the regression, if accepted.
      *
-     * @param point the point to be added.
+     * @param x the x-coordinate of the point to be added.
+     * @param y the y-coordinate of the point to be added.
      *
      * @return {@code true} if the point was accepted and added to the regression,
      *         otherwise {@code false}.
      */
-    public boolean add(final Point2D point) {
-        final boolean accepted = pointFilter.accept(point);
+    public boolean add(double x, double y) {
+        final boolean accepted = pointFilter.accept(x, y);
 
         if (accepted) {
-            final double x = point.getX();
-            final double y = point.getY();
             sx += x;
             sy += y;
             sxx += x * x;
@@ -78,5 +77,4 @@ public class SimpleLinearRegressor {
 
         return new Point2D.Double(a, b);
     }
-
 }

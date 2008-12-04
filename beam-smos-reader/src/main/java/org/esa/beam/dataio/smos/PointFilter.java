@@ -14,8 +14,6 @@
  */
 package org.esa.beam.dataio.smos;
 
-import java.awt.geom.Point2D;
-
 /**
  * Point filter.
  *
@@ -27,10 +25,10 @@ public interface PointFilter {
 
     PointFilter NULL = new PointFilter() {
         @Override
-        public boolean accept(Point2D point) {
+        public boolean accept(double x, double y) {
             return true;
         }
     };
 
-    boolean accept(Point2D point);
+    boolean accept(double x, double y);
 }

@@ -14,8 +14,6 @@
  */
 package org.esa.beam.dataio.smos;
 
-import java.awt.geom.Point2D;
-
 /**
  * Default point filter, rejecting any point (x, y) where x or y is
  * infinite or not a number.
@@ -27,10 +25,7 @@ import java.awt.geom.Point2D;
 class DefaultPointFilter implements PointFilter {
 
     @Override
-    public boolean accept(Point2D point) {
-        final double x = point.getX();
-        final double y = point.getY();
-
+    public boolean accept(double x, double y) {
         return !(Double.isNaN(x) || Double.isNaN(y) || Double.isInfinite(x) || Double.isInfinite(y));
     }
 }
