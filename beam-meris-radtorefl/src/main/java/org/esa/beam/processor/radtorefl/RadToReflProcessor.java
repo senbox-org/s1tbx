@@ -313,6 +313,7 @@ public class RadToReflProcessor extends Processor {
 
         copyRequestMetaData(outputProduct);
         ProductUtils.copyTiePointGrids(inputProduct, outputProduct);
+        ProductUtils.copyGeoCoding(inputProduct, outputProduct);
         createOutputProductBands(pm);
     }
 
