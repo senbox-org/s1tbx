@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class SmosFormats {
 
-// todo - externalise (nf - 02.12.2008)
+    // todo - externalise (nf - 02.12.2008)
     public static final class FlagDescriptor {
         String name;
         int mask;
@@ -38,19 +38,18 @@ public class SmosFormats {
             this.description = description;
         }
 
-    public String getName() {
-        return name;
-    }
+        public String getName() {
+            return name;
+        }
 
-    public int getMask() {
-        return mask;
-    }
+        public int getMask() {
+            return mask;
+        }
 
-    public String getDescription() {
-        return description;
+        public String getDescription() {
+            return description;
+        }
     }
-}
-
 
     public static final FlagDescriptor[] L1C_FLAGS = {
             new FlagDescriptor(1 >> 0, "DUAL_POL", ""),
@@ -69,7 +68,6 @@ public class SmosFormats {
             new FlagDescriptor(1 >> 13, "SUN_TAILS", ""),
             new FlagDescriptor(1 >> 14, "RFI", ""),
     };
-
 
     private static final SmosFormats INSTANCE = new SmosFormats();
 
@@ -93,7 +91,7 @@ public class SmosFormats {
             final URL schemaUrl = getSchemaResource(name);
 
             if (schemaUrl != null) {
-                final BinX binX = createBinX();
+                final BinX binX = createBinX(name);
 
                 try {
                     final DataFormat format = binX.readDataFormat(schemaUrl.toURI(), name);
@@ -176,23 +174,35 @@ public class SmosFormats {
         return SmosFormats.class.getResource(nameBuilder.toString());
     }
 
-    private static BinX createBinX() {
+    private static BinX createBinX(String name) {
         final BinX binX = new BinX();
         binX.setSingleDatasetStructInlined(true);
         binX.setArrayVariableInlined(true);
 
         try {
-            final Properties properties = new Properties();
-            final InputStream is = SmosFormats.class.getResourceAsStream("binx_var_name.properties");
+            binX.setVarNameMappings(getResourceAsProperties("binx_var_name_mappings.properties"));
 
-            if (is != null) {
-                properties.load(is);
-                binX.setVarNameMappings(properties);
+            if (name.contains("MIR_OSUDP2")) {
+                binX.setStructsInlined(getResourceAsProperties("binx_inlined_structs_MIR_OSUDP2.properties"));
+            }
+            if (name.contains("MIR_SMUDP2")) {
+                binX.setStructsInlined(getResourceAsProperties("binx_inlined_structs_MIR_SMUDP2.properties"));
             }
         } catch (IOException e) {
             throw new IllegalStateException(e.getMessage());
         }
 
         return binX;
+    }
+
+    private static Properties getResourceAsProperties(String name) throws IOException {
+        final Properties properties = new Properties();
+        final InputStream is = SmosFormats.class.getResourceAsStream(name);
+
+        if (is != null) {
+            properties.load(is);
+        }
+
+        return properties;
     }
 }
