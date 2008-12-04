@@ -91,9 +91,11 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
 
     @Override
     public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
-        imageInfoEditor.getModel().setDisplayProperties(raster);
-        if (event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_STX)) {
-            updateFormModel(parentForm.getProductSceneView());
+        if (imageInfoEditor.getModel() != null) {
+            imageInfoEditor.getModel().setDisplayProperties(raster);
+            if (event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_STX)) {
+                updateFormModel(parentForm.getProductSceneView());
+            }
         }
     }
 
