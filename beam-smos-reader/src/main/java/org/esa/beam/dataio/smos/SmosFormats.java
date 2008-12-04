@@ -52,21 +52,21 @@ public class SmosFormats {
     }
 
     public static final FlagDescriptor[] L1C_FLAGS = {
-            new FlagDescriptor(1 >> 0, "DUAL_POL", ""),
-            new FlagDescriptor(1 >> 1, "FULL_POL", ""),
-            new FlagDescriptor(1 >> 2, "SUN_FOV", ""),
-            new FlagDescriptor(1 >> 3, "SUN_GLINT_FOV", ""),
-            new FlagDescriptor(1 >> 4, "MOON_GLINT_FOV", ""),
-            new FlagDescriptor(1 >> 5, "SINGLE_SNAPSHOT", ""),
-            new FlagDescriptor(1 >> 6, "FTT", ""),
-            new FlagDescriptor(1 >> 7, "SUN_POINT", ""),
-            new FlagDescriptor(1 >> 8, "SUN_GLINT_AREA", ""),
-            new FlagDescriptor(1 >> 9, "MOON_POINT", ""),
-            new FlagDescriptor(1 >> 10, "AF_FOV", ""),
-            new FlagDescriptor(1 >> 11, "EAF_FOV", ""),
-            new FlagDescriptor(1 >> 12, "BORDER_FOV", ""),
-            new FlagDescriptor(1 >> 13, "SUN_TAILS", ""),
-            new FlagDescriptor(1 >> 14, "RFI", ""),
+            new FlagDescriptor(1 << 0, "H_OR_V_POL", ""),
+            new FlagDescriptor(1 << 1, "H_AND_V_POL", ""),
+            new FlagDescriptor(1 << 2, "SUN_FOV", ""),
+            new FlagDescriptor(1 << 3, "SUN_GLINT_FOV", ""),
+            new FlagDescriptor(1 << 4, "MOON_GLINT_FOV", ""),
+            new FlagDescriptor(1 << 5, "SINGLE_SNAPSHOT", ""),
+            new FlagDescriptor(1 << 6, "FTT", ""),
+            new FlagDescriptor(1 << 7, "SUN_POINT", ""),
+            new FlagDescriptor(1 << 8, "SUN_GLINT_AREA", ""),
+            new FlagDescriptor(1 << 9, "MOON_POINT", ""),
+            new FlagDescriptor(1 << 10, "AF_FOV", ""),
+            new FlagDescriptor(1 << 11, "EAF_FOV", ""),
+            new FlagDescriptor(1 << 12, "BORDER_FOV", ""),
+            new FlagDescriptor(1 << 13, "SUN_TAILS", ""),
+            new FlagDescriptor(1 << 14, "RFI", ""),
     };
 
     private static final SmosFormats INSTANCE = new SmosFormats();
@@ -183,10 +183,10 @@ public class SmosFormats {
             binX.setVarNameMappings(getResourceAsProperties("binx_var_name_mappings.properties"));
 
             if (name.contains("MIR_OSUDP2")) {
-                binX.setStructsInlined(getResourceAsProperties("binx_inlined_structs_MIR_OSUDP2.properties"));
+                binX.setInlinedStructs(getResourceAsProperties("binx_inlined_structs_MIR_OSUDP2.properties"));
             }
             if (name.contains("MIR_SMUDP2")) {
-                binX.setStructsInlined(getResourceAsProperties("binx_inlined_structs_MIR_SMUDP2.properties"));
+                binX.setInlinedStructs(getResourceAsProperties("binx_inlined_structs_MIR_SMUDP2.properties"));
             }
         } catch (IOException e) {
             throw new IllegalStateException(e.getMessage());

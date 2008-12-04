@@ -27,10 +27,10 @@ import java.util.Arrays;
 public class SmosFile {
 
     public static final int POL_MODE_MASK = 0x00000003;
-    public static final int POL_MODE_HH = 0;
-    public static final int POL_MODE_VV = 1;
-    public static final int POL_MODE_HV_REAL = 2;
-    public static final int POL_MODE_HV_IMAG = 3;
+    public static final int POL_MODE_H = 0;
+    public static final int POL_MODE_V = 1;
+    public static final int POL_MODE_HV1 = 2;
+    public static final int POL_MODE_HV2 = 3;
 
     public static final String GRID_POINT_LIST_NAME = "Grid_Point_List";
     public static final String BT_DATA_LIST_NAME = "BT_Data_List";
@@ -125,7 +125,7 @@ public class SmosFile {
      *
      * @param gridPointIndex The grid point index.
      * @param btDataIndex    The index of the requested 'BT_Data' field.
-     * @param polMode        {@link #POL_MODE_HH},{@link #POL_MODE_VV}, {@link #POL_MODE_HV_REAL} or {@link #POL_MODE_HV_IMAG}
+     * @param polMode        {@link #POL_MODE_H},{@link #POL_MODE_V}, {@link #POL_MODE_HV1} or {@link #POL_MODE_HV2}
      * @param noDataValue    The no data value which is returned if no value could be found.
      * @return the value read or {@code noDataValue}
      * @throws IOException if an I/O error occurs

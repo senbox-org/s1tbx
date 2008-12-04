@@ -67,6 +67,10 @@ public class SmosProductReader extends AbstractProductReader {
                          "Imaginary component of HH, HV or VV polarisation brightness temperature measurement over current " +
                                  "Earth fixed grid point, obtained by DFT " +
                                  "interpolation from L1b data.");
+        registerBandInfo("Pixel_Radiometric_Accuracy", "K", 0.0, 50.0 / (1 << 16), -999, 0.0, 5.0,
+                         "Error accuracy measurement in the Brightness " +
+                                 "Temperature presented in the previous field, " +
+                                 "extracted in the direction of the pixel.");
         registerBandInfo("Radiometric_Accuracy_of_Pixel", "K", 0.0, 50.0 / (1 << 16), -999, 0.0, 5.0,
                          "Error accuracy measurement in the Brightness " +
                                  "Temperature presented in the previous field, " +
@@ -188,13 +192,13 @@ public class SmosProductReader extends AbstractProductReader {
             BandInfo bandInfo = bandInfos.get(bandName);
             if (bandInfo != null) {
                 if (dualPol) {
-                    addBand(product, scientific, SmosFile.POL_MODE_HH, fieldIndex, bandName + "_HH", memberTypeToBandType(member.getType()), bandInfo);
-                    addBand(product, scientific, SmosFile.POL_MODE_VV, fieldIndex, bandName + "_VV", memberTypeToBandType(member.getType()), bandInfo);
+                    addBand(product, scientific, SmosFile.POL_MODE_H, fieldIndex, bandName + "_H", memberTypeToBandType(member.getType()), bandInfo);
+                    addBand(product, scientific, SmosFile.POL_MODE_V, fieldIndex, bandName + "_V", memberTypeToBandType(member.getType()), bandInfo);
                 } else {
-                    addBand(product, scientific, SmosFile.POL_MODE_HH, fieldIndex, bandName + "_HH", memberTypeToBandType(member.getType()), bandInfo);
-                    addBand(product, scientific, SmosFile.POL_MODE_VV, fieldIndex, bandName + "_VV", memberTypeToBandType(member.getType()), bandInfo);
-                    addBand(product, scientific, SmosFile.POL_MODE_HV_IMAG, fieldIndex, bandName + "_HV_Imag", memberTypeToBandType(member.getType()), bandInfo);
-                    addBand(product, scientific, SmosFile.POL_MODE_HV_REAL, fieldIndex, bandName + "_HV_Real", memberTypeToBandType(member.getType()), bandInfo);
+                    addBand(product, scientific, SmosFile.POL_MODE_H, fieldIndex, bandName + "_H", memberTypeToBandType(member.getType()), bandInfo);
+                    addBand(product, scientific, SmosFile.POL_MODE_V, fieldIndex, bandName + "_V", memberTypeToBandType(member.getType()), bandInfo);
+                    addBand(product, scientific, SmosFile.POL_MODE_HV2, fieldIndex, bandName + "_HV_Imag", memberTypeToBandType(member.getType()), bandInfo);
+                    addBand(product, scientific, SmosFile.POL_MODE_HV1, fieldIndex, bandName + "_HV_Real", memberTypeToBandType(member.getType()), bandInfo);
                 }
             }
         }

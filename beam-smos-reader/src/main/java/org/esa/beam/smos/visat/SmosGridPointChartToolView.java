@@ -5,17 +5,20 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.renderer.xy.DeviationRenderer;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.data.xy.YIntervalSeries;
+import org.jfree.data.xy.YIntervalSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.FlowLayout;
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.io.IOException;
 
 public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
@@ -23,7 +26,7 @@ public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
 
 
     private JFreeChart chart;
-    private XYSeriesCollection dataset;
+    private YIntervalSeriesCollection dataset;
     private XYPlot plot;
     private JCheckBox[] modeCheckers;
 
@@ -32,7 +35,7 @@ public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
 
     @Override
     protected JComponent createGridPointComponent() {
-        dataset = new XYSeriesCollection();
+        dataset = new YIntervalSeriesCollection();
         chart = ChartFactory.createXYLineChart(null,
                                                null,
                                                null,
@@ -41,9 +44,15 @@ public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
                                                true, // Legend?
                                                true,
                                                false);
+
+        DeviationRenderer renderer = new DeviationRenderer(true, false);
+        renderer.setSeriesFillPaint(0, new Color(255, 127, 127));
+        renderer.setSeriesFillPaint(1, new Color(127, 127, 255));
+
         plot = chart.getXYPlot();
         plot.setNoDataMessage("No data");
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
+        plot.setRenderer(renderer);
 
         final NumberAxis xAxis = (NumberAxis) plot.getDomainAxis();
         xAxis.setLabel("Incidence Angle (deg)");
@@ -68,8 +77,7 @@ public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
         modeCheckers = new JCheckBox[]{
                 new JCheckBox("H", true),
                 new JCheckBox("V", true),
-                new JCheckBox("HV_Real", true),
-                new JCheckBox("HV_Imag", true)
+                new JCheckBox("HV", true),
         };
         final JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2, 2));
         for (JCheckBox modeChecker : modeCheckers) {
@@ -84,22 +92,26 @@ public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
 
 
         int ix = ds.getColumnIndex("Incidence_Angle");
-        if (ix != -1) {
+        int iq = ds.getColumnIndex("Flags");
+        int id = ds.getColumnIndex("Pixel_Radiometric_Accuracy");
+        if (ix != -1 && iq != -1 && id != -1) {
             int iy1 = ds.getColumnIndex("BT_Value");
             if (iy1 != -1) {
-                int iq = ds.getColumnIndex("Flags");
 
-                XYSeries series1 = new XYSeries("BT_HH");
-                XYSeries series2 = new XYSeries("BT_VV");
+                YIntervalSeries series1 = new YIntervalSeries("BT_H");
+                YIntervalSeries series2 = new YIntervalSeries("BT_V");
                 boolean m1 = modeCheckers[0].isSelected();
                 boolean m2 = modeCheckers[1].isSelected();
                 int length = ds.data.length;
                 for (int i = 0; i < length; i++) {
                     int polMode = ds.data[i][iq].intValue() & SmosFile.POL_MODE_MASK;
-                    if (m1 && polMode == SmosFile.POL_MODE_HH) {
-                        series1.add(ds.data[i][ix], ds.data[i][iy1]);
-                    } else if (m2 && polMode == SmosFile.POL_MODE_VV) {
-                        series2.add(ds.data[i][ix], ds.data[i][iy1]);
+                    double x = ds.data[i][ix].doubleValue();
+                    double y = ds.data[i][iy1].doubleValue();
+                    double dev = ds.data[i][id].doubleValue() * (50.0 / (1 << 16));
+                    if (m1 && polMode == SmosFile.POL_MODE_H) {
+                        series1.add(x, y, y - dev, y + dev);
+                    } else if (m2 && polMode == SmosFile.POL_MODE_V) {
+                        series2.add(x, y, y - dev, y + dev);
                     }
                 }
                 dataset.addSeries(series1);
@@ -109,39 +121,33 @@ public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
                 iy1 = ds.getColumnIndex("BT_Value_Real");
                 iy2 = ds.getColumnIndex("BT_Value_Imag");
                 if (iy1 != -1 && iy2 != -1) {
-                    int iq = ds.getColumnIndex("Flags");
-
-                    XYSeries series1 = new XYSeries("BTR_HH");
-                    XYSeries series2 = new XYSeries("BTR_VV");
-                    XYSeries series3 = new XYSeries("BTR_HVR");
-                    XYSeries series4 = new XYSeries("BTI_HVR");
-                    XYSeries series5 = new XYSeries("BTI_HVI");
-                    XYSeries series6 = new XYSeries("BTI_HVI");
+                    YIntervalSeries series1 = new YIntervalSeries("BT_H");
+                    YIntervalSeries series2 = new YIntervalSeries("BT_V");
+                    YIntervalSeries series3 = new YIntervalSeries("BT_HV_Re");
+                    YIntervalSeries series4 = new YIntervalSeries("BT_HV_Im");
                     boolean m1 = modeCheckers[0].isSelected();
                     boolean m2 = modeCheckers[1].isSelected();
                     boolean m3 = modeCheckers[2].isSelected();
-                    boolean m4 = modeCheckers[3].isSelected();
                     int length = ds.data.length;
                     for (int i = 0; i < length; i++) {
                         int polMode = ds.data[i][iq].intValue() & SmosFile.POL_MODE_MASK;
-                        if (m1 && polMode == SmosFile.POL_MODE_HH) {
-                            series1.add(ds.data[i][ix], ds.data[i][iy1]);
-                        } else if (m2 && polMode == SmosFile.POL_MODE_VV) {
-                            series2.add(ds.data[i][ix], ds.data[i][iy1]);
-                        } else if (m3 && polMode == SmosFile.POL_MODE_HV_REAL) {
-                            series3.add(ds.data[i][ix], ds.data[i][iy1]);
-                            series4.add(ds.data[i][ix], ds.data[i][iy2]);
-                        } else if (m4 && polMode == SmosFile.POL_MODE_HV_IMAG) {
-                            series5.add(ds.data[i][ix], ds.data[i][iy1]);
-                            series6.add(ds.data[i][ix], ds.data[i][iy2]);
+                        double dev = ds.data[i][id].doubleValue() * (50.0 / (1 << 16));
+                        double x = ds.data[i][ix].doubleValue();
+                        double y1 = ds.data[i][iy1].doubleValue();
+                        if (m1 && polMode == SmosFile.POL_MODE_H) {
+                            series1.add(x, y1, y1 - dev, y1 + dev);
+                        } else if (m2 && polMode == SmosFile.POL_MODE_V) {
+                            series2.add(x, y1, y1 - dev, y1 + dev);
+                        } else if (m3 && (polMode == SmosFile.POL_MODE_HV1 || polMode == SmosFile.POL_MODE_HV2)) {
+                            double y2 = ds.data[i][iy2].doubleValue();
+                            series3.add(x, y1, y1 - dev, y1 + dev);
+                            series4.add(x, y2, y2 - dev, y2 + dev);
                         }
                     }
                     dataset.addSeries(series1);
                     dataset.addSeries(series2);
                     dataset.addSeries(series3);
                     dataset.addSeries(series4);
-                    dataset.addSeries(series5);
-                    dataset.addSeries(series6);
                 }
             }
         } else {
