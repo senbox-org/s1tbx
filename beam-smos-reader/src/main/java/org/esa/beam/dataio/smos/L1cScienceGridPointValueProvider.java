@@ -98,6 +98,7 @@ class L1cScienceGridPointValueProvider implements GridPointValueProvider {
             final CompoundData data = btDataList.getCompound(i);
 
             if (mode == (data.getInt(flagsIndex) & 3) && accept(data)) {
+                // todo - interpolation
                 return data.getDouble(fieldIndex);
             }
         }
