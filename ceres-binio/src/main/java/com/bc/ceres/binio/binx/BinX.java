@@ -104,21 +104,21 @@ public class BinX {
         }
     }
 
-    public boolean setStructInlined(String varName, boolean b) {
+    public boolean setMembersInlined(String typeName, boolean b) {
         if (!b) {
-            return inlinedStructs.remove(varName);
+            return inlinedStructs.remove(typeName);
         }
 
-        return inlinedStructs.add(varName);
+        return inlinedStructs.add(typeName);
     }
 
-    public void setInlinedStructs(Properties properties) {
+    public void setMembersInlined(Properties properties) {
         if (properties != null) {
             for (Map.Entry<Object, Object> entry : properties.entrySet()) {
                 if (entry.getKey() instanceof String) {
-                    final String varName = (String) entry.getKey();
+                    final String typeName = (String) entry.getKey();
 
-                    setStructInlined(varName, "true".equals(entry.getValue()));
+                    setMembersInlined(typeName, "true".equals(entry.getValue()));
                 }
             }
         }
@@ -284,14 +284,13 @@ public class BinX {
 
         for (int i = 0; i < memberElements.size(); i++) {
             final Element memberElement = (Element) memberElements.get(i);
-            final String memberName = getVarName(memberElement, true);
             final Type memberType = parseAnyType(memberElement);
 
             if (memberType instanceof CompoundType) {
                 final CompoundType compoundType = (CompoundType) memberType;
 
                 // inline compound, if applicable
-                if (inlinedStructs.contains(memberName)) {
+                if (inlinedStructs.contains(memberType.getName())) {
                     for (final CompoundMember compoundMember : compoundType.getMembers()) {
                         members.add(MEMBER(compoundMember.getName(), compoundMember.getType()));
                     }
@@ -305,6 +304,7 @@ public class BinX {
                 }
             }
 
+            final String memberName = getVarName(memberElement, true);
             members.add(MEMBER(memberName, memberType));
         }
 
