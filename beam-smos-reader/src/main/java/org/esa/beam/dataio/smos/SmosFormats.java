@@ -183,10 +183,10 @@ public class SmosFormats {
             binX.setVarNameMappings(getResourceAsProperties("binx_var_name_mappings.properties"));
 
             if (name.contains("MIR_OSUDP2")) {
-                binX.setInlinedStructs(getResourceAsProperties("binx_inlined_structs_MIR_OSUDP2.properties"));
+                binX.setTypeMembersInlined(getResourceAsProperties("binx_inlined_structs_MIR_OSUDP2.properties"));
             }
             if (name.contains("MIR_SMUDP2")) {
-                binX.setInlinedStructs(getResourceAsProperties("binx_inlined_structs_MIR_SMUDP2.properties"));
+                binX.setTypeMembersInlined(getResourceAsProperties("binx_inlined_structs_MIR_SMUDP2.properties"));
             }
         } catch (IOException e) {
             throw new IllegalStateException(e.getMessage());
