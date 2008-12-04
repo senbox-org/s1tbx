@@ -17,14 +17,16 @@
 package org.esa.beam.dataio.smos;
 
 
-import com.bc.ceres.binio.*;
+import com.bc.ceres.binio.CompoundData;
+import com.bc.ceres.binio.CompoundType;
+import com.bc.ceres.binio.DataFormat;
+import com.bc.ceres.binio.SequenceData;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 
-public class SmosFile implements GridPointDataProvider {
+public class SmosFile extends BasicSmosFile {
 
     public static final int POL_MODE_MASK = 0x00000003;
     public static final int POL_MODE_H = 0;
@@ -32,7 +34,6 @@ public class SmosFile implements GridPointDataProvider {
     public static final int POL_MODE_HV1 = 2;
     public static final int POL_MODE_HV2 = 3;
 
-    public static final String GRID_POINT_LIST_NAME = "Grid_Point_List";
     public static final String BT_DATA_LIST_NAME = "BT_Data_List";
     public static final String FLAGS_FIELD_NAME = "Flags";
     public static final String INCIDENCE_ANGLE_FIELD_NAME = "Incidence_Angle";
@@ -41,32 +42,16 @@ public class SmosFile implements GridPointDataProvider {
     public static final int CENTER_INCIDENCE_ANGLE = 42500;
     public static final int INCIDENCE_ANGLE_RANGE = 10000;
 
-    private final File file;
-    private final DataFormat format;
-    private final SequenceData gridPointList;
-    private int[] gridPointIndexes;
-    private final DataContext dataContext;
-    private final CompoundType gridPointType;
     private final CompoundType btDataType;
     private final int btDataIndex;
     private final int incidenceAngleIndex;
     private final int flagsIndex;
 
     public SmosFile(File file, DataFormat format) throws IOException {
-        this.file = file;
-        this.format = format;
-        this.dataContext = format.createContext(file, "r");
-        CompoundData smosDataset = dataContext.getData();
-        this.gridPointList = smosDataset.getSequence(GRID_POINT_LIST_NAME);
-        if (this.gridPointList == null) {
-            throw new IllegalStateException("Missing dataset '"+GRID_POINT_LIST_NAME+"' in SMOS file.");
-        }
-        this.gridPointType = (CompoundType) gridPointList.getSequenceType().getElementType();
-
-        initGridPointIndexes();
+        super(file, format);
 
         // todo - the following code is L1C sepecific. Create subclasses? (nf - 01.12.2008)
-        btDataIndex = this.gridPointType.getMemberIndex(BT_DATA_LIST_NAME);
+        btDataIndex = getGridPointType().getMemberIndex(BT_DATA_LIST_NAME);
         if (btDataIndex != -1) {
             btDataType = (CompoundType) format.getTypeDef(BT_DATA_TYPE_NAME);
             flagsIndex = this.btDataType.getMemberIndex(FLAGS_FIELD_NAME);
@@ -76,37 +61,6 @@ public class SmosFile implements GridPointDataProvider {
             flagsIndex = -1;
             incidenceAngleIndex = -1;
         }
-    }
-
-    @Override
-    public CompoundType getGridPointType() {
-        return gridPointType;
-    }
-
-    @Override
-    public CompoundData getGridPointData(int gridPointIndex) throws IOException {
-        return gridPointList.getCompound(gridPointIndex);
-    }
-
-    @Override
-    public int getGridPointIndex(int seqnum) {
-        return gridPointIndexes[seqnum];
-    }
-
-    public File getFile() {
-        return file;
-    }
-
-    public DataFormat getFormat() {
-        return format;
-    }
-
-    public DataContext getDataContext() {
-        return dataContext;
-    }
-
-    public SequenceData getGridPointList() {
-        return gridPointList;
     }
 
     public CompoundType getBtDataType() {
@@ -138,7 +92,9 @@ public class SmosFile implements GridPointDataProvider {
      * @param btDataIndex    The index of the requested 'BT_Data' field.
      * @param polMode        {@link #POL_MODE_H},{@link #POL_MODE_V}, {@link #POL_MODE_HV1} or {@link #POL_MODE_HV2}
      * @param noDataValue    The no data value which is returned if no value could be found.
+     *
      * @return the value read or {@code noDataValue}
+     *
      * @throws IOException if an I/O error occurs
      */
     public float getL1cInterpolatedBtDataFloat(int gridPointIndex, int btDataIndex, int polMode, float noDataValue) throws IOException {
@@ -191,33 +147,7 @@ public class SmosFile implements GridPointDataProvider {
     }
 
     public SequenceData getBtDataList(int gridPointIndex) throws IOException {
-        CompoundData gridPointEntry = gridPointList.getCompound(gridPointIndex);
+        CompoundData gridPointEntry = getGridPointList().getCompound(gridPointIndex);
         return gridPointEntry.getSequence(btDataIndex);
-    }
-
-    public void initGridPointIndexes() throws IOException {
-        // todo - OPT: first find seqnumMin, seqnumMax, then gridPointIndexes=new int[seqnumMax-seqnumMin+1];
-        gridPointIndexes = new int[2621442 + 1];
-        Arrays.fill(gridPointIndexes, -1);
-        final int gridPointCounter = gridPointList.getElementCount();
-        for (int i = 0; i < gridPointCounter; i++) {
-            CompoundData gridPointData = gridPointList.getCompound(i);
-            final int gridPointId = gridPointData.getInt(0);
-            final int seqnum = SmosDgg.smosGridPointIdToDggridSeqnum(gridPointId);
-            gridPointIndexes[seqnum] = i;
-        }
-        System.out.println("SmosFile: gridPointCounter = " + gridPointCounter);
-        System.out.println("SmosFile: gridPointIndexes.length = " + gridPointIndexes.length);
-        int n = 0;
-        for (int gridPointIndex : gridPointIndexes) {
-            if (gridPointIndex != -1) {
-                n++;
-            }
-        }
-        System.out.println("SmosFile: number of gridPointIndexes != -1: " + n);
-    }
-
-    public void close() {
-        dataContext.dispose();
     }
 }

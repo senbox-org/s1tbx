@@ -28,7 +28,7 @@ import java.util.Arrays;
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-public class MySmosFile implements GridPointDataProvider {
+public class BasicSmosFile implements GridPointDataProvider {
     public static final String GRID_POINT_LIST_NAME = "Grid_Point_List";
     public static final String GRID_POINT_ID_NAME = "Grid_Point_ID";
 
@@ -40,7 +40,7 @@ public class MySmosFile implements GridPointDataProvider {
     private final int gridPointIdIndex;
     private final int[] gridPointIndexes;
 
-    public MySmosFile(File file, DataFormat format) throws IOException {
+    public BasicSmosFile(File file, DataFormat format) throws IOException {
         this.file = file;
         this.format = format;
 
@@ -71,7 +71,7 @@ public class MySmosFile implements GridPointDataProvider {
         return dataContext;
     }
 
-    public SequenceData getGridPointList() {
+    public final SequenceData getGridPointList() {
         return gridPointList;
     }
 
