@@ -112,7 +112,7 @@ public class BinX {
         return inlinedStructs.add(varName);
     }
 
-    public void setStructsInlined(Properties properties) {
+    public void setInlinedStructs(Properties properties) {
         if (properties != null) {
             for (Map.Entry<Object, Object> entry : properties.entrySet()) {
                 if (entry.getKey() instanceof String) {
