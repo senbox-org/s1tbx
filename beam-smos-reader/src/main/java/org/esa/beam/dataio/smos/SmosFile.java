@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 
-public class SmosFile {
+public class SmosFile implements GridPointDataProvider {
 
     public static final int POL_MODE_MASK = 0x00000003;
     public static final int POL_MODE_H = 0;
@@ -78,6 +78,21 @@ public class SmosFile {
         }
     }
 
+    @Override
+    public CompoundType getGridPointType() {
+        return gridPointType;
+    }
+
+    @Override
+    public CompoundData getGridPointData(int gridPointIndex) throws IOException {
+        return gridPointList.getCompound(gridPointIndex);
+    }
+
+    @Override
+    public int getGridPointIndex(int seqnum) {
+        return gridPointIndexes[seqnum];
+    }
+
     public File getFile() {
         return file;
     }
@@ -92,10 +107,6 @@ public class SmosFile {
 
     public SequenceData getGridPointList() {
         return gridPointList;
-    }
-
-    public CompoundType getGridPointType() {
-        return gridPointType;
     }
 
     public CompoundType getBtDataType() {
@@ -182,10 +193,6 @@ public class SmosFile {
     public SequenceData getBtDataList(int gridPointIndex) throws IOException {
         CompoundData gridPointEntry = gridPointList.getCompound(gridPointIndex);
         return gridPointEntry.getSequence(btDataIndex);
-    }
-
-    public int getGridPointIndex(int seqnum) {
-        return gridPointIndexes[seqnum];
     }
 
     public void initGridPointIndexes() throws IOException {
