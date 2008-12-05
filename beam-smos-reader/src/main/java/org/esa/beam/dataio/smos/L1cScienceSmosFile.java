@@ -71,7 +71,7 @@ public class L1cScienceSmosFile extends L1cSmosFile {
     @Override
     public short getBrowseBtData(int gridPointIndex, int fieldIndex, int polarization,
                                  short noDataValue) throws IOException {
-        return (short) getInterpolatedBtData(gridPointIndex, fieldIndex, polarization, noDataValue, PointFilter.NULL);
+        return (short) (int) getInterpolatedBtData(gridPointIndex, fieldIndex, polarization, noDataValue, PointFilter.NULL);
     }
 
     @Override
@@ -83,20 +83,14 @@ public class L1cScienceSmosFile extends L1cSmosFile {
     @Override
     public float getBrowseBtData(int gridPointIndex, int fieldIndex, int polarization,
                                  float noDataValue) throws IOException {
-        final PointFilter pointFilter = new PointFilter() {
-            @Override
-            public boolean accept(double x, double y) {
-                return !(Double.isNaN(y) || Double.isInfinite(y));
-            }
-        };
-
-        return (float) getInterpolatedBtData(gridPointIndex, fieldIndex, polarization, noDataValue, pointFilter);
+        return (float) getInterpolatedBtData(gridPointIndex, fieldIndex, polarization, noDataValue, PointFilter.NULL);
     }
 
     private double getInterpolatedBtData(int gridPointIndex, int fieldIndex, int polarization, double noDataValue,
                                          PointFilter pointFilter) throws IOException {
         final SequenceData btDataList = getBtDataList(gridPointIndex);
         final int elementCount = btDataList.getElementCount();
+        // todo - inline regression
         final SimpleLinearRegressor regressor = new SimpleLinearRegressor(pointFilter);
 
         boolean hasLower = false;
@@ -107,8 +101,7 @@ public class L1cScienceSmosFile extends L1cSmosFile {
             final int polarizationFlags = data.getInt(flagsIndex) & 3;
             final int incidenceAngle = data.getInt(incidenceAngleIndex);
 
-            if ((polarization == polarizationFlags
-                    || ((polarization == 2 || polarization == 3) && (polarization & 2) == (polarizationFlags & 2)))) {
+            if ((polarization == polarizationFlags || (polarization & polarizationFlags & 2) == 2)) {
                 if (incidenceAngle >= MIN_INCIDENCE_ANGLE && incidenceAngle <= MAX_INCIDENCE_ANGLE) {
                     final double fieldValue = data.getDouble(fieldIndex);
                     regressor.add(incidenceAngle, fieldValue);

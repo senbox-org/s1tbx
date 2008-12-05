@@ -69,11 +69,12 @@ public class SmosSnapshotInfoToolView extends SmosToolView {
         panel2.add(panel1, BorderLayout.NORTH);
         panel2.add(new JScrollPane(snapshotTable), BorderLayout.CENTER);
 
-        SmosBox.getInstance().getSnapshotSelectionService().addSnapshotIdChangeListener(new SnapshotSelectionService.SnapshotIdChangeListener() {
-            public void handleSnapshotIdChanged(Product product, int oldSnapshotId, int newSnapshotId) {
-                setSnapshotId(snapshotId);
-            }
-        });
+        // throws NullPointerException
+//        SmosBox.getInstance().getSnapshotSelectionService().addSnapshotIdChangeListener(new SnapshotSelectionService.SnapshotIdChangeListener() {
+//            public void handleSnapshotIdChanged(Product product, int oldSnapshotId, int newSnapshotId) {
+//                setSnapshotId(snapshotId);
+//            }
+//        });
 
         return panel2;
     }
