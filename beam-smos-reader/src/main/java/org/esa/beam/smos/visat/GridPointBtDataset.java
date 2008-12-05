@@ -1,20 +1,20 @@
 package org.esa.beam.smos.visat;
 
 import com.bc.ceres.binio.*;
-import org.esa.beam.dataio.smos.SmosFile;
+import org.esa.beam.dataio.smos.L1cSmosFile;
 
 import java.io.IOException;
 import java.math.BigInteger;
 
 
-class GridPointDataset {
+class GridPointBtDataset {
     final int gridPointIndex;
     final CompoundType btDataType;
     final String[] columnNames;
     final Class[] columnClasses;
     final Number[][] data;
 
-    static GridPointDataset read(SmosFile smosFile, int gridPointIndex) throws IOException {
+    static GridPointBtDataset read(L1cSmosFile smosFile, int gridPointIndex) throws IOException {
         SequenceData btDataList = smosFile.getBtDataList(gridPointIndex);
 
         CompoundType type = (CompoundType) btDataList.getSequenceType().getElementType();
@@ -38,7 +38,7 @@ class GridPointDataset {
             }
         }
 
-        return new GridPointDataset(gridPointIndex, smosFile.getBtDataType(), columnNames, columnClasses, tableData);
+        return new GridPointBtDataset(gridPointIndex, smosFile.getBtDataType(), columnNames, columnClasses, tableData);
     }
 
     // todo - move this to binio.utils (nf - 20081205)
@@ -94,7 +94,7 @@ class GridPointDataset {
         return numberClass;
     }
 
-    GridPointDataset(int gridPointIndex, CompoundType btDataType, String[] columnNames, Class[] columnClasses, Number[][] data) {
+    GridPointBtDataset(int gridPointIndex, CompoundType btDataType, String[] columnNames, Class[] columnClasses, Number[][] data) {
         this.gridPointIndex = gridPointIndex;
         this.btDataType = btDataType;
         this.columnNames = columnNames;
