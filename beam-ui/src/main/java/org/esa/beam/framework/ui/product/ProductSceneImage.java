@@ -193,11 +193,11 @@ public class ProductSceneImage {
         rootLayer.getChildren().add(roiLayer);
         rootLayer.getChildren().add(bitmaskLayer);
         rootLayer.getChildren().add(noDataLayer);
+
         rootLayer.getChildren().add(baseImageLayer);
 
-        // TODO: remove this hack!!!
-        if (getRaster().getProduct().getProductType().startsWith("MIR_")) {
-            // SMOS
+        // TODO: remove this hack for SMOS!!! (mz 200810)
+        if (isSmos()) {
             Layer createWorldLayer = createWorldLayer();
             if (createWorldLayer != null) {
                 rootLayer.getChildren().add(createWorldLayer);
@@ -214,6 +214,10 @@ public class ProductSceneImage {
         layerMap.put(GCP_LAYER_ID, gcpLayer);
         layerMap.put(PIN_LAYER_ID, pinLayer);
         layerMap.put(FIGURE_LAYER_ID, figureLayer);
+    }
+
+    private boolean isSmos() {
+        return getRaster().getProduct().getProductType().startsWith("MIR_");
     }
 
     private ImageLayer createBaseImageLayer() {
@@ -260,7 +264,7 @@ public class ProductSceneImage {
         }
 
         final ImageLayer blueMarbleLayer = new ImageLayer(multiLevelSource);
-        blueMarbleLayer.setName("Bluemarble " + getRaster().getName());
+        blueMarbleLayer.setName("World Map (NASA Blue Marble)");
         blueMarbleLayer.setVisible(true);
         blueMarbleLayer.getStyle().setOpacity(1.0);
         return blueMarbleLayer;

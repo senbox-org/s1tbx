@@ -4,6 +4,7 @@
     <version>1.0</version>
     <name>BEAM SMOS reader</name>
     <description>BEAM reader for SMOS data products</description>
+    <activator>org.esa.beam.smos.visat.SmosBox</activator>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
@@ -43,8 +44,8 @@
 
 
         <toolView>
-            <id>org.esa.beam.smos.visat.SmosSnapshotImageToolView</id>
-            <class>org.esa.beam.smos.visat.SmosSnapshotImageToolView</class>
+            <id>org.esa.beam.smos.visat.SmosSnapshotInfoToolView</id>
+            <class>org.esa.beam.smos.visat.SmosSnapshotInfoToolView</class>
             <title>SMOS L1C Snapshot</title>
             <tabTitle>SMOS L1C Snapshot</tabTitle>
         </toolView>

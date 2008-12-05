@@ -2,32 +2,36 @@ package org.esa.beam.smos.visat;
 
 import com.bc.ceres.binio.CompoundData;
 import org.esa.beam.dataio.smos.SmosFile;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.io.IOException;
 
-public class SmosSnapshotImageToolView extends SmosToolView {
+public class SmosSnapshotInfoToolView extends SmosToolView {
 
-    public static final String ID = SmosSnapshotImageToolView.class.getName();
+    public static final String ID = SmosSnapshotInfoToolView.class.getName();
+
     private SpinnerNumberModel snapshotSpinnerModel;
     private JSpinner snapshotSpinner;
     private JSlider snapshotSlider;
     private DefaultBoundedRangeModel snapshotSliderModel;
 
-    int snapshotId;
-    int snapshotIdMin;
-    int snapshotIdMax;
+    private int snapshotId;
+    private int snapshotIdMin;
+    private int snapshotIdMax;
     private JTable snapshotTable;
     private SmosFile smosFile;
     private SnapshotTableModel nullModel;
-    private SmosSnapshotImageToolView.SpinnerChangeListener snapshotSpinnerListener;
-    private SmosSnapshotImageToolView.SliderChangeListener snapshotSliderListener;
+    private SpinnerChangeListener snapshotSpinnerListener;
+    private SliderChangeListener snapshotSliderListener;
 
-    public SmosSnapshotImageToolView() {
+    public SmosSnapshotInfoToolView() {
         nullModel = new SnapshotTableModel(new Object[0][0]);
     }
 
@@ -45,6 +49,16 @@ public class SmosSnapshotImageToolView extends SmosToolView {
         snapshotSlider = new JSlider(snapshotSliderModel);
 
         snapshotTable = new JTable(nullModel);
+        snapshotTable.getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (value instanceof Number) {
+                    setHorizontalTextPosition(RIGHT);
+                }
+                return this;
+            }
+        });
 
         JPanel panel1 = new JPanel(new BorderLayout(2, 2));
         panel1.add(snapshotSpinner, BorderLayout.WEST);
@@ -54,12 +68,17 @@ public class SmosSnapshotImageToolView extends SmosToolView {
         panel2.add(panel1, BorderLayout.NORTH);
         panel2.add(new JScrollPane(snapshotTable), BorderLayout.CENTER);
 
+        SmosBox.getInstance().getSnapshotSelectionService().addSnapshotIdChangeListener(new SnapshotSelectionService.SnapshotIdChangeListener() {
+            public void handleSnapshotIdChanged(Product product, int oldSnapshotId, int newSnapshotId) {
+                setSnapshotId(snapshotId);
+            }
+        });
+
         return panel2;
     }
 
     @Override
     protected void updateSmosComponent(ProductSceneView oldView, ProductSceneView newView) {
-
 
         snapshotSpinner.removeChangeListener(snapshotSpinnerListener);
         snapshotSlider.removeChangeListener(snapshotSliderListener);
@@ -93,7 +112,6 @@ public class SmosSnapshotImageToolView extends SmosToolView {
             }
         }
     }
-
 
     public void setSnapshotId(int snapshotId) {
         if (this.snapshotId != snapshotId) {
