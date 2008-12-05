@@ -22,11 +22,11 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 
 /**
- * todo - add API doc
+ * Basic representation of a SMOS product file.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
- * @since BEAM 4.2
+ * @since BEAM 4.6
  */
 public class BasicSmosFile implements GridPointDataProvider {
     public static final String GRID_POINT_LIST_NAME = "Grid_Point_List";
@@ -100,7 +100,7 @@ public class BasicSmosFile implements GridPointDataProvider {
         if (seqnum < minSeqnum || seqnum > maxSeqnum) {
             return -1;
         }
-        
+
         return gridPointIndexes[seqnum - minSeqnum];
     }
 
