@@ -34,10 +34,10 @@ class L1cBrowseGridPointValueProvider implements GridPointValueProvider {
     private final int btDataListIndex;
     private final int flagsIndex;
 
-    public L1cBrowseGridPointValueProvider(GridPointDataProvider provider, int fieldIndex, int mode) {
+    public L1cBrowseGridPointValueProvider(GridPointDataProvider provider, int fieldIndex, int polarization) {
         this.provider = provider;
         this.fieldIndex = fieldIndex;
-        this.mode = mode;
+        this.mode = polarization;
 
         btDataListIndex = provider.getGridPointType().getMemberIndex("BT_Data_List");
         if (btDataListIndex == -1) {

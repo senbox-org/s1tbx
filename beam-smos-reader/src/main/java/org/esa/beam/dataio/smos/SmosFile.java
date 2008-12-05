@@ -70,11 +70,17 @@ public class SmosFile extends BasicSmosFile {
         }
 
         // todo - the following code is D1C/F1C sepecific. Create subclasses? (nf - 04.12.2008)
-        snapshotList = getDataBlock().getSequence(SNAPSHOT_LIST_NAME);
-        if (snapshotList != null) {
-            snapshotType = (CompoundType) snapshotList.getSequenceType().getElementType();
-            initSnapshotIndexes();
+        final int snapshotListIndex = getDataBlock().getMemberIndex(SNAPSHOT_LIST_NAME);
+        if (snapshotListIndex != -1) {
+            snapshotList = getDataBlock().getSequence(snapshotListIndex);
+            if (snapshotList != null) {
+                snapshotType = (CompoundType) snapshotList.getSequenceType().getElementType();
+                initSnapshotIndexes();
+            } else {
+                snapshotType = null;
+            }
         } else {
+            snapshotList = null;
             snapshotType = null;
         }
     }
