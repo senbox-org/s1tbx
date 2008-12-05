@@ -402,7 +402,7 @@ class ImageInfoEditor extends JPanel {
             sUnitValue = "";
         }
         final StringBuilder builder = new StringBuilder(getModel().isHistogramAccurate() ? "High" : "Low");
-        final String sHistoAccuracy = builder.append(" histogram accuracy").toString();
+        final String sHistoAccuracy = builder.append(" accuracy").toString();
         final int sHistoAccuracyWidth = metrics.stringWidth(sHistoAccuracy);
 
         final int maxDataTableWidth = maxPrefixWidth + maxValueWidth;
