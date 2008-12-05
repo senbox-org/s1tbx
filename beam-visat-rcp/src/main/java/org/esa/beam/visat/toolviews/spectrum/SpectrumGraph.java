@@ -109,12 +109,14 @@ class SpectrumGraph extends AbstractDiagramGraph {
         for (int i = 0; i < bands.length; i++) {
             final Band band = bands[i];
             if (pin != null) {
-                // position of pin is given in model coordinates
+                // position of pin is given in image (L0) coordinates
                 // we have to transform them to the current level
                 final ImageManager imageManager = ImageManager.getInstance();
                 final MultiLevelModel multiLevelModel = imageManager.getMultiLevelModel(band);
+                final AffineTransform i2mTransform = multiLevelModel.getImageToModelTransform(0);
                 final AffineTransform m2iTransform = multiLevelModel.getModelToImageTransform(level);
-                final Point2D imagePixel = m2iTransform.transform(pin.getPixelPos(), null);
+                final Point2D modelPixel = i2mTransform.transform(pin.getPixelPos(), null);
+                final Point2D imagePixel = m2iTransform.transform(modelPixel, null);
                 pixelX = (int) Math.floor(imagePixel.getX());
                 pixelY = (int) Math.floor(imagePixel.getY());
             }
