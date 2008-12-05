@@ -2,7 +2,7 @@ package org.esa.beam.smos.visat;
 
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelImage;
-import org.esa.beam.dataio.smos.SmosFile;
+import org.esa.beam.dataio.smos.L1cSmosFile;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
@@ -81,7 +81,7 @@ public abstract class SmosGridPointInfoToolView extends SmosToolView {
         final int seqnum = data.getSample(pixelX, pixelY, 0);
 
         // final int seqnum = SmosDgg.smosGridPointIdToDggridSeqnum(gridPointId);
-        final SmosFile smosFile = getSmosProductReader().getSmosFile();
+        final L1cSmosFile smosFile = getSmosProductReader().getSmosFile();
         final int gridPointIndex = smosFile.getGridPointIndex(seqnum);
 
         if (gridPointIndex >= 0) {
@@ -92,7 +92,7 @@ public abstract class SmosGridPointInfoToolView extends SmosToolView {
                     "</html>");
 
             try {
-                GridPointDataset ds = GridPointDataset.read(smosFile, gridPointIndex);
+                GridPointBtDataset ds = GridPointBtDataset.read(smosFile, gridPointIndex);
                 updateGridPointComponent(ds);
             } catch (IOException e) {
                 updateGridPointComponent(e);
@@ -115,7 +115,7 @@ public abstract class SmosGridPointInfoToolView extends SmosToolView {
 
     protected abstract JComponent createGridPointComponent();
 
-    protected abstract void updateGridPointComponent(GridPointDataset ds);
+    protected abstract void updateGridPointComponent(GridPointBtDataset ds);
 
     protected abstract void updateGridPointComponent(IOException e);
 

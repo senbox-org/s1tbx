@@ -69,7 +69,7 @@ public class SmosGridPointTableToolView extends SmosGridPointInfoToolView {
 
 
     @Override
-    protected void updateGridPointComponent(GridPointDataset ds) {
+    protected void updateGridPointComponent(GridPointBtDataset ds) {
         table.setModel(new GridPointTableModel(ds));
     }
 

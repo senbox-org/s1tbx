@@ -2,6 +2,7 @@ package org.esa.beam.smos.visat;
 
 import com.bc.ceres.binio.CompoundData;
 import org.esa.beam.dataio.smos.SmosFile;
+import org.esa.beam.dataio.smos.L1cScienceSmosFile;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
@@ -26,7 +27,7 @@ public class SmosSnapshotInfoToolView extends SmosToolView {
     private int snapshotIdMin;
     private int snapshotIdMax;
     private JTable snapshotTable;
-    private SmosFile smosFile;
+    private L1cScienceSmosFile smosFile;
     private SnapshotTableModel nullModel;
     private SpinnerChangeListener snapshotSpinnerListener;
     private SliderChangeListener snapshotSliderListener;
@@ -82,8 +83,8 @@ public class SmosSnapshotInfoToolView extends SmosToolView {
 
         snapshotSpinner.removeChangeListener(snapshotSpinnerListener);
         snapshotSlider.removeChangeListener(snapshotSliderListener);
-        if (newView != null && getSmosProductReader().getSmosFile().getSnapshotList() != null) {
-            smosFile = getSmosProductReader().getSmosFile();
+        if (newView != null && getSmosProductReader().getSmosFile() instanceof L1cScienceSmosFile) {
+            smosFile = (L1cScienceSmosFile) getSmosProductReader().getSmosFile();
             setSnapshotIdRange(smosFile.getSnapshotIdMin(), smosFile.getSnapshotIdMax());
             setSnapshotId(smosFile.getSnapshotIdMin());
             snapshotSpinner.addChangeListener(snapshotSpinnerListener);
@@ -143,7 +144,7 @@ public class SmosSnapshotInfoToolView extends SmosToolView {
         for (int i = 0; i < n; i++) {
             tableData[i][0] = data.getCompoundType().getMemberName(i);
             if (data.getCompoundType().getMemberType(i).isSimpleType()) {
-                tableData[i][1] = GridPointDataset.getNumbericMember(data, i);
+                tableData[i][1] = GridPointBtDataset.getNumbericMember(data, i);
             } else {
                 tableData[i][1] = data.getCompoundType().getMemberType(i).getName();
             }
@@ -152,12 +153,14 @@ public class SmosSnapshotInfoToolView extends SmosToolView {
     }
 
     private class SpinnerChangeListener implements ChangeListener {
+        @Override
         public void stateChanged(ChangeEvent e) {
             setSnapshotId(snapshotSpinnerModel.getNumber().intValue());
         }
     }
 
     private class SliderChangeListener implements ChangeListener {
+        @Override
         public void stateChanged(ChangeEvent e) {
             setSnapshotId(snapshotSliderModel.getValue());
         }

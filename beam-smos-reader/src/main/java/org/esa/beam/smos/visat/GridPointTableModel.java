@@ -4,9 +4,9 @@ import javax.swing.table.AbstractTableModel;
 
 
 class GridPointTableModel extends AbstractTableModel {
-    private final GridPointDataset ds;
+    private final GridPointBtDataset ds;
 
-    GridPointTableModel(GridPointDataset ds) {
+    GridPointTableModel(GridPointBtDataset ds) {
         this.ds = ds;
     }
 

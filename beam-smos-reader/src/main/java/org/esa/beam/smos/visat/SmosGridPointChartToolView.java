@@ -17,7 +17,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.FlowLayout;
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.io.IOException;
 
@@ -87,7 +86,7 @@ public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
     }
 
     @Override
-    protected void updateGridPointComponent(GridPointDataset ds) {
+    protected void updateGridPointComponent(GridPointBtDataset ds) {
         dataset.removeAllSeries();
 
 

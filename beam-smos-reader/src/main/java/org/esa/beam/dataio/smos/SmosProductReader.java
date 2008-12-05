@@ -45,7 +45,7 @@ public class SmosProductReader extends AbstractProductReader {
 
     private static MultiLevelImage dggridMultiLevelImage;
 
-    private SmosFile smosFile;
+    private L1cSmosFile smosFile;
     HashMap<String, BandInfo> bandInfos = new HashMap<String, BandInfo>(17);
 
     SmosProductReader(final SmosProductReaderPlugIn productReaderPlugIn) {
@@ -135,8 +135,27 @@ public class SmosProductReader extends AbstractProductReader {
         if (!(format.getTypeDef(SmosFile.BT_DATA_TYPE_NAME) instanceof CompoundType)) {
             throw new IOException(MessageFormat.format("File ''{0}'': Illegal SMOS data format", inputFile));
         }
+        final String formatName = format.getName();
 
-        smosFile = new SmosFile(dblFile, format);
+        // todo - clean-up, see below
+        if (formatName.contains("MIR_BWLD1C")
+                || formatName.contains("MIR_BWND1C")
+                || formatName.contains("MIR_BWSD1C")) {
+            smosFile = new L1cBrowseSmosFile(dblFile, format);
+        } else if (formatName.contains("MIR_BWLF1C")
+                || formatName.contains("MIR_BWNF1C")
+                || formatName.contains("MIR_BWSF1C")) {
+            smosFile = new L1cBrowseSmosFile(dblFile, format);
+        } else if (formatName.contains("MIR_SCLD1C")
+                || formatName.contains("MIR_SCSD1C")) {
+            smosFile = new L1cScienceSmosFile(dblFile, format);
+        } else if (formatName.contains("MIR_SCLF1C")
+                || formatName.contains("MIR_SCSF1C")) {
+            smosFile = new L1cScienceSmosFile(dblFile, format);
+        } else {
+            throw new IllegalStateException("Illegal SMOS format: " + formatName);
+        }
+
         final int sceneWidth = dggridMultiLevelImage.getWidth();
         final int sceneHeight = dggridMultiLevelImage.getHeight();
 
@@ -147,38 +166,31 @@ public class SmosProductReader extends AbstractProductReader {
         product.setPreferredTileSize(512, 512);
         product.setFileLocation(dblFile);
         product.setGeoCoding(createGeoCoding(product));
-        final String formatName = format.getName();
+        addGridCellIdBand(product);
 
-        final Type someType = format.getTypeDef(SmosFile.BT_DATA_TYPE_NAME);
-        if (someType instanceof CompoundType) {
-            CompoundType btDataType = (CompoundType) someType;
+        if (smosFile instanceof L1cSmosFile) {
+            CompoundType btDataType = smosFile.getBtDataType();
             if (formatName.contains("MIR_BWLD1C")
                     || formatName.contains("MIR_BWND1C")
                     || formatName.contains("MIR_BWSD1C")) {
-                addGridCellIdBand(product);
-                addSmosBandsFromCompound(product, btDataType, false, true);
+                addSmosBandsFromCompound(product, btDataType, true);
             } else if (formatName.contains("MIR_BWLF1C")
                     || formatName.contains("MIR_BWNF1C")
                     || formatName.contains("MIR_BWSF1C")) {
-                addGridCellIdBand(product);
-                addSmosBandsFromCompound(product, btDataType, false, false);
+                addSmosBandsFromCompound(product, btDataType, false);
             } else if (formatName.contains("MIR_SCLD1C")
                     || formatName.contains("MIR_SCSD1C")) {
-                addGridCellIdBand(product);
-                addSmosBandsFromCompound(product, btDataType, true, true);
+                addSmosBandsFromCompound(product, btDataType, true);
             } else if (formatName.contains("MIR_SCLF1C")
                     || formatName.contains("MIR_SCSF1C")) {
-                addGridCellIdBand(product);
-                addSmosBandsFromCompound(product, btDataType, true, false);
-            } else {
-                throw new IllegalStateException("Illegal SMOS format: " + formatName);
+                addSmosBandsFromCompound(product, btDataType, false);
             }
         }
 
         return product;
     }
 
-    public SmosFile getSmosFile() {
+    public L1cSmosFile getSmosFile() {
         return smosFile;
     }
 
@@ -186,7 +198,7 @@ public class SmosProductReader extends AbstractProductReader {
         return dggridMultiLevelImage;
     }
 
-    private void addSmosBandsFromCompound(Product product, CompoundType compoundDataType, boolean scientific, boolean dualPol) {
+    private void addSmosBandsFromCompound(Product product, CompoundType compoundDataType, boolean dualPol) {
         CompoundMember[] members = compoundDataType.getMembers();
         for (int fieldIndex = 0; fieldIndex < members.length; fieldIndex++) {
             CompoundMember member = members[fieldIndex];
@@ -194,18 +206,18 @@ public class SmosProductReader extends AbstractProductReader {
             BandInfo bandInfo = bandInfos.get(bandName);
             if (bandInfo != null) {
                 if (dualPol) {
-                    addL1cBand(product, scientific, SmosFile.POL_MODE_H, fieldIndex, bandName + "_H",
+                    addL1cBand(product, SmosFile.POL_MODE_H, fieldIndex, bandName + "_H",
                                memberTypeToBandType(member.getType()), bandInfo);
-                    addL1cBand(product, scientific, SmosFile.POL_MODE_V, fieldIndex, bandName + "_V",
+                    addL1cBand(product, SmosFile.POL_MODE_V, fieldIndex, bandName + "_V",
                                memberTypeToBandType(member.getType()), bandInfo);
                 } else {
-                    addL1cBand(product, scientific, SmosFile.POL_MODE_H, fieldIndex, bandName + "_H",
+                    addL1cBand(product, SmosFile.POL_MODE_H, fieldIndex, bandName + "_H",
                                memberTypeToBandType(member.getType()), bandInfo);
-                    addL1cBand(product, scientific, SmosFile.POL_MODE_V, fieldIndex, bandName + "_V",
+                    addL1cBand(product, SmosFile.POL_MODE_V, fieldIndex, bandName + "_V",
                                memberTypeToBandType(member.getType()), bandInfo);
-                    addL1cBand(product, scientific, SmosFile.POL_MODE_HV1, fieldIndex, bandName + "_HV1",
+                    addL1cBand(product, SmosFile.POL_MODE_HV1, fieldIndex, bandName + "_HV_Real",
                                memberTypeToBandType(member.getType()), bandInfo);
-                    addL1cBand(product, scientific, SmosFile.POL_MODE_HV2, fieldIndex, bandName + "_HV2",
+                    addL1cBand(product, SmosFile.POL_MODE_HV2, fieldIndex, bandName + "_HV_Imag",
                                memberTypeToBandType(member.getType()), bandInfo);
                 }
             }
@@ -237,7 +249,6 @@ public class SmosProductReader extends AbstractProductReader {
     }
 
     private void addL1cBand(Product product,
-                            boolean scientific,
                             int polMode,
                             int fieldIndex,
                             String bandName,
@@ -253,14 +264,8 @@ public class SmosProductReader extends AbstractProductReader {
             band.setNoDataValue(bandInfo.noDataValue.doubleValue());
         }
 
-        final GridPointValueProvider gpvp;
-        if (scientific) {
-            gpvp = new L1cScienceGridPointValueProvider(smosFile, fieldIndex, polMode);
-        } else {
-            gpvp = new L1cBrowseGridPointValueProvider(smosFile, fieldIndex, polMode);
-        }
+        final GridPointValueProvider gpvp = new L1cGridPointValueProvider(smosFile, fieldIndex, polMode);
         band.setSourceImage(createSourceImage(gpvp, band, bandInfo.noDataValue));
-
         band.setImageInfo(createDefaultImageInfo(bandInfo));
     }
 

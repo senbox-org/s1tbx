@@ -78,7 +78,7 @@ public class SmosGridPointFlagmatrixToolView extends SmosGridPointInfoToolView {
     }
 
     @Override
-    protected void updateGridPointComponent(GridPointDataset ds) {
+    protected void updateGridPointComponent(GridPointBtDataset ds) {
         dataset.removeSeries(SERIES_KEY);
 
         int iq = ds.getColumnIndex(SmosFile.FLAGS_FIELD_NAME);
