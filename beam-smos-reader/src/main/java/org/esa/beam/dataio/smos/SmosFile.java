@@ -24,6 +24,7 @@ import com.bc.ceres.binio.SequenceData;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 
 public class SmosFile extends BasicSmosFile {
@@ -37,15 +38,21 @@ public class SmosFile extends BasicSmosFile {
     public static final String BT_DATA_LIST_NAME = "BT_Data_List";
     public static final String FLAGS_FIELD_NAME = "Flags";
     public static final String INCIDENCE_ANGLE_FIELD_NAME = "Incidence_Angle";
+    public static final String SNAPSHOT_LIST_NAME = "Snapshot_List";
     public static final String BT_DATA_TYPE_NAME = "BT_Data_Type";
 
     public static final int CENTER_INCIDENCE_ANGLE = 42500;
-    public static final int INCIDENCE_ANGLE_RANGE = 10000;
 
+    public static final int INCIDENCE_ANGLE_RANGE = 10000;
     private final CompoundType btDataType;
     private final int btDataIndex;
     private final int incidenceAngleIndex;
     private final int flagsIndex;
+    private final SequenceData snapshotList;
+    private final CompoundType snapshotType;
+    private int[] snapshotIndexes;
+    private int snapshotIdMin;
+    private int snapshotIdMax;
 
     public SmosFile(File file, DataFormat format) throws IOException {
         super(file, format);
@@ -61,6 +68,39 @@ public class SmosFile extends BasicSmosFile {
             flagsIndex = -1;
             incidenceAngleIndex = -1;
         }
+
+        // todo - the following code is D1C/F1C sepecific. Create subclasses? (nf - 04.12.2008)
+        snapshotList = getDataBlock().getSequence(SNAPSHOT_LIST_NAME);
+        if (snapshotList != null) {
+            snapshotType = (CompoundType) snapshotList.getSequenceType().getElementType();
+            initSnapshotIndexes();
+        } else {
+            snapshotType = null;
+        }
+    }
+
+    public int getSnapshotIdMin() {
+        return snapshotIdMin;
+    }
+
+    public int getSnapshotIdMax() {
+        return snapshotIdMax;
+    }
+
+    public int getSnapshotIndex(int snapshotId) {
+        return snapshotIndexes[snapshotId -  snapshotIdMin];
+    }
+
+    public SequenceData getSnapshotList() {
+        return snapshotList;
+    }
+
+    public CompoundData getSnapshotData(int snapshotIndex) throws IOException {
+        return snapshotList.getCompound(snapshotIndex);
+    }
+
+    public CompoundType getSnapshotType() {
+        return snapshotType;
     }
 
     public CompoundType getBtDataType() {
@@ -92,9 +132,7 @@ public class SmosFile extends BasicSmosFile {
      * @param btDataIndex    The index of the requested 'BT_Data' field.
      * @param polMode        {@link #POL_MODE_H},{@link #POL_MODE_V}, {@link #POL_MODE_HV1} or {@link #POL_MODE_HV2}
      * @param noDataValue    The no data value which is returned if no value could be found.
-     *
      * @return the value read or {@code noDataValue}
-     *
      * @throws IOException if an I/O error occurs
      */
     public float getL1cInterpolatedBtDataFloat(int gridPointIndex, int btDataIndex, int polMode, float noDataValue) throws IOException {
@@ -149,5 +187,42 @@ public class SmosFile extends BasicSmosFile {
     public SequenceData getBtDataList(int gridPointIndex) throws IOException {
         CompoundData gridPointEntry = getGridPointList().getCompound(gridPointIndex);
         return gridPointEntry.getSequence(btDataIndex);
+    }
+
+    public void initSnapshotIndexes() throws IOException {
+        snapshotIdMin = Integer.MAX_VALUE;
+        snapshotIdMax = Integer.MIN_VALUE;
+        final int snapshotCounter = snapshotList.getElementCount();
+        for (int i = 0; i < snapshotCounter; i++) {
+            CompoundData snapshotData = snapshotList.getCompound(i);
+            int snapshotId = snapshotData.getInt(1);
+            snapshotIdMin = Math.min(snapshotIdMin, snapshotId);
+            snapshotIdMax = Math.max(snapshotIdMax, snapshotId);
+        }
+
+        System.out.println("SmosFile: snapshotIdMin = " + snapshotIdMin);
+        System.out.println("SmosFile: snapshotIdMax = " + snapshotIdMax);
+
+        snapshotIndexes = new int[snapshotIdMax - snapshotIdMin + 1];
+
+        Arrays.fill(snapshotIndexes, -1);
+        for (int i = 0; i < snapshotCounter; i++) {
+            CompoundData snapshotData = snapshotList.getCompound(i);
+            int snapshotId = snapshotData.getInt(1);
+            snapshotIndexes[snapshotId - snapshotIdMin] = i;
+        }
+        System.out.println("SmosFile: snapshotCounter = " + snapshotCounter);
+        System.out.println("SmosFile: snapshotIndexes.length = " + snapshotIndexes.length);
+        int n = 0;
+        for (int snapshotIndex : snapshotIndexes) {
+            if (snapshotIndex != -1) {
+                n++;
+            }
+        }
+        System.out.println("SmosFile: number of snapshotIndexes != -1: " + n);
+    }
+
+    public static int smosSnapshotIdToSeqnum(int snapshotId) {
+        return snapshotId % 10000;
     }
 }

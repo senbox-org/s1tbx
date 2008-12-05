@@ -1,14 +1,18 @@
 package org.esa.beam.smos.visat;
 
+import org.esa.beam.dataio.smos.SmosFile;
 import org.esa.beam.dataio.smos.SmosFormats;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.labels.XYZToolTipGenerator;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.LookupPaintScale;
 import org.jfree.chart.renderer.xy.XYBlockRenderer;
 import org.jfree.data.xy.DefaultXYZDataset;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYZDataset;
 import org.jfree.ui.RectangleInsets;
 
 import javax.swing.JComponent;
@@ -17,7 +21,7 @@ import java.io.IOException;
 
 public class SmosGridPointFlagmatrixToolView extends SmosGridPointInfoToolView {
     public static final String ID = SmosGridPointFlagmatrixToolView.class.getName();
-
+    private static final String SERIES_KEY = "Flags";
 
     private JFreeChart chart;
     private DefaultXYZDataset dataset;
@@ -26,18 +30,11 @@ public class SmosGridPointFlagmatrixToolView extends SmosGridPointInfoToolView {
     public SmosGridPointFlagmatrixToolView() {
     }
 
-
     @Override
     protected JComponent createGridPointComponent() {
         dataset = new DefaultXYZDataset();
 
-        final SmosFormats.FlagDescriptor[] flags = SmosFormats.L1C_FLAGS;
-        String[] flagNames = new String[flags.length];
-        for (int i = 0; i < flags.length; i++) {
-            flagNames[i] = flags[i].getName();
-        }
-
-        NumberAxis xAxis = new NumberAxis("Incidence Angle (deg)");
+        NumberAxis xAxis = new NumberAxis("Record Index");
         xAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
         xAxis.setAutoRangeIncludesZero(false);
         xAxis.setLowerMargin(0.0);
@@ -60,6 +57,7 @@ public class SmosGridPointFlagmatrixToolView extends SmosGridPointInfoToolView {
 
         XYBlockRenderer renderer = new XYBlockRenderer();
         renderer.setPaintScale(paintScale);
+        renderer.setBaseToolTipGenerator(new FlagToolTipGenerator());
 
         plot = new XYPlot(dataset, xAxis, yAxis, renderer);
         plot.setBackgroundPaint(Color.LIGHT_GRAY);
@@ -81,23 +79,23 @@ public class SmosGridPointFlagmatrixToolView extends SmosGridPointInfoToolView {
 
     @Override
     protected void updateGridPointComponent(GridPointDataset ds) {
-        dataset.removeSeries("Flags");
+        dataset.removeSeries(SERIES_KEY);
 
-        int ix = ds.getColumnIndex("Incidence_Angle");
-        int iq = ds.getColumnIndex("Flags");
-        if (ix != -1 && iq != -1) {
+        int iq = ds.getColumnIndex(SmosFile.FLAGS_FIELD_NAME);
+        if (iq != -1) {
+            int ix = ds.getColumnIndex(SmosFile.INCIDENCE_ANGLE_FIELD_NAME);
             final int m = ds.data.length;
             final int n = SmosFormats.L1C_FLAGS.length;
             double[][] data = new double[3][n * m];
             for (int x = 0; x < m; x++) {
                 final int flags = ds.data[x][iq].intValue();
                 for (int y = 0; y < n; y++) {
-                    data[0][y * m + x] = x; // ds.data[x][ix].doubleValue();
+                    data[0][y * m + x] = ix == -1 ? x : ds.data[x][ix].doubleValue();
                     data[1][y * m + x] = y;
                     data[2][y * m + x] = ((flags & (1 << y)) != 0) ? (1 + y % 3) : 0.0;
                 }
             }
-            dataset.addSeries("Flags", data);
+            dataset.addSeries(SERIES_KEY, data);
         } else {
             plot.setNoDataMessage("Not a SMOS D1C/F1C pixel.");
         }
@@ -106,15 +104,43 @@ public class SmosGridPointFlagmatrixToolView extends SmosGridPointInfoToolView {
 
     @Override
     protected void updateGridPointComponent(IOException e) {
-        dataset.removeSeries("Flags");
+        dataset.removeSeries(SERIES_KEY);
         plot.setNoDataMessage("I/O error");
     }
 
     @Override
     protected void clearGridPointComponent() {
-        dataset.removeSeries("Flags");
+        dataset.removeSeries(SERIES_KEY);
         plot.setNoDataMessage("No data");
     }
 
 
+    private class FlagToolTipGenerator implements XYZToolTipGenerator {
+        private String[] flagNames;
+
+        private FlagToolTipGenerator() {
+            final SmosFormats.FlagDescriptor[] flags = SmosFormats.L1C_FLAGS;
+            flagNames = new String[flags.length];
+            for (int i = 0; i < flags.length; i++) {
+                flagNames[i] = flags[i].getName();
+            }
+        }
+
+        @Override
+        public String generateToolTip(XYDataset xyDataset, int series, int item) {
+            return generateToolTip((XYZDataset) xyDataset, series, item);
+        }
+
+        @Override
+        public String generateToolTip(XYZDataset xyzDataset, int series, int item) {
+            int recordIndex = dataset.getX(series, item).intValue();
+            int flagIndex = dataset.getY(series, item).intValue();
+            boolean flagSet = dataset.getZ(series, item).intValue() != 0;
+            String flagName = "?";
+            if (flagIndex >= 0 && flagIndex < flagNames.length) {
+                flagName = flagNames[flagIndex];
+            }
+            return flagName + "(" + recordIndex + "): " + (flagSet ? "ON" : "OFF");
+        }
+    }
 }

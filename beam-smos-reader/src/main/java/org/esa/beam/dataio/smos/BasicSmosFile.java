@@ -35,43 +35,30 @@ public class BasicSmosFile implements GridPointDataProvider {
     private final File file;
     private final DataFormat format;
     private final DataContext dataContext;
+    private final CompoundData dataBlock;
+
     private final SequenceData gridPointList;
     private final CompoundType gridPointType;
     private final int gridPointIdIndex;
-    private final int[] gridPointIndexes;
+    private int[] gridPointIndexes;
 
     public BasicSmosFile(File file, DataFormat format) throws IOException {
         this.file = file;
         this.format = format;
 
         dataContext = format.createContext(file, "r");
-        gridPointList = dataContext.getData().getSequence(GRID_POINT_LIST_NAME);
+        dataBlock = dataContext.getData();
+
+        gridPointList = dataBlock.getSequence(GRID_POINT_LIST_NAME);
         if (gridPointList == null) {
             throw new IllegalStateException(MessageFormat.format(
                     "SMOS File ''{0}'': Missing grid point list.", file.getPath()));
         }
+
         gridPointType = (CompoundType) gridPointList.getSequenceType().getElementType();
         gridPointIdIndex = gridPointType.getMemberIndex(GRID_POINT_ID_NAME);
 
-        // todo - first find seqnumMin, seqnumMax, then gridPointIndexes = new int[seqnumMax-seqnumMin+1]
-        gridPointIndexes = new int[2621442 + 1];
-
         initGridPointIndexes();
-    }
-
-    @Override
-    public final int getGridPointIndex(int seqnum) {
-        return gridPointIndexes[seqnum];
-    }
-
-    @Override
-    public final CompoundType getGridPointType() {
-        return gridPointType;
-    }
-
-    @Override
-    public final CompoundData getGridPointData(int gridPointIndex) throws IOException {
-        return gridPointList.getCompound(gridPointIndex);
     }
 
     public final int getGridPointCount() {
@@ -98,8 +85,27 @@ public class BasicSmosFile implements GridPointDataProvider {
         return dataContext;
     }
 
+    public CompoundData getDataBlock() {
+        return dataBlock;
+    }
+
     public final SequenceData getGridPointList() {
         return gridPointList;
+    }
+
+    @Override
+    public final int getGridPointIndex(int seqnum) {
+        return gridPointIndexes[seqnum];
+    }
+
+    @Override
+    public final CompoundType getGridPointType() {
+        return gridPointType;
+    }
+
+    @Override
+    public final CompoundData getGridPointData(int gridPointIndex) throws IOException {
+        return gridPointList.getCompound(gridPointIndex);
     }
 
     public void close() {
@@ -107,6 +113,9 @@ public class BasicSmosFile implements GridPointDataProvider {
     }
 
     private void initGridPointIndexes() throws IOException {
+        // todo - first find seqnumMin, seqnumMax, then gridPointIndexes = new int[seqnumMax-seqnumMin+1]  (nf-20081203)
+        gridPointIndexes = new int[2621442 + 1];
+
         Arrays.fill(gridPointIndexes, -1);
         final int gridPointCount = gridPointList.getElementCount();
 

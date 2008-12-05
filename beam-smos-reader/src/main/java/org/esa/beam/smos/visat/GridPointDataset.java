@@ -1,10 +1,10 @@
 package org.esa.beam.smos.visat;
 
+import com.bc.ceres.binio.*;
 import org.esa.beam.dataio.smos.SmosFile;
 
 import java.io.IOException;
-
-import com.bc.ceres.binio.*;
+import java.math.BigInteger;
 
 
 class GridPointDataset {
@@ -27,40 +27,71 @@ class GridPointDataset {
 
         for (int j = 0; j < memberCount; j++) {
             columnNames[j] = type.getMemberName(j);
-            Type memberType = type.getMemberType(j);
-            Class columnClass;
-            if (memberType == SimpleType.FLOAT) {
-                columnClass = Float.class;
-            } else if (memberType == SimpleType.DOUBLE) {
-                columnClass = Double.class;
-            } else if (memberType == SimpleType.ULONG || memberType == SimpleType.LONG) {
-                columnClass = Long.class;
-            } else {
-                columnClass = Integer.class;
-            }
-            columnClasses[j] = columnClass;
+            columnClasses[j] = getNumbericMemberType(type, j);
         }
 
         Number[][] tableData = new Number[btDataListCount][memberCount];
         for (int i = 0; i < btDataListCount; i++) {
             CompoundData btData = btDataList.getCompound(i);
             for (int j = 0; j < memberCount; j++) {
-                Type memberType = type.getMemberType(j);
-                Number value;
-                if (memberType == SimpleType.FLOAT) {
-                    value = btData.getFloat(j);
-                } else if (memberType == SimpleType.DOUBLE) {
-                    value = btData.getDouble(j);
-                } else if (memberType == SimpleType.ULONG || memberType == SimpleType.LONG) {
-                    value = btData.getLong(j);
-                } else {
-                    value = btData.getInt(j);
-                }
-                tableData[i][j] = value;
+                tableData[i][j] = getNumbericMember(btData, j);
             }
         }
 
         return new GridPointDataset(gridPointIndex, smosFile.getBtDataType(), columnNames, columnClasses, tableData);
+    }
+
+    // todo - move this to binio.utils (nf - 20081205)
+    // todo - test this (nf - 20081205)
+    public static Number getNumbericMember(CompoundData compoundData, int memberIndex) throws IOException {
+        Type memberType = compoundData.getCompoundType().getMemberType(memberIndex);
+        Number number;
+        if (memberType == SimpleType.DOUBLE) {
+            number = compoundData.getDouble(memberIndex);
+        } else if (memberType == SimpleType.FLOAT) {
+            number = compoundData.getFloat(memberIndex);
+        } else if (memberType == SimpleType.ULONG) {
+            // This mask is used to obtain the value of an int as if it were unsigned.
+            BigInteger mask = BigInteger.valueOf(0xffffffffffffffffL);
+            BigInteger bi = BigInteger.valueOf(compoundData.getLong(memberIndex));
+            number = bi.and(mask);
+        } else if (memberType == SimpleType.LONG || memberType == SimpleType.UINT) {
+            number = compoundData.getLong(memberIndex);
+        } else if (memberType == SimpleType.INT || memberType == SimpleType.USHORT) {
+            number = compoundData.getInt(memberIndex);
+        } else if (memberType == SimpleType.SHORT || memberType == SimpleType.UBYTE) {
+            number = compoundData.getShort(memberIndex);
+        } else if (memberType == SimpleType.BYTE) {
+            number = compoundData.getByte(memberIndex);
+        } else {
+            number = null;
+        }
+        return number;
+    }
+
+    // todo - move this to binio.utils (nf - 20081205)
+    // todo - test this (nf - 20081205)
+    public static Class<? extends Number> getNumbericMemberType(CompoundType compoundData, int memberIndex) {
+        Type memberType = compoundData.getMemberType(memberIndex);
+        Class<? extends Number> numberClass;
+        if (memberType == SimpleType.DOUBLE) {
+            numberClass = Double.class;
+        } else if (memberType == SimpleType.FLOAT) {
+            numberClass = Float.class;
+        } else if (memberType == SimpleType.ULONG) {
+            numberClass = BigInteger.class;
+        } else if (memberType == SimpleType.LONG || memberType == SimpleType.UINT) {
+            numberClass = Long.class;
+        } else if (memberType == SimpleType.INT || memberType == SimpleType.USHORT) {
+            numberClass = Integer.class;
+        } else if (memberType == SimpleType.SHORT || memberType == SimpleType.UBYTE) {
+            numberClass = Short.class;
+        } else if (memberType == SimpleType.BYTE) {
+            numberClass = Byte.class;
+        } else {
+            numberClass = null;
+        }
+        return numberClass;
     }
 
     GridPointDataset(int gridPointIndex, CompoundType btDataType, String[] columnNames, Class[] columnClasses, Number[][] data) {

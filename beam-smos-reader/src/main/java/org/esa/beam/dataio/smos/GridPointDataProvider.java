@@ -7,14 +7,7 @@ import com.bc.ceres.binio.Type;
 
 import java.io.IOException;
 
-/**
- * todo - add API doc
- *
- * @author Ralf Quast
- * @version $Revision$ $Date$
- * @since BEAM 4.2
- */
-interface GridPointDataProvider {
+public interface GridPointDataProvider {
     
     int getGridPointIndex(int seqnum);
 

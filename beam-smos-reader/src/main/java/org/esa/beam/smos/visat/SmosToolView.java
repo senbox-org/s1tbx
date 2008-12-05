@@ -1,6 +1,10 @@
 package org.esa.beam.smos.visat;
 
 import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.binio.CompoundData;
+import com.bc.ceres.binio.Type;
+import com.bc.ceres.binio.SimpleType;
+import com.bc.ceres.binio.CompoundType;
 import org.esa.beam.dataio.smos.SmosProductReader;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
@@ -19,6 +23,8 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.event.MouseEvent;
 import java.net.URL;
+import java.io.IOException;
+import java.math.BigInteger;
 
 public abstract class SmosToolView extends AbstractToolView {
 
@@ -123,7 +129,58 @@ public abstract class SmosToolView extends AbstractToolView {
             updateSmosComponent(oldSmosView, smosView);
         }
     }
+    public static Number getNumbericMember(CompoundData compoundData, int memberIndex) throws IOException {
+        Type memberType = compoundData.getCompoundType().getMemberType(memberIndex);
+        Number number;
+        if (memberType == SimpleType.DOUBLE) {
+            number = compoundData.getDouble(memberIndex);
+        } else if (memberType == SimpleType.FLOAT) {
+            number = compoundData.getFloat(memberIndex);
+        } else if (memberType == SimpleType.ULONG) {
+            // This mask is used to obtain the value of an int as if it were unsigned.
+            BigInteger mask = BigInteger.valueOf(0xffffffffffffffffL);
+            BigInteger bi = BigInteger.valueOf(compoundData.getLong(memberIndex));
+            number = bi.and(mask);
+        } else if (memberType == SimpleType.LONG || memberType == SimpleType.UINT) {
+            number = compoundData.getDouble(memberIndex);
+        } else if (memberType == SimpleType.INT || memberType == SimpleType.USHORT) {
+            number = compoundData.getDouble(memberIndex);
+        } else if (memberType == SimpleType.SHORT || memberType == SimpleType.UBYTE) {
+            number = compoundData.getDouble(memberIndex);
+        } else if (memberType == SimpleType.BYTE) {
+            number = compoundData.getDouble(memberIndex);
+        } else {
+            number = null;
+        }
+        return number;
+    }
 
+    public static Class<? extends Number> getNumbericMemberType(CompoundType compoundData, int memberIndex) {
+        Type memberType = compoundData.getMemberType(memberIndex);
+        Class<? extends Number> numberClass;
+        if (memberType == SimpleType.DOUBLE) {
+            numberClass = Double.class;
+        } else if (memberType == SimpleType.FLOAT) {
+            numberClass = Float.class;
+        } else if (memberType == SimpleType.ULONG) {
+            numberClass = BigInteger.class;
+        } else if (memberType == SimpleType.LONG || memberType == SimpleType.UINT) {
+            numberClass = Long.class;
+        } else if (memberType == SimpleType.INT || memberType == SimpleType.USHORT) {
+            numberClass = Integer.class;
+        } else if (memberType == SimpleType.SHORT || memberType == SimpleType.UBYTE) {
+            numberClass = Short.class;
+        } else if (memberType == SimpleType.BYTE) {
+            numberClass = Byte.class;
+        } else {
+            numberClass = null;
+        }
+        return numberClass;
+    }
+
+
+
+    
     private void handleNoSmos() {
         smosProductReader = null;
         smosProduct = null;
