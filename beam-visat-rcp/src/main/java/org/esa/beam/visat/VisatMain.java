@@ -64,7 +64,6 @@ public class VisatMain implements RuntimeRunnable {
         Locale.setDefault(Locale.UK); // Force usage of British English locale
 
         Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
-        // set special properties for Mac OS X
         if (SystemInfo.isMacOSX()) {
             if (System.getProperty("apple.laf.useScreenMenuBar") == null) {
                 System.setProperty("apple.laf.useScreenMenuBar", "true");
