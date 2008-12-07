@@ -10,6 +10,7 @@ public class SmosBox implements Activator {
     private static SmosBox instance;
 
     private SnapshotSelectionService snapshotSelectionService;
+    private GridPointSelectionService gridPointSelectionService;
 
     public SmosBox() {
     }
@@ -22,14 +23,21 @@ public class SmosBox implements Activator {
         return snapshotSelectionService;
     }
 
+    public GridPointSelectionService getGridPointSelectionService() {
+        return gridPointSelectionService;
+    }
+
     public void start(ModuleContext moduleContext) throws CoreException {
         instance = this;
         snapshotSelectionService = new SnapshotSelectionService(VisatApp.getApp().getProductManager());
+        gridPointSelectionService = new GridPointSelectionService();
     }
 
     public void stop(ModuleContext moduleContext) throws CoreException {
         snapshotSelectionService.dispose();
         snapshotSelectionService = null;
+        gridPointSelectionService.dispose();
+        gridPointSelectionService = null;
         instance = null;
     }
 }

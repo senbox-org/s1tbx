@@ -69,7 +69,7 @@ public class SmosSnapshotInfoToolView extends SmosToolView {
 
         // throws NullPointerException
 //        SmosBox.getInstance().getSnapshotSelectionService().addSnapshotIdChangeListener(new SnapshotSelectionService.Listener() {
-//            public void handleSnapshotIdChanged(Product product, int oldSnapshotId, int newSnapshotId) {
+//            public void handleSnapshotIdChanged(Product product, int oldId, int newId) {
 //                setSnapshotId(snapshotId);
 //            }
 //        });

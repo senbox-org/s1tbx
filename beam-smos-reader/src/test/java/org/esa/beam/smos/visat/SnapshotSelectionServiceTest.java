@@ -22,61 +22,61 @@ public class SnapshotSelectionServiceTest extends TestCase {
         assertEquals(-1, sss.getSelectedSnapshotId(p0));
         assertEquals(10001, sss.getSelectedSnapshotId(p1));
 
-        MyListener l = new MyListener();
+        MySelectionListener l = new MySelectionListener();
         sss.addSnapshotIdChangeListener(l);
 
         // select same id for p1, no change expected
         sss.setSelectedSnapshotId(p1, 10001);
         assertEquals(10001, sss.getSelectedSnapshotId(p1));
         assertEquals(null, l.product);
-        assertEquals(-1, l.oldSnapshotId);
-        assertEquals(-1, l.newSnapshotId);
+        assertEquals(-1, l.oldId);
+        assertEquals(-1, l.newId);
 
         // select new id for p1, expected change from old --> new id
         sss.setSelectedSnapshotId(p1, 10023);
         assertEquals(10023, sss.getSelectedSnapshotId(p1));
         assertEquals(p1, l.product);
-        assertEquals(10001, l.oldSnapshotId);
-        assertEquals(10023, l.newSnapshotId);
+        assertEquals(10001, l.oldId);
+        assertEquals(10023, l.newId);
 
         // select id for p0, expected change from -1 --> id
         sss.setSelectedSnapshotId(p0, 10023);
         assertEquals(10023, sss.getSelectedSnapshotId(p1));
         assertEquals(p0, l.product);
-        assertEquals(-1, l.oldSnapshotId);
-        assertEquals(10023, l.newSnapshotId);
+        assertEquals(-1, l.oldId);
+        assertEquals(10023, l.newId);
 
         // removing p0, deselection expected
         l.reset();
         pm.removeProduct(p0);
         assertEquals(p0, l.product);
-        assertEquals(10023, l.oldSnapshotId);
-        assertEquals(-1, l.newSnapshotId);
+        assertEquals(10023, l.oldId);
+        assertEquals(-1, l.newId);
 
         // remove selection for p1, notification expected 20023 --> -1
-                l.reset();
+        l.reset();
         sss.setSelectedSnapshotId(p1, -1);
         assertEquals(-1, sss.getSelectedSnapshotId(p1));
         assertEquals(p1, l.product);
-        assertEquals(10023, l.oldSnapshotId);
-        assertEquals(-1, l.newSnapshotId);
+        assertEquals(10023, l.oldId);
+        assertEquals(-1, l.newId);
     }
 
-    private static class MyListener implements SnapshotSelectionService.Listener {
+    private static class MySelectionListener implements SnapshotSelectionService.SelectionListener {
         Product product = null;
-        int oldSnapshotId = -1;
-        int newSnapshotId = -1;
+        int oldId = -1;
+        int newId = -1;
 
-        public void handleSnapshotIdChanged(Product product, int oldSnapshotId, int newSnapshotId) {
+        public void handleSnapshotIdChanged(Product product, int oldId, int newId) {
             this.product = product;
-            this.oldSnapshotId = oldSnapshotId;
-            this.newSnapshotId = newSnapshotId;
+            this.oldId = oldId;
+            this.newId = newId;
         }
 
         void reset() {
             this.product = null;
-            this.oldSnapshotId = -1;
-            this.newSnapshotId = -1;
+            this.oldId = -1;
+            this.newId = -1;
         }
     }
 }
