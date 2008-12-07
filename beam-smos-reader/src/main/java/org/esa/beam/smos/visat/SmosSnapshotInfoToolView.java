@@ -1,9 +1,7 @@
 package org.esa.beam.smos.visat;
 
 import com.bc.ceres.binio.CompoundData;
-import org.esa.beam.dataio.smos.SmosFile;
 import org.esa.beam.dataio.smos.L1cScienceSmosFile;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.*;
@@ -70,7 +68,7 @@ public class SmosSnapshotInfoToolView extends SmosToolView {
         panel2.add(new JScrollPane(snapshotTable), BorderLayout.CENTER);
 
         // throws NullPointerException
-//        SmosBox.getInstance().getSnapshotSelectionService().addSnapshotIdChangeListener(new SnapshotSelectionService.SnapshotIdChangeListener() {
+//        SmosBox.getInstance().getSnapshotSelectionService().addSnapshotIdChangeListener(new SnapshotSelectionService.Listener() {
 //            public void handleSnapshotIdChanged(Product product, int oldSnapshotId, int newSnapshotId) {
 //                setSnapshotId(snapshotId);
 //            }

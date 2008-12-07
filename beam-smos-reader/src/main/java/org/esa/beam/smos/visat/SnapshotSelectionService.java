@@ -10,12 +10,12 @@ import java.util.Map;
 
 public class SnapshotSelectionService {
     private final ProductManager productManager;
-    private final List<SnapshotIdChangeListener> snapshotIdChangeListeners;
+    private final List<Listener> listeners;
     private final Map<Product, Integer> snapshotIds;
     private final ProductManagerHandler productManagerHandler;
 
     public SnapshotSelectionService(ProductManager productManager) {
-        this.snapshotIdChangeListeners = new ArrayList<SnapshotIdChangeListener>();
+        this.listeners = new ArrayList<Listener>();
         this.snapshotIds = new HashMap<Product, Integer>();
         this.productManagerHandler = new ProductManagerHandler();
         this.productManager = productManager;
@@ -25,7 +25,7 @@ public class SnapshotSelectionService {
     public void dispose() {
         synchronized (this) {
             snapshotIds.clear();
-            snapshotIdChangeListeners.clear();
+            listeners.clear();
             productManager.addListener(productManagerHandler);
         }
     }
@@ -39,30 +39,41 @@ public class SnapshotSelectionService {
     }
 
     public void setSelectedSnapshotId(Product product, int snapshotId) {
+        int oldSnapshotId;
         synchronized (this) {
-            int oldSnapshotId = getSelectedSnapshotId(product);
+            oldSnapshotId = getSelectedSnapshotId(product);
             if (oldSnapshotId != snapshotId) {
-                snapshotIds.put(product, snapshotId);
-                for (SnapshotIdChangeListener snapshotIdChangeListener : snapshotIdChangeListeners) {
-                    snapshotIdChangeListener.handleSnapshotIdChanged(product, oldSnapshotId, snapshotId);
+                if (snapshotId >= 0) {
+                    snapshotIds.put(product, snapshotId);
+                } else {
+                    snapshotIds.remove(product);
                 }
             }
         }
-    }
-
-    public void addSnapshotIdChangeListener(SnapshotIdChangeListener listener) {
-        synchronized (this) {
-            snapshotIdChangeListeners.add(listener);
+        if (oldSnapshotId != snapshotId) {
+            fireSelectionChange(product, oldSnapshotId, snapshotId);
         }
     }
 
-    public void removeSnapshotIdChangeListener(SnapshotIdChangeListener listener) {
-        synchronized (this) {
-            snapshotIdChangeListeners.remove(listener);
+    private void fireSelectionChange(Product product, int oldSnapshotId, int newSnapshotId) {
+        for (Listener listener : listeners) {
+            listener.handleSnapshotIdChanged(product, oldSnapshotId, newSnapshotId);
         }
     }
 
-    public interface SnapshotIdChangeListener {
+    public void addSnapshotIdChangeListener(Listener listener) {
+        synchronized (this) {
+            listeners.add(listener);
+        }
+    }
+
+    public void removeSnapshotIdChangeListener(Listener listener) {
+        synchronized (this) {
+            listeners.remove(listener);
+        }
+    }
+
+    public interface Listener {
         void handleSnapshotIdChanged(Product product, int oldSnapshotId, int newSnapshotId);
     }
 
@@ -71,7 +82,7 @@ public class SnapshotSelectionService {
         }
 
         public void productRemoved(ProductManager.Event event) {
-            snapshotIds.remove(event.getProduct());
+            setSelectedSnapshotId(event.getProduct(), -1);
         }
     }
 }
