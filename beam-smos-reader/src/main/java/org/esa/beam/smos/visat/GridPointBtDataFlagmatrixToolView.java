@@ -2,6 +2,7 @@ package org.esa.beam.smos.visat;
 
 import org.esa.beam.dataio.smos.SmosFile;
 import org.esa.beam.dataio.smos.SmosFormats;
+import org.esa.beam.dataio.smos.L1cSmosFile;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -81,7 +82,7 @@ public class GridPointBtDataFlagmatrixToolView extends GridPointBtDataToolView {
     protected void updateGridPointBtDataComponent(GridPointBtDataset ds) {
         dataset.removeSeries(SERIES_KEY);
 
-        int iq = ds.getColumnIndex(SmosFile.FLAGS_FIELD_NAME);
+        int iq = ds.getColumnIndex(L1cSmosFile.BT_FLAGS_MEMBER_NAME);
         if (iq != -1) {
             final int m = ds.data.length;
             final int n = SmosFormats.L1C_FLAGS.length;

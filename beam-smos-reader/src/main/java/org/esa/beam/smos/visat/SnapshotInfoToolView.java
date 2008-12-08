@@ -1,23 +1,26 @@
 package org.esa.beam.smos.visat;
 
 import com.bc.ceres.binio.CompoundData;
+import com.bc.ceres.core.Assert;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.dataio.smos.L1cScienceSmosFile;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.glevel.BandImageMultiLevelSource;
 
-import javax.swing.DefaultBoundedRangeModel;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.JSpinner;
-import javax.swing.JTable;
-import javax.swing.SpinnerNumberModel;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.image.RenderedImage;
+import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.util.List;
 
 public class SnapshotInfoToolView extends SmosToolView {
 
@@ -36,6 +39,9 @@ public class SnapshotInfoToolView extends SmosToolView {
     private SnapshotTableModel nullModel;
     private SpinnerChangeListener snapshotSpinnerListener;
     private SliderChangeListener snapshotSliderListener;
+    private JTextField snapshotIndexLabel;
+    private AbstractAction locateSnapshotAction;
+    private AbstractAction toggleSnapshotModeAction;
 
     public SnapshotInfoToolView() {
         nullModel = new SnapshotTableModel(new Object[0][0]);
@@ -60,36 +66,45 @@ public class SnapshotInfoToolView extends SmosToolView {
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 if (value instanceof Number) {
-                    setHorizontalTextPosition(RIGHT);
+                    setHorizontalAlignment(RIGHT);
                 }
                 return this;
             }
         });
 
+        snapshotIndexLabel = new JTextField(10);
+        snapshotIndexLabel.setEditable(false);
+
         JPanel panel1 = new JPanel(new BorderLayout(2, 2));
         panel1.add(snapshotSpinner, BorderLayout.WEST);
         panel1.add(snapshotSlider, BorderLayout.CENTER);
+        panel1.add(snapshotIndexLabel, BorderLayout.EAST);
 
-        JPanel panel2 = new JPanel(new BorderLayout(2, 2));
-        panel2.add(panel1, BorderLayout.NORTH);
-        panel2.add(new JScrollPane(snapshotTable), BorderLayout.CENTER);
+        toggleSnapshotModeAction = new ToggleSnapshotModeAction();
+        AbstractButton snapshotModeButton = ToolButtonFactory.createButton(toggleSnapshotModeAction, true);
 
-        // throws NullPointerException
-//        SmosBox.getInstance().getSnapshotSelectionService().addSnapshotIdChangeListener(new SnapshotSelectionService.Listener() {
-//            public void handleSnapshotIdChanged(Product product, int oldId, int newId) {
-//                setSnapshotId(snapshotId);
-//            }
-//        });
+        locateSnapshotAction = new LocateSnapshotAction();
+        AbstractButton locateSnapshotButton = ToolButtonFactory.createButton(locateSnapshotAction, true);
 
-        return panel2;
+        JPanel panel2 = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2,2));
+        panel2.add(snapshotModeButton);
+        panel2.add(locateSnapshotButton);
+
+        JPanel panel3 = new JPanel(new BorderLayout(2, 2));
+        panel3.add(panel1, BorderLayout.NORTH);
+        panel3.add(new JScrollPane(snapshotTable), BorderLayout.CENTER);
+        panel3.add(panel2, BorderLayout.SOUTH);
+
+        return panel3;
     }
 
     @Override
     protected void updateClientComponent(ProductSceneView smosView) {
+        boolean enabled = smosView != null && getSelectedSmosFile() instanceof L1cScienceSmosFile;
 
         snapshotSpinner.removeChangeListener(snapshotSpinnerListener);
         snapshotSlider.removeChangeListener(snapshotSliderListener);
-        if (smosView != null && getSelectedSmosFile() instanceof L1cScienceSmosFile) {
+        if (enabled) {
             smosFile = (L1cScienceSmosFile) getSelectedSmosFile();
             setSnapshotIdRange(smosFile.getSnapshotIdMin(), smosFile.getSnapshotIdMax());
             setSnapshotId(smosFile.getSnapshotIdMin());
@@ -99,9 +114,11 @@ public class SnapshotInfoToolView extends SmosToolView {
             smosFile = null;
         }
 
-        snapshotSpinner.setEnabled(smosFile != null);
-        snapshotSlider.setEnabled(smosFile != null);
-        snapshotTable.setEnabled(smosFile != null);
+        snapshotSpinner.setEnabled(enabled);
+        snapshotSlider.setEnabled(enabled);
+        snapshotTable.setEnabled(enabled);
+        locateSnapshotAction.setEnabled(enabled);
+        toggleSnapshotModeAction.setEnabled(enabled);
     }
 
     public void setSnapshotIdRange(int min, int max) {
@@ -117,7 +134,12 @@ public class SnapshotInfoToolView extends SmosToolView {
             } else if (snapshotId > max) {
                 setSnapshotIdNoUpdate(max);
             }
+            updateLabel();
         }
+    }
+
+    private void updateLabel() {
+        snapshotIndexLabel.setText((snapshotId - snapshotIdMin + 1) + "/" +(snapshotIdMax-snapshotIdMin + 1));
     }
 
     public void setSnapshotId(int snapshotId) {
@@ -134,6 +156,7 @@ public class SnapshotInfoToolView extends SmosToolView {
             } else {
                 snapshotTable.setModel(nullModel);
             }
+            updateLabel();
         }
     }
 
@@ -169,6 +192,39 @@ public class SnapshotInfoToolView extends SmosToolView {
         @Override
         public void stateChanged(ChangeEvent e) {
             setSnapshotId(snapshotSliderModel.getValue());
+        }
+    }
+
+    static class LocateSnapshotAction extends AbstractAction {
+        LocateSnapshotAction() {
+            putValue(Action.NAME, "Locate Snapshot");
+        }
+
+        public void actionPerformed(ActionEvent e) {
+
+        }
+    }
+
+    class ToggleSnapshotModeAction extends AbstractAction {
+        ToggleSnapshotModeAction() {
+            putValue(Action.NAME, "Snapshot Mode");
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            
+            ProductSceneView sceneView = getSelectedSmosView();
+            ImageLayer imageLayer = sceneView.getBaseImageLayer();
+            RenderedImage sourceImage = sceneView.getRaster().getSourceImage();
+            if (sourceImage instanceof MultiLevelSource) {
+                MultiLevelSource multiLevelSource = (MultiLevelSource) sourceImage;
+                multiLevelSource.reset();
+            }
+            RenderedImage validMaskImage = sceneView.getRaster().getValidMaskImage();
+            if (validMaskImage instanceof MultiLevelSource) {
+                MultiLevelSource multiLevelSource = (MultiLevelSource) validMaskImage;
+                multiLevelSource.reset();
+            }
+            imageLayer.regenerate();
         }
     }
 }

@@ -39,12 +39,6 @@ public class SmosFile implements GridPointDataProvider {
     public static final String GRID_POINT_LIST_NAME = "Grid_Point_List";
     public static final String GRID_POINT_ID_NAME = "Grid_Point_ID";
 
-    public static final String BT_DATA_LIST_NAME = "BT_Data_List";
-    public static final String FLAGS_FIELD_NAME = "Flags";
-    public static final String INCIDENCE_ANGLE_FIELD_NAME = "Incidence_Angle";
-    public static final String SNAPSHOT_LIST_NAME = "Snapshot_List";
-    public static final String BT_DATA_TYPE_NAME = "BT_Data_Type";
-
     private final File file;
     private final DataFormat format;
     private final DataContext dataContext;

@@ -19,7 +19,6 @@ import com.bc.ceres.binio.CompoundType;
 import com.bc.ceres.binio.DataFormat;
 import com.bc.ceres.binio.SequenceData;
 
-import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -33,33 +32,37 @@ import java.util.Arrays;
  */
 public class L1cScienceSmosFile extends L1cSmosFile {
 
-    public static final String BT_DATA_FLAGS_FIELD_NAME = "Flags";
-    public static final String BT_DATA_INCIDENCE_ANGLE_FIELD_NAME = "Incidence_Angle";
-    public static final String SNAPSHOT_LIST_NAME = "Snapshot_List";
+    public static final String BT_INCIDENCE_ANGLE_MEMBER_NAME = "Incidence_Angle";
+    public static final String BT_SNAPSHOT_ID_MEMBER_NAME = "Snapshot_ID_of_Pixel";
+
+    public static final String SNAPSHOT_LIST_MEMBER_NAME = "Snapshot_List";
     public static final String SNAPSHOT_ID_NAME = "Snapshot_ID";
 
-    public static final int CENTER_INCIDENCE_ANGLE = 42500;
-    public static final int MIN_INCIDENCE_ANGLE = 37500;
-    public static final int MAX_INCIDENCE_ANGLE = 52500;
+    public static final float CENTER_INCIDENCE_ANGLE = 42.5f;
+    public static final float MIN_INCIDENCE_ANGLE = 37.5f;
+    public static final float MAX_INCIDENCE_ANGLE = 52.5f;
 
     private final int flagsIndex;
 
     private final int incidenceAngleIndex;
+    private final int snapshotIdIndex;
+
     private final SequenceData snapshotList;
-
     private final CompoundType snapshotType;
-    private final int[] snapshotIndexes;
 
+    private final int[] snapshotIndexes;
     private int snapshotIdMin;
     private int snapshotIdMax;
+    private static final float INCIDENCE_ANGLE_FACTOR = 90.0f / (float) Math.pow(2, 16);
 
     public L1cScienceSmosFile(File file, DataFormat format) throws IOException {
         super(file, format);
 
-        flagsIndex = getBtDataType().getMemberIndex(BT_DATA_FLAGS_FIELD_NAME);
-        incidenceAngleIndex = this.btDataType.getMemberIndex(BT_DATA_INCIDENCE_ANGLE_FIELD_NAME);
+        flagsIndex = getBtDataType().getMemberIndex(BT_FLAGS_MEMBER_NAME);
+        incidenceAngleIndex = this.btDataType.getMemberIndex(BT_INCIDENCE_ANGLE_MEMBER_NAME);
+        snapshotIdIndex = this.btDataType.getMemberIndex(BT_SNAPSHOT_ID_MEMBER_NAME);
 
-        snapshotList = getDataBlock().getSequence(SNAPSHOT_LIST_NAME);
+        snapshotList = getDataBlock().getSequence(SNAPSHOT_LIST_MEMBER_NAME);
         if (snapshotList == null) {
             throw new IOException("Data block does not include snapshot list.");
         }
@@ -71,44 +74,52 @@ public class L1cScienceSmosFile extends L1cSmosFile {
     @Override
     public short getBrowseBtData(int gridPointIndex, int fieldIndex, int polarization,
                                  short noDataValue) throws IOException {
-        return (short) (int) getInterpolatedBtData(gridPointIndex, fieldIndex, polarization, noDataValue, PointFilter.NULL);
+        return (short) (int) getInterpolatedBtData(gridPointIndex, fieldIndex, polarization, noDataValue);
     }
 
     @Override
     public int getBrowseBtData(int gridPointIndex, int fieldIndex, int polarization,
                                int noDataValue) throws IOException {
-        return (int) getInterpolatedBtData(gridPointIndex, fieldIndex, polarization, noDataValue, PointFilter.NULL);
+        return (int) getInterpolatedBtData(gridPointIndex, fieldIndex, polarization, noDataValue);
     }
 
     @Override
     public float getBrowseBtData(int gridPointIndex, int fieldIndex, int polarization,
                                  float noDataValue) throws IOException {
-        return (float) getInterpolatedBtData(gridPointIndex, fieldIndex, polarization, noDataValue, PointFilter.NULL);
+        return getInterpolatedBtData(gridPointIndex, fieldIndex, polarization, noDataValue);
     }
 
-    private double getInterpolatedBtData(int gridPointIndex, int fieldIndex, int polarization, double noDataValue,
-                                         PointFilter pointFilter) throws IOException {
+    private float getInterpolatedBtData(int gridPointIndex, int fieldIndex, int polarization,
+                                        float noDataValue) throws IOException {
         final SequenceData btDataList = getBtDataList(gridPointIndex);
         final int elementCount = btDataList.getElementCount();
-        // todo - inline regression
-        final SimpleLinearRegressor regressor = new SimpleLinearRegressor(pointFilter);
+
+        int count = 0;
+        float sx = 0;
+        float sy = 0;
+        float sxx = 0;
+        float sxy = 0;
 
         boolean hasLower = false;
         boolean hasUpper = false;
 
-        for (int i = 0; i < elementCount; ++i) {
-            final CompoundData data = btDataList.getCompound(i);
-            final int polarizationFlags = data.getInt(flagsIndex) & 3;
-            final int incidenceAngle = data.getInt(incidenceAngleIndex);
+        CompoundData btData;
+        float incidenceAngle;
+        float btValue;
 
-            if ((polarization == polarizationFlags || (polarization & polarizationFlags & 2) != 0)) {
+        for (int i = 0; i < elementCount; ++i) {
+            btData = btDataList.getCompound(i);
+            if (isPolarisationAccepted(btData, polarization)) {
+                incidenceAngle = INCIDENCE_ANGLE_FACTOR * btData.getInt(incidenceAngleIndex);
                 if (incidenceAngle >= MIN_INCIDENCE_ANGLE && incidenceAngle <= MAX_INCIDENCE_ANGLE) {
-                    final double fieldValue = data.getDouble(fieldIndex);
-                    regressor.add(incidenceAngle, fieldValue);
-                    if (fieldIndex == incidenceAngleIndex) {
-                        System.out.println("incidenceAngle = " + incidenceAngle);    
-                        System.out.println("fieldValue = " + fieldValue);    
-                    }
+                    btValue = btData.getFloat(fieldIndex);
+
+                    sx += incidenceAngle;
+                    sy += btValue;
+                    sxx += incidenceAngle * incidenceAngle;
+                    sxy += incidenceAngle * btValue;
+                    count++;
+
                     if (!hasLower) {
                         hasLower = incidenceAngle <= CENTER_INCIDENCE_ANGLE;
                     }
@@ -119,11 +130,65 @@ public class L1cScienceSmosFile extends L1cSmosFile {
             }
         }
         if (hasLower && hasUpper) {
-            final Point2D point = regressor.getRegression();
-            return point.getX() * CENTER_INCIDENCE_ANGLE + point.getY();
+            final float a = (count * sxy - sx * sy) / (count * sxx - sx * sx);
+            final float b = (sy - a * sx) / count;
+            return a * CENTER_INCIDENCE_ANGLE + b;
         } else {
             return noDataValue;
         }
+    }
+
+    public short getSnapshotBtData(int gridPointIndex, int fieldIndex,
+                                   int polarization,
+                                   int snapshotId,
+                                   short noDataValue) throws IOException {
+        final SequenceData btDataList = getBtDataList(gridPointIndex);
+        final int elementCount = btDataList.getElementCount();
+        CompoundData btData;
+        for (int i = 0; i < elementCount; ++i) {
+            btData = btDataList.getCompound(i);
+            if (isPolarisationAccepted(btData, polarization) && btData.getInt(snapshotIdIndex) == snapshotId) {
+                return btData.getShort(fieldIndex);
+            }
+        }
+        return noDataValue;
+    }
+
+    public int getSnapshotBtData(int gridPointIndex, int fieldIndex,
+                                 int polarization,
+                                 int snapshotId,
+                                 int noDataValue) throws IOException {
+        final SequenceData btDataList = getBtDataList(gridPointIndex);
+        final int elementCount = btDataList.getElementCount();
+        CompoundData btData;
+        for (int i = 0; i < elementCount; ++i) {
+            btData = btDataList.getCompound(i);
+            if (isPolarisationAccepted(btData, polarization) && btData.getInt(snapshotIdIndex) == snapshotId) {
+                return btData.getInt(fieldIndex);
+            }
+        }
+        return noDataValue;
+    }
+
+    public float getSnapshotBtData(int gridPointIndex, int fieldIndex,
+                                   int polarization,
+                                   int snapshotId,
+                                   float noDataValue) throws IOException {
+        final SequenceData btDataList = getBtDataList(gridPointIndex);
+        final int elementCount = btDataList.getElementCount();
+        CompoundData btData;
+        for (int i = 0; i < elementCount; ++i) {
+            btData = btDataList.getCompound(i);
+            if (isPolarisationAccepted(btData, polarization) && btData.getInt(snapshotIdIndex) == snapshotId) {
+                return btData.getFloat(fieldIndex);
+            }
+        }
+        return noDataValue;
+    }
+
+    private boolean isPolarisationAccepted(CompoundData data, int polarization) throws IOException {
+        final int polarizationFlags = data.getInt(flagsIndex) & 3;
+        return polarization == polarizationFlags || (polarization & polarizationFlags & 2) != 0;
     }
 
     public final int getSnapshotIdMin() {
