@@ -34,7 +34,7 @@ public class GridPointBtDataFlagmatrixToolView extends GridPointBtDataToolView {
     protected JComponent createGridPointComponent() {
         dataset = new DefaultXYZDataset();
 
-        NumberAxis xAxis = new NumberAxis("Record Index");
+        NumberAxis xAxis = new NumberAxis("Record #");
         xAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
         xAxis.setAutoRangeIncludesZero(false);
         xAxis.setLowerMargin(0.0);
@@ -89,7 +89,7 @@ public class GridPointBtDataFlagmatrixToolView extends GridPointBtDataToolView {
             for (int x = 0; x < m; x++) {
                 final int flags = ds.data[x][iq].intValue();
                 for (int y = 0; y < n; y++) {
-                    data[0][y * m + x] = x;
+                    data[0][y * m + x] = (1 + x);
                     data[1][y * m + x] = y;
                     data[2][y * m + x] = ((flags & (1 << y)) != 0) ? (1 + y % 3) : 0.0;
                 }

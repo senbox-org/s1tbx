@@ -104,7 +104,11 @@ public abstract class GridPointBtDataToolView extends SmosToolView {
 
     private class GPSL implements GridPointSelectionService.SelectionListener {
         public void handleGridPointSelectionChanged(int oldId, int newId) {
+            if (snapToSelectedPinCheckBox.isSelected()) {
+             // todo mp   
+            }   else {
             realizeGridPointChange(newId);
+            }
         }
     }
 }
