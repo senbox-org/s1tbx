@@ -22,7 +22,7 @@ public class SnapshotSelectionService {
         this.productManager.addListener(productManagerHandler);
     }
 
-    public synchronized void dispose() {
+    public synchronized void stop() {
         snapshotIds.clear();
         selectionListeners.clear();
         productManager.addListener(productManagerHandler);

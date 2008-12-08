@@ -1,6 +1,10 @@
 package org.esa.beam.smos.visat;
 
-import com.bc.ceres.binio.*;
+import com.bc.ceres.binio.CompoundData;
+import com.bc.ceres.binio.CompoundType;
+import com.bc.ceres.binio.SequenceData;
+import com.bc.ceres.binio.SimpleType;
+import com.bc.ceres.binio.Type;
 import org.esa.beam.dataio.smos.L1cSmosFile;
 
 import java.io.IOException;

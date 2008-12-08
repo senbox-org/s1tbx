@@ -5,6 +5,7 @@ import javax.swing.table.AbstractTableModel;
 
 class SnapshotTableModel extends AbstractTableModel {
     Object[][] objects;
+
     public SnapshotTableModel(Object[][] objects) {
         this.objects = objects;
     }

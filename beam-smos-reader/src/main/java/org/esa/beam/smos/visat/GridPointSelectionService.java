@@ -12,7 +12,7 @@ public class GridPointSelectionService {
         this.selectedPointId = -1;
     }
 
-    public synchronized void dispose() {
+    public synchronized void stop() {
         selectionListeners.clear();
         selectedPointId = -1;
     }

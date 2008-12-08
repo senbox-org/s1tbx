@@ -5,10 +5,10 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.renderer.xy.DeviationRenderer;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.DeviationRenderer;
 import org.jfree.data.xy.YIntervalSeries;
 import org.jfree.data.xy.YIntervalSeriesCollection;
 import org.jfree.ui.RectangleInsets;
@@ -16,20 +16,19 @@ import org.jfree.ui.RectangleInsets;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.awt.FlowLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.io.IOException;
 
-public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
-    public static final String ID = SmosGridPointChartToolView.class.getName();
-
+public class GridPointBtDataChartToolView extends GridPointBtDataToolView {
+    public static final String ID = GridPointBtDataChartToolView.class.getName();
 
     private JFreeChart chart;
     private YIntervalSeriesCollection dataset;
     private XYPlot plot;
     private JCheckBox[] modeCheckers;
 
-    public SmosGridPointChartToolView() {
+    public GridPointBtDataChartToolView() {
     }
 
     @Override
@@ -64,10 +63,10 @@ public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
     }
 
     @Override
-    protected void updateSmosComponent(ProductSceneView oldView, ProductSceneView newView) {
+    protected void updateClientComponent(ProductSceneView smosView) {
         // todo - enable/disable HV modes depending on D1C/F1C
         for (JCheckBox modeChecker : modeCheckers) {
-            modeChecker.setEnabled(newView != null);
+            modeChecker.setEnabled(smosView != null);
         }
     }
 
@@ -86,7 +85,7 @@ public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
     }
 
     @Override
-    protected void updateGridPointComponent(GridPointBtDataset ds) {
+    protected void updateGridPointBtDataComponent(GridPointBtDataset ds) {
         dataset.removeAllSeries();
 
 
@@ -156,13 +155,13 @@ public class SmosGridPointChartToolView extends SmosGridPointInfoToolView {
     }
 
     @Override
-    protected void updateGridPointComponent(IOException e) {
+    protected void updateGridPointBtDataComponent(IOException e) {
         dataset.removeAllSeries();
         plot.setNoDataMessage("I/O error");
     }
 
     @Override
-    protected void clearGridPointComponent() {
+    protected void clearGridPointBtDataComponent() {
         dataset.removeAllSeries();
         plot.setNoDataMessage("No data");
     }

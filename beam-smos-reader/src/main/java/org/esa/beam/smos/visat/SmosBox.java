@@ -1,16 +1,16 @@
 package org.esa.beam.smos.visat;
 
-import com.bc.ceres.core.CoreException;
-import com.bc.ceres.core.runtime.Activator;
-import com.bc.ceres.core.runtime.ModuleContext;
 import org.esa.beam.visat.VisatApp;
+import org.esa.beam.visat.VisatPlugIn;
 
-public class SmosBox implements Activator {
+public class SmosBox implements VisatPlugIn {
+
 
     private static SmosBox instance;
 
     private SnapshotSelectionService snapshotSelectionService;
     private GridPointSelectionService gridPointSelectionService;
+    private SmosSceneViewSelectionService smosSceneViewSelectionService;
 
     public SmosBox() {
     }
@@ -27,17 +27,28 @@ public class SmosBox implements Activator {
         return gridPointSelectionService;
     }
 
-    public void start(ModuleContext moduleContext) throws CoreException {
+    public SmosSceneViewSelectionService getSmosViewSelectionService() {
+        return smosSceneViewSelectionService;
+    }
+
+    public void start(VisatApp visatApp) {
         instance = this;
-        snapshotSelectionService = new SnapshotSelectionService(VisatApp.getApp().getProductManager());
+        smosSceneViewSelectionService = new SmosSceneViewSelectionService(visatApp);
+        snapshotSelectionService = new SnapshotSelectionService(visatApp.getProductManager());
         gridPointSelectionService = new GridPointSelectionService();
     }
 
-    public void stop(ModuleContext moduleContext) throws CoreException {
-        snapshotSelectionService.dispose();
+    public void stop(VisatApp visatApp) {
+        smosSceneViewSelectionService.stop();
+        smosSceneViewSelectionService = null;
+        snapshotSelectionService.stop();
         snapshotSelectionService = null;
-        gridPointSelectionService.dispose();
+        gridPointSelectionService.stop();
         gridPointSelectionService = null;
         instance = null;
     }
+
+    public void updateComponentTreeUI() {
+    }
+
 }

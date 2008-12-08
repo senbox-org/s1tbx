@@ -19,15 +19,15 @@ import javax.swing.JComponent;
 import java.awt.Color;
 import java.io.IOException;
 
-public class SmosGridPointFlagmatrixToolView extends SmosGridPointInfoToolView {
-    public static final String ID = SmosGridPointFlagmatrixToolView.class.getName();
+public class GridPointBtDataFlagmatrixToolView extends GridPointBtDataToolView {
+    public static final String ID = GridPointBtDataFlagmatrixToolView.class.getName();
     private static final String SERIES_KEY = "Flags";
 
     private JFreeChart chart;
     private DefaultXYZDataset dataset;
     private XYPlot plot;
 
-    public SmosGridPointFlagmatrixToolView() {
+    public GridPointBtDataFlagmatrixToolView() {
     }
 
     @Override
@@ -74,23 +74,22 @@ public class SmosGridPointFlagmatrixToolView extends SmosGridPointInfoToolView {
     }
 
     @Override
-    protected void updateSmosComponent(ProductSceneView oldView, ProductSceneView newView) {
+    protected void updateClientComponent(ProductSceneView smosView) {
     }
 
     @Override
-    protected void updateGridPointComponent(GridPointBtDataset ds) {
+    protected void updateGridPointBtDataComponent(GridPointBtDataset ds) {
         dataset.removeSeries(SERIES_KEY);
 
         int iq = ds.getColumnIndex(SmosFile.FLAGS_FIELD_NAME);
         if (iq != -1) {
-            int ix = ds.getColumnIndex(SmosFile.INCIDENCE_ANGLE_FIELD_NAME);
             final int m = ds.data.length;
             final int n = SmosFormats.L1C_FLAGS.length;
             double[][] data = new double[3][n * m];
             for (int x = 0; x < m; x++) {
                 final int flags = ds.data[x][iq].intValue();
                 for (int y = 0; y < n; y++) {
-                    data[0][y * m + x] = ix == -1 ? x : ds.data[x][ix].doubleValue();
+                    data[0][y * m + x] = x;
                     data[1][y * m + x] = y;
                     data[2][y * m + x] = ((flags & (1 << y)) != 0) ? (1 + y % 3) : 0.0;
                 }
@@ -103,13 +102,13 @@ public class SmosGridPointFlagmatrixToolView extends SmosGridPointInfoToolView {
     }
 
     @Override
-    protected void updateGridPointComponent(IOException e) {
+    protected void updateGridPointBtDataComponent(IOException e) {
         dataset.removeSeries(SERIES_KEY);
         plot.setNoDataMessage("I/O error");
     }
 
     @Override
-    protected void clearGridPointComponent() {
+    protected void clearGridPointBtDataComponent() {
         dataset.removeSeries(SERIES_KEY);
         plot.setNoDataMessage("No data");
     }

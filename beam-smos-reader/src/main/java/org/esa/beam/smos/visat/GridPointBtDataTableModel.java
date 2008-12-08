@@ -3,10 +3,10 @@ package org.esa.beam.smos.visat;
 import javax.swing.table.AbstractTableModel;
 
 
-class GridPointTableModel extends AbstractTableModel {
+class GridPointBtDataTableModel extends AbstractTableModel {
     private final GridPointBtDataset ds;
 
-    GridPointTableModel(GridPointBtDataset ds) {
+    GridPointBtDataTableModel(GridPointBtDataset ds) {
         this.ds = ds;
     }
 
@@ -23,7 +23,7 @@ class GridPointTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         if (columnIndex == 0) {
-            return 1 + columnIndex;
+            return 1 + rowIndex;
         } else {
             return ds.data[rowIndex][columnIndex - 1];
         }

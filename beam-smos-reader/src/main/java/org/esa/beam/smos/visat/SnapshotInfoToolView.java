@@ -4,7 +4,14 @@ import com.bc.ceres.binio.CompoundData;
 import org.esa.beam.dataio.smos.L1cScienceSmosFile;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
-import javax.swing.*;
+import javax.swing.DefaultBoundedRangeModel;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.JTable;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -12,9 +19,9 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.io.IOException;
 
-public class SmosSnapshotInfoToolView extends SmosToolView {
+public class SnapshotInfoToolView extends SmosToolView {
 
-    public static final String ID = SmosSnapshotInfoToolView.class.getName();
+    public static final String ID = SnapshotInfoToolView.class.getName();
 
     private SpinnerNumberModel snapshotSpinnerModel;
     private JSpinner snapshotSpinner;
@@ -30,12 +37,12 @@ public class SmosSnapshotInfoToolView extends SmosToolView {
     private SpinnerChangeListener snapshotSpinnerListener;
     private SliderChangeListener snapshotSliderListener;
 
-    public SmosSnapshotInfoToolView() {
+    public SnapshotInfoToolView() {
         nullModel = new SnapshotTableModel(new Object[0][0]);
     }
 
     @Override
-    protected JComponent createSmosComponent(ProductSceneView smosView) {
+    protected JComponent createClientComponent(ProductSceneView smosView) {
 
         snapshotSpinnerListener = new SpinnerChangeListener();
         snapshotSpinnerModel = new SpinnerNumberModel();
@@ -78,12 +85,12 @@ public class SmosSnapshotInfoToolView extends SmosToolView {
     }
 
     @Override
-    protected void updateSmosComponent(ProductSceneView oldView, ProductSceneView newView) {
+    protected void updateClientComponent(ProductSceneView smosView) {
 
         snapshotSpinner.removeChangeListener(snapshotSpinnerListener);
         snapshotSlider.removeChangeListener(snapshotSliderListener);
-        if (newView != null && getSmosProductReader().getSmosFile() instanceof L1cScienceSmosFile) {
-            smosFile = (L1cScienceSmosFile) getSmosProductReader().getSmosFile();
+        if (smosView != null && getSelectedSmosFile() instanceof L1cScienceSmosFile) {
+            smosFile = (L1cScienceSmosFile) getSelectedSmosFile();
             setSnapshotIdRange(smosFile.getSnapshotIdMin(), smosFile.getSnapshotIdMax());
             setSnapshotId(smosFile.getSnapshotIdMin());
             snapshotSpinner.addChangeListener(snapshotSpinnerListener);

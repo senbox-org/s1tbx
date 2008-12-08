@@ -4,7 +4,6 @@
     <version>1.0</version>
     <name>BEAM SMOS reader</name>
     <description>BEAM reader for SMOS data products</description>
-    <activator>org.esa.beam.smos.visat.SmosBox</activator>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
@@ -44,29 +43,29 @@
 
 
         <toolView>
-            <id>org.esa.beam.smos.visat.SmosSnapshotInfoToolView</id>
-            <class>org.esa.beam.smos.visat.SmosSnapshotInfoToolView</class>
+            <id>org.esa.beam.smos.visat.SnapshotInfoToolView</id>
+            <class>org.esa.beam.smos.visat.SnapshotInfoToolView</class>
             <title>SMOS L1C Snapshot</title>
             <tabTitle>SMOS L1C Snapshot</tabTitle>
         </toolView>
 
         <toolView>
-            <id>org.esa.beam.smos.visat.SmosGridPointTableToolView</id>
-            <class>org.esa.beam.smos.visat.SmosGridPointTableToolView</class>
+            <id>org.esa.beam.smos.visat.GridPointBtDataTableToolView</id>
+            <class>org.esa.beam.smos.visat.GridPointBtDataTableToolView</class>
             <title>SMOS L1C Table</title>
             <tabTitle>SMOS L1C Table</tabTitle>
         </toolView>
 
         <toolView>
-            <id>org.esa.beam.smos.visat.SmosGridPointChartToolView</id>
-            <class>org.esa.beam.smos.visat.SmosGridPointChartToolView</class>
+            <id>org.esa.beam.smos.visat.GridPointBtDataChartToolView</id>
+            <class>org.esa.beam.smos.visat.GridPointBtDataChartToolView</class>
             <title>SMOS L1C Chart</title>
             <tabTitle>SMOS L1C Chart</tabTitle>
         </toolView>
 
         <toolView>
-            <id>org.esa.beam.smos.visat.SmosGridPointFlagmatrixToolView</id>
-            <class>org.esa.beam.smos.visat.SmosGridPointFlagmatrixToolView</class>
+            <id>org.esa.beam.smos.visat.GridPointBtDataFlagmatrixToolView</id>
+            <class>org.esa.beam.smos.visat.GridPointBtDataFlagmatrixToolView</class>
             <title>SMOS L1C Flag-Matrix</title>
             <tabTitle>SMOS L1C Flags</tabTitle>
         </toolView>
