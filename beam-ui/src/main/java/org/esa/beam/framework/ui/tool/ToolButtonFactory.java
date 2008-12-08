@@ -16,8 +16,17 @@
  */
 package org.esa.beam.framework.ui.tool;
 
+import com.jidesoft.swing.JideButton;
+import com.jidesoft.swing.JideToggleButton;
 import org.esa.beam.framework.ui.UIUtils;
 
+import javax.swing.AbstractButton;
+import javax.swing.Action;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.UIManager;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
@@ -29,21 +38,6 @@ import java.awt.event.MouseEvent;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.RGBImageFilter;
 import java.util.EventObject;
-
-import javax.swing.AbstractButton;
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JToggleButton;
-import javax.swing.UIManager;
-import javax.swing.border.Border;
-
-import com.jidesoft.swing.JideButton;
-import com.jidesoft.swing.JideToggleButton;
 
 //import org.esa.beam.framework.ui.UIUtils;
 
@@ -150,6 +144,7 @@ public class ToolButtonFactory {
             canFilterIndexColorModel = true;
         }
 
+        @Override
         public int filterRGB(int x, int y, int rgb) {
             int a = (rgb & 0xff000000) >> 24;
             int r = (rgb & 0x00ff0000) >> 16;
@@ -175,6 +170,7 @@ public class ToolButtonFactory {
         /**
          * Invoked when a mouse button has been pressed on a component.
          */
+        @Override
         public void mousePressed(MouseEvent e) {
             setSelectedState(getButton(e));
         }
@@ -182,6 +178,7 @@ public class ToolButtonFactory {
         /**
          * Invoked when a mouse button has been released on a component.
          */
+        @Override
         public void mouseReleased(MouseEvent e) {
             setDefaultState(getButton(e));
         }
@@ -189,6 +186,7 @@ public class ToolButtonFactory {
         /**
          * Invoked when the mouse enters a component.
          */
+        @Override
         public void mouseEntered(MouseEvent e) {
             setRolloverStateState(getButton(e));
         }
@@ -196,6 +194,7 @@ public class ToolButtonFactory {
         /**
          * Invoked when the mouse exits a component.
          */
+        @Override
         public void mouseExited(MouseEvent e) {
             setDefaultState(getButton(e));
         }
@@ -241,13 +240,13 @@ public class ToolButtonFactory {
 
         private Color getDefaultBackground() {
             Color color = null;
-            String[] keys = new String[] {"Button.background", "Label.background", "Panel.background"};
+            String[] keys = new String[]{"Button.background", "Label.background", "Panel.background"};
             for (String key : keys) {
                 color = UIManager.getLookAndFeel().getDefaults().getColor(key);
             }
             if (color == null) {
                 color = new Color(238, 238, 238);
-            }            
+            }
             return color;
         }
     }
