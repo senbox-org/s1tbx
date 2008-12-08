@@ -30,7 +30,7 @@ public class GeoTiffProductWriterTest extends TestCase {
 
         _productWriter = new GeoTiffProductWriter(new GeoTiffProductWriterPlugIn());
 
-        _product = new Product("product", "type", 10, 20);
+        _product = new Product("temp", "type", 10, 20);
         _product.addBand("b1", ProductData.TYPE_UINT32);
         fillBandWithData(_product.getBand("b1"), 1);
     }
