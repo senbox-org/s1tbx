@@ -155,6 +155,7 @@ public class DefaultToolViewPane extends AbstractPageComponentPane {
             }
             dockableFrame.getContentPane().add(pageComponentControl, BorderLayout.CENTER);
             pageComponentControlCreated = true;
+            getPageComponent().componentOpened();
         }
     }
 
@@ -174,10 +175,14 @@ public class DefaultToolViewPane extends AbstractPageComponentPane {
         public void dockableFrameShown(DockableFrameEvent dockableFrameEvent) {
             Debug.trace("dockableFrameEvent = " + dockableFrameEvent);
             ensurePageComponentControlCreated();
+            getPageComponent().componentShown();
         }
 
         public void dockableFrameHidden(DockableFrameEvent dockableFrameEvent) {
             Debug.trace("dockableFrameEvent = " + dockableFrameEvent);
+            if (pageComponentControlCreated) {
+                getPageComponent().componentHidden();
+            }
         }
 
         public void dockableFrameActivated(DockableFrameEvent dockableFrameEvent) {

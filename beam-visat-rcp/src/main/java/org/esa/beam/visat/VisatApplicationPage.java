@@ -40,11 +40,6 @@ public class VisatApplicationPage extends AbstractApplicationPage {
         DockableFrame dockableFrame = (DockableFrame) toolView.getContext().getPane().getControl();
         dockableFrame.addDockableFrameListener(new DockableFrameAdapter() {
             @Override
-            public void dockableFrameHidden(DockableFrameEvent dockableFrameEvent) {
-                fireHidden(toolView.getContext().getPane().getPageComponent());
-            }
-
-            @Override
             public void dockableFrameActivated(DockableFrameEvent dockableFrameEvent) {
                 setActiveComponent();
             }
