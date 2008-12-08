@@ -164,9 +164,6 @@ public abstract class AbstractApplicationPage extends AbstractControlFactory imp
             toolView = addToolView(viewDescriptor);
         }
         doShowToolView(toolView);
-        // todo - fireOpened only once
-        fireOpened(toolView);
-        fireShown(toolView);
         setActiveComponent(toolView);
         return toolView;
     }
@@ -174,7 +171,6 @@ public abstract class AbstractApplicationPage extends AbstractControlFactory imp
 
     public void hideToolView(ToolView toolView) {
         doHideToolView(toolView);
-        fireHidden(toolView);
         setActiveComponent();
     }
 

@@ -178,6 +178,7 @@ public class SpectrumToolView extends AbstractToolView {
     }
 
     public void updateSpectra(int pixelX, int pixelY, int level) {
+        maybeShowTip();
         diagramCanvas.setMessageText(null);
         this.pixelX = pixelX;
         this.pixelY = pixelY;
@@ -187,6 +188,18 @@ public class SpectrumToolView extends AbstractToolView {
             spectraDiagram.updateSpectra(pixelX, pixelY, level);
         } else {
             diagramCanvas.setMessageText(MSG_NO_SPECTRAL_BANDS);
+        }
+    }
+
+    private void maybeShowTip() {
+        if (!tipShown) {
+            final String message = "Tip: If you press the SHIFT key while moving the mouse cursor over \n" +
+                                   "an image, " + VisatApp.getApp().getAppName() + " adjusts the diagram axes " +
+                                   "to the local values at the\n" +
+                                   "current pixel position, if you release the SHIFT key again, then the\n" +
+                                   "min/max are accumulated again.";
+            VisatApp.getApp().showInfoDialog("Spectrum Tip", message, SUPPRESS_MESSAGE_KEY);
+            tipShown = true;
         }
     }
 
@@ -206,19 +219,6 @@ public class SpectrumToolView extends AbstractToolView {
             }
         }
         return spectralBands.toArray(new Band[spectralBands.size()]);
-    }
-
-    @Override
-    public void componentOpened() {
-        if (!tipShown) {
-            final String message = "Tip: If you press the SHIFT key while moving the mouse cursor over \n" +
-                                   "an image, " + VisatApp.getApp().getAppName() + " adjusts the diagram axes " +
-                                   "to the local values at the\n" +
-                                   "current pixel position, if you release the SHIFT key again, then the\n" +
-                                   "min/max are accumulated again.";
-            VisatApp.getApp().showInfoDialog("Spectrum Tip", message, SUPPRESS_MESSAGE_KEY);
-            tipShown = true;
-        }
     }
 
     @Override
