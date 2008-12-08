@@ -27,7 +27,7 @@ import java.text.MessageFormat;
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public abstract class L1cSmosFile extends BasicSmosFile {
+public abstract class L1cSmosFile extends SmosFile {
     public static final String BT_DATA_LIST_NAME = "BT_Data_List";
 
     protected final int btDataListIndex;
