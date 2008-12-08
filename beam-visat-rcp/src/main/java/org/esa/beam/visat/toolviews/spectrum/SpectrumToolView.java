@@ -127,6 +127,9 @@ public class SpectrumToolView extends AbstractToolView {
             }
             if (currentProduct != null) {
                 currentProduct.addProductNodeListener(productNodeHandler);
+                // reset stored pixel location, may be invalid for new product
+                pixelX = 0;
+                pixelY = 0;
                 SpectraDiagram spectraDiagram = getSpectraDiagram();
                 if (spectraDiagram != null) {
                     diagramCanvas.setDiagram(spectraDiagram);

@@ -7,6 +7,7 @@ import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.ui.diagram.AbstractDiagramGraph;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Debug;
+import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.Range;
 
