@@ -16,15 +16,25 @@ package org.esa.beam.dataio.smos;
 
 import java.io.IOException;
 
-class L1cGridPointValueProvider implements GridPointValueProvider {
+public  class L1cGridPointValueProvider implements GridPointValueProvider {
     private final L1cSmosFile smosFile;
     private final int fieldIndex;
     private final int polarization;
+    private int snapshotId;
 
     L1cGridPointValueProvider(L1cSmosFile smosFile, int fieldIndex, int polarization) {
         this.smosFile = smosFile;
         this.fieldIndex = fieldIndex;
         this.polarization = polarization;
+        this.snapshotId = -1;
+    }
+
+    public int getSnapshotId() {
+        return snapshotId;
+    }
+
+    public void setSnapshotId(int snapshotId) {
+        this.snapshotId = snapshotId;
     }
 
     @Override
@@ -35,7 +45,11 @@ class L1cGridPointValueProvider implements GridPointValueProvider {
     @Override
     public short getValue(int gridPointIndex, short noDataValue) {
         try {
-            return smosFile.getBrowseBtData(gridPointIndex, fieldIndex, polarization, noDataValue);
+            if (snapshotId == -1) {
+                return smosFile.getBrowseBtData(gridPointIndex, fieldIndex, polarization, noDataValue);
+            } else {
+                return smosFile.getSnapshotBtData(gridPointIndex, fieldIndex, polarization, snapshotId, noDataValue);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -44,7 +58,11 @@ class L1cGridPointValueProvider implements GridPointValueProvider {
     @Override
     public int getValue(int gridPointIndex, int noDataValue) {
         try {
-            return smosFile.getBrowseBtData(gridPointIndex, fieldIndex, polarization, noDataValue);
+            if (snapshotId == -1) {
+                return smosFile.getBrowseBtData(gridPointIndex, fieldIndex, polarization, noDataValue);
+            } else {
+                return smosFile.getSnapshotBtData(gridPointIndex, fieldIndex, polarization, snapshotId, noDataValue);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -53,7 +71,11 @@ class L1cGridPointValueProvider implements GridPointValueProvider {
     @Override
     public float getValue(int gridPointIndex, float noDataValue) {
         try {
-            return smosFile.getBrowseBtData(gridPointIndex, fieldIndex, polarization, noDataValue);
+            if (snapshotId == -1) {
+                return smosFile.getBrowseBtData(gridPointIndex, fieldIndex, polarization, noDataValue);
+            } else {
+                return smosFile.getSnapshotBtData(gridPointIndex, fieldIndex, polarization, snapshotId, noDataValue);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -73,4 +73,13 @@ public abstract class L1cSmosFile extends SmosFile {
 
     public abstract float getBrowseBtData(int gridPointIndex, int fieldIndex, int polarization,
                                           float noDataValue) throws IOException;
+
+    public abstract short getSnapshotBtData(int gridPointIndex, int fieldIndex, int polarization,
+                                           int snapshotId,short noDataValue) throws IOException;
+
+    public abstract int getSnapshotBtData(int gridPointIndex, int fieldIndex, int polarization,
+                                         int snapshotId,int noDataValue) throws IOException;
+
+    public abstract float getSnapshotBtData(int gridPointIndex, int fieldIndex, int polarization,
+                                           int snapshotId,float noDataValue) throws IOException;
 }

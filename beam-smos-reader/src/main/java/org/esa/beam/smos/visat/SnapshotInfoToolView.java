@@ -1,26 +1,37 @@
 package org.esa.beam.smos.visat;
 
 import com.bc.ceres.binio.CompoundData;
-import com.bc.ceres.core.Assert;
-import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import org.esa.beam.dataio.smos.GridPointValueProvider;
+import org.esa.beam.dataio.smos.L1cGridPointValueProvider;
 import org.esa.beam.dataio.smos.L1cScienceSmosFile;
+import org.esa.beam.dataio.smos.SmosMultiLevelSource;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.glevel.BandImageMultiLevelSource;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.DefaultBoundedRangeModel;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
-import java.awt.image.RenderedImage;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
-import java.util.List;
 
 public class SnapshotInfoToolView extends SmosToolView {
 
@@ -40,8 +51,8 @@ public class SnapshotInfoToolView extends SmosToolView {
     private SpinnerChangeListener snapshotSpinnerListener;
     private SliderChangeListener snapshotSliderListener;
     private JTextField snapshotIndexLabel;
-    private AbstractAction locateSnapshotAction;
-    private AbstractAction toggleSnapshotModeAction;
+    private AbstractButton toggleSnapshotModeButton;
+    private AbstractButton locateSnapshotButton;
 
     public SnapshotInfoToolView() {
         nullModel = new SnapshotTableModel(new Object[0][0]);
@@ -80,14 +91,13 @@ public class SnapshotInfoToolView extends SmosToolView {
         panel1.add(snapshotSlider, BorderLayout.CENTER);
         panel1.add(snapshotIndexLabel, BorderLayout.EAST);
 
-        toggleSnapshotModeAction = new ToggleSnapshotModeAction();
-        AbstractButton snapshotModeButton = ToolButtonFactory.createButton(toggleSnapshotModeAction, true);
+        toggleSnapshotModeButton = ToolButtonFactory.createButton(new ImageIcon(SnapshotInfoToolView.class.getResource("Snapshot24.png")), true);
+        toggleSnapshotModeButton.addActionListener(new ToggleSnapshotModeAction());
+        locateSnapshotButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomTool24.gif"), false);
+        locateSnapshotButton.addActionListener(new LocateSnapshotAction());
 
-        locateSnapshotAction = new LocateSnapshotAction();
-        AbstractButton locateSnapshotButton = ToolButtonFactory.createButton(locateSnapshotAction, true);
-
-        JPanel panel2 = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2,2));
-        panel2.add(snapshotModeButton);
+        JPanel panel2 = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2, 2));
+        panel2.add(toggleSnapshotModeButton);
         panel2.add(locateSnapshotButton);
 
         JPanel panel3 = new JPanel(new BorderLayout(2, 2));
@@ -117,8 +127,8 @@ public class SnapshotInfoToolView extends SmosToolView {
         snapshotSpinner.setEnabled(enabled);
         snapshotSlider.setEnabled(enabled);
         snapshotTable.setEnabled(enabled);
-        locateSnapshotAction.setEnabled(enabled);
-        toggleSnapshotModeAction.setEnabled(enabled);
+        toggleSnapshotModeButton.setEnabled(enabled);
+        locateSnapshotButton.setEnabled(enabled);
     }
 
     public void setSnapshotIdRange(int min, int max) {
@@ -139,7 +149,7 @@ public class SnapshotInfoToolView extends SmosToolView {
     }
 
     private void updateLabel() {
-        snapshotIndexLabel.setText((snapshotId - snapshotIdMin + 1) + "/" +(snapshotIdMax-snapshotIdMin + 1));
+        snapshotIndexLabel.setText((snapshotId - snapshotIdMin + 1) + "/" + (snapshotIdMax - snapshotIdMin + 1));
     }
 
     public void setSnapshotId(int snapshotId) {
@@ -150,6 +160,9 @@ public class SnapshotInfoToolView extends SmosToolView {
             if (snapshotIndex != -1) {
                 try {
                     updateTable(snapshotIndex);
+                    if (toggleSnapshotModeButton.isSelected()) {
+                        updateImage();
+                    }
                 } catch (IOException e) {
                     snapshotTable.setModel(nullModel);
                 }
@@ -181,6 +194,29 @@ public class SnapshotInfoToolView extends SmosToolView {
         snapshotTable.setModel(new SnapshotTableModel(tableData));
     }
 
+    private void updateImage() {
+        ProductSceneView sceneView = getSelectedSmosView();
+        ImageLayer imageLayer = sceneView.getBaseImageLayer();
+        RenderedImage sourceImage = sceneView.getRaster().getSourceImage();
+        if (sourceImage instanceof DefaultMultiLevelImage) {
+            DefaultMultiLevelImage defaultMultiLevelImage = (DefaultMultiLevelImage) sourceImage;
+            if (defaultMultiLevelImage.getSource() instanceof SmosMultiLevelSource) {
+                SmosMultiLevelSource smosMultiLevelSource = (SmosMultiLevelSource) defaultMultiLevelImage.getSource();
+                GridPointValueProvider gridPointValueProvider = smosMultiLevelSource.getGridPointValueProvider();
+                if (gridPointValueProvider instanceof L1cGridPointValueProvider) {
+                    L1cGridPointValueProvider l1cGridPointValueProvider = (L1cGridPointValueProvider) gridPointValueProvider;
+                    int id = toggleSnapshotModeButton.isSelected() ? snapshotId : -1;
+                    if (l1cGridPointValueProvider.getSnapshotId() != id) {
+                        l1cGridPointValueProvider.setSnapshotId(id);
+                        smosMultiLevelSource.reset();
+                        sceneView.getRaster().setValidMaskImage(null);
+                        imageLayer.regenerate();
+                    }
+                }
+            }
+        }
+    }
+
     private class SpinnerChangeListener implements ChangeListener {
         @Override
         public void stateChanged(ChangeEvent e) {
@@ -195,36 +231,18 @@ public class SnapshotInfoToolView extends SmosToolView {
         }
     }
 
-    static class LocateSnapshotAction extends AbstractAction {
-        LocateSnapshotAction() {
-            putValue(Action.NAME, "Locate Snapshot");
-        }
+    static class LocateSnapshotAction implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
 
         }
     }
 
-    class ToggleSnapshotModeAction extends AbstractAction {
-        ToggleSnapshotModeAction() {
-            putValue(Action.NAME, "Snapshot Mode");
-        }
+    class ToggleSnapshotModeAction implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            
-            ProductSceneView sceneView = getSelectedSmosView();
-            ImageLayer imageLayer = sceneView.getBaseImageLayer();
-            RenderedImage sourceImage = sceneView.getRaster().getSourceImage();
-            if (sourceImage instanceof MultiLevelSource) {
-                MultiLevelSource multiLevelSource = (MultiLevelSource) sourceImage;
-                multiLevelSource.reset();
-            }
-            RenderedImage validMaskImage = sceneView.getRaster().getValidMaskImage();
-            if (validMaskImage instanceof MultiLevelSource) {
-                MultiLevelSource multiLevelSource = (MultiLevelSource) validMaskImage;
-                multiLevelSource.reset();
-            }
-            imageLayer.regenerate();
+            updateImage();
         }
+
     }
 }

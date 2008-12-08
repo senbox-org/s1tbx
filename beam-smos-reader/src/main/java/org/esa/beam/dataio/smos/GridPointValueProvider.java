@@ -21,7 +21,7 @@ package org.esa.beam.dataio.smos;
 * @version $Revision$ $Date$
 * @since BEAM 4.2
 */
-interface GridPointValueProvider {
+public interface GridPointValueProvider {
 
     int getGridPointIndex(int seqnum);
 

@@ -25,7 +25,7 @@ import java.io.IOException;
  * @version $Revision$ $Date$
  * @since BEAM 4.5
  */
-class L2GridPointValueProvider implements GridPointValueProvider {
+public  class L2GridPointValueProvider implements GridPointValueProvider {
 
     private final GridPointDataProvider provider;
     private final int fieldIndex;

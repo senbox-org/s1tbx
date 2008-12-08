@@ -51,6 +51,24 @@ public class L1cBrowseSmosFile extends L1cSmosFile {
         return getBtData(gridPointIndex, polarization).getFloat(fieldIndex);
     }
 
+    @Override
+    public short getSnapshotBtData(int gridPointIndex, int fieldIndex, int polarization,
+                                   int snapshotId, short noDataValue) throws IOException {
+        return getBtData(gridPointIndex, polarization).getShort(fieldIndex);
+    }
+
+    @Override
+    public int getSnapshotBtData(int gridPointIndex, int fieldIndex, int polarization,
+                                 int snapshotId, int noDataValue) throws IOException {
+        return getBtData(gridPointIndex, polarization).getInt(fieldIndex);
+    }
+
+    @Override
+    public float getSnapshotBtData(int gridPointIndex, int fieldIndex, int polarization,
+                                   int snapshotId, float noDataValue) throws IOException {
+        return getBtData(gridPointIndex, polarization).getFloat(fieldIndex);
+    }
+
     private CompoundData getBtData(int gridPointIndex, int polarization) throws IOException {
         return getBtDataList(gridPointIndex).getCompound(polarization);
     }

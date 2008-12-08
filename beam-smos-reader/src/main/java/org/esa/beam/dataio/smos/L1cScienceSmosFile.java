@@ -140,14 +140,14 @@ public class L1cScienceSmosFile extends L1cSmosFile {
 
     public short getSnapshotBtData(int gridPointIndex, int fieldIndex,
                                    int polarization,
-                                   int snapshotId,
-                                   short noDataValue) throws IOException {
+                                   int snapshotId, short noDataValue) throws IOException {
         final SequenceData btDataList = getBtDataList(gridPointIndex);
         final int elementCount = btDataList.getElementCount();
         CompoundData btData;
         for (int i = 0; i < elementCount; ++i) {
             btData = btDataList.getCompound(i);
-            if (isPolarisationAccepted(btData, polarization) && btData.getInt(snapshotIdIndex) == snapshotId) {
+            if (isPolarisationAccepted(btData, polarization)
+                    && btData.getInt(snapshotIdIndex) == snapshotId) {
                 return btData.getShort(fieldIndex);
             }
         }
@@ -156,14 +156,14 @@ public class L1cScienceSmosFile extends L1cSmosFile {
 
     public int getSnapshotBtData(int gridPointIndex, int fieldIndex,
                                  int polarization,
-                                 int snapshotId,
-                                 int noDataValue) throws IOException {
+                                 int snapshotId,  int noDataValue) throws IOException {
         final SequenceData btDataList = getBtDataList(gridPointIndex);
         final int elementCount = btDataList.getElementCount();
         CompoundData btData;
         for (int i = 0; i < elementCount; ++i) {
             btData = btDataList.getCompound(i);
-            if (isPolarisationAccepted(btData, polarization) && btData.getInt(snapshotIdIndex) == snapshotId) {
+            if (isPolarisationAccepted(btData, polarization)
+                    && btData.getInt(snapshotIdIndex) == snapshotId) {
                 return btData.getInt(fieldIndex);
             }
         }
@@ -172,14 +172,14 @@ public class L1cScienceSmosFile extends L1cSmosFile {
 
     public float getSnapshotBtData(int gridPointIndex, int fieldIndex,
                                    int polarization,
-                                   int snapshotId,
-                                   float noDataValue) throws IOException {
+                                   int snapshotId, float noDataValue) throws IOException {
         final SequenceData btDataList = getBtDataList(gridPointIndex);
         final int elementCount = btDataList.getElementCount();
         CompoundData btData;
         for (int i = 0; i < elementCount; ++i) {
             btData = btDataList.getCompound(i);
-            if (isPolarisationAccepted(btData, polarization) && btData.getInt(snapshotIdIndex) == snapshotId) {
+            if (isPolarisationAccepted(btData, polarization)
+                    && btData.getInt(snapshotIdIndex) == snapshotId) {
                 return btData.getFloat(fieldIndex);
             }
         }
