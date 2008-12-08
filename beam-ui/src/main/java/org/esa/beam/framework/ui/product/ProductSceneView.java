@@ -52,6 +52,15 @@ import java.util.Vector;
  * @version $revision$ $date$
  */
 public class ProductSceneView extends BasicView implements ProductNodeView, DrawingEditor, PropertyMapChangeListener, PixelInfoFactory {
+    public static final String BASE_IMAGE_LAYER_ID = "org.esa.beam.layers.baseImage";
+    public static final String NO_DATA_LAYER_ID  = "org.esa.beam.layers.noData";
+    public static final String BITMASK_LAYER_ID = "org.esa.beam.layers.bitmask";
+    public static final String ROI_LAYER_ID  = "org.esa.beam.layers.roi";
+    public static final String GRATICULE_LAYER_ID  = "org.esa.beam.layers.graticule";
+    public static final String GCP_LAYER_ID  = "org.esa.beam.layers.gcp";
+    public static final String PIN_LAYER_ID  = "org.esa.beam.layers.pin";
+    public static final String FIGURE_LAYER_ID  = "org.esa.beam.layers.figure";
+
     /**
      * Property name for the pixel border
      */
