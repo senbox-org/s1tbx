@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.6:<br/>
+          [BEAM-925] Events (open, shown, hidden) shall be delegated to tool view<br/>
           [BEAM-921] Sometimes pin manager cannot delete pins<br/>
           [BEAM-920] Pins in view out-of-sync with those in pin manager<br/>
           [BEAM-919] Spectrum view often causes severe problems with pins<br/>        

@@ -9,7 +9,8 @@
     <description>This module provides user interface components used e.g. by VISAT.</description>
     <changelog>
         <![CDATA[
-        <p>Changes in 4.5.1<br/>
+        <p>Changes in 4.6<br/>
+        [BEAM-925] Events (open, shown, hidden) shall be delegated to tool view<br/>
         [BEAM-880] Pixel info view has a typo<br/>
         </p>
         <p>Changes in 4.2<br/>
