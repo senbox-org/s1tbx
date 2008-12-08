@@ -80,6 +80,18 @@ public class SceneViewSelectionService {
         }
     }
 
+    public int getGridPointId(int pixelX, int pixelY) {
+        return getGridPointId(pixelX, pixelY, 0);
+    }
+
+    public int getGridPointId(int pixelX, int pixelY, int currentLevel) {
+        Band gridPointIdBand = getSelectedSmosProduct().getBandAt(0); // Convention! Grid_Point_ID is always first!
+        MultiLevelImage levelImage = (MultiLevelImage) gridPointIdBand.getSourceImage();
+        RenderedImage image = levelImage.getImage(currentLevel);
+        Raster data = image.getData(new Rectangle(pixelX, pixelY, 1, 1));
+        return data.getSample(pixelX, pixelY, 0);
+    }
+
     public synchronized void addSceneViewSelectionListener(SelectionListener selectionListener) {
         selectionListeners.add(selectionListener);
     }
@@ -104,12 +116,12 @@ public class SceneViewSelectionService {
 
     private void fireSelectionChange(ProductSceneView oldView, ProductSceneView newView) {
         for (SelectionListener selectionListener : selectionListeners) {
-            selectionListener.handleSmosViewSelectionChanged(oldView, newView);
+            selectionListener.handleSceneViewSelectionChanged(oldView, newView);
         }
     }
 
     public interface SelectionListener {
-        void handleSmosViewSelectionChanged(ProductSceneView oldView, ProductSceneView newView);
+        void handleSceneViewSelectionChanged(ProductSceneView oldView, ProductSceneView newView);
     }
 
     private class IFL extends InternalFrameAdapter {
@@ -145,11 +157,7 @@ public class SceneViewSelectionService {
         public void pixelPosChanged(ImageLayer baseImageLayer, int pixelX, int pixelY, int currentLevel, boolean pixelPosValid, MouseEvent e) {
             int seqnum = -1;
             if (pixelPosValid) {
-                Band gridPointIdBand = getSelectedSmosProduct().getBandAt(0); // Convention! Grid_Point_ID is always first!
-                final MultiLevelImage levelImage = (MultiLevelImage) gridPointIdBand.getSourceImage();
-                final RenderedImage image = levelImage.getImage(currentLevel);
-                final Raster data = image.getData(new Rectangle(pixelX, pixelY, 1, 1));
-                seqnum = data.getSample(pixelX, pixelY, 0);
+                seqnum = getGridPointId(pixelX, pixelY, currentLevel);
             }
             SmosBox.getInstance().getGridPointSelectionService().setSelectedGridPointId(seqnum);
         }

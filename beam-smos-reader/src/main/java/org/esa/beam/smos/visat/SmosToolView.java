@@ -176,7 +176,7 @@ public abstract class SmosToolView extends AbstractToolView {
     }
 
     private class SVSL implements SceneViewSelectionService.SelectionListener {
-        public void handleSmosViewSelectionChanged(ProductSceneView oldView, ProductSceneView newView) {
+        public void handleSceneViewSelectionChanged(ProductSceneView oldView, ProductSceneView newView) {
             realizeSmosView(newView);
         }
     }
