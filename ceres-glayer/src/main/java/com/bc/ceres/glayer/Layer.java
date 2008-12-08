@@ -26,6 +26,7 @@ import java.util.List;
 public class Layer extends ExtensibleObject {
     private Layer parent;
     private LayerList children;
+    private String id;
     private String name;
     private boolean visible;
     private Style style;
@@ -87,6 +88,38 @@ public class Layer extends ExtensibleObject {
             this.name = name;
             fireLayerPropertyChanged("name", oldValue, this.name);
         }
+    }
+
+    /**
+     * @return An identifier which can be used to search for special layers. Can be {@code null}.
+     * @since Ceres 0.9
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * @param id An identifier which can be used to search for special layers. Can be {@code null}.
+     * @since Ceres 0.9
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    /**
+     * Gets the index of the first child layer having the given identifier.
+     * @param id The identifier.
+     * @return  The child index, or {@code -1} if no such layer exists.
+     * @since Ceres 0.9
+     */
+    public int getChildIndex(String id) {
+        for (int i = 0; i < children.size(); i++) {
+            Layer child = children.get(i);
+            if (id.equals(child.getId())) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
