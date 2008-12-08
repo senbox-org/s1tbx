@@ -103,6 +103,8 @@ public class SmosProductReader extends AbstractProductReader {
                          "Elliptical footprint major semi-axis value.");
         registerBandInfo("Footprint_Axis2", "km", 0.0, 100.0 / (1 << 16), -999, 20.0, 30.0,
                          "Elliptical footprint minor semi-axis value.");
+
+        // todo - band info for level 2 (rq-20081208)
     }
 
     @Override
@@ -214,14 +216,26 @@ public class SmosProductReader extends AbstractProductReader {
                     addL1cBand(product, SmosFile.POL_MODE_V, fieldIndex, bandName + "_V",
                                memberTypeToBandType(member.getType()), bandInfo);
                 } else {
-                    addL1cBand(product, SmosFile.POL_MODE_H, fieldIndex, bandName + "_H",
-                               memberTypeToBandType(member.getType()), bandInfo);
-                    addL1cBand(product, SmosFile.POL_MODE_V, fieldIndex, bandName + "_V",
-                               memberTypeToBandType(member.getType()), bandInfo);
-                    addL1cBand(product, SmosFile.POL_MODE_HV1, fieldIndex, bandName + "_HV_Real",
-                               memberTypeToBandType(member.getType()), bandInfo);
-                    addL1cBand(product, SmosFile.POL_MODE_HV2, fieldIndex, bandName + "_HV_Imag",
-                               memberTypeToBandType(member.getType()), bandInfo);
+                    if (bandName.endsWith("_Real")) {
+                        bandName = bandName.substring(0, bandName.indexOf("_Real"));
+                        addL1cBand(product, SmosFile.POL_MODE_H, fieldIndex, bandName + "_H",
+                                   memberTypeToBandType(member.getType()), bandInfo);
+                        addL1cBand(product, SmosFile.POL_MODE_V, fieldIndex, bandName + "_V",
+                                   memberTypeToBandType(member.getType()), bandInfo);
+                        addL1cBand(product, SmosFile.POL_MODE_HV1, fieldIndex, bandName + "_HV_Real",
+                                   memberTypeToBandType(member.getType()), bandInfo);
+                    } else if (bandName.endsWith("_Imag")) {
+                        bandName = bandName.substring(0, bandName.indexOf("_Imag"));
+                        addL1cBand(product, SmosFile.POL_MODE_HV1, fieldIndex, bandName + "_HV_Imag",
+                                   memberTypeToBandType(member.getType()), bandInfo);
+                    } else {
+                        addL1cBand(product, SmosFile.POL_MODE_H, fieldIndex, bandName + "_H",
+                                   memberTypeToBandType(member.getType()), bandInfo);
+                        addL1cBand(product, SmosFile.POL_MODE_V, fieldIndex, bandName + "_V",
+                                   memberTypeToBandType(member.getType()), bandInfo);
+                        addL1cBand(product, SmosFile.POL_MODE_HV1, fieldIndex, bandName + "_HV",
+                                   memberTypeToBandType(member.getType()), bandInfo);
+                    }
                 }
             }
         }

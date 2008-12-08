@@ -101,7 +101,7 @@ public class L1cScienceSmosFile extends L1cSmosFile {
             final int polarizationFlags = data.getInt(flagsIndex) & 3;
             final int incidenceAngle = data.getInt(incidenceAngleIndex);
 
-            if ((polarization == polarizationFlags || (polarization & polarizationFlags & 2) == 2)) {
+            if ((polarization == polarizationFlags || (polarization & polarizationFlags & 2) != 0)) {
                 if (incidenceAngle >= MIN_INCIDENCE_ANGLE && incidenceAngle <= MAX_INCIDENCE_ANGLE) {
                     final double fieldValue = data.getDouble(fieldIndex);
                     regressor.add(incidenceAngle, fieldValue);
