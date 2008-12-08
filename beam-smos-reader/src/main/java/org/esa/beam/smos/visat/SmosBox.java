@@ -10,7 +10,7 @@ public class SmosBox implements VisatPlugIn {
 
     private SnapshotSelectionService snapshotSelectionService;
     private GridPointSelectionService gridPointSelectionService;
-    private SmosSceneViewSelectionService smosSceneViewSelectionService;
+    private SceneViewSelectionService sceneViewSelectionService;
 
     public SmosBox() {
     }
@@ -27,20 +27,20 @@ public class SmosBox implements VisatPlugIn {
         return gridPointSelectionService;
     }
 
-    public SmosSceneViewSelectionService getSmosViewSelectionService() {
-        return smosSceneViewSelectionService;
+    public SceneViewSelectionService getSmosViewSelectionService() {
+        return sceneViewSelectionService;
     }
 
     public void start(VisatApp visatApp) {
         instance = this;
-        smosSceneViewSelectionService = new SmosSceneViewSelectionService(visatApp);
+        sceneViewSelectionService = new SceneViewSelectionService(visatApp);
         snapshotSelectionService = new SnapshotSelectionService(visatApp.getProductManager());
         gridPointSelectionService = new GridPointSelectionService();
     }
 
     public void stop(VisatApp visatApp) {
-        smosSceneViewSelectionService.stop();
-        smosSceneViewSelectionService = null;
+        sceneViewSelectionService.stop();
+        sceneViewSelectionService = null;
         snapshotSelectionService.stop();
         snapshotSelectionService = null;
         gridPointSelectionService.stop();
