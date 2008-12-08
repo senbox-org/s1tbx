@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.text.MessageFormat;
 
 
-public class SmosFile  {
+public class SmosFile implements GridPointDataProvider {
     public static final int POL_MODE_MASK = 0x00000003;
     public static final int POL_MODE_H = 0;
     public static final int POL_MODE_V = 1;

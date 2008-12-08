@@ -13,6 +13,8 @@ import java.io.IOException;
 
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.dataio.smos.SmosFile;
+import org.esa.beam.dataio.smos.L1cSmosFile;
 
 public class SmosGridPointTableToolView extends SmosGridPointInfoToolView {
     public static final String ID = SmosGridPointTableToolView.class.getName();
@@ -42,24 +44,29 @@ public class SmosGridPointTableToolView extends SmosGridPointInfoToolView {
     protected JComponent createGridPointComponentOptionsComponent() {
         columnsButton = new JButton("Columns...");
         columnsButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
-                final CompoundType btDataType = getSmosProductReader().getSmosFile().getBtDataType();
-                final CompoundMember[] members = btDataType.getMembers();
-                String[] names = new String[members.length];
-                for (int i = 0; i < members.length; i++) {
-                    CompoundMember member = members[i];
-                    names[i] = member.getName();
-                }
-                CheckBoxList checkBoxList = new CheckBoxList(names);
+                final SmosFile smosFile = getSmosProductReader().getSmosFile();
 
-                final ModalDialog dialog = new ModalDialog(SwingUtilities.windowForComponent(columnsButton), "Select Columns",
-                                                           new JScrollPane(checkBoxList),
-                                                           ModalDialog.ID_OK_CANCEL, null);
-                final int i = dialog.show();
-                if (i == ModalDialog.ID_OK) {
-                    
-                }
+                if (smosFile instanceof L1cSmosFile) {
+                    final L1cSmosFile l1cSmosFile = (L1cSmosFile) smosFile;
+                    final CompoundType btDataType = l1cSmosFile.getBtDataType();
+                    final CompoundMember[] members = btDataType.getMembers();
+                    String[] names = new String[members.length];
+                    for (int i = 0; i < members.length; i++) {
+                        CompoundMember member = members[i];
+                        names[i] = member.getName();
+                    }
+                    CheckBoxList checkBoxList = new CheckBoxList(names);
 
+                    final ModalDialog dialog = new ModalDialog(SwingUtilities.windowForComponent(columnsButton), "Select Columns",
+                                                               new JScrollPane(checkBoxList),
+                                                               ModalDialog.ID_OK_CANCEL, null);
+                    final int i = dialog.show();
+                    if (i == ModalDialog.ID_OK) {
+
+                    }
+                }
             }
         });
         final JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2, 2));

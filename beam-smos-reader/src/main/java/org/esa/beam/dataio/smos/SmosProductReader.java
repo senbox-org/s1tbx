@@ -45,7 +45,7 @@ public class SmosProductReader extends AbstractProductReader {
 
     private static MultiLevelImage dggridMultiLevelImage;
 
-    private L1cSmosFile smosFile;
+    private SmosFile smosFile;
     HashMap<String, BandInfo> bandInfos = new HashMap<String, BandInfo>(17);
 
     SmosProductReader(final SmosProductReaderPlugIn productReaderPlugIn) {
@@ -132,9 +132,6 @@ public class SmosProductReader extends AbstractProductReader {
         if (format == null) {
             throw new IOException(MessageFormat.format("File ''{0}'': Unknown SMOS data format", inputFile));
         }
-        if (!(format.getTypeDef(SmosFile.BT_DATA_TYPE_NAME) instanceof CompoundType)) {
-            throw new IOException(MessageFormat.format("File ''{0}'': Illegal SMOS data format", inputFile));
-        }
         final String formatName = format.getName();
 
         // todo - clean-up, see below
@@ -152,6 +149,9 @@ public class SmosProductReader extends AbstractProductReader {
         } else if (formatName.contains("MIR_SCLF1C")
                 || formatName.contains("MIR_SCSF1C")) {
             smosFile = new L1cScienceSmosFile(dblFile, format);
+        } else if (formatName.contains("MIR_OSUDP2")
+                || formatName.contains("MIR_SMUDP2")) {
+            smosFile = new SmosFile(dblFile, format);
         } else {
             throw new IllegalStateException("Illegal SMOS format: " + formatName);
         }
@@ -169,28 +169,31 @@ public class SmosProductReader extends AbstractProductReader {
         addGridCellIdBand(product);
 
         if (smosFile instanceof L1cSmosFile) {
-            CompoundType btDataType = smosFile.getBtDataType();
+            L1cSmosFile l1cSmosFile = (L1cSmosFile) smosFile;
+            CompoundType btDataType = l1cSmosFile.getBtDataType();
             if (formatName.contains("MIR_BWLD1C")
                     || formatName.contains("MIR_BWND1C")
                     || formatName.contains("MIR_BWSD1C")) {
-                addSmosBandsFromCompound(product, btDataType, true);
+                addSmosL1cBandsFromCompound(product, btDataType, true);
             } else if (formatName.contains("MIR_BWLF1C")
                     || formatName.contains("MIR_BWNF1C")
                     || formatName.contains("MIR_BWSF1C")) {
-                addSmosBandsFromCompound(product, btDataType, false);
+                addSmosL1cBandsFromCompound(product, btDataType, false);
             } else if (formatName.contains("MIR_SCLD1C")
                     || formatName.contains("MIR_SCSD1C")) {
-                addSmosBandsFromCompound(product, btDataType, true);
+                addSmosL1cBandsFromCompound(product, btDataType, true);
             } else if (formatName.contains("MIR_SCLF1C")
                     || formatName.contains("MIR_SCSF1C")) {
-                addSmosBandsFromCompound(product, btDataType, false);
+                addSmosL1cBandsFromCompound(product, btDataType, false);
             }
+        } else {
+            addSmosL2BandsFromCompound(product, smosFile.getGridPointType());
         }
 
         return product;
     }
 
-    public L1cSmosFile getSmosFile() {
+    public SmosFile getSmosFile() {
         return smosFile;
     }
 
@@ -198,7 +201,7 @@ public class SmosProductReader extends AbstractProductReader {
         return dggridMultiLevelImage;
     }
 
-    private void addSmosBandsFromCompound(Product product, CompoundType compoundDataType, boolean dualPol) {
+    private void addSmosL1cBandsFromCompound(Product product, CompoundType compoundDataType, boolean dualPol) {
         CompoundMember[] members = compoundDataType.getMembers();
         for (int fieldIndex = 0; fieldIndex < members.length; fieldIndex++) {
             CompoundMember member = members[fieldIndex];
@@ -221,6 +224,17 @@ public class SmosProductReader extends AbstractProductReader {
                                memberTypeToBandType(member.getType()), bandInfo);
                 }
             }
+        }
+    }
+
+    private void addSmosL2BandsFromCompound(Product product, CompoundType compoundDataType) {
+        CompoundMember[] members = compoundDataType.getMembers();
+        for (int fieldIndex = 0; fieldIndex < members.length; fieldIndex++) {
+            CompoundMember member = members[fieldIndex];
+            String bandName = member.getName();
+            // todo - band info
+            BandInfo bandInfo = new BandInfo(bandName);
+            addL2Band(product, fieldIndex, bandName + "_H", memberTypeToBandType(member.getType()), bandInfo);
         }
     }
 
@@ -264,7 +278,27 @@ public class SmosProductReader extends AbstractProductReader {
             band.setNoDataValue(bandInfo.noDataValue.doubleValue());
         }
 
-        final GridPointValueProvider gpvp = new L1cGridPointValueProvider(smosFile, fieldIndex, polMode);
+        final GridPointValueProvider gpvp = new L1cGridPointValueProvider((L1cSmosFile) smosFile, fieldIndex, polMode);
+        band.setSourceImage(createSourceImage(gpvp, band, bandInfo.noDataValue));
+        band.setImageInfo(createDefaultImageInfo(bandInfo));
+    }
+
+    private void addL2Band(Product product,
+                           int fieldIndex,
+                           String bandName,
+                           int bandType,
+                           BandInfo bandInfo) {
+        final Band band = product.addBand(bandName, bandType);
+        band.setScalingFactor(bandInfo.scaleFactor);
+        band.setScalingOffset(bandInfo.scaleOffset);
+        band.setUnit(bandInfo.unit);
+        band.setDescription(bandInfo.description);
+        if (bandInfo.noDataValue != null) {
+            band.setNoDataValueUsed(true);
+            band.setNoDataValue(bandInfo.noDataValue.doubleValue());
+        }
+
+        final GridPointValueProvider gpvp = new L2GridPointValueProvider(smosFile, fieldIndex);
         band.setSourceImage(createSourceImage(gpvp, band, bandInfo.noDataValue));
         band.setImageInfo(createDefaultImageInfo(bandInfo));
     }
@@ -365,6 +399,10 @@ public class SmosProductReader extends AbstractProductReader {
         double min;
         double max;
         String description;
+
+        private BandInfo(String name) {
+            this(name, "", 0.0, 1.0, -999.0, 0.0, 10000.0, "");
+        }
 
         private BandInfo(String name, String unit, double scaleOffset, double scaleFactor, Number noDataValue, double min, double max, String description) {
             this.name = name;

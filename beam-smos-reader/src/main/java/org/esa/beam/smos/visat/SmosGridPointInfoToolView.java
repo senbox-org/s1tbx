@@ -3,10 +3,14 @@ package org.esa.beam.smos.visat;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.dataio.smos.L1cSmosFile;
+import org.esa.beam.dataio.smos.SmosFile;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
-import javax.swing.*;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
@@ -62,11 +66,11 @@ public abstract class SmosGridPointInfoToolView extends SmosToolView {
 
 
     @Override
-    protected final  void handlePixelPosChanged(ImageLayer baseImageLayer,
-                                         int pixelX,
-                                         int pixelY,
-                                         int currentLevel,
-                                         boolean pixelPosValid) {
+    protected final void handlePixelPosChanged(ImageLayer baseImageLayer,
+                                               int pixelX,
+                                               int pixelY,
+                                               int currentLevel,
+                                               boolean pixelPosValid) {
 
         if (!pixelPosValid) {
             setInfoText("No data");
@@ -81,7 +85,7 @@ public abstract class SmosGridPointInfoToolView extends SmosToolView {
         final int seqnum = data.getSample(pixelX, pixelY, 0);
 
         // final int seqnum = SmosDgg.smosGridPointIdToDggridSeqnum(gridPointId);
-        final L1cSmosFile smosFile = getSmosProductReader().getSmosFile();
+        final SmosFile smosFile = getSmosProductReader().getSmosFile();
         final int gridPointIndex = smosFile.getGridPointIndex(seqnum);
 
         if (gridPointIndex >= 0) {
@@ -92,8 +96,11 @@ public abstract class SmosGridPointInfoToolView extends SmosToolView {
                     "</html>");
 
             try {
-                GridPointBtDataset ds = GridPointBtDataset.read(smosFile, gridPointIndex);
-                updateGridPointComponent(ds);
+                if (smosFile instanceof L1cSmosFile) {
+                    final L1cSmosFile l1cSmosFile = (L1cSmosFile) smosFile;
+                    GridPointBtDataset ds = GridPointBtDataset.read(l1cSmosFile, gridPointIndex);
+                    updateGridPointComponent(ds);
+                }
             } catch (IOException e) {
                 updateGridPointComponent(e);
             }
