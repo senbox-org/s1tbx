@@ -83,13 +83,51 @@ public class L1cScienceSmosFile extends L1cSmosFile {
     @Override
     public int getBrowseBtData(int gridPointIndex, int fieldIndex, int polarization,
                                int noDataValue) throws IOException {
-        return (int) getInterpolatedBtData(gridPointIndex, fieldIndex, polarization, noDataValue);
+        if (fieldIndex == flagsIndex) {
+            return getCombinedBtData(gridPointIndex, polarization, noDataValue);
+        } else {
+            return (int) getInterpolatedBtData(gridPointIndex, fieldIndex, polarization, noDataValue);
+        }
     }
 
     @Override
     public float getBrowseBtData(int gridPointIndex, int fieldIndex, int polarization,
                                  float noDataValue) throws IOException {
         return getInterpolatedBtData(gridPointIndex, fieldIndex, polarization, noDataValue);
+    }
+
+    private int getCombinedBtData(int gridPointIndex, int polarization, int noDataValue) throws IOException {
+        final SequenceData btDataList = getBtDataList(gridPointIndex);
+        final int elementCount = btDataList.getElementCount();
+
+        int combinedFlags = 0;
+
+        boolean hasLower = false;
+        boolean hasUpper = false;
+
+        CompoundData btData;
+        float incidenceAngle;
+
+        for (int i = 0; i < elementCount; ++i) {
+            btData = btDataList.getCompound(i);
+            final int flags = btData.getInt(flagsIndex) & 3;
+            if (isPolarisationAccepted(flags & 3, polarization)) {
+                incidenceAngle = INCIDENCE_ANGLE_FACTOR * btData.getInt(incidenceAngleIndex);
+                if (incidenceAngle >= MIN_INCIDENCE_ANGLE && incidenceAngle <= MAX_INCIDENCE_ANGLE) {
+                    combinedFlags |=  flags;
+                    if (!hasLower) {
+                        hasLower = incidenceAngle <= CENTER_INCIDENCE_ANGLE;
+                    }
+                    if (!hasUpper) {
+                        hasUpper = incidenceAngle > CENTER_INCIDENCE_ANGLE;
+                    }
+                }
+            }
+        }
+        if (hasLower && hasUpper) {
+            return combinedFlags;
+        }
+        return noDataValue;
     }
 
     private float getInterpolatedBtData(int gridPointIndex, int fieldIndex, int polarization,
@@ -212,6 +250,10 @@ public class L1cScienceSmosFile extends L1cSmosFile {
 
     private boolean isPolarisationAccepted(CompoundData data, int polarization) throws IOException {
         final int polarizationFlags = data.getInt(flagsIndex) & 3;
+        return isPolarisationAccepted(polarizationFlags, polarization);
+    }
+
+    private static boolean isPolarisationAccepted(int polarizationFlags, int polarization) {
         return polarization == polarizationFlags || (polarization & polarizationFlags & 2) != 0;
     }
 
