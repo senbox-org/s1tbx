@@ -219,6 +219,7 @@ public class ImageLayer extends Layer {
     private void resetRenderer() {
         if (multiLevelRenderer != null) {
             multiLevelRenderer.reset();
+            multiLevelRenderer = null;
         }
     }
 
