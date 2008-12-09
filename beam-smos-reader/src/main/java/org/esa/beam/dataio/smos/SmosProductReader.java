@@ -16,26 +16,14 @@
  */
 package org.esa.beam.dataio.smos;
 
-import com.bc.ceres.binio.CompoundMember;
-import com.bc.ceres.binio.CompoundType;
-import com.bc.ceres.binio.DataFormat;
-import com.bc.ceres.binio.SimpleType;
-import com.bc.ceres.binio.Type;
+import com.bc.ceres.binio.*;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
@@ -57,6 +45,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 public class SmosProductReader extends AbstractProductReader {
     private static final String SMOS_DGG_DIR_PROPERTY_NAME = "org.esa.beam.pview.smosDggDir";
@@ -187,6 +176,16 @@ public class SmosProductReader extends AbstractProductReader {
         product.setPreferredTileSize(512, 512);
         product.setFileLocation(dblFile);
         product.setGeoCoding(createGeoCoding(product));
+
+        // todo - L2 flags
+        if (smosFile instanceof L1cSmosFile) {
+            final FlagCoding flagCoding = new FlagCoding("SMOS");
+            for (final SmosFormats.FlagDescriptor descriptor : SmosFormats.L1C_FLAGS) {
+                flagCoding.addFlag(descriptor.getName(), descriptor.getMask(), descriptor.getDescription());
+            }
+            product.getFlagCodingGroup().add(flagCoding);
+        }
+
         addGridCellIdBand(product);
 
         if (smosFile instanceof L1cSmosFile) {
@@ -228,6 +227,7 @@ public class SmosProductReader extends AbstractProductReader {
             CompoundMember member = members[fieldIndex];
             String bandName = member.getName();
             BandInfo bandInfo = bandInfos.get(bandName);
+
             if (bandInfo != null) {
                 if (dualPol) {
                     addL1cBand(product, SmosFile.POL_MODE_H, fieldIndex, bandName + "_H",
@@ -309,6 +309,21 @@ public class SmosProductReader extends AbstractProductReader {
         if (bandInfo.noDataValue != null) {
             band.setNoDataValueUsed(true);
             band.setNoDataValue(bandInfo.noDataValue.doubleValue());
+        }
+
+        // todo - cleanup
+        final FlagCoding flagCoding = product.getFlagCodingGroup().get("SMOS");
+        if (bandName.startsWith("Flags") && flagCoding != null) {
+            band.setSampleCoding(flagCoding);
+
+            final Random random = new Random(5489);
+            for (final String flagName : flagCoding.getFlagNames()) {
+                final String name = bandName + "_" + flagName;
+                final String expr = bandName + " != " + band.getNoDataValue() + " && " + bandName + "." + flagName;
+                final Color color = new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
+                final BitmaskDef bitmaskDef = new BitmaskDef(name, name, expr, color, 0.5f);
+                product.addBitmaskDef(bitmaskDef);
+            }
         }
 
         final GridPointValueProvider gpvp = new L1cGridPointValueProvider((L1cSmosFile) smosFile, fieldIndex, polMode);
@@ -484,7 +499,8 @@ public class SmosProductReader extends AbstractProductReader {
             if (xmlChild.getChildren(null, namespace).size() == 0) {
                 String s = xmlChild.getTextNormalize();
                 if (s != null && !s.isEmpty()) {
-                    mdElement.addAttribute(new MetadataAttribute(xmlChild.getName(), ProductData.createInstance(s), true));
+                    mdElement.addAttribute(
+                            new MetadataAttribute(xmlChild.getName(), ProductData.createInstance(s), true));
                 }
             } else {
                 MetadataElement mdChild = new MetadataElement(xmlChild.getName());
