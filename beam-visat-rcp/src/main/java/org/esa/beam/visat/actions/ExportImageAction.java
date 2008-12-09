@@ -34,7 +34,9 @@ import javax.swing.JRadioButton;
 import java.awt.BorderLayout;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 
@@ -97,13 +99,20 @@ public class ExportImageAction extends AbstractExportImageAction {
 
     static RenderedImage createImage(ProductSceneView view, boolean entireImage, boolean useAlpha, RenderFilter renderFilter) {
         Rectangle2D modelBounds;
+        final ImageLayer imageLayer = view.getBaseImageLayer();
         if (entireImage) {
-            modelBounds = view.getBaseImageLayer().getModelBounds();
+            modelBounds = imageLayer.getModelBounds();
         } else {
-            modelBounds = view.getVisibleModelBounds();
+            final RenderedImage image = imageLayer.getImage();
+            final Rectangle2D imageBounds = new Rectangle2D.Double(0, 0, image.getWidth(), image.getHeight());
+            final AffineTransform i2mTransform = imageLayer.getImageToModelTransform();
+            final Rectangle2D modelImageArea = i2mTransform.createTransformedShape(imageBounds).getBounds2D();
+
+            modelBounds = new Rectangle2D.Double();
+            Rectangle2D.intersect(view.getVisibleModelBounds(), modelImageArea, modelBounds);
         }
 
-        Rectangle2D imageBounds = view.getBaseImageLayer().getModelToImageTransform().createTransformedShape(modelBounds).getBounds2D() ;
+        Rectangle2D imageBounds = imageLayer.getModelToImageTransform().createTransformedShape(modelBounds).getBounds2D() ;
         final int imageWidth = MathUtils.floorInt(imageBounds.getWidth());
         final int imageHeight = MathUtils.floorInt(imageBounds.getHeight());
         final int imageType = useAlpha ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR;
