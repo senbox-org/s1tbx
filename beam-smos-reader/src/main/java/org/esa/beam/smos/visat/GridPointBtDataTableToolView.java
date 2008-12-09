@@ -48,6 +48,7 @@ public class GridPointBtDataTableToolView extends GridPointBtDataToolView {
     protected JComponent createGridPointComponentOptionsComponent() {
         columnsButton = new JButton("Columns...");
         columnsButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 final CompoundType btDataType = ((L1cSmosFile)getSelectedSmosFile()).getBtDataType();
                 final CompoundMember[] members = btDataType.getMembers();

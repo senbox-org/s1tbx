@@ -6,8 +6,7 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.dataio.smos.SmosFile;
 import org.esa.beam.dataio.smos.SmosProductReader;
 import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
@@ -154,6 +153,7 @@ public class SceneViewSelectionService {
     }
 
     private class PPL implements PixelPositionListener {
+        @Override
         public void pixelPosChanged(ImageLayer baseImageLayer, int pixelX, int pixelY, int currentLevel, boolean pixelPosValid, MouseEvent e) {
             int seqnum = -1;
             if (pixelPosValid) {
@@ -162,6 +162,7 @@ public class SceneViewSelectionService {
             SmosBox.getInstance().getGridPointSelectionService().setSelectedGridPointId(seqnum);
         }
 
+        @Override
         public void pixelPosNotAvailable() {
             SmosBox.getInstance().getGridPointSelectionService().setSelectedGridPointId(-1);
         }
