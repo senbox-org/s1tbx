@@ -21,6 +21,7 @@
           [BEAM-917] Value of a single pixel is not considered in histogram<br/>
           [BEAM-916] Colour manipulation shall allow values outside of histogram range<br/>
           [BEAM-913] Histogram disappears for RGB channel in colour manipulation<br/>
+          [BEAM-909] Expression or no-data changes of virtual band disregarded in image view<br/>
           [BEAM-899] Colour manipulation window disregards RGB source band changes<br/>
           [BEAM-896] Missing "Color Manipulation" histogram<br/>
           [BEAM-895] "Zoom to selected Pin" in Pin Manager incorrectly moves image view<br/>

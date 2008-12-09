@@ -682,7 +682,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public void ensureValidMaskComputed(ProgressMonitor pm) throws IOException {
     }
 
-    private void resetValidMask() {
+    protected void resetValidMask() {
         validMaskROI = null;
         validMaskImage = null;
         stx = null;
