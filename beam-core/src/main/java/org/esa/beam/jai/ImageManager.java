@@ -582,25 +582,31 @@ public class ImageManager {
         return PlanarImage.wrapRenderedImage(image);
     }
 
+
+    @Deprecated
     public MultiLevelImage getValidMaskMultiLevelImage(final RasterDataNode rasterDataNode) {
         final MaskKey key = new MaskKey(rasterDataNode.getProduct(), rasterDataNode.getValidMaskExpression());
         synchronized (maskImageMap) {
             MultiLevelImage mli = maskImageMap.get(key);
             if (mli == null) {
-                final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(rasterDataNode);
-                final MultiLevelSource mls = new AbstractMultiLevelSource(model) {
-
-                    @Override
-                    public RenderedImage createImage(int level) {
-                        return VirtualBandOpImage.createMaskOpImage(rasterDataNode,
-                                                                    ResolutionLevel.create(getModel(), level));
-                    }
-                };
-                mli = new DefaultMultiLevelImage(mls);
+                mli = createValidMaskMultiLevelImage(rasterDataNode);
                 maskImageMap.put(key, mli);
             }
             return mli;
         }
+    }
+
+    public MultiLevelImage createValidMaskMultiLevelImage(final RasterDataNode rasterDataNode) {
+        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(rasterDataNode);
+        final MultiLevelSource mls = new AbstractMultiLevelSource(model) {
+
+            @Override
+            public RenderedImage createImage(int level) {
+                return VirtualBandOpImage.createMaskOpImage(rasterDataNode,
+                                                            ResolutionLevel.create(getModel(), level));
+            }
+        };
+        return new DefaultMultiLevelImage(mls);
     }
 
     public RenderedImage getMaskImage(final Product product, final String expression, int level) {

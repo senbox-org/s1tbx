@@ -25,8 +25,18 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.glevel.support.GenericMultiLevelSource;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.*;
-import org.esa.beam.util.math.*;
+import org.esa.beam.util.BitRaster;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.ObjectUtils;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.math.DoubleList;
+import org.esa.beam.util.math.Histogram;
+import org.esa.beam.util.math.IndexValidator;
+import org.esa.beam.util.math.MathUtils;
+import org.esa.beam.util.math.Quantizer;
+import org.esa.beam.util.math.Range;
+import org.esa.beam.util.math.Statistics;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
@@ -2130,7 +2140,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (!isValidMaskImageSet() && isValidMaskUsed()) {
             synchronized (this) {
                 if (!isValidMaskImageSet() && isValidMaskUsed()) {
-                    validMaskImage = ImageManager.getInstance().getValidMaskMultiLevelImage(this);
+                    validMaskImage = ImageManager.getInstance().createValidMaskMultiLevelImage(this);
                 }
             }
         }
@@ -2165,6 +2175,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public synchronized void setValidMaskImage(RenderedImage image) {
         final RenderedImage oldValue = this.validMaskImage;
         if (oldValue != image) {
+            if (this.validMaskImage instanceof PlanarImage) {
+                ((PlanarImage) validMaskImage).dispose();
+            }
             this.validMaskImage = image;
             validMaskROI = null;
             fireProductNodeChanged("validMaskImage", oldValue);
@@ -2213,8 +2226,15 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param geophysicalImage The geophysical source image.
      * @since BEAM 4.5
      */
-    public void setGeophysicalImage(RenderedImage geophysicalImage) {
-        this.geophysicalImage = geophysicalImage;
+    public synchronized void setGeophysicalImage(RenderedImage geophysicalImage) {
+        final RenderedImage oldValue = this.geophysicalImage;
+        if (oldValue != geophysicalImage) {
+            if (this.geophysicalImage instanceof PlanarImage) {
+                ((PlanarImage) this.geophysicalImage).dispose();
+            }
+            this.geophysicalImage = geophysicalImage;
+            fireProductNodeChanged("geophysicalImage", oldValue);
+        }
     }
 
     private void resetGeophysicalImage() {
