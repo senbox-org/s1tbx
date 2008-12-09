@@ -27,6 +27,7 @@ import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.util.BeamConstants;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.math.MathUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 
@@ -172,13 +173,20 @@ public class DimapDocumentTest extends TestCase {
         final Map bandDataFiles = DimapProductHelpers.getBandDataFiles(dom1, product, inputDir);
 
         assertEquals(bands.length, bandDataFiles.size());
-        for (int i = 0; i < bands.length; i++) {
-            final Band band = bands[i];
+        for (final Band band : bands) {
             final String expectedDimapDataFilePath = _nameDataDirectory + File.separator + band.getName() + DimapProductConstants.IMAGE_FILE_EXTENSION;
             final String expectedCompleteDataFilePath = inputDir.getPath() + File.separator + expectedDimapDataFilePath;
             final File bandDataFile = (File) bandDataFiles.get(band);
             assertEquals(expectedCompleteDataFilePath, bandDataFile.getPath());
         }
+
+        final Band firstBand = bands[0];
+        final Stx stx = firstBand.getStx();
+        assertNotNull(stx);
+        assertEquals(-0.2, stx.getMin(), 1.0e-6);
+        assertEquals(3.0, stx.getMax(), 1.0e-6);
+        assertEquals(5.5, stx.getMean(), 1.0e-6);
+        assertEquals(3.67, stx.getStandardDeviation(), 1.0e-6);
 
         //Test jDom ist null
         try {
@@ -408,13 +416,13 @@ public class DimapDocumentTest extends TestCase {
         Band band1 = new Band("Band1", ProductData.TYPE_INT16, sceneRasterWidth, sceneRasterHeight);
         band1.setUnit("unit for " + band1.getName());
         band1.setDescription(band1.getName() + "-Description");
-        band1.setStx(createStx());
         band1.setImageInfo(createImageInfo());
         band1.setROIDefinition(createROIDefinition());
         band1.setSolarFlux(0.12f);
         band1.setSpectralWavelength(23.45f);
         band1.setSpectralBandIndex(0);
         band1.setValidPixelExpression("Flags1.Flag1C");
+        band1.setStx(createStx());
         product.addBand(band1);
 
         Band band2 = new Band("Band2", ProductData.TYPE_INT8, sceneRasterWidth, sceneRasterHeight);
@@ -472,8 +480,8 @@ public class DimapDocumentTest extends TestCase {
     }
 
     private Stx createStx() {
-        int[] bins = new int[]{4, 5, 4, 7, 5, 8};
-        return new Stx(-0.2, 3, false, bins, 0);
+        int[] bins = new int[]{4, 5, 4, 7, 5, 8};        
+        return new Stx(-0.2, 3, 5.5, 3.67, false, bins, 0);
     }
 
     private ImageInfo createImageInfo() {
@@ -739,6 +747,12 @@ public class DimapDocumentTest extends TestCase {
         pw.println("    <Image_Display>");
         pw.println("        <Band_Statistics>");
         pw.println("            <BAND_INDEX>0</BAND_INDEX>");
+        pw.println("            <STX_MIN>-0.2</STX_MIN>");
+        pw.println("            <STX_MAX>3.0</STX_MAX>");
+        pw.println("            <STX_MEAN>5.5</STX_MEAN>");
+        pw.println("            <STX_STD_DEV>3.67</STX_STD_DEV>");
+        pw.println("            <STX_RES_LEVEL>0</STX_RES_LEVEL>");
+        pw.println("            <HISTOGRAM>4,5,4,7,5,8</HISTOGRAM>");
         pw.println("            <NUM_COLORS>180</NUM_COLORS>");
         pw.println("            <Color_Palette_Point>");
         pw.println("                <SAMPLE>0.1</SAMPLE>");
@@ -1257,6 +1271,10 @@ public class DimapDocumentTest extends TestCase {
                         JDomHelper.addElement(DimapProductConstants.TAG_STX_MIN, band.getStx().getMin(),
                                               bandStatisticsElem);
                         JDomHelper.addElement(DimapProductConstants.TAG_STX_MAX, band.getStx().getMax(),
+                                              bandStatisticsElem);
+                        JDomHelper.addElement(DimapProductConstants.TAG_STX_MEAN, band.getStx().getMean(),
+                                              bandStatisticsElem);
+                        JDomHelper.addElement(DimapProductConstants.TAG_STX_STDDEV, band.getStx().getStandardDeviation(),
                                               bandStatisticsElem);
                         JDomHelper.addElement(DimapProductConstants.TAG_STX_LEVEL, band.getStx().getResolutionLevel(),
                                               bandStatisticsElem);

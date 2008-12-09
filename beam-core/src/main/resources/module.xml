@@ -23,6 +23,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.6:<br/>
+        [BEAM-926] Mean and standard deviation shall be stored in DIMAP<br/>
         [BEAM-906] Bitmask layers are duplicated within the Layer Manager<br/>
         [BEAM-902] Graticule looks scrambled if it is displayed soon after view has opened<br/>
         [BEAM-901] ROI sometimes not considered in Scatter Plot<br/>

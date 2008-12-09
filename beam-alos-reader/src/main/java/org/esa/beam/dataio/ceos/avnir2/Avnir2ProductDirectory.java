@@ -277,7 +277,7 @@ class Avnir2ProductDirectory {
         final int[] histogramBins = _trailerFile.getHistogramBinsForBand(bandIndex);
         final float scaledMinSample = (float) (getMinSampleValue(histogramBins) * scalingFactor + scalingOffset);
         final float scaledMaxSample = (float) (getMaxSampleValue(histogramBins) * scalingFactor + scalingOffset);
-        band.setStx(new Stx(scaledMinSample, scaledMaxSample, true, histogramBins, 0));
+        band.setStx(new Stx(scaledMinSample, scaledMaxSample, Double.NaN, Double.NaN, true, histogramBins, 0));
         final ImageInfo imageInfo = band.createDefaultImageInfo(null, ProgressMonitor.NULL);
         band.setImageInfo(imageInfo);
         band.setDescription("Radiance band " + avnir2ImageFile.getBandIndex());

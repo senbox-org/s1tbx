@@ -1000,11 +1000,15 @@ public class DimapProductHelpers {
         private static Stx createStx(Band band, Element bandStatisticsElem) {
             final Double minSample = getElemDouble(bandStatisticsElem, DimapProductConstants.TAG_STX_MIN);
             final Double maxSample = getElemDouble(bandStatisticsElem, DimapProductConstants.TAG_STX_MAX);
+            final Double mean = getElemDouble(bandStatisticsElem, DimapProductConstants.TAG_STX_MEAN);
+            final Double stdDev = getElemDouble(bandStatisticsElem, DimapProductConstants.TAG_STX_STDDEV);
             final Integer level = getElemInt(bandStatisticsElem, DimapProductConstants.TAG_STX_LEVEL);
             final int[] bins = getHistogramBins(bandStatisticsElem);
             if (minSample != null && maxSample != null) {
                 return new Stx(band.scaleInverse(minSample),
                                band.scaleInverse(maxSample),
+                               mean != null ? band.scaleInverse(mean): Double.NaN,
+                               stdDev != null ? band.scaleInverse(stdDev): Double.NaN,
                                ProductData.isIntType(band.getDataType()),
                                bins == null ? new int[0] : bins,
                                level == null ? 0 : level);

@@ -45,8 +45,8 @@ public class RasterDataNode_Stx_Test {
         assertEquals(0, stx.getResolutionLevel());
         assertEquals(1, stx.getMin(), 1e-11);
         assertEquals(6, stx.getMax(), 1e-11);
-        assertEquals(3.495117187499999, stx.getMean(), 1e-11);
-        assertEquals(1.7054441568206498, stx.getStandardDeviation(), 1e-11);
+        assertEquals(3.5, stx.getMean(), 1e-11);
+        assertEquals(1.707825127659933, stx.getStandardDeviation(), 1e-11);
         assertEquals(0.009765625, stx.getHistogramBinWidth(), 1e-11);
         assertEquals(512, stx.getHistogramBinCount());
 
@@ -70,8 +70,8 @@ public class RasterDataNode_Stx_Test {
         assertEquals(0, stx.getResolutionLevel());
         assertEquals(1, stx.getMin(), 1e-11);
         assertEquals(6, stx.getMax(), 1e-11);
-        assertEquals(3.595703125, stx.getMean(), 1e-11);
-        assertEquals(1.8519024114417872, stx.getStandardDeviation(), 1e-11);
+        assertEquals(3.6, stx.getMean(), 1e-11);
+        assertEquals(1.8547236990991407, stx.getStandardDeviation(), 1e-11);
         assertEquals(0.009765625, stx.getHistogramBinWidth(), 1e-11);
         assertEquals(512, stx.getHistogramBinCount());
 
@@ -95,8 +95,8 @@ public class RasterDataNode_Stx_Test {
         assertEquals(0, stx.getResolutionLevel());
         assertEquals(4.1, stx.getMin(), 1e-6);
         assertEquals(9.6, stx.getMax(), 1e-6);
-        assertEquals(6.844629048835486, stx.getMean(), 1e-11);
-        assertEquals(1.8759887351465405, stx.getStandardDeviation(), 1e-11);
+        assertEquals(6.850000063578288, stx.getMean(), 1e-11);
+        assertEquals(1.8786077800295558, stx.getStandardDeviation(), 1e-11);
         assertEquals(0.010742188431322575, stx.getHistogramBinWidth(), 1e-11);
         assertEquals(512, stx.getHistogramBinCount());
 
@@ -119,8 +119,8 @@ public class RasterDataNode_Stx_Test {
         assertEquals(0, stx.getResolutionLevel());
         assertEquals(4.1, stx.getMin(), 1e-6);
         assertEquals(9.6, stx.getMax(), 1e-6);
-        assertEquals(6.733984507992864, stx.getMean(), 1e-11);
-        assertEquals(2.037092829197141, stx.getStandardDeviation(), 1e-11);
+        assertEquals(6.740000057220459, stx.getMean(), 1e-11);
+        assertEquals(2.040196221208332, stx.getStandardDeviation(), 1e-11);
         assertEquals(0.010742188431322575, stx.getHistogramBinWidth(), 1e-11);
         assertEquals(512, stx.getHistogramBinCount());
 

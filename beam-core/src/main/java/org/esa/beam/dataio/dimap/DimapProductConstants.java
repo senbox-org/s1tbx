@@ -313,9 +313,20 @@ public final class DimapProductConstants {
      * </pre>
      * </td>
      * </tr>
+     * <tr>
+     * <td valign="top">2.6.0</td>
+     * <td> Since 4.5.1 BEAM the band statistics tag is extended to beside the mininum and maximum value also the
+     * mean value and the standard deviation:
+     * <pre>
+     * <b>These two tags are </b>
+     *   &lt;STX_MEAN&gt;meanValue&lt;/STX_MEAN&gt;
+     *   &lt;STX_STD_DEV&gt;stdDevValue&lt;/STX_STD_DEV&gt;
+     * </pre>
+     * </td>
+     * </tr>
      * </table>
      */
-    public static final String DIMAP_CURRENT_VERSION = "2.5.0";
+    public static final String DIMAP_CURRENT_VERSION = "2.6.0";
 
     // BEAM-Dimap default text
     public static final String DIMAP_METADATA_PROFILE = "BEAM-DATAMODEL-V1";
@@ -493,6 +504,8 @@ public final class DimapProductConstants {
     public static final String TAG_BAND_STATISTICS = "Band_Statistics";
     public static final String TAG_STX_MIN = "STX_MIN";
     public static final String TAG_STX_MAX = "STX_MAX";
+    public static final String TAG_STX_MEAN = "STX_MEAN";
+    public static final String TAG_STX_STDDEV = "STX_STD_DEV";
     public static final String TAG_STX_LEVEL = "STX_RES_LEVEL";
     public static final String TAG_STX_LIN_MIN = "STX_LIN_MIN";
     public static final String TAG_STX_LIN_MAX = "STX_LIN_MAX";

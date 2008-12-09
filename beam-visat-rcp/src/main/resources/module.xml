@@ -12,6 +12,8 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.6:<br/>
+          [BEAM-928] Statistics shall be shown immediately if already computed<br/>
+          [BEAM-927] Mean and standard deviation of statistics are inexact<br/>
           [BEAM-925] Events (open, shown, hidden) shall be delegated to tool view<br/>
           [BEAM-921] Sometimes pin manager cannot delete pins<br/>
           [BEAM-920] Pins in view out-of-sync with those in pin manager<br/>

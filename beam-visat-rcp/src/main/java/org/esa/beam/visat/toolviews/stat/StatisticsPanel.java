@@ -4,11 +4,13 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.ROIDefinition;
 import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.StringUtils;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingWorker;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,7 +32,6 @@ class StatisticsPanel extends TextPagePanel {
 
     public StatisticsPanel(final ToolView parentDialog, String helpID) {
         super(parentDialog, DEFAULT_STATISTICS_TEXT, helpID);
-
     }
 
     @Override
@@ -77,8 +78,14 @@ class StatisticsPanel extends TextPagePanel {
     protected void updateContent() {
         super.updateContent();
         if (computePanel != null) {
-            computePanel.setRaster(getRaster());
-            getTextArea().setText(DEFAULT_STATISTICS_TEXT);
+            final RasterDataNode raster = getRaster();
+            computePanel.setRaster(raster);
+            if (raster != null && raster.isStxSet() && raster.getStx().getResolutionLevel() == 0) {
+                final Stx stx = raster.getStx();
+                getTextArea().setText(createText(stx, false));
+            } else {
+                getTextArea().setText(DEFAULT_STATISTICS_TEXT);
+            }
         }
     }
 
@@ -96,12 +103,14 @@ class StatisticsPanel extends TextPagePanel {
             roiImage = null;
         }
 
-        ProgressMonitorSwingWorker<Stx, Object> swingWorker = new ProgressMonitorSwingWorker<Stx, Object>(this, "Computing Statistics") {
+        final String title = "Computing Statistics";
+        SwingWorker<Stx, Object> swingWorker = new ProgressMonitorSwingWorker<Stx, Object>(this, title) {
             @Override
             protected Stx doInBackground(ProgressMonitor pm) throws Exception {
                 final Stx stx;
                 if (roiImage == null) {
-                    stx = getRaster().getStx(true, pm);
+                    stx = Stx.create(getRaster(), 0, pm);
+                    getRaster().setStx(stx);
                 } else {
                     stx = Stx.create(getRaster(), roiImage, pm);
                 }
@@ -125,10 +134,9 @@ class StatisticsPanel extends TextPagePanel {
                             msgPrefix = "The scene contains no valid pixels.";  /*I18N*/
                         }
                         JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                      msgPrefix +
-                                                              "\nStatistics have not been computed.", /*I18N*/
-                                                                                                      "Statistics", /*I18N*/
-                                                                                                      JOptionPane.WARNING_MESSAGE);
+                                                      msgPrefix + "\nStatistics have not been computed.", /*I18N*/
+                                                      "Statistics", /*I18N*/
+                                                      JOptionPane.WARNING_MESSAGE);
                         getTextArea().setText(DEFAULT_STATISTICS_TEXT);
                     }
 
@@ -149,7 +157,7 @@ class StatisticsPanel extends TextPagePanel {
     private String createText(final Stx stat, final boolean hasROI) {
 
         final String unit = (StringUtils.isNotNullAndNotEmpty(getRaster().getUnit()) ? getRaster().getUnit() : "1");
-        final long numPixelTotal = getRaster().getSceneRasterWidth() * (long) getRaster().getSceneRasterHeight();
+        final long numPixelTotal = (long) getRaster().getSceneRasterWidth() * (long) getRaster().getSceneRasterHeight();
         final StringBuffer sb = new StringBuffer(1024);
 
         sb.append("\n");
@@ -271,7 +279,7 @@ class StatisticsPanel extends TextPagePanel {
         }
     }
 
-    protected void handleLayerContentChanged() {
+    public void handleLayerContentChanged() {
         computePanel.updateRoiCheckBoxState();
     }
 }

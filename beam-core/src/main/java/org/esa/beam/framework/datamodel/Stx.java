@@ -7,7 +7,6 @@ import org.esa.beam.jai.ImageManager;
 
 import javax.media.jai.Histogram;
 import javax.media.jai.PixelAccessor;
-import javax.media.jai.UnpackedImageData;
 import javax.media.jai.operator.MinDescriptor;
 import java.awt.Rectangle;
 import java.awt.image.DataBuffer;
@@ -27,16 +26,14 @@ public class Stx {
 
     private final double min;
     private final double max;
+    private final double stdDev;
     private final long sampleCount;
     private final int resolutionLevel;
     private final Histogram histogram;
+    private double mean;
 
     public static Stx create(RasterDataNode raster, int level, ProgressMonitor pm) {
         return create(raster, level, null, DEFAULT_BIN_COUNT, pm);
-    }
-
-    public static Stx create(RasterDataNode raster, int level, int binCount, double min, double max, ProgressMonitor pm) {
-        return create(raster, level, null, binCount, min, max, pm);
     }
 
     public static Stx create(RasterDataNode raster, RenderedImage roiImage, ProgressMonitor pm) {
@@ -47,20 +44,49 @@ public class Stx {
         return create(raster, 0, roiImage, binCount, pm);
     }
 
+    public static Stx create(RasterDataNode raster, int level, int binCount, double min, double max, ProgressMonitor pm) {
+        return create(raster, level, null, binCount, min, max, pm);
+    }
+
     public static Stx create(RasterDataNode raster, RenderedImage roiImage, int binCount, double min, double max, ProgressMonitor pm) {
         return create(raster, 0, roiImage, binCount, min, max, pm);
     }
 
-    public Stx(double min, double max, boolean intType, int[] sampleFrequencies, int resolutionLevel) {
-        this(min, max, createHistogram(min, max + (intType ? 1.0 : 0.0), sampleFrequencies), resolutionLevel);
+
+    /**
+     * Creates a {@code Stx} object with the given Parameter.
+     * @param min the minimum value
+     * @param max the maximum value
+     * @param mean the mean value, if it's {@link Double#NaN} the mean will be computed
+     * @param stdDev the value of the standard deviation, if it's {@link Double#NaN} it will be computed
+     * @param sampleFrequencies the frequencies of the samples
+     * @param resolutionLevel the resolution level this {@code Stx} is for
+     *
+     * @see Stx#Stx(double, double, double, double, javax.media.jai.Histogram, int)
+     */
+    public Stx(double min, double max, double mean, double stdDev, boolean intType, int[] sampleFrequencies, int resolutionLevel) {
+        this(min, max, mean, stdDev, createHistogram(min, max + (intType ? 1.0 : 0.0), sampleFrequencies), resolutionLevel);
     }
 
-    private Stx(double min, double max, Histogram histogram, int resolutionLevel) {
+    /**
+     * Creates a {@code Stx} object with the given Parameter.
+     * @param min the minimum value
+     * @param max the maximum value
+     * @param mean the mean value, if it's {@link Double#NaN} the mean is taken from the {@code histogram}
+     * @param stdDev the value of the standard deviation, if it's {@link Double#NaN} it is taken from the {@code histogram}
+     * @param histogram the histogram
+     * @param resolutionLevel the resolution level this {@code Stx} is for
+     *
+     * @see Stx#Stx(double, double, double, double, javax.media.jai.Histogram, int)
+     */
+    private Stx(double min, double max, double mean, double stdDev, Histogram histogram, int resolutionLevel) {
         this.min = min;
         this.max = max;
-        this.sampleCount = computeSum(histogram.getBins(0));
+        this.mean = mean;
+        this.stdDev = stdDev;
         this.histogram = histogram;
         this.resolutionLevel = resolutionLevel;
+        this.sampleCount = computeSum(histogram.getBins(0));
     }
 
     public double getMin() {
@@ -72,11 +98,19 @@ public class Stx {
     }
 
     public double getMean() {
-        return histogram.getMean()[0];
+        if(Double.isNaN(mean)) {
+            return histogram.getMean()[0];
+        }else {
+            return mean;
+        }
     }
 
     public double getStandardDeviation() {
-        return histogram.getStandardDeviation()[0];
+        if(Double.isNaN(stdDev)) {
+            return histogram.getStandardDeviation()[0];
+        }else {
+            return stdDev;
+        }
     }
 
     public double getHistogramBinMin(int binIndex) {
@@ -123,45 +157,77 @@ public class Stx {
 
     private static Stx create(RasterDataNode raster, int level, RenderedImage roiImage, int binCount, ProgressMonitor pm) {
         try {
-            pm.beginTask("Computing statistics", 2);
-            final ExtremaOp extremaOp = new ExtremaOp();
+            pm.beginTask("Computing statistics", 3);
+            final ExtremaStxOp extremaOp = new ExtremaStxOp();
             accumulate(raster, level, roiImage, extremaOp, SubProgressMonitor.create(pm, 1));
 
-            double min = extremaOp.lowValue;
-            double max = extremaOp.highValue;
+            double min = extremaOp.getLowValue();
+            double max = extremaOp.getHighValue();
+            double mean = extremaOp.getMean();
+            long numValues = extremaOp.getNumValues();
 
             if (min == Double.MAX_VALUE && max == -Double.MAX_VALUE) {
                 final Histogram histogram = createHistogram(1, 0, 1);
                 histogram.getBins(0)[0] = 0;
-                return new Stx(0.0, 1.0, histogram, level);
+                return new Stx(0.0, 1.0, Double.NaN, Double.NaN, histogram, level);
             }
 
             double off = getHighValueOffset(raster);
-
-            final HistogramOp histogramOp = new HistogramOp(binCount, min, max + off);
+            final HistogramStxOp histogramOp = new HistogramStxOp(binCount, min, max + off);
             accumulate(raster, level, roiImage, histogramOp, SubProgressMonitor.create(pm, 1));
 
             // Create JAI histo, but use our "BEAM" bins
             final Histogram histogram = createHistogram(binCount, min, max + off);
-            System.arraycopy(histogramOp.bins, 0, histogram.getBins(0), 0, binCount);
+            System.arraycopy(histogramOp.getBins(), 0, histogram.getBins(0), 0, binCount);
 
-            return new Stx(min, max, histogram, level);
+
+            return create(raster, level, roiImage, histogram,
+                          min, max, mean, numValues,
+                          SubProgressMonitor.create(pm, 1));
         } finally {
             pm.done();
         }
     }
 
     private static Stx create(RasterDataNode raster, int level, RenderedImage roiImage, int binCount, double min, double max, ProgressMonitor pm) {
-        double off = getHighValueOffset(raster);
+        try {
+            pm.beginTask("Computing statistics", 3);
 
-        final HistogramOp histogramOp = new HistogramOp(binCount, min, max + off);
-        accumulate(raster, level, roiImage, histogramOp, pm);
+            double off = getHighValueOffset(raster);
+            final HistogramStxOp histogramOp = new HistogramStxOp(binCount, min, max + off);
+            accumulate(raster, level, roiImage, histogramOp, SubProgressMonitor.create(pm, 1));
 
-        // Create JAI histo, but use our "BEAM" bins
-        final Histogram histogram = createHistogram(binCount, min, max + off);
-        System.arraycopy(histogramOp.bins, 0, histogram.getBins(0), 0, binCount);
+            // Create JAI histo, but use our "BEAM" bins
+            final Histogram histogram = createHistogram(binCount, min, max + off);
+            System.arraycopy(histogramOp.getBins(), 0, histogram.getBins(0), 0, binCount);
 
-        return new Stx(min, max, histogram, level);
+            return create(raster, level, roiImage, histogram, min, max, Double.NaN, -1L, SubProgressMonitor.create(pm, 1));
+        } finally {
+            pm.done();
+        }
+    }
+
+    private static Stx create(RasterDataNode raster, int level, RenderedImage roiImage,
+                              Histogram histogram, double min, double max, double mean, long numSamples,
+                              ProgressMonitor pm) {
+        try {
+            pm.beginTask("Computing statistics", 1);
+            if(numSamples <0) {
+                numSamples = computeSum(histogram.getBins(0));
+            }
+            if(Double.isNaN(mean)) {
+                final MeanStxOp meanOp = new MeanStxOp(numSamples);
+                accumulate(raster, level, roiImage, meanOp, SubProgressMonitor.create(pm, 1));
+                mean = meanOp.getMean();
+            }
+            final StdDevStxOp stdDevOp = new StdDevStxOp(numSamples, mean);
+            accumulate(raster, level, roiImage, stdDevOp, SubProgressMonitor.create(pm, 1));
+            double stdDev = stdDevOp.getStdDev();
+
+            return new Stx(min, max, mean, stdDev, histogram, level);
+        } finally {
+            pm.done();
+        }
     }
 
     private static double getHighValueOffset(RasterDataNode raster) {
@@ -175,7 +241,7 @@ public class Stx {
     private static void accumulate(RasterDataNode raster,
                                    int level,
                                    RenderedImage roiImage,
-                                   Op op,
+                                   StxOp op,
                                    ProgressMonitor pm) {
 
         Assert.notNull(raster, "raster");
@@ -262,645 +328,6 @@ public class Stx {
             }
         } finally {
             pm.done();
-        }
-    }
-
-    private interface Op {
-        String getName();
-
-        void accumulateDataUByte(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
-
-        void accumulateDataShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
-
-        void accumulateDataUShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
-
-        void accumulateDataInt(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
-
-        void accumulateDataFloat(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
-
-        void accumulateDataDouble(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r);
-
-    }
-
-    private static class ExtremaOp implements Op {
-        private double lowValue;
-        private double highValue;
-
-        private ExtremaOp() {
-            this.lowValue = Double.MAX_VALUE;
-            this.highValue = -Double.MAX_VALUE;
-        }
-
-        public String getName() {
-            return "Extrema";
-        }
-
-        public void accumulateDataUByte(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
-            double lowValue = this.lowValue;
-            double highValue = this.highValue;
-
-            final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_BYTE, false);
-            final byte[] data = duid.getByteData(0);
-            final int dataPixelStride = duid.pixelStride;
-            final int dataLineStride = duid.lineStride;
-            final int dataBandOffset = duid.bandOffsets[0];
-
-            byte[] mask = null;
-            int maskPixelStride = 0;
-            int maskLineStride = 0;
-            int maskBandOffset = 0;
-            if (maskAccessor != null) {
-                UnpackedImageData muid = maskAccessor.getPixels(maskTile, r, DataBuffer.TYPE_BYTE, false);
-                mask = muid.getByteData(0);
-                maskPixelStride = muid.pixelStride;
-                maskLineStride = muid.lineStride;
-                maskBandOffset = muid.bandOffsets[0];
-            }
-
-            final int width = r.width;
-            final int height = r.height;
-
-            int dataLineOffset = dataBandOffset;
-            int maskLineOffset = maskBandOffset;
-            for (int y = 0; y < height; y++) {
-                int dataPixelOffset = dataLineOffset;
-                int maskPixelOffset = maskLineOffset;
-                for (int x = 0; x < width; x++) {
-                    if (mask == null || mask[maskPixelOffset] != 0) {
-                        double d = data[dataPixelOffset] & 0xff;
-                        if (d < lowValue) {
-                            lowValue = d;
-                        } else if (d > highValue) {
-                            highValue = d;
-                        }
-                    }
-                    dataPixelOffset += dataPixelStride;
-                    maskPixelOffset += maskPixelStride;
-                }
-                dataLineOffset += dataLineStride;
-                maskLineOffset += maskLineStride;
-            }
-            this.lowValue = lowValue;
-            this.highValue = highValue;
-        }
-
-        public void accumulateDataUShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
-            double lowValue = this.lowValue;
-            double highValue = this.highValue;
-
-            final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_USHORT, false);
-            final short[] data = duid.getShortData(0);
-            final int dataPixelStride = duid.pixelStride;
-            final int dataLineStride = duid.lineStride;
-            final int dataBandOffset = duid.bandOffsets[0];
-
-            byte[] mask = null;
-            int maskPixelStride = 0;
-            int maskLineStride = 0;
-            int maskBandOffset = 0;
-            if (maskAccessor != null) {
-                UnpackedImageData muid = maskAccessor.getPixels(maskTile, r, DataBuffer.TYPE_BYTE, false);
-                mask = muid.getByteData(0);
-                maskPixelStride = muid.pixelStride;
-                maskLineStride = muid.lineStride;
-                maskBandOffset = muid.bandOffsets[0];
-            }
-
-            final int width = r.width;
-            final int height = r.height;
-
-            int dataLineOffset = dataBandOffset;
-            int maskLineOffset = maskBandOffset;
-            for (int y = 0; y < height; y++) {
-                int dataPixelOffset = dataLineOffset;
-                int maskPixelOffset = maskLineOffset;
-                for (int x = 0; x < width; x++) {
-                    if (mask == null || mask[maskPixelOffset] != 0) {
-                        double d = data[dataPixelOffset] & 0xffff;
-                        if (d < lowValue) {
-                            lowValue = d;
-                        } else if (d > highValue) {
-                            highValue = d;
-                        }
-                    }
-                    dataPixelOffset += dataPixelStride;
-                    maskPixelOffset += maskPixelStride;
-                }
-                dataLineOffset += dataLineStride;
-                maskLineOffset += maskLineStride;
-            }
-
-            this.lowValue = lowValue;
-            this.highValue = highValue;
-        }
-
-        public void accumulateDataShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
-            double lowValue = this.lowValue;
-            double highValue = this.highValue;
-
-            final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_SHORT, false);
-            final short[] data = duid.getShortData(0);
-            final int dataPixelStride = duid.pixelStride;
-            final int dataLineStride = duid.lineStride;
-            final int dataBandOffset = duid.bandOffsets[0];
-
-            byte[] mask = null;
-            int maskPixelStride = 0;
-            int maskLineStride = 0;
-            int maskBandOffset = 0;
-            if (maskAccessor != null) {
-                UnpackedImageData muid = maskAccessor.getPixels(maskTile, r, DataBuffer.TYPE_BYTE, false);
-                mask = muid.getByteData(0);
-                maskPixelStride = muid.pixelStride;
-                maskLineStride = muid.lineStride;
-                maskBandOffset = muid.bandOffsets[0];
-            }
-
-            final int width = r.width;
-            final int height = r.height;
-
-            int dataLineOffset = dataBandOffset;
-            int maskLineOffset = maskBandOffset;
-            for (int y = 0; y < height; y++) {
-                int dataPixelOffset = dataLineOffset;
-                int maskPixelOffset = maskLineOffset;
-                for (int x = 0; x < width; x++) {
-                    if (mask == null || mask[maskPixelOffset] != 0) {
-                        double d = data[dataPixelOffset];
-                        if (d < lowValue) {
-                            lowValue = d;
-                        } else if (d > highValue) {
-                            highValue = d;
-                        }
-                    }
-                    dataPixelOffset += dataPixelStride;
-                    maskPixelOffset += maskPixelStride;
-                }
-                dataLineOffset += dataLineStride;
-                maskLineOffset += maskLineStride;
-            }
-
-            this.lowValue = lowValue;
-            this.highValue = highValue;
-        }
-
-        public void accumulateDataInt(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
-            double lowValue = this.lowValue;
-            double highValue = this.highValue;
-
-            final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_INT, false);
-            final int[] data = duid.getIntData(0);
-            final int dataPixelStride = duid.pixelStride;
-            final int dataLineStride = duid.lineStride;
-            final int dataBandOffset = duid.bandOffsets[0];
-
-            byte[] mask = null;
-            int maskPixelStride = 0;
-            int maskLineStride = 0;
-            int maskBandOffset = 0;
-            if (maskAccessor != null) {
-                UnpackedImageData muid = maskAccessor.getPixels(maskTile, r, DataBuffer.TYPE_BYTE, false);
-                mask = muid.getByteData(0);
-                maskPixelStride = muid.pixelStride;
-                maskLineStride = muid.lineStride;
-                maskBandOffset = muid.bandOffsets[0];
-            }
-
-            final int width = r.width;
-            final int height = r.height;
-
-            int dataLineOffset = dataBandOffset;
-            int maskLineOffset = maskBandOffset;
-            for (int y = 0; y < height; y++) {
-                int dataPixelOffset = dataLineOffset;
-                int maskPixelOffset = maskLineOffset;
-                for (int x = 0; x < width; x++) {
-                    if (mask == null || mask[maskPixelOffset] != 0) {
-                        double d = data[dataPixelOffset];
-                        if (d < lowValue) {
-                            lowValue = d;
-                        } else if (d > highValue) {
-                            highValue = d;
-                        }
-                    }
-                    dataPixelOffset += dataPixelStride;
-                    maskPixelOffset += maskPixelStride;
-                }
-                dataLineOffset += dataLineStride;
-                maskLineOffset += maskLineStride;
-            }
-
-            this.lowValue = lowValue;
-            this.highValue = highValue;
-        }
-
-        public void accumulateDataFloat(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
-            double lowValue = this.lowValue;
-            double highValue = this.highValue;
-
-            final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_FLOAT, false);
-            final float[] data = duid.getFloatData(0);
-            final int dataPixelStride = duid.pixelStride;
-            final int dataLineStride = duid.lineStride;
-            final int dataBandOffset = duid.bandOffsets[0];
-
-            byte[] mask = null;
-            int maskPixelStride = 0;
-            int maskLineStride = 0;
-            int maskBandOffset = 0;
-            if (maskAccessor != null) {
-                UnpackedImageData muid = maskAccessor.getPixels(maskTile, r, DataBuffer.TYPE_BYTE, false);
-                mask = muid.getByteData(0);
-                maskPixelStride = muid.pixelStride;
-                maskLineStride = muid.lineStride;
-                maskBandOffset = muid.bandOffsets[0];
-            }
-
-            final int width = r.width;
-            final int height = r.height;
-
-            int dataLineOffset = dataBandOffset;
-            int maskLineOffset = maskBandOffset;
-            for (int y = 0; y < height; y++) {
-                int dataPixelOffset = dataLineOffset;
-                int maskPixelOffset = maskLineOffset;
-                for (int x = 0; x < width; x++) {
-                    if (mask == null || mask[maskPixelOffset] != 0) {
-                        double d = data[dataPixelOffset];
-                        if (d < lowValue) {
-                            lowValue = d;
-                        } else if (d > highValue) {
-                            highValue = d;
-                        }
-                    }
-                    dataPixelOffset += dataPixelStride;
-                    maskPixelOffset += maskPixelStride;
-                }
-                dataLineOffset += dataLineStride;
-                maskLineOffset += maskLineStride;
-            }
-
-            this.lowValue = lowValue;
-            this.highValue = highValue;
-        }
-
-        public void accumulateDataDouble(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
-            double lowValue = this.lowValue;
-            double highValue = this.highValue;
-
-            final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_DOUBLE, false);
-            final double[] data = duid.getDoubleData(0);
-            final int dataPixelStride = duid.pixelStride;
-            final int dataLineStride = duid.lineStride;
-            final int dataBandOffset = duid.bandOffsets[0];
-
-            byte[] mask = null;
-            int maskPixelStride = 0;
-            int maskLineStride = 0;
-            int maskBandOffset = 0;
-            if (maskAccessor != null) {
-                UnpackedImageData muid = maskAccessor.getPixels(maskTile, r, DataBuffer.TYPE_BYTE, false);
-                mask = muid.getByteData(0);
-                maskPixelStride = muid.pixelStride;
-                maskLineStride = muid.lineStride;
-                maskBandOffset = muid.bandOffsets[0];
-            }
-
-            final int width = r.width;
-            final int height = r.height;
-
-            int dataLineOffset = dataBandOffset;
-            int maskLineOffset = maskBandOffset;
-            for (int y = 0; y < height; y++) {
-                int dataPixelOffset = dataLineOffset;
-                int maskPixelOffset = maskLineOffset;
-                for (int x = 0; x < width; x++) {
-                    if (mask == null || mask[maskPixelOffset] != 0) {
-                        double d = data[dataPixelOffset];
-                        if (d < lowValue) {
-                            lowValue = d;
-                        } else if (d > highValue) {
-                            highValue = d;
-                        }
-                    }
-                    dataPixelOffset += dataPixelStride;
-                    maskPixelOffset += maskPixelStride;
-                }
-                dataLineOffset += dataLineStride;
-                maskLineOffset += maskLineStride;
-            }
-
-            this.lowValue = lowValue;
-            this.highValue = highValue;
-        }
-
-    }
-
-    private static class HistogramOp implements Op {
-        private final double lowValue;
-        private final double highValue;
-        private final double binWidth;
-        private final int[] bins;
-
-        private HistogramOp(int numBins, double lowValue, double highValue) {
-            this.lowValue = lowValue;
-            this.highValue = highValue;
-            this.binWidth = (highValue - lowValue) / numBins;
-            this.bins = new int[numBins];
-        }
-
-        public String getName() {
-            return "Histogram";
-        }
-
-        public void accumulateDataUByte(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
-            final int[] bins = this.bins;
-            final double lowValue = this.lowValue;
-            final double highValue = this.highValue;
-            final double binWidth = this.binWidth;
-
-            final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_BYTE, false);
-            final byte[] data = duid.getByteData(0);
-            final int dataPixelStride = duid.pixelStride;
-            final int dataLineStride = duid.lineStride;
-            final int dataBandOffset = duid.bandOffsets[0];
-
-            byte[] mask = null;
-            int maskPixelStride = 0;
-            int maskLineStride = 0;
-            int maskBandOffset = 0;
-            if (maskAccessor != null) {
-                UnpackedImageData muid = maskAccessor.getPixels(maskTile, r, DataBuffer.TYPE_BYTE, false);
-                mask = muid.getByteData(0);
-                maskPixelStride = muid.pixelStride;
-                maskLineStride = muid.lineStride;
-                maskBandOffset = muid.bandOffsets[0];
-            }
-
-            final int width = r.width;
-            final int height = r.height;
-
-            int dataLineOffset = dataBandOffset;
-            int maskLineOffset = maskBandOffset;
-            for (int y = 0; y < height; y++) {
-                int dataPixelOffset = dataLineOffset;
-                int maskPixelOffset = maskLineOffset;
-                for (int x = 0; x < width; x++) {
-                    if (mask == null || mask[maskPixelOffset] != 0) {
-                        double d = data[dataPixelOffset] & 0xff;
-                        if (d >= lowValue && d < highValue) {
-                            int i = (int) ((d - lowValue) / binWidth);
-                            bins[i]++;
-                        }
-                    }
-                    dataPixelOffset += dataPixelStride;
-                    maskPixelOffset += maskPixelStride;
-                }
-                dataLineOffset += dataLineStride;
-                maskLineOffset += maskLineStride;
-            }
-        }
-
-        public void accumulateDataUShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
-            final int[] bins = this.bins;
-            final double lowValue = this.lowValue;
-            final double highValue = this.highValue;
-            final double binWidth = this.binWidth;
-
-            final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_USHORT, false);
-            final short[] data = duid.getShortData(0);
-            final int dataPixelStride = duid.pixelStride;
-            final int dataLineStride = duid.lineStride;
-            final int dataBandOffset = duid.bandOffsets[0];
-
-            byte[] mask = null;
-            int maskPixelStride = 0;
-            int maskLineStride = 0;
-            int maskBandOffset = 0;
-            if (maskAccessor != null) {
-                UnpackedImageData muid = maskAccessor.getPixels(maskTile, r, DataBuffer.TYPE_BYTE, false);
-                mask = muid.getByteData(0);
-                maskPixelStride = muid.pixelStride;
-                maskLineStride = muid.lineStride;
-                maskBandOffset = muid.bandOffsets[0];
-            }
-
-            final int width = r.width;
-            final int height = r.height;
-
-            int dataLineOffset = dataBandOffset;
-            int maskLineOffset = maskBandOffset;
-            for (int y = 0; y < height; y++) {
-                int dataPixelOffset = dataLineOffset;
-                int maskPixelOffset = maskLineOffset;
-                for (int x = 0; x < width; x++) {
-                    if (mask == null || mask[maskPixelOffset] != 0) {
-                        double d = data[dataPixelOffset] & 0xffff;
-                        if (d >= lowValue && d < highValue) {
-                            int i = (int) ((d - lowValue) / binWidth);
-                            bins[i]++;
-                        }
-                    }
-                    dataPixelOffset += dataPixelStride;
-                    maskPixelOffset += maskPixelStride;
-                }
-                dataLineOffset += dataLineStride;
-                maskLineOffset += maskLineStride;
-            }
-        }
-
-        public void accumulateDataShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
-            final int[] bins = this.bins;
-            final double lowValue = this.lowValue;
-            final double highValue = this.highValue;
-            final double binWidth = this.binWidth;
-
-            final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_SHORT, false);
-            final short[] data = duid.getShortData(0);
-            final int dataPixelStride = duid.pixelStride;
-            final int dataLineStride = duid.lineStride;
-            final int dataBandOffset = duid.bandOffsets[0];
-
-            byte[] mask = null;
-            int maskPixelStride = 0;
-            int maskLineStride = 0;
-            int maskBandOffset = 0;
-            if (maskAccessor != null) {
-                UnpackedImageData muid = maskAccessor.getPixels(maskTile, r, DataBuffer.TYPE_BYTE, false);
-                mask = muid.getByteData(0);
-                maskPixelStride = muid.pixelStride;
-                maskLineStride = muid.lineStride;
-                maskBandOffset = muid.bandOffsets[0];
-            }
-
-            final int width = r.width;
-            final int height = r.height;
-
-            int dataLineOffset = dataBandOffset;
-            int maskLineOffset = maskBandOffset;
-            for (int y = 0; y < height; y++) {
-                int dataPixelOffset = dataLineOffset;
-                int maskPixelOffset = maskLineOffset;
-                for (int x = 0; x < width; x++) {
-                    if (mask == null || mask[maskPixelOffset] != 0) {
-                        double d = data[dataPixelOffset];
-                        if (d >= lowValue && d < highValue) {
-                            int i = (int) ((d - lowValue) / binWidth);
-                            bins[i]++;
-                        }
-                    }
-                    dataPixelOffset += dataPixelStride;
-                    maskPixelOffset += maskPixelStride;
-                }
-                dataLineOffset += dataLineStride;
-                maskLineOffset += maskLineStride;
-            }
-        }
-
-        public void accumulateDataInt(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
-            final int[] bins = this.bins;
-            final double lowValue = this.lowValue;
-            final double highValue = this.highValue;
-            final double binWidth = this.binWidth;
-
-            final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_INT, false);
-            final int[] data = duid.getIntData(0);
-            final int dataPixelStride = duid.pixelStride;
-            final int dataLineStride = duid.lineStride;
-            final int dataBandOffset = duid.bandOffsets[0];
-
-            byte[] mask = null;
-            int maskPixelStride = 0;
-            int maskLineStride = 0;
-            int maskBandOffset = 0;
-            if (maskAccessor != null) {
-                UnpackedImageData muid = maskAccessor.getPixels(maskTile, r, DataBuffer.TYPE_BYTE, false);
-                mask = muid.getByteData(0);
-                maskPixelStride = muid.pixelStride;
-                maskLineStride = muid.lineStride;
-                maskBandOffset = muid.bandOffsets[0];
-            }
-
-            final int width = r.width;
-            final int height = r.height;
-
-            int dataLineOffset = dataBandOffset;
-            int maskLineOffset = maskBandOffset;
-            for (int y = 0; y < height; y++) {
-                int dataPixelOffset = dataLineOffset;
-                int maskPixelOffset = maskLineOffset;
-                for (int x = 0; x < width; x++) {
-                    if (mask == null || mask[maskPixelOffset] != 0) {
-                        double d = data[dataPixelOffset];
-                        if (d >= lowValue && d < highValue) {
-                            int i = (int) ((d - lowValue) / binWidth);
-                            bins[i]++;
-                        }
-                    }
-                    dataPixelOffset += dataPixelStride;
-                    maskPixelOffset += maskPixelStride;
-                }
-                dataLineOffset += dataLineStride;
-                maskLineOffset += maskLineStride;
-            }
-        }
-
-        public void accumulateDataFloat(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
-            final int[] bins = this.bins;
-            final double lowValue = this.lowValue;
-            final double highValue = this.highValue;
-            final double binWidth = this.binWidth;
-
-            final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_FLOAT, false);
-            final float[] data = duid.getFloatData(0);
-            final int dataPixelStride = duid.pixelStride;
-            final int dataLineStride = duid.lineStride;
-            final int dataBandOffset = duid.bandOffsets[0];
-
-            byte[] mask = null;
-            int maskPixelStride = 0;
-            int maskLineStride = 0;
-            int maskBandOffset = 0;
-            if (maskAccessor != null) {
-                UnpackedImageData muid = maskAccessor.getPixels(maskTile, r, DataBuffer.TYPE_BYTE, false);
-                mask = muid.getByteData(0);
-                maskPixelStride = muid.pixelStride;
-                maskLineStride = muid.lineStride;
-                maskBandOffset = muid.bandOffsets[0];
-            }
-
-            final int width = r.width;
-            final int height = r.height;
-
-            int dataLineOffset = dataBandOffset;
-            int maskLineOffset = maskBandOffset;
-            for (int y = 0; y < height; y++) {
-                int dataPixelOffset = dataLineOffset;
-                int maskPixelOffset = maskLineOffset;
-                for (int x = 0; x < width; x++) {
-                    if (mask == null || mask[maskPixelOffset] != 0) {
-                        double d = data[dataPixelOffset];
-                        if (d >= lowValue && d <= highValue) {
-                            int i = (int) ((d - lowValue) / binWidth);
-                            i = i == bins.length ? i - 1 : i;
-                            bins[i]++;
-                        }
-                    }
-                    dataPixelOffset += dataPixelStride;
-                    maskPixelOffset += maskPixelStride;
-                }
-                dataLineOffset += dataLineStride;
-                maskLineOffset += maskLineStride;
-            }
-        }
-
-        public void accumulateDataDouble(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
-            final int[] bins = this.bins;
-            final double lowValue = this.lowValue;
-            final double highValue = this.highValue;
-            final double binWidth = this.binWidth;
-
-            final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_DOUBLE, false);
-            final double[] data = duid.getDoubleData(0);
-            final int dataPixelStride = duid.pixelStride;
-            final int dataLineStride = duid.lineStride;
-            final int dataBandOffset = duid.bandOffsets[0];
-
-            byte[] mask = null;
-            int maskPixelStride = 0;
-            int maskLineStride = 0;
-            int maskBandOffset = 0;
-            if (maskAccessor != null) {
-                UnpackedImageData muid = maskAccessor.getPixels(maskTile, r, DataBuffer.TYPE_BYTE, false);
-                mask = muid.getByteData(0);
-                maskPixelStride = muid.pixelStride;
-                maskLineStride = muid.lineStride;
-                maskBandOffset = muid.bandOffsets[0];
-            }
-
-            final int width = r.width;
-            final int height = r.height;
-
-            int dataLineOffset = dataBandOffset;
-            int maskLineOffset = maskBandOffset;
-            for (int y = 0; y < height; y++) {
-                int dataPixelOffset = dataLineOffset;
-                int maskPixelOffset = maskLineOffset;
-                for (int x = 0; x < width; x++) {
-                    if (mask == null || mask[maskPixelOffset] != 0) {
-                        double d = data[dataPixelOffset];
-                        if (d >= lowValue && d <= highValue) {
-                            int i = (int) ((d - lowValue) / binWidth);
-                            i = i == bins.length ? i - 1 : i;
-                            bins[i]++;
-                        }
-                    }
-                    dataPixelOffset += dataPixelStride;
-                    maskPixelOffset += maskPixelStride;
-                }
-                dataLineOffset += dataLineStride;
-                maskLineOffset += maskLineStride;
-            }
         }
     }
 
