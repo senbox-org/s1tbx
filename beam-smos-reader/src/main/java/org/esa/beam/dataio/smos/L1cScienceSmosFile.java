@@ -143,7 +143,14 @@ public class L1cScienceSmosFile extends L1cSmosFile {
                                    int snapshotId, short noDataValue) throws IOException {
         final SequenceData btDataList = getBtDataList(gridPointIndex);
         final int elementCount = btDataList.getElementCount();
-        CompoundData btData;
+        CompoundData btData = btDataList.getCompound(0);
+        if (btData.getInt(snapshotIdIndex) > snapshotId) {
+           return noDataValue;
+        }
+        btData = btDataList.getCompound(elementCount - 1);
+        if (btData.getInt(snapshotIdIndex) < snapshotId) {
+           return noDataValue;
+        }
         for (int i = 0; i < elementCount; ++i) {
             btData = btDataList.getCompound(i);
             if (isPolarisationAccepted(btData, polarization)
@@ -159,7 +166,14 @@ public class L1cScienceSmosFile extends L1cSmosFile {
                                  int snapshotId,  int noDataValue) throws IOException {
         final SequenceData btDataList = getBtDataList(gridPointIndex);
         final int elementCount = btDataList.getElementCount();
-        CompoundData btData;
+        CompoundData btData = btDataList.getCompound(0);
+        if (btData.getInt(snapshotIdIndex) > snapshotId) {
+           return noDataValue;
+        }
+        btData = btDataList.getCompound(elementCount - 1);
+        if (btData.getInt(snapshotIdIndex) < snapshotId) {
+           return noDataValue;
+        }
         for (int i = 0; i < elementCount; ++i) {
             btData = btDataList.getCompound(i);
             if (isPolarisationAccepted(btData, polarization)
@@ -175,7 +189,14 @@ public class L1cScienceSmosFile extends L1cSmosFile {
                                    int snapshotId, float noDataValue) throws IOException {
         final SequenceData btDataList = getBtDataList(gridPointIndex);
         final int elementCount = btDataList.getElementCount();
-        CompoundData btData;
+        CompoundData btData = btDataList.getCompound(0);
+        if (btData.getInt(snapshotIdIndex) > snapshotId) {
+           return noDataValue;
+        }
+        btData = btDataList.getCompound(elementCount - 1);
+        if (btData.getInt(snapshotIdIndex) < snapshotId) {
+           return noDataValue;
+        }
         for (int i = 0; i < elementCount; ++i) {
             btData = btDataList.getCompound(i);
             if (isPolarisationAccepted(btData, polarization)
