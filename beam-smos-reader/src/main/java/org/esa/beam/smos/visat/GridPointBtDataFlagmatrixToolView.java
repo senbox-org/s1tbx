@@ -1,12 +1,12 @@
 package org.esa.beam.smos.visat;
 
-import org.esa.beam.dataio.smos.SmosFile;
 import org.esa.beam.dataio.smos.SmosFormats;
 import org.esa.beam.dataio.smos.L1cSmosFile;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.SymbolAxis;
 import org.jfree.chart.labels.XYZToolTipGenerator;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.LookupPaintScale;
@@ -21,6 +21,7 @@ import java.awt.Color;
 import java.io.IOException;
 
 public class GridPointBtDataFlagmatrixToolView extends GridPointBtDataToolView {
+
     public static final String ID = GridPointBtDataFlagmatrixToolView.class.getName();
     private static final String SERIES_KEY = "Flags";
 
@@ -41,8 +42,9 @@ public class GridPointBtDataFlagmatrixToolView extends GridPointBtDataToolView {
         xAxis.setLowerMargin(0.0);
         xAxis.setUpperMargin(0.0);
 
-        // NumberAxis yAxis = new SymbolAxis(null, flagNames);
-        NumberAxis yAxis = new NumberAxis(null);
+        // create Method
+        String[] flagNames = createFlagNames();
+        NumberAxis yAxis = new SymbolAxis(null, flagNames);
         yAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
         yAxis.setAutoRangeIncludesZero(false);
         yAxis.setLowerMargin(0.0);
@@ -58,7 +60,7 @@ public class GridPointBtDataFlagmatrixToolView extends GridPointBtDataToolView {
 
         XYBlockRenderer renderer = new XYBlockRenderer();
         renderer.setPaintScale(paintScale);
-        renderer.setBaseToolTipGenerator(new FlagToolTipGenerator());
+        renderer.setBaseToolTipGenerator(new FlagToolTipGenerator(flagNames));
 
         plot = new XYPlot(dataset, xAxis, yAxis, renderer);
         plot.setBackgroundPaint(Color.LIGHT_GRAY);
@@ -114,16 +116,22 @@ public class GridPointBtDataFlagmatrixToolView extends GridPointBtDataToolView {
         plot.setNoDataMessage("No data");
     }
 
+    private String[] createFlagNames() {
+        final SmosFormats.FlagDescriptor[] flags = SmosFormats.L1C_FLAGS;
+        String[] flagNames = new String[flags.length];
+        for (int i = 0; i < flags.length; i++) {
+            flagNames[i] = flags[i].getName();
+        }
+        return flagNames;
+    }
+
 
     private class FlagToolTipGenerator implements XYZToolTipGenerator {
+
         private String[] flagNames;
 
-        private FlagToolTipGenerator() {
-            final SmosFormats.FlagDescriptor[] flags = SmosFormats.L1C_FLAGS;
-            flagNames = new String[flags.length];
-            for (int i = 0; i < flags.length; i++) {
-                flagNames[i] = flags[i].getName();
-            }
+        private FlagToolTipGenerator(String[] flagNames) {
+            this.flagNames = flagNames;
         }
 
         @Override
