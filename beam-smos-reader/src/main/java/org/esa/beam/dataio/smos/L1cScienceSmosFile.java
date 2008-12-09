@@ -18,7 +18,10 @@ import com.bc.ceres.binio.CompoundData;
 import com.bc.ceres.binio.CompoundType;
 import com.bc.ceres.binio.DataFormat;
 import com.bc.ceres.binio.SequenceData;
+import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ProgressMonitor;
 
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -145,11 +148,11 @@ public class L1cScienceSmosFile extends L1cSmosFile {
         final int elementCount = btDataList.getElementCount();
         CompoundData btData = btDataList.getCompound(0);
         if (btData.getInt(snapshotIdIndex) > snapshotId) {
-           return noDataValue;
+            return noDataValue;
         }
         btData = btDataList.getCompound(elementCount - 1);
         if (btData.getInt(snapshotIdIndex) < snapshotId) {
-           return noDataValue;
+            return noDataValue;
         }
         for (int i = 0; i < elementCount; ++i) {
             btData = btDataList.getCompound(i);
@@ -163,16 +166,16 @@ public class L1cScienceSmosFile extends L1cSmosFile {
 
     public int getSnapshotBtData(int gridPointIndex, int fieldIndex,
                                  int polarization,
-                                 int snapshotId,  int noDataValue) throws IOException {
+                                 int snapshotId, int noDataValue) throws IOException {
         final SequenceData btDataList = getBtDataList(gridPointIndex);
         final int elementCount = btDataList.getElementCount();
         CompoundData btData = btDataList.getCompound(0);
         if (btData.getInt(snapshotIdIndex) > snapshotId) {
-           return noDataValue;
+            return noDataValue;
         }
         btData = btDataList.getCompound(elementCount - 1);
         if (btData.getInt(snapshotIdIndex) < snapshotId) {
-           return noDataValue;
+            return noDataValue;
         }
         for (int i = 0; i < elementCount; ++i) {
             btData = btDataList.getCompound(i);
@@ -191,11 +194,11 @@ public class L1cScienceSmosFile extends L1cSmosFile {
         final int elementCount = btDataList.getElementCount();
         CompoundData btData = btDataList.getCompound(0);
         if (btData.getInt(snapshotIdIndex) > snapshotId) {
-           return noDataValue;
+            return noDataValue;
         }
         btData = btDataList.getCompound(elementCount - 1);
         if (btData.getInt(snapshotIdIndex) < snapshotId) {
-           return noDataValue;
+            return noDataValue;
         }
         for (int i = 0; i < elementCount; ++i) {
             btData = btDataList.getCompound(i);
@@ -210,6 +213,11 @@ public class L1cScienceSmosFile extends L1cSmosFile {
     private boolean isPolarisationAccepted(CompoundData data, int polarization) throws IOException {
         final int polarizationFlags = data.getInt(flagsIndex) & 3;
         return polarization == polarizationFlags || (polarization & polarizationFlags & 2) != 0;
+    }
+
+    public int getSnapshotId(SequenceData btDataList, int btDataIndex) throws IOException {
+        Assert.argument(btDataList.getSequenceType().getElementType() == btDataType);
+        return btDataList.getCompound(btDataIndex).getInt(snapshotIdIndex);
     }
 
     public final int getSnapshotIdMin() {
@@ -234,6 +242,38 @@ public class L1cScienceSmosFile extends L1cSmosFile {
 
     public final CompoundType getSnapshotType() {
         return snapshotType;
+    }
+
+    public Rectangle2D computeSnapshotRegion(int snapshotId, ProgressMonitor pm) throws IOException {
+        Rectangle2D.Float region = null;
+        int latIndex = getGridPointType().getMemberIndex("Grid_Point_Latitude");
+        int lonIndex = getGridPointType().getMemberIndex("Grid_Point_Longitude");
+        SequenceData gridPointList = getGridPointList();
+        try {
+            pm.beginTask("Visiting grid points...", gridPointList.getElementCount() / 100);
+            for (int i = 0; i < gridPointList.getElementCount(); i++) {
+                SequenceData btDataList = getBtDataList(i);
+                if (btDataList.getElementCount() >= 1) {
+                    int idMin = getSnapshotId(btDataList, 0);
+                    if (snapshotId >= idMin) {
+                        int idMax = getSnapshotId(btDataList, btDataList.getElementCount() - 1);
+                        if (snapshotId <= idMax) {
+                            float lon = gridPointList.getCompound(i).getFloat(lonIndex);
+                            float lat = gridPointList.getCompound(i).getFloat(latIndex);
+                            if (region == null) {
+                                region = new Rectangle2D.Float(lon, lat, 0.0f, 0.0f);
+                            } else {
+                                region.add(lon, lat);
+                            }
+                        }
+                    }
+                }
+                pm.worked(1);
+            }
+        } finally {
+            pm.done();
+        }
+        return region;
     }
 
     public int[] createSnapshotIndexes() throws IOException {

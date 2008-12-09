@@ -3,15 +3,19 @@ package org.esa.beam.smos.visat;
 import com.bc.ceres.binio.CompoundData;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.smos.GridPointValueProvider;
 import org.esa.beam.dataio.smos.L1cGridPointValueProvider;
 import org.esa.beam.dataio.smos.L1cScienceSmosFile;
+import org.esa.beam.dataio.smos.SmosFile;
 import org.esa.beam.dataio.smos.SmosMultiLevelSource;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
 import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -22,16 +26,19 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.JOptionPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.geom.Rectangle2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 public class SnapshotInfoToolView extends SmosToolView {
 
@@ -104,7 +111,7 @@ public class SnapshotInfoToolView extends SmosToolView {
         panel3.add(panel1, BorderLayout.NORTH);
         panel3.add(new JScrollPane(snapshotTable), BorderLayout.CENTER);
         panel3.add(panel2, BorderLayout.SOUTH);
-
+        panel3.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         return panel3;
     }
 
@@ -161,7 +168,7 @@ public class SnapshotInfoToolView extends SmosToolView {
                 try {
                     updateTable(snapshotIndex);
                     if (toggleSnapshotModeButton.isSelected()) {
-                        updateImage();
+                        regenerateImage();
                     }
                 } catch (IOException e) {
                     snapshotTable.setModel(nullModel);
@@ -194,7 +201,7 @@ public class SnapshotInfoToolView extends SmosToolView {
         snapshotTable.setModel(new SnapshotTableModel(tableData));
     }
 
-    private void updateImage() {
+    private void regenerateImage() {
         ProductSceneView sceneView = getSelectedSmosView();
         ImageLayer imageLayer = sceneView.getBaseImageLayer();
         RenderedImage sourceImage = sceneView.getRaster().getSourceImage();
@@ -210,6 +217,7 @@ public class SnapshotInfoToolView extends SmosToolView {
                         l1cGridPointValueProvider.setSnapshotId(id);
                         smosMultiLevelSource.reset();
                         sceneView.getRaster().setValidMaskImage(null);
+                        sceneView.getRaster().setGeophysicalImage(null);
                         imageLayer.regenerate();
                     }
                 }
@@ -231,18 +239,43 @@ public class SnapshotInfoToolView extends SmosToolView {
         }
     }
 
-    static class LocateSnapshotAction implements ActionListener {
+    class LocateSnapshotAction implements ActionListener {
 
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent event) {
+            SmosFile file = getSelectedSmosFile();
+            if (file instanceof L1cScienceSmosFile) {
+                final L1cScienceSmosFile l1cScienceSmosFile = (L1cScienceSmosFile) file;
 
+                ProgressMonitorSwingWorker<Rectangle2D, Object> pmsw = new ProgressMonitorSwingWorker<Rectangle2D, Object>(locateSnapshotButton, "Computing snapshot region") {
+                    protected Rectangle2D doInBackground(ProgressMonitor pm) throws Exception {
+                        return l1cScienceSmosFile.computeSnapshotRegion(snapshotId, pm);
+                    }
+
+                    @Override
+                    protected void done() {
+                        try {
+                            Rectangle2D region = get();
+                            if (region != null) {
+                                getSelectedSmosView().getLayerCanvas().getViewport().zoom(region);
+                            } else {
+                                JOptionPane.showMessageDialog(locateSnapshotButton, "No snapshot found with ID=" + snapshotId);
+                            }
+                        } catch (Exception e) {
+                            JOptionPane.showMessageDialog(locateSnapshotButton, "Error:\n" + e.getMessage());
+                            e.printStackTrace();
+                        }
+                    }
+                };
+
+                pmsw.execute();
+            }
         }
     }
 
     class ToggleSnapshotModeAction implements ActionListener {
 
-        public void actionPerformed(ActionEvent e) {
-            updateImage();
+        public void actionPerformed(ActionEvent event) {
+            regenerateImage();
         }
-
     }
 }
