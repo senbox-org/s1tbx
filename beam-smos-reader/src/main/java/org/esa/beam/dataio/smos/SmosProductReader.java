@@ -16,20 +16,37 @@
  */
 package org.esa.beam.dataio.smos;
 
-import com.bc.ceres.binio.*;
+import com.bc.ceres.binio.CompoundMember;
+import com.bc.ceres.binio.CompoundType;
+import com.bc.ceres.binio.DataFormat;
+import com.bc.ceres.binio.SimpleType;
+import com.bc.ceres.binio.Type;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
 import org.esa.beam.glevel.TiledFileMultiLevelSource;
 import org.esa.beam.util.io.FileUtils;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.Namespace;
+import org.jdom.input.SAXBuilder;
 
 import javax.media.jai.JAI;
 import java.awt.Color;
@@ -39,6 +56,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.List;
 
 public class SmosProductReader extends AbstractProductReader {
     private static final String SMOS_DGG_DIR_PROPERTY_NAME = "org.esa.beam.pview.smosDggDir";
@@ -165,6 +183,7 @@ public class SmosProductReader extends AbstractProductReader {
         final String productType = format.getName().substring(12, 22);
 
         final Product product = new Product(productName, productType, sceneWidth, sceneHeight);
+        addMetadata(hdrFile, product.getMetadataRoot());
         product.setPreferredTileSize(512, 512);
         product.setFileLocation(dblFile);
         product.setGeoCoding(createGeoCoding(product));
@@ -436,6 +455,43 @@ public class SmosProductReader extends AbstractProductReader {
 
     private void regBD(BandInfo value) {
         bandInfos.put(value.name, value);
+    }
+
+
+    static void addMetadata(File hdrFile, MetadataElement mdRootElement) throws IOException {
+        final Document document;
+
+        try {
+            document = new SAXBuilder().build(hdrFile);
+        } catch (JDOMException e) {
+            throw new IOException(MessageFormat.format(
+                    "File ''{0}'': Invalid document", hdrFile.getPath()), e);
+        }
+
+        final Namespace namespace = document.getRootElement().getNamespace();
+        if (namespace == null) {
+            throw new IOException(MessageFormat.format(
+                    "File ''{0}'': Missing namespace", hdrFile.getPath()));
+        }
+
+        bibo(namespace, document.getRootElement(), mdRootElement);
+    }
+
+    private static void bibo(Namespace namespace, Element xmlElement, MetadataElement mdElement) {
+        List children = xmlElement.getChildren();
+        for (int i = 0; i < children.size(); i++) {
+            Element xmlChild = (Element) children.get(i);
+            if (xmlChild.getChildren(null, namespace).size() == 0) {
+                String s = xmlChild.getTextNormalize();
+                if (s != null && !s.isEmpty()) {
+                    mdElement.addAttribute(new MetadataAttribute(xmlChild.getName(), ProductData.createInstance(s), true));
+                }
+            } else {
+                MetadataElement mdChild = new MetadataElement(xmlChild.getName());
+                mdElement.addElement(mdChild);
+                bibo(namespace, xmlChild, mdChild);
+            }
+        }
     }
 
 }
