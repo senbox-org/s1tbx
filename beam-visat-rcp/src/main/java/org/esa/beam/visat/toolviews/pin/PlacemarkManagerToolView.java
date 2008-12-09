@@ -9,8 +9,8 @@ import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
-import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.command.CommandManager;
+import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTreeListener;
@@ -26,9 +26,9 @@ import org.jdom.input.DOMBuilder;
 import org.xml.sax.SAXException;
 
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
+import javax.swing.event.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.xml.parsers.DocumentBuilder;
@@ -529,10 +529,9 @@ class PlacemarkManagerToolView extends AbstractToolView {
         Guardian.assertNotNull("activePin", activePin);
         final ProductSceneView view = getSceneView();
         if (view != null) {
-            final PixelPos imagePos = activePin.getPixelPos();  // in image coordinates
+            final PixelPos imagePos = activePin.getPixelPos();  // in image coordinates on Level 0
             final ImageLayer layer = view.getBaseImageLayer();
-            final int currentLevel = layer.getLevel(view.getLayerCanvas().getViewport());
-            final AffineTransform imageToModelTransform = layer.getImageToModelTransform(currentLevel);
+            final AffineTransform imageToModelTransform = layer.getImageToModelTransform(0);
             final Point2D modelPos = imageToModelTransform.transform(imagePos, null);
             view.zoom(modelPos.getX(), modelPos.getY(), view.getZoomFactor());
             updateUIState();

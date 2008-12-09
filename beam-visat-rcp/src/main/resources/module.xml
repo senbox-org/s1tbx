@@ -23,6 +23,7 @@
           [BEAM-913] Histogram disappears for RGB channel in colour manipulation<br/>
           [BEAM-899] Colour manipulation window disregards RGB source band changes<br/>
           [BEAM-896] Missing "Color Manipulation" histogram<br/>
+          [BEAM-895] "Zoom to selected Pin" in Pin Manager incorrectly moves image view<br/>
           [BEAM-893] Inconsistent handling of colour palettes in VISAT colour manipulation window<br/>
           [BEAM-892] VISAT colour manipulation window shall signal inexact statistics<br/>
           [BEAM-782] Using spatial subset when creating new arithmetic band causes exception<br/>
