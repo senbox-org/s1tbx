@@ -15,6 +15,7 @@
 package org.esa.beam.dataio.smos;
 
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.SingleBandedOpImage;
@@ -31,12 +32,12 @@ public class SmosOpImage extends SingleBandedOpImage {
     private final Number noDataValue;
     private final RenderedImage seqnumImage;
 
-    public SmosOpImage(GridPointValueProvider valueProvider, Band band, Number noDataValue, RenderedImage seqnumImage,
-                         ResolutionLevel level) {
-        super(ImageManager.getDataBufferType(band.getDataType()),
-              band.getSceneRasterWidth(),
-              band.getSceneRasterHeight(),
-              band.getProduct().getPreferredTileSize(),
+    public SmosOpImage(GridPointValueProvider valueProvider, RasterDataNode node, Number noDataValue,
+                       RenderedImage seqnumImage, ResolutionLevel level) {
+        super(ImageManager.getDataBufferType(node.getDataType()),
+              node.getSceneRasterWidth(),
+              node.getSceneRasterHeight(),
+              node.getProduct().getPreferredTileSize(),
               null, // configuration
               level);
 
