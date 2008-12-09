@@ -16,13 +16,11 @@ import java.util.List;
 
 public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
-    private int lastLevel;
-    private boolean debug;
     private final Map<TileIndex, TileRequest> scheduledTileRequests;
     private final TileImageCache localTileCache;
+    private boolean debug;
 
     public ConcurrentMultiLevelRenderer() {
-        lastLevel = -1;
         scheduledTileRequests = Collections.synchronizedMap(new HashMap<TileIndex, TileRequest>(37));
         localTileCache = new TileImageCache();
 
@@ -64,12 +62,6 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
     }
 
     private void renderImpl(InteractiveRendering rendering, MultiLevelSource multiLevelSource, int currentLevel) {
-
-        // On level change, cancel all pending tile requests
-        if (this.lastLevel != currentLevel) {
-            cancelTileRequests(currentLevel);
-            this.lastLevel = currentLevel;
-        }
 
         final PlanarImage planarImage = (PlanarImage) multiLevelSource.getImage(currentLevel);
         final Graphics2D graphics = rendering.getGraphics();
@@ -270,9 +262,6 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
                 TileRequest request = scheduledTileRequestsCopy.get(tileIndex);
                 // if tile not already removed (concurrently)
                 if (request != null) {
-                    // todo - XXXXXXXXXXXXXXXX temporary change
-//                    request.cancelTiles(new Point[]{new Point(tileIndex.tileX, tileIndex.tileY)});
-//                    scheduledTileRequests.remove(tileIndex);
                     scheduledTileRequests.remove(tileIndex);
                     request.cancelTiles(new Point[]{new Point(tileIndex.tileX, tileIndex.tileY)});
                 }
@@ -288,9 +277,6 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         for (TileIndex tileIndex : scheduledTileRequestsCopy.keySet()) {
             if (tileIndex.level != currentLevel) {
                 final TileRequest tileRequest = scheduledTileRequestsCopy.get(tileIndex);
-                // todo - XXXXXXXXXXXXXXXX temporary change
-//                tileRequest.cancelTiles(null);
-//                scheduledTileRequests.remove(tileIndex);
                 scheduledTileRequests.remove(tileIndex);
                 tileRequest.cancelTiles(null);
             }
@@ -401,11 +387,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
                 return;
             }
 
-            // add to the cache, just in case it did not happen before!
-//            JAI.getDefaultInstance().getTileCache().add(planarImage, tileX, tileY, tile);
-
             TileIndex tileIndex = new TileIndex(tileX, tileY, level);
-            // todo - XXXXXXXXXXXXXXXX temporary change
             // Check whether tile is still required or has been canceled already
             if (!scheduledTileRequests.containsKey(tileIndex)) {
                 return;
