@@ -270,8 +270,11 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
                 TileRequest request = scheduledTileRequestsCopy.get(tileIndex);
                 // if tile not already removed (concurrently)
                 if (request != null) {
-                    request.cancelTiles(new Point[]{new Point(tileIndex.tileX, tileIndex.tileY)});
+                    // todo - XXXXXXXXXXXXXXXX temporary change
+//                    request.cancelTiles(new Point[]{new Point(tileIndex.tileX, tileIndex.tileY)});
+//                    scheduledTileRequests.remove(tileIndex);
                     scheduledTileRequests.remove(tileIndex);
+                    request.cancelTiles(new Point[]{new Point(tileIndex.tileX, tileIndex.tileY)});
                 }
             }
         }
@@ -285,8 +288,11 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         for (TileIndex tileIndex : scheduledTileRequestsCopy.keySet()) {
             if (tileIndex.level != currentLevel) {
                 final TileRequest tileRequest = scheduledTileRequestsCopy.get(tileIndex);
-                tileRequest.cancelTiles(null);
+                // todo - XXXXXXXXXXXXXXXX temporary change
+//                tileRequest.cancelTiles(null);
+//                scheduledTileRequests.remove(tileIndex);
                 scheduledTileRequests.remove(tileIndex);
+                tileRequest.cancelTiles(null);
             }
         }
     }
@@ -399,6 +405,12 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 //            JAI.getDefaultInstance().getTileCache().add(planarImage, tileX, tileY, tile);
 
             TileIndex tileIndex = new TileIndex(tileX, tileY, level);
+            // todo - XXXXXXXXXXXXXXXX temporary change
+            // Check whether tile is still required or has been canceled already
+            if (!scheduledTileRequests.containsKey(tileIndex)) {
+                return;
+            }
+
             final TileImage tileImage = createTileImage(deviceConfiguration,
                                                         planarImage,
                                                         tileIndex,
