@@ -80,7 +80,7 @@ class CoordListPanel extends TextPagePanel {
     }
 
     @Override
-    protected void handleLayerContentChanged() {
+    public void handleLayerContentChanged() {
         updateContent();
     }
 

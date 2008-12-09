@@ -8,10 +8,9 @@ import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.ui.application.PageComponent;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
-import org.esa.beam.framework.ui.application.support.PageComponentListenerAdapter;
 import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.framework.ui.command.CommandManager;
 import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTreeListener;
@@ -27,9 +26,9 @@ import org.jdom.input.DOMBuilder;
 import org.xml.sax.SAXException;
 
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
-import javax.swing.event.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.xml.parsers.DocumentBuilder;
@@ -309,21 +308,21 @@ class PlacemarkManagerToolView extends AbstractToolView {
         visatApp.getProductTree().addProductTreeListener(new ProductSelectionListener());
 
 
-        getContext().getPage().addPageComponentListener(new PageComponentListenerAdapter() {
-            @Override
-            public void componentOpened(PageComponent component) {
-                ExecCommand command = (ExecCommand) visatApp.getCommandManager().getCommand(
-                        placemarkDescriptor.getShowLayerCommandId());
-                command.setSelected(true);
-                command.execute();
-            }
-        });
-
         setProduct(visatApp.getSelectedProduct());
 
         updateUIState();
 
         return content;
+    }
+
+    @Override
+    public void componentOpened() {
+        final CommandManager commandManager = visatApp.getCommandManager();
+        final String layerCommandId = placemarkDescriptor.getShowLayerCommandId();
+
+        ExecCommand command = (ExecCommand) commandManager.getCommand(layerCommandId);
+        command.setSelected(true);
+        command.execute();
     }
 
     protected final Product getProduct() {

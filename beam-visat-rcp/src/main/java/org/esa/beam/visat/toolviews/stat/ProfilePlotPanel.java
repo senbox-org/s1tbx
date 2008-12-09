@@ -321,7 +321,7 @@ class ProfilePlotPanel extends PagePanel {
     }
 
     @Override
-    protected void handleLayerContentChanged() {
+    public void handleLayerContentChanged() {
         updateContent();
     }
 }

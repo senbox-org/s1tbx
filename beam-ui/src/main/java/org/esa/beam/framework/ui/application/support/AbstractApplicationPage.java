@@ -164,6 +164,7 @@ public abstract class AbstractApplicationPage extends AbstractControlFactory imp
             toolView = addToolView(viewDescriptor);
         }
         doShowToolView(toolView);
+        fireShown(toolView);
         setActiveComponent(toolView);
         return toolView;
     }
@@ -171,6 +172,7 @@ public abstract class AbstractApplicationPage extends AbstractControlFactory imp
 
     public void hideToolView(ToolView toolView) {
         doHideToolView(toolView);
+        fireHidden(toolView);
         setActiveComponent();
     }
 
@@ -227,7 +229,6 @@ public abstract class AbstractApplicationPage extends AbstractControlFactory imp
 
     protected void fireShown(PageComponent component) {
         Debug.trace("AbstractApplicationPage.fireShown [" + component + "]");
-        component.componentShown();
         for (PageComponentListener listener : pageComponentListeners) {
             listener.componentShown(component);
         }
@@ -235,7 +236,6 @@ public abstract class AbstractApplicationPage extends AbstractControlFactory imp
 
     protected void fireHidden(PageComponent component) {
         Debug.trace("AbstractApplicationPage.fireHidden [" + component + "]");
-        component.componentHidden();
         for (PageComponentListener listener : pageComponentListeners) {
             listener.componentHidden(component);
         }

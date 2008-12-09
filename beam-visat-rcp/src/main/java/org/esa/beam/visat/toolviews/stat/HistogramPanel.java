@@ -26,7 +26,6 @@ import org.jfree.data.xy.XIntervalSeries;
 import org.jfree.data.xy.XIntervalSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
-import javax.media.jai.PlanarImage;
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -402,7 +401,7 @@ class HistogramPanel extends PagePanel {
     }
 
     @Override
-    protected void handleLayerContentChanged() {
+    public void handleLayerContentChanged() {
         computePanel.updateRoiCheckBoxState();
     }
 }

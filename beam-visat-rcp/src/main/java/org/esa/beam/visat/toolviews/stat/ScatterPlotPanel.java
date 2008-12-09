@@ -653,7 +653,7 @@ class ScatterPlotPanel extends PagePanel {
 
 
     @Override
-    protected void handleLayerContentChanged() {
+    public void handleLayerContentChanged() {
         computePanel.updateRoiCheckBoxState();
     }
 }
