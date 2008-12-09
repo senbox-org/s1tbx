@@ -398,7 +398,7 @@ public class SpectrumToolView extends AbstractToolView {
         } else {
             setCurrentView(view);
         }
-
+        updateUIState();
         return mainPane;
     }
 
