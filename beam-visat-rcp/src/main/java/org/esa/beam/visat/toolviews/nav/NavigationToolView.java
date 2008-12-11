@@ -305,10 +305,29 @@ public class NavigationToolView extends AbstractToolView {
 
     private Double getZoomFactorFieldValue() {
         final String text = zoomFactorField.getText();
+        if(text.contains(":")) {
+            return parseTextualValue(text);
+        }else {
         try {
             double v = Double.parseDouble(text);
             return v > 0 ? v : null;
         } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+    }
+
+    private static Double parseTextualValue(String text) {
+        final String[] numbers = text.split(":");
+        if(numbers.length == 2){
+            double dividend = Double.parseDouble(numbers[0]);
+            double divisor = Double.parseDouble(numbers[1]);
+            if(divisor == 0){
+                return null;
+            }
+            double factor = dividend / divisor;
+            return factor > 0 ? factor : null;
+        }else {
             return null;
         }
     }

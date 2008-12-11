@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.6:<br/>
+          [BEAM-930] Navigation Window disregards manual scaling factor editing<br/>
           [BEAM-928] Statistics shall be shown immediately if already computed<br/>
           [BEAM-927] Mean and standard deviation of statistics are inexact<br/>
           [BEAM-925] Events (open, shown, hidden) shall be delegated to tool view<br/>
