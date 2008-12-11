@@ -771,7 +771,7 @@ public class ImageManager {
         // Step 4:  insert ROI pixels within shape
         Figure roiShapeFigure = roiDefinition.getShapeFigure();
         if (roiDefinition.isShapeEnabled() && roiShapeFigure != null) {
-            final Shape roiShape = roiShapeFigure.getShape();
+            final Shape roiShape = roiShapeFigure.getAsArea();
             roiImages.add(new ShapeMaskOpImage(roiShape,
                                                rasterDataNode.getSceneRasterWidth(),
                                                rasterDataNode.getSceneRasterHeight(),

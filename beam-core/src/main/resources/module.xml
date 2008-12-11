@@ -30,6 +30,7 @@
         [BEAM-901] ROI sometimes not considered in Scatter Plot<br/>
         [BEAM-900] BEAM-DIMAP writer fails, if resulting XML has more than 20 indentation levels<br/>
         [BEAM-882] Pin and GCP shapes grow when image is rotated<br/>
+        [BEAM-878] ROI manager: unexpected behaviour with polylines<br/>
         </p>
         <p>Changes in 4.5:<br/>
         [BEAM-868] Imaging shall be based on tiling and image pyramids<br/>
