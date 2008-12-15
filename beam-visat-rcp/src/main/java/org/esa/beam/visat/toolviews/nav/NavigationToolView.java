@@ -320,8 +320,14 @@ public class NavigationToolView extends AbstractToolView {
     private static Double parseTextualValue(String text) {
         final String[] numbers = text.split(":");
         if(numbers.length == 2){
-            double dividend = Double.parseDouble(numbers[0]);
-            double divisor = Double.parseDouble(numbers[1]);
+            double dividend = 0;
+            double divisor = 0;
+            try {
+                dividend = Double.parseDouble(numbers[0]);
+                divisor = Double.parseDouble(numbers[1]);
+            } catch (NumberFormatException e) {
+                return null;
+            }
             if(divisor == 0){
                 return null;
             }
