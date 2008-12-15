@@ -1200,8 +1200,8 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
                 final Viewport vp = getLayerCanvas().getViewport();
                 final AffineTransform transformSave = g2d.getTransform();
                 try {
-                    final AffineTransform transform = new AffineTransform();
-                    transform.concatenate(vp.getModelToViewTransform());
+                    AffineTransform transform = vp.getModelToViewTransform();
+                    transform.concatenate(getSceneImage().getBaseImageLayer().getImageToModelTransform());
                     g2d.setTransform(transform);
                     drawToolNoTransf(g2d);
                 } finally {
