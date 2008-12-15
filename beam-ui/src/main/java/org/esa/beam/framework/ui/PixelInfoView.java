@@ -34,6 +34,7 @@ import javax.media.jai.PlanarImage;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -41,7 +42,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.AffineTransform;
@@ -51,6 +51,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Calendar;
 import java.util.Vector;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The pixel info view component is used to display the geophysical values for the pixel at a given pixel position
@@ -72,6 +74,12 @@ public class PixelInfoView extends JPanel {
     private static final int _NAME_COLUMN = 0;
     private static final int _VALUE_COLUMN = 1;
     private static final int _UNIT_COLUMN = 2;
+    private JideSplitPane multiSplitPane;
+
+    public enum DockablePaneKey {
+
+        GEOLOCATION, SCANLINE, BANDS, TIEPOINTS, FLAGS
+    }
 
     private static final String _INVALID_POS_TEXT = "Invalid pos.";
     private static final String _NOT_LOADED_TEXT = "Not displayed";
@@ -82,15 +90,15 @@ public class PixelInfoView extends JPanel {
     private final PropertyChangeListener _displayFilterListener;
     private final ProductNodeListener _productNodeListener;
 
-    private DockablePane _geolocInfoPane;
-    private DockablePane _scanLineInfoPane;
-    private DockablePane _bandPixelInfoPane;
-    private DockablePane _tiePointGridPixelInfoPane;
-    private DockablePane _flagPixelInfoPane;
-    private Product _currentProduct;
-    private RasterDataNode _currentRaster;
-    private ProductSceneView _currentView;
-    private Band[] _currentFlagBands;
+    private DockablePane geolocInfoPane;
+    private DockablePane scanLineInfoPane;
+    private DockablePane bandPixelInfoPane;
+    private DockablePane tiePointGridPixelInfoPane;
+    private DockablePane flagPixelInfoPane;
+    private Product currentProduct;
+    private RasterDataNode currentRaster;
+    private ProductSceneView currentView;
+    private Band[] currentFlagBands;
     private boolean _showOnlyLoadedBands = PROPERTY_DEFAULT_SHOW_DISPLAYED_BAND_PIXEL_VALUES;
     private boolean _showPixelPosDecimals;
     private float _pixelOffsetX;
@@ -103,6 +111,7 @@ public class PixelInfoView extends JPanel {
     private boolean _pixelPosValid;
     private DisplayFilter _displayFilter;
     private final BasicApp app;
+    private Map<DockablePaneKey,DockablePane> dockablePaneMap;
 
     /**
      * Constructs a new pixel info view.
@@ -115,6 +124,7 @@ public class PixelInfoView extends JPanel {
         _mapPoint = new Point2D.Double();
         _displayFilterListener = createDisplayFilterListener();
         _productNodeListener = createProductNodeListener();
+        dockablePaneMap = new HashMap<DockablePaneKey, DockablePane>(5);
         createUI();
     }
 
@@ -155,7 +165,7 @@ public class PixelInfoView extends JPanel {
      * @return the current Product
      */
     public Product getCurrentProduct() {
-        return _currentProduct;
+        return currentProduct;
     }
 
     /**
@@ -164,7 +174,7 @@ public class PixelInfoView extends JPanel {
      * @return the current raster
      */
     public RasterDataNode getCurrentRaster() {
-        return _currentRaster;
+        return currentRaster;
     }
 
     /**
@@ -216,37 +226,37 @@ public class PixelInfoView extends JPanel {
         Guardian.assertNotNull("view", view);
         final RasterDataNode raster = view.getRaster();
         final Product product = raster.getProduct();
-        if (product == _currentProduct && view.isRGB()) {
+        if (product == currentProduct && view.isRGB()) {
             resetBandTableModel();
         }
-        if (product != _currentProduct) {
-            if (_currentProduct != null) {
-                _currentProduct.removeProductNodeListener(_productNodeListener);
+        if (product != currentProduct) {
+            if (currentProduct != null) {
+                currentProduct.removeProductNodeListener(_productNodeListener);
             }
             product.addProductNodeListener(_productNodeListener);
-            _currentProduct = product;
+            currentProduct = product;
             registerFlagDatasets();
             resetTableModels();
         }
-        if (raster != _currentRaster) {
-            _currentRaster = raster;
+        if (raster != currentRaster) {
+            currentRaster = raster;
             registerFlagDatasets();
             resetTableModels();
         }
         if (getBandTableModel().getRowCount() != getBandRowCount()) {
             resetTableModels();
         }
-        if (view != _currentView) {
-            _currentView = view;
+        if (view != currentView) {
+            currentView = view;
             resetTableModels();
             clearSelectionInRasterTables();
         }
-        Debug.assertTrue(_currentProduct != null);
+        Debug.assertTrue(currentProduct != null);
         _pixelX = pixelX;
         _pixelY = pixelY;
         _level = level;
         _pixelPosValid = pixelPosValid;
-        AffineTransform i2mTransform = _currentView.getBaseImageLayer().getImageToModelTransform(level);
+        AffineTransform i2mTransform = currentView.getBaseImageLayer().getImageToModelTransform(level);
         Point2D modelP = i2mTransform.transform(new Point2D.Double(pixelX + 0.5, pixelY + 0.5), null);
         AffineTransform m2iTransform = view.getBaseImageLayer().getModelToImageTransform();
         Point2D levelZeroP = m2iTransform.transform(modelP, null);
@@ -256,35 +266,65 @@ public class PixelInfoView extends JPanel {
     }
     
     public boolean allDocked() {
-        return _geolocInfoPane.isDocked() && _scanLineInfoPane.isDocked()
-                && _bandPixelInfoPane.isDocked() && _tiePointGridPixelInfoPane.isDocked()
-                && _flagPixelInfoPane.isDocked();
+        return geolocInfoPane.isDocked() && scanLineInfoPane.isDocked()
+                && bandPixelInfoPane.isDocked() && tiePointGridPixelInfoPane.isDocked()
+                && flagPixelInfoPane.isDocked();
+    }
+
+    public void showDockablePanel(DockablePaneKey key, boolean show) {
+        final DockablePane dockablePane = dockablePaneMap.get(key);
+        if(multiSplitPane.indexOfPane(dockablePane) < 0 && show) {
+            multiSplitPane.addPane(dockablePane);
+            multiSplitPane.invalidate();
+        }
+        dockablePane.setShown(show);
+    }
+
+    public boolean isDockablePaneShown(DockablePaneKey key) {
+        final DockablePane dockablePane = dockablePaneMap.get(key);
+        return dockablePane.isContentShown();
+    }
+
+    public DockablePane getDockablePane(DockablePaneKey key) {
+        return dockablePaneMap.get(key);
     }
 
     private void createUI() {
+        geolocInfoPane = createDockablePane("Geo-location", 0, UIUtils.loadImageIcon("icons/WorldMap16.gif"),
+                                            new String[]{"Coordinate", "Value", "Unit"});
+        scanLineInfoPane = createDockablePane("Time Info", 1, UIUtils.loadImageIcon("icons/Clock16.gif"),
+                                              new String[]{"Time", "Value", "Unit"});
+        bandPixelInfoPane = createDockablePane("Bands", 2, UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif"),
+                                               new String[]{"Band", "Value", "Unit"});
+        tiePointGridPixelInfoPane = createDockablePane("Tie Point Grids", 3,
+                                                       UIUtils.loadImageIcon("icons/RsBandAsTiePoint16.gif"),
+                                                       new String[]{"Tie Point Grid", "Value", "Unit"});
+        flagPixelInfoPane = createDockablePane("Flags", 4, UIUtils.loadImageIcon("icons/RsBandFlags16.gif"),
+                                               new String[]{"Flag", "Value",});
 
-        _geolocInfoPane = createDockablePane("Geo-location", 0, new String[]{"Coordinate", "Value", "Unit"});
-        _scanLineInfoPane = createDockablePane("Time Info", 0, new String[]{"Time", "Value", "Unit"});
-        _bandPixelInfoPane = createDockablePane("Bands", 1, new String[]{"Band", "Value", "Unit"});
-        _tiePointGridPixelInfoPane = createDockablePane("Tie Point Grids", 2,
-                                                        new String[]{"Tie Point Grid", "Value", "Unit"});
-        _flagPixelInfoPane = createDockablePane("Flags", 3, new String[]{"Flag", "Value",});
+        geolocInfoPane.setPreferredSize(new Dimension(128, 128));
+        scanLineInfoPane.setPreferredSize(new Dimension(128, 128));
+        bandPixelInfoPane.setPreferredSize(new Dimension(128, 512));
+        tiePointGridPixelInfoPane.setPreferredSize(new Dimension(128, 128));
+        flagPixelInfoPane.setPreferredSize(new Dimension(128, 128));
+        flagPixelInfoPane.setVisible(false);
 
-        _geolocInfoPane.setPreferredSize(new Dimension(128, 128));
-        _scanLineInfoPane.setPreferredSize(new Dimension(128, 128));
-        _bandPixelInfoPane.setPreferredSize(new Dimension(128, 512));
-        _tiePointGridPixelInfoPane.setPreferredSize(new Dimension(128, 128));
-        _flagPixelInfoPane.setPreferredSize(new Dimension(128, 128));
+        dockablePaneMap.put(DockablePaneKey.GEOLOCATION, geolocInfoPane);
+        dockablePaneMap.put(DockablePaneKey.SCANLINE, scanLineInfoPane);
+        dockablePaneMap.put(DockablePaneKey.TIEPOINTS, tiePointGridPixelInfoPane);
+        dockablePaneMap.put(DockablePaneKey.BANDS, bandPixelInfoPane);
+        dockablePaneMap.put(DockablePaneKey.FLAGS, flagPixelInfoPane);
 
-        JideSplitPane multiSplitPane = new JideSplitPane();
+        multiSplitPane = new JideSplitPane();
         multiSplitPane.setOrientation(JideSplitPane.VERTICAL_SPLIT);
-        multiSplitPane.addPane(_geolocInfoPane);
-        multiSplitPane.addPane(_scanLineInfoPane);
-        multiSplitPane.addPane(_tiePointGridPixelInfoPane);
-        multiSplitPane.addPane(_bandPixelInfoPane);
-        multiSplitPane.addPane(_flagPixelInfoPane);
+        multiSplitPane.addPane(geolocInfoPane);
+        multiSplitPane.addPane(scanLineInfoPane);
+        multiSplitPane.addPane(tiePointGridPixelInfoPane);
+        multiSplitPane.addPane(bandPixelInfoPane);
+        // Flags are not added, they are only displayed on request
+//        multiSplitPane.addPane(flagPixelInfoPane);
 
-        final JTable flagsTable = getTable(_flagPixelInfoPane);
+        final JTable flagsTable = getTable(flagPixelInfoPane);
         flagsTable.setDefaultRenderer(String.class, new FlagCellRenderer());
         flagsTable.setDefaultRenderer(Object.class, new FlagCellRenderer());
 
@@ -305,7 +345,7 @@ public class PixelInfoView extends JPanel {
         });
     }
 
-    private DockablePane createDockablePane(String name, int index, String[] columnNames) {
+    private DockablePane createDockablePane(String name, int index, ImageIcon icon, String[] columnNames) {
         JTable table = new JTable(new DefaultTableModel(columnNames, 0) {
 
             @Override
@@ -318,7 +358,6 @@ public class PixelInfoView extends JPanel {
         table.setRowSelectionAllowed(true);
         table.setTableHeader(null);
         table.removeEditor();
-        //table.getTableHeader().setReorderingAllowed(false);
         JScrollPane scrollPane = new JScrollPane(table,
                                                  JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                                                  JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -327,27 +366,27 @@ public class PixelInfoView extends JPanel {
 
         final DockingManager dockingManager = app.getMainFrame().getDockingManager();
         final FloatingComponentFactory componentFactory = FloatingDockableFrame.getFactory(dockingManager);
-        return new DockablePane(name, null, scrollPane, index, false, componentFactory);
+        return new DockablePane(name, icon, scrollPane, index, true, componentFactory);
     }
 
     private DefaultTableModel getGeolocTableModel() {
-        return getTableModel(_geolocInfoPane);
+        return getTableModel(geolocInfoPane);
     }
 
     private DefaultTableModel getScanLineTableModel() {
-        return getTableModel(_scanLineInfoPane);
+        return getTableModel(scanLineInfoPane);
     }
 
     private DefaultTableModel getBandTableModel() {
-        return getTableModel(_bandPixelInfoPane);
+        return getTableModel(bandPixelInfoPane);
     }
 
     private DefaultTableModel getTiePointGridTableModel() {
-        return getTableModel(_tiePointGridPixelInfoPane);
+        return getTableModel(tiePointGridPixelInfoPane);
     }
 
     private DefaultTableModel getFlagTableModel() {
-        return getTableModel(_flagPixelInfoPane);
+        return getTableModel(flagPixelInfoPane);
     }
 
     private DefaultTableModel getTableModel(JTable table) {
@@ -371,9 +410,9 @@ public class PixelInfoView extends JPanel {
     }
 
     private void clearSelectionInRasterTables() {
-        final String rasterName = _currentView.getRaster().getName();
-        final JTable bandTable = getTable(_bandPixelInfoPane);
-        final JTable tiePointGridTable = getTable(_tiePointGridPixelInfoPane);
+        final String rasterName = currentView.getRaster().getName();
+        final JTable bandTable = getTable(bandPixelInfoPane);
+        final JTable tiePointGridTable = getTable(tiePointGridPixelInfoPane);
         bandTable.clearSelection();
         tiePointGridTable.clearSelection();
         if (!selectCurrentRaster(rasterName, bandTable)) {
@@ -382,18 +421,28 @@ public class PixelInfoView extends JPanel {
     }
 
     public void clearProductNodeRefs() {
-        _currentProduct = null;
-        _currentRaster = null;
-        _currentView = null;
-        _currentFlagBands = new Band[0];
+        currentProduct = null;
+        currentRaster = null;
+        currentView = null;
+        currentFlagBands = new Band[0];
     }
 
     private void updateDataDisplay() {
-        updateGeolocValues();
-        updateScanLineValues();
-        updateBandPixelValues();
-        updateTiePointGridPixelValues();
-        updateFlagPixelValues();
+        if(isDockablePaneShown(DockablePaneKey.GEOLOCATION)) {
+            updateGeolocValues();
+        }
+        if(isDockablePaneShown(DockablePaneKey.SCANLINE)) {
+            updateScanLineValues();
+        }
+        if(isDockablePaneShown(DockablePaneKey.BANDS)) {
+            updateBandPixelValues();
+        }
+        if(isDockablePaneShown(DockablePaneKey.TIEPOINTS)) {
+            updateTiePointGridPixelValues();
+        }
+        if(isDockablePaneShown(DockablePaneKey.FLAGS)){
+            updateFlagPixelValues();
+        }
     }
 
     private void updateScanLineValues() {
@@ -571,28 +620,21 @@ public class PixelInfoView extends JPanel {
         if (model.getRowCount() != getFlagRowCount()) {
             resetFlagTableModel();
         }
-        int pixelValue;
         int rowIndex = 0;
-        for (Band band : _currentFlagBands) {
-            if (available && shouldDisplayBand(band)) {
-                pixelValue = getSampleInt(band, _pixelX, _pixelY, _level);
-            } else {
-                pixelValue = 0;
-            }
+        for (Band band : currentFlagBands) {
+            int pixelValue = available ? getSampleInt(band, _pixelX, _pixelY, _level) : 0;
+
             for (int j = 0; j < band.getFlagCoding().getNumAttributes(); j++) {
-                if (!shouldDisplayBand(band)) {
-                    model.setValueAt(_NOT_LOADED_TEXT, rowIndex, _VALUE_COLUMN);
+                MetadataAttribute attribute = band.getFlagCoding().getAttributeAt(j);
+
+                Debug.assertTrue(
+                        (band.getName() + "." + attribute.getName()).equals(model.getValueAt(rowIndex, _NAME_COLUMN)));
+
+                if (available) {
+                    int mask = attribute.getData().getElemInt();
+                    model.setValueAt(String.valueOf((pixelValue & mask) == mask), rowIndex, _VALUE_COLUMN);
                 } else {
-                    MetadataAttribute attribute = band.getFlagCoding().getAttributeAt(j);
-
-                    Debug.assertTrue((band.getName() + "." + attribute.getName()).equals(model.getValueAt(rowIndex, _NAME_COLUMN)));
-
-                    if (available) {
-                        int mask = attribute.getData().getElemInt();
-                        model.setValueAt(String.valueOf((pixelValue & mask) == mask), rowIndex, _VALUE_COLUMN);
-                    } else {
-                        model.setValueAt(_INVALID_POS_TEXT, rowIndex, _VALUE_COLUMN);
-                    }
+                    model.setValueAt(_INVALID_POS_TEXT, rowIndex, _VALUE_COLUMN);
                 }
                 rowIndex++;
             }
@@ -607,7 +649,7 @@ public class PixelInfoView extends JPanel {
                 flagBandsVector.add(band);
             }
         }
-        _currentFlagBands = flagBandsVector.toArray(new Band[flagBandsVector.size()]);
+        currentFlagBands = flagBandsVector.toArray(new Band[flagBandsVector.size()]);
     }
 
     private boolean isSampleValueAvailable(int pixelX, int pixelY, boolean pixelValid) {
@@ -722,7 +764,7 @@ public class PixelInfoView extends JPanel {
         if (getCurrentProduct() != null) {
             model.setRowCount(getFlagRowCount());
             int rowIndex = 0;
-            for (Band band : _currentFlagBands) {
+            for (Band band : currentFlagBands) {
                 final FlagCoding flagCoding = band.getFlagCoding();
                 final int numFlags = flagCoding.getNumAttributes();
                 final String bandNameDot = band.getName() + ".";
@@ -770,7 +812,7 @@ public class PixelInfoView extends JPanel {
 
     private int getFlagRowCount() {
         int rowCount = 0;
-        for (Band band : _currentFlagBands) {
+        for (Band band : currentFlagBands) {
             rowCount += band.getFlagCoding().getNumAttributes();
         }
         return rowCount;

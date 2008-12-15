@@ -12,6 +12,7 @@
         <p>Changes in 4.6<br/>
         [BEAM-925] Events (open, shown, hidden) shall be delegated to tool view<br/>
         [BEAM-880] Pixel info view has a typo<br/>
+        [BEAM-879] Cannot display flag values<br/>
         </p>
         <p>Changes in 4.2<br/>
         [BEAM-820] Deactivate auto docking of tool views by default<br/>

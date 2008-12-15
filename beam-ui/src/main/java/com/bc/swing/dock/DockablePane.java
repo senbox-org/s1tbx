@@ -18,19 +18,9 @@ package com.bc.swing.dock;
 
 import com.bc.swing.TitledPane;
 
-import javax.swing.AbstractButton;
-import javax.swing.Icon;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Rectangle;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowListener;
@@ -53,7 +43,6 @@ public class DockablePane extends JPanel implements DockableComponent {
     private boolean docked;
     private boolean closable;
     private Window ownerWindow;
-    private Container parentContainer;
     private Rectangle bounds;
     private Object constraints;
     private int componentIndex;
@@ -106,6 +95,24 @@ public class DockablePane extends JPanel implements DockableComponent {
             titledPane.getTitleBar().add(createHideButton());
         }
         add(titledPane, BorderLayout.CENTER);
+    }
+
+
+    public void setShown(boolean show) {
+        final boolean wasShowing = isContentShown();
+        if (!wasShowing && show) {
+            addThisToParent();
+        }
+        if (wasShowing && !show){
+            if(!docked) {
+                setDocked(true);
+            }
+            removeThisFromParent();
+        }
+    }
+
+    public boolean isContentShown() {
+        return getContent().isShowing();
     }
 
     public boolean isDocked() {
@@ -186,90 +193,14 @@ public class DockablePane extends JPanel implements DockableComponent {
 
     private void addThisToParent() {
         setVisible(true);
-        if (parentContainer != null) {
-            if (parentContainer instanceof JTabbedPane) {
-                addThisToTabbedPaneParent();
-            } else {
-                addThisToNonTabbedPaneParent();
-            }
-            parentContainer.setVisible(true);
-            parentContainer.invalidate();
-            parentContainer.validate();
-            parentContainer.repaint();
-        }
-    }
-
-    private void addThisToTabbedPaneParent() {
-        JTabbedPane tabbedPane = (JTabbedPane) parentContainer;
-        int tabIndex = -1;
-        String tabTitle = getTitle();
-        Icon tabIcon = getIcon();
-        String tabTip = null;
-
-        if (constraints instanceof TabInfo) {
-            TabInfo tabInfo = (TabInfo) constraints;
-            tabIndex = tabInfo.getIndex();
-            tabTitle = tabInfo.getTitle();
-            tabIcon = tabInfo.getIcon();
-            tabTip = tabInfo.getTip();
-        } else if (constraints instanceof Integer) {
-            tabIndex = (Integer) constraints;
-        }
-
-        if (tabIndex >= 0 && tabIndex <= tabbedPane.getTabCount()) {
-            tabbedPane.insertTab(tabTitle, tabIcon, this, tabTip, tabIndex);
-        } else {
-            tabbedPane.addTab(tabTitle, tabIcon, this, tabTip);
-            tabIndex = tabbedPane.getTabCount() - 1;
-        }
-
-        tabbedPane.setSelectedIndex(tabIndex);
-    }
-
-    private void addThisToNonTabbedPaneParent() {
-        if (constraints == null && componentIndex >= 0) {
-            int componentIdx = componentIndex;
-            if (componentIdx > parentContainer.getComponentCount()) {
-                componentIdx = parentContainer.getComponentCount();
-            }
-            parentContainer.add(this, componentIdx);
-        } else {
-            parentContainer.add(this, constraints);
-        }
     }
 
     private void removeThisFromParent() {
-        parentContainer = getParent();
         ownerWindow = SwingUtilities.windowForComponent(this);
-        if (bounds == null) {
+        if (bounds == null) { // store the size for the floating window which may be shown next
             bounds = new Rectangle(getLocationOnScreen(), getSize());
         }
         setVisible(false);
-        if (parentContainer != null) {
-            if (parentContainer instanceof JTabbedPane) {
-                removeThisFromTabbedPaneParent();
-            } else {
-                removeThisFromNonTabbedPaneParent();
-            }
-            if (parentContainer.getComponentCount() == 0) {
-                parentContainer.setVisible(false);
-            }
-            parentContainer.invalidate();
-            parentContainer.validate();
-            parentContainer.repaint();
-        }
-    }
-
-    private void removeThisFromTabbedPaneParent() {
-        final JTabbedPane tabbedPane = (JTabbedPane) parentContainer;
-        final TabInfo tabbedPaneInfo = createTabInfo(tabbedPane);
-        constraints = tabbedPaneInfo;
-        tabbedPane.removeTabAt(tabbedPaneInfo.getIndex());
-    }
-
-    private void removeThisFromNonTabbedPaneParent() {
-        componentIndex = getComponentIndex(parentContainer, this);
-        parentContainer.remove(this);
     }
 
     private void openFloatingComponent() {
@@ -287,7 +218,9 @@ public class DockablePane extends JPanel implements DockableComponent {
         floatingComponent.setIcon(titledPane.getIcon());
         floatingComponent.setTitle(titledPane.getTitle());
         floatingComponent.setContent(content);
-        floatingComponent.setBounds(bounds);
+        if(bounds != null) {
+            floatingComponent.setBounds(bounds);
+        }
         if (windowListeners != null) {
             for (Object windowListener : windowListeners) {
                 floatingComponent.addWindowListener((WindowListener) windowListener);
@@ -321,7 +254,7 @@ public class DockablePane extends JPanel implements DockableComponent {
     }
 
     protected AbstractButton createHideButton() {
-        return TitledPane.createTitleBarButton("hide", "Hide", new ActionListener() {
+        return TitledPane.createTitleBarButton("close", "Close", new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 removeThisFromParent();
@@ -339,64 +272,4 @@ public class DockablePane extends JPanel implements DockableComponent {
         return -1;
     }
 
-    private TabInfo createTabInfo(JTabbedPane tabbedPane) {
-        final int index = tabbedPane.indexOfComponent(this);
-        String title = tabbedPane.getTitleAt(index);
-        if (title == null || title.length() == 0) {
-            title = getTitle();
-        }
-        Icon icon = tabbedPane.getIconAt(index);
-        if (icon == null) {
-            icon = getIcon();
-        }
-        final String toolTipText = tabbedPane.getToolTipTextAt(index);
-        return new TabInfo(index, title, icon, toolTipText);
-    }
-
-    public static class TabInfo {
-
-        private String title;
-        private Icon icon;
-        private String tip;
-        private int index;
-
-        public TabInfo(int index, String title, Icon icon, String toolTipText) {
-            this.title = title;
-            this.icon = icon;
-            this.index = index;
-            this.tip = toolTipText;
-        }
-
-        public Icon getIcon() {
-            return icon;
-        }
-
-        public void setIcon(Icon icon) {
-            this.icon = icon;
-        }
-
-        public int getIndex() {
-            return index;
-        }
-
-        public void setIndex(int index) {
-            this.index = index;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-
-        public String getTip() {
-            return tip;
-        }
-
-        public void setTip(String tip) {
-            this.tip = tip;
-        }
-    }
 }

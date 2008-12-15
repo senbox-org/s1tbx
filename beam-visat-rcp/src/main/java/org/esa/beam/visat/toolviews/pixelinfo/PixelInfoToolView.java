@@ -1,6 +1,7 @@
 package org.esa.beam.visat.toolviews.pixelinfo;
 
 import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.swing.dock.DockablePane;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
@@ -10,24 +11,22 @@ import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.PixelInfoView;
 import org.esa.beam.framework.ui.PixelPositionListener;
+import org.esa.beam.framework.ui.TableLayout;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JInternalFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
+import java.awt.Insets;
+import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -43,24 +42,18 @@ public class PixelInfoToolView extends AbstractToolView {
     private PinSelectionChangedListener pinSelectionChangedListener;
     private ProductSceneView currentView;
     private HashMap<ProductSceneView, PixelInfoPPL> pixelPosListeners;
+    private AbstractButton coordToggleButton;
+    private AbstractButton timeToggleButton;
+    private AbstractButton bandsToggleButton;
+    private AbstractButton tpgsToggleButton;
+    private AbstractButton flagsToggleButton;
 
     public PixelInfoToolView() {
     }
 
     @Override
     public JComponent createControl() {
-        pinCheckbox = new JCheckBox("Snap to selected pin");
-        pinCheckbox.setName("pinCheckbox");
-        pinCheckbox.setSelected(false);
         final VisatApp visatApp = VisatApp.getApp();
-        pinCheckbox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (pinCheckbox.isSelected()) {
-                    currentView = visatApp.getSelectedProductSceneView();
-                    setToSelectedPin(currentView);
-                }
-            }
-        });
 
         pixelInfoView = new PixelInfoView(visatApp);
         final DisplayFilter bandDisplayValidator = new DisplayFilter(visatApp);
@@ -88,12 +81,77 @@ public class PixelInfoToolView extends AbstractToolView {
 
         final JPanel pixelInfoViewPanel = new JPanel(new BorderLayout());
         pixelInfoViewPanel.add(pixelInfoView);
-        pixelInfoViewPanel.add(pinCheckbox, BorderLayout.SOUTH);
+
+        pinCheckbox = new JCheckBox("Snap to selected pin");
+        pinCheckbox.setName("pinCheckbox");
+        pinCheckbox.setSelected(false);
+        pinCheckbox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (pinCheckbox.isSelected()) {
+                    currentView = visatApp.getSelectedProductSceneView();
+                    setToSelectedPin(currentView);
+                }
+            }
+        });
+
+        final TableLayout layout = new TableLayout(5);
+        layout.setTableAnchor(TableLayout.Anchor.WEST);
+        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        layout.setTablePadding(new Insets(2, 2, 2, 2));
+        layout.setTableWeightX(1.0);
+        layout.setCellColspan(1,0, 5);
+        final JPanel optionPanel = new JPanel(layout);
+
+
+        coordToggleButton = createToggleButton(pixelInfoView, PixelInfoView.DockablePaneKey.GEOLOCATION, true);
+        timeToggleButton = createToggleButton(pixelInfoView, PixelInfoView.DockablePaneKey.SCANLINE, true);
+        tpgsToggleButton = createToggleButton(pixelInfoView, PixelInfoView.DockablePaneKey.TIEPOINTS, true);
+        bandsToggleButton = createToggleButton(pixelInfoView, PixelInfoView.DockablePaneKey.BANDS, true);
+        flagsToggleButton = createToggleButton(pixelInfoView, PixelInfoView.DockablePaneKey.FLAGS, false);
+
+        optionPanel.add(coordToggleButton);
+        optionPanel.add(timeToggleButton);
+        optionPanel.add(tpgsToggleButton);
+        optionPanel.add(bandsToggleButton);
+        optionPanel.add(flagsToggleButton);
+
+        optionPanel.add(pinCheckbox);
+
+        pixelInfoViewPanel.add(optionPanel, BorderLayout.SOUTH);
 
         visatApp.addInternalFrameListener(new PixelInfoIFL());
         initOpenedFrames();
 
         return pixelInfoViewPanel;
+    }
+
+    private AbstractButton createToggleButton(PixelInfoView pixelInfoView, PixelInfoView.DockablePaneKey paneKey,
+                                              boolean initSelectedState) {
+        final DockablePane dockablePane = pixelInfoView.getDockablePane(paneKey);
+        final DockablePanelToggleAction panelToggleAction = new DockablePanelToggleAction(pixelInfoView, paneKey);
+        final AbstractButton button = ToolButtonFactory.createButton(panelToggleAction, true);
+        button.setText(null);
+        button.setIcon(dockablePane.getIcon());
+
+        button.setName(getContext().getPane().getControl().getName() + "." + paneKey + ".button");
+        button.setToolTipText("Show/hide " + dockablePane.getTitle());
+        button.setSelected(initSelectedState);
+
+        dockablePane.addComponentListener(new ComponentListener() {
+
+            public void componentResized(ComponentEvent e) { }
+
+            public void componentMoved(ComponentEvent e) { }
+
+            public void componentShown(ComponentEvent e) {
+                button.setSelected(dockablePane.isContentShown());
+            }
+
+            public void componentHidden(ComponentEvent e) {
+                button.setSelected(dockablePane.isContentShown());
+            }
+        });
+        return button;
     }
 
     @Override
@@ -345,6 +403,22 @@ public class PixelInfoToolView extends AbstractToolView {
                 }
             }
             return true;
+        }
+    }
+
+    private class DockablePanelToggleAction extends AbstractAction {
+
+        private final PixelInfoView piv;
+        private final PixelInfoView.DockablePaneKey panelKey;
+
+        private DockablePanelToggleAction(PixelInfoView pixelInfoView, PixelInfoView.DockablePaneKey dockablePanelKey) {
+            piv = pixelInfoView;
+            panelKey = dockablePanelKey;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            final boolean isShown = piv.isDockablePaneShown(panelKey);
+            piv.showDockablePanel(panelKey, !isShown);
         }
     }
 }

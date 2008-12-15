@@ -38,8 +38,6 @@ public class FloatingDockableFrame implements FloatingComponent {
         dockableFrame.setCloseAction(new AbstractAction() {
 
             public void actionPerformed(ActionEvent e) {
-                dockableFrame.setVisible(false);
-                dockManager.removeFrame(dockableFrame.getKey());
                 if (getOriginator() != null) {
                     getOriginator().setDocked(true);
                 }
@@ -100,6 +98,7 @@ public class FloatingDockableFrame implements FloatingComponent {
 
     public void close() {
         dockableFrame.setVisible(false);
+        dockManager.removeFrame(dockableFrame.getKey());
     }
 
     public void addWindowListener(final WindowListener l) {

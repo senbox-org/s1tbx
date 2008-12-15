@@ -29,6 +29,7 @@
           [BEAM-895] "Zoom to selected Pin" in Pin Manager incorrectly moves image view<br/>
           [BEAM-893] Inconsistent handling of colour palettes in VISAT colour manipulation window<br/>
           [BEAM-892] VISAT colour manipulation window shall signal inexact statistics<br/>
+          [BEAM-879] Cannot display flag values<br/>
           [BEAM-782] Using spatial subset when creating new arithmetic band causes exception<br/>
         </p>
         <p>Changes in 4.5:<br/>

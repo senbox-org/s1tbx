@@ -399,8 +399,8 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         ImageIcon metadataIcon;
         ImageIcon bandAsSwathIcon;
         ImageIcon bandAsSwathIconUnloaded;
-        ImageIcon bandAsGridIcon;
-        ImageIcon bandAsGridIconUnloaded;
+        ImageIcon bandAsTiePointIcon;
+        ImageIcon bandAsTiePointIconUnloaded;
         ImageIcon bandFlagsIcon;
         ImageIcon bandFlagsIconUnloaded;
         ImageIcon bandIndexesIcon;
@@ -415,8 +415,8 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             metadataIcon = UIUtils.loadImageIcon("icons/RsMetaData16.gif");
             bandAsSwathIcon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
             bandAsSwathIconUnloaded = UIUtils.loadImageIcon("icons/RsBandAsSwath16Disabled.gif");
-            bandAsGridIcon = UIUtils.loadImageIcon("icons/RsBandAsGrid16.gif");
-            bandAsGridIconUnloaded = UIUtils.loadImageIcon("icons/RsBandAsGrid16Disabled.gif");
+            bandAsTiePointIcon = UIUtils.loadImageIcon("icons/RsBandAsTiePoint16.gif");
+            bandAsTiePointIconUnloaded = UIUtils.loadImageIcon("icons/RsBandAsTiePoint16Disabled.gif");
             bandIndexesIcon = UIUtils.loadImageIcon("icons/RsBandIndexes16.gif");
             bandIndexesIconUnloaded = UIUtils.loadImageIcon("icons/RsBandIndexes16Disabled.gif");
             bandFlagsIcon = UIUtils.loadImageIcon("icons/RsBandFlags16.gif");
@@ -524,9 +524,9 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 } else if (productNode instanceof TiePointGrid) {
                     TiePointGrid grid = (TiePointGrid) productNode;
                     if (openedRasterMap.containsKey(grid)) {
-                            this.setIcon(bandAsSwathIcon);
+                            this.setIcon(bandAsTiePointIcon);
                         } else {
-                            this.setIcon(bandAsSwathIconUnloaded);
+                            this.setIcon(bandAsTiePointIconUnloaded);
                         }
                     toolTipBuffer.append(", raster size = ");
                     toolTipBuffer.append(grid.getRasterWidth());
