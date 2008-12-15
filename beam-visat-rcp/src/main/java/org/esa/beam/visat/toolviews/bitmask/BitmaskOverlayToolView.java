@@ -211,7 +211,8 @@ public class BitmaskOverlayToolView extends AbstractToolView {
 
         final BitmaskDef bitmaskDefNew = showBitmaskDefEditDialog("Copy Bitmask", bitmaskDefOld, true);   /*I18N*/
         if (bitmaskDefNew != null) {
-            doNewAction(bitmaskDefNew, 0);
+            int index = bitmaskDefTable.getModel().getRowCount();
+            doNewAction(bitmaskDefNew, index);
         }
     }
 

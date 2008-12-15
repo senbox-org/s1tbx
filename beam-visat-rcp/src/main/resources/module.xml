@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.6:<br/>
+          [BEAM-932] Inconsistent handling of adding and copying bitmasks<br/>
           [BEAM-931] Shapes are not displayed while drawing<br/>
           [BEAM-930] Navigation Window disregards manual scaling factor editing<br/>
           [BEAM-928] Statistics shall be shown immediately if already computed<br/>
