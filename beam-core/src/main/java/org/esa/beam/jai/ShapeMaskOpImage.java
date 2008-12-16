@@ -23,6 +23,12 @@ public class ShapeMaskOpImage extends SingleBandedOpImage {
         this.colorModel = PlanarImage.createColorModel(getSampleModel());
     }
 
+    public ShapeMaskOpImage(Shape shape, int width, int height, Dimension tileSize, ResolutionLevel level) {
+        super(DataBuffer.TYPE_BYTE, width, height, tileSize, null, level);
+        this.shape = AffineTransform.getScaleInstance(1.0 / getScale(), 1.0 / getScale()).createTransformedShape(shape);
+        this.colorModel = PlanarImage.createColorModel(getSampleModel());
+    }
+
     @Override
     protected void computeRect(PlanarImage[] sourceImages, WritableRaster tile, Rectangle destRect) {
         final BufferedImage image = new BufferedImage(colorModel, RasterFactory.createWritableRaster(tile.getSampleModel(), tile.getDataBuffer(), new Point(0, 0)), false, null);

@@ -774,6 +774,7 @@ public class ImageManager {
             roiImages.add(new ShapeMaskOpImage(roiShape,
                                                rasterDataNode.getSceneRasterWidth(),
                                                rasterDataNode.getSceneRasterHeight(),
+                                               rasterDataNode.getProduct().getPreferredTileSize(),
                                                ResolutionLevel.create(multiLevelModel, level)));
         }
 

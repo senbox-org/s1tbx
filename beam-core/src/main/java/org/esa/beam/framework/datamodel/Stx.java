@@ -300,7 +300,9 @@ public class Stx {
                         throw new CancellationException("Process terminated by user."); /*I18N*/
                     }
                     final Raster dataTile = dataImage.getTile(tileX, tileY);
-                    final Raster maskTile = maskImage != null ? maskImage.getTile(tileX, tileY) : null;
+                    // data and mask image might not have the same tile size
+                    // --> we can not use the tile index of the one for the other, so we use the bounds
+                    final Raster maskTile = maskImage != null ? maskImage.getData(dataTile.getBounds()) : null;
                     final Rectangle r = new Rectangle(dataImage.getMinX(), dataImage.getMinY(), dataImage.getWidth(), dataImage.getHeight()).intersection(dataTile.getBounds());
                     switch (dataAccessor.sampleType) {
                         case PixelAccessor.TYPE_BIT:
