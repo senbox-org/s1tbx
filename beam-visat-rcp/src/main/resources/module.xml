@@ -1124,6 +1124,18 @@
         </action>
 
         <action>
+            <id>createXYDisplacementBandsAction</id>
+            <class>org.esa.beam.visat.actions.CreateXYDisplacementBandsAction</class>
+            <text>Create X,Y Displacement Bands...</text>
+            <description>Creates X,Y displacement bands for a selected product</description>
+            <context>createXYDisplacementBandsAction</context>
+            <helpId>createXYDisplacementBandsAction</helpId>
+            <parent>tools</parent>
+            <placeAfter>createElevationBand</placeAfter>
+            <separatorAfter>false</separatorAfter>
+        </action>
+
+        <action>
             <id>createFilteredBand</id>
             <class>org.esa.beam.visat.actions.CreateFilteredBandAction</class>
             <text>Create Filtered Band...</text>
