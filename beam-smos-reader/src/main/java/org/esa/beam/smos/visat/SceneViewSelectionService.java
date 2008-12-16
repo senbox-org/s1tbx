@@ -46,7 +46,7 @@ public class SceneViewSelectionService {
         return selectedSceneView;
     }
 
-    public void setSelectedSceneView(ProductSceneView view) {
+    private void setSelectedSceneView(ProductSceneView view) {
         ProductSceneView oldView = selectedSceneView;
         if (oldView != null) {
             oldView.removePixelPositionListener(ppl);

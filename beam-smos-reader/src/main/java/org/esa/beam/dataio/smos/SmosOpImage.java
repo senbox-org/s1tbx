@@ -14,7 +14,6 @@
  */
 package org.esa.beam.dataio.smos;
 
-import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
@@ -62,13 +61,13 @@ public class SmosOpImage extends SingleBandedOpImage {
         switch (targetData.type) {
             case DataBuffer.TYPE_SHORT:
             case DataBuffer.TYPE_USHORT:
-                loop(seqnumData, targetData, noDataValue.shortValue());
+                shortLoop(seqnumData, targetData, noDataValue.shortValue());
                 break;
             case DataBuffer.TYPE_INT:
-                loop(seqnumData, targetData, noDataValue.intValue());
+                intLoop(seqnumData, targetData, noDataValue.intValue());
                 break;
             case DataBuffer.TYPE_FLOAT:
-                loop(seqnumData, targetData, noDataValue.floatValue());
+                floatLoop(seqnumData, targetData, noDataValue.floatValue());
                 break;
             default:
                 // do nothing
@@ -78,7 +77,7 @@ public class SmosOpImage extends SingleBandedOpImage {
         targetAccessor.setPixels(targetData);
     }
 
-    private void loop(UnpackedImageData seqnumData, UnpackedImageData targetData, short noDataValue) {
+    private void shortLoop(UnpackedImageData seqnumData, UnpackedImageData targetData, short noDataValue) {
         final int w = targetData.rect.width;
         final int h = targetData.rect.height;
 
@@ -132,7 +131,7 @@ public class SmosOpImage extends SingleBandedOpImage {
         }
     }
 
-    private void loop(UnpackedImageData seqnumData, UnpackedImageData targetData, int noDataValue) {
+    private void intLoop(UnpackedImageData seqnumData, UnpackedImageData targetData, int noDataValue) {
         final int w = targetData.rect.width;
         final int h = targetData.rect.height;
 
@@ -186,7 +185,7 @@ public class SmosOpImage extends SingleBandedOpImage {
         }
     }
 
-    private void loop(UnpackedImageData seqnumData, UnpackedImageData targetData, float noDataValue) {
+    private void floatLoop(UnpackedImageData seqnumData, UnpackedImageData targetData, float noDataValue) {
         final int w = targetData.rect.width;
         final int h = targetData.rect.height;
 

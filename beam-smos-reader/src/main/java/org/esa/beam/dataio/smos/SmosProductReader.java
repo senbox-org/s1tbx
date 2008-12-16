@@ -160,7 +160,7 @@ public class SmosProductReader extends AbstractProductReader {
             smosFile = new L1cScienceSmosFile(dblFile, format);
         } else if (formatName.contains("MIR_OSUDP2")
                 || formatName.contains("MIR_SMUDP2")) {
-            smosFile = new SmosFile(dblFile, format);
+            smosFile = new L2SmosFile(dblFile, format);
         } else {
             throw new IllegalStateException("Illegal SMOS format: " + formatName);
         }
@@ -207,7 +207,7 @@ public class SmosProductReader extends AbstractProductReader {
                 addSmosL1cBandsFromCompound(product, btDataType, false);
             }
         } else {
-            addSmosL2BandsFromCompound(product, smosFile.getGridPointType());
+            addSmosL2BandsFromCompound(product, ((L2SmosFile) smosFile).getRetrievalResultsDataType());
         }
 
         return product;
@@ -267,7 +267,7 @@ public class SmosProductReader extends AbstractProductReader {
             String bandName = member.getName();
             // todo - band info
             BandInfo bandInfo = new BandInfo(bandName);
-            addL2Band(product, fieldIndex, bandName + "_H", memberTypeToBandType(member.getType()), bandInfo);
+            addL2Band(product, fieldIndex, bandName, memberTypeToBandType(member.getType()), bandInfo);
         }
     }
 

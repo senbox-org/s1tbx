@@ -204,6 +204,7 @@ public class SnapshotInfoToolView extends SmosToolView {
                 if (snapshotIndex != -1) {
                     try {
                         updateTable(snapshotIndex);
+                        setSnapshotIdOfView();
                     } catch (IOException e) {
                         snapshotTable.setModel(nullModel);
                     }

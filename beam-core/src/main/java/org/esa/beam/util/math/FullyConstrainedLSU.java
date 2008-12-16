@@ -78,6 +78,7 @@ public class FullyConstrainedLSU implements SpectralUnmixing {
         final Matrix res = new Matrix(nmemb, colCount);
         for (int nspek = 0; nspek < colCount; nspek++) {
             final double[][] singlesp = extractSingleColum(spectra, nspek);
+            double totalerrbest=1.e21;
             for (int nc = 0; nc < nmemb; nc++) {
                 boolean foundlegal = false;
                 final int nmods = trialModels[nc].length;
@@ -125,8 +126,10 @@ public class FullyConstrainedLSU implements SpectralUnmixing {
                             take++;
                         }
                     }
-                    res.setMatrix(0, nmemb - 1, nspek, nspek, new Matrix(abu));
-                    break;
+                    if( errbest< totalerrbest) {
+                        res.setMatrix(0, nmemb-1, nspek, nspek, new Matrix(abu));
+                        totalerrbest=errbest;
+                    }
                 }
             }
         }

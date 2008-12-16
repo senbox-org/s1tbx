@@ -20,7 +20,7 @@ public  class L1cGridPointValueProvider implements GridPointValueProvider {
     private final L1cSmosFile smosFile;
     private final int fieldIndex;
     private final int polarization;
-    private int snapshotId;
+    private volatile int snapshotId;
 
     L1cGridPointValueProvider(L1cSmosFile smosFile, int fieldIndex, int polarization) {
         this.smosFile = smosFile;

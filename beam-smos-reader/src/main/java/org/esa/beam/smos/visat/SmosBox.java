@@ -41,6 +41,7 @@ public class SmosBox implements VisatPlugIn {
         return sceneViewSelectionService;
     }
 
+    @Override
     public void start(VisatApp visatApp) {
         instance = this;
         sceneViewSelectionService = new SceneViewSelectionService(visatApp);
@@ -48,6 +49,7 @@ public class SmosBox implements VisatPlugIn {
         gridPointSelectionService = new GridPointSelectionService();
 
         sceneViewSelectionService.addSceneViewSelectionListener(new SceneViewSelectionService.SelectionListener() {
+            @Override
             public void handleSceneViewSelectionChanged(ProductSceneView oldView, ProductSceneView newView) {
                 if (newView != null) {
                     Layer rootLayer = newView.getRootLayer();
@@ -62,6 +64,7 @@ public class SmosBox implements VisatPlugIn {
         });
     }
 
+    @Override
     public void stop(VisatApp visatApp) {
         sceneViewSelectionService.stop();
         sceneViewSelectionService = null;
@@ -72,6 +75,7 @@ public class SmosBox implements VisatPlugIn {
         instance = null;
     }
 
+    @Override
     public void updateComponentTreeUI() {
     }
 

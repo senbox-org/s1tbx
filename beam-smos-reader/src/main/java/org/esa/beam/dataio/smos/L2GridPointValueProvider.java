@@ -68,6 +68,6 @@ public  class L2GridPointValueProvider implements GridPointValueProvider {
     }
 
     private CompoundData getParentCompound(int gridPointIndex) throws IOException {
-        return provider.getGridPointData(gridPointIndex);
+        return provider.getGridPointData(gridPointIndex).getCompound("Retrieval_Results_Data");
     }
 }

@@ -63,7 +63,7 @@ public class L1cScienceSmosFile extends L1cSmosFile {
 
         flagsIndex = getBtDataType().getMemberIndex(BT_FLAGS_MEMBER_NAME);
         incidenceAngleIndex = this.btDataType.getMemberIndex(BT_INCIDENCE_ANGLE_MEMBER_NAME);
-        snapshotIdIndex = this.btDataType.getMemberIndex(BT_SNAPSHOT_ID_MEMBER_NAME);
+        snapshotIdIndex = btDataType.getMemberIndex(BT_SNAPSHOT_ID_MEMBER_NAME);
 
         snapshotList = getDataBlock().getSequence(SNAPSHOT_LIST_MEMBER_NAME);
         if (snapshotList == null) {
@@ -179,6 +179,7 @@ public class L1cScienceSmosFile extends L1cSmosFile {
         }
     }
 
+    @Override
     public short getSnapshotBtData(int gridPointIndex, int fieldIndex,
                                    int polarization,
                                    int snapshotId, short noDataValue) throws IOException {
@@ -202,6 +203,7 @@ public class L1cScienceSmosFile extends L1cSmosFile {
         return noDataValue;
     }
 
+    @Override
     public int getSnapshotBtData(int gridPointIndex, int fieldIndex,
                                  int polarization,
                                  int snapshotId, int noDataValue) throws IOException {
@@ -225,6 +227,7 @@ public class L1cScienceSmosFile extends L1cSmosFile {
         return noDataValue;
     }
 
+    @Override
     public float getSnapshotBtData(int gridPointIndex, int fieldIndex,
                                    int polarization,
                                    int snapshotId, float noDataValue) throws IOException {

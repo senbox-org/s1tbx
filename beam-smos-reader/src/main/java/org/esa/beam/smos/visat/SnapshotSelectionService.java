@@ -64,9 +64,11 @@ public class SnapshotSelectionService {
     }
 
     private class ProductManagerHandler implements ProductManager.Listener {
+        @Override
         public void productAdded(ProductManager.Event event) {
         }
 
+        @Override
         public void productRemoved(ProductManager.Event event) {
             setSelectedSnapshotId(event.getProduct(), -1);
         }
