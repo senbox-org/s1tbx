@@ -390,7 +390,8 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
             TileIndex tileIndex = new TileIndex(tileX, tileY, level);
             // Check whether tile is still required or has been canceled already
             if (!scheduledTileRequests.containsKey(tileIndex)) {
-                return;
+                // todo - problem here if this renderer is shared by multiple views (nf, 20081216)
+                //return;
             }
 
             final TileImage tileImage = createTileImage(deviceConfiguration,
