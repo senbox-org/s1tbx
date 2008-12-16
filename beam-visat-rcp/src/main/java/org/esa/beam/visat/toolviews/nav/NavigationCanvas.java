@@ -20,6 +20,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.Point2D;
 
 
 public class NavigationCanvas extends JPanel {
@@ -27,7 +29,7 @@ public class NavigationCanvas extends JPanel {
     private LayerCanvas thumbnailCanvas;
     private static final DefaultLayerCanvasModel NULL_MODEL = new DefaultLayerCanvasModel(new Layer(), new DefaultViewport());
     private ObservedViewportHandler observedViewportHandler;
-    private Rectangle moveSliderRect;
+    private Rectangle2D moveSliderRect;
     private boolean adjustingObservedViewport;
     private boolean debug = false;
 
@@ -48,10 +50,11 @@ public class NavigationCanvas extends JPanel {
                 if (moveSliderRect != null && !moveSliderRect.isEmpty()) {
                     g.setColor(new Color(getForeground().getRed(), getForeground().getGreen(),
                                          getForeground().getBlue(), 82));
-                    g.fillRect(moveSliderRect.x, moveSliderRect.y, moveSliderRect.width, moveSliderRect.height);
+                    final Rectangle bounds = moveSliderRect.getBounds();
+                    g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
                     g.setColor(getForeground());
-                    g.draw3DRect(moveSliderRect.x - 1, moveSliderRect.y - 1, moveSliderRect.width + 2, moveSliderRect.height + 2, true);
-                    g.draw3DRect(moveSliderRect.x, moveSliderRect.y, moveSliderRect.width, moveSliderRect.height, false);
+                    g.draw3DRect(bounds.x - 1, bounds.y - 1, bounds.width + 2, bounds.height + 2, true);
+                    g.draw3DRect(bounds.x, bounds.y, bounds.width, bounds.height, false);
                 }
             }
         });
@@ -119,9 +122,9 @@ public class NavigationCanvas extends JPanel {
             Rectangle viewBounds = viewport.getViewBounds();
             AffineTransform m2vTN = thumbnailCanvas.getViewport().getModelToViewTransform();
             AffineTransform v2mVP = viewport.getViewToModelTransform();
-            moveSliderRect = m2vTN.createTransformedShape(v2mVP.createTransformedShape(viewBounds)).getBounds();
+            moveSliderRect = m2vTN.createTransformedShape(v2mVP.createTransformedShape(viewBounds)).getBounds2D();
         } else {
-            moveSliderRect = new Rectangle();
+            moveSliderRect = new Rectangle2D.Double();
         }
         if (debug) {
             System.out.println("NavigationCanvas.updateMoveSliderRect(): " + System.currentTimeMillis());
@@ -140,7 +143,7 @@ public class NavigationCanvas extends JPanel {
         ProductSceneView view = getNavigationWindow().getCurrentView();
         if (view != null) {
             adjustingObservedViewport = true;
-            Point location = moveSliderRect.getLocation();
+            Point2D location = new Point2D.Double(moveSliderRect.getMinX(), moveSliderRect.getMinY());
             thumbnailCanvas.getViewport().getViewToModelTransform().transform(location, location);
             getNavigationWindow().setModelOffset(location.getX(), location.getY());
             adjustingObservedViewport = false;
@@ -173,11 +176,12 @@ public class NavigationCanvas extends JPanel {
         public void mousePressed(MouseEvent e) {
             pickPoint = e.getPoint();
             if (!moveSliderRect.contains(pickPoint)) {
-                moveSliderRect.x = pickPoint.x - moveSliderRect.width / 2;
-                moveSliderRect.y = pickPoint.y - moveSliderRect.height / 2;
+                final int x1 = pickPoint.x - moveSliderRect.getBounds().width / 2;
+                final int y1 = pickPoint.y - moveSliderRect.getBounds().height / 2;
+                moveSliderRect.setRect(x1, y1, moveSliderRect.getWidth(), moveSliderRect.getHeight());
                 repaint();
             }
-            sliderPoint = moveSliderRect.getLocation();
+            sliderPoint = moveSliderRect.getBounds().getLocation();
         }
 
         @Override
@@ -188,8 +192,9 @@ public class NavigationCanvas extends JPanel {
 
         @Override
         public void mouseDragged(MouseEvent e) {
-            moveSliderRect.x = sliderPoint.x + (e.getX() - pickPoint.x);
-            moveSliderRect.y = sliderPoint.y + (e.getY() - pickPoint.y);
+            final int x1 = sliderPoint.x + (e.getX() - pickPoint.x);
+            final int y1 = sliderPoint.y + (e.getY() - pickPoint.y);
+            moveSliderRect.setRect(x1, y1, moveSliderRect.getWidth(), moveSliderRect.getHeight());
             repaint();
             handleMoveSliderRectChanged();
         }
