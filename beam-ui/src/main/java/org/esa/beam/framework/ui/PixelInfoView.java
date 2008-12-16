@@ -280,11 +280,6 @@ public class PixelInfoView extends JPanel {
         dockablePane.setShown(show);
     }
 
-    public boolean isDockablePaneShown(DockablePaneKey key) {
-        final DockablePane dockablePane = dockablePaneMap.get(key);
-        return dockablePane.isContentShown();
-    }
-
     public DockablePane getDockablePane(DockablePaneKey key) {
         return dockablePaneMap.get(key);
     }
@@ -428,21 +423,26 @@ public class PixelInfoView extends JPanel {
     }
 
     private void updateDataDisplay() {
-        if(isDockablePaneShown(DockablePaneKey.GEOLOCATION)) {
+        if(isDockablePaneVisible(DockablePaneKey.GEOLOCATION)) {
             updateGeolocValues();
         }
-        if(isDockablePaneShown(DockablePaneKey.SCANLINE)) {
+        if(isDockablePaneVisible(DockablePaneKey.SCANLINE)) {
             updateScanLineValues();
         }
-        if(isDockablePaneShown(DockablePaneKey.BANDS)) {
+        if(isDockablePaneVisible(DockablePaneKey.BANDS)) {
             updateBandPixelValues();
         }
-        if(isDockablePaneShown(DockablePaneKey.TIEPOINTS)) {
+        if(isDockablePaneVisible(DockablePaneKey.TIEPOINTS)) {
             updateTiePointGridPixelValues();
         }
-        if(isDockablePaneShown(DockablePaneKey.FLAGS)){
+        if(isDockablePaneVisible(DockablePaneKey.FLAGS)){
             updateFlagPixelValues();
         }
+    }
+
+    private boolean isDockablePaneVisible(DockablePaneKey key) {
+        final DockablePane dockablePane = dockablePaneMap.get(key);
+        return dockablePane.getContent().isVisible();
     }
 
     private void updateScanLineValues() {

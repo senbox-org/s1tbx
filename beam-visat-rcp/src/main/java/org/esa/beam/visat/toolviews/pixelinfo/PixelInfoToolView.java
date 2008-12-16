@@ -417,7 +417,8 @@ public class PixelInfoToolView extends AbstractToolView {
         }
 
         public void actionPerformed(ActionEvent e) {
-            final boolean isShown = piv.isDockablePaneShown(panelKey);
+            final DockablePane dockablePane = piv.getDockablePane(panelKey);
+            final boolean isShown = dockablePane.isContentShown();
             piv.showDockablePanel(panelKey, !isShown);
         }
     }
