@@ -56,7 +56,8 @@ public class L1cScienceSmosFile extends L1cSmosFile {
     private final int[] snapshotIndexes;
     private int snapshotIdMin;
     private int snapshotIdMax;
-    private static final float INCIDENCE_ANGLE_FACTOR = 90.0f / (float) Math.pow(2, 16);
+
+    public static final float INCIDENCE_ANGLE_FACTOR = 90.0f / (float) Math.pow(2, 16);
 
     public L1cScienceSmosFile(File file, DataFormat format) throws IOException {
         super(file, format);
@@ -77,7 +78,11 @@ public class L1cScienceSmosFile extends L1cSmosFile {
     @Override
     public short getBrowseBtData(int gridPointIndex, int fieldIndex, int polarization,
                                  short noDataValue) throws IOException {
-        return (short) (int) getInterpolatedBtData(gridPointIndex, fieldIndex, polarization, noDataValue);
+        if (fieldIndex == flagsIndex) {
+            return (short) getCombinedBtData(gridPointIndex, polarization, noDataValue);
+        } else {
+            return (short) (int) getInterpolatedBtData(gridPointIndex, fieldIndex, polarization, noDataValue);
+        }
     }
 
     @Override
@@ -110,11 +115,11 @@ public class L1cScienceSmosFile extends L1cSmosFile {
 
         for (int i = 0; i < elementCount; ++i) {
             btData = btDataList.getCompound(i);
-            final int flags = btData.getInt(flagsIndex) & 3;
+            final int flags = btData.getInt(flagsIndex);
             if (isPolarisationAccepted(flags & 3, polarization)) {
                 incidenceAngle = INCIDENCE_ANGLE_FACTOR * btData.getInt(incidenceAngleIndex);
                 if (incidenceAngle >= MIN_INCIDENCE_ANGLE && incidenceAngle <= MAX_INCIDENCE_ANGLE) {
-                    combinedFlags |=  flags;
+                    combinedFlags |= flags;
                     if (!hasLower) {
                         hasLower = incidenceAngle <= CENTER_INCIDENCE_ANGLE;
                     }
@@ -252,8 +257,8 @@ public class L1cScienceSmosFile extends L1cSmosFile {
     }
 
     private boolean isPolarisationAccepted(CompoundData data, int polarization) throws IOException {
-        final int polarizationFlags = data.getInt(flagsIndex) & 3;
-        return isPolarisationAccepted(polarizationFlags, polarization);
+        final int flags = data.getInt(flagsIndex);
+        return isPolarisationAccepted(flags & 3, polarization);
     }
 
     private static boolean isPolarisationAccepted(int polarizationFlags, int polarization) {
