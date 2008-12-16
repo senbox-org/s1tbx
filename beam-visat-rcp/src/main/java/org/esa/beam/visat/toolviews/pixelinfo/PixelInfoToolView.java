@@ -325,7 +325,7 @@ public class PixelInfoToolView extends AbstractToolView {
         }
 
         private boolean isActive() {
-            return isVisible() && !isSnapToPin();
+            return  pixelInfoView.isVisible() && !isSnapToPin();
         }
     }
 
