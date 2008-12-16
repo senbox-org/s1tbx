@@ -27,6 +27,8 @@ public class GridPointBtDataChartToolView extends GridPointBtDataToolView {
     private YIntervalSeriesCollection dataset;
     private XYPlot plot;
     private JCheckBox[] modeCheckers;
+    private static final double INCIDENCE_ANGLE_FACTOR = (90.0 / (1 << 16));
+    private static final double NOISE_FACTOR = (50.0 / (1 << 16));
 
     public GridPointBtDataChartToolView() {
     }
@@ -103,10 +105,10 @@ public class GridPointBtDataChartToolView extends GridPointBtDataToolView {
                 int length = ds.data.length;
                 for (int i = 0; i < length; i++) {
                     int polMode = ds.data[i][iq].intValue() & SmosFile.POL_MODE_MASK;
-                    double x = ds.data[i][ix].doubleValue();
+                    double x = ds.data[i][ix].doubleValue()  * INCIDENCE_ANGLE_FACTOR;
                     double y = ds.data[i][iy1].doubleValue();
-                    double dev = ds.data[i][id].doubleValue() * (50.0 / (1 << 16));
-                    if (m1 && polMode == SmosFile.POL_MODE_H) {
+                    double dev = ds.data[i][id].doubleValue() * NOISE_FACTOR;
+                     if (m1 && polMode == SmosFile.POL_MODE_H) {
                         series1.add(x, y, y - dev, y + dev);
                     } else if (m2 && polMode == SmosFile.POL_MODE_V) {
                         series2.add(x, y, y - dev, y + dev);
@@ -129,8 +131,8 @@ public class GridPointBtDataChartToolView extends GridPointBtDataToolView {
                     int length = ds.data.length;
                     for (int i = 0; i < length; i++) {
                         int polMode = ds.data[i][iq].intValue() & SmosFile.POL_MODE_MASK;
-                        double dev = ds.data[i][id].doubleValue() * (50.0 / (1 << 16));
-                        double x = ds.data[i][ix].doubleValue();
+                        double dev = ds.data[i][id].doubleValue() * NOISE_FACTOR;
+                        double x = ds.data[i][ix].doubleValue() * INCIDENCE_ANGLE_FACTOR;
                         double y1 = ds.data[i][iy1].doubleValue();
                         if (m1 && polMode == SmosFile.POL_MODE_H) {
                             series1.add(x, y1, y1 - dev, y1 + dev);
