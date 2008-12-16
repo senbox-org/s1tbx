@@ -34,10 +34,7 @@ import java.awt.image.SampleModel;
 import java.awt.image.renderable.ParameterBlock;
 import java.lang.ref.WeakReference;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -49,11 +46,16 @@ public class ImageManager {
 
     private static final String CACHE_INTERMEDIATE_TILES_PROPERTY = "beam.imageManager.enableIntermediateTileCaching";
 
-    private final static ImageManager INSTANCE = new ImageManager();
+    private static final ImageManager INSTANCE = new ImageManager();
     private final Map<MaskKey, MultiLevelImage> maskImageMap = new HashMap<MaskKey, MultiLevelImage>(101);
+    private final ProductNodeListener rasterDataChangeListener;
 
     public static ImageManager getInstance() {
         return INSTANCE;
+    }
+
+    public ImageManager() {
+        this.rasterDataChangeListener = new RasterDataChangeListener();
     }
 
     public synchronized void dispose() {
@@ -88,7 +90,7 @@ public class ImageManager {
         return getLevelImage(levelZeroImage, level);
     }
 
-    public MultiLevelSource getMultiLevelSource(RenderedImage levelZeroImage) {
+    public static MultiLevelSource getMultiLevelSource(RenderedImage levelZeroImage) {
         MultiLevelSource multiLevelSource;
         if (levelZeroImage instanceof MultiLevelSource) {
             multiLevelSource = (MultiLevelSource) levelZeroImage;
@@ -333,13 +335,6 @@ public class ImageManager {
         return image;
     }
 
-    private static PlanarImage createClampOp(RenderedImage image, int min, int max) {
-        return ClampDescriptor.create(image,
-                                      new double[]{min},
-                                      new double[]{max},
-                                      createDefaultRenderingHints());
-    }
-
     private static RenderingHints createDefaultRenderingHints() {
         boolean cacheIntermediateTiles = Boolean.getBoolean(CACHE_INTERMEDIATE_TILES_PROPERTY);
         if (!cacheIntermediateTiles) {
@@ -576,7 +571,7 @@ public class ImageManager {
         return MatchCDFDescriptor.create(sourceImage, normCDF, createDefaultRenderingHints());
     }
 
-    private PlanarImage getLevelImage(RenderedImage levelZeroImage, int level) {
+    private static PlanarImage getLevelImage(RenderedImage levelZeroImage, int level) {
         final MultiLevelSource multiLevelSource = getMultiLevelSource(levelZeroImage);
         RenderedImage image = multiLevelSource.getImage(level);
         return PlanarImage.wrapRenderedImage(image);
@@ -590,6 +585,9 @@ public class ImageManager {
             MultiLevelImage mli = maskImageMap.get(key);
             if (mli == null) {
                 mli = createValidMaskMultiLevelImage(rasterDataNode);
+                if (rasterDataNode.getProduct() != null) {
+                    rasterDataNode.getProduct().addProductNodeListener(rasterDataChangeListener);
+                }
                 maskImageMap.put(key, mli);
             }
             return mli;
@@ -624,6 +622,7 @@ public class ImageManager {
                     }
                 };
                 mli = new DefaultMultiLevelImage(mls);
+                product.addProductNodeListener(rasterDataChangeListener);
                 maskImageMap.put(key, mli);
             }
             return mli.getImage(level);
@@ -742,7 +741,7 @@ public class ImageManager {
             return null;
         }
 
-        ArrayList<RenderedImage> roiImages = new ArrayList<RenderedImage>(4);
+        List<RenderedImage> roiImages = new ArrayList<RenderedImage>(4);
 
         // Step 1:  insert ROI pixels determined by bitmask expression
         String bitmaskExpr = roiDefinition.getBitmaskExpr();
@@ -778,7 +777,7 @@ public class ImageManager {
                                                ResolutionLevel.create(multiLevelModel, level)));
         }
 
-        if (roiImages.size() == 0) {
+        if (roiImages.isEmpty()) {
             // todo - null is returned whenever a shape is converted into a ROI for any but the first time
             // todo - may be this problem is due to concurrency issues (nf, 08.2008)
             return null;
@@ -888,6 +887,23 @@ public class ImageManager {
             result = product.get().hashCode();
             result = 31 * result + expression.hashCode();
             return result;
+        }
+    }
+
+    private class RasterDataChangeListener extends ProductNodeListenerAdapter {
+
+        @Override
+        public void nodeDataChanged(ProductNodeEvent event) {
+            super.nodeDataChanged(event);
+            final ProductNode node = event.getSourceNode();
+            synchronized (maskImageMap) {
+                final Set<MaskKey> keySet = maskImageMap.keySet();
+                for (MaskKey maskKey : keySet) {
+                    if (maskKey.product.get() == node.getProduct() && maskKey.expression.contains(node.getName())) {
+                        maskImageMap.get(maskKey).reset();
+                    }
+                }
+            }
         }
     }
 }
