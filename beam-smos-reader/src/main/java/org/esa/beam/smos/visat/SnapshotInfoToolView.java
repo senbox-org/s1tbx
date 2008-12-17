@@ -244,7 +244,7 @@ public class SnapshotInfoToolView extends SmosToolView {
             DefaultMultiLevelImage defaultMultiLevelImage = (DefaultMultiLevelImage) sourceImage;
             if (defaultMultiLevelImage.getSource() instanceof SmosMultiLevelSource) {
                 SmosMultiLevelSource smosMultiLevelSource = (SmosMultiLevelSource) defaultMultiLevelImage.getSource();
-                GridPointValueProvider gridPointValueProvider = smosMultiLevelSource.getGridPointValueProvider();
+                GridPointValueProvider gridPointValueProvider = smosMultiLevelSource.getValueProvider();
                 if (gridPointValueProvider instanceof L1cGridPointValueProvider) {
                     L1cGridPointValueProvider l1cGridPointValueProvider = (L1cGridPointValueProvider) gridPointValueProvider;
                     int id = snapshotModeButton.isSelected() ? getSelectedSnapshotId() : -1;
@@ -267,7 +267,7 @@ public class SnapshotInfoToolView extends SmosToolView {
             DefaultMultiLevelImage defaultMultiLevelImage = (DefaultMultiLevelImage) sourceImage;
             if (defaultMultiLevelImage.getSource() instanceof SmosMultiLevelSource) {
                 SmosMultiLevelSource smosMultiLevelSource = (SmosMultiLevelSource) defaultMultiLevelImage.getSource();
-                GridPointValueProvider gridPointValueProvider = smosMultiLevelSource.getGridPointValueProvider();
+                GridPointValueProvider gridPointValueProvider = smosMultiLevelSource.getValueProvider();
                 if (gridPointValueProvider instanceof L1cGridPointValueProvider) {
                     L1cGridPointValueProvider l1cGridPointValueProvider = (L1cGridPointValueProvider) gridPointValueProvider;
                     return l1cGridPointValueProvider.getSnapshotId();

@@ -28,10 +28,10 @@ import java.awt.image.*;
 public class SmosOpImage extends SingleBandedOpImage {
 
     private final GridPointValueProvider valueProvider;
-    private final Number noDataValue;
+    private final RasterDataNode node;
     private final RenderedImage seqnumImage;
 
-    public SmosOpImage(GridPointValueProvider valueProvider, RasterDataNode node, Number noDataValue,
+    public SmosOpImage(GridPointValueProvider valueProvider, RasterDataNode node,
                        RenderedImage seqnumImage, ResolutionLevel level) {
         super(ImageManager.getDataBufferType(node.getDataType()),
               node.getSceneRasterWidth(),
@@ -41,7 +41,7 @@ public class SmosOpImage extends SingleBandedOpImage {
               level);
 
         this.valueProvider = valueProvider;
-        this.noDataValue = noDataValue;
+        this.node = node;
         this.seqnumImage = seqnumImage;
     }
 
@@ -61,13 +61,13 @@ public class SmosOpImage extends SingleBandedOpImage {
         switch (targetData.type) {
             case DataBuffer.TYPE_SHORT:
             case DataBuffer.TYPE_USHORT:
-                shortLoop(seqnumData, targetData, noDataValue.shortValue());
+                shortLoop(seqnumData, targetData, (short) node.getNoDataValue());
                 break;
             case DataBuffer.TYPE_INT:
-                intLoop(seqnumData, targetData, noDataValue.intValue());
+                intLoop(seqnumData, targetData, (int) node.getNoDataValue());
                 break;
             case DataBuffer.TYPE_FLOAT:
-                floatLoop(seqnumData, targetData, noDataValue.floatValue());
+                floatLoop(seqnumData, targetData, (float) node.getNoDataValue());
                 break;
             default:
                 // do nothing

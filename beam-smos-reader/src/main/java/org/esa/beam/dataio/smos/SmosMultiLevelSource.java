@@ -8,27 +8,25 @@ import org.esa.beam.jai.ResolutionLevel;
 import java.awt.image.RenderedImage;
 
 public class SmosMultiLevelSource extends AbstractMultiLevelSource {
-    private final GridPointValueProvider gridPointValueProvider;
+    private final GridPointValueProvider valueProvider;
     private final MultiLevelSource dggridMultiLevelSource;
     private final RasterDataNode node;
-    private final Number noDataValue;
 
-    public SmosMultiLevelSource(GridPointValueProvider gridPointValueProvider, MultiLevelSource dggridMultiLevelSource,
-                                RasterDataNode node, Number noDataValue) {
+    public SmosMultiLevelSource(GridPointValueProvider valueProvider, MultiLevelSource dggridMultiLevelSource,
+                                RasterDataNode node) {
         super(dggridMultiLevelSource.getModel());
-        this.gridPointValueProvider = gridPointValueProvider;
+
+        this.valueProvider = valueProvider;
         this.dggridMultiLevelSource = dggridMultiLevelSource;
         this.node = node;
-        this.noDataValue = noDataValue;
     }
 
-    public GridPointValueProvider getGridPointValueProvider() {
-        return gridPointValueProvider;
+    public GridPointValueProvider getValueProvider() {
+        return valueProvider;
     }
 
     @Override
     public RenderedImage createImage(int level) {
-        return new SmosOpImage(gridPointValueProvider, node, noDataValue, dggridMultiLevelSource.getImage(level),
-                               ResolutionLevel.create(getModel(), level));
+        return new SmosOpImage(valueProvider, node, dggridMultiLevelSource.getImage(level), ResolutionLevel.create(getModel(), level));
     }
 }

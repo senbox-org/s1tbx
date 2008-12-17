@@ -108,9 +108,9 @@ public class GridPointBtDataChartToolView extends GridPointBtDataToolView {
                     double x = ds.data[i][ix].doubleValue()  * INCIDENCE_ANGLE_FACTOR;
                     double y = ds.data[i][iy1].doubleValue();
                     double dev = ds.data[i][id].doubleValue() * NOISE_FACTOR;
-                     if (m1 && polMode == SmosFile.POL_MODE_H) {
+                     if (m1 && polMode == SmosFile.POL_MODE_X) {
                         series1.add(x, y, y - dev, y + dev);
-                    } else if (m2 && polMode == SmosFile.POL_MODE_V) {
+                    } else if (m2 && polMode == SmosFile.POL_MODE_Y) {
                         series2.add(x, y, y - dev, y + dev);
                     }
                 }
@@ -134,11 +134,11 @@ public class GridPointBtDataChartToolView extends GridPointBtDataToolView {
                         double dev = ds.data[i][id].doubleValue() * NOISE_FACTOR;
                         double x = ds.data[i][ix].doubleValue() * INCIDENCE_ANGLE_FACTOR;
                         double y1 = ds.data[i][iy1].doubleValue();
-                        if (m1 && polMode == SmosFile.POL_MODE_H) {
+                        if (m1 && polMode == SmosFile.POL_MODE_X) {
                             series1.add(x, y1, y1 - dev, y1 + dev);
-                        } else if (m2 && polMode == SmosFile.POL_MODE_V) {
+                        } else if (m2 && polMode == SmosFile.POL_MODE_Y) {
                             series2.add(x, y1, y1 - dev, y1 + dev);
-                        } else if (m3 && (polMode == SmosFile.POL_MODE_HV1 || polMode == SmosFile.POL_MODE_HV2)) {
+                        } else if (m3 && (polMode == SmosFile.POL_MODE_XY1 || polMode == SmosFile.POL_MODE_XY2)) {
                             double y2 = ds.data[i][iy2].doubleValue();
                             series3.add(x, y1, y1 - dev, y1 + dev);
                             series4.add(x, y2, y2 - dev, y2 + dev);

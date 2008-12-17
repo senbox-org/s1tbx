@@ -52,8 +52,8 @@ public class SmosFormats {
     }
 
     public static final FlagDescriptor[] L1C_FLAGS = {
-            new FlagDescriptor(1 << 0, "H_OR_V_POL", ""),
-            new FlagDescriptor(1 << 1, "HV_POL", ""),
+//            new FlagDescriptor(1 << 0, "POL_FLAG_1", ""),
+//            new FlagDescriptor(1 << 1, "POL_FLAG_2", ""),
             new FlagDescriptor(1 << 2, "SUN_FOV", ""),
             new FlagDescriptor(1 << 3, "SUN_GLINT_FOV", ""),
             new FlagDescriptor(1 << 4, "MOON_GLINT_FOV", ""),

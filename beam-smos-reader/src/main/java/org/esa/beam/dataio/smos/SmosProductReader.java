@@ -179,7 +179,7 @@ public class SmosProductReader extends AbstractProductReader {
 
         // todo - L2 flags
         if (smosFile instanceof L1cSmosFile) {
-            final FlagCoding flagCoding = new FlagCoding("SMOS");
+            final FlagCoding flagCoding = new FlagCoding("SMOS_L1C");
             for (final SmosFormats.FlagDescriptor descriptor : SmosFormats.L1C_FLAGS) {
                 flagCoding.addFlag(descriptor.getName(), descriptor.getMask(), descriptor.getDescription());
             }
@@ -194,17 +194,17 @@ public class SmosProductReader extends AbstractProductReader {
             if (formatName.contains("MIR_BWLD1C")
                     || formatName.contains("MIR_BWND1C")
                     || formatName.contains("MIR_BWSD1C")) {
-                addSmosL1cBandsFromCompound(product, btDataType, true);
+                addDualPolBands(product, btDataType);
             } else if (formatName.contains("MIR_BWLF1C")
                     || formatName.contains("MIR_BWNF1C")
                     || formatName.contains("MIR_BWSF1C")) {
-                addSmosL1cBandsFromCompound(product, btDataType, false);
+                addFullPolBrowseBands(product, btDataType);
             } else if (formatName.contains("MIR_SCLD1C")
                     || formatName.contains("MIR_SCSD1C")) {
-                addSmosL1cBandsFromCompound(product, btDataType, true);
+                addDualPolBands(product, btDataType);
             } else if (formatName.contains("MIR_SCLF1C")
                     || formatName.contains("MIR_SCSF1C")) {
-                addSmosL1cBandsFromCompound(product, btDataType, false);
+                addFullPolScienceBands(product, btDataType);
             }
         } else {
             addSmosL2BandsFromCompound(product, ((L2SmosFile) smosFile).getRetrievalResultsDataType());
@@ -221,40 +221,99 @@ public class SmosProductReader extends AbstractProductReader {
         return dggridMultiLevelImage;
     }
 
-    private void addSmosL1cBandsFromCompound(Product product, CompoundType compoundDataType, boolean dualPol) {
-        CompoundMember[] members = compoundDataType.getMembers();
+    private void addDualPolBands(Product product, CompoundType compoundDataType) {
+        final CompoundMember[] members = compoundDataType.getMembers();
+
         for (int fieldIndex = 0; fieldIndex < members.length; fieldIndex++) {
-            CompoundMember member = members[fieldIndex];
-            String bandName = member.getName();
-            BandInfo bandInfo = bandInfos.get(bandName);
+            final CompoundMember member = members[fieldIndex];
+            final String memberName = member.getName();
+            final BandInfo bandInfo = bandInfos.get(memberName);
 
             if (bandInfo != null) {
-                if (dualPol) {
-                    addL1cBand(product, SmosFile.POL_MODE_H, fieldIndex, bandName + "_H",
-                               memberTypeToBandType(member.getType()), bandInfo);
-                    addL1cBand(product, SmosFile.POL_MODE_V, fieldIndex, bandName + "_V",
-                               memberTypeToBandType(member.getType()), bandInfo);
+                if ("Flags".equals(memberName)) {
+                    // flags do not depend on polarisation mode, so there is a single flag band only
+                    addL1cBand(product, memberName,
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_X);
                 } else {
-                    if (bandName.endsWith("_Real")) {
-                        bandName = bandName.substring(0, bandName.indexOf("_Real"));
-                        addL1cBand(product, SmosFile.POL_MODE_H, fieldIndex, bandName + "_H",
-                                   memberTypeToBandType(member.getType()), bandInfo);
-                        addL1cBand(product, SmosFile.POL_MODE_V, fieldIndex, bandName + "_V",
-                                   memberTypeToBandType(member.getType()), bandInfo);
-                        addL1cBand(product, SmosFile.POL_MODE_HV1, fieldIndex, bandName + "_HV_Real",
-                                   memberTypeToBandType(member.getType()), bandInfo);
-                    } else if (bandName.endsWith("_Imag")) {
-                        bandName = bandName.substring(0, bandName.indexOf("_Imag"));
-                        addL1cBand(product, SmosFile.POL_MODE_HV1, fieldIndex, bandName + "_HV_Imag",
-                                   memberTypeToBandType(member.getType()), bandInfo);
-                    } else {
-                        addL1cBand(product, SmosFile.POL_MODE_H, fieldIndex, bandName + "_H",
-                                   memberTypeToBandType(member.getType()), bandInfo);
-                        addL1cBand(product, SmosFile.POL_MODE_V, fieldIndex, bandName + "_V",
-                                   memberTypeToBandType(member.getType()), bandInfo);
-                        addL1cBand(product, SmosFile.POL_MODE_HV1, fieldIndex, bandName + "_HV",
-                                   memberTypeToBandType(member.getType()), bandInfo);
-                    }
+                    addL1cBand(product, memberName + "_X",
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_X);
+                    addL1cBand(product, memberName + "_Y",
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_Y);
+                }
+            }
+        }
+    }
+
+    private void addFullPolBrowseBands(Product product, CompoundType compoundDataType) {
+        final CompoundMember[] members = compoundDataType.getMembers();
+
+        for (int fieldIndex = 0; fieldIndex < members.length; fieldIndex++) {
+            final CompoundMember member = members[fieldIndex];
+            final String memberName = member.getName();
+            final BandInfo bandInfo = bandInfos.get(memberName);
+
+            if (bandInfo != null) {
+                if ("Flags".equals(memberName)) {
+                    // flags do not depend on polarisation mode, so there is a single flag band only
+                    addL1cBand(product, memberName,
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_X);
+                    continue;
+                }
+                if ("BT_Value".equals(memberName)) {
+                    addL1cBand(product, memberName + "_X",
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_X);
+                    addL1cBand(product, memberName + "_Y",
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_Y);
+                    addL1cBand(product, memberName + "_XY_Real",
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_XY1);
+                    addL1cBand(product, memberName + "_XY_Imag",
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_XY2);
+                } else {
+                    addL1cBand(product, memberName + "_X",
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_X);
+                    addL1cBand(product, memberName + "_Y",
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_Y);
+                    addL1cBand(product, memberName + "_XY",
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_XY1);
+                }
+            }
+        }
+    }
+
+    private void addFullPolScienceBands(Product product, CompoundType compoundDataType) {
+        final CompoundMember[] members = compoundDataType.getMembers();
+
+        for (int fieldIndex = 0; fieldIndex < members.length; fieldIndex++) {
+            final CompoundMember member = members[fieldIndex];
+            final String memberName = member.getName();
+            final BandInfo bandInfo = bandInfos.get(memberName);
+
+            if (bandInfo != null) {
+                if ("Flags".equals(memberName)) {
+                    // flags do not depend on polarisation mode, so there is a single flag band only
+                    addL1cBand(product, memberName,
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_X);
+                    continue;
+                }
+                if ("BT_Value_Real".equals(memberName)) {
+                    addL1cBand(product, "BT_Value_X",
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_X);
+                    addL1cBand(product, "BT_Value_Y",
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_Y);
+                    addL1cBand(product, "BT_Value_XY_Real",
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_XY1);
+                    continue;
+                }
+                if ("BT_Value_Imag".equals(memberName)) {
+                    addL1cBand(product, "BT_Value_XY_Imag",
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_XY1);
+                } else {
+                    addL1cBand(product, memberName + "_X",
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_X);
+                    addL1cBand(product, memberName + "_Y",
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_Y);
+                    addL1cBand(product, memberName + "_XY",
+                               memberTypeToBandType(member.getType()), bandInfo, fieldIndex, SmosFile.POL_MODE_XY1);
                 }
             }
         }
@@ -295,17 +354,14 @@ public class SmosProductReader extends AbstractProductReader {
         return bandType;
     }
 
-    private void addL1cBand(Product product,
-                            int polMode,
-                            int fieldIndex,
-                            String bandName,
-                            int bandType,
-                            BandInfo bandInfo) {
+    private void addL1cBand(Product product, String bandName, int bandType, BandInfo bandInfo, int fieldIndex,
+                            int polarisation) {
         final Band band = product.addBand(bandName, bandType);
         band.setScalingFactor(bandInfo.scaleFactor);
         band.setScalingOffset(bandInfo.scaleOffset);
         band.setUnit(bandInfo.unit);
         band.setDescription(bandInfo.description);
+
         if (bandInfo.noDataValue != null) {
             band.setNoDataValueUsed(true);
             band.setNoDataValue(bandInfo.noDataValue.doubleValue());
@@ -326,8 +382,10 @@ public class SmosProductReader extends AbstractProductReader {
             }
         }
 
-        final GridPointValueProvider gpvp = new L1cGridPointValueProvider((L1cSmosFile) smosFile, fieldIndex, polMode);
-        band.setSourceImage(createSourceImage(gpvp, band, bandInfo.noDataValue));
+        final GridPointValueProvider valueProvider =
+                new L1cGridPointValueProvider((L1cSmosFile) smosFile, fieldIndex, polarisation);
+
+        band.setSourceImage(createSourceImage(valueProvider, band));
         band.setImageInfo(createDefaultImageInfo(bandInfo));
     }
 
@@ -341,13 +399,14 @@ public class SmosProductReader extends AbstractProductReader {
         band.setScalingOffset(bandInfo.scaleOffset);
         band.setUnit(bandInfo.unit);
         band.setDescription(bandInfo.description);
+
         if (bandInfo.noDataValue != null) {
             band.setNoDataValueUsed(true);
             band.setNoDataValue(bandInfo.noDataValue.doubleValue());
         }
 
         final GridPointValueProvider gpvp = new L2GridPointValueProvider(smosFile, fieldIndex);
-        band.setSourceImage(createSourceImage(gpvp, band, bandInfo.noDataValue));
+        band.setSourceImage(createSourceImage(gpvp, band));
         band.setImageInfo(createDefaultImageInfo(bandInfo));
     }
 
@@ -372,8 +431,9 @@ public class SmosProductReader extends AbstractProductReader {
     }
 
     private void addGridCellIdBand(Product product) {
-        SmosProductReader.BandInfo bandInfo = bandInfos.get("Grid_Cell_ID");
-        Band band = product.addBand("Grid_Cell_ID", ProductData.TYPE_UINT32);
+        final SmosProductReader.BandInfo bandInfo = bandInfos.get("Grid_Cell_ID");
+        final Band band = product.addBand("Grid_Cell_ID", ProductData.TYPE_UINT32);
+
         band.setDescription(bandInfo.description);
         band.setSourceImage(dggridMultiLevelImage);
         band.setImageInfo(createDefaultImageInfo(bandInfo));
@@ -389,10 +449,6 @@ public class SmosProductReader extends AbstractProductReader {
         mapInfo.setSceneWidth(product.getSceneRasterWidth());
         mapInfo.setSceneHeight(product.getSceneRasterHeight());
         return new MapGeoCoding(mapInfo);
-    }
-
-    private MultiLevelImage createSourceImage(GridPointValueProvider gpvp, Band band, Number noDataValue) {
-        return new DefaultMultiLevelImage(new SmosMultiLevelSource(gpvp, dggridMultiLevelImage, band, noDataValue));
     }
 
     @Override
@@ -437,8 +493,12 @@ public class SmosProductReader extends AbstractProductReader {
         ProductIO.writeProduct(product, "smosproduct_2.dim", null);
     }
 
+    private static MultiLevelImage createSourceImage(GridPointValueProvider valueProvider, Band band) {
+        return new DefaultMultiLevelImage(new SmosMultiLevelSource(valueProvider, dggridMultiLevelImage, band));
+    }
+
     // todo - use this metadata in ceres-binio
-    private class BandInfo {
+    private static class BandInfo {
         String name;
         String unit = "";
         double scaleOffset;
@@ -509,5 +569,4 @@ public class SmosProductReader extends AbstractProductReader {
             }
         }
     }
-
 }

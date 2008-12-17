@@ -34,42 +34,42 @@ public class L1cBrowseSmosFile extends L1cSmosFile {
     }
 
     @Override
-    public short getBrowseBtData(int gridPointIndex, int fieldIndex, int polarization,
+    public short getBrowseBtData(int gridPointIndex, int fieldIndex, int polMode,
                                  short noDataValue) throws IOException {
-        return getBtData(gridPointIndex, polarization).getShort(fieldIndex);
+        return getBtData(gridPointIndex, polMode).getShort(fieldIndex);
     }
 
     @Override
-    public int getBrowseBtData(int gridPointIndex, int fieldIndex, int polarization,
+    public int getBrowseBtData(int gridPointIndex, int fieldIndex, int polMode,
                                int noDataValue) throws IOException {
-        return getBtData(gridPointIndex, polarization).getInt(fieldIndex);
+        return getBtData(gridPointIndex, polMode).getInt(fieldIndex);
     }
 
     @Override
-    public float getBrowseBtData(int gridPointIndex, int fieldIndex, int polarization,
+    public float getBrowseBtData(int gridPointIndex, int fieldIndex, int polMode,
                                  float noDataValue) throws IOException {
-        return getBtData(gridPointIndex, polarization).getFloat(fieldIndex);
+        return getBtData(gridPointIndex, polMode).getFloat(fieldIndex);
     }
 
     @Override
-    public short getSnapshotBtData(int gridPointIndex, int fieldIndex, int polarization,
+    public short getSnapshotBtData(int gridPointIndex, int fieldIndex, int polMode,
                                    int snapshotId, short noDataValue) throws IOException {
-        return getBtData(gridPointIndex, polarization).getShort(fieldIndex);
+        return getBtData(gridPointIndex, polMode).getShort(fieldIndex);
     }
 
     @Override
-    public int getSnapshotBtData(int gridPointIndex, int fieldIndex, int polarization,
+    public int getSnapshotBtData(int gridPointIndex, int fieldIndex, int polMode,
                                  int snapshotId, int noDataValue) throws IOException {
-        return getBtData(gridPointIndex, polarization).getInt(fieldIndex);
+        return getBtData(gridPointIndex, polMode).getInt(fieldIndex);
     }
 
     @Override
-    public float getSnapshotBtData(int gridPointIndex, int fieldIndex, int polarization,
+    public float getSnapshotBtData(int gridPointIndex, int fieldIndex, int polMode,
                                    int snapshotId, float noDataValue) throws IOException {
-        return getBtData(gridPointIndex, polarization).getFloat(fieldIndex);
+        return getBtData(gridPointIndex, polMode).getFloat(fieldIndex);
     }
 
-    private CompoundData getBtData(int gridPointIndex, int polarization) throws IOException {
-        return getBtDataList(gridPointIndex).getCompound(polarization);
+    private CompoundData getBtData(int gridPointIndex, int polMode) throws IOException {
+        return getBtDataList(gridPointIndex).getCompound(polMode);
     }
 }

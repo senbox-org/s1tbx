@@ -31,10 +31,10 @@ import java.text.MessageFormat;
 
 public class SmosFile implements GridPointDataProvider {
     public static final int POL_MODE_MASK = 0x00000003;
-    public static final int POL_MODE_H = 0;
-    public static final int POL_MODE_V = 1;
-    public static final int POL_MODE_HV1 = 2;
-    public static final int POL_MODE_HV2 = 3;
+    public static final int POL_MODE_X = 0;
+    public static final int POL_MODE_Y = 1;
+    public static final int POL_MODE_XY1 = 2;
+    public static final int POL_MODE_XY2 = 3;
 
     public static final String GRID_POINT_LIST_NAME = "Grid_Point_List";
     public static final String GRID_POINT_ID_NAME = "Grid_Point_ID";

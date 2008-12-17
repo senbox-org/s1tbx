@@ -44,20 +44,19 @@ public class L1cScienceSmosFile extends L1cSmosFile {
     public static final float CENTER_INCIDENCE_ANGLE = 42.5f;
     public static final float MIN_INCIDENCE_ANGLE = 37.5f;
     public static final float MAX_INCIDENCE_ANGLE = 52.5f;
+    public static final float INCIDENCE_ANGLE_FACTOR = 0.001373291f; // 90.0 / 2^16
 
     private final int flagsIndex;
-
     private final int incidenceAngleIndex;
+
     private final int snapshotIdIndex;
-
     private final SequenceData snapshotList;
-    private final CompoundType snapshotType;
 
+    private final CompoundType snapshotType;
     private final int[] snapshotIndexes;
     private int snapshotIdMin;
-    private int snapshotIdMax;
 
-    public static final float INCIDENCE_ANGLE_FACTOR = 90.0f / (float) Math.pow(2, 16);
+    private int snapshotIdMax;
 
     public L1cScienceSmosFile(File file, DataFormat format) throws IOException {
         super(file, format);
@@ -76,32 +75,93 @@ public class L1cScienceSmosFile extends L1cSmosFile {
     }
 
     @Override
-    public short getBrowseBtData(int gridPointIndex, int fieldIndex, int polarization,
+    public short getBrowseBtData(int gridPointIndex, int fieldIndex, int polMode,
                                  short noDataValue) throws IOException {
         if (fieldIndex == flagsIndex) {
-            return (short) getCombinedBtData(gridPointIndex, polarization, noDataValue);
+            return (short) getCombinedBtFlags(gridPointIndex, polMode, noDataValue);
         } else {
-            return (short) (int) getInterpolatedBtData(gridPointIndex, fieldIndex, polarization, noDataValue);
+            return (short) (int) getInterpolatedBtData(gridPointIndex, fieldIndex, polMode, noDataValue);
         }
     }
 
     @Override
-    public int getBrowseBtData(int gridPointIndex, int fieldIndex, int polarization,
+    public int getBrowseBtData(int gridPointIndex, int fieldIndex, int polMode,
                                int noDataValue) throws IOException {
         if (fieldIndex == flagsIndex) {
-            return getCombinedBtData(gridPointIndex, polarization, noDataValue);
+            return getCombinedBtFlags(gridPointIndex, polMode, noDataValue);
         } else {
-            return (int) getInterpolatedBtData(gridPointIndex, fieldIndex, polarization, noDataValue);
+            return (int) getInterpolatedBtData(gridPointIndex, fieldIndex, polMode, noDataValue);
         }
     }
 
     @Override
-    public float getBrowseBtData(int gridPointIndex, int fieldIndex, int polarization,
+    public float getBrowseBtData(int gridPointIndex, int fieldIndex, int polMode,
                                  float noDataValue) throws IOException {
-        return getInterpolatedBtData(gridPointIndex, fieldIndex, polarization, noDataValue);
+        return getInterpolatedBtData(gridPointIndex, fieldIndex, polMode, noDataValue);
     }
 
-    private int getCombinedBtData(int gridPointIndex, int polarization, int noDataValue) throws IOException {
+    @Override
+    public short getSnapshotBtData(int gridPointIndex, int fieldIndex, int polarisation, int snapshotId,
+                                   short noDataValue) throws IOException {
+        final CompoundData btData = getSnapshotBtData(gridPointIndex, snapshotId, polarisation);
+
+        if (btData != null) {
+            return btData.getShort(fieldIndex);
+        }
+
+        return noDataValue;
+    }
+
+    @Override
+    public int getSnapshotBtData(int gridPointIndex, int fieldIndex, int polMode, int snapshotId,
+                                 int noDataValue) throws IOException {
+        final CompoundData btData = getSnapshotBtData(gridPointIndex, snapshotId, polMode);
+
+        if (btData != null) {
+            return btData.getInt(fieldIndex);
+        }
+
+        return noDataValue;
+    }
+
+    @Override
+    public float getSnapshotBtData(int gridPointIndex, int fieldIndex, int polMode, int snapshotId,
+                                   float noDataValue) throws IOException {
+        final CompoundData btData = getSnapshotBtData(gridPointIndex, snapshotId, polMode);
+
+        if (btData != null) {
+            return btData.getFloat(fieldIndex);
+        }
+
+        return noDataValue;
+    }
+
+    private CompoundData getSnapshotBtData(int gridPointIndex, int snapshotId, int polMode) throws IOException {
+        final SequenceData btDataList = getBtDataList(gridPointIndex);
+        final int elementCount = btDataList.getElementCount();
+
+        CompoundData btData = btDataList.getCompound(0);
+        if (btData.getInt(snapshotIdIndex) > snapshotId) {
+            return null;
+        }
+        btData = btDataList.getCompound(elementCount - 1);
+        if (btData.getInt(snapshotIdIndex) < snapshotId) {
+            return null;
+        }
+        for (int i = 0; i < elementCount; ++i) {
+            btData = btDataList.getCompound(i);
+            if (btData.getInt(snapshotIdIndex) == snapshotId) {
+                final int flags = btData.getInt(flagsIndex);
+                if (polMode == (flags & 3) || (polMode & flags & 2) != 0) {
+                    return btData;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private int getCombinedBtFlags(int gridPointIndex, int polMode, int noDataValue) throws IOException {
         final SequenceData btDataList = getBtDataList(gridPointIndex);
         final int elementCount = btDataList.getElementCount();
 
@@ -110,16 +170,16 @@ public class L1cScienceSmosFile extends L1cSmosFile {
         boolean hasLower = false;
         boolean hasUpper = false;
 
-        CompoundData btData;
-        float incidenceAngle;
-
         for (int i = 0; i < elementCount; ++i) {
-            btData = btDataList.getCompound(i);
+            final CompoundData btData = btDataList.getCompound(i);
             final int flags = btData.getInt(flagsIndex);
-            if (isPolarisationAccepted(flags & 3, polarization)) {
-                incidenceAngle = INCIDENCE_ANGLE_FACTOR * btData.getInt(incidenceAngleIndex);
+
+            if (polMode == (flags & 3) || (polMode & flags & 2) != 0) {
+                final float incidenceAngle = INCIDENCE_ANGLE_FACTOR * btData.getInt(incidenceAngleIndex);
+
                 if (incidenceAngle >= MIN_INCIDENCE_ANGLE && incidenceAngle <= MAX_INCIDENCE_ANGLE) {
                     combinedFlags |= flags;
+
                     if (!hasLower) {
                         hasLower = incidenceAngle <= CENTER_INCIDENCE_ANGLE;
                     }
@@ -132,10 +192,11 @@ public class L1cScienceSmosFile extends L1cSmosFile {
         if (hasLower && hasUpper) {
             return combinedFlags;
         }
+
         return noDataValue;
     }
 
-    private float getInterpolatedBtData(int gridPointIndex, int fieldIndex, int polarization,
+    private float getInterpolatedBtData(int gridPointIndex, int fieldIndex, int polMode,
                                         float noDataValue) throws IOException {
         final SequenceData btDataList = getBtDataList(gridPointIndex);
         final int elementCount = btDataList.getElementCount();
@@ -149,16 +210,15 @@ public class L1cScienceSmosFile extends L1cSmosFile {
         boolean hasLower = false;
         boolean hasUpper = false;
 
-        CompoundData btData;
-        float incidenceAngle;
-        float btValue;
-
         for (int i = 0; i < elementCount; ++i) {
-            btData = btDataList.getCompound(i);
-            if (isPolarisationAccepted(btData, polarization)) {
-                incidenceAngle = INCIDENCE_ANGLE_FACTOR * btData.getInt(incidenceAngleIndex);
+            final CompoundData btData = btDataList.getCompound(i);
+            final int flags = btData.getInt(flagsIndex);
+
+            if (polMode == (flags & 3) || (polMode & flags & 2) != 0) {
+                final float incidenceAngle = INCIDENCE_ANGLE_FACTOR * btData.getInt(incidenceAngleIndex);
+
                 if (incidenceAngle >= MIN_INCIDENCE_ANGLE && incidenceAngle <= MAX_INCIDENCE_ANGLE) {
-                    btValue = btData.getFloat(fieldIndex);
+                    final float btValue = btData.getFloat(fieldIndex);
 
                     sx += incidenceAngle;
                     sy += btValue;
@@ -179,95 +239,9 @@ public class L1cScienceSmosFile extends L1cSmosFile {
             final float a = (count * sxy - sx * sy) / (count * sxx - sx * sx);
             final float b = (sy - a * sx) / count;
             return a * CENTER_INCIDENCE_ANGLE + b;
-        } else {
-            return noDataValue;
         }
-    }
 
-    @Override
-    public short getSnapshotBtData(int gridPointIndex, int fieldIndex,
-                                   int polarization,
-                                   int snapshotId, short noDataValue) throws IOException {
-        final SequenceData btDataList = getBtDataList(gridPointIndex);
-        final int elementCount = btDataList.getElementCount();
-        CompoundData btData = btDataList.getCompound(0);
-        if (btData.getInt(snapshotIdIndex) > snapshotId) {
-            return noDataValue;
-        }
-        btData = btDataList.getCompound(elementCount - 1);
-        if (btData.getInt(snapshotIdIndex) < snapshotId) {
-            return noDataValue;
-        }
-        for (int i = 0; i < elementCount; ++i) {
-            btData = btDataList.getCompound(i);
-            if (isPolarisationAccepted(btData, polarization)
-                    && btData.getInt(snapshotIdIndex) == snapshotId) {
-                return btData.getShort(fieldIndex);
-            }
-        }
         return noDataValue;
-    }
-
-    @Override
-    public int getSnapshotBtData(int gridPointIndex, int fieldIndex,
-                                 int polarization,
-                                 int snapshotId, int noDataValue) throws IOException {
-        final SequenceData btDataList = getBtDataList(gridPointIndex);
-        final int elementCount = btDataList.getElementCount();
-        CompoundData btData = btDataList.getCompound(0);
-        if (btData.getInt(snapshotIdIndex) > snapshotId) {
-            return noDataValue;
-        }
-        btData = btDataList.getCompound(elementCount - 1);
-        if (btData.getInt(snapshotIdIndex) < snapshotId) {
-            return noDataValue;
-        }
-        for (int i = 0; i < elementCount; ++i) {
-            btData = btDataList.getCompound(i);
-            if (isPolarisationAccepted(btData, polarization)
-                    && btData.getInt(snapshotIdIndex) == snapshotId) {
-                return btData.getInt(fieldIndex);
-            }
-        }
-        return noDataValue;
-    }
-
-    @Override
-    public float getSnapshotBtData(int gridPointIndex, int fieldIndex,
-                                   int polarization,
-                                   int snapshotId, float noDataValue) throws IOException {
-        final SequenceData btDataList = getBtDataList(gridPointIndex);
-        final int elementCount = btDataList.getElementCount();
-        CompoundData btData = btDataList.getCompound(0);
-        if (btData.getInt(snapshotIdIndex) > snapshotId) {
-            return noDataValue;
-        }
-        btData = btDataList.getCompound(elementCount - 1);
-        if (btData.getInt(snapshotIdIndex) < snapshotId) {
-            return noDataValue;
-        }
-        for (int i = 0; i < elementCount; ++i) {
-            btData = btDataList.getCompound(i);
-            if (isPolarisationAccepted(btData, polarization)
-                    && btData.getInt(snapshotIdIndex) == snapshotId) {
-                return btData.getFloat(fieldIndex);
-            }
-        }
-        return noDataValue;
-    }
-
-    private boolean isPolarisationAccepted(CompoundData data, int polarization) throws IOException {
-        final int flags = data.getInt(flagsIndex);
-        return isPolarisationAccepted(flags & 3, polarization);
-    }
-
-    private static boolean isPolarisationAccepted(int polarizationFlags, int polarization) {
-        return polarization == polarizationFlags || (polarization & polarizationFlags & 2) != 0;
-    }
-
-    public int getSnapshotId(SequenceData btDataList, int btDataIndex) throws IOException {
-        Assert.argument(btDataList.getSequenceType().getElementType() == btDataType);
-        return btDataList.getCompound(btDataIndex).getInt(snapshotIdIndex);
     }
 
     public final int getSnapshotIdMin() {
@@ -294,22 +268,26 @@ public class L1cScienceSmosFile extends L1cSmosFile {
         return snapshotType;
     }
 
-    public Rectangle2D computeSnapshotRegion(int snapshotId, ProgressMonitor pm) throws IOException {
+    public final Rectangle2D computeSnapshotRegion(int snapshotId, ProgressMonitor pm) throws IOException {
+        final int latIndex = getGridPointType().getMemberIndex("Grid_Point_Latitude");
+        final int lonIndex = getGridPointType().getMemberIndex("Grid_Point_Longitude");
+        final SequenceData gridPointList = getGridPointList();
+
         Rectangle2D.Float region = null;
-        int latIndex = getGridPointType().getMemberIndex("Grid_Point_Latitude");
-        int lonIndex = getGridPointType().getMemberIndex("Grid_Point_Longitude");
-        SequenceData gridPointList = getGridPointList();
         try {
             pm.beginTask("Visiting grid points...", gridPointList.getElementCount() / 100);
+
             for (int i = 0; i < gridPointList.getElementCount(); i++) {
-                SequenceData btDataList = getBtDataList(i);
+                final SequenceData btDataList = getBtDataList(i);
+
                 if (btDataList.getElementCount() >= 1) {
-                    int idMin = getSnapshotId(btDataList, 0);
-                    if (snapshotId >= idMin) {
-                        int idMax = getSnapshotId(btDataList, btDataList.getElementCount() - 1);
-                        if (snapshotId <= idMax) {
-                            float lon = gridPointList.getCompound(i).getFloat(lonIndex);
-                            float lat = gridPointList.getCompound(i).getFloat(latIndex);
+                    int minId = getSnapshotId(btDataList, 0);
+
+                    if (snapshotId >= minId) {
+                        int maxId = getSnapshotId(btDataList, btDataList.getElementCount() - 1);
+                        if (snapshotId <= maxId) {
+                            final float lon = gridPointList.getCompound(i).getFloat(lonIndex);
+                            final float lat = gridPointList.getCompound(i).getFloat(latIndex);
                             if (region == null) {
                                 region = new Rectangle2D.Float(lon, lat, 0.0f, 0.0f);
                             } else {
@@ -323,10 +301,16 @@ public class L1cScienceSmosFile extends L1cSmosFile {
         } finally {
             pm.done();
         }
+
         return region;
     }
 
-    public int[] createSnapshotIndexes() throws IOException {
+    private int getSnapshotId(SequenceData btDataList, int btDataIndex) throws IOException {
+        Assert.argument(btDataList.getSequenceType().getElementType() == btDataType);
+        return btDataList.getCompound(btDataIndex).getInt(snapshotIdIndex);
+    }
+
+    private int[] createSnapshotIndexes() throws IOException {
         final int snapshotIdIndex = snapshotType.getMemberIndex(SNAPSHOT_ID_NAME);
 
         int minId = Integer.MAX_VALUE;

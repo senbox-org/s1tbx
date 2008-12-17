@@ -65,21 +65,21 @@ public abstract class L1cSmosFile extends SmosFile {
         return getGridPointData(gridPointIndex).getSequence(btDataListIndex);
     }
 
-    public abstract short getBrowseBtData(int gridPointIndex, int fieldIndex, int polarization,
+    public abstract short getBrowseBtData(int gridPointIndex, int fieldIndex, int polMode,
                                           short noDataValue) throws IOException;
 
-    public abstract int getBrowseBtData(int gridPointIndex, int fieldIndex, int polarization,
+    public abstract int getBrowseBtData(int gridPointIndex, int fieldIndex, int polMode,
                                         int noDataValue) throws IOException;
 
-    public abstract float getBrowseBtData(int gridPointIndex, int fieldIndex, int polarization,
+    public abstract float getBrowseBtData(int gridPointIndex, int fieldIndex, int polMode,
                                           float noDataValue) throws IOException;
 
-    public abstract short getSnapshotBtData(int gridPointIndex, int fieldIndex, int polarization,
+    public abstract short getSnapshotBtData(int gridPointIndex, int fieldIndex, int polMode,
                                            int snapshotId,short noDataValue) throws IOException;
 
-    public abstract int getSnapshotBtData(int gridPointIndex, int fieldIndex, int polarization,
+    public abstract int getSnapshotBtData(int gridPointIndex, int fieldIndex, int polMode,
                                          int snapshotId,int noDataValue) throws IOException;
 
-    public abstract float getSnapshotBtData(int gridPointIndex, int fieldIndex, int polarization,
+    public abstract float getSnapshotBtData(int gridPointIndex, int fieldIndex, int polMode,
                                            int snapshotId,float noDataValue) throws IOException;
 }
