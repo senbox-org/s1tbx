@@ -157,8 +157,8 @@ public class SmosProductReader extends AbstractProductReader {
             addFullPolScienceBands(product, ((L1cSmosFile) smosFile).getBtDataType());
         } else if (formatName.contains("MIR_OSUDP2")
                 || formatName.contains("MIR_SMUDP2")) {
-            smosFile = new L2SmosFile(dblFile, format);
-            addSmosL2BandsFromCompound(product, ((L2SmosFile) smosFile).getRetrievalResultsDataType());
+            smosFile = new SmosFile(dblFile, format);
+            addSmosL2BandsFromCompound(product, smosFile.getGridPointType());
         } else {
             throw new IllegalStateException("Illegal SMOS format: " + formatName);
         }
@@ -306,7 +306,7 @@ public class SmosProductReader extends AbstractProductReader {
     }
 
     private void addL2Band(Product product, String bandName, int bandType, BandInfo bandInfo, int fieldIndex) {
-        addBand(product, bandName, bandType, bandInfo, new L2GridPointValueProvider((L2SmosFile) smosFile, fieldIndex));
+        addBand(product, bandName, bandType, bandInfo, new L2FieldValueProvider(smosFile, fieldIndex));
     }
 
     private File getInputFile() {
@@ -444,15 +444,6 @@ public class SmosProductReader extends AbstractProductReader {
         return new ImageInfo(new ColorPaletteDef(points));
     }
 
-    public static void main(String[] args) throws IOException {
-        JAI.getDefaultInstance().getTileCache().setMemoryCapacity(512 * (1024 * 1024));
-        SmosProductReader smosProductReader = new SmosProductReader(new SmosProductReaderPlugIn());
-        final File dir = new File(args[0]);
-        final File file = new File(dir, dir.getName() + ".DBL");
-        Product product = smosProductReader.readProductNodes(file, null);
-        ProductIO.writeProduct(product, "smosproduct_2.dim", null);
-    }
-
     private static void addMetadata(MetadataElement metadataElement, File hdrFile) throws IOException {
         final Document document;
 
@@ -488,5 +479,14 @@ public class SmosProductReader extends AbstractProductReader {
                 addMetadata(mdChild, xmlChild, namespace);
             }
         }
+    }
+
+    public static void main(String[] args) throws IOException {
+        JAI.getDefaultInstance().getTileCache().setMemoryCapacity(512 * (1024 * 1024));
+        SmosProductReader smosProductReader = new SmosProductReader(new SmosProductReaderPlugIn());
+        final File dir = new File(args[0]);
+        final File file = new File(dir, dir.getName() + ".DBL");
+        Product product = smosProductReader.readProductNodes(file, null);
+        ProductIO.writeProduct(product, "smosproduct_2.dim", null);
     }
 }

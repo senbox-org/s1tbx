@@ -17,31 +17,31 @@ package org.esa.beam.dataio.smos;
 import java.io.IOException;
 
 /**
- * todo - add API doc
+ * Provides the value of a certain field in the grid point data record.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
- * @since BEAM 4.5
+ * @since BEAM 4.6
  */
-public class L2GridPointValueProvider implements GridPointValueProvider {
+public class L2FieldValueProvider implements GridPointValueProvider {
 
-    private final L2SmosFile smosFile;
+    private final GridPointDataProvider provider;
     private final int fieldIndex;
 
-    protected L2GridPointValueProvider(L2SmosFile smosFile, int fieldIndex) {
-        this.smosFile = smosFile;
+    protected L2FieldValueProvider(GridPointDataProvider provider, int fieldIndex) {
+        this.provider = provider;
         this.fieldIndex = fieldIndex;
     }
 
     @Override
     public final int getGridPointIndex(int seqnum) {
-        return smosFile.getGridPointIndex(seqnum);
+        return provider.getGridPointIndex(seqnum);
     }
 
     @Override
     public short getValue(int gridPointIndex, short noDataValue) {
         try {
-            return smosFile.getRetrievalResultsData(gridPointIndex).getShort(fieldIndex);
+            return provider.getGridPointData(gridPointIndex).getShort(fieldIndex);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -50,7 +50,7 @@ public class L2GridPointValueProvider implements GridPointValueProvider {
     @Override
     public int getValue(int gridPointIndex, int noDataValue) {
         try {
-            return smosFile.getRetrievalResultsData(gridPointIndex).getInt(fieldIndex);
+            return provider.getGridPointData(gridPointIndex).getInt(fieldIndex);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -59,10 +59,9 @@ public class L2GridPointValueProvider implements GridPointValueProvider {
     @Override
     public float getValue(int gridPointIndex, float noDataValue) {
         try {
-            return smosFile.getRetrievalResultsData(gridPointIndex).getFloat(fieldIndex);
+            return provider.getGridPointData(gridPointIndex).getFloat(fieldIndex);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
 }
