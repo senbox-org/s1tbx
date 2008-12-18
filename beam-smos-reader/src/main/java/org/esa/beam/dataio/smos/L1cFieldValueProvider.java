@@ -16,13 +16,13 @@ package org.esa.beam.dataio.smos;
 
 import java.io.IOException;
 
-public class L1cGridPointValueProvider implements GridPointValueProvider {
+public class L1cFieldValueProvider implements GridPointValueProvider {
     private final L1cSmosFile smosFile;
     private final int fieldIndex;
     private final int polarization;
     private volatile int snapshotId;
 
-    public L1cGridPointValueProvider(L1cSmosFile smosFile, int fieldIndex, int polarization) {
+    public L1cFieldValueProvider(L1cSmosFile smosFile, int fieldIndex, int polarization) {
         this.smosFile = smosFile;
         this.fieldIndex = fieldIndex;
         this.polarization = polarization;

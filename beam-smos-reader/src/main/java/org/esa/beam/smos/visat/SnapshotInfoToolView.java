@@ -5,11 +5,8 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import org.esa.beam.dataio.smos.GridPointValueProvider;
-import org.esa.beam.dataio.smos.L1cGridPointValueProvider;
-import org.esa.beam.dataio.smos.L1cScienceSmosFile;
-import org.esa.beam.dataio.smos.SmosFile;
-import org.esa.beam.dataio.smos.SmosMultiLevelSource;
+import org.esa.beam.dataio.smos.L1cFieldValueProvider;
+import org.esa.beam.dataio.smos.*;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -245,11 +242,11 @@ public class SnapshotInfoToolView extends SmosToolView {
             if (defaultMultiLevelImage.getSource() instanceof SmosMultiLevelSource) {
                 SmosMultiLevelSource smosMultiLevelSource = (SmosMultiLevelSource) defaultMultiLevelImage.getSource();
                 GridPointValueProvider gridPointValueProvider = smosMultiLevelSource.getValueProvider();
-                if (gridPointValueProvider instanceof L1cGridPointValueProvider) {
-                    L1cGridPointValueProvider l1cGridPointValueProvider = (L1cGridPointValueProvider) gridPointValueProvider;
+                if (gridPointValueProvider instanceof L1cFieldValueProvider) {
+                    L1cFieldValueProvider l1cFieldValueProvider = (L1cFieldValueProvider) gridPointValueProvider;
                     int id = snapshotModeButton.isSelected() ? getSelectedSnapshotId() : -1;
-                    if (l1cGridPointValueProvider.getSnapshotId() != id) {
-                        l1cGridPointValueProvider.setSnapshotId(id);
+                    if (l1cFieldValueProvider.getSnapshotId() != id) {
+                        l1cFieldValueProvider.setSnapshotId(id);
                         smosMultiLevelSource.reset();
                         sceneView.getRaster().setValidMaskImage(null);
                         sceneView.getRaster().setGeophysicalImage(null);
@@ -268,9 +265,9 @@ public class SnapshotInfoToolView extends SmosToolView {
             if (defaultMultiLevelImage.getSource() instanceof SmosMultiLevelSource) {
                 SmosMultiLevelSource smosMultiLevelSource = (SmosMultiLevelSource) defaultMultiLevelImage.getSource();
                 GridPointValueProvider gridPointValueProvider = smosMultiLevelSource.getValueProvider();
-                if (gridPointValueProvider instanceof L1cGridPointValueProvider) {
-                    L1cGridPointValueProvider l1cGridPointValueProvider = (L1cGridPointValueProvider) gridPointValueProvider;
-                    return l1cGridPointValueProvider.getSnapshotId();
+                if (gridPointValueProvider instanceof L1cFieldValueProvider) {
+                    L1cFieldValueProvider l1cFieldValueProvider = (L1cFieldValueProvider) gridPointValueProvider;
+                    return l1cFieldValueProvider.getSnapshotId();
                 }
             }
         }

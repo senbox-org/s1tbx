@@ -297,7 +297,7 @@ public class SmosProductReader extends AbstractProductReader {
 
     private void addL1cBand(Product product, String bandName, int bandType, BandInfo bandInfo, int fieldIndex, int polMode) {
         final GridPointValueProvider valueProvider =
-                new L1cGridPointValueProvider((L1cSmosFile) smosFile, fieldIndex, polMode);
+                new L1cFieldValueProvider((L1cSmosFile) smosFile, fieldIndex, polMode);
         final Band band = addBand(product, bandName, bandType, bandInfo, valueProvider);
 
         if (bandName.equals("Flags")) {
