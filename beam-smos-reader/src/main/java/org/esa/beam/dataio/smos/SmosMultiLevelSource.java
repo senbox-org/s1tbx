@@ -5,13 +5,9 @@ import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ResolutionLevel;
 
-import java.awt.image.RenderedImage;
-import java.awt.geom.Point2D;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
+import javax.media.jai.ROI;
 import java.awt.geom.Area;
-import java.awt.Shape;
-import java.util.ArrayList;
+import java.awt.image.RenderedImage;
 
 public class SmosMultiLevelSource extends AbstractMultiLevelSource {
     private final GridPointValueProvider valueProvider;
@@ -35,9 +31,9 @@ public class SmosMultiLevelSource extends AbstractMultiLevelSource {
 
     @Override
     public RenderedImage createImage(int level) {
-        final AffineTransform m2i = getModel().getModelToImageTransform(level);
-        final Area levelRegion = modelRegion.createTransformedArea(m2i);
-
-        return new SmosOpImage(valueProvider, node, dggridMultiLevelSource.getImage(level), ResolutionLevel.create(getModel(), level), levelRegion);
+        final Area levelRegion = modelRegion.createTransformedArea(getModel().getModelToImageTransform(level));
+  
+        return new SmosOpImage(valueProvider, node, dggridMultiLevelSource.getImage(level),
+                               ResolutionLevel.create(getModel(), level), levelRegion);
     }
 }

@@ -31,7 +31,7 @@ class SmosOpImage extends SingleBandedOpImage {
     private final GridPointValueProvider valueProvider;
     private final RasterDataNode node;
     private final RenderedImage seqnumImage;
-    private final Area computingArea;
+    private final Area rectifiedRegion;
 
     SmosOpImage(GridPointValueProvider valueProvider, RasterDataNode node, RenderedImage seqnumImage,
                 ResolutionLevel level, Area region) {
@@ -46,12 +46,12 @@ class SmosOpImage extends SingleBandedOpImage {
         this.node = node;
         this.seqnumImage = seqnumImage;
 
-        computingArea = new Area();
+        rectifiedRegion = new Area();
         for (int x = 0; x < getNumXTiles(); ++x) {
             for (int y = 0; y < getNumYTiles(); ++y) {
                 final Rectangle tileRect = getTileRect(x, y);
                 if (region.intersects(tileRect)) {
-                    computingArea.add(new Area(tileRect));
+                    rectifiedRegion.add(new Area(tileRect));
                 }
             }
         }
@@ -59,7 +59,7 @@ class SmosOpImage extends SingleBandedOpImage {
 
     @Override
     protected final void computeRect(PlanarImage[] planarImages, WritableRaster targetRaster, Rectangle rectangle) {
-        if (!computingArea.intersects(rectangle)) {
+        if (!rectifiedRegion.intersects(rectangle)) {
             return;
         }
 
