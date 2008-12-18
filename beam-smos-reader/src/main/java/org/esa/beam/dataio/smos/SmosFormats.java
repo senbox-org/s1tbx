@@ -28,12 +28,16 @@ public class SmosFormats {
 
     public static final String GRID_POINT_LIST_NAME = "Grid_Point_List";
     public static final String GRID_POINT_ID_NAME = "Grid_Point_ID";
-    public static final String BT_FLAGS_MEMBER_NAME = "Flags";
-    public static final String BT_DATA_LIST_NAME = "BT_Data_List";
-    public static final String BT_INCIDENCE_ANGLE_MEMBER_NAME = "Incidence_Angle";
-    public static final String BT_SNAPSHOT_ID_MEMBER_NAME = "Snapshot_ID_of_Pixel";
-    public static final String SNAPSHOT_LIST_MEMBER_NAME = "Snapshot_List";
+    public static final String GRID_POINT_LATITUDE_NAME = "Grid_Point_Latitude";
+    public static final String GRID_POINT_LONGITUDE_NAME = "Grid_Point_Longitude";
+
+    public static final String SNAPSHOT_LIST_NAME = "Snapshot_List";
     public static final String SNAPSHOT_ID_NAME = "Snapshot_ID";
+
+    public static final String BT_DATA_LIST_NAME = "BT_Data_List";
+    public static final String BT_FLAGS_NAME = "Flags";
+    public static final String BT_INCIDENCE_ANGLE_NAME = "Incidence_Angle";
+    public static final String BT_SNAPSHOT_ID_OF_PIXEL_NAME = "Snapshot_ID_of_Pixel";
 
     public static final int L1C_POL_FLAGS_MASK = 3;
     public static final int L1C_POL_MODE_X = 0;

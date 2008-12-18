@@ -23,6 +23,7 @@ import javax.media.jai.PixelAccessor;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.UnpackedImageData;
 import java.awt.Rectangle;
+import java.awt.geom.Area;
 import java.awt.image.*;
 
 class SmosOpImage extends SingleBandedOpImage {
@@ -30,9 +31,10 @@ class SmosOpImage extends SingleBandedOpImage {
     private final GridPointValueProvider valueProvider;
     private final RasterDataNode node;
     private final RenderedImage seqnumImage;
+    private final Area computingArea;
 
-    SmosOpImage(GridPointValueProvider valueProvider, RasterDataNode node,
-                RenderedImage seqnumImage, ResolutionLevel level) {
+    SmosOpImage(GridPointValueProvider valueProvider, RasterDataNode node, RenderedImage seqnumImage,
+                ResolutionLevel level, Area region) {
         super(ImageManager.getDataBufferType(node.getDataType()),
               node.getSceneRasterWidth(),
               node.getSceneRasterHeight(),
@@ -43,10 +45,24 @@ class SmosOpImage extends SingleBandedOpImage {
         this.valueProvider = valueProvider;
         this.node = node;
         this.seqnumImage = seqnumImage;
+
+        computingArea = new Area();
+        for (int x = 0; x < getNumXTiles(); ++x) {
+            for (int y = 0; y < getNumYTiles(); ++y) {
+                final Rectangle tileRect = getTileRect(x, y);
+                if (region.intersects(tileRect)) {
+                    computingArea.add(new Area(tileRect));
+                }
+            }
+        }
     }
 
     @Override
     protected final void computeRect(PlanarImage[] planarImages, WritableRaster targetRaster, Rectangle rectangle) {
+        if (!computingArea.intersects(rectangle)) {
+            return;
+        }
+
         final Raster seqnumRaster = seqnumImage.getData(rectangle);
         final ColorModel cm = seqnumImage.getColorModel();
 
@@ -118,6 +134,7 @@ class SmosOpImage extends SingleBandedOpImage {
                         value = valueProvider.getValue(gridPointIndex, noDataValue);
                     }
                 }
+
                 gridPointIndexCache[x] = gridPointIndex;
                 valueCache[x] = value;
 

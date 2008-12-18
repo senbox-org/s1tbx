@@ -39,6 +39,7 @@ import org.jdom.input.SAXBuilder;
 import javax.media.jai.JAI;
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.io.File;
@@ -52,6 +53,7 @@ public class SmosProductReader extends AbstractProductReader {
     private static MultiLevelImage dggridMultiLevelImage;
 
     private SmosFile smosFile;
+    private Rectangle2D region;
 
     SmosProductReader(final SmosProductReaderPlugIn productReaderPlugIn) {
         super(productReaderPlugIn);
@@ -358,7 +360,7 @@ public class SmosProductReader extends AbstractProductReader {
         band.setImageInfo(createDefaultImageInfo(bandInfo));
     }
 
-    private static Band addBand(Product product, String bandName, int bandType, BandInfo bandInfo,
+    private Band addBand(Product product, String bandName, int bandType, BandInfo bandInfo,
                                 GridPointValueProvider valueProvider) {
         final Band band = product.addBand(bandName, bandType);
         band.setScalingFactor(bandInfo.scaleFactor);
@@ -420,8 +422,8 @@ public class SmosProductReader extends AbstractProductReader {
         return bandType;
     }
 
-    private static MultiLevelImage createSourceImage(GridPointValueProvider valueProvider, Band band) {
-        return new DefaultMultiLevelImage(new SmosMultiLevelSource(valueProvider, dggridMultiLevelImage, band));
+    private MultiLevelImage createSourceImage(GridPointValueProvider valueProvider, Band band) {
+        return new DefaultMultiLevelImage(new SmosMultiLevelSource(valueProvider, dggridMultiLevelImage, band, smosFile.getRegion()));
     }
 
     private static ImageInfo createDefaultImageInfo(BandInfo bandInfo) {

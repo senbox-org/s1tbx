@@ -19,6 +19,8 @@ package org.esa.beam.dataio.smos;
 
 import com.bc.ceres.binio.*;
 
+import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -36,6 +38,7 @@ public class SmosFile implements GridPointDataProvider {
     private final CompoundType gridPointType;
     private final int gridPointIdIndex;
     private final int[] gridPointIndexes;
+    private final Area region;
 
     private int minSeqnum;
     private int maxSeqnum;
@@ -56,6 +59,7 @@ public class SmosFile implements GridPointDataProvider {
         gridPointType = (CompoundType) gridPointList.getSequenceType().getElementType();
         gridPointIdIndex = gridPointType.getMemberIndex(SmosFormats.GRID_POINT_ID_NAME);
         gridPointIndexes = createGridPointIndexes();
+        region = computeRegion();
     }
 
     public final int getGridPointCount() {
@@ -109,8 +113,38 @@ public class SmosFile implements GridPointDataProvider {
         return gridPointList.getCompound(gridPointIndex);
     }
 
+    public Area getRegion() {
+        return region;
+    }
+
     public void close() {
         dataContext.dispose();
+    }
+
+    private Area computeRegion() throws IOException {
+        final int latIndex = getGridPointType().getMemberIndex(SmosFormats.GRID_POINT_LATITUDE_NAME);
+        final int lonIndex = getGridPointType().getMemberIndex(SmosFormats.GRID_POINT_LONGITUDE_NAME);
+        final SequenceData gridPointList = getGridPointList();
+
+        final Area region = new Area();
+
+        for (int i = 0; i < gridPointList.getElementCount(); i++) {
+            final float lon = gridPointList.getCompound(i).getFloat(lonIndex);
+            final float lat = gridPointList.getCompound(i).getFloat(latIndex);
+
+            // todo - normalise longitudes to [-180, 180] (rq-20081218)
+
+            if (!region.contains(lon, lat)) {
+                final float x = Math.max(lon - 6.0f, -180.0f);
+                final float y = Math.max(lat - 6.0f, -90.0f);
+                final float w = Math.min(x + 12.0f, 180.0f) - x;
+                final float h = Math.min(y + 12.0f, 90.0f) - y;
+
+                region.add(new Area(new Rectangle2D.Float(x, y, w, h)));
+            }
+        }
+
+        return region;
     }
 
     private int[] createGridPointIndexes() throws IOException {

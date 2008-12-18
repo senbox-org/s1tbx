@@ -55,11 +55,11 @@ public class L1cScienceSmosFile extends L1cSmosFile {
     public L1cScienceSmosFile(File file, DataFormat format) throws IOException {
         super(file, format);
 
-        flagsIndex = getBtDataType().getMemberIndex(SmosFormats.BT_FLAGS_MEMBER_NAME);
-        incidenceAngleIndex = this.btDataType.getMemberIndex(SmosFormats.BT_INCIDENCE_ANGLE_MEMBER_NAME);
-        snapshotIdIndex = btDataType.getMemberIndex(SmosFormats.BT_SNAPSHOT_ID_MEMBER_NAME);
+        flagsIndex = getBtDataType().getMemberIndex(SmosFormats.BT_FLAGS_NAME);
+        incidenceAngleIndex = this.btDataType.getMemberIndex(SmosFormats.BT_INCIDENCE_ANGLE_NAME);
+        snapshotIdIndex = btDataType.getMemberIndex(SmosFormats.BT_SNAPSHOT_ID_OF_PIXEL_NAME);
 
-        snapshotList = getDataBlock().getSequence(SmosFormats.SNAPSHOT_LIST_MEMBER_NAME);
+        snapshotList = getDataBlock().getSequence(SmosFormats.SNAPSHOT_LIST_NAME);
         if (snapshotList == null) {
             throw new IOException("Data block does not include snapshot list.");
         }
@@ -275,10 +275,10 @@ public class L1cScienceSmosFile extends L1cSmosFile {
                 final SequenceData btDataList = getBtDataList(i);
 
                 if (btDataList.getElementCount() >= 1) {
-                    int minId = getSnapshotId(btDataList, 0);
+                    final int minId = getSnapshotId(btDataList, snapshotIdIndex);
 
                     if (snapshotId >= minId) {
-                        int maxId = getSnapshotId(btDataList, btDataList.getElementCount() - 1);
+                        final int maxId = getSnapshotId(btDataList, btDataList.getElementCount() - 1);
                         if (snapshotId <= maxId) {
                             final float lon = gridPointList.getCompound(i).getFloat(lonIndex);
                             final float lat = gridPointList.getCompound(i).getFloat(latIndex);
