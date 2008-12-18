@@ -25,14 +25,14 @@ import javax.media.jai.UnpackedImageData;
 import java.awt.Rectangle;
 import java.awt.image.*;
 
-public class SmosOpImage extends SingleBandedOpImage {
+class SmosOpImage extends SingleBandedOpImage {
 
     private final GridPointValueProvider valueProvider;
     private final RasterDataNode node;
     private final RenderedImage seqnumImage;
 
-    public SmosOpImage(GridPointValueProvider valueProvider, RasterDataNode node,
-                       RenderedImage seqnumImage, ResolutionLevel level) {
+    SmosOpImage(GridPointValueProvider valueProvider, RasterDataNode node,
+                RenderedImage seqnumImage, ResolutionLevel level) {
         super(ImageManager.getDataBufferType(node.getDataType()),
               node.getSceneRasterWidth(),
               node.getSceneRasterHeight(),

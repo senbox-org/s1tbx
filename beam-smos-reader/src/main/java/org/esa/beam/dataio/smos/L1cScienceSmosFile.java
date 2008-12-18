@@ -35,15 +35,9 @@ import java.util.Arrays;
  */
 public class L1cScienceSmosFile extends L1cSmosFile {
 
-    public static final String BT_INCIDENCE_ANGLE_MEMBER_NAME = "Incidence_Angle";
-    public static final String BT_SNAPSHOT_ID_MEMBER_NAME = "Snapshot_ID_of_Pixel";
-
-    public static final String SNAPSHOT_LIST_MEMBER_NAME = "Snapshot_List";
-    public static final String SNAPSHOT_ID_NAME = "Snapshot_ID";
-
-    public static final float CENTER_INCIDENCE_ANGLE = 42.5f;
-    public static final float MIN_INCIDENCE_ANGLE = 37.5f;
-    public static final float MAX_INCIDENCE_ANGLE = 52.5f;
+    public static final float CENTER_BROWSE_INCIDENCE_ANGLE = 42.5f;
+    public static final float MIN_BROWSE_INCIDENCE_ANGLE = 37.5f;
+    public static final float MAX_BROWSE_INCIDENCE_ANGLE = 52.5f;
     public static final float INCIDENCE_ANGLE_FACTOR = 0.001373291f; // 90.0 / 2^16
 
     private final int flagsIndex;
@@ -61,11 +55,11 @@ public class L1cScienceSmosFile extends L1cSmosFile {
     public L1cScienceSmosFile(File file, DataFormat format) throws IOException {
         super(file, format);
 
-        flagsIndex = getBtDataType().getMemberIndex(BT_FLAGS_MEMBER_NAME);
-        incidenceAngleIndex = this.btDataType.getMemberIndex(BT_INCIDENCE_ANGLE_MEMBER_NAME);
-        snapshotIdIndex = btDataType.getMemberIndex(BT_SNAPSHOT_ID_MEMBER_NAME);
+        flagsIndex = getBtDataType().getMemberIndex(SmosFormats.BT_FLAGS_MEMBER_NAME);
+        incidenceAngleIndex = this.btDataType.getMemberIndex(SmosFormats.BT_INCIDENCE_ANGLE_MEMBER_NAME);
+        snapshotIdIndex = btDataType.getMemberIndex(SmosFormats.BT_SNAPSHOT_ID_MEMBER_NAME);
 
-        snapshotList = getDataBlock().getSequence(SNAPSHOT_LIST_MEMBER_NAME);
+        snapshotList = getDataBlock().getSequence(SmosFormats.SNAPSHOT_LIST_MEMBER_NAME);
         if (snapshotList == null) {
             throw new IOException("Data block does not include snapshot list.");
         }
@@ -177,14 +171,14 @@ public class L1cScienceSmosFile extends L1cSmosFile {
             if (polMode == (flags & 3) || (polMode & flags & 2) != 0) {
                 final float incidenceAngle = INCIDENCE_ANGLE_FACTOR * btData.getInt(incidenceAngleIndex);
 
-                if (incidenceAngle >= MIN_INCIDENCE_ANGLE && incidenceAngle <= MAX_INCIDENCE_ANGLE) {
+                if (incidenceAngle >= MIN_BROWSE_INCIDENCE_ANGLE && incidenceAngle <= MAX_BROWSE_INCIDENCE_ANGLE) {
                     combinedFlags |= flags;
 
                     if (!hasLower) {
-                        hasLower = incidenceAngle <= CENTER_INCIDENCE_ANGLE;
+                        hasLower = incidenceAngle <= CENTER_BROWSE_INCIDENCE_ANGLE;
                     }
                     if (!hasUpper) {
-                        hasUpper = incidenceAngle > CENTER_INCIDENCE_ANGLE;
+                        hasUpper = incidenceAngle > CENTER_BROWSE_INCIDENCE_ANGLE;
                     }
                 }
             }
@@ -217,7 +211,7 @@ public class L1cScienceSmosFile extends L1cSmosFile {
             if (polMode == (flags & 3) || (polMode & flags & 2) != 0) {
                 final float incidenceAngle = INCIDENCE_ANGLE_FACTOR * btData.getInt(incidenceAngleIndex);
 
-                if (incidenceAngle >= MIN_INCIDENCE_ANGLE && incidenceAngle <= MAX_INCIDENCE_ANGLE) {
+                if (incidenceAngle >= MIN_BROWSE_INCIDENCE_ANGLE && incidenceAngle <= MAX_BROWSE_INCIDENCE_ANGLE) {
                     final float btValue = btData.getFloat(fieldIndex);
 
                     sx += incidenceAngle;
@@ -227,10 +221,10 @@ public class L1cScienceSmosFile extends L1cSmosFile {
                     count++;
 
                     if (!hasLower) {
-                        hasLower = incidenceAngle <= CENTER_INCIDENCE_ANGLE;
+                        hasLower = incidenceAngle <= CENTER_BROWSE_INCIDENCE_ANGLE;
                     }
                     if (!hasUpper) {
-                        hasUpper = incidenceAngle > CENTER_INCIDENCE_ANGLE;
+                        hasUpper = incidenceAngle > CENTER_BROWSE_INCIDENCE_ANGLE;
                     }
                 }
             }
@@ -238,7 +232,7 @@ public class L1cScienceSmosFile extends L1cSmosFile {
         if (hasLower && hasUpper) {
             final float a = (count * sxy - sx * sy) / (count * sxx - sx * sx);
             final float b = (sy - a * sx) / count;
-            return a * CENTER_INCIDENCE_ANGLE + b;
+            return a * CENTER_BROWSE_INCIDENCE_ANGLE + b;
         }
 
         return noDataValue;
@@ -311,7 +305,7 @@ public class L1cScienceSmosFile extends L1cSmosFile {
     }
 
     private int[] createSnapshotIndexes() throws IOException {
-        final int snapshotIdIndex = snapshotType.getMemberIndex(SNAPSHOT_ID_NAME);
+        final int snapshotIdIndex = snapshotType.getMemberIndex(SmosFormats.SNAPSHOT_ID_NAME);
 
         int minId = Integer.MAX_VALUE;
         int maxId = Integer.MIN_VALUE;

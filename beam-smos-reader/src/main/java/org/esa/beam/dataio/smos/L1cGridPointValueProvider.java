@@ -16,7 +16,7 @@ package org.esa.beam.dataio.smos;
 
 import java.io.IOException;
 
-public  class L1cGridPointValueProvider implements GridPointValueProvider {
+public class L1cGridPointValueProvider implements GridPointValueProvider {
     private final L1cSmosFile smosFile;
     private final int fieldIndex;
     private final int polarization;

@@ -22,24 +22,24 @@ import junit.framework.TestCase;
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
- * @since BEAM 4.2
+ * @since BEAM 4.6
  */
 public class PolarisationModeAcceptanceTest extends TestCase {
 
     public void testAcceptance() {
-        assertTrue(accept(SmosFile.POL_MODE_X, 0));
-        assertTrue(accept(SmosFile.POL_MODE_Y, 1));
-        assertTrue(accept(SmosFile.POL_MODE_XY1, 2));
-        assertTrue(accept(SmosFile.POL_MODE_XY1, 2));
-        assertTrue(accept(SmosFile.POL_MODE_XY2, 2));
-        assertTrue(accept(SmosFile.POL_MODE_XY2, 3));
+        assertTrue(accept(SmosFormats.L1C_POL_MODE_X, 0));
+        assertTrue(accept(SmosFormats.L1C_POL_MODE_Y, 1));
+        assertTrue(accept(SmosFormats.L1C_POL_MODE_XY1, 2));
+        assertTrue(accept(SmosFormats.L1C_POL_MODE_XY1, 2));
+        assertTrue(accept(SmosFormats.L1C_POL_MODE_XY2, 2));
+        assertTrue(accept(SmosFormats.L1C_POL_MODE_XY2, 3));
 
-        assertFalse(accept(SmosFile.POL_MODE_X, 1));
-        assertFalse(accept(SmosFile.POL_MODE_Y, 0));
-        assertFalse(accept(SmosFile.POL_MODE_XY1, 0));
-        assertFalse(accept(SmosFile.POL_MODE_XY1, 1));
-        assertFalse(accept(SmosFile.POL_MODE_XY2, 0));
-        assertFalse(accept(SmosFile.POL_MODE_XY2, 1));
+        assertFalse(accept(SmosFormats.L1C_POL_MODE_X, 1));
+        assertFalse(accept(SmosFormats.L1C_POL_MODE_Y, 0));
+        assertFalse(accept(SmosFormats.L1C_POL_MODE_XY1, 0));
+        assertFalse(accept(SmosFormats.L1C_POL_MODE_XY1, 1));
+        assertFalse(accept(SmosFormats.L1C_POL_MODE_XY2, 0));
+        assertFalse(accept(SmosFormats.L1C_POL_MODE_XY2, 1));
     }
 
     private boolean accept(int polMode, int flags) {

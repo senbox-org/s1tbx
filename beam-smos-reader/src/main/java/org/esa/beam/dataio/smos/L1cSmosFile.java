@@ -28,8 +28,6 @@ import java.text.MessageFormat;
  * @since BEAM 4.6
  */
 public abstract class L1cSmosFile extends SmosFile {
-    public static final String BT_FLAGS_MEMBER_NAME = "Flags";
-    public static final String BT_DATA_LIST_NAME = "BT_Data_List";
 
     protected final int btDataListIndex;
     protected final CompoundType btDataType;
@@ -37,7 +35,7 @@ public abstract class L1cSmosFile extends SmosFile {
     public L1cSmosFile(File file, DataFormat format) throws IOException {
         super(file, format);
 
-        btDataListIndex = getGridPointType().getMemberIndex(BT_DATA_LIST_NAME);
+        btDataListIndex = getGridPointType().getMemberIndex(SmosFormats.BT_DATA_LIST_NAME);
         if (btDataListIndex == -1) {
             throw new IOException("Grid point type does not include BT data list.");
         }

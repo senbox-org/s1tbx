@@ -22,38 +22,29 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Defines the formats of all supported SMOS product types.
+ * Registry for all supported SMOS product formats.
  */
 public class SmosFormats {
 
-    // todo - externalise (nf - 02.12.2008)
-    public static final class FlagDescriptor {
-        String name;
-        int mask;
-        String description;
+    public static final String GRID_POINT_LIST_NAME = "Grid_Point_List";
+    public static final String GRID_POINT_ID_NAME = "Grid_Point_ID";
+    public static final String BT_FLAGS_MEMBER_NAME = "Flags";
+    public static final String BT_DATA_LIST_NAME = "BT_Data_List";
+    public static final String BT_INCIDENCE_ANGLE_MEMBER_NAME = "Incidence_Angle";
+    public static final String BT_SNAPSHOT_ID_MEMBER_NAME = "Snapshot_ID_of_Pixel";
+    public static final String SNAPSHOT_LIST_MEMBER_NAME = "Snapshot_List";
+    public static final String SNAPSHOT_ID_NAME = "Snapshot_ID";
 
-        public FlagDescriptor(int mask, String name, String description) {
-            this.name = name;
-            this.mask = mask;
-            this.description = description;
-        }
+    public static final int L1C_POL_FLAGS_MASK = 3;
+    public static final int L1C_POL_MODE_X = 0;
+    public static final int L1C_POL_MODE_Y = 1;
+    public static final int L1C_POL_MODE_XY1 = 2;
+    public static final int L1C_POL_MODE_XY2 = 3;
 
-        public String getName() {
-            return name;
-        }
-
-        public int getMask() {
-            return mask;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-    }
-
+    @SuppressWarnings({"PointlessBitwiseExpression"})
     public static final FlagDescriptor[] L1C_FLAGS = {
-//            new FlagDescriptor(1 << 0, "POL_FLAG_1", ""),
-//            new FlagDescriptor(1 << 1, "POL_FLAG_2", ""),
+            new FlagDescriptor(1 << 0, "POL_FLAG_1", ""),
+            new FlagDescriptor(1 << 1, "POL_FLAG_2", ""),
             new FlagDescriptor(1 << 2, "SUN_FOV", ""),
             new FlagDescriptor(1 << 3, "SUN_GLINT_FOV", ""),
             new FlagDescriptor(1 << 4, "MOON_GLINT_FOV", ""),

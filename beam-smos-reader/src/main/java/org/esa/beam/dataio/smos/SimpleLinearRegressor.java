@@ -10,7 +10,7 @@ import java.awt.geom.Point2D;
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public class SimpleLinearRegressor {
+class SimpleLinearRegressor {
 
     final PointFilter pointFilter;
 

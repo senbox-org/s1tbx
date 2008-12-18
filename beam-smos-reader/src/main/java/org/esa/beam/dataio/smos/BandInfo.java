@@ -15,20 +15,37 @@
 package org.esa.beam.dataio.smos;
 
 /**
- * Point filter.
+ * Band info.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-interface PointFilter {
+class BandInfo {
 
-    PointFilter NULL = new PointFilter() {
-        @Override
-        public boolean accept(double x, double y) {
-            return true;
-        }
-    };
+    final String name;
+    final String unit;
 
-    boolean accept(double x, double y);
+    final double scaleOffset;
+    final double scaleFactor;
+    final Number noDataValue;
+    final double min;
+    final double max;
+    final String description;
+
+    BandInfo(String name) {
+        this(name, "", 0.0, 1.0, -999.0, 0.0, 1000.0, "");
+    }
+
+    BandInfo(String name, String unit, double scaleOffset, double scaleFactor, Number noDataValue, double min,
+             double max, String description) {
+        this.name = name;
+        this.unit = unit;
+        this.scaleOffset = scaleOffset;
+        this.scaleFactor = scaleFactor;
+        this.noDataValue = noDataValue;
+        this.min = min;
+        this.max = max;
+        this.description = description;
+    }
 }

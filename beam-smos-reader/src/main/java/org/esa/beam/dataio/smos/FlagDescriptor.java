@@ -15,20 +15,32 @@
 package org.esa.beam.dataio.smos;
 
 /**
- * Point filter.
+ * Descriptor for flags.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-interface PointFilter {
+public final class FlagDescriptor {
+    private final String name;
+    private final int mask;
+    private final String description;
 
-    PointFilter NULL = new PointFilter() {
-        @Override
-        public boolean accept(double x, double y) {
-            return true;
-        }
-    };
+    public FlagDescriptor(int mask, String name, String description) {
+        this.name = name;
+        this.mask = mask;
+        this.description = description;
+    }
 
-    boolean accept(double x, double y);
+    public String getName() {
+        return name;
+    }
+
+    public int getMask() {
+        return mask;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }

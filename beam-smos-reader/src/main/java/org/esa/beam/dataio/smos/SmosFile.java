@@ -17,27 +17,15 @@
 package org.esa.beam.dataio.smos;
 
 
-import com.bc.ceres.binio.CompoundData;
-import com.bc.ceres.binio.CompoundType;
-import com.bc.ceres.binio.DataFormat;
-import com.bc.ceres.binio.SequenceData;
-import com.bc.ceres.binio.DataContext;
+import com.bc.ceres.binio.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.text.MessageFormat;
+import java.util.Arrays;
 
 
 public class SmosFile implements GridPointDataProvider {
-    public static final int POL_MODE_MASK = 0x00000003;
-    public static final int POL_MODE_X = 0;
-    public static final int POL_MODE_Y = 1;
-    public static final int POL_MODE_XY1 = 2;
-    public static final int POL_MODE_XY2 = 3;
-
-    public static final String GRID_POINT_LIST_NAME = "Grid_Point_List";
-    public static final String GRID_POINT_ID_NAME = "Grid_Point_ID";
 
     private final File file;
     private final DataFormat format;
@@ -59,14 +47,14 @@ public class SmosFile implements GridPointDataProvider {
         dataContext = format.createContext(file, "r");
         dataBlock = dataContext.getData();
 
-        gridPointList = dataBlock.getSequence(GRID_POINT_LIST_NAME);
+        gridPointList = dataBlock.getSequence(SmosFormats.GRID_POINT_LIST_NAME);
         if (gridPointList == null) {
             throw new IllegalStateException(MessageFormat.format(
                     "SMOS File ''{0}'': Missing grid point list.", file.getPath()));
         }
 
         gridPointType = (CompoundType) gridPointList.getSequenceType().getElementType();
-        gridPointIdIndex = gridPointType.getMemberIndex(GRID_POINT_ID_NAME);
+        gridPointIdIndex = gridPointType.getMemberIndex(SmosFormats.GRID_POINT_ID_NAME);
         gridPointIndexes = createGridPointIndexes();
     }
 
@@ -102,6 +90,7 @@ public class SmosFile implements GridPointDataProvider {
         return gridPointList;
     }
 
+    @Override
     public int getGridPointIndex(int seqnum) {
         if (seqnum < minSeqnum || seqnum > maxSeqnum) {
             return -1;
@@ -110,10 +99,12 @@ public class SmosFile implements GridPointDataProvider {
         return gridPointIndexes[seqnum - minSeqnum];
     }
 
+    @Override
     public CompoundType getGridPointType() {
         return gridPointType;
     }
 
+    @Override
     public CompoundData getGridPointData(int gridPointIndex) throws IOException {
         return gridPointList.getCompound(gridPointIndex);
     }
