@@ -35,6 +35,7 @@ import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.AbstractButton;
@@ -86,11 +87,16 @@ public class NavigationToolView extends AbstractToolView {
     private AbstractButton zoomAllButton;
     private AbstractButton syncViewsButton;
     private JTextField zoomFactorField;
+    private JTextField rotationAngleField;
     private JSlider zoomSlider;
     private boolean inUpdateMode;
-    private DecimalFormat scaleFormat;
+    private DecimalFormat scaleAndRotationFormat;
 
     private boolean debug;
+
+    private Color zeroRotationAngleBackground;
+    private final Color positiveRotationAngleBackground = new Color(221, 255, 221); //#ddffdd
+    private final Color negativeRotationAngleBackground = new Color(255, 221, 221); //#ffdddd
 
     public NavigationToolView() {
     }
@@ -101,9 +107,9 @@ public class NavigationToolView extends AbstractToolView {
         productNodeChangeHandler = createProductNodeListener();
 
         final DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.ENGLISH);
-        scaleFormat = new DecimalFormat("#####.##", decimalFormatSymbols);
-        scaleFormat.setGroupingUsed(false);
-        scaleFormat.setDecimalSeparatorAlwaysShown(false);
+        scaleAndRotationFormat = new DecimalFormat("#####.##", decimalFormatSymbols);
+        scaleAndRotationFormat.setGroupingUsed(false);
+        scaleAndRotationFormat.setDecimalSeparatorAlwaysShown(false);
 
         zoomInButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomIn24.gif"), false);
         zoomInButton.setToolTipText("Zoom in."); /*I18N*/
@@ -208,6 +214,20 @@ public class NavigationToolView extends AbstractToolView {
             }
         });
 
+        rotationAngleField = new JTextField();
+        rotationAngleField.setColumns(6);
+        rotationAngleField.setHorizontalAlignment(JTextField.CENTER);
+        rotationAngleField.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                handleRotationAngleFieldUserInput();
+            }
+        });
+        rotationAngleField.addFocusListener(new FocusAdapter() {
+            public void focusLost(FocusEvent e) {
+                handleRotationAngleFieldUserInput();
+            }
+        });
+
         zoomSlider = new JSlider(JSlider.HORIZONTAL);
         zoomSlider.setValue(0);
         zoomSlider.setMinimum(MIN_SLIDER_VALUE);
@@ -228,9 +248,14 @@ public class NavigationToolView extends AbstractToolView {
         final JPanel zoomFactorPane = new JPanel(new BorderLayout());
         zoomFactorPane.add(zoomFactorField, BorderLayout.WEST);
 
+        final JPanel rotationAnglePane = new JPanel(new BorderLayout());
+        rotationAnglePane.add(rotationAngleField, BorderLayout.WEST);
+
+
         final JPanel sliderPane = new JPanel(new BorderLayout(2, 2));
         sliderPane.add(zoomFactorPane, BorderLayout.WEST);
         sliderPane.add(zoomSlider, BorderLayout.CENTER);
+        sliderPane.add(rotationAnglePane, BorderLayout.EAST);
 
         canvas = createNavigationCanvas();
         canvas.setBackground(new Color(138, 133, 128)); // image background
@@ -270,10 +295,10 @@ public class NavigationToolView extends AbstractToolView {
     }
 
     public void setCurrentView(final ProductSceneView newView) {
-        final ProductSceneView oldView = currentView;
-        if (oldView != newView) {
+        if (currentView != newView) {
+            final ProductSceneView oldView = currentView;
             if (oldView != null) {
-                currentView.getProduct().removeProductNodeListener(productNodeChangeHandler);
+                oldView.getProduct().removeProductNodeListener(productNodeChangeHandler);
                 if (oldView.getLayerCanvas() != null) {
                     oldView.getLayerCanvas().getModel().removeChangeListener(layerCanvasModelChangeChangeHandler);
                 }
@@ -303,18 +328,41 @@ public class NavigationToolView extends AbstractToolView {
         }
     }
 
-    private Double getZoomFactorFieldValue() {
-        final String text = zoomFactorField.getText();
-        if(text.contains(":")) {
-            return parseTextualValue(text);
-        }else {
-        try {
-            double v = Double.parseDouble(text);
-            return v > 0 ? v : null;
-        } catch (NumberFormatException e) {
-            return null;
+    private void handleRotationAngleFieldUserInput() {
+        final Double ra = getRotationAngleFieldValue();
+        if (ra != null) {
+            updateRotationField(ra);
+            rotate(ra);
         }
     }
+
+    private Double getZoomFactorFieldValue() {
+        final String text = zoomFactorField.getText();
+        if (text.contains(":")) {
+            return parseTextualValue(text);
+        } else {
+            try {
+                double v = Double.parseDouble(text);
+                return v > 0 ? v : null;
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+    }
+
+    private Double getRotationAngleFieldValue() {
+        final String text = rotationAngleField.getText();
+        try {
+            final double v = Double.parseDouble(text);
+            final double max = 360 * 100;
+            final double negMax = max * -1;
+            if (v > max || v < negMax) {
+                return 0.0;
+            }
+            return v;
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
     }
 
     private static Double parseTextualValue(String text) {
@@ -359,6 +407,14 @@ public class NavigationToolView extends AbstractToolView {
         final ProductSceneView view = getCurrentView();
         if (view != null) {
             view.getLayerCanvas().getViewport().setZoomFactor(zoomFactor);
+            maybeSynchronizeCompatibleProductViews();
+        }
+    }
+
+    private void rotate(Double rotationAngle) {
+        final ProductSceneView view = getCurrentView();
+        if (view != null) {
+            view.getLayerCanvas().getViewport().setOrientation(rotationAngle * MathUtils.DTOR);
             maybeSynchronizeCompatibleProductViews();
         }
     }
@@ -456,6 +512,7 @@ public class NavigationToolView extends AbstractToolView {
         zoomSlider.setEnabled(canNavigate);
         syncViewsButton.setEnabled(canNavigate);
         zoomFactorField.setEnabled(canNavigate);
+        rotationAngleField.setEnabled(canNavigate);
         updateTitle();
         updateValues();
     }
@@ -485,6 +542,8 @@ public class NavigationToolView extends AbstractToolView {
             updateZoomSlider(zf);
             updateScaleField(zf);
 
+            updateRotationField(view.getOrientation() * MathUtils.RTOD);
+
             inUpdateMode = oldState;
         }
     }
@@ -497,13 +556,34 @@ public class NavigationToolView extends AbstractToolView {
     private void updateScaleField(double zf) {
         String text;
         if (zf > 1.0) {
-            text = scaleFormat.format(roundScale(zf)) + " : 1";
+            text = scaleAndRotationFormat.format(roundScale(zf)) + " : 1";
         } else if (zf < 1.0) {
-            text = "1 : " + scaleFormat.format(roundScale(1.0 / zf));
+            text = "1 : " + scaleAndRotationFormat.format(roundScale(1.0 / zf));
         } else {
             text = "1 : 1";
         }
         zoomFactorField.setText(text);
+    }
+
+    private void updateRotationField(Double ra) {
+        while (ra > 180) {
+            ra = ra -360;
+        }
+        while (ra < -180) {
+            ra = ra + 360;
+        }
+        rotationAngleField.setText(scaleAndRotationFormat.format(ra));
+        if (zeroRotationAngleBackground == null) {
+            zeroRotationAngleBackground = rotationAngleField.getBackground();
+        }
+        if (ra > 0) {
+            rotationAngleField.setBackground(positiveRotationAngleBackground);
+        } else if (ra <0) {
+            rotationAngleField.setBackground(negativeRotationAngleBackground);
+        } else {
+            rotationAngleField.setBackground(zeroRotationAngleBackground);
+        }
+
     }
 
     private static double roundScale(double x) {
