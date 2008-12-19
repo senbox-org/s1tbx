@@ -13,7 +13,7 @@ public class SmosMultiLevelSource extends AbstractMultiLevelSource {
     private final GridPointValueProvider valueProvider;
     private final MultiLevelSource dggridMultiLevelSource;
     private final RasterDataNode node;
-    private final Area modelRegion;
+    private Area modelRegion;
 
     public SmosMultiLevelSource(GridPointValueProvider valueProvider, MultiLevelSource dggridMultiLevelSource,
                                 RasterDataNode node, Area modelRegion) {
@@ -27,6 +27,10 @@ public class SmosMultiLevelSource extends AbstractMultiLevelSource {
 
     public GridPointValueProvider getValueProvider() {
         return valueProvider;
+    }
+
+    public synchronized void setModelRegion(Area modelRegion) {
+        this.modelRegion = modelRegion;
     }
 
     @Override

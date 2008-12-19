@@ -275,7 +275,7 @@ public class L1cScienceSmosFile extends L1cSmosFile {
                 final SequenceData btDataList = getBtDataList(i);
 
                 if (btDataList.getElementCount() >= 1) {
-                    final int minId = getSnapshotId(btDataList, snapshotIdIndex);
+                    final int minId = getSnapshotId(btDataList, 0);
 
                     if (snapshotId >= minId) {
                         final int maxId = getSnapshotId(btDataList, btDataList.getElementCount() - 1);

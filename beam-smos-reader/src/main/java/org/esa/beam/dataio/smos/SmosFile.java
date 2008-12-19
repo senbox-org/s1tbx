@@ -126,21 +126,42 @@ public class SmosFile implements GridPointDataProvider {
         final int lonIndex = getGridPointType().getMemberIndex(SmosFormats.GRID_POINT_LONGITUDE_NAME);
         final SequenceData gridPointList = getGridPointList();
 
+        final Rectangle2D[] tileRects = new Rectangle2D[512];
+        for (int i = 0; i < 32; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                tileRects[i * 16 + j] = createTileRect(i, j);
+            }
+        }
+
         final Area region = new Area();
 
         for (int i = 0; i < gridPointList.getElementCount(); i++) {
-            final float lon = gridPointList.getCompound(i).getFloat(lonIndex);
-            final float lat = gridPointList.getCompound(i).getFloat(latIndex);
+            double lon = gridPointList.getCompound(i).getFloat(lonIndex);
+            double lat = gridPointList.getCompound(i).getFloat(latIndex);
 
-            // todo - normalise longitudes to [-180, 180] (rq-20081218)
+            // normalisation to [-180, 180] necessary for some L1c test products
+            if (lon > 180.0) {
+                lon = lon - 360.0;
+            }
+            final double hw = 0.02;
+            final double hh = 0.02;
 
-            if (!region.contains(lon, lat)) {
-                final float x = Math.max(lon - 6.0f, -180.0f);
-                final float y = Math.max(lat - 6.0f, -90.0f);
-                final float w = Math.min(x + 12.0f, 180.0f) - x;
-                final float h = Math.min(y + 12.0f, 90.0f) - y;
+            final double x = lon - hw;
+            final double y = lat - hh;
+            final double w = 0.04;
+            final double h = 0.04;
 
-                region.add(new Area(new Rectangle2D.Float(x, y, w, h)));
+            if (!region.contains(x, y, w, h)) {
+                for (Rectangle2D tileRect : tileRects) {
+                    if (!region.contains(tileRect)) {
+                        if (tileRect.intersects(x, y, w, h)) {
+                            region.add(new Area(tileRect));
+                            if (region.contains(x, y, w, h)) {
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -186,5 +207,14 @@ public class SmosFile implements GridPointDataProvider {
         System.out.println("SmosFile: number of gridPointIndexes != -1: " + indexCount);
 
         return gridPointIndexes;
+    }
+
+    private static Rectangle2D createTileRect(int i, int j) {
+        final double w = 11.25;
+        final double h = 11.25;
+        final double x = w * i - 180.0;
+        final double y = 90.0 - h * j;
+
+        return new Rectangle2D.Double(x, y, w, w);
     }
 }

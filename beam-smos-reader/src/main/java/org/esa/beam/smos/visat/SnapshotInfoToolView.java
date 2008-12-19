@@ -34,6 +34,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Area;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 
@@ -247,6 +248,15 @@ public class SnapshotInfoToolView extends SmosToolView {
                     int id = snapshotModeButton.isSelected() ? getSelectedSnapshotId() : -1;
                     if (l1cFieldValueProvider.getSnapshotId() != id) {
                         l1cFieldValueProvider.setSnapshotId(id);
+                        try {
+                            final Rectangle2D modelRegion = ((L1cScienceSmosFile) getSelectedSmosFile()).computeSnapshotRegion(
+                                    id, ProgressMonitor.NULL);
+                            if (modelRegion != null) {
+                                smosMultiLevelSource.setModelRegion(new Area(modelRegion));
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         smosMultiLevelSource.reset();
                         sceneView.getRaster().setValidMaskImage(null);
                         sceneView.getRaster().setGeophysicalImage(null);
@@ -280,6 +290,7 @@ public class SnapshotInfoToolView extends SmosToolView {
             final L1cScienceSmosFile l1cScienceSmosFile = (L1cScienceSmosFile) file;
 
             ProgressMonitorSwingWorker<Rectangle2D, Object> pmsw = new ProgressMonitorSwingWorker<Rectangle2D, Object>(locateSnapshotButton, "Computing snapshot region") {
+                @Override
                 protected Rectangle2D doInBackground(ProgressMonitor pm) throws Exception {
                     return l1cScienceSmosFile.computeSnapshotRegion(getSelectedSnapshotId(), pm);
                 }
