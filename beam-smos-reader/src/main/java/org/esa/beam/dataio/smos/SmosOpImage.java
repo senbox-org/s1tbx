@@ -25,6 +25,7 @@ import javax.media.jai.UnpackedImageData;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.image.*;
+import java.util.Arrays;
 
 class SmosOpImage extends SingleBandedOpImage {
 
@@ -59,8 +60,29 @@ class SmosOpImage extends SingleBandedOpImage {
 
     @Override
     protected final void computeRect(PlanarImage[] planarImages, WritableRaster targetRaster, Rectangle rectangle) {
-        if (!rectifiedRegion.intersects(rectangle)) {
-            return;
+        final double noDataValue = node.getNoDataValue();
+
+        final int x = rectangle.x;
+        final int y = rectangle.y;
+        final int w = rectangle.width;
+        final int h = rectangle.height;
+
+        if (!rectifiedRegion.intersects(x, y, w, h)) {
+            switch (targetRaster.getTransferType()) {
+                case DataBuffer.TYPE_SHORT:
+                case DataBuffer.TYPE_USHORT:
+                    targetRaster.setDataElements(x, y, w, h, createArray(w, h, (short) noDataValue));
+                    return;
+                case DataBuffer.TYPE_INT:
+                    targetRaster.setDataElements(x, y, w, h, createArray(w, h, (int) noDataValue));
+                    return;
+                case DataBuffer.TYPE_FLOAT:
+                    targetRaster.setDataElements(x, y, w, h, createArray(w, h, (float) noDataValue));
+                    return;
+                default:
+                    // do nothing
+                    return;
+            }
         }
 
         final Raster seqnumRaster = seqnumImage.getData(rectangle);
@@ -77,13 +99,13 @@ class SmosOpImage extends SingleBandedOpImage {
         switch (targetData.type) {
             case DataBuffer.TYPE_SHORT:
             case DataBuffer.TYPE_USHORT:
-                shortLoop(seqnumData, targetData, (short) node.getNoDataValue());
+                shortLoop(seqnumData, targetData, (short) noDataValue);
                 break;
             case DataBuffer.TYPE_INT:
-                intLoop(seqnumData, targetData, (int) node.getNoDataValue());
+                intLoop(seqnumData, targetData, (int) noDataValue);
                 break;
             case DataBuffer.TYPE_FLOAT:
-                floatLoop(seqnumData, targetData, (float) node.getNoDataValue());
+                floatLoop(seqnumData, targetData, (float) noDataValue);
                 break;
             default:
                 // do nothing
@@ -91,6 +113,27 @@ class SmosOpImage extends SingleBandedOpImage {
         }
 
         targetAccessor.setPixels(targetData);
+    }
+
+    private static short[] createArray(int w, int h, short value) {
+        final short[] array = new short[w * h];
+        Arrays.fill(array, value);
+
+        return array;
+    }
+
+    private static int[] createArray(int w, int h, int value) {
+        final int[] array = new int[w * h];
+        Arrays.fill(array, value);
+
+        return array;
+    }
+
+    private static float[] createArray(int w, int h, float value) {
+        final float[] array = new float[w * h];
+        Arrays.fill(array, value);
+
+        return array;
     }
 
     private void shortLoop(UnpackedImageData seqnumData, UnpackedImageData targetData, short noDataValue) {

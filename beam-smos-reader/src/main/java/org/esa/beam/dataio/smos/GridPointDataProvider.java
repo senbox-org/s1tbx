@@ -6,8 +6,11 @@ import com.bc.ceres.binio.CompoundData;
 import com.bc.ceres.binio.Type;
 
 import java.io.IOException;
+import java.awt.geom.Area;
 
 public interface GridPointDataProvider {
+
+    Area getRegion();
     
     int getGridPointIndex(int seqnum);
 

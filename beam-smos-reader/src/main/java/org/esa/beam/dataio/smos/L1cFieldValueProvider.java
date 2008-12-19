@@ -14,6 +14,10 @@
  */
 package org.esa.beam.dataio.smos;
 
+import com.bc.ceres.core.ProgressMonitor;
+
+import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
 public class L1cFieldValueProvider implements GridPointValueProvider {
@@ -35,6 +39,22 @@ public class L1cFieldValueProvider implements GridPointValueProvider {
 
     public void setSnapshotId(int snapshotId) {
         this.snapshotId = snapshotId;
+    }
+
+    @Override
+    public Area getRegion() {
+        if (smosFile instanceof L1cScienceSmosFile && snapshotId != -1) {
+            try {
+                final Rectangle2D rect = ((L1cScienceSmosFile) smosFile).computeSnapshotRegion(snapshotId,
+                                                                                               ProgressMonitor.NULL);
+                return new Area(rect);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        } else {
+            return smosFile.getRegion();
+        }
     }
 
     @Override

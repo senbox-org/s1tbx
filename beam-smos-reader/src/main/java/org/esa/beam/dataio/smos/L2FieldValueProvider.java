@@ -15,6 +15,7 @@
 package org.esa.beam.dataio.smos;
 
 import java.io.IOException;
+import java.awt.geom.Area;
 
 /**
  * Provides the value of a certain field in the grid point data record.
@@ -31,6 +32,11 @@ public class L2FieldValueProvider implements GridPointValueProvider {
     protected L2FieldValueProvider(GridPointDataProvider provider, int fieldIndex) {
         this.provider = provider;
         this.fieldIndex = fieldIndex;
+    }
+
+    @Override
+    public Area getRegion() {
+        return provider.getRegion();
     }
 
     @Override

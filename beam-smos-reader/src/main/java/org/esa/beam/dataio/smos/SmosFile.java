@@ -113,6 +113,7 @@ public class SmosFile implements GridPointDataProvider {
         return gridPointList.getCompound(gridPointIndex);
     }
 
+    @Override
     public Area getRegion() {
         return region;
     }

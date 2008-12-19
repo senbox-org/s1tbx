@@ -248,15 +248,6 @@ public class SnapshotInfoToolView extends SmosToolView {
                     int id = snapshotModeButton.isSelected() ? getSelectedSnapshotId() : -1;
                     if (l1cFieldValueProvider.getSnapshotId() != id) {
                         l1cFieldValueProvider.setSnapshotId(id);
-                        try {
-                            final Rectangle2D modelRegion = ((L1cScienceSmosFile) getSelectedSmosFile()).computeSnapshotRegion(
-                                    id, ProgressMonitor.NULL);
-                            if (modelRegion != null) {
-                                smosMultiLevelSource.setModelRegion(new Area(modelRegion));
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
                         smosMultiLevelSource.reset();
                         sceneView.getRaster().setValidMaskImage(null);
                         sceneView.getRaster().setGeophysicalImage(null);

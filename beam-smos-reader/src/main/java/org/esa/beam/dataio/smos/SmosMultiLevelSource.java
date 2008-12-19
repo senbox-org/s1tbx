@@ -13,28 +13,23 @@ public class SmosMultiLevelSource extends AbstractMultiLevelSource {
     private final GridPointValueProvider valueProvider;
     private final MultiLevelSource dggridMultiLevelSource;
     private final RasterDataNode node;
-    private Area modelRegion;
 
     public SmosMultiLevelSource(GridPointValueProvider valueProvider, MultiLevelSource dggridMultiLevelSource,
-                                RasterDataNode node, Area modelRegion) {
+                                RasterDataNode node) {
         super(dggridMultiLevelSource.getModel());
 
         this.valueProvider = valueProvider;
         this.dggridMultiLevelSource = dggridMultiLevelSource;
         this.node = node;
-        this.modelRegion = modelRegion;
     }
 
     public GridPointValueProvider getValueProvider() {
         return valueProvider;
     }
 
-    public synchronized void setModelRegion(Area modelRegion) {
-        this.modelRegion = modelRegion;
-    }
-
     @Override
     public RenderedImage createImage(int level) {
+        final Area modelRegion = valueProvider.getRegion();
         final Area levelRegion = modelRegion.createTransformedArea(getModel().getModelToImageTransform(level));
   
         return new SmosOpImage(valueProvider, node, dggridMultiLevelSource.getImage(level),

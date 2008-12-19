@@ -14,6 +14,8 @@
  */
 package org.esa.beam.dataio.smos;
 
+import java.awt.geom.Area;
+
 /**
  * todo - add API doc
 *
@@ -23,6 +25,8 @@ package org.esa.beam.dataio.smos;
 */
 public interface GridPointValueProvider {
 
+    Area getRegion();
+    
     int getGridPointIndex(int seqnum);
 
     short getValue(int gridPointIndex, short noDataValue);

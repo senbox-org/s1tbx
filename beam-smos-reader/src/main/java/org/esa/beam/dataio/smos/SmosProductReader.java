@@ -423,7 +423,7 @@ public class SmosProductReader extends AbstractProductReader {
     }
 
     private MultiLevelImage createSourceImage(GridPointValueProvider valueProvider, Band band) {
-        return new DefaultMultiLevelImage(new SmosMultiLevelSource(valueProvider, dggridMultiLevelImage, band, smosFile.getRegion()));
+        return new DefaultMultiLevelImage(new SmosMultiLevelSource(valueProvider, dggridMultiLevelImage, band));
     }
 
     private static ImageInfo createDefaultImageInfo(BandInfo bandInfo) {

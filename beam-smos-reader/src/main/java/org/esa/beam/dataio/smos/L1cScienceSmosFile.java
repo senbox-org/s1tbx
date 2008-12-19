@@ -48,8 +48,8 @@ public class L1cScienceSmosFile extends L1cSmosFile {
 
     private final CompoundType snapshotType;
     private final int[] snapshotIndexes;
-    private int snapshotIdMin;
 
+    private int snapshotIdMin;
     private int snapshotIdMax;
 
     public L1cScienceSmosFile(File file, DataFormat format) throws IOException {
