@@ -34,6 +34,17 @@
         <url>https://www.brockmann-consult.de/svn/os/ceres/trunc</url>
     </scm>
 
+    <repositories>
+        <repository>
+            <id>bc-public</id>
+            <name>Public Maven Repository at Brockmann-Consult</name>
+            <url>http://www.brockmann-consult.de/mvn/os</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <licenses>
         <license>
             <name>GNU General Public License (GPL)</name>
