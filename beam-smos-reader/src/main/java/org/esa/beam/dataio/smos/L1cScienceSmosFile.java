@@ -134,15 +134,14 @@ public class L1cScienceSmosFile extends L1cSmosFile {
         final SequenceData btDataList = getBtDataList(gridPointIndex);
         final int elementCount = btDataList.getElementCount();
 
-        CompoundData btData;
-//        CompoundData btData = btDataList.getCompound(0);
-//        if (btData.getInt(snapshotIdIndex) > snapshotId) {
-//            return null;
-//        }
-//        btData = btDataList.getCompound(elementCount - 1);
-//        if (btData.getInt(snapshotIdIndex) < snapshotId) {
-//            return null;
-//        }
+        CompoundData btData = btDataList.getCompound(0);
+        if (btData.getInt(snapshotIdIndex) > snapshotId) {
+            return null;
+        }
+        btData = btDataList.getCompound(elementCount - 1);
+        if (btData.getInt(snapshotIdIndex) < snapshotId) {
+            return null;
+        }
         for (int i = 0; i < elementCount; ++i) {
             btData = btDataList.getCompound(i);
             if (btData.getInt(snapshotIdIndex) == snapshotId) {
@@ -353,7 +352,7 @@ public class L1cScienceSmosFile extends L1cSmosFile {
         }
 
         // todo - user logger or remove (rq-20081205)
-        System.out.println("SmosFile: number of valid snapshotIndexes = " + n);
+        System.out.println("SmosFile: number of snapshotIndexes != -1:" + n);
 
         snapshotIdMin = minId;
         snapshotIdMax = maxId;
