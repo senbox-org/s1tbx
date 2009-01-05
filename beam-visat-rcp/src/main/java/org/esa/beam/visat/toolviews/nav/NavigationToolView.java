@@ -21,6 +21,7 @@ import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glayer.swing.LayerCanvasModel;
 import com.bc.ceres.grender.AdjustableView;
 import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.binding.swing.internal.SpinnerAdapter;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
@@ -38,14 +39,7 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
-import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameAdapter;
@@ -61,6 +55,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import static java.lang.Math.*;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -97,6 +92,7 @@ public class NavigationToolView extends AbstractToolView {
     private Color zeroRotationAngleBackground;
     private final Color positiveRotationAngleBackground = new Color(221, 255, 221); //#ddffdd
     private final Color negativeRotationAngleBackground = new Color(255, 221, 221); //#ffdddd
+    private JSpinner rotationAngleSpinner;
 
     public NavigationToolView() {
     }
@@ -214,8 +210,11 @@ public class NavigationToolView extends AbstractToolView {
             }
         });
 
-        rotationAngleField = new JTextField();
+        rotationAngleSpinner = new JSpinner(new SpinnerNumberModel(0.0, -1800.0, 1800.0, 5.0));
+        final JSpinner.NumberEditor editor = (JSpinner.NumberEditor) rotationAngleSpinner.getEditor();
+        rotationAngleField = editor.getTextField();
         rotationAngleField.setColumns(6);
+        rotationAngleField.setEditable(false);
         rotationAngleField.setHorizontalAlignment(JTextField.CENTER);
         rotationAngleField.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -224,6 +223,12 @@ public class NavigationToolView extends AbstractToolView {
         });
         rotationAngleField.addFocusListener(new FocusAdapter() {
             public void focusLost(FocusEvent e) {
+                handleRotationAngleFieldUserInput();
+            }
+        });
+        rotationAngleField.addPropertyChangeListener("value", new PropertyChangeListener() {
+
+            public void propertyChange(PropertyChangeEvent evt) {
                 handleRotationAngleFieldUserInput();
             }
         });
@@ -249,7 +254,8 @@ public class NavigationToolView extends AbstractToolView {
         zoomFactorPane.add(zoomFactorField, BorderLayout.WEST);
 
         final JPanel rotationAnglePane = new JPanel(new BorderLayout());
-        rotationAnglePane.add(rotationAngleField, BorderLayout.WEST);
+        rotationAnglePane.add(rotationAngleSpinner, BorderLayout.EAST);
+        rotationAnglePane.add(new JLabel(" "), BorderLayout.CENTER);
 
 
         final JPanel sliderPane = new JPanel(new BorderLayout(2, 2));
@@ -329,11 +335,9 @@ public class NavigationToolView extends AbstractToolView {
     }
 
     private void handleRotationAngleFieldUserInput() {
-        final Double ra = getRotationAngleFieldValue();
-        if (ra != null) {
-            updateRotationField(ra);
-            rotate(ra);
-        }
+        final Double ra = Math.round(getRotationAngleFieldValue() / 5) * 5.0;
+        updateRotationField(ra);
+        rotate(ra);
     }
 
     private Double getZoomFactorFieldValue() {
@@ -351,7 +355,12 @@ public class NavigationToolView extends AbstractToolView {
     }
 
     private Double getRotationAngleFieldValue() {
-        final String text = rotationAngleField.getText();
+        String text = rotationAngleField.getText();
+        if (text != null) {
+            while (text.endsWith("°")) {
+                text = text.substring(0,text.length()-1);
+            }
+        }
         try {
             final double v = Double.parseDouble(text);
             final double max = 360 * 100;
@@ -512,7 +521,7 @@ public class NavigationToolView extends AbstractToolView {
         zoomSlider.setEnabled(canNavigate);
         syncViewsButton.setEnabled(canNavigate);
         zoomFactorField.setEnabled(canNavigate);
-        rotationAngleField.setEnabled(canNavigate);
+        rotationAngleSpinner.setEnabled(canNavigate);
         updateTitle();
         updateValues();
     }
@@ -572,7 +581,7 @@ public class NavigationToolView extends AbstractToolView {
         while (ra < -180) {
             ra = ra + 360;
         }
-        rotationAngleField.setText(scaleAndRotationFormat.format(ra));
+        rotationAngleField.setText(scaleAndRotationFormat.format(ra) + "°");
         if (zeroRotationAngleBackground == null) {
             zeroRotationAngleBackground = rotationAngleField.getBackground();
         }
