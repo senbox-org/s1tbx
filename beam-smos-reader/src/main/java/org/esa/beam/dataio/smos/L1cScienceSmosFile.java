@@ -134,14 +134,15 @@ public class L1cScienceSmosFile extends L1cSmosFile {
         final SequenceData btDataList = getBtDataList(gridPointIndex);
         final int elementCount = btDataList.getElementCount();
 
-        CompoundData btData = btDataList.getCompound(0);
-        if (btData.getInt(snapshotIdIndex) > snapshotId) {
-            return null;
-        }
-        btData = btDataList.getCompound(elementCount - 1);
-        if (btData.getInt(snapshotIdIndex) < snapshotId) {
-            return null;
-        }
+        CompoundData btData;
+//        CompoundData btData = btDataList.getCompound(0);
+//        if (btData.getInt(snapshotIdIndex) > snapshotId) {
+//            return null;
+//        }
+//        btData = btDataList.getCompound(elementCount - 1);
+//        if (btData.getInt(snapshotIdIndex) < snapshotId) {
+//            return null;
+//        }
         for (int i = 0; i < elementCount; ++i) {
             btData = btDataList.getCompound(i);
             if (btData.getInt(snapshotIdIndex) == snapshotId) {
@@ -291,6 +292,9 @@ public class L1cScienceSmosFile extends L1cSmosFile {
                     }
                 }
                 pm.worked(1);
+            }
+            if (region == null) {
+                region = new Rectangle2D.Float(-180.0f, -90.0f, 360.0f, 180.0f);
             }
         } finally {
             pm.done();
