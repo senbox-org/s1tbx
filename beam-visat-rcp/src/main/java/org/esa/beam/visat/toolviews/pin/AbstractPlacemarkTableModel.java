@@ -42,7 +42,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
     public Pin getPlacemarkAt(int i) {
         return placemarkList.get(i);
     }
-    
+
     public PlacemarkDescriptor getPlacemarkDescriptor() {
         return placemarkDescriptor;
     }
@@ -156,7 +156,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         if (columnIndex >= 0 && columnIndex < getStandardColumnNames().length - 1) {
             return Float.class;
         }
-        return String.class;
+        return Object.class;
     }
 
     @Override
@@ -187,7 +187,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
                         float[] value = null;
                         try {
                             value = band.readPixels(x, y, 1, 1, value, ProgressMonitor.NULL);
-                            return String.valueOf(value[0]);
+                            return value[0];
                         } catch (IOException e) {
                             return "I/O-error";
                         }
@@ -201,7 +201,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
                     float[] value = null;
                     try {
                         value = grid.readPixels(x, y, 1, 1, value, ProgressMonitor.NULL);
-                        return String.valueOf(value[0]);
+                        return value[0];
                     } catch (IOException e) {
                         return "I/O-error";
                     }

@@ -129,7 +129,6 @@ class PlacemarkManagerToolView extends AbstractToolView {
         placemarkTable.setModel(currentTableModel);
         placemarkTable.setDefaultRenderer(Float.class, new FloatTableCellRenderer(new DecimalFormat("0.000")));
         placemarkTable.getSelectionModel().addListSelectionListener(new PlacemarkTableSelectionListener());
-
         updateTableModel();
 
         final TableColumnModel columnModel = placemarkTable.getColumnModel();
