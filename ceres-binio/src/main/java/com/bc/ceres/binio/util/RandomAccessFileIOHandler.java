@@ -26,4 +26,10 @@ public class RandomAccessFileIOHandler implements IOHandler {
             raf.write(data);
         }
     }
+    
+    public long getMaxPosition() throws IOException {
+        synchronized (raf) {
+            return raf.length();
+        }
+    }
 }

@@ -45,6 +45,12 @@ public class MappedFileChannelIOHandler implements IOHandler {
     public void write(DataContext context, byte[] data, long position) throws IOException {
         throw new RuntimeException("not implemented");
     }
+    
+    public long getMaxPosition() throws IOException {
+        synchronized (this) {
+            return channel.size();
+        }
+    }
 
     private void seek(long pos) throws IOException {
         streamPos = pos;

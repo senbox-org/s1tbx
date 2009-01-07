@@ -2,8 +2,6 @@ package com.bc.ceres.binio;
 
 import java.io.IOException;
 
-// todo: check - need getMaxPosition()? See also "todo" in Segment.makeDataAccessible()
-
 /**
  * Provides the mechanism to read and write byte data at a specified position
  * within a random access data file, stream or memory buffer.
@@ -13,7 +11,7 @@ public interface IOHandler {
     /**
      * Reads a sequence of up to {@code data.length} bytes into the
      * given array starting from the the given position. If the position
-     * is greater than the file's current size then no bytes are read.</p>
+     * is greater than the file's current size then no bytes are read.
      * <p/>
      * A read operation might not fill the array, and in fact it might not
      * read any bytes at all.  Whether or not it does so, depends upon the
@@ -29,7 +27,7 @@ public interface IOHandler {
     void read(DataContext context, byte[] data, long position) throws IOException;
 
     /**
-     * <p> Writes a sequence of up to {@code data.length} bytes to the file,
+     * Writes a sequence of up to {@code data.length} bytes to the file,
      * starting at the given position. If the given
      * position is greater than the file's current size then the file will be
      * grown to accommodate the new bytes; the values of any bytes between the
@@ -42,4 +40,14 @@ public interface IOHandler {
      * @throws IOException If an I/O error occurs.
      */
     void write(DataContext context, byte[] data, long position) throws IOException;
+    
+    /**
+     * Returns the current size of the backing file, array or stream.
+     * <p/>This value may change, while writing to a growing file or array.
+     * If the value is unknown {@code -1} will be returned.
+     * 
+     * @return Te maximum position.
+     * @throws IOException If an I/O error occurs.
+     */
+    long getMaxPosition() throws IOException;
 }

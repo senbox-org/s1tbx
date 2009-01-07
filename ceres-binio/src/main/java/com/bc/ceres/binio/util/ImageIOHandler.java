@@ -37,4 +37,10 @@ public class ImageIOHandler implements IOHandler {
             imageOutputStream.write(data);
         }
     }
+    
+    public long getMaxPosition() throws IOException {
+        synchronized (imageOutputStream) {
+            return imageInputStream.length();
+        }
+    }
 }

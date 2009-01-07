@@ -25,4 +25,10 @@ public class FileChannelIOHandler implements IOHandler {
             fileChannel.write(ByteBuffer.wrap(data), position);
         }
     }
+    
+    public long getMaxPosition() throws IOException {
+        synchronized (fileChannel) {
+            return fileChannel.size();
+        }
+    }
 }

@@ -23,4 +23,8 @@ public abstract class FilterIOHandler implements IOHandler {
     public void write(DataContext context, byte[] data, long position) throws IOException {
         delegate.write(context, data, position);
     }
+    
+    public long getMaxPosition() throws IOException {
+        return delegate.getMaxPosition();
+    }
 }

@@ -49,6 +49,10 @@ public class ByteArrayIOHandler implements IOHandler {
         System.arraycopy(data, 0, byteArray, pos, n);
         size = pos + n;
     }
+    
+    public long getMaxPosition() {
+        return size;
+    }
 
     private void ensureCapacity(int newSize) {
         if (byteArray.length < newSize) {
