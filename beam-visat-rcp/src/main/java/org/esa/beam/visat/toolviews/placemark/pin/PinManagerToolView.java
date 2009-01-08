@@ -14,9 +14,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.visat.toolviews.pin;
+package org.esa.beam.visat.toolviews.placemark.pin;
 
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.visat.toolviews.placemark.PlacemarkManagerToolView;
+import org.esa.beam.visat.toolviews.placemark.TableModelFactory;
 
 /**
  * A dialog used to manage the list of pins associated with a selected product.

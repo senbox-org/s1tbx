@@ -1,7 +1,7 @@
 package org.esa.beam.visat.toolviews.spectrum;
 
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.diagram.DefaultDiagramGraphStyle;
 import org.esa.beam.framework.ui.diagram.Diagram;
@@ -33,10 +33,10 @@ class SpectraDiagram extends Diagram {
         return getSpectrumGraph(null);
     }
 
-    public SpectrumGraph getSpectrumGraph(Pin pin) {
+    public SpectrumGraph getSpectrumGraph(Placemark placemark) {
         for (DiagramGraph graph : getGraphs()) {
             SpectrumGraph spectrumGraph = (SpectrumGraph) graph;
-            if (spectrumGraph.getPin() == pin) {
+            if (spectrumGraph.getPlacemark() == placemark) {
                 return spectrumGraph;
             }
         }
@@ -50,17 +50,17 @@ class SpectraDiagram extends Diagram {
         }
     }
 
-    public void addSpectrumGraph(Pin pin) {
-        SpectrumGraph spectrumGraph = new SpectrumGraph(pin, getBands());
+    public void addSpectrumGraph(Placemark placemark) {
+        SpectrumGraph spectrumGraph = new SpectrumGraph(placemark, getBands());
         DefaultDiagramGraphStyle style = (DefaultDiagramGraphStyle) spectrumGraph.getStyle();
-        if (pin != null) {
-            Paint fillPaint = pin.getSymbol().getFillPaint();
+        if (placemark != null) {
+            Paint fillPaint = placemark.getSymbol().getFillPaint();
             if (fillPaint instanceof Color) {
                 style.setOutlineColor(((Color) fillPaint).darker());
             } else {
-                style.setOutlineColor(pin.getSymbol().getOutlineColor());
+                style.setOutlineColor(placemark.getSymbol().getOutlineColor());
             }
-            style.setOutlineStroke(pin.getSymbol().getOutlineStroke());
+            style.setOutlineStroke(placemark.getSymbol().getOutlineStroke());
             style.setFillPaint(fillPaint);
         } else {
             style.setOutlineColor(Color.BLACK);

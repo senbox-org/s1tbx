@@ -1,5 +1,5 @@
 /*
- * $Id: PinDialog.java,v 1.1 2007/04/19 10:41:38 norman Exp $
+ * $Id: PlacemarkDialog.java,v 1.1 2007/04/19 10:41:38 norman Exp $
  *
  * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
  *
@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.visat.toolviews.pin;
+package org.esa.beam.visat.toolviews.placemark;
 
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.param.ParamChangeEvent;
@@ -32,9 +32,9 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 
 /**
- * A dialog used to create new pins or edit existing pins.
+ * A dialog used to create new placemarks or edit existing placemarks.
  */
-public class PinDialog extends ModalDialog {
+public class PlacemarkDialog extends ModalDialog {
 
     private final Product product;
     private Parameter paramName;
@@ -45,7 +45,7 @@ public class PinDialog extends ModalDialog {
     private Parameter paramPixelX;
     private Parameter paramPixelY;
     private Parameter paramDescription;
-    private PinSymbol symbol;
+    private PlacemarkSymbol symbol;
     private JLabel symbolLabel;
     private Parameter paramColorOutline;
     private Parameter paramColorFill;
@@ -58,13 +58,13 @@ public class PinDialog extends ModalDialog {
 
 
     /**
-     * @deprecated in 4.1, use {@link #PinDialog(Window,Product,PlacemarkDescriptor,boolean)} instead
+     * @deprecated in 4.1, use {@link #PlacemarkDialog(Window,Product,PlacemarkDescriptor,boolean)} instead
      */
-    public PinDialog(final Window parent, final Product product) {
+    public PlacemarkDialog(final Window parent, final Product product) {
         this(parent, product, PinDescriptor.INSTANCE, false);
     }
 
-    public PinDialog(final Window parent, final Product product, final PlacemarkDescriptor placemarkDescriptor,
+    public PlacemarkDialog(final Window parent, final Product product, final PlacemarkDescriptor placemarkDescriptor,
                      boolean simultaneousEditingAllowed) {
         super(parent, "New " + placemarkDescriptor.getRoleLabel(), ModalDialog.ID_OK_CANCEL, null); /*I18N*/
         Guardian.assertNotNull("product", product);
@@ -90,9 +90,9 @@ public class PinDialog extends ModalDialog {
                     "its pixel coordinate is out of bounds."); /*I18N*/
             return;
         }
-        if (Pin.isValidNodeName(getName())) {
+        if (ProductNode.isValidNodeName(getName())) {
             if (symbolChanged) {
-                // Create new symbol instance so an event is fired by pin when new symbol is set.
+                // Create new symbol instance so an event is fired by placemark when new symbol is set.
                 updateSymbolInstance();
             }
             super.onOK();
@@ -102,7 +102,7 @@ public class PinDialog extends ModalDialog {
     }
 
     private void updateSymbolInstance() {
-        PinSymbol symbol = PinSymbol.createDefaultPinSymbol();
+        PlacemarkSymbol symbol = PlacemarkSymbol.createDefaultPinSymbol();
         symbol.setOutlineColor(this.symbol.getOutlineColor());
         symbol.setOutlineStroke(this.symbol.getOutlineStroke());
         symbol.setFillPaint(this.symbol.getFillPaint());
@@ -208,11 +208,11 @@ public class PinDialog extends ModalDialog {
         paramDescription.setValueAsText(description, null);
     }
 
-    public PinSymbol getPinSymbol() {
+    public PlacemarkSymbol getPlacemarkSymbol() {
         return symbol;
     }
 
-    public void setPinSymbol(PinSymbol symbol) {
+    public void setPlacemarkSymbol(PlacemarkSymbol symbol) {
         Color fillColor = (Color) symbol.getFillPaint();
         Color outlineColor = symbol.getOutlineColor();
         paramColorFill.setValue(fillColor, null);
@@ -464,29 +464,29 @@ public class PinDialog extends ModalDialog {
         return firstChar + string.substring(1);
     }
 
-    public static boolean showEditPinDialog(Window parent, Product product, Pin pin,
+    public static boolean showEditPlacemarkDialog(Window parent, Product product, Placemark placemark,
                                             PlacemarkDescriptor placemarkDescriptor) {
-        final PinDialog pinDialog = new PinDialog(parent, product, placemarkDescriptor,
+        final PlacemarkDialog dialog = new PlacemarkDialog(parent, product, placemarkDescriptor,
                                                   placemarkDescriptor instanceof PinDescriptor);
-        String titelPrefix = pin.getProduct() == null ? "New" : "Edit"; /*I18N*/
+        String titelPrefix = placemark.getProduct() == null ? "New" : "Edit"; /*I18N*/
         String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
 
-        pinDialog.getJDialog().setTitle(titelPrefix + " " + roleLabel);
-        pinDialog.getJDialog().setName(titelPrefix + "_" + roleLabel);
-        pinDialog.setName(pin.getName());
-        pinDialog.setLabel(pin.getLabel());
-        pinDialog.setDescription(pin.getDescription() != null ? pin.getDescription() : "");
-        pinDialog.setPixelPos(pin.getPixelPos());
-        pinDialog.setGeoPos(pin.getGeoPos());
-        pinDialog.setPinSymbol(pin.getSymbol());
-        boolean ok = (pinDialog.show() == ID_OK);
+        dialog.getJDialog().setTitle(titelPrefix + " " + roleLabel);
+        dialog.getJDialog().setName(titelPrefix + "_" + roleLabel);
+        dialog.setName(placemark.getName());
+        dialog.setLabel(placemark.getLabel());
+        dialog.setDescription(placemark.getDescription() != null ? placemark.getDescription() : "");
+        dialog.setPixelPos(placemark.getPixelPos());
+        dialog.setGeoPos(placemark.getGeoPos());
+        dialog.setPlacemarkSymbol(placemark.getSymbol());
+        boolean ok = (dialog.show() == ID_OK);
         if (ok) {
-            pin.setName(pinDialog.getName());
-            pin.setLabel(pinDialog.getLabel());
-            pin.setDescription(pinDialog.getDescription());
-            pin.setGeoPos(pinDialog.getGeoPos());
-            pin.setPixelPos(pinDialog.getPixelPos());
-            pin.setSymbol(pinDialog.getPinSymbol());
+            placemark.setName(dialog.getName());
+            placemark.setLabel(dialog.getLabel());
+            placemark.setDescription(dialog.getDescription());
+            placemark.setGeoPos(dialog.getGeoPos());
+            placemark.setPixelPos(dialog.getPixelPos());
+            placemark.setSymbol(dialog.getPlacemarkSymbol());
         }
         return ok;
     }

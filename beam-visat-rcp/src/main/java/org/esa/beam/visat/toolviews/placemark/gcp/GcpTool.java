@@ -1,7 +1,8 @@
-package org.esa.beam.visat.toolviews.pin;
+package org.esa.beam.visat.toolviews.placemark.gcp;
 
 import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
+import org.esa.beam.visat.toolviews.placemark.PlacemarkTool;
 
 /**
  * A tool used to create ground control points (single click), select (single click on a GCP) or

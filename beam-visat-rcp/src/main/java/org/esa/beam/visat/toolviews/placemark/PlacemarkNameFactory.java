@@ -1,7 +1,7 @@
-package org.esa.beam.visat.toolviews.pin;
+package org.esa.beam.visat.toolviews.placemark;
 
 import com.bc.ceres.core.Assert;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
@@ -10,7 +10,7 @@ import org.esa.beam.framework.datamodel.ProductNodeGroup;
  * Created by Marco Peters.
  *
  * @author Marco Peters
- * @version $Revision:$ $Date:$
+ * @version $Revision$ $Date$
  */
 public class PlacemarkNameFactory {
 
@@ -18,7 +18,7 @@ public class PlacemarkNameFactory {
     }
 
     public static String[] createUniqueNameAndLabel(PlacemarkDescriptor placemarkDescriptor, Product product) {
-        ProductNodeGroup<Pin> placemarkGroup = placemarkDescriptor.getPlacemarkGroup(product);
+        ProductNodeGroup<Placemark> placemarkGroup = placemarkDescriptor.getPlacemarkGroup(product);
         int pinNumber = placemarkGroup.getNodeCount() + 1;
         String name = createName(placemarkDescriptor, pinNumber);
         while (placemarkGroup.get(name) != null) {

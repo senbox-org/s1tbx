@@ -48,10 +48,10 @@ public class PlacemarkMaskOpImage extends SingleBandedOpImage {
         graphics2D.translate(-tile.getMinX(), -tile.getMinY());
         graphics2D.setColor(Color.WHITE);
 
-        ProductNodeGroup<Pin> pinGroup = getPlacemarkGroup();
-        Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
-        for (Pin pin : pins) {
-            final PixelPos pixelPos = pin.getPixelPos();
+        ProductNodeGroup<Placemark> pinGroup = getPlacemarkGroup();
+        Placemark[] placemarks = pinGroup.toArray(new Placemark[pinGroup.getNodeCount()]);
+        for (Placemark placemark : placemarks) {
+            final PixelPos pixelPos = placemark.getPixelPos();
             if (pixelPos != null) {
                 final int x = (int) pixelPos.x - placemarkSize / 2;
                 final int y = (int) pixelPos.y - placemarkSize / 2;
@@ -66,7 +66,7 @@ public class PlacemarkMaskOpImage extends SingleBandedOpImage {
         }
     }
 
-    private ProductNodeGroup<Pin> getPlacemarkGroup() {
+    private ProductNodeGroup<Placemark> getPlacemarkGroup() {
         return placemarkDescriptor.getPlacemarkGroup(product);
     }
 }

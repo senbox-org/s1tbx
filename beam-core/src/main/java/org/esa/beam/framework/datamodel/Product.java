@@ -117,8 +117,8 @@ public class Product extends ProductNode {
     private final ProductNodeGroup<FlagCoding> flagCodingGroup;
     private final ProductNodeGroup<IndexCoding> indexCodingGroup;
 
-    private final ProductNodeGroup<Pin> pinGroup;
-    private final ProductNodeGroup<Pin> gcpGroup;
+    private final ProductNodeGroup<Placemark> pinGroup;
+    private final ProductNodeGroup<Placemark> gcpGroup;
 
     /**
      * The internal reference number of this product
@@ -194,8 +194,8 @@ public class Product extends ProductNode {
         indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "index_codings", "The group which stores index codings.");
         flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flag_codings", "The group which stores flag codings.");
 
-        pinGroup = new ProductNodeGroup<Pin>(this, "pins", "The group which stores pins.");
-        gcpGroup = new ProductNodeGroup<Pin>(this, "ground_control_points", "The group which stores ground control points.");
+        pinGroup = new ProductNodeGroup<Placemark>(this, "pins", "The group which stores pins.");
+        gcpGroup = new ProductNodeGroup<Placemark>(this, "ground_control_points", "The group which stores ground control points.");
         addProductNodeListener(createNameChangedHandler());
         addProductNodeListener(createGeoCodingChangedHandler());
     }
@@ -206,9 +206,9 @@ public class Product extends ProductNode {
             @Override
             public void nodeChanged(ProductNodeEvent event) {
                 if (PROPERTY_NAME_GEOCODING.equals(event.getPropertyName())) {
-                    final ProductNodeGroup<Pin> pinGroup = getPinGroup();
+                    final ProductNodeGroup<Placemark> pinGroup = getPinGroup();
                     for (int i = 0; i < pinGroup.getNodeCount(); i++) {
-                        final Pin pin = pinGroup.get(i);
+                        final Placemark pin = pinGroup.get(i);
                         final PinDescriptor pinDescriptor = PinDescriptor.INSTANCE;
                         final GeoPos geoPos = pin.getGeoPos();
                         pinDescriptor.updateGeoPos(getGeoCoding(), pin.getPixelPos(), geoPos);
@@ -1085,7 +1085,7 @@ public class Product extends ProductNode {
      *
      * @return the GCP group.
      */
-    public ProductNodeGroup<Pin> getGcpGroup() {
+    public ProductNodeGroup<Placemark> getGcpGroup() {
         return gcpGroup;
     }
 
@@ -1097,7 +1097,7 @@ public class Product extends ProductNode {
      *
      * @return the pin group.
      */
-    public ProductNodeGroup<Pin> getPinGroup() {
+    public ProductNodeGroup<Placemark> getPinGroup() {
         return pinGroup;
     }
 
@@ -1105,7 +1105,7 @@ public class Product extends ProductNode {
      * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
     @Deprecated
-    public boolean addPin(final Pin pin) {
+    public boolean addPin(final Placemark pin) {
         return pinGroup.add(pin);
     }
 
@@ -1113,7 +1113,7 @@ public class Product extends ProductNode {
      * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
     @Deprecated
-    public boolean removePin(final Pin pin) {
+    public boolean removePin(final Placemark pin) {
         return pinGroup.remove(pin);
     }
 
@@ -1129,7 +1129,7 @@ public class Product extends ProductNode {
      * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
     @Deprecated
-    public Pin getPinAt(final int index) {
+    public Placemark getPinAt(final int index) {
         return pinGroup.get(index);
     }
 
@@ -1137,7 +1137,7 @@ public class Product extends ProductNode {
      * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
     @Deprecated
-    public Pin getPin(final String name) {
+    public Placemark getPin(final String name) {
         return pinGroup.get(name);
     }
 
@@ -1164,8 +1164,8 @@ public class Product extends ProductNode {
      * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()}
      */
     @Deprecated
-    public Pin[] getPins() {
-        return pinGroup.toArray(new Pin[0]);
+    public Placemark[] getPins() {
+        return pinGroup.toArray(new Placemark[0]);
     }
 
     /**
@@ -1196,7 +1196,7 @@ public class Product extends ProductNode {
      * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
     @Deprecated
-    public Pin getSelectedPin() {
+    public Placemark getSelectedPin() {
         return pinGroup.getSelectedNode();
     }
 
@@ -1204,9 +1204,9 @@ public class Product extends ProductNode {
      * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
     @Deprecated
-    public Pin[] getSelectedPins() {
-        Collection<Pin> selectedNodes = pinGroup.getSelectedNodes();
-        return selectedNodes.toArray(new Pin[0]);
+    public Placemark[] getSelectedPins() {
+        Collection<Placemark> selectedNodes = pinGroup.getSelectedNodes();
+        return selectedNodes.toArray(new Placemark[0]);
     }
 
     //////////////////////////////////////////////////////////////////////////

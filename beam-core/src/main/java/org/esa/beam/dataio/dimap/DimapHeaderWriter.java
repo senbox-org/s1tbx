@@ -88,12 +88,12 @@ public final class DimapHeaderWriter extends XmlWriter {
     }
 
     protected void writePins(int indent) {
-        ProductNodeGroup<Pin> pinGroup = _product.getPinGroup();
-        final Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
+        ProductNodeGroup<Placemark> pinGroup = _product.getPinGroup();
+        final Placemark[] pins = pinGroup.toArray(new Placemark[pinGroup.getNodeCount()]);
         final String[] pinGroupTags = createTags(indent, DimapProductConstants.TAG_PIN_GROUP);
         if (pins.length > 0) {
             println(pinGroupTags[0]);
-            for (final Pin pin : pins) {
+            for (final Placemark pin : pins) {
                 pin.writeXML(this, indent + 1);
             }
             println(pinGroupTags[1]);
@@ -101,12 +101,12 @@ public final class DimapHeaderWriter extends XmlWriter {
     }
 
     protected void writeGcps(int indent) {
-        ProductNodeGroup<Pin> gcpGroup = _product.getGcpGroup();
-        final Pin[] gcps = gcpGroup.toArray(new Pin[gcpGroup.getNodeCount()]);
+        ProductNodeGroup<Placemark> gcpGroup = _product.getGcpGroup();
+        final Placemark[] gcps = gcpGroup.toArray(new Placemark[gcpGroup.getNodeCount()]);
         final String[] gcpGroupTags = createTags(indent, DimapProductConstants.TAG_GCP_GROUP);
         if (gcps.length > 0) {
             println(gcpGroupTags[0]);
-            for (final Pin gcp : gcps) {
+            for (final Placemark gcp : gcps) {
                 gcp.writeXML(this, indent + 1);
             }
             println(gcpGroupTags[1]);

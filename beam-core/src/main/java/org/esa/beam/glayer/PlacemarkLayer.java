@@ -39,7 +39,7 @@ public class PlacemarkLayer extends Layer {
         placemarkDescriptor = null;
     }
 
-    protected ProductNodeGroup<Pin> getPlacemarkGroup() {
+    protected ProductNodeGroup<Placemark> getPlacemarkGroup() {
         return placemarkDescriptor.getPlacemarkGroup(getProduct());
     }
 
@@ -69,24 +69,24 @@ public class PlacemarkLayer extends Layer {
             transform.concatenate(imageToModelTransform);
             g2d.setTransform(transform);
 
-            ProductNodeGroup<Pin> pinGroup = getPlacemarkGroup();
-            Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
-            for (final Pin pin : pins) {
-                final PixelPos pixelPos = pin.getPixelPos();
+            ProductNodeGroup<Placemark> pinGroup = getPlacemarkGroup();
+            Placemark[] placemarks = pinGroup.toArray(new Placemark[pinGroup.getNodeCount()]);
+            for (final Placemark placemark : placemarks) {
+                final PixelPos pixelPos = placemark.getPixelPos();
                 if (pixelPos != null) {
                     g2d.translate(pixelPos.getX(), pixelPos.getY());
                     final double scale = Math.sqrt(Math.abs(g2d.getTransform().getDeterminant()));
                     g2d.scale(1 / scale, 1 / scale);
                     g2d.rotate(viewport.getOrientation());
 
-                    if (pin.isSelected()) {
-                        pin.getSymbol().drawSelected(g2d);
+                    if (placemark.isSelected()) {
+                        placemark.getSymbol().drawSelected(g2d);
                     } else {
-                        pin.getSymbol().draw(g2d);
+                        placemark.getSymbol().draw(g2d);
                     }
 
                     if (isTextEnabled()) {
-                        drawTextLabel(g2d, pin);
+                        drawTextLabel(g2d, placemark);
                     }
 
                     g2d.rotate(-viewport.getOrientation());
@@ -101,9 +101,9 @@ public class PlacemarkLayer extends Layer {
         }
     }
 
-    private void drawTextLabel(Graphics2D g2d, Pin pin) {
+    private void drawTextLabel(Graphics2D g2d, Placemark placemark) {
 
-        final String label = pin.getLabel();
+        final String label = placemark.getLabel();
 
         g2d.setFont(getTextFont());
 

@@ -7,7 +7,7 @@ import java.awt.Point;
  * Created by Marco Peters.
  *
  * @author Marco Peters
- * @version $Revision:$ $Date:$
+ * @version $Revision$ $Date$
  */
 public class PinDescriptor implements PlacemarkDescriptor {
 
@@ -37,12 +37,12 @@ public class PinDescriptor implements PlacemarkDescriptor {
     }
 
 
-    public ProductNodeGroup<Pin> getPlacemarkGroup(Product product) {
+    public ProductNodeGroup<Placemark> getPlacemarkGroup(Product product) {
         return product.getPinGroup();
     }
 
-    public PinSymbol createDefaultSymbol() {
-        return PinSymbol.createDefaultPinSymbol();
+    public PlacemarkSymbol createDefaultSymbol() {
+        return PlacemarkSymbol.createDefaultPinSymbol();
     }
 
     public PixelPos updatePixelPos(GeoCoding geoCoding, GeoPos geoPos, PixelPos pixelPos) {

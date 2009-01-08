@@ -14,11 +14,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.visat.toolviews.pin;
+package org.esa.beam.visat.toolviews.placemark.pin;
 
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
+import org.esa.beam.visat.toolviews.placemark.PlacemarkTool;
 
 /**
  * A tool used to create (single click), select (single click on a pin) or edit (double click on a pin) the pins

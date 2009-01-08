@@ -20,7 +20,7 @@
           [BEAM-925] Events (open, shown, hidden) shall be delegated to tool view<br/>
           [BEAM-921] Sometimes pin manager cannot delete pins<br/>
           [BEAM-920] Pins in view out-of-sync with those in pin manager<br/>
-          [BEAM-919] Spectrum view often causes severe problems with pins<br/>        
+          [BEAM-919] Spectrum view often causes severe problems with pins<br/>
           [BEAM-917] Value of a single pixel is not considered in histogram<br/>
           [BEAM-916] Colour manipulation shall allow values outside of histogram range<br/>
           [BEAM-913] Histogram disappears for RGB channel in colour manipulation<br/>
@@ -219,8 +219,8 @@
         </toolView>
 
         <toolView>
-            <id>org.esa.beam.visat.toolviews.pin.PinManagerToolView</id>
-            <class>org.esa.beam.visat.toolviews.pin.PinManagerToolView</class>
+            <id>org.esa.beam.visat.toolviews.placemark.pin.PinManagerToolView</id>
+            <class>org.esa.beam.visat.toolviews.placemark.pin.PinManagerToolView</class>
             <title>Pin Manager</title>
             <mnemonic>a</mnemonic>
             <accelerator>ctrl alt A</accelerator>
@@ -234,8 +234,8 @@
         </toolView>
 
         <toolView>
-            <id>org.esa.beam.visat.toolviews.pin.GcpManagerToolView</id>
-            <class>org.esa.beam.visat.toolviews.pin.GcpManagerToolView</class>
+            <id>org.esa.beam.visat.toolviews.placemark.gcp.GcpManagerToolView</id>
+            <class>org.esa.beam.visat.toolviews.placemark.gcp.GcpManagerToolView</class>
             <title>GCP Manager</title>
             <mnemonic>c</mnemonic>
             <accelerator>ctrl alt G</accelerator>
@@ -1351,7 +1351,7 @@
         <action>
             <id>pinTool</id>
             <class>org.esa.beam.visat.actions.PlacemarkToolAction</class>
-            <tool>org.esa.beam.visat.toolviews.pin.PinTool</tool>
+            <tool>org.esa.beam.visat.toolviews.placemark.pin.PinTool</tool>
             <parent>tools</parent>
             <placeAfter>pannerTool</placeAfter>
             <text>Pin Tool</text>
@@ -1366,7 +1366,7 @@
         <action>
             <id>gcpTool</id>
             <class>org.esa.beam.visat.actions.PlacemarkToolAction</class>
-            <tool>org.esa.beam.visat.toolviews.pin.GcpTool</tool>
+            <tool>org.esa.beam.visat.toolviews.placemark.gcp.GcpTool</tool>
             <parent>tools</parent>
             <placeAfter>pinTool</placeAfter>
             <placeBefore>drawLineTool</placeBefore>

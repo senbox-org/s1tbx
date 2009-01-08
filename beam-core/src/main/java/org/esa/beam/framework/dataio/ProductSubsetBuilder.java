@@ -328,18 +328,18 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
     }
 
     private void addPlacemarks(Product product) {
-        final PinSymbol pinSymbol = PinSymbol.createDefaultPinSymbol();
-        final PinSymbol gcpSymbol = PinSymbol.createDefaultGcpSymbol();
+        final PlacemarkSymbol pinSymbol = PlacemarkSymbol.createDefaultPinSymbol();
+        final PlacemarkSymbol gcpSymbol = PlacemarkSymbol.createDefaultGcpSymbol();
 
         copyPlacemarks(getSourceProduct().getPinGroup(), product.getPinGroup(), pinSymbol, false);
         copyPlacemarks(getSourceProduct().getGcpGroup(), product.getGcpGroup(), gcpSymbol, true);
     }
 
-    private void copyPlacemarks(ProductNodeGroup<Pin> sourcePlacemarkGroup,
-                                ProductNodeGroup<Pin> targetPlacemarkGroup, PinSymbol symbol,
+    private void copyPlacemarks(ProductNodeGroup<Placemark> sourcePlacemarkGroup,
+                                ProductNodeGroup<Placemark> targetPlacemarkGroup, PlacemarkSymbol symbol,
                                 boolean copyAll) {
-        final Pin[] pins = new Pin[sourcePlacemarkGroup.getNodeCount()];
-        sourcePlacemarkGroup.toArray(pins);
+        final Placemark[] placemarks = new Placemark[sourcePlacemarkGroup.getNodeCount()];
+        sourcePlacemarkGroup.toArray(placemarks);
 
         final int offsetX;
         final int offsetY;
@@ -361,16 +361,16 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             subSamplingY = 1;
         }
 
-        for (final Pin pin : pins) {
-            final float x = (pin.getPixelPos().x - offsetX) / subSamplingX;
-            final float y = (pin.getPixelPos().y - offsetY) / subSamplingY;
+        for (final Placemark placemark : placemarks) {
+            final float x = (placemark.getPixelPos().x - offsetX) / subSamplingX;
+            final float y = (placemark.getPixelPos().y - offsetY) / subSamplingY;
 
             if (x >= 0 && x < getSceneRasterWidth() && y >= 0 && y < getSceneRasterHeight() || copyAll) {
-                targetPlacemarkGroup.add(new Pin(pin.getName(),
-                                                 pin.getLabel(),
-                                                 pin.getDescription(),
+                targetPlacemarkGroup.add(new Placemark(placemark.getName(),
+                                                 placemark.getLabel(),
+                                                 placemark.getDescription(),
                                                  new PixelPos(x, y),
-                                                 pin.getGeoPos(),
+                                                 placemark.getGeoPos(),
                                                  symbol));
             }
         }

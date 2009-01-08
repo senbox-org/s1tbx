@@ -11,7 +11,7 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ImageLegend;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
@@ -159,9 +159,9 @@ public class ExportKmzFileAction extends ExecCommand {
         }
 
         String pinKml = "";
-        ProductNodeGroup<Pin> pinGroup = product.getPinGroup();
-        Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
-        for (Pin pin : pins) {
+        ProductNodeGroup<Placemark> pinGroup = product.getPinGroup();
+        Placemark[] pins = pinGroup.toArray(new Placemark[pinGroup.getNodeCount()]);
+        for (Placemark pin : pins) {
             GeoPos geoPos = pin.getGeoPos();
             if (geoPos != null && product.containsPixel(pin.getPixelPos())) {
                 pinKml += String.format(
@@ -237,7 +237,7 @@ public class ExportKmzFileAction extends ExecCommand {
         unit = unit.replace('*', ' ');
         return "(" + unit + ")";
     }
-    
+
     private class SaveKMLSwingWorker extends ProgressMonitorSwingWorker {
 
         private final VisatApp visatApp;
@@ -258,7 +258,7 @@ public class ExportKmzFileAction extends ExecCommand {
                 pm.beginTask(message, view.isRGB()? 4 : 3);
                 visatApp.setStatusBarMessage(message);
                 visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                
+
                 final RenderFilter renderFilter = new Layer.RenderFilter() {
                     @Override
                     public boolean canRender(Layer layer) {
@@ -276,12 +276,12 @@ public class ExportKmzFileAction extends ExecCommand {
                     final String kmlContent = formatKML(view, imageName);
                     outStream.write(kmlContent.getBytes());
                     pm.worked(1);
-                    
+
                     outStream.putNextEntry(new ZipEntry(imageName));
                     ImageEncoder encoder = ImageCodec.createImageEncoder(imageType, outStream, null);
                     encoder.encode(image);
                     pm.worked(1);
-                    
+
                     if (!view.isRGB()) {
                         outStream.putNextEntry(new ZipEntry("legend.png"));
                         encoder = ImageCodec.createImageEncoder("PNG", outStream, null);

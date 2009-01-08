@@ -17,8 +17,8 @@
 package org.esa.beam.framework.dataio;
 
 import junit.framework.TestCase;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PinSymbol;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
@@ -67,9 +67,9 @@ public class ProductProjectionBuilderTest extends TestCase {
     }
 
     public void testCopyPlacemarkGroups() throws IOException {
-        final PinSymbol defaultPinSymbol = PinSymbol.createDefaultPinSymbol();
-        final Pin pin = new Pin("P1", "", "", new PixelPos(1.5f, 1.5f), null, defaultPinSymbol);
-        final Pin gcp = new Pin("G1", "", "", new PixelPos(2.5f, 2.5f), null, defaultPinSymbol);
+        final PlacemarkSymbol defaultPinSymbol = PlacemarkSymbol.createDefaultPinSymbol();
+        final Placemark pin = new Placemark("P1", "", "", new PixelPos(1.5f, 1.5f), null, defaultPinSymbol);
+        final Placemark gcp = new Placemark("G1", "", "", new PixelPos(2.5f, 2.5f), null, defaultPinSymbol);
 
         product.getPinGroup().add(pin);
         product.getGcpGroup().add(gcp);
@@ -78,8 +78,8 @@ public class ProductProjectionBuilderTest extends TestCase {
 
         assertEquals(1, product2.getPinGroup().getNodeCount());
         assertEquals(1, product2.getGcpGroup().getNodeCount());
-        final Pin pin2 = product2.getPinGroup().get(0);
-        final Pin gcp2 = product2.getGcpGroup().get(0);
+        final Placemark pin2 = product2.getPinGroup().get(0);
+        final Placemark gcp2 = product2.getGcpGroup().get(0);
 
         assertEquals("P1", pin2.getName());
         assertEquals("G1", gcp2.getName());

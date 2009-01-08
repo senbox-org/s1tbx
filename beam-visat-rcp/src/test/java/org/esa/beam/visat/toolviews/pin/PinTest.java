@@ -70,7 +70,7 @@ public class PinTest extends TestCase {
     }
 
     public void testPinEvents() {
-        final Pin pin1 = new Pin("pinName", "pinLabel", "", null, new GeoPos(), PinSymbol.createDefaultPinSymbol());
+        final Placemark pin1 = new Placemark("pinName", "pinLabel", "", null, new GeoPos(), PlacemarkSymbol.createDefaultPinSymbol());
 
         assertEquals(0, product.getPinGroup().getNodeCount());
         assertEquals(0, events.size());
@@ -91,7 +91,7 @@ public class PinTest extends TestCase {
         assertEquals(4, events.size());
         assertEquals(4, eventTypes.size());
 
-        pin1.setSymbol(new PinSymbol("symb1", new Line2D.Float(4, 5, 6, 7)));
+        pin1.setSymbol(new PlacemarkSymbol("symb1", new Line2D.Float(4, 5, 6, 7)));
         assertEquals(1, product.getPinGroup().getNodeCount());
         assertEquals(5, events.size());
         assertEquals(5, eventTypes.size());
@@ -119,8 +119,8 @@ public class PinTest extends TestCase {
                 ProductNode.PROPERTY_NAME_OWNER,
                 null,
                 ProductNode.PROPERTY_NAME_DESCRIPTION,
-                Pin.PROPERTY_NAME_GEOPOS,
-                Pin.PROPERTY_NAME_PINSYMBOL,
+                Placemark.PROPERTY_NAME_GEOPOS,
+                Placemark.PROPERTY_NAME_PINSYMBOL,
                 null
         };
         final ProductNodeEvent[] currentProductNodeEvents = (ProductNodeEvent[]) events.toArray(
@@ -133,10 +133,10 @@ public class PinTest extends TestCase {
     }
 
     public void testWriteXML_XmlWriterIsNull() {
-        Pin pin = new Pin("pinName", "pinLabel", "", null, new GeoPos(), PinSymbol.createDefaultPinSymbol());
+        Placemark placemark = new Placemark("pinName", "pinLabel", "", null, new GeoPos(), PlacemarkSymbol.createDefaultPinSymbol());
 
         try {
-            pin.writeXML(null, 1);
+            placemark.writeXML(null, 1);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             // expected IllegalArgumentException
@@ -146,7 +146,7 @@ public class PinTest extends TestCase {
     }
 
     public void testWriteXML_IndentIsSmallerThanZero() {
-        Pin pin = new Pin("pinName", "pinLabel", "", null, new GeoPos(), PinSymbol.createDefaultPinSymbol());
+        Placemark pin = new Placemark("pinName", "pinLabel", "", null, new GeoPos(), PlacemarkSymbol.createDefaultPinSymbol());
 
         try {
             pin.writeXML(new XmlWriter(new StringWriter(), false), -1);
@@ -159,9 +159,9 @@ public class PinTest extends TestCase {
     }
 
     public void testWriteXML_DifferentValidIndent() {
-        Pin pin = new Pin("pinName", "pinLabel", "", null, new GeoPos(4f, 87f), PinSymbol.createDefaultPinSymbol());
+        Placemark pin = new Placemark("pinName", "pinLabel", "", null, new GeoPos(4f, 87f), PlacemarkSymbol.createDefaultPinSymbol());
         pin.setDescription("pinDescription");
-        pin.setSymbol(PinSymbol.createDefaultPinSymbol());
+        pin.setSymbol(PlacemarkSymbol.createDefaultPinSymbol());
 
         StringWriter stringWriter = new StringWriter();
         pin.writeXML(new XmlWriter(stringWriter, false), 0);
@@ -205,7 +205,7 @@ public class PinTest extends TestCase {
         final float pinLon = 23.4f;
 
         try {
-            Pin.createPlacemark(null, null);
+            Placemark.createPlacemark(null, null);
             fail("NullPointerException expexcted");
         } catch (NullPointerException e) {
             // OK
@@ -214,7 +214,7 @@ public class PinTest extends TestCase {
         Element pinElem = new Element(DimapProductConstants.TAG_PLACEMARK);
 
         try {
-            Pin.createPlacemark(pinElem, PinDescriptor.INSTANCE.createDefaultSymbol());
+            Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE.createDefaultSymbol());
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             // OK
@@ -223,7 +223,7 @@ public class PinTest extends TestCase {
         pinElem.setAttribute(DimapProductConstants.ATTRIB_NAME, pinName);
 
         try {
-            Pin.createPlacemark(pinElem, null);
+            Placemark.createPlacemark(pinElem, null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             // OK
@@ -234,7 +234,7 @@ public class PinTest extends TestCase {
         pinElem.addContent(latElem);
 
         try {
-            Pin.createPlacemark(pinElem, null);
+            Placemark.createPlacemark(pinElem, null);
             fail("IllegalArgumentException expected");
         } catch (Exception e) {
             // OK
@@ -244,7 +244,7 @@ public class PinTest extends TestCase {
         lonElem.setText(String.valueOf(pinLon));
         pinElem.addContent(lonElem);
 
-        Pin pin = Pin.createPlacemark(pinElem, PinDescriptor.INSTANCE.createDefaultSymbol());
+        Placemark pin = Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE.createDefaultSymbol());
         assertNotNull("pin must be not null", pin);
         assertEquals(pinName, pin.getName());
         assertNull(pin.getDescription());
@@ -255,7 +255,7 @@ public class PinTest extends TestCase {
         descElem.setText(pinDesc);
         pinElem.addContent(descElem);
 
-        pin = Pin.createPlacemark(pinElem, PinDescriptor.INSTANCE.createDefaultSymbol());
+        pin = Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE.createDefaultSymbol());
         assertNotNull("pin must be not null", pin);
         assertEquals(pinName, pin.getName());
         assertEquals(pinDesc, pin.getDescription());
@@ -280,20 +280,20 @@ public class PinTest extends TestCase {
         outlineElem.addContent(colorElem);
         pinElem.addContent(outlineElem);
 
-        pin = Pin.createPlacemark(pinElem, PinDescriptor.INSTANCE.createDefaultSymbol());
+        pin = Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE.createDefaultSymbol());
         assertNotNull("pin must be not null", pin);
         assertEquals(pinName, pin.getName());
         assertEquals(pinDesc, pin.getDescription());
         assertEquals(pinLat, pin.getGeoPos().lat, 1e-15f);
         assertEquals(pinLon, pin.getGeoPos().lon, 1e-15f);
-        PinSymbol symbol = pin.getSymbol();
+        PlacemarkSymbol symbol = pin.getSymbol();
         assertNotNull(symbol);
         assertEquals(Color.red, symbol.getFillPaint());
         assertEquals(Color.blue, symbol.getOutlineColor());
     }
 
     public void testLabelSettings() {
-        Pin p = new Pin("rallamann", "rallamann", "", null, new GeoPos(), PinSymbol.createDefaultPinSymbol());
+        Placemark p = new Placemark("rallamann", "rallamann", "", null, new GeoPos(), PlacemarkSymbol.createDefaultPinSymbol());
         assertEquals("rallamann", p.getName());
         assertEquals("rallamann", p.getLabel());
 

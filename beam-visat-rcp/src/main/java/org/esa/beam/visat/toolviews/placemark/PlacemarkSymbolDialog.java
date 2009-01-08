@@ -1,5 +1,5 @@
 /*
- * $Id: PinSymbolDialog.java,v 1.1 2007/04/19 10:41:38 norman Exp $
+ * $Id: PlacemarkSymbolDialog.java,v 1.1 2007/04/19 10:41:38 norman Exp $
  *
  * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
  *
@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.visat.toolviews.pin;
+package org.esa.beam.visat.toolviews.placemark;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -27,18 +27,18 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.esa.beam.framework.datamodel.PinSymbol;
+import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.ui.ModalDialog;
 
 //@todo 1 se/se - class dokumentation
 
-public class PinSymbolDialog extends ModalDialog {
+public class PlacemarkSymbolDialog extends ModalDialog {
 
-    private PinSymbol _pinSymbol;
+    private PlacemarkSymbol _placemarkSymbol;
     private JButton _symbolButton;
 
-    public PinSymbolDialog(Window parent) {
+    public PlacemarkSymbolDialog(Window parent) {
         super(parent, "Pin symbol", ModalDialog.ID_OK_CANCEL, null);/*I18N*/
         createParameter();
         creatUI();
@@ -52,15 +52,15 @@ public class PinSymbolDialog extends ModalDialog {
         _symbolButton = new JButton() {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                if (_pinSymbol != null) {
+                if (_placemarkSymbol != null) {
                     final Graphics2D g2d = ((Graphics2D) g);
-                    PixelPos refPoint = _pinSymbol.getRefPoint();
+                    PixelPos refPoint = _placemarkSymbol.getRefPoint();
                     if (refPoint != null) {
                         g2d.translate(refPoint.getX(), refPoint.getY());
-                        _pinSymbol.draw(g2d);
+                        _placemarkSymbol.draw(g2d);
                         g2d.translate(-refPoint.getX(), -refPoint.getY());
                     } else {
-                        _pinSymbol.draw(g2d);
+                        _placemarkSymbol.draw(g2d);
                     }
                 }
             }
@@ -73,13 +73,13 @@ public class PinSymbolDialog extends ModalDialog {
         setContent(content);
     }
 
-    public PinSymbol getPinSymbol() {
-        return _pinSymbol;
+    public PlacemarkSymbol getPinSymbol() {
+        return _placemarkSymbol;
     }
 
-    public void setPinSymbol(PinSymbol pinSymbol) {
-        _pinSymbol = pinSymbol;
-        final Rectangle bounds = pinSymbol.getShape().getBounds();
+    public void setPinSymbol(PlacemarkSymbol placemarkSymbol) {
+        _placemarkSymbol = placemarkSymbol;
+        final Rectangle bounds = placemarkSymbol.getShape().getBounds();
         _symbolButton.setPreferredSize(new Dimension(bounds.width + 10, bounds.height + 10));
     }
 }

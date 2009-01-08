@@ -422,19 +422,19 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         addGeoCodingToProduct(targetGC, product);
         addBandsToProduct(product);
         addBitmaskDefsToProduct(product);
-        copyPlacemarks(getSourceProduct().getPinGroup(), product.getPinGroup(), PinSymbol.createDefaultPinSymbol());
-        copyPlacemarks(getSourceProduct().getGcpGroup(), product.getGcpGroup(), PinSymbol.createDefaultGcpSymbol());
+        copyPlacemarks(getSourceProduct().getPinGroup(), product.getPinGroup(), PlacemarkSymbol.createDefaultPinSymbol());
+        copyPlacemarks(getSourceProduct().getGcpGroup(), product.getGcpGroup(), PlacemarkSymbol.createDefaultGcpSymbol());
         // TODO - TESTTESTTEST (nf)
         product.setPreferredTileSize(64, 64);
         return product;
     }
 
-    private static void copyPlacemarks(ProductNodeGroup<Pin> sourcePlacemarkGroup,
-                                       ProductNodeGroup<Pin> targetPlacemarkGroup, PinSymbol symbol) {
-        final Pin[] pins = sourcePlacemarkGroup.toArray(new Pin[0]);
-        for (Pin pin : pins) {
-            final Pin pin1 = new Pin(pin.getName(), pin.getLabel(),
-                                     pin.getDescription(), null, pin.getGeoPos(),
+    private static void copyPlacemarks(ProductNodeGroup<Placemark> sourcePlacemarkGroup,
+                                       ProductNodeGroup<Placemark> targetPlacemarkGroup, PlacemarkSymbol symbol) {
+        final Placemark[] placemarks = sourcePlacemarkGroup.toArray(new Placemark[0]);
+        for (Placemark placemark : placemarks) {
+            final Placemark pin1 = new Placemark(placemark.getName(), placemark.getLabel(),
+                                     placemark.getDescription(), null, placemark.getGeoPos(),
                                      symbol);
             targetPlacemarkGroup.add(pin1);
         }

@@ -743,7 +743,7 @@ public class DimapProductHelpers {
             }
             for (Object pinElement : pinElements) {
                 final Element pinElem = (Element) pinElement;
-                final Pin pin = Pin.createPin(pinElem);
+                final Placemark pin = Placemark.createPin(pinElem);
                 if (pin != null) {
                     pin.updatePixelPos(product.getGeoCoding());
                     product.getPinGroup().add(pin);
@@ -761,7 +761,7 @@ public class DimapProductHelpers {
             }
             for (Object gcpElement : gcpElements) {
                 final Element gcpElem = (Element) gcpElement;
-                final Pin gcp = Pin.createGcp(gcpElem);
+                final Placemark gcp = Placemark.createGcp(gcpElem);
                 if (gcp != null) {
                     product.getGcpGroup().add(gcp);
                 }
@@ -1356,7 +1356,7 @@ public class DimapProductHelpers {
                     band = (Band) persistable.createObjectFromXml(element, product);
                     // currently it can be null if the operator of filtered band is of type
                     // GeneralFilterBand.STDDEV or GeneralFilterBand.RMS
-                    if(band == null) { 
+                    if(band == null) {
                         product.addBand(band);
                     }
                 }

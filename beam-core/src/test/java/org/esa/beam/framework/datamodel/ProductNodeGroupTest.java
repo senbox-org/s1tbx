@@ -6,7 +6,7 @@ import junit.framework.TestCase;
  * Created by Marco Peters.
  *
  * @author Marco Peters
- * @version $Revision:$ $Date:$
+ * @version $Revision$ $Date$
  */
 public class ProductNodeGroupTest extends TestCase {
     String s = "";
@@ -28,7 +28,7 @@ public class ProductNodeGroupTest extends TestCase {
                 s += "-"+event.getSourceNode().getName() + ";";
             }
         });
-        ProductNodeGroup<Pin> pinGroup = p.getPinGroup();
+        ProductNodeGroup<Placemark> pinGroup = p.getPinGroup();
 
         assertNotNull(pinGroup);
         assertSame(p, pinGroup.getOwner());
@@ -36,9 +36,9 @@ public class ProductNodeGroupTest extends TestCase {
 
         assertEquals(0, pinGroup.getNodeCount());
 
-        Pin pin1 = new Pin("p1", "l1", "", new PixelPos(0, 0), null, PinSymbol.createDefaultPinSymbol());
-        Pin pin2 = new Pin("p2", "l2", "", new PixelPos(0, 0), null, PinSymbol.createDefaultPinSymbol());
-        Pin pin3 = new Pin("p3", "l3", "", new PixelPos(0, 0), null, PinSymbol.createDefaultPinSymbol());
+        Placemark pin1 = new Placemark("p1", "l1", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol());
+        Placemark pin2 = new Placemark("p2", "l2", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol());
+        Placemark pin3 = new Placemark("p3", "l3", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol());
         pinGroup.add(pin1);
         pinGroup.add(pin2);
         pinGroup.add(pin3);

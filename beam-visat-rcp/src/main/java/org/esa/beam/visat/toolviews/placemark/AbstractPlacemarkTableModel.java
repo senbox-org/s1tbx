@@ -1,4 +1,4 @@
-package org.esa.beam.visat.toolviews.pin;
+package org.esa.beam.visat.toolviews.placemark;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 
-abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
+public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
     private final PlacemarkDescriptor placemarkDescriptor;
 
@@ -19,7 +19,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
     private TiePointGrid[] selectedGrids;
 
     private final PlacemarkListener placemarkListener;
-    private final ArrayList<Pin> placemarkList;
+    private final ArrayList<Placemark> placemarkList;
 
     public AbstractPlacemarkTableModel(PlacemarkDescriptor placemarkDescriptor, Product product, Band[] selectedBands,
                                        TiePointGrid[] selectedGrids) {
@@ -27,7 +27,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         this.product = product;
         initSelectedBands(selectedBands);
         initSelectedGrids(selectedGrids);
-        placemarkList = new ArrayList<Pin>(10);
+        placemarkList = new ArrayList<Placemark>(10);
         placemarkListener = new PlacemarkListener();
         if (product != null) {
             product.addProductNodeListener(placemarkListener);
@@ -35,11 +35,11 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         initPlacemarkList(product);
     }
 
-    public Pin[] getPlacemarks() {
-        return placemarkList.toArray(new Pin[placemarkList.size()]);
+    public Placemark[] getPlacemarks() {
+        return placemarkList.toArray(new Placemark[placemarkList.size()]);
     }
 
-    public Pin getPlacemarkAt(int i) {
+    public Placemark getPlacemarkAt(int i) {
         return placemarkList.get(i);
     }
 
@@ -88,7 +88,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         fireTableStructureChanged();
     }
 
-    public boolean addPlacemark(Pin placemark) {
+    public boolean addPlacemark(Placemark placemark) {
         if (getProduct() != null && placemarkList.add(placemark)) {
             fireTableDataChanged();
             return true;
@@ -96,7 +96,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         return false;
     }
 
-    public boolean removePlacemark(Pin placemark) {
+    public boolean removePlacemark(Placemark placemark) {
         if (getProduct() != null && placemarkList.remove(placemark)) {
             fireTableDataChanged();
             return true;
@@ -165,9 +165,9 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
             if (columnIndex < getStandardColumnNames().length) {
                 return getStandardColumnValueAt(rowIndex, columnIndex);
             } else {
-                final Pin pin = placemarkList.get(rowIndex);
+                final Placemark placemark = placemarkList.get(rowIndex);
                 int index = columnIndex - getStandardColumnNames().length;
-                PixelPos pixelPos = pin.getPixelPos();
+                PixelPos pixelPos = placemark.getPixelPos();
                 if (pixelPos == null) {
                     return "No-data";
                 }
@@ -218,62 +218,62 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
             return;
         }
         if (columnIndex < getStandardColumnNames().length) {
-            Pin pin = placemarkList.get(rowIndex);
+            Placemark placemark = placemarkList.get(rowIndex);
             if (columnIndex == 0) {
                 if (value instanceof Float) {
                     float pixelY;
-                    if (pin.getPixelPos() == null) {
+                    if (placemark.getPixelPos() == null) {
                         pixelY = -1;
                     } else {
-                        pixelY = pin.getPixelPos().y;
+                        pixelY = placemark.getPixelPos().y;
                     }
-                    pin.setPixelPos(new PixelPos((Float) value, pixelY));
+                    placemark.setPixelPos(new PixelPos((Float) value, pixelY));
                     GeoPos geoPos = placemarkDescriptor.updateGeoPos(product.getGeoCoding(),
-                                                                     pin.getPixelPos(), pin.getGeoPos());
-                    pin.setGeoPos(geoPos);
+                                                                     placemark.getPixelPos(), placemark.getGeoPos());
+                    placemark.setGeoPos(geoPos);
                 }
             } else if (columnIndex == 1) {
                 if (value instanceof Float) {
                     float pixelX;
-                    if (pin.getPixelPos() == null) {
+                    if (placemark.getPixelPos() == null) {
                         pixelX = -1;
                     } else {
-                        pixelX = pin.getPixelPos().x;
+                        pixelX = placemark.getPixelPos().x;
                     }
-                    pin.setPixelPos(new PixelPos(pixelX, (Float) value));
+                    placemark.setPixelPos(new PixelPos(pixelX, (Float) value));
                     GeoPos geoPos = placemarkDescriptor.updateGeoPos(product.getGeoCoding(),
-                                                                     pin.getPixelPos(), pin.getGeoPos());
-                    pin.setGeoPos(geoPos);
+                                                                     placemark.getPixelPos(), placemark.getGeoPos());
+                    placemark.setGeoPos(geoPos);
                 }
             } else if (columnIndex == 2) {
                 if (value instanceof Float) {
                     float lat;
-                    if (pin.getGeoPos() == null) {
+                    if (placemark.getGeoPos() == null) {
                         lat = Float.NaN;
                     } else {
-                        lat = pin.getGeoPos().lat;
+                        lat = placemark.getGeoPos().lat;
                     }
-                    pin.setGeoPos(new GeoPos(lat, (Float) value));
+                    placemark.setGeoPos(new GeoPos(lat, (Float) value));
                     PixelPos pixelPos = placemarkDescriptor.updatePixelPos(product.getGeoCoding(),
-                                                                           pin.getGeoPos(), pin.getPixelPos());
-                    pin.setPixelPos(pixelPos);
+                                                                           placemark.getGeoPos(), placemark.getPixelPos());
+                    placemark.setPixelPos(pixelPos);
                 }
             } else if (columnIndex == 3) {
                 if (value instanceof Float) {
                     float lon;
-                    if (pin.getGeoPos() == null) {
+                    if (placemark.getGeoPos() == null) {
                         lon = Float.NaN;
                     } else {
-                        lon = pin.getGeoPos().lon;
+                        lon = placemark.getGeoPos().lon;
                     }
-                    pin.setGeoPos(new GeoPos((Float) value, lon));
+                    placemark.setGeoPos(new GeoPos((Float) value, lon));
                     PixelPos pixelPos = placemarkDescriptor.updatePixelPos(product.getGeoCoding(),
-                                                                           pin.getGeoPos(), pin.getPixelPos());
-                    pin.setPixelPos(pixelPos);
+                                                                           placemark.getGeoPos(), placemark.getPixelPos());
+                    placemark.setPixelPos(pixelPos);
                 }
             } else if (columnIndex == getStandardColumnNames().length - 1) {
                 String strValue = value.toString();
-                pin.setLabel(strValue);
+                placemark.setLabel(strValue);
             } else {
                 throw new IllegalStateException(
                         "Column[" + columnIndex + "] '" + getColumnName(columnIndex) + "' is not editable");
@@ -300,8 +300,8 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
     private void initPlacemarkList(Product product) {
         if (product != null) {
-            Pin[] pins = placemarkDescriptor.getPlacemarkGroup(product).toArray(new Pin[0]);
-            placemarkList.addAll(Arrays.asList(pins));
+            Placemark[] placemarks = placemarkDescriptor.getPlacemarkGroup(product).toArray(new Placemark[0]);
+            placemarkList.addAll(Arrays.asList(placemarks));
         }
     }
 
@@ -317,10 +317,10 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         }
 
         private void fireTableDataChanged(ProductNodeEvent event) {
-            if (event.getSourceNode() instanceof Pin &&
+            if (event.getSourceNode() instanceof Placemark &&
                 !ProductNode.PROPERTY_NAME_SELECTED.equals(
                         event.getPropertyName())) {
-                Pin placemark = (Pin) event.getSourceNode();
+                Placemark placemark = (Placemark) event.getSourceNode();
                 if (placemarkList.contains(placemark)) {
                     AbstractPlacemarkTableModel.this.fireTableDataChanged();
                 }

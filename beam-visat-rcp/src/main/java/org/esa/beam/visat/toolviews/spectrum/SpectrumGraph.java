@@ -3,11 +3,10 @@ package org.esa.beam.visat.toolviews.spectrum;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelModel;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.ui.diagram.AbstractDiagramGraph;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Debug;
-import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.Range;
 
@@ -22,24 +21,24 @@ import java.util.Comparator;
 
 class SpectrumGraph extends AbstractDiagramGraph {
 
-    private Pin pin;
+    private Placemark placemark;
     private Band[] bands;
     private float[] energies;
     private float[] wavelengths;
     private final Range energyRange;
     private final Range wavelengthRange;
 
-    public SpectrumGraph(Pin pin, Band[] bands) {
+    public SpectrumGraph(Placemark placemark, Band[] bands) {
         Debug.assertNotNull(bands);
-        this.pin = pin;
+        this.placemark = placemark;
         this.bands = bands;
         energyRange = new Range();
         wavelengthRange = new Range();
         setBands(bands);
     }
 
-    public Pin getPin() {
-        return pin;
+    public Placemark getPlacemark() {
+        return placemark;
     }
 
     public String getXName() {
@@ -47,7 +46,7 @@ class SpectrumGraph extends AbstractDiagramGraph {
     }
 
     public String getYName() {
-        return pin != null ? pin.getLabel() : "Cursor";
+        return placemark != null ? placemark.getLabel() : "Cursor";
     }
 
     public int getNumValues() {
@@ -109,14 +108,14 @@ class SpectrumGraph extends AbstractDiagramGraph {
         Debug.assertNotNull(bands);
         for (int i = 0; i < bands.length; i++) {
             final Band band = bands[i];
-            if (pin != null) {
-                // position of pin is given in image (L0) coordinates
+            if (placemark != null) {
+                // position of placemark is given in image (L0) coordinates
                 // we have to transform them to the current level
                 final ImageManager imageManager = ImageManager.getInstance();
                 final MultiLevelModel multiLevelModel = imageManager.getMultiLevelModel(band);
                 final AffineTransform i2mTransform = multiLevelModel.getImageToModelTransform(0);
                 final AffineTransform m2iTransform = multiLevelModel.getModelToImageTransform(level);
-                final Point2D modelPixel = i2mTransform.transform(pin.getPixelPos(), null);
+                final Point2D modelPixel = i2mTransform.transform(placemark.getPixelPos(), null);
                 final Point2D imagePixel = m2iTransform.transform(modelPixel, null);
                 pixelX = (int) Math.floor(imagePixel.getX());
                 pixelY = (int) Math.floor(imagePixel.getY());
@@ -126,7 +125,7 @@ class SpectrumGraph extends AbstractDiagramGraph {
         Range.computeRangeFloat(energies, IndexValidator.TRUE, energyRange, ProgressMonitor.NULL);
         // no invalidate() call here, SpectrumDiagram does this
     }
-    
+
     private float getSample(Band band, int pixelX, int pixelY, int level) {
         PlanarImage image = ImageManager.getInstance().getSourceImage(band, level);
         final int tileX = image.XToTileX(pixelX);
@@ -141,7 +140,7 @@ class SpectrumGraph extends AbstractDiagramGraph {
 
     @Override
     public void dispose() {
-        pin = null;
+        placemark = null;
         bands = null;
         energies = null;
         wavelengths = null;

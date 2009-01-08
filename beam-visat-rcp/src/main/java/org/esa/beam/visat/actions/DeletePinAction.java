@@ -1,6 +1,6 @@
 package org.esa.beam.visat.actions;
 
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
@@ -19,7 +19,7 @@ public class DeletePinAction extends ExecCommand {
         if (product == null) {
             return;
         }
-        final Pin selectedPin = product.getPinGroup().getSelectedNode();
+        final Placemark selectedPin = product.getPinGroup().getSelectedNode();
         if (selectedPin == null) {
             return;
         }

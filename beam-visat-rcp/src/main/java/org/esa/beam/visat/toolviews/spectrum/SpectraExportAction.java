@@ -33,7 +33,7 @@ class SpectraExportAction extends AbstractAction {
         ArrayList<DiagramGraph> pinGraphList = new ArrayList<DiagramGraph>(graphs.length);
         for (DiagramGraph graph : graphs) {
             SpectrumGraph spectrumGraph = (SpectrumGraph) graph;
-            if (spectrumGraph.getPin() != null) {
+            if (spectrumGraph.getPlacemark() != null) {
                 pinGraphList.add(spectrumGraph);
             }
         }

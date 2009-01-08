@@ -214,18 +214,18 @@ public class PView {
     private static void setSomePlacemarks(Product product) {
         int n = 100;
         for (int i = 0; i < n; i++) {
-            product.getPinGroup().add(new Pin("pin_" + i, "Pin " + i, "", new PixelPos(
+            product.getPinGroup().add(new Placemark("pin_" + i, "Pin " + i, "", new PixelPos(
                     0.5f + (i == 0 ? 0 : (int) (Math.random() * product.getSceneRasterWidth())),
                     0.5f + (i == 0 ? 0 : (int) (Math.random() * product.getSceneRasterHeight()))),
                     null,
-                    PinSymbol.createDefaultPinSymbol()));
+                    PlacemarkSymbol.createDefaultPinSymbol()));
         }
         for (int i = 0; i < n; i++) {
-            product.getGcpGroup().add(new Pin("gcp_" + i, "GCP " + i, "", new PixelPos(
+            product.getGcpGroup().add(new Placemark("gcp_" + i, "GCP " + i, "", new PixelPos(
                     0.5f + (i == 0 ? 0 : (int) (Math.random() * product.getSceneRasterWidth())),
                     0.5f + (i == 0 ? 0 : (int) (Math.random() * product.getSceneRasterHeight()))),
                     null,
-                    PinSymbol.createDefaultGcpSymbol()));
+                    PlacemarkSymbol.createDefaultGcpSymbol()));
         }
     }
 

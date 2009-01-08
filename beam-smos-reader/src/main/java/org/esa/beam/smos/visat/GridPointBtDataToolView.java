@@ -134,7 +134,7 @@ public abstract class GridPointBtDataToolView extends SmosToolView {
         }
 
         private void realizeSelectedPin() {
-            final Pin selectedPin = getSelectedSmosProduct().getPinGroup().getSelectedNode();
+            final Placemark selectedPin = getSelectedSmosProduct().getPinGroup().getSelectedNode();
 
             if (selectedPin != null) {
                 final PixelPos pixelPos = selectedPin.getPixelPos();
@@ -149,7 +149,7 @@ public abstract class GridPointBtDataToolView extends SmosToolView {
         private class PNL implements ProductNodeListener {
             @Override
             public void nodeChanged(ProductNodeEvent event) {
-                if (Pin.PROPERTY_NAME_SELECTED.equals(event.getPropertyName())) {
+                if (Placemark.PROPERTY_NAME_SELECTED.equals(event.getPropertyName())) {
                     updatePin(event);
                 }
             }
@@ -171,7 +171,7 @@ public abstract class GridPointBtDataToolView extends SmosToolView {
 
             private void updatePin(ProductNodeEvent event) {
                 final ProductNode sourceNode = event.getSourceNode();
-                if (sourceNode instanceof Pin && sourceNode.isSelected()) {
+                if (sourceNode instanceof Placemark && sourceNode.isSelected()) {
                     realizeSelectedPin();
                 }
             }

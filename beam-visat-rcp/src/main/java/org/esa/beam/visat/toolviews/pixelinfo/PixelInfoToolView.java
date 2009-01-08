@@ -2,7 +2,7 @@ package org.esa.beam.visat.toolviews.pixelinfo;
 
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.swing.dock.DockablePane;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
@@ -220,7 +220,7 @@ public class PixelInfoToolView extends AbstractToolView {
     private void setToSelectedPin(ProductSceneView sceneView) {
         if (sceneView != null) {
             final Product product = sceneView.getProduct();
-            final Pin pin = product.getPinGroup().getSelectedNode();
+            final Placemark pin = product.getPinGroup().getSelectedNode();
             if (pin == null) {
                 pixelInfoView.updatePixelValues(sceneView, -1, -1, 0, false);
             } else {
@@ -333,7 +333,7 @@ public class PixelInfoToolView extends AbstractToolView {
 
         public void nodeChanged(ProductNodeEvent event) {
             if (isActive()) {
-                if (!Pin.PROPERTY_NAME_SELECTED.equals(event.getPropertyName())) {
+                if (!Placemark.PROPERTY_NAME_SELECTED.equals(event.getPropertyName())) {
                     return;
                 }
                 updatePin(event);
@@ -355,7 +355,7 @@ public class PixelInfoToolView extends AbstractToolView {
         public void nodeRemoved(ProductNodeEvent event) {
             if (isActive()) {
                 ProductNode sourceNode = event.getSourceNode();
-                if (sourceNode instanceof Pin && sourceNode.isSelected()) {
+                if (sourceNode instanceof Placemark && sourceNode.isSelected()) {
                     setToSelectedPin(currentView);
                 }
             }
@@ -363,7 +363,7 @@ public class PixelInfoToolView extends AbstractToolView {
 
         private void updatePin(ProductNodeEvent event) {
             final ProductNode sourceNode = event.getSourceNode();
-            if (sourceNode instanceof Pin && sourceNode.isSelected()) {
+            if (sourceNode instanceof Placemark && sourceNode.isSelected()) {
                 setToSelectedPin(currentView);
             }
         }

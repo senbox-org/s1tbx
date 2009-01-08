@@ -11,16 +11,17 @@
  * See the GNU General Public License for more details.
  */
 
-package org.esa.beam.visat.toolviews.pin;
+package org.esa.beam.visat.toolviews.placemark.pin;
 
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.visat.toolviews.placemark.AbstractPlacemarkTableModel;
 
 public class PinTableModel extends AbstractPlacemarkTableModel {
 
@@ -42,12 +43,12 @@ public class PinTableModel extends AbstractPlacemarkTableModel {
     @Override
     protected Object getStandardColumnValueAt(int rowIndex, int columnIndex) {
         Assert.notNull(getProduct());
-        final Pin pin = getPlacemarkDescriptor().getPlacemarkGroup(getProduct()).get(rowIndex);
+        final Placemark placemark = getPlacemarkDescriptor().getPlacemarkGroup(getProduct()).get(rowIndex);
 
         float x = Float.NaN;
         float y = Float.NaN;
 
-        final PixelPos pixelPos = pin.getPixelPos();
+        final PixelPos pixelPos = placemark.getPixelPos();
         if (pixelPos != null) {
             x = pixelPos.x;
             y = pixelPos.y;
@@ -56,7 +57,7 @@ public class PinTableModel extends AbstractPlacemarkTableModel {
         float lon = Float.NaN;
         float lat = Float.NaN;
 
-        final GeoPos geoPos = pin.getGeoPos();
+        final GeoPos geoPos = placemark.getGeoPos();
         if (geoPos != null) {
             lon = geoPos.lon;
             lat = geoPos.lat;
@@ -72,7 +73,7 @@ public class PinTableModel extends AbstractPlacemarkTableModel {
         case 3:
             return lat;
         case 4:
-            return pin.getLabel();
+            return placemark.getLabel();
         default:
             return "";
         }

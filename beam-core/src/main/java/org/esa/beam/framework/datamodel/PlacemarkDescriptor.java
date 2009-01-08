@@ -7,7 +7,7 @@ import java.awt.Point;
  * Created by Marco Peters.
  *
  * @author Marco Peters
- * @version $Revision:$ $Date:$
+ * @version $Revision$ $Date$
  */
 public interface PlacemarkDescriptor {
 
@@ -19,9 +19,9 @@ public interface PlacemarkDescriptor {
 
     Image getCursorImage();
 
-    ProductNodeGroup<Pin> getPlacemarkGroup(Product product);
+    ProductNodeGroup<Placemark> getPlacemarkGroup(Product product);
 
-    PinSymbol createDefaultSymbol();
+    PlacemarkSymbol createDefaultSymbol();
 
     PixelPos updatePixelPos(GeoCoding geoCoding, GeoPos geoPos, PixelPos pixelPos);
 

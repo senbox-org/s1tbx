@@ -1,5 +1,5 @@
 /*
- * $Id: PinSymbol.java,v 1.2 2006/10/10 14:47:21 norman Exp $
+ * $Id: PlacemarkSymbol.java,v 1.2 2006/10/10 14:47:21 norman Exp $
  *
  * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
  *
@@ -32,25 +32,25 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 
 /**
- * This class represents a <code>{@link Pin}</code>'s shape.
+ * This class represents a <code>{@link Placemark}</code>'s shape.
  *
  * @author Sabine Embacher
  * @version $Revision$ $Date$
  */
-public class PinSymbol extends ShapeFigure {
+public class PlacemarkSymbol extends ShapeFigure {
 
-    private final static String ATTRIB_NAME = "pinSymbolName";
+    private final static String ATTRIB_NAME = "placemarkSymbolName";
     private final static String ATTRIB_KEY_ICON = "ICON";
     private final static String ATTRIB_KEY_REF_POINT = "REF_POINT";
 
     private static final Color SELECTION_COLOR = new Color(255, 255, 0, 200);
 
-    public PinSymbol(String name, ImageIcon icon) {
+    public PlacemarkSymbol(String name, ImageIcon icon) {
         this(name, new Rectangle(0, 0, icon.getIconWidth(), icon.getIconHeight()));
         setIcon(icon);
     }
 
-    public PinSymbol(String name, Shape shape) {
+    public PlacemarkSymbol(String name, Shape shape) {
         super(shape, false, null);
         setName(name);
     }
@@ -199,7 +199,7 @@ public class PinSymbol extends ShapeFigure {
         setAttribute(ATTRIB_KEY_REF_POINT, refPoint);
     }
 
-    public static PinSymbol createDefaultPinSymbol() {
+    public static PlacemarkSymbol createDefaultPinSymbol() {
 
         // create symbol shape
         //
@@ -221,7 +221,7 @@ public class PinSymbol extends ShapeFigure {
 
         // create symbol
         //
-        final PinSymbol pinSymbol = new PinSymbol("Pin-Symbol", symbolShape);
+        final PlacemarkSymbol pinSymbol = new PlacemarkSymbol("Pin-Symbol", symbolShape);
         pinSymbol.setFillPaint(new Color(128, 128, 255));
         pinSymbol.setFilled(true);
         pinSymbol.setOutlineColor(new Color(0, 0, 64));
@@ -230,7 +230,7 @@ public class PinSymbol extends ShapeFigure {
         return pinSymbol;
     }
 
-    public static PinSymbol createDefaultGcpSymbol() {
+    public static PlacemarkSymbol createDefaultGcpSymbol() {
 
 //        // create symbol shape
 //        //
@@ -245,18 +245,18 @@ public class PinSymbol extends ShapeFigure {
 //
 //        // create symbol
 //        //
-//        final PinSymbol pinSymbol = new PinSymbol("GCP-Symbol", path);
-//        pinSymbol.setFillPaint(new Color(255, 255, 255));
-//        pinSymbol.setFilled(true);
-//        pinSymbol.setOutlineColor(new Color(255, 255, 0));
-//        pinSymbol.setOutlineStroke(new BasicStroke(1.0f));
-//        pinSymbol.setRefPoint(new PixelPos(0, 0));
-//        return pinSymbol;
+//        final PlacemarkSymbol gcpSymbol = new PlacemarkSymbol("GCP-Symbol", path);
+//        gcpSymbol.setFillPaint(new Color(255, 255, 255));
+//        gcpSymbol.setFilled(true);
+//        gcpSymbol.setOutlineColor(new Color(255, 255, 0));
+//        gcpSymbol.setOutlineStroke(new BasicStroke(1.0f));
+//        gcpSymbol.setRefPoint(new PixelPos(0, 0));
+//        return gcpSymbol;
 
-        ImageIcon icon = new ImageIcon(PinSymbol.class.getResource("GcpShape.png"));
-        PinSymbol pinSymbol = new PinSymbol("GCP-Symbol", icon);
-        pinSymbol.setRefPoint(new PixelPos(icon.getIconWidth() * 0.5f, icon.getIconHeight() * 0.5f));
-        return pinSymbol;
+        ImageIcon icon = new ImageIcon(PlacemarkSymbol.class.getResource("GcpShape.png"));
+        PlacemarkSymbol gcpSymbol = new PlacemarkSymbol("GCP-Symbol", icon);
+        gcpSymbol.setRefPoint(new PixelPos(icon.getIconWidth() * 0.5f, icon.getIconHeight() * 0.5f));
+        return gcpSymbol;
 
     }
 }

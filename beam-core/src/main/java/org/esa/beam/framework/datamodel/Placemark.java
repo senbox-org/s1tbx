@@ -1,5 +1,5 @@
 /*
- * $Id: Pin.java,v 1.1.1.1 2006/09/11 08:16:45 norman Exp $
+ * $Id: Placemark.java,v 1.1.1.1 2006/09/11 08:16:45 norman Exp $
  *
  * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
  *
@@ -40,7 +40,7 @@ import java.awt.Shape;
  * @author Sabine Embacher
  * @version $Revision$ $Date$
  */
-public class Pin extends ProductNode {
+public class Placemark extends ProductNode {
 
     public final static String PROPERTY_NAME_GEOPOS = "geoPos";
     public final static String PROPERTY_NAME_PIXELPOS = "pixelPos";
@@ -50,30 +50,30 @@ public class Pin extends ProductNode {
     private String label;
     private PixelPos pixelPos;
     private GeoPos geoPos;
-    private PinSymbol symbol;
+    private PlacemarkSymbol symbol;
 
     /**
-     * @deprecated in 4.1, use {@link Pin#Pin(String, String, String, PixelPos, GeoPos, PinSymbol)}
+     * @deprecated in 4.1, use {@link Placemark#Placemark(String, String, String, PixelPos, GeoPos, PlacemarkSymbol)}
      */
     @Deprecated
-    public Pin(String name, String label, PixelPos pixelPos) {
-        this(name, label, "", pixelPos, null, PinSymbol.createDefaultPinSymbol());
+    public Placemark(String name, String label, PixelPos pixelPos) {
+        this(name, label, "", pixelPos, null, PlacemarkSymbol.createDefaultPinSymbol());
     }
 
     /**
-     * @deprecated in 4.1, use {@link Pin#Pin(String, String, String, PixelPos, GeoPos, PinSymbol)}
+     * @deprecated in 4.1, use {@link Placemark#Placemark(String, String, String, PixelPos, GeoPos, PlacemarkSymbol)}
      */
     @Deprecated
-    public Pin(String name, String label, GeoPos geoPos) {
-        this(name, label, "", null, geoPos, PinSymbol.createDefaultPinSymbol());
+    public Placemark(String name, String label, GeoPos geoPos) {
+        this(name, label, "", null, geoPos, PlacemarkSymbol.createDefaultPinSymbol());
     }
 
-    public Pin(String name,
+    public Placemark(String name,
                String label,
                String description,
                PixelPos pixelPos,
                GeoPos geoPos,
-               PinSymbol pinSymbol) {
+               PlacemarkSymbol placemarkSymbol) {
         super(name);
         if (pixelPos == null && geoPos == null) {
             throw new IllegalArgumentException("pixelPos == null && geoPos == null");
@@ -82,7 +82,7 @@ public class Pin extends ProductNode {
         setDescription(description);
         setPixelPos(pixelPos);
         setGeoPos(geoPos);
-        setSymbol(pinSymbol);
+        setSymbol(placemarkSymbol);
     }
 
     /**
@@ -131,11 +131,11 @@ public class Pin extends ProductNode {
     public void acceptVisitor(ProductVisitor visitor) {
     }
 
-    public PinSymbol getSymbol() {
+    public PlacemarkSymbol getSymbol() {
         return symbol;
     }
 
-    public void setSymbol(final PinSymbol symbol) {
+    public void setSymbol(final PlacemarkSymbol symbol) {
         Guardian.assertNotNull("symbol", symbol);
         if (this.symbol != symbol) {
             this.symbol = symbol;
@@ -249,19 +249,19 @@ public class Pin extends ProductNode {
 
     // todo - move this methods away from here
 
-    public static Pin createGcp(Element element) {
-        return createPlacemark(element, PinSymbol.createDefaultGcpSymbol());
+    public static Placemark createGcp(Element element) {
+        return createPlacemark(element, PlacemarkSymbol.createDefaultGcpSymbol());
     }
 
-    public static Pin createPin(Element element) {
-        return createPlacemark(element, PinSymbol.createDefaultPinSymbol());
+    public static Placemark createPin(Element element) {
+        return createPlacemark(element, PlacemarkSymbol.createDefaultPinSymbol());
     }
 
     /**
      * @throws NullPointerException     if element is null
      * @throws IllegalArgumentException if element is invalid
      */
-    public static Pin createPlacemark(Element element, PinSymbol symbol) {
+    public static Placemark createPlacemark(Element element, PlacemarkSymbol symbol) {
         if (!DimapProductConstants.TAG_PLACEMARK.equals(element.getName()) &&
                 !DimapProductConstants.TAG_PIN.equals(element.getName())) {
             throw new IllegalArgumentException("Element '" + DimapProductConstants.TAG_PLACEMARK + "' or '" +
@@ -271,7 +271,7 @@ public class Pin extends ProductNode {
         if (name == null) {
             throw new IllegalArgumentException("Missing attribute '" + DimapProductConstants.ATTRIB_NAME + "'.");
         }
-        if (!Pin.isValidNodeName(name)) {
+        if (!Placemark.isValidNodeName(name)) {
             throw new IllegalArgumentException("Invalid placemark name '" + name + "'.");
         }
 
@@ -321,7 +321,7 @@ public class Pin extends ProductNode {
             symbol.setOutlineColor(outlineColor);
         }
 
-        return new Pin(name, label, description, pixelPos, geoPos, symbol);
+        return new Placemark(name, label, description, pixelPos, geoPos, symbol);
     }
 
     // todo - move this method into a new DimapPersistable
