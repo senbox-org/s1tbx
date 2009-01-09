@@ -24,7 +24,8 @@ import com.bc.ceres.core.ProgressMonitor;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.text.MessageFormat;
+import java.util.*;
 
 /**
  * Represents a SMOS L1c Science product file.
@@ -43,29 +44,92 @@ public class L1cScienceSmosFile extends L1cSmosFile {
     private final int flagsIndex;
     private final int incidenceAngleIndex;
 
-    private final int snapshotIdIndex;
+    private final int snapshotIdOfPixelIndex;
     private final SequenceData snapshotList;
-
     private final CompoundType snapshotType;
-    private final int[] snapshotIndexes;
 
-    private int snapshotIdMin;
-    private int snapshotIdMax;
+    private Map<Integer, Integer> snapshotIndexMap;
+
+    private Integer[] snapshotIds;
+    private Integer[] xPolSnapshotIds;
+    private Integer[] yPolSnapshotIds;
+    private Integer[] xyPolSnapshotIds;
 
     public L1cScienceSmosFile(File file, DataFormat format) throws IOException {
         super(file, format);
 
         flagsIndex = getBtDataType().getMemberIndex(SmosFormats.BT_FLAGS_NAME);
         incidenceAngleIndex = this.btDataType.getMemberIndex(SmosFormats.BT_INCIDENCE_ANGLE_NAME);
-        snapshotIdIndex = btDataType.getMemberIndex(SmosFormats.BT_SNAPSHOT_ID_OF_PIXEL_NAME);
+        snapshotIdOfPixelIndex = btDataType.getMemberIndex(SmosFormats.BT_SNAPSHOT_ID_OF_PIXEL_NAME);
 
         snapshotList = getDataBlock().getSequence(SmosFormats.SNAPSHOT_LIST_NAME);
         if (snapshotList == null) {
             throw new IOException("Data block does not include snapshot list.");
         }
-
         snapshotType = (CompoundType) snapshotList.getSequenceType().getElementType();
-        snapshotIndexes = createSnapshotIndexes();
+
+        tabulateSnapshotIds();
+    }
+
+    private void tabulateSnapshotIds() throws IOException {
+        final SortedSet<Integer> x = new TreeSet<Integer>();
+        final SortedSet<Integer> y = new TreeSet<Integer>();
+        final SortedSet<Integer> xy = new TreeSet<Integer>();
+        final SortedSet<Integer> union = new TreeSet<Integer>();
+
+        final int gridPointCount = getGridPointCount();
+        for (int i = 0; i < gridPointCount; i++) {
+            final SequenceData btList = getBtDataList(i);
+
+            final int btCount = btList.getElementCount();
+            for (int j = 0; j < btCount; j++) {
+                final CompoundData btData = btList.getCompound(j);
+                final int sid = btData.getInt(snapshotIdOfPixelIndex);
+                final int flags = btData.getInt(flagsIndex);
+
+                if (!union.contains(sid)) {
+                    switch (flags & SmosFormats.L1C_POL_FLAGS_MASK) {
+                        case SmosFormats.L1C_POL_MODE_X:
+                            x.add(sid);
+                            break;
+                        case SmosFormats.L1C_POL_MODE_Y:
+                            y.add(sid);
+                            break;
+                        case SmosFormats.L1C_POL_MODE_XY1:
+                        case SmosFormats.L1C_POL_MODE_XY2:
+                            xy.add(sid);
+                            break;
+                    }
+                    union.add(sid);
+                }
+            }
+        }
+
+        snapshotIds = union.toArray(new Integer[union.size()]);
+        xPolSnapshotIds = x.toArray(new Integer[x.size()]);
+        yPolSnapshotIds = y.toArray(new Integer[y.size()]);
+        xyPolSnapshotIds = xy.toArray(new Integer[xy.size()]);
+
+        System.out.println("SmosFile: snapshotCount(x) = " + x.size());
+        System.out.println("SmosFile: snapshotCount(y) = " + y.size());
+        System.out.println("SmosFile: snapshotCount(xy) = " + xy.size());
+        System.out.println("SmosFile: snapshotCount(all) = " + union.size());
+
+        snapshotIndexMap = new TreeMap<Integer, Integer>();
+
+        final int snapshotIdIndex = snapshotType.getMemberIndex(SmosFormats.SNAPSHOT_ID_NAME);
+        final int snapshotCount = snapshotList.getElementCount();
+        for (int i = 0; i < snapshotCount; i++) {
+            final CompoundData snapshotData = getSnapshotData(i);
+            final int sid = snapshotData.getInt(snapshotIdIndex);
+
+            if (union.contains(sid)) {
+                snapshotIndexMap.put(sid, i);
+            }
+        }
+
+        System.out.println("snapshotIds.length = " + snapshotIds.length);
+        System.out.println("snapshotIndexMap.size() = " + snapshotIndexMap.size());
     }
 
     @Override
@@ -135,16 +199,16 @@ public class L1cScienceSmosFile extends L1cSmosFile {
         final int elementCount = btDataList.getElementCount();
 
         CompoundData btData = btDataList.getCompound(0);
-        if (btData.getInt(snapshotIdIndex) > snapshotId) {
+        if (btData.getInt(snapshotIdOfPixelIndex) > snapshotId) {
             return null;
         }
         btData = btDataList.getCompound(elementCount - 1);
-        if (btData.getInt(snapshotIdIndex) < snapshotId) {
+        if (btData.getInt(snapshotIdOfPixelIndex) < snapshotId) {
             return null;
         }
         for (int i = 0; i < elementCount; ++i) {
             btData = btDataList.getCompound(i);
-            if (btData.getInt(snapshotIdIndex) == snapshotId) {
+            if (btData.getInt(snapshotIdOfPixelIndex) == snapshotId) {
                 final int flags = btData.getInt(flagsIndex);
                 if (polMode == (flags & 3) || (polMode & flags & 2) != 0) {
                     return btData;
@@ -239,15 +303,19 @@ public class L1cScienceSmosFile extends L1cSmosFile {
     }
 
     public final int getSnapshotIdMin() {
-        return snapshotIdMin;
+        return snapshotIds[0];
     }
 
     public final int getSnapshotIdMax() {
-        return snapshotIdMax;
+        return snapshotIds[snapshotIds.length - 1];
     }
 
     public final int getSnapshotIndex(int snapshotId) {
-        return snapshotIndexes[snapshotId - snapshotIdMin];
+        if (!snapshotIndexMap.containsKey(snapshotId)) {
+            throw new IllegalArgumentException(MessageFormat.format("Illegal snapshot ID: {0}", snapshotId));
+        }
+
+        return snapshotIndexMap.get(snapshotId);
     }
 
     public final SequenceData getSnapshotList() {
@@ -280,12 +348,18 @@ public class L1cScienceSmosFile extends L1cSmosFile {
                     if (snapshotId >= minId) {
                         final int maxId = getSnapshotId(btDataList, btDataList.getElementCount() - 1);
                         if (snapshotId <= maxId) {
-                            final float lon = gridPointList.getCompound(i).getFloat(lonIndex);
-                            final float lat = gridPointList.getCompound(i).getFloat(latIndex);
+                            float lon = gridPointList.getCompound(i).getFloat(lonIndex);
+                            float lat = gridPointList.getCompound(i).getFloat(latIndex);
+                            // normalisation to [-180, 180] necessary for some L1c test products
+                            if (lon > 180.0f) {
+                                lon = lon - 360.0f;
+                            }
+                            final Rectangle2D.Float rectangle =
+                                    new Rectangle2D.Float(lon - 0.02f, lat - 0.02f, 0.04f, 0.04f);
                             if (region == null) {
-                                region = new Rectangle2D.Float(lon, lat, 0.0f, 0.0f);
+                                region = rectangle;
                             } else {
-                                region.add(lon, lat);
+                                region.add(rectangle);
                             }
                         }
                     }
@@ -304,59 +378,14 @@ public class L1cScienceSmosFile extends L1cSmosFile {
 
     private int getSnapshotId(SequenceData btDataList, int btDataIndex) throws IOException {
         Assert.argument(btDataList.getSequenceType().getElementType() == btDataType);
-        return btDataList.getCompound(btDataIndex).getInt(snapshotIdIndex);
+        return btDataList.getCompound(btDataIndex).getInt(snapshotIdOfPixelIndex);
     }
 
-    private int[] createSnapshotIndexes() throws IOException {
-        final int snapshotIdIndex = snapshotType.getMemberIndex(SmosFormats.SNAPSHOT_ID_NAME);
+    public Integer[] getSnapshotIds() {
+        return snapshotIds.clone();
+    }
 
-        int minId = Integer.MAX_VALUE;
-        int maxId = Integer.MIN_VALUE;
-
-        final int snapshotCount = snapshotList.getElementCount();
-        for (int i = 0; i < snapshotCount; i++) {
-            final CompoundData snapshotData = getSnapshotData(i);
-            final int id = snapshotData.getInt(snapshotIdIndex);
-
-            if (id < minId) {
-                minId = id;
-            }
-            if (id > maxId) {
-                maxId = id;
-            }
-        }
-
-        // todo - user logger or remove (rq-20081205)
-        System.out.println("SmosFile: snapshotIdMin = " + minId);
-        System.out.println("SmosFile: snapshotIdMax = " + maxId);
-
-        final int[] snapshotIndexes = new int[maxId - minId + 1];
-
-        Arrays.fill(snapshotIndexes, -1);
-        for (int i = 0; i < snapshotCount; i++) {
-            final CompoundData snapshotData = getSnapshotData(i);
-            final int id = snapshotData.getInt(snapshotIdIndex);
-
-            snapshotIndexes[id - minId] = i;
-        }
-
-        // todo - user logger or remove (rq-20081205)
-        System.out.println("SmosFile: snapshotCount = " + snapshotCount);
-        System.out.println("SmosFile: total number of snapshotIndexes = " + snapshotIndexes.length);
-
-        int n = 0;
-        for (int snapshotIndex : snapshotIndexes) {
-            if (snapshotIndex != -1) {
-                n++;
-            }
-        }
-
-        // todo - user logger or remove (rq-20081205)
-        System.out.println("SmosFile: number of snapshotIndexes != -1:" + n);
-
-        snapshotIdMin = minId;
-        snapshotIdMax = maxId;
-
-        return snapshotIndexes;
+    public int getSnapshotIdCount() {
+        return snapshotIds.length;
     }
 }

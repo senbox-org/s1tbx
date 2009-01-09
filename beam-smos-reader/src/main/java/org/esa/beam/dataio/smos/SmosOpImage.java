@@ -40,7 +40,7 @@ class SmosOpImage extends SingleBandedOpImage {
               node.getSceneRasterWidth(),
               node.getSceneRasterHeight(),
               node.getProduct().getPreferredTileSize(),
-              null, // configuration
+              null, // no configuration
               level);
 
         this.valueProvider = valueProvider;
