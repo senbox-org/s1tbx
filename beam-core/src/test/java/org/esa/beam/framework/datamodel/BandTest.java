@@ -27,6 +27,7 @@ import org.esa.beam.dataio.dimap.DimapProductWriter;
 import org.esa.beam.dataio.dimap.DimapProductWriterPlugIn;
 import org.esa.beam.framework.dataio.ProductIO;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -782,6 +783,45 @@ public class BandTest extends AbstractRasterDataNodeTest {
             band.setPixels(0, 0, 1, 1, new double[]{0.0});
             fail();
         } catch (NullPointerException expected) {
+        }
+    }
+
+    public void testBandImageChangeNotifications() {
+        PNL pnl = new PNL();
+        Product p = new Product("p", "pt", 10, 10);
+
+        Band b = p.addBand("b", ProductData.TYPE_UINT16);
+
+        p.addProductNodeListener(pnl);
+
+        assertNotNull(b.getSourceImage());
+
+        pnl.trace = "";
+        b.setSourceImage(new BufferedImage(10, 10, BufferedImage.TYPE_USHORT_GRAY));
+        assertEquals("sourceImage;", pnl.trace);
+
+// @todo - make this work and add more tests (see http://www.brockmann-consult.de/wiki/display/BEAM/BEAM+Future) (nf-20090110)
+//        pnl.trace = "";
+//        b.setScalingFactor(2.0);
+//        assertEquals("scalingFactor;geophysicalImage;", pnl.trace);
+//
+//        pnl.trace = "";
+//        b.setNoDataValue(-999.0);
+//        b.setNoDataValueUsed(true);
+//        assertEquals("noDataValue;noDataValueUsed;geophysicalImage;dataMaskImage;", pnl.trace);
+    }
+
+    private static class PNL extends ProductNodeListenerAdapter {
+        String trace = "";
+
+        @Override
+        public void nodeChanged(ProductNodeEvent event) {
+            trace += event.getPropertyName() + ";";
+        }
+
+        @Override
+        public void nodeDataChanged(ProductNodeEvent event) {
+            trace += event.getPropertyName() + ";";
         }
     }
 }
