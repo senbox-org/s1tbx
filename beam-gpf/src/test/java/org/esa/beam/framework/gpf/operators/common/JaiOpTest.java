@@ -10,15 +10,23 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.jai.SingleBandedSampleModel;
 
-import javax.media.jai.*;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
+import javax.media.jai.OpImage;
+import javax.media.jai.OperationDescriptor;
+import javax.media.jai.ParameterBlockJAI;
+import javax.media.jai.ParameterListDescriptor;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.TiledImage;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
-import java.awt.image.BufferedImage;
 import java.awt.image.renderable.ParameterBlock;
-import java.util.HashMap;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.HashMap;
 
 public class JaiOpTest extends TestCase {
     public void testNoSourceGiven() {
@@ -150,10 +158,10 @@ public class JaiOpTest extends TestCase {
     private Product createSourceProduct() {
         final Product sourceProduct = new Product("sp", "spt", 4, 4);
         sourceProduct.addBand("b1", ProductData.TYPE_INT32);
-        sourceProduct.addTiePointGrid(new TiePointGrid("tpg1", 3,3, 0,0,2,2,new float[] {
-                0.1f,0.2f,0.3f,
-                0.2f,0.3f,0.4f,
-                0.3f,0.4f,0.5f,
+        sourceProduct.addTiePointGrid(new TiePointGrid("tpg1", 3, 3, 0, 0, 2, 2, new float[]{
+                0.1f, 0.2f, 0.3f,
+                0.2f, 0.3f, 0.4f,
+                0.3f, 0.4f, 0.5f,
         }));
         return sourceProduct;
     }
@@ -272,8 +280,8 @@ public class JaiOpTest extends TestCase {
         final RenderedOp renderedOp1 = JAI.create("scale", params);
 
         params = new ParameterBlockJAI("rescale");
-        params.setParameter("offsets", new double[]{0.5, 0.5, 0.5,0.5});
-        params.setParameter("constants", new double[]{1.5, 1.5, 1.5,1.5});
+        params.setParameter("offsets", new double[]{0.5, 0.5, 0.5, 0.5});
+        params.setParameter("constants", new double[]{1.5, 1.5, 1.5, 1.5});
         params.addSource(renderedOp1);
         final RenderedOp renderedOp2 = JAI.create("rescale", params);
 
@@ -291,13 +299,20 @@ public class JaiOpTest extends TestCase {
         renderedOp1.setParameterBlock(params);
 
         assertEquals("rendering;", mockPCL.trace);
+        assertNotSame(mockPCL.lastNewValue, mockPCL.lastOldValue);
+        assertEquals(rendering, mockPCL.lastOldValue);
+        assertEquals(renderedOp2.getRendering(), mockPCL.lastNewValue);
     }
 
     private static class MockPCL implements PropertyChangeListener {
         String trace = "";
+        Object lastOldValue;
+        Object lastNewValue;
 
         public void propertyChange(PropertyChangeEvent evt) {
-            trace += evt.getPropertyName()+";";
+            trace += evt.getPropertyName() + ";";
+            lastOldValue = evt.getOldValue();
+            lastNewValue = evt.getNewValue();
         }
     }
 }
