@@ -4,7 +4,7 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-smos-reader</artifactId>
     <packaging>jar</packaging>
-    <version>1.0</version>
+    <version>0.5-SNAPSHOT</version>
     <name>BEAM SMOS Reader</name>
 
     <parent>

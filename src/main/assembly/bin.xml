@@ -106,7 +106,7 @@
                 <exclude>com.bc.ceres:ceres-launcher</exclude>
                 <exclude>com.bc.ceres:ceres-site</exclude>
                 
-                <exclude>org.esa.beam:beam-smos-reader</exclude>
+                <!--<exclude>org.esa.beam:beam-smos-reader</exclude>-->
             </excludes>
 
             <binaries>
