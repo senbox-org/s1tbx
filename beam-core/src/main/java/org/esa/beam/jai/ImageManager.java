@@ -91,6 +91,7 @@ public class ImageManager {
     }
 
     public static MultiLevelSource getMultiLevelSource(RenderedImage levelZeroImage) {
+        Assert.notNull(levelZeroImage, "levelZeroImage");
         MultiLevelSource multiLevelSource;
         if (levelZeroImage instanceof MultiLevelSource) {
             multiLevelSource = (MultiLevelSource) levelZeroImage;
@@ -146,6 +147,7 @@ public class ImageManager {
             throw new IllegalArgumentException("sourceHeight");
         }
         Assert.notNull("level");
+        // todo - The knowledge of how width and height are computed should go either into AbstractMultiLevelSource or into the MultiLevelModel (nf 20090113)
         int destWidth = (int) Math.floor(sourceWidth / level.getScale());
         int destHeight = (int) Math.floor(sourceHeight / level.getScale());
         SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataBufferType,
