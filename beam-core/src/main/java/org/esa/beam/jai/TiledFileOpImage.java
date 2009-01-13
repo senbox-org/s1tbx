@@ -63,7 +63,11 @@ public class TiledFileOpImage extends SourcelessOpImage {
      */
     @Override
     public Raster computeTile(int tileX, int tileY) {
+        // System.out.println("TiledFileOpImage.computeTile: >> '" + getTileFilename(tileX, tileY) + "'...");
+
+
         final Point location = new Point(tileXToX(tileX), tileYToY(tileY));
+        final Raster raster;
         if (imageHeader.getTileFormat().startsWith("raw")) {
             final WritableRaster targetRaster = createWritableRaster(sampleModel, location);
             try {
@@ -71,15 +75,17 @@ public class TiledFileOpImage extends SourcelessOpImage {
             } catch (IOException e) {
                 throw new RuntimeException("Failed to read image tile.", e);
             }
-            return targetRaster;
+            raster = targetRaster;
         } else {
-            return readImageTile(tileX, tileY, location);
+            raster = readImageTile(tileX, tileY, location);
         }
+
+        // System.out.println("TiledFileOpImage.computeTile: << '" + getTileFilename(tileX, tileY) + "'");
+        return raster;
     }
 
     private Raster readImageTile(int tileX, int tileY, Point location) {
         File imageFile = new File(imageDir, getTileFilename(tileX, tileY));
-        System.out.println("TiledFileOpImage: Loading '" + imageFile + "'...");
         final RenderedOp renderedOp = FileLoadDescriptor.create(imageFile.getPath(), null, true, null);
         final Raster data = renderedOp.getData();
         return WritableRaster.createRaster(data.getSampleModel(), data.getDataBuffer(), location);
@@ -148,13 +154,12 @@ public class TiledFileOpImage extends SourcelessOpImage {
             if (!tmpDir.exists()) {
                 tmpDir.mkdirs();
             }
-            System.out.println("TiledFileOpImage: Using temporary directory '" + tmpDir + "'");
+            // System.out.println("TiledFileOpImage: Using temporary directory '" + tmpDir + "'");
         }
 
         public ImageInputStream createImageInputStream(int tileX, int tileY) throws IOException {
             final String entryName = getTileBasename(tileX, tileY) + ".raw";
             final File file = new File(imageDir, entryName + ".zip");
-            System.out.println("TiledFileOpImage: Loading '" + file + "'...");
             final ZipFile zipFile = new ZipFile(file);
             final ZipEntry zipEntry = zipFile.getEntry(entryName);
             final InputStream inputStream = zipFile.getInputStream(zipEntry);
