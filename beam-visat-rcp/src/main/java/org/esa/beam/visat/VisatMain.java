@@ -30,6 +30,8 @@ import org.esa.beam.BeamUiActivator;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.media.jai.JAI;
+import javax.media.jai.util.ImagingListener;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -95,6 +97,15 @@ public class VisatMain implements RuntimeRunnable {
         }
 
         Debug.setEnabled(debugEnabled);
+        if (debugEnabled) {
+            JAI.getDefaultInstance().setImagingListener(new ImagingListener() {
+                public boolean errorOccurred(String message, Throwable thrown, Object where, boolean isRetryable) throws RuntimeException {
+                    Debug.trace("JAI Error: " + message);
+                    Debug.trace(thrown);
+                    return false;
+                }
+            });
+        }
 
 
         final VisatApp app = createApplication(applicationDescriptor);
