@@ -8,26 +8,54 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 
+/**
+ * A default implementation for a the {@link MultiLevelModel} interface.
+ */
 public class DefaultMultiLevelModel implements MultiLevelModel {
 
     public final static int DEFAULT_MAX_LEVEL_PIXEL_COUNT = 256 * 256;
-    
+
     private final int levelCount;
     private final AffineTransform[] imageToModelTransforms;
     private final AffineTransform[] modelToImageTransforms;
     private Rectangle2D modelBounds;
 
-    public DefaultMultiLevelModel(AffineTransform i2mTransform,
+    /**
+     * Constructs a a new model for a multi level source.
+     * The number of levels is computed by {@link #getLevelCount(int, int)}.
+     * The image bounds are computed by {@link #getModelBounds(java.awt.geom.AffineTransform, int, int)}.
+     *
+     * @param imageToModelTransform The affine transformation from image to model coordinates.
+     * @param width                 The width of the image in pixels at level zero.
+     * @param height                The height of the image in pixels at level zero.
+     */
+    public DefaultMultiLevelModel(AffineTransform imageToModelTransform,
                                   int width, int height) {
-        this(getLevelCount(width, height), i2mTransform, getModelBounds(i2mTransform, width, height));
+        this(getLevelCount(width, height), imageToModelTransform, getModelBounds(imageToModelTransform, width, height));
     }
 
+    /**
+     * Constructs a a new model for a multi level source.
+     * The image bounds are computed by {@link #getModelBounds(java.awt.geom.AffineTransform, int, int)}.
+     *
+     * @param levelCount            The number of levels.
+     * @param imageToModelTransform The affine transformation from image to model coordinates.
+     * @param width                 The width of the image in pixels at level zero.
+     * @param height                The height of the image in pixels at level zero.
+     */
     public DefaultMultiLevelModel(int levelCount,
-                                  AffineTransform i2mTransform,
+                                  AffineTransform imageToModelTransform,
                                   int width, int height) {
-        this(levelCount, i2mTransform, getModelBounds(i2mTransform, width, height));
+        this(levelCount, imageToModelTransform, getModelBounds(imageToModelTransform, width, height));
     }
 
+    /**
+     * Constructs a a new model for a multi level source.
+     *
+     * @param levelCount            The number of levels.
+     * @param imageToModelTransform The affine transformation from image to model coordinates.
+     * @param modelBounds           The image bounds in model coordinates.
+     */
     public DefaultMultiLevelModel(int levelCount,
                                   AffineTransform imageToModelTransform,
                                   Rectangle2D modelBounds) {
@@ -127,27 +155,48 @@ public class DefaultMultiLevelModel implements MultiLevelModel {
         } else {
             this.modelBounds = null;
         }
-
     }
 
-    public static Rectangle2D getModelBounds(AffineTransform imageToModelTransform, RenderedImage levelZeroImage) {
-        return imageToModelTransform.createTransformedShape(new Rectangle(levelZeroImage.getMinX(),
-                                                                          levelZeroImage.getMinY(),
-                                                                          levelZeroImage.getWidth(),
-                                                                          levelZeroImage.getHeight())).getBounds2D();
+    /**
+     * Computes the image bounding box in model coordinates.
+     *
+     * @param i2mTransform   The affine transformation from image to model coordinates.
+     * @param levelZeroImage The image at level zero.
+     * @return The number of levels.
+     */
+    public static Rectangle2D getModelBounds(AffineTransform i2mTransform, RenderedImage levelZeroImage) {
+        return i2mTransform.createTransformedShape(new Rectangle(levelZeroImage.getMinX(),
+                                                                 levelZeroImage.getMinY(),
+                                                                 levelZeroImage.getWidth(),
+                                                                 levelZeroImage.getHeight())).getBounds2D();
     }
 
-    public static Rectangle2D getModelBounds(AffineTransform imageToModelTransform, int w, int h) {
-        return imageToModelTransform.createTransformedShape(new Rectangle(0, 0, w, h)).getBounds2D();
+    /**
+     * Computes the image bounding box in model coordinates.
+     *
+     * @param i2mTransform The affine transformation from image to model coordinates.
+     * @param width        The width of the image in pixels at level zero.
+     * @param height       The height of the image in pixels at level zero.
+     * @return The number of levels.
+     */
+    public static Rectangle2D getModelBounds(AffineTransform i2mTransform, int width, int height) {
+        return i2mTransform.createTransformedShape(new Rectangle(0, 0, width, height)).getBounds2D();
     }
 
+    /**
+     * Computes the number of levels using the {@link #DEFAULT_MAX_LEVEL_PIXEL_COUNT} constant.
+     *
+     * @param width  The width of the image in pixels at level zero.
+     * @param height The height of the image in pixels at level zero.
+     * @return The number of levels.
+     */
     public static int getLevelCount(int width, int height) {
-        int level = 1;
+        int levelCount = 1;
         double scale = 1.0;
         while ((scale * width) * (scale * height) >= DEFAULT_MAX_LEVEL_PIXEL_COUNT) {
-            level++;
+            levelCount++;
             scale *= 0.5;
         }
-        return level;
+        return levelCount;
     }
 }
