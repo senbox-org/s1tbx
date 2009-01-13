@@ -58,7 +58,7 @@ public interface MultiLevelModel {
     AffineTransform getModelToImageTransform(int level);
 
     /**
-     * Returns the bounding box in model coordinates.
+     * Gets the bounding box in model coordinates.
      *
      * @return The bounding box, may be {@code null} if unspecified.
      */
