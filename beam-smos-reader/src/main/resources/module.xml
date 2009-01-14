@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-smos-reader</symbolicName>
-    <version>1.0</version>
+    <version>0.5-SNAPSHOT</version>
     <name>BEAM SMOS reader</name>
     <description>BEAM reader for SMOS data products</description>
 
@@ -11,7 +11,7 @@
     <url>http://foo/</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
-   <dependency>
+    <dependency>
         <module>ceres-binio</module>
     </dependency>
     <dependency>

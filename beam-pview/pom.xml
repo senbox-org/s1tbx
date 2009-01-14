@@ -49,7 +49,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-smos-reader</artifactId>
-            <version>1.0</version>
+            <version>0.5-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
