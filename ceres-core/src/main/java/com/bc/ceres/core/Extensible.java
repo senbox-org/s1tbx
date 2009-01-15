@@ -1,8 +1,10 @@
 package com.bc.ceres.core;
 
 /**
- * Interface for an object that can be modified by dynamically changing or adding
- * features.
+ * Objects implementing this interface can be dynamically extended.
+ *
+ * @author Norman Fomferra
+ * @version $Revision$ $Date$
  */
 public interface Extensible {
     /**
