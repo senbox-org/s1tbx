@@ -12,12 +12,28 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.DefaultViewport;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
-import org.esa.beam.framework.ui.*;
+import org.esa.beam.framework.ui.BasicView;
+import org.esa.beam.framework.ui.LayerUI;
+import org.esa.beam.framework.ui.PixelInfoFactory;
+import org.esa.beam.framework.ui.PixelPositionListener;
+import org.esa.beam.framework.ui.PopupMenuHandler;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandUIFactory;
-import org.esa.beam.framework.ui.tool.*;
+import org.esa.beam.framework.ui.tool.AbstractTool;
+import org.esa.beam.framework.ui.tool.DrawingEditor;
+import org.esa.beam.framework.ui.tool.Tool;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.framework.ui.tool.ToolInputEvent;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
@@ -32,9 +48,28 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputListener;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Arrays;
@@ -85,6 +120,11 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     public static final String PROPERTY_NAME_IMAGE_INFO = "imageInfo";
 
     /**
+     * Name of property of image info
+     */
+    public static final String PROPERTY_NAME_SELECTED_LAYER = "selectedLayer";
+
+    /**
      * Property name for the image histogram matching type
      *
      * @deprecated
@@ -127,6 +167,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     // }}
 
     private Tool tool;
+    private Layer selectedLayer;
 
     private ComponentAdapter layerCanvasComponentHandler;
     private LayerCanvasMouseHandler layerCanvasMouseHandler;
@@ -637,13 +678,37 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         pixelPositionListeners.remove(listener);
     }
 
-    /**
-     * Gets tools which can handle selections.
-     */
-    public AbstractTool[] getSelectToolDelegates() {
-        // is used for the selection tool, which can be specified for each layer
-        // has been introduced for IAVISA (IFOV selection)  (nf, 2008)
-        return new AbstractTool[0];
+    public Layer getSelectedLayer() {
+        return selectedLayer;
+    }
+
+    public void setSelectedLayer(Layer layer) {
+        Layer oldLayer = this.selectedLayer;
+        if (oldLayer != layer) {
+            this.selectedLayer = layer;
+            firePropertyChange(PROPERTY_NAME_SELECTED_LAYER, oldLayer, selectedLayer);
+        }
+    }
+
+    public AbstractTool getSelectTool() {
+        final Layer layer = getSelectedLayer();
+        if (layer != null) {
+            final LayerUI extension = layer.getExtension(LayerUI.class);
+            if (extension != null) {
+                return extension.getSelectTool(layer, this);
+            }
+        }
+        return null;
+    }
+
+    public void handleSelection(Rectangle rectangle) {
+        final Layer layer = getSelectedLayer();
+        if (layer != null) {
+            final LayerUI extension = layer.getExtension(LayerUI.class);
+            if (extension != null) {
+                extension.handleSelection(layer, this, rectangle);
+            }
+        }
     }
 
     public void disposeLayers() {
@@ -933,7 +998,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
             final RasterDataNode[] rasters = getRasters();
             final ProductNode productNode = event.getSourceNode();
             if (imageChangingProperties.contains(event.getPropertyName()) &&
-                Arrays.asList(rasters).contains(productNode)) {
+                    Arrays.asList(rasters).contains(productNode)) {
 
                 RasterDataNode raster = (RasterDataNode) productNode;
                 final ImageInfo imageInfo = raster.createDefaultImageInfo(null, ProgressMonitor.NULL);

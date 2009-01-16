@@ -19,6 +19,8 @@ package org.esa.beam.framework.ui.tool;
 import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.framework.draw.Figure;
 
+import java.awt.Rectangle;
+
 /**
  * An editor which is used by tools to draw themselfes and to let them add, remove and query figures.
  *
@@ -28,14 +30,26 @@ import org.esa.beam.framework.draw.Figure;
 public interface DrawingEditor {
 
     /**
-     * Returns the current tool for this drawing.
+     * @return The current tool for this drawing.
      */
     Tool getTool();
 
     /**
-     * Sets the current tool for this drawing.
+     * @param tool The current tool for this drawing.
      */
     void setTool(Tool tool);
+
+    /**
+     * @return A special "select" tool, may be null.
+     */
+    AbstractTool getSelectTool();
+
+    /**
+     * Called if a selection occured.
+     * @param rectangle The selection rectangle in view coordinates.
+     */
+    void handleSelection(Rectangle rectangle);
+
 
     /**
      * Repaints the current tool (if any).
@@ -101,4 +115,5 @@ public interface DrawingEditor {
      * @return the figure array which is empty if no figures where found, never <code>null</code>
      */
     Figure[] getFiguresWithAttribute(String name, Object value);
+
 }

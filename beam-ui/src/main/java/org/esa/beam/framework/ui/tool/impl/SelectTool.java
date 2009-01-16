@@ -16,76 +16,117 @@
  */
 package org.esa.beam.framework.ui.tool.impl;
 
-import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.draw.Drawable;
 import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
+
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Rectangle;
 
 /**
  * A tool used to select items in a {@link org.esa.beam.framework.ui.product.ProductSceneView}.
  */
 public class SelectTool extends AbstractTool {
-    public static final String SELECT_TOOL_PROPERTY_NAME = "selectTool";
 
-    private static final Delegator DRAG = new Delegator() {
-        public void execute(AbstractTool delegate, ToolInputEvent event) {
-            delegate.mouseDragged(event);
-        }
-    };
-    private static final Delegator MOVE = new Delegator() {
-        public void execute(AbstractTool delegate, ToolInputEvent event) {
-            delegate.mouseMoved(event);
-        }
-    };
-    private static final Delegator RELEASE = new Delegator() {
-        public void execute(AbstractTool delegate, ToolInputEvent event) {
-            delegate.mouseReleased(event);
-        }
-    };
-    private static final Delegator PRESS = new Delegator() {
-        public void execute(AbstractTool delegate, ToolInputEvent event) {
-            delegate.mousePressed(event);
-        }
-    };
-    private static final Delegator CLICK = new Delegator() {
-        public void execute(AbstractTool delegateTool, ToolInputEvent event) {
-            delegateTool.mouseClicked(event);
-        }
-    };
+    private static final Color RECT_COLOR = Color.BLUE.brighter();
+    private final Point selectionPoint = new Point();
+    private final Rectangle selectionRect = new Rectangle();
+    private Graphics graphics;
+
+    @Override
+    public Drawable getDrawable() {
+        return null;
+    }
+
+    @Override
+    public Cursor getCursor() {
+        return Cursor.getDefaultCursor();
+    }
 
     @Override
     public void mouseClicked(ToolInputEvent e) {
-        handleInputEvent(e, CLICK);
-    }
-
-    @Override
-    public void mousePressed(ToolInputEvent e) {
-        handleInputEvent(e, PRESS);
-    }
-
-    @Override
-    public void mouseReleased(ToolInputEvent e) {
-        handleInputEvent(e, RELEASE);
+        final AbstractTool selectToolDelegate = getDrawingEditor().getSelectTool();
+        if (selectToolDelegate != null) {
+            selectToolDelegate.mouseClicked(e);
+        }
     }
 
     @Override
     public void mouseMoved(ToolInputEvent e) {
-        handleInputEvent(e, MOVE);
+        final AbstractTool selectToolDelegate = getDrawingEditor().getSelectTool();
+        if (selectToolDelegate != null) {
+            selectToolDelegate.mouseMoved(e);
+        }
+    }
+
+    @Override
+    public void mousePressed(ToolInputEvent e) {
+        final AbstractTool selectToolDelegate = getDrawingEditor().getSelectTool();
+        if (selectToolDelegate != null) {
+            selectToolDelegate.mousePressed(e);
+        } else {
+            graphics = e.getComponent().getGraphics();
+            selectionPoint.setLocation(e.getMouseEvent().getPoint());
+            adjustSelectionRect(e);
+        }
     }
 
     @Override
     public void mouseDragged(ToolInputEvent e) {
-        handleInputEvent(e, DRAG);
-    }
 
-    private void handleInputEvent(ToolInputEvent e, Delegator method) {
-        final ProductSceneView psv = (ProductSceneView)getDrawingEditor();
-        final AbstractTool[] tools = psv.getSelectToolDelegates();
-        for (AbstractTool tool : tools) {
-            method.execute(tool, e);
+        final AbstractTool selectToolDelegate = getDrawingEditor().getSelectTool();
+        if (selectToolDelegate != null) {
+            selectToolDelegate.mouseDragged(e);
+        } else if (graphics != null) {
+            graphics.setXORMode(RECT_COLOR);
+            drawSelectionRect();
+            adjustSelectionRect(e);
+            drawSelectionRect();
+            graphics.setPaintMode();
         }
     }
 
-    private interface Delegator {
-        void execute(AbstractTool delegate, ToolInputEvent event);
+    @Override
+    public void mouseReleased(ToolInputEvent e) {
+        final AbstractTool selectToolDelegate = getDrawingEditor().getSelectTool();
+        if (selectToolDelegate != null) {
+            selectToolDelegate.mouseReleased(e);
+        } else {
+            getDrawingEditor().handleSelection(new Rectangle(selectionRect));
+            if (graphics != null) {
+                graphics.setXORMode(RECT_COLOR);
+                drawSelectionRect();
+                graphics.dispose();
+            }
+            graphics = null;
+            selectionPoint.setLocation(0, 0);
+            selectionRect.setBounds(0, 0, 0, 0);
+        }
+    }
+
+    private void adjustSelectionRect(ToolInputEvent e) {
+        int x = selectionPoint.x;
+        int y = selectionPoint.y;
+        int w = e.getMouseEvent().getX() - x;
+        int h = e.getMouseEvent().getY() - y;
+        if (w < 0) {
+            w = -w;
+            x -= w;
+        }
+        if (h < 0) {
+            h = -h;
+            y -= h;
+        }
+        selectionRect.setRect(x, y, w, h);
+    }
+
+    private void drawSelectionRect() {
+        if (!selectionRect.isEmpty()) {
+            graphics.drawRect(selectionRect.x, selectionRect.y,
+                              selectionRect.width, selectionRect.height);
+        }
     }
 }
