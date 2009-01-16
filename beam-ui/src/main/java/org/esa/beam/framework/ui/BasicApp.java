@@ -20,6 +20,8 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.jidesoft.action.*;
+import com.jidesoft.action.event.DockableBarAdapter;
+import com.jidesoft.action.event.DockableBarEvent;
 import com.jidesoft.docking.DefaultDockingManager;
 import com.jidesoft.docking.DockingManager;
 import com.jidesoft.plaf.LookAndFeelFactory;
@@ -112,6 +114,8 @@ public class BasicApp {
     private Logger _logger;
     private Formatter _logFormatter;
     private ActionListener _closeHandler;
+    private Map<String, CommandBar> toolBars;
+
 
     // todo - move somewhere else
     public static final String MESSAGE_STATUS_BAR_ITEM_KEY = "Message";
@@ -121,11 +125,12 @@ public class BasicApp {
      * @deprecated since BEAM 4.2, no replacement
      */
     @Deprecated
-    public static final String OVRINS_STATUS_BAR_ITEM_KEY = "Message";
+    public static final String OVRINS_STATUS_BAR_ITEM_KEY = "OvrIns";
     public static final String MEMORY_STATUS_BAR_ITEM_KEY = "Memory";
     private File _beamUserDir;
     private File _appUserDir;
     private boolean _frameBoundsRestored;
+
 
     static {
         FileChooserFactory.getInstance().setDirChooserClass(FolderChooser.class);
@@ -145,6 +150,7 @@ public class BasicApp {
                 shutDown();
             }
         };
+        toolBars = new HashMap<String, CommandBar>();
     }
 
     /**
@@ -573,22 +579,40 @@ public class BasicApp {
         return _mainFrame;
     }
 
-    public boolean isToolBarVisible(String toolbarKey) {
+    protected CommandBar createToolBar(String toolBarId, String title) {
+        CommandBar toolBar = new CommandBar(toolBarId);
+        toolBar.setTitle(title);
+        toolBar.addDockableBarListener(new ToolBarListener());
+        toolBars.put(toolBarId, toolBar);
+        return toolBar;
+    }
+
+    public CommandBar getToolBar(String toolBarId) {
+        return toolBars.get(toolBarId);
+    }
+
+    public boolean isToolBarVisible(String toolBarId) {
         DockableBarManager barManager = getMainFrame().getDockableBarManager();
         if (barManager != null) {
-            DockableBar dockableBar = barManager.getDockableBar(toolbarKey);
+            DockableBar dockableBar = barManager.getDockableBar(toolBarId);
             return (dockableBar != null) && !dockableBar.isHidden();
         }
         return false;
     }
 
-    public void setToolBarVisible(boolean visbile, String toolBarKey) {
+    public void setToolBarVisible(String toolBarId, boolean visbile) {
         DockableBarManager dockableBarManager = getMainFrame().getDockableBarManager();
         if (visbile) {
-            dockableBarManager.showDockableBar(toolBarKey);
+            dockableBarManager.showDockableBar(toolBarId);
         } else {
-            dockableBarManager.hideDockableBar(toolBarKey);
+            dockableBarManager.hideDockableBar(toolBarId);
         }
+    }
+
+
+    @Deprecated
+    public void setToolBarVisible(boolean visbile, String toolBarId) {
+        setToolBarVisible(toolBarId, visbile);
     }
 
     public boolean isStatusBarVisible() {
@@ -1723,6 +1747,14 @@ public class BasicApp {
 
     public static class MainFrame extends DefaultDockableBarDockableHolder {
         public MainFrame() throws HeadlessException {
+        }
+    }
+
+    private class ToolBarListener extends DockableBarAdapter {
+
+        @Override
+        public void dockableBarHidden(DockableBarEvent dockableBarEvent) {
+            updateState();
         }
     }
 }

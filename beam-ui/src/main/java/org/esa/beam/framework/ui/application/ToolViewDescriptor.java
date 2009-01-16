@@ -53,6 +53,8 @@ public interface ToolViewDescriptor extends PageComponentDescriptor {
 
     String PROPERTY_KEY_INIT_INDEX = "initIndex";
 
+    String PROPERTY_KEY_TOOL_BAR_ID = "toolBarId";
+
     /**
      * @return The mnemonic.
      */
@@ -173,7 +175,20 @@ public interface ToolViewDescriptor extends PageComponentDescriptor {
      */
     void setAutohidable(boolean state);
 
-    // todo - place other properties from DockableFrame here
+    /**
+     * Gets the ID of the tool bar in which the associated "show view" command will be placed.
+     * If the ID is {@code null}, the associated "show view" command will be placed in the
+     * default tool bar (ID="viewsToolBar").
+     * @return The ID of the tool bar.
+     * @see #createShowViewCommand(ApplicationWindow)
+     */
+    String getToolBarId();
+
+    /**
+     * @param id The ID of the tool bar.
+     * @see #getToolBarId()
+     */
+    void setToolBarId(String id);
 
     /**
      * Create a command that when executed, will attempt to show the
@@ -182,6 +197,7 @@ public interface ToolViewDescriptor extends PageComponentDescriptor {
      *
      * @param window The window
      * @return The show page component command.
+     * @see #getToolBarId() 
      */
     public Command createShowViewCommand(ApplicationWindow window);
 }

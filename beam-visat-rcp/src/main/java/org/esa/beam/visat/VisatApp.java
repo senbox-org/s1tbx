@@ -23,8 +23,6 @@ import com.bc.swing.desktop.TabbedDesktopPane;
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.action.CommandMenuBar;
 import com.jidesoft.action.DockableBarContext;
-import com.jidesoft.action.event.DockableBarAdapter;
-import com.jidesoft.action.event.DockableBarEvent;
 import com.jidesoft.status.LabelStatusBarItem;
 import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.status.ResizeStatusBarItem;
@@ -123,6 +121,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -273,6 +272,12 @@ public class VisatApp extends BasicApp {
 
     public static final String ALL_FILES_IDENTIFIER = "ALL_FILES";
 
+    public static final String MAIN_TOOL_BAR_ID = "mainToolBar";
+    public static final String VIEWS_TOOL_BAR_ID = "viewsToolBar";
+    public static final String INTERACTIONS_TOOL_BAR_ID = "toolsToolBar";
+    public static final String ANALYSIS_TOOL_BAR_ID = "analysisToolBar";
+    public static final String LAYERS_TOOL_BAR_ID = "layersToolBar";
+
     /**
      * The one and only visat instance
      */
@@ -322,6 +327,7 @@ public class VisatApp extends BasicApp {
 
     private ProductsToolView productsToolView;
     private final ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+
 
     /**
      * Constructs the VISAT application instance. The constructor does not start the application nor does it perform any GUI
@@ -407,20 +413,23 @@ public class VisatApp extends BasicApp {
 
             CommandBar analysisToolBar = createAnalysisToolBar();
             analysisToolBar.getContext().setInitSide(DockableBarContext.DOCK_SIDE_NORTH);
-            analysisToolBar.getContext().setInitIndex(1);
+            analysisToolBar.getContext().setInitIndex(2);
             getMainFrame().getDockableBarManager().addDockableBar(analysisToolBar);
             pm.worked(1);
 
-            CommandBar toolsToolBar = createToolsToolBar();
+            CommandBar toolsToolBar = createInteractionsToolBar();
             toolsToolBar.getContext().setInitSide(DockableBarContext.DOCK_SIDE_EAST);
             toolsToolBar.getContext().setInitIndex(0);
             getMainFrame().getDockableBarManager().addDockableBar(toolsToolBar);
             pm.worked(1);
 
-            CommandBar viewsToolBar = createViewsToolBar();
-            viewsToolBar.getContext().setInitSide(DockableBarContext.DOCK_SIDE_NORTH);
-            viewsToolBar.getContext().setInitIndex(1);
-            getMainFrame().getDockableBarManager().addDockableBar(viewsToolBar);
+            CommandBar[] viewToolBars = createViewToolBars();
+            for (int i = 0; i < viewToolBars.length; i++) {
+                CommandBar viewToolBar = viewToolBars[i];
+                viewToolBar.getContext().setInitSide(DockableBarContext.DOCK_SIDE_NORTH);
+                viewToolBar.getContext().setInitIndex(3 + i);
+                getMainFrame().getDockableBarManager().addDockableBar(viewToolBar);
+            }
             pm.worked(1);
         } finally {
             pm.done();
@@ -1856,11 +1865,7 @@ public class VisatApp extends BasicApp {
      */
     @Override
     protected CommandBar createMainToolBar() {
-        // context of action in module.xml used as key
-        final CommandBar toolBar = new CommandBar("mainToolBar");
-        toolBar.setTitle("Standard");
-        toolBar.addDockableBarListener(new ToolBarListener());
-
+        final CommandBar toolBar = createToolBar(MAIN_TOOL_BAR_ID, "Standard");
         addCommandsToToolBar(toolBar, new String[]{
                 "new",
                 "open",
@@ -1872,16 +1877,11 @@ public class VisatApp extends BasicApp {
                 "showUpdateDialog",
                 "helpTopics",
         });
-
         return toolBar;
     }
 
     private CommandBar createLayersToolBar() {
-        // context of action in module.xml used as key
-        final CommandBar toolBar = new CommandBar("layersToolBar");
-        toolBar.setTitle("Layers");
-        toolBar.addDockableBarListener(new ToolBarListener());
-
+        final CommandBar toolBar = createToolBar(LAYERS_TOOL_BAR_ID, "Layers");
         addCommandsToToolBar(toolBar, new String[]{
                 "showNoDataOverlay",
                 "showROIOverlay",
@@ -1890,16 +1890,11 @@ public class VisatApp extends BasicApp {
                 PinDescriptor.INSTANCE.getShowLayerCommandId(),
                 GcpDescriptor.INSTANCE.getShowLayerCommandId(),
         });
-
         return toolBar;
     }
 
     private CommandBar createAnalysisToolBar() {
-        // context of action in module.xml used as key
-        final CommandBar toolBar = new CommandBar("analysisToolBar");
-        toolBar.setTitle("Analysis");
-        toolBar.addDockableBarListener(new ToolBarListener());
-
+        final CommandBar toolBar = createToolBar(ANALYSIS_TOOL_BAR_ID, "Analysis");
         addCommandsToToolBar(toolBar, new String[]{
                 "openInformationDialog",
                 "openGeoCodingInfoDialog",
@@ -1907,16 +1902,11 @@ public class VisatApp extends BasicApp {
                 "openHistogramDialog",
                 "openScatterPlotDialog",
         });
-
         return toolBar;
     }
 
-    private CommandBar createToolsToolBar() {
-        // context of action in module.xml used as key
-        final CommandBar toolBar = new CommandBar("toolsToolBar");
-        toolBar.setTitle("Tools");
-        toolBar.addDockableBarListener(new ToolBarListener());
-
+    private CommandBar createInteractionsToolBar() {
+        final CommandBar toolBar = createToolBar(INTERACTIONS_TOOL_BAR_ID, "Interactions");
         addCommandsToToolBar(toolBar, new String[]{
                 // These IDs are defined in the module.xml
                 "selectTool",
@@ -1936,16 +1926,13 @@ public class VisatApp extends BasicApp {
                 "convertShapeToROI",
                 "convertROIToShape",
         });
-
         return toolBar;
     }
 
 
-    private CommandBar createViewsToolBar() {
-        // context of action in module.xml used as key
-        final CommandBar toolBar = new CommandBar("viewsToolBar");
-        toolBar.setTitle("Views");
-        toolBar.addDockableBarListener(new ToolBarListener());
+    private CommandBar[] createViewToolBars() {
+
+
 
         final HashSet<String> excludedIds = new HashSet<String>(8);
         // todo - remove bad forward dependencies to tool views (nf - 30.10.2008)
@@ -1954,18 +1941,39 @@ public class VisatApp extends BasicApp {
         excludedIds.add("org.esa.beam.scripting.visat.ScriptConsoleToolView");
 
         ToolViewDescriptor[] toolViewDescriptors = VisatActivator.getInstance().getToolViewDescriptors();
-        List<String> viewCommandIdList = new ArrayList<String>(5);
 
+        Map<String, List<String>> toolBar2commandIds = new HashMap<String, List<String>>();
         for (ToolViewDescriptor toolViewDescriptor : toolViewDescriptors) {
             if (!excludedIds.contains(toolViewDescriptor.getId())) {
-                viewCommandIdList.add(toolViewDescriptor.getId() + ".showCmd");
+                final String commandId = toolViewDescriptor.getId() + ".showCmd";
+
+                String toolBarId = toolViewDescriptor.getToolBarId();
+                if (toolBarId == null || toolBarId.isEmpty()) {
+                    toolBarId = VIEWS_TOOL_BAR_ID;
+                }
+
+                List<String> commandIds = toolBar2commandIds.get(toolBarId);
+                if (commandIds == null) {
+                    commandIds = new ArrayList<String>(5);
+                    toolBar2commandIds.put(toolBarId, commandIds);
+                }
+                commandIds.add(commandId);
             }
         }
 
-        addCommandsToToolBar(toolBar, viewCommandIdList.toArray(new String[viewCommandIdList.size()]));
+        List<CommandBar> viewToolBars = new ArrayList<CommandBar>(5);
+        viewToolBars.add(createToolBar(VIEWS_TOOL_BAR_ID, "Views"));
+        for (String toolBarId : toolBar2commandIds.keySet()) {
+            CommandBar toolBar = getToolBar(toolBarId);
+            if (toolBar == null) {
+                toolBar = createToolBar(toolBarId, toolBarId.replace('.', ' ').replace('_', ' '));
+                viewToolBars.add(toolBar);
+            }
+            List<String> commandIds = toolBar2commandIds.get(toolBarId);
+            addCommandsToToolBar(toolBar, commandIds.toArray(new String[commandIds.size()]));
+        }
 
-        return toolBar;
-
+        return viewToolBars.toArray(new CommandBar[viewToolBars.size()]);
     }
 
     private void addCommandsToToolBar(CommandBar toolBar, String[] commandIDs) {
@@ -1974,8 +1982,7 @@ public class VisatApp extends BasicApp {
                 toolBar.add(ToolButtonFactory.createToolBarSeparator());
             } else {
                 final Command command = getCommandManager().getCommand(commandID);
-                Debug.assertTrue(command != null, "commandID=" + commandID);
-                assert command != null;
+                Assert.state(command != null, "commandID=" + commandID);
                 final AbstractButton toolBarButton = command.createToolBarButton();
                 toolBarButton.addMouseListener(getMouseOverActionHandler());
                 toolBar.add(toolBarButton);
@@ -2493,11 +2500,4 @@ public class VisatApp extends BasicApp {
 
     }
 
-    private class ToolBarListener extends DockableBarAdapter {
-
-        @Override
-        public void dockableBarHidden(DockableBarEvent dockableBarEvent) {
-            updateState();
-        }
-    }
 }

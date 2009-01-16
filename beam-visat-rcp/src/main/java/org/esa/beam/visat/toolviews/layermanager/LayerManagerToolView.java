@@ -18,55 +18,86 @@ import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
+
+import com.bc.ceres.glayer.Layer;
 
 /**
  * Layer manager tool view.
- *
- * @author Ralf Quast
- * @version $Revision$ $Date$
- * @since BEAM 4.2
  */
 public class LayerManagerToolView extends AbstractToolView {
 
-    private JPanel control;
-    private Map<Container, LayerManagerForm> layerManagerMap;
+    private JPanel panel;
+    private WeakHashMap<ProductSceneView, LayerManagerForm> layerManagerMap;
+    private ProductSceneView activeView;
+    private LayerManagerForm activeForm;
+    private final SelectedLayerPCL selectedLayerPCL;
+    private final LayerSelectionListener activeFormLSL;
+
+    public LayerManagerToolView() {
+        selectedLayerPCL = new SelectedLayerPCL();
+        activeFormLSL = new LayerSelectionListener() {
+            public void layerSelectionChanged(Layer selectedLayer) {
+                if (activeView != null) {
+                    activeView.setSelectedLayer(selectedLayer);
+                }
+            }
+        };
+    }
+
 
     @Override
     protected JComponent createControl() {
-        control = new JPanel(new BorderLayout());
-        layerManagerMap = new HashMap<Container, LayerManagerForm>();
+        panel = new JPanel(new BorderLayout());
+        layerManagerMap = new WeakHashMap<ProductSceneView, LayerManagerForm>();
 
         final ProductSceneView sceneView = VisatApp.getApp().getSelectedProductSceneView();
         setProductSceneView(sceneView);
 
         VisatApp.getApp().addInternalFrameListener(new LayerManagerIFL());
 
-        return control;
+        return panel;
     }
 
-    private void setProductSceneView(final ProductSceneView sceneView) {
-        if (control.getComponentCount() > 0) {
-            control.remove(0);
+
+    private void setProductSceneView(final ProductSceneView view) {
+        if (panel.getComponentCount() > 0) {
+            panel.remove(0);
         }
-        if (sceneView != null) {
-            final LayerManagerForm layerManagerForm;
-            if (layerManagerMap.containsKey(sceneView)) {
-                layerManagerForm = layerManagerMap.get(sceneView);
+
+        if (view != null) {
+            if (layerManagerMap.containsKey(view)) {
+                activeForm = layerManagerMap.get(view);
             } else {
-                layerManagerForm = new LayerManagerForm(sceneView.getRootLayer(), new BandLayerProvider(this, sceneView.getProduct()));
-                layerManagerMap.put(sceneView, layerManagerForm);
+                activeForm = new LayerManagerForm(view.getRootLayer());
+                activeForm.addLayerSelectionListener(activeFormLSL);
+                layerManagerMap.put(view, activeForm);
             }
-            control.add(layerManagerForm.getControl(), BorderLayout.CENTER);
+            panel.add(activeForm.getControl(), BorderLayout.CENTER);
+        } else {
+            activeForm = null;
         }
-        control.validate();
-        control.repaint();
+
+        panel.validate();
+        panel.repaint();
+
+        if (activeView != null) {
+            activeView.removePropertyChangeListener("selectedLayer", selectedLayerPCL);
+        }
+        activeView = view;
+        if (activeView != null) {
+            activeView.addPropertyChangeListener("selectedLayer", selectedLayerPCL);
+        }
     }
 
     private class LayerManagerIFL extends InternalFrameAdapter {
@@ -95,11 +126,26 @@ public class LayerManagerToolView extends AbstractToolView {
             final Container contentPane = e.getInternalFrame().getContentPane();
 
             if (contentPane instanceof ProductSceneView) {
-                final ProductSceneView selectedSceneView = VisatApp.getApp().getSelectedProductSceneView();
-                setProductSceneView(selectedSceneView);
-                layerManagerMap.remove(contentPane);
+
+                final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
+                if (activeView == view) {
+                    setProductSceneView(null);
+                }
+                final LayerManagerForm form = layerManagerMap.get(view);
+                if (form != null) {
+                    form.removeLayerSelectionListener(activeFormLSL);
+                }
+                layerManagerMap.remove(view);
             }
         }
     }
 
+    private class SelectedLayerPCL implements PropertyChangeListener {
+
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (activeForm != null && activeView != null) {
+                activeForm.setSelectedLayer(activeView.getSelectedLayer());
+            }
+        }
+    }
 }

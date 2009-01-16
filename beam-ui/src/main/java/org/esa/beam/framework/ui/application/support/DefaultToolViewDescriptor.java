@@ -54,6 +54,8 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
 
     private char mnemonic;
 
+    private String toolBarId;
+
     private State initState = State.HIDDEN;
 
     private DockSide initSide = DockSide.WEST;
@@ -124,6 +126,14 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
 
     public void setDescription(String description) {
         pojoWrapper.setValue(PROPERTY_KEY_DESCRIPTION, description);
+    }
+
+    public String getToolBarId() {
+        return toolBarId;
+    }
+
+    public void setToolBarId(String toolBarId) {
+        this.toolBarId = toolBarId;
     }
 
     public Icon getSmallIcon() {

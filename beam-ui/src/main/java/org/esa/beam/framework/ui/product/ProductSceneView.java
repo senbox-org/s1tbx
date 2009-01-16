@@ -12,14 +12,14 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.DefaultViewport;
-import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.framework.ui.BasicView;
@@ -88,13 +88,13 @@ import java.util.Vector;
  */
 public class ProductSceneView extends BasicView implements ProductNodeView, DrawingEditor, PropertyMapChangeListener, PixelInfoFactory {
     public static final String BASE_IMAGE_LAYER_ID = "org.esa.beam.layers.baseImage";
-    public static final String NO_DATA_LAYER_ID  = "org.esa.beam.layers.noData";
+    public static final String NO_DATA_LAYER_ID = "org.esa.beam.layers.noData";
     public static final String BITMASK_LAYER_ID = "org.esa.beam.layers.bitmask";
-    public static final String ROI_LAYER_ID  = "org.esa.beam.layers.roi";
-    public static final String GRATICULE_LAYER_ID  = "org.esa.beam.layers.graticule";
-    public static final String GCP_LAYER_ID  = "org.esa.beam.layers.gcp";
-    public static final String PIN_LAYER_ID  = "org.esa.beam.layers.pin";
-    public static final String FIGURE_LAYER_ID  = "org.esa.beam.layers.figure";
+    public static final String ROI_LAYER_ID = "org.esa.beam.layers.roi";
+    public static final String GRATICULE_LAYER_ID = "org.esa.beam.layers.graticule";
+    public static final String GCP_LAYER_ID = "org.esa.beam.layers.gcp";
+    public static final String PIN_LAYER_ID = "org.esa.beam.layers.pin";
+    public static final String FIGURE_LAYER_ID = "org.esa.beam.layers.figure";
 
     /**
      * Property name for the pixel border
@@ -117,6 +117,9 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
      */
     public static final String PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN = "image.scrollBarsShown";
 
+    /**
+     * Name of property of image info
+     */
     public static final String PROPERTY_NAME_IMAGE_INFO = "imageInfo";
 
     /**
@@ -968,6 +971,11 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     protected class RasterChangeHandler implements ProductNodeListener {
+        private final List<String> imageChangingProperties = Arrays.asList(RasterDataNode.PROPERTY_NAME_DATA,
+                                                                           RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE,
+                                                                           RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE_USED,
+                                                                           RasterDataNode.PROPERTY_NAME_VALID_PIXEL_EXPRESSION,
+                                                                           VirtualBand.PROPERTY_NAME_EXPRESSION);
 
         @Override
         public void nodeChanged(final ProductNodeEvent event) {
@@ -989,11 +997,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
             repaintView(event);
         }
 
-        private final List<String> imageChangingProperties = Arrays.asList(RasterDataNode.PROPERTY_NAME_DATA,
-                                                                           RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE,
-                                                                           RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE_USED,
-                                                                           RasterDataNode.PROPERTY_NAME_VALID_PIXEL_EXPRESSION,
-                                                                           VirtualBand.PROPERTY_NAME_EXPRESSION);
         private void repaintView(final ProductNodeEvent event) {
             final RasterDataNode[] rasters = getRasters();
             final ProductNode productNode = event.getSourceNode();
