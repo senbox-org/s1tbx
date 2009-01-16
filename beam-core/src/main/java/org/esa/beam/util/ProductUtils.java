@@ -23,12 +23,44 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
 import com.bc.jexp.Term;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.PixelGeoCoding;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductVisitorAdapter;
+import org.esa.beam.framework.datamodel.RGBChannelDef;
+import org.esa.beam.framework.datamodel.ROIDefinition;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.ScatterPlot;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
 import org.esa.beam.framework.dataop.barithm.RasterDataLoop;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
-import org.esa.beam.framework.dataop.maptransf.*;
+import org.esa.beam.framework.dataop.maptransf.AlbersEqualAreaConicDescriptor;
+import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
+import org.esa.beam.framework.dataop.maptransf.LambertConformalConicDescriptor;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
+import org.esa.beam.framework.dataop.maptransf.MapTransform;
+import org.esa.beam.framework.dataop.maptransf.StereographicDescriptor;
+import org.esa.beam.framework.dataop.maptransf.TransverseMercatorDescriptor;
+import org.esa.beam.framework.dataop.maptransf.UTM;
 import org.esa.beam.util.geotiff.EPSGCodes;
 import org.esa.beam.util.geotiff.GeoTIFFCodes;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
@@ -42,8 +74,21 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.geom.*;
-import java.awt.image.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.IndexColorModel;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -122,14 +167,14 @@ public class ProductUtils {
      * ImageInfo}</code> and <code>{@link org.esa.beam.framework.datamodel.BitmaskOverlayInfo BitmaskOverlayInfo}</code>
      * properties of each of the bands.
      *
-     * @param rasters           the array of raster data nodes to be used for image creation, if length is one a
-     *                          greyscale/palette-based image is created, if the length is three, a RGB image is
-     *                          created
+     * @param rasters               the array of raster data nodes to be used for image creation, if length is one a
+     *                              greyscale/palette-based image is created, if the length is three, a RGB image is
+     *                              created
      * @param histogramMatchingMode the optional histogram matching to be performed: can be either
-     *                          <code>ImageInfo.HISTOGRAM_MATCHING_EQUALIZE</code> or <code>ImageInfo.HISTOGRAM_MATCHING_NORMALIZE</code>.
-     *                          If this parameter is <code>null</code> or any other value, no histogram matching is
-     *                          applied.
-     * @param pm                a monitor to inform the user about progress
+     *                              <code>ImageInfo.HISTOGRAM_MATCHING_EQUALIZE</code> or <code>ImageInfo.HISTOGRAM_MATCHING_NORMALIZE</code>.
+     *                              If this parameter is <code>null</code> or any other value, no histogram matching is
+     *                              applied.
+     * @param pm                    a monitor to inform the user about progress
      * @return a greyscale/palette-based or RGB image depending on the number of raster data nodes given
      * @throws IOException if the given raster data is not loaded and reload causes an I/O error
      * @see RasterDataNode#setImageInfo
@@ -203,9 +248,10 @@ public class ProductUtils {
 
     /**
      * Creates image creation information.
-     * @param rasters The raster data nodes.
+     *
+     * @param rasters                 The raster data nodes.
      * @param assignMissingImageInfos if {@code true}, it is ensured that to all {@code RasterDataNode}s a valid {@code ImageInfo} will be assigned.
-     * @param pm The progress monitor.
+     * @param pm                      The progress monitor.
      * @return image information
      * @throws IOException if an I/O error occurs
      * @since BEAM 4.2
@@ -529,15 +575,11 @@ public class ProductUtils {
 
     private static void checkCanceled(ProgressMonitor pm) throws IOException {
         if (pm.isCanceled()) {
-            throw createUserTerminationException();
+            throw new IOException("Process terminated by user.");
         }
     }
 
-    private static IOException createUserTerminationException() {
-        return new IOException("Process terminated by user."); /*I18N*/
-    }
-
-//////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////
 // Helpers used for map projections
 
     /**
@@ -666,10 +708,10 @@ public class ProductUtils {
      * step, mapTransform)} where <code>step</code> is the half of the minimum of the product scene raster width and
      * height.
      *
-     * @param product
-     * @param rect
-     * @param mapTransform
-     * @return the boundary in map coordinates for the given product
+     * @param product      The product.
+     * @param rect         The rectangle in pixel coordinates.
+     * @param mapTransform The map transformation.
+     * @return The boundary in map coordinates for the given product.
      */
     public static Point2D[] createMapEnvelope(final Product product,
                                               final Rectangle rect,
@@ -685,10 +727,11 @@ public class ProductUtils {
      * step, mapTransform)} where <code>step</code> is the half of the minimum of the product scene raster width and
      * height.
      *
-     * @param product
-     * @param rect
-     * @param mapTransform
-     * @return the boundary in map coordinates for the given product
+     * @param product      The product.
+     * @param rect         The rectangle in pixel coordinates.
+     * @param step         The step size in pixels.
+     * @param mapTransform The map transformation.
+     * @return The boundary in map coordinates for the given product.
      */
     public static Point2D[] createMapEnvelope(Product product,
                                               Rectangle rect,
@@ -741,7 +784,7 @@ public class ProductUtils {
     /**
      * Creates the geographical boundary of the given region within the given product and returns it as a list of
      * geographical coordinates.
-     * <p> This method delegates to {@link ProductUtils#createGeoBoundary(org.esa.beam.framework.datamodel.Product,java.awt.Rectangle,int,boolean) createGeoBoundary(Product, Rectangle, int, boolean)}
+     * <p> This method delegates to {@link #createGeoBoundary(org.esa.beam.framework.datamodel.Product,java.awt.Rectangle,int,boolean) createGeoBoundary(Product, Rectangle, int, boolean)}
      * and the additional boolean parameter <code>usePixelCenter</code> is <code>true</code>.
      *
      * @param product the input product, must not be null
@@ -829,7 +872,7 @@ public class ProductUtils {
      * the product does not intersect the 180 degree meridian, a single general path is returned. Otherwise two or three
      * shapes are created and returned in the order from west to east.
      * <p/>
-     * This method delegates to {@link ProductUtils#createGeoBoundaryPaths(org.esa.beam.framework.datamodel.Product,java.awt.Rectangle,int,boolean) createGeoBoundaryPaths(Product, Rectangle, int, boolean)}
+     * This method delegates to {@link #createGeoBoundaryPaths(org.esa.beam.framework.datamodel.Product,java.awt.Rectangle,int,boolean) createGeoBoundaryPaths(Product, Rectangle, int, boolean)}
      * and the aditional parameter <code>usePixelCenter</code> is <code>true</code>.
      *
      * @param product the input product
@@ -864,12 +907,12 @@ public class ProductUtils {
         if (gc == null) {
             throw new IllegalArgumentException(UtilConstants.MSG_NO_GEO_CODING);
         }
-        final GeoPos[] geoPoints = ProductUtils.createGeoBoundary(product, region, step, usePixelCenter);
-        ProductUtils.normalizeGeoPolygon(geoPoints);
+        final GeoPos[] geoPoints = createGeoBoundary(product, region, step, usePixelCenter);
+        normalizeGeoPolygon(geoPoints);
 
         final ArrayList<GeneralPath> pathList = assemblePathList(geoPoints);
 
-        return (GeneralPath[]) pathList.toArray(new GeneralPath[pathList.size()]);
+        return pathList.toArray(new GeneralPath[pathList.size()]);
     }
 
     /**
@@ -879,7 +922,7 @@ public class ProductUtils {
      * <p/>
      * <p>This method is used for an intermediate step when determining a product boundary expressed in geographical
      * co-ordinates.
-     * <p> This method delegates to {@link ProductUtils#createPixelBoundary(org.esa.beam.framework.datamodel.Product,java.awt.Rectangle,int,boolean) createPixelBoundary(Product, Rectangle, int, boolean)}
+     * <p> This method delegates to {@link #createPixelBoundary(org.esa.beam.framework.datamodel.Product,java.awt.Rectangle,int,boolean) createPixelBoundary(Product, Rectangle, int, boolean)}
      * and the additional boolean parameter <code>usePixelCenter</code> is <code>true</code>.
      *
      * @param product the product
@@ -949,7 +992,7 @@ public class ProductUtils {
      * + 2 * (5 - 2) = 26 pixel positions.
      * <p>This method is used for an intermediate step when determining a product boundary expressed in geographical
      * co-ordinates.
-     * <p> This method delegates to {@link ProductUtils#createRectBoundary(java.awt.Rectangle,int,boolean) createRectBoundary(Rectangle, int, boolean)}
+     * <p> This method delegates to {@link #createRectBoundary(java.awt.Rectangle,int,boolean) createRectBoundary(Rectangle, int, boolean)}
      * and the additional boolean parameter <code>usePixelCenter</code> is <code>true</code>.
      *
      * @param rect the source rectangle
@@ -1668,10 +1711,10 @@ public class ProductUtils {
         for (int i = 1; i < polygon.length; i++) {
             final GeoPos geoPos = polygon[i];
             lonDiff = originalLon[i] - originalLon[i - 1];
-            if (lonDiff > 180.f) {
-                increment -= 360.f;
-            } else if (lonDiff < -180.f) {
-                increment += 360.f;
+            if (lonDiff > 180.0F) {
+                increment -= 360.0F;
+            } else if (lonDiff < -180.0F) {
+                increment += 360.0F;
             }
 
             geoPos.lon += increment;
@@ -1687,10 +1730,10 @@ public class ProductUtils {
         boolean negNormalized = false;
         boolean posNormalized = false;
 
-        if (minLon < -180.f) {
+        if (minLon < -180.0F) {
             posNormalized = true;
         }
-        if (maxLon > 180.f) {
+        if (maxLon > 180.0F) {
             negNormalized = true;
         }
 
@@ -1699,7 +1742,7 @@ public class ProductUtils {
         } else if (!negNormalized && posNormalized) {
             normalized = -1;
             for (int i = 0; i < polygon.length; i++) {
-                polygon[i].lon += 360;
+                polygon[i].lon += 360.0F;
             }
         } else if (negNormalized && posNormalized) {
             normalized = 2;
@@ -2014,7 +2057,7 @@ public class ProductUtils {
             metadata.addGeoAscii(GeoTIFFCodes.GTCitationGeoKey, "org.esa.beam.util.geotiff.GeoTIFF");
             if (Datum.WGS_84.equals(datum)) {
                 metadata.addGeoShortParam(GeoTIFFCodes.GeographicTypeGeoKey, EPSGCodes.GCS_WGS_84);
-            } else if (Datum.WGS_72.equals(datum)){
+            } else if (Datum.WGS_72.equals(datum)) {
                 metadata.addGeoShortParam(GeoTIFFCodes.GeographicTypeGeoKey, EPSGCodes.GCS_WGS_72);
             } else {
                 metadata.addGeoShortParam(GeoTIFFCodes.GeographicTypeGeoKey, EPSGCodes.GCS_WGS_84);
@@ -2274,7 +2317,7 @@ public class ProductUtils {
                 }
             }
         });
-        return (String[]) messages.toArray(new String[messages.size()]);
+        return messages.toArray(new String[messages.size()]);
     }
 
     /**
@@ -2511,7 +2554,7 @@ public class ProductUtils {
                     targetBand.setGeophysicalNoDataValue(defaultNoDataValue);
                 }
                 targetBand.setNoDataValueUsed(true);
-                ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
+                copySpectralBandProperties(sourceBand, targetBand);
                 FlagCoding sourceFlagCoding = sourceBand.getFlagCoding();
                 IndexCoding sourceIndexCoding = sourceBand.getIndexCoding();
                 if (sourceFlagCoding != null) {
@@ -2591,7 +2634,7 @@ public class ProductUtils {
             for (int i = 1; i < geoPoints.length; i++) {
                 lon = geoPoints[i].getLon();
                 final float lat = geoPoints[i].getLat();
-                if (Float.isNaN(lon) || Float.isNaN(lat) ) {
+                if (Float.isNaN(lon) || Float.isNaN(lat)) {
                     continue;
                 }
                 if (lon < minLon) {
