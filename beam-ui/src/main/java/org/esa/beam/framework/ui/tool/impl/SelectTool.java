@@ -31,7 +31,7 @@ import java.awt.Rectangle;
  */
 public class SelectTool extends AbstractTool {
 
-    private static final Color RECT_COLOR = Color.BLUE.brighter();
+    private static final Color RECT_COLOR = Color.YELLOW.brighter();
     private final Point selectionPoint = new Point();
     private final Rectangle selectionRect = new Rectangle();
     private Graphics graphics;
