@@ -939,6 +939,7 @@ public class VisatApp extends BasicApp {
 
     /**
      * Closes all (internal) frames associated with the given product.
+     * @param product The product to close the internal frames for.
      */
     public synchronized void closeAllAssociatedFrames(final Product product) {
 

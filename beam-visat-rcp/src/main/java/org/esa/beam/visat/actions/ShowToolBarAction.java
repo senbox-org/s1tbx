@@ -21,16 +21,23 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.visat.VisatApp;
 
 /**
- * This Action toggels the visibility of a tool bar.
+ * This action toggles the visibility of a tool bar.
  *
  * @author Marco Peters
  * @version $Revision$ $Date$
  */
 public class ShowToolBarAction extends ExecCommand {
 
+    public ShowToolBarAction() {
+    }
+
+    public ShowToolBarAction(String commandID) {
+        super(commandID);
+    }
+
     @Override
     public void actionPerformed(final CommandEvent event) {
-        VisatApp.getApp().setToolBarVisible(isSelected(), getContextKey());
+        VisatApp.getApp().setToolBarVisible(getContextKey(), isSelected());
     }
 
     @Override
