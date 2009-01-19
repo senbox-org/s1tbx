@@ -9,7 +9,9 @@ import com.bc.ceres.glayer.Layer;
 
 public interface LayerUI {
 
-    AbstractTool getSelectTool(Layer layer, ProductSceneView view);
+    Layer getLayer();
 
-    void handleSelection(Layer layer, ProductSceneView view, Rectangle rectangle);
+    AbstractTool getSelectTool(ProductSceneView view);
+
+    void handleSelection(ProductSceneView view, Rectangle rectangle);
 }

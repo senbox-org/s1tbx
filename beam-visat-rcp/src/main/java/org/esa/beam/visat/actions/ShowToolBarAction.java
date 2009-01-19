@@ -43,16 +43,16 @@ public class ShowToolBarAction extends ExecCommand {
     @Override
     public void updateState(final CommandEvent event) {
         boolean toolBarVisible = VisatApp.getApp().isToolBarVisible(getContextKey());
-        if(isSelected() != toolBarVisible) {
+        if (isSelected() != toolBarVisible) {
             setSelected(toolBarVisible);
         }
     }
 
     private String getContextKey() {
         String[] contexts = getContexts();
-        if(contexts.length > 0) {
+        if (contexts.length > 0) {
             return contexts[0];
-        }else {
+        } else {
             return "";
         }
     }

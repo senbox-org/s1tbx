@@ -155,7 +155,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     private ProductSceneImage sceneImage;
     private LayerCanvas layerCanvas;
 
-    // todo - (re)move following variable after BEAM 4.5 (nf - 28.10.2008)
+    // todo - (re)move following variables, they don't belong to here (nf - 28.10.2008)
     // {{
     private final ImageLayer baseImageLayer;
     private int pixelX = -1;
@@ -171,6 +171,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
     private Tool tool;
     private Layer selectedLayer;
+    private LayerUI selectedLayerUI;
 
     private ComponentAdapter layerCanvasComponentHandler;
     private LayerCanvasMouseHandler layerCanvasMouseHandler;
@@ -689,28 +690,23 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         Layer oldLayer = this.selectedLayer;
         if (oldLayer != layer) {
             this.selectedLayer = layer;
+            this.selectedLayerUI = layer.getExtension(LayerUI.class);
             firePropertyChange(PROPERTY_NAME_SELECTED_LAYER, oldLayer, selectedLayer);
         }
     }
 
     public AbstractTool getSelectTool() {
-        final Layer layer = getSelectedLayer();
-        if (layer != null) {
-            final LayerUI extension = layer.getExtension(LayerUI.class);
-            if (extension != null) {
-                return extension.getSelectTool(layer, this);
-            }
+        if (getSelectedLayerUI() != null) {
+            return getSelectedLayerUI().getSelectTool(this);
         }
         return null;
     }
 
     public void handleSelection(Rectangle rectangle) {
-        final Layer layer = getSelectedLayer();
-        if (layer != null) {
-            final LayerUI extension = layer.getExtension(LayerUI.class);
-            if (extension != null) {
-                extension.handleSelection(layer, this, rectangle);
-            }
+        if (getSelectedLayerUI() != null) {
+            getSelectedLayerUI().handleSelection(this, rectangle);
+        } else {
+            // todo - implement default selection event, e.g. select features from feature layers such as pins, GCPs (nf 20090119)
         }
     }
 
@@ -1033,6 +1029,10 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
     private Layer getGcpLayer() {
         return getSceneImage().getGcpLayer();
+    }
+
+    private LayerUI getSelectedLayerUI() {
+        return selectedLayerUI;
     }
 
     private static boolean isModelYAxisDown(ImageLayer baseImageLayer) {

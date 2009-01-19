@@ -64,6 +64,7 @@ import org.esa.beam.framework.ui.application.ApplicationWindow;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.framework.ui.command.CommandManager;
+import org.esa.beam.framework.ui.command.CommandGroup;
 import org.esa.beam.framework.ui.product.ProductMetadataView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -83,6 +84,7 @@ import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.visat.actions.ShowImageViewAction;
 import org.esa.beam.visat.actions.ShowImageViewRGBAction;
 import org.esa.beam.visat.actions.ToolAction;
+import org.esa.beam.visat.actions.ShowToolBarAction;
 import org.esa.beam.visat.toolviews.diag.TileCacheDiagnosisToolView;
 import org.esa.beam.visat.toolviews.stat.StatisticsToolView;
 
@@ -1933,8 +1935,6 @@ public class VisatApp extends BasicApp {
 
     private CommandBar[] createViewToolBars() {
 
-
-
         final HashSet<String> excludedIds = new HashSet<String>(8);
         // todo - remove bad forward dependencies to tool views (nf - 30.10.2008)
         excludedIds.add(TileCacheDiagnosisToolView.ID);
@@ -1969,6 +1969,14 @@ public class VisatApp extends BasicApp {
             if (toolBar == null) {
                 toolBar = createToolBar(toolBarId, toolBarId.replace('.', ' ').replace('_', ' '));
                 viewToolBars.add(toolBar);
+
+                // 	Retrospectively add "tool bar toggle" menu item
+                ShowToolBarAction action = new ShowToolBarAction(toolBarId + ".showToolBar");
+                action.setContexts(new String[] {toolBarId});
+                action.setSelected(true);
+                getCommandManager().addCommand(action);
+                JMenu toolBarsMenu = findMenu("toolBars");
+                toolBarsMenu.add(action.createMenuItem());
             }
             List<String> commandIds = toolBar2commandIds.get(toolBarId);
             addCommandsToToolBar(toolBar, commandIds.toArray(new String[commandIds.size()]));
