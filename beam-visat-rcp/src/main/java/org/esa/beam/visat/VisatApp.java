@@ -64,7 +64,6 @@ import org.esa.beam.framework.ui.application.ApplicationWindow;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.framework.ui.command.CommandManager;
-import org.esa.beam.framework.ui.command.CommandGroup;
 import org.esa.beam.framework.ui.product.ProductMetadataView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -1967,12 +1966,15 @@ public class VisatApp extends BasicApp {
         for (String toolBarId : toolBar2commandIds.keySet()) {
             CommandBar toolBar = getToolBar(toolBarId);
             if (toolBar == null) {
+                // todo - use ToolBarDescriptor to define tool bar properties, e.g. title, dockSite, ...  (nf - 20090119)
                 toolBar = createToolBar(toolBarId, toolBarId.replace('.', ' ').replace('_', ' '));
                 viewToolBars.add(toolBar);
 
                 // 	Retrospectively add "tool bar toggle" menu item
                 ShowToolBarAction action = new ShowToolBarAction(toolBarId + ".showToolBar");
+                action.setText(toolBarId);
                 action.setContexts(new String[] {toolBarId});
+                action.setToggle(true);
                 action.setSelected(true);
                 getCommandManager().addCommand(action);
                 JMenu toolBarsMenu = findMenu("toolBars");
