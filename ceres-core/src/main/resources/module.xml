@@ -7,11 +7,9 @@
     <activator>com.bc.ceres.core.runtime.internal.RuntimeActivator</activator>
 
     <changelog>
-        <!--
-           <li>[CERES-001] TODO: Normalisation of manifest text</li>
-           <li>[CERES-006] TODO: Configure excluded/included modules</li>
-        -->
         <![CDATA[
+        Changes in 0.9<br/>
+        [CERES-029]  ExtensionManager shall consider complete type hierarchy<br/>
         Changes in 0.7<br/>
         [CERES-027] Modules shall inherit extension points<br/>
         [CERES-025] Add support for extension objects<br/>
