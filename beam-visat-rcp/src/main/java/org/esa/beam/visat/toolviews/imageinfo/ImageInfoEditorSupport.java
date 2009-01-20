@@ -1,5 +1,7 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
+import org.esa.beam.framework.ui.ImageInfoEditor;
+
 import javax.swing.AbstractButton;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

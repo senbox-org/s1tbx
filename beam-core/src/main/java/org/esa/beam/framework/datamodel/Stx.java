@@ -30,7 +30,7 @@ public class Stx {
     private final long sampleCount;
     private final int resolutionLevel;
     private final Histogram histogram;
-    private double mean;
+    private final double mean;
 
     public static Stx create(RasterDataNode raster, int level, ProgressMonitor pm) {
         return create(raster, level, null, DEFAULT_BIN_COUNT, pm);
@@ -59,6 +59,7 @@ public class Stx {
      * @param max the maximum value
      * @param mean the mean value, if it's {@link Double#NaN} the mean will be computed
      * @param stdDev the value of the standard deviation, if it's {@link Double#NaN} it will be computed
+     * @param intType if true, statistics are computed from a data basis of integer number type.
      * @param sampleFrequencies the frequencies of the samples
      * @param resolutionLevel the resolution level this {@code Stx} is for
      *
@@ -82,8 +83,8 @@ public class Stx {
     private Stx(double min, double max, double mean, double stdDev, Histogram histogram, int resolutionLevel) {
         this.min = min;
         this.max = max;
-        this.mean = mean;
-        this.stdDev = stdDev;
+        this.mean = Double.isNaN(mean) ? histogram.getMean()[0] : mean;
+        this.stdDev = Double.isNaN(stdDev) ? histogram.getStandardDeviation()[0] : stdDev;
         this.histogram = histogram;
         this.resolutionLevel = resolutionLevel;
         this.sampleCount = computeSum(histogram.getBins(0));
@@ -98,19 +99,11 @@ public class Stx {
     }
 
     public double getMean() {
-        if(Double.isNaN(mean)) {
-            return histogram.getMean()[0];
-        }else {
-            return mean;
-        }
+        return mean;
     }
 
     public double getStandardDeviation() {
-        if(Double.isNaN(stdDev)) {
-            return histogram.getStandardDeviation()[0];
-        }else {
-            return stdDev;
-        }
+        return stdDev;
     }
 
     public double getHistogramBinMin(int binIndex) {

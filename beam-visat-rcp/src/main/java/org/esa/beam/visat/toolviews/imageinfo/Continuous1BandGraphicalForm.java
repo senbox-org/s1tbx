@@ -3,6 +3,8 @@ package org.esa.beam.visat.toolviews.imageinfo;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.ImageInfoEditorModel;
+import org.esa.beam.framework.ui.ImageInfoEditor;
 
 import javax.swing.AbstractButton;
 import javax.swing.JPanel;
@@ -69,7 +71,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         model.addChangeListener(applyEnablerCL);
         ImageInfoEditorModel oldModel = imageInfoEditor.getModel();
         imageInfoEditor.setModel(model);
-        model.setDisplayProperties(productSceneView.getRaster());
+        setDisplayProperties(model, productSceneView.getRaster());
         if (oldModel != null) {
             model.setHistogramViewGain(oldModel.getHistogramViewGain());
             model.setMinHistogramViewSample(oldModel.getMinHistogramViewSample());
@@ -92,7 +94,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     @Override
     public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
         if (imageInfoEditor.getModel() != null) {
-            imageInfoEditor.getModel().setDisplayProperties(raster);
+            setDisplayProperties(imageInfoEditor.getModel(), raster);
             if (event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_STX)) {
                 updateFormModel(parentForm.getProductSceneView());
             }
@@ -124,5 +126,9 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
                 imageInfoEditorSupport.zoomOutHButton,
                 evenDistButton,
         };
+    }
+
+    static void setDisplayProperties(ImageInfoEditorModel model, RasterDataNode raster) {
+        model.setDisplayProperties(raster.getUnit(), raster.getStx(), raster);
     }
 }

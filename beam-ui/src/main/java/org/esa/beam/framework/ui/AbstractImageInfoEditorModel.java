@@ -1,29 +1,27 @@
-package org.esa.beam.visat.toolviews.imageinfo;
+package org.esa.beam.framework.ui;
 
 import com.bc.ceres.core.Assert;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.Scaling;
+import org.esa.beam.framework.datamodel.Stx;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
-import java.awt.Color;
 
 
-abstract class ImageInfoEditorModel {
+public abstract class AbstractImageInfoEditorModel implements ImageInfoEditorModel {
 
     private final ImageInfo imageInfo;
-    protected final EventListenerList listenerList;
+    private final EventListenerList listenerList;
     private Scaling scaling;
+    private Stx stx;
     private String unit;
-    private double minSample;
-    private double maxSample;
-    private int[] histogramBins;
     private Double histogramViewGain;
     private Double minHistogramViewSample;
     private Double maxHistogramViewSample;
-    private boolean histogramAccurate;
 
-    protected ImageInfoEditorModel(ImageInfo imageInfo) {
+    protected AbstractImageInfoEditorModel(ImageInfo imageInfo) {
         this.imageInfo = imageInfo;
         this.listenerList = new EventListenerList();
     }
@@ -32,42 +30,12 @@ abstract class ImageInfoEditorModel {
         return imageInfo;
     }
 
-    public void setDisplayProperties(RasterDataNode raster) {
-        setUnit(raster.getUnit());
-        setScaling(raster);
-        Stx stx = raster.getStx();
-        setMinSample(raster.scale(stx.getMin()));
-        setMaxSample(raster.scale(stx.getMax()));
-        setHistogramBins(stx.getHistogramBins());
-        setHistogramAccurate(stx.getResolutionLevel() == 0);
+    public void setDisplayProperties(String unit, Stx stx, Scaling scaling) {
+        setUnit(unit);
+        setScaling(scaling);
+        setStx(stx);
         fireStateChanged();
     }
-
-    public abstract boolean isColorEditable();
-
-    public abstract int getSliderCount();
-
-    public abstract double getSliderSample(int index);
-
-    public abstract void setSliderSample(int index, double sample);
-
-    public abstract Color getSliderColor(int index);
-
-    public abstract void setSliderColor(int index, Color color);
-
-    public abstract void createSliderAfter(int index);
-
-    public abstract void removeSlider(int removeIndex);
-
-    public abstract Color[] createColorPalette();
-
-    public abstract boolean isGammaUsed();
-
-    public abstract double getGamma();
-
-    public abstract void setGamma(double gamma);
-
-    public abstract byte[] getGammaCurve();
 
     public String getUnit() {
         return unit;
@@ -86,32 +54,25 @@ abstract class ImageInfoEditorModel {
         this.scaling = scaling;
     }
 
-    public double getMinSample() {
-        return minSample;
+    private void setStx(Stx stx) {
+        Assert.notNull(stx, "stx");
+        this.stx = stx;
     }
 
-    private void setMinSample(double minSample) {
-        this.minSample = minSample;
+    public double getMinSample() {
+        return scaling == null ? 0 : scaling.scale(stx.getMin());
     }
 
     public double getMaxSample() {
-        return maxSample;
-    }
-
-    private void setMaxSample(double maxSample) {
-        this.maxSample = maxSample;
+        return scaling == null ? 0 : scaling.scale(stx.getMax());
     }
 
     public boolean isHistogramAvailable() {
-        return histogramBins != null && histogramBins.length > 0;
+        return getHistogramBins() != null && getHistogramBins().length > 0;
     }
 
     public int[] getHistogramBins() {
-        return histogramBins;
-    }
-
-    private void setHistogramBins(int[] histogramBins) {
-        this.histogramBins = histogramBins;
+        return stx == null ? null : stx.getHistogramBins();
     }
 
     public double getMinHistogramViewSample() {
@@ -146,13 +107,9 @@ abstract class ImageInfoEditorModel {
     public void setHistogramViewGain(double gain) {
         histogramViewGain = gain;
     }
-    
-    private void setHistogramAccurate(boolean isAccurate) {
-          histogramAccurate = isAccurate;
-    }
 
     public boolean isHistogramAccurate() {
-        return histogramAccurate;
+        return stx.getResolutionLevel() == 0;
     }
 
     public void addChangeListener(ChangeListener l) {

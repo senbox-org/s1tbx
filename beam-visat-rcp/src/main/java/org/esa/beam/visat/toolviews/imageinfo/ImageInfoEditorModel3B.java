@@ -2,12 +2,13 @@ package org.esa.beam.visat.toolviews.imageinfo;
 
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.ui.AbstractImageInfoEditorModel;
 import org.esa.beam.util.math.MathUtils;
 
 import java.awt.Color;
 
 
-class ImageInfoEditorModel3B extends ImageInfoEditorModel {
+class ImageInfoEditorModel3B extends AbstractImageInfoEditorModel {
     private final static Color[] RGB_COLORS = new Color[]{Color.RED, Color.GREEN, Color.BLUE};
 
     private final int channel;

@@ -7,6 +7,7 @@ import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.BindingContext;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.ImageInfoEditor;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.*;
@@ -165,7 +166,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
             }
             ImageInfoEditorModel3B oldModel = models[i];
             models[i] = new ImageInfoEditorModel3B(parentForm.getImageInfo(), i);
-            models[i].setDisplayProperties(currentChannelSources[i]);
+            Continuous1BandGraphicalForm.setDisplayProperties(models[i], currentChannelSources[i]);
             if (oldModel != null) {
                 models[i].setHistogramViewGain(oldModel.getHistogramViewGain());
                 models[i].setMinHistogramViewSample(oldModel.getMinHistogramViewSample());
@@ -207,7 +208,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
 
     @Override
     public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
-        imageInfoEditor.getModel().setDisplayProperties(raster);
+        Continuous1BandGraphicalForm.setDisplayProperties(imageInfoEditor.getModel(), raster);
         if (event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_STX)) {
             acknowledgeChannel();
         }
@@ -237,7 +238,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
     private void acknowledgeChannel() {
         RasterDataNode channelSource = currentChannelSources[channel];
         final ImageInfoEditorModel3B model = models[channel];
-        model.setDisplayProperties(channelSource);
+        Continuous1BandGraphicalForm.setDisplayProperties(model, channelSource);
         imageInfoEditor.setModel(model);
         moreOptionsForm.getBindingContext().getBinding(CHANNEL_SOURCE_NAME_PROPERTY).setPropertyValue(channelSource.getName());
         moreOptionsForm.getBindingContext().getBinding(GAMMA_PROPERTY).setPropertyValue(model.getGamma());
@@ -277,7 +278,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
                     imageInfo.getRgbChannelDef().setMaxDisplaySample(channel, def.getMaxDisplaySample());
                 }
                 models[channel] = new ImageInfoEditorModel3B(imageInfo, channel);
-                models[channel].setDisplayProperties(newChannelSource);
+                Continuous1BandGraphicalForm.setDisplayProperties(models[channel], newChannelSource);
                 acknowledgeChannel();
                 this.parentForm.setApplyEnabled(true);
             } else {

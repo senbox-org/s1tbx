@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.visat.toolviews.imageinfo;
+package org.esa.beam.framework.ui;
 
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueModel;
@@ -54,7 +54,7 @@ import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
 
 
-class ImageInfoEditor extends JPanel {
+public class ImageInfoEditor extends JPanel {
 
     public static final String PROPERTY_NAME_MODEL = "model";
 
