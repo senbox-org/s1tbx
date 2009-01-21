@@ -1,44 +1,50 @@
 package com.bc.ceres.swing;
 
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.event.MouseInputAdapter;
-import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Desktop;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class UriLabel extends JLabel {
+/**
+ * An {@link ActionLabel} which opens a browser when clicked.
+ */
+public class UriLabel extends ActionLabel {
     private URI uri;
-    private String oldText;
-    private Cursor oldCursor;
 
+    /**
+     * Constructs an <code>UriLabel</code> instance.
+     * The label is aligned against the leading edge of its display area,
+     * and centered vertically.
+     */
     public UriLabel() {
         this(null, null);
     }
 
+    /**
+     * Constructs an <code>UriLabel</code> instance with the specified URI.
+     * The label is aligned against the leading edge of its display area,
+     * and centered vertically.
+     *
+     * @param uri The URI to open in the browser.
+     */
     public UriLabel(URI uri) {
         this(null, uri);
     }
 
     /**
-     * Creates a <code>JLabel</code> instance with the specified text.
+     * Constructs an <code>UriLabel</code> instance with the specified text and URI.
      * The label is aligned against the leading edge of its display area,
      * and centered vertically.
      *
      * @param text The text to be displayed by the label.
+     * @param uri  The URI to open in the browser.
      */
     public UriLabel(String text, URI uri) {
         super(text);
-        oldText = getText();
-        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-            addMouseListener(new MouseHandler());
-        }
         setUri(uri);
-        setForeground(Color.RED.darker().darker());
+        addActionListener(new ActionHandler());
     }
 
     public URI getUri() {
@@ -46,9 +52,13 @@ public class UriLabel extends JLabel {
     }
 
     public void setUri(URI uri) {
-        this.uri = uri;
-        if (uri != null && (getText() == null || getText().length() == 0)) {
-            setText(uri.toString());
+        URI oldUri = this.uri;
+        if (oldUri != uri || oldUri != null && !oldUri.equals(uri)) {
+            this.uri = uri;
+            if (uri != null && (getText() == null || getText().length() == 0)) {
+                setText(uri.toString());
+            }
+            firePropertyChange("uri", oldUri, uri);
         }
     }
 
@@ -64,31 +74,24 @@ public class UriLabel extends JLabel {
         }
     }
 
-    private class MouseHandler extends MouseInputAdapter {
-
-        @Override
-        public void mouseEntered(MouseEvent e) {
-            oldText = getText();
-            if (oldText != null) {
-                setText("<html><u>" + oldText + "</u></html>");
-            }
-            oldCursor = getCursor();
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    private void browseUri() {
+        if (getUri() == null) {
+            return;
         }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-            setText(oldText);
-            setCursor(oldCursor);
-        }
-
-        @Override
-        public void mouseClicked(MouseEvent e) {
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
             try {
-                Desktop.getDesktop().browse(uri);
-            } catch (IOException e1) {
-                JOptionPane.showMessageDialog(UriLabel.this, "Failed to open URL:\n" + uri + ":\n" + e1.getMessage(), "I/O Error", JOptionPane.ERROR_MESSAGE);
+                Desktop.getDesktop().browse(getUri());
+            } catch (Throwable e) {
+                JOptionPane.showMessageDialog(UriLabel.this, "Failed to open URL:\n" + getUri() + ":\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
+        } else {
+            JOptionPane.showMessageDialog(UriLabel.this, "The desktop command 'browse' is not supported.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private class ActionHandler implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            browseUri();
         }
     }
 }
