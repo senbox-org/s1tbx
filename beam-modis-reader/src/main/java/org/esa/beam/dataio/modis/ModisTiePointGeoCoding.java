@@ -19,21 +19,13 @@ package org.esa.beam.dataio.modis;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.geom.PolyLine;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.AbstractGeoCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Scene;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.Range;
 
 import java.awt.geom.Area;
-import java.awt.geom.GeneralPath;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,11 +75,11 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         Guardian.assertNotNull("lonGrid", lonGrid);
         Guardian.assertNotNull("datum", datum);
         if (latGrid.getRasterWidth() != lonGrid.getRasterWidth() ||
-            latGrid.getRasterHeight() != lonGrid.getRasterHeight() ||
-            latGrid.getOffsetX() != lonGrid.getOffsetX() ||
-            latGrid.getOffsetY() != lonGrid.getOffsetY() ||
-            latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
-            latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
+                latGrid.getRasterHeight() != lonGrid.getRasterHeight() ||
+                latGrid.getOffsetX() != lonGrid.getOffsetX() ||
+                latGrid.getOffsetY() != lonGrid.getOffsetY() ||
+                latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
+                latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
             throw new IllegalArgumentException("latGrid is not compatible with lonGrid");
         }
         _latGrid = latGrid;
@@ -121,7 +113,6 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
      * @param geoPos   the geographical position as lat/lon in the coodinate system determined by {@link #getDatum()}
      * @param pixelPos an instance of <code>Point</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
-     *
      * @return the pixel co-ordinates as x/y
      */
     public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
@@ -131,13 +122,19 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         pixelPos.x = -1;
         pixelPos.y = -1;
 
-        if (_generalArea == null) {
-            initGeneralArea();
-        }
+        // tb 2009-01-21 - this shortcut check is numerically incorrect. MERCI fails to calculate intersection
+        // lines - althoiugh the operation should be consistent.
+        // - calculate geo-boundary of product
+        // - intersect with search region
+        // - re-transform intersection polygon points to x/y space
+        // - NONE of the boundary points transforms to a consistent x/y position - all result in (-1,-1) 
+//        if (_generalArea == null) {
+//            initGeneralArea();
+//        }
 
-        if (!_generalArea.contains(geoPos.lon, geoPos.lat)) {
-            return pixelPos;
-        }
+//        if (!_generalArea.contains(geoPos.lon, geoPos.lat)) {
+//            return pixelPos;
+//        }
 
         final int index = getGeoCodingIndexfor(geoPos);
         _lastCenterLineIndex = index;
@@ -159,7 +156,6 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
      * @param pixelPos the pixel's co-ordinates given as x,y
      * @param geoPos   an instance of <code>GeoPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
-     *
      * @return the geographical position as lat/lon in the coodinate system determined by {@link #getDatum()}
      */
     public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
@@ -251,7 +247,7 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
             } else {
                 final TiePointGrid latTPG = new TiePointGrid("lat" + y, stripeW, stripeH, osX, osY, ssX, ssY, lats);
                 final TiePointGrid lonTPG = new TiePointGrid("lon" + y, stripeW, stripeH, osX, osY, ssX, ssY, lons,
-                                                             true);
+                        true);
                 final TiePointGeoCoding geoCoding = new TiePointGeoCoding(latTPG, lonTPG, _datum);
                 _cross180 = _cross180 || geoCoding.isCrossingMeridianAt180();
                 _gcList.add(geoCoding);
@@ -276,14 +272,15 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         }
     }
 
-    private void initGeneralArea() {
-        final GeneralPath[] geoBoundaryPaths = ProductUtils.createGeoBoundaryPaths(_latGrid.getProduct(), null, 20);
-        _generalArea = new Area();
-        for (int i = 0; i < geoBoundaryPaths.length; i++) {
-            final GeneralPath geoBoundaryPath = geoBoundaryPaths[i];
-            _generalArea.add(new Area(geoBoundaryPath));
-        }
-    }
+    // tb 2009-01-21 - this intersection is numerically incorrect - see comments above
+//    private void initGeneralArea() {
+//        final GeneralPath[] geoBoundaryPaths = ProductUtils.createGeoBoundaryPaths(_latGrid.getProduct(), null, 20);
+//        _generalArea = new Area();
+//        for (int i = 0; i < geoBoundaryPaths.length; i++) {
+//            final GeneralPath geoBoundaryPath = geoBoundaryPaths[i];
+//            _generalArea.add(new Area(geoBoundaryPath));
+//        }
+//    }
 
     private static PolyLine createCenterPolyLine(TiePointGeoCoding geoCoding, final int sceneWidth,
                                                  final int sceneHeight) {
@@ -374,7 +371,6 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
      * @param srcScene  the source scene
      * @param destScene the destination scene
      * @param subsetDef the definition of the subset, may be <code>null</code>
-     *
      * @return true, if the geo-coding could be transferred.
      */
     @Override
