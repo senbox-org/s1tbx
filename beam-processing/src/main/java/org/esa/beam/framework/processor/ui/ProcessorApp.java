@@ -218,7 +218,7 @@ public class ProcessorApp extends BasicApp {
 
         _processor.setParentFrame(getMainFrame());
 
-        ImageIcon imageIcon = UIUtils.loadImageIcon("icons/BeamIcon16.gif");
+        ImageIcon imageIcon = UIUtils.loadImageIcon("icons/BeamIcon24.png");
         if (imageIcon != null) {
             getMainFrame().setIconImage(imageIcon.getImage());
         }

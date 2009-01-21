@@ -408,7 +408,7 @@ public class VisatApp extends BasicApp {
 
             CommandBar layersToolBar = createLayersToolBar();
             layersToolBar.getContext().setInitSide(DockableBarContext.DOCK_SIDE_NORTH);
-            layersToolBar.getContext().setInitIndex(1);
+            layersToolBar.getContext().setInitIndex(2);
             getMainFrame().getDockableBarManager().addDockableBar(layersToolBar);
             pm.worked(1);
 
@@ -420,15 +420,19 @@ public class VisatApp extends BasicApp {
 
             CommandBar toolsToolBar = createInteractionsToolBar();
             toolsToolBar.getContext().setInitSide(DockableBarContext.DOCK_SIDE_EAST);
-            toolsToolBar.getContext().setInitIndex(0);
+            toolsToolBar.getContext().setInitIndex(1);
             getMainFrame().getDockableBarManager().addDockableBar(toolsToolBar);
             pm.worked(1);
 
-            CommandBar[] viewToolBars = createViewToolBars();
-            for (int i = 0; i < viewToolBars.length; i++) {
-                CommandBar viewToolBar = viewToolBars[i];
-                viewToolBar.getContext().setInitSide(DockableBarContext.DOCK_SIDE_NORTH);
-                viewToolBar.getContext().setInitIndex(3 + i);
+            CommandBar[] viewToolBars = createViewsToolBars();
+            for (CommandBar viewToolBar : viewToolBars) {
+                if (VIEWS_TOOL_BAR_ID.equals(viewToolBar.getName())) {
+                    viewToolBar.getContext().setInitSide(DockableBarContext.DOCK_SIDE_NORTH);
+                    viewToolBar.getContext().setInitIndex(2);
+                } else {
+                    viewToolBar.getContext().setInitSide(DockableBarContext.DOCK_SIDE_EAST);
+                    viewToolBar.getContext().setInitIndex(1);
+                }
                 getMainFrame().getDockableBarManager().addDockableBar(viewToolBar);
             }
             pm.worked(1);
@@ -1229,7 +1233,6 @@ public class VisatApp extends BasicApp {
                     }
                     success = saveProductImpl(product, incremental);
                 } finally {
-                    unregisterJob(this);
                     if (success) {
                         product.setModified(false);
                     }
@@ -1237,7 +1240,6 @@ public class VisatApp extends BasicApp {
                 return null;
             }
         };
-        registerJob(worker);
         worker.execute();
     }
 
@@ -1682,10 +1684,8 @@ public class VisatApp extends BasicApp {
 
             @Override
             public void done() {
-                unregisterJob(this);
             }
         };
-        registerJob(worker);
         worker.execute();
     }
 
@@ -1932,7 +1932,7 @@ public class VisatApp extends BasicApp {
     }
 
 
-    private CommandBar[] createViewToolBars() {
+    private CommandBar[] createViewsToolBars() {
 
         final HashSet<String> excludedIds = new HashSet<String>(8);
         // todo - remove bad forward dependencies to tool views (nf - 30.10.2008)

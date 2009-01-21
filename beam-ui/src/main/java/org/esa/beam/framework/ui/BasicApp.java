@@ -336,46 +336,28 @@ public class BasicApp {
     private void initMainPane() {
         JComponent mainPane = createMainPane();
         if (mainPane != null) {
-            // <old-UI>
-            //            getMainFrame().getContentPane().add(BorderLayout.CENTER, mainPane);
-            // </old-UI>
-            // <JIDE>
             getMainFrame().getDockingManager().getWorkspace().setLayout(new BorderLayout());
             getMainFrame().getDockingManager().getWorkspace().add(mainPane, BorderLayout.CENTER);
             getMainFrame().getDockingManager().setDefaultFocusComponent(mainPane);
-            // </JIDE>
-        }
-    }
-
-    private void initMainToolBar() {
-        _mainToolBar = createMainToolBar();
-        if (_mainToolBar != null) {
-            // <old-UI>
-            //            getMainFrame().getContentPane().add(BorderLayout.NORTH, _mainToolBar);
-            // </old-UI>
-            // <JIDE>
-            _mainToolBar.getContext().setInitSide(DockableBarContext.DOCK_SIDE_NORTH);
-            _mainToolBar.getContext().setInitIndex(1);
-            _mainToolBar.getContext().setInitSubindex(0);
-            getMainFrame().getDockableBarManager().addDockableBar(_mainToolBar);
-            // </JIDE>
         }
     }
 
     private void initMainMenuBar() {
         CommandBar menuBar = createMainMenuBar();
         if (menuBar != null) {
-            // <old-UI>
-            //            getMainFrame().setJMenuBar(menuBar);
-            // </old-UI>
-            // <JIDE>
             menuBar.getContext().setInitSide(DockableBarContext.DOCK_SIDE_NORTH);
-            menuBar.getContext().setInitIndex(0);
-            menuBar.getContext().setInitSubindex(0);
+            menuBar.getContext().setInitIndex(1);
             getMainFrame().getDockableBarManager().addDockableBar(menuBar);
-            // </JIDE>
-
             insertCommandMenuItems();
+        }
+    }
+
+    private void initMainToolBar() {
+        _mainToolBar = createMainToolBar();
+        if (_mainToolBar != null) {
+            _mainToolBar.getContext().setInitSide(DockableBarContext.DOCK_SIDE_NORTH);
+            _mainToolBar.getContext().setInitIndex(2);
+            getMainFrame().getDockableBarManager().addDockableBar(_mainToolBar);
         }
     }
 
@@ -581,6 +563,7 @@ public class BasicApp {
 
     protected CommandBar createToolBar(String toolBarId, String title) {
         CommandBar toolBar = new CommandBar(toolBarId);
+        toolBar.setName(toolBarId);
         toolBar.setTitle(title);
         toolBar.addDockableBarListener(new ToolBarListener());
         toolBars.put(toolBarId, toolBar);
@@ -840,7 +823,7 @@ public class BasicApp {
     }
 
     protected final JMenu createJMenu(String name, String text, char mnemonic) {
-        JideMenu menu = new JideMenu();  // <JIDE>
+        JideMenu menu = new JideMenu();
         menu.setName(name); /*I18N*/
         menu.setText(text);
         menu.setMnemonic(mnemonic);
@@ -1124,8 +1107,8 @@ public class BasicApp {
      * other top-level containers beside the main frame.
      */
     protected void updateComponentTreeUI() {
-        _mainFrame.getDockableBarManager().updateComponentTreeUI(); // <JIDE>
-        _mainFrame.getDockingManager().updateComponentTreeUI(); // <JIDE>
+        _mainFrame.getDockableBarManager().updateComponentTreeUI();
+        _mainFrame.getDockingManager().updateComponentTreeUI();
         SwingUtilities.updateComponentTreeUI(getMainFrame());
     }
 
@@ -1309,6 +1292,7 @@ public class BasicApp {
      * deregistered using the <code>{@link #unregisterJob}</code> method.
      *
      * @param job any job-like object
+     * @deprecated No longer used
      */
     public final synchronized void registerJob(Object job) {
 
@@ -1319,6 +1303,7 @@ public class BasicApp {
      * <code>{@link #registerJob}</code> method have been deregistered.
      *
      * @param job any job-like object
+     * @deprecated No longer used
      */
     public final synchronized void unregisterJob(Object job) {
     }

@@ -140,7 +140,7 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
             copyright = declaringModule.getCopyright();
         }
         if (frameIconPath == null) {
-            frameIconPath = "/org/esa/beam/resources/images/icons/BeamIcon16.gif";
+            frameIconPath = "/org/esa/beam/resources/images/icons/BeamIcon24.png";
         }
         if (imagePath == null) {
             imagePath = "/org/esa/beam/resources/images/about.jpg";
