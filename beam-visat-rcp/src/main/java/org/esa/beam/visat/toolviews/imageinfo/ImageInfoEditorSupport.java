@@ -1,21 +1,20 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
-import org.esa.beam.framework.ui.ImageInfoEditor;
-
 import javax.swing.AbstractButton;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 class ImageInfoEditorSupport {
 
-    public final AbstractButton autoStretch95Button;
-    public final AbstractButton autoStretch100Button;
-    public final AbstractButton zoomInVButton;
-    public final AbstractButton zoomOutVButton;
-    public final AbstractButton zoomInHButton;
-    public final AbstractButton zoomOutHButton;
+    final AbstractButton autoStretch95Button;
+    final AbstractButton autoStretch100Button;
+    final AbstractButton zoomInVButton;
+    final AbstractButton zoomOutVButton;
+    final AbstractButton zoomInHButton;
+    final AbstractButton zoomOutHButton;
+    final AbstractButton showExtraInfoButton;
 
-    protected ImageInfoEditorSupport(final ImageInfoEditor imageInfoEditor) {
+    protected ImageInfoEditorSupport(final ImageInfoEditor2 imageInfoEditor) {
 
         autoStretch95Button = createButton("icons/Auto95Percent24.gif");
         autoStretch95Button.setName("AutoStretch95Button");
@@ -74,6 +73,17 @@ class ImageInfoEditorSupport {
 
             public void actionPerformed(final ActionEvent e) {
                 imageInfoEditor.computeZoomOutToFullHistogramm();
+            }
+        });
+
+        showExtraInfoButton = createToggleButton("icons/Information24.gif");
+        showExtraInfoButton.setName("ShowExtraInfoButton");
+        showExtraInfoButton.setToolTipText("Show extra information");
+        showExtraInfoButton.setSelected(imageInfoEditor.getShowExtraInfo());
+        showExtraInfoButton.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                imageInfoEditor.setShowExtraInfo(showExtraInfoButton.isSelected());
             }
         });
     }

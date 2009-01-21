@@ -5,12 +5,23 @@ import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.BindingContext;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.ui.ImageInfoEditor;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 import javax.swing.event.ChangeListener;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -25,7 +36,7 @@ import java.util.List;
 class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
 
     private final ColorManipulationForm parentForm;
-    private final ImageInfoEditor imageInfoEditor;
+    private final ImageInfoEditor2 imageInfoEditor;
     private final ImageInfoEditorSupport imageInfoEditorSupport;
     private final JPanel contentPanel;
 
@@ -49,7 +60,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
     public Continuous3BandGraphicalForm(final ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
 
-        imageInfoEditor = new ImageInfoEditor();
+        imageInfoEditor = new ImageInfoEditor2(parentForm);
         imageInfoEditorSupport = new ImageInfoEditorSupport(imageInfoEditor);
         applyEnablerCL = parentForm.createApplyEnablerChangeListener();
         moreOptionsForm = new MoreOptionsForm(parentForm, true);
@@ -232,6 +243,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
                 imageInfoEditorSupport.zoomOutVButton,
                 imageInfoEditorSupport.zoomInHButton,
                 imageInfoEditorSupport.zoomOutHButton,
+                imageInfoEditorSupport.showExtraInfoButton,
         };
     }
 

@@ -1,23 +1,23 @@
 package org.esa.beam.framework.ui;
 
 import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.datamodel.Scaling;
+import org.esa.beam.framework.datamodel.Stx;
 
 import javax.swing.event.ChangeListener;
 import java.awt.Color;
 
 /**
- * todo - add API doc
+ * Unstable interface. Do not use.
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
- * @since BEAM 4.2
+ * @since BEAM 4.5.1
  */
 public interface ImageInfoEditorModel {
     ImageInfo getImageInfo();
 
-    void setDisplayProperties(String unit, Stx stx, Scaling scaling);
+    void setDisplayProperties(String name, String unit, Stx stx, Scaling scaling);
 
     boolean isColorEditable();
 
@@ -45,9 +45,13 @@ public interface ImageInfoEditorModel {
 
     byte[] getGammaCurve();
 
-    String getUnit();
+    String getParameterName();
 
-    Scaling getScaling();
+    String getParameterUnit();
+
+    Scaling getSampleScaling();
+
+    Stx getSampleStx();
 
     double getMinSample();
 
@@ -68,8 +72,6 @@ public interface ImageInfoEditorModel {
     double getHistogramViewGain();
 
     void setHistogramViewGain(double gain);
-
-    boolean isHistogramAccurate();
 
     void addChangeListener(ChangeListener l);
 

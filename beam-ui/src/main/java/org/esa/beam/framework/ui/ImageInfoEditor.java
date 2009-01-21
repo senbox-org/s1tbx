@@ -54,11 +54,18 @@ import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
 
 
+/**
+ * Unstable interface. Do not use.
+ *
+ * @author Norman Fomferra
+ * @version $Revision$ $Date$
+ * @since BEAM 4.5.1
+ */
 public class ImageInfoEditor extends JPanel {
 
     public static final String PROPERTY_NAME_MODEL = "model";
 
-    public static final String NO_DISPLAY_INFO_TEXT = "No image information available.";
+    public static final String NO_DISPLAY_INFO_TEXT = "No information available.";
     public static final String FONT_NAME = "Verdana";
     public static final int FONT_SIZE = 9;
     public static final int INVALID_INDEX = -1;
@@ -361,7 +368,6 @@ public class ImageInfoEditor extends JPanel {
 
         drawHistogram(g2d);
         drawGradationCurve(g2d);
-        drawHistogramText(g2d);
         drawHistogramBorder(g2d);
 
         g2d.setClip(oldClip);
@@ -371,76 +377,6 @@ public class ImageInfoEditor extends JPanel {
         g2d.setStroke(STROKE_1);
         g2d.setColor(Color.darkGray);
         g2d.draw(histoRect);
-    }
-
-    private void drawHistogramText(Graphics2D g2d) {
-        final FontMetrics metrics = g2d.getFontMetrics();
-        final String sMin = "min:";
-        final String sMax = "max:";
-        final String sUnit = "unit:";
-        final int sMinWidth = metrics.stringWidth(sMin);
-        final int sMaxWidth = metrics.stringWidth(sMax);
-        final int sUnitWidth = metrics.stringWidth(sUnit);
-
-        final String sMinValue = String.valueOf(round(getMinSample()));
-        final String sMaxValue = String.valueOf(round(getMaxSample()));
-        final int sMinValueWidth = metrics.stringWidth(sMinValue);
-        final int sMaxValueWidth = metrics.stringWidth(sMaxValue);
-
-        int maxPrefixWidth = Math.max(sMinWidth, sMaxWidth);
-        int maxValueWidth = Math.max(sMinValueWidth, sMaxValueWidth);
-
-        final String sUnitValue;
-
-        String unit = getModel().getUnit();
-        if (unit != null && unit.length() > 0) {
-            sUnitValue = unit;
-            maxPrefixWidth = Math.max(maxPrefixWidth, sUnitWidth);
-            final int sUnitValueWidth = metrics.stringWidth(sUnitValue);
-            maxValueWidth = Math.max(maxValueWidth, sUnitValueWidth);
-        } else {
-            sUnitValue = "";
-        }
-        final StringBuilder builder = new StringBuilder(getModel().isHistogramAccurate() ? "High" : "Low");
-        final String sHistoAccuracy = builder.append(" accuracy").toString();
-        final int sHistoAccuracyWidth = metrics.stringWidth(sHistoAccuracy);
-
-        final int maxDataTableWidth = maxPrefixWidth + maxValueWidth;
-        final int xStartPosPrefix = histoRect.x + histoRect.width - 5 - Math.max(maxDataTableWidth, sHistoAccuracyWidth);
-        final int xStartPosValues = xStartPosPrefix + 3 + maxPrefixWidth;
-
-        String[] strings = new String[]{sMin, sMinValue, sMax, sMaxValue, sUnit, sUnitValue, sHistoAccuracy};
-
-        final int yStartPos = histoRect.y + 1;
-
-        g2d.setColor(this.getBackground());
-        drawStrings(g2d, strings, xStartPosPrefix - 1, xStartPosValues - 1, yStartPos);
-        drawStrings(g2d, strings, xStartPosPrefix - 1, xStartPosValues - 1, yStartPos - 1);
-        drawStrings(g2d, strings, xStartPosPrefix - 1, xStartPosValues - 1, yStartPos + 1);
-        drawStrings(g2d, strings, xStartPosPrefix + 1, xStartPosValues + 1, yStartPos);
-        drawStrings(g2d, strings, xStartPosPrefix + 1, xStartPosValues + 1, yStartPos - 1);
-        drawStrings(g2d, strings, xStartPosPrefix + 1, xStartPosValues + 1, yStartPos + 1);
-        drawStrings(g2d, strings, xStartPosPrefix, xStartPosValues, yStartPos - 1);
-        drawStrings(g2d, strings, xStartPosPrefix, xStartPosValues, yStartPos + 1);
-        g2d.setColor(this.getForeground());
-        drawStrings(g2d, strings, xStartPosPrefix, xStartPosValues, yStartPos);
-    }
-
-    private void drawStrings(Graphics2D g2d, String[] strings, int xStartPosPrefix, int xStartPosValues,
-                             int yStartPos) {
-        int line = 1;
-        g2d.drawString(strings[0], xStartPosPrefix, yStartPos + FONT_SIZE * line);
-        g2d.drawString(strings[1], xStartPosValues, yStartPos + FONT_SIZE * line);
-        line++;
-        g2d.drawString(strings[2], xStartPosPrefix, yStartPos + FONT_SIZE * line);
-        g2d.drawString(strings[3], xStartPosValues, yStartPos + FONT_SIZE * line);
-        if (strings[5].length() != 0) {
-            line++;
-            g2d.drawString(strings[4], xStartPosPrefix, yStartPos + FONT_SIZE * line);
-            g2d.drawString(strings[5], xStartPosValues, yStartPos + FONT_SIZE * line);
-        }
-        line++;
-        g2d.drawString(strings[6], xStartPosPrefix, yStartPos + FONT_SIZE * line);
     }
 
     private void drawGradationCurve(Graphics2D g2d) {
@@ -799,7 +735,7 @@ public class ImageInfoEditor extends JPanel {
         final ValueContainer vc = new ValueContainer();
         vc.addModel(ValueModel.createValueModel("sample", getSliderSample(sliderIndex)));
         vc.getDescriptor("sample").setDisplayName("sample");
-        vc.getDescriptor("sample").setUnit(getModel().getUnit());
+        vc.getDescriptor("sample").setUnit(getModel().getParameterUnit());
         final ValueRange valueRange;
         if(sliderIndex == 0) {
             valueRange = new ValueRange(Double.NEGATIVE_INFINITY, round(getMaxSliderSample(sliderIndex)));
@@ -1159,12 +1095,12 @@ public class ImageInfoEditor extends JPanel {
 
     private double scale(double value) {
         assert model != null;
-        return model.getScaling().scale(value);
+        return model.getSampleScaling().scale(value);
     }
 
     private double scaleInverse(double value) {
         assert model != null;
-        return model.getScaling().scaleInverse(value);
+        return model.getSampleScaling().scaleInverse(value);
     }
 
     private class RepaintCL implements ChangeListener {

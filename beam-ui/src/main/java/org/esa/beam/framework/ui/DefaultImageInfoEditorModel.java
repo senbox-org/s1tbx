@@ -1,18 +1,17 @@
 package org.esa.beam.framework.ui;
 
+import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.ImageInfo;
 
 import java.awt.Color;
 
-import com.bc.ceres.core.Assert;
-
 /**
- * todo - add API doc
-*
-* @author Norman Fomferra
-* @version $Revision$ $Date$
-* @since BEAM 4.2
-*/
+ * Unstable interface. Do not use.
+ *
+ * @author Norman Fomferra
+ * @version $Revision$ $Date$
+ * @since BEAM 4.5.1
+ */
 public class DefaultImageInfoEditorModel extends AbstractImageInfoEditorModel {
 
     public DefaultImageInfoEditorModel(ImageInfo imageInfo) {
@@ -54,7 +53,7 @@ public class DefaultImageInfoEditorModel extends AbstractImageInfoEditorModel {
 
     @Override
     public void createSliderAfter(int index) {
-        final boolean b = getImageInfo().getColorPaletteDef().createPointAfter(index, getScaling());
+        final boolean b = getImageInfo().getColorPaletteDef().createPointAfter(index, getSampleScaling());
         if (b) {
             fireStateChanged();
         }
@@ -68,7 +67,7 @@ public class DefaultImageInfoEditorModel extends AbstractImageInfoEditorModel {
 
     @Override
     public Color[] createColorPalette() {
-        return getImageInfo().getColorPaletteDef().createColorPalette(getScaling());
+        return getImageInfo().getColorPaletteDef().createColorPalette(getSampleScaling());
     }
 
     @Override
@@ -83,7 +82,7 @@ public class DefaultImageInfoEditorModel extends AbstractImageInfoEditorModel {
 
     @Override
     public void setGamma(double gamma) {
-       // no support
+        // no support
     }
 
     @Override

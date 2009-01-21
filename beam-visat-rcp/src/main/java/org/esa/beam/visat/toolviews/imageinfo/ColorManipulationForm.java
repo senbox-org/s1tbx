@@ -17,10 +17,19 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.BeamUiActivator;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductManager;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.SuppressibleOptionPane;
@@ -38,9 +47,26 @@ import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import java.awt.*;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -68,7 +94,6 @@ class ColorManipulationForm {
     private AbstractButton multiApplyButton;
     private AbstractButton importButton;
     private AbstractButton exportButton;
-    private AbstractButton computeExactHistogram;
     private SuppressibleOptionPane suppressibleOptionPane;
 
     private ProductSceneView productSceneView;
@@ -235,7 +260,6 @@ class ColorManipulationForm {
         resetButton.setEnabled(hasSceneView);
         importButton.setEnabled(hasSceneView && !isRgbMode());
         exportButton.setEnabled(hasSceneView && !isRgbMode());
-        computeExactHistogram.setEnabled(hasSceneView && canComputeExactHistogram());
     }
 
     private ColorManipulationChildForm getContinuous3BandGraphicalForm() {
@@ -333,35 +357,6 @@ class ColorManipulationForm {
         });
         exportButton.setEnabled(true);
 
-        computeExactHistogram = createButton("icons/Histogram24.gif");
-        computeExactHistogram.setName("ComputeExactHistogram");
-        computeExactHistogram.setToolTipText("Compute exact histogram");
-        computeExactHistogram.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                SwingWorker sw = new ProgressMonitorSwingWorker(computeExactHistogram, "Computing Histogram") {
-                    protected Object doInBackground(ProgressMonitor pm) throws Exception {
-                        UIUtils.setRootFrameWaitCursor(getContentPanel());
-                        final RasterDataNode[] rasters = getProductSceneView().getRasters();
-                        pm.beginTask("Computing exact histogram", rasters.length);
-                        for (RasterDataNode raster : rasters) {
-                            raster.getStx(true, new SubProgressMonitor(pm, 1));
-                        }
-                        return null;
-                    }
-
-                    @Override
-                    protected void done() {
-                        UIUtils.setRootFrameDefaultCursor(getContentPanel());
-                    }
-                };
-
-                computeExactHistogram.setEnabled(false);
-                sw.execute();
-            }
-        });
-
-
         helpButton = createButton("icons/Help24.gif");
         helpButton.setToolTipText("Help."); /*I18N*/
         helpButton.setName("helpButton");
@@ -385,6 +380,9 @@ class ColorManipulationForm {
         // product scene view.
         //
         visatApp.addInternalFrameListener(new ColorManipulationIFL());
+    }
+
+    private void setShowExtraInfo(boolean selected) {
     }
 
 
@@ -421,7 +419,6 @@ class ColorManipulationForm {
                 gbc.gridy++;
             }
         }
-        toolButtonsPanel.add(computeExactHistogram, gbc);
 
         gbc.gridy++;
         gbc.fill = GridBagConstraints.VERTICAL;
@@ -669,7 +666,7 @@ class ColorManipulationForm {
 
     private boolean canComputeExactHistogram() {
         boolean canComputeExact = false;
-        if(productSceneView != null) {
+        if (productSceneView != null) {
             final RasterDataNode[] rasters = productSceneView.getRasters();
             for (RasterDataNode raster : rasters) {
                 final int resolutionLevel = raster.getStx().getResolutionLevel();
@@ -824,7 +821,7 @@ class ColorManipulationForm {
     private class SceneViewImageInfoChangeListener implements PropertyChangeListener {
 
         public void propertyChange(PropertyChangeEvent evt) {
-            if(ProductSceneView.PROPERTY_NAME_IMAGE_INFO.equals(evt.getPropertyName())) {
+            if (ProductSceneView.PROPERTY_NAME_IMAGE_INFO.equals(evt.getPropertyName())) {
                 setImageInfoCopy((ImageInfo) evt.getNewValue());
                 childForm.updateFormModel(getProductSceneView());
             }

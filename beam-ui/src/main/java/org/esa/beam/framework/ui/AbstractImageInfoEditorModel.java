@@ -10,12 +10,20 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
 
+/**
+ * Unstable interface. Do not use.
+ *
+ * @author Norman Fomferra
+ * @version $Revision$ $Date$
+ * @since BEAM 4.5.1
+ */
 public abstract class AbstractImageInfoEditorModel implements ImageInfoEditorModel {
 
     private final ImageInfo imageInfo;
     private final EventListenerList listenerList;
     private Scaling scaling;
     private Stx stx;
+    private String name;
     private String unit;
     private Double histogramViewGain;
     private Double minHistogramViewSample;
@@ -30,31 +38,44 @@ public abstract class AbstractImageInfoEditorModel implements ImageInfoEditorMod
         return imageInfo;
     }
 
-    public void setDisplayProperties(String unit, Stx stx, Scaling scaling) {
-        setUnit(unit);
-        setScaling(scaling);
-        setStx(stx);
+    public void setDisplayProperties(String name, String unit, Stx stx, Scaling scaling) {
+        setParameterName(name);
+        setParameterUnit(unit);
+        setSampleScaling(scaling);
+        setSampleStx(stx);
         fireStateChanged();
     }
 
-    public String getUnit() {
+    public String getParameterName() {
+        return name;
+    }
+
+    private void setParameterName(String name) {
+        this.name = name;
+    }
+
+    public String getParameterUnit() {
         return unit;
     }
 
-    private void setUnit(String unit) {
+    private void setParameterUnit(String unit) {
         this.unit = unit;
     }
 
-    public Scaling getScaling() {
+    public Scaling getSampleScaling() {
         return scaling;
     }
 
-    private void setScaling(Scaling scaling) {
+    private void setSampleScaling(Scaling scaling) {
         Assert.notNull(scaling, "scaling");
         this.scaling = scaling;
     }
 
-    private void setStx(Stx stx) {
+    public Stx getSampleStx() {
+        return stx;
+    }
+
+    private void setSampleStx(Stx stx) {
         Assert.notNull(stx, "stx");
         this.stx = stx;
     }
@@ -106,10 +127,6 @@ public abstract class AbstractImageInfoEditorModel implements ImageInfoEditorMod
 
     public void setHistogramViewGain(double gain) {
         histogramViewGain = gain;
-    }
-
-    public boolean isHistogramAccurate() {
-        return stx.getResolutionLevel() == 0;
     }
 
     public void addChangeListener(ChangeListener l) {
