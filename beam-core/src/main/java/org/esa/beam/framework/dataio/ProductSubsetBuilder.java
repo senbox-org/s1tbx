@@ -25,6 +25,7 @@ import org.esa.beam.util.ProductUtils;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * A special-purpose product reader used to build subsets of data products.
@@ -480,6 +481,9 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                 } else {
                     destBand.setSampleCoding(null);
                 }
+                if (isFullScene(getSubsetDef()) && sourceBand.isStxSet()) {
+                    createImageInfo(sourceBand, destBand);
+                }
 
                 product.addBand(destBand);
                 bandMap.put(destBand, sourceBand);
@@ -577,9 +581,37 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                                                                    sourceTiePointGrid.getDiscontinuity());
                 tiePointGrid.setUnit(sourceTiePointGrid.getUnit());
                 tiePointGrid.setDescription(sourceTiePointGrid.getDescription());
+                if (isFullScene(getSubsetDef()) && sourceTiePointGrid.isStxSet()) {
+                    createImageInfo(sourceTiePointGrid, tiePointGrid);
+                }
                 product.addTiePointGrid(tiePointGrid);
             }
         }
+    }
+
+    private void createImageInfo(RasterDataNode sourceRaster, RasterDataNode targetRaster) {
+            final Stx sourceStx = sourceRaster.getStx();
+            final Stx targetStx = new Stx(sourceStx.getMin(), sourceStx.getMax(),
+                                          sourceStx.getMean(), sourceStx.getStandardDeviation(),
+                                          ProductData.isIntType(sourceRaster.getDataType()),
+                                          Arrays.copyOf(sourceStx.getHistogramBins(), sourceStx.getHistogramBins().length),
+                                          sourceStx.getResolutionLevel());
+            targetRaster.setStx(targetStx);
+            final ImageInfo imageInfo = targetRaster.createDefaultImageInfo(null, ProgressMonitor.NULL);
+            targetRaster.setImageInfo(imageInfo);
+    }
+
+    private boolean isFullScene(ProductSubsetDef subsetDef) {
+        if(subsetDef == null) {
+            return true;
+        }
+        final Rectangle sourceRegion = new Rectangle(0, 0, sourceProduct.getSceneRasterWidth(), getSceneRasterHeight());
+        if (subsetDef.getRegion() == null || subsetDef.getRegion().equals(sourceRegion) &&
+            subsetDef.getSubSamplingX() == 1 &&
+            subsetDef.getSubSamplingY() == 1) {
+            return true;
+        }
+        return false;
     }
 
     protected void addGeoCodingToProduct(final Product product) {
