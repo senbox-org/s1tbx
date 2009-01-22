@@ -16,7 +16,21 @@
  */
 package org.esa.beam.framework.ui.product;
 
-import org.esa.beam.framework.datamodel.*;
+import com.bc.ceres.swing.TreeCellExtender;
+import org.esa.beam.framework.datamodel.AbstractBand;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.ExceptionHandler;
 import org.esa.beam.framework.ui.PopupMenuFactory;
 import org.esa.beam.framework.ui.PopupMenuHandler;
@@ -26,14 +40,27 @@ import org.esa.beam.framework.ui.command.CommandUIFactory;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.JTree;
+import javax.swing.ToolTipManager;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A tree-view component for multiple <code>Product</code>s. Clients can register one or more
@@ -78,8 +105,8 @@ public class ProductTree extends JTree implements PopupMenuFactory {
     public ProductTree(final boolean multipleSelect) {
         productNodeListener = new ProductTreePTL();
         getSelectionModel().setSelectionMode(multipleSelect
-                                             ? TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION
-                                             : TreeSelectionModel.SINGLE_TREE_SELECTION);
+                ? TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION
+                : TreeSelectionModel.SINGLE_TREE_SELECTION);
         addTreeSelectionListener(new PTSelectionListener());
         addMouseListener(new PTMouseListener());
         setCellRenderer(new PTCellRenderer());
@@ -95,6 +122,8 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         addMouseListener(popupMenuHandler);
         addKeyListener(popupMenuHandler);
         openedRasterMap = new HashMap<RasterDataNode, Integer>();
+
+        TreeCellExtender.equip(this);
     }
 
     public JPopupMenu createPopupMenu(final Component component) {
@@ -131,7 +160,6 @@ public class ProductTree extends JTree implements PopupMenuFactory {
      * Adds a new product to this product tree component. The method fires a 'productAdded' event to all listeners.
      *
      * @param product the product to be added.
-     *
      * @see org.esa.beam.framework.ui.product.ProductTreeListener
      */
     public void addProduct(Product product) {
@@ -168,7 +196,6 @@ public class ProductTree extends JTree implements PopupMenuFactory {
      * Removes a  product from this product tree component. The method fires a 'productRemoved' event to all listeners.
      *
      * @param product the product to be removed.
-     *
      * @see org.esa.beam.framework.ui.product.ProductTreeListener
      */
     public void removeProduct(Product product) {
@@ -255,7 +282,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         }
 
         DefaultMutableTreeNode tiePointGridGroupTreeNode = createTiePointGridNodes(product);
-        if(tiePointGridGroupTreeNode != null) {
+        if (tiePointGridGroupTreeNode != null) {
             productTreeNode.add(tiePointGridGroupTreeNode);
         }
 
@@ -343,7 +370,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         final RasterDataNode[] rasters = view.getRasters();
         for (RasterDataNode raster : rasters) {
             Integer count = 1;
-            if(openedRasterMap.containsKey(raster)) {
+            if (openedRasterMap.containsKey(raster)) {
                 count += openedRasterMap.get(raster);
             }
             openedRasterMap.put(raster, count);
@@ -355,12 +382,12 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         final RasterDataNode[] rasters = view.getRasters();
         for (RasterDataNode raster : rasters) {
             Integer count = -1;
-            if(openedRasterMap.containsKey(raster)) {
+            if (openedRasterMap.containsKey(raster)) {
                 count += openedRasterMap.get(raster);
             }
-            if(count <= 0) {
+            if (count <= 0) {
                 openedRasterMap.remove(raster);
-            }else {
+            } else {
                 openedRasterMap.put(raster, count);
             }
         }
@@ -524,10 +551,10 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 } else if (productNode instanceof TiePointGrid) {
                     TiePointGrid grid = (TiePointGrid) productNode;
                     if (openedRasterMap.containsKey(grid)) {
-                            this.setIcon(bandAsTiePointIcon);
-                        } else {
-                            this.setIcon(bandAsTiePointIconUnloaded);
-                        }
+                        this.setIcon(bandAsTiePointIcon);
+                    } else {
+                        this.setIcon(bandAsTiePointIconUnloaded);
+                    }
                     toolTipBuffer.append(", raster size = ");
                     toolTipBuffer.append(grid.getRasterWidth());
                     toolTipBuffer.append(" x ");

@@ -40,6 +40,8 @@ class LayerManagerForm {
     public LayerManagerForm(final Layer rootLayer) {
         this.rootLayer = rootLayer;
         layerTree = createCheckBoxTree(rootLayer);
+        // todo - doesn't work properly. Check why (nf - 20090122)
+        // TreeCellExtender.equip(layerTree);
         initVisibilitySelection(rootLayer);
 
         layerSelectionListenerMap = new WeakHashMap<LayerSelectionListener, Object>(3);
