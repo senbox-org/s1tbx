@@ -34,10 +34,25 @@ public class ActionLabel extends JLabel {
      * @param text The text to be displayed by the label.
      */
     public ActionLabel(String text) {
+        this(text, null);
+    }
+
+    /**
+     * Constructs an <code>ActionLabel</code> instance with the specified text and action.
+     * The label is aligned against the leading edge of its display area,
+     * and centered vertically.
+     *
+     * @param text   The text to be displayed by the label.
+     * @param action The action to be performed if the label is clicked.
+     */
+    public ActionLabel(String text, ActionListener action) {
         super(text);
         oldText = getText();
-        addMouseListener(new MouseHandler());
         setForeground(Color.RED.darker().darker());
+        addMouseListener(new MouseHandler());
+        if (action != null) {
+            addActionListener(action);
+        }
     }
 
     public void addActionListener(ActionListener actionListener) {
@@ -46,6 +61,21 @@ public class ActionLabel extends JLabel {
 
     public void removeActionListener(ActionListener actionListener) {
         super.listenerList.remove(ActionListener.class, actionListener);
+    }
+
+    public ActionListener[] getActionListeners() {
+        return listenerList.getListeners(ActionListener.class);
+    }
+
+    protected void fireActionPerformed() {
+        fireActionPerformed(new ActionEvent(this, 0, getName()));
+    }
+
+    protected void fireActionPerformed(ActionEvent event) {
+        final ActionListener[] listeners = getActionListeners();
+        for (ActionListener listener : listeners) {
+            listener.actionPerformed(event);
+        }
     }
 
     private void startHover() {
@@ -60,14 +90,6 @@ public class ActionLabel extends JLabel {
     private void stopHover() {
         setText(oldText);
         setCursor(oldCursor);
-    }
-
-    private void fireActionPerformed() {
-        final ActionEvent event = new ActionEvent(ActionLabel.this, 0, getName());
-        final ActionListener[] listeners = listenerList.getListeners(ActionListener.class);
-        for (ActionListener listener : listeners) {
-            listener.actionPerformed(event);
-        }
     }
 
     private class MouseHandler extends MouseInputAdapter {
