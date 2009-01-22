@@ -31,6 +31,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.beans.PropertyChangeEvent;
 
 /**
  * Abstract action for toggling the display of overlays.
@@ -136,6 +137,13 @@ abstract class AbstractShowOverlayAction extends ExecCommand {
 
         public LCL(ProductSceneView view) {
             this.view = view;
+        }
+
+        @Override
+        public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
+            if ("visible".equals(event.getPropertyName())) {
+                updateSelectState(view);
+            }
         }
 
         @Override
