@@ -32,6 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
+import javax.swing.JComponent;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -40,6 +41,8 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -86,7 +89,15 @@ class ImageInfoEditor2 extends ImageInfoEditor {
             return stxOverlayComponent;
         }
 
-        JPanel labels = new JPanel(new GridBagLayout());
+        JComponent labels = new JComponent() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                g.setColor(getBackground());
+                final Rectangle bounds = getBounds();
+                g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+            }
+        };
+        labels.setLayout(new GridBagLayout());
         labels.setBackground(new Color(255, 255, 255, 140));
 
         stxOverlayComponent.add(labels);
