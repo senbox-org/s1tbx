@@ -609,22 +609,21 @@ class ColorManipulationForm {
         }
     }
 
-    private void applyColorPaletteDef(ColorPaletteDef colorPaletteDef, RasterDataNode targetRaster,
+    private void applyColorPaletteDef(ColorPaletteDef colorPaletteDef,
+                                      RasterDataNode targetRaster,
                                       ImageInfo targetImageInfo) {
-        boolean colorsOnly = false;
-        if (targetRaster instanceof Band) {
-            colorsOnly = ((Band) targetRaster).getIndexCoding() != null;
-        }
-        if (colorsOnly) {
-            final Color[] newColors = colorPaletteDef.getColors();
-            final int pointCount = targetImageInfo.getColorPaletteDef().getNumPoints();
-            for (int i = 0; i < pointCount; i++) {
-                final ColorPaletteDef.Point at = targetImageInfo.getColorPaletteDef().getPointAt(i);
-                at.setColor(newColors[i % newColors.length]);
-            }
+        if (isIndexCoded(targetRaster)) {
+            targetImageInfo.setColors(colorPaletteDef.getColors());
         } else {
-            targetImageInfo.transferColorPaletteDef(colorPaletteDef, false);
+            final Stx stx = targetRaster.getStx(false, ProgressMonitor.NULL);
+            targetImageInfo.setColorPaletteDef(colorPaletteDef,
+                                                    targetRaster.scale(stx.getMin()),
+                                                    targetRaster.scale(stx.getMax()));
         }
+    }
+
+    private boolean isIndexCoded(RasterDataNode targetRaster) {
+        return targetRaster instanceof Band && ((Band) targetRaster).getIndexCoding() != null;
     }
 
     private void exportColorPaletteDef() {

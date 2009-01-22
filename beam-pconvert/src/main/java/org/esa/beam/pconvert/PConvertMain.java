@@ -234,7 +234,7 @@ public class PConvertMain {
                 _formatExt = getOptionArg(args, i);
                 i++;
             } else if (isOption(args, i, 'h', "help")
-                       || isOption(args, i, '?', "help")) {
+                    || isOption(args, i, '?', "help")) {
                 printUsage();
             } else if (isOption(args, i, 'H', "height")) {
                 forcedHeightStr = getOptionArg(args, i);
@@ -401,8 +401,8 @@ public class PConvertMain {
         // Get histogram lower/upper skip rations for contrast stretch
 
         if (!(ImageInfo.HISTOGRAM_MATCHING_OFF.equals(_histogramMatching) ||
-              ImageInfo.HISTOGRAM_MATCHING_EQUALIZE.equals(_histogramMatching) ||
-              ImageInfo.HISTOGRAM_MATCHING_NORMALIZE.equals(_histogramMatching))) {
+                ImageInfo.HISTOGRAM_MATCHING_EQUALIZE.equals(_histogramMatching) ||
+                ImageInfo.HISTOGRAM_MATCHING_NORMALIZE.equals(_histogramMatching))) {
             error("invalid histogram matching '" + _histogramMatching + "'");
         }
 
@@ -542,7 +542,14 @@ public class PConvertMain {
             log("creating histogram for band '" + band.getName() + "'...");
             band.getImageInfo(_histoSkipRatios, ProgressMonitor.NULL);
             if (colorPaletteDef != null) {
-                band.getImageInfo().transferColorPaletteDef(colorPaletteDef, true);
+                if (band.getIndexCoding() != null) {
+                    band.getImageInfo().setColors(colorPaletteDef.getColors());
+                } else {
+                    Stx stx = band.getStx();
+                    band.getImageInfo().setColorPaletteDef(colorPaletteDef,
+                                                           band.scale(stx.getMin()),
+                                                           band.scale(stx.getMax()));
+                }
             }
             if (_noDataColor != null) {
                 band.getImageInfo().setNoDataColor(_noDataColor);
@@ -671,8 +678,8 @@ public class PConvertMain {
         product = createProductSubset(product, _maxOutputResolution, _bandIndices, outputFile);
         try {
             log("writing a data product of size " + product.getSceneRasterWidth() + " x " +
-                product.getSceneRasterHeight() + " pixels to '" +
-                outputFile.getPath() + "'...");
+                    product.getSceneRasterHeight() + " pixels to '" +
+                    outputFile.getPath() + "'...");
             ProductIO.writeProduct(product, outputFile, _formatName, false, ProgressMonitor.NULL);
         } catch (IOException e) {
             Debug.trace(e);

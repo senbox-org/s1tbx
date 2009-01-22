@@ -248,47 +248,93 @@ public class ImageInfo implements Cloneable {
         rgbChannelDef = null;
     }
 
-    public void transferColorPaletteDef(final ImageInfo sourceImageInfo, boolean changeColorsOnly) {
-        transferColorPaletteDef(sourceImageInfo.getColorPaletteDef(), changeColorsOnly);
+    /**
+     * Transfers the colour palette from the given image info into this image info.
+     *
+     * @param imageInfo        another image info object
+     * @param changeColorsOnly true, if only colours shall be changed
+     * @deprecated since BEAM 4.5.1, use {@link #setColors(java.awt.Color[])} or {@link #setColorPaletteDef(ColorPaletteDef, double, double)}
+     */
+    @Deprecated
+    public void transferColorPaletteDef(final ImageInfo imageInfo, boolean changeColorsOnly) {
+        transferColorPaletteDef(imageInfo.getColorPaletteDef(), changeColorsOnly);
     }
 
-    public void transferColorPaletteDef(final ColorPaletteDef sourceCPD, boolean changeColorsOnly) {
-        final ColorPaletteDef currentCPD = getColorPaletteDef();
-        int deltaNumPoints = currentCPD.getNumPoints() - sourceCPD.getNumPoints();
+    /**
+     * Transfers the colour palette from the given image info into this image info.
+     *
+     * @param colorPaletteDef  another colour palette
+     * @param changeColorsOnly true, if only colours shall be changed
+     * @deprecated since BEAM 4.5.1, use {@link #setColors(java.awt.Color[])} or {@link #setColorPaletteDef(ColorPaletteDef, double, double)}
+     */
+    @Deprecated
+    public void transferColorPaletteDef(final ColorPaletteDef colorPaletteDef, boolean changeColorsOnly) {
+        if (changeColorsOnly) {
+            setColors(colorPaletteDef.getColors());
+        } else {
+            setColorPaletteDef(colorPaletteDef, getMinSample(), getMaxSample());
+        }
+    }
+
+    /**
+     * Sets the colours of the colour palette of this image info.
+     *
+     * @param colors the new colours
+     */
+    public void setColors(Color[] colors) {
+        ColorPaletteDef cpd = getColorPaletteDef();
+        int numPoints = cpd.getNumPoints();
+        for (int i = 0; i < numPoints; i++) {
+            ColorPaletteDef.Point point = cpd.getPointAt(i);
+            point.setColor(colors[i % colors.length]);
+        }
+    }
+
+    /**
+     * Transfers the colour palette into this image info.
+     *
+     * @param colorPaletteDef another colour palette
+     * @param minSample       the minium allowed sample value in the new colour palette
+     * @param maxSample       the maximum allowed sample value in the new colour palette
+     */
+    public void setColorPaletteDef(ColorPaletteDef colorPaletteDef,
+                                   double minSample,
+                                   double maxSample) {
+        alignNumPoints(colorPaletteDef, getColorPaletteDef());
+        transferPoints(colorPaletteDef, minSample, maxSample, getColorPaletteDef());
+    }
+
+    private static void transferPoints(ColorPaletteDef sourceCPD, double minSample, double maxSample, ColorPaletteDef targetCPD) {
+        double minDisplaySample = sourceCPD.getMinDisplaySample();
+        double maxDisplaySample = sourceCPD.getMaxDisplaySample();
+        double a, b;
+        // Check if source range fits into this range
+        if (minDisplaySample >= minSample && maxDisplaySample <= maxSample) {
+            // --> ok, no sample conversion
+            a = 0.0;
+            b = 1.0;
+        } else {
+            // --> sourcerange overlaps this range, sample conversion
+            double delta1 = (maxSample > minSample) ? maxSample - minSample : 1.0;
+            double delta2 = (maxDisplaySample > minDisplaySample) ? maxDisplaySample - minDisplaySample : 1.0;
+            b = delta1 / delta2;
+            a = minSample - minDisplaySample * b;
+        }
+        for (int i = 0; i < sourceCPD.getNumPoints(); i++) {
+            targetCPD.getPointAt(i).setSample(a + b * sourceCPD.getPointAt(i).getSample());
+            targetCPD.getPointAt(i).setColor(sourceCPD.getPointAt(i).getColor());
+        }
+    }
+
+    private static void alignNumPoints(ColorPaletteDef sourceCPD, ColorPaletteDef targetCPD) {
+        int deltaNumPoints = targetCPD.getNumPoints() - sourceCPD.getNumPoints();
         if (deltaNumPoints < 0) {
             for (; deltaNumPoints != 0; deltaNumPoints++) {
-                currentCPD.insertPointAfter(0, new ColorPaletteDef.Point());
+                targetCPD.insertPointAfter(0, new ColorPaletteDef.Point());
             }
         } else if (deltaNumPoints > 0) {
             for (; deltaNumPoints != 0; deltaNumPoints--) {
-                currentCPD.removePointAt(1);
-            }
-        }
-        if (changeColorsOnly) {
-            for (int i = 0; i < sourceCPD.getNumPoints(); i++) {
-                currentCPD.getPointAt(i).setColor(sourceCPD.getPointAt(i).getColor());
-            }
-        } else {
-            double min1 = currentCPD.getMinDisplaySample();
-            double max1 = currentCPD.getMaxDisplaySample();
-            double min2 = sourceCPD.getMinDisplaySample();
-            double max2 = sourceCPD.getMaxDisplaySample();
-            double a, b;
-            // Check if source range fits into this range
-            if (min2 >= min1 && max2 <= max1) {
-                // --> ok, no sample conversion
-                a = 0.0;
-                b = 1.0;
-            } else {
-                // --> sourcerange overlaps this range, sample conversion
-                double delta1 = (max1 > min1) ? max1 - min1 : 1;
-                double delta2 = (max2 > min2) ? max2 - min2 : 1;
-                a = min1 - min2 * delta1 / delta2;
-                b = delta1 / delta2;
-            }
-            for (int i = 0; i < sourceCPD.getNumPoints(); i++) {
-                currentCPD.getPointAt(i).setSample(a + b * sourceCPD.getPointAt(i).getSample());
-                currentCPD.getPointAt(i).setColor(sourceCPD.getPointAt(i).getColor());
+                targetCPD.removePointAt(1);
             }
         }
     }
