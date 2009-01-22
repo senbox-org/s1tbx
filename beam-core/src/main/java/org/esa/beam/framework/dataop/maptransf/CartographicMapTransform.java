@@ -120,11 +120,20 @@ public abstract class CartographicMapTransform implements MapTransform {
         if (mapPoint == null) {
             mapPoint = new Point2D.Double();
         }
+
+        float lon0 = geoPoint.getLon() - _centralMeridian;
+        if (lon0 < -180.0) {
+            lon0 = (float) (360.0 + lon0);
+        }
+        if (lon0 > 180.0) {
+            lon0 = (float) (lon0 - 360.0);
+        }
+
         mapPoint = forward_impl(geoPoint.getLat(),
-                                geoPoint.getLon() - _centralMeridian,
-                                mapPoint);
+                lon0,
+                mapPoint);
         mapPoint.setLocation(_a * mapPoint.getX() + _x0,
-                             _a * mapPoint.getY() + _y0);
+                _a * mapPoint.getY() + _y0);
         return mapPoint;
     }
 
@@ -139,10 +148,11 @@ public abstract class CartographicMapTransform implements MapTransform {
             geoPoint = new GeoPos();
         }
         geoPoint = inverse_impl((mapPoint.getX() - _x0) * _invA,
-                                (mapPoint.getY() - _y0) * _invA,
-                                geoPoint);
+                (mapPoint.getY() - _y0) * _invA,
+                geoPoint);
         geoPoint.setLocation(geoPoint.getLat(),
-                             geoPoint.getLon() + _centralMeridian);
+                geoPoint.getLon() + _centralMeridian);
+
         return geoPoint;
     }
 
@@ -157,7 +167,6 @@ public abstract class CartographicMapTransform implements MapTransform {
      * @param lat      latitude of source location
      * @param lon      longitude of source location
      * @param mapPoint
-     *
      * @return the map co-ordinate
      */
     abstract protected Point2D forward_impl(float lat, float lon, Point2D mapPoint);
@@ -167,14 +176,13 @@ public abstract class CartographicMapTransform implements MapTransform {
      * etc is calculated in this class.
      * <p/>
      * <p>Should be overridden in order to delegate to <code>{@link #inverse_impl(double, double,
-            * org.esa.beam.framework.datamodel.GeoPos)}</code> if transformation is performed is in 64-bit accuracy. Override
+     * org.esa.beam.framework.datamodel.GeoPos)}</code> if transformation is performed is in 64-bit accuracy. Override
      * <code>{@link #inverse_impl(double, double, org.esa.beam.framework.datamodel.GeoPos)}</code> instead in order to
      * perform the actual transformation.
      *
      * @param geoPoint
      * @param x        map x coordinate
      * @param y        map y coordinate
-     *
      * @return the geodetic co-ordinate
      */
     abstract protected GeoPos inverse_impl(float x, float y, GeoPos geoPoint);
@@ -190,7 +198,6 @@ public abstract class CartographicMapTransform implements MapTransform {
      * @param geoPoint
      * @param x        map x coordinate
      * @param y        map y coordinate
-     *
      * @return the geodetic co-ordinate
      */
     protected GeoPos inverse_impl(double x, double y, GeoPos geoPoint) {
