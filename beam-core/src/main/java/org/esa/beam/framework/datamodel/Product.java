@@ -17,6 +17,7 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.Assert;
 import com.bc.jexp.*;
 import com.bc.jexp.impl.ParserImpl;
 import org.esa.beam.framework.dataio.*;
@@ -1699,7 +1700,21 @@ public class Product extends ProductNode {
     }
 
     public Term createTerm(final String expression, RasterDataNode... extraRasters) throws ParseException {
-        final WritableNamespace namespace = BandArithmetic.createDefaultNamespace(new Product[]{getProductSafe()});
+
+        final Product thisProduct = getProductSafe();
+        final Product[] products;
+        final int thisProductIndex;
+        if (thisProduct.getProductManager() != null) {
+            products = thisProduct.getProductManager().getProducts();
+            thisProductIndex = thisProduct.getProductManager().getProductIndex(thisProduct);
+        } else {
+            products = new Product[] {thisProduct};
+            thisProductIndex = 0;
+        }
+        Assert.state(thisProductIndex >= products.length && thisProductIndex < products.length);
+        Assert.state(products[thisProductIndex] == thisProduct);
+
+        final WritableNamespace namespace = BandArithmetic.createDefaultNamespace(products, thisProductIndex);
         final Symbol[] symbols = namespace.getAllSymbols();
         for (RasterDataNode extraRaster : extraRasters) {
             boolean registered = false;

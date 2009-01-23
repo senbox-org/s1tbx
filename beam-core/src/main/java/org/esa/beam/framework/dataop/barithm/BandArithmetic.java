@@ -125,6 +125,106 @@ public class BandArithmetic {
         DEFAULT_NAMESPACE.deregisterFunction(f);
     }
 
+    /**
+     * Parses the given expression.
+     *
+     * @param products the array of input products
+     * @param expression  the expression
+     * @return the compiled expression
+     * @throws ParseException if a parse error occurs
+     * @deprecated since BEAM 4.5.1. Use {@link #createDefaultNamespace(org.esa.beam.framework.datamodel.Product[], int)}
+     */
+    @Deprecated
+    public static Term parseExpression(Product[] products, String expression) throws ParseException {
+        return parseExpression(expression, products, 0);
+    }
+
+    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
+    /**
+     * Parses the given expression.
+     *
+     * @param expression  the expression
+     * @param products the array of input products
+     * @param defaultProductIndex the index of the product for which also symbols without the
+     *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace
+     * @return the compiled expression
+     * @throws ParseException if a parse error occurs
+     */
+    public static Term parseExpression(String expression, Product[] products, int defaultProductIndex) throws ParseException {
+        final Namespace namespace = createDefaultNamespace(products, defaultProductIndex);
+        final Parser parser = new ParserImpl(namespace, false);
+        return parser.parse(expression);
+    }
+
+    /**
+     * Creates a default namespace for the product(s) given in an array. The resulting namespace contains symbols for
+     * all tie-point grids, bands and single flag values. if the array contains more then one product, the symbol's name
+     * will have a prefix according to each product's reference number.
+     *
+     * @param products the array of input products
+     * @return a default namespace, never <code>null</code>
+     * @deprecated since BEAM 4.5.1. Use {@link #createDefaultNamespace(org.esa.beam.framework.datamodel.Product[], int)}
+     */
+    @Deprecated
+    public static WritableNamespace createDefaultNamespace(Product[] products) {
+        return createDefaultNamespace(products, 0);
+    }
+
+    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
+    /**
+     * Creates a default namespace for the product(s) given in an array. The resulting namespace contains symbols for
+     * all tie-point grids, bands and single flag values. if the array contains more then one product, the symbol's name
+     * will have a prefix according to each product's reference number.
+     *
+     * @param products            the array of input products
+     * @param defaultProductIndex the index of the product for which also symbols without the
+     *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace
+     * @return a default namespace, never <code>null</code>
+     */
+    public static WritableNamespace createDefaultNamespace(Product[] products, int defaultProductIndex) {
+        return createDefaultNamespace(products,
+                                      defaultProductIndex,
+                                      new ProductPrefixProvider() {
+                                          public String getPrefix(Product product) {
+                                              return getProductNodeNamePrefix(product);
+                                          }
+                                      });
+    }
+
+    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
+    /**
+     * Creates a default namespace for the product(s) given in an array. The resulting namespace contains symbols for
+     * all tie-point grids, bands and single flag values. if the array contains more then one product, the symbol's name
+     * will have a prefix according to each product's reference number.
+     *
+     * @param products            the array of input products
+     * @param defaultProductIndex the index of the product for which also symbols without the
+     *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace
+     * @param prefixProvider      a product prefix provider
+     * @return a default namespace, never <code>null</code>
+     */
+    public static WritableNamespace createDefaultNamespace(Product[] products, int defaultProductIndex, ProductPrefixProvider prefixProvider) {
+        Guardian.assertNotNullOrEmpty("products", products);
+        Guardian.assertWithinRange("defaultProductIndex", defaultProductIndex, 0, products.length);
+
+        WritableNamespace namespace = new NamespaceImpl(DEFAULT_NAMESPACE);
+
+        // Register symbols for default product without name prefix
+        registerProductSymbols(namespace, products[defaultProductIndex], "");
+
+        // Register symbols for multiple products using a name prefix
+        if (products.length > 1) {
+            for (Product product : products) {
+                registerProductSymbols(namespace, product, prefixProvider.getPrefix(product));
+            }
+        }
+
+        namespace.registerSymbol(PIXEL_X_SYMBOL);
+        namespace.registerSymbol(PIXEL_Y_SYMBOL);
+
+        return namespace;
+    }
+
     // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
     public static int computeBand(final Product[] sourceProducts,
                                   final String expression,
@@ -139,21 +239,9 @@ public class BandArithmetic {
                                   final Scaling scaling,
                                   ProgressMonitor pm) throws ParseException,
             IOException {
-        final Term term = parseExpression(sourceProducts, expression);
+        final Term term = parseExpression(expression, sourceProducts, 0);
         return computeBand(term, offsetX, offsetY, width, height, checkInvalids, noDataValueUsed, noDataValue,
                            targetRasterData, scaling, pm);
-    }
-
-    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
-    public static Term parseExpression(Product[] sourceProducts, String expression) throws ParseException {
-        return parseExpression(sourceProducts, expression, 0);
-    }
-
-    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
-    public static Term parseExpression(Product[] sourceProducts, String expression, int defaultProductIndex) throws ParseException {
-        final Namespace namespace = createDefaultNamespace(sourceProducts, defaultProductIndex);
-        final Parser parser = new ParserImpl(namespace, false);
-        return parser.parse(expression);
     }
 
     public static int computeBand(final Term term,
@@ -192,61 +280,6 @@ public class BandArithmetic {
         return numInvalidPixels[0];
     }
 
-    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
-    /**
-     * Creates a default namespace for the product(s) given in an array. The resulting namespace contains symbols for
-     * all tie-point grids, bands and single flag values. if the array contains more then one product, the symbol's name
-     * will have a prefix according to each product's reference number.
-     *
-     * @param products the array of input products
-     * @return a default namespace, never <code>null</code>
-     */
-    public static WritableNamespace createDefaultNamespace(Product[] products) {
-        return createDefaultNamespace(products, 0);
-    }
-
-    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
-    /**
-     * Creates a default namespace for the product(s) given in an array. The resulting namespace contains symbols for
-     * all tie-point grids, bands and single flag values. if the array contains more then one product, the symbol's name
-     * will have a prefix according to each product's reference number.
-     *
-     * @param products            the array of input products
-     * @param defaultProductIndex the index of the product for which also symbols without the
-     *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace
-     * @return a default namespace, never <code>null</code>
-     */
-    public static WritableNamespace createDefaultNamespace(Product[] products, int defaultProductIndex) {
-        return createDefaultNamespace(products, defaultProductIndex,
-                                      new ProductPrefixProvider() {
-                                          public String getPrefix(Product product) {
-                                              return getProductNodeNamePrefix(product);
-                                          }
-                                      });
-    }
-
-    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
-    public static WritableNamespace createDefaultNamespace(Product[] products, int defaultProductIndex, ProductPrefixProvider p) {
-        Guardian.assertNotNullOrEmpty("products", products);
-        Guardian.assertWithinRange("defaultProductIndex", defaultProductIndex, 0, products.length);
-
-        WritableNamespace namespace = new NamespaceImpl(DEFAULT_NAMESPACE);
-
-        // Register symbols for default product without name prefix
-        registerProductSymbols(namespace, products[defaultProductIndex], "");
-
-        // Register symbols for multiple products using a name prefix
-        if (products.length > 1) {
-            for (Product product : products) {
-                registerProductSymbols(namespace, product, p.getPrefix(product));
-            }
-        }
-
-        namespace.registerSymbol(PIXEL_X_SYMBOL);
-        namespace.registerSymbol(PIXEL_Y_SYMBOL);
-
-        return namespace;
-    }
 
     // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
     public static String getValidMaskExpression(String expression,
@@ -348,12 +381,33 @@ public class BandArithmetic {
     }
 
     public static RasterDataNode[] getRefRasters(String expression, Product[] products, int defaultProductNamePrefix) throws ParseException {
-        RasterDataSymbol[] symbols = getRefRasterDataSymbols(new Term[]{parseExpression(products, expression, defaultProductNamePrefix)});
+        RasterDataSymbol[] symbols = getRefRasterDataSymbols(new Term[]{parseExpression(expression, products, defaultProductNamePrefix)});
         RasterDataNode[] rasters = new RasterDataNode[symbols.length];
         for (int i = 0; i < symbols.length; i++) {
             rasters[i] = symbols[i].getRaster();
         }
         return rasters;
+    }
+    
+    /**
+     * Utility method which returns all raster data nodes referenced in a given array of raster data symbols.
+     * The given <code>rasterDataSymbols</code> argument can contain multiple references to the same raster data node,
+     * e.g. if multilple {@link SingleFlagSymbol}s refer to the same raster.
+     *
+     * @param rasterDataSymbols the array to be analysed
+     * @return the array of raster data nodes, never <code>null</code> but may be empty
+     */
+    public static RasterDataNode[] getRefRasters(RasterDataSymbol[] rasterDataSymbols) {
+        Set<RasterDataNode> set = new HashSet<RasterDataNode>(rasterDataSymbols.length * 2);
+        List<RasterDataNode> list = new ArrayList<RasterDataNode>(rasterDataSymbols.length);
+        for (RasterDataSymbol symbol : rasterDataSymbols) {
+            RasterDataNode raster = symbol.getRaster();
+            if (!set.contains(raster)) {
+                list.add(raster);
+                set.add(raster);
+            }
+        }
+        return list.toArray(new RasterDataNode[list.size()]);
     }
 
     /**
@@ -382,22 +436,6 @@ public class BandArithmetic {
             }
         }
         return list.toArray(new RasterDataSymbol[list.size()]);
-    }
-
-    /**
-     * Utility method which returns all raster data nodes referenced in a given array of raster data symbols.
-     * The given <code>rasterDataSymbols</code> argument can contain multiple references to the same raster data node,
-     * e.g. if multilple {@link SingleFlagSymbol}s refer to the same raster.
-     *
-     * @param rasterDataSymbols the array to be analysed
-     * @return the array of raster data nodes, never <code>null</code> but may be empty
-     */
-    public static RasterDataNode[] getRefRasters(RasterDataSymbol[] rasterDataSymbols) {
-        Set<RasterDataNode> set = new HashSet<RasterDataNode>();
-        for (RasterDataSymbol symbol : rasterDataSymbols) {
-            set.add(symbol.getRaster());
-        }
-        return set.toArray(new RasterDataNode[set.size()]);
     }
 
     /**
