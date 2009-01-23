@@ -548,7 +548,7 @@ public class PConvertMain {
                     Stx stx = band.getStx();
                     band.getImageInfo().setColorPaletteDef(colorPaletteDef,
                                                            band.scale(stx.getMin()),
-                                                           band.scale(stx.getMax()));
+                                                           band.scale(stx.getMax()), false);
                 }
             }
             if (_noDataColor != null) {

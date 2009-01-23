@@ -7,3 +7,4 @@ numPoints=3
 sample0=0.1
 sample1=0.8
 sample2=1.5
+autoDistribute=true

@@ -9,3 +9,4 @@ sample0=-180.01
 sample1=-180
 sample2=0.0
 sample3=180
+autoDistribute=true

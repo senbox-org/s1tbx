@@ -41,6 +41,7 @@ public class ColorPaletteDef implements Cloneable{
     private final static String _PROPERTY_KEY_NUM_POINTS = "numPoints";
     private final static String _PROPERTY_KEY_COLOR = "color";
     private final static String _PROPERTY_KEY_SAMPLE = "sample";
+    private final static String _PROPERTY_KEY_AUTODISTRIBUTE = "autoDistribute";
 
     /**
      * this curve's points
@@ -48,6 +49,7 @@ public class ColorPaletteDef implements Cloneable{
     private Vector<Point> points;
     private int numColors;
     private boolean discrete;
+    private boolean autoDistribute;
 
     public ColorPaletteDef(double minSample, double maxSample) {
         this(minSample, 0.5 * (maxSample + minSample), maxSample);
@@ -102,6 +104,14 @@ public class ColorPaletteDef implements Cloneable{
         while (getNumPoints() > numPoints) {
             removePointAt(getNumPoints() - 1);
         }
+    }
+
+    public boolean isAutoDistribute() {
+        return autoDistribute;
+    }
+
+    public void setAutoDistribute(boolean autoDistribute) {
+        this.autoDistribute = autoDistribute;
     }
 
     public Point getPointAt(int index) {
@@ -224,6 +234,7 @@ public class ColorPaletteDef implements Cloneable{
         return (ColorPaletteDef) clone();
     }
 
+
     /**
      * Loads a color palette definition from the given file
      *
@@ -253,7 +264,9 @@ public class ColorPaletteDef implements Cloneable{
             points[i] = point;
             lastSample = sample;
         }
-        return new ColorPaletteDef(points, 256);
+        ColorPaletteDef paletteDef = new ColorPaletteDef(points, 256);
+        paletteDef.setAutoDistribute(propertyMap.getPropertyBool(_PROPERTY_KEY_AUTODISTRIBUTE, false));
+        return paletteDef;
     }
 
     /**
@@ -268,6 +281,7 @@ public class ColorPaletteDef implements Cloneable{
         final PropertyMap propertyMap = new PropertyMap();
         final int numPoints = points.length;
         propertyMap.setPropertyInt(_PROPERTY_KEY_NUM_POINTS, numPoints);
+        propertyMap.setPropertyBool(_PROPERTY_KEY_AUTODISTRIBUTE, colorPaletteDef.isAutoDistribute());
         for (int i = 0; i < numPoints; i++) {
             propertyMap.setPropertyColor(_PROPERTY_KEY_COLOR + i, points[i].getColor());
             propertyMap.setPropertyDouble(_PROPERTY_KEY_SAMPLE + i, points[i].getSample());

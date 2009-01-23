@@ -61,7 +61,6 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -615,10 +614,33 @@ class ColorManipulationForm {
         if (isIndexCoded(targetRaster)) {
             targetImageInfo.setColors(colorPaletteDef.getColors());
         } else {
-            final Stx stx = targetRaster.getStx(false, ProgressMonitor.NULL);
+            Stx stx = targetRaster.getStx(false, ProgressMonitor.NULL);
+            Boolean autoDistribute = getAutoDistribute(colorPaletteDef);
+            if (autoDistribute == null) {
+                return;
+            }
             targetImageInfo.setColorPaletteDef(colorPaletteDef,
-                                                    targetRaster.scale(stx.getMin()),
-                                                    targetRaster.scale(stx.getMax()));
+                                               targetRaster.scale(stx.getMin()),
+                                               targetRaster.scale(stx.getMax()),
+                                               autoDistribute);
+        }
+    }
+
+    private Boolean getAutoDistribute(ColorPaletteDef colorPaletteDef) {
+        if (colorPaletteDef.isAutoDistribute()) {
+            return Boolean.TRUE;
+        }
+        int answer = JOptionPane.showConfirmDialog(getToolViewPaneControl(),
+                                                   "Automatically distribute points of\n" +
+                                                           "colour palette between min/max?",
+                                                   "Import Colour Palette",
+                                                   JOptionPane.YES_NO_CANCEL_OPTION);
+        if (answer == JOptionPane.YES_OPTION) {
+            return Boolean.TRUE;
+        } else if (answer == JOptionPane.NO_OPTION) {
+            return Boolean.FALSE;
+        } else {
+            return null;
         }
     }
 
