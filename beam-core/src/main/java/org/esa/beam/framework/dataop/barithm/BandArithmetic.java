@@ -16,6 +16,7 @@
  */
 package org.esa.beam.framework.dataop.barithm;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.jexp.EvalEnv;
 import com.bc.jexp.EvalException;
@@ -46,15 +47,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-// todo - api doc!
 /**
  * Provides band arithmetic utility methods.
  */
 public class BandArithmetic {
 
-    // todo - api doc!
     public static final String PIXEL_X_NAME = "X";
-    // todo - api doc!
     public static final String PIXEL_Y_NAME = "Y";
 
     private static final Symbol PIXEL_X_SYMBOL = new AbstractSymbol.I(PIXEL_X_NAME) {
@@ -73,7 +71,7 @@ public class BandArithmetic {
 
     private static final List<NamespaceExtender> _namespaceExtenderList = new ArrayList<NamespaceExtender>();
 
-    static{
+    static {
         MoreFuncs.registerExtraFunctions();
         MoreFuncs.registerExtraSymbols();
     }
@@ -81,14 +79,12 @@ public class BandArithmetic {
     private BandArithmetic() {
     }
 
-    // todo - api doc!
     public static void addNamespaceExtender(NamespaceExtender ne) {
         if (ne != null && !_namespaceExtenderList.contains(ne)) {
             _namespaceExtenderList.add(ne);
         }
     }
 
-    // todo - api doc!
     public static void removeNamespaceExtender(NamespaceExtender ne) {
         _namespaceExtenderList.remove(ne);
     }
@@ -129,7 +125,7 @@ public class BandArithmetic {
         DEFAULT_NAMESPACE.deregisterFunction(f);
     }
 
-    // todo - api doc!
+    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
     public static int computeBand(final Product[] sourceProducts,
                                   final String expression,
                                   final boolean checkInvalids,
@@ -142,18 +138,24 @@ public class BandArithmetic {
                                   final ProductData targetRasterData,
                                   final Scaling scaling,
                                   ProgressMonitor pm) throws ParseException,
-                                                             IOException {
-
-        final Namespace namespace = createDefaultNamespace(sourceProducts);
-        final Parser parser = new ParserImpl(namespace, false);
-        final Term term = parser.parse(expression);
-
+            IOException {
+        final Term term = parseExpression(sourceProducts, expression);
         return computeBand(term, offsetX, offsetY, width, height, checkInvalids, noDataValueUsed, noDataValue,
                            targetRasterData, scaling, pm);
     }
 
+    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
+    public static Term parseExpression(Product[] sourceProducts, String expression) throws ParseException {
+        return parseExpression(sourceProducts, expression, 0);
+    }
 
-    // todo - api doc!
+    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
+    public static Term parseExpression(Product[] sourceProducts, String expression, int defaultProductIndex) throws ParseException {
+        final Namespace namespace = createDefaultNamespace(sourceProducts, defaultProductIndex);
+        final Parser parser = new ParserImpl(namespace, false);
+        return parser.parse(expression);
+    }
+
     public static int computeBand(final Term term,
                                   final int offsetX,
                                   final int offsetY,
@@ -190,19 +192,20 @@ public class BandArithmetic {
         return numInvalidPixels[0];
     }
 
+    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
     /**
      * Creates a default namespace for the product(s) given in an array. The resulting namespace contains symbols for
      * all tie-point grids, bands and single flag values. if the array contains more then one product, the symbol's name
      * will have a prefix according to each product's reference number.
      *
      * @param products the array of input products
-     *
      * @return a default namespace, never <code>null</code>
      */
     public static WritableNamespace createDefaultNamespace(Product[] products) {
         return createDefaultNamespace(products, 0);
     }
 
+    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
     /**
      * Creates a default namespace for the product(s) given in an array. The resulting namespace contains symbols for
      * all tie-point grids, bands and single flag values. if the array contains more then one product, the symbol's name
@@ -211,17 +214,18 @@ public class BandArithmetic {
      * @param products            the array of input products
      * @param defaultProductIndex the index of the product for which also symbols without the
      *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace
-     *
      * @return a default namespace, never <code>null</code>
      */
     public static WritableNamespace createDefaultNamespace(Product[] products, int defaultProductIndex) {
         return createDefaultNamespace(products, defaultProductIndex,
-        		new ProductPrefixProvider() {
-					public String getPrefix(Product product) {
-						return getProductNodeNamePrefix(product);
-					}});
-    }    
+                                      new ProductPrefixProvider() {
+                                          public String getPrefix(Product product) {
+                                              return getProductNodeNamePrefix(product);
+                                          }
+                                      });
+    }
 
+    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
     public static WritableNamespace createDefaultNamespace(Product[] products, int defaultProductIndex, ProductPrefixProvider p) {
         Guardian.assertNotNullOrEmpty("products", products);
         Guardian.assertWithinRange("defaultProductIndex", defaultProductIndex, 0, products.length);
@@ -244,11 +248,118 @@ public class BandArithmetic {
         return namespace;
     }
 
+    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
+    public static String getValidMaskExpression(String expression,
+                                                Product[] products,
+                                                int defaultProductNamePrefix,
+                                                String validMaskExpression) throws ParseException {
+        Assert.notNull(expression, "expression");
+        Assert.notNull(products, "products");
+        Assert.argument(products.length > 0, "products");
+        Assert.argument(defaultProductNamePrefix>= 0 && defaultProductNamePrefix<products.length, "defaultProductNamePrefix");
+
+        final RasterDataNode[] rasters = getRefRasters(expression, products, defaultProductNamePrefix);
+        if (rasters.length == 0) {
+            return validMaskExpression;
+        }
+        if (validMaskExpression == null && rasters.length == 1) {
+            return rasters[0].getValidMaskExpression();
+        }
+
+        final Product contextProduct = products[defaultProductNamePrefix];
+        final List<String> vmes = new ArrayList<String>(rasters.length);
+        for (RasterDataNode raster : rasters) {
+            String vme = raster.getValidMaskExpression();
+            if (vme != null) {
+                if (raster.getProduct() != contextProduct) {
+                    final int productIndex = getProductIndex(products, raster);
+                    Assert.state(productIndex >= 0, "productIndex >= 0");
+                    vme = createUnambiguousExpression(vme, products, productIndex);
+                }
+                if (!vmes.contains(vme)) {
+                    vmes.add(vme);
+                }
+            }
+        }
+
+        final StringBuilder sb = new StringBuilder();
+        if (validMaskExpression != null) {
+            sb.append("(");
+            sb.append(validMaskExpression);
+            sb.append(")");
+        }
+        for (String vme : vmes) {
+            if (sb.length() > 0) {
+                sb.append(" && ");
+            }
+            sb.append("(");
+            sb.append(vme);
+            sb.append(")");
+        }
+        return sb.toString();
+    }
+
+    private static String createUnambiguousExpression(String vme, Product[] products, int productIndex) throws ParseException {
+        RasterDataNode[] rasters = getRefRasters(vme, products, productIndex);
+        for (RasterDataNode raster : rasters) {
+            String name = raster.getName();
+            boolean changed;
+            do {  // } while (changed)
+                changed = false;
+                int namePos = vme.indexOf(name);
+                if (namePos == 0) {
+                    String prefix = getProductNodeNamePrefix(raster.getProduct());
+                    vme = prefix + vme;
+                    changed = true;
+                } else if (namePos > 0) {
+                    int i1 = namePos - 1;
+                    int i2 = namePos + name.length();
+                    char c1 = vme.charAt(i1);
+                    char c2 = i2 < vme.length() ? vme.charAt(i2) : '\0';
+                    if (c1 != '.' && !isNameChar(c1) && !isNameChar(c2)) {
+                        String prefix = getProductNodeNamePrefix(raster.getProduct());
+                        vme = vme.substring(0, namePos) + prefix + vme.substring(namePos);
+                        changed = true;
+                    }
+                }
+            } while (changed);
+        }
+        return vme;
+    }
+
+    private static boolean isNameChar(char c) {
+        return Character.isJavaIdentifierStart(c) || Character.isJavaIdentifierPart(c);
+    }
+
+    private static int getProductIndex(Product[] products, RasterDataNode raster) {
+        int productIndex = -1;
+        for (int i = 0; i < products.length; i++) {
+            Product product = products[i];
+            if (product == raster.getProduct()) {
+                productIndex = i;
+                break;
+            }
+        }
+        return productIndex;
+    }
+
+    public static RasterDataNode[] getRefRasters(String expression, Product[] products) throws ParseException {
+        return getRefRasters(expression, products, 0);
+    }
+
+    public static RasterDataNode[] getRefRasters(String expression, Product[] products, int defaultProductNamePrefix) throws ParseException {
+        RasterDataSymbol[] symbols = getRefRasterDataSymbols(new Term[]{parseExpression(products, expression, defaultProductNamePrefix)});
+        RasterDataNode[] rasters = new RasterDataNode[symbols.length];
+        for (int i = 0; i < symbols.length; i++) {
+            rasters[i] = symbols[i].getRaster();
+        }
+        return rasters;
+    }
+
     /**
      * Utility method which returns all raster data symbols references in a given term.
      *
      * @param term the term to be analysed
-     *
      * @return the array of raster data symbols, never <code>null</code> but may be empty
      */
     public static RasterDataSymbol[] getRefRasterDataSymbols(Term term) {
@@ -257,19 +368,20 @@ public class BandArithmetic {
 
     /**
      * Utility method which returns all raster data symbols references in a given term array.
+     * The order of the returned rasters is the order they appear in the given terms.
      *
      * @param terms the term array to be analysed
-     *
      * @return the array of raster data symbols, never <code>null</code> but may be empty
      */
     public static RasterDataSymbol[] getRefRasterDataSymbols(Term[] terms) {
+        List<RasterDataSymbol> list = new ArrayList<RasterDataSymbol>();
         Set<RasterDataSymbol> set = new HashSet<RasterDataSymbol>();
         for (final Term term : terms) {
             if (term != null) {
-                collectRefRasterDataSymbols(term, set);
+                collectRefRasterDataSymbols(term, list, set);
             }
         }
-        return set.toArray(new RasterDataSymbol[set.size()]);
+        return list.toArray(new RasterDataSymbol[list.size()]);
     }
 
     /**
@@ -278,7 +390,6 @@ public class BandArithmetic {
      * e.g. if multilple {@link SingleFlagSymbol}s refer to the same raster.
      *
      * @param rasterDataSymbols the array to be analysed
-     *
      * @return the array of raster data nodes, never <code>null</code> but may be empty
      */
     public static RasterDataNode[] getRefRasters(RasterDataSymbol[] rasterDataSymbols) {
@@ -296,7 +407,6 @@ public class BandArithmetic {
      * <p>The method simply delgates to {@link Tokenizer#createExternalName(String)}.
      *
      * @param name the name
-     *
      * @return a valid external name
      */
     public static String createExternalName(final String name) {
@@ -309,7 +419,6 @@ public class BandArithmetic {
      * number returned by {@link org.esa.beam.framework.datamodel.Product#getRefNo()}.
      *
      * @param product the product, must not be <code>null</code>
-     *
      * @return a node name prefix, never null.
      */
     public static String getProductNodeNamePrefix(Product product) {
@@ -378,19 +487,23 @@ public class BandArithmetic {
         }
     }
 
-    private static void collectRefRasterDataSymbols(Term term, Set<RasterDataSymbol> set) {
+    private static void collectRefRasterDataSymbols(Term term, List<RasterDataSymbol> list, Set<RasterDataSymbol> set) {
         if (term == null) {
             return;
         }
         if (term instanceof Term.Ref) {
             Symbol symbol = ((Term.Ref) term).getSymbol();
             if (symbol instanceof RasterDataSymbol) {
-                set.add((RasterDataSymbol) symbol);
+                RasterDataSymbol rds = (RasterDataSymbol) symbol;
+                if (!set.contains(rds)) {
+                    list.add(rds);
+                    set.add(rds);
+                }
             }
         } else {
             Term[] children = term.getChildren();
             for (Term child : children) {
-                collectRefRasterDataSymbols(child, set);
+                collectRefRasterDataSymbols(child, list, set);
             }
         }
     }
@@ -399,15 +512,14 @@ public class BandArithmetic {
         return Double.isNaN(pixelValue) || Double.isInfinite(pixelValue);
     }
 
-    // todo - api doc!
     public static interface NamespaceExtender {
 
         void extendNamespace(WritableNamespace namespace,
                              Product product,
                              String namePrefix);
     }
-    
+
     public static interface ProductPrefixProvider {
-    	String getPrefix(Product product);
+        String getPrefix(Product product);
     }
 }

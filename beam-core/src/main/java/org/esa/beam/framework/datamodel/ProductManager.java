@@ -123,6 +123,10 @@ public class ProductManager {
         return products.get(name);
     }
 
+    public int getProductIndex(Product product) {
+        return products.indexOf(product);
+    }
+
     /**
      * Tests whether a product with the given name is contained in this list.
      *

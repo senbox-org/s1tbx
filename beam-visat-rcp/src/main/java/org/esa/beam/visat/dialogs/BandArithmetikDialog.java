@@ -18,16 +18,28 @@ package org.esa.beam.visat.dialogs;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
-import com.bc.jexp.*;
+import com.bc.jexp.EvalException;
+import com.bc.jexp.Namespace;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Parser;
+import com.bc.jexp.Term;
 import com.bc.jexp.impl.ParserImpl;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeList;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamProperties;
 import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.framework.ui.*;
+import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.NewBandDialog;
+import org.esa.beam.framework.ui.NewProductDialog;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
@@ -146,13 +158,25 @@ public class BandArithmetikDialog extends ModalDialog {
         final boolean checkInvalids = (Boolean) paramWarnOnErrors.getValue();
         final boolean noDataValueUsed = (Boolean) paramNoDataValueUsed.getValue();
         final float noDataValue = (Float) paramNoDataValue.getValue();
+        final String expression = paramExpression.getValueAsText();
 
         targetBand.setImageInfo(null);
         targetBand.setGeophysicalNoDataValue(noDataValue);
         targetBand.setNoDataValueUsed(noDataValueUsed);
         if (getCreateVirtualBand()) {
+            final String validMaskExpression;
+            try {
+                validMaskExpression = BandArithmetic.getValidMaskExpression(expression, new Product[]{targetProduct}, 0, null);
+            } catch (ParseException e) {
+                String errorMessage = "The band could not be created.\nAn expression parse error occurred:\n" + e.getMessage(); /*I18N*/
+                visatApp.showErrorDialog(errorMessage);
+                hide();
+                return;
+            }
+
             final VirtualBand virtualBand = (VirtualBand) targetBand;
-            virtualBand.setExpression(paramExpression.getValueAsText());
+            virtualBand.setExpression(expression);
+            virtualBand.setValidPixelExpression(validMaskExpression);
             virtualBand.setCheckInvalids(checkInvalids);
         } else {
             if (!targetBand.hasRasterData()) {
@@ -166,22 +190,22 @@ public class BandArithmetikDialog extends ModalDialog {
                 final float megabyte = 1024.0f * 1024.0f;
                 if (requiredMemory > availableMemory) {
                     String message = "Can not create the new band.\n" +
-                                     "The amount of required memory is equal or greater than the available memory.\n\n" +
-                                     String.format("Available memory: %.1f MB\n", availableMemory / megabyte) +
-                                     String.format("Required memory: %.1f MB", requiredMemory / megabyte);
+                            "The amount of required memory is equal or greater than the available memory.\n\n" +
+                            String.format("Available memory: %.1f MB\n", availableMemory / megabyte) +
+                            String.format("Required memory: %.1f MB", requiredMemory / megabyte);
                     visatApp.showErrorDialog(message); /*I18N*/
-                    BandArithmetikDialog.super.onOK();
+                    hide();
                     return;
                 }
-                if (requiredMemory * 1.3 > availableMemory ) {
+                if (requiredMemory * 1.3 > availableMemory) {
                     String message = "Creating the new band will cause the system to reach its memory limit.\n" +
-                                     "This can cause the system to slow down.\n" +
-                                     String.format("Available memory: %.1f MB\n", availableMemory / megabyte) +
-                                     String.format("Required memory: %.1f MB\n\n", requiredMemory / megabyte) +
-                                     "Do you really want to create the image?";
+                            "This can cause the system to slow down.\n" +
+                            String.format("Available memory: %.1f MB\n", availableMemory / megabyte) +
+                            String.format("Required memory: %.1f MB\n\n", requiredMemory / megabyte) +
+                            "Do you really want to create the image?";
                     final int answer = visatApp.showQuestionDialog(message, null);/*I18N*/
                     if (answer != JOptionPane.YES_OPTION) {
-                        BandArithmetikDialog.super.onOK();
+                        hide();
                         return;
                     }
                 }
@@ -191,12 +215,11 @@ public class BandArithmetikDialog extends ModalDialog {
             targetProduct.addBand(targetBand);
         }
 
-        final String expression = paramExpression.getValueAsText();
         targetBand.setSynthetic(true);
 
         SwingWorker swingWorker = new SwingWorker() {
             private final ProgressMonitor pm = new DialogProgressMonitor(getJDialog(), "Band Arithmetic",
-                                                                 Dialog.ModalityType.APPLICATION_MODAL);
+                                                                         Dialog.ModalityType.APPLICATION_MODAL);
 
             private String errorMessage;
             private int numInvalids;
@@ -206,12 +229,14 @@ public class BandArithmetikDialog extends ModalDialog {
                 errorMessage = null;
                 try {
                     if (!getCreateVirtualBand()) {
+                        final Product[] products = getCompatibleProducts();
+                        targetBand.setValidPixelExpression(BandArithmetic.getValidMaskExpression(expression, products, 0, null));
                         numInvalids = targetBand.computeBand(expression,
-                                                               getCompatibleProducts(),
-                                                               checkInvalids,
-                                                               noDataValueUsed,
-                                                               noDataValue,
-                                                               pm);
+                                                             products,
+                                                             checkInvalids,
+                                                             noDataValueUsed,
+                                                             noDataValue,
+                                                             pm);
                         targetBand.fireProductNodeDataChanged();
                     }
 
@@ -224,10 +249,9 @@ public class BandArithmetikDialog extends ModalDialog {
                 } catch (EvalException e) {
                     Debug.trace(e);
                     errorMessage = "The band could not be created.\nAn expression evaluation error occured:\n" + e.getMessage();/*I18N*/
-                } catch(Exception e){
+                } catch (Exception e) {
                     Debug.trace(e);
                     errorMessage = "The band could not be created.:\n" + e.getMessage();/*I18N*/
-                } finally {
                 }
                 return null;
 
@@ -237,10 +261,10 @@ public class BandArithmetikDialog extends ModalDialog {
             public void done() {
                 boolean ok = true;
                 if (errorMessage != null) {
-                    showErrorDialog(errorMessage);
+                    visatApp.showErrorDialog(errorMessage);
                     ok = false;
                 } else if (pm.isCanceled()) {
-                    showErrorDialog("Band arithmetic has been canceled.");/*I18N*/
+                    visatApp.showErrorDialog("Band arithmetic has been canceled.");/*I18N*/
                     ok = false;
                 } else if (numInvalids > 0 && checkInvalids) {
                     int numPixelsTotal = targetBand.getRasterWidth() * targetBand.getRasterHeight();
@@ -505,8 +529,8 @@ public class BandArithmetikDialog extends ModalDialog {
                     targetProduct = product;
                 }
             }
-            if(targetBand != null && targetProduct != null) {
-                targetBand = createTargetBand(targetBand.getName(),targetBand.getDataType(),targetProduct.getSceneRasterWidth(), targetProduct.getSceneRasterHeight());
+            if (targetBand != null && targetProduct != null) {
+                targetBand = createTargetBand(targetBand.getName(), targetBand.getDataType(), targetProduct.getSceneRasterWidth(), targetProduct.getSceneRasterHeight());
             }
             boolean b = productIsSelected && targetProduct != null;
             paramExpression.setUIEnabled(b);
@@ -726,6 +750,6 @@ public class BandArithmetikDialog extends ModalDialog {
 
     private float getGeolocationEps() {
         return (float) visatApp.getPreferences().getPropertyDouble(VisatApp.PROPERTY_KEY_GEOLOCATION_EPS,
-                                                                    VisatApp.PROPERTY_DEFAULT_GEOLOCATION_EPS);
+                                                                   VisatApp.PROPERTY_DEFAULT_GEOLOCATION_EPS);
     }
 }

@@ -589,7 +589,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Gets the expression that is used to determine whether a pixel is valid or not.
-     * <p>The valid-pixel expression is used to determine valid pixels. For more information
+     * For more information
      * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int,int,javax.media.jai.ROI)}
      * method.
      *
