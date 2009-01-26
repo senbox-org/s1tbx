@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.awt.Shape;
 import java.awt.Rectangle;
 
+// todo - rename to Placemark (se - 20090126) 
 /**
  * This class represents a pin.
  * <p/>
@@ -41,7 +42,7 @@ import java.awt.Rectangle;
  * @author Sabine Embacher
  * @version $Revision$ $Date$
  */
-public class Placemark extends ProductNode {
+public class Pin extends ProductNode {
 
     public final static String PROPERTY_NAME_GEOPOS = "geoPos";
     public final static String PROPERTY_NAME_PIXELPOS = "pixelPos";
@@ -54,22 +55,22 @@ public class Placemark extends ProductNode {
     private PlacemarkSymbol symbol;
 
     /**
-     * @deprecated in 4.1, use {@link Placemark#Placemark(String, String, String, PixelPos, GeoPos, PlacemarkSymbol)}
+     * @deprecated in 4.1, use {@link Pin#Pin(String, String, String, PixelPos, GeoPos, PlacemarkSymbol)}
      */
     @Deprecated
-    public Placemark(String name, String label, PixelPos pixelPos) {
+    public Pin(String name, String label, PixelPos pixelPos) {
         this(name, label, "", pixelPos, null, PlacemarkSymbol.createDefaultPinSymbol());
     }
 
     /**
-     * @deprecated in 4.1, use {@link Placemark#Placemark(String, String, String, PixelPos, GeoPos, PlacemarkSymbol)}
+     * @deprecated in 4.1, use {@link Pin#Pin(String, String, String, PixelPos, GeoPos, PlacemarkSymbol)}
      */
     @Deprecated
-    public Placemark(String name, String label, GeoPos geoPos) {
+    public Pin(String name, String label, GeoPos geoPos) {
         this(name, label, "", null, geoPos, PlacemarkSymbol.createDefaultPinSymbol());
     }
 
-    public Placemark(String name,
+    public Pin(String name,
                      String label,
                      String description,
                      PixelPos pixelPos,
@@ -257,11 +258,11 @@ public class Placemark extends ProductNode {
 
     // todo - move this methods away from here
 
-    public static Placemark createGcp(Element element) {
+    public static Pin createGcp(Element element) {
         return createPlacemark(element, PlacemarkSymbol.createDefaultGcpSymbol());
     }
 
-    public static Placemark createPin(Element element) {
+    public static Pin createPin(Element element) {
         return createPlacemark(element, PlacemarkSymbol.createDefaultPinSymbol());
     }
 
@@ -269,7 +270,7 @@ public class Placemark extends ProductNode {
      * @throws NullPointerException     if element is null
      * @throws IllegalArgumentException if element is invalid
      */
-    public static Placemark createPlacemark(Element element, PlacemarkSymbol symbol) {
+    public static Pin createPlacemark(Element element, PlacemarkSymbol symbol) {
         if (!DimapProductConstants.TAG_PLACEMARK.equals(element.getName()) &&
             !DimapProductConstants.TAG_PIN.equals(element.getName())) {
             throw new IllegalArgumentException("Element '" + DimapProductConstants.TAG_PLACEMARK + "' or '" +
@@ -279,7 +280,7 @@ public class Placemark extends ProductNode {
         if (name == null) {
             throw new IllegalArgumentException("Missing attribute '" + DimapProductConstants.ATTRIB_NAME + "'.");
         }
-        if (!Placemark.isValidNodeName(name)) {
+        if (!Pin.isValidNodeName(name)) {
             throw new IllegalArgumentException("Invalid placemark name '" + name + "'.");
         }
 
@@ -329,7 +330,7 @@ public class Placemark extends ProductNode {
             symbol.setOutlineColor(outlineColor);
         }
 
-        return new Placemark(name, label, description, pixelPos, geoPos, symbol);
+        return new Pin(name, label, description, pixelPos, geoPos, symbol);
     }
 
     // todo - move this method into a new DimapPersistable

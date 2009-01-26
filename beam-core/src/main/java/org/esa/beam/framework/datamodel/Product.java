@@ -16,23 +16,49 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.Assert;
-import com.bc.jexp.*;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.jexp.Namespace;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Parser;
+import com.bc.jexp.Symbol;
+import com.bc.jexp.Term;
+import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
-import org.esa.beam.framework.dataio.*;
-import org.esa.beam.framework.dataop.barithm.*;
+import org.esa.beam.framework.dataio.ProductFlipper;
+import org.esa.beam.framework.dataio.ProductProjectionBuilder;
+import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.dataio.ProductSubsetBuilder;
+import org.esa.beam.framework.dataio.ProductSubsetDef;
+import org.esa.beam.framework.dataio.ProductWriter;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
+import org.esa.beam.framework.dataop.barithm.RasterDataLoop;
+import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
+import org.esa.beam.framework.dataop.barithm.SingleFlagSymbol;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
-import org.esa.beam.util.*;
+import org.esa.beam.util.BitRaster;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ObjectUtils;
+import org.esa.beam.util.StopWatch;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * <code>Product</code> instances are an in-memory representation of a remote sensing data product. The product is more
@@ -118,8 +144,8 @@ public class Product extends ProductNode {
     private final ProductNodeGroup<FlagCoding> flagCodingGroup;
     private final ProductNodeGroup<IndexCoding> indexCodingGroup;
 
-    private final ProductNodeGroup<Placemark> pinGroup;
-    private final ProductNodeGroup<Placemark> gcpGroup;
+    private final ProductNodeGroup<Pin> pinGroup;
+    private final ProductNodeGroup<Pin> gcpGroup;
 
     /**
      * The internal reference number of this product
@@ -197,8 +223,8 @@ public class Product extends ProductNode {
         indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "index_codings", "The group which stores index codings.");
         flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flag_codings", "The group which stores flag codings.");
 
-        pinGroup = new ProductNodeGroup<Placemark>(this, "pins", "The group which stores pins.");
-        gcpGroup = new ProductNodeGroup<Placemark>(this, "ground_control_points", "The group which stores ground control points.");
+        pinGroup = new ProductNodeGroup<Pin>(this, "pins", "The group which stores pins.");
+        gcpGroup = new ProductNodeGroup<Pin>(this, "ground_control_points", "The group which stores ground control points.");
         addProductNodeListener(createNameChangedHandler());
         addProductNodeListener(createGeoCodingChangedHandler());
     }
@@ -209,9 +235,9 @@ public class Product extends ProductNode {
             @Override
             public void nodeChanged(ProductNodeEvent event) {
                 if (PROPERTY_NAME_GEOCODING.equals(event.getPropertyName())) {
-                    final ProductNodeGroup<Placemark> pinGroup = getPinGroup();
+                    final ProductNodeGroup<Pin> pinGroup = getPinGroup();
                     for (int i = 0; i < pinGroup.getNodeCount(); i++) {
-                        final Placemark pin = pinGroup.get(i);
+                        final Pin pin = pinGroup.get(i);
                         final PinDescriptor pinDescriptor = PinDescriptor.INSTANCE;
                         final GeoPos geoPos = pin.getGeoPos();
                         pinDescriptor.updateGeoPos(getGeoCoding(), pin.getPixelPos(), geoPos);
@@ -934,125 +960,6 @@ public class Product extends ProductNode {
         return indexCodingGroup;
     }
 
-    /**
-     * Adds the given flag coding to this product.
-     *
-     * @param flagCoding the flag coding to added, ignored if <code>null</code>
-     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
-     */
-    @Deprecated
-    public void addFlagCoding(final FlagCoding flagCoding) {
-        getFlagCodingGroup().add(flagCoding);
-    }
-
-    /**
-     * Removes the given flag coding from this product.
-     *
-     * @param flagCoding the flag coding to be removed, ignored if <code>null</code>
-     * @return <code>true</code> on success
-     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
-     */
-    @Deprecated
-    public boolean removeFlagCoding(final FlagCoding flagCoding) {
-        return getFlagCodingGroup().remove(flagCoding);
-    }
-
-    /**
-     * Returns the number of flag codings contained in this product.
-     *
-     * @return the number of flag codings
-     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
-     */
-    @Deprecated
-    public int getNumFlagCodings() {
-        return getFlagCodingGroup().getNodeCount();
-    }
-
-    /**
-     * Returns the flag coding at the given index.
-     *
-     * @param index the flag coding index
-     * @return the flag coding at the given index
-     * @throws IndexOutOfBoundsException if the index is out of bounds
-     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
-     */
-    @Deprecated
-    public FlagCoding getFlagCodingAt(final int index) {
-        return getFlagCodingGroup().get(index);
-    }
-
-    /**
-     * Returns a string array containing the names of the flag codings contained in this product
-     *
-     * @return a string array containing the names of the flag codings contained in this product. If this product has no
-     *         flag coding a zero-length-array is returned.
-     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
-     */
-    @Deprecated
-    public String[] getFlagCodingNames() {
-        return getFlagCodingGroup().getNodeNames();
-    }
-
-    /**
-     * Returns the flag coding with the given name.
-     *
-     * @param name the flag coding name
-     * @return the flag coding with the given name or <code>null</code> if a flag coding with the given name is not
-     *         contained in this product.
-     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
-     */
-    @Deprecated
-    public FlagCoding getFlagCoding(final String name) {
-        return getFlagCodingGroup().get(name);
-    }
-
-    /**
-     * Tests if a flag coding with the given name is contained in this product.
-     *
-     * @param name the name, must not be <code>null</code>
-     * @return <code>true</code> if a flag coding with the given name is contained in this product, <code>false</code>
-     *         otherwise
-     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
-     */
-    @Deprecated
-    public boolean containsFlagCoding(final String name) {
-        return getFlagCodingGroup().contains(name);
-    }
-
-    /**
-     * Returns the names of all flags of all flag datasets contained this product.
-     * <p/>
-     * <p>A flag name contains the dataset (a band of this product) and the actual flag name as defined in the
-     * flag-coding associated with the dataset. The general format for the flag name strings returned is therefore
-     * <code>"<i>dataset</i>.<i>flag_name</i>"</code>.
-     * </p>
-     * <p>The method is used to find out which flags a product has in order to use them in bit-mask expressions.
-     *
-     * @return the array of all flag names. If this product does not support flags, an empty array is returned, but
-     *         never <code>null</code>.
-     * @see #createTerm(String)
-     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
-     */
-    @Deprecated
-    public String[] getAllFlagNames() {
-        final List<String> l = new ArrayList<String>(32);
-        for (int i = 0; i < getNumBands(); i++) {
-            final Band band = getBandAt(i);
-            if (band.getFlagCoding() != null) {
-                for (int j = 0; j < band.getFlagCoding().getNumAttributes(); j++) {
-                    final MetadataAttribute attribute = band.getFlagCoding().getAttributeAt(j);
-                    l.add(band.getName() + "." + attribute.getName());
-                }
-            }
-        }
-        final String[] flagNames = new String[l.size()];
-        for (int i = 0; i < flagNames.length; i++) {
-            flagNames[i] = l.get(i);
-        }
-        l.clear();
-        return flagNames;
-    }
-
     //////////////////////////////////////////////////////////////////////////
     // Pixel Coordinate Tests
 
@@ -1088,7 +995,7 @@ public class Product extends ProductNode {
      *
      * @return the GCP group.
      */
-    public ProductNodeGroup<Placemark> getGcpGroup() {
+    public ProductNodeGroup<Pin> getGcpGroup() {
         return gcpGroup;
     }
 
@@ -1100,116 +1007,8 @@ public class Product extends ProductNode {
      *
      * @return the pin group.
      */
-    public ProductNodeGroup<Placemark> getPinGroup() {
+    public ProductNodeGroup<Pin> getPinGroup() {
         return pinGroup;
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public boolean addPin(final Placemark pin) {
-        return pinGroup.add(pin);
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public boolean removePin(final Placemark pin) {
-        return pinGroup.remove(pin);
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public int getNumPins() {
-        return pinGroup.getNodeCount();
-    }
-
-    /**
-     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public Placemark getPinAt(final int index) {
-        return pinGroup.get(index);
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public Placemark getPin(final String name) {
-        return pinGroup.get(name);
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public boolean containsPin(final String name) {
-        return pinGroup.contains(name);
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public int getPinIndex(final String name) {
-        return pinGroup.indexOf(name);
-    }
-
-    /**
-     * Gets all defined pins of this product.
-     *
-     * @return all defined pins of this product, never null
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()}
-     */
-    @Deprecated
-    public Placemark[] getPins() {
-        return pinGroup.toArray(new Placemark[0]);
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public String[] getPinNames() {
-        return pinGroup.getNodeNames();
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public void setSelectedPin(final int index) {
-        pinGroup.setSelectedNode(index);
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public void setSelectedPin(final String name) {
-        pinGroup.setSelectedNode(name);
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public Placemark getSelectedPin() {
-        return pinGroup.getSelectedNode();
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public Placemark[] getSelectedPins() {
-        Collection<Placemark> selectedNodes = pinGroup.getSelectedNodes();
-        return selectedNodes.toArray(new Placemark[0]);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -1509,54 +1308,6 @@ public class Product extends ProductNode {
     // Valid-mask Support
 
     /**
-     * @deprecated in BEAM 4.1, no replacement
-     */
-    @Deprecated
-    public final int getBytePackedBitmaskRasterWidth() {
-        int _bytePackedBitmaskRasterWidth = getSceneRasterWidth() / 8;
-        if (getSceneRasterWidth() % 8 != 0) {
-            _bytePackedBitmaskRasterWidth++;
-        }
-        return _bytePackedBitmaskRasterWidth;
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getValidMask(String)}
-     */
-    @Deprecated
-    public byte[] getValidMask(final Object id) {
-        try {
-            return createPixelMask(id.toString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #createValidMask(String,com.bc.ceres.core.ProgressMonitor)}
-     */
-    @Deprecated
-    public byte[] createPixelMask(final String expression) throws IOException {
-        return createValidMask(expression, ProgressMonitor.NULL).createBytePackedBitmaskRasterData();
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #createValidMask(com.bc.jexp.Term,com.bc.ceres.core.ProgressMonitor)}
-     */
-    @Deprecated
-    public byte[] createPixelMask(final Term term) throws IOException {
-        return createValidMask(term, ProgressMonitor.NULL).createBytePackedBitmaskRasterData();
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #releaseValidMask(org.esa.beam.util.BitRaster)}
-     */
-    @Deprecated
-    public void releasePixelMask(final byte[] pixelMask) {
-        // do nothing
-    }
-
-    /**
      * Gets a valid-mask for the given ID.
      *
      * @param id the ID
@@ -1681,55 +1432,14 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Creates a term tree by parsing an expression given as a text string. This convinience method simply
-     * returns a parsed term. For the syntax of expression please refer to the VISAT-Help in the chapter
-     * <pre>
-     *   VISAT
-     *    +- Tools
-     *      +- Product Generation Tools
-     *        +- Arithmetic Expression Editor
-     * </pre>
+     * Parses a mathematical expression given as a text string.
      *
-     * @param expression a expression given as a text string
+     * @param expression a expression given as a text string, e.g. "radiance_4 / (1.0 + radiance_11)".
      * @return a term parsed from the given expression string
      * @throws ParseException if the expression could not successfully be parsed
      */
-    public Term createTerm(final String expression) throws ParseException {
+    public Term parseExpression(final String expression) throws ParseException {
         final Parser parser = createBandArithmeticParser();
-        return parser.parse(expression);
-    }
-
-    @Deprecated
-    public Term createTerm(final String expression, RasterDataNode... extraRasters) throws ParseException {
-
-        final Product thisProduct = getProductSafe();
-        final Product[] products;
-        final int thisProductIndex;
-        if (thisProduct.getProductManager() != null) {
-            products = thisProduct.getProductManager().getProducts();
-            thisProductIndex = thisProduct.getProductManager().getProductIndex(thisProduct);
-        } else {
-            products = new Product[] {thisProduct};
-            thisProductIndex = 0;
-        }
-        Assert.state(thisProductIndex >= products.length && thisProductIndex < products.length);
-        Assert.state(products[thisProductIndex] == thisProduct);
-
-        final WritableNamespace namespace = BandArithmetic.createDefaultNamespace(products, thisProductIndex);
-        final Symbol[] symbols = namespace.getAllSymbols();
-        for (RasterDataNode extraRaster : extraRasters) {
-            boolean registered = false;
-            for (Symbol symbol : symbols) {
-                if (symbol.getName().equals(extraRaster.getName())) {
-                    registered = true;
-                    break;
-                }
-            }
-            if (!registered) {
-                namespace.registerSymbol(new RasterDataSymbol(extraRaster.getName(), extraRaster));
-            }
-        }
-        final Parser parser = new ParserImpl(namespace, false);
         return parser.parse(expression);
     }
 
@@ -2258,7 +1968,7 @@ public class Product extends ProductNode {
      * @return a namespace, never null
      */
     public WritableNamespace createBandArithmeticDefaultNamespace() {
-        return BandArithmetic.createDefaultNamespace(new Product[]{this});
+        return BandArithmetic.createDefaultNamespace(new Product[]{this}, 0);
     }
 
 
@@ -2687,6 +2397,343 @@ public class Product extends ProductNode {
      */
     public void setPreferredTileSize(Dimension preferredTileSize) {
         this.preferredTileSize = preferredTileSize;
+    }
+
+    /////////////////////////////////////////////////////////////////////////
+    // Deprecated API
+
+    /**
+     * Parses a mathematical expression given as a text string.
+     *
+     * @param expression a expression given as a text string, e.g. "radiance_4 / (1.0 + radiance_11)".
+     * @return a term parsed from the given expression string
+     * @throws ParseException if the expression could not successfully be parsed
+     * @deprecated Since BEAM 4.5.1. Use {@link #parseExpression(String)} instead.
+     */
+    @Deprecated
+    public Term createTerm(final String expression) throws ParseException {
+        final Parser parser = createBandArithmeticParser();
+        return parser.parse(expression);
+}
+
+    /**
+     * Parses a mathematical expression given as a text string.
+     *
+     * @param expression   a expression given as a text string, e.g. "radiance_4 / (1.0 + radiance_11)".
+     * @param extraRasters extra rasters referenced in the given expression
+     * @return a term parsed from the given expression string
+     * @throws ParseException if the expression could not successfully be parsed
+     * @deprecated Since BEAM 4.5.1. Use {@link #parseExpression(String)} instead.
+     */
+    @Deprecated
+    public Term createTerm(final String expression, RasterDataNode... extraRasters) throws ParseException {
+
+        final Product thisProduct = getProductSafe();
+        final Product[] products;
+        final int thisProductIndex;
+        if (thisProduct.getProductManager() != null) {
+            products = thisProduct.getProductManager().getProducts();
+            thisProductIndex = thisProduct.getProductManager().getProductIndex(thisProduct);
+        } else {
+            products = new Product[]{thisProduct};
+            thisProductIndex = 0;
+        }
+        Assert.state(thisProductIndex >= products.length && thisProductIndex < products.length);
+        Assert.state(products[thisProductIndex] == thisProduct);
+
+        final WritableNamespace namespace = BandArithmetic.createDefaultNamespace(products, thisProductIndex);
+        final Symbol[] symbols = namespace.getAllSymbols();
+        for (RasterDataNode extraRaster : extraRasters) {
+            boolean registered = false;
+            for (Symbol symbol : symbols) {
+                if (symbol.getName().equals(extraRaster.getName())) {
+                    registered = true;
+                    break;
+                }
+            }
+            if (!registered) {
+                namespace.registerSymbol(new RasterDataSymbol(extraRaster.getName(), extraRaster));
+            }
+        }
+        final Parser parser = new ParserImpl(namespace, false);
+        return parser.parse(expression);
+    }
+
+
+    /**
+     * Adds the given flag coding to this product.
+     *
+     * @param flagCoding the flag coding to added, ignored if <code>null</code>
+     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
+     */
+    @Deprecated
+    public void addFlagCoding(final FlagCoding flagCoding) {
+        getFlagCodingGroup().add(flagCoding);
+    }
+
+    /**
+     * Removes the given flag coding from this product.
+     *
+     * @param flagCoding the flag coding to be removed, ignored if <code>null</code>
+     * @return <code>true</code> on success
+     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
+     */
+    @Deprecated
+    public boolean removeFlagCoding(final FlagCoding flagCoding) {
+        return getFlagCodingGroup().remove(flagCoding);
+    }
+
+    /**
+     * Returns the number of flag codings contained in this product.
+     *
+     * @return the number of flag codings
+     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
+     */
+    @Deprecated
+    public int getNumFlagCodings() {
+        return getFlagCodingGroup().getNodeCount();
+    }
+
+    /**
+     * Returns the flag coding at the given index.
+     *
+     * @param index the flag coding index
+     * @return the flag coding at the given index
+     * @throws IndexOutOfBoundsException if the index is out of bounds
+     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
+     */
+    @Deprecated
+    public FlagCoding getFlagCodingAt(final int index) {
+        return getFlagCodingGroup().get(index);
+    }
+
+
+    /**
+     * Returns a string array containing the names of the flag codings contained in this product
+     *
+     * @return a string array containing the names of the flag codings contained in this product. If this product has no
+     *         flag coding a zero-length-array is returned.
+     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
+     */
+    @Deprecated
+    public String[] getFlagCodingNames() {
+        return getFlagCodingGroup().getNodeNames();
+    }
+
+    /**
+     * Returns the flag coding with the given name.
+     *
+     * @param name the flag coding name
+     * @return the flag coding with the given name or <code>null</code> if a flag coding with the given name is not
+     *         contained in this product.
+     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
+     */
+    @Deprecated
+    public FlagCoding getFlagCoding(final String name) {
+        return getFlagCodingGroup().get(name);
+    }
+
+    /**
+     * Tests if a flag coding with the given name is contained in this product.
+     *
+     * @param name the name, must not be <code>null</code>
+     * @return <code>true</code> if a flag coding with the given name is contained in this product, <code>false</code>
+     *         otherwise
+     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
+     */
+    @Deprecated
+    public boolean containsFlagCoding(final String name) {
+        return getFlagCodingGroup().contains(name);
+    }
+
+    /**
+     * Returns the names of all flags of all flag datasets contained this product.
+     * <p/>
+     * <p>A flag name contains the dataset (a band of this product) and the actual flag name as defined in the
+     * flag-coding associated with the dataset. The general format for the flag name strings returned is therefore
+     * <code>"<i>dataset</i>.<i>flag_name</i>"</code>.
+     * </p>
+     * <p>The method is used to find out which flags a product has in order to use them in bit-mask expressions.
+     *
+     * @return the array of all flag names. If this product does not support flags, an empty array is returned, but
+     *         never <code>null</code>.
+     * @see #createTerm(String)
+     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
+     */
+    @Deprecated
+    public String[] getAllFlagNames() {
+        final List<String> l = new ArrayList<String>(32);
+        for (int i = 0; i < getNumBands(); i++) {
+            final Band band = getBandAt(i);
+            if (band.getFlagCoding() != null) {
+                for (int j = 0; j < band.getFlagCoding().getNumAttributes(); j++) {
+                    final MetadataAttribute attribute = band.getFlagCoding().getAttributeAt(j);
+                    l.add(band.getName() + "." + attribute.getName());
+                }
+            }
+        }
+        final String[] flagNames = new String[l.size()];
+        for (int i = 0; i < flagNames.length; i++) {
+            flagNames[i] = l.get(i);
+        }
+        l.clear();
+        return flagNames;
+    }
+
+    /**
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
+    @Deprecated
+    public boolean addPin(final Pin pin) {
+        return pinGroup.add(pin);
+    }
+
+    /**
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
+    @Deprecated
+    public boolean removePin(final Pin pin) {
+        return pinGroup.remove(pin);
+    }
+
+    /**
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
+    @Deprecated
+    public int getNumPins() {
+        return pinGroup.getNodeCount();
+    }
+
+    /**
+     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
+    @Deprecated
+    public Pin getPinAt(final int index) {
+        return pinGroup.get(index);
+    }
+
+    /**
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
+    @Deprecated
+    public Pin getPin(final String name) {
+        return pinGroup.get(name);
+    }
+
+    /**
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
+    @Deprecated
+    public boolean containsPin(final String name) {
+        return pinGroup.contains(name);
+    }
+
+    /**
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
+    @Deprecated
+    public int getPinIndex(final String name) {
+        return pinGroup.indexOf(name);
+    }
+
+    /**
+     * Gets all defined pins of this product.
+     *
+     * @return all defined pins of this product, never null
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()}
+     */
+    @Deprecated
+    public Pin[] getPins() {
+        return pinGroup.toArray(new Pin[0]);
+    }
+
+    /**
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
+    @Deprecated
+    public String[] getPinNames() {
+        return pinGroup.getNodeNames();
+    }
+
+    /**
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
+    @Deprecated
+    public void setSelectedPin(final int index) {
+        pinGroup.setSelectedNode(index);
+    }
+
+    /**
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
+    @Deprecated
+    public void setSelectedPin(final String name) {
+        pinGroup.setSelectedNode(name);
+    }
+
+    /**
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
+    @Deprecated
+    public Pin getSelectedPin() {
+        return pinGroup.getSelectedNode();
+    }
+
+    /**
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
+    @Deprecated
+    public Pin[] getSelectedPins() {
+        Collection<Pin> selectedNodes = pinGroup.getSelectedNodes();
+        return selectedNodes.toArray(new Pin[0]);
+    }
+
+    /**
+     * @deprecated in BEAM 4.1, no replacement
+     */
+    @Deprecated
+    public final int getBytePackedBitmaskRasterWidth() {
+        int _bytePackedBitmaskRasterWidth = getSceneRasterWidth() / 8;
+        if (getSceneRasterWidth() % 8 != 0) {
+            _bytePackedBitmaskRasterWidth++;
+        }
+        return _bytePackedBitmaskRasterWidth;
+    }
+
+    /**
+     * @deprecated in BEAM 4.1, use {@link #getValidMask(String)}
+     */
+    @Deprecated
+    public byte[] getValidMask(final Object id) {
+        try {
+            return createPixelMask(id.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @deprecated in BEAM 4.1, use {@link #createValidMask(String,com.bc.ceres.core.ProgressMonitor)}
+     */
+    @Deprecated
+    public byte[] createPixelMask(final String expression) throws IOException {
+        return createValidMask(expression, ProgressMonitor.NULL).createBytePackedBitmaskRasterData();
+    }
+
+    /**
+     * @deprecated in BEAM 4.1, use {@link #createValidMask(com.bc.jexp.Term,com.bc.ceres.core.ProgressMonitor)}
+     */
+    @Deprecated
+    public byte[] createPixelMask(final Term term) throws IOException {
+        return createValidMask(term, ProgressMonitor.NULL).createBytePackedBitmaskRasterData();
+    }
+
+    /**
+     * @deprecated in BEAM 4.1, use {@link #releaseValidMask(org.esa.beam.util.BitRaster)}
+     */
+    @Deprecated
+    public void releasePixelMask(final byte[] pixelMask) {
+        // do nothing
     }
 
 }

@@ -28,7 +28,7 @@ public class ProductNodeGroupTest extends TestCase {
                 s += "-"+event.getSourceNode().getName() + ";";
             }
         });
-        ProductNodeGroup<Placemark> pinGroup = p.getPinGroup();
+        ProductNodeGroup<Pin> pinGroup = p.getPinGroup();
 
         assertNotNull(pinGroup);
         assertSame(p, pinGroup.getOwner());
@@ -36,9 +36,9 @@ public class ProductNodeGroupTest extends TestCase {
 
         assertEquals(0, pinGroup.getNodeCount());
 
-        Placemark pin1 = new Placemark("p1", "l1", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol());
-        Placemark pin2 = new Placemark("p2", "l2", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol());
-        Placemark pin3 = new Placemark("p3", "l3", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol());
+        Pin pin1 = new Pin("p1", "l1", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol());
+        Pin pin2 = new Pin("p2", "l2", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol());
+        Pin pin3 = new Pin("p3", "l3", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol());
         pinGroup.add(pin1);
         pinGroup.add(pin2);
         pinGroup.add(pin3);

@@ -63,12 +63,15 @@ public class BandArithmeticUtilsTest extends TestCase {
         vme = BandArithmetic.getValidMaskExpression("c + w * q - w",
                                                     new Product[]{p1}, 0,
                                                     null);
-        assertEquals("(f.CLOUD) && (f.WATER)", vme);
+        assertEquals("(f.CLOUD && !f.INVALID) " +
+                "&& (f.WATER && !f.INVALID)", vme);
 
         vme = BandArithmetic.getValidMaskExpression("c + w * q - w",
                                                     new Product[]{p1}, 0,
                                                     "c >= 0.0");
-        assertEquals("(c >= 0.0) && (f.CLOUD) && (f.WATER)", vme);
+        assertEquals("(c >= 0.0) " +
+                "&& (f.CLOUD && !f.INVALID) " +
+                "&& (f.WATER && !f.INVALID)", vme);
 
         Product p2 = createProduct(fc, 2);
         Product p3 = createProduct(fc, 3);
@@ -76,19 +79,31 @@ public class BandArithmeticUtilsTest extends TestCase {
         vme = BandArithmetic.getValidMaskExpression("c + ($2.w - $1.w) * $3.q + ($2.l - $1.l) * $3.c",
                                                     new Product[]{p1, p3, p2}, 0,
                                                     null);
-        assertEquals("(f.CLOUD) && ($2.f.WATER) && (f.WATER) && ($2.f.LAND) && (f.LAND) && ($3.f.CLOUD)", vme);
+        assertEquals("(f.CLOUD && !f.INVALID) " +
+                "&& ($2.f.WATER && !$2.f.INVALID) " +
+                "&& (f.WATER && !f.INVALID) " +
+                "&& ($2.f.LAND && !$2.f.INVALID) " +
+                "&& (f.LAND && !f.INVALID) " +
+                "&& ($3.f.CLOUD && !$3.f.INVALID)", vme);
 
         vme = BandArithmetic.getValidMaskExpression("c + ($2.w - $1.w) * $3.q + ($2.l - $1.l) * $3.c",
                                                     new Product[]{p1, p3, p2}, 0,
                                                     "c >= 0.0");
-        assertEquals("(c >= 0.0) && (f.CLOUD) && ($2.f.WATER) && (f.WATER) && ($2.f.LAND) && (f.LAND) && ($3.f.CLOUD)", vme);
+        assertEquals("(c >= 0.0) " +
+                "&& (f.CLOUD && !f.INVALID) " +
+                "&& ($2.f.WATER && !$2.f.INVALID) " +
+                "&& (f.WATER && !f.INVALID) " +
+                "&& ($2.f.LAND && !$2.f.INVALID) " +
+                "&& (f.LAND && !f.INVALID) " +
+                "&& ($3.f.CLOUD && !$3.f.INVALID)", vme);
     }
 
     private FlagCoding createFlagCoding() {
         FlagCoding fc = new FlagCoding("flags");
-        fc.addFlag("LAND", 0x01, "Land");
-        fc.addFlag("WATER", 0x02, "Water");
-        fc.addFlag("CLOUD", 0x04, "Cloud");
+        fc.addFlag("INVALID", 0x01, "Invalid");
+        fc.addFlag("LAND", 0x02, "Land");
+        fc.addFlag("WATER", 0x04, "Water");
+        fc.addFlag("CLOUD", 0x08, "Cloud");
         return fc;
     }
 
@@ -98,9 +113,9 @@ public class BandArithmeticUtilsTest extends TestCase {
         p3.getFlagCodingGroup().add(fc);
         p3.addBand("f", ProductData.TYPE_UINT8).setSampleCoding(fc);
         p3.addBand("q", ProductData.TYPE_UINT32);
-        p3.addBand("l", ProductData.TYPE_UINT32).setValidPixelExpression("f.LAND");
-        p3.addBand("w", ProductData.TYPE_UINT32).setValidPixelExpression("f.WATER");
-        p3.addBand("c", ProductData.TYPE_UINT32).setValidPixelExpression("f.CLOUD");
+        p3.addBand("l", ProductData.TYPE_UINT32).setValidPixelExpression("f.LAND && !f.INVALID");
+        p3.addBand("w", ProductData.TYPE_UINT32).setValidPixelExpression("f.WATER && !f.INVALID");
+        p3.addBand("c", ProductData.TYPE_UINT32).setValidPixelExpression("f.CLOUD && !f.INVALID");
         return p3;
     }
 

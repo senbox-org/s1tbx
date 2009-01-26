@@ -1,7 +1,7 @@
 package org.esa.beam.visat.toolviews.spectrum;
 
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.diagram.DefaultDiagramGraphStyle;
 import org.esa.beam.framework.ui.diagram.Diagram;
@@ -33,7 +33,7 @@ class SpectraDiagram extends Diagram {
         return getSpectrumGraph(null);
     }
 
-    public SpectrumGraph getSpectrumGraph(Placemark placemark) {
+    public SpectrumGraph getSpectrumGraph(Pin placemark) {
         for (DiagramGraph graph : getGraphs()) {
             SpectrumGraph spectrumGraph = (SpectrumGraph) graph;
             if (spectrumGraph.getPlacemark() == placemark) {
@@ -50,7 +50,7 @@ class SpectraDiagram extends Diagram {
         }
     }
 
-    public void addSpectrumGraph(Placemark placemark) {
+    public void addSpectrumGraph(Pin placemark) {
         SpectrumGraph spectrumGraph = new SpectrumGraph(placemark, getBands());
         DefaultDiagramGraphStyle style = (DefaultDiagramGraphStyle) spectrumGraph.getStyle();
         if (placemark != null) {

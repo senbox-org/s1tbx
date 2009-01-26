@@ -128,49 +128,20 @@ public class BandArithmetic {
     /**
      * Parses the given expression.
      *
-     * @param products the array of input products
-     * @param expression  the expression
-     * @return the compiled expression
-     * @throws ParseException if a parse error occurs
-     * @deprecated since BEAM 4.5.1. Use {@link #createDefaultNamespace(org.esa.beam.framework.datamodel.Product[], int)}
-     */
-    @Deprecated
-    public static Term parseExpression(Product[] products, String expression) throws ParseException {
-        return parseExpression(expression, products, 0);
-    }
-
-    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
-    /**
-     * Parses the given expression.
-     *
-     * @param expression  the expression
-     * @param products the array of input products
+     * @param expression          the expression
+     * @param products            the array of input products
      * @param defaultProductIndex the index of the product for which also symbols without the
      *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace
      * @return the compiled expression
      * @throws ParseException if a parse error occurs
      */
     public static Term parseExpression(String expression, Product[] products, int defaultProductIndex) throws ParseException {
+        Assert.notNull(expression, null);
         final Namespace namespace = createDefaultNamespace(products, defaultProductIndex);
         final Parser parser = new ParserImpl(namespace, false);
         return parser.parse(expression);
     }
 
-    /**
-     * Creates a default namespace for the product(s) given in an array. The resulting namespace contains symbols for
-     * all tie-point grids, bands and single flag values. if the array contains more then one product, the symbol's name
-     * will have a prefix according to each product's reference number.
-     *
-     * @param products the array of input products
-     * @return a default namespace, never <code>null</code>
-     * @deprecated since BEAM 4.5.1. Use {@link #createDefaultNamespace(org.esa.beam.framework.datamodel.Product[], int)}
-     */
-    @Deprecated
-    public static WritableNamespace createDefaultNamespace(Product[] products) {
-        return createDefaultNamespace(products, 0);
-    }
-
-    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
     /**
      * Creates a default namespace for the product(s) given in an array. The resulting namespace contains symbols for
      * all tie-point grids, bands and single flag values. if the array contains more then one product, the symbol's name
@@ -191,7 +162,6 @@ public class BandArithmetic {
                                       });
     }
 
-    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
     /**
      * Creates a default namespace for the product(s) given in an array. The resulting namespace contains symbols for
      * all tie-point grids, bands and single flag values. if the array contains more then one product, the symbol's name
@@ -225,9 +195,10 @@ public class BandArithmetic {
         return namespace;
     }
 
-    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
-    public static int computeBand(final Product[] sourceProducts,
-                                  final String expression,
+    public static int computeBand(final String expression,
+                                  final String validMaskExpression,
+                                  final Product[] sourceProducts,
+                                  final int defaultProductIndex,
                                   final boolean checkInvalids,
                                   final boolean noDataValueUsed,
                                   final double noDataValue,
@@ -237,37 +208,49 @@ public class BandArithmetic {
                                   final int height,
                                   final ProductData targetRasterData,
                                   final Scaling scaling,
-                                  ProgressMonitor pm) throws ParseException,
-            IOException {
-        final Term term = parseExpression(expression, sourceProducts, 0);
-        return computeBand(term, offsetX, offsetY, width, height, checkInvalids, noDataValueUsed, noDataValue,
+                                  ProgressMonitor pm) throws ParseException, IOException {
+        final Term term = parseExpression(expression, sourceProducts, defaultProductIndex);
+        final Term validMaskTerm;
+        if (validMaskExpression != null && !validMaskExpression.trim().isEmpty()) {
+            validMaskTerm = parseExpression(validMaskExpression, sourceProducts, defaultProductIndex);
+        } else {
+            validMaskTerm = null;
+        }
+        return computeBand(term, validMaskTerm,
+                           checkInvalids, noDataValueUsed, noDataValue,
+                           offsetX, offsetY, width, height,
                            targetRasterData, scaling, pm);
     }
 
     public static int computeBand(final Term term,
+                                  final Term validMaskTerm,
+                                  final boolean checkInvalids,
+                                  final boolean noDataValueUsed,
+                                  final double noDataValue,
                                   final int offsetX,
                                   final int offsetY,
                                   final int width,
                                   final int height,
-                                  final boolean checkInvalids,
-                                  final boolean noDataValueUsed,
-                                  final double noDataValue,
                                   final ProductData targetRasterData,
                                   final Scaling scaling,
                                   ProgressMonitor pm) throws IOException {
+
         final boolean performInvalidCheck = checkInvalids || noDataValueUsed;
         final int[] numInvalidPixels = new int[]{0};
 
         final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
                                                        width, height,
-                                                       new Term[]{term}, pm);
+                                                       validMaskTerm != null ? new Term[]{term, validMaskTerm} : new Term[]{term},
+                                                       pm);
         loop.forEachPixel(new RasterDataLoop.Body() {
             public void eval(RasterDataEvalEnv env, int pixelIndex) {
                 double pixelValue = term.evalD(env);
-                if (performInvalidCheck && isInvalidValue(pixelValue)) {
-                    numInvalidPixels[0]++;
-                    if (noDataValueUsed) {
-                        pixelValue = noDataValue;
+                if (performInvalidCheck) {
+                    if ((validMaskTerm != null && validMaskTerm.evalD(env) == 0.0) || isInvalidValue(pixelValue)) {
+                        numInvalidPixels[0]++;
+                        if (noDataValueUsed) {
+                            pixelValue = noDataValue;
+                        }
                     }
                 }
                 if (scaling != null) {
@@ -280,18 +263,16 @@ public class BandArithmetic {
         return numInvalidPixels[0];
     }
 
-
-    // todo - don't use products array, use single product instead and find other product references via product.getProductContext().getProduct(id) (nf - 20090123)
     public static String getValidMaskExpression(String expression,
                                                 Product[] products,
-                                                int defaultProductNamePrefix,
+                                                int defaultProductIndex,
                                                 String validMaskExpression) throws ParseException {
         Assert.notNull(expression, "expression");
         Assert.notNull(products, "products");
         Assert.argument(products.length > 0, "products");
-        Assert.argument(defaultProductNamePrefix>= 0 && defaultProductNamePrefix<products.length, "defaultProductNamePrefix");
+        Assert.argument(defaultProductIndex >= 0 && defaultProductIndex < products.length, "defaultProductIndex");
 
-        final RasterDataNode[] rasters = getRefRasters(expression, products, defaultProductNamePrefix);
+        final RasterDataNode[] rasters = getRefRasters(expression, products, defaultProductIndex);
         if (rasters.length == 0) {
             return validMaskExpression;
         }
@@ -299,7 +280,7 @@ public class BandArithmetic {
             return rasters[0].getValidMaskExpression();
         }
 
-        final Product contextProduct = products[defaultProductNamePrefix];
+        final Product contextProduct = products[defaultProductIndex];
         final List<String> vmes = new ArrayList<String>(rasters.length);
         for (RasterDataNode raster : rasters) {
             String vme = raster.getValidMaskExpression();
@@ -336,13 +317,15 @@ public class BandArithmetic {
         RasterDataNode[] rasters = getRefRasters(vme, products, productIndex);
         for (RasterDataNode raster : rasters) {
             String name = raster.getName();
+            int namePos = 0;
             boolean changed;
             do {  // } while (changed)
                 changed = false;
-                int namePos = vme.indexOf(name);
+                namePos = vme.indexOf(name, namePos);
                 if (namePos == 0) {
                     String prefix = getProductNodeNamePrefix(raster.getProduct());
                     vme = prefix + vme;
+                    namePos += name.length() + prefix.length();
                     changed = true;
                 } else if (namePos > 0) {
                     int i1 = namePos - 1;
@@ -352,6 +335,7 @@ public class BandArithmetic {
                     if (c1 != '.' && !isNameChar(c1) && !isNameChar(c2)) {
                         String prefix = getProductNodeNamePrefix(raster.getProduct());
                         vme = vme.substring(0, namePos) + prefix + vme.substring(namePos);
+                        namePos += name.length() + prefix.length();
                         changed = true;
                     }
                 }
@@ -388,7 +372,7 @@ public class BandArithmetic {
         }
         return rasters;
     }
-    
+
     /**
      * Utility method which returns all raster data nodes referenced in a given array of raster data symbols.
      * The given <code>rasterDataSymbols</code> argument can contain multiple references to the same raster data node,
@@ -560,4 +544,84 @@ public class BandArithmetic {
     public static interface ProductPrefixProvider {
         String getPrefix(Product product);
     }
+
+    /////////////////////////////////////////////////////////////////////////
+    // Deprecated API
+
+    /**
+     * Parses the given expression.
+     *
+     * @param products   the array of input products
+     * @param expression the expression
+     * @return the compiled expression
+     * @throws ParseException if a parse error occurs
+     * @deprecated since BEAM 4.5.1. Use {@link #createDefaultNamespace(org.esa.beam.framework.datamodel.Product[], int)}
+     */
+    @Deprecated
+    public static Term parseExpression(Product[] products, String expression) throws ParseException {
+        return parseExpression(expression, products, 0);
+    }
+
+
+    /**
+     * Creates a default namespace for the product(s) given in an array. The resulting namespace contains symbols for
+     * all tie-point grids, bands and single flag values. if the array contains more then one product, the symbol's name
+     * will have a prefix according to each product's reference number.
+     *
+     * @param products the array of input products
+     * @return a default namespace, never <code>null</code>
+     * @deprecated since BEAM 4.5.1. Use {@link #createDefaultNamespace(org.esa.beam.framework.datamodel.Product[], int)}
+     */
+    @Deprecated
+    public static WritableNamespace createDefaultNamespace(Product[] products) {
+        return createDefaultNamespace(products, 0);
+    }
+
+
+    @Deprecated
+    public static int computeBand(final Term term,
+                                  final int offsetX,
+                                  final int offsetY,
+                                  final int width,
+                                  final int height,
+                                  final boolean checkInvalids,
+                                  final boolean noDataValueUsed,
+                                  final double noDataValue,
+                                  final ProductData targetRasterData,
+                                  final Scaling scaling,
+                                  ProgressMonitor pm) throws IOException {
+        return computeBand(term,
+                           null,
+                           checkInvalids, noDataValueUsed, noDataValue, offsetX,
+                           offsetY,
+                           width,
+                           height,
+                           targetRasterData,
+                           scaling,
+                           pm);
+    }
+
+
+    @Deprecated
+    public static int computeBand(final Product[] sourceProducts,
+                                  final String expression,
+                                  final boolean checkInvalids,
+                                  final boolean noDataValueUsed,
+                                  final double noDataValue,
+                                  final int offsetX,
+                                  final int offsetY,
+                                  final int width,
+                                  final int height,
+                                  final ProductData targetRasterData,
+                                  final Scaling scaling,
+                                  ProgressMonitor pm) throws ParseException,
+            IOException {
+        return computeBand(expression, null,
+                           sourceProducts, 0,
+                           checkInvalids, noDataValueUsed, noDataValue,
+                           offsetX, offsetY, width, height,
+                           targetRasterData,
+                           scaling, pm);
+    }
+
 }

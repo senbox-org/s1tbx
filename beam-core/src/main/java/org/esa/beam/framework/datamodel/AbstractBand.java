@@ -52,7 +52,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * scene's pixels.
      *
      * @return raster data covering the pixels for a complete scene
-     *
      * @see #getRasterData
      * @see org.esa.beam.framework.datamodel.RasterDataNode#getSceneRasterWidth
      * @see org.esa.beam.framework.datamodel.RasterDataNode#getSceneRasterHeight
@@ -67,7 +66,6 @@ public abstract class AbstractBand extends RasterDataNode {
      *
      * @param x The X co-ordinate of the pixel location
      * @param y The Y co-ordinate of the pixel location
-     *
      * @throws NullPointerException if this band has no raster data
      * @throws java.lang.ArrayIndexOutOfBoundsException
      *                              if the co-ordinates are not in bounds
@@ -86,7 +84,6 @@ public abstract class AbstractBand extends RasterDataNode {
      *
      * @param x The X co-ordinate of the pixel location
      * @param y The Y co-ordinate of the pixel location
-     *
      * @throws NullPointerException if this band has no raster data
      * @throws java.lang.ArrayIndexOutOfBoundsException
      *                              if the co-ordinates are not in bounds
@@ -105,7 +102,6 @@ public abstract class AbstractBand extends RasterDataNode {
      *
      * @param x The X co-ordinate of the pixel location
      * @param y The Y co-ordinate of the pixel location
-     *
      * @throws NullPointerException if this band has no raster data
      * @throws java.lang.ArrayIndexOutOfBoundsException
      *                              if the co-ordinates are not in bounds
@@ -125,7 +121,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param x          The X co-ordinate of the pixel location
      * @param y          The Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value
-     *
      * @throws NullPointerException if this band has no raster data
      */
     @Override
@@ -145,7 +140,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param x          The X co-ordinate of the pixel location
      * @param y          The Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value
-     *
      * @throws NullPointerException if this band has no raster data
      */
     @Override
@@ -165,7 +159,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param x          The X co-ordinate of the pixel location
      * @param y          The Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value
-     *
      * @throws NullPointerException if this band has no raster data
      */
     @Override
@@ -191,7 +184,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param h      height of the desired data array
      * @param pixels array of integer pixels to be filled with data
      * @param pm     a monitor to inform the user about progress
-     *
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
      */
     @Override
@@ -232,7 +224,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param h      height of the desired data array
      * @param pixels array of float pixels to be filled with data.
      * @param pm     a monitor to inform the user about progress
-     *
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
      */
     @Override
@@ -279,7 +270,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param h      height of the desired data array
      * @param pixels array of double pixels to be filled with data
      * @param pm     a monitor to inform the user about progress
-     *
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
      */
     @Override
@@ -354,7 +344,7 @@ public abstract class AbstractBand extends RasterDataNode {
      */
     @Override
     public synchronized void writePixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm) throws
-                                                                                                         IOException {
+            IOException {
         Guardian.assertNotNull("pixels", pixels);
         final ProductData subRasterData = createCompatibleRasterData(w, h);
         final int n = w * h;
@@ -407,6 +397,7 @@ public abstract class AbstractBand extends RasterDataNode {
         }
         writeRasterData(x, y, w, h, subRasterData, pm);
     }
+
     /**
      * Retrieves the range of pixels specified by the coordinates as integer array. Throws exception when the data is
      * not read from disk yet. If the given array is <code>null</code> a new one was created and returned.
@@ -417,7 +408,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param h      height of the pixel array to be read.
      * @param pixels integer array to be filled with data
      * @param pm     a monitor to inform the user about progress
-     *
      * @throws NullPointerException     if this band has no raster data
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
      */
@@ -465,7 +455,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param h      height of the pixel array to be read.
      * @param pixels float array to be filled with data
      * @param pm     a monitor to inform the user about progress
-     *
      * @throws NullPointerException     if this band has no raster data
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
      */
@@ -513,7 +502,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param h      height of the pixel array to be read.
      * @param pixels double array to be filled with data
      * @param pm     a monitor to inform the user about progress
-     *
      * @throws NullPointerException     if this band has no raster data
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
      */
@@ -566,7 +554,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param w      width of the pixel array to be written
      * @param h      height of the pixel array to be written.
      * @param pixels integer array to be written
-     *
      * @throws NullPointerException if this band has no raster data
      */
     @Override
@@ -606,7 +593,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param w      width of the pixel array to be written
      * @param h      height of the pixel array to be written.
      * @param pixels float array to be written
-     *
      * @throws NullPointerException if this band has no raster data
      */
     @Override
@@ -646,7 +632,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param w      width of the pixel array to be written
      * @param h      height of the pixel array to be written.
      * @param pixels double array to be written
-     *
      * @throws NullPointerException if this band has no raster data
      */
     @Override
@@ -699,7 +684,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * if this has not already been done.
      *
      * @param pm a monitor to inform the user about progress
-     *
      * @throws java.io.IOException if an I/O error occurs
      * @see #readRasterDataFully(ProgressMonitor)
      */
@@ -730,95 +714,75 @@ public abstract class AbstractBand extends RasterDataNode {
      * Gets an estimated raw storage size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
-     *
      * @return the size in bytes.
      */
     @Override
     public abstract long getRawStorageSize(ProductSubsetDef subsetDef);
 
     /**
-     * @see  #computeBand(String, Product[], boolean, boolean, double, com.bc.ceres.core.ProgressMonitor)
-     */
-    public int computeBand(final String expression,
-                           final Product[] sourceProducts,
-                           final boolean checkInvalids,
-                           final boolean useInvalidValue,
-                           final double invalidValue) throws IOException,
-                                                             ParseException {
-        return computeBand(expression, sourceProducts,
-                           checkInvalids, useInvalidValue, invalidValue,
-                           ProgressMonitor.NULL);
-    }
-
-    /**
      * (Re-)Computes this band's data using the given arithmetic expression.
      *
-     * @param expression      the arithmetic expression string, e.g. "1 + log(radiance_5 / radiance_13)"
-     * @param sourceProducts  the list of source products possibly referenced in the expression
-     * @param checkInvalids   if true, the method recognizes numerically invalid values (NaN, Infinity)
-     * @param useInvalidValue if true, numerically invalid values (NaN, Infinity) are set to <code>invalidValue</code>,
-     *                        ignored if <code>checkInvalids = false</code>
-     * @param invalidValue    the value used in place of  numerically invalid values if <code>useInvalidValue =
-     *                        true</code>, ignored if  <code>checkInvalids = false</code>
-     * @param pm              a monitor to inform the user about progress
-     *
+     * @param expression          the arithmetic expression string, e.g. "1 + log(radiance_5 / radiance_13)"
+     * @param validMaskExpression the arithmetic expression identifying valid source pixels, e.g. "radiance_5 > 0.0 && radiance_13 > 0.0"
+     * @param sourceProducts      the list of source products possibly referenced in the expression
+     * @param defaultProductIndex the index of the product for which also symbols without the
+     *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace
+     * @param checkInvalids       if true, the method recognizes numerically invalid values (NaN, Infinity)
+     * @param useInvalidValue     if true, numerically invalid values (NaN, Infinity) are set to <code>invalidValue</code>,
+     *                            ignored if <code>checkInvalids = false</code>
+     * @param noDataValue         the value used in place of  numerically invalid values if <code>useInvalidValue =
+     *                            true</code>, ignored if  <code>checkInvalids = false</code>
+     * @param pm                  a monitor to inform the user about progress
      * @return the number of invalid pixels, zero if  <code>checkInvalids = false</code>
-     *
      * @throws IOException    if an I/O error occurs
      * @throws ParseException if the expression syntax is invalid
      */
     public int computeBand(final String expression,
+                           final String validMaskExpression,
                            final Product[] sourceProducts,
+                           final int defaultProductIndex,
                            final boolean checkInvalids,
                            final boolean useInvalidValue,
-                           final double invalidValue,
-                           ProgressMonitor pm) throws IOException,
-                                                      ParseException {
-
-        final int w = getRasterWidth();
-        final int h = getRasterHeight();
+                           final double noDataValue,
+                           ProgressMonitor pm) throws IOException, ParseException {
 
         ProductData targetRasterData = getRasterData();
         if (targetRasterData == null) {
             targetRasterData = createCompatibleRasterData();
         }
 
-        final int numInvalids = BandArithmetic.computeBand(sourceProducts,
-                                                           expression,
+        final int numInvalids = BandArithmetic.computeBand(expression,
+                                                           validMaskExpression,
+                                                           sourceProducts,
+                                                           defaultProductIndex,
                                                            checkInvalids,
                                                            useInvalidValue,
-                                                           invalidValue,
+                                                           noDataValue,
                                                            0, 0,
-                                                           w, h,
+                                                           getRasterWidth(),
+                                                           getRasterHeight(),
                                                            targetRasterData,
                                                            this,
                                                            pm);
 
         setRasterData(targetRasterData);
-        // todo - NaN values created in BandArithmetic.computeBand are ignored if
-        // todo - although isValidMaskUsed() returns true (nf 2007-08-21)
-        if (isValidMaskUsed()) {
-            computeValidMask(ProgressMonitor.NULL);
-        }
-
         fireProductNodeDataChanged();
         return numInvalids;
     }
 
     @Override
     protected RenderedImage createSourceImage() {
-        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(this); 
-        MultiLevelImage multiLevelImage = new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
+        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(this);
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
 
             @Override
             public RenderedImage createImage(int level) {
-                return new BandOpImage(AbstractBand.this, 
+                return new BandOpImage(AbstractBand.this,
                                        ResolutionLevel.create(getModel(), level));
             }
         });
-        return multiLevelImage;
     }
-    
+
     //////////////////////////////////////////////////////////////////////////
     // Implementation helpers
 
@@ -839,7 +803,7 @@ public abstract class AbstractBand extends RasterDataNode {
         final String nameLC = getName().toLowerCase();
         String viewModeId = VIEW_MODE_NADIR;
         if (nameLC.indexOf("forward") >= 0 ||
-            nameLC.indexOf("fward") >= 0) {
+                nameLC.indexOf("fward") >= 0) {
             viewModeId = VIEW_MODE_FORWARD;
         }
         return viewModeId;
@@ -884,4 +848,51 @@ public abstract class AbstractBand extends RasterDataNode {
         }
         return productData;
     }
+
+    /////////////////////////////////////////////////////////////////////////
+    // Deprecated API
+
+    @Deprecated
+    public int computeBand(final String expression,
+                           final Product[] sourceProducts,
+                           final boolean checkInvalids,
+                           final boolean useInvalidValue,
+                           final double invalidValue) throws IOException, ParseException {
+        return computeBand(expression, null,
+                           sourceProducts, 0,
+                           checkInvalids, useInvalidValue, invalidValue,
+                           ProgressMonitor.NULL);
+    }
+
+
+    /**
+     * (Re-)Computes this band's data using the given arithmetic expression.
+     *
+     * @param expression      the arithmetic expression string, e.g. "1 + log(radiance_5 / radiance_13)"
+     * @param sourceProducts  the list of source products possibly referenced in the expression
+     * @param checkInvalids   if true, the method recognizes numerically invalid values (NaN, Infinity)
+     * @param useInvalidValue if true, numerically invalid values (NaN, Infinity) are set to <code>invalidValue</code>,
+     *                        ignored if <code>checkInvalids = false</code>
+     * @param invalidValue    the value used in place of  numerically invalid values if <code>useInvalidValue =
+     *                        true</code>, ignored if  <code>checkInvalids = false</code>
+     * @param pm              a monitor to inform the user about progress
+     * @return the number of invalid pixels, zero if  <code>checkInvalids = false</code>
+     * @throws IOException    if an I/O error occurs
+     * @throws ParseException if the expression syntax is invalid
+     * @deprecated Since BEAM 4.5.1
+     */
+    @Deprecated
+    public int computeBand(final String expression,
+                           final Product[] sourceProducts,
+                           final boolean checkInvalids,
+                           final boolean useInvalidValue,
+                           final double invalidValue,
+                           ProgressMonitor pm) throws IOException, ParseException {
+        return computeBand(expression, null,
+                           sourceProducts, 0,
+                           checkInvalids, useInvalidValue, invalidValue,
+                           pm);
+
+    }
+
 }

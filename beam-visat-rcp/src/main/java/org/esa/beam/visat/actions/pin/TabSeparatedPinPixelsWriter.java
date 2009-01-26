@@ -21,7 +21,7 @@ import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.util.Guardian;
 
@@ -75,7 +75,7 @@ class TabSeparatedPinPixelsWriter {
                     success = false;
                     break;
                 }
-                Placemark keyPin = (Placemark) iterator.next();
+                Pin keyPin = (Pin) iterator.next();
                 Object pixelDataObject = pixelMap.get(keyPin);
                 if (pixelDataObject != null && pixelDataObject instanceof Point[]) {
                     pixels = (Point[]) pixelDataObject;

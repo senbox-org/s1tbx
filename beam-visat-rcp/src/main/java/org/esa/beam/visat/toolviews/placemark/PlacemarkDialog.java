@@ -464,7 +464,7 @@ public class PlacemarkDialog extends ModalDialog {
         return firstChar + string.substring(1);
     }
 
-    public static boolean showEditPlacemarkDialog(Window parent, Product product, Placemark placemark,
+    public static boolean showEditPlacemarkDialog(Window parent, Product product, Pin placemark,
                                             PlacemarkDescriptor placemarkDescriptor) {
         final PlacemarkDialog dialog = new PlacemarkDialog(parent, product, placemarkDescriptor,
                                                   placemarkDescriptor instanceof PinDescriptor);

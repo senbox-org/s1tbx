@@ -67,7 +67,7 @@ public class BandArithmeticTest extends TestCase {
                 10, 11, 12, 13
         });
         _product1.setModified(false);
-        _targetBand.computeBand("b1", new Product[]{_product1}, false, false, 0, ProgressMonitor.NULL);
+        _targetBand.computeBand("b1", null, new Product[]{_product1}, 0, false, false, 0, ProgressMonitor.NULL);
         for (int y = 0; y < _height; y++) {
             for (int x = 0; x < _width; x++) {
                 final float expected = 2 + y * _width + x;
@@ -86,7 +86,7 @@ public class BandArithmeticTest extends TestCase {
                 10.2f, 11.1f, 11.9f, 13.3f
         });
         _product1.setModified(false);
-        _targetBand.computeBand("b1", new Product[]{_product1}, false, false, 0, ProgressMonitor.NULL);
+        _targetBand.computeBand("b1", null, new Product[]{_product1}, 0, false, false, 0, ProgressMonitor.NULL);
         for (int y = 0; y < _height; y++) {
             for (int x = 0; x < _width; x++) {
                 final float expected = 2 + y * _width + x;
@@ -98,7 +98,7 @@ public class BandArithmeticTest extends TestCase {
     }
 
     public void testCreateDefaultNamespaceWithOneProduct() {
-        final Namespace namespace = BandArithmetic.createDefaultNamespace(new Product[]{_product1});
+        final Namespace namespace = BandArithmetic.createDefaultNamespace(new Product[]{_product1}, 0);
 
         final Symbol symbol = namespace.resolveSymbol("b1");
         assertNotNull(symbol);
@@ -110,7 +110,7 @@ public class BandArithmeticTest extends TestCase {
     }
 
     public void testCreateDefaultNamespaceWithMultipleProducts() {
-        final Namespace namespace = BandArithmetic.createDefaultNamespace(new Product[]{_product1, _product2});
+        final Namespace namespace = BandArithmetic.createDefaultNamespace(new Product[]{_product1, _product2}, 0);
 
         final Symbol symbolP1 = namespace.resolveSymbol("$1.b1");
         assertNotNull(symbolP1);
@@ -139,7 +139,7 @@ public class BandArithmeticTest extends TestCase {
 
     public void testGetRefRasterDataSymbols() throws ParseException {
         final Product[] products = new Product[]{_product1, _product2};
-        final Parser parser = new ParserImpl(BandArithmetic.createDefaultNamespace(products), false);
+        final Parser parser = new ParserImpl(BandArithmetic.createDefaultNamespace(products, 0), false);
         String[] expectedSymbols = new String[]{"b1", "$2.b1"};
         final Term term = parser.parse("b1 + $2.b1");
 

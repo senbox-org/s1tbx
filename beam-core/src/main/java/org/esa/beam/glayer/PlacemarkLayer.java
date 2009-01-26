@@ -39,7 +39,7 @@ public class PlacemarkLayer extends Layer {
         placemarkDescriptor = null;
     }
 
-    protected ProductNodeGroup<Placemark> getPlacemarkGroup() {
+    protected ProductNodeGroup<Pin> getPlacemarkGroup() {
         return placemarkDescriptor.getPlacemarkGroup(getProduct());
     }
 
@@ -69,9 +69,9 @@ public class PlacemarkLayer extends Layer {
             transform.concatenate(imageToModelTransform);
             g2d.setTransform(transform);
 
-            ProductNodeGroup<Placemark> pinGroup = getPlacemarkGroup();
-            Placemark[] placemarks = pinGroup.toArray(new Placemark[pinGroup.getNodeCount()]);
-            for (final Placemark placemark : placemarks) {
+            ProductNodeGroup<Pin> pinGroup = getPlacemarkGroup();
+            Pin[] placemarks = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
+            for (final Pin placemark : placemarks) {
                 final PixelPos pixelPos = placemark.getPixelPos();
                 if (pixelPos != null) {
                     g2d.translate(pixelPos.getX(), pixelPos.getY());
@@ -101,7 +101,7 @@ public class PlacemarkLayer extends Layer {
         }
     }
 
-    private void drawTextLabel(Graphics2D g2d, Placemark placemark) {
+    private void drawTextLabel(Graphics2D g2d, Pin placemark) {
 
         final String label = placemark.getLabel();
 

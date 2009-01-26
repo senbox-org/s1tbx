@@ -16,7 +16,7 @@ package org.esa.beam.visat.toolviews.placemark.pin;
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
@@ -43,7 +43,7 @@ public class PinTableModel extends AbstractPlacemarkTableModel {
     @Override
     protected Object getStandardColumnValueAt(int rowIndex, int columnIndex) {
         Assert.notNull(getProduct());
-        final Placemark placemark = getPlacemarkDescriptor().getPlacemarkGroup(getProduct()).get(rowIndex);
+        final Pin placemark = getPlacemarkDescriptor().getPlacemarkGroup(getProduct()).get(rowIndex);
 
         float x = Float.NaN;
         float y = Float.NaN;

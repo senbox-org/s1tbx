@@ -37,7 +37,7 @@ public class PinDescriptor implements PlacemarkDescriptor {
     }
 
 
-    public ProductNodeGroup<Placemark> getPlacemarkGroup(Product product) {
+    public ProductNodeGroup<Pin> getPlacemarkGroup(Product product) {
         return product.getPinGroup();
     }
 

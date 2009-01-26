@@ -97,7 +97,7 @@ public class WriteOpTest extends TestCase {
 
         Product productOnDisk = ProductIO.readProduct(outputFile, null);
         assertNotNull(productOnDisk);
-        final ProductNodeGroup<Placemark> pinProductNodeGroup = productOnDisk.getPinGroup();
+        final ProductNodeGroup<Pin> pinProductNodeGroup = productOnDisk.getPinGroup();
         assertEquals(4, pinProductNodeGroup.getNodeCount());     // one for each tile, we have 4 tiles
         assertEquals("writtenProduct", productOnDisk.getName());
         assertEquals(1, productOnDisk.getNumBands());
@@ -130,7 +130,7 @@ public class WriteOpTest extends TestCase {
             final int minX = targetTile.getMinX();
             final int minY = targetTile.getMinY();
             final PlacemarkSymbol symbol = PinDescriptor.INSTANCE.createDefaultSymbol();
-            band.getProduct().getPinGroup().add(new Placemark(band.getName() + minX + "," + minY,
+            band.getProduct().getPinGroup().add(new Pin(band.getName() + minX + "," + minY,
                                                         "label", "descr",
                                                         new PixelPos(minX, minY), null,
                                                         symbol));

@@ -36,7 +36,7 @@ public class GcpDescriptor implements PlacemarkDescriptor {
         return new Point();
     }
 
-    public ProductNodeGroup<Placemark> getPlacemarkGroup(Product product) {
+    public ProductNodeGroup<Pin> getPlacemarkGroup(Product product) {
         return product.getGcpGroup();
     }
 

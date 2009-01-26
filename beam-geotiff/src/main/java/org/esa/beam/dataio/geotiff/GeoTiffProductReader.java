@@ -686,7 +686,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
         final GcpDescriptor gcpDescriptor = GcpDescriptor.INSTANCE;
         final PlacemarkSymbol symbol = gcpDescriptor.createDefaultSymbol();
-        final ProductNodeGroup<Placemark> gcpGroup = product.getGcpGroup();
+        final ProductNodeGroup<Pin> gcpGroup = product.getGcpGroup();
         for (int i = 0; i < numTiePoints; i++) {
             final int offset = i * 6;
 
@@ -703,7 +703,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
             final String name = gcpDescriptor.getRoleName() + "_" + i;
             final String label = gcpDescriptor.getRoleLabel() + "_" + i;
-            final Placemark gcp = new Placemark(name, label, "", pixelPos, geoPos, symbol);
+            final Pin gcp = new Pin(name, label, "", pixelPos, geoPos, symbol);
             gcpGroup.add(gcp);
         }
 
@@ -718,7 +718,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
             return; // not able to apply GCP geo coding; not enough tie points
         }
 
-        final Placemark[] gcps = gcpGroup.toArray(new Placemark[gcpGroup.getNodeCount()]);
+        final Pin[] gcps = gcpGroup.toArray(new Pin[gcpGroup.getNodeCount()]);
         product.setGeoCoding(new GcpGeoCoding(method, gcps, width, height, datum));
     }
 

@@ -163,6 +163,7 @@ public class BandArithmetikDialog extends ModalDialog {
         targetBand.setImageInfo(null);
         targetBand.setGeophysicalNoDataValue(noDataValue);
         targetBand.setNoDataValueUsed(noDataValueUsed);
+
         if (getCreateVirtualBand()) {
             final String validMaskExpression;
             try {
@@ -217,6 +218,11 @@ public class BandArithmetikDialog extends ModalDialog {
 
         targetBand.setSynthetic(true);
 
+        if (getCreateVirtualBand()) {
+            showImageView();
+            return;
+        }
+
         SwingWorker swingWorker = new SwingWorker() {
             private final ProgressMonitor pm = new DialogProgressMonitor(getJDialog(), "Band Arithmetic",
                                                                          Dialog.ModalityType.APPLICATION_MODAL);
@@ -228,18 +234,24 @@ public class BandArithmetikDialog extends ModalDialog {
             protected Object doInBackground() throws Exception {
                 errorMessage = null;
                 try {
-                    if (!getCreateVirtualBand()) {
-                        final Product[] products = getCompatibleProducts();
-                        targetBand.setValidPixelExpression(BandArithmetic.getValidMaskExpression(expression, products, 0, null));
-                        numInvalids = targetBand.computeBand(expression,
-                                                             products,
-                                                             checkInvalids,
-                                                             noDataValueUsed,
-                                                             noDataValue,
-                                                             pm);
-                        targetBand.fireProductNodeDataChanged();
+                    Product[] products = getCompatibleProducts();
+                    String validMaskExpression = BandArithmetic.getValidMaskExpression(expression, products, 0, null);
+                    numInvalids = targetBand.computeBand(expression, validMaskExpression,
+                                                         products, 0,
+                                                         checkInvalids,
+                                                         noDataValueUsed,
+                                                         noDataValue,
+                                                         pm);
+                    if (targetBand.getDescription() == null || targetBand.getDescription().isEmpty()) {
+                        if (validMaskExpression == null) {
+                            targetBand.setDescription("Expression: " + expression);
+                        } else {
+                            targetBand.setDescription("Expression: " + expression + ", valid-mask expression: " + validMaskExpression);
+                        }
                     }
 
+
+                    targetBand.fireProductNodeDataChanged();
                 } catch (IOException e) {
                     Debug.trace(e);
                     errorMessage = "The band could not be created.\nAn I/O error occurred:\n" + e.getMessage();  /*I18N*/
@@ -295,18 +307,22 @@ public class BandArithmetikDialog extends ModalDialog {
 
     private void finalOnOk(boolean ok) {
         if (ok) {
-            BandArithmetikDialog.super.onOK();
-            targetBand.setModified(true);
-            if (visatApp.getPreferences().getPropertyBool(VisatApp.PROPERTY_KEY_AUTO_SHOW_NEW_BANDS, true)
-                    && !visatApp.hasRasterProductSceneView(targetBand)) {
-                visatApp.openProductSceneView(targetBand);
-            } else {
-                visatApp.updateImages(new Band[]{targetBand});
-            }
+            showImageView();
         } else {
             if (isUseNewBand()) {
                 targetProduct.removeBand(targetProduct.getBand(targetBand.getName()));
             }
+        }
+    }
+
+    private void showImageView() {
+        BandArithmetikDialog.super.hide();
+        targetBand.setModified(true);
+        if (visatApp.getPreferences().getPropertyBool(VisatApp.PROPERTY_KEY_AUTO_SHOW_NEW_BANDS, true)
+                && !visatApp.hasRasterProductSceneView(targetBand)) {
+            visatApp.openProductSceneView(targetBand);
+        } else {
+            visatApp.updateImages(new Band[]{targetBand});
         }
     }
 

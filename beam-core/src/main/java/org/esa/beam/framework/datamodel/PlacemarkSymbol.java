@@ -32,7 +32,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 
 /**
- * This class represents a <code>{@link Placemark}</code>'s shape.
+ * This class represents a <code>{@link Pin}</code>'s shape.
  *
  * @author Sabine Embacher
  * @version $Revision$ $Date$

@@ -743,7 +743,7 @@ public class DimapProductHelpers {
             }
             for (Object pinElement : pinElements) {
                 final Element pinElem = (Element) pinElement;
-                final Placemark pin = Placemark.createPin(pinElem);
+                final Pin pin = Pin.createPin(pinElem);
                 if (pin != null) {
                     pin.updatePixelPos(product.getGeoCoding());
                     product.getPinGroup().add(pin);
@@ -761,7 +761,7 @@ public class DimapProductHelpers {
             }
             for (Object gcpElement : gcpElements) {
                 final Element gcpElem = (Element) gcpElement;
-                final Placemark gcp = Placemark.createGcp(gcpElem);
+                final Pin gcp = Pin.createGcp(gcpElem);
                 if (gcp != null) {
                     product.getGcpGroup().add(gcp);
                 }

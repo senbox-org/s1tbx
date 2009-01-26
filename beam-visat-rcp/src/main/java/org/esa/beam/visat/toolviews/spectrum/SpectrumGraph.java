@@ -3,7 +3,7 @@ package org.esa.beam.visat.toolviews.spectrum;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelModel;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.ui.diagram.AbstractDiagramGraph;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Debug;
@@ -21,14 +21,14 @@ import java.util.Comparator;
 
 class SpectrumGraph extends AbstractDiagramGraph {
 
-    private Placemark placemark;
+    private Pin placemark;
     private Band[] bands;
     private float[] energies;
     private float[] wavelengths;
     private final Range energyRange;
     private final Range wavelengthRange;
 
-    public SpectrumGraph(Placemark placemark, Band[] bands) {
+    public SpectrumGraph(Pin placemark, Band[] bands) {
         Debug.assertNotNull(bands);
         this.placemark = placemark;
         this.bands = bands;
@@ -37,7 +37,7 @@ class SpectrumGraph extends AbstractDiagramGraph {
         setBands(bands);
     }
 
-    public Placemark getPlacemark() {
+    public Pin getPlacemark() {
         return placemark;
     }
 

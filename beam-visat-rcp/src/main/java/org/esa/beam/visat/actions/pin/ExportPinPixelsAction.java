@@ -19,7 +19,7 @@ package org.esa.beam.visat.actions.pin;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import com.bc.jexp.ParseException;
-import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -101,7 +101,7 @@ public class ExportPinPixelsAction extends ExecCommand {
         product = getSelectedProduct();
 
         ensureThatAPinIsSelected(product);
-        final Placemark selectedPin = product.getPinGroup().getSelectedNode();
+        final Pin selectedPin = product.getPinGroup().getSelectedNode();
         VisatApp visatApp = VisatApp.getApp();
         if (dialog == null) {
             dialog = new ExportPinPixelsDialog(visatApp, product);
@@ -247,12 +247,12 @@ public class ExportPinPixelsAction extends ExecCommand {
      */
     private HashMap assignControllParameters() {
 
-        final Placemark[] exportPins;
+        final Pin[] exportPins;
         if (dialog.isExportSelectedPinOnly()) {
-            exportPins = new Placemark[]{product.getPinGroup().getSelectedNode()};
+            exportPins = new Pin[]{product.getPinGroup().getSelectedNode()};
         } else {
-            ProductNodeGroup<Placemark> pinGroup = product.getPinGroup();
-            exportPins = pinGroup.toArray(new Placemark[pinGroup.getNodeCount()]);
+            ProductNodeGroup<Pin> pinGroup = product.getPinGroup();
+            exportPins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
         }
 
         final int regionSize = dialog.getRegionSize();
@@ -370,9 +370,9 @@ public class ExportPinPixelsAction extends ExecCommand {
      * @throws java.io.IOException
      * @throws com.bc.jexp.ParseException
      */
-    private HashMap generateOutputData(final int size, final String expression, final Placemark[] pins,
+    private HashMap generateOutputData(final int size, final String expression, final Pin[] pins,
                                        final boolean useExpressionAsFilter) throws IOException, ParseException {
-        HashMap<Placemark, Object[]> outputData = new HashMap<Placemark, Object[]>();
+        HashMap<Pin, Object[]> outputData = new HashMap<Pin, Object[]>();
         for (int i = 0; i < pins.length; i++) {
             Point actualPin = new Point((int) pins[i].getPixelPos().x, (int) pins[i].getPixelPos().y);
             PinPixelsGenerator pinPixels = new PinPixelsGenerator(product);

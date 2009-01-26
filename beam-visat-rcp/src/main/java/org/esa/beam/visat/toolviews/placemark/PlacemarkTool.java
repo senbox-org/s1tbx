@@ -27,7 +27,7 @@ import java.util.Collection;
 public abstract class PlacemarkTool extends AbstractTool {
 
     private final PlacemarkDescriptor placemarkDescriptor;
-    private Placemark draggedPlacemark;
+    private Pin draggedPlacemark;
     private Cursor cursor;
 
     protected PlacemarkTool(PlacemarkDescriptor placemarkDescriptor) {
@@ -59,7 +59,7 @@ public abstract class PlacemarkTool extends AbstractTool {
 
     @Override
     public void mousePressed(ToolInputEvent e) {
-        Placemark draggedPlacemark = getPlacemarkForPixelPos(e.getPixelX(), e.getPixelY());
+        Pin draggedPlacemark = getPlacemarkForPixelPos(e.getPixelX(), e.getPixelY());
         setDraggedPlacemark(draggedPlacemark);
     }
 
@@ -84,7 +84,7 @@ public abstract class PlacemarkTool extends AbstractTool {
             return;
         }
         Product product = view.getProduct();
-        Placemark clickedPlacemark = getPlacemarkForPixelPos(e.getPixelX(), e.getPixelY());
+        Pin clickedPlacemark = getPlacemarkForPixelPos(e.getPixelX(), e.getPixelY());
         if (clickedPlacemark != null) {
             setPlacemarkSelected(getPlacemarkGroup(product), clickedPlacemark, false);
         } else {
@@ -92,7 +92,7 @@ public abstract class PlacemarkTool extends AbstractTool {
                                                                                               product);
             final String name = uniqueNameAndLabel[0];
             final String label = uniqueNameAndLabel[1];
-            final Placemark newPlacemark = new Placemark(name, label, "",
+            final Pin newPlacemark = new Pin(name, label, "",
                                              new PixelPos(0.5f + e.getPixelX(), 0.5f + e.getPixelY()),
                                              null,
                                              placemarkDescriptor.createDefaultSymbol());
@@ -111,7 +111,7 @@ public abstract class PlacemarkTool extends AbstractTool {
         final Product product = view.getProduct();
         int pixelX = e.getPixelX();
         int pixelY = e.getPixelY();
-        Placemark clickedPlacemark = getPlacemarkForPixelPos(pixelX, pixelY);
+        Pin clickedPlacemark = getPlacemarkForPixelPos(pixelX, pixelY);
         if (clickedPlacemark != null) {
             setPlacemarkSelected(getPlacemarkGroup(product), clickedPlacemark, true);
             boolean ok = PlacemarkDialog.showEditPlacemarkDialog(VisatApp.getApp().getMainFrame(), product,
@@ -136,7 +136,7 @@ public abstract class PlacemarkTool extends AbstractTool {
         return placemarkDescriptor.getShowLayerCommandId();
     }
 
-    protected ProductNodeGroup<Placemark> getPlacemarkGroup(Product product) {
+    protected ProductNodeGroup<Pin> getPlacemarkGroup(Product product) {
         return placemarkDescriptor.getPlacemarkGroup(product);
     }
 
@@ -169,11 +169,11 @@ public abstract class PlacemarkTool extends AbstractTool {
         return null;
     }
 
-    public static void setPlacemarkSelected(ProductNodeGroup<Placemark> placemarkGroup, Placemark clickedPlacemark,
+    public static void setPlacemarkSelected(ProductNodeGroup<Pin> placemarkGroup, Pin clickedPlacemark,
                                             boolean forceSelection) {
         boolean select = true;
-        Collection<Placemark> selectedPlacemark = placemarkGroup.getSelectedNodes();
-        for (Placemark placemark : selectedPlacemark) {
+        Collection<Pin> selectedPlacemark = placemarkGroup.getSelectedNodes();
+        for (Pin placemark : selectedPlacemark) {
             if (placemark.isSelected()) {
                 if (placemark == clickedPlacemark) {
                     select = false;
@@ -199,7 +199,7 @@ public abstract class PlacemarkTool extends AbstractTool {
         }
     }
 
-    private Placemark getPlacemarkForPixelPos(final int selPixelX, final int selPixelY) {
+    private Pin getPlacemarkForPixelPos(final int selPixelX, final int selPixelY) {
         ProductSceneView view = getProductSceneView();
 
         final AffineTransform i2v = view.getBaseImageToViewTransform();
@@ -208,9 +208,9 @@ public abstract class PlacemarkTool extends AbstractTool {
 
         // Compare with pin insertion points (which are in product raster pixel coordinates)
         //
-        ProductNodeGroup<Placemark> placemarkGroup = getPlacemarkGroup(getProductSceneView().getProduct());
-        Placemark[] placemarks = placemarkGroup.toArray(new Placemark[placemarkGroup.getNodeCount()]);
-        for (final Placemark placemark : placemarks) {
+        ProductNodeGroup<Pin> placemarkGroup = getPlacemarkGroup(getProductSceneView().getProduct());
+        Pin[] placemarks = placemarkGroup.toArray(new Pin[placemarkGroup.getNodeCount()]);
+        for (final Pin placemark : placemarks) {
             // Convert pin pixel to view coordinates
             PixelPos placemarkPixelPos = placemark.getPixelPos();
             if (placemarkPixelPos == null) {
@@ -228,7 +228,7 @@ public abstract class PlacemarkTool extends AbstractTool {
         // Now compare against pin symbols (which are in view coordinates).
         // Depending on the symbol used, this may be more or less expensive.
         //
-        for (final Placemark placemark : placemarks) {
+        for (final Pin placemark : placemarks) {
             PlacemarkSymbol symbol = placemark.getSymbol();
 
             // Convert pin pixel to view coordinates
@@ -253,11 +253,11 @@ public abstract class PlacemarkTool extends AbstractTool {
         return null;
     }
 
-    protected Placemark getDraggedPlacemark() {
+    protected Pin getDraggedPlacemark() {
         return draggedPlacemark;
     }
 
-    protected void setDraggedPlacemark(Placemark draggedPlacemark) {
+    protected void setDraggedPlacemark(Pin draggedPlacemark) {
         this.draggedPlacemark = draggedPlacemark;
     }
 }

@@ -336,10 +336,10 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         copyPlacemarks(getSourceProduct().getGcpGroup(), product.getGcpGroup(), gcpSymbol, true);
     }
 
-    private void copyPlacemarks(ProductNodeGroup<Placemark> sourcePlacemarkGroup,
-                                ProductNodeGroup<Placemark> targetPlacemarkGroup, PlacemarkSymbol symbol,
+    private void copyPlacemarks(ProductNodeGroup<Pin> sourcePlacemarkGroup,
+                                ProductNodeGroup<Pin> targetPlacemarkGroup, PlacemarkSymbol symbol,
                                 boolean copyAll) {
-        final Placemark[] placemarks = new Placemark[sourcePlacemarkGroup.getNodeCount()];
+        final Pin[] placemarks = new Pin[sourcePlacemarkGroup.getNodeCount()];
         sourcePlacemarkGroup.toArray(placemarks);
 
         final int offsetX;
@@ -362,12 +362,12 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             subSamplingY = 1;
         }
 
-        for (final Placemark placemark : placemarks) {
+        for (final Pin placemark : placemarks) {
             final float x = (placemark.getPixelPos().x - offsetX) / subSamplingX;
             final float y = (placemark.getPixelPos().y - offsetY) / subSamplingY;
 
             if (x >= 0 && x < getSceneRasterWidth() && y >= 0 && y < getSceneRasterHeight() || copyAll) {
-                targetPlacemarkGroup.add(new Placemark(placemark.getName(),
+                targetPlacemarkGroup.add(new Pin(placemark.getName(),
                                                  placemark.getLabel(),
                                                  placemark.getDescription(),
                                                  new PixelPos(x, y),

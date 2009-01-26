@@ -429,11 +429,11 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         return product;
     }
 
-    private static void copyPlacemarks(ProductNodeGroup<Placemark> sourcePlacemarkGroup,
-                                       ProductNodeGroup<Placemark> targetPlacemarkGroup, PlacemarkSymbol symbol) {
-        final Placemark[] placemarks = sourcePlacemarkGroup.toArray(new Placemark[0]);
-        for (Placemark placemark : placemarks) {
-            final Placemark pin1 = new Placemark(placemark.getName(), placemark.getLabel(),
+    private static void copyPlacemarks(ProductNodeGroup<Pin> sourcePlacemarkGroup,
+                                       ProductNodeGroup<Pin> targetPlacemarkGroup, PlacemarkSymbol symbol) {
+        final Pin[] placemarks = sourcePlacemarkGroup.toArray(new Pin[0]);
+        for (Pin placemark : placemarks) {
+            final Pin pin1 = new Pin(placemark.getName(), placemark.getLabel(),
                                      placemark.getDescription(), null, placemark.getGeoPos(),
                                      symbol);
             targetPlacemarkGroup.add(pin1);
