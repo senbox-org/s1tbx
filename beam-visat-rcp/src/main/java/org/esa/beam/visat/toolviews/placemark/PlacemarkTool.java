@@ -213,6 +213,9 @@ public abstract class PlacemarkTool extends AbstractTool {
         for (final Placemark placemark : placemarks) {
             // Convert pin pixel to view coordinates
             PixelPos placemarkPixelPos = placemark.getPixelPos();
+            if (placemarkPixelPos == null) {
+                return null;
+            }
             final Rectangle2D placemarkViewRect = i2v.createTransformedShape(new Rectangle2D.Double(Math.floor(placemarkPixelPos.getX()),
                                                                                                     Math.floor(placemarkPixelPos.getY()),
                                                                                                     1, 1)).getBounds2D();
