@@ -3,13 +3,14 @@ package com.bc.ceres.swing;
 import junit.framework.TestCase;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -41,9 +42,16 @@ public class ActionLabelTest extends TestCase {
     }
 
     public static void main(String[] args) {
-        final JFrame frame = new JFrame(ActionLabel.class.getSimpleName());
-        final JPanel panel = new JPanel(new GridLayout(-1, 1));
-        panel.setBackground(new Color(0,0,0,0));
+        final JComponent panel = new JComponent() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                g.setColor(getBackground());
+                final Rectangle bounds = getBounds();
+                g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+            }
+        };
+        assertEquals(false, panel.isOpaque());
+        panel.setBackground(new Color(0, 255, 0, 127));
         panel.add(new JButton("Button 1"));
         panel.add(new JLabel("Normal label 1"));
         panel.add(new ActionLabel("Action label 1", new ActionListener() {
@@ -58,6 +66,7 @@ public class ActionLabelTest extends TestCase {
             }
         }));
         panel.add(new JButton("Button 2"));
+
         final JPanel containerPanel = new JPanel(new BorderLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -75,6 +84,7 @@ public class ActionLabelTest extends TestCase {
         containerPanel.setBackground(new Color(255, 255, 255, 127));
         containerPanel.add(panel, BorderLayout.CENTER);
 
+        final JFrame frame = new JFrame(ActionLabel.class.getSimpleName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().add(containerPanel, BorderLayout.CENTER);
         frame.pack();

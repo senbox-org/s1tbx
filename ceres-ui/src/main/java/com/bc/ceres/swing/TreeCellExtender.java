@@ -219,10 +219,7 @@ public class TreeCellExtender {
             rendererComponent.setSize(1024, height);
 
             Graphics g2 = g.create(0, 0, width, height);
-            g2.setColor(getBackground());
-            g2.fillRect(0, 0, width, height);
             g2.translate(-offset, 0);
-            g2.setColor(getForeground());
             rendererComponent.paint(g2);
             g2.dispose();
         }
