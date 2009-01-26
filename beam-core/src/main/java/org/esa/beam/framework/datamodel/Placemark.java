@@ -27,6 +27,7 @@ import org.jdom.Element;
 
 import java.awt.Color;
 import java.awt.Shape;
+import java.awt.Rectangle;
 
 /**
  * This class represents a pin.
@@ -69,11 +70,11 @@ public class Placemark extends ProductNode {
     }
 
     public Placemark(String name,
-               String label,
-               String description,
-               PixelPos pixelPos,
-               GeoPos geoPos,
-               PlacemarkSymbol placemarkSymbol) {
+                     String label,
+                     String description,
+                     PixelPos pixelPos,
+                     GeoPos geoPos,
+                     PlacemarkSymbol placemarkSymbol) {
         super(name);
         if (pixelPos == null && geoPos == null) {
             throw new IllegalArgumentException("pixelPos == null && geoPos == null");
@@ -113,6 +114,7 @@ public class Placemark extends ProductNode {
      * Gets an estimated, raw storage size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
+     *
      * @return the size in bytes.
      */
     @Override
@@ -189,13 +191,19 @@ public class Placemark extends ProductNode {
      *
      * @return the pixel position or null if the product to which this pin was added has no {@link
      *         <code>GeoCoding</code>} or the GeoCoding cannot provide the correct pixel position.
+     *
      * @see GeoCoding#canGetPixelPos()
      */
     public PixelPos getPixelPos() {
         if (pixelPos == null && canComputePixelPos()) {
             pixelPos = getProduct().getGeoCoding().getPixelPos(geoPos, null);
         }
-        if (pixelPos == null) {
+
+        final Rectangle productRect = new Rectangle(0, 0,
+                                                    getProduct().getSceneRasterWidth(),
+                                                    getProduct().getSceneRasterHeight());
+
+        if (pixelPos == null || !productRect.contains(pixelPos)) {
             return null;
         }
         return new PixelPos(pixelPos.x, pixelPos.y);
@@ -263,9 +271,9 @@ public class Placemark extends ProductNode {
      */
     public static Placemark createPlacemark(Element element, PlacemarkSymbol symbol) {
         if (!DimapProductConstants.TAG_PLACEMARK.equals(element.getName()) &&
-                !DimapProductConstants.TAG_PIN.equals(element.getName())) {
+            !DimapProductConstants.TAG_PIN.equals(element.getName())) {
             throw new IllegalArgumentException("Element '" + DimapProductConstants.TAG_PLACEMARK + "' or '" +
-                    DimapProductConstants.TAG_PIN + "' expected.");
+                                               DimapProductConstants.TAG_PIN + "' expected.");
         }
         final String name = element.getAttributeValue(DimapProductConstants.ATTRIB_NAME);
         if (name == null) {

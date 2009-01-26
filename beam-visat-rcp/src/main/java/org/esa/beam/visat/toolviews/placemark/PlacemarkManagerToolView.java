@@ -388,8 +388,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         Placemark activePlacemark = getPlacemarkGroup().getSelectedNode();
         Guardian.assertNotNull("activePlacemark", activePlacemark);
         final ProductSceneView view = getSceneView();
-        if (view != null) {
-            final PixelPos imagePos = activePlacemark.getPixelPos();  // in image coordinates on Level 0
+        final PixelPos imagePos = activePlacemark.getPixelPos();  // in image coordinates on Level 0, can be null
+        if (view != null && imagePos != null) {
             final ImageLayer layer = view.getBaseImageLayer();
             final AffineTransform imageToModelTransform = layer.getImageToModelTransform(0);
             final Point2D modelPos = imageToModelTransform.transform(imagePos, null);
