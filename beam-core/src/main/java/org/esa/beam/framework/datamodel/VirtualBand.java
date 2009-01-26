@@ -241,8 +241,8 @@ public class VirtualBand extends Band {
             rasterData = createCompatibleRasterData(getRasterWidth(), getRasterHeight());
         }
 
-        readRasterData(0,0,getSceneRasterWidth(), getSceneRasterHeight(), rasterData, pm );
-        
+        readRasterData(0, 0, getSceneRasterWidth(), getSceneRasterHeight(), rasterData, pm);
+
         setRasterData(rasterData);
     }
 
@@ -342,10 +342,11 @@ public class VirtualBand extends Band {
 
             @Override
             public RenderedImage createImage(int level) {
-                return new VirtualBandOpImage(new Product[]{vb.getProduct()},
-                                              vb.getExpression(),
-                                              vb.getDataType(),
-                                              ResolutionLevel.create(getModel(), level));
+                return VirtualBandOpImage.create(vb.getExpression(),
+                                                 vb.getDataType(),
+                                                 new Product[]{vb.getProduct()},
+                                                 0,
+                                                 ResolutionLevel.create(getModel(), level));
             }
         });
     }

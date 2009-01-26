@@ -131,7 +131,7 @@ public class Product extends ProductNode {
      */
     private String refStr;
 
-    // todo - rename or change to "ProductContext" (nf - 20090123) 
+    // todo - rename or change to "ProductContext" (nf - 20090123)
     private ProductManager productManager;
 
     private Map<String, BitRaster> validMasks;
@@ -1699,6 +1699,7 @@ public class Product extends ProductNode {
         return parser.parse(expression);
     }
 
+    @Deprecated
     public Term createTerm(final String expression, RasterDataNode... extraRasters) throws ParseException {
 
         final Product thisProduct = getProductSafe();

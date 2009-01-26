@@ -10,7 +10,24 @@ import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.RGBChannelDef;
+import org.esa.beam.framework.datamodel.ROIDefinition;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Scene;
+import org.esa.beam.framework.datamodel.SceneFactory;
+import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.util.Debug;
@@ -20,8 +37,24 @@ import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.media.jai.*;
-import javax.media.jai.operator.*;
+import javax.media.jai.Histogram;
+import javax.media.jai.ImageLayout;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
+import javax.media.jai.LookupTableJAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.operator.BandMergeDescriptor;
+import javax.media.jai.operator.ClampDescriptor;
+import javax.media.jai.operator.ConstantDescriptor;
+import javax.media.jai.operator.ExpDescriptor;
+import javax.media.jai.operator.FormatDescriptor;
+import javax.media.jai.operator.InvertDescriptor;
+import javax.media.jai.operator.LookupDescriptor;
+import javax.media.jai.operator.MatchCDFDescriptor;
+import javax.media.jai.operator.MaxDescriptor;
+import javax.media.jai.operator.MinDescriptor;
+import javax.media.jai.operator.RescaleDescriptor;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.RenderingHints;
@@ -34,13 +67,18 @@ import java.awt.image.SampleModel;
 import java.awt.image.renderable.ParameterBlock;
 import java.lang.ref.WeakReference;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
  * This class provides most of the new imaging features introduced in BEAM 4.5.
  * <p><i>WARNING:</i> Although {@code ImageManager} is intended to belong to the public BEAM API you should use it
- * with care, since it is still under development and may change slightly in forthcoming versions.</p>  
+ * with care, since it is still under development and may change slightly in forthcoming versions.</p>
  */
 public class ImageManager {
 
@@ -602,14 +640,19 @@ public class ImageManager {
 
             @Override
             public RenderedImage createImage(int level) {
-                return VirtualBandOpImage.createMaskOpImage(rasterDataNode,
-                                                            ResolutionLevel.create(getModel(), level));
+                return VirtualBandOpImage.createMask(rasterDataNode,
+                                                     ResolutionLevel.create(getModel(), level));
             }
         };
         return new DefaultMultiLevelImage(mls);
     }
 
+    @Deprecated
     public RenderedImage getMaskImage(final Product product, final String expression, int level) {
+        return getMaskImage(expression, product, level);
+    }
+
+    public RenderedImage getMaskImage(final String expression, final Product product, int level) {
         final MaskKey key = new MaskKey(product, expression);
         synchronized (maskImageMap) {
             MultiLevelImage mli = maskImageMap.get(key);
@@ -618,9 +661,9 @@ public class ImageManager {
 
                     @Override
                     public RenderedImage createImage(int level) {
-                        return VirtualBandOpImage.createMaskOpImage(product,
-                                                                    expression,
-                                                                    ResolutionLevel.create(getModel(), level));
+                        return VirtualBandOpImage.createMask(expression,
+                                                             product,
+                                                             ResolutionLevel.create(getModel(), level));
                     }
                 };
                 mli = new DefaultMultiLevelImage(mls);
@@ -688,8 +731,13 @@ public class ImageManager {
         return statisticsLevel;
     }
 
+    @Deprecated
     public PlanarImage createColoredMaskImage(Product product, String expression, Color color, boolean invertMask, int level) {
-        RenderedImage image = getMaskImage(product, expression, level);
+        return createColoredMaskImage(expression, product, color, invertMask, level);
+    }
+
+    public PlanarImage createColoredMaskImage(String expression, Product product, Color color, boolean invertMask, int level) {
+        RenderedImage image = getMaskImage(expression, product, level);
         return createColoredMaskImage(color, image, invertMask);
     }
 
@@ -748,14 +796,14 @@ public class ImageManager {
         // Step 1:  insert ROI pixels determined by bitmask expression
         String bitmaskExpr = roiDefinition.getBitmaskExpr();
         if (!StringUtils.isNullOrEmpty(bitmaskExpr) && roiDefinition.isBitmaskEnabled()) {
-            roiImages.add(getMaskImage(rasterDataNode.getProduct(), bitmaskExpr, level));
+            roiImages.add(getMaskImage(bitmaskExpr, rasterDataNode.getProduct(), level));
         }
 
         // Step 2:  insert ROI pixels within value range
         if (roiDefinition.isValueRangeEnabled()) {
             String rangeExpr = rasterDataNode.getName() + " >= " + roiDefinition.getValueRangeMin() + " && "
                     + rasterDataNode.getName() + " <= " + roiDefinition.getValueRangeMax();
-            roiImages.add(getMaskImage(rasterDataNode.getProduct(), rangeExpr, level));
+            roiImages.add(getMaskImage(rangeExpr, rasterDataNode.getProduct(), level));
         }
 
         final MultiLevelModel multiLevelModel = getMultiLevelModel(rasterDataNode);

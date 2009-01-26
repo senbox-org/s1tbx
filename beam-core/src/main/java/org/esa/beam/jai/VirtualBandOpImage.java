@@ -1,5 +1,6 @@
 package org.esa.beam.jai;
 
+import com.bc.ceres.core.Assert;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
 import com.bc.jexp.Term;
@@ -16,8 +17,8 @@ import org.esa.beam.util.ImageUtils;
 import javax.media.jai.PlanarImage;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
 import java.awt.image.RenderedImage;
+import java.awt.image.WritableRaster;
 
 
 /**
@@ -28,52 +29,148 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
     private static final int TRUE = 255;
     private static final int FALSE = 0;
 
-    private final Product[] products;
     private final String expression;
-    private final boolean mask;
     private final int dataType;
+    private final boolean mask;
+    private final Product[] products;
+    private final int defaultProductIndex;
 
-    public static VirtualBandOpImage createMaskOpImage(RasterDataNode rasterDataNode, ResolutionLevel level) {
-        return createMaskOpImage(rasterDataNode.getProduct(),
-                                 rasterDataNode.getValidMaskExpression(),
-                                 level);
+    public static VirtualBandOpImage createMask(RasterDataNode raster, ResolutionLevel level) {
+        return createMask(raster.getValidMaskExpression(),
+                          raster.getProduct(),
+                          level);
     }
 
-    public static VirtualBandOpImage createMaskOpImage(Product product,
-                                                       String expression,
-                                                       ResolutionLevel level) {
-        return new VirtualBandOpImage(new Product[]{product},
-                                      expression,
-                                      ProductData.TYPE_UINT8,
-                                      true,
+    public static VirtualBandOpImage createMask(String expression, Product product, ResolutionLevel level) {
+        return create(expression,
+                      ProductData.TYPE_UINT8,
+                      true,
+                      product,
+                      level);
+    }
+
+    public static VirtualBandOpImage createMask(String expression,
+                                                Product[] products,
+                                                int defaultProductIndex,
+                                                ResolutionLevel level) {
+        return create(expression,
+                      ProductData.TYPE_UINT8,
+                      true,
+                      products,
+                      defaultProductIndex,
+                      level);
+    }
+
+    public static VirtualBandOpImage create(String expression,
+                                            int dataType,
+                                            Product[] products,
+                                            int defaultProductIndex,
+                                            ResolutionLevel level) {
+        return create(expression,
+                      dataType,
+                      false,
+                      products,
+                      defaultProductIndex,
+                      level);
+    }
+
+    private static VirtualBandOpImage create(String expression,
+                                             int dataType,
+                                             boolean mask,
+                                             Product product,
+                                             ResolutionLevel level) {
+        final Product[] products;
+        final int defaultProductIndex;
+        if (product.getProductManager() != null) {
+            products = product.getProductManager().getProducts();
+            defaultProductIndex = product.getProductManager().getProductIndex(product);
+        } else {
+            products = new Product[]{product};
+            defaultProductIndex = 0;
+        }
+        Assert.state(defaultProductIndex >= 0 && defaultProductIndex < products.length);
+        Assert.state(products[defaultProductIndex] == product);
+
+        return create(expression,
+                      dataType,
+                      mask,
+                      products,
+                      defaultProductIndex,
+                      level);
+    }
+
+    private static VirtualBandOpImage create(String expression,
+                                             int dataType,
+                                             boolean mask,
+                                             Product[] products,
+                                             int defaultProductIndex,
+                                             ResolutionLevel level) {
+        Assert.notNull(expression, "expression");
+        Assert.notNull(products, "products");
+        Assert.argument(products.length > 0, "products");
+        Assert.argument(defaultProductIndex >= 0, "defaultProductIndex");
+        Assert.argument(defaultProductIndex < products.length, "defaultProductIndex");
+        Assert.notNull(level, "level");
+
+        return new VirtualBandOpImage(expression,
+                                      dataType,
+                                      mask,
+                                      products,
+                                      defaultProductIndex,
                                       level);
     }
 
-    public VirtualBandOpImage(Product[] products, String expression, int dataType, ResolutionLevel level) {
-        this(products, expression, dataType, false, level);
-    }
-
-    private VirtualBandOpImage(Product[] products, String expression, int dataType, boolean mask, ResolutionLevel level) {
+    private VirtualBandOpImage(String expression,
+                               int dataType,
+                               boolean mask,
+                               Product[] products,
+                               int defaultProductIndex,
+                               ResolutionLevel level) {
         super(ImageManager.getDataBufferType(dataType),
-              products[0].getSceneRasterWidth(),
-              products[0].getSceneRasterHeight(),
-              products[0].getPreferredTileSize(),
+              products[defaultProductIndex].getSceneRasterWidth(),
+              products[defaultProductIndex].getSceneRasterHeight(),
+              products[defaultProductIndex].getPreferredTileSize(),
               null,
               level);
+
         // todo - check products for compatibility
-        this.products = products;
         this.expression = expression;
         this.dataType = dataType;
         this.mask = mask;
+        this.products = products;
+        this.defaultProductIndex = defaultProductIndex;
     }
-    
+
     public String getExpression() {
         return expression;
     }
 
+    public int getDataType() {
+        return dataType;
+    }
+
+    public boolean isMask() {
+        return mask;
+    }
+
+    public Product[] getProducts() {
+        return products.clone();
+    }
+
+    public int getDefaultProductIndex() {
+        return defaultProductIndex;
+    }
+
+    @Override
+    public synchronized void dispose() {
+        for (int i = 0; i < products.length; i++) {
+            products[i] = null;
+        }
+    }
+
     @Override
     protected void computeRect(PlanarImage[] planarImages, WritableRaster writableRaster, Rectangle destRect) {
-        final Term term = createTerm();
+        final Term term = parseExpression();
         addSourceToRasterDataSymbols(writableRaster.getBounds(), term);
 
         final ProductData productData = ProductData.createInstance(dataType, ImageUtils.getPrimitiveArray(writableRaster.getDataBuffer()));
@@ -92,8 +189,8 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         }
     }
 
-    private Term createTerm() {
-        WritableNamespace namespace = BandArithmetic.createDefaultNamespace(products, 0);
+    private Term parseExpression() {
+        WritableNamespace namespace = BandArithmetic.createDefaultNamespace(products, defaultProductIndex);
         final Term term;
         try {
             Parser parser = new ParserImpl(namespace, false);
@@ -115,5 +212,40 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
             rasterDataSymbol.setData(productData);
         }
     }
+
+    /////////////////////////////////////////////////////////////////////////
+    // Deprecated API
+
+    @Deprecated
+    public VirtualBandOpImage(Product[] products,
+                              String expression,
+                              int dataType,
+                              ResolutionLevel level) {
+        this(expression, dataType, false, products, 0, level);
+    }
+
+    @Deprecated
+    public VirtualBandOpImage(String expression,
+                              int dataType,
+                              Product[] products,
+                              int defaultProductIndex,
+                              ResolutionLevel level) {
+        this(expression, dataType, false, products, defaultProductIndex, level);
+    }
+
+    @Deprecated
+    public static VirtualBandOpImage createMaskOpImage(Product product,
+                                                       String expression,
+                                                       ResolutionLevel level) {
+        return createMask(expression, product, level);
+    }
+
+    @Deprecated
+    public static VirtualBandOpImage createMaskOpImage(Product[] products,
+                                                       String expression,
+                                                       ResolutionLevel level) {
+        return createMask(expression, products, 0, level);
+    }
+
 
 }
