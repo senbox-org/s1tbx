@@ -17,6 +17,8 @@ import java.awt.color.ColorSpace;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class contains information about how a product's raster data node is displayed as an image.
@@ -301,7 +303,6 @@ public class ImageInfo implements Cloneable {
     public void setColorPaletteDef(ColorPaletteDef colorPaletteDef,
                                    double minSample,
                                    double maxSample, boolean autoDistribute) {
-        alignNumPoints(colorPaletteDef, getColorPaletteDef());
         transferPoints(colorPaletteDef, minSample, maxSample, autoDistribute, getColorPaletteDef());
     }
 
@@ -312,6 +313,7 @@ public class ImageInfo implements Cloneable {
                                        ColorPaletteDef targetCPD) {
 
         if (autoDistribute || sourceCPD.isAutoDistribute()) {
+            alignNumPoints(sourceCPD, targetCPD);
             double minDisplaySample = sourceCPD.getMinDisplaySample();
             double maxDisplaySample = sourceCPD.getMaxDisplaySample();
             double delta1 = (maxSample > minSample) ? maxSample - minSample : 1.0;
@@ -323,22 +325,27 @@ public class ImageInfo implements Cloneable {
                 targetCPD.getPointAt(i).setColor(sourceCPD.getPointAt(i).getColor());
             }
         } else {
-            double min = minSample;
-            double max = maxSample;
-            double eps = (max - min) / (10 * sourceCPD.getNumPoints());
-            for (int i = 0; i < sourceCPD.getNumPoints(); i++) {
-                double sample = sourceCPD.getPointAt(i).getSample();
-                if (sample < min) {
-                    sample = min;
-                    min += eps;
+            final ColorPaletteDef.Point[] sourcePoints = sourceCPD.getPoints();
+
+            final List<ColorPaletteDef.Point> targetPointList = new ArrayList<ColorPaletteDef.Point>();
+            for (ColorPaletteDef.Point sourcePoint : sourcePoints) {
+                if (sourcePoint.getSample() > minSample &&
+                    sourcePoint.getSample() < maxSample) {
+                    targetPointList.add(sourcePoint);
                 }
-                if (sample > max) {
-                    sample = max;
-                    max -= eps;
-                }
-                targetCPD.getPointAt(i).setSample(sample);
-                targetCPD.getPointAt(i).setColor(sourceCPD.getPointAt(i).getColor());
             }
+
+            if (sourceCPD.getFirstPoint().getSample() < minSample || sourceCPD.getFirstPoint().getSample() > maxSample) {
+                final Color targetMinColor = sourceCPD.computeColor(Scaling.IDENTITY, minSample);
+                targetPointList.add(0, new ColorPaletteDef.Point(minSample, targetMinColor));
+            }
+
+            if (sourceCPD.getLastPoint().getSample() > maxSample || sourceCPD.getLastPoint().getSample() < minSample) {
+                final Color targetMaxColor = sourceCPD.computeColor(Scaling.IDENTITY, maxSample);
+                targetPointList.add(new ColorPaletteDef.Point(maxSample, targetMaxColor));
+            }
+
+            targetCPD.setPoints(targetPointList.toArray(new ColorPaletteDef.Point[targetPointList.size()]));
         }
     }
 

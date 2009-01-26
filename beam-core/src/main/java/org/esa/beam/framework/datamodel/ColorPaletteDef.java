@@ -28,6 +28,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Vector;
 
+import com.bc.ceres.core.Assert;
+
 /**
  * The <code>ColorPaletteDef</code> class represents a curve that is used to transform the sample values of a
  * geo-physical band into color palette indexes.
@@ -209,6 +211,13 @@ public class ColorPaletteDef implements Cloneable{
         return points;
     }
 
+    public void setPoints(Point[] points) {
+        Assert.notNull(points);
+        Assert.argument(points.length >= 2, "points.length >= 2");
+        this.points.clear();
+        this.points.addAll(Arrays.asList(points));
+    }
+
     public Iterator getIterator() {
         return points.iterator();
     }
@@ -328,34 +337,38 @@ public class ColorPaletteDef implements Cloneable{
         for (int i = 0; i < numColors; i++) {
             final double w = i / (numColors - 1.0);
             final double sample = minDisplay + w * (maxDisplay - minDisplay);
-            colorPalette[i] = computeColor(scaling, sample, minDisplay, maxDisplay);
+            colorPalette[i] = computeColorRaw(scaling, sample, minDisplay, maxDisplay);
         }
         return colorPalette;
     }
 
-    private Color computeColor(Scaling scaling, double sample, double minDisplay, double maxDisplay) {
+    private Color computeColorRaw(Scaling scaling, double sample, double minDisplay, double maxDisplay) {
         final Color c;
         if (sample <= minDisplay) {
             c = getFirstPoint().getColor();
         } else if (sample >= maxDisplay) {
             c = getLastPoint().getColor();
         } else {
-            c = computeColor(scaling, sample);
+            c = computeColorRaw(scaling, sample);
         }
         return c;
     }
 
-    private Color computeColor(final Scaling scaling, final double sample) {
+    public Color computeColor(final Scaling scaling, final double sample) {
+        return computeColorRaw(scaling, scaling.scaleInverse(sample));
+    }
+
+    private Color computeColorRaw(final Scaling scaling, final double rawSample) {
         for (int i = 0; i < getNumPoints() - 1; i++) {
             final Point p1 = getPointAt(i);
             final Point p2 = getPointAt(i + 1);
             final double sample1 = scaling.scaleInverse(p1.getSample());
             final double sample2 = scaling.scaleInverse(p2.getSample());
-            if (sample >= sample1 && sample <= sample2) {
+            if (rawSample >= sample1 && rawSample <= sample2) {
                 if (discrete) {
                     return p1.getColor();
                 } else {
-                    final double f = (sample - sample1) / (sample2 - sample1);
+                    final double f = (rawSample - sample1) / (sample2 - sample1);
                     final double r1 = p1.getColor().getRed();
                     final double r2 = p2.getColor().getRed();
                     final double g1 = p1.getColor().getGreen();
