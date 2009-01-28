@@ -259,7 +259,7 @@ public class ImageInfoEditor extends JPanel {
         g2d.setFont(labelFont);
         computeSizeAttributes();
 
-        if (getModel() != null && isValidRange()) {
+        if (isValidModel()) {
             drawPalette(g2d);
             drawSliders(g2d);
             drawHistogramPane(g2d);
@@ -273,8 +273,13 @@ public class ImageInfoEditor extends JPanel {
         return model.isHistogramAvailable();
     }
 
-    private boolean isValidRange() {
-        return model.getMinSample() <= model.getMaxSample();
+    private boolean isValidModel() {
+        if(model == null) {
+            return false;
+        }
+        return model.getMinSample() <= model.getMaxSample()
+               && model.getSampleScaling() != null && model.getSampleStx() != null;
+
     }
 
     public void computeZoomOutVertical() {
