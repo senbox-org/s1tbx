@@ -172,7 +172,7 @@ public class SpectrumToolView extends AbstractToolView {
 //        showGraphPointsButton.setEnabled(hasDiagram);
         diagramCanvas.setEnabled(hasProduct);    // todo - hasSpectraGraphs
 
-        if (diagramCanvas.getDiagram() != null) {
+        if (hasDiagram) {
             showGridButton.setSelected(diagramCanvas.getDiagram().getDrawGrid());
         }
     }
