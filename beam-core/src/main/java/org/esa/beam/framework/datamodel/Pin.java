@@ -199,14 +199,18 @@ public class Pin extends ProductNode {
         if (pixelPos == null && canComputePixelPos()) {
             pixelPos = getProduct().getGeoCoding().getPixelPos(geoPos, null);
         }
-
-        final Rectangle productRect = new Rectangle(0, 0,
-                                                    getProduct().getSceneRasterWidth(),
-                                                    getProduct().getSceneRasterHeight());
-
-        if (pixelPos == null || !productRect.contains(pixelPos)) {
+        if (pixelPos == null) {
             return null;
         }
+        if (getProduct() != null) {
+            final Rectangle productRect = new Rectangle(0, 0,
+                                                        getProduct().getSceneRasterWidth(),
+                                                        getProduct().getSceneRasterHeight());
+            if (!productRect.contains(pixelPos)) {
+                return null;
+            }
+        }
+
         return new PixelPos(pixelPos.x, pixelPos.y);
     }
 
