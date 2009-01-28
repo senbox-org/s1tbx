@@ -414,6 +414,7 @@ public class SpectrumToolView extends AbstractToolView {
         if (bandChooser.show() == ModalDialog.ID_OK) {
             getSpectraDiagram().setBands(bandChooser.getSelectedBands());
         }
+        updateUIState();
     }
 
     public SpectraDiagram getSpectraDiagram() {
@@ -491,6 +492,7 @@ public class SpectrumToolView extends AbstractToolView {
         }
         spectraDiagram.updateSpectra(pixelX, pixelY, level);
         setSpectraDiagram(spectraDiagram);
+        updateUIState();
     }
 
     private boolean isShowingSpectraForSelectedPins() {
