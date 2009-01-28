@@ -620,7 +620,6 @@ public class PropertyEditor {
                 }
                 ProductNode productNode = event.getSourceNode();
                 if (productNode instanceof RasterDataNode) {
-                    RasterDataNode rasterDataNode = (RasterDataNode) productNode;
                     if (RasterDataNode.isValidMaskProperty(event.getPropertyName())) {
                         _validMaskPropertyChanged = true;
                     }
