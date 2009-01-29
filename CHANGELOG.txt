@@ -49,6 +49,7 @@ o Band arithmetic now takes into account no-data values from all bands and
 
 2) Complete list of bug fixes and improvements
 
+BEAM-937    Colour palette sometimes incorrectly imported
 BEAM-936 	Layer visibility is not synchronised with tool bar buttons
 BEAM-932 	Inconsistent handling of adding and copying bitmasks
 BEAM-931 	Shapes are not displayed while drawing
