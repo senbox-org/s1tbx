@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Frame;
 import java.awt.Window;
+import java.util.concurrent.CountDownLatch;
 
 
 /**
@@ -16,6 +17,7 @@ public abstract class ProgressMonitorSwingWorker<T, V> extends SwingWorker<T, V>
     private final String title;
     private boolean blocking;
     private Window blockingWindow;
+    private final CountDownLatch unBlock = new CountDownLatch(1);
 
 
     protected ProgressMonitorSwingWorker(Component parentComponent, String title) {
@@ -41,6 +43,7 @@ public abstract class ProgressMonitorSwingWorker<T, V> extends SwingWorker<T, V>
         } finally {
             pm.done();
             if (blocking) {
+                unBlock.await();
                 unblock();
             }
         }
@@ -76,6 +79,7 @@ public abstract class ProgressMonitorSwingWorker<T, V> extends SwingWorker<T, V>
     private void block() {
         if (blockingWindow == null) {
             blockingWindow = createBlockingWindow();
+            unBlock.countDown();
             blockingWindow.setVisible(true);
         }
     }
