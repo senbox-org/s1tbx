@@ -156,7 +156,7 @@ public class PixelInfoToolView extends AbstractToolView {
 
     @Override
     public boolean isVisible() {
-        return super.isVisible() || !pixelInfoView.allDocked();
+        return super.isVisible() || pixelInfoView.isAnyDockablePaneVisible();
     }
 
     private void initOpenedFrames() {
@@ -325,7 +325,7 @@ public class PixelInfoToolView extends AbstractToolView {
         }
 
         private boolean isActive() {
-            return  pixelInfoView.isVisible() && !isSnapToPin();
+            return  isVisible() && !isSnapToPin();
         }
     }
 

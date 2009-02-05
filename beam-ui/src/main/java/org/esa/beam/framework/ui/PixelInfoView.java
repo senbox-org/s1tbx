@@ -265,10 +265,13 @@ public class PixelInfoView extends JPanel {
         updateDataDisplay();
     }
     
-    public boolean allDocked() {
-        return geolocInfoPane.isDocked() && scanLineInfoPane.isDocked()
-                && bandPixelInfoPane.isDocked() && tiePointGridPixelInfoPane.isDocked()
-                && flagPixelInfoPane.isDocked();
+    public boolean isAnyDockablePaneVisible() {
+        for (DockablePaneKey paneKey : dockablePaneMap.keySet()) {
+            if (isDockablePaneVisible(paneKey)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void showDockablePanel(DockablePaneKey key, boolean show) {
@@ -442,7 +445,7 @@ public class PixelInfoView extends JPanel {
 
     private boolean isDockablePaneVisible(DockablePaneKey key) {
         final DockablePane dockablePane = dockablePaneMap.get(key);
-        return dockablePane.getContent().isVisible();
+        return dockablePane.isContentShown();
     }
 
     private void updateScanLineValues() {
