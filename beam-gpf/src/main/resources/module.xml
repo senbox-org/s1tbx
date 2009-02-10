@@ -15,7 +15,7 @@
     <changelog>
         <![CDATA[
         <p>From 4.2 to 4.6:<br/>
-            [BEAM-918] Source product selector label and tool tip text are not set</br>
+            [BEAM-918] Source product selector label and tool tip text are not set<br/>
         </p>
         <p>From 4.1 to 4.2:<br/>
             [BEAM-836] Update product header if changed during computation<br/>

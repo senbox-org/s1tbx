@@ -28,13 +28,13 @@
 
     <changelog>
         <![CDATA[
-        Changes in 2.0.101:<br>
-        [BEAM-957] "Search" tab missing VISAT help<br>
-        Changes in 2.0.100:<br>
-        [BEAM-808] L3 processor doesn't set no-data value of output bands</br>
-        [BEAM-806] Default aggregation algorithm should be "Arithmetic Mean" in L3 processor</br>
-        [BEAM-805] Valid pixel expression field in L3 processor GUI should be an editable field</br>
-        [BEAM-757] Layout of help pages is not uniform</br>
+        Changes in 2.0.101:<br\>
+        [BEAM-957] "Search" tab missing VISAT help<br\>
+        Changes in 2.0.100:<br\>
+        [BEAM-808] L3 processor doesn't set no-data value of output bands<br\>
+        [BEAM-806] Default aggregation algorithm should be "Arithmetic Mean" in L3 processor<br\>
+        [BEAM-805] Valid pixel expression field in L3 processor GUI should be an editable field<br\>
+        [BEAM-757] Layout of help pages is not uniform<br\>
         ]]>
     </changelog>
 
