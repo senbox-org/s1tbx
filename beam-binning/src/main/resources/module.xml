@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-binning</symbolicName>
-    <version>2.0.100</version>
+    <version>2.0.101</version>
     <name>Level-3 Binning Processor</name>
 
     <description>
@@ -28,11 +28,13 @@
 
     <changelog>
         <![CDATA[
+        Changes in 2.0.101:<br>
+        [BEAM-957] "Search" tab missing VISAT help<br>
         Changes in 2.0.100:<br>
-        [BEAM-808] L3 processor doesn't set no-data value of output bands
-        [BEAM-806] Default aggregation algorithm should be "Arithmetic Mean" in L3 processor
-        [BEAM-805] Valid pixel expression field in L3 processor GUI should be an editable field
-        [BEAM-757] Layout of help pages is not uniform<br>
+        [BEAM-808] L3 processor doesn't set no-data value of output bands</br>
+        [BEAM-806] Default aggregation algorithm should be "Arithmetic Mean" in L3 processor</br>
+        [BEAM-805] Valid pixel expression field in L3 processor GUI should be an editable field</br>
+        [BEAM-757] Layout of help pages is not uniform</br>
         ]]>
     </changelog>
 

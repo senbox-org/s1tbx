@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-collocation</symbolicName>
-    <version>1.0.100</version>
+    <version>1.1</version>
     <name>Collocation</name>
 
     <description>
@@ -11,9 +11,8 @@
     <changelog>
         <![CDATA[
         Changes in 1.1:<br/>
-
-        [BEAM-???] todo - Parameter validation is incomplete<br/>
-        [BEAM-???] todo - Show resulting names of components in dialog<br/>
+        [BEAM-957] "Search" tab missing VISAT help<br>
+        Changes in 1.0.100:<br/>
         [BEAM-769] Collocation does not merge and rename tie-point grids<br/>
         Changes in 1.0.1:<br/>
         [BEAM-757] Layout of help pages is not uniform<br/>

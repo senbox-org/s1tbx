@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-meris-ndvi</symbolicName>
-    <version>1.2.101</version>
+    <version>1.2.102</version>
     <name>MERIS NDVI Processor</name>
 
     <description>
@@ -25,6 +25,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.2.102:<br>
+        [BEAM-957] "Search" tab missing VISAT help<br>
         Changes in 1.2.101:<br>
         [BEAM-867] NDVI processor fails with a java.lang.ClassCastException when invoked
         with a request file in non-interactive mode<br>

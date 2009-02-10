@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-aatsr-sst</symbolicName>
-    <version>1.4.100</version>
+    <version>1.4.101</version>
     <name>AATSR SST Processor</name>
 
     <description>
@@ -29,6 +29,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.4.101:<br>
+        [BEAM-957] "Search" tab missing VISAT help<br>
         Changes in 1.4.100:<br>
         [BEAM-757] Layout of help pages is not uniform<br>
         ]]>

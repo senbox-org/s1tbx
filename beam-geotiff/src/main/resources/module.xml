@@ -12,11 +12,12 @@
 
     <changelog>
         <![CDATA[
-        <p>From 1.0 to 1.1:<br/>
-            [BEAM-898] Display TIFF and GeoTIFF tags in metadata<br/>
-            [BEAM-891] Model transformation is not applied if GeoTiff is projected<br/>
-            [BEAM-889] Virtual bands are added as empty images to GeoTIFF files<br/>
-        </p>
+        Changes in 1.0.2:<br/>
+        [BEAM-957] "Search" tab missing VISAT help<br>
+        Changes in 1.0.1:<br/>
+        [BEAM-898] Display TIFF and GeoTIFF tags in metadata<br/>
+        [BEAM-891] Model transformation is not applied if GeoTiff is projected<br/>
+        [BEAM-889] Virtual bands are added as empty images to GeoTIFF files<br/>
         ]]>
     </changelog>
 
