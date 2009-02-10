@@ -325,27 +325,7 @@ public class ImageInfo implements Cloneable {
                 targetCPD.getPointAt(i).setColor(sourceCPD.getPointAt(i).getColor());
             }
         } else {
-            final ColorPaletteDef.Point[] sourcePoints = sourceCPD.getPoints();
-
-            final List<ColorPaletteDef.Point> targetPointList = new ArrayList<ColorPaletteDef.Point>();
-            for (ColorPaletteDef.Point sourcePoint : sourcePoints) {
-                if (sourcePoint.getSample() >= minSample &&
-                    sourcePoint.getSample() <= maxSample) {
-                    targetPointList.add(sourcePoint);
-                }
-            }
-
-            if (sourceCPD.getFirstPoint().getSample() <= minSample || sourceCPD.getFirstPoint().getSample() >= maxSample) {
-                final Color targetMinColor = sourceCPD.computeColor(Scaling.IDENTITY, minSample);
-                targetPointList.add(0, new ColorPaletteDef.Point(minSample, targetMinColor));
-            }
-
-            if (sourceCPD.getLastPoint().getSample() >= maxSample || sourceCPD.getLastPoint().getSample() <= minSample) {
-                final Color targetMaxColor = sourceCPD.computeColor(Scaling.IDENTITY, maxSample);
-                targetPointList.add(new ColorPaletteDef.Point(maxSample, targetMaxColor));
-            }
-
-            targetCPD.setPoints(targetPointList.toArray(new ColorPaletteDef.Point[targetPointList.size()]));
+            targetCPD.setPoints(sourceCPD.getPoints().clone());
         }
     }
 

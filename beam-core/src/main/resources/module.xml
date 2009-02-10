@@ -23,6 +23,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.6:<br/>
+        [BEAM-956] Histogram color lookup tables do not work correctly with CPD files<br/>
         [CBOX-058] Probabilistic mask does not flag very bright cloud pixels<br/>
         [BEAM-926] Mean and standard deviation shall be stored in DIMAP<br/>
         [BEAM-909] Expression or no-data changes of virtual band disregarded in image view<br/>
