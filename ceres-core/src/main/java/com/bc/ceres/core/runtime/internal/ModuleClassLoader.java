@@ -62,14 +62,18 @@ class ModuleClassLoader extends URLClassLoader {
 
     @Override
     public URL findResource(final String name) {
+        final URL localResource = super.findResource(name);
+        if(localResource != null) {
+            return localResource;
+        }
         for (ClassLoader delegate : delegates) {
             URL resource = delegate.getResource(name);
             if (resource != null) {
                 return resource;
             }
         }
-        return super.findResource(name);
-    }
+        return null;
+    }    
 
     @Override
     public Enumeration<URL> findResources(final String name) throws IOException {
