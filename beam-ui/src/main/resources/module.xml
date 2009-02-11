@@ -10,6 +10,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.6<br/>
+        [BEAM-958] PixelInfo blocks the EDT while updating its table<br/>
         [BEAM-954] PixelInfoView updates too often<br/>
         [BEAM-931] Shapes are not displayed while drawing<br/>
         [BEAM-925] Events (open, shown, hidden) shall be delegated to tool view<br/>
