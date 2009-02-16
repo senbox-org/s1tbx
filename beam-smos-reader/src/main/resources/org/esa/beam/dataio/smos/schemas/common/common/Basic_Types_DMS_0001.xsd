@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns="http://213.170.46.150/smos/schemas" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://213.170.46.150/smos/schemas" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0001">
-	<xs:simpleType name="float_s06p1f_Type">
-		<xs:restriction base="xs:string">
-			<xs:pattern value="[+\-][0-9]{5}\.[0-9]{1}"/>
-		</xs:restriction>
-	</xs:simpleType>
-</xs:schema>
