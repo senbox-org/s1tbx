@@ -29,8 +29,15 @@
             <description>Import shape from plain text or ESRI shapefile.</description>
             <helpId>importShape</helpId>
             <separatorBefore>true</separatorBefore>
-            <separatorAfter>true</separatorAfter>
             <placeBefore>importGETASSE30Product</placeBefore>
+        </action>
+        <action>
+            <id>addShapefileLayer</id>
+            <class>org.esa.beam.visat.actions.AddShapefileLayerAction</class>
+            <parent>import</parent>
+            <text>Add Shapefile Layer...</text>
+            <separatorAfter>true</separatorAfter>
+            <placeAfter>importShape</placeAfter>
         </action>
     </extension>
 

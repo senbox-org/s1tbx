@@ -107,6 +107,30 @@
             <groupId>com.bc</groupId>
             <artifactId>bc-jnn</artifactId>
         </dependency>
+
+
+        <!-- NEW IN 4.6: GeoTools -->
+        <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-main</artifactId>
+          <version>2.6-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-render</artifactId>
+          <version>2.6-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-shapefile</artifactId>
+          <version>2.6-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-wms</artifactId>
+          <version>2.6-SNAPSHOT</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

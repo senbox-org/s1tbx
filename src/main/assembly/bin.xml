@@ -126,6 +126,10 @@
                     <!-- (2) Put packed dependencies into 'lib' -->
                     <dependencySet>
                         <outputDirectory>lib</outputDirectory>
+                        <excludes>
+                            <exclude>com.bc.ceres:ceres-launcher</exclude>
+                        </excludes>
+<!--
                         <includes>
                             <include>com.bc:bc-jnn</include>
                             <include>com.sun.media:clibwrapper-jiio</include>
@@ -148,6 +152,7 @@
 							<include>jfree:jcommon</include>
 							<include>com.lowagie:itext</include>
                         </includes>
+-->
                     </dependencySet>
 
                 </dependencySets>
