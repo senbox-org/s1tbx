@@ -72,14 +72,13 @@ public class GeoCodingMathTransform extends AbstractMathTransform {
     }
 
     private interface T {
-
         void transform(GeoCoding geoCoding, double[] srcPts, int srcOff,
                        double[] dstPts, int dstOff,
                        int numPts) throws TransformException;
     }
 
     private static class TP2G implements T {
-
+        @Override
         public void transform(GeoCoding geoCoding,
                               double[] srcPts, int srcOff,
                               double[] dstPts, int dstOff,
@@ -101,7 +100,7 @@ public class GeoCodingMathTransform extends AbstractMathTransform {
     }
 
     private static class TG2P implements T {
-
+        @Override
         public void transform(GeoCoding geoCoding,
                               double[] srcPts, int srcOff,
                               double[] dstPts, int dstOff,
