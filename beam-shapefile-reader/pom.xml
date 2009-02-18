@@ -44,7 +44,12 @@
           <artifactId>gt-wms</artifactId>
           <version>2.5.3</version>
         </dependency>
-        
+        <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-epsg-hsql</artifactId>
+          <version>2.5.3</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
