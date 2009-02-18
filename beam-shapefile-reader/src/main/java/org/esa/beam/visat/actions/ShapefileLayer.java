@@ -2,24 +2,20 @@ package org.esa.beam.visat.actions;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.grender.Rendering;
-import com.bc.ceres.grender.ViewportListener;
-import com.bc.ceres.grender.Viewport;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import org.geotools.data.FeatureSource;
-import org.geotools.data.DataStore;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.map.MapLayer;
-import org.geotools.renderer.label.LabelCacheImpl;
 import org.geotools.renderer.lite.LabelCache;
+import org.geotools.renderer.lite.LabelCacheDefault;
 import org.geotools.renderer.lite.StreamingRenderer;
-import org.geotools.renderer.lite.gridcoverage2d.StyleVisitorAdapter;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Fill;
 import org.geotools.styling.LineSymbolizer;
@@ -75,7 +71,7 @@ class ShapefileLayer extends Layer {
 
         crs = schema.getGeometryDescriptor().getCoordinateReferenceSystem();
 
-        Style style = createStyle(file, schema);        
+        Style style = createStyle(file, schema);
 
         setName(style.getName());
         mapContext = new DefaultMapContext(crs);
@@ -93,7 +89,7 @@ class ShapefileLayer extends Layer {
         if (hints.containsKey(StreamingRenderer.LABEL_CACHE_KEY)) {
             labelCache = (LabelCache) hints.get(StreamingRenderer.LABEL_CACHE_KEY);
         } else {
-            labelCache = new LabelCacheImpl();
+            labelCache = new LabelCacheDefault();
             hints.put(StreamingRenderer.LABEL_CACHE_KEY, labelCache);
         }
         renderer.setRendererHints(hints);
@@ -113,25 +109,25 @@ class ShapefileLayer extends Layer {
 
         renderer.paint(rendering.getGraphics(), bounds, mapArea);
     }
-  
+
     private void applyOpacity(final double opacity) {
         StyleBuilder sb = new StyleBuilder();
         final Expression opa = sb.literalExpression(opacity);
         final MapLayer layer = mapContext.getLayer(0);
         if (layer != null) {
 
-            List<? extends org.opengis.style.FeatureTypeStyle> sty = layer.getStyle().featureTypeStyles();
+            FeatureTypeStyle[] sty = layer.getStyle().getFeatureTypeStyles();
 
-            List<? extends org.opengis.style.Rule> rules = sty.get(0).rules();
-            for (org.opengis.style.Rule r : rules) {
-                    final List<? extends org.opengis.style.Symbolizer> symbolizers = r.symbolizers();
-                    for (org.opengis.style.Symbolizer symbolizer : symbolizers) {
-                        if (symbolizer instanceof PolygonSymbolizer) {
-                            PolygonSymbolizer polySym = (PolygonSymbolizer) symbolizer;
-                            polySym.getStroke().setOpacity(opa);
-                            polySym.getFill().setOpacity(opa);
-                        }
+            List<Rule> rules = sty[0].rules();
+            for (Rule r : rules) {
+                final Symbolizer[] symbolizers = r.getSymbolizers();
+                for (Symbolizer symbolizer : symbolizers) {
+                    if (symbolizer instanceof PolygonSymbolizer) {
+                        PolygonSymbolizer polySym = (PolygonSymbolizer) symbolizer;
+                        polySym.getStroke().setOpacity(opa);
+                        polySym.getFill().setOpacity(opa);
                     }
+                }
             }
         }
     }
@@ -143,10 +139,10 @@ class ShapefileLayer extends Layer {
         }
         Class type = schema.getGeometryDescriptor().getType().getBinding();
         if (type.isAssignableFrom(Polygon.class)
-            || type.isAssignableFrom(MultiPolygon.class)) {
+                || type.isAssignableFrom(MultiPolygon.class)) {
             return createPolygonStyle();
         } else if (type.isAssignableFrom(LineString.class)
-                   || type.isAssignableFrom(MultiLineString.class)) {
+                || type.isAssignableFrom(MultiLineString.class)) {
             return createLineStyle();
         } else {
             return createPointStyle();
@@ -159,11 +155,11 @@ class ShapefileLayer extends Layer {
     public static File toSLDFile(File file) {
         String filename = file.getAbsolutePath();
         if (filename.endsWith(".shp") || filename.endsWith(".dbf")
-            || filename.endsWith(".shx")) {
+                || filename.endsWith(".shx")) {
             filename = filename.substring(0, filename.length() - 4);
             filename += ".sld";
         } else if (filename.endsWith(".SLD") || filename.endsWith(".SLD")
-                   || filename.endsWith(".SLD")) {
+                || filename.endsWith(".SLD")) {
             filename = filename.substring(0, filename.length() - 4);
             filename += ".SLD";
         }
