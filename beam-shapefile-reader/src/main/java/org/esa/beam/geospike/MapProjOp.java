@@ -48,18 +48,21 @@ import org.geotools.referencing.crs.DefaultDerivedCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
+import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.transform.ConcatenatedTransform;
 import org.opengis.geometry.Envelope;
 import org.opengis.parameter.InvalidParameterValueException;
 import org.opengis.parameter.ParameterNotFoundException;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.NoSuchIdentifierException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.cs.CartesianCS;
 import org.opengis.referencing.cs.CoordinateSystem;
+import org.opengis.referencing.datum.Ellipsoid;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransformFactory;
 
@@ -101,16 +104,16 @@ public class MapProjOp extends Operator {
     
     @Override
     public void initialize() throws OperatorException {
-        MapProjection mapProjection = MapProjectionRegistry.getProjection(projectionName);
-        float orientation = 0.0f;
-        double defaultNoDataValue = MapInfo.DEFAULT_NO_DATA_VALUE;
-        if (sourceProduct.getGeoCoding() instanceof MapGeoCoding) {
-            MapInfo mapInfo = ((MapGeoCoding) getSourceProduct().getGeoCoding()).getMapInfo();
-            orientation = mapInfo.getOrientation();
-            defaultNoDataValue = mapInfo.getNoDataValue();
-        }
-        Datum datum = Datum.WGS_84;
-        MapInfo mapInfo = ProductUtils.createSuitableMapInfo(sourceProduct, mapProjection, orientation, defaultNoDataValue);
+//        MapProjection mapProjection = MapProjectionRegistry.getProjection(projectionName);
+//        float orientation = 0.0f;
+//        double defaultNoDataValue = MapInfo.DEFAULT_NO_DATA_VALUE;
+//        if (sourceProduct.getGeoCoding() instanceof MapGeoCoding) {
+//            MapInfo mapInfo = ((MapGeoCoding) getSourceProduct().getGeoCoding()).getMapInfo();
+//            orientation = mapInfo.getOrientation();
+//            defaultNoDataValue = mapInfo.getNoDataValue();
+//        }
+//        Datum datum = Datum.WGS_84;
+//        MapInfo mapInfo = ProductUtils.createSuitableMapInfo(sourceProduct, mapProjection, orientation, defaultNoDataValue);
 //        MapInfo mapInfo = new MapInfo(mapProjection, pixelX, pixelY, easting, northing, pixelSizeX, pixelSizeY, datum);
 //        try {
 //            productProjectionBuilder = new ProductProjectionBuilder(mapInfo);
@@ -119,74 +122,30 @@ public class MapProjOp extends Operator {
 //            throw new OperatorException(e);
 //        }
         
-        DefaultGeographicCRS geoCRS = DefaultGeographicCRS.WGS84;
+        GeographicCRS baseCRS = DefaultGeographicCRS.WGS84;
         final GeoCoding geoCoding = sourceProduct.getGeoCoding();
-        MathTransform realToGridMathTransform = new GeoCodingMathTransform(geoCoding, GeoCodingMathTransform.Mode.G2P);
-        
-        DefaultDerivedCRS gridCRS = new DefaultDerivedCRS("The grid CRS", 
-                                            geoCRS, 
-                                            realToGridMathTransform, 
-                                            DefaultCartesianCS.GRID);
+        MathTransform baseToGridMathTransform = new GeoCodingMathTransform(geoCoding, GeoCodingMathTransform.Mode.G2P);
+        CoordinateReferenceSystem gridCRS = new DefaultDerivedCRS("The grid CRS",
+                                                                  baseCRS,
+                                                                  baseToGridMathTransform,
+                                                                  DefaultCartesianCS.DISPLAY);
 
-        MathTransform transform = null;
-        try {
-            MathTransformFactory mtFactory = ReferencingFactoryFinder.getMathTransformFactory(null);
-            ParameterValueGroup params = mtFactory.getDefaultParameters("Plate_Carree");
-            params.parameter("semi_major")         .setValue(datum.getEllipsoid().getSemiMajor());
-            params.parameter("semi_minor")         .setValue(datum.getEllipsoid().getSemiMajor());
-            params.parameter("central_meridian")   .setValue(0.0);
-            params.parameter("false_easting")      .setValue(  mapInfo.getEasting() );
-            params.parameter("false_northing")     .setValue(  mapInfo.getNorthing()  );
-            transform = mtFactory.createParameterizedTransform(params);
-        } catch (InvalidParameterValueException e) {
-            e.printStackTrace();
-        } catch (ParameterNotFoundException e) {
-            e.printStackTrace();
-        } catch (FactoryRegistryException e) {
-            e.printStackTrace();
-        } catch (NoSuchIdentifierException e) {
-            e.printStackTrace();
-        } catch (FactoryException e) {
-            e.printStackTrace();
-        }
-       MathTransform mathTransformBAD = ConcatenatedTransform.create(realToGridMathTransform, transform);
-       MathTransform mathTransform = new MathTransformDecorator(mathTransformBAD);
-       CartesianCS derivedCS = DefaultCartesianCS.PROJECTED;
-       DefaultProjectedCRS projectedCRS = new DefaultProjectedCRS("name", geoCRS, mathTransform, derivedCS);
+        final GridCoverageFactory factory = CoverageFactoryFinder.getGridCoverageFactory(null);
+        Envelope2D envelope = new Envelope2D(gridCRS, 0, 0, sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
+        Band sourceBand = sourceProduct.getBandAt(0);
+        GridCoverage2D sourceCoverage = factory.create(sourceBand.getName(), sourceBand.getSourceImage(), envelope);
        
-       final GridCoverageFactory factory = CoverageFactoryFinder.getGridCoverageFactory(null);
-       Envelope2D envelope = new Envelope2D(gridCRS, new Rectangle(0, 0, sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight()));
-       System.out.println(envelope);
-       Band sourceBand = sourceProduct.getBandAt(0);
-       GridCoverage2D sourceCoverage = factory.create(sourceBand.getName(), sourceBand.getSourceImage(), envelope);
-       GridCoverage2D targetCoverage = (GridCoverage2D) Operations.DEFAULT.resample(sourceCoverage, projectedCRS);
-       Envelope2D envelope2D = targetCoverage.getEnvelope2D();
-       System.out.println(envelope2D);
-       RenderedImage targetImage = targetCoverage.getRenderedImage();
-       System.out.println(targetImage.getMinX());
-       System.out.println(targetImage.getMinY());
-       System.out.println(targetImage.getWidth());
-       System.out.println(targetImage.getHeight());
-       targetProduct = new Product("n","d",targetImage.getWidth(), targetImage.getHeight());
-       Band targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
-       targetBand.setSourceImage(targetImage);
+        CoordinateReferenceSystem targetCRS = DefaultGeographicCRS.WGS84;
+       
+        GridCoverage2D targetCoverage = (GridCoverage2D) Operations.DEFAULT.resample(sourceCoverage, targetCRS);
+        RenderedImage targetImage = targetCoverage.getRenderedImage();
+        targetProduct = new Product("n","d",targetImage.getWidth(), targetImage.getHeight());
+        Band targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
+        targetBand.setSourceImage(targetImage);
     }
-    
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-//        ProductData destBuffer = targetTile.getRawSamples();
-//        Rectangle rectangle = targetTile.getRectangle();
-//        try {
-//            productProjectionBuilder.readBandRasterData(targetBand,
-//                                            rectangle.x,
-//                                            rectangle.y,
-//                                            rectangle.width,
-//                                            rectangle.height,
-//                                            destBuffer, pm);
-//            targetTile.setRawSamples(destBuffer);
-//        } catch (IOException e) {
-//            throw new OperatorException(e);
-//        }
+        // do nothing
     }
     
     public static class Spi extends OperatorSpi {
