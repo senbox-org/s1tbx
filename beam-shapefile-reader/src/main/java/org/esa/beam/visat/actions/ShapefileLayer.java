@@ -27,6 +27,7 @@ import org.geotools.styling.SLDParser;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleBuilder;
 import org.geotools.styling.Symbolizer;
+import org.geotools.styling.Stroke;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
@@ -124,8 +125,14 @@ class ShapefileLayer extends Layer {
                 for (Symbolizer symbolizer : symbolizers) {
                     if (symbolizer instanceof PolygonSymbolizer) {
                         PolygonSymbolizer polySym = (PolygonSymbolizer) symbolizer;
-                        polySym.getStroke().setOpacity(opa);
-                        polySym.getFill().setOpacity(opa);
+                        final Stroke stroke = polySym.getStroke();
+                        if (stroke != null) {
+                            stroke.setOpacity(opa);
+                        }
+                        final Fill fill = polySym.getFill();
+                        if (fill != null) {
+                            fill.setOpacity(opa);
+                        }
                     }
                 }
             }
