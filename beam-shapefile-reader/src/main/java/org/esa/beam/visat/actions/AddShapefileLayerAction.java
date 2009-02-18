@@ -125,48 +125,4 @@ public class AddShapefileLayerAction extends ExecCommand {
         return new File(propertyMap.getPropertyString("shape.io.dir", dir.getPath()));
     }
 
-    private static class PixelToGeoMathTransform extends AbstractMathTransform {
-
-        final private static int DIMS = 2;
-        private final GeoCoding geoCoding;
-
-        public PixelToGeoMathTransform(GeoCoding geoCoding) {
-            this.geoCoding = geoCoding;
-        }
-
-        @Override
-        public int getSourceDimensions() {
-            return DIMS;
-        }
-
-        @Override
-        public int getTargetDimensions() {
-            return DIMS;
-        }
-
-        @Override
-        public void transform(double[] srcPts, int srcOff,
-                              double[] dstPts, int dstOff,
-                              int numPts) throws TransformException {
-            GeoPos geoPos = new GeoPos();
-            PixelPos pixelPos = new PixelPos();
-            for (int i = 0; i < numPts; i++) {
-                final int firstIndex = (DIMS * i);
-                final int secondIndex = firstIndex + 1;
-                pixelPos.x = (float) srcPts[srcOff + firstIndex];
-                pixelPos.y = (float) srcPts[srcOff + secondIndex];
-
-                geoCoding.getGeoPos(pixelPos, geoPos);
-
-                dstPts[dstOff + firstIndex] = geoPos.lon;
-                dstPts[dstOff + secondIndex] = geoPos.lat;
-            }
-        }
-
-        @Override
-        public MathTransform inverse() throws NoninvertibleTransformException {
-            return super.inverse();
-
-        }
-    }
 }
