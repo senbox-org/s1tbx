@@ -2,8 +2,6 @@ package org.esa.beam.visat.actions;
 
 import com.bc.ceres.glayer.Layer;
 import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.command.CommandEvent;
@@ -17,12 +15,9 @@ import org.esa.beam.visat.VisatApp;
 import org.geotools.referencing.crs.DefaultDerivedCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
-import org.geotools.referencing.operation.transform.AbstractMathTransform;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.NoninvertibleTransformException;
-import org.opengis.referencing.operation.TransformException;
 
 import javax.swing.JFileChooser;
 import java.io.File;
