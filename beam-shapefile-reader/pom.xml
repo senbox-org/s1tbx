@@ -21,6 +21,10 @@
             <artifactId>beam-visat</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-gpf</artifactId>
+        </dependency>
+        <dependency>
           <groupId>org.geotools</groupId>
           <artifactId>gt-main</artifactId>
           <version>2.5.3</version>
