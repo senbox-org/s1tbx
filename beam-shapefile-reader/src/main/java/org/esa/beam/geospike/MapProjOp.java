@@ -252,7 +252,7 @@ public class MapProjOp extends Operator {
         final double noDataValue = 0.0;
         final MapInfo mapInfo = ProductUtils.createSuitableMapInfo(sourceProduct, mapProjection, orientation, noDataValue);
 
-        // modify suitable map to user's taste
+        // custom map info - half pixel size
         mapInfo.setPixelSizeX(mapInfo.getPixelSizeX() / 2.0f);
         mapInfo.setPixelSizeY(mapInfo.getPixelSizeY() / 2.0f);
         mapInfo.setPixelX(mapInfo.getPixelX() * 2.0f);
