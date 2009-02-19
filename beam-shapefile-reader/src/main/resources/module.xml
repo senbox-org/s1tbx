@@ -17,6 +17,9 @@
     <dependency>
         <module>beam-visat</module>
     </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
 
     <extension point="beam-ui:actions">
         <action>
@@ -38,6 +41,12 @@
             <text>Add Shapefile Layer...</text>
             <separatorAfter>true</separatorAfter>
             <placeAfter>importShape</placeAfter>
+        </action>
+
+        <action>
+            <id>mapProjAction</id>
+            <class>org.esa.beam.geospike.MapProjAction</class>
+            <text>Map Projection Operator (SPIKE)...</text>
         </action>
     </extension>
 

@@ -139,7 +139,10 @@ public class MapProjOp extends Operator {
        
         GridCoverage2D targetCoverage = (GridCoverage2D) Operations.DEFAULT.resample(sourceCoverage, targetCRS);
         RenderedImage targetImage = targetCoverage.getRenderedImage();
-        targetProduct = new Product("n","d",targetImage.getWidth(), targetImage.getHeight());
+        targetProduct = new Product("projected_"+sourceProduct.getName(),
+                                    "projection of: "+sourceProduct.getDescription(),
+                                    targetImage.getWidth(), 
+                                    targetImage.getHeight());
         Band targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
         targetBand.setSourceImage(targetImage);
     }
