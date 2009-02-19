@@ -59,8 +59,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
 import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
@@ -192,6 +195,16 @@ public class ImageManager {
                                                                            destWidth,
                                                                            destHeight);
         ColorModel colorModel = PlanarImage.createColorModel(sampleModel);
+        
+        if (colorModel == null) {
+            final int dataType = sampleModel.getDataType();
+            ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_GRAY);
+            int[] nBits = {DataBuffer.getDataTypeSize(dataType)};
+            colorModel = new ComponentColorModel(cs, nBits, false, true,
+                                                 Transparency.OPAQUE,
+                                                 dataType);
+        }
+        
         tileSize = tileSize != null ? tileSize : JAIUtils.computePreferredTileSize(destWidth, destHeight, 1);
         return createImageLayout(destWidth, destHeight, tileSize.width, tileSize.height, sampleModel, colorModel);
     }
