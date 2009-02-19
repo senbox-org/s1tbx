@@ -46,11 +46,13 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-envisat-reader</artifactId>
         </dependency>
+        <!-- 
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-smos-reader</artifactId>
             <version>0.5-SNAPSHOT</version>
         </dependency>
+         -->
     </dependencies>
 
     <build>

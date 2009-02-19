@@ -1,6 +1,5 @@
 package org.esa.beam.pview;
 
-import com.bc.ceres.binio.DataFormat;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
@@ -9,9 +8,11 @@ import com.bc.ceres.glayer.swing.AdjustableViewScrollPane;
 import com.bc.ceres.glayer.tools.Tools;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.jidesoft.utils.Lm;
-import org.esa.beam.dataio.smos.SmosFormats;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
+import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
 import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.glayer.PlacemarkLayer;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
@@ -128,20 +129,14 @@ public class PView {
 
         AffineTransform i2m = createImageToModelTransform(product, worldMode);
 
-        final DataFormat smosFormat = SmosFormats.getInstance().getFormat(product.getProductType());
-        if (smosFormat != null) {
-//            String dirPath = System.getProperty(SMOS_DGG_DIR_PROPERTY_NAME);
-//            if (dirPath == null || !new File(dirPath).exists()) {
-//                JOptionPane.showMessageDialog(null,
-//                                              "SMOS products require a DGG image.\n" +
-//                                                      "Please set system property '" + SMOS_DGG_DIR_PROPERTY_NAME + "'" +
-//                                                      "to a valid DGG image directory.");
-//                return;
-//            }
-//            if (dggridLevelImage == null) {
-//                dggridLevelImage = TiledFileMultiLevelSource.createMaskOpImage(new File(dirPath), false);
-//            }
-            worldMode = true;
+        GeoCoding geoCoding = product.getGeoCoding();
+        if (geoCoding instanceof MapGeoCoding) {
+            MapGeoCoding mapGeoCoding = (MapGeoCoding) geoCoding;
+            MapProjection mapProjection = mapGeoCoding.getMapInfo().getMapProjection();
+            MapProjection identidyProjection = MapProjectionRegistry.getProjection(IdentityTransformDescriptor.NAME);
+            if (mapProjection == identidyProjection) {
+                worldMode = true;
+            }
         }
         if (product.getProductType().startsWith("MER_RR__1P")
                 || product.getProductType().startsWith("MER_FR__1P")
