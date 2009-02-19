@@ -59,12 +59,6 @@ public class GeoCodingMathTransform extends AbstractMathTransform {
     }
 
     @Override
-    public DirectPosition transform(DirectPosition ptSrc, DirectPosition ptDst) throws TransformException {
-        return super.transform(ptSrc, ptDst);
-
-    }
-
-    @Override
     public void transform(double[] srcPts, int srcOff,
                           double[] dstPts, int dstOff,
                           int numPts) throws TransformException {

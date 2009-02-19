@@ -36,22 +36,29 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.util.Debug;
+import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.actions.GeoCodingMathTransform;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
+import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.processing.Operations;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.referencing.crs.DefaultDerivedCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
+import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.operation.MathTransform;
+import org.opengis.coverage.grid.GridGeometry;
 
+import javax.media.jai.InterpolationNearest;
 import java.awt.image.RenderedImage;
+import java.awt.geom.AffineTransform;
 
 /**
  *
@@ -88,24 +95,6 @@ public class MapProjOp extends Operator {
     
     @Override
     public void initialize() throws OperatorException {
-//        MapProjection mapProjection = MapProjectionRegistry.getProjection(projectionName);
-//        float orientation = 0.0f;
-//        double defaultNoDataValue = MapInfo.DEFAULT_NO_DATA_VALUE;
-//        if (sourceProduct.getGeoCoding() instanceof MapGeoCoding) {
-//            MapInfo mapInfo = ((MapGeoCoding) getSourceProduct().getGeoCoding()).getMapInfo();
-//            orientation = mapInfo.getOrientation();
-//            defaultNoDataValue = mapInfo.getNoDataValue();
-//        }
-//        Datum datum = Datum.WGS_84;
-//        MapInfo mapInfo = ProductUtils.createSuitableMapInfo(sourceProduct, mapProjection, orientation, defaultNoDataValue);
-//        MapInfo mapInfo = new MapInfo(mapProjection, pixelX, pixelY, easting, northing, pixelSizeX, pixelSizeY, datum);
-//        try {
-//            productProjectionBuilder = new ProductProjectionBuilder(mapInfo);
-//            targetProduct = productProjectionBuilder.readProductNodes(sourceProduct, null);
-//        } catch (IOException e) {
-//            throw new OperatorException(e);
-//        }
-        
         GeographicCRS baseCRS = DefaultGeographicCRS.WGS84;
         final GeoCoding geoCoding = sourceProduct.getGeoCoding();
         MathTransform baseToGridMathTransform = new GeoCodingMathTransform(geoCoding, GeoCodingMathTransform.Mode.G2P);
@@ -118,10 +107,15 @@ public class MapProjOp extends Operator {
         Envelope2D sourceEnvelope = new Envelope2D(gridCRS, 0, 0, sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
         CoordinateReferenceSystem targetCRS = DefaultGeographicCRS.WGS84;
 
-        // replace by GridGeometry computation
         Band testBand = sourceProduct.getBandAt(0);
         GridCoverage2D testSourceCoverage = factory.create(testBand.getName(), testBand.getSourceImage(), sourceEnvelope);
-        GridCoverage2D testTargetCoverage = (GridCoverage2D) Operations.DEFAULT.resample(testSourceCoverage, targetCRS);
+        GridCoverage2D testTargetCoverage = (GridCoverage2D) Operations.DEFAULT.resample(testSourceCoverage,
+                                                                                         targetCRS,
+                                                                                         createGridGeometry(
+                                                                                                 sourceProduct,
+                                                                                                 projectionName),
+                                                                                         createInterpolation());
+
         RenderedImage testTargetImage = testTargetCoverage.getRenderedImage();
         // end replace
         
@@ -166,7 +160,7 @@ public class MapProjOp extends Operator {
             // TODO: handle exception
         }
     }
-    
+
     protected void addFlagCodingsToProduct(Product product) {
         final ProductNodeGroup<FlagCoding> flagCodingGroup = sourceProduct.getFlagCodingGroup();
         for (int i = 0; i < flagCodingGroup.getNodeCount(); i++) {
@@ -247,5 +241,26 @@ public class MapProjOp extends Operator {
         }
     }
     
-    
+    private static InterpolationNearest createInterpolation() {
+        return new InterpolationNearest();
+    }
+
+    private static GridGeometry createGridGeometry(Product sourceProduct, String projectionName) {
+        final MapProjection mapProjection = MapProjectionRegistry.getProjection(projectionName);
+
+        final double orientation = 0.0;
+        final double noDataValue = 0.0;
+        final MapInfo mapInfo = ProductUtils.createSuitableMapInfo(sourceProduct, mapProjection, orientation, noDataValue);
+
+        // modify suitable map to user's taste
+        mapInfo.setPixelSizeX(mapInfo.getPixelSizeX() / 2.0f);
+        mapInfo.setPixelSizeY(mapInfo.getPixelSizeY() / 2.0f);
+        mapInfo.setPixelX(mapInfo.getPixelX() * 2.0f);
+        mapInfo.setPixelY(mapInfo.getPixelY() * 2.0f);
+
+        final AffineTransform transform = mapInfo.getPixelToMapTransform();
+        final MathTransform gridToCrs = new AffineTransform2D(transform);
+
+        return new GridGeometry2D(null, gridToCrs, null);
+    }    
 }
