@@ -27,6 +27,7 @@ import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
@@ -38,13 +39,17 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.visat.actions.GeoCodingMathTransform;
 import org.geotools.coverage.CoverageFactoryFinder;
+import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.processing.Operations;
+import org.geotools.factory.Hints;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.referencing.crs.DefaultDerivedCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -55,11 +60,13 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.operation.MathTransform;
 
+import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.InterpolationNearest;
+import javax.media.jai.JAI;
+import java.awt.Dimension;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
-import java.awt.Dimension;
 
 /**
  * @author Marco Zuehlke
@@ -109,8 +116,7 @@ public class MapProjOp extends Operator {
         final CoordinateReferenceSystem targetCRS = createTargetCRS();
         final GridGeometry gridGeometry = createGridGeometry(sourceProduct, projectionName);
         final Interpolation interpolation = createInterpolation();
-
-        final Dimension targetDimension = computeTargetDimension(factory,
+        final Dimension targetDimension = computeTargetDimension(sourceProduct, factory,
                                                                  sourceEnvelope,
                                                                  targetCRS,
                                                                  gridGeometry,
@@ -130,10 +136,15 @@ public class MapProjOp extends Operator {
                 RenderedImage sourceImage = sourceBand.getSourceImage();
 
                 GridCoverage2D sourceCoverage = factory.create(sourceBand.getName(), sourceImage, sourceEnvelope);
-                GridCoverage2D targetCoverage = (GridCoverage2D) Operations.DEFAULT.resample(sourceCoverage,
-                                                                                             targetCRS,
-                                                                                             gridGeometry,
-                                                                                             interpolation);
+                // only the tile size of the image layout is actually taken into account
+                // by the rasample operation.   Use Operations.DEFAULT if tile size does
+                // not matter
+                final Operations operations = new Operations(
+                        new Hints(JAI.KEY_IMAGE_LAYOUT, createImageLayout(targetBand)));
+                GridCoverage2D targetCoverage = (GridCoverage2D) operations.resample(sourceCoverage,
+                                                                                     targetCRS,
+                                                                                     gridGeometry,
+                                                                                     interpolation);
                 RenderedImage targetImage = targetCoverage.getRenderedImage();
                 targetBand.setSourceImage(targetImage);
 
@@ -158,22 +169,6 @@ public class MapProjOp extends Operator {
             e.printStackTrace();
             // TODO: handle exception
         }
-    }
-
-    private Dimension computeTargetDimension(GridCoverageFactory factory,
-                                             Envelope2D sourceEnvelope,
-                                             CoordinateReferenceSystem targetCRS,
-                                             GridGeometry gridGeometry,
-                                             Interpolation interpolation) {
-        final Band testBand = sourceProduct.getBandAt(0);
-        final GridCoverage2D testSourceCoverage = factory.create(testBand.getName(), testBand.getSourceImage(),
-                                                                 sourceEnvelope);
-        final GridCoverage2D testTargetCoverage = (GridCoverage2D) Operations.DEFAULT.resample(testSourceCoverage,
-                                                                                               targetCRS,
-                                                                                               gridGeometry,
-                                                                                               interpolation);
-        final RenderedImage testTargetImage = testTargetCoverage.getRenderedImage();
-        return new Dimension(testTargetImage.getWidth(), testTargetImage.getHeight());
     }
 
     protected void addFlagCodingsToProduct(Product product) {
@@ -247,7 +242,6 @@ public class MapProjOp extends Operator {
 
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        // do nothing
     }
 
     public static class Spi extends OperatorSpi {
@@ -275,15 +269,45 @@ public class MapProjOp extends Operator {
         final MapInfo mapInfo = ProductUtils.createSuitableMapInfo(sourceProduct, mapProjection, orientation,
                                                                    noDataValue);
 
-        // custom map info - half pixel size
-        mapInfo.setPixelSizeX(mapInfo.getPixelSizeX() / 2.0f);
-        mapInfo.setPixelSizeY(mapInfo.getPixelSizeY() / 2.0f);
-        mapInfo.setPixelX(mapInfo.getPixelX() * 2.0f);
-        mapInfo.setPixelY(mapInfo.getPixelY() * 2.0f);
+        // custom map info - double pixel size
+        mapInfo.setPixelSizeX(mapInfo.getPixelSizeX() * 2.0f);
+        mapInfo.setPixelSizeY(mapInfo.getPixelSizeY() * 2.0f);
+        mapInfo.setPixelX(mapInfo.getPixelX() / 2.0f);
+        mapInfo.setPixelY(mapInfo.getPixelY() / 2.0f);
 
         final AffineTransform transform = mapInfo.getPixelToMapTransform();
         final MathTransform gridToCrs = new AffineTransform2D(transform);
 
         return new GridGeometry2D(null, gridToCrs, null);
+    }
+
+    private static Dimension computeTargetDimension(Product sourceProduct,
+                                                    GridCoverageFactory factory,
+                                                    Envelope2D sourceEnvelope,
+                                                    CoordinateReferenceSystem targetCRS,
+                                                    GridGeometry gridGeometry,
+                                                    Interpolation interpolation) {
+        final Band sourceBand = sourceProduct.getBandAt(0);
+        final GridCoverage2D sourceCoverage = factory.create(sourceBand.getName(), sourceBand.getSourceImage(),
+                                                             sourceEnvelope);
+        final GridCoverage2D targetCoverage = (GridCoverage2D) Operations.DEFAULT.resample(sourceCoverage,
+                                                                                           targetCRS,
+                                                                                           gridGeometry,
+                                                                                           interpolation);
+        final RenderedImage targetImage = targetCoverage.getRenderedImage();
+        return new Dimension(targetImage.getWidth(), targetImage.getHeight());
+    }
+
+    private static ImageLayout createImageLayout(RasterDataNode node) {
+        return createSingleBandedImageLayout(node, ImageManager.getDataBufferType(node.getDataType()));
+    }
+
+    private static ImageLayout createSingleBandedImageLayout(RasterDataNode node, int dataBufferType) {
+        final int w = node.getSceneRasterWidth();
+        final int h = node.getSceneRasterHeight();
+        final Dimension tileSize = JAIUtils.computePreferredTileSize(w, h, 1);
+        // TODO: also query operatorContext rendering hints
+
+        return ImageManager.createSingleBandedImageLayout(dataBufferType, w, h, tileSize.width, tileSize.height);
     }
 }
