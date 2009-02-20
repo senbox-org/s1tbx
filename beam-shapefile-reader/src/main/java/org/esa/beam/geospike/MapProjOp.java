@@ -59,6 +59,7 @@ import javax.media.jai.Interpolation;
 import javax.media.jai.InterpolationNearest;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
+import java.awt.Dimension;
 
 /**
  * @author Marco Zuehlke
@@ -105,25 +106,19 @@ public class MapProjOp extends Operator {
         final GridCoverageFactory factory = CoverageFactoryFinder.getGridCoverageFactory(null);
         final Envelope2D sourceEnvelope = new Envelope2D(gridCRS, 0, 0, sourceProduct.getSceneRasterWidth(),
                                                          sourceProduct.getSceneRasterHeight());
-        CoordinateReferenceSystem targetCRS = DefaultGeographicCRS.WGS84;
-
-        Band testBand = sourceProduct.getBandAt(0);
-        GridCoverage2D testSourceCoverage = factory.create(testBand.getName(), testBand.getSourceImage(),
-                                                           sourceEnvelope);
+        final CoordinateReferenceSystem targetCRS = createTargetCRS();
         final GridGeometry gridGeometry = createGridGeometry(sourceProduct, projectionName);
         final Interpolation interpolation = createInterpolation();
-        GridCoverage2D testTargetCoverage = (GridCoverage2D) Operations.DEFAULT.resample(testSourceCoverage,
-                                                                                         targetCRS,
-                                                                                         gridGeometry,
-                                                                                         interpolation);
-        final double w = testTargetCoverage.getEnvelope2D().getSpan(0);
-        final double h = testTargetCoverage.getEnvelope2D().getSpan(1);
-        RenderedImage testTargetImage = testTargetCoverage.getRenderedImage();
 
+        final Dimension targetDimension = computeTargetDimension(factory,
+                                                                 sourceEnvelope,
+                                                                 targetCRS,
+                                                                 gridGeometry,
+                                                                 interpolation);
         targetProduct = new Product("projected_" + sourceProduct.getName(),
                                     "projection of: " + sourceProduct.getDescription(),
-                                    testTargetImage.getWidth(),
-                                    testTargetImage.getHeight());
+                                    targetDimension.width,
+                                    targetDimension.height);
         addMetadataToProduct(targetProduct);
         addFlagCodingsToProduct(targetProduct);
         addIndexCodingsToProduct(targetProduct);
@@ -159,11 +154,26 @@ public class MapProjOp extends Operator {
                            PlacemarkSymbol.createDefaultPinSymbol());
             copyPlacemarks(sourceProduct.getGcpGroup(), targetProduct.getGcpGroup(),
                            PlacemarkSymbol.createDefaultGcpSymbol());
-
         } catch (Throwable e) {
             e.printStackTrace();
             // TODO: handle exception
         }
+    }
+
+    private Dimension computeTargetDimension(GridCoverageFactory factory,
+                                             Envelope2D sourceEnvelope,
+                                             CoordinateReferenceSystem targetCRS,
+                                             GridGeometry gridGeometry,
+                                             Interpolation interpolation) {
+        final Band testBand = sourceProduct.getBandAt(0);
+        final GridCoverage2D testSourceCoverage = factory.create(testBand.getName(), testBand.getSourceImage(),
+                                                                 sourceEnvelope);
+        final GridCoverage2D testTargetCoverage = (GridCoverage2D) Operations.DEFAULT.resample(testSourceCoverage,
+                                                                                               targetCRS,
+                                                                                               gridGeometry,
+                                                                                               interpolation);
+        final RenderedImage testTargetImage = testTargetCoverage.getRenderedImage();
+        return new Dimension(testTargetImage.getWidth(), testTargetImage.getHeight());
     }
 
     protected void addFlagCodingsToProduct(Product product) {
@@ -246,11 +256,18 @@ public class MapProjOp extends Operator {
         }
     }
 
-    private static InterpolationNearest createInterpolation() {
+    private static CoordinateReferenceSystem createTargetCRS() {
+        // TODO: create targetCRS from input parameters
+        return DefaultGeographicCRS.WGS84;
+    }
+
+    private static Interpolation createInterpolation() {
+        // TODO: create interpolation from input parameters
         return new InterpolationNearest();
     }
 
     private static GridGeometry createGridGeometry(Product sourceProduct, String projectionName) {
+        // TODO: create gridGeometry from input parameters
         final MapProjection mapProjection = MapProjectionRegistry.getProjection(projectionName);
 
         final double orientation = 0.0;
