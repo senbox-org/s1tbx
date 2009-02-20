@@ -1,4 +1,4 @@
-package org.esa.beam.visat.actions;
+package org.esa.beam.visat.toolviews.layermanager.layersrc;
 
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -17,7 +17,6 @@ import org.opengis.referencing.operation.TransformException;
  * @author Marco Peters
  * @version $Revision: $ $Date: $
  * @since BEAM 4.6
- * @deprecated in BEAM 4.6
  */
 public class GeoCodingMathTransform extends AbstractMathTransform {
 

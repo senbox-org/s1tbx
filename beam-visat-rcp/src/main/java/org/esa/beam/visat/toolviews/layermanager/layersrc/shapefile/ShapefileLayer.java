@@ -1,4 +1,4 @@
-package org.esa.beam.visat.actions;
+package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.grender.Rendering;
@@ -6,9 +6,8 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
@@ -41,7 +40,6 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +50,6 @@ import java.util.Map;
  * @author Marco Peters
  * @version $Revision: $ $Date: $
  * @since BEAM 4.6
- * @deprecated 
  */
 class ShapefileLayer extends Layer {
 
@@ -65,19 +62,13 @@ class ShapefileLayer extends Layer {
     private StreamingRenderer renderer;
     private LabelCache labelCache;
 
-    ShapefileLayer(File file) throws IOException {
+    ShapefileLayer(final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
+                   final Style style) {
 
-        ShapefileDataStore shapefile = new ShapefileDataStore(file.toURI().toURL());
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = shapefile.getFeatureSource();
-        FeatureType schema = shapefile.getSchema();
+        crs = featureCollection.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
 
-        crs = schema.getGeometryDescriptor().getCoordinateReferenceSystem();
-
-        Style style = createStyle(file, schema);
-
-        setName(style.getName());
         mapContext = new DefaultMapContext(crs);
-        mapContext.addLayer(featureSource, style);
+        mapContext.addLayer(featureCollection, style);
         renderer = new StreamingRenderer();
         workaroundLabelCacheBug();
         renderer.setContext(mapContext);
@@ -140,7 +131,7 @@ class ShapefileLayer extends Layer {
         }
     }
 
-    private static Style createStyle(File file, FeatureType schema) {
+    public static Style createStyle(File file, FeatureType schema) {
         File sld = toSLDFile(file);
         if (sld.exists()) {
             return createFromSLD(sld);

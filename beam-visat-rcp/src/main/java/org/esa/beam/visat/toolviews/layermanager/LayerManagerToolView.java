@@ -14,6 +14,7 @@
  */
 package org.esa.beam.visat.toolviews.layermanager;
 
+import com.bc.ceres.glayer.Layer;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
@@ -26,11 +27,7 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.WeakHashMap;
-
-import com.bc.ceres.glayer.Layer;
 
 /**
  * Layer manager tool view.
@@ -79,7 +76,7 @@ public class LayerManagerToolView extends AbstractToolView {
             if (layerManagerMap.containsKey(view)) {
                 activeForm = layerManagerMap.get(view);
             } else {
-                activeForm = new LayerManagerForm(view.getRootLayer());
+                activeForm = new LayerManagerForm(view);
                 activeForm.addLayerSelectionListener(activeFormLSL);
                 layerManagerMap.put(view, activeForm);
             }

@@ -1,4 +1,4 @@
-package org.esa.beam.visat.actions;
+package org.esa.beam.visat.toolviews.layermanager.layersrc;
 
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
@@ -32,9 +32,8 @@ import java.awt.geom.Point2D;
  * @author Marco Peters
  * @version $Revision: $ $Date: $
  * @since BEAM 4.6
- * @deprecated
  */
-public class CRSTest extends TestCase {
+public class GeoCodingMathTransformTest extends TestCase {
 
     public void testIt() throws FactoryException, TransformException {
 

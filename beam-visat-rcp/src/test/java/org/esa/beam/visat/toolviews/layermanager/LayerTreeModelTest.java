@@ -17,120 +17,97 @@ package org.esa.beam.visat.toolviews.layermanager;
 import com.bc.ceres.glayer.Layer;
 import junit.framework.TestCase;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.MutableTreeNode;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
+import java.util.List;
 
-/**
- * Tests for class {@link LayerTreeModel}.
- *
- * @author Ralf Quast
- * @version $Revision$ $Date$
- * @since BEAM 4.2
- */
+
 public class LayerTreeModelTest extends TestCase {
 
-    private Layer root;
-    private Layer ernie;
-    private Layer bert;
-    private Layer bibo;
-    private Layer grobi;
+    public void testIt() {
+        Layer layer0 = new Layer();
+        Layer layer1 = new Layer();
+        Layer layer2 = new Layer();
+        Layer layer3 = new Layer();
+        layer0.getChildren().add(layer1);
+        layer0.getChildren().add(layer2);
+        layer0.getChildren().add(layer3);
 
-    public void testLayerAddedWhenNodeInserted() {
-        final LayerTreeModel layerTreeModel = new LayerTreeModel(root);
-        final MutableTreeNode rootNode = (DefaultMutableTreeNode) layerTreeModel.getRoot();
+        Layer layer4 = new Layer();
+        Layer layer5 = new Layer();
+        layer3.getChildren().add(layer4);
+        layer3.getChildren().add(layer5);
 
-        assertEquals(3, layerTreeModel.getChildCount(rootNode));
+        LayerTreeModel treeModel = new LayerTreeModel(layer0);
 
-        layerTreeModel.insertNodeInto(new DefaultMutableTreeNode(grobi), rootNode, 1);
+        assertSame(layer0, treeModel.getRoot());
 
-        assertEquals(4, layerTreeModel.getChildCount(rootNode));
-        assertSame(ernie, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 0)).getUserObject());
-        assertSame(grobi, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 1)).getUserObject());
-        assertSame(bert, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 2)).getUserObject());
-        assertSame(bibo, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 3)).getUserObject());
+        Layer[] path;
 
-        assertEquals(4, root.getChildren().size());
-        assertSame(ernie, root.getChildren().get(0));
-        assertSame(grobi, root.getChildren().get(1));
-        assertSame(bert, root.getChildren().get(2));
-        assertSame(bibo, root.getChildren().get(3));
+        path = treeModel.getLayerPath(layer0, layer0);
+        assertNotNull(path);
+        assertEquals(1, path.length);
+        assertSame(layer0, path[0]);
+
+        path = treeModel.getLayerPath(layer3, layer4);
+        assertNotNull(path);
+        assertEquals(2, path.length);
+        assertSame(layer3, path[0]);
+        assertSame(layer4, path[1]);
+
+        path = treeModel.getLayerPath(layer0, layer4);
+        assertNotNull(path);
+        assertEquals(3, path.length);
+        assertSame(layer0, path[0]);
+        assertSame(layer3, path[1]);
+        assertSame(layer4, path[2]);
+
+        path = treeModel.getLayerPath(layer4, layer3);
+        assertNotNull(path);
+        assertEquals(0, path.length);
+
+        assertEquals(3, treeModel.getChildCount(layer0));
+        assertSame(layer1, treeModel.getChild(layer0, 0));
+        assertSame(layer2, treeModel.getChild(layer0, 1));
+        assertSame(layer3, treeModel.getChild(layer0, 2));
+
+        assertEquals(0, treeModel.getChildCount(layer1));
+        assertEquals(0, treeModel.getChildCount(layer2));
+        assertEquals(2, treeModel.getChildCount(layer3));
+        assertSame(layer4, treeModel.getChild(layer3, 0));
+        assertSame(layer5, treeModel.getChild(layer3, 1));
+
+
+        final MyTreeModelListener listener = new MyTreeModelListener();
+        treeModel.addTreeModelListener(listener);
+        final List<Layer> children = layer3.getChildren();
+        children.remove(layer4);
+       assertEquals("treeNodesRemoved;", listener.trace); 
     }
 
-    public void testNodeInsertedWhenLayerAdded() {
-        final LayerTreeModel layerTreeModel = new LayerTreeModel(root);
+    private static class MyTreeModelListener implements TreeModelListener {
 
-        final MutableTreeNode rootNode = (DefaultMutableTreeNode) layerTreeModel.getRoot();
-        assertEquals(3, layerTreeModel.getChildCount(rootNode));
-        assertSame(ernie, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 0)).getUserObject());
-        assertSame(bert, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 1)).getUserObject());
-        assertSame(bibo, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 2)).getUserObject());
+        String trace = "";
+        TreeModelEvent e;
 
-        root.getChildren().add(1, grobi);
+        public void treeNodesChanged(TreeModelEvent e) {
+            trace+="treeNodesChanged;";
+            this.e = e;
+        }
 
-        assertEquals(4, layerTreeModel.getChildCount(rootNode));
-        assertSame(ernie, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 0)).getUserObject());
-        assertSame(grobi, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 1)).getUserObject());
-        assertSame(bert, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 2)).getUserObject());
-        assertSame(bibo, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 3)).getUserObject());
-    }
+        public void treeNodesInserted(TreeModelEvent e) {
+            trace+="treeNodesInserted;";
+            this.e = e;
+        }
 
-    public void testLayerRemovedWhenNodeRemoved() {
-        root.getChildren().add(1, grobi);
+        public void treeNodesRemoved(TreeModelEvent e) {
+            trace+="treeNodesRemoved;";
+            this.e = e;
+        }
 
-        final LayerTreeModel layerTreeModel = new LayerTreeModel(root);
-        final MutableTreeNode rootNode = (DefaultMutableTreeNode) layerTreeModel.getRoot();
-
-        assertEquals(4, layerTreeModel.getChildCount(rootNode));
-
-        layerTreeModel.removeNodeFromParent((MutableTreeNode) rootNode.getChildAt(1));
-
-        assertEquals(3, layerTreeModel.getChildCount(rootNode));
-        assertSame(ernie, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 0)).getUserObject());
-        assertSame(bert, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 1)).getUserObject());
-        assertSame(bibo, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 2)).getUserObject());
-
-        assertEquals(3, root.getChildren().size());
-        assertSame(ernie, root.getChildren().get(0));
-        assertSame(bert, root.getChildren().get(1));
-        assertSame(bibo, root.getChildren().get(2));
-    }
-
-    public void testNodeRemovedWhenLayerRemoved() {
-        root.getChildren().add(1, grobi);
-
-        final LayerTreeModel layerTreeModel = new LayerTreeModel(root);
-        final MutableTreeNode rootNode = (DefaultMutableTreeNode) layerTreeModel.getRoot();
-
-        assertEquals(4, layerTreeModel.getChildCount(rootNode));
-        assertSame(ernie, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 0)).getUserObject());
-        assertSame(grobi, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 1)).getUserObject());
-        assertSame(bert, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 2)).getUserObject());
-        assertSame(bibo, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 3)).getUserObject());
-
-        root.getChildren().remove(1);
-
-        assertEquals(3, layerTreeModel.getChildCount(rootNode));
-        assertSame(ernie, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 0)).getUserObject());
-        assertSame(bert, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 1)).getUserObject());
-        assertSame(bibo, ((DefaultMutableTreeNode) layerTreeModel.getChild(rootNode, 2)).getUserObject());
-    }
-
-    @Override
-    public void setUp() {
-        root = new Layer();
-        ernie = new Layer();
-        bert = new Layer();
-        bibo = new Layer();
-        grobi = new Layer();
-
-        root.setName("Root");
-        ernie.setName("Erni");
-        bert.setName("Bert");
-        bibo.setName("Bibo");
-        grobi.setName("Grobi");
-
-        root.getChildren().add(ernie);
-        root.getChildren().add(bert);
-        root.getChildren().add(bibo);
+        public void treeStructureChanged(TreeModelEvent e) {
+            trace+="treeStructureChanged;";
+            this.e = e;
+        }
     }
 }
