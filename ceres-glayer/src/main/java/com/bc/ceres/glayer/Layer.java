@@ -13,6 +13,7 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 
 // todo - make this class thread safe!!!
 
@@ -24,6 +25,7 @@ import java.util.List;
  * @version $revision$ $date$
  */
 public class Layer extends ExtensibleObject {
+
     private Layer parent;
     private LayerList children;
     private String id;
@@ -92,6 +94,7 @@ public class Layer extends ExtensibleObject {
 
     /**
      * @return An identifier which can be used to search for special layers. Can be {@code null}.
+     *
      * @since Ceres 0.9
      */
     public String getId() {
@@ -100,6 +103,7 @@ public class Layer extends ExtensibleObject {
 
     /**
      * @param id An identifier which can be used to search for special layers. Can be {@code null}.
+     *
      * @since Ceres 0.9
      */
     public void setId(String id) {
@@ -108,8 +112,11 @@ public class Layer extends ExtensibleObject {
 
     /**
      * Gets the index of the first child layer having the given identifier.
+     *
      * @param id The identifier.
-     * @return  The child index, or {@code -1} if no such layer exists.
+     *
+     * @return The child index, or {@code -1} if no such layer exists.
+     *
      * @since Ceres 0.9
      */
     public int getChildIndex(String id) {
@@ -218,14 +225,15 @@ public class Layer extends ExtensibleObject {
                 }
             }
         }
-        return bounds ;
+        return bounds;
     }
 
     /**
-     * Renders the layer. Calls {@code render(rendering, null)}.
+     * Renders the layer. Calls {@code render(rendering,null)}.
+     *
      * @param rendering The rendering to which the layer will be rendered.
+     *
      * @see #render(com.bc.ceres.grender.Rendering, com.bc.ceres.glayer.Layer.RenderCustomizer)
-     * 
      */
     public final void render(Rendering rendering) {
         render(rendering, null);
@@ -279,7 +287,7 @@ public class Layer extends ExtensibleObject {
      * Renders the child layers of this layer. Called by {@link #render(com.bc.ceres.grender.Rendering)}.
      * The default implementation calls {@link #render(com.bc.ceres.grender.Rendering)} on all child layers.
      *
-     * @param rendering The rendering to which the layer will be rendered.
+     * @param rendering  The rendering to which the layer will be rendered.
      * @param customizer An optional customizer for rendering the layer. May be {@code null}.
      */
     protected void renderChildren(Rendering rendering, RenderCustomizer customizer) {
@@ -404,6 +412,7 @@ public class Layer extends ExtensibleObject {
     }
 
     private class StylePCL implements PropertyChangeListener {
+
         @Override
         public void propertyChange(PropertyChangeEvent event) {
             fireLayerPropertyChanged(event);
@@ -414,10 +423,11 @@ public class Layer extends ExtensibleObject {
      * A change-aware list of layers.
      */
     private class LayerList extends AbstractList<Layer> {
-        private final ArrayList<Layer> layerList;
+
+        private final List<Layer> layerList;
 
         LayerList() {
-            this.layerList = new ArrayList<Layer>(8);
+            this.layerList = new Vector<Layer>(8);
         }
 
         @Override
@@ -450,6 +460,17 @@ public class Layer extends ExtensibleObject {
         }
 
         @Override
+        public boolean remove(Object o) {
+            synchronized (layerList) {
+                final int i = indexOf(o);
+                if (i != -1) {
+                    return remove(i) == o;
+                }
+                return false;
+            }
+        }
+
+        @Override
         public Layer remove(int i) {
             final Layer layer = layerList.remove(i);
             layer.setParent(null);
@@ -462,18 +483,22 @@ public class Layer extends ExtensibleObject {
         }
 
         private void dispose() {
-            final Layer[] layers = layerList.toArray(new Layer[layerList.size()]);
-            layerList.clear();
-            for (Layer layer : layers) {
-                layer.dispose();
-                layer.setParent(null);
+            final Layer[] layers;
+            synchronized (layerList) {
+                layers = layerList.toArray(new Layer[layerList.size()]);
+                layerList.clear();
+                for (Layer layer : layers) {
+                    layer.dispose();
+                    layer.setParent(null);
+                }
             }
         }
     }
 
     // todo - apidoc (nf - 22.10.2008)
     public static interface RenderCustomizer {
-          void render(Rendering rendering, Layer layer);
+
+        void render(Rendering rendering, Layer layer);
     }
 
     // todo - apidoc (nf - 22.10.2008)
