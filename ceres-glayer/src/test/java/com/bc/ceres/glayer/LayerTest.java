@@ -19,6 +19,7 @@ public class LayerTest {
     @Test
     public void testDefaults() {
         final Layer layer = new Layer();
+        assertNotNull(layer.getId());
         assertEquals(layer.getClass().getName(), layer.getName());
         assertEquals(true, layer.isVisible());
         assertEquals(1.0, layer.getStyle().getOpacity(), 1e-10);

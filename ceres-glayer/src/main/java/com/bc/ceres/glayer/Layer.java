@@ -25,7 +25,7 @@ import java.util.Vector;
  * @version $revision$ $date$
  */
 public class Layer extends ExtensibleObject {
-
+    private static int layerCount = 0;
     private Layer parent;
     private LayerList children;
     private String id;
@@ -46,8 +46,9 @@ public class Layer extends ExtensibleObject {
      */
     public Layer() {
         parent = null;
-        children = new LayerList();
+        id = Long.toHexString(System.nanoTime() + (++layerCount));
         name = getClass().getName();
+        children = new LayerList();
         visible = true;
         layerListenerList = new ArrayList<LayerListener>(8);
         stylePCL = new StylePCL();
@@ -93,7 +94,7 @@ public class Layer extends ExtensibleObject {
     }
 
     /**
-     * @return An identifier which can be used to search for special layers. Can be {@code null}.
+     * @return An identifier which can be used to search for special layers.
      *
      * @since Ceres 0.9
      */
@@ -102,11 +103,12 @@ public class Layer extends ExtensibleObject {
     }
 
     /**
-     * @param id An identifier which can be used to search for special layers. Can be {@code null}.
+     * @param id An identifier which can be used to search for special layers.
      *
      * @since Ceres 0.9
      */
     public void setId(String id) {
+        Assert.notNull(id, "id");
         this.id = id;
     }
 
