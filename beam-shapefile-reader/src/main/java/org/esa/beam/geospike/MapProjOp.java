@@ -17,9 +17,11 @@
 package org.esa.beam.geospike;
 
 import com.bc.ceres.core.ProgressMonitor;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -42,31 +44,37 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.jai.JAIUtils;
+import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.actions.GeoCodingMathTransform;
 import org.geotools.coverage.CoverageFactoryFinder;
-import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.processing.Operations;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.Envelope2D;
+import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultDerivedCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.opengis.coverage.grid.GridGeometry;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
+
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
+import java.awt.image.RenderedImage;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.InterpolationNearest;
 import javax.media.jai.JAI;
-import java.awt.Dimension;
-import java.awt.geom.AffineTransform;
-import java.awt.image.RenderedImage;
 
 /**
  * @author Marco Zuehlke
@@ -114,7 +122,7 @@ public class MapProjOp extends Operator {
         final Envelope2D sourceEnvelope = new Envelope2D(gridCRS, 0, 0, sourceProduct.getSceneRasterWidth(),
                                                          sourceProduct.getSceneRasterHeight());
         final CoordinateReferenceSystem targetCRS = createTargetCRS();
-        final GridGeometry gridGeometry = createGridGeometry(sourceProduct, projectionName);
+        final GridGeometry gridGeometry = createGridGeometry(sourceProduct, baseCRS, targetCRS);
         final Interpolation interpolation = createInterpolation();
         final Dimension targetDimension = computeTargetDimension(sourceProduct, factory,
                                                                  sourceEnvelope,
@@ -260,27 +268,69 @@ public class MapProjOp extends Operator {
         return new InterpolationNearest();
     }
 
-    private static GridGeometry createGridGeometry(Product sourceProduct, String projectionName) {
-        // TODO: create gridGeometry from input parameters
-        final MapProjection mapProjection = MapProjectionRegistry.getProjection(projectionName);
+    private static GridGeometry createGridGeometry(Product product, CoordinateReferenceSystem sourceCRS, CoordinateReferenceSystem targetCRS) {
+        final int sourceW = product.getSceneRasterWidth();
+        final int sourceH = product.getSceneRasterHeight();
+        final int step = Math.min(sourceW, sourceH) / 2;
+        MathTransform mathTransform;
+        try {
+            mathTransform = CRS.findMathTransform(sourceCRS, targetCRS);
+        } catch (FactoryException e) {
+            throw new OperatorException(e);
+        }
+        Point2D[] mapBoundary;
+        try {
+            mapBoundary = createMapBoundary(product, null, step, mathTransform);
+        } catch (TransformException e) {
+            throw new OperatorException(e);
+        }
+        Point2D[] minMax = ProductUtils.getMinMax(mapBoundary);
+        final Point2D pMin = minMax[0];
+        final Point2D pMax = minMax[1];
+        double mapW = pMax.getX() - pMin.getX();
+        double mapH = pMax.getY() - pMin.getY();
 
-        final double orientation = 0.0;
-        final double noDataValue = 0.0;
-        final MapInfo mapInfo = ProductUtils.createSuitableMapInfo(sourceProduct, mapProjection, orientation,
-                                                                   noDataValue);
+        float pixelSize = (float) Math.min(mapW / sourceW, mapH / sourceH);
+        if (MathUtils.equalValues(pixelSize, 0.0f)) {
+            pixelSize = 1.0f;
+        }
+        final int targetW = 1 + (int) Math.floor(mapW / pixelSize);
+        final int targetH = 1 + (int) Math.floor(mapH / pixelSize);
 
-        // custom map info - double pixel size
-        mapInfo.setPixelSizeX(mapInfo.getPixelSizeX() * 2.0f);
-        mapInfo.setPixelSizeY(mapInfo.getPixelSizeY() * 2.0f);
-        mapInfo.setPixelX(mapInfo.getPixelX() / 2.0f);
-        mapInfo.setPixelY(mapInfo.getPixelY() / 2.0f);
+        final float pixelX = 0.5f * targetW;
+        final float pixelY = 0.5f * targetH;
 
-        final AffineTransform transform = mapInfo.getPixelToMapTransform();
+        final float easting = (float) pMin.getX() + pixelX * pixelSize;
+        final float northing = (float) pMax.getY() - pixelY * pixelSize;
+        final  double orientation = 0.0;
+        
+        AffineTransform transform = new AffineTransform();
+        transform.translate(easting, northing);
+        transform.scale(pixelSize, -pixelSize);
+        transform.rotate(Math.toRadians(-orientation));
+        transform.translate(-pixelX, -pixelY);
+        
         final MathTransform gridToCrs = new AffineTransform2D(transform);
-
         return new GridGeometry2D(null, gridToCrs, null);
     }
-
+    
+    private static Point2D[] createMapBoundary(Product product, Rectangle rect, int step, MathTransform mathTransform) throws TransformException {
+        GeoPos[] geoPoints = ProductUtils.createGeoBoundary(product, rect, step);
+        ProductUtils.normalizeGeoPolygon(geoPoints);
+        double[] geoPointsD = new double[geoPoints.length*2];
+        for (int i = 0; i < geoPoints.length; i++) {
+            geoPointsD[i*2] = geoPoints[i].lon;
+            geoPointsD[(i*2)+1] = geoPoints[i].lat;
+        }
+        double[] mapPointsD = new double[geoPoints.length*2];
+        mathTransform.transform(geoPointsD, 0, mapPointsD, 0, geoPoints.length);
+        Point2D[] mapPoints = new Point2D[geoPoints.length];
+        for (int i = 0; i < geoPoints.length; i++) {
+            mapPoints[i] = new Point2D.Double(mapPointsD[i*2], mapPointsD[(i*2)+1]);
+        }
+        return mapPoints;
+    }
+    
     private static Dimension computeTargetDimension(Product sourceProduct,
                                                     GridCoverageFactory factory,
                                                     Envelope2D sourceEnvelope,
