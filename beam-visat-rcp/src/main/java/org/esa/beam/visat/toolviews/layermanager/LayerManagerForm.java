@@ -1,7 +1,6 @@
 package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.glayer.support.LayerStyleListener;
 import com.jidesoft.swing.CheckBoxTree;
 import com.jidesoft.swing.CheckBoxTreeSelectionModel;
@@ -81,34 +80,7 @@ class LayerManagerForm {
             }
         });
 
-        getRootLayer().addListener(new LayerStyleListener() {
-            @Override
-            public void handleLayerStylePropertyChanged(Layer layer, PropertyChangeEvent event) {
-                if (!adjusting) {
-                    final TreePath selectionPath = layerTree.getSelectionPath();
-                    if (selectionPath != null) {
-                        final Layer selectedLayer = getLayer(selectionPath);
-                        if (selectedLayer == layer) {
-                            updateLayerStyleUI(layer);
-                        }
-                    }
-                }
-            }
-        });
-
-        getRootLayer().addListener(new AbstractLayerListener() {
-            @Override
-            public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
-                if ("visible".equals(event.getPropertyName())) {
-                    final Boolean oldValue = (Boolean) event.getOldValue();
-                    final Boolean newValue = (Boolean) event.getNewValue();
-
-                    if (!oldValue.equals(newValue) && !adjusting) {
-                        doVisibilitySelection(layer, newValue);
-                    }
-                }
-            }
-        });
+        getRootLayer().addListener(new RootLayerListener());
 
 
         AbstractButton addButton = createToolButton("icons/Plus24.gif");
@@ -192,7 +164,7 @@ class LayerManagerForm {
         layerSelectionListenerMap.remove(listener);
     }
 
-    private Layer getLayer(TreePath path) {
+    private static Layer getLayer(TreePath path) {
         if (path == null) {
             return null;
         }
@@ -278,5 +250,32 @@ class LayerManagerForm {
         return ToolButtonFactory.createButton(UIUtils.loadImageIcon(iconPath), false);
     }
 
+    private class RootLayerListener extends LayerStyleListener {
+
+        @Override
+        public void handleLayerStylePropertyChanged(Layer layer, PropertyChangeEvent event) {
+            if (!adjusting) {
+                final TreePath selectionPath = layerTree.getSelectionPath();
+                if (selectionPath != null) {
+                    final Layer selectedLayer = getLayer(selectionPath);
+                    if (selectedLayer == layer) {
+                        updateLayerStyleUI(layer);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
+            if ("visible".equals(event.getPropertyName())) {
+                final Boolean oldValue = (Boolean) event.getOldValue();
+                final Boolean newValue = (Boolean) event.getNewValue();
+
+                if (!oldValue.equals(newValue) && !adjusting) {
+                    doVisibilitySelection(layer, newValue);
+                }
+            }
+        }
+    }
 }
 
