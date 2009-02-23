@@ -233,7 +233,7 @@ public class Layer extends ExtensibleObject {
      *
      * @param rendering The rendering to which the layer will be rendered.
      *
-     * @see #render(com.bc.ceres.grender.Rendering, com.bc.ceres.glayer.Layer.RenderCustomizer)
+     * @see #render(com.bc.ceres.grender.Rendering, RenderCustomizer)
      */
     public final void render(Rendering rendering) {
         render(rendering, null);
@@ -243,8 +243,8 @@ public class Layer extends ExtensibleObject {
      * Renders the layer. The base class implementation configures the rendering with respect to the
      * "opacity" and "composite" style properties. Then
      * {@link #renderLayer(com.bc.ceres.grender.Rendering)} followed by
-     * {@link #renderChildren(com.bc.ceres.grender.Rendering, com.bc.ceres.glayer.Layer.RenderCustomizer)} are called if
-     * {@code customizer} is {@code null}. Otherwise {@link com.bc.ceres.glayer.Layer.RenderCustomizer#render(com.bc.ceres.grender.Rendering, Layer)} is called.
+     * {@link #renderChildren(com.bc.ceres.grender.Rendering, RenderCustomizer)} are called if
+     * {@code customizer} is {@code null}. Otherwise {@link RenderCustomizer#render(com.bc.ceres.grender.Rendering, Layer)} is called.
      *
      * @param rendering  The rendering to which the layer will be rendered.
      * @param customizer An optional customizer for rendering the layer. May be {@code null}.
@@ -356,10 +356,10 @@ public class Layer extends ExtensibleObject {
     LayerListener[] getReachableListeners() {
         ArrayList<LayerListener> list = new ArrayList<LayerListener>(16);
         list.addAll(Arrays.asList(getListeners()));
-        Layer parent = getParent();
-        while (parent != null) {
-            list.addAll(Arrays.asList(parent.getListeners()));
-            parent = parent.getParent();
+        Layer currentParent = getParent();
+        while (currentParent != null) {
+            list.addAll(Arrays.asList(currentParent.getListeners()));
+            currentParent = currentParent.getParent();
         }
         return list.toArray(new LayerListener[list.size()]);
     }
@@ -483,9 +483,8 @@ public class Layer extends ExtensibleObject {
         }
 
         private void dispose() {
-            final Layer[] layers;
             synchronized (layerList) {
-                layers = layerList.toArray(new Layer[layerList.size()]);
+                final Layer[] layers = layerList.toArray(new Layer[layerList.size()]);
                 layerList.clear();
                 for (Layer layer : layers) {
                     layer.dispose();
@@ -531,7 +530,7 @@ public class Layer extends ExtensibleObject {
     }
 
     // todo - apidoc (nf - 22.10.2008)
-    public static abstract class RenderFilter implements RenderCustomizer {
+    public abstract static class RenderFilter implements RenderCustomizer {
 
         public final void render(Rendering rendering, Layer layer) {
             if (canRender(layer)) {
