@@ -12,6 +12,8 @@ import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -78,11 +80,18 @@ public class EmptyLayerPage extends LayerPage {
         nameBox.addActionListener(new MyActionListener());
         nameBox.setEditable(true);
 
-        final JPanel panel = new JPanel(new BorderLayout(4, 4));
+        final JPanel panel = new JPanel(new GridBagLayout());
+        final GridBagConstraints constraints = new GridBagConstraints();
         panel.setBorder(new EmptyBorder(4, 4, 4, 4));
 
-        panel.add(new JLabel("Layer name:"), BorderLayout.WEST);
-        panel.add(nameBox, BorderLayout.EAST);
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+
+        constraints.weighty = 0.1;
+        constraints.weightx = 0.1;
+        panel.add(new JLabel("Layer name:"), constraints);
+
+        constraints.weightx = 0.9;
+        panel.add(nameBox, constraints);
 
         return panel;
     }

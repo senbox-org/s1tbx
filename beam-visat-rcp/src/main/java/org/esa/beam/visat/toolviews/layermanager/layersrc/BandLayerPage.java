@@ -103,7 +103,7 @@ public class BandLayerPage extends LayerPage {
                                                       boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             RasterDataNode r = (RasterDataNode) value;
-            label.setText(r.getName() + (r instanceof TiePointGrid ? " (tie-point grid)" : " (band)"));
+            label.setText("<html><b>"+r.getName()+"</b> " + (r instanceof TiePointGrid ? " (Tie-point grid)" : " (Band)"));
             return label;
         }
     }

@@ -8,6 +8,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.Component;
@@ -55,12 +56,8 @@ public class SelectLayerSourcePage extends LayerPage {
     @Override
     protected Component createLayerPageComponent(LayerPageContext context) {
         list = new JList(sources);
-        list.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-
-                getPageContext().updateState();
-            }
-        });
+        list.getSelectionModel().addListSelectionListener(new MyListSelectionListener());
+        list.setCellRenderer(new MyDefaultListCellRenderer());
 
         GridBagConstraints gbc = new GridBagConstraints();
         final JPanel panel = new JPanel(new GridBagLayout());
@@ -77,4 +74,21 @@ public class SelectLayerSourcePage extends LayerPage {
 
         return panel;
     }
+
+    private class MyListSelectionListener implements ListSelectionListener {
+        public void valueChanged(ListSelectionEvent e) {
+
+            getPageContext().updateState();
+        }
+    }
+
+    private static class MyDefaultListCellRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            final JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            label.setText("<html><b>" + value + "</b>");
+            return label;
+        }
+    }
+
 }
