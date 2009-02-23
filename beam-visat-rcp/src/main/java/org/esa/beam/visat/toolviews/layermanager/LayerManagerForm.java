@@ -149,6 +149,7 @@ class LayerManagerForm {
 
 
         control = new JPanel(new BorderLayout(4, 4));
+        control.setBorder(new EmptyBorder(4, 4, 4, 4));
         control.add(new JScrollPane(layerTree), BorderLayout.CENTER);
         control.add(sliderPanel, BorderLayout.SOUTH);
         control.add(actionPanel, BorderLayout.EAST);
