@@ -49,6 +49,7 @@ import org.esa.beam.visat.actions.GeoCodingMathTransform;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.processing.Operations;
 import org.geotools.factory.Hints;
@@ -122,7 +123,7 @@ public class MapProjOp extends Operator {
         final Envelope2D sourceEnvelope = new Envelope2D(gridCRS, 0, 0, sourceProduct.getSceneRasterWidth(),
                                                          sourceProduct.getSceneRasterHeight());
         final CoordinateReferenceSystem targetCRS = createTargetCRS();
-        final GridGeometry gridGeometry = createGridGeometry(sourceProduct, baseCRS, targetCRS);
+        final GridGeometry2D gridGeometry = createGridGeometry(sourceProduct, baseCRS, targetCRS);
         final Interpolation interpolation = createInterpolation();
         final Dimension targetDimension = computeTargetDimension(sourceProduct, factory,
                                                                  sourceEnvelope,
@@ -268,7 +269,7 @@ public class MapProjOp extends Operator {
         return new InterpolationNearest();
     }
 
-    private static GridGeometry createGridGeometry(Product product, CoordinateReferenceSystem sourceCRS, CoordinateReferenceSystem targetCRS) {
+    private static GridGeometry2D createGridGeometry(Product product, CoordinateReferenceSystem sourceCRS, CoordinateReferenceSystem targetCRS) {
         final int sourceW = product.getSceneRasterWidth();
         final int sourceH = product.getSceneRasterHeight();
         final int step = Math.min(sourceW, sourceH) / 2;
