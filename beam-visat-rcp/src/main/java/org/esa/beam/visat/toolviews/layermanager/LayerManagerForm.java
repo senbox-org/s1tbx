@@ -8,9 +8,9 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.BandLayerPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.EmptyLayerPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.OpenImageFilePage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.SelectLayerSourcePage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.EmptyLayerPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefilePage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsPage;
 
@@ -56,7 +56,6 @@ class LayerManagerForm {
         layerTreeModel = new LayerTreeModel(view.getRootLayer());
         layerTree = createCheckBoxTree(layerTreeModel);
         layerSelectionListenerMap = new WeakHashMap<LayerSelectionListener, Object>(3);
-
         initVisibilitySelection(view.getRootLayer());
 
         transparencySlider = new JSlider(0, 100, 0);
@@ -115,12 +114,55 @@ class LayerManagerForm {
             }
         });
 
+        final LayerMover nodeMover = new LayerMover(view.getRootLayer());
+        AbstractButton upButton = createToolButton("icons/Up24.gif");
+        upButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                final Layer selectedLayer = getSelectedLayer();
+                if (selectedLayer != null) {
+                    nodeMover.moveUp(selectedLayer);
+                }
+            }
+        });
+        AbstractButton downButton = createToolButton("icons/Down24.gif");
+        downButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                final Layer selectedLayer = getSelectedLayer();
+                if (selectedLayer != null) {
+                    nodeMover.moveDown(selectedLayer);
+                }
+            }
+        });
+
+        AbstractButton leftButton = createToolButton("icons/Left24.gif");
+        leftButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                final Layer selectedLayer = getSelectedLayer();
+                if (selectedLayer != null) {
+                    nodeMover.moveLeft(selectedLayer);
+                }
+            }
+        });
+        AbstractButton rightButton = createToolButton("icons/Right24.gif");
+        rightButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                final Layer selectedLayer = getSelectedLayer();
+                if (selectedLayer != null) {
+                    nodeMover.moveRight(selectedLayer);
+                }
+            }
+        });
+
         JPanel actionBar = new JPanel(new GridLayout(-1, 1, 2, 2));
         actionBar.add(addButton);
         actionBar.add(removeButton);
+        actionBar.add(upButton);
+        actionBar.add(downButton);
+        actionBar.add(leftButton);
+        actionBar.add(rightButton);
+
         JPanel actionPanel = new JPanel(new BorderLayout());
         actionPanel.add(actionBar, BorderLayout.NORTH);
-
 
         control = new JPanel(new BorderLayout(4, 4));
         control.setBorder(new EmptyBorder(4, 4, 4, 4));

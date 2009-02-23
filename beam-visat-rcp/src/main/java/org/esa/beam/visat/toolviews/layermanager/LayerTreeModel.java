@@ -158,8 +158,7 @@ public class LayerTreeModel implements TreeModel {
 
     private TreeModelEvent createTreeModelEvent(Layer parentLayer, Layer[] childLayers) {
         Layer[] parentPath = getLayerPath(rootLayer, parentLayer);
-        int[] childIndexes = getChildIndexes(parentLayer, childLayers);
-        return new TreeModelEvent(this, parentPath, childIndexes, childLayers);
+        return new TreeModelEvent(this, parentPath);
     }
 
     private class LayerListener extends AbstractLayerListener {
@@ -175,12 +174,12 @@ public class LayerTreeModel implements TreeModel {
 
         @Override
         public void handleLayersAdded(Layer parentLayer, Layer[] childLayers) {
-            fireTreeNodesInserted(parentLayer, childLayers);
+            fireTreeStructureChanged(parentLayer);
         }
 
         @Override
         public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
-            fireTreeNodesRemoved(parentLayer, childLayers);
+            fireTreeStructureChanged(parentLayer);
         }
     }
 }
