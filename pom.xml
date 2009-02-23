@@ -50,9 +50,6 @@
             <id>gt-primary</id>
             <name>Primary GeoTools Maven Repository</name>
             <url>http://maven.geotools.fr/repository</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
         </repository>
     </repositories>
 
