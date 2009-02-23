@@ -176,13 +176,11 @@ public class LayerTreeModel implements TreeModel {
         @Override
         public void handleLayersAdded(Layer parentLayer, Layer[] childLayers) {
             fireTreeNodesInserted(parentLayer, childLayers);
-            fireTreeStructureChanged(parentLayer);
         }
 
         @Override
         public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
             fireTreeNodesRemoved(parentLayer, childLayers);
-            fireTreeStructureChanged(parentLayer);
         }
     }
 }
