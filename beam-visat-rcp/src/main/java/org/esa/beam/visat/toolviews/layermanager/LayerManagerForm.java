@@ -10,6 +10,7 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.BandLayerPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.OpenImageFilePage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.SelectLayerSourcePage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.EmptyLayerPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefilePage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsPage;
 
@@ -88,6 +89,7 @@ class LayerManagerForm {
             public void actionPerformed(ActionEvent e) {
 
                 LayerSource[] sources = new LayerSource[]{
+                        new LayerSource("Layer Group", new EmptyLayerPage()),
                         new LayerSource("Image from Band", new BandLayerPage()),
                         new LayerSource("Shapefile", new ShapefilePage()),
                         new LayerSource("Image from File", new OpenImageFilePage()),
