@@ -17,7 +17,6 @@
 package org.esa.beam.geospike;
 
 import com.bc.ceres.core.ProgressMonitor;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -42,8 +41,10 @@ import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.math.MathUtils;
-import org.esa.beam.visat.actions.GeoCodingMathTransform;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.GeoCodingMathTransform;
+import org.geotools.coverage.Category;
 import org.geotools.coverage.CoverageFactoryFinder;
+import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -55,6 +56,9 @@ import org.geotools.referencing.crs.DefaultDerivedCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
+import org.geotools.resources.i18n.Vocabulary;
+import org.geotools.resources.i18n.VocabularyKeys;
+import org.geotools.util.NumberRange;
 import org.opengis.coverage.grid.GridGeometry;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -62,16 +66,16 @@ import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import javax.media.jai.ImageLayout;
+import javax.media.jai.Interpolation;
+import javax.media.jai.InterpolationNearest;
+import javax.media.jai.JAI;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.RenderedImage;
-
-import javax.media.jai.ImageLayout;
-import javax.media.jai.Interpolation;
-import javax.media.jai.InterpolationNearest;
-import javax.media.jai.JAI;
 
 /**
  * @author Marco Zuehlke
@@ -89,21 +93,6 @@ public class MapProjOp extends Operator {
 
     @Parameter
     private String projectionName = "Geographic Lat/Lon";
-
-//    @Parameter
-//    private float pixelX;
-//    @Parameter
-//    private float pixelY;
-//    @Parameter
-//    private float easting;
-//    @Parameter
-//    private float northing;
-//    @Parameter
-//    private float pixelSizeX;
-//    @Parameter
-//    private float pixelSizeY;
-
-//    private ProductProjectionBuilder productProjectionBuilder;
 
     @Override
     public void initialize() throws OperatorException {
@@ -138,9 +127,7 @@ public class MapProjOp extends Operator {
             for (Band sourceBand : sourceProduct.getBands()) {
                 Band targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
                 ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
-                RenderedImage sourceImage = sourceBand.getSourceImage();
-
-                GridCoverage2D sourceCoverage = factory.create(sourceBand.getName(), sourceImage, sourceEnvelope);
+                GridCoverage2D sourceCoverage = createSourceCoverage(factory, sourceEnvelope, sourceBand);
                 // only the tile size of the image layout is actually taken into account
                 // by the rasample operation.   Use Operations.DEFAULT if tile size does
                 // not matter
@@ -256,16 +243,17 @@ public class MapProjOp extends Operator {
     }
 
     private static CoordinateReferenceSystem createTargetCRS() {
-        // TODO: create targetCRS from input parameters
+        // TODO: create targetCRS from parameters
         return DefaultGeographicCRS.WGS84;
     }
 
     private static Interpolation createInterpolation() {
-        // TODO: create interpolation from input parameters
+        // TODO: create interpolation from parameters
         return new InterpolationNearest();
     }
 
     private static GridGeometry2D createGridGeometry(Product product, CoordinateReferenceSystem sourceCRS, CoordinateReferenceSystem targetCRS) {
+        // TODO: create grid geometry from parameters
         final int sourceW = product.getSceneRasterWidth();
         final int sourceH = product.getSceneRasterHeight();
         final int step = Math.min(sourceW, sourceH) / 2;
@@ -299,35 +287,35 @@ public class MapProjOp extends Operator {
 
         final float easting = (float) pMin.getX() + pixelX * pixelSize;
         final float northing = (float) pMax.getY() - pixelY * pixelSize;
-        final  double orientation = 0.0;
-        
+        final double orientation = 0.0;
+
         AffineTransform transform = new AffineTransform();
         transform.translate(easting, northing);
         transform.scale(pixelSize, -pixelSize);
         transform.rotate(Math.toRadians(-orientation));
         transform.translate(-pixelX, -pixelY);
-        
+
         final MathTransform gridToCrs = new AffineTransform2D(transform);
         return new GridGeometry2D(null, gridToCrs, null);
     }
-    
+
     private static Point2D[] createMapBoundary(Product product, Rectangle rect, int step, MathTransform mathTransform) throws TransformException {
         GeoPos[] geoPoints = ProductUtils.createGeoBoundary(product, rect, step);
         ProductUtils.normalizeGeoPolygon(geoPoints);
-        double[] geoPointsD = new double[geoPoints.length*2];
+        double[] geoPointsD = new double[geoPoints.length * 2];
         for (int i = 0; i < geoPoints.length; i++) {
-            geoPointsD[i*2] = geoPoints[i].lon;
-            geoPointsD[(i*2)+1] = geoPoints[i].lat;
+            geoPointsD[i * 2] = geoPoints[i].lon;
+            geoPointsD[(i * 2) + 1] = geoPoints[i].lat;
         }
-        double[] mapPointsD = new double[geoPoints.length*2];
+        double[] mapPointsD = new double[geoPoints.length * 2];
         mathTransform.transform(geoPointsD, 0, mapPointsD, 0, geoPoints.length);
         Point2D[] mapPoints = new Point2D[geoPoints.length];
         for (int i = 0; i < geoPoints.length; i++) {
-            mapPoints[i] = new Point2D.Double(mapPointsD[i*2], mapPointsD[(i*2)+1]);
+            mapPoints[i] = new Point2D.Double(mapPointsD[i * 2], mapPointsD[(i * 2) + 1]);
         }
         return mapPoints;
     }
-    
+
     private static Dimension computeTargetDimension(Product sourceProduct,
                                                     GridCoverageFactory factory,
                                                     Envelope2D sourceEnvelope,
@@ -356,5 +344,32 @@ public class MapProjOp extends Operator {
         // TODO: also query operatorContext rendering hints
 
         return ImageManager.createSingleBandedImageLayout(dataBufferType, w, h, tileSize.width, tileSize.height);
+    }
+
+    private static GridCoverage2D createSourceCoverage(GridCoverageFactory factory, Envelope2D envelope, Band band) {
+        final RenderedImage sourceImage = band.getSourceImage();
+
+        // TODO: create no-data gridSampleDimension from parameters
+        if (band.getFlagCoding() == null) {
+            return factory.create(band.getName(), sourceImage, envelope);
+        }
+
+        final Category category = createNoDataCategory(128.0);
+        final GridSampleDimension sampleDimension = createGridSampleDimension(category);
+        final GridSampleDimension[] sampleDimensions = new GridSampleDimension[]{sampleDimension};
+
+        return factory.create(band.getName(), sourceImage, envelope, sampleDimensions, null, null);
+    }
+
+    private static GridSampleDimension createGridSampleDimension(Category category) {
+        return new GridSampleDimension(category.getName(), new Category[]{category}, null);
+    }
+
+    private static Category createNoDataCategory(final double value) {
+        final CharSequence name = Vocabulary.formatInternational(VocabularyKeys.NODATA);
+        final Color transparent = new Color(0, 0, 0, 0);
+        final NumberRange<Double> range = NumberRange.create(value, value);
+
+        return new Category(name, transparent, range);
     }
 }
