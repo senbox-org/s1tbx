@@ -37,7 +37,7 @@ public class TestHelpers {
     }
 
     /**
-     * Creates a registry form the gíven resources.
+     * Creates a registry form the given resources.
      * The module's IDs are subsequentially assigned starting from one (1).
      * All modules in the registry behave as if they where loaded by the {@link ModuleReader} or {@link ModuleLoader} class
      * but have not yet been resolved by the {@link ModuleResolver}.

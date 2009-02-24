@@ -8,13 +8,14 @@ import java.util.*;
 public class DefaultServiceRegistry<T> implements ServiceRegistry<T> {
 
     private final Class<T> serviceType;
-    private HashMap<String, T> services = new HashMap<String, T>(10);
-
-    private ArrayList<ServiceRegistryListener<T>> listeners = new ArrayList<ServiceRegistryListener<T>>(3);
+    private final HashMap<String, T> services;
+    private final ArrayList<ServiceRegistryListener<T>> listeners;
 
     public DefaultServiceRegistry(Class<T> serviceType) {
         Assert.notNull(serviceType, "serviceType");
         this.serviceType = serviceType;
+        this.services = new HashMap<String, T>(10);
+        this.listeners = new ArrayList<ServiceRegistryListener<T>>(3);
     }
 
     /**

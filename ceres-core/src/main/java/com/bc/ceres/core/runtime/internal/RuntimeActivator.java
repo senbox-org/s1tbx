@@ -182,7 +182,7 @@ public class RuntimeActivator implements Activator {
                         if (!serviceRegistrations.contains(serviceRegistration)) {
                             serviceRegistrations.add(serviceRegistration);
                         } else {
-                            // remove logging, we know services are registered multiple times
+                            // todo - if we come here (we do!), services are registered multiple times, avoid this!
                             //moduleContext.getLogger().warning(String.format("Service already registered: [%s].", serviceRegistration));
                         }
                     }

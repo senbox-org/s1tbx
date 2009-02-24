@@ -172,6 +172,16 @@
                             <packages>com.bc.ceres.swing.update:com.bc.ceres.swing.progress:com.bc.ceres.swing
                             </packages>
                         </group>
+                        <group>
+                            <title>Ceres Layer API</title>
+                            <packages>com.bc.ceres.glayer:com.bc.ceres.glayer.support:com.bc.ceres.grender:com.bc.ceres.grender.support:com.bc.ceres.glevel:com.bc.ceres.glevel.support
+                            </packages>
+                        </group>
+                        <group>
+                            <title>Ceres Binary I/O API</title>
+                            <packages>com.bc.ceres.binio:com.bc.ceres.binio.util:com.bc.ceres.binio.binx
+                            </packages>
+                        </group>
                     </groups>
                 </configuration>
             </plugin>
