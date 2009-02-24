@@ -45,6 +45,7 @@ import org.esa.beam.visat.toolviews.layermanager.layersrc.GeoCodingMathTransform
 import org.geotools.coverage.Category;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
+import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -59,7 +60,6 @@ import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.util.NumberRange;
-import org.opengis.coverage.grid.GridGeometry;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
@@ -96,6 +96,7 @@ public class MapProjOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
+        try {
         GeographicCRS baseCRS = DefaultGeographicCRS.WGS84;
         final GeoCoding geoCoding = sourceProduct.getGeoCoding();
         MathTransform baseToGridMathTransform = new GeoCodingMathTransform(geoCoding, GeoCodingMathTransform.Mode.G2P);
@@ -109,21 +110,18 @@ public class MapProjOp extends Operator {
                                                          sourceProduct.getSceneRasterHeight());
         final CoordinateReferenceSystem targetCRS = createTargetCRS();
         final GridGeometry2D gridGeometry = createGridGeometry(sourceProduct, baseCRS, targetCRS);
+        Rectangle gridRect = gridGeometry.getGridRange2D();
         final Interpolation interpolation = createInterpolation();
-        final Dimension targetDimension = computeTargetDimension(sourceProduct, factory,
-                                                                 sourceEnvelope,
-                                                                 targetCRS,
-                                                                 gridGeometry,
-                                                                 interpolation);
+        
         targetProduct = new Product("projected_" + sourceProduct.getName(),
                                     "projection of: " + sourceProduct.getDescription(),
-                                    targetDimension.width,
-                                    targetDimension.height);
+                                    gridRect.width,
+                                    gridRect.height);
         addMetadataToProduct(targetProduct);
         addFlagCodingsToProduct(targetProduct);
         addIndexCodingsToProduct(targetProduct);
 
-        try {
+        
             for (Band sourceBand : sourceProduct.getBands()) {
                 Band targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
                 ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
@@ -281,6 +279,7 @@ public class MapProjOp extends Operator {
         }
         final int targetW = 1 + (int) Math.floor(mapW / pixelSize);
         final int targetH = 1 + (int) Math.floor(mapH / pixelSize);
+        Rectangle targetGrid = new Rectangle(targetW, targetH);
 
         final float pixelX = 0.5f * targetW;
         final float pixelY = 0.5f * targetH;
@@ -296,7 +295,7 @@ public class MapProjOp extends Operator {
         transform.translate(-pixelX, -pixelY);
 
         final MathTransform gridToCrs = new AffineTransform2D(transform);
-        return new GridGeometry2D(null, gridToCrs, null);
+        return new GridGeometry2D(new GeneralGridEnvelope(targetGrid, 2), gridToCrs, targetCRS);
     }
 
     private static Point2D[] createMapBoundary(Product product, Rectangle rect, int step, MathTransform mathTransform) throws TransformException {
@@ -309,30 +308,28 @@ public class MapProjOp extends Operator {
         }
         double[] mapPointsD = new double[geoPoints.length * 2];
         mathTransform.transform(geoPointsD, 0, mapPointsD, 0, geoPoints.length);
-        Point2D[] mapPoints = new Point2D[geoPoints.length];
-        for (int i = 0; i < geoPoints.length; i++) {
-            mapPoints[i] = new Point2D.Double(mapPointsD[i * 2], mapPointsD[(i * 2) + 1]);
+        
+        return getMinMax(mapPointsD);
+    }
+
+    private static Point2D[] getMinMax(double[] mapPointsD) {
+        Point2D.Double min = new Point2D.Double();
+        Point2D.Double max = new Point2D.Double();
+        min.x = +Double.MAX_VALUE;
+        min.y = +Double.MAX_VALUE;
+        max.x = -Double.MAX_VALUE;
+        max.y = -Double.MAX_VALUE;
+        for (int i = 0; i < mapPointsD.length;) {
+            double pointX = mapPointsD[i++];
+            double pointY = mapPointsD[i++];
+            min.x = Math.min(min.x, pointX);
+            min.y = Math.min(min.y, pointY);
+            max.x = Math.max(max.x, pointX);
+            max.y = Math.max(max.y, pointY);
         }
-        return mapPoints;
+        return new Point2D[]{min, max};
     }
-
-    private static Dimension computeTargetDimension(Product sourceProduct,
-                                                    GridCoverageFactory factory,
-                                                    Envelope2D sourceEnvelope,
-                                                    CoordinateReferenceSystem targetCRS,
-                                                    GridGeometry gridGeometry,
-                                                    Interpolation interpolation) {
-        final Band sourceBand = sourceProduct.getBandAt(0);
-        final GridCoverage2D sourceCoverage = factory.create(sourceBand.getName(), sourceBand.getSourceImage(),
-                                                             sourceEnvelope);
-        final GridCoverage2D targetCoverage = (GridCoverage2D) Operations.DEFAULT.resample(sourceCoverage,
-                                                                                           targetCRS,
-                                                                                           gridGeometry,
-                                                                                           interpolation);
-        final RenderedImage targetImage = targetCoverage.getRenderedImage();
-        return new Dimension(targetImage.getWidth(), targetImage.getHeight());
-    }
-
+    
     private static ImageLayout createImageLayout(RasterDataNode node) {
         return createSingleBandedImageLayout(node, ImageManager.getDataBufferType(node.getDataType()));
     }
