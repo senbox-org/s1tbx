@@ -12,18 +12,18 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
+import org.geotools.data.ows.CRSEnvelope;
+import org.geotools.data.ows.WMSCapabilities;
 import org.geotools.data.wms.WebMapServer;
 import org.geotools.data.wms.request.GetMapRequest;
 import org.geotools.data.wms.response.GetMapResponse;
-import org.geotools.data.ows.CRSEnvelope;
-import org.geotools.data.ows.WMSCapabilities;
 
 import javax.swing.JFileChooser;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.text.MessageFormat;
 import java.net.URL;
+import java.text.MessageFormat;
+import java.util.List;
 
 public class AddWMSLayerAction extends ExecCommand {
 
@@ -122,16 +122,14 @@ public class AddWMSLayerAction extends ExecCommand {
                 visatApp.showErrorDialog(DLG_TITLE,builder.toString());
                 return;
             }
+            shapeLayer.setVisible(true);
         } catch (IOException e) {
             builder.append(MessageFormat.format("An I/O Error occured:\n{0}", e.getMessage()));
             visatApp.showErrorDialog(DLG_TITLE, builder.toString());
             return;
         }
 
-        final List<Layer> children = view.getRootLayer().getChildren();
-        children.add(children.size() - 1, shapeLayer);
-        shapeLayer.setVisible(false);
-        shapeLayer.setVisible(true);
+        view.getRootLayer().getChildren().add(shapeLayer);
     }
 
     public static Layer readShape(File file, GeoCoding geoCoding) throws IOException {

@@ -23,7 +23,6 @@ import javax.swing.JFileChooser;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.List;
 
 public class AddShapefileLayerAction extends ExecCommand {
 
@@ -83,6 +82,7 @@ public class AddShapefileLayerAction extends ExecCommand {
                 visatApp.showErrorDialog(DLG_TITLE, builder.toString());
                 return;
             }
+            shapeLayer.setVisible(true);
         } catch (IOException e) {
             builder.append(MessageFormat.format("An I/O Error occured:\n{0}", e.getMessage()));
             visatApp.showErrorDialog(DLG_TITLE, builder.toString());
@@ -98,10 +98,7 @@ public class AddShapefileLayerAction extends ExecCommand {
                                                                   DefaultCartesianCS.GRID);
 
 
-        final List<Layer> children = view.getRootLayer().getChildren();
-        children.add(children.size() - 1, shapeLayer);
-        shapeLayer.setVisible(false);
-        shapeLayer.setVisible(true);
+        view.getRootLayer().getChildren().add(shapeLayer);
     }
 
     public static Layer readShape(File file, GeoCoding geoCoding) throws IOException {

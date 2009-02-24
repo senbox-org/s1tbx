@@ -250,6 +250,13 @@ class LayerManagerForm {
                 }
             }
         }
+
+        @Override
+    public void handleLayersAdded(Layer parentLayer, Layer[] childLayers) {
+            for (Layer layer : childLayers) {
+                doVisibilitySelection(layer, layer.isVisible());
+            }
+        }
     }
 
     private class MoveRightActionListener implements ActionListener {
