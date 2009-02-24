@@ -23,8 +23,8 @@
     <url>http://www.brockmann-consult.de/</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
-    <extenstion point="ceres-core:serviceProviders">
+    <extension point="ceres-core:serviceProviders">
         <serviceProvider>com.bc.ceres.glayer.LayerType</serviceProvider>
-    </extenstion>
+    </extension>
 
 </module>
