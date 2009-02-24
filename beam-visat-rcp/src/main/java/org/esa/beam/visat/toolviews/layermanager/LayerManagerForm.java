@@ -21,6 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
@@ -30,6 +31,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -55,6 +57,7 @@ class LayerManagerForm {
     private void initUI() {
         layerTreeModel = new LayerTreeModel(view.getRootLayer());
         layerTree = createCheckBoxTree(layerTreeModel);
+        layerTree.setCellRenderer(new MyTreeCellRenderer());
         layerSelectionListenerMap = new WeakHashMap<LayerSelectionListener, Object>(3);
         initVisibilitySelection(view.getRootLayer());
 
@@ -253,7 +256,7 @@ class LayerManagerForm {
         }
 
         @Override
-    public void handleLayersAdded(Layer parentLayer, Layer[] childLayers) {
+        public void handleLayersAdded(Layer parentLayer, Layer[] childLayers) {
             for (Layer layer : childLayers) {
                 doVisibilitySelection(layer, layer.isVisible());
             }
@@ -375,6 +378,25 @@ class LayerManagerForm {
             if (selectedLayer != null) {
                 selectedLayer.getParent().getChildren().remove(selectedLayer);
             }
+        }
+    }
+
+    private class MyTreeCellRenderer extends DefaultTreeCellRenderer {
+
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded,
+                                                      boolean leaf,
+                                                      int row, boolean hasFocus) {
+            JLabel label = (JLabel) super.getTreeCellRendererComponent(tree,
+                                                                       value, sel,
+                                                                       expanded, leaf, row,
+                                                                             hasFocus);
+            Layer layer = (Layer) value;
+            if (ProductSceneView.BASE_IMAGE_LAYER_ID.equals(layer.getId())) {
+                label.setText("<html><b>" + layer.getName() + "</b></html>");
+            }
+            return label;
+
         }
     }
 }
