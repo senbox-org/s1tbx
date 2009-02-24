@@ -1,7 +1,5 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.support.ImageLayer;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -52,12 +50,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 class ShapefilePage2 extends LayerPage {
-    private static final String SHAPEFILE_GROUP_LAYER_NAME = "Shapefiles";
-    private static final String SHAPEFILE_GROUP_LAYER_ID = "org.esa.beam.shapefiles";
+
     private static final org.geotools.styling.StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
     private static final FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
 
@@ -140,33 +136,13 @@ class ShapefilePage2 extends LayerPage {
 
     @Override
     public boolean performFinish() {
-        List<Layer> layers = getLayerPageContext().getView().getRootLayer().getChildren();
-        int i = getLayerPageContext().getView().getRootLayer().getChildIndex(SHAPEFILE_GROUP_LAYER_ID);
-        Layer shapefileLayers;
-        if (i == -1) {
-            shapefileLayers = new Layer();
-            shapefileLayers.setId(SHAPEFILE_GROUP_LAYER_ID);
-            shapefileLayers.setName(SHAPEFILE_GROUP_LAYER_NAME);
-            shapefileLayers.setVisible(true);
-            int k = layers.size();
-            for (int j = 0; j < layers.size(); j++) {
-                Layer layer = layers.get(j);
-                if (layer instanceof ImageLayer) {
-                    k = j;
-                    break;
-                }
-            }
-            layers.add(k, shapefileLayers);
-        }  else  {
-             shapefileLayers =layers.get(i);
-        }
         Style style = ShapefileLayer.createStyle(file, schema);
         ShapefileLayer shapefileLayer = new ShapefileLayer(featureCollection, style);
 
         shapefileLayer.setName(file.getName());
         shapefileLayer.setVisible(true);
 
-        shapefileLayers.getChildren().add(shapefileLayer);
+        getLayerPageContext().getView().getRootLayer().getChildren().add(0, shapefileLayer);
         return true;
     }
 
@@ -174,7 +150,7 @@ class ShapefilePage2 extends LayerPage {
         if (worker != null && !worker.isDone()) {
             try {
                 worker.cancel(true);
-            } catch (Throwable e) {
+            } catch (Throwable ignore) {
                 // ok
             }
         }

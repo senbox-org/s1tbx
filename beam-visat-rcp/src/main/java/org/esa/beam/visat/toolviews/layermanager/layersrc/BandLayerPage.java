@@ -2,7 +2,6 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc;
 
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -21,14 +20,12 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
 public class BandLayerPage extends LayerPage {
-
-    private static final String BAND_OVERLAYS_ID = "org.esa.beam.bandOverlays";
-    private static final String BAND_OVERLAYS_NAME = "Band overlays";
 
     private JList list;
 
@@ -53,14 +50,6 @@ public class BandLayerPage extends LayerPage {
 
     @Override
     public boolean performFinish() {
-        Layer bandOverlaysLayer = getLayerPageContext().getLayer(BAND_OVERLAYS_ID);
-        if (bandOverlaysLayer == null) {
-            bandOverlaysLayer = new Layer();
-            bandOverlaysLayer.setId(BAND_OVERLAYS_ID);
-            bandOverlaysLayer.setName(BAND_OVERLAYS_NAME);
-            bandOverlaysLayer.setVisible(true);
-            getLayerPageContext().getView().getRootLayer().getChildren().add(bandOverlaysLayer);
-        }
 
         RasterDataNode band = (RasterDataNode) list.getSelectedValue();
         BandImageMultiLevelSource bandImageMultiLevelSource = BandImageMultiLevelSource.create(band,
@@ -70,7 +59,7 @@ public class BandLayerPage extends LayerPage {
         imageLayer.setName(band.getName());
         imageLayer.setVisible(true);
 
-        bandOverlaysLayer.getChildren().add(imageLayer);
+        getLayerPageContext().getView().getRootLayer().getChildren().add(0, imageLayer);
         return true;
     }
 
@@ -79,7 +68,7 @@ public class BandLayerPage extends LayerPage {
 
         Product product = context.getView().getProduct();
 
-        Collection rasterDataNodes = new ArrayList();
+        Collection<RasterDataNode> rasterDataNodes = new ArrayList<RasterDataNode>();
         rasterDataNodes.addAll(Arrays.asList(product.getBands()));
         rasterDataNodes.addAll(Arrays.asList(product.getTiePointGrids()));
 
@@ -103,7 +92,9 @@ public class BandLayerPage extends LayerPage {
                                                       boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             RasterDataNode r = (RasterDataNode) value;
-            label.setText("<html><b>"+r.getName()+"</b> " + (r instanceof TiePointGrid ? " (Tie-point grid)" : " (Band)"));
+            final String text = MessageFormat.format("<html><b>{0}</b> {1}</html>", r.getName(),
+                                                     r instanceof TiePointGrid ? " (Tie-point grid)" : " (Band)");
+            label.setText(text);
             return label;
         }
     }

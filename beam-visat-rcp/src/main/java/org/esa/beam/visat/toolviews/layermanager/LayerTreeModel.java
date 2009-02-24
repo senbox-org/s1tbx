@@ -44,9 +44,14 @@ public class LayerTreeModel implements TreeModel {
     }
 
     public void valueForPathChanged(TreePath path, Object newValue) {
-        final TreeModelEvent event = new TreeModelEvent(this, path);
-        for (TreeModelListener treeModelListener : treeModelListeners.keySet()) {
-            treeModelListener.treeNodesChanged(event);
+        if (newValue instanceof String) {
+            Layer layer = (Layer) path.getLastPathComponent();
+            String oldName = layer.getName();
+            String newName = (String) newValue;
+            if (!oldName.equals(newName)) {
+                layer.setName(newName);
+                fireTreeNodeChanged(layer);
+            }
         }
     }
 
@@ -84,15 +89,15 @@ public class LayerTreeModel implements TreeModel {
         }
     }
 
-    protected void fireTreeNodesInserted(Layer parentLayer, Layer[] childLayers) {
-        TreeModelEvent event = createTreeModelEvent(parentLayer, childLayers);
+    protected void fireTreeNodesInserted(Layer parentLayer) {
+        TreeModelEvent event = createTreeModelEvent(parentLayer);
         for (TreeModelListener treeModelListener : treeModelListeners.keySet()) {
             treeModelListener.treeNodesInserted(event);
         }
     }
 
-    protected void fireTreeNodesRemoved(Layer parentLayer, Layer[] childLayers) {
-        TreeModelEvent event = createTreeModelEvent(parentLayer, childLayers);
+    protected void fireTreeNodesRemoved(Layer parentLayer) {
+        TreeModelEvent event = createTreeModelEvent(parentLayer);
         for (TreeModelListener treeModelListener : treeModelListeners.keySet()) {
             treeModelListener.treeNodesRemoved(event);
         }
@@ -141,27 +146,13 @@ public class LayerTreeModel implements TreeModel {
         return false;
     }
 
-    // Todo - move to Layer API? Or LayerUtils?
-    private int[] getChildIndexes(Layer parentLayer, Layer[] childLayers) {
-        final int[] childIndices = new int[childLayers.length];
-        for (int i = 0; i < childLayers.length; i++) {
-            childIndices[i] = getIndexOfChild(parentLayer, childLayers[i]);
-        }
-        return childIndices;
-    }
-
-
     private TreeModelEvent createTreeModelEvent(Layer layer) {
         Layer[] parentPath = getLayerPath(rootLayer, layer);
         return new TreeModelEvent(this, parentPath);
     }
 
-    private TreeModelEvent createTreeModelEvent(Layer parentLayer, Layer[] childLayers) {
-        Layer[] parentPath = getLayerPath(rootLayer, parentLayer);
-        return new TreeModelEvent(this, parentPath);
-    }
-
     private class LayerListener extends AbstractLayerListener {
+
         @Override
         public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
             fireTreeNodeChanged(layer);
