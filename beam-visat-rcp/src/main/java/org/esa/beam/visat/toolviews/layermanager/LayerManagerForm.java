@@ -59,99 +59,31 @@ class LayerManagerForm {
         initVisibilitySelection(view.getRootLayer());
 
         transparencySlider = new JSlider(0, 100, 0);
-
         final JPanel sliderPanel = new JPanel(new BorderLayout(4, 4));
         sliderPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
         sliderPanel.add(new JLabel("Transparency:"), BorderLayout.WEST);
         sliderPanel.add(transparencySlider, BorderLayout.CENTER);
-
-        transparencySlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-
-                TreePath path = layerTree.getSelectionPath();
-                if (path != null) {
-                    Layer layer = getLayer(path);
-                    adjusting = true;
-                    layer.getStyle().setOpacity(1.0 - transparencySlider.getValue() / 100.0f);
-                    adjusting = false;
-                }
-
-            }
-        });
+        transparencySlider.addChangeListener(new TransparencySliderListener());
 
         getRootLayer().addListener(new RootLayerListener());
 
 
         AbstractButton addButton = createToolButton("icons/Plus24.gif");
-        addButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-
-                LayerSource[] sources = new LayerSource[]{
-                        new LayerSource("Layer Group", new EmptyLayerPage()),
-                        new LayerSource("Image from Band", new BandLayerPage()),
-                        new LayerSource("Shapefile", new ShapefilePage()),
-                        new LayerSource("Image from File", new OpenImageFilePage()),
-                        new LayerSource("Web Mapping Server (WMS)", new WmsPage()),
-
-                        // new LayerSource("WFS"),
-                };
-
-                final LayerSourcePane pane = new LayerSourcePane(SwingUtilities.getWindowAncestor(control),
-                                                                 view,
-                                                                 getSelectedLayer(),
-                                                                 getLayerTreeModel());
-                pane.show(new SelectLayerSourcePage(sources));
-            }
-        });
+        addButton.addActionListener(new AddLayerActionListener());
         AbstractButton removeButton = createToolButton("icons/Minus24.gif");
-        removeButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Layer selectedLayer = getSelectedLayer();
-                if (selectedLayer != null) {
-                    selectedLayer.getParent().getChildren().remove(selectedLayer);
-                }
-            }
-        });
+        removeButton.addActionListener(new RemoveLayerActionListener());
 
         final LayerMover nodeMover = new LayerMover(view.getRootLayer());
         AbstractButton upButton = createToolButton("icons/Up24.gif");
-        upButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                final Layer selectedLayer = getSelectedLayer();
-                if (selectedLayer != null) {
-                    nodeMover.moveUp(selectedLayer);
-                }
-            }
-        });
+        upButton.addActionListener(new MoveUpActionListener(nodeMover));
+
         AbstractButton downButton = createToolButton("icons/Down24.gif");
-        downButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                final Layer selectedLayer = getSelectedLayer();
-                if (selectedLayer != null) {
-                    nodeMover.moveDown(selectedLayer);
-                }
-            }
-        });
+        downButton.addActionListener(new MoveDownActionListener(nodeMover));
 
         AbstractButton leftButton = createToolButton("icons/Left24.gif");
-        leftButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                final Layer selectedLayer = getSelectedLayer();
-                if (selectedLayer != null) {
-                    nodeMover.moveLeft(selectedLayer);
-                }
-            }
-        });
+        leftButton.addActionListener(new MoveLeftActionListener(nodeMover));
         AbstractButton rightButton = createToolButton("icons/Right24.gif");
-        rightButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                final Layer selectedLayer = getSelectedLayer();
-                if (selectedLayer != null) {
-                    nodeMover.moveRight(selectedLayer);
-                }
-            }
-        });
+        rightButton.addActionListener(new MoveRightActionListener(nodeMover));
 
         JPanel actionBar = new JPanel(new GridLayout(-1, 1, 2, 2));
         actionBar.add(addButton);
@@ -252,12 +184,10 @@ class LayerManagerForm {
         checkBoxTree.setRootVisible(false);
         checkBoxTree.setShowsRootHandles(true);
         checkBoxTree.setDigIn(false);
-        checkBoxTree.setDragEnabled(false);
-        checkBoxTree.setDropMode(DropMode.ON_OR_INSERT);
 
-        // removed because the current {@link NodeTransferHandler} is too immature (rq)
-//        final NodeMoveTransferHandler transferHandler = new NodeMoveTransferHandler();
-//        checkBoxTree.setTransferHandler(transferHandler);
+        checkBoxTree.setDragEnabled(true);
+        checkBoxTree.setDropMode(DropMode.ON_OR_INSERT);
+        checkBoxTree.setTransferHandler(new LayerTreeTransferHandler());
 
         checkBoxTree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             @Override
@@ -318,6 +248,124 @@ class LayerManagerForm {
                 if (!oldValue.equals(newValue) && !adjusting) {
                     doVisibilitySelection(layer, newValue);
                 }
+            }
+        }
+    }
+
+    private class MoveRightActionListener implements ActionListener {
+
+        private final LayerMover nodeMover;
+
+        private MoveRightActionListener(LayerMover nodeMover) {
+            this.nodeMover = nodeMover;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            final Layer selectedLayer = getSelectedLayer();
+            if (selectedLayer != null) {
+                nodeMover.moveRight(selectedLayer);
+            }
+        }
+    }
+
+    private class MoveLeftActionListener implements ActionListener {
+
+        private final LayerMover nodeMover;
+
+        private MoveLeftActionListener(LayerMover nodeMover) {
+            this.nodeMover = nodeMover;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            final Layer selectedLayer = getSelectedLayer();
+            if (selectedLayer != null) {
+                nodeMover.moveLeft(selectedLayer);
+            }
+        }
+    }
+
+    private class MoveDownActionListener implements ActionListener {
+
+        private final LayerMover nodeMover;
+
+        private MoveDownActionListener(LayerMover nodeMover) {
+            this.nodeMover = nodeMover;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            final Layer selectedLayer = getSelectedLayer();
+            if (selectedLayer != null) {
+                nodeMover.moveDown(selectedLayer);
+            }
+        }
+    }
+
+    private class MoveUpActionListener implements ActionListener {
+
+        private final LayerMover nodeMover;
+
+        private MoveUpActionListener(LayerMover nodeMover) {
+            this.nodeMover = nodeMover;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            final Layer selectedLayer = getSelectedLayer();
+            if (selectedLayer != null) {
+                nodeMover.moveUp(selectedLayer);
+            }
+        }
+    }
+
+    private class TransparencySliderListener implements ChangeListener {
+
+        @Override
+        public void stateChanged(ChangeEvent e) {
+
+            TreePath path = layerTree.getSelectionPath();
+            if (path != null) {
+                Layer layer = getLayer(path);
+                adjusting = true;
+                layer.getStyle().setOpacity(1.0 - transparencySlider.getValue() / 100.0f);
+                adjusting = false;
+            }
+
+        }
+    }
+
+    private class AddLayerActionListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            LayerSource[] sources = new LayerSource[]{
+                    new LayerSource("Layer Group", new EmptyLayerPage()),
+                    new LayerSource("Image from Band", new BandLayerPage()),
+                    new LayerSource("Shapefile", new ShapefilePage()),
+                    new LayerSource("Image from File", new OpenImageFilePage()),
+                    new LayerSource("Web Mapping Server (WMS)", new WmsPage()),
+
+                    // new LayerSource("WFS"),
+            };
+
+            final LayerSourcePane pane = new LayerSourcePane(SwingUtilities.getWindowAncestor(control),
+                                                             view,
+                                                             getSelectedLayer(),
+                                                             getLayerTreeModel());
+            pane.show(new SelectLayerSourcePage(sources));
+        }
+    }
+
+    private class RemoveLayerActionListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Layer selectedLayer = getSelectedLayer();
+            if (selectedLayer != null) {
+                selectedLayer.getParent().getChildren().remove(selectedLayer);
             }
         }
     }
