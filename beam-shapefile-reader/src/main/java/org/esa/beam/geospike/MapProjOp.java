@@ -55,6 +55,7 @@ import org.geotools.referencing.crs.DefaultDerivedCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
+import org.geotools.referencing.operation.transform.IdentityTransform;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.util.NumberRange;
@@ -116,6 +117,10 @@ public class MapProjOp extends Operator {
                                         "projection of: " + sourceProduct.getDescription(),
                                         gridRect.width,
                                         gridRect.height);
+            
+            GeoCoding targetGeoCoding = new MathTransformGeoCoding(gridGeometry.getGridToCRS(), gridRect);
+            targetProduct.setGeoCoding(targetGeoCoding);
+            
             // TODO: also query operatorContext rendering hints for tile size
             final Dimension tileSize = JAIUtils.computePreferredTileSize(gridRect.width, gridRect.height, 1);
             targetProduct.setPreferredTileSize(tileSize);
@@ -131,18 +136,20 @@ public class MapProjOp extends Operator {
                 // only the tile size of the image layout is actually taken into account
                 // by the rasample operation.   Use Operations.DEFAULT if tile size does
                 // not matter
-                final Operations operations = new Operations(
-                        new Hints(JAI.KEY_IMAGE_LAYOUT, createImageLayout(targetBand, tileSize)));
-                GridCoverage2D targetCoverage = (GridCoverage2D) operations.resample(sourceCoverage,
+//                final Operations operations = new Operations(
+//                        new Hints(JAI.KEY_IMAGE_LAYOUT, createImageLayout(targetBand, tileSize)));
+                GridCoverage2D targetCoverage = (GridCoverage2D) Operations.DEFAULT.resample(sourceCoverage,
                                                                                      targetCRS,
                                                                                      gridGeometry,
                                                                                      interpolation);
                 RenderedImage targetImage = targetCoverage.getRenderedImage();
                 if (targetImage.getTileHeight() != targetProduct.getPreferredTileSize().getHeight()) {
-                    throw new OperatorException("tileHeigth = " + targetImage.getTileHeight());
+                    System.out.println("imageTileHeight: "+targetImage.getTileHeight());
+                    System.out.println("productTileHeight: "+targetProduct.getPreferredTileSize().getHeight());
+//                    throw new OperatorException("tileHeigth = " + targetImage.getTileHeight());
                 }
                 if (targetImage.getTileWidth() != targetProduct.getPreferredTileSize().getWidth()) {
-                    throw new OperatorException("tileWidth = " + targetImage.getTileWidth());
+//                    throw new OperatorException("tileWidth = " + targetImage.getTileWidth());
                 }
                 targetBand.setSourceImage(targetImage);
 
@@ -163,8 +170,6 @@ public class MapProjOp extends Operator {
                            PlacemarkSymbol.createDefaultPinSymbol());
             copyPlacemarks(sourceProduct.getGcpGroup(), targetProduct.getGcpGroup(),
                            PlacemarkSymbol.createDefaultGcpSymbol());
-        } catch (OperatorException e) {
-            throw e;
         } catch (Throwable t) {
             t.printStackTrace();
             throw new OperatorException(t.getMessage(), t);
