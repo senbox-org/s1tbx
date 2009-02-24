@@ -13,8 +13,8 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 import java.util.Map;
+import java.util.Vector;
 
 // todo - make this class thread safe!!!
 
@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public class Layer extends ExtensibleObject {
     private static final Type DEFAULT_LAYER_TYPE = new Type();
-    private static int layerCount = 0;
+    private static int instanceCount = 0;
 
     private final LayerType layerType;
     private Layer parent;
@@ -65,7 +65,7 @@ public class Layer extends ExtensibleObject {
         Assert.notNull(layerType, "layerType");
         this.layerType = layerType;
         parent = null;
-        id = Long.toHexString(System.nanoTime() + (++layerCount));
+        id = Long.toHexString(System.nanoTime() + (++instanceCount));
         name = getClass().getName();
         children = new LayerList();
         visible = true;
@@ -109,9 +109,7 @@ public class Layer extends ExtensibleObject {
      * @param name The name.
      */
     public void setName(String name) {
-        if (name == null) {
-            throw new NullPointerException("name");
-        }
+        Assert.notNull(name, "name");
         final String oldValue = this.name;
         if (!oldValue.equals(name)) {
             this.name = name;
@@ -144,6 +142,7 @@ public class Layer extends ExtensibleObject {
      * @since Ceres 0.9
      */
     public int getChildIndex(String id) {
+        Assert.notNull(id, "id");
         for (int i = 0; i < children.size(); i++) {
             Layer child = children.get(i);
             if (id.equals(child.getId())) {
@@ -501,7 +500,8 @@ public class Layer extends ExtensibleObject {
             return layer;
         }
 
-        public Layer[] toArray(Layer[] array) {
+        @Override
+        public <T> T[] toArray(T[] array) {
             return layerList.toArray(array);
         }
 
@@ -524,7 +524,7 @@ public class Layer extends ExtensibleObject {
     }
 
     // todo - apidoc (nf - 22.10.2008)
-    public static abstract class DefaultRenderCustomizer implements RenderCustomizer {
+    public abstract static class AbstractRenderCustomizer implements RenderCustomizer {
 
         public final void render(Rendering rendering, Layer layer) {
             renderBackground(rendering, layer);
