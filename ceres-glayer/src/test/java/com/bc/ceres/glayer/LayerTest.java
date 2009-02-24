@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -18,7 +17,11 @@ public class LayerTest {
 
     @Test
     public void testDefaults() {
-        final Layer layer = new Layer();
+        Layer layer = new Layer();
+        LayerType layerType = layer.getLayerType();
+        assertNotNull(layerType);
+        assertTrue(layerType.createLayer(null, null) instanceof Layer);
+        assertTrue(layerType.isValidFor(null));
         assertNotNull(layer.getId());
         assertEquals(layer.getClass().getName(), layer.getName());
         assertEquals(true, layer.isVisible());
@@ -30,7 +33,7 @@ public class LayerTest {
 
     @Test
     public void testPropertyAccess() {
-        final Layer layer = new Layer();
+        Layer layer = new Layer();
 
         assertEquals(true, layer.isVisible());
         layer.setVisible(false);

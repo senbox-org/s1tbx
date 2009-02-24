@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
+import java.util.Map;
 
 // todo - make this class thread safe!!!
 
@@ -25,7 +26,10 @@ import java.util.Vector;
  * @version $revision$ $date$
  */
 public class Layer extends ExtensibleObject {
+    private static final Type DEFAULT_LAYER_TYPE = new Type();
     private static int layerCount = 0;
+
+    private final LayerType layerType;
     private Layer parent;
     private LayerList children;
     private String id;
@@ -40,11 +44,26 @@ public class Layer extends ExtensibleObject {
      * <ul>
      * <li>{@code name = getClass().getName()}</li>
      * <li>{@code visible = true}</li>
-     * <li>{@code style.opcacity = 1.0}</li>
-     * <li>{@code style.composite = }{@link Composite#SRC_OVER}</li>
+     * <li>{@code style.opaccity = 1.0}</li>
      * </ul>
      */
     public Layer() {
+        this(DEFAULT_LAYER_TYPE);
+    }
+
+    /**
+     * Constructor. The following default properties are used:
+     * <ul>
+     * <li>{@code name = getClass().getName()}</li>
+     * <li>{@code visible = true}</li>
+     * <li>{@code style.opaccity = 1.0}</li>
+     * </ul>
+     *
+     * @param layerType The layer type.
+     */
+    protected Layer(LayerType layerType) {
+        Assert.notNull(layerType, "layerType");
+        this.layerType = layerType;
         parent = null;
         id = Long.toHexString(System.nanoTime() + (++layerCount));
         name = getClass().getName();
@@ -56,7 +75,14 @@ public class Layer extends ExtensibleObject {
     }
 
     /**
-     * @return The parent layer, or {@code null} if this layer has no parent.
+     * @return The layer type.
+     */
+    public LayerType getLayerType() {
+        return layerType;
+    }
+
+    /**
+     * @return The parent layer, or {@code null} if this layer is not a child of any other layer.
      */
     public Layer getParent() {
         return parent;
@@ -95,7 +121,6 @@ public class Layer extends ExtensibleObject {
 
     /**
      * @return An identifier which can be used to search for special layers.
-     *
      * @since Ceres 0.9
      */
     public String getId() {
@@ -104,7 +129,6 @@ public class Layer extends ExtensibleObject {
 
     /**
      * @param id An identifier which can be used to search for special layers.
-     *
      * @since Ceres 0.9
      */
     public void setId(String id) {
@@ -116,9 +140,7 @@ public class Layer extends ExtensibleObject {
      * Gets the index of the first child layer having the given identifier.
      *
      * @param id The identifier.
-     *
      * @return The child index, or {@code -1} if no such layer exists.
-     *
      * @since Ceres 0.9
      */
     public int getChildIndex(String id) {
@@ -234,7 +256,6 @@ public class Layer extends ExtensibleObject {
      * Renders the layer. Calls {@code render(rendering,null)}.
      *
      * @param rendering The rendering to which the layer will be rendered.
-     *
      * @see #render(com.bc.ceres.grender.Rendering, RenderCustomizer)
      */
     public final void render(Rendering rendering) {
@@ -544,4 +565,20 @@ public class Layer extends ExtensibleObject {
         public abstract boolean canRender(Layer layer);
     }
 
+    public static class Type extends LayerType {
+        @Override
+        public String getName() {
+            return "Empty Layer";
+        }
+
+        @Override
+        public boolean isValidFor(LayerContext ctx) {
+            return true;
+        }
+
+        @Override
+        public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
+            return new Layer();
+        }
+    }
 }

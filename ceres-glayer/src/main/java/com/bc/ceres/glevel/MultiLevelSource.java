@@ -11,7 +11,7 @@ import java.awt.image.RenderedImage;
  * scaling factor and vice versa.
  *
  * @author Norman Fomferra
- * @author Marco Zühlke
+ * @author Marco ZÃ¼hlke
  * @version $revision$ $date$
  */
 public interface MultiLevelSource {

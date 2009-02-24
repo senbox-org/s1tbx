@@ -3,6 +3,8 @@ package com.bc.ceres.glayer.support;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.Style;
+import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glevel.MultiLevelRenderer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.ConcurrentMultiLevelRenderer;
@@ -17,6 +19,7 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
+import java.util.Map;
 
 /**
  * A multi-resolution capable image layer.
@@ -24,6 +27,7 @@ import java.awt.image.RenderedImage;
  * @author Norman Fomferra
  */
 public class ImageLayer extends Layer {
+    private static final Type DEFAULT_LAYER_TYPE = new Type();
 
     public static final String PROPERTY_NAME_BORDER_SHOWN = "border.shown";
     public static final String PROPERTY_NAME_BORDER_WIDTH = "border.width";
@@ -76,6 +80,17 @@ public class ImageLayer extends Layer {
      * @param multiLevelSource the multi-resolution-level image
      */
     public ImageLayer(MultiLevelSource multiLevelSource) {
+        this(DEFAULT_LAYER_TYPE, multiLevelSource);
+    }
+
+    /**
+     * Constructs a multi-resolution-level image layer.
+     *
+     * @param type The layer type.
+     * @param multiLevelSource the multi-resolution-level image.
+     */
+    protected ImageLayer(LayerType type, MultiLevelSource multiLevelSource) {
+        super(type);
         Assert.notNull(multiLevelSource);
         this.multiLevelSource = multiLevelSource;
     }
@@ -253,5 +268,23 @@ public class ImageLayer extends Layer {
             return (Color) style.getProperty(PROPERTY_NAME_BORDER_COLOR);
         }
         return DEFAULT_BORDER_COLOR;
+    }
+
+    public static class Type extends LayerType {
+        @Override
+        public String getName() {
+            return "Image Layer";
+        }
+
+        @Override
+        public boolean isValidFor(LayerContext ctx) {
+            return true;
+        }
+
+        @Override
+        public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
+            MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.get("multiLevelSource");
+            return new ImageLayer(multiLevelSource);
+        }
     }
 }
