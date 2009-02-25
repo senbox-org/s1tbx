@@ -1,4 +1,4 @@
-package org.esa.beam.framework.ui.mpage;
+package org.esa.beam.framework.ui.assistant;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -23,9 +23,9 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-public class MultiPagePane implements PageContext {
-    private Page currentPage;
-    private Deque<Page> pageStack;
+public class AssistantPane implements AssistantPageContext {
+    private AssistantPage currentPage;
+    private Deque<AssistantPage> pageStack;
     private JDialog dialog;
     private Action prevAction;
     private Action nextAction;
@@ -33,11 +33,11 @@ public class MultiPagePane implements PageContext {
     private JLabel titleLabel;
     private JPanel pagePanel;
     private HelpAction helpAction;
-    private MultiPagePane.CancelAction cancelAction;
+    private AssistantPane.CancelAction cancelAction;
 
-    public MultiPagePane(Window parent, String title) {
+    public AssistantPane(Window parent, String title) {
 
-        pageStack = new ArrayDeque<Page>();
+        pageStack = new ArrayDeque<AssistantPage>();
 
         prevAction = new PrevAction();
         nextAction = new NextAction();
@@ -81,15 +81,18 @@ public class MultiPagePane implements PageContext {
         });
     }
 
+    @Override
     public Window getWindow() {
         return dialog;
     }
 
-    public Page getCurrentPage() {
+    @Override
+    public AssistantPage getCurrentPage() {
         return currentPage;
     }
 
-    public void setCurrentPage(Page startPage) {
+    @Override
+    public void setCurrentPage(AssistantPage startPage) {
         currentPage = startPage;
         pagePanel.removeAll();
         titleLabel.setText(currentPage.getPageTitle());
@@ -100,8 +103,9 @@ public class MultiPagePane implements PageContext {
         dialog.repaint();
     }
 
+    @Override
     public void updateState() {
-        final Page page = getCurrentPage();
+        final AssistantPage page = getCurrentPage();
         final boolean pageValid = page.validatePage();
         prevAction.setEnabled(!pageStack.isEmpty());
         nextAction.setEnabled(pageValid && page.hasNextPage());
@@ -109,11 +113,12 @@ public class MultiPagePane implements PageContext {
         helpAction.setEnabled(pageValid && page.canHelp());
     }
 
+    @Override
     public void showErrorDialog(String message) {
         JOptionPane.showMessageDialog(dialog, message, getCurrentPage().getPageTitle(), JOptionPane.ERROR_MESSAGE);
     }
 
-    public void show(Page startPage) {
+    public void show(AssistantPage startPage) {
         setCurrentPage(startPage);
         dialog.setSize(new Dimension(480, 320));
         dialog.setVisible(true);
@@ -147,7 +152,7 @@ public class MultiPagePane implements PageContext {
         }
 
         public void actionPerformed(ActionEvent e) {
-            Page nextPage = currentPage.getNextPage();
+            AssistantPage nextPage = currentPage.getNextPage();
             if (nextPage != null) {
                 pageStack.push(currentPage);
                 setCurrentPage(nextPage);

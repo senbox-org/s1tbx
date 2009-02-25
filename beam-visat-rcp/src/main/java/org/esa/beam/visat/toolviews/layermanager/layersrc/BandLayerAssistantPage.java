@@ -2,13 +2,14 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc;
 
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
+import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
-import org.esa.beam.visat.toolviews.layermanager.LayerPage;
-import org.esa.beam.visat.toolviews.layermanager.LayerPageContext;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
@@ -25,11 +26,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class BandLayerPage extends LayerPage {
+public class BandLayerAssistantPage extends AbstractAppAssistantPage {
 
     private JList list;
 
-    public BandLayerPage() {
+    public BandLayerAssistantPage() {
         super("Select Band");
     }
 
@@ -59,14 +60,15 @@ public class BandLayerPage extends LayerPage {
         imageLayer.setName(band.getName());
         imageLayer.setVisible(true);
 
-        getLayerPageContext().getView().getRootLayer().getChildren().add(0, imageLayer);
+        Layer rootLayer = getAppPageContext().getAppContext().getSelectedProductSceneView().getRootLayer();
+        rootLayer.getChildren().add(0, imageLayer);
         return true;
     }
 
     @Override
-    protected Component createLayerPageComponent(LayerPageContext context) {
+    protected Component createLayerPageComponent(AppAssistantPageContext context) {
 
-        Product product = context.getView().getProduct();
+        Product product = context.getAppContext().getSelectedProductSceneView().getProduct();
 
         Collection<RasterDataNode> rasterDataNodes = new ArrayList<RasterDataNode>();
         rasterDataNodes.addAll(Arrays.asList(product.getBands()));
@@ -76,7 +78,7 @@ public class BandLayerPage extends LayerPage {
         list.setCellRenderer(new MyDefaultListCellRenderer());
         list.addListSelectionListener(new MyListSelectionListener());
 
-        final JPanel panel = new JPanel(new BorderLayout(4, 4));
+        JPanel panel = new JPanel(new BorderLayout(4, 4));
         panel.setBorder(new EmptyBorder(4, 4, 4, 4));
 
         panel.add(new JLabel("Available bands:"), BorderLayout.NORTH);
@@ -102,7 +104,7 @@ public class BandLayerPage extends LayerPage {
     private class MyListSelectionListener implements ListSelectionListener {
 
         public void valueChanged(ListSelectionEvent e) {
-            getLayerPageContext().updateState();
+            getAppPageContext().updateState();
         }
     }
 }

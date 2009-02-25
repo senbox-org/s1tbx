@@ -121,7 +121,25 @@
     <categories>System,Application,VISAT</categories>
 
     <!--
-       todo - This interface shall be deprecated in BEAM 4.2, use an ApplicationLifecycleListener instead
+       todo - extensionPoint in progress
+    -->
+    <extensionPoint id="layerUIs">
+        <layerUI type="org.esa.beam.framework.ui.layer.LayerUIDescriptor"
+                  class="@descriptorClass"
+                  autoConfig="true">
+            <descriptorClass type="java.lang.Class">
+                org.esa.beam.framework.ui.layer.DefaultLayerUIDescriptor
+            </descriptorClass>
+            <name field="name" type="java.lang.String"/>
+            <icon16 field="icon16Path" type="java.lang.String"/>
+            <icon24 field="icon24Path" type="java.lang.String"/>
+            <layerType field="layerType" type="java.lang.Class"/>
+            <layerUIType field="layerUIType" type="java.lang.Class"/>
+        </layerUI>
+    </extensionPoint>
+
+    <!--
+       todo - The VisatPlugIn interface should be deprecated, use an ApplicationLifecycleListener instead
     -->
     <extension point="ceres-core:serviceProviders">
         <serviceProvider>org.esa.beam.visat.VisatPlugIn</serviceProvider>
@@ -1503,4 +1521,5 @@
         -->
 
     </extension>
+
 </module>

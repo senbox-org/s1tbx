@@ -1,7 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
-import org.esa.beam.visat.toolviews.layermanager.LayerPage;
-import org.esa.beam.visat.toolviews.layermanager.LayerPageContext;
+import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
+import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.geotools.data.ows.WMSCapabilities;
 import org.geotools.data.wms.WebMapServer;
 
@@ -19,11 +19,11 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.net.URL;
 
-public class WmsPage extends LayerPage {
+public class WmsAssistantPage extends AbstractAppAssistantPage {
 
     private JComboBox wmsUrlBox;
 
-    public WmsPage() {
+    public WmsAssistantPage() {
         super("Select WMS");
     }
 
@@ -39,7 +39,7 @@ public class WmsPage extends LayerPage {
     }
 
     @Override
-    public LayerPage getNextLayerPage() {
+    public AbstractAppAssistantPage getNextLayerPage() {
         WebMapServer wms = null;
         WMSCapabilities wmsCapabilities = null;
 
@@ -66,7 +66,7 @@ public class WmsPage extends LayerPage {
         return false;
     }
 
-    protected Component createLayerPageComponent(LayerPageContext context) {
+    protected Component createLayerPageComponent(AppAssistantPageContext context) {
         GridBagConstraints gbc = new GridBagConstraints();
         final JPanel panel = new JPanel(new GridBagLayout());
 

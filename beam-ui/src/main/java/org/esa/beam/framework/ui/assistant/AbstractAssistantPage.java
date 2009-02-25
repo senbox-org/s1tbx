@@ -1,13 +1,13 @@
-package org.esa.beam.framework.ui.mpage;
+package org.esa.beam.framework.ui.assistant;
 
 import java.awt.Component;
 
-public abstract class AbstractPage implements Page {
+public abstract class AbstractAssistantPage implements AssistantPage {
     private String pageTitle;
     private Component pageComponent;
-    private PageContext context;
+    private AssistantPageContext context;
 
-    public AbstractPage(String pageTitle) {
+    public AbstractAssistantPage(String pageTitle) {
         this.pageTitle = pageTitle;
     }
 
@@ -27,11 +27,11 @@ public abstract class AbstractPage implements Page {
         this.pageComponent = pageComponent;
     }
 
-    public final PageContext getPageContext() {
+    public final AssistantPageContext getPageContext() {
         return context;
     }
 
-    public final Component getPageComponent(PageContext context) {
+    public final Component getPageComponent(AssistantPageContext context) {
         this.context = context;
         if (pageComponent == null) {
             pageComponent = createPageComponent(context);
@@ -39,9 +39,9 @@ public abstract class AbstractPage implements Page {
         return pageComponent;
     }
 
-    protected abstract Component createPageComponent(PageContext context);
+    protected abstract Component createPageComponent(AssistantPageContext context);
 
-    public Page getNextPage() {
+    public AssistantPage getNextPage() {
         return null;
     }
 

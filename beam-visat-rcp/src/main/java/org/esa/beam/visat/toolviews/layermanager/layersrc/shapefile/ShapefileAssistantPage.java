@@ -6,9 +6,9 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
+import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.visat.toolviews.layermanager.LayerPage;
-import org.esa.beam.visat.toolviews.layermanager.LayerPageContext;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.FeatureCollectionClipper;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.GeoCodingMathTransform;
 import org.geotools.data.shapefile.ShapefileDataStore;
@@ -37,11 +37,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
-public class ShapefilePage extends LayerPage {
+public class ShapefileAssistantPage extends AbstractAppAssistantPage {
 
     private JTextField shapefileBox;
 
-    public ShapefilePage() {
+    public ShapefileAssistantPage() {
         super("Select ESRI Shapefile");
     }
 
@@ -61,13 +61,13 @@ public class ShapefilePage extends LayerPage {
     }
 
     @Override
-    public LayerPage getNextLayerPage() {
+    public AbstractAppAssistantPage getNextLayerPage() {
 
         String path = shapefileBox.getText();
         if (path != null && !path.trim().isEmpty()) {
             try {
 
-                Product targetProduct = getLayerPageContext().getView().getProduct();
+                Product targetProduct = getAppPageContext().getAppContext().getSelectedProductSceneView().getProduct();
                 GeoCoding geoCoding = targetProduct.getGeoCoding();
                 SingleCRS targetCrs = new DefaultDerivedCRS("xyz",
                                                           DefaultGeographicCRS.WGS84,
@@ -136,7 +136,7 @@ public class ShapefilePage extends LayerPage {
     }
 
     @Override
-    protected Component createLayerPageComponent(LayerPageContext context) {
+    protected Component createLayerPageComponent(AppAssistantPageContext context) {
         GridBagConstraints gbc = new GridBagConstraints();
         final JPanel panel = new JPanel(new GridBagLayout());
 

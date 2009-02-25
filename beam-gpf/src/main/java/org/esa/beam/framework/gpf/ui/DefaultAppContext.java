@@ -3,10 +3,11 @@ package org.esa.beam.framework.gpf.ui;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 
-import javax.swing.JOptionPane;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import java.awt.Window;
 
 /**
@@ -19,6 +20,7 @@ public class DefaultAppContext implements AppContext {
     private ProductManager productManager;
     private Product selectedProduct;
     private PropertyMap preferences;
+    private ProductSceneView selectedSceneView;
 
     public DefaultAppContext(String applicationName) {
         this(applicationName,
@@ -38,6 +40,7 @@ public class DefaultAppContext implements AppContext {
         this.preferences = preferences;
     }
 
+    @Override
     public String getApplicationName() {
         return applicationName;
     }
@@ -46,6 +49,7 @@ public class DefaultAppContext implements AppContext {
         this.applicationName = applicationName;
     }
 
+    @Override
     public Window getApplicationWindow() {
         return applicationWindow;
     }
@@ -54,6 +58,7 @@ public class DefaultAppContext implements AppContext {
         this.applicationWindow = applicationWindow;
     }
 
+    @Override
     public PropertyMap getPreferences() {
         return preferences;
     }
@@ -62,6 +67,7 @@ public class DefaultAppContext implements AppContext {
         this.preferences = preferences;
     }
 
+    @Override
     public ProductManager getProductManager() {
         return productManager;
     }
@@ -70,6 +76,7 @@ public class DefaultAppContext implements AppContext {
         this.productManager = productManager;
     }
 
+    @Override
     public Product getSelectedProduct() {
         return selectedProduct;
     }
@@ -78,9 +85,25 @@ public class DefaultAppContext implements AppContext {
         this.selectedProduct = selectedProduct;
     }
 
+    @Override
     public void handleError(Throwable e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(getApplicationWindow(), e.getMessage());
+        handleError("An error occured:\n" + e.getMessage(), e);
     }
 
+    @Override
+    public void handleError(String message, Throwable e) {
+        if (e != null) {
+            e.printStackTrace();
+        }
+        JOptionPane.showMessageDialog(getApplicationWindow(), message);
+    }
+
+    @Override
+    public ProductSceneView getSelectedProductSceneView() {
+        return selectedSceneView;
+    }
+
+    public void setSelectedSceneView(ProductSceneView selectedView) {
+        this.selectedSceneView = selectedView;
+    }
 }

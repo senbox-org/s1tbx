@@ -1,26 +1,26 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc;
 
-import org.esa.beam.visat.toolviews.layermanager.LayerPage;
-import org.esa.beam.visat.toolviews.layermanager.LayerPageContext;
+import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
+import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
-public class SelectLayerSourcePage extends LayerPage {
+public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
 
     private JList list;
     private LayerSource[] sources;
 
-    public SelectLayerSourcePage(LayerSource[] sources) {
+    public SelectLayerSourceAssistantPage(LayerSource[] sources) {
         super("Select Layer Source");
         this.sources = sources.clone();
     }
@@ -36,7 +36,7 @@ public class SelectLayerSourcePage extends LayerPage {
     }
 
     @Override
-    public LayerPage getNextLayerPage() {
+    public AbstractAppAssistantPage getNextLayerPage() {
         int index = list.getSelectedIndex();
         if (index < 0) {
             return null;
@@ -54,7 +54,7 @@ public class SelectLayerSourcePage extends LayerPage {
     }
 
     @Override
-    protected Component createLayerPageComponent(LayerPageContext context) {
+    protected Component createLayerPageComponent(AppAssistantPageContext context) {
         list = new JList(sources);
         list.getSelectionModel().addListSelectionListener(new MyListSelectionListener());
         list.setCellRenderer(new MyDefaultListCellRenderer());

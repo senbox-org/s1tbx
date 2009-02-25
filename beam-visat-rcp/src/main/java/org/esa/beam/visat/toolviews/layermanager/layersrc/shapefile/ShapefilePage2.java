@@ -1,11 +1,12 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
+import com.bc.ceres.glayer.Layer;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-import org.esa.beam.visat.toolviews.layermanager.LayerPage;
-import org.esa.beam.visat.toolviews.layermanager.LayerPageContext;
+import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
+import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -52,7 +53,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
 
-class ShapefilePage2 extends LayerPage {
+class ShapefilePage2 extends AbstractAppAssistantPage {
 
     private static final org.geotools.styling.StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
     private static final FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
@@ -93,7 +94,7 @@ class ShapefilePage2 extends LayerPage {
         return true;
     }
 
-    protected Component createLayerPageComponent(LayerPageContext context) {
+    protected Component createLayerPageComponent(AppAssistantPageContext context) {
         mapCanvas = new JLabel();
         mapCanvas.setHorizontalTextPosition(SwingConstants.CENTER);
         mapCanvas.setVerticalTextPosition(SwingConstants.CENTER);
@@ -142,7 +143,8 @@ class ShapefilePage2 extends LayerPage {
         shapefileLayer.setName(file.getName());
         shapefileLayer.setVisible(true);
 
-        getLayerPageContext().getView().getRootLayer().getChildren().add(0, shapefileLayer);
+        final Layer rootLayer = getAppPageContext().getAppContext().getSelectedProductSceneView().getRootLayer();
+        rootLayer.getChildren().add(0, shapefileLayer);
         return true;
     }
 

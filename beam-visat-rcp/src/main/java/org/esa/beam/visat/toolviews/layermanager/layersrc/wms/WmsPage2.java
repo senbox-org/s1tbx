@@ -1,7 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
-import org.esa.beam.visat.toolviews.layermanager.LayerPage;
-import org.esa.beam.visat.toolviews.layermanager.LayerPageContext;
+import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
+import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
 import org.geotools.data.ows.WMSCapabilities;
@@ -23,7 +23,7 @@ import java.awt.Component;
 import java.text.MessageFormat;
 import java.util.List;
 
-class WmsPage2 extends LayerPage {
+class WmsPage2 extends AbstractAppAssistantPage {
     private final WebMapServer wms;
     private final WMSCapabilities wmsCapabilities;
     private JLabel infoLabel;
@@ -42,7 +42,7 @@ class WmsPage2 extends LayerPage {
     }
 
     @Override
-    public LayerPage getNextLayerPage() {
+    public AbstractAppAssistantPage getNextLayerPage() {
         return new WmsPage3(wms, selectedLayer);
     }
 
@@ -56,7 +56,7 @@ class WmsPage2 extends LayerPage {
         return selectedLayer != null;
     }
 
-    protected Component createLayerPageComponent(LayerPageContext context) {
+    protected Component createLayerPageComponent(AppAssistantPageContext context) {
         JPanel panel = new JPanel(new BorderLayout(4, 4));
         panel.setBorder(new EmptyBorder(4, 4, 4, 4));
         panel.add(new JLabel("Available layers:"), BorderLayout.NORTH);

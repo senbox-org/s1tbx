@@ -2,26 +2,23 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc;
 
 
 import com.bc.ceres.glayer.Layer;
-import org.esa.beam.visat.toolviews.layermanager.LayerPage;
-import org.esa.beam.visat.toolviews.layermanager.LayerPageContext;
+import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
+import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
-import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.TreeSet;
 import java.util.ArrayList;
 
-public class EmptyLayerPage extends LayerPage {
+public class EmptyLayerAssistantPage extends AbstractAppAssistantPage {
 
     private final static ArrayList<String> names = new ArrayList<String>();
     private JComboBox nameBox;
@@ -31,7 +28,7 @@ public class EmptyLayerPage extends LayerPage {
         names.add("");
     }
 
-    public EmptyLayerPage() {
+    public EmptyLayerAssistantPage() {
         super("Set Layer Name");
     }
 
@@ -52,21 +49,10 @@ public class EmptyLayerPage extends LayerPage {
 
     @Override
     public boolean performFinish() {
-        Layer selectedLayer = getLayerPageContext().getSelectedLayer();
-        int index = -1;
-        Layer parentLayer = getLayerPageContext().getView().getRootLayer();
-        if (selectedLayer != null) {
-            if (selectedLayer.getParent() != null) {
-                parentLayer = selectedLayer.getParent();
-                index = parentLayer.getChildren().indexOf(selectedLayer);
-            }
-        }
-        if (index == -1) {
-            index = parentLayer.getChildren().size();
-        }
-        final Layer layer = new Layer();
+        Layer layer = new Layer();
         layer.setName(nameBox.getSelectedItem().toString().trim());
-        parentLayer.getChildren().add(index, layer);
+        Layer rootLayer = getAppPageContext().getAppContext().getSelectedProductSceneView().getRootLayer();
+        rootLayer.getChildren().add(0, layer);
         if (!names.contains(layer.getName())) {
             names.add(1, layer.getName());
         }
@@ -74,7 +60,7 @@ public class EmptyLayerPage extends LayerPage {
     }
 
     @Override
-    protected Component createLayerPageComponent(LayerPageContext context) {
+    protected Component createLayerPageComponent(AppAssistantPageContext context) {
         nameBox = new JComboBox(names.toArray());
         nameBox.addItemListener(new MyItemListener());
         nameBox.addActionListener(new MyActionListener());
@@ -98,13 +84,13 @@ public class EmptyLayerPage extends LayerPage {
 
     private class MyItemListener implements ItemListener {
         public void itemStateChanged(ItemEvent e) {
-            getLayerPageContext().updateState();
+            getAppPageContext().updateState();
         }
     }
 
     private class MyActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            getLayerPageContext().updateState();
+            getAppPageContext().updateState();
         }
     }
 }

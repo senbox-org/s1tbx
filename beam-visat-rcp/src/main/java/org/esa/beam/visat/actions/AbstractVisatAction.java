@@ -20,6 +20,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.ui.AppCommand;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.visat.VisatApp;
 
@@ -48,28 +49,39 @@ public abstract class AbstractVisatAction extends AppCommand {
             this.toolTitle = toolTitle;
         }
 
+        @Override
         public ProductManager getProductManager() {
             return VisatApp.getApp().getProductManager();
         }
 
+        @Override
         public Product getSelectedProduct() {
             return VisatApp.getApp().getSelectedProduct();
         }
 
+        @Override
         public Window getApplicationWindow() {
             return VisatApp.getApp().getMainFrame();
         }
 
+        @Override
         public String getApplicationName() {
             return VisatApp.getApp().getAppName();
         }
 
+        @Override
         public void handleError(Throwable e) {
             VisatApp.getApp().showErrorDialog(toolTitle, e.getMessage());
         }
 
+        @Override
         public PropertyMap getPreferences() {
             return VisatApp.getApp().getPreferences();
+        }
+
+        @Override
+        public ProductSceneView getSelectedProductSceneView() {
+            return VisatApp.getApp().getSelectedProductSceneView();
         }
     }
 }

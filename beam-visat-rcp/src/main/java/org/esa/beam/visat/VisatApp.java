@@ -52,6 +52,7 @@ import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamException;
 import org.esa.beam.framework.param.ParamExceptionHandler;
 import org.esa.beam.framework.param.Parameter;
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.FileHistory;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -82,8 +83,8 @@ import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.visat.actions.ShowImageViewAction;
 import org.esa.beam.visat.actions.ShowImageViewRGBAction;
-import org.esa.beam.visat.actions.ToolAction;
 import org.esa.beam.visat.actions.ShowToolBarAction;
+import org.esa.beam.visat.actions.ToolAction;
 import org.esa.beam.visat.toolviews.diag.TileCacheDiagnosisToolView;
 import org.esa.beam.visat.toolviews.stat.StatisticsToolView;
 
@@ -108,6 +109,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dialog;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -116,13 +118,13 @@ import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -134,7 +136,7 @@ import java.util.concurrent.Executors;
  * @author Sabine Embacher
  * @version $Revision$ $Date$
  */
-public class VisatApp extends BasicApp {
+public class VisatApp extends BasicApp implements AppContext {
 
     /**
      * Application Name
@@ -402,6 +404,26 @@ public class VisatApp extends BasicApp {
     }
 
     @Override
+    public String getApplicationName() {
+        return getApplicationDescriptor().getDisplayName();
+    }
+
+    @Override
+    public Window getApplicationWindow() {
+        return getMainFrame();
+    }
+
+    @Override
+    public void handleError(Throwable e) {
+        showErrorDialog(e.getMessage());
+    }
+
+    @Override
+    public void handleError(String message, Throwable e) {
+        showErrorDialog(getAppName());
+    }
+
+    @Override
     protected void initClientUI(ProgressMonitor pm) {
         try {
             pm.beginTask(String.format("Initialising %s UI components", getAppName()), 4);
@@ -482,6 +504,9 @@ public class VisatApp extends BasicApp {
         productsToolView = (ProductsToolView) applicationPage.getToolView(ProductsToolView.ID);
         Assert.state(productsToolView != null, "productsToolView != null");
     }
+
+
+
 
     /**
      * Resets the singleton application instance so that {@link #getApp()} will return <code>null</code> after this method has been called.

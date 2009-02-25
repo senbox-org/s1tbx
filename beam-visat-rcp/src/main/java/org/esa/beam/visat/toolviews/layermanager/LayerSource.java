@@ -1,15 +1,17 @@
 package org.esa.beam.visat.toolviews.layermanager;
 
+import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
+
 public class LayerSource {
 
     private String name;
-    private LayerPage page;
+    private AbstractAppAssistantPage page;
 
     public LayerSource(String name) {
         this.name = name;
     }
 
-    public LayerSource(String name, LayerPage page) {
+    public LayerSource(String name, AbstractAppAssistantPage page) {
         this.name = name;
         this.page = page;
     }
@@ -19,7 +21,7 @@ public class LayerSource {
         return name;
     }
 
-    public LayerPage getPage() {
+    public AbstractAppAssistantPage getPage() {
         return page;
     }
 }

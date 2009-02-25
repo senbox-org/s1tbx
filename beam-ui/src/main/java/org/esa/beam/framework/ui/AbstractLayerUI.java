@@ -1,12 +1,11 @@
 package org.esa.beam.framework.ui;
 
-import org.esa.beam.framework.ui.tool.AbstractTool;
+import com.bc.ceres.core.Assert;
+import com.bc.ceres.glayer.Layer;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.tool.AbstractTool;
 
 import java.awt.Rectangle;
-
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.core.Assert;
 
 public abstract class AbstractLayerUI implements LayerUI {
     private final Layer layer;
@@ -16,14 +15,17 @@ public abstract class AbstractLayerUI implements LayerUI {
         this.layer = layer;
     }
 
+    @Override
     public Layer getLayer() {
         return layer;
     }
 
+    @Override
     public AbstractTool getSelectTool(ProductSceneView view) {
         return null;
     }
 
+    @Override
     public void handleSelection(ProductSceneView view, Rectangle rectangle) {
     }
 }

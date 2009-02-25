@@ -4,15 +4,17 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.LayerStyleListener;
 import com.jidesoft.swing.CheckBoxTree;
 import com.jidesoft.swing.CheckBoxTreeSelectionModel;
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.assistant.AppAssistantPane;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.BandLayerPage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.EmptyLayerPage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.OpenImageFilePage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.SelectLayerSourcePage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefilePage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.BandLayerAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.EmptyLayerAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.OpenImageFileAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.SelectLayerSourceAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefileAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsAssistantPage;
 
 import javax.swing.AbstractButton;
 import javax.swing.DropMode;
@@ -40,6 +42,7 @@ import java.util.WeakHashMap;
 
 class LayerManagerForm {
 
+    private final AppContext appContext;
     private final ProductSceneView view;
     private CheckBoxTree layerTree;
     private JSlider transparencySlider;
@@ -48,11 +51,11 @@ class LayerManagerForm {
     private boolean adjusting;
     private LayerTreeModel layerTreeModel;
 
-    LayerManagerForm(ProductSceneView view) {
-        this.view = view;
+    LayerManagerForm(AppContext appContext) {
+        this.appContext = appContext;
+        this.view = appContext.getSelectedProductSceneView();
         initUI();
     }
-
 
     private void initUI() {
         layerTreeModel = new LayerTreeModel(view.getRootLayer());
@@ -73,8 +76,8 @@ class LayerManagerForm {
 
         AbstractButton addButton = createToolButton("icons/Plus24.gif");
         addButton.addActionListener(new AddLayerActionListener());
-        AbstractButton removeButton = createToolButton("icons/Minus24.gif");
-        removeButton.addActionListener(new RemoveLayerActionListener());
+        final RemoveLayerAction removeLayerAction = new RemoveLayerAction(appContext);
+        AbstractButton removeButton = ToolButtonFactory.createButton(removeLayerAction, false);
 
         final LayerMover nodeMover = new LayerMover(view.getRootLayer());
         AbstractButton upButton = createToolButton("icons/Up24.gif");
@@ -220,10 +223,6 @@ class LayerManagerForm {
         return checkBoxTree;
     }
 
-    private LayerTreeModel getLayerTreeModel() {
-        return (LayerTreeModel) layerTree.getModel();
-    }
-
     public static AbstractButton createToolButton(final String iconPath) {
         return ToolButtonFactory.createButton(UIUtils.loadImageIcon(iconPath), false);
     }
@@ -352,32 +351,16 @@ class LayerManagerForm {
         @Override
         public void actionPerformed(ActionEvent e) {
 
-            LayerSource[] sources = new LayerSource[]{
-                    new LayerSource("Layer Group", new EmptyLayerPage()),
-                    new LayerSource("Image from Band", new BandLayerPage()),
-                    new LayerSource("Shapefile", new ShapefilePage()),
-                    new LayerSource("Image from File", new OpenImageFilePage()),
-                    new LayerSource("Web Mapping Server (WMS)", new WmsPage()),
+            AppAssistantPane pane = new AppAssistantPane(SwingUtilities.getWindowAncestor(control), "Add Layer", appContext);
 
-                    // new LayerSource("WFS"),
-            };
-
-            final LayerSourcePane pane = new LayerSourcePane(SwingUtilities.getWindowAncestor(control),
-                                                             view,
-                                                             getSelectedLayer(),
-                                                             getLayerTreeModel());
-            pane.show(new SelectLayerSourcePage(sources));
-        }
-    }
-
-    private class RemoveLayerActionListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            Layer selectedLayer = getSelectedLayer();
-            if (selectedLayer != null) {
-                selectedLayer.getParent().getChildren().remove(selectedLayer);
-            }
+            // Todo - select layer sources from extension point
+            pane.show(new SelectLayerSourceAssistantPage(new LayerSource[]{
+                    new LayerSource("Layer Group", new EmptyLayerAssistantPage()),
+                    new LayerSource("Image from Band", new BandLayerAssistantPage()),
+                    new LayerSource("Shapefile", new ShapefileAssistantPage()),
+                    new LayerSource("Image from File", new OpenImageFileAssistantPage()),
+                    new LayerSource("Web Mapping Server (WMS)", new WmsAssistantPage()),
+            }));
         }
     }
 
@@ -390,7 +373,7 @@ class LayerManagerForm {
             JLabel label = (JLabel) super.getTreeCellRendererComponent(tree,
                                                                        value, sel,
                                                                        expanded, leaf, row,
-                                                                             hasFocus);
+                                                                       hasFocus);
             Layer layer = (Layer) value;
             if (ProductSceneView.BASE_IMAGE_LAYER_ID.equals(layer.getId())) {
                 label.setText("<html><b>" + layer.getName() + "</b></html>");

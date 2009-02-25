@@ -1,9 +1,9 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc;
 
-import org.esa.beam.framework.ui.mpage.MultiPagePane;
+import org.esa.beam.framework.ui.assistant.AssistantPane;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefilePage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefileAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsAssistantPage;
 
 import javax.swing.UIManager;
 
@@ -18,15 +18,15 @@ public class Main {
         }
         LayerSource[] sources = new LayerSource[]{
                 new LayerSource("Image layer from band"),
-                new LayerSource("Image layer from file", new OpenImageFilePage()),
-                new LayerSource("WMS", new WmsPage()),
+                new LayerSource("Image layer from file", new OpenImageFileAssistantPage()),
+                new LayerSource("WMS", new WmsAssistantPage()),
                 new LayerSource("WFS"),
-                new LayerSource("Shapefile", new ShapefilePage()),
+                new LayerSource("Shapefile", new ShapefileAssistantPage()),
 
         };
 
-        final MultiPagePane pane = new MultiPagePane(null, "Add Layer");
-        pane.show(new SelectLayerSourcePage(sources));
+        final AssistantPane pane = new AssistantPane(null, "Add Layer");
+        pane.show(new SelectLayerSourceAssistantPage(sources));
     }
 
 }

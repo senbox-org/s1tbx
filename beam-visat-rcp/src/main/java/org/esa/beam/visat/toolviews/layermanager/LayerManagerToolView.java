@@ -76,7 +76,7 @@ public class LayerManagerToolView extends AbstractToolView {
             if (layerManagerMap.containsKey(view)) {
                 activeForm = layerManagerMap.get(view);
             } else {
-                activeForm = new LayerManagerForm(view);
+                activeForm = new LayerManagerForm(VisatApp.getApp());
                 activeForm.addLayerSelectionListener(activeFormLSL);
                 layerManagerMap.put(view, activeForm);
             }

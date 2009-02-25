@@ -1,7 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
-import org.esa.beam.visat.toolviews.layermanager.LayerPage;
-import org.esa.beam.visat.toolviews.layermanager.LayerPageContext;
+import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
+import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
 import org.geotools.data.wms.WebMapServer;
@@ -33,7 +33,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-class WmsPage3 extends LayerPage {
+class WmsPage3 extends AbstractAppAssistantPage {
     private final WebMapServer wms;
     private final Layer layer;
     private JComboBox styleList;
@@ -60,7 +60,7 @@ class WmsPage3 extends LayerPage {
     }
 
     @Override
-    protected Component createLayerPageComponent(LayerPageContext context) {
+    protected Component createLayerPageComponent(AppAssistantPageContext context) {
         mapCanvas = new JLabel();
         mapCanvas.setHorizontalTextPosition(SwingConstants.CENTER);
         mapCanvas.setVerticalTextPosition(SwingConstants.CENTER);

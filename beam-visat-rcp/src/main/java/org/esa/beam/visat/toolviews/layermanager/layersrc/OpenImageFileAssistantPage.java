@@ -1,8 +1,8 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc;
 
 
-import org.esa.beam.visat.toolviews.layermanager.LayerPage;
-import org.esa.beam.visat.toolviews.layermanager.LayerPageContext;
+import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
+import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -18,12 +18,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
-public class OpenImageFilePage extends LayerPage {
+public class OpenImageFileAssistantPage extends AbstractAppAssistantPage {
 
     private JTextField imageFileField;
     private JTextField worldFileField;
 
-    public OpenImageFilePage() {
+    public OpenImageFileAssistantPage() {
         super("Select Image File");
     }
 
@@ -57,7 +57,7 @@ public class OpenImageFilePage extends LayerPage {
         return true;
     }
 
-    protected Component createLayerPageComponent(LayerPageContext context) {
+    protected Component createLayerPageComponent(AppAssistantPageContext context) {
         GridBagConstraints gbc = new GridBagConstraints();
         final JPanel panel = new JPanel(new GridBagLayout());
 
