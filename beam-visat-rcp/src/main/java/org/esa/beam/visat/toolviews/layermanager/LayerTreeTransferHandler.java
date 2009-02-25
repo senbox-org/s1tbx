@@ -2,7 +2,6 @@ package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.glayer.Layer;
 
-import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
@@ -27,12 +26,17 @@ import java.util.List;
 class LayerTreeTransferHandler extends TransferHandler {
 
     private static final DataFlavor layerFlavor = new DataFlavor(LayerContainer.class, "LayerContainer");
+    private final JTree tree;
+
+    LayerTreeTransferHandler(JTree tree) {
+        this.tree = tree;
+    }
 
     @Override
     public boolean canImport(TransferSupport support) {
         return support.isDataFlavorSupported(layerFlavor) &&
                support.isDrop() &&
-               support.getComponent() instanceof JTree;
+               support.getComponent() == tree;
     }
 
     @Override
@@ -51,25 +55,25 @@ class LayerTreeTransferHandler extends TransferHandler {
         if (!isValidDrag(support, transferLayer)) {
             return false;
         }
+
         // remove and add for Drag&Drop
+        // cannot use exportDone(Transferable); layer has to be removed first and then added,
+        // because the parent of the layer is set to null when removing
         removeLayer(transferLayer);
         addLayer(transferLayer, support);
         return true;
     }
 
+
+
     @Override
-    public int getSourceActions(JComponent c) {
-        if (c instanceof JTree) {
-            return MOVE;
-        }
-        return NONE;
+    public int getSourceActions(JComponent component) {
+        return component == tree ? MOVE : NONE;
     }
 
     @Override
-    protected Transferable createTransferable(JComponent c) {
-        if (c instanceof JTree) {
-            final JTree tree = (JTree) c;
-
+    protected Transferable createTransferable(JComponent component) {
+        if (component == tree) {
             final TreePath treePath = tree.getSelectionPath();
             final Layer draggedLayer = (Layer) treePath.getLastPathComponent();
             final Layer oldParentLayer = (Layer) treePath.getParentPath().getLastPathComponent();
@@ -77,12 +81,6 @@ class LayerTreeTransferHandler extends TransferHandler {
             return new LayerTransferable(draggedLayer, oldParentLayer, oldChildIndex);
         }
         return null;
-    }
-
-    @Override
-    public Icon getVisualRepresentation(Transferable t) {
-        return super.getVisualRepresentation(t);
-
     }
 
     private static void addLayer(LayerContainer layerContainer, TransferSupport support) {
@@ -115,14 +113,14 @@ class LayerTreeTransferHandler extends TransferHandler {
         oldParentayer.getChildren().remove(oldIndex);
     }
 
-    public static boolean isValidDrag(TransferSupport support, LayerContainer layerContainer) {
+    private static boolean isValidDrag(TransferSupport support, LayerContainer layerContainer) {
         JTree.DropLocation dropLocation = (JTree.DropLocation) support.getDropLocation();
         TreePath treePath = dropLocation.getPath();
 
         final Object[] path = treePath.getPath();
         for (Object o : path) {
             final Layer layer = (Layer) o;
-            if(layer == layerContainer.getDraggedLayer()) {
+            if (layer == layerContainer.getDraggedLayer()) {
                 return false;
             }
         }
@@ -138,14 +136,17 @@ class LayerTreeTransferHandler extends TransferHandler {
 
         }
 
+        @Override
         public DataFlavor[] getTransferDataFlavors() {
             return new DataFlavor[]{layerFlavor};
         }
 
+        @Override
         public boolean isDataFlavorSupported(DataFlavor flavor) {
             return flavor.equals(layerFlavor);
         }
 
+        @Override
         public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
             if (!flavor.equals(layerFlavor)) {
                 throw new UnsupportedFlavorException(flavor);

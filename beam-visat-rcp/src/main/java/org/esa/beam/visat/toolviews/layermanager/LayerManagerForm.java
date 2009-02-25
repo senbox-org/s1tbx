@@ -191,7 +191,7 @@ class LayerManagerForm {
         checkBoxTree.setEditable(true);
         checkBoxTree.setDragEnabled(true);
         checkBoxTree.setDropMode(DropMode.ON_OR_INSERT);
-        checkBoxTree.setTransferHandler(new LayerTreeTransferHandler());
+        checkBoxTree.setTransferHandler(new LayerTreeTransferHandler(checkBoxTree));
 
         checkBoxTree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             @Override
