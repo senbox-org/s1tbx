@@ -37,6 +37,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.GeoCodingMathTransform;
@@ -55,7 +56,6 @@ import org.geotools.referencing.crs.DefaultDerivedCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
-import org.geotools.referencing.operation.transform.IdentityTransform;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.util.NumberRange;
@@ -69,12 +69,15 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.InterpolationNearest;
 import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
+import java.awt.image.ColorModel;
 
 /**
  * @author Marco Zuehlke
@@ -117,17 +120,16 @@ public class MapProjOp extends Operator {
                                         "projection of: " + sourceProduct.getDescription(),
                                         gridRect.width,
                                         gridRect.height);
-            
+
             GeoCoding targetGeoCoding = new MathTransformGeoCoding(gridGeometry.getGridToCRS(), gridRect);
             targetProduct.setGeoCoding(targetGeoCoding);
-            
+
             // TODO: also query operatorContext rendering hints for tile size
             final Dimension tileSize = JAIUtils.computePreferredTileSize(gridRect.width, gridRect.height, 1);
             targetProduct.setPreferredTileSize(tileSize);
             addMetadataToProduct(targetProduct);
             addFlagCodingsToProduct(targetProduct);
             addIndexCodingsToProduct(targetProduct);
-
 
             for (Band sourceBand : sourceProduct.getBands()) {
                 Band targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
@@ -136,16 +138,16 @@ public class MapProjOp extends Operator {
                 // only the tile size of the image layout is actually taken into account
                 // by the rasample operation.   Use Operations.DEFAULT if tile size does
                 // not matter
-//                final Operations operations = new Operations(
-//                        new Hints(JAI.KEY_IMAGE_LAYOUT, createImageLayout(targetBand, tileSize)));
-                GridCoverage2D targetCoverage = (GridCoverage2D) Operations.DEFAULT.resample(sourceCoverage,
+                final Operations operations = new Operations(
+                        new Hints(JAI.KEY_IMAGE_LAYOUT, createImageLayout(targetBand, tileSize)));
+                GridCoverage2D targetCoverage = (GridCoverage2D) operations.resample(sourceCoverage,
                                                                                      targetCRS,
                                                                                      gridGeometry,
                                                                                      interpolation);
                 RenderedImage targetImage = targetCoverage.getRenderedImage();
                 if (targetImage.getTileHeight() != targetProduct.getPreferredTileSize().getHeight()) {
-                    System.out.println("imageTileHeight: "+targetImage.getTileHeight());
-                    System.out.println("productTileHeight: "+targetProduct.getPreferredTileSize().getHeight());
+                    System.out.println("imageTileHeight: " + targetImage.getTileHeight());
+                    System.out.println("productTileHeight: " + targetProduct.getPreferredTileSize().getHeight());
 //                    throw new OperatorException("tileHeigth = " + targetImage.getTileHeight());
                 }
                 if (targetImage.getTileWidth() != targetProduct.getPreferredTileSize().getWidth()) {
@@ -346,7 +348,33 @@ public class MapProjOp extends Operator {
         final int h = node.getSceneRasterHeight();
         final int bufferType = ImageManager.getDataBufferType(node.getDataType());
 
-        return ImageManager.createSingleBandedImageLayout(bufferType, w, h, tileSize.width, tileSize.height);
+        return createSingleBandedImageLayout(bufferType, w, h, tileSize.width, tileSize.height);
+    }
+
+    public static ImageLayout createSingleBandedImageLayout(int dataType,
+                                                            int width,
+                                                            int height,
+                                                            int tileWidth,
+                                                            int tileHeight) {
+        SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataType, 1, 1);
+        ColorModel colorModel = PlanarImage.createColorModel(sampleModel);
+        return createImageLayout(width, height, tileWidth, tileHeight, sampleModel, colorModel);
+    }
+
+    private static ImageLayout createImageLayout(int width,
+                                                 int height,
+                                                 int tileWidth,
+                                                 int tileHeight,
+                                                 SampleModel sampleModel,
+                                                 ColorModel colorModel) {
+        return new ImageLayout(0, 0,
+                               width,
+                               height,
+                               0, 0,
+                               tileWidth,
+                               tileHeight,
+                               sampleModel,
+                               colorModel);
     }
 
     private static GridCoverage2D createSourceCoverage(GridCoverageFactory factory, Envelope2D envelope, Band band) {
