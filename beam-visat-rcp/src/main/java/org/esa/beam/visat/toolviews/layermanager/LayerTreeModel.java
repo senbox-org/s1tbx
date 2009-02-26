@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
 
-public class LayerTreeModel implements TreeModel {
+class LayerTreeModel implements TreeModel {
 
     private final Layer rootLayer;
     private final WeakHashMap<TreeModelListener, Object> treeModelListeners;

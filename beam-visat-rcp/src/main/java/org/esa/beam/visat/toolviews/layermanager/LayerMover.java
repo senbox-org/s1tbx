@@ -14,7 +14,7 @@ class LayerMover {
     private final Layer rootLayer;
 
 
-    public LayerMover(final Layer rootLayer) {
+    LayerMover(final Layer rootLayer) {
         this.rootLayer = rootLayer;
     }
 

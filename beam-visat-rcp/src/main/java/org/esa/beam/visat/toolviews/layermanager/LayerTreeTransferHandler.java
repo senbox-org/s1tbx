@@ -12,6 +12,8 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.util.List;
 
+import org.esa.beam.framework.ui.product.ProductSceneView;
+
 /**
  * Class that enables the support for Drag & Drop.
  * <p/>
@@ -26,9 +28,11 @@ import java.util.List;
 class LayerTreeTransferHandler extends TransferHandler {
 
     private static final DataFlavor layerFlavor = new DataFlavor(LayerContainer.class, "LayerContainer");
+    private final ProductSceneView view;
     private final JTree tree;
 
-    LayerTreeTransferHandler(JTree tree) {
+    LayerTreeTransferHandler(ProductSceneView view, JTree tree) {
+        this.view = view;
         this.tree = tree;
     }
 
@@ -41,6 +45,10 @@ class LayerTreeTransferHandler extends TransferHandler {
 
     @Override
     public boolean importData(TransferSupport support) {
+        if (support.getComponent() != tree) {
+            return false;
+        }
+
         final Transferable transferable = support.getTransferable();
 
         final LayerContainer transferLayer;
@@ -65,7 +73,6 @@ class LayerTreeTransferHandler extends TransferHandler {
     }
 
 
-
     @Override
     public int getSourceActions(JComponent component) {
         return component == tree ? MOVE : NONE;
@@ -74,16 +81,15 @@ class LayerTreeTransferHandler extends TransferHandler {
     @Override
     protected Transferable createTransferable(JComponent component) {
         if (component == tree) {
-            final TreePath treePath = tree.getSelectionPath();
-            final Layer draggedLayer = (Layer) treePath.getLastPathComponent();
-            final Layer oldParentLayer = (Layer) treePath.getParentPath().getLastPathComponent();
+            final Layer draggedLayer = view.getSelectedLayer();
+            final Layer oldParentLayer = draggedLayer.getParent();
             final int oldChildIndex = oldParentLayer.getChildIndex(draggedLayer.getId());
             return new LayerTransferable(draggedLayer, oldParentLayer, oldChildIndex);
         }
         return null;
     }
 
-    private static void addLayer(LayerContainer layerContainer, TransferSupport support) {
+    private void addLayer(LayerContainer layerContainer, TransferSupport support) {
         Layer transferLayer = layerContainer.getDraggedLayer();
         JTree.DropLocation dropLocation = (JTree.DropLocation) support.getDropLocation();
         TreePath treePath = dropLocation.getPath();
@@ -101,7 +107,6 @@ class LayerTreeTransferHandler extends TransferHandler {
             targetList.add(targetIndex, transferLayer);
         }
 
-        final JTree tree = (JTree) support.getComponent();
         final TreePath newTreePath = treePath.pathByAddingChild(transferLayer);
         tree.makeVisible(newTreePath);
         tree.scrollPathToVisible(newTreePath);

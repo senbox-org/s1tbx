@@ -14,7 +14,6 @@
  */
 package org.esa.beam.visat.toolviews.layermanager;
 
-import com.bc.ceres.glayer.Layer;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
@@ -39,17 +38,9 @@ public class LayerManagerToolView extends AbstractToolView {
     private ProductSceneView activeView;
     private LayerManagerForm activeForm;
     private final SelectedLayerPCL selectedLayerPCL;
-    private final LayerSelectionListener activeFormLSL;
 
     public LayerManagerToolView() {
         selectedLayerPCL = new SelectedLayerPCL();
-        activeFormLSL = new LayerSelectionListener() {
-            public void layerSelectionChanged(Layer selectedLayer) {
-                if (activeView != null) {
-                    activeView.setSelectedLayer(selectedLayer);
-                }
-            }
-        };
     }
 
 
@@ -77,7 +68,6 @@ public class LayerManagerToolView extends AbstractToolView {
                 activeForm = layerManagerMap.get(view);
             } else {
                 activeForm = new LayerManagerForm(VisatApp.getApp());
-                activeForm.addLayerSelectionListener(activeFormLSL);
                 layerManagerMap.put(view, activeForm);
             }
             panel.add(activeForm.getControl(), BorderLayout.CENTER);
@@ -128,10 +118,6 @@ public class LayerManagerToolView extends AbstractToolView {
                 if (activeView == view) {
                     setProductSceneView(null);
                 }
-                final LayerManagerForm form = layerManagerMap.get(view);
-                if (form != null) {
-                    form.removeLayerSelectionListener(activeFormLSL);
-                }
                 layerManagerMap.remove(view);
             }
         }
@@ -141,7 +127,7 @@ public class LayerManagerToolView extends AbstractToolView {
 
         public void propertyChange(PropertyChangeEvent evt) {
             if (activeForm != null && activeView != null) {
-                activeForm.setSelectedLayer(activeView.getSelectedLayer());
+                activeForm.updateFormUI();
             }
         }
     }

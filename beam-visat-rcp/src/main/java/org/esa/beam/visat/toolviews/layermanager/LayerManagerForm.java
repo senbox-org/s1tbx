@@ -38,7 +38,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
-import java.util.WeakHashMap;
+import java.util.Set;
 
 class LayerManagerForm {
 
@@ -47,9 +47,10 @@ class LayerManagerForm {
     private CheckBoxTree layerTree;
     private JSlider transparencySlider;
     private JPanel control;
-    private WeakHashMap<LayerSelectionListener, Object> layerSelectionListenerMap;
     private boolean adjusting;
     private LayerTreeModel layerTreeModel;
+    private RemoveLayerAction removeLayerAction;
+    private JLabel transparencyLabel;
 
     LayerManagerForm(AppContext appContext) {
         this.appContext = appContext;
@@ -61,22 +62,20 @@ class LayerManagerForm {
         layerTreeModel = new LayerTreeModel(view.getRootLayer());
         layerTree = createCheckBoxTree(layerTreeModel);
         layerTree.setCellRenderer(new MyTreeCellRenderer());
-        layerSelectionListenerMap = new WeakHashMap<LayerSelectionListener, Object>(3);
-        initVisibilitySelection(view.getRootLayer());
 
         transparencySlider = new JSlider(0, 100, 0);
         final JPanel sliderPanel = new JPanel(new BorderLayout(4, 4));
         sliderPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
-        sliderPanel.add(new JLabel("Transparency:"), BorderLayout.WEST);
+        transparencyLabel = new JLabel("Transparency:");
+        sliderPanel.add(transparencyLabel, BorderLayout.WEST);
         sliderPanel.add(transparencySlider, BorderLayout.CENTER);
         transparencySlider.addChangeListener(new TransparencySliderListener());
 
         getRootLayer().addListener(new RootLayerListener());
 
-
         AbstractButton addButton = createToolButton("icons/Plus24.gif");
         addButton.addActionListener(new AddLayerActionListener());
-        final RemoveLayerAction removeLayerAction = new RemoveLayerAction(appContext);
+        removeLayerAction = new RemoveLayerAction(appContext);
         AbstractButton removeButton = ToolButtonFactory.createButton(removeLayerAction, false);
 
         final LayerMover nodeMover = new LayerMover(view.getRootLayer());
@@ -107,6 +106,9 @@ class LayerManagerForm {
         control.add(new JScrollPane(layerTree), BorderLayout.CENTER);
         control.add(sliderPanel, BorderLayout.SOUTH);
         control.add(actionPanel, BorderLayout.EAST);
+
+        initLayerTreeVisibility(view.getRootLayer());
+        updateFormUI();
     }
 
     public Layer getRootLayer() {
@@ -117,33 +119,45 @@ class LayerManagerForm {
         return control;
     }
 
-    Layer getSelectedLayer() {
-        TreePath selectionPath = layerTree.getSelectionPath();
-        if (selectionPath != null) {
-            return getLayer(selectionPath);
-        }
-        return null;
+    private Layer getSelectedLayer() {
+        return view.getSelectedLayer();
     }
 
-    void setSelectedLayer(Layer layer) {
+    void updateFormUI() {
         Layer selectedLayer = getSelectedLayer();
-        if (selectedLayer == layer) {
-            return;
-        }
-        if (layer != null) {
-            layerTree.setSelectionPath(
-                    new TreePath(LayerTreeModel.getLayerPath((Layer) layerTreeModel.getRoot(), layer)));
-        } else {
-            layerTree.clearSelection();
-        }
+        updateLayerStyleUI(selectedLayer);
+        updateLayerTreeSelection(selectedLayer);
+        removeLayerAction.setEnabled(selectedLayer != null && !isLayerProtected(selectedLayer));
     }
 
-    void addLayerSelectionListener(LayerSelectionListener listener) {
-        layerSelectionListenerMap.put(listener, "<null>");
+    public  boolean isLayerProtected(Layer layer) {
+        return isLayerProtectedImpl(layer) || isParentLayerProtected(layer) || isChildLayerProtected(layer);
     }
 
-    void removeLayerSelectionListener(LayerSelectionListener listener) {
-        layerSelectionListenerMap.remove(listener);
+    private boolean isLayerProtectedImpl(Layer layer) {
+        return layer.getId().equals(ProductSceneView.BASE_IMAGE_LAYER_ID);
+    }
+
+    private boolean isParentLayerProtected(Layer layer) {
+        Layer parentLayer = layer.getParent();
+        while (parentLayer != null) {
+            if (isLayerProtectedImpl(parentLayer)) {
+                return true;
+            }
+            parentLayer = parentLayer.getParent();
+        }
+        return false;
+    }
+
+    private boolean isChildLayerProtected(Layer selectedLayer) {
+        Layer[] children = selectedLayer.getChildren().toArray(new Layer[selectedLayer.getChildren().size()]);
+        for (Layer childLayer : children) {
+            if (isLayerProtectedImpl(childLayer) ||
+                isChildLayerProtected(childLayer)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static Layer getLayer(TreePath path) {
@@ -153,24 +167,18 @@ class LayerManagerForm {
         return (Layer) path.getLastPathComponent();
     }
 
-    private void fireLayerSelectionChanged(Layer selectedLayer) {
-        for (LayerSelectionListener layerSelectionListener : layerSelectionListenerMap.keySet()) {
-            layerSelectionListener.layerSelectionChanged(selectedLayer);
-        }
-    }
-
-    private void initVisibilitySelection(final Layer layer) {
-        doVisibilitySelection(layer, layer.isVisible());
+    private void initLayerTreeVisibility(final Layer layer) {
+        updateLayerTreeVisibility(layer);
         for (Layer childLayer : layer.getChildren()) {
-            initVisibilitySelection(childLayer);
+            initLayerTreeVisibility(childLayer);
         }
     }
 
-    private void doVisibilitySelection(Layer layer, boolean selected) {
+    private void updateLayerTreeVisibility(Layer layer) {
         CheckBoxTreeSelectionModel checkBoxTreeSelectionModel = layerTree.getCheckBoxTreeSelectionModel();
         Layer[] layerPath = LayerTreeModel.getLayerPath(layerTreeModel.getRootLayer(), layer);
         if (layerPath.length > 0) {
-            if (selected) {
+            if (layer.isVisible()) {
                 checkBoxTreeSelectionModel.addSelectionPath(new TreePath(layerPath));
             } else {
                 checkBoxTreeSelectionModel.removeSelectionPath(new TreePath(layerPath));
@@ -178,10 +186,27 @@ class LayerManagerForm {
         }
     }
 
+    private void updateLayerTreeSelection(Layer selectedLayer) {
+        if (selectedLayer != null) {
+            Layer[] layerPath = LayerTreeModel.getLayerPath(layerTreeModel.getRootLayer(), selectedLayer);
+            if (layerPath.length > 0) {
+                layerTree.setSelectionPath(new TreePath(layerPath));
+            } else {
+                layerTree.clearSelection();
+            }
+        } else {
+            layerTree.clearSelection();
+        }
+    }
+
     private void updateLayerStyleUI(Layer layer) {
-        final double transparency = 1 - layer.getStyle().getOpacity();
-        final int n = (int) Math.round(100.0 * transparency);
-        transparencySlider.setValue(n);
+        transparencyLabel.setEnabled(layer != null);
+        transparencySlider.setEnabled(layer != null);
+        if (layer != null) {
+            final double transparency = 1 - layer.getStyle().getOpacity();
+            final int n = (int) Math.round(100.0 * transparency);
+            transparencySlider.setValue(n);
+        }
     }
 
     private CheckBoxTree createCheckBoxTree(LayerTreeModel layerTreeModel) {
@@ -194,14 +219,19 @@ class LayerManagerForm {
         checkBoxTree.setEditable(true);
         checkBoxTree.setDragEnabled(true);
         checkBoxTree.setDropMode(DropMode.ON_OR_INSERT);
-        checkBoxTree.setTransferHandler(new LayerTreeTransferHandler(checkBoxTree));
+        checkBoxTree.setTransferHandler(new LayerTreeTransferHandler(view, checkBoxTree));
 
         checkBoxTree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent event) {
-                Layer selectedLayer = getLayer(event.getPath());
-                updateLayerStyleUI(selectedLayer);
-                fireLayerSelectionChanged(selectedLayer);
+                Layer selectedLayer;
+                final TreePath path = checkBoxTree.getSelectionPath();
+                if (path != null) {
+                    selectedLayer = getLayer(event.getPath());
+                } else {
+                    selectedLayer = null;
+                }
+                appContext.getSelectedProductSceneView().setSelectedLayer(selectedLayer);
             }
         });
 
@@ -232,32 +262,21 @@ class LayerManagerForm {
         @Override
         public void handleLayerStylePropertyChanged(Layer layer, PropertyChangeEvent event) {
             if (!adjusting) {
-                final TreePath selectionPath = layerTree.getSelectionPath();
-                if (selectionPath != null) {
-                    final Layer selectedLayer = getLayer(selectionPath);
-                    if (selectedLayer == layer) {
-                        updateLayerStyleUI(layer);
-                    }
-                }
+                updateFormUI();
             }
         }
 
         @Override
         public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
             if ("visible".equals(event.getPropertyName())) {
-                final Boolean oldValue = (Boolean) event.getOldValue();
-                final Boolean newValue = (Boolean) event.getNewValue();
-
-                if (!oldValue.equals(newValue) && !adjusting) {
-                    doVisibilitySelection(layer, newValue);
-                }
+                updateLayerTreeVisibility(layer);
             }
         }
 
         @Override
         public void handleLayersAdded(Layer parentLayer, Layer[] childLayers) {
             for (Layer layer : childLayers) {
-                doVisibilitySelection(layer, layer.isVisible());
+                updateLayerTreeVisibility(layer);
             }
         }
     }
@@ -351,7 +370,8 @@ class LayerManagerForm {
         @Override
         public void actionPerformed(ActionEvent e) {
 
-            AppAssistantPane pane = new AppAssistantPane(SwingUtilities.getWindowAncestor(control), "Add Layer", appContext);
+            AppAssistantPane pane = new AppAssistantPane(SwingUtilities.getWindowAncestor(control), "Add Layer",
+                                                         appContext);
 
             // Todo - select layer sources from extension point
             pane.show(new SelectLayerSourceAssistantPage(new LayerSource[]{
@@ -364,7 +384,7 @@ class LayerManagerForm {
         }
     }
 
-    private class MyTreeCellRenderer extends DefaultTreeCellRenderer {
+    private static class MyTreeCellRenderer extends DefaultTreeCellRenderer {
 
         @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded,

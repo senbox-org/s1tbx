@@ -687,10 +687,14 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     public void setSelectedLayer(Layer layer) {
-        Layer oldLayer = this.selectedLayer;
+        Layer oldLayer = selectedLayer;
         if (oldLayer != layer) {
-            this.selectedLayer = layer;
-            this.selectedLayerUI = layer.getExtension(LayerUI.class);
+            selectedLayer = layer;
+            if (selectedLayer != null) {
+                selectedLayerUI = selectedLayer.getExtension(LayerUI.class);
+            } else {
+                selectedLayerUI = null;                 
+            }
             firePropertyChange(PROPERTY_NAME_SELECTED_LAYER, oldLayer, selectedLayer);
         }
     }
