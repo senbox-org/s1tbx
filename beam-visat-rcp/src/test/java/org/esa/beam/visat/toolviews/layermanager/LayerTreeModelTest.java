@@ -80,7 +80,7 @@ public class LayerTreeModelTest extends TestCase {
         treeModel.addTreeModelListener(listener);
         final List<Layer> children = layer3.getChildren();
         children.remove(layer4);
-       assertEquals("treeNodesRemoved;", listener.trace); 
+       assertEquals("treeStructureChanged;", listener.trace); 
     }
 
     private static class MyTreeModelListener implements TreeModelListener {
