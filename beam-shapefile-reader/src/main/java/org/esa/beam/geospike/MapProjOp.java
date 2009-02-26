@@ -52,18 +52,26 @@ import org.geotools.coverage.processing.Operations;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.datum.DefaultGeodeticDatum;
 import org.geotools.referencing.crs.DefaultDerivedCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
+import org.geotools.referencing.operation.projection.TransverseMercator;
+import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.util.NumberRange;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchIdentifierException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
+import org.opengis.referencing.operation.Projection;
+import org.opengis.referencing.operation.OperationMethod;
+import org.opengis.parameter.ParameterValueGroup;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
@@ -78,6 +86,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.ColorModel;
+import java.util.Set;
 
 /**
  * @author Marco Zuehlke
@@ -253,9 +262,19 @@ public class MapProjOp extends Operator {
         }
     }
 
-    private static CoordinateReferenceSystem createTargetCRS() {
+    private static CoordinateReferenceSystem createTargetCRS() throws FactoryException {
         // TODO: create targetCRS from parameters
-        return DefaultGeographicCRS.WGS84;
+        final DefaultMathTransformFactory mtf = new DefaultMathTransformFactory();
+//        Set<OperationMethod> methods = mtf.getAvailableMethods(Projection.class);
+//        for (OperationMethod method : methods) {
+//            System.out.println("method.getName() = " + method.getName());
+//        }
+        final ParameterValueGroup p = mtf.getDefaultParameters("Transverse_Mercator");
+        p.parameter("semi_major").setValue(6378137.000);
+        p.parameter("semi_minor").setValue(6356752.314);
+        final MathTransform mt = mtf.createParameterizedTransform(p);
+
+        return new DefaultProjectedCRS("tm", DefaultGeographicCRS.WGS84, mt, DefaultCartesianCS.PROJECTED);
     }
 
     private static Interpolation createInterpolation() {
