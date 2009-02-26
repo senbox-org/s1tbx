@@ -71,7 +71,14 @@ public abstract class AbstractVisatAction extends AppCommand {
 
         @Override
         public void handleError(Throwable e) {
+            e.printStackTrace();
             VisatApp.getApp().showErrorDialog(toolTitle, e.getMessage());
+        }
+
+        @Override
+        public void handleError(String message, Throwable e) {
+            e.printStackTrace();
+            VisatApp.getApp().showErrorDialog(toolTitle, message);
         }
 
         @Override

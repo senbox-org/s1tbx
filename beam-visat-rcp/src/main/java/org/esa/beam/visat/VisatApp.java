@@ -415,12 +415,13 @@ public class VisatApp extends BasicApp implements AppContext {
 
     @Override
     public void handleError(Throwable e) {
-        showErrorDialog(e.getMessage());
+        handleError(e.getMessage(), e);
     }
 
     @Override
     public void handleError(String message, Throwable e) {
-        showErrorDialog(getAppName());
+        e.printStackTrace();
+        showErrorDialog(getAppName(), message);
     }
 
     @Override
