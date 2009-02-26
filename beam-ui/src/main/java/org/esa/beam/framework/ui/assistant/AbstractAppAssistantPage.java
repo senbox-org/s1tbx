@@ -13,11 +13,11 @@ public abstract class AbstractAppAssistantPage extends AbstractAssistantPage {
     }
 
     @Override
-    public final AssistantPage getNextPage() {
-        return getNextLayerPage();
+    public final AssistantPage getNextPage(AssistantPageContext pageContext) {
+        return getNextPage(getAppPageContext());
     }
 
-    public AbstractAppAssistantPage getNextLayerPage() {
+    public AbstractAppAssistantPage getNextPage(AppAssistantPageContext pageContext) {
         return null;
     }
 

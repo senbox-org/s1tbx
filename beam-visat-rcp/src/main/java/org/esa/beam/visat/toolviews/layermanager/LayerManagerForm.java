@@ -11,7 +11,7 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.BandLayerAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.EmptyLayerAssistantPage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.OpenImageFileAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.image.ImageFileAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.SelectLayerSourceAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefileAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsAssistantPage;
@@ -38,7 +38,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
-import java.util.Set;
 
 class LayerManagerForm {
 
@@ -131,22 +130,11 @@ class LayerManagerForm {
     }
 
     public  boolean isLayerProtected(Layer layer) {
-        return isLayerProtectedImpl(layer) || isParentLayerProtected(layer) || isChildLayerProtected(layer);
+        return isLayerProtectedImpl(layer) || isChildLayerProtected(layer);
     }
 
     private boolean isLayerProtectedImpl(Layer layer) {
         return layer.getId().equals(ProductSceneView.BASE_IMAGE_LAYER_ID);
-    }
-
-    private boolean isParentLayerProtected(Layer layer) {
-        Layer parentLayer = layer.getParent();
-        while (parentLayer != null) {
-            if (isLayerProtectedImpl(parentLayer)) {
-                return true;
-            }
-            parentLayer = parentLayer.getParent();
-        }
-        return false;
     }
 
     private boolean isChildLayerProtected(Layer selectedLayer) {
@@ -277,6 +265,7 @@ class LayerManagerForm {
         public void handleLayersAdded(Layer parentLayer, Layer[] childLayers) {
             for (Layer layer : childLayers) {
                 updateLayerTreeVisibility(layer);
+                updateLayerTreeSelection(layer);
             }
         }
     }
@@ -378,7 +367,7 @@ class LayerManagerForm {
                     new LayerSource("Layer Group", new EmptyLayerAssistantPage()),
                     new LayerSource("Image from Band", new BandLayerAssistantPage()),
                     new LayerSource("Shapefile", new ShapefileAssistantPage()),
-                    new LayerSource("Image from File", new OpenImageFileAssistantPage()),
+                    new LayerSource("Image from File", new ImageFileAssistantPage()),
                     new LayerSource("Web Mapping Server (WMS)", new WmsAssistantPage()),
             }));
         }
@@ -396,7 +385,7 @@ class LayerManagerForm {
                                                                        hasFocus);
             Layer layer = (Layer) value;
             if (ProductSceneView.BASE_IMAGE_LAYER_ID.equals(layer.getId())) {
-                label.setText("<html><b>" + layer.getName() + "</b></html>");
+                label.setText(String.format("<html><b>%s</b></html>", layer.getName()));
             }
             return label;
 

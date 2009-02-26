@@ -16,8 +16,9 @@ public interface AssistantPage {
     /**
      * Called only if {@link #validatePage()} returns true.
      * @return the next page, or {@code null} if no next page exists or the page could not be created.
+     * @param pageContext
      */
-    AssistantPage getNextPage();
+    AssistantPage getNextPage(AssistantPageContext pageContext);
 
     /**
      * Called from {@link AssistantPageContext#updateState()} in order to validate user inputs.

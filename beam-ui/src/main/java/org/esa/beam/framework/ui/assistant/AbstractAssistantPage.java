@@ -7,10 +7,11 @@ public abstract class AbstractAssistantPage implements AssistantPage {
     private Component pageComponent;
     private AssistantPageContext context;
 
-    public AbstractAssistantPage(String pageTitle) {
+    protected AbstractAssistantPage(String pageTitle) {
         this.pageTitle = pageTitle;
     }
 
+    @Override
     public String getPageTitle() {
         return pageTitle;
     }
@@ -31,6 +32,7 @@ public abstract class AbstractAssistantPage implements AssistantPage {
         return context;
     }
 
+    @Override
     public final Component getPageComponent(AssistantPageContext context) {
         this.context = context;
         if (pageComponent == null) {
@@ -41,33 +43,41 @@ public abstract class AbstractAssistantPage implements AssistantPage {
 
     protected abstract Component createPageComponent(AssistantPageContext context);
 
-    public AssistantPage getNextPage() {
+    @Override
+    public AssistantPage getNextPage(AssistantPageContext pageContext) {
         return null;
     }
 
+    @Override
     public boolean hasNextPage() {
         return false;
     }
 
+    @Override
     public boolean validatePage() {
         return true;
     }
 
+    @Override
     public boolean canFinish() {
         return true;
     }
 
+    @Override
     public boolean performFinish() {
         return true;
     }
 
+    @Override
     public void performCancel() {
     }
 
+    @Override
     public boolean canHelp() {
         return false;
     }
 
+    @Override
     public void performHelp() {
     }
 }

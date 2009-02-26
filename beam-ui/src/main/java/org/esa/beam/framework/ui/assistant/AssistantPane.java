@@ -138,6 +138,7 @@ public class AssistantPane implements AssistantPageContext {
             putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0));
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             setCurrentPage(pageStack.pop());
         }
@@ -151,8 +152,9 @@ public class AssistantPane implements AssistantPageContext {
             putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0));
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
-            AssistantPage nextPage = currentPage.getNextPage();
+            AssistantPage nextPage = currentPage.getNextPage(AssistantPane.this);
             if (nextPage != null) {
                 pageStack.push(currentPage);
                 setCurrentPage(nextPage);
@@ -169,6 +171,7 @@ public class AssistantPane implements AssistantPageContext {
 
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (getCurrentPage().performFinish()) {
                 close();
@@ -185,6 +188,7 @@ public class AssistantPane implements AssistantPageContext {
             putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             cancel();
         }
@@ -205,6 +209,7 @@ public class AssistantPane implements AssistantPageContext {
             putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_HELP, 0));
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             getCurrentPage().performHelp();
         }

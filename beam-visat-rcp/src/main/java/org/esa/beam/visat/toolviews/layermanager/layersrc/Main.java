@@ -4,6 +4,7 @@ import org.esa.beam.framework.ui.assistant.AssistantPane;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefileAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.image.ImageFileAssistantPage;
 
 import javax.swing.UIManager;
 
@@ -18,7 +19,7 @@ public class Main {
         }
         LayerSource[] sources = new LayerSource[]{
                 new LayerSource("Image layer from band"),
-                new LayerSource("Image layer from file", new OpenImageFileAssistantPage()),
+                new LayerSource("Image layer from file", new ImageFileAssistantPage()),
                 new LayerSource("WMS", new WmsAssistantPage()),
                 new LayerSource("WFS"),
                 new LayerSource("Shapefile", new ShapefileAssistantPage()),

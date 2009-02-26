@@ -39,7 +39,7 @@ public class WmsAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public AbstractAppAssistantPage getNextLayerPage() {
+    public AbstractAppAssistantPage getNextPage(AppAssistantPageContext pageContext) {
         WebMapServer wms = null;
         WMSCapabilities wmsCapabilities = null;
 

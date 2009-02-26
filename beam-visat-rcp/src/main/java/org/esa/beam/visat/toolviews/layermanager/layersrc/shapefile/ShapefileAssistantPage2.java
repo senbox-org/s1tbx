@@ -53,7 +53,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
 
-class ShapefilePage2 extends AbstractAppAssistantPage {
+class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
 
     private static final org.geotools.styling.StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
     private static final FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
@@ -72,7 +72,7 @@ class ShapefilePage2 extends AbstractAppAssistantPage {
     private Throwable error;
 
 
-    ShapefilePage2(File file,
+    ShapefileAssistantPage2(File file,
                    final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
                    final ReferencedEnvelope featureSourceEnvelope, final SimpleFeatureType schema,
                    final org.geotools.styling.Style[] styles) {

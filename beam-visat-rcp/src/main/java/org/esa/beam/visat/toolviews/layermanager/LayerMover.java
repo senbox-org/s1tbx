@@ -22,9 +22,8 @@ class LayerMover {
         if (rootLayer == layer) {
             return;
         }
-        final Layer[] layerPath = LayerTreeModel.getLayerPath(rootLayer, layer);
-        final Layer parentLayer = layerPath[layerPath.length - 2];
-        final int layerIndex = parentLayer.getChildIndex(layer.getId());
+        final Layer parentLayer = layer.getParent();
+        final int layerIndex = layer.getParent().getChildIndex(layer.getId());
 
         if (layerIndex > 0) {
             parentLayer.getChildren().remove(layer);
@@ -36,8 +35,7 @@ class LayerMover {
         if (rootLayer == layer) {
             return;
         }
-        final Layer[] layerPath = LayerTreeModel.getLayerPath(rootLayer, layer);
-        final Layer parentLayer = layerPath[layerPath.length - 2];
+        final Layer parentLayer = layer.getParent();
         final int layerIndex = parentLayer.getChildIndex(layer.getId());
 
         final boolean isLast = layerIndex == (parentLayer.getChildren().size() - 1);
@@ -51,11 +49,10 @@ class LayerMover {
         if (rootLayer == layer) {
             return;
         }
-        final Layer[] layerPath = LayerTreeModel.getLayerPath(rootLayer, layer);
-        final Layer parentLayer = layerPath[layerPath.length - 2];
+        final Layer parentLayer = layer.getParent();
         if (parentLayer != rootLayer) {
             parentLayer.getChildren().remove(layer);
-            final Layer parentsParentLayer = layerPath[layerPath.length - 3];
+            final Layer parentsParentLayer = parentLayer.getParent();
             final int parentIndex = parentsParentLayer.getChildIndex(parentLayer.getId());
             if (parentIndex < parentsParentLayer.getChildren().size() - 1) {
                 parentsParentLayer.getChildren().add(parentIndex + 1, layer);
@@ -69,8 +66,7 @@ class LayerMover {
         if (rootLayer == layer) {
             return;
         }
-        final Layer[] layerPath = LayerTreeModel.getLayerPath(rootLayer, layer);
-        final Layer parentLayer = layerPath[layerPath.length - 2];
+        final Layer parentLayer = layer.getParent();
 
         final int layerIndex = parentLayer.getChildIndex(layer.getId());
         if (layerIndex > 0) {

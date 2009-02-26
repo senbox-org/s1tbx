@@ -42,7 +42,7 @@ class WmsPage2 extends AbstractAppAssistantPage {
     }
 
     @Override
-    public AbstractAppAssistantPage getNextLayerPage() {
+    public AbstractAppAssistantPage getNextPage(AppAssistantPageContext pageContext) {
         return new WmsPage3(wms, selectedLayer);
     }
 

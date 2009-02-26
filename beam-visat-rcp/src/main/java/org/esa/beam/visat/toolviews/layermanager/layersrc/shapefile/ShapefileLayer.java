@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * todo - add API doc
  *
  * @author Marco Peters
  * @version $Revision: $ $Date: $

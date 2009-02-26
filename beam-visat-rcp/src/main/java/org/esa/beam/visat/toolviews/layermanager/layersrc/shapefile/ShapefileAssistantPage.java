@@ -61,7 +61,7 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public AbstractAppAssistantPage getNextLayerPage() {
+    public AbstractAppAssistantPage getNextPage(AppAssistantPageContext pageContext) {
 
         String path = shapefileBox.getText();
         if (path != null && !path.trim().isEmpty()) {
@@ -92,11 +92,11 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
                 featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, targetCrs);
 
                 ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(featureCollection.getBounds(), targetCrs);
-                return new ShapefilePage2(file,
+                return new ShapefileAssistantPage2(file,
                                           featureCollection,
                                           referencedEnvelope,
                                           featureCollection.getSchema(),
-                                          ShapefilePage2.createStyle(file, featureCollection.getSchema()));
+                                          ShapefileAssistantPage2.createStyle(file, featureCollection.getSchema()));
             } catch (Exception e) {
                 e.printStackTrace();
                 getPageContext().showErrorDialog("Failed to load ESRI shapefile:\n" + e.getMessage());

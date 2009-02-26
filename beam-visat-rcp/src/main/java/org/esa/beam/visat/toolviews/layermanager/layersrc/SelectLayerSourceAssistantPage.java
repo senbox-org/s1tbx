@@ -32,11 +32,11 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
 
     @Override
     public boolean hasNextPage() {
-        return getNextPage() != null;
+        return getNextPage(getPageContext()) != null;
     }
 
     @Override
-    public AbstractAppAssistantPage getNextLayerPage() {
+    public AbstractAppAssistantPage getNextPage(AppAssistantPageContext pageContext) {
         int index = list.getSelectedIndex();
         if (index < 0) {
             return null;
@@ -47,10 +47,6 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
     @Override
     public boolean canFinish() {
         return false;
-    }
-
-    @Override
-    public void performHelp() {
     }
 
     @Override
