@@ -41,25 +41,25 @@ public class RemoveLayerAction extends AbstractAction {
         protectedLayerIds.add(ProductSceneView.GRATICULE_LAYER_ID);
         protectedLayerIds.add(ProductSceneView.ROI_LAYER_ID);
         Layer selectedLayer = appContext.getSelectedProductSceneView().getSelectedLayer();
-        if (selectedLayer != null && !isLayerProptected(protectedLayerIds, selectedLayer)) {
+        if (selectedLayer != null && !isLayerProtected(protectedLayerIds, selectedLayer)) {
             selectedLayer.getParent().getChildren().remove(selectedLayer);
         }
     }
 
-    private boolean isLayerProptected(Set<String> protectedLayerIds, Layer layer) {
-        return ilp(protectedLayerIds, layer)
-               || iplp(protectedLayerIds, layer)
-               || iclp(protectedLayerIds, layer);
+    private boolean isLayerProtected(Set<String> protectedLayerIds, Layer layer) {
+        return isLayerProtectedImpl(protectedLayerIds, layer)
+               || isParentLayerProtected(protectedLayerIds, layer)
+               || isChildLayerProtected(protectedLayerIds, layer);
     }
 
-    private boolean ilp(Set<String> protectedLayerIds, Layer layer) {
+    private boolean isLayerProtectedImpl(Set<String> protectedLayerIds, Layer layer) {
         return protectedLayerIds.contains(layer.getId());
     }
 
-    private boolean iplp(Set<String> protectedLayerIds, Layer layer) {
+    private boolean isParentLayerProtected(Set<String> protectedLayerIds, Layer layer) {
         Layer parentLayer = layer.getParent();
         while (parentLayer != null) {
-            if (ilp(protectedLayerIds, parentLayer)) {
+            if (isLayerProtectedImpl(protectedLayerIds, parentLayer)) {
                 return true;
             }
             parentLayer = parentLayer.getParent();
@@ -67,11 +67,11 @@ public class RemoveLayerAction extends AbstractAction {
         return false;
     }
 
-    private boolean iclp(Set<String> protectedLayerIds, Layer selectedLayer) {
+    private boolean isChildLayerProtected(Set<String> protectedLayerIds, Layer selectedLayer) {
         Layer[] children = selectedLayer.getChildren().toArray(new Layer[selectedLayer.getChildren().size()]);
         for (Layer childLayer : children) {
-            if (ilp(protectedLayerIds, childLayer)
-                || iclp(protectedLayerIds, childLayer)) {
+            if (isLayerProtectedImpl(protectedLayerIds, childLayer) ||
+                isChildLayerProtected(protectedLayerIds, childLayer)) {
                 return true;
             }
         }
