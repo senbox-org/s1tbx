@@ -28,6 +28,7 @@ import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -35,6 +36,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.ImageUtils;
@@ -94,7 +96,7 @@ import java.util.Set;
  * @since BEAM 4.6
  */
 @OperatorMetadata(alias = "Mapproj",
-                  internal = false)
+        internal = false)
 public class MapProjOp extends Operator {
 
     @SourceProduct
@@ -108,33 +110,37 @@ public class MapProjOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         try {
-            GeographicCRS baseCRS = DefaultGeographicCRS.WGS84;
+            final GeographicCRS baseCRS = DefaultGeographicCRS.WGS84;
+            final MathTransform baseToGrid;
             final GeoCoding geoCoding = sourceProduct.getGeoCoding();
-            MathTransform baseToGridMathTransform = new GeoCodingMathTransform(geoCoding,
-                                                                               GeoCodingMathTransform.Mode.G2P);
-            CoordinateReferenceSystem gridCRS = new DefaultDerivedCRS("The grid CRS",
-                                                                      baseCRS,
-                                                                      baseToGridMathTransform,
-                                                                      DefaultCartesianCS.DISPLAY);
+
+            if (geoCoding instanceof MapGeoCoding) {
+                final MapInfo mapInfo = ((MapGeoCoding) geoCoding).getMapInfo();
+                baseToGrid = new AffineTransform2D(mapInfo.getPixelToMapTransform().createInverse());
+            } else {
+                baseToGrid = new GeoCodingMathTransform(geoCoding, GeoCodingMathTransform.Mode.G2P);
+            }
+            final CoordinateReferenceSystem sourceCRS = new DefaultDerivedCRS("The grid CRS", baseCRS, baseToGrid,
+                    DefaultCartesianCS.DISPLAY);
 
             final GridCoverageFactory factory = CoverageFactoryFinder.getGridCoverageFactory(null);
-            final Envelope2D sourceEnvelope = new Envelope2D(gridCRS, 0, 0, sourceProduct.getSceneRasterWidth(),
-                                                             sourceProduct.getSceneRasterHeight());
+            final Envelope2D sourceEnvelope = new Envelope2D(sourceCRS, 0, 0, sourceProduct.getSceneRasterWidth(),
+                    sourceProduct.getSceneRasterHeight());
             final CoordinateReferenceSystem targetCRS = createTargetCRS();
             final GridGeometry2D gridGeometry = createGridGeometry(sourceProduct, baseCRS, targetCRS);
             Rectangle gridRect = gridGeometry.getGridRange2D();
             final Interpolation interpolation = createInterpolation();
 
             targetProduct = new Product("projected_" + sourceProduct.getName(),
-                                        "projection of: " + sourceProduct.getDescription(),
-                                        gridRect.width,
-                                        gridRect.height);
+                    "projection of: " + sourceProduct.getDescription(),
+                    gridRect.width,
+                    gridRect.height);
 
             GeoCoding targetGeoCoding = new MathTransformGeoCoding(gridGeometry.getGridToCRS(), gridRect);
             targetProduct.setGeoCoding(targetGeoCoding);
 
             // TODO: also query operatorContext rendering hints for tile size
-            final Dimension tileSize = JAIUtils.computePreferredTileSize(gridRect.width, gridRect.height, 1);
+            final Dimension tileSize = new Dimension(128, 128); // JAIUtils.computePreferredTileSize(gridRect.width, gridRect.height, 1);
             targetProduct.setPreferredTileSize(tileSize);
             addMetadataToProduct(targetProduct);
             addFlagCodingsToProduct(targetProduct);
@@ -145,14 +151,14 @@ public class MapProjOp extends Operator {
                 ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
                 GridCoverage2D sourceCoverage = createSourceCoverage(factory, sourceEnvelope, sourceBand);
                 // only the tile size of the image layout is actually taken into account
-                // by the rasample operation.   Use Operations.DEFAULT if tile size does
+                // by the resample operation.   Use Operations.DEFAULT if tile size does
                 // not matter
                 final Operations operations = new Operations(
                         new Hints(JAI.KEY_IMAGE_LAYOUT, createImageLayout(targetBand, tileSize)));
                 GridCoverage2D targetCoverage = (GridCoverage2D) operations.resample(sourceCoverage,
-                                                                                     targetCRS,
-                                                                                     gridGeometry,
-                                                                                     interpolation);
+                        targetCRS,
+                        gridGeometry,
+                        interpolation);
                 RenderedImage targetImage = targetCoverage.getRenderedImage();
                 if (targetImage.getTileHeight() != targetProduct.getPreferredTileSize().getHeight()) {
                     System.out.println("imageTileHeight: " + targetImage.getTileHeight());
@@ -178,9 +184,9 @@ public class MapProjOp extends Operator {
             }
             ProductUtils.copyBitmaskDefsAndOverlays(sourceProduct, targetProduct);
             copyPlacemarks(sourceProduct.getPinGroup(), targetProduct.getPinGroup(),
-                           PlacemarkSymbol.createDefaultPinSymbol());
+                    PlacemarkSymbol.createDefaultPinSymbol());
             copyPlacemarks(sourceProduct.getGcpGroup(), targetProduct.getGcpGroup(),
-                           PlacemarkSymbol.createDefaultGcpSymbol());
+                    PlacemarkSymbol.createDefaultGcpSymbol());
         } catch (Throwable t) {
             t.printStackTrace();
             throw new OperatorException(t.getMessage(), t);
@@ -250,8 +256,8 @@ public class MapProjOp extends Operator {
         final Pin[] placemarks = sourcePlacemarkGroup.toArray(new Pin[0]);
         for (Pin placemark : placemarks) {
             final Pin pin1 = new Pin(placemark.getName(), placemark.getLabel(),
-                                     placemark.getDescription(), null, placemark.getGeoPos(),
-                                     symbol);
+                    placemark.getDescription(), null, placemark.getGeoPos(),
+                    symbol);
             targetPlacemarkGroup.add(pin1);
         }
     }
@@ -387,13 +393,13 @@ public class MapProjOp extends Operator {
                                                  SampleModel sampleModel,
                                                  ColorModel colorModel) {
         return new ImageLayout(0, 0,
-                               width,
-                               height,
-                               0, 0,
-                               tileWidth,
-                               tileHeight,
-                               sampleModel,
-                               colorModel);
+                width,
+                height,
+                0, 0,
+                tileWidth,
+                tileHeight,
+                sampleModel,
+                colorModel);
     }
 
     private static GridCoverage2D createSourceCoverage(GridCoverageFactory factory, Envelope2D envelope, Band band) {
