@@ -110,6 +110,9 @@ public class MapProjOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         try {
+            /*
+             * 1. Create the source CRS
+             */
             final GeographicCRS baseCRS = DefaultGeographicCRS.WGS84;
             final MathTransform baseToGrid;
             final GeoCoding geoCoding = sourceProduct.getGeoCoding();
@@ -123,22 +126,38 @@ public class MapProjOp extends Operator {
             final CoordinateReferenceSystem sourceCRS = new DefaultDerivedCRS("The grid CRS", baseCRS, baseToGrid,
                     DefaultCartesianCS.DISPLAY);
 
+            /*
+             * 2. Create the target CRS
+             */
             final GridCoverageFactory factory = CoverageFactoryFinder.getGridCoverageFactory(null);
             final Envelope2D sourceEnvelope = new Envelope2D(sourceCRS, 0, 0, sourceProduct.getSceneRasterWidth(),
                     sourceProduct.getSceneRasterHeight());
             final CoordinateReferenceSystem targetCRS = createTargetCRS();
+
+            /*
+             * 3. Compute the target grid geometry
+             */
             final GridGeometry2D gridGeometry = createGridGeometry(sourceProduct, baseCRS, targetCRS);
             Rectangle gridRect = gridGeometry.getGridRange2D();
             final Interpolation interpolation = createInterpolation();
 
+            /*
+             * Create the target product
+             */
             targetProduct = new Product("projected_" + sourceProduct.getName(),
                     "projection of: " + sourceProduct.getDescription(),
                     gridRect.width,
                     gridRect.height);
 
+            /*
+             * Create the target geocoding
+             */
             GeoCoding targetGeoCoding = new MathTransformGeoCoding(gridGeometry.getGridToCRS(), gridRect);
             targetProduct.setGeoCoding(targetGeoCoding);
 
+            /*
+             * Define some target properties
+             */
             // TODO: also query operatorContext rendering hints for tile size
             final Dimension tileSize = new Dimension(128, 128); // JAIUtils.computePreferredTileSize(gridRect.width, gridRect.height, 1);
             targetProduct.setPreferredTileSize(tileSize);
@@ -146,30 +165,36 @@ public class MapProjOp extends Operator {
             addFlagCodingsToProduct(targetProduct);
             addIndexCodingsToProduct(targetProduct);
 
+            /*
+             * Create target bands
+             */
             for (Band sourceBand : sourceProduct.getBands()) {
                 Band targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
                 ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
+
+                /*
+                 * Create coverage from source band
+                 */
                 GridCoverage2D sourceCoverage = createSourceCoverage(factory, sourceEnvelope, sourceBand);
                 // only the tile size of the image layout is actually taken into account
                 // by the resample operation.   Use Operations.DEFAULT if tile size does
                 // not matter
                 final Operations operations = new Operations(
                         new Hints(JAI.KEY_IMAGE_LAYOUT, createImageLayout(targetBand, tileSize)));
+
+                /*
+                 * Create coverage for target band and set target image
+                 */
                 GridCoverage2D targetCoverage = (GridCoverage2D) operations.resample(sourceCoverage,
                         targetCRS,
                         gridGeometry,
                         interpolation);
                 RenderedImage targetImage = targetCoverage.getRenderedImage();
-                if (targetImage.getTileHeight() != targetProduct.getPreferredTileSize().getHeight()) {
-                    System.out.println("imageTileHeight: " + targetImage.getTileHeight());
-                    System.out.println("productTileHeight: " + targetProduct.getPreferredTileSize().getHeight());
-//                    throw new OperatorException("tileHeigth = " + targetImage.getTileHeight());
-                }
-                if (targetImage.getTileWidth() != targetProduct.getPreferredTileSize().getWidth()) {
-//                    throw new OperatorException("tileWidth = " + targetImage.getTileWidth());
-                }
                 targetBand.setSourceImage(targetImage);
 
+                /*
+                 * Flag and index codings
+                 */
                 FlagCoding sourceFlagCoding = sourceBand.getFlagCoding();
                 IndexCoding sourceIndexCoding = sourceBand.getIndexCoding();
                 if (sourceFlagCoding != null) {
@@ -182,6 +207,10 @@ public class MapProjOp extends Operator {
                     targetBand.setSampleCoding(destIndexCoding);
                 }
             }
+
+            /*
+             * Bitmask definitions and placemarks
+             */
             ProductUtils.copyBitmaskDefsAndOverlays(sourceProduct, targetProduct);
             copyPlacemarks(sourceProduct.getPinGroup(), targetProduct.getPinGroup(),
                     PlacemarkSymbol.createDefaultPinSymbol());
