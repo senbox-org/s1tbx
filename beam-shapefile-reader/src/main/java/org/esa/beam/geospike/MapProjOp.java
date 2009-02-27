@@ -142,7 +142,7 @@ public class MapProjOp extends Operator {
             final Interpolation interpolation = createInterpolation();
 
             /*
-             * Create the target product
+             * 4. Create the target product
              */
             targetProduct = new Product("projected_" + sourceProduct.getName(),
                     "projection of: " + sourceProduct.getDescription(),
@@ -150,13 +150,13 @@ public class MapProjOp extends Operator {
                     gridRect.height);
 
             /*
-             * Create the target geocoding
+             * 5. Create the target geocoding
              */
             GeoCoding targetGeoCoding = new MathTransformGeoCoding(gridGeometry.getGridToCRS(), gridRect);
             targetProduct.setGeoCoding(targetGeoCoding);
 
             /*
-             * Define some target properties
+             * 6. Define some target properties
              */
             // TODO: also query operatorContext rendering hints for tile size
             final Dimension tileSize = new Dimension(128, 128); // JAIUtils.computePreferredTileSize(gridRect.width, gridRect.height, 1);
@@ -173,7 +173,7 @@ public class MapProjOp extends Operator {
                 ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
 
                 /*
-                 * Create coverage from source band
+                 * 7. Create coverage from source band
                  */
                 GridCoverage2D sourceCoverage = createSourceCoverage(factory, sourceEnvelope, sourceBand);
                 // only the tile size of the image layout is actually taken into account
@@ -183,7 +183,7 @@ public class MapProjOp extends Operator {
                         new Hints(JAI.KEY_IMAGE_LAYOUT, createImageLayout(targetBand, tileSize)));
 
                 /*
-                 * Create coverage for target band and set target image
+                 * 8. Create coverage for target band and set target image
                  */
                 GridCoverage2D targetCoverage = (GridCoverage2D) operations.resample(sourceCoverage,
                         targetCRS,
