@@ -24,15 +24,16 @@ import java.util.Iterator;
 
 public class FeatureCollectionClipper {
 
-    private static int idCounter = 0;
+    private static int idCounter;
+
+    private FeatureCollectionClipper() {
+    }
 
     public static FeatureCollection<SimpleFeatureType, SimpleFeature> doOperation(
             FeatureCollection<SimpleFeatureType, SimpleFeature> sourceCollection,
             Geometry clipGeometry,
             CoordinateReferenceSystem targetCrs) {
 
-
-        final long t1 = System.currentTimeMillis();
 
         SimpleFeatureType sourceSchema = sourceCollection.getSchema();
         CoordinateReferenceSystem sourceCrs = sourceSchema.getGeometryDescriptor().getCoordinateReferenceSystem();
@@ -85,7 +86,7 @@ public class FeatureCollectionClipper {
                     if (transformer != null) {
                         try {
                             targetGeometry = transformer.transform(targetGeometry);
-                        } catch (TransformException e) {
+                        } catch (TransformException ignored) {
                             continue;
                         }
                         targetFeature = SimpleFeatureBuilder.retype(sourceFeature, targetSchema);
@@ -101,16 +102,11 @@ public class FeatureCollectionClipper {
             sourceCollection.close(iterator);
         }
 
-        final long t2 = System.currentTimeMillis();
-        final long delta = t2 - t1;
-        System.out.println("delta = " + delta / 1000.0);
-
         return targetCollection;
     }
 
     private static String createId() {
         idCounter++;
-        String id = FeatureCollectionClipper.class + "_" + idCounter;
-        return id;
+        return FeatureCollectionClipper.class + "_" + idCounter;
     }
 }
