@@ -11,8 +11,8 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.BandLayerAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.EmptyLayerAssistantPage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.image.ImageFileAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.SelectLayerSourceAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.image.ImageFileAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefileAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsAssistantPage;
 
@@ -48,8 +48,12 @@ class LayerManagerForm {
     private JPanel control;
     private boolean adjusting;
     private LayerTreeModel layerTreeModel;
-    private RemoveLayerAction removeLayerAction;
     private JLabel transparencyLabel;
+    private RemoveLayerAction removeLayerAction;
+    private MoveLayerUpAction moveLayerUpAction;
+    private MoveLayerDownAction moveLayerDownAction;
+    private MoveLayerLeftAction moveLayerLeftAction;
+    private MoveLayerRightAction moveLayerRightAction;
 
     LayerManagerForm(AppContext appContext) {
         this.appContext = appContext;
@@ -77,17 +81,17 @@ class LayerManagerForm {
         removeLayerAction = new RemoveLayerAction(appContext);
         AbstractButton removeButton = ToolButtonFactory.createButton(removeLayerAction, false);
 
-        final LayerMover nodeMover = new LayerMover(view.getRootLayer());
-        AbstractButton upButton = createToolButton("icons/Up24.gif");
-        upButton.addActionListener(new MoveUpActionListener(nodeMover));
+        moveLayerUpAction = new MoveLayerUpAction(appContext);
+        AbstractButton upButton = ToolButtonFactory.createButton(moveLayerUpAction, false);
 
-        AbstractButton downButton = createToolButton("icons/Down24.gif");
-        downButton.addActionListener(new MoveDownActionListener(nodeMover));
+        moveLayerDownAction = new MoveLayerDownAction(appContext);
+        AbstractButton downButton = ToolButtonFactory.createButton(moveLayerDownAction, false);
 
-        AbstractButton leftButton = createToolButton("icons/Left24.gif");
-        leftButton.addActionListener(new MoveLeftActionListener(nodeMover));
-        AbstractButton rightButton = createToolButton("icons/Right24.gif");
-        rightButton.addActionListener(new MoveRightActionListener(nodeMover));
+        moveLayerLeftAction = new MoveLayerLeftAction(appContext);
+        AbstractButton leftButton = ToolButtonFactory.createButton(moveLayerLeftAction, false);
+
+        moveLayerRightAction = new MoveLayerRightAction(appContext);
+        AbstractButton rightButton = ToolButtonFactory.createButton(moveLayerRightAction, false);
 
         JPanel actionBar = new JPanel(new GridLayout(-1, 1, 2, 2));
         actionBar.add(addButton);
@@ -126,7 +130,12 @@ class LayerManagerForm {
         Layer selectedLayer = getSelectedLayer();
         updateLayerStyleUI(selectedLayer);
         updateLayerTreeSelection(selectedLayer);
-        removeLayerAction.setEnabled(selectedLayer != null && !isLayerProtected(selectedLayer));
+        boolean isLayerSelected = selectedLayer != null;
+        removeLayerAction.setEnabled(isLayerSelected && !isLayerProtected(selectedLayer));
+        moveLayerUpAction.setEnabled(isLayerSelected);
+        moveLayerDownAction.setEnabled(isLayerSelected);
+        moveLayerLeftAction.setEnabled(isLayerSelected);
+        moveLayerRightAction.setEnabled(isLayerSelected);
     }
 
     public  boolean isLayerProtected(Layer layer) {
@@ -266,74 +275,6 @@ class LayerManagerForm {
             for (Layer layer : childLayers) {
                 updateLayerTreeVisibility(layer);
                 updateLayerTreeSelection(layer);
-            }
-        }
-    }
-
-    private class MoveRightActionListener implements ActionListener {
-
-        private final LayerMover nodeMover;
-
-        private MoveRightActionListener(LayerMover nodeMover) {
-            this.nodeMover = nodeMover;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            final Layer selectedLayer = getSelectedLayer();
-            if (selectedLayer != null) {
-                nodeMover.moveRight(selectedLayer);
-            }
-        }
-    }
-
-    private class MoveLeftActionListener implements ActionListener {
-
-        private final LayerMover nodeMover;
-
-        private MoveLeftActionListener(LayerMover nodeMover) {
-            this.nodeMover = nodeMover;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            final Layer selectedLayer = getSelectedLayer();
-            if (selectedLayer != null) {
-                nodeMover.moveLeft(selectedLayer);
-            }
-        }
-    }
-
-    private class MoveDownActionListener implements ActionListener {
-
-        private final LayerMover nodeMover;
-
-        private MoveDownActionListener(LayerMover nodeMover) {
-            this.nodeMover = nodeMover;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            final Layer selectedLayer = getSelectedLayer();
-            if (selectedLayer != null) {
-                nodeMover.moveDown(selectedLayer);
-            }
-        }
-    }
-
-    private class MoveUpActionListener implements ActionListener {
-
-        private final LayerMover nodeMover;
-
-        private MoveUpActionListener(LayerMover nodeMover) {
-            this.nodeMover = nodeMover;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            final Layer selectedLayer = getSelectedLayer();
-            if (selectedLayer != null) {
-                nodeMover.moveUp(selectedLayer);
             }
         }
     }
