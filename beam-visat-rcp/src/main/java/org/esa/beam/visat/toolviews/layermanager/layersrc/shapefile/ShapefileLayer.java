@@ -43,6 +43,8 @@ import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
 /**
  * @author Marco Peters
@@ -70,6 +72,12 @@ class ShapefileLayer extends Layer {
         renderer = new StreamingRenderer();
         workaroundLabelCacheBug();
         renderer.setContext(mapContext);
+        getStyle().addPropertyChangeListener(com.bc.ceres.glayer.Style.PROPERTY_NAME_OPACITY, new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                applyOpacity(getStyle().getOpacity());
+            }
+        });
     }
 
     private void workaroundLabelCacheBug() {
@@ -94,10 +102,7 @@ class ShapefileLayer extends Layer {
         ReferencedEnvelope mapArea = new ReferencedEnvelope(bounds2D, crs);
         mapContext.setAreaOfInterest(mapArea);
 
-        applyOpacity(getStyle().getOpacity());
-
-        labelCache.clear();
-
+        labelCache.clear();  // workaround for labelCache bug
         renderer.paint(rendering.getGraphics(), bounds, mapArea);
     }
 
