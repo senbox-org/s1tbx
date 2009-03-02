@@ -67,7 +67,6 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
     private JComboBox styleList;
     private org.geotools.styling.Style selectedStyle;
     private JLabel mapCanvas;
-    private JLabel infoLabel;
     private SwingWorker worker;
     private Throwable error;
 
@@ -90,15 +89,11 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean canFinish() {
-        return true;
-    }
-
     protected Component createLayerPageComponent(AppAssistantPageContext context) {
         mapCanvas = new JLabel();
         mapCanvas.setHorizontalTextPosition(SwingConstants.CENTER);
         mapCanvas.setVerticalTextPosition(SwingConstants.CENTER);
-        infoLabel = new JLabel(featureSourceEnvelope.toString());
+        JLabel infoLabel = new JLabel(featureSourceEnvelope.toString());
 
         if (styles.length > 0) {
             selectedStyle = styles[0];
@@ -117,7 +112,7 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
 
         JPanel panel3 = new JPanel(new BorderLayout(4, 4));
         panel3.setBorder(new EmptyBorder(4, 4, 4, 4));
-        panel3.add(new JLabel("<html><b>" + file.getName() + "</b>"), BorderLayout.CENTER);
+        panel3.add(new JLabel(String.format("<html><b>%s</b>", file.getName())), BorderLayout.CENTER);
         panel3.add(panel2, BorderLayout.EAST);
 
         JPanel panel = new JPanel(new BorderLayout(4, 4));
@@ -127,6 +122,7 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
         panel.add(infoLabel, BorderLayout.SOUTH);
 
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 updateMap();
             }
@@ -179,6 +175,7 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
 
     private class MyItemListener implements ItemListener {
 
+        @Override
         public void itemStateChanged(ItemEvent e) {
             selectedStyle = (org.geotools.styling.Style) styleList.getSelectedItem();
             getPageContext().updateState();
