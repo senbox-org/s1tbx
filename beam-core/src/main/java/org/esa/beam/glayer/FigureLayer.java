@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FigureLayer extends Layer {
+
     public static final String PROPERTY_NAME_SHAPE_OUTLINED = "shape.outlined";
     public static final String PROPERTY_NAME_SHAPE_FILLED = "shape.filled";
     public static final String PROPERTY_NAME_SHAPE_OUTL_COLOR = "shape.outl.color";
@@ -124,12 +125,31 @@ public class FigureLayer extends Layer {
             transform.concatenate(shapeToModelTransform);
             g2d.setTransform(transform);
 
+            double layerOpacity = getStyle().getOpacity();
             for (final Figure figure : figureList) {
-                figure.draw(g2d);
+                Composite oldOutlComposite = (Composite) figure.getAttribute(Figure.OUTL_COMPOSITE_KEY);
+                Composite oldFillComposite = (Composite) figure.getAttribute(Figure.FILL_COMPOSITE_KEY);
+                try {
+                    figure.setAttribute(Figure.OUTL_COMPOSITE_KEY, deriveComposite(oldOutlComposite, layerOpacity));
+                    figure.setAttribute(Figure.FILL_COMPOSITE_KEY, deriveComposite(oldFillComposite, layerOpacity));
+                    figure.draw(g2d);
+                } finally {
+                    figure.setAttribute(Figure.OUTL_COMPOSITE_KEY, oldOutlComposite);
+                    figure.setAttribute(Figure.FILL_COMPOSITE_KEY, oldFillComposite);
+                }
             }
         } finally {
             g2d.setTransform(transformSave);
         }
+    }
+
+    private Composite deriveComposite(Composite outlComposite, double opacity) {
+        if (outlComposite instanceof AlphaComposite) {
+            AlphaComposite outlAlphaComposite = (AlphaComposite) outlComposite;
+            float newOutlAlpha = (float) opacity * outlAlphaComposite.getAlpha();
+            return AlphaComposite.getInstance(AlphaComposite.SRC_OVER, newOutlAlpha);
+        }
+        return outlComposite;
     }
 
     private static Composite createComposite(double transparency) {
