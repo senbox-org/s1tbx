@@ -90,8 +90,8 @@ class ShapefileLayer extends Layer {
     protected void renderLayer(final Rendering rendering) {
         Rectangle bounds = rendering.getViewport().getViewBounds();
         final AffineTransform m2vTransform = rendering.getViewport().getViewToModelTransform();
-        Rectangle2D d = m2vTransform.createTransformedShape(bounds).getBounds2D();
-        ReferencedEnvelope mapArea = new ReferencedEnvelope(d, crs);
+        Rectangle2D bounds2D = m2vTransform.createTransformedShape(bounds).getBounds2D();
+        ReferencedEnvelope mapArea = new ReferencedEnvelope(bounds2D, crs);
         mapContext.setAreaOfInterest(mapArea);
 
         applyOpacity(getStyle().getOpacity());
@@ -132,17 +132,17 @@ class ShapefileLayer extends Layer {
         }
     }
 
-    /**
+    /*
      * Figure out the URL for the "sld" file
      */
-    public static File toSLDFile(File file) {
+    private static File toSLDFile(File file) {
         String filename = file.getAbsolutePath();
         if (filename.endsWith(".shp") || filename.endsWith(".dbf")
             || filename.endsWith(".shx")) {
             filename = filename.substring(0, filename.length() - 4);
             filename += ".sld";
-        } else if (filename.endsWith(".SLD") || filename.endsWith(".SLD")
-                   || filename.endsWith(".SLD")) {
+        } else if (filename.endsWith(".SHP") || filename.endsWith(".DBF")
+                   || filename.endsWith(".SHX")) {
             filename = filename.substring(0, filename.length() - 4);
             filename += ".SLD";
         }
@@ -156,7 +156,6 @@ class ShapefileLayer extends Layer {
             return style[0];
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
-            System.exit(0);
         }
         return null;
     }
