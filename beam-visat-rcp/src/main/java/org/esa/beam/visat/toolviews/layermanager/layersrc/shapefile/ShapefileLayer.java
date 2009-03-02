@@ -27,6 +27,7 @@ import org.geotools.styling.Stroke;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleBuilder;
 import org.geotools.styling.Symbolizer;
+import org.geotools.styling.visitor.DuplicatingStyleVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
@@ -41,11 +42,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- *
  * @author Marco Peters
  * @version $Revision: $ $Date: $
  * @since BEAM 4.6
@@ -108,25 +107,11 @@ class ShapefileLayer extends Layer {
         final MapLayer layer = mapContext.getLayer(0);
         if (layer != null) {
 
-            FeatureTypeStyle[] sty = layer.getStyle().getFeatureTypeStyles();
+            Style style = layer.getStyle();
+            DuplicatingStyleVisitor copyStyle = new ShapefileOpacityStyleVisitor(opa);
+            style.accept(copyStyle);
+            layer.setStyle((Style) copyStyle.getCopy());
 
-            List<Rule> rules = sty[0].rules();
-            for (Rule r : rules) {
-                final Symbolizer[] symbolizers = r.getSymbolizers();
-                for (Symbolizer symbolizer : symbolizers) {
-                    if (symbolizer instanceof PolygonSymbolizer) {
-                        PolygonSymbolizer polySym = (PolygonSymbolizer) symbolizer;
-                        final Stroke stroke = polySym.getStroke();
-                        if (stroke != null) {
-                            stroke.setOpacity(opa);
-                        }
-                        final Fill fill = polySym.getFill();
-                        if (fill != null) {
-                            fill.setOpacity(opa);
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -137,10 +122,10 @@ class ShapefileLayer extends Layer {
         }
         Class type = schema.getGeometryDescriptor().getType().getBinding();
         if (type.isAssignableFrom(Polygon.class)
-                || type.isAssignableFrom(MultiPolygon.class)) {
+            || type.isAssignableFrom(MultiPolygon.class)) {
             return createPolygonStyle();
         } else if (type.isAssignableFrom(LineString.class)
-                || type.isAssignableFrom(MultiLineString.class)) {
+                   || type.isAssignableFrom(MultiLineString.class)) {
             return createLineStyle();
         } else {
             return createPointStyle();
@@ -153,11 +138,11 @@ class ShapefileLayer extends Layer {
     public static File toSLDFile(File file) {
         String filename = file.getAbsolutePath();
         if (filename.endsWith(".shp") || filename.endsWith(".dbf")
-                || filename.endsWith(".shx")) {
+            || filename.endsWith(".shx")) {
             filename = filename.substring(0, filename.length() - 4);
             filename += ".sld";
         } else if (filename.endsWith(".SLD") || filename.endsWith(".SLD")
-                || filename.endsWith(".SLD")) {
+                   || filename.endsWith(".SLD")) {
             filename = filename.substring(0, filename.length() - 4);
             filename += ".SLD";
         }
@@ -223,4 +208,29 @@ class ShapefileLayer extends Layer {
         return style;
     }
 
+    private static class ShapefileOpacityStyleVisitor extends DuplicatingStyleVisitor {
+
+        private final Expression opa;
+
+        ShapefileOpacityStyleVisitor(Expression opa) {
+            this.opa = opa;
+        }
+
+        @Override
+        public void visit(Fill fill) {
+            super.visit(fill);
+            Fill fillCopy = (Fill) pages.pop();
+            fillCopy.setOpacity(opa);
+            pages.push(fillCopy);
+        }
+
+        @Override
+        public void visit(Stroke stroke) {
+            super.visit(stroke);
+            Stroke strokeCopy = (Stroke) pages.pop();
+            strokeCopy.setOpacity(opa);
+            pages.push(strokeCopy);
+
+        }
+    }
 }
