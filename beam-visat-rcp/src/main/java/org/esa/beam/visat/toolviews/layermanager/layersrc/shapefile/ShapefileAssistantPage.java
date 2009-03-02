@@ -12,6 +12,7 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.FeatureCollectionClipper;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.GeoCodingMathTransform;
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
@@ -36,6 +37,8 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ShapefileAssistantPage extends AbstractAppAssistantPage {
 
@@ -66,7 +69,6 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
         String path = shapefileBox.getText();
         if (path != null && !path.trim().isEmpty()) {
             try {
-
                 Product targetProduct = getAppPageContext().getAppContext().getSelectedProductSceneView().getProduct();
                 GeoCoding geoCoding = targetProduct.getGeoCoding();
                 SingleCRS targetCrs = new DefaultDerivedCRS("xyz",
@@ -75,7 +77,12 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
                                                           DefaultCartesianCS.DISPLAY);
 
                 File file = new File(path);
-                ShapefileDataStore shapefile = new ShapefileDataStore(file.toURI().toURL());
+                Map<String, Object> map = new HashMap<String, Object>();
+                map.put(ShapefileDataStoreFactory.URLP.key, file.toURI().toURL());
+                map.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, true);
+
+                ShapefileDataStore shapefile = new ShapefileDataStoreFactory().createDataStore(map);
+
                 FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = shapefile.getFeatureSource().getFeatures();
 
                 GeometryFactory gf = new GeometryFactory();
@@ -174,6 +181,7 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
 
     private class MyActionListener implements ActionListener {
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setAcceptAllFileFilterUsed(false);
