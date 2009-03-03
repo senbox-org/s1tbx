@@ -1,6 +1,5 @@
 package org.esa.beam.dataio.landsat.fast;
 
-import org.esa.beam.dataio.landsat.CenterGeoPoint;
 import org.esa.beam.dataio.landsat.GeoPoint;
 import org.esa.beam.dataio.landsat.GeometricData;
 import org.esa.beam.dataio.landsat.LandsatConstants;
@@ -12,7 +11,6 @@ import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -34,7 +32,7 @@ public final class Landsat5FASTMetadata extends LandsatTMMetadata {
      * @param header
      * @param landsatBands
      */
-    public Landsat5FASTMetadata(LandsatHeader header, LandsatTMBand [] landsatBands) {
+    public Landsat5FASTMetadata(LandsatHeader header, LandsatTMBand[] landsatBands) {
         addElement((setAdminstrationMetadata(header)));
         addElement((setGeometricMetadata(header)));
         addElement((setRadianceMetadata(header, landsatBands)));
@@ -51,39 +49,39 @@ public final class Landsat5FASTMetadata extends LandsatTMMetadata {
         MetadataElement geo = new MetadataElement(GEO_METADATA_DESC);
         geo.setDescription(METADATA_GEOMETRIC_NODE_DESCRIPTION);
         final GeometricData geoData = landsatHeader.getGeoData();
-        List attributContainer = new ArrayList();
+        List<MetadataAttribute> attributContainer = new ArrayList<MetadataAttribute>();
 
         attributContainer.add(createAttribute(LandsatConstants.DATUM_SHORT, geoData.getEllipsoid(),
                                               LandsatConstants.DATUM_DESCRIPTION));
-        attributContainer.add(createAttribute(LandsatConstants.OFFSET_SHORT, new Integer(geoData.getHorizontalOffset()),
+        attributContainer.add(createAttribute(LandsatConstants.OFFSET_SHORT, geoData.getHorizontalOffset(),
                                               LandsatConstants.OFFSET_DESCRIPTION, LandsatConstants.Unit.PIXEL));
         attributContainer.add(createAttribute(LandsatConstants.PROJECTION_SHORT, geoData.getMapProjection(),
                                               LandsatConstants.PROJECTION_DESCRIPTION));
         attributContainer.add(createAttribute(LandsatConstants.PROJECTION_ID_SHORT,
-                                              new Integer(geoData.getProjectionNumber()),
+                                              geoData.getProjectionNumber(),
                                               LandsatConstants.PROJECTION_ID_DESCRIPTION));
-        attributContainer.add(createAttribute(LandsatConstants.MAP_ZONE_SHORT, new Integer(geoData.getMapZoneNumber()),
+        attributContainer.add(createAttribute(LandsatConstants.MAP_ZONE_SHORT, geoData.getMapZoneNumber(),
                                               LandsatConstants.MAP_ZONE_DESCRIPTION));
-        attributContainer.add(createAttribute(LandsatConstants.SEMI_MAJ_SHORT, new Double(geoData.getSemiMajorAxis()),
+        attributContainer.add(createAttribute(LandsatConstants.SEMI_MAJ_SHORT, geoData.getSemiMajorAxis(),
                                               LandsatConstants.SEMI_MAJ_DESCRIPTION, LandsatConstants.Unit.METER));
-        attributContainer.add(createAttribute(LandsatConstants.SEMI_MIN_SHORT, new Double(geoData.getSemiMinorAxis()),
+        attributContainer.add(createAttribute(LandsatConstants.SEMI_MIN_SHORT, geoData.getSemiMinorAxis(),
                                               LandsatConstants.SEMI_MIN_DESCRIPTION, LandsatConstants.Unit.METER));
         attributContainer.add(createAttribute(LandsatConstants.SUN_AZIMUTH_SHORT,
-                                              new Float(geoData.getSunAzimuthAngle()),
+                                              geoData.getSunAzimuthAngle(),
                                               LandsatConstants.SUN_AZIMUTH_DESCRIPTION, LandsatConstants.Unit.ANGLE));
         attributContainer.add(createAttribute(LandsatConstants.SUN_ELEV_SHORT,
-                                              new Float(geoData.getSunElevationAngle()),
+                                              geoData.getSunElevationAngle(),
                                               LandsatConstants.SUN_ELEV_DESCRIPTION, LandsatConstants.Unit.ANGLE));
-        attributContainer.add(createAttribute(LandsatConstants.ORIENTATION, new Float(geoData.getLookAngle()), "",
+        attributContainer.add(createAttribute(LandsatConstants.ORIENTATION, geoData.getLookAngle(), "",
                                               LandsatConstants.Unit.ANGLE));
         for (int i = 0; i < geoData.getProjectionParameter().length; i++) {
             attributContainer.add(createAttribute((i + 1) + LandsatConstants.PARAMETER_SHORT,
-                                                  new Double(geoData.getProjectionParameter()[i]),
+                                                  geoData.getProjectionParameter()[i],
                                                   LandsatConstants.PARAMETER_DESCRIPTION));
         }
 
-        for (Iterator iter = attributContainer.iterator(); iter.hasNext();) {
-            geo.addAttribute((MetadataAttribute) iter.next());
+        for (MetadataAttribute anAttributContainer : attributContainer) {
+            geo.addAttribute(anAttributContainer);
         }
 
         for (int i = 0; i < geoData.getImagePoints().size(); i++) {
@@ -91,24 +89,24 @@ public final class Landsat5FASTMetadata extends LandsatTMMetadata {
             final GeoPoint geoPoint = (GeoPoint) geoData.getImagePoints().get(i);
             MetadataElement geoPointElement = new MetadataElement(geoPoint.toString());
             geoPointElement.setDescription(geoPoint.toString());
-            List geoAttri = new ArrayList();
+            List<MetadataAttribute> geoAttri = new ArrayList<MetadataAttribute>();
             geoAttri.add(createAttribute(LandsatConstants.geoPointsAttributes.LONGITUDE.toString(),
                                          geoPoint.getGeodicLongitude(), "", LandsatConstants.Unit.ANGLE));
             geoAttri.add(createAttribute(LandsatConstants.geoPointsAttributes.LATITUDE.toString(),
                                          geoPoint.getGeodicLatitude(), "", LandsatConstants.Unit.ANGLE));
             geoAttri.add(createAttribute(LandsatConstants.geoPointsAttributes.EASTING.toString(),
-                                         new Double(geoPoint.getEasting()), "", LandsatConstants.Unit.METER));
+                                         geoPoint.getEasting(), "", LandsatConstants.Unit.METER));
             geoAttri.add(createAttribute(LandsatConstants.geoPointsAttributes.NORTHING.toString(),
-                                         new Double(geoPoint.getNorthing()), "", LandsatConstants.Unit.METER));
+                                         geoPoint.getNorthing(), "", LandsatConstants.Unit.METER));
             if (geoPoint.getGeoPointID().equals(LandsatConstants.Points.CENTER)) {
-                CenterGeoPoint center = (CenterGeoPoint) geoData.getImagePoints().get(i);
+                GeoPoint center = (GeoPoint) geoData.getImagePoints().get(i);
                 geoAttri.add(createAttribute(LandsatConstants.geoPointsAttributes.CENTER_LINE.toString(),
-                                             new Integer(center.getCenterY()), "", LandsatConstants.Unit.METER));
+                                             center.getPixelY(), "", LandsatConstants.Unit.METER));
                 geoAttri.add(createAttribute(LandsatConstants.geoPointsAttributes.CENTER_PIXEL.toString(),
-                                             new Integer(center.getCenterX()), "", LandsatConstants.Unit.METER));
+                                             center.getPixelX(), "", LandsatConstants.Unit.METER));
             }
-            for (Iterator iter = geoAttri.iterator(); iter.hasNext();) {
-                geoPointElement.addAttribute((MetadataAttribute) iter.next());
+            for (MetadataAttribute aGeoAttri : geoAttri) {
+                geoPointElement.addAttribute(aGeoAttri);
             }
             geo.addElement(geoPointElement);
         }
@@ -127,7 +125,7 @@ public final class Landsat5FASTMetadata extends LandsatTMMetadata {
         MetadataElement adminEle = new MetadataElement(ADMIN_METADATA_DESC);
         adminEle.setDescription(METADATA_ADMINISTRATIV_NODE_DESCRIPTION);
 
-        List attributContainer = new ArrayList();
+        List<MetadataAttribute> attributContainer = new ArrayList<MetadataAttribute>();
         LandsatLoc location = landsatHeader.getLoc();
 
         for (int i = 0; i < location.locationRecord().length; i++) {
@@ -147,33 +145,33 @@ public final class Landsat5FASTMetadata extends LandsatTMMetadata {
         attributContainer.add(createAttribute(LandsatConstants.RESAMPLING, landsatHeader.getResampling()));
         attributContainer.add(createAttribute(LandsatConstants.TAPE_SPANNING, landsatHeader.getTapeSpanningFlag(),
                                               LandsatConstants.TAPE_SPANNING_DESCRIPTION));
-        attributContainer.add(createAttribute(LandsatConstants.START_LINE, new Long(landsatHeader.getStartLine()),
+        attributContainer.add(createAttribute(LandsatConstants.START_LINE, landsatHeader.getStartLine(),
                                               LandsatConstants.START_LINE_DESCRIPTION));
         attributContainer.add(createAttribute(LandsatConstants.LINES_PER_VOL,
-                                              new Long(landsatHeader.getLinesPerVolume()),
+                                              landsatHeader.getLinesPerVolume(),
                                               LandsatConstants.LINES_PER_VOL_DESCRIPTION));
-        attributContainer.add(createAttribute(LandsatConstants.PIXEL_SIZE, new Float(landsatHeader.getPixelSize()), "",
+        attributContainer.add(createAttribute(LandsatConstants.PIXEL_SIZE, landsatHeader.getPixelSize(), "",
                                               LandsatConstants.Unit.METER));
         attributContainer.add(createAttribute(LandsatConstants.PIXEL_PER_LINES,
-                                              new Integer(landsatHeader.getImageWidth()),
+                                              landsatHeader.getImageWidth(),
                                               LandsatConstants.PIXEL_PER_LINES_DESCRIPTION,
                                               LandsatConstants.Unit.PIXEL));
         attributContainer.add(createAttribute(LandsatConstants.LINES_PER_IMAGE,
-                                              new Integer(landsatHeader.getImageHeight()),
+                                              landsatHeader.getImageHeight(),
                                               LandsatConstants.LINES_PER_IMAGE_DESCRIPTION));
         attributContainer.add(createAttribute(LandsatConstants.BANDS_PRESENT, landsatHeader.getBandsPresent(),
                                               LandsatConstants.BANDS_PRESENT_DESCRIPTION));
         attributContainer.add(createAttribute(LandsatConstants.BLOCKING_FACTOR,
-                                              new Integer(landsatHeader.getBlockingFactor()),
+                                              landsatHeader.getBlockingFactor(),
                                               LandsatConstants.BLOCKING_FACTOR_DESCRIPTION));
-        attributContainer.add(createAttribute(LandsatConstants.RECORD_LENGTH, new Long(landsatHeader.getRecordLength()),
+        attributContainer.add(createAttribute(LandsatConstants.RECORD_LENGTH, landsatHeader.getRecordLength(),
                                               LandsatConstants.RECORD_LENGTH_DESCRIPTION));
         attributContainer.add(createAttribute(LandsatConstants.VERSION, landsatHeader.getFormatVersion(),
                                               LandsatConstants.VERSION_DESCRIPTION));
         attributContainer.add(createAttribute(EARTH_SUN_DISTANCE, landsatHeader.getEarthSunDistance()));
 
-        for (Iterator iter = attributContainer.iterator(); iter.hasNext();) {
-            adminEle.addAttribute((MetadataAttribute) iter.next());
+        for (MetadataAttribute anAttributContainer : attributContainer) {
+            adminEle.addAttribute(anAttributContainer);
         }
         return adminEle;
     }
@@ -189,7 +187,7 @@ public final class Landsat5FASTMetadata extends LandsatTMMetadata {
     private static MetadataElement setRadianceMetadata(LandsatHeader landsatHeader, LandsatTMBand[] landsatBand) {
         MetadataElement rad = new MetadataElement(RADIANCE);
         rad.setDescription(RADIANCE_DESCRIPTION);
-        final double [] radData = new double[10]; //  minRadiance, maxRadiance, Gain, Bias, nomMinRadiance, nomMaxRadiance
+        final double[] radData = new double[10]; //  minRadiance, maxRadiance, Gain, Bias, nomMinRadiance, nomMaxRadiance
 
         for (int i = 1; i <= landsatHeader.getNumberOfBands(); i++) {
 

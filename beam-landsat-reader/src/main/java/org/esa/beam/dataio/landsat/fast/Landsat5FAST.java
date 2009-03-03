@@ -17,13 +17,24 @@
 
 package org.esa.beam.dataio.landsat.fast;
 
-import org.esa.beam.dataio.landsat.*;
+import org.esa.beam.dataio.landsat.GeoPoint;
+import org.esa.beam.dataio.landsat.GeometricData;
+import org.esa.beam.dataio.landsat.Landsat5TMBand;
+import org.esa.beam.dataio.landsat.LandsatBandReader;
+import org.esa.beam.dataio.landsat.LandsatByteBandReader;
+import org.esa.beam.dataio.landsat.LandsatConstants;
+import org.esa.beam.dataio.landsat.LandsatHeader;
+import org.esa.beam.dataio.landsat.LandsatImageInputStream;
+import org.esa.beam.dataio.landsat.LandsatTMBand;
+import org.esa.beam.dataio.landsat.LandsatTMData;
+import org.esa.beam.dataio.landsat.LandsatTMFile;
+import org.esa.beam.dataio.landsat.LandsatUtils;
+import org.esa.beam.dataio.landsat.RadiometricData;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.util.Debug;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +54,7 @@ public final class Landsat5FAST extends Landsat5FASTConstants implements Landsat
 
     private LandsatHeader landsatHeader;
     private final LandsatTMFile inputFile;
-    private LandsatTMBand [] landsatBands;
+    private LandsatTMBand[] landsatBands;
     private Landsat5FASTMetadata metadata;
     private Map<LandsatTMBand, LandsatBandReader> bandReaders;
 
@@ -51,7 +62,9 @@ public final class Landsat5FAST extends Landsat5FASTConstants implements Landsat
     /**
      * creates a Landsat5Fast format object
      *
-     * @param inputFile
+     * @param inputFile the input file
+     *
+     * @throws java.io.IOException if an IO error occurs
      */
     public Landsat5FAST(final LandsatTMFile inputFile) throws IOException {
         this.inputFile = inputFile;
@@ -63,7 +76,8 @@ public final class Landsat5FAST extends Landsat5FASTConstants implements Landsat
      *
      * @return name of the product
      */
-    public final String getProductName() {
+    @Override
+    public String getProductName() {
         return PRODUCTNAME;
     }
 
@@ -72,16 +86,18 @@ public final class Landsat5FAST extends Landsat5FASTConstants implements Landsat
      *
      * @return landsat Header
      */
-    public final LandsatHeader getHeader() {
+    @Override
+    public LandsatHeader getHeader() {
         return landsatHeader;
     }
 
     /**
-     * @param band
+     * @param band the band to get the {@link LandsatBandReader reader} for.
      *
      * @return bandreader of the passed band
      */
-    public final LandsatBandReader getBandReader(final ConstBand band) {
+    @Override
+    public LandsatBandReader getBandReader(final ConstBand band) {
         LandsatTMBand landsatBand = extractLandsatTMBand(band);
         return bandReaders.get(landsatBand);
     }
@@ -90,7 +106,7 @@ public final class Landsat5FAST extends Landsat5FASTConstants implements Landsat
     /**
      * Adds the reader to the list of available readers.
      *
-     * @param reader
+     * @param reader the reader
      */
     private void addBandReader(final LandsatBandReader reader) {
 
@@ -106,15 +122,18 @@ public final class Landsat5FAST extends Landsat5FASTConstants implements Landsat
     /**
      * @return Landsat 5 FAST format metadata
      */
-    public final List getMetadata() {
+    @Override
+    public List getMetadata() {
         return metadata.getLandsatMetadataElements();
     }
 
-    public final LandsatTMBand getBandAt(final int idx) {
+    @Override
+    public LandsatTMBand getBandAt(final int idx) {
         return landsatBands[idx];
     }
 
-    public final int getFormat() {
+    @Override
+    public int getFormat() {
         return FORMAT;
     }
 
@@ -124,11 +143,10 @@ public final class Landsat5FAST extends Landsat5FASTConstants implements Landsat
      *
      * @throws IOException
      */
-    public final void close() throws
-                              IOException {
+    @Override
+    public void close() throws IOException {
         if (bandReaders != null) {
-            for (Iterator<LandsatBandReader> iter = bandReaders.values().iterator(); iter.hasNext();) {
-                LandsatBandReader element = iter.next();
+            for (LandsatBandReader element : bandReaders.values()) {
                 element.close();
             }
         }
@@ -141,18 +159,19 @@ public final class Landsat5FAST extends Landsat5FASTConstants implements Landsat
     }
 
     /**
-     * @param band
+     * @param band the band to get the {@link LandsatBandReader reader} for.
      *
      * @return LandsatBandReader the apropriate LandsatBandReader object
      */
-    public final LandsatBandReader getBandReader(final Band band) {
+    @Override
+    public LandsatBandReader getBandReader(final Band band) {
         return getBandReader(ConstBand.getConstBand(band));
     }
 
     private LandsatTMBand getBand(final String BandName) {
-        for (int i = 0; i < landsatBands.length; i++) {
-            if (landsatBands[i].getBandName().equals(BandName)) {
-                return landsatBands[i];
+        for (LandsatTMBand landsatBand : landsatBands) {
+            if (landsatBand.getBandName().equals(BandName)) {
+                return landsatBand;
             }
         }
         return null;
@@ -160,6 +179,8 @@ public final class Landsat5FAST extends Landsat5FASTConstants implements Landsat
 
     /**
      * Builds the landsat FAST object with LANDSAT 5 TM specific data
+     *
+     * @throws java.io.IOException if an IO error occurs
      */
     private void init() throws IOException {
         bandReaders = new HashMap<LandsatTMBand, LandsatBandReader>();
@@ -209,7 +230,7 @@ public final class Landsat5FAST extends Landsat5FASTConstants implements Landsat
             if (headerInputStream != null) {
                 try {
                     headerInputStream.close();
-                } catch (IOException e1) {
+                } catch (IOException ignored) {
                     // ignore
                 }
             }
@@ -260,34 +281,47 @@ public final class Landsat5FAST extends Landsat5FASTConstants implements Landsat
         GeoPoint ll = new GeoPoint(Points.LOWER_LEFT);
         GeoPoint ur = new GeoPoint(Points.UPPER_RIGHT);
         GeoPoint lr = new GeoPoint(Points.LOWER_RIGHT);
-        CenterGeoPoint center = new CenterGeoPoint(Points.CENTER, headerInputStream);
+        GeoPoint center = new GeoPoint(Points.CENTER);
 
         ul.setEasting(UPPER_LEFT_EASTING_OFFSET_FASTB, EASTING_NORTHING_SIZE_FASTB, headerInputStream);
         ul.setNorthing(UPPER_LEFT_NORTHING_OFFSET_FASTB, EASTING_NORTHING_SIZE_FASTB, headerInputStream);
         ul.setGeodicLatitude(UPPER_LEFT_CORNER_LATITUDE_OFFSET_FASTB, LATITUDE_SIZE_FASTB, headerInputStream);
         ul.setGeodicLongitude(UPPER_LEFT_CORNER_LONGITUDE_OFFSET_FASTB, LONGITUDE_SIZE_FASTB, headerInputStream);
+        ul.setPixelX(0);
+        ul.sePixelY(0);
 
         ll.setEasting(LOWER_LEFT_EASTING_OFFSET_FASTB, EASTING_NORTHING_SIZE_FASTB, headerInputStream);
         ll.setNorthing(LOWER_LEFT_NORTHING_OFFSET_FASTB, EASTING_NORTHING_SIZE_FASTB, headerInputStream);
         ll.setGeodicLatitude(LOWER_LEFT_CORNER_LATITUDE_OFFSET_FASTB, LATITUDE_SIZE_FASTB, headerInputStream);
         ll.setGeodicLongitude(LOWER_LEFT_CORNER_LONGITUDE_OFFSET_FASTB, LONGITUDE_SIZE_FASTB, headerInputStream);
+        ll.setPixelX(0);
+        ll.sePixelY(landsatHeader.getImageHeight() - 1);
 
         ur.setEasting(UPPER_RIGHT_EASTING_OFFSET_FASTB, EASTING_NORTHING_SIZE_FASTB, headerInputStream);
         ur.setNorthing(UPPER_RIGHT_NORTHING_OFFSET_FASTB, EASTING_NORTHING_SIZE_FASTB, headerInputStream);
         ur.setGeodicLatitude(UPPER_RIGHT_CORNER_LATITUDE_OFFSET_FASTB, LATITUDE_SIZE_FASTB, headerInputStream);
         ur.setGeodicLongitude(UPPER_RIGHT_CORNER_LONGITUDE_OFFSET_FASTB, LONGITUDE_SIZE_FASTB, headerInputStream);
+        ur.setPixelX(landsatHeader.getImageWidth() - 1);
+        ur.sePixelY(0);
 
         lr.setEasting(LOWER_RIGHT_EASTING_OFFSET_FASTB, EASTING_NORTHING_SIZE_FASTB, headerInputStream);
         lr.setNorthing(LOWER_RIGHT_NORTHING_OFFSET_FASTB, EASTING_NORTHING_SIZE_FASTB, headerInputStream);
         lr.setGeodicLatitude(LOWER_RIGHT_CORNER_LATITUDE_OFFSET_FASTB, LATITUDE_SIZE_FASTB, headerInputStream);
         lr.setGeodicLongitude(LOWER_RIGHT_CORNER_LONGITUDE_OFFSET_FASTB, LONGITUDE_SIZE_FASTB, headerInputStream);
+        ur.setPixelX(landsatHeader.getImageWidth() - 1);
+        ur.sePixelY(landsatHeader.getImageHeight() - 1);
 
         center.setEasting(CENTER_EASTING_OFFSET_FASTB, EASTING_NORTHING_SIZE_FASTB, headerInputStream);
         center.setNorthing(CENTER_NORTHING_OFFSET_FASTB, EASTING_NORTHING_SIZE_FASTB, headerInputStream);
         center.setGeodicLatitude(CENTER_LATITUDE_OFFSET_FASTB, LATITUDE_SIZE_FASTB, headerInputStream);
         center.setGeodicLongitude(CENTER_LONGITUDE_OFFSET_FASTB, LONGITUDE_SIZE_FASTB, headerInputStream);
-        center.setCenterY(CENTER_LINE_NUMBER_OFFSET_FASTB, CENTER_NUMBERS_SIZE_FASTB, headerInputStream);
-        center.setCenterX(CENTER_PIXEL_NUMBER_OFFSET_FASTB, CENTER_NUMBERS_SIZE_FASTB, headerInputStream);
+        // for the center point the pixel location is given
+        String yString = LandsatUtils.getValueFromLandsatFile(headerInputStream, CENTER_LINE_NUMBER_OFFSET_FASTB,
+                                                              CENTER_NUMBERS_SIZE_FASTB);
+        center.sePixelY(Integer.parseInt(yString.trim()));
+        String xString = LandsatUtils.getValueFromLandsatFile(headerInputStream, CENTER_PIXEL_NUMBER_OFFSET_FASTB,
+                                                              CENTER_NUMBERS_SIZE_FASTB);
+        center.setPixelX(Integer.parseInt(xString.trim()));
 
         geoData.addGeoPoint(ul);
         geoData.addGeoPoint(ur);
@@ -305,24 +339,17 @@ public final class Landsat5FAST extends Landsat5FASTConstants implements Landsat
         int size = Landsat5FASTConstants.RADIANCE_VALUE_DATA_SIZE;
         final int offset = Landsat5FASTConstants.RADIOMETRIC_DATA_FASTB_OFFSET;
 
-        final int[] maxOffsets = generateMaxRadianceOffsets(size, offset, (number != 0) ? number : DEFAULT_NUMBER);
+        final int[] maxOffsets = generateMaxRadianceOffsets(size, offset, (number == 0) ? DEFAULT_NUMBER : number);
         final int[] minOffsets = generateMinRadianceOffsets(size, offset + size,
-                                                            (number != 0) ? number : DEFAULT_NUMBER);
+                                                            (number == 0) ? DEFAULT_NUMBER : number);
 
         landsatHeader.setRadData(
                 RadiometricData.createRadiometricData(maxOffsets, minOffsets, size, headerInputStream, bandsPresent));
     }
 
-    /**
-     * @param sizeOfData
-     * @param startOffset
-     * @param numberOfBands
-     *
-     * @return generates the offset values for the given numbers of bands for the maximal radiance values
-     */
-    private static int [] generateMaxRadianceOffsets(final int sizeOfData, final int startOffset,
-                                                     final int numberOfBands) {
-        int [] maxRad = new int [numberOfBands];
+    private static int[] generateMaxRadianceOffsets(final int sizeOfData, final int startOffset,
+                                                    final int numberOfBands) {
+        int[] maxRad = new int[numberOfBands];
         for (int i = 0; i < numberOfBands; i++) {
             if (i == 0) {
                 maxRad[i] = startOffset;
@@ -333,16 +360,9 @@ public final class Landsat5FAST extends Landsat5FASTConstants implements Landsat
         return maxRad;
     }
 
-    /**
-     * @param sizeOfData
-     * @param startOffset
-     * @param numberOfBands
-     *
-     * @return generates the offset values for the given numbers of bands for the minimal radiance values
-     */
-    private static int [] generateMinRadianceOffsets(final int sizeOfData, final int startOffset,
-                                                     final int numberOfBands) {
-        int [] minRad = new int [numberOfBands];
+    private static int[] generateMinRadianceOffsets(final int sizeOfData, final int startOffset,
+                                                    final int numberOfBands) {
+        int[] minRad = new int[numberOfBands];
         for (int i = 0; i < numberOfBands; i++) {
             if (i == 0) {
                 minRad[i] = startOffset + SEPERATOR;
@@ -360,10 +380,8 @@ public final class Landsat5FAST extends Landsat5FASTConstants implements Landsat
             final int width = landsatHeader.getImageWidth();
 
             if (landsatBands != null) {
-                for (int i = 0; i < landsatBands.length; i++) {
-                    LandsatTMBand tempBand = landsatBands[i];
-                    addBandReader(
-                            new LandsatByteBandReader(width, tempBand.getBandName(), tempBand.createStream()));
+                for (LandsatTMBand tempBand : landsatBands) {
+                    addBandReader(new LandsatByteBandReader(width, tempBand.getBandName(), tempBand.createStream()));
                 }
             }
         } else {
@@ -371,14 +389,8 @@ public final class Landsat5FAST extends Landsat5FASTConstants implements Landsat
         }
     }
 
-    /**
-     * @param band
-     *
-     * @return identifies a LandsatTMBand Object from a given ConstBand Object
-     */
     private LandsatTMBand extractLandsatTMBand(final ConstBand band) {
-        for (int i = 0; i < landsatBands.length; i++) {
-            LandsatTMBand element = landsatBands[i];
+        for (LandsatTMBand element : landsatBands) {
             if (element.toString().equalsIgnoreCase(band.toString())) {
                 return element;
             }

@@ -18,7 +18,11 @@ package org.esa.beam.dataio.landsat;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductData.UTC;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
@@ -168,13 +172,15 @@ final class LandsatTMReader extends AbstractProductReader {
         final LandsatHeader landsatHeader = landsatTM.getHeader();
         final GeometricData geoData = landsatHeader.getGeoData();
         final float pixelSize = landsatHeader.getPixelSize();
-        final GeoPoint center = geoData.getGeoPointAt(LandsatConstants.Points.CENTER);
+        GeoPoint projCenter = geoData.getGeoPointAt(LandsatConstants.Points.CENTER);
+        float pcX = projCenter.getPixelX();
+        float pcY = projCenter.getPixelY();
         final MapProjection mappro = UTM.createProjection(geoData.getMapZoneNumber() - 1,
-                                                          !center.isNorthernHemisphere());
+                                                          !projCenter.isNorthernHemisphere());
         final int width = landsatHeader.getImageWidth();
         final int height = landsatHeader.getImageHeight();
-        MapInfo map = new MapInfo(mappro, 0.5f * width, 0.5f * height, (float) center.getEasting(),
-                                  (float) center.getNorthing(), pixelSize, pixelSize, Datum.WGS_84);
+        MapInfo map = new MapInfo(mappro, pcX, pcY, (float) projCenter.getEasting(),
+                                  (float) projCenter.getNorthing(), pixelSize, pixelSize, Datum.WGS_84);
         map.setSceneWidth(width);
         map.setSceneHeight(height);
         map.setOrientation(geoData.getLookAngle() * -1);
@@ -189,7 +195,7 @@ final class LandsatTMReader extends AbstractProductReader {
      */
     @Override
     public final void close() throws
-            IOException {
+                              IOException {
         super.close();
         landsatTM.close();
         landsatTM = null;

@@ -32,17 +32,21 @@ import java.util.regex.Pattern;
 public class GeoPoint {
 
     private final Points geoPointID;
-    private String geodicLongitude = null;
-    private String geodicLatitude = null;
+    private String geodicLongitude;
+    private String geodicLatitude;
     private double easting;
     private double northing;
     private boolean northernHemisphere;
+    private int locationY;
+    private int locationX;
 
     /**
-     * @param point
+     * @param point the ID
      */
     public GeoPoint(final Points point) {
         this.geoPointID = point;
+        locationX = -1;
+        locationY = -1;
     }
 
     /**
@@ -198,5 +202,43 @@ public class GeoPoint {
     private static boolean isSouth(String latlon) {
         return latlon.contains("S") || latlon.contains("s");
     }
+
+    /**
+     * x Value of the corresponding pixel of this GeoPoint
+     *
+     * @param y the y position
+     */
+    public void sePixelY(int y) {
+        locationY = y;
+    }
+
+    /**
+     * y Value of the corresponding pixel of this GeoPoint
+     *
+     * @return the y value of the pixel, -1 if not initalised
+     */
+    public int getPixelY() {
+        return locationY;
+    }
+
+    /**
+     * x Value of the corresponding pixel of this GeoPoint
+     *
+     * @param x the x position
+     */
+    public void setPixelX(int x) {
+        locationX = x;
+
+    }
+
+    /**
+     * x Value of the corresponding pixel of this GeoPoint
+     *
+     * @return the x value of the pixel, -1 if not initalised
+     */
+    public int getPixelX() {
+        return locationX;
+    }
+
 
 }
