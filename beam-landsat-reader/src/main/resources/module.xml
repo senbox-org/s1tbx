@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-landsat-reader</symbolicName>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <name>Landsat TM Product Reader</name>
     <description>
         A product reader for Landsat TM 5 FAST files.
@@ -12,17 +12,17 @@
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
-	<changelog>
+    <changelog>
         <![CDATA[
-        <p>From 1.1 to 1.1.1:<br/>
+        From 1.1.1 to 1.1.2:<br/>
+            [BEAM-945] Landsat reader does not consider the center information in header file<br/>
+        From 1.1 to 1.1.1:<br/>
             [BEAM-874] Ensure thread safety of product reader<br/>
-        </p>
-        <p>From 1.0 to 1.1:<br/>
+        From 1.0 to 1.1:<br/>
             [BEAM-653] Landsat reads the raw data (unsigned bytes) wrong<br/>
-        </p>
         ]]>
     </changelog>
-    
+
     <dependency>
         <module>beam-core</module>
     </dependency>
