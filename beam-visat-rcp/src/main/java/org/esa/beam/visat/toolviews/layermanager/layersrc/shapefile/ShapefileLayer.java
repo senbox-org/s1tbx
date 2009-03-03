@@ -40,11 +40,10 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
 
 /**
  * @author Marco Peters
@@ -72,12 +71,14 @@ class ShapefileLayer extends Layer {
         renderer = new StreamingRenderer();
         workaroundLabelCacheBug();
         renderer.setContext(mapContext);
-        getStyle().addPropertyChangeListener(com.bc.ceres.glayer.Style.PROPERTY_NAME_OPACITY, new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                applyOpacity(getStyle().getOpacity());
-            }
-        });
+    }
+
+    @Override
+    protected void fireLayerPropertyChanged(PropertyChangeEvent event) {
+        if (event.getPropertyName().equals(com.bc.ceres.glayer.Style.PROPERTY_NAME_OPACITY)) {
+            applyOpacity(getStyle().getOpacity());
+        }
+        super.fireLayerPropertyChanged(event);
     }
 
     private void workaroundLabelCacheBug() {
