@@ -63,6 +63,14 @@
             <artifactId>junit</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.opengis</groupId>
+            <artifactId>geoapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-referencing</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

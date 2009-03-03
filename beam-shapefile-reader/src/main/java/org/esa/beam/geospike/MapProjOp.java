@@ -19,8 +19,10 @@ package org.esa.beam.geospike;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoCodingMathTransform;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Pin;
@@ -28,7 +30,7 @@ import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -36,13 +38,10 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.ImageUtils;
-import org.esa.beam.util.jai.JAIUtils;
+import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.GeoCodingMathTransform;
 import org.geotools.coverage.Category;
 import org.geotools.coverage.CoverageFactoryFinder;
 import org.geotools.coverage.GridSampleDimension;
@@ -54,26 +53,21 @@ import org.geotools.coverage.processing.Operations;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.referencing.CRS;
-import org.geotools.referencing.datum.DefaultGeodeticDatum;
 import org.geotools.referencing.crs.DefaultDerivedCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
-import org.geotools.referencing.operation.transform.AffineTransform2D;
-import org.geotools.referencing.operation.projection.TransverseMercator;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
+import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.util.NumberRange;
+import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchIdentifierException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
-import org.opengis.referencing.operation.Projection;
-import org.opengis.referencing.operation.OperationMethod;
-import org.opengis.parameter.ParameterValueGroup;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
@@ -85,10 +79,9 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.image.ColorModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
-import java.awt.image.ColorModel;
-import java.util.Set;
 
 /**
  * @author Marco Zuehlke
@@ -96,7 +89,7 @@ import java.util.Set;
  * @since BEAM 4.6
  */
 @OperatorMetadata(alias = "Mapproj",
-        internal = false)
+                  internal = false)
 public class MapProjOp extends Operator {
 
     @SourceProduct
@@ -124,14 +117,14 @@ public class MapProjOp extends Operator {
                 baseToGrid = new GeoCodingMathTransform(geoCoding, GeoCodingMathTransform.Mode.G2P);
             }
             final CoordinateReferenceSystem sourceCRS = new DefaultDerivedCRS("The grid CRS", baseCRS, baseToGrid,
-                    DefaultCartesianCS.DISPLAY);
+                                                                              DefaultCartesianCS.DISPLAY);
 
             /*
              * 2. Create the target CRS
              */
             final GridCoverageFactory factory = CoverageFactoryFinder.getGridCoverageFactory(null);
             final Envelope2D sourceEnvelope = new Envelope2D(sourceCRS, 0, 0, sourceProduct.getSceneRasterWidth(),
-                    sourceProduct.getSceneRasterHeight());
+                                                             sourceProduct.getSceneRasterHeight());
             final CoordinateReferenceSystem targetCRS = createTargetCRS();
 
             /*
@@ -145,9 +138,9 @@ public class MapProjOp extends Operator {
              * 4. Create the target product
              */
             targetProduct = new Product("projected_" + sourceProduct.getName(),
-                    "projection of: " + sourceProduct.getDescription(),
-                    gridRect.width,
-                    gridRect.height);
+                                        "projection of: " + sourceProduct.getDescription(),
+                                        gridRect.width,
+                                        gridRect.height);
 
             /*
              * 5. Create the target geocoding
@@ -159,7 +152,8 @@ public class MapProjOp extends Operator {
              * 6. Define some target properties
              */
             // TODO: also query operatorContext rendering hints for tile size
-            final Dimension tileSize = new Dimension(128, 128); // JAIUtils.computePreferredTileSize(gridRect.width, gridRect.height, 1);
+            final Dimension tileSize = new Dimension(128,
+                                                     128); // JAIUtils.computePreferredTileSize(gridRect.width, gridRect.height, 1);
             targetProduct.setPreferredTileSize(tileSize);
             addMetadataToProduct(targetProduct);
             addFlagCodingsToProduct(targetProduct);
@@ -186,9 +180,9 @@ public class MapProjOp extends Operator {
                  * 8. Create coverage for target band and set target image
                  */
                 GridCoverage2D targetCoverage = (GridCoverage2D) operations.resample(sourceCoverage,
-                        targetCRS,
-                        gridGeometry,
-                        interpolation);
+                                                                                     targetCRS,
+                                                                                     gridGeometry,
+                                                                                     interpolation);
                 RenderedImage targetImage = targetCoverage.getRenderedImage();
                 targetBand.setSourceImage(targetImage);
 
@@ -213,9 +207,9 @@ public class MapProjOp extends Operator {
              */
             ProductUtils.copyBitmaskDefsAndOverlays(sourceProduct, targetProduct);
             copyPlacemarks(sourceProduct.getPinGroup(), targetProduct.getPinGroup(),
-                    PlacemarkSymbol.createDefaultPinSymbol());
+                           PlacemarkSymbol.createDefaultPinSymbol());
             copyPlacemarks(sourceProduct.getGcpGroup(), targetProduct.getGcpGroup(),
-                    PlacemarkSymbol.createDefaultGcpSymbol());
+                           PlacemarkSymbol.createDefaultGcpSymbol());
         } catch (Throwable t) {
             t.printStackTrace();
             throw new OperatorException(t.getMessage(), t);
@@ -285,13 +279,14 @@ public class MapProjOp extends Operator {
         final Pin[] placemarks = sourcePlacemarkGroup.toArray(new Pin[0]);
         for (Pin placemark : placemarks) {
             final Pin pin1 = new Pin(placemark.getName(), placemark.getLabel(),
-                    placemark.getDescription(), null, placemark.getGeoPos(),
-                    symbol);
+                                     placemark.getDescription(), null, placemark.getGeoPos(),
+                                     symbol);
             targetPlacemarkGroup.add(pin1);
         }
     }
 
     public static class Spi extends OperatorSpi {
+
         public Spi() {
             super(MapProjOp.class);
         }
@@ -317,7 +312,8 @@ public class MapProjOp extends Operator {
         return new InterpolationNearest();
     }
 
-    private static GridGeometry2D createGridGeometry(Product product, CoordinateReferenceSystem sourceCRS, CoordinateReferenceSystem targetCRS) {
+    private static GridGeometry2D createGridGeometry(Product product, CoordinateReferenceSystem sourceCRS,
+                                                     CoordinateReferenceSystem targetCRS) {
         // TODO: create grid geometry from parameters
         final int sourceW = product.getSceneRasterWidth();
         final int sourceH = product.getSceneRasterHeight();
@@ -365,7 +361,8 @@ public class MapProjOp extends Operator {
         return new GridGeometry2D(new GeneralGridEnvelope(targetGrid, 2), gridToCrs, targetCRS);
     }
 
-    private static Point2D[] createMapBoundary(Product product, Rectangle rect, int step, MathTransform mathTransform) throws TransformException {
+    private static Point2D[] createMapBoundary(Product product, Rectangle rect, int step,
+                                               MathTransform mathTransform) throws TransformException {
         GeoPos[] geoPoints = ProductUtils.createGeoBoundary(product, rect, step);
         ProductUtils.normalizeGeoPolygon(geoPoints);
         double[] geoPointsD = new double[geoPoints.length * 2];
@@ -422,13 +419,13 @@ public class MapProjOp extends Operator {
                                                  SampleModel sampleModel,
                                                  ColorModel colorModel) {
         return new ImageLayout(0, 0,
-                width,
-                height,
-                0, 0,
-                tileWidth,
-                tileHeight,
-                sampleModel,
-                colorModel);
+                               width,
+                               height,
+                               0, 0,
+                               tileWidth,
+                               tileHeight,
+                               sampleModel,
+                               colorModel);
     }
 
     private static GridCoverage2D createSourceCoverage(GridCoverageFactory factory, Envelope2D envelope, Band band) {

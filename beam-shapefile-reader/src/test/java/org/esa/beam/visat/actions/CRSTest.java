@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.AbstractGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoCodingMathTransform;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Scene;
@@ -40,16 +41,17 @@ public class CRSTest extends TestCase {
 
         AffineTransform at = new AffineTransform();
         at.translate(-40, +10);
-        assertEquals(new Point(-40, 10),at.transform(new Point(0, 0),null));
+        assertEquals(new Point(-40, 10), at.transform(new Point(0, 0), null));
 
         GeoCoding geoCoding = new AffineGeoCoding(at);
-        assertEquals(new GeoPos(10, -40),geoCoding.getGeoPos(new PixelPos(0,0), new GeoPos()));
-        assertEquals(new PixelPos(0,0),geoCoding.getPixelPos(new GeoPos(10, -40), new PixelPos()));
+        assertEquals(new GeoPos(10, -40), geoCoding.getGeoPos(new PixelPos(0, 0), new GeoPos()));
+        assertEquals(new PixelPos(0, 0), geoCoding.getPixelPos(new GeoPos(10, -40), new PixelPos()));
 
         GeographicCRS geoCRS = DefaultGeographicCRS.WGS84;
         SingleCRS gridCRS = new DefaultDerivedCRS("xyz",
                                                   geoCRS,
-                                                  new GeoCodingMathTransform(geoCoding, GeoCodingMathTransform.Mode.G2P),
+                                                  new GeoCodingMathTransform(geoCoding,
+                                                                             GeoCodingMathTransform.Mode.G2P),
                                                   DefaultCartesianCS.GRID);
 
         assertEquals(geoCRS.getDatum(), gridCRS.getDatum());

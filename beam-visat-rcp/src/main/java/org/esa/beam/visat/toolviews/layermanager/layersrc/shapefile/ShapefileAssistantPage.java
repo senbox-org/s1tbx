@@ -4,13 +4,13 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoCodingMathTransform;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.FeatureCollectionClipper;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.GeoCodingMathTransform;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.feature.FeatureCollection;
@@ -72,9 +72,10 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
                 Product targetProduct = getAppPageContext().getAppContext().getSelectedProductSceneView().getProduct();
                 GeoCoding geoCoding = targetProduct.getGeoCoding();
                 SingleCRS targetCrs = new DefaultDerivedCRS("xyz",
-                                                          DefaultGeographicCRS.WGS84,
-                                                          new GeoCodingMathTransform(geoCoding, GeoCodingMathTransform.Mode.G2P),
-                                                          DefaultCartesianCS.DISPLAY);
+                                                            DefaultGeographicCRS.WGS84,
+                                                            new GeoCodingMathTransform(geoCoding,
+                                                                                       GeoCodingMathTransform.Mode.G2P),
+                                                            DefaultCartesianCS.DISPLAY);
 
                 File file = new File(path);
                 Map<String, Object> map = new HashMap<String, Object>();
@@ -92,18 +93,20 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
                     GeoPos geoPose = geoPoses[i];
                     coordinates[i] = new Coordinate(geoPose.lon, geoPose.lat);
                 }
-                coordinates[coordinates.length-1] = coordinates[0];
+                coordinates[coordinates.length - 1] = coordinates[0];
 
                 Geometry clipGeometry = gf.createPolygon(gf.createLinearRing(coordinates), null);
                 // todo - reproject features to CRS WGS84 before
                 featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, targetCrs);
 
-                ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(featureCollection.getBounds(), targetCrs);
+                ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(featureCollection.getBounds(),
+                                                                               targetCrs);
                 return new ShapefileAssistantPage2(file,
-                                          featureCollection,
-                                          referencedEnvelope,
-                                          featureCollection.getSchema(),
-                                          ShapefileAssistantPage2.createStyle(file, featureCollection.getSchema()));
+                                                   featureCollection,
+                                                   referencedEnvelope,
+                                                   featureCollection.getSchema(),
+                                                   ShapefileAssistantPage2.createStyle(file,
+                                                                                       featureCollection.getSchema()));
             } catch (Exception e) {
                 e.printStackTrace();
                 getPageContext().showErrorDialog("Failed to load ESRI shapefile:\n" + e.getMessage());

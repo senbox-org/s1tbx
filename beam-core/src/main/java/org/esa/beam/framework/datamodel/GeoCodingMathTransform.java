@@ -1,8 +1,5 @@
-package org.esa.beam.visat.actions;
+package org.esa.beam.framework.datamodel;
 
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.referencing.operation.transform.AbstractMathTransform;
 import org.opengis.parameter.GeneralParameterDescriptor;
@@ -17,7 +14,6 @@ import org.opengis.referencing.operation.TransformException;
  * @author Marco Peters
  * @version $Revision: $ $Date: $
  * @since BEAM 4.6
- * @deprecated in BEAM 4.6
  */
 public class GeoCodingMathTransform extends AbstractMathTransform {
 
@@ -26,7 +22,8 @@ public class GeoCodingMathTransform extends AbstractMathTransform {
     private final Mode mode;
     private final T t;
 
-    public enum Mode{
+    public enum Mode {
+
         P2G,
         G2P
     }
@@ -66,12 +63,14 @@ public class GeoCodingMathTransform extends AbstractMathTransform {
     }
 
     private interface T {
+
         void transform(GeoCoding geoCoding, double[] srcPts, int srcOff,
                        double[] dstPts, int dstOff,
                        int numPts) throws TransformException;
     }
 
     private static class TP2G implements T {
+
         @Override
         public void transform(GeoCoding geoCoding,
                               double[] srcPts, int srcOff,
@@ -94,6 +93,7 @@ public class GeoCodingMathTransform extends AbstractMathTransform {
     }
 
     private static class TG2P implements T {
+
         @Override
         public void transform(GeoCoding geoCoding,
                               double[] srcPts, int srcOff,

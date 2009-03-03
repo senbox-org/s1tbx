@@ -1,12 +1,7 @@
-package org.esa.beam.visat.toolviews.layermanager.layersrc;
+package org.esa.beam.framework.datamodel;
 
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.AbstractGeoCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Scene;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.GeneralDirectPosition;
@@ -39,16 +34,17 @@ public class GeoCodingMathTransformTest extends TestCase {
 
         AffineTransform at = new AffineTransform();
         at.translate(-40, +10);
-        assertEquals(new Point(-40, 10),at.transform(new Point(0, 0),null));
+        assertEquals(new Point(-40, 10), at.transform(new Point(0, 0), null));
 
         GeoCoding geoCoding = new AffineGeoCoding(at);
-        assertEquals(new GeoPos(10, -40),geoCoding.getGeoPos(new PixelPos(0,0), new GeoPos()));
-        assertEquals(new PixelPos(0,0),geoCoding.getPixelPos(new GeoPos(10, -40), new PixelPos()));
+        assertEquals(new GeoPos(10, -40), geoCoding.getGeoPos(new PixelPos(0, 0), new GeoPos()));
+        assertEquals(new PixelPos(0, 0), geoCoding.getPixelPos(new GeoPos(10, -40), new PixelPos()));
 
         GeographicCRS geoCRS = DefaultGeographicCRS.WGS84;
         SingleCRS gridCRS = new DefaultDerivedCRS("xyz",
                                                   geoCRS,
-                                                  new GeoCodingMathTransform(geoCoding, GeoCodingMathTransform.Mode.G2P),
+                                                  new GeoCodingMathTransform(geoCoding,
+                                                                             GeoCodingMathTransform.Mode.G2P),
                                                   DefaultCartesianCS.GRID);
 
         assertEquals(geoCRS.getDatum(), gridCRS.getDatum());
@@ -56,8 +52,7 @@ public class GeoCodingMathTransformTest extends TestCase {
         MathTransform transform = CRS.findMathTransform(gridCRS, geoCRS);
         assertNotNull(transform);
 
-        DirectPosition position;
-        position = transform.transform(new GeneralDirectPosition(0, 0), null);
+        DirectPosition position = transform.transform(new GeneralDirectPosition(0, 0), null);
         assertNotNull(position);
         assertEquals(new GeneralDirectPosition(-40, 10), position);
 
@@ -71,28 +66,33 @@ public class GeoCodingMathTransformTest extends TestCase {
 
     private static class AffineGeoCoding extends AbstractGeoCoding {
 
-        final AffineTransform at;
+        private final AffineTransform at;
 
         private AffineGeoCoding(AffineTransform at) {
             this.at = at;
         }
 
+        @Override
         public boolean transferGeoCoding(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef) {
             return false;
         }
 
+        @Override
         public boolean isCrossingMeridianAt180() {
             return false;
         }
 
+        @Override
         public boolean canGetPixelPos() {
             return true;
         }
 
+        @Override
         public boolean canGetGeoPos() {
             return true;
         }
 
+        @Override
         public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
             final Point2D point2D;
             try {
@@ -105,6 +105,7 @@ public class GeoCodingMathTransformTest extends TestCase {
             return pixelPos;
         }
 
+        @Override
         public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
             final Point2D point2D = at.transform(new Point2D.Double(pixelPos.x, pixelPos.y), null);
             geoPos.lon = (float) point2D.getX();
@@ -112,10 +113,12 @@ public class GeoCodingMathTransformTest extends TestCase {
             return geoPos;
         }
 
+        @Override
         public Datum getDatum() {
             return Datum.WGS_84;
         }
 
+        @Override
         public void dispose() {
         }
     }

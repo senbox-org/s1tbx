@@ -2,6 +2,7 @@ package org.esa.beam.visat.actions;
 
 import com.bc.ceres.glayer.Layer;
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoCodingMathTransform;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.command.CommandEvent;
