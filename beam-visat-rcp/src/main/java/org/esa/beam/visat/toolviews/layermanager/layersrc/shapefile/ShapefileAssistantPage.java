@@ -11,7 +11,9 @@ import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.FeatureCollectionClipper;
-import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.DataStore;
+import org.geotools.data.DataStoreFinder;
+import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -81,10 +83,12 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
                 Map<String, Object> map = new HashMap<String, Object>();
                 map.put(ShapefileDataStoreFactory.URLP.key, file.toURI().toURL());
                 map.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, true);
+                DataStore shapefileStore = DataStoreFinder.getDataStore(map);
+                String typeName = shapefileStore.getTypeNames()[0]; // Shapefiles do only have one type name
+                FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = shapefileStore.getFeatureSource(
+                        typeName);
 
-                ShapefileDataStore shapefile = new ShapefileDataStoreFactory().createDataStore(map);
-
-                FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = shapefile.getFeatureSource().getFeatures();
+                FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures();
 
                 GeometryFactory gf = new GeometryFactory();
                 GeoPos[] geoPoses = ProductUtils.createGeoBoundary(targetProduct, 100);
