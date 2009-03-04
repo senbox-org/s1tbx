@@ -84,13 +84,15 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
                 map.put(ShapefileDataStoreFactory.URLP.key, file.toURI().toURL());
                 map.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, true);
                 DataStore shapefileStore = DataStoreFinder.getDataStore(map);
+
                 String typeName = shapefileStore.getTypeNames()[0]; // Shapefiles do only have one type name
-                FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = shapefileStore.getFeatureSource(
-                        typeName);
+                FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+                featureSource = shapefileStore.getFeatureSource(typeName);
 
-                FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures();
+                FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
+                featureCollection = featureSource.getFeatures();
 
-                Geometry clipGeometry = getProductGeometry(targetProduct);
+                Geometry clipGeometry = createProductGeometry(targetProduct);
                 // todo - reproject features to CRS WGS84 before
                 featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, targetCrs);
 
@@ -111,7 +113,7 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
         return null;
     }
 
-    private Geometry getProductGeometry(Product targetProduct) {
+    private Geometry createProductGeometry(Product targetProduct) {
         GeometryFactory gf = new GeometryFactory();
         GeoPos[] geoPoses = ProductUtils.createGeoBoundary(targetProduct, 100);
         Coordinate[] coordinates = new Coordinate[geoPoses.length + 1];
@@ -121,8 +123,7 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
         }
         coordinates[coordinates.length - 1] = coordinates[0];
 
-        Geometry clipGeometry = gf.createPolygon(gf.createLinearRing(coordinates), null);
-        return clipGeometry;
+        return gf.createPolygon(gf.createLinearRing(coordinates), null);
     }
 
     private void dumpAuthorityCodes(String authority) throws FactoryException {
