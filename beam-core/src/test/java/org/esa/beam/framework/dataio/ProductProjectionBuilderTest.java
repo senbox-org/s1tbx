@@ -18,12 +18,11 @@ package org.esa.beam.framework.dataio;
 
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjection;
@@ -86,12 +85,7 @@ public class ProductProjectionBuilderTest extends TestCase {
 
         assertEquals(pin.getGeoPos(), pin2.getGeoPos());
         assertEquals(gcp.getGeoPos(), gcp2.getGeoPos());
-
-        final GeoCoding geoCoding = product2.getGeoCoding();
-        final PixelPos pinPixelPos = geoCoding.getPixelPos(pin2.getGeoPos(), null);
-        final PixelPos gcpPixelPos = geoCoding.getPixelPos(gcp2.getGeoPos(), null);
-
-        assertEquals(pinPixelPos, pin2.getPixelPos());
-        assertEquals(gcpPixelPos, gcp2.getPixelPos());
+        assertNull(pin2.getPixelPos());
+        assertNull(gcp2.getPixelPos());
     }
 }
