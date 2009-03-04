@@ -22,6 +22,7 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.ProductUtils;
 import org.geotools.geometry.GeneralDirectPosition;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.Rectangle;
@@ -42,7 +43,7 @@ public class MathTransformGeoCoding implements GeoCoding {
 
     public MathTransformGeoCoding(MathTransform mathTransform, Rectangle productRect) {
         this.mathTransform = mathTransform;
-        
+
         if (!productRect.isEmpty()) {
             final GeoPos[] geoPoints = createGeoBoundary(productRect);
             normalized = ProductUtils.normalizeGeoPolygon(geoPoints) != 0;
@@ -56,7 +57,7 @@ public class MathTransformGeoCoding implements GeoCoding {
             normalizedLonMin = -180;
         }
     }
-    
+
     private GeoPos[] createGeoBoundary(Rectangle rect) {
         final int step = (int) Math.max(16, (rect.getWidth() + rect.getHeight()) / 250);
         final PixelPos[] rectBoundary = ProductUtils.createRectBoundary(rect, step);
@@ -66,7 +67,7 @@ public class MathTransformGeoCoding implements GeoCoding {
         }
         return geoPoints;
     }
-    
+
     @Override
     public boolean canGetGeoPos() {
         return true;
@@ -99,11 +100,11 @@ public class MathTransformGeoCoding implements GeoCoding {
             e.printStackTrace();
             return geoPos;
         }
-        geoPos.setLocation((float)position.getOrdinate(1), (float)position.getOrdinate(0));
+        geoPos.setLocation((float) position.getOrdinate(1), (float) position.getOrdinate(0));
         denormGeoPos(geoPos);
         return geoPos;
     }
-    
+
     private void denormGeoPos(GeoPos geoPos) {
         while (geoPos.lon > 180.0f) {
             geoPos.lon -= 360.0f;
@@ -132,7 +133,7 @@ public class MathTransformGeoCoding implements GeoCoding {
         pixelPos.setLocation(position.getOrdinate(0), position.getOrdinate(1));
         return pixelPos;
     }
-    
+
     private GeoPos normGeoPos(final GeoPos geoPos, final GeoPos geoPosNorm) {
         geoPosNorm.lat = geoPos.lat;
         if (normalized && geoPos.lon < normalizedLonMin) {
@@ -146,5 +147,14 @@ public class MathTransformGeoCoding implements GeoCoding {
     @Override
     public boolean isCrossingMeridianAt180() {
         return normalized;
+    }
+
+    @Override
+    public CoordinateReferenceSystem getCRS() {
+        return null;
+    }
+
+    @Override
+    public void setCRS(CoordinateReferenceSystem crs) {
     }
 }

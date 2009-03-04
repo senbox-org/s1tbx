@@ -3,8 +3,6 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoCodingMathTransform;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
@@ -18,14 +16,10 @@ import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultDerivedCRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.SingleCRS;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -72,12 +66,7 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
         if (path != null && !path.trim().isEmpty()) {
             try {
                 Product targetProduct = getAppPageContext().getAppContext().getSelectedProductSceneView().getProduct();
-                GeoCoding geoCoding = targetProduct.getGeoCoding();
-                SingleCRS targetCrs = new DefaultDerivedCRS("xyz",
-                                                            DefaultGeographicCRS.WGS84,
-                                                            new GeoCodingMathTransform(geoCoding,
-                                                                                       GeoCodingMathTransform.Mode.G2P),
-                                                            DefaultCartesianCS.DISPLAY);
+                CoordinateReferenceSystem targetCrs = targetProduct.getGeoCoding().getCRS();
 
                 File file = new File(path);
                 Map<String, Object> map = new HashMap<String, Object>();

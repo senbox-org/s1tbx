@@ -8,13 +8,13 @@ package org.esa.beam.framework.dataop.dem;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
 import org.esa.beam.framework.datamodel.AngularDirection;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Pointing;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 public class OrthorectifierTest extends TestCase {
 
@@ -128,6 +128,15 @@ public class OrthorectifierTest extends TestCase {
         }
 
         public void dispose() {
+        }
+
+        @Override
+        public CoordinateReferenceSystem getCRS() {
+            return null;
+        }
+
+        @Override
+        public void setCRS(CoordinateReferenceSystem crs) {
         }
 
         public Datum getDatum() {

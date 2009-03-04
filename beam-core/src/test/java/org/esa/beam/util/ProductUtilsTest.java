@@ -17,17 +17,25 @@
 
 package org.esa.beam.util;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -407,9 +415,9 @@ public class ProductUtilsTest extends TestCase {
 
     public void testComputeSourcePixelCoordinates() {
         final PixelPos[] pixelCoords = ProductUtils.computeSourcePixelCoordinates(new ProductUtilsTest.SGeoCoding(),
-                2, 2,
-                new ProductUtilsTest.DGeoCoding(),
-                new Rectangle(0, 0, 3, 2));
+                                                                                  2, 2,
+                                                                                  new ProductUtilsTest.DGeoCoding(),
+                                                                                  new Rectangle(0, 0, 3, 2));
 
         assertEquals(3 * 2, pixelCoords.length);
 
@@ -494,6 +502,15 @@ public class ProductUtilsTest extends TestCase {
 
         public void dispose() {
         }
+
+        @Override
+        public CoordinateReferenceSystem getCRS() {
+            return null;
+        }
+
+        @Override
+        public void setCRS(CoordinateReferenceSystem crs) {
+        }
     }
 
     public static class DGeoCoding implements GeoCoding {
@@ -529,12 +546,21 @@ public class ProductUtilsTest extends TestCase {
 
         public void dispose() {
         }
+
+        @Override
+        public CoordinateReferenceSystem getCRS() {
+            return null;
+        }
+
+        @Override
+        public void setCRS(CoordinateReferenceSystem crs) {
+        }
     }
 
     public void testCreateRectBoundary_usePixelCenter_false() {
         final boolean notUsePixelCenter = false;
         final PixelPos[] rectBoundary = ProductUtils.createRectBoundary(new Rectangle(2, 3, 15, 20), 7,
-                notUsePixelCenter);
+                                                                        notUsePixelCenter);
         assertEquals(12, rectBoundary.length);
         assertEquals(new PixelPos(2, 3), rectBoundary[0]);
         assertEquals(new PixelPos(9, 3), rectBoundary[1]);

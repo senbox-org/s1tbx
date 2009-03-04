@@ -6,14 +6,20 @@
  */
 package org.esa.beam.framework.dataop.dem;
 
+import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.AngularDirection;
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoCodingMathTransform;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Pointing;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.RsMathUtils;
+import org.geotools.referencing.crs.DefaultDerivedCRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.cs.DefaultCartesianCS;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * An <code>Orthorectifier</code> is a {@link org.esa.beam.framework.datamodel.GeoCoding} which performs an orthorectification algorithm on a base {@link
@@ -44,6 +50,7 @@ public class Orthorectifier implements GeoCoding {
     protected final PixelPos _pp2 = new PixelPos();
     protected final GeoPos _gp = new GeoPos();
     protected final AngularDirection _vg = new AngularDirection();
+    private CoordinateReferenceSystem crs;
 
     /**
      * Constructs a new <code>Orthorectifier</code>.
@@ -194,7 +201,7 @@ public class Orthorectifier implements GeoCoding {
         return correctPrediction(pixelPos, 2.0);
     }
 
-    private boolean  correctPrediction(final PixelPos pixelPos, double factor) {
+    private boolean correctPrediction(final PixelPos pixelPos, double factor) {
         _pp.x = pixelPos.x;
         _pp.y = pixelPos.y;
         float dx;
@@ -240,7 +247,7 @@ public class Orthorectifier implements GeoCoding {
         return geoPos;
     }
 
-    protected final  boolean isPixelPosValid(PixelPos pixelPos) {
+    protected final boolean isPixelPosValid(PixelPos pixelPos) {
         return pixelPos.x >= 0 && pixelPos.x <= _sceneRasterWidth &&
                pixelPos.y >= 0 && pixelPos.y <= _sceneRasterHeight;
     }
@@ -273,4 +280,21 @@ public class Orthorectifier implements GeoCoding {
 //        return distance < 25.0;   // todo (nf) - get from Pointing or so
     }
 
+    @Override
+    public CoordinateReferenceSystem getCRS() {
+        if (crs == null) {
+            crs = new DefaultDerivedCRS("Derived CRS",
+                                        DefaultGeographicCRS.WGS84,
+                                        new GeoCodingMathTransform(this, GeoCodingMathTransform.Mode.G2P),
+                                        DefaultCartesianCS.DISPLAY);
+
+        }
+        return crs;
+    }
+
+    @Override
+    public void setCRS(CoordinateReferenceSystem crs) {
+        Assert.notNull(crs, "crs");
+        this.crs = crs;
+    }
 }

@@ -17,6 +17,7 @@
 package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 
 /**
@@ -93,4 +94,8 @@ public interface GeoCoding {
      * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
      */
     void dispose();
+
+    CoordinateReferenceSystem getCRS();
+
+    void setCRS(CoordinateReferenceSystem crs);
 }

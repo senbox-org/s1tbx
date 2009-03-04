@@ -16,22 +16,23 @@
  */
 package org.esa.beam.visat.plugins.pgrab.util;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.geom.GeneralPath;
-import java.awt.image.BufferedImage;
-
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.geom.GeneralPath;
+import java.awt.image.BufferedImage;
 
 public class WorldMapPainter {
 
-    private final static  Color _fillColor = new Color(255, 200, 200, 70);
+    private static final Color _fillColor = new Color(255, 200, 200, 70);
     private Image _worldMapImage;
     private int _width;
     private int _height;
@@ -41,11 +42,11 @@ public class WorldMapPainter {
         setWorldMapImage(worldMapImage);
     }
 
-    public WorldMapPainter(){
+    public WorldMapPainter() {
 
     }
 
-    public void setWorldMapImage(final Image worldMapImage) {
+    public final void setWorldMapImage(final Image worldMapImage) {
         Guardian.assertNotNull("worldMapImage", worldMapImage);
         _worldMapImage = worldMapImage;
         _width = worldMapImage.getWidth(null);
@@ -62,8 +63,8 @@ public class WorldMapPainter {
         g2d.drawImage(_worldMapImage, 0, 0, null);
 
         if (geoBoundaryPaths != null) {
-            for (int i = 0; i < geoBoundaryPaths.length; i++) {
-                final GeneralPath boundaryPath = ProductUtils.convertToPixelPath(geoBoundaryPaths[i], _geoCoding);
+            for (GeneralPath geoBoundaryPath : geoBoundaryPaths) {
+                final GeneralPath boundaryPath = ProductUtils.convertToPixelPath(geoBoundaryPath, _geoCoding);
                 g2d.setColor(_fillColor);
                 g2d.fill(boundaryPath);
                 g2d.setColor(Color.red);
@@ -79,36 +80,52 @@ public class WorldMapPainter {
 
     private GeoCoding createGeocoding() {
         return new GeoCoding() {
+            @Override
             public boolean isCrossingMeridianAt180() {
                 return false;
             }
 
+            @Override
             public boolean canGetPixelPos() {
                 return true;
             }
 
+            @Override
             public boolean canGetGeoPos() {
                 return false;
             }
 
+            @Override
             public PixelPos getPixelPos(final GeoPos geoPos, PixelPos pixelPos) {
                 if (pixelPos == null) {
                     pixelPos = new PixelPos();
                 }
-                pixelPos.setLocation(_width / 360f * (geoPos.getLon() + 180f),
-                                 _height - (_height / 180f * (geoPos.getLat() + 90f)));
+                pixelPos.setLocation(_width / 360.0f * (geoPos.getLon() + 180.0f),
+                                     _height - (_height / 180.0f * (geoPos.getLat() + 90.0f)));
                 return pixelPos;
             }
 
+            @Override
             public GeoPos getGeoPos(final PixelPos pixelPos, final GeoPos geoPos) {
                 return null;
             }
 
+            @Override
             public Datum getDatum() {
                 return Datum.WGS_84;
             }
 
+            @Override
             public void dispose() {
+            }
+
+            @Override
+            public CoordinateReferenceSystem getCRS() {
+                return null;
+            }
+
+            @Override
+            public void setCRS(CoordinateReferenceSystem crs) {
             }
         };
     }
