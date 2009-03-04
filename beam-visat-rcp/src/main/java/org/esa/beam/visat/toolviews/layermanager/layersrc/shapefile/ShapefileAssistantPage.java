@@ -90,16 +90,7 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
 
                 FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures();
 
-                GeometryFactory gf = new GeometryFactory();
-                GeoPos[] geoPoses = ProductUtils.createGeoBoundary(targetProduct, 100);
-                Coordinate[] coordinates = new Coordinate[geoPoses.length + 1];
-                for (int i = 0; i < geoPoses.length; i++) {
-                    GeoPos geoPose = geoPoses[i];
-                    coordinates[i] = new Coordinate(geoPose.lon, geoPose.lat);
-                }
-                coordinates[coordinates.length - 1] = coordinates[0];
-
-                Geometry clipGeometry = gf.createPolygon(gf.createLinearRing(coordinates), null);
+                Geometry clipGeometry = getProductGeometry(targetProduct);
                 // todo - reproject features to CRS WGS84 before
                 featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, targetCrs);
 
@@ -118,6 +109,20 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
         }
 
         return null;
+    }
+
+    private Geometry getProductGeometry(Product targetProduct) {
+        GeometryFactory gf = new GeometryFactory();
+        GeoPos[] geoPoses = ProductUtils.createGeoBoundary(targetProduct, 100);
+        Coordinate[] coordinates = new Coordinate[geoPoses.length + 1];
+        for (int i = 0; i < geoPoses.length; i++) {
+            GeoPos geoPose = geoPoses[i];
+            coordinates[i] = new Coordinate(geoPose.lon, geoPose.lat);
+        }
+        coordinates[coordinates.length - 1] = coordinates[0];
+
+        Geometry clipGeometry = gf.createPolygon(gf.createLinearRing(coordinates), null);
+        return clipGeometry;
     }
 
     private void dumpAuthorityCodes(String authority) throws FactoryException {
