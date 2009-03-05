@@ -34,7 +34,7 @@ import java.awt.Rectangle;
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public class MathTransformGeoCoding implements GeoCoding {
+public class MathTransformGeoCoding {
 
     private final MathTransform mathTransform;
     private final boolean normalized;
@@ -68,27 +68,22 @@ public class MathTransformGeoCoding implements GeoCoding {
         return geoPoints;
     }
 
-    @Override
     public boolean canGetGeoPos() {
         return true;
     }
 
-    @Override
     public boolean canGetPixelPos() {
         return true;
     }
 
-    @Override
     public void dispose() {
     }
 
-    @Override
     public Datum getDatum() {
         // TODO
         return Datum.WGS_84;
     }
 
-    @Override
     public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
         if (geoPos == null) {
             geoPos = new GeoPos(0.0f, 0.0f);
@@ -114,7 +109,6 @@ public class MathTransformGeoCoding implements GeoCoding {
         }
     }
 
-    @Override
     public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
         if (pixelPos == null) {
             pixelPos = new PixelPos();
@@ -144,17 +138,14 @@ public class MathTransformGeoCoding implements GeoCoding {
         return geoPosNorm;
     }
 
-    @Override
     public boolean isCrossingMeridianAt180() {
         return normalized;
     }
 
-    @Override
     public CoordinateReferenceSystem getCRS() {
         return null;
     }
 
-    @Override
     public void setCRS(CoordinateReferenceSystem crs) {
     }
 }

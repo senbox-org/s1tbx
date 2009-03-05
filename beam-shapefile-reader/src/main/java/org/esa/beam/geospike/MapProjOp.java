@@ -145,9 +145,7 @@ public class MapProjOp extends Operator {
             /*
              * 5. Create the target geocoding
              */
-            GeoCoding targetGeoCoding = new MathTransformGeoCoding(gridGeometry.getGridToCRS(), gridRect);
-            targetProduct.setGeoCoding(targetGeoCoding);
-
+            // TODO: target geocoding
             /*
              * 6. Define some target properties
              */
