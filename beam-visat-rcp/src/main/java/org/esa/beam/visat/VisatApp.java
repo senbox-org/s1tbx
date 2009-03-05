@@ -127,6 +127,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 
 /**
  * The <code>VisatApp</code> class represents the VISAT application.
@@ -427,7 +428,7 @@ public class VisatApp extends BasicApp implements AppContext {
     @Override
     protected void initClientUI(ProgressMonitor pm) {
         try {
-            pm.beginTask(String.format("Initialising %s UI components", getAppName()), 4);
+            pm.beginTask(String.format("Initialising %s UI components", getAppName()), 5);
 
             CommandBar layersToolBar = createLayersToolBar();
             layersToolBar.getContext().setInitSide(DockableBarContext.DOCK_SIDE_NORTH);
@@ -458,6 +459,7 @@ public class VisatApp extends BasicApp implements AppContext {
                 }
                 getMainFrame().getDockableBarManager().addDockableBar(viewToolBar);
             }
+            pm.worked(1);
 
             registerForMacOSXEvents();
             pm.worked(1);
@@ -478,11 +480,8 @@ public class VisatApp extends BasicApp implements AppContext {
                 JMenu fileMenu = findMainMenu("file");
                 JMenuItem menuItem = findMenuItem("exit", fileMenu);
                 fileMenu.remove(menuItem);
-//                OSXAdapter.setAboutHandler(this, getClass().getDeclaredMethod("showAboutBox", (Class[])null));
-//                OSXAdapter.setPreferencesHandler(this, getClass().getDeclaredMethod("showPreferencesDialog", String.class));
             } catch (Exception e) {
-                System.err.println("Error while loading the OSXAdapter:");
-                e.printStackTrace();
+                getLogger().log(Level.WARNING, "Error while loading the OSXAdapter", e);
             }
         }
     }

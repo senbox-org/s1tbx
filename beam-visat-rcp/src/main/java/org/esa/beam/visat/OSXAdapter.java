@@ -62,8 +62,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-
-public class OSXAdapter implements InvocationHandler {
+/**
+ * The OSXAdapter is taken from the wollowing web page:
+ * http://developer.apple.com/samplecode/OSXAdapter/index.html
+ */
+class OSXAdapter implements InvocationHandler {
 
     protected Object targetObject;
     protected Method targetMethod;
