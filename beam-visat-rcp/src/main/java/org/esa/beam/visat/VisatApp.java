@@ -490,7 +490,7 @@ public class VisatApp extends BasicApp implements AppContext {
     private JMenuItem findMenuItem(final String command, final JMenu menu) {
         for (int i = 0; i < menu.getItemCount(); i++) {
             JMenuItem menuItem = menu.getItem(i);
-            if (command.equals(menuItem.getActionCommand())) {
+            if (menuItem != null && command.equals(menuItem.getActionCommand())) {
                 return menuItem;
             }
         }
