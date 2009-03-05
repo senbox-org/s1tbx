@@ -50,8 +50,8 @@ public class CRSTest extends TestCase {
         GeographicCRS geoCRS = DefaultGeographicCRS.WGS84;
         SingleCRS gridCRS = new DefaultDerivedCRS("xyz",
                                                   geoCRS,
-                                                  new GeoCodingMathTransform(geoCoding,
-                                                                             GeoCodingMathTransform.Mode.G2P),
+                                                  new GeoCodingMathTransform(geoCoding
+                                                  ),
                                                   DefaultCartesianCS.GRID);
 
         assertEquals(geoCRS.getDatum(), gridCRS.getDatum());

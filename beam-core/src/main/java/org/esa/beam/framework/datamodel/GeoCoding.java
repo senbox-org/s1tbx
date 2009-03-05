@@ -95,7 +95,15 @@ public interface GeoCoding {
      */
     void dispose();
 
-    CoordinateReferenceSystem getCRS();
+    /**
+     * Returns the coordinate reference system (CRS) which may be either a geographical CRS (nominal case is
+     * WGS 84) or a projected CRS.
+     */
+    CoordinateReferenceSystem getBaseCRS();
 
-    void setCRS(CoordinateReferenceSystem crs);
+    /**
+     * Returns a derived coordinate reference system (CRS) which can be used to convert grid (pixel) coordinates
+     * into geographic coordinates.
+     */
+    CoordinateReferenceSystem getGridCRS();
 }

@@ -85,6 +85,12 @@ public class WorldMapPainter {
                 return false;
             }
 
+
+            @Override
+            public CoordinateReferenceSystem getGridCRS() {
+                return null;
+            }
+
             @Override
             public boolean canGetPixelPos() {
                 return true;
@@ -120,13 +126,11 @@ public class WorldMapPainter {
             }
 
             @Override
-            public CoordinateReferenceSystem getCRS() {
+            public CoordinateReferenceSystem getBaseCRS() {
                 return null;
             }
 
-            @Override
-            public void setCRS(CoordinateReferenceSystem crs) {
-            }
+
         };
     }
 }

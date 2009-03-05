@@ -18,7 +18,16 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  */
 public abstract class AbstractGeoCoding implements GeoCoding {
 
-    private CoordinateReferenceSystem crs;
+    private CoordinateReferenceSystem baseCRS;
+    private CoordinateReferenceSystem gridCRS;
+
+    protected AbstractGeoCoding() {
+        setBaseCRS(DefaultGeographicCRS.WGS84);
+        setGridCRS(new DefaultDerivedCRS("Grid CS based on " + baseCRS.getName(),
+                                         getBaseCRS(),
+                                         new GeoCodingMathTransform(this),
+                                         DefaultCartesianCS.DISPLAY));
+    }
 
     /**
      * Transfers the geo-coding of the {@link Scene srcScene} to the {@link Scene destScene} with respect to the given
@@ -33,23 +42,22 @@ public abstract class AbstractGeoCoding implements GeoCoding {
     public abstract boolean transferGeoCoding(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef);
 
     @Override
-    public CoordinateReferenceSystem getCRS() {
-        if (crs == null) {
-            // the name is used as hashcode, if the name is constant over all instances
-            // the CRS.findMathTransform(...) will return always the first acquired Transform,
-            // because this method caches.
-            crs = new DefaultDerivedCRS(String.format("%s@%d", getClass().getSimpleName(), this.hashCode()),
-                                        DefaultGeographicCRS.WGS84,
-                                        new GeoCodingMathTransform(this, GeoCodingMathTransform.Mode.G2P),
-                                        DefaultCartesianCS.DISPLAY);
+    public CoordinateReferenceSystem getBaseCRS() {
+        return baseCRS;
+    }
 
-        }
-        return crs;
+    protected final void setBaseCRS(CoordinateReferenceSystem baseCRS) {
+        Assert.notNull(baseCRS, "baseCRS");
+        this.baseCRS = baseCRS;
     }
 
     @Override
-    public void setCRS(CoordinateReferenceSystem crs) {
-        Assert.notNull(crs, "crs");
-        this.crs = crs;
+    public CoordinateReferenceSystem getGridCRS() {
+        return gridCRS;
+    }
+
+    protected final void setGridCRS(CoordinateReferenceSystem gridCRS) {
+        Assert.notNull(gridCRS, "gridCRS");
+        this.gridCRS = gridCRS;
     }
 }

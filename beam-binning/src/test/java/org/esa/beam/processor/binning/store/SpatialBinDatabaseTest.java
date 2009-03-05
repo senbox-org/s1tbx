@@ -77,12 +77,13 @@ public class SpatialBinDatabaseTest extends TestCase {
         }
 
         @Override
-        public CoordinateReferenceSystem getCRS() {
+        public CoordinateReferenceSystem getBaseCRS() {
             return null;
         }
 
         @Override
-        public void setCRS(CoordinateReferenceSystem crs) {
+        public CoordinateReferenceSystem getGridCRS() {
+            return null;
         }
     }
 }

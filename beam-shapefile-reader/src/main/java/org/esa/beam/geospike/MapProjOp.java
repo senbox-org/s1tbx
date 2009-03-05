@@ -18,11 +18,8 @@ package org.esa.beam.geospike;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoCodingMathTransform;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Pin;
@@ -30,7 +27,6 @@ import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -53,7 +49,6 @@ import org.geotools.coverage.processing.Operations;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultDerivedCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
@@ -65,7 +60,6 @@ import org.geotools.util.NumberRange;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
@@ -104,38 +98,18 @@ public class MapProjOp extends Operator {
     public void initialize() throws OperatorException {
         try {
             /*
-             * 1. Create the source CRS
+             * 1. Create the target CRS
              */
-            final GeographicCRS baseCRS = DefaultGeographicCRS.WGS84;
-            final MathTransform baseToGrid;
-            final GeoCoding geoCoding = sourceProduct.getGeoCoding();
-
-            if (geoCoding instanceof MapGeoCoding) {
-                final MapInfo mapInfo = ((MapGeoCoding) geoCoding).getMapInfo();
-                baseToGrid = new AffineTransform2D(mapInfo.getPixelToMapTransform().createInverse());
-            } else {
-                baseToGrid = new GeoCodingMathTransform(geoCoding, GeoCodingMathTransform.Mode.G2P);
-            }
-            final CoordinateReferenceSystem sourceCRS = new DefaultDerivedCRS("The grid CRS", baseCRS, baseToGrid,
-                                                                              DefaultCartesianCS.DISPLAY);
-
-            /*
-             * 2. Create the target CRS
-             */
-            final GridCoverageFactory factory = CoverageFactoryFinder.getGridCoverageFactory(null);
-            final Envelope2D sourceEnvelope = new Envelope2D(sourceCRS, 0, 0, sourceProduct.getSceneRasterWidth(),
-                                                             sourceProduct.getSceneRasterHeight());
             final CoordinateReferenceSystem targetCRS = createTargetCRS();
 
             /*
-             * 3. Compute the target grid geometry
+             * 2. Compute the target grid geometry
              */
-            final GridGeometry2D gridGeometry = createGridGeometry(sourceProduct, baseCRS, targetCRS);
+            final GridGeometry2D gridGeometry = createGridGeometry(sourceProduct, targetCRS);
             Rectangle gridRect = gridGeometry.getGridRange2D();
-            final Interpolation interpolation = createInterpolation();
 
             /*
-             * 4. Create the target product
+             * 3. Create the target product
              */
             targetProduct = new Product("projected_" + sourceProduct.getName(),
                                         "projection of: " + sourceProduct.getDescription(),
@@ -143,22 +117,21 @@ public class MapProjOp extends Operator {
                                         gridRect.height);
 
             /*
-             * 5. Create the target geocoding
-             */
-            // TODO: target geocoding
-            /*
-             * 6. Define some target properties
+             * 4. Define some target properties
              */
             // TODO: also query operatorContext rendering hints for tile size
-            final Dimension tileSize = new Dimension(128,
-                                                     128); // JAIUtils.computePreferredTileSize(gridRect.width, gridRect.height, 1);
+            final Dimension tileSize = new Dimension(128, 128);
             targetProduct.setPreferredTileSize(tileSize);
             addMetadataToProduct(targetProduct);
             addFlagCodingsToProduct(targetProduct);
             addIndexCodingsToProduct(targetProduct);
 
+            final Envelope2D sourceEnvelope = new Envelope2D(sourceProduct.getGeoCoding().getGridCRS(),
+                                                             0, 0,
+                                                             sourceProduct.getSceneRasterWidth(),
+                                                             sourceProduct.getSceneRasterHeight());
             /*
-             * Create target bands
+             * 5. Create target bands
              */
             for (Band sourceBand : sourceProduct.getBands()) {
                 Band targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
@@ -167,7 +140,7 @@ public class MapProjOp extends Operator {
                 /*
                  * 7. Create coverage from source band
                  */
-                GridCoverage2D sourceCoverage = createSourceCoverage(factory, sourceEnvelope, sourceBand);
+                GridCoverage2D sourceCoverage = createSourceCoverage(sourceEnvelope, sourceBand);
                 // only the tile size of the image layout is actually taken into account
                 // by the resample operation.   Use Operations.DEFAULT if tile size does
                 // not matter
@@ -180,7 +153,7 @@ public class MapProjOp extends Operator {
                 GridCoverage2D targetCoverage = (GridCoverage2D) operations.resample(sourceCoverage,
                                                                                      targetCRS,
                                                                                      gridGeometry,
-                                                                                     interpolation);
+                                                                                     getInterpolation());
                 RenderedImage targetImage = targetCoverage.getRenderedImage();
                 targetBand.setSourceImage(targetImage);
 
@@ -305,12 +278,12 @@ public class MapProjOp extends Operator {
         return new DefaultProjectedCRS("tm", DefaultGeographicCRS.WGS84, mt, DefaultCartesianCS.PROJECTED);
     }
 
-    private static Interpolation createInterpolation() {
+    private static Interpolation getInterpolation() {
         // TODO: create interpolation from parameters
         return new InterpolationNearest();
     }
 
-    private static GridGeometry2D createGridGeometry(Product product, CoordinateReferenceSystem sourceCRS,
+    private static GridGeometry2D createGridGeometry(Product product,
                                                      CoordinateReferenceSystem targetCRS) {
         // TODO: create grid geometry from parameters
         final int sourceW = product.getSceneRasterWidth();
@@ -318,7 +291,7 @@ public class MapProjOp extends Operator {
         final int step = Math.min(sourceW, sourceH) / 2;
         MathTransform mathTransform;
         try {
-            mathTransform = CRS.findMathTransform(sourceCRS, targetCRS);
+            mathTransform = CRS.findMathTransform(DefaultGeographicCRS.WGS84, targetCRS);
         } catch (FactoryException e) {
             throw new OperatorException(e);
         }
@@ -426,7 +399,8 @@ public class MapProjOp extends Operator {
                                colorModel);
     }
 
-    private static GridCoverage2D createSourceCoverage(GridCoverageFactory factory, Envelope2D envelope, Band band) {
+    private static GridCoverage2D createSourceCoverage(Envelope2D envelope, Band band) {
+        GridCoverageFactory factory = CoverageFactoryFinder.getGridCoverageFactory(null);
         final RenderedImage sourceImage = band.getSourceImage();
 
         // TODO: create no-data gridSampleDimension from parameters

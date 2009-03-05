@@ -22,6 +22,11 @@ import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
+import org.geotools.referencing.crs.DefaultDerivedCRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.cs.DefaultCartesianCS;
+import org.geotools.referencing.operation.transform.AffineTransform2D;
+import org.opengis.referencing.crs.GeographicCRS;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -48,17 +53,24 @@ public class MapGeoCoding extends AbstractGeoCoding {
      * Constructs a map geo-coding based on the given map information.
      *
      * @param mapInfo the map infomation
+     *
      * @throws IllegalArgumentException if the given mapInfo is <code>null</code>.
      */
     public MapGeoCoding(MapInfo mapInfo) {
         Guardian.assertNotNull("mapInfo", mapInfo);
+        AffineTransform mapToPixelTransform;
+        try {
+            mapToPixelTransform = mapInfo.getPixelToMapTransform().createInverse();
+        } catch (NoninvertibleTransformException e) {
+            throw new IllegalArgumentException("mapInfo", e);
+        }
 
         _mapInfo = mapInfo;
 
         _mapTransform = _mapInfo.getMapProjection().getMapTransform();
         pixelToMapTransform = _mapInfo.getPixelToMapTransform();
         try {
-            mapToPixelTransform = _mapInfo.getPixelToMapTransform().createInverse();
+            this.mapToPixelTransform = _mapInfo.getPixelToMapTransform().createInverse();
         } catch (NoninvertibleTransformException e) {
             throw new IllegalArgumentException("mapInfo", e);
         }
@@ -76,6 +88,15 @@ public class MapGeoCoding extends AbstractGeoCoding {
             _normalized = false;
             _normalizedLonMin = -180;
         }
+
+        // TODO - IMPORTANT BUG HERE: derive base CRS from _mapInfo.getMapProjection()    (nf, mp, 2009-03-05)
+        GeographicCRS baseCRS = DefaultGeographicCRS.WGS84;
+        setBaseCRS(baseCRS);
+        setGridCRS(new DefaultDerivedCRS("Grid CS based on " + baseCRS.getName(),
+                                         baseCRS,
+                                         new AffineTransform2D(mapToPixelTransform),
+                                         DefaultCartesianCS.DISPLAY));
+
     }
 
     /**
@@ -121,6 +142,7 @@ public class MapGeoCoding extends AbstractGeoCoding {
      * @param geoPos   the geographical position as lat/lon.
      * @param pixelPos an instance of <code>PixelPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
+     *
      * @return the pixel co-ordinates as x/y
      */
     public final PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
@@ -135,6 +157,7 @@ public class MapGeoCoding extends AbstractGeoCoding {
      * @param pixelPos the pixel's co-ordinates given as x,y
      * @param geoPos   an instance of <code>GeoPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
+     *
      * @return the geographical position as lat/lon.
      */
     public final GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
@@ -236,6 +259,7 @@ public class MapGeoCoding extends AbstractGeoCoding {
      * @param srcScene  the source scene
      * @param destScene the destination scene
      * @param subsetDef the definition of the subset, may be <code>null</code>
+     *
      * @return true, if the geo-coding could be transferred.
      */
     @Override

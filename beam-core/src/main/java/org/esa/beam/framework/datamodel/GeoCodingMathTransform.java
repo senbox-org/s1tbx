@@ -9,29 +9,30 @@ import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.TransformException;
 
 /**
- * todo - add API doc
+ * A math transform which converts from grid (pixel) coordinates to geograhícal coordinates.
  *
  * @author Marco Peters
+ * @author Norman Fomferra
  * @version $Revision: $ $Date: $
  * @since BEAM 4.6
  */
 public class GeoCodingMathTransform extends AbstractMathTransform {
 
+    private static final TG2P G2P = new TG2P();
+    private static final TP2G P2G = new TP2G();
     private static final int DIMS = 2;
+
     private final GeoCoding geoCoding;
-    private final Mode mode;
     private final T t;
 
-    public enum Mode {
 
-        P2G,
-        G2P
+    public GeoCodingMathTransform(GeoCoding geoCoding) {
+        this(geoCoding, G2P);
     }
 
-    public GeoCodingMathTransform(GeoCoding geoCoding, Mode mode) {
+    private GeoCodingMathTransform(GeoCoding geoCoding, T t) {
         this.geoCoding = geoCoding;
-        this.mode = mode;
-        t = mode == Mode.P2G ? new TP2G() : new TG2P();
+        this.t = t;
     }
 
     @Override
@@ -52,7 +53,7 @@ public class GeoCodingMathTransform extends AbstractMathTransform {
 
     @Override
     public MathTransform inverse() throws NoninvertibleTransformException {
-        return new GeoCodingMathTransform(geoCoding, mode == Mode.P2G ? Mode.G2P : Mode.P2G);
+        return new GeoCodingMathTransform(geoCoding, t == G2P ? P2G : G2P);
     }
 
     @Override
@@ -60,6 +61,35 @@ public class GeoCodingMathTransform extends AbstractMathTransform {
                           double[] dstPts, int dstOff,
                           int numPts) throws TransformException {
         t.transform(geoCoding, srcPts, srcOff, dstPts, dstOff, numPts);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        GeoCodingMathTransform that = (GeoCodingMathTransform) o;
+
+        if (!geoCoding.equals(that.geoCoding)) {
+            return false;
+        }
+        return t == that.t;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + geoCoding.hashCode();
+        result = 31 * result + t.hashCode();
+        return result;
     }
 
     private interface T {

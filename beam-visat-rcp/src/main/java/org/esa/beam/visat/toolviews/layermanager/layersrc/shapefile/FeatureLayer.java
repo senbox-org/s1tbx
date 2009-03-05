@@ -50,7 +50,7 @@ import java.util.Map;
  * @version $Revision: $ $Date: $
  * @since BEAM 4.6
  */
-class ShapefileLayer extends Layer {
+class FeatureLayer extends Layer {
 
     private static final org.geotools.styling.StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
     private static final FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
@@ -61,8 +61,8 @@ class ShapefileLayer extends Layer {
     private StreamingRenderer renderer;
     private LabelCache labelCache;
 
-    ShapefileLayer(final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
-                   final Style style) {
+    FeatureLayer(final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
+                 final Style style) {
 
         crs = featureCollection.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
 

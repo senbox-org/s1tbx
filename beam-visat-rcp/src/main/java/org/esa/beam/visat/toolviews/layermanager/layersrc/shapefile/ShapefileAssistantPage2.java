@@ -72,9 +72,9 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
 
 
     ShapefileAssistantPage2(File file,
-                   final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
-                   final ReferencedEnvelope featureSourceEnvelope, final SimpleFeatureType schema,
-                   final org.geotools.styling.Style[] styles) {
+                            final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
+                            final ReferencedEnvelope featureSourceEnvelope, final SimpleFeatureType schema,
+                            final org.geotools.styling.Style[] styles) {
         super("Layer Preview");
         this.file = file;
         this.featureCollection = featureCollection;
@@ -133,14 +133,14 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
 
     @Override
     public boolean performFinish() {
-        Style style = ShapefileLayer.createStyle(file, schema);
-        ShapefileLayer shapefileLayer = new ShapefileLayer(featureCollection, style);
+        Style style = FeatureLayer.createStyle(file, schema);
+        FeatureLayer featureLayer = new FeatureLayer(featureCollection, style);
 
-        shapefileLayer.setName(file.getName());
-        shapefileLayer.setVisible(true);
+        featureLayer.setName(file.getName());
+        featureLayer.setVisible(true);
 
         final Layer rootLayer = getAppPageContext().getAppContext().getSelectedProductSceneView().getRootLayer();
-        rootLayer.getChildren().add(0, shapefileLayer);
+        rootLayer.getChildren().add(0, featureLayer);
         return true;
     }
 

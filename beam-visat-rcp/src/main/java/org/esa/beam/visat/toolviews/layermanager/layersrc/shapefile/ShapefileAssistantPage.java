@@ -4,6 +4,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
@@ -66,7 +67,13 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
         if (path != null && !path.trim().isEmpty()) {
             try {
                 Product targetProduct = getAppPageContext().getAppContext().getSelectedProductSceneView().getProduct();
-                CoordinateReferenceSystem targetCrs = targetProduct.getGeoCoding().getCRS();
+
+                CoordinateReferenceSystem targetCrs;
+                if (targetProduct.getGeoCoding() instanceof MapGeoCoding) {
+                    targetCrs = targetProduct.getGeoCoding().getBaseCRS();
+                } else {
+                    targetCrs = targetProduct.getGeoCoding().getGridCRS();
+                }
 
                 File file = new File(path);
                 Map<String, Object> map = new HashMap<String, Object>();
@@ -82,7 +89,6 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
                 featureCollection = featureSource.getFeatures();
 
                 Geometry clipGeometry = createProductGeometry(targetProduct);
-                // todo - reproject features to CRS WGS84 before
                 featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, targetCrs);
 
                 ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(featureCollection.getBounds(),

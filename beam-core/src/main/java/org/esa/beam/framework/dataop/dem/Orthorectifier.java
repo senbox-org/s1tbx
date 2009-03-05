@@ -6,19 +6,14 @@
  */
 package org.esa.beam.framework.dataop.dem;
 
-import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.AngularDirection;
 import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoCodingMathTransform;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Pointing;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.RsMathUtils;
-import org.geotools.referencing.crs.DefaultDerivedCRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
@@ -90,6 +85,16 @@ public class Orthorectifier implements GeoCoding {
      */
     public Datum getDatum() {
         return _geoCoding.getDatum();
+    }
+
+    @Override
+    public CoordinateReferenceSystem getBaseCRS() {
+        return _geoCoding.getBaseCRS();
+    }
+
+    @Override
+    public CoordinateReferenceSystem getGridCRS() {
+        return _geoCoding.getGridCRS();
     }
 
     public Pointing getPointing() {
@@ -278,23 +283,5 @@ public class Orthorectifier implements GeoCoding {
 //        final float elevation = getElevation(geoPos, pixelPos);
 //        final double distance = Math.abs(elevation) * Math.tan(MathUtils.DTOR * _vg.zenith);
 //        return distance < 25.0;   // todo (nf) - get from Pointing or so
-    }
-
-    @Override
-    public CoordinateReferenceSystem getCRS() {
-        if (crs == null) {
-            crs = new DefaultDerivedCRS("Derived CRS",
-                                        DefaultGeographicCRS.WGS84,
-                                        new GeoCodingMathTransform(this, GeoCodingMathTransform.Mode.G2P),
-                                        DefaultCartesianCS.DISPLAY);
-
-        }
-        return crs;
-    }
-
-    @Override
-    public void setCRS(CoordinateReferenceSystem crs) {
-        Assert.notNull(crs, "crs");
-        this.crs = crs;
     }
 }
