@@ -67,6 +67,9 @@ public class VisatMain implements RuntimeRunnable {
 
         Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
         if (SystemInfo.isMacOSX()) {
+            if (System.getProperty("com.apple.macos.useScreenMenuBar") == null) {
+                System.setProperty("com.apple.macos.useScreenMenuBar", "true");
+            }
             if (System.getProperty("apple.laf.useScreenMenuBar") == null) {
                 System.setProperty("apple.laf.useScreenMenuBar", "true");
             }
