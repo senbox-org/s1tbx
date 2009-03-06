@@ -58,24 +58,16 @@ public class MapGeoCoding extends AbstractGeoCoding {
      */
     public MapGeoCoding(MapInfo mapInfo) {
         Guardian.assertNotNull("mapInfo", mapInfo);
-        AffineTransform mapToPixelTransform;
         try {
             mapToPixelTransform = mapInfo.getPixelToMapTransform().createInverse();
         } catch (NoninvertibleTransformException e) {
             throw new IllegalArgumentException("mapInfo", e);
         }
-
         _mapInfo = mapInfo;
-
         _mapTransform = _mapInfo.getMapProjection().getMapTransform();
         pixelToMapTransform = _mapInfo.getPixelToMapTransform();
-        try {
-            this.mapToPixelTransform = _mapInfo.getPixelToMapTransform().createInverse();
-        } catch (NoninvertibleTransformException e) {
-            throw new IllegalArgumentException("mapInfo", e);
-        }
 
-        final Rectangle rect = new Rectangle(0, 0, mapInfo.getSceneWidth(), mapInfo.getSceneHeight());
+        final Rectangle rect = new Rectangle(0, 0, _mapInfo.getSceneWidth(), _mapInfo.getSceneHeight());
         if (!rect.isEmpty()) {
             final GeoPos[] geoPoints = createGeoBoundary(rect);
             _normalized = ProductUtils.normalizeGeoPolygon(geoPoints) != 0;
@@ -114,6 +106,7 @@ public class MapGeoCoding extends AbstractGeoCoding {
      *
      * @return always <code>false</code>
      */
+    @Override
     public boolean isCrossingMeridianAt180() {
         return _normalized;
     }
@@ -123,6 +116,7 @@ public class MapGeoCoding extends AbstractGeoCoding {
      *
      * @return <code>true</code>, if so
      */
+    @Override
     public boolean canGetGeoPos() {
         return true;
     }
@@ -132,6 +126,7 @@ public class MapGeoCoding extends AbstractGeoCoding {
      *
      * @return <code>true</code>, if so
      */
+    @Override
     public boolean canGetPixelPos() {
         return true;
     }
@@ -145,6 +140,7 @@ public class MapGeoCoding extends AbstractGeoCoding {
      *
      * @return the pixel co-ordinates as x/y
      */
+    @Override
     public final PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
         final GeoPos geoPosNorm = normGeoPos(geoPos, new GeoPos());
         final Point2D mapPos = geoToMap(geoPosNorm, new Point2D.Double());
@@ -160,6 +156,7 @@ public class MapGeoCoding extends AbstractGeoCoding {
      *
      * @return the geographical position as lat/lon.
      */
+    @Override
     public final GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
         final Point2D mapPos = pixelToMap(pixelPos, new Point2D.Double());
         final GeoPos geoPosNorm = mapToGeo(mapPos, new GeoPos());
@@ -175,6 +172,7 @@ public class MapGeoCoding extends AbstractGeoCoding {
      * <p/>
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
      */
+    @Override
     public void dispose() {
     }
 
@@ -183,6 +181,7 @@ public class MapGeoCoding extends AbstractGeoCoding {
      *
      * @return the datum
      */
+    @Override
     public Datum getDatum() {
         return _mapInfo.getDatum();
     }
