@@ -74,12 +74,15 @@ class GeneralInformationHeader {
         spaceCraftCode.put(4, "NOAA-15 (NOAA-K)");
         spaceCraftCode.put(6, "NOAA-17 (NOAA-M)");
         spaceCraftCode.put(7, "NOAA-18 (NOAA-N)");
-        spaceCraftCode.put(8, "(NOAA-N')");
+        spaceCraftCode.put(8, "(NOAA-P)");
+        spaceCraftCode.put(11, "MetOp-1");
+        spaceCraftCode.put(12, "MetOp-A");
 
         dataType = new HashMap();
         dataType.put(1, "LAC");
         dataType.put(2, "GAC");
         dataType.put(3, "HRPT");
+        dataType.put(13, "FRAC");
         parse(header);
     }
 
@@ -198,6 +201,6 @@ class GeneralInformationHeader {
     }
 
     private boolean isSupportedDataType(int dataType) {
-        return (dataType == 1 || dataType == 3);
+        return (dataType == 1 || dataType == 3 || dataType == 13);
     }
 }
