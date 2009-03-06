@@ -55,7 +55,7 @@ public class WmsAssistantPage extends AbstractAppAssistantPage {
         }
 
         if (wms != null && wmsCapabilities != null) {
-            return new WmsPage2(wms, wmsCapabilities);
+            return new WmsAssistantPage2(wms, wmsCapabilities);
         } else {
             return null;
         }
@@ -66,6 +66,7 @@ public class WmsAssistantPage extends AbstractAppAssistantPage {
         return false;
     }
 
+    @Override
     protected Component createLayerPageComponent(AppAssistantPageContext context) {
         GridBagConstraints gbc = new GridBagConstraints();
         final JPanel panel = new JPanel(new GridBagLayout());
@@ -86,6 +87,7 @@ public class WmsAssistantPage extends AbstractAppAssistantPage {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridwidth = 1;
         wmsUrlBox = new JComboBox(new Object[]{
+                "http://wms.globexplorer.com/gexservlets/wms",
                 "http://demo.cubewerx.com/demo/cubeserv/cubeserv.cgi",
                 "http://www.mapserver.niedersachsen.de/freezoneogc/mapserverogc",
         });
@@ -119,6 +121,7 @@ public class WmsAssistantPage extends AbstractAppAssistantPage {
 
     private class MyActionListener implements ActionListener {
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             // Show WMS URL Manager
             String url = "";
@@ -129,6 +132,7 @@ public class WmsAssistantPage extends AbstractAppAssistantPage {
 
     private class MyItemListener implements ItemListener {
 
+        @Override
         public void itemStateChanged(ItemEvent e) {
             getPageContext().updateState();
         }

@@ -41,13 +41,13 @@ import java.awt.geom.Point2D;
  */
 public class MapGeoCoding extends AbstractGeoCoding {
 
-    private final MapInfo _mapInfo;
-    private final MapTransform _mapTransform;
-    private final AffineTransform pixelToMapTransform;
-    private final AffineTransform mapToPixelTransform;
+    private final MapInfo mapInfo;
+    private final MapTransform mapTransform;
+    private final AffineTransform gridToModelTransform;
+    private final AffineTransform modelToGridTransform;
 
-    private final boolean _normalized;
-    private final double _normalizedLonMin;
+    private final boolean normalized;
+    private final double normalizedLonMin;
 
     /**
      * Constructs a map geo-coding based on the given map information.
@@ -58,37 +58,39 @@ public class MapGeoCoding extends AbstractGeoCoding {
      */
     public MapGeoCoding(MapInfo mapInfo) {
         Guardian.assertNotNull("mapInfo", mapInfo);
+
+        this.mapInfo = mapInfo;
+
+        gridToModelTransform = this.mapInfo.getPixelToMapTransform();
         try {
-            mapToPixelTransform = mapInfo.getPixelToMapTransform().createInverse();
+            modelToGridTransform = this.mapInfo.getPixelToMapTransform().createInverse();
         } catch (NoninvertibleTransformException e) {
             throw new IllegalArgumentException("mapInfo", e);
         }
-        _mapInfo = mapInfo;
-        _mapTransform = _mapInfo.getMapProjection().getMapTransform();
-        pixelToMapTransform = _mapInfo.getPixelToMapTransform();
+        mapTransform = this.mapInfo.getMapProjection().getMapTransform();
 
-        final Rectangle rect = new Rectangle(0, 0, _mapInfo.getSceneWidth(), _mapInfo.getSceneHeight());
+        final Rectangle rect = new Rectangle(0, 0, this.mapInfo.getSceneWidth(), this.mapInfo.getSceneHeight());
         if (!rect.isEmpty()) {
             final GeoPos[] geoPoints = createGeoBoundary(rect);
-            _normalized = ProductUtils.normalizeGeoPolygon(geoPoints) != 0;
+            normalized = ProductUtils.normalizeGeoPolygon(geoPoints) != 0;
             double normalizedLonMin = Double.MAX_VALUE;
             for (GeoPos geoPoint : geoPoints) {
                 normalizedLonMin = Math.min(normalizedLonMin, geoPoint.lon);
             }
-            _normalizedLonMin = normalizedLonMin;
+            this.normalizedLonMin = normalizedLonMin;
         } else {
-            _normalized = false;
-            _normalizedLonMin = -180;
+            normalized = false;
+            normalizedLonMin = -180;
         }
 
-        // TODO - IMPORTANT BUG HERE: derive base CRS from _mapInfo.getMapProjection()    (nf, mp, 2009-03-05)
+        // TODO - IMPORTANT BUG HERE: derive base CRS from mapInfo.getMapProjection()    (nf, mp, 2009-03-05)
         GeographicCRS baseCRS = DefaultGeographicCRS.WGS84;
         setBaseCRS(baseCRS);
         setGridCRS(new DefaultDerivedCRS("Grid CS based on " + baseCRS.getName(),
                                          baseCRS,
-                                         new AffineTransform2D(mapToPixelTransform),
+                                         new AffineTransform2D(modelToGridTransform),
                                          DefaultCartesianCS.DISPLAY));
-
+        setModelCRS(baseCRS);
     }
 
     /**
@@ -97,7 +99,7 @@ public class MapGeoCoding extends AbstractGeoCoding {
      * @return the map information
      */
     public MapInfo getMapInfo() {
-        return _mapInfo;
+        return mapInfo;
     }
 
     /**
@@ -108,7 +110,7 @@ public class MapGeoCoding extends AbstractGeoCoding {
      */
     @Override
     public boolean isCrossingMeridianAt180() {
-        return _normalized;
+        return normalized;
     }
 
     /**
@@ -183,41 +185,41 @@ public class MapGeoCoding extends AbstractGeoCoding {
      */
     @Override
     public Datum getDatum() {
-        return _mapInfo.getDatum();
+        return mapInfo.getDatum();
     }
 
     public MapGeoCoding createDeepClone() {
-        return new MapGeoCoding(_mapInfo.createDeepClone());
+        return new MapGeoCoding(mapInfo.createDeepClone());
     }
 
     /////////////////////////////////////////////////////////////////////////
     // Private
 
     private Point2D geoToMap(final GeoPos geoPosNorm, Point2D mapPos) {
-        return _mapTransform.forward(geoPosNorm, mapPos);
+        return mapTransform.forward(geoPosNorm, mapPos);
     }
 
     private GeoPos mapToGeo(final Point2D mapPos, GeoPos geoPos) {
-        return _mapTransform.inverse(mapPos, geoPos);
+        return mapTransform.inverse(mapPos, geoPos);
     }
 
     private PixelPos mapToPixel(final Point2D mapPos, PixelPos pixelPos) {
         if (pixelPos != null) {
-            mapToPixelTransform.transform(mapPos, pixelPos);
+            modelToGridTransform.transform(mapPos, pixelPos);
             return pixelPos;
         } else {
-            Point2D point2D = mapToPixelTransform.transform(mapPos, pixelPos);
+            Point2D point2D = modelToGridTransform.transform(mapPos, pixelPos);
             return new PixelPos((float) point2D.getX(), (float) point2D.getY());
         }
     }
 
     private Point2D pixelToMap(final PixelPos pixelPos, Point2D mapPos) {
-        return pixelToMapTransform.transform(pixelPos, mapPos);
+        return gridToModelTransform.transform(pixelPos, mapPos);
     }
 
     private GeoPos normGeoPos(final GeoPos geoPos, final GeoPos geoPosNorm) {
         geoPosNorm.lat = geoPos.lat;
-        if (_normalized && geoPos.lon < _normalizedLonMin) {
+        if (normalized && geoPos.lon < normalizedLonMin) {
             geoPosNorm.lon = geoPos.lon + 360.0f;
         } else {
             geoPosNorm.lon = geoPos.lon;
@@ -320,4 +322,8 @@ public class MapGeoCoding extends AbstractGeoCoding {
         return positionInt / subSampling + fraction;
     }
 
+    @Override
+    public AffineTransform getGridToModelTransform() {
+        return gridToModelTransform;
+    }
 }

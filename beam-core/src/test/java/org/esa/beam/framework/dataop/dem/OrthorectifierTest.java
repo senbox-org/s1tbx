@@ -16,6 +16,8 @@ import org.esa.beam.framework.datamodel.Pointing;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import java.awt.geom.AffineTransform;
+
 public class OrthorectifierTest extends TestCase {
 
     static final int SCENE_WIDTH = 100;
@@ -119,6 +121,11 @@ public class OrthorectifierTest extends TestCase {
 
     static class GeoCodingMock implements GeoCoding {
 
+        @Override
+        public AffineTransform getGridToModelTransform() {
+            return null;
+        }
+
         public boolean canGetGeoPos() {
             return true;
         }
@@ -137,6 +144,11 @@ public class OrthorectifierTest extends TestCase {
 
         @Override
         public CoordinateReferenceSystem getGridCRS() {
+            return null;
+        }
+
+        @Override
+        public CoordinateReferenceSystem getModelCRS() {
             return null;
         }
 

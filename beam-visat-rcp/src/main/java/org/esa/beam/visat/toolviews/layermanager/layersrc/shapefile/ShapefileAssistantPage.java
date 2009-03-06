@@ -4,7 +4,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
@@ -68,12 +67,7 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
             try {
                 Product targetProduct = getAppPageContext().getAppContext().getSelectedProductSceneView().getProduct();
 
-                CoordinateReferenceSystem targetCrs;
-                if (targetProduct.getGeoCoding() instanceof MapGeoCoding) {
-                    targetCrs = targetProduct.getGeoCoding().getBaseCRS();
-                } else {
-                    targetCrs = targetProduct.getGeoCoding().getGridCRS();
-                }
+                CoordinateReferenceSystem targetCrs = targetProduct.getGeoCoding().getModelCRS();
 
                 File file = new File(path);
                 Map<String, Object> map = new HashMap<String, Object>();

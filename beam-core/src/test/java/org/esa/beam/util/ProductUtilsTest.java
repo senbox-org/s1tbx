@@ -36,6 +36,7 @@ import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -471,6 +472,11 @@ public class ProductUtilsTest extends TestCase {
 
     public static class SGeoCoding implements GeoCoding {
 
+        @Override
+        public AffineTransform getGridToModelTransform() {
+            return null;
+        }
+
         public boolean isCrossingMeridianAt180() {
             return false;
         }
@@ -510,6 +516,11 @@ public class ProductUtilsTest extends TestCase {
 
         @Override
         public CoordinateReferenceSystem getGridCRS() {
+            return null;
+        }
+
+        @Override
+        public CoordinateReferenceSystem getModelCRS() {
             return null;
         }
     }
@@ -555,6 +566,16 @@ public class ProductUtilsTest extends TestCase {
 
         @Override
         public CoordinateReferenceSystem getBaseCRS() {
+            return null;
+        }
+
+        @Override
+        public CoordinateReferenceSystem getModelCRS() {
+            return null;
+        }
+
+        @Override
+        public AffineTransform getGridToModelTransform() {
             return null;
         }
     }

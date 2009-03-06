@@ -14,7 +14,6 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -28,7 +27,6 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Scene;
 import org.esa.beam.framework.datamodel.SceneFactory;
 import org.esa.beam.framework.datamodel.Stx;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ImageUtils;
@@ -144,11 +142,13 @@ public class ImageManager {
             //        Possible solution: Call Band.setSourceImage(new DefaultMultiLevelImage(multiLevelSource))
             //        --> Problem: GPF may expect a org.esa.beam.framework.gpf.internal.OperatorImage in a band
             //            created by a GPF Operator (check!)
-            final int levelCount = DefaultMultiLevelModel.getLevelCount(levelZeroImage.getWidth(), levelZeroImage.getHeight());
+            final int levelCount = DefaultMultiLevelModel.getLevelCount(levelZeroImage.getWidth(),
+                                                                        levelZeroImage.getHeight());
             multiLevelSource = new DefaultMultiLevelSource(levelZeroImage,
                                                            levelCount,
                                                            Interpolation.getInstance(Interpolation.INTERP_NEAREST));
-            Debug.trace(MessageFormat.format("WARNING: Inefficient usage of {0}.", multiLevelSource.getClass().getName()));
+            Debug.trace(
+                    MessageFormat.format("WARNING: Inefficient usage of {0}.", multiLevelSource.getClass().getName()));
             Debug.trace(MessageFormat.format("         Source image is a {0}.", levelZeroImage.getClass().getName()));
         }
         return multiLevelSource;
@@ -195,7 +195,7 @@ public class ImageManager {
                                                                            destWidth,
                                                                            destHeight);
         ColorModel colorModel = PlanarImage.createColorModel(sampleModel);
-        
+
         if (colorModel == null) {
             final int dataType = sampleModel.getDataType();
             ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_GRAY);
@@ -204,7 +204,7 @@ public class ImageManager {
                                                  Transparency.OPAQUE,
                                                  dataType);
         }
-        
+
         tileSize = tileSize != null ? tileSize : JAIUtils.computePreferredTileSize(destWidth, destHeight, 1);
         return createImageLayout(destWidth, destHeight, tileSize.width, tileSize.height, sampleModel, colorModel);
     }
@@ -283,8 +283,8 @@ public class ImageManager {
         Assert.notNull(rasterDataNodes,
                        "rasterDataNodes");
         Assert.state(rasterDataNodes.length == 1
-                || rasterDataNodes.length == 3
-                || rasterDataNodes.length == 4,
+                     || rasterDataNodes.length == 3
+                     || rasterDataNodes.length == 4,
                      "invalid number of bands");
 
         prepareImageInfos(rasterDataNodes, ProgressMonitor.NULL);
@@ -304,11 +304,8 @@ public class ImageManager {
         final int h = scene.getRasterHeight();
 
         final AffineTransform i2mTransform;
-        if (productNode.getProduct() != null
-                && productNode.getProduct().getGeoCoding() instanceof MapGeoCoding) {
-            final MapGeoCoding mapGeoCoding = (MapGeoCoding) productNode.getProduct().getGeoCoding();
-            final MapInfo mapInfo = mapGeoCoding.getMapInfo();
-            i2mTransform = mapInfo.getPixelToMapTransform();
+        if (scene.getGeoCoding() != null) {
+            i2mTransform = scene.getGeoCoding().getGridToModelTransform();
         } else {
             i2mTransform = new AffineTransform();
         }
@@ -530,7 +527,8 @@ public class ImageManager {
         return image;
     }
 
-    private static PlanarImage createMatchCdfImage(PlanarImage sourceImage, ImageInfo.HistogramMatching histogramMatching, Stx[] stxs) {
+    private static PlanarImage createMatchCdfImage(PlanarImage sourceImage,
+                                                   ImageInfo.HistogramMatching histogramMatching, Stx[] stxs) {
         final boolean doEqualize = ImageInfo.HistogramMatching.Equalize == histogramMatching;
         final boolean doNormalize = ImageInfo.HistogramMatching.Normalize == histogramMatching;
         if (doEqualize || doNormalize) {
@@ -592,7 +590,8 @@ public class ImageManager {
         return createHistogramNormalizedImage(sourceImage, stxs, means, stdDevs);
     }
 
-    private static PlanarImage createHistogramNormalizedImage(PlanarImage sourceImage, Stx[] stxs, double[] mean, double[] stdDev) {
+    private static PlanarImage createHistogramNormalizedImage(PlanarImage sourceImage, Stx[] stxs, double[] mean,
+                                                              double[] stdDev) {
         int numBands = sourceImage.getSampleModel().getNumBands();
         Assert.argument(numBands == mean.length, "length of mean must be equal to number of bands in the image");
         Assert.argument(numBands == stdDev.length, "length of stdDev must be equal to number of bands in the image");
@@ -609,7 +608,7 @@ public class ImageManager {
             for (int i = 1; i < binCount; i++) {
                 double deviation = i - mu;
                 normCDF[b][i] = normCDF[b][i - 1] +
-                        (float) Math.exp(-deviation * deviation / twoSigmaSquared);
+                                (float) Math.exp(-deviation * deviation / twoSigmaSquared);
             }
         }
 
@@ -745,11 +744,13 @@ public class ImageManager {
     }
 
     @Deprecated
-    public PlanarImage createColoredMaskImage(Product product, String expression, Color color, boolean invertMask, int level) {
+    public PlanarImage createColoredMaskImage(Product product, String expression, Color color, boolean invertMask,
+                                              int level) {
         return createColoredMaskImage(expression, product, color, invertMask, level);
     }
 
-    public PlanarImage createColoredMaskImage(String expression, Product product, Color color, boolean invertMask, int level) {
+    public PlanarImage createColoredMaskImage(String expression, Product product, Color color, boolean invertMask,
+                                              int level) {
         RenderedImage image = getMaskImage(expression, product, level);
         return createColoredMaskImage(color, image, invertMask);
     }
@@ -781,6 +782,7 @@ public class ImageManager {
      * @param rasterDataNode the band
      * @param color          the color
      * @param level          the level
+     *
      * @return the image, or null if the band has no valid ROI definition
      */
     public RenderedImage createColoredRoiImage(RasterDataNode rasterDataNode, Color color, int level) {
@@ -796,6 +798,7 @@ public class ImageManager {
      *
      * @param rasterDataNode the band
      * @param level          the level
+     *
      * @return the ROI, or null if the band has no valid ROI definition
      */
     public RenderedImage createRoiMaskImage(final RasterDataNode rasterDataNode, int level) {
@@ -815,7 +818,7 @@ public class ImageManager {
         // Step 2:  insert ROI pixels within value range
         if (roiDefinition.isValueRangeEnabled()) {
             String rangeExpr = rasterDataNode.getName() + " >= " + roiDefinition.getValueRangeMin() + " && "
-                    + rasterDataNode.getName() + " <= " + roiDefinition.getValueRangeMax();
+                               + rasterDataNode.getName() + " <= " + roiDefinition.getValueRangeMax();
             roiImages.add(getMaskImage(rangeExpr, rasterDataNode.getProduct(), level));
         }
 
@@ -886,7 +889,8 @@ public class ImageManager {
                                         createDefaultRenderingHints());
     }
 
-    public static RenderedImage createRescaleOp(RenderedImage src, int dataType, double factor, double offset, boolean log10Scaled) {
+    public static RenderedImage createRescaleOp(RenderedImage src, int dataType, double factor, double offset,
+                                                boolean log10Scaled) {
         RenderedImage image = createFormatOp(src, dataType);
         if (log10Scaled) {
             image = createRescaleOp(image, Math.log(10) * factor, Math.log(10) * offset);
@@ -919,6 +923,7 @@ public class ImageManager {
     }
 
     private static class MaskKey {
+
         final WeakReference<Product> product;
         final String expression;
 

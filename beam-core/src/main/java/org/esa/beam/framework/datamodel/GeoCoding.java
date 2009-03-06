@@ -19,6 +19,8 @@ package org.esa.beam.framework.datamodel;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import java.awt.geom.AffineTransform;
+
 
 /**
  * The <code>GeoCoding</code> interface provides geo-spatial latitude and longitude information for a given X/Y position
@@ -96,14 +98,21 @@ public interface GeoCoding {
     void dispose();
 
     /**
-     * Returns the coordinate reference system (CRS) which may be either a geographical CRS (nominal case is
-     * WGS 84) or a projected CRS.
+     * @return The coordinate reference system (CRS) which may be either a geographical CRS (nominal case is
+     *         WGS 84) or a projected CRS.
      */
     CoordinateReferenceSystem getBaseCRS();
 
     /**
-     * Returns a derived coordinate reference system (CRS) which can be used to convert grid (pixel) coordinates
-     * into geographic coordinates.
+     * @return A derived coordinate reference system (CRS) which can be used to convert grid (pixel) coordinates
+     *         into geographic coordinates.
      */
     CoordinateReferenceSystem getGridCRS();
+
+    /**
+     * @return ?
+     */
+    CoordinateReferenceSystem getModelCRS();
+
+    AffineTransform getGridToModelTransform();
 }

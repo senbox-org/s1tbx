@@ -1,7 +1,10 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
+import com.bc.ceres.glayer.support.ImageLayer;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
 import org.geotools.data.wms.WebMapServer;
@@ -12,6 +15,7 @@ import org.opengis.layer.Style;
 import org.opengis.util.InternationalString;
 
 import javax.imageio.ImageIO;
+import javax.media.jai.PlanarImage;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
@@ -27,26 +31,29 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-class WmsPage3 extends AbstractAppAssistantPage {
+class WmsAssistantPage3 extends AbstractAppAssistantPage {
+
     private final WebMapServer wms;
     private final Layer layer;
+    private final CRSEnvelope crsEnvelope;
     private JComboBox styleList;
     private Style selectedStyle;
     private JLabel mapCanvas;
-    private JLabel infoLabel;
-    private SwingWorker worker;
+    private SwingWorker previewWorker;
     private Throwable error;
 
-    WmsPage3(WebMapServer wms, Layer layer) {
+    WmsAssistantPage3(WebMapServer wms, Layer layer, CRSEnvelope crsEnvelope) {
         super("Layer Preview");
         this.wms = wms;
         this.layer = layer;
+        this.crsEnvelope = crsEnvelope;
     }
 
     @Override
@@ -55,8 +62,16 @@ class WmsPage3 extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean canFinish() {
-        return true;
+    public boolean performFinish() {
+        cancelPreviewWorker();
+        ProductSceneView view = getAppPageContext().getAppContext().getSelectedProductSceneView();
+        RasterDataNode raster = view.getRaster();
+
+        WmsLayerWorker layerWorker = new WmsLayerWorker(
+                view.getRootLayer(), new Dimension(raster.getSceneRasterWidth(), raster.getSceneRasterHeight()),
+                selectedStyle);
+        layerWorker.execute();
+        return super.performFinish();
     }
 
     @Override
@@ -64,7 +79,7 @@ class WmsPage3 extends AbstractAppAssistantPage {
         mapCanvas = new JLabel();
         mapCanvas.setHorizontalTextPosition(SwingConstants.CENTER);
         mapCanvas.setVerticalTextPosition(SwingConstants.CENTER);
-        infoLabel = new JLabel(WmsPage2.getLatLonBoundingBoxText(layer.getLatLonBoundingBox()));
+        JLabel infoLabel = new JLabel(WmsAssistantPage2.getLatLonBoundingBoxText(layer.getLatLonBoundingBox()));
 
         List styles = layer.getStyles();
         if (!styles.isEmpty()) {
@@ -84,7 +99,7 @@ class WmsPage3 extends AbstractAppAssistantPage {
 
         JPanel panel3 = new JPanel(new BorderLayout(4, 4));
         panel3.setBorder(new EmptyBorder(4, 4, 4, 4));
-        panel3.add(new JLabel("<html><b>" + layer.getTitle() + "</b></html>"), BorderLayout.CENTER);
+        panel3.add(new JLabel(String.format("<html><b>%s</b></html>", layer.getTitle())), BorderLayout.CENTER);
         panel3.add(panel2, BorderLayout.EAST);
 
         JPanel panel = new JPanel(new BorderLayout(4, 4));
@@ -94,6 +109,7 @@ class WmsPage3 extends AbstractAppAssistantPage {
         panel.add(infoLabel, BorderLayout.SOUTH);
 
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 updateMap();
             }
@@ -103,18 +119,22 @@ class WmsPage3 extends AbstractAppAssistantPage {
     }
 
     private void updateMap() {
-        if (worker != null && !worker.isDone()) {
+        cancelPreviewWorker();
+        mapCanvas.setText("<html><i>Loading map...</i></html>");
+        mapCanvas.setIcon(null);
+
+        previewWorker = new WmsPreviewWorker(computeMapSize(), selectedStyle);
+        previewWorker.execute();
+    }
+
+    private void cancelPreviewWorker() {
+        if (previewWorker != null && !previewWorker.isDone()) {
             try {
-                worker.cancel(true);
+                previewWorker.cancel(true);
             } catch (Throwable ignore) {
                 // ok
             }
         }
-        mapCanvas.setText("<html><i>Loading map...</i></html>");
-        mapCanvas.setIcon(null);
-
-        worker = new MySwingWorker(computeMapSize(), selectedStyle);
-        worker.execute();
     }
 
     private Dimension computeMapSize() {
@@ -147,6 +167,8 @@ class WmsPage3 extends AbstractAppAssistantPage {
 
 
     private class MyItemListener implements ItemListener {
+
+        @Override
         public void itemStateChanged(ItemEvent e) {
             selectedStyle = (Style) styleList.getSelectedItem();
             getPageContext().updateState();
@@ -155,8 +177,10 @@ class WmsPage3 extends AbstractAppAssistantPage {
     }
 
     private static class MyDefaultListCellRenderer extends DefaultListCellRenderer {
+
         @Override
-        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+                                                      boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             String text = null;
             if (value != null) {
@@ -169,11 +193,12 @@ class WmsPage3 extends AbstractAppAssistantPage {
         }
     }
 
-    private class MySwingWorker extends SwingWorker<BufferedImage, Object> {
+    private abstract class WmsWorker extends SwingWorker<BufferedImage, Object> {
+
         private final Dimension size;
         private final Style style;
 
-        private MySwingWorker(Dimension size, Style style) {
+        private WmsWorker(Dimension size, Style style) {
             this.size = size;
             this.style = style;
         }
@@ -183,11 +208,21 @@ class WmsPage3 extends AbstractAppAssistantPage {
             GetMapRequest mapRequest = wms.createGetMapRequest();
             mapRequest.addLayer(layer, style);
             mapRequest.setTransparent(true);
-            mapRequest.setSRS("EPSG:4326"); // = Geographic CRS
-            mapRequest.setBBox(layer.getLatLonBoundingBox());
+            mapRequest.setSRS(crsEnvelope.getEPSGCode()); // e.g. "EPSG:4326" = Geographic CRS
+            mapRequest.setBBox(crsEnvelope);
             mapRequest.setDimensions(size.width, size.height);
             mapRequest.setFormat("image/png");
             return downloadMapImage(mapRequest);
+        }
+
+        @Override
+        protected abstract void done();
+    }
+
+    private class WmsPreviewWorker extends WmsWorker {
+
+        private WmsPreviewWorker(Dimension size, Style style) {
+            super(size, style);
         }
 
         @Override
@@ -200,12 +235,53 @@ class WmsPage3 extends AbstractAppAssistantPage {
                 mapCanvas.setIcon(icon);
             } catch (ExecutionException e) {
                 error = e.getCause();
-                mapCanvas.setText("<html><b>Error:</b> <i>" + error.getMessage() + "</i></html>");
+                mapCanvas.setText(String.format("<html><b>Error:</b> <i>%s</i></html>", error.getMessage()));
                 mapCanvas.setIcon(null);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignored) {
                 // ok
             }
             getPageContext().updateState();
         }
+
+    }
+
+    private class WmsLayerWorker extends WmsWorker {
+
+        private final com.bc.ceres.glayer.Layer rootLayer;
+
+        private WmsLayerWorker(com.bc.ceres.glayer.Layer rootLayer,
+                               Dimension size,
+                               Style style) {
+            super(size, style);
+            this.rootLayer = rootLayer;
+        }
+
+        @Override
+        protected void done() {
+            try {
+                error = null;
+                BufferedImage image = get();
+                try {
+// todo - giving the ImageLayer a BufferedImage results in the following exception (mp - 06.03.2009)
+// Exception in thread "AWT-EventQueue-0" java.lang.ClassCastException: java.awt.image.BufferedImage cannot be cast to javax.media.jai.PlanarImage
+//    at com.bc.ceres.glevel.support.ConcurrentMultiLevelRenderer.renderImpl(ConcurrentMultiLevelRenderer.java:66)
+//    at com.bc.ceres.glevel.support.ConcurrentMultiLevelRenderer.renderImage(ConcurrentMultiLevelRenderer.java:56)
+//    at com.bc.ceres.glayer.support.ImageLayer.renderLayer(ImageLayer.java:180)
+                    // todo - transformation is still not correct (mp - 06.03.2009)
+                    ImageLayer imageLayer = new ImageLayer(PlanarImage.wrapRenderedImage(image), new AffineTransform());
+                    imageLayer.setName(layer.getName());
+                    rootLayer.getChildren().add(0, imageLayer);
+                } catch (Exception e) {
+                    getPageContext().showErrorDialog(e.getMessage());
+                }
+
+            } catch (ExecutionException e) {
+                getPageContext().showErrorDialog(
+                        String.format("Error while expecting WMS response:\n%s", e.getCause().getMessage()));
+            } catch (InterruptedException ignored) {
+                // ok
+            }
+        }
+
     }
 }

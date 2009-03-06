@@ -16,6 +16,8 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.RsMathUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import java.awt.geom.AffineTransform;
+
 /**
  * An <code>Orthorectifier</code> is a {@link org.esa.beam.framework.datamodel.GeoCoding} which performs an orthorectification algorithm on a base {@link
  * GeoCoding}.
@@ -45,7 +47,6 @@ public class Orthorectifier implements GeoCoding {
     protected final PixelPos _pp2 = new PixelPos();
     protected final GeoPos _gp = new GeoPos();
     protected final AngularDirection _vg = new AngularDirection();
-    private CoordinateReferenceSystem crs;
 
     /**
      * Constructs a new <code>Orthorectifier</code>.
@@ -95,6 +96,16 @@ public class Orthorectifier implements GeoCoding {
     @Override
     public CoordinateReferenceSystem getGridCRS() {
         return _geoCoding.getGridCRS();
+    }
+
+    @Override
+    public CoordinateReferenceSystem getModelCRS() {
+        return _geoCoding.getModelCRS();
+    }
+
+    @Override
+    public AffineTransform getGridToModelTransform() {
+        return _geoCoding.getGridToModelTransform();
     }
 
     public Pointing getPointing() {

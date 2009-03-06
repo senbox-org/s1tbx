@@ -7,6 +7,8 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import java.awt.geom.AffineTransform;
+
 /**
  * <code>AbstractGeoCoding</code> is the base class of all geo-coding implementation.
  * <p/>
@@ -20,6 +22,7 @@ public abstract class AbstractGeoCoding implements GeoCoding {
 
     private CoordinateReferenceSystem baseCRS;
     private CoordinateReferenceSystem gridCRS;
+    private CoordinateReferenceSystem modelCRS;
 
     protected AbstractGeoCoding() {
         setBaseCRS(DefaultGeographicCRS.WGS84);
@@ -27,6 +30,7 @@ public abstract class AbstractGeoCoding implements GeoCoding {
                                          getBaseCRS(),
                                          new GeoCodingMathTransform(this),
                                          DefaultCartesianCS.DISPLAY));
+        setModelCRS(getGridCRS());
     }
 
     /**
@@ -40,6 +44,11 @@ public abstract class AbstractGeoCoding implements GeoCoding {
      * @return true, if the geo-coding could be transferred.
      */
     public abstract boolean transferGeoCoding(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef);
+
+    @Override
+    public AffineTransform getGridToModelTransform() {
+        return new AffineTransform();
+    }
 
     @Override
     public CoordinateReferenceSystem getBaseCRS() {
@@ -59,5 +68,15 @@ public abstract class AbstractGeoCoding implements GeoCoding {
     protected final void setGridCRS(CoordinateReferenceSystem gridCRS) {
         Assert.notNull(gridCRS, "gridCRS");
         this.gridCRS = gridCRS;
+    }
+
+    @Override
+    public CoordinateReferenceSystem getModelCRS() {
+        return modelCRS;
+    }
+
+    protected void setModelCRS(CoordinateReferenceSystem modelCRS) {
+        Assert.notNull(modelCRS, "modelCRS");
+        this.modelCRS = modelCRS;
     }
 }

@@ -27,6 +27,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 
@@ -80,6 +81,12 @@ public class WorldMapPainter {
 
     private GeoCoding createGeocoding() {
         return new GeoCoding() {
+
+            @Override
+            public AffineTransform getGridToModelTransform() {
+                return null;
+            }
+
             @Override
             public boolean isCrossingMeridianAt180() {
                 return false;
@@ -130,7 +137,10 @@ public class WorldMapPainter {
                 return null;
             }
 
-
+            @Override
+            public CoordinateReferenceSystem getModelCRS() {
+                return null;
+            }
         };
     }
 }
