@@ -25,10 +25,13 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.JProgressBar;
+import javax.swing.JDialog;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Dialog;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.AffineTransform;
@@ -71,7 +74,7 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
                 view.getRootLayer(), new Dimension(raster.getSceneRasterWidth(), raster.getSceneRasterHeight()),
                 selectedStyle);
         layerWorker.execute();
-        return super.performFinish();
+        return true;
     }
 
     @Override
@@ -138,12 +141,15 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
     }
 
     private Dimension computeMapSize() {
-        CRSEnvelope bbox = layer.getLatLonBoundingBox();
-        double aspectRatio = (bbox.getMaxX() - bbox.getMinX()) / (bbox.getMaxY() - bbox.getMinY());
         Dimension preferredSize = mapCanvas.getSize();
         if (preferredSize.width == 0 || preferredSize.height == 0) {
             preferredSize = new Dimension(400, 200);
         }
+        return computeMapSize(preferredSize);
+    }
+
+    private Dimension computeMapSize(Dimension preferredSize) {
+        double aspectRatio = (crsEnvelope.getMaxX() - crsEnvelope.getMinX()) / (crsEnvelope.getMaxY() - crsEnvelope.getMinY());
         Dimension size;
         if (aspectRatio > 1.0) {
             size = new Dimension(preferredSize.width,
@@ -197,14 +203,27 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
 
         private final Dimension size;
         private final Style style;
+        private JDialog dialog;
+        private JProgressBar progressBar;
 
         private WmsWorker(Dimension size, Style style) {
             this.size = size;
             this.style = style;
+            progressBar = new JProgressBar();
+            dialog = new JDialog(getAppPageContext().getWindow(), "Contacting WMS...", Dialog.ModalityType.APPLICATION_MODAL);
+            dialog.add(progressBar);
+            dialog.pack();
         }
 
         @Override
         protected BufferedImage doInBackground() throws Exception {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    dialog.setVisible(true);
+                    progressBar.setIndeterminate(true);
+                }
+            });
+
             GetMapRequest mapRequest = wms.createGetMapRequest();
             mapRequest.addLayer(layer, style);
             mapRequest.setTransparent(true);
@@ -216,7 +235,12 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
         }
 
         @Override
-        protected abstract void done();
+        protected void done() {
+            dialog.dispose();
+            doneImpl();
+        }
+
+        protected abstract void doneImpl();
     }
 
     private class WmsPreviewWorker extends WmsWorker {
@@ -226,7 +250,7 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
         }
 
         @Override
-        protected void done() {
+        protected void doneImpl() {
             try {
                 error = null;
                 BufferedImage image = get();
@@ -257,7 +281,7 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
         }
 
         @Override
-        protected void done() {
+        protected void doneImpl() {
             try {
                 error = null;
                 BufferedImage image = get();
@@ -267,8 +291,8 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
 //    at com.bc.ceres.glevel.support.ConcurrentMultiLevelRenderer.renderImpl(ConcurrentMultiLevelRenderer.java:66)
 //    at com.bc.ceres.glevel.support.ConcurrentMultiLevelRenderer.renderImage(ConcurrentMultiLevelRenderer.java:56)
 //    at com.bc.ceres.glayer.support.ImageLayer.renderLayer(ImageLayer.java:180)
-                    // todo - transformation is still not correct (mp - 06.03.2009)
-                    ImageLayer imageLayer = new ImageLayer(PlanarImage.wrapRenderedImage(image), new AffineTransform());
+                    AffineTransform i2mTransform = getAppPageContext().getAppContext().getSelectedProductSceneView().getRaster().getGeoCoding().getGridToModelTransform();
+                    ImageLayer imageLayer = new ImageLayer(PlanarImage.wrapRenderedImage(image), i2mTransform);
                     imageLayer.setName(layer.getName());
                     rootLayer.getChildren().add(0, imageLayer);
                 } catch (Exception e) {
