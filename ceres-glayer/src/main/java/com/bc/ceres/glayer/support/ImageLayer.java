@@ -33,7 +33,7 @@ public class ImageLayer extends Layer {
     public static final String PROPERTY_NAME_BORDER_WIDTH = "border.width";
     public static final String PROPERTY_NAME_BORDER_COLOR = "border.color";
 
-    public static final boolean DEFAULT_BORDER_SHOWN = true;
+    public static final boolean DEFAULT_BORDER_SHOWN = false;
     public static final double DEFAULT_BORDER_WIDTH = 2.0;
     public static final Color DEFAULT_BORDER_COLOR = new Color(204, 204, 255);
 
