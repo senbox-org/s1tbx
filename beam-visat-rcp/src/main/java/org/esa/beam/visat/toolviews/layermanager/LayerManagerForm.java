@@ -9,7 +9,7 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.assistant.AppAssistantPane;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.BandLayerAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.product.ProductLayerAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.EmptyLayerAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.SelectLayerSourceAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.image.ImageFileAssistantPage;
@@ -306,7 +306,7 @@ class LayerManagerForm {
             // Todo - select layer sources from extension point
             pane.show(new SelectLayerSourceAssistantPage(new LayerSource[]{
                     new LayerSource("Layer Group", new EmptyLayerAssistantPage()),
-                    new LayerSource("Image from Band", new BandLayerAssistantPage()),
+                    new LayerSource("Image from Band", new ProductLayerAssistantPage()),
                     new LayerSource("Shapefile", new ShapefileAssistantPage()),
                     new LayerSource("Image from File", new ImageFileAssistantPage()),
                     new LayerSource("Web Mapping Server (WMS)", new WmsAssistantPage()),
