@@ -32,6 +32,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Dialog;
+import java.awt.Rectangle;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.AffineTransform;
@@ -128,6 +129,8 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
 
         previewWorker = new WmsPreviewWorker(computeMapSize(), selectedStyle);
         previewWorker.execute();
+
+        // todo - AppContext.addWorker(previewWorker);
     }
 
     private void cancelPreviewWorker() {
@@ -203,27 +206,14 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
 
         private final Dimension size;
         private final Style style;
-        private JDialog dialog;
-        private JProgressBar progressBar;
 
         private WmsWorker(Dimension size, Style style) {
             this.size = size;
             this.style = style;
-            progressBar = new JProgressBar();
-            dialog = new JDialog(getAppPageContext().getWindow(), "Contacting WMS...", Dialog.ModalityType.APPLICATION_MODAL);
-            dialog.add(progressBar);
-            dialog.pack();
         }
 
         @Override
         protected BufferedImage doInBackground() throws Exception {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    dialog.setVisible(true);
-                    progressBar.setIndeterminate(true);
-                }
-            });
-
             GetMapRequest mapRequest = wms.createGetMapRequest();
             mapRequest.addLayer(layer, style);
             mapRequest.setTransparent(true);
@@ -233,14 +223,6 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
             mapRequest.setFormat("image/png");
             return downloadMapImage(mapRequest);
         }
-
-        @Override
-        protected void done() {
-            dialog.dispose();
-            doneImpl();
-        }
-
-        protected abstract void doneImpl();
     }
 
     private class WmsPreviewWorker extends WmsWorker {
@@ -250,7 +232,7 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
         }
 
         @Override
-        protected void doneImpl() {
+        protected void done() {
             try {
                 error = null;
                 BufferedImage image = get();
@@ -272,16 +254,40 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
     private class WmsLayerWorker extends WmsWorker {
 
         private final com.bc.ceres.glayer.Layer rootLayer;
+        private JDialog dialog;
+        private JProgressBar progressBar;
 
         private WmsLayerWorker(com.bc.ceres.glayer.Layer rootLayer,
                                Dimension size,
                                Style style) {
             super(size, style);
             this.rootLayer = rootLayer;
+            progressBar = new JProgressBar();
+            progressBar.setIndeterminate(true);
+            dialog = new JDialog(getAppPageContext().getWindow(), "Loading image from WMS...", Dialog.ModalityType.DOCUMENT_MODAL);
+            dialog.getContentPane().add(progressBar, BorderLayout.SOUTH);
+            dialog.pack();
         }
 
         @Override
-        protected void doneImpl() {
+        protected BufferedImage doInBackground() throws Exception {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    Rectangle parentBounds = getPageContext().getWindow().getBounds();
+                    Rectangle bounds = dialog.getBounds();
+                    dialog.setLocation(parentBounds.x + (parentBounds.width - bounds.width) / 2,
+                                       parentBounds.y + (parentBounds.height - bounds.height) / 2);
+                    dialog.setVisible(true);
+                }
+            });
+
+            return super.doInBackground();
+        }
+
+        @Override
+        protected void done() {
+            dialog.dispose();
+
             try {
                 error = null;
                 BufferedImage image = get();
