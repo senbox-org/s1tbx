@@ -45,6 +45,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Cursor;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
@@ -154,8 +155,9 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
         }
         mapCanvas.setText("<html><i>Loading map...</i></html>");
         mapCanvas.setIcon(null);
+        getPageContext().getWindow().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-        worker = new MySwingWorker(computeMapSize(), selectedStyle);
+        worker = new ShapefileLoader(computeMapSize(), selectedStyle);
         worker.execute();
     }
 
@@ -200,12 +202,12 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
         }
     }
 
-    private class MySwingWorker extends SwingWorker<BufferedImage, Object> {
+    private class ShapefileLoader extends SwingWorker<BufferedImage, Object> {
 
         private final Dimension size;
         private final Style style;
 
-        MySwingWorker(Dimension size, org.geotools.styling.Style style) {
+        ShapefileLoader(Dimension size, org.geotools.styling.Style style) {
             this.size = size;
             this.style = style;
         }
@@ -230,6 +232,8 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
 
         @Override
         protected void done() {
+            getPageContext().getWindow().setCursor(Cursor.getDefaultCursor());
+
             try {
                 error = null;
                 BufferedImage image = get();
