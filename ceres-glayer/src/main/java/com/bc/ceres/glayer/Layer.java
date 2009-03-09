@@ -27,6 +27,7 @@ import java.util.Vector;
  */
 public class Layer extends ExtensibleObject {
     private static final Type DEFAULT_LAYER_TYPE = new Type();
+    private static final String NO_NAME = Layer.class.getName();
     private static int instanceCount = 0;
 
     private final LayerType layerType;
@@ -48,7 +49,20 @@ public class Layer extends ExtensibleObject {
      * </ul>
      */
     public Layer() {
-        this(DEFAULT_LAYER_TYPE);
+        this(DEFAULT_LAYER_TYPE, NO_NAME);
+    }
+
+    /**
+     * Constructor. The following default properties are used:
+     * <ul>
+     * <li>{@code name = getClass().getName()}</li>
+     * <li>{@code visible = true}</li>
+     * <li>{@code style.opaccity = 1.0}</li>
+     * </ul>
+     * @param name A name.
+     */
+    public Layer(String name) {
+        this(DEFAULT_LAYER_TYPE, name);
     }
 
     /**
@@ -62,15 +76,31 @@ public class Layer extends ExtensibleObject {
      * @param layerType The layer type.
      */
     protected Layer(LayerType layerType) {
+        this(layerType, NO_NAME);
+    }
+
+    /**
+     * Constructor. The following default properties are used:
+     * <ul>
+     * <li>{@code name = getClass().getName()}</li>
+     * <li>{@code visible = true}</li>
+     * <li>{@code style.opaccity = 1.0}</li>
+     * </ul>
+     *
+     * @param layerType The layer type.
+     * @param name A name.
+     */
+    protected Layer(LayerType layerType, String name) {
         Assert.notNull(layerType, "layerType");
+        Assert.notNull(name, "name");
         this.layerType = layerType;
-        parent = null;
-        id = Long.toHexString(System.nanoTime() + (++instanceCount));
-        name = getClass().getName();
-        children = new LayerList();
-        visible = true;
-        layerListenerList = new ArrayList<LayerListener>(8);
-        stylePCL = new StylePCL();
+        this.parent = null;
+        this.name = (name != NO_NAME) ? name : getClass().getName();
+        this.id = Long.toHexString(System.nanoTime() + (++instanceCount));
+        this.children = new LayerList();
+        this.visible = true;
+        this.layerListenerList = new ArrayList<LayerListener>(8);
+        this.stylePCL = new StylePCL();
         setStyle(new DefaultStyle());
     }
 
