@@ -7,9 +7,20 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 
+import java.util.Arrays;
+import java.util.List;
+
 class LayerDataHandler extends AbstractLayerListener implements ProductNodeListener {
+
+    private final List<String> imageChangingProperties = Arrays.asList(RasterDataNode.PROPERTY_NAME_DATA,
+                                                                       RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE,
+                                                                       RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE_USED,
+                                                                       RasterDataNode.PROPERTY_NAME_VALID_PIXEL_EXPRESSION,
+                                                                       RasterDataNode.PROPERTY_NAME_IMAGE_INFO,
+                                                                       VirtualBand.PROPERTY_NAME_EXPRESSION);
 
     private final RasterDataNode rasterDataNode;
     private final ImageLayer imageLayer;
@@ -36,9 +47,9 @@ class LayerDataHandler extends AbstractLayerListener implements ProductNodeListe
         if (event.getSourceNode() == rasterDataNode) {
             if (RasterDataNode.PROPERTY_NAME_NAME.equals(event.getPropertyName())) {
                 imageLayer.setName(rasterDataNode.getDisplayName());
-            } else if (RasterDataNode.PROPERTY_NAME_IMAGE_INFO.equals(event.getPropertyName())) {
-                ((BandImageMultiLevelSource) imageLayer.getMultiLevelSource()).setImageInfo(
-                        rasterDataNode.getImageInfo());
+            } else if (imageChangingProperties.contains(event.getPropertyName())) {
+                BandImageMultiLevelSource bandImageSource = (BandImageMultiLevelSource) imageLayer.getMultiLevelSource();
+                bandImageSource.setImageInfo(rasterDataNode.getImageInfo());
                 imageLayer.regenerate();
             }
         }
