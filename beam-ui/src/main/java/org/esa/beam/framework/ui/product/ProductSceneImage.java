@@ -9,6 +9,7 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.support.LayerStyleListener;
 import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.glayer.support.LayerFilter;
+import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.ImageInfo;
@@ -206,6 +207,7 @@ public class ProductSceneImage {
 
     private void initRootLayer() {
         rootLayer = new Layer();
+        rootLayer.addListener(new LayerMapUpdater());
         layerMap = new HashMap<String, Layer>(12);
         addLayer(0, createBaseImageLayer());
     }
@@ -500,6 +502,18 @@ public class ProductSceneImage {
     private static class ImageLayerFilter implements LayerFilter {
         public boolean accept(Layer layer) {
             return layer instanceof ImageLayer;
+        }
+    }
+
+    private class LayerMapUpdater extends AbstractLayerListener {
+        @Override
+            public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
+            for (Layer childLayer : childLayers) {
+                String id = childLayer.getId();
+                if (id != null) {
+                    layerMap.remove(id);
+                }
+            }
         }
     }
 }

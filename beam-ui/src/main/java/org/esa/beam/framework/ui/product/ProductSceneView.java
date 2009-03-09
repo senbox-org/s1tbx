@@ -179,7 +179,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     private RasterChangeHandler rasterChangeHandler;
     private boolean scrollBarsShown;
     private AdjustableViewScrollPane scrollPane;
-    private int firstImageLayerIndex;
 
     public ProductSceneView(ProductSceneImage sceneImage) {
         Assert.notNull(sceneImage, "sceneImage");
