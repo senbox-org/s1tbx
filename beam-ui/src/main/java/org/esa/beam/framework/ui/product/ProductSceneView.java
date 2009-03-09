@@ -12,14 +12,14 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.DefaultViewport;
+import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.framework.ui.BasicView;
@@ -179,6 +179,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     private RasterChangeHandler rasterChangeHandler;
     private boolean scrollBarsShown;
     private AdjustableViewScrollPane scrollPane;
+    private int firstImageLayerIndex;
 
     public ProductSceneView(ProductSceneImage sceneImage) {
         Assert.notNull(sceneImage, "sceneImage");
@@ -470,13 +471,13 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     public boolean isNoDataOverlayEnabled() {
-        final ImageLayer noDataLayer = getNoDataLayer();
+        final ImageLayer noDataLayer = getNoDataLayer(false);
         return noDataLayer != null && noDataLayer.isVisible();
     }
 
     public void setNoDataOverlayEnabled(boolean enabled) {
         if (isNoDataOverlayEnabled() != enabled) {
-            getNoDataLayer().setVisible(enabled);
+            getNoDataLayer(true).setVisible(enabled);
         }
     }
 
@@ -485,70 +486,67 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     public boolean isGraticuleOverlayEnabled() {
-        final GraticuleLayer graticuleLayer = getGraticuleLayer();
+        final GraticuleLayer graticuleLayer = getGraticuleLayer(false);
         return graticuleLayer != null && graticuleLayer.isVisible();
     }
 
     public void setGraticuleOverlayEnabled(boolean enabled) {
         if (isGraticuleOverlayEnabled() != enabled) {
-            getGraticuleLayer().setVisible(enabled);
+            getGraticuleLayer(true).setVisible(enabled);
         }
     }
 
     public boolean isPinOverlayEnabled() {
-        final Layer pinLayer = getPinLayer();
+        final Layer pinLayer = getPinLayer(false);
         return pinLayer != null && pinLayer.isVisible();
     }
 
     public void setPinOverlayEnabled(boolean enabled) {
         if (isPinOverlayEnabled() != enabled) {
-            getPinLayer().setVisible(enabled);
+            getPinLayer(true).setVisible(enabled);
         }
     }
 
     public boolean isGcpOverlayEnabled() {
-        final Layer gcpLayer = getGcpLayer();
+        final Layer gcpLayer = getGcpLayer(false);
         return gcpLayer != null && gcpLayer.isVisible();
     }
 
     public void setGcpOverlayEnabled(boolean enabled) {
         if (isGcpOverlayEnabled() != enabled) {
-            getGcpLayer().setVisible(enabled);
+            getGcpLayer(true).setVisible(enabled);
         }
     }
 
     public boolean isShapeOverlayEnabled() {
-        final FigureLayer figureLayer = getFigureLayer();
+        final FigureLayer figureLayer = getFigureLayer(false);
         return figureLayer != null && figureLayer.isVisible();
     }
 
     public void setShapeOverlayEnabled(boolean enabled) {
         if (isShapeOverlayEnabled() != enabled) {
-            getFigureLayer().setVisible(enabled);
+            getFigureLayer(true).setVisible(enabled);
         }
     }
 
     public boolean isROIOverlayEnabled() {
-        final ImageLayer roiLayer = getRoiLayer();
+        final ImageLayer roiLayer = getRoiLayer(false);
         return roiLayer != null && roiLayer.isVisible();
     }
 
     public void setROIOverlayEnabled(boolean enabled) {
         if (isROIOverlayEnabled() != enabled) {
-            getRoiLayer().setVisible(enabled);
+            getRoiLayer(true).setVisible(enabled);
         }
     }
 
     public RenderedImage getROIImage() {
-        final ImageLayer roiLayer = getRoiLayer();
-
+        final ImageLayer roiLayer = getRoiLayer(false);
         if (roiLayer == null) {
             return null;
         }
 
         final RenderedImage roiImage = roiLayer.getImage(0);
-
-        // for compatibility to 42
         if (roiImage == MultiLevelSource.NULL) {
             return null;
         }
@@ -558,7 +556,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
     public void setROIImage(RenderedImage roiImage) {
         // used by MagicStick only
-        ImageLayer roiLayer = getRoiLayer();
+        ImageLayer roiLayer = getRoiLayer(false);
         if (roiLayer != null) {
             MultiLevelModel model = roiLayer.getMultiLevelSource().getModel();
             roiLayer.setMultiLevelSource(new DefaultMultiLevelSource(roiImage, model));
@@ -580,11 +578,11 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         setShapeOverlayEnabled(true);
         final Figure oldShapeFigure = getCurrentShapeFigure();
         if (currentShapeFigure != oldShapeFigure) {
-            if (oldShapeFigure != null) {
-                getFigureLayer().removeFigure(oldShapeFigure);
+            if (oldShapeFigure != null && getFigureLayer(false) != null) {
+                getFigureLayer(false).removeFigure(oldShapeFigure);
             }
             if (currentShapeFigure != null) {
-                getFigureLayer().addFigure(currentShapeFigure);
+                getFigureLayer(true).addFigure(currentShapeFigure);
             }
         }
     }
@@ -626,28 +624,27 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         if (imageLayer != null) {
             ProductSceneImage.setBaseImageLayerStyle(configuration, imageLayer);
         }
-
-        final Layer noDataLayer = getNoDataLayer();
+        final Layer noDataLayer = getNoDataLayer(false);
         if (noDataLayer != null) {
             ProductSceneImage.setNoDataLayerStyle(configuration, noDataLayer);
         }
-        final Layer roiLayer = getRoiLayer();
+        final Layer roiLayer = getRoiLayer(false);
         if (roiLayer != null) {
             ProductSceneImage.setRoiLayerStyle(configuration, roiLayer);
         }
-        final Layer pinLayer = getPinLayer();
+        final Layer pinLayer = getPinLayer(false);
         if (pinLayer != null) {
             ProductSceneImage.setPinLayerStyle(configuration, pinLayer);
         }
-        final Layer gcpLayer = getGcpLayer();
+        final Layer gcpLayer = getGcpLayer(false);
         if (gcpLayer != null) {
             ProductSceneImage.setGcpLayerStyle(configuration, gcpLayer);
         }
-        final FigureLayer figureLayer = getFigureLayer();
+        final FigureLayer figureLayer = getFigureLayer(false);
         if (figureLayer != null) {
             ProductSceneImage.setFigureLayerStyle(configuration, figureLayer);
         }
-        final GraticuleLayer graticuleLayer = getGraticuleLayer();
+        final GraticuleLayer graticuleLayer = getGraticuleLayer(false);
         if (graticuleLayer != null) {
             ProductSceneImage.setGraticuleLayerStyle(configuration, graticuleLayer);
         }
@@ -693,7 +690,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
             if (selectedLayer != null) {
                 selectedLayerUI = selectedLayer.getExtension(LayerUI.class);
             } else {
-                selectedLayerUI = null;                 
+                selectedLayerUI = null;
             }
             firePropertyChange(PROPERTY_NAME_SELECTED_LAYER, oldLayer, selectedLayer);
         }
@@ -815,9 +812,9 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
     // TODO remove ??? UNUSED
     @Override
+    @Deprecated
     public void removeFigure(Figure figure) {
-        final FigureLayer figureLayer = getFigureLayer();
-
+        final FigureLayer figureLayer = getFigureLayer(false);
         if (figureLayer != null) {
             figureLayer.removeFigure(figure);
         }
@@ -825,48 +822,54 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
     // used only internaly --> private ???
     @Override
+    @Deprecated
     public int getNumFigures() {
-        final FigureLayer figureLayer = getFigureLayer();
-
+        final FigureLayer figureLayer = getFigureLayer(false);
         if (figureLayer != null) {
             return figureLayer.getFigureList().size();
         }
-
         return 0;
     }
 
     // used only internaly --> private ???
     @Override
+    @Deprecated
     public Figure getFigureAt(int index) {
-        return getFigureLayer().getFigureList().get(index);
+        FigureLayer figureLayer = getFigureLayer(false);
+        if (figureLayer != null) {
+            return figureLayer.getFigureList().get(index);
+        }
+        return null;
     }
 
     // TODO remove ??? UNUSED
     @Override
+    @Deprecated
     public Figure[] getAllFigures() {
-        final FigureLayer figureLayer = getFigureLayer();
-
+        final FigureLayer figureLayer = getFigureLayer(false);
         if (figureLayer != null) {
             return figureLayer.getFigureList().toArray(new Figure[getNumFigures()]);
         }
-
         return new Figure[0];
     }
 
     //TODO remove ??? UNUSED
     @Override
+    @Deprecated
     public Figure[] getSelectedFigures() {
         return new Figure[0];
     }
 
     // TODO remove ??? UNUSED
     @Override
+    @Deprecated
     public Figure[] getFiguresWithAttribute(String name) {
         return new Figure[0];
     }
 
     // TODO remove ??? UNUSED
     @Override
+    @Deprecated
     public Figure[] getFiguresWithAttribute(String name, Object value) {
         return new Figure[0];
     }
@@ -897,8 +900,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     // used by PropertyEditor
     public void updateNoDataImage() {
         final String expression = getRaster().getValidMaskExpression();
-        final ImageLayer noDataLayer = getNoDataLayer();
-
+        final ImageLayer noDataLayer = getNoDataLayer(false);
         if (noDataLayer != null) {
             if (expression != null) {
                 final Style style = noDataLayer.getStyle();
@@ -919,7 +921,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
     // used by PropertyEditor
     public void updateROIImage() {
-        final ImageLayer roiLayer = getRoiLayer();
+        final ImageLayer roiLayer = getRoiLayer(false);
         if (roiLayer != null) {
             if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
                 final Color color = (Color) roiLayer.getStyle().getProperty("color");
@@ -944,6 +946,10 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         });
         popupMenu.add(menuItem);
         popupMenu.addSeparator();
+    }
+
+    public int getFirstImageLayerIndex() {
+        return sceneImage.getFirstImageLayerIndex();
     }
 
     /**
@@ -1011,28 +1017,28 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         }
     }
 
-    private ImageLayer getNoDataLayer() {
-        return getSceneImage().getNoDataLayer();
+    private ImageLayer getNoDataLayer(boolean create) {
+        return getSceneImage().getNoDataLayer(create);
     }
 
-    private FigureLayer getFigureLayer() {
-        return getSceneImage().getFigureLayer();
+    private FigureLayer getFigureLayer(boolean create) {
+        return getSceneImage().getFigureLayer(create);
     }
 
-    private ImageLayer getRoiLayer() {
-        return getSceneImage().getRoiLayer();
+    private ImageLayer getRoiLayer(boolean create) {
+        return getSceneImage().getRoiLayer(create);
     }
 
-    private GraticuleLayer getGraticuleLayer() {
-        return getSceneImage().getGraticuleLayer();
+    private GraticuleLayer getGraticuleLayer(boolean create) {
+        return getSceneImage().getGraticuleLayer(create);
     }
 
-    private Layer getPinLayer() {
-        return getSceneImage().getPinLayer();
+    private Layer getPinLayer(boolean create) {
+        return getSceneImage().getPinLayer(create);
     }
 
-    private Layer getGcpLayer() {
-        return getSceneImage().getGcpLayer();
+    private Layer getGcpLayer(boolean create) {
+        return getSceneImage().getGcpLayer(create);
     }
 
     private LayerUI getSelectedLayerUI() {

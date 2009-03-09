@@ -85,9 +85,6 @@ public class ShowImageViewAction extends ExecCommand {
 
                     ProductSceneView view = new ProductSceneView(productSceneImage);
                     view.setCommandUIFactory(visatApp.getCommandUIFactory());
-                    view.setROIOverlayEnabled(true);
-                    view.setGraticuleOverlayEnabled(false);
-                    view.setPinOverlayEnabled(true);
                     view.setLayerProperties(visatApp.getPreferences());
                     
                     final String title = createInternalFrameTitle(selectedProductNode);

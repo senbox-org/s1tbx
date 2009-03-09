@@ -7,6 +7,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -140,8 +141,9 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
         featureLayer.setName(file.getName());
         featureLayer.setVisible(true);
 
-        final Layer rootLayer = getAppPageContext().getAppContext().getSelectedProductSceneView().getRootLayer();
-        rootLayer.getChildren().add(0, featureLayer);
+        ProductSceneView sceneView = getAppPageContext().getAppContext().getSelectedProductSceneView();
+        final Layer rootLayer = sceneView.getRootLayer();
+        rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), featureLayer);
         return true;
     }
 

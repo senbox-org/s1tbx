@@ -12,6 +12,7 @@ import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
@@ -68,11 +69,12 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
                                                                                                ProgressMonitor.NULL);
         final ImageLayer imageLayer = new ImageLayer(bandImageMultiLevelSource);
 
-        imageLayer.setName(rasterDataNode.getName());
+        imageLayer.setName(rasterDataNode.getDisplayName());
         imageLayer.setVisible(true);
 
-        Layer rootLayer = getAppPageContext().getAppContext().getSelectedProductSceneView().getRootLayer();
-        rootLayer.getChildren().add(0, imageLayer);
+        ProductSceneView sceneView = getAppPageContext().getAppContext().getSelectedProductSceneView();
+        Layer rootLayer = sceneView.getRootLayer();
+        rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), imageLayer);
 
         final LayerDataHandler layerDataHandler = new LayerDataHandler(rasterDataNode, imageLayer);
         rasterDataNode.getProduct().addProductNodeListener(layerDataHandler);

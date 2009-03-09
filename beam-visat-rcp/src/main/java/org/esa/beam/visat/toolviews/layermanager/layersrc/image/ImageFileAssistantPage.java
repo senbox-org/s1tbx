@@ -6,6 +6,7 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.tools.Tools;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.media.jai.operator.FileLoadDescriptor;
 import javax.swing.JButton;
@@ -120,8 +121,9 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
             RenderedImage image = FileLoadDescriptor.create(imageFilePath, null, true, null);
             ImageLayer imageLayer = new ImageLayer(image, transform);
             imageLayer.setName(new File(imageFilePath).getName());
-            Layer rootLayer = pageContext.getAppContext().getSelectedProductSceneView().getRootLayer();
-            rootLayer.getChildren().add(0, imageLayer);
+            ProductSceneView sceneView = pageContext.getAppContext().getSelectedProductSceneView();
+            Layer rootLayer = sceneView.getRootLayer();
+            rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), imageLayer);
             return true;
         } catch (Exception e) {
             pageContext.showErrorDialog(e.getMessage());

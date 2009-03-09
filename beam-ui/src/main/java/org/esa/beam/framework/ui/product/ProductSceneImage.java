@@ -7,6 +7,8 @@ import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.support.LayerStyleListener;
+import com.bc.ceres.glayer.support.LayerUtils;
+import com.bc.ceres.glayer.support.LayerFilter;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.ImageInfo;
@@ -32,6 +34,7 @@ import java.util.Map;
 
 public class ProductSceneImage {
 
+    private static final ImageLayerFilter IMAGE_LAYER_FILTER = new ImageLayerFilter();
     private final String name;
     private final PropertyMap configuration;
     private RasterDataNode[] rasters;
@@ -126,32 +129,71 @@ public class ProductSceneImage {
         return (ImageLayer) layerMap.get(ProductSceneView.BASE_IMAGE_LAYER_ID);
     }
 
-    ImageLayer getNoDataLayer() {
-        return (ImageLayer) layerMap.get(ProductSceneView.NO_DATA_LAYER_ID);
+    ImageLayer getNoDataLayer(boolean create) {
+        ImageLayer layer = (ImageLayer) layerMap.get(ProductSceneView.NO_DATA_LAYER_ID);
+        if (layer == null && create) {
+            layer = createNoDataLayer(getImageToModelTransform());
+            addLayer(getFirstImageLayerIndex(), layer);
+        }
+        return layer;
     }
 
-    Layer getBitmaskLayer() {
-        return layerMap.get(ProductSceneView.BITMASK_LAYER_ID);
+    Layer getBitmaskLayer(boolean create) {
+        Layer layer = layerMap.get(ProductSceneView.BITMASK_LAYER_ID);
+        if (layer == null && create) {
+            layer = createBitmaskCollectionLayer(getImageToModelTransform());
+            addLayer(getFirstImageLayerIndex(), layer);
+        }
+        return layer;
     }
 
-    ImageLayer getRoiLayer() {
-        return (ImageLayer) layerMap.get(ProductSceneView.ROI_LAYER_ID);
+    ImageLayer getRoiLayer(boolean create) {
+        ImageLayer layer = (ImageLayer) layerMap.get(ProductSceneView.ROI_LAYER_ID);
+        if (layer == null && create) {
+            layer = createRoiLayer(getImageToModelTransform());
+            addLayer(getFirstImageLayerIndex(), layer);
+        }
+        return layer;
     }
 
-    GraticuleLayer getGraticuleLayer() {
-        return (GraticuleLayer) layerMap.get(ProductSceneView.GRATICULE_LAYER_ID);
+    GraticuleLayer getGraticuleLayer(boolean create) {
+        GraticuleLayer layer = (GraticuleLayer) layerMap.get(ProductSceneView.GRATICULE_LAYER_ID);
+        if (layer == null && create) {
+            layer = createGraticuleLayer(getImageToModelTransform());
+            addLayer(getFirstImageLayerIndex(), layer);
+        }
+        return layer;
     }
 
-    Layer getGcpLayer() {
-        return layerMap.get(ProductSceneView.GCP_LAYER_ID);
+    Layer getGcpLayer(boolean create) {
+        Layer layer = layerMap.get(ProductSceneView.GCP_LAYER_ID);
+        if (layer == null && create) {
+            layer = createGcpLayer(getImageToModelTransform());
+            addLayer(0, layer);
+        }
+        return layer;
     }
 
-    Layer getPinLayer() {
-        return layerMap.get(ProductSceneView.PIN_LAYER_ID);
+    Layer getPinLayer(boolean create) {
+        Layer layer = layerMap.get(ProductSceneView.PIN_LAYER_ID);
+        if (layer == null && create) {
+            layer = createPinLayer(getImageToModelTransform());
+            addLayer(0, layer);
+        }
+        return layer;
     }
 
-    FigureLayer getFigureLayer() {
-        return (FigureLayer) layerMap.get(ProductSceneView.FIGURE_LAYER_ID);
+    FigureLayer getFigureLayer(boolean create) {
+        FigureLayer layer = (FigureLayer) layerMap.get(ProductSceneView.FIGURE_LAYER_ID);
+        if (layer == null && create) {
+            layer = createFigureLayer(getImageToModelTransform());
+            addLayer(getFirstImageLayerIndex(), layer);
+        }
+        return layer;
+    }
+
+    int getFirstImageLayerIndex() {
+        return LayerUtils.getLayerIndex(getRootLayer(), IMAGE_LAYER_FILTER, 0);
     }
 
     private RasterDataNode getRaster() {
@@ -165,30 +207,25 @@ public class ProductSceneImage {
     private void initRootLayer() {
         rootLayer = new Layer();
         layerMap = new HashMap<String, Layer>(12);
-
-        final AffineTransform i2mTransform = bandImageMultiLevelSource.getModel().getImageToModelTransform(0);
-        addLayer(createFigureLayer(i2mTransform));
-        addLayer(createPinLayer(i2mTransform));
-        addLayer(createGcpLayer(i2mTransform));
-        addLayer(createGraticuleLayer(i2mTransform));
-        addLayer(createRoiLayer(i2mTransform));
-        addLayer(createBitmaskCollectionLayer(i2mTransform));
-        addLayer(createNoDataLayer(i2mTransform));
-        addLayer(createBaseImageLayer());
+        addLayer(0, createBaseImageLayer());
     }
 
-    private void addLayer(Layer childLayer) {
+    private AffineTransform getImageToModelTransform() {
+        return bandImageMultiLevelSource.getModel().getImageToModelTransform(0);
+    }
+
+    private void addLayer(int index, Layer childLayer) {
         Assert.state(!layerMap.containsKey(childLayer.getId()));
-        rootLayer.getChildren().add(childLayer);
+        rootLayer.getChildren().add(index, childLayer);
         layerMap.put(childLayer.getId(), childLayer);
     }
 
     private ImageLayer createBaseImageLayer() {
         final ImageLayer imageLayer = new ImageLayer(bandImageMultiLevelSource);
 
-        imageLayer.setName(getName());
-        imageLayer.setId(ProductSceneView.BASE_IMAGE_LAYER_ID);
+        imageLayer.setName(getRaster().getDisplayName());
         imageLayer.setVisible(true);
+        imageLayer.setId(ProductSceneView.BASE_IMAGE_LAYER_ID);
 
         setBaseImageLayerStyle(configuration, imageLayer);
         return imageLayer;
@@ -233,6 +270,12 @@ public class ProductSceneImage {
         noDataLayer.addListener(new ColorStyleListener());
 
         return noDataLayer;
+    }
+
+    private Layer createBitmaskCollectionLayer(AffineTransform i2mTransform) {
+        BitmaskCollectionLayer layer = new BitmaskCollectionLayer(getRaster(), i2mTransform);
+        layer.setId(ProductSceneView.BITMASK_LAYER_ID);
+        return layer;
     }
 
     static void setNoDataLayerStyle(PropertyMap configuration, Layer layer) {
@@ -437,12 +480,6 @@ public class ProductSceneImage {
         layer.setStyle(style);
     }
 
-    private Layer createBitmaskCollectionLayer(AffineTransform i2mTransform) {
-        BitmaskCollectionLayer layer = new BitmaskCollectionLayer(getRaster(), i2mTransform);
-        layer.setId(ProductSceneView.BITMASK_LAYER_ID);
-        return layer;
-    }
-
     private BandImageMultiLevelSource getBandImageMultiLevelSource() {
         return bandImageMultiLevelSource;
     }
@@ -457,6 +494,12 @@ public class ProductSceneImage {
                         MaskImageMultiLevelSource.create(getRaster().getProduct(), color,
                                                          getRaster().getValidMaskExpression(), true, imageLayer.getImageToModelTransform()));
             }
+        }
+    }
+
+    private static class ImageLayerFilter implements LayerFilter {
+        public boolean accept(Layer layer) {
+            return layer instanceof ImageLayer;
         }
     }
 }

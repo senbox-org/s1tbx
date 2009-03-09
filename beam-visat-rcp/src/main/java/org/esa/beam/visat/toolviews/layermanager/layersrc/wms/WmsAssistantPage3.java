@@ -292,15 +292,11 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
                 error = null;
                 BufferedImage image = get();
                 try {
-// todo - giving the ImageLayer a BufferedImage results in the following exception (mp - 06.03.2009)
-// Exception in thread "AWT-EventQueue-0" java.lang.ClassCastException: java.awt.image.BufferedImage cannot be cast to javax.media.jai.PlanarImage
-//    at com.bc.ceres.glevel.support.ConcurrentMultiLevelRenderer.renderImpl(ConcurrentMultiLevelRenderer.java:66)
-//    at com.bc.ceres.glevel.support.ConcurrentMultiLevelRenderer.renderImage(ConcurrentMultiLevelRenderer.java:56)
-//    at com.bc.ceres.glayer.support.ImageLayer.renderLayer(ImageLayer.java:180)
-                    AffineTransform i2mTransform = getAppPageContext().getAppContext().getSelectedProductSceneView().getRaster().getGeoCoding().getGridToModelTransform();
+                    ProductSceneView sceneView = getAppPageContext().getAppContext().getSelectedProductSceneView();
+                    AffineTransform i2mTransform = sceneView.getRaster().getGeoCoding().getGridToModelTransform();
                     ImageLayer imageLayer = new ImageLayer(PlanarImage.wrapRenderedImage(image), i2mTransform);
                     imageLayer.setName(layer.getName());
-                    rootLayer.getChildren().add(0, imageLayer);
+                    rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), imageLayer);
                 } catch (Exception e) {
                     getPageContext().showErrorDialog(e.getMessage());
                 }

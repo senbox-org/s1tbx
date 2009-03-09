@@ -421,8 +421,6 @@ public class ProductTree extends JTree implements PopupMenuFactory {
     private class PTCellRenderer extends DefaultTreeCellRenderer {
 
         ImageIcon productIcon;
-        ImageIcon groupOpenIcon;
-        ImageIcon groupClosedIcon;
         ImageIcon metadataIcon;
         ImageIcon bandAsSwathIcon;
         ImageIcon bandAsSwathIconUnloaded;
@@ -437,8 +435,6 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
         public PTCellRenderer() {
             productIcon = UIUtils.loadImageIcon("icons/RsProduct16.gif");
-            groupOpenIcon = UIUtils.loadImageIcon("icons/RsGroupOpen16.gif");
-            groupClosedIcon = UIUtils.loadImageIcon("icons/RsGroupClosed16.gif");
             metadataIcon = UIUtils.loadImageIcon("icons/RsMetaData16.gif");
             bandAsSwathIcon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
             bandAsSwathIconUnloaded = UIUtils.loadImageIcon("icons/RsBandAsSwath16Disabled.gif");
@@ -476,8 +472,6 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 this.setText("Open products");
                 this.setToolTipText("Contains the list of open data products");
                 this.setIcon(null);
-            } else if (value instanceof String) {
-                this.setIcon(groupClosedIcon);
             } else if (value instanceof ProductNode) {
                 final ProductNode productNode = (ProductNode) value;
                 String text = productNode.getName();
