@@ -19,19 +19,19 @@ import javax.media.jai.PlanarImage;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
-import javax.swing.JProgressBar;
-import javax.swing.JDialog;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Dialog;
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -49,7 +49,7 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
     private final CRSEnvelope crsEnvelope;
     private JComboBox styleList;
     private Style selectedStyle;
-    private JLabel mapCanvas;
+    private JLabel previewCanvas;
     private SwingWorker previewWorker;
     private Throwable error;
 
@@ -72,17 +72,17 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
         RasterDataNode raster = view.getRaster();
 
         WmsLayerWorker layerWorker = new WmsLayerWorker(
-                view.getRootLayer(), new Dimension(raster.getSceneRasterWidth(), raster.getSceneRasterHeight()),
+                view.getRootLayer(), getFinalImageSize(raster),
                 selectedStyle);
-        layerWorker.execute();
+        layerWorker.execute();   // todo - don't close dialog before image is downloaded! (nf)
         return true;
     }
 
     @Override
     protected Component createLayerPageComponent(AppAssistantPageContext context) {
-        mapCanvas = new JLabel();
-        mapCanvas.setHorizontalTextPosition(SwingConstants.CENTER);
-        mapCanvas.setVerticalTextPosition(SwingConstants.CENTER);
+        previewCanvas = new JLabel();
+        previewCanvas.setHorizontalTextPosition(SwingConstants.CENTER);
+        previewCanvas.setVerticalTextPosition(SwingConstants.CENTER);
         JLabel infoLabel = new JLabel(WmsAssistantPage2.getLatLonBoundingBoxText(layer.getLatLonBoundingBox()));
 
         List styles = layer.getStyles();
@@ -109,28 +109,28 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
         JPanel panel = new JPanel(new BorderLayout(4, 4));
         panel.setBorder(new EmptyBorder(4, 4, 4, 4));
         panel.add(panel3, BorderLayout.NORTH);
-        panel.add(mapCanvas, BorderLayout.CENTER);
+        panel.add(previewCanvas, BorderLayout.CENTER);
         panel.add(infoLabel, BorderLayout.SOUTH);
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                updateMap();
+                updatePreview();
             }
         });
 
         return panel;
     }
 
-    private void updateMap() {
+    private void updatePreview() {
         cancelPreviewWorker();
-        mapCanvas.setText("<html><i>Loading map...</i></html>");
-        mapCanvas.setIcon(null);
+        previewCanvas.setText("<html><i>Loading map...</i></html>");
+        previewCanvas.setIcon(null);
 
-        previewWorker = new WmsPreviewWorker(computeMapSize(), selectedStyle);
+        previewWorker = new WmsPreviewWorker(getPreviewSize(), selectedStyle);
         previewWorker.execute();
 
-        // todo - AppContext.addWorker(previewWorker);
+        // todo - AppContext.addWorker(previewWorker);  (nf)
     }
 
     private void cancelPreviewWorker() {
@@ -143,28 +143,41 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
         }
     }
 
-    private Dimension computeMapSize() {
-        Dimension preferredSize = mapCanvas.getSize();
+    private Dimension getPreviewSize() {
+        Dimension preferredSize = previewCanvas.getSize();
         if (preferredSize.width == 0 || preferredSize.height == 0) {
             preferredSize = new Dimension(400, 200);
         }
-        return computeMapSize(preferredSize);
+        return getPreviewImageSize(preferredSize);
     }
 
-    private Dimension computeMapSize(Dimension preferredSize) {
-        double aspectRatio = (crsEnvelope.getMaxX() - crsEnvelope.getMinX()) / (crsEnvelope.getMaxY() - crsEnvelope.getMinY());
-        Dimension size;
-        if (aspectRatio > 1.0) {
-            size = new Dimension(preferredSize.width,
-                                 (int) Math.round(preferredSize.width / aspectRatio));
+    private Dimension getPreviewImageSize(Dimension preferredSize) {
+        int width, height;
+        double ratio = (crsEnvelope.getMaxX() - crsEnvelope.getMinX()) / (crsEnvelope.getMaxY() - crsEnvelope.getMinY());
+        if (ratio >= 1.0) {
+            width = preferredSize.width;
+            height = (int) Math.round(preferredSize.width / ratio);
         } else {
-            size = new Dimension((int) Math.round(preferredSize.height * aspectRatio),
-                                 preferredSize.height);
+            width = (int) Math.round(preferredSize.height * ratio);
+            height = preferredSize.height;
         }
-        return size;
+        return new Dimension(width, height);
     }
 
-    private BufferedImage downloadMapImage(GetMapRequest mapRequest) throws IOException, ServiceException {
+    private Dimension getFinalImageSize(RasterDataNode raster) {
+        int width, height;
+        double ratio = raster.getSceneRasterWidth() / (double) raster.getSceneRasterHeight();
+        if (ratio >= 1.0) {
+            width = Math.min(1280, raster.getSceneRasterWidth());
+            height = (int) Math.round(width / ratio);
+        } else {
+            height = Math.min(1280, raster.getSceneRasterHeight());
+            width = (int) Math.round(height * ratio);
+        }
+        return new Dimension(width, height);
+    }
+
+    private BufferedImage downloadWmsImage(GetMapRequest mapRequest) throws IOException, ServiceException {
         GetMapResponse mapResponse = wms.issueRequest(mapRequest);
         InputStream inputStream = mapResponse.getInputStream();
         try {
@@ -181,7 +194,7 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
         public void itemStateChanged(ItemEvent e) {
             selectedStyle = (Style) styleList.getSelectedItem();
             getPageContext().updateState();
-            updateMap();
+            updatePreview();
         }
     }
 
@@ -217,11 +230,11 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
             GetMapRequest mapRequest = wms.createGetMapRequest();
             mapRequest.addLayer(layer, style);
             mapRequest.setTransparent(true);
-            mapRequest.setSRS(crsEnvelope.getEPSGCode()); // e.g. "EPSG:4326" = Geographic CRS
-            mapRequest.setBBox(crsEnvelope);
             mapRequest.setDimensions(size.width, size.height);
+            mapRequest.setSRS(crsEnvelope.getEPSGCode()); // e.g. "EPSG:4326" = Geographic CRS
+            mapRequest.setBBox(crsEnvelope); // todo - adjust crsEnvelope to exactly match dimensions w x h (nf)
             mapRequest.setFormat("image/png");
-            return downloadMapImage(mapRequest);
+            return downloadWmsImage(mapRequest);
         }
     }
 
@@ -235,14 +248,12 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
         protected void done() {
             try {
                 error = null;
-                BufferedImage image = get();
-                ImageIcon icon = new ImageIcon(image);
-                mapCanvas.setText(null);
-                mapCanvas.setIcon(icon);
+                previewCanvas.setIcon(new ImageIcon(get()));
+                previewCanvas.setText(null);
             } catch (ExecutionException e) {
                 error = e.getCause();
-                mapCanvas.setText(String.format("<html><b>Error:</b> <i>%s</i></html>", error.getMessage()));
-                mapCanvas.setIcon(null);
+                previewCanvas.setIcon(null);
+                previewCanvas.setText(String.format("<html><b>Error:</b> <i>%s</i></html>", error.getMessage()));
             } catch (InterruptedException ignored) {
                 // ok
             }
