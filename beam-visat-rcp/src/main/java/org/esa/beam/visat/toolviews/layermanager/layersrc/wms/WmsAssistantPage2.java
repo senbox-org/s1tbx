@@ -22,7 +22,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -88,7 +87,7 @@ class WmsAssistantPage2 extends AbstractAppAssistantPage {
 
         modelCRS = context.getAppContext().getSelectedProductSceneView().getRaster().getGeoCoding().getModelCRS();
 
-        layerTree = new JTree(createTreeModel(wmsCapabilities));
+        layerTree = new JTree(new WMSTreeModel(wmsCapabilities.getLayer()));
         layerTree.setRootVisible(false);
         layerTree.setShowsRootHandles(true);
         layerTree.setCellRenderer(new MyDefaultTreeCellRenderer());
@@ -98,10 +97,6 @@ class WmsAssistantPage2 extends AbstractAppAssistantPage {
         infoLabel = new JLabel(" ");
         panel.add(infoLabel, BorderLayout.SOUTH);
         return panel;
-    }
-
-    private TreeModel createTreeModel(WMSCapabilities wmsCapabilities) {
-        return new WMSTreeModel(wmsCapabilities);
     }
 
     private static double roundDeg(double v) {
@@ -207,49 +202,37 @@ class WmsAssistantPage2 extends AbstractAppAssistantPage {
 
     private static class WMSTreeModel extends AbstractTreeModel {
 
-        private final WMSCapabilities wmsRoot;
+        private Layer rootLayer;
 
-        private WMSTreeModel(WMSCapabilities wmsCapabilities) {
-            wmsRoot = wmsCapabilities;
+        private WMSTreeModel(Layer rootLayer) {
+            this.rootLayer = rootLayer;
         }
 
         @Override
         public Object getRoot() {
-            return wmsRoot;
+            return rootLayer;
         }
 
         @Override
         public Object getChild(Object parent, int index) {
-            if (parent == wmsRoot) {
-                return wmsRoot.getLayerList().get(index);
-            }
             Layer layer = (Layer) parent;
             return layer.getChildren()[index];
         }
 
         @Override
         public int getChildCount(Object parent) {
-            if (parent == wmsRoot) {
-                return wmsRoot.getLayerList().size();
-            }
             Layer layer = (Layer) parent;
             return layer.getChildren().length;
         }
 
         @Override
         public boolean isLeaf(Object node) {
-            if (node == wmsRoot) {
-                return wmsRoot.getLayerList().isEmpty();
-            }
             Layer layer = (Layer) node;
-            return layer.getChildren().length == 0;
+            return layer.getChildren() != null && layer.getChildren().length == 0;
         }
 
         @Override
         public int getIndexOfChild(Object parent, Object child) {
-            if (parent == wmsRoot) {
-                return wmsRoot.getLayerList().indexOf(child);
-            }
             Layer layer = (Layer) parent;
             int index = Arrays.binarySearch(layer.getChildren(), child);
             return index < 0 ? -1 : index;
