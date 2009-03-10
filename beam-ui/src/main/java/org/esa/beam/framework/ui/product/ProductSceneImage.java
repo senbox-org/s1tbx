@@ -1,16 +1,18 @@
 package org.esa.beam.framework.ui.product;
 
-import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.Style;
+import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glayer.support.LayerFilter;
 import com.bc.ceres.glayer.support.LayerStyleListener;
 import com.bc.ceres.glayer.support.LayerUtils;
-import com.bc.ceres.glayer.support.LayerFilter;
-import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.glevel.MultiLevelSource;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.PinDescriptor;
@@ -56,6 +58,7 @@ public class ProductSceneImage {
              configuration);
         bandImageMultiLevelSource = BandImageMultiLevelSource.create(raster, pm);
         initRootLayer();
+        initBitmaskLayer();
     }
 
     /**
@@ -212,6 +215,25 @@ public class ProductSceneImage {
         addLayer(0, createBaseImageLayer());
     }
 
+    private void initBitmaskLayer() {
+        if (mustEnableBitmaskLayer()) {
+            getBitmaskLayer(true);
+        }
+    }
+
+    private boolean mustEnableBitmaskLayer() {
+        final BitmaskOverlayInfo overlayInfo = getRaster().getBitmaskOverlayInfo();
+        if (overlayInfo != null) {
+            BitmaskDef[] defs = getRaster().getBitmaskDefs();
+            for (BitmaskDef def : defs) {
+                if (overlayInfo.containsBitmaskDef(def)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private AffineTransform getImageToModelTransform() {
         return bandImageMultiLevelSource.getModel().getImageToModelTransform(0);
     }
@@ -259,7 +281,8 @@ public class ProductSceneImage {
         if (getRaster().getValidMaskExpression() != null) {
             final Color color = configuration.getPropertyColor("noDataOverlay.color", Color.ORANGE);
             multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(), color,
-                                                                getRaster().getValidMaskExpression(), true, imageToModelTransform);
+                                                                getRaster().getValidMaskExpression(), true,
+                                                                imageToModelTransform);
         } else {
             multiLevelSource = MultiLevelSource.NULL;
         }
@@ -487,6 +510,7 @@ public class ProductSceneImage {
     }
 
     private class ColorStyleListener extends LayerStyleListener {
+
         @Override
         public void handleLayerStylePropertyChanged(Layer layer, PropertyChangeEvent event) {
             if ("color".equals(event.getPropertyName())) {
@@ -494,20 +518,23 @@ public class ProductSceneImage {
                 final ImageLayer imageLayer = (ImageLayer) layer;
                 imageLayer.setMultiLevelSource(
                         MaskImageMultiLevelSource.create(getRaster().getProduct(), color,
-                                                         getRaster().getValidMaskExpression(), true, imageLayer.getImageToModelTransform()));
+                                                         getRaster().getValidMaskExpression(), true,
+                                                         imageLayer.getImageToModelTransform()));
             }
         }
     }
 
     private static class ImageLayerFilter implements LayerFilter {
+
         public boolean accept(Layer layer) {
             return layer instanceof ImageLayer;
         }
     }
 
     private class LayerMapUpdater extends AbstractLayerListener {
+
         @Override
-            public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
+        public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
             for (Layer childLayer : childLayers) {
                 String id = childLayer.getId();
                 if (id != null) {
