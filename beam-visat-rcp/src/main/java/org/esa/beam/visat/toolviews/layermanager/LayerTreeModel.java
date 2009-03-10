@@ -2,6 +2,7 @@ package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
+import com.bc.ceres.glayer.support.LayerUtils;
 
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
@@ -9,8 +10,6 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.WeakHashMap;
 
 class LayerTreeModel implements TreeModel {
@@ -103,51 +102,8 @@ class LayerTreeModel implements TreeModel {
         }
     }
 
-    // Todo - move to Layer API? Or LayerUtils?
-    public static Layer getLayer(Layer rootLayer, String layerId) {
-        List<Layer> children = rootLayer.getChildren();
-        for (Layer child : children) {
-            if (layerId.equalsIgnoreCase(child.getId())) {
-                return child;
-            }
-        }
-        for (Layer child : children) {
-            Layer layer = getLayer(child, layerId);
-            if (layer != null) {
-                return layer;
-            }
-        }
-        return null;
-    }
-
-    // Todo - move to Layer API? Or LayerUtils?
-    public static Layer[] getLayerPath(Layer layer, Layer childLayer) {
-        if (layer == childLayer) {
-            return new Layer[]{layer};
-        }
-        final ArrayList<Layer> layerArrayList = new ArrayList<Layer>();
-        collectLayerPath(layer, childLayer, layerArrayList);
-        return layerArrayList.toArray(new Layer[layerArrayList.size()]);
-    }
-
-    private static boolean collectLayerPath(Layer layer, Layer childLayer, List<Layer> collection) {
-        List<Layer> children = layer.getChildren();
-        if (children.contains(childLayer)) {
-            collection.add(layer);
-            collection.add(childLayer);
-            return true;
-        }
-        for (Layer child : children) {
-            if (collectLayerPath(child, childLayer, collection)) {
-                collection.add(0, layer);
-                return true;
-            }
-        }
-        return false;
-    }
-
     private TreeModelEvent createTreeModelEvent(Layer layer) {
-        Layer[] parentPath = getLayerPath(rootLayer, layer);
+        Layer[] parentPath = LayerUtils.getLayerPath(rootLayer, layer);
         return new TreeModelEvent(this, parentPath);
     }
 

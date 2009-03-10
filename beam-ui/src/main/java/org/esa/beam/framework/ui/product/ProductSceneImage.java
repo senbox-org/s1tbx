@@ -31,8 +31,6 @@ import org.esa.beam.util.PropertyMap;
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class ProductSceneImage {
@@ -43,7 +41,6 @@ public class ProductSceneImage {
     private RasterDataNode[] rasters;
     private Layer rootLayer;
     private BandImageMultiLevelSource bandImageMultiLevelSource;
-    private Map<String, Layer> layerMap;
 
     /**
      * Creates a color indexed product scene for the given product raster.
@@ -129,12 +126,24 @@ public class ProductSceneImage {
         return rootLayer;
     }
 
+    Layer getLayer(String id) {
+        return LayerUtils.getChildLayerById(getRootLayer(), id);
+    }
+
+    void addLayer(int index, Layer layer) {
+        rootLayer.getChildren().add(index, layer);
+    }
+
+    int getFirstImageLayerIndex() {
+        return LayerUtils.getChildLayerIndex(getRootLayer(), IMAGE_LAYER_FILTER, LayerUtils.SearchMode.DEEP, 0);
+    }
+
     ImageLayer getBaseImageLayer() {
-        return (ImageLayer) layerMap.get(ProductSceneView.BASE_IMAGE_LAYER_ID);
+        return (ImageLayer) getLayer(ProductSceneView.BASE_IMAGE_LAYER_ID);
     }
 
     ImageLayer getNoDataLayer(boolean create) {
-        ImageLayer layer = (ImageLayer) layerMap.get(ProductSceneView.NO_DATA_LAYER_ID);
+        ImageLayer layer = (ImageLayer) getLayer(ProductSceneView.NO_DATA_LAYER_ID);
         if (layer == null && create) {
             layer = createNoDataLayer(getImageToModelTransform());
             addLayer(getFirstImageLayerIndex(), layer);
@@ -143,7 +152,7 @@ public class ProductSceneImage {
     }
 
     Layer getBitmaskLayer(boolean create) {
-        Layer layer = layerMap.get(ProductSceneView.BITMASK_LAYER_ID);
+        Layer layer = getLayer(ProductSceneView.BITMASK_LAYER_ID);
         if (layer == null && create) {
             layer = createBitmaskCollectionLayer(getImageToModelTransform());
             addLayer(getFirstImageLayerIndex(), layer);
@@ -152,7 +161,7 @@ public class ProductSceneImage {
     }
 
     ImageLayer getRoiLayer(boolean create) {
-        ImageLayer layer = (ImageLayer) layerMap.get(ProductSceneView.ROI_LAYER_ID);
+        ImageLayer layer = (ImageLayer) getLayer(ProductSceneView.ROI_LAYER_ID);
         if (layer == null && create) {
             layer = createRoiLayer(getImageToModelTransform());
             addLayer(getFirstImageLayerIndex(), layer);
@@ -161,7 +170,7 @@ public class ProductSceneImage {
     }
 
     GraticuleLayer getGraticuleLayer(boolean create) {
-        GraticuleLayer layer = (GraticuleLayer) layerMap.get(ProductSceneView.GRATICULE_LAYER_ID);
+        GraticuleLayer layer = (GraticuleLayer) getLayer(ProductSceneView.GRATICULE_LAYER_ID);
         if (layer == null && create) {
             layer = createGraticuleLayer(getImageToModelTransform());
             addLayer(getFirstImageLayerIndex(), layer);
@@ -170,7 +179,7 @@ public class ProductSceneImage {
     }
 
     Layer getGcpLayer(boolean create) {
-        Layer layer = layerMap.get(ProductSceneView.GCP_LAYER_ID);
+        Layer layer = getLayer(ProductSceneView.GCP_LAYER_ID);
         if (layer == null && create) {
             layer = createGcpLayer(getImageToModelTransform());
             addLayer(0, layer);
@@ -179,7 +188,7 @@ public class ProductSceneImage {
     }
 
     Layer getPinLayer(boolean create) {
-        Layer layer = layerMap.get(ProductSceneView.PIN_LAYER_ID);
+        Layer layer = getLayer(ProductSceneView.PIN_LAYER_ID);
         if (layer == null && create) {
             layer = createPinLayer(getImageToModelTransform());
             addLayer(0, layer);
@@ -188,16 +197,12 @@ public class ProductSceneImage {
     }
 
     FigureLayer getFigureLayer(boolean create) {
-        FigureLayer layer = (FigureLayer) layerMap.get(ProductSceneView.FIGURE_LAYER_ID);
+        FigureLayer layer = (FigureLayer) getLayer(ProductSceneView.FIGURE_LAYER_ID);
         if (layer == null && create) {
             layer = createFigureLayer(getImageToModelTransform());
             addLayer(getFirstImageLayerIndex(), layer);
         }
         return layer;
-    }
-
-    int getFirstImageLayerIndex() {
-        return LayerUtils.getLayerIndex(getRootLayer(), IMAGE_LAYER_FILTER, 0);
     }
 
     private RasterDataNode getRaster() {
@@ -210,8 +215,6 @@ public class ProductSceneImage {
 
     private void initRootLayer() {
         rootLayer = new Layer();
-        rootLayer.addListener(new LayerMapUpdater());
-        layerMap = new HashMap<String, Layer>(12);
         addLayer(0, createBaseImageLayer());
     }
 
@@ -236,12 +239,6 @@ public class ProductSceneImage {
 
     private AffineTransform getImageToModelTransform() {
         return bandImageMultiLevelSource.getModel().getImageToModelTransform(0);
-    }
-
-    private void addLayer(int index, Layer childLayer) {
-        Assert.state(!layerMap.containsKey(childLayer.getId()));
-        rootLayer.getChildren().add(index, childLayer);
-        layerMap.put(childLayer.getId(), childLayer);
     }
 
     private ImageLayer createBaseImageLayer() {
@@ -528,19 +525,6 @@ public class ProductSceneImage {
 
         public boolean accept(Layer layer) {
             return layer instanceof ImageLayer;
-        }
-    }
-
-    private class LayerMapUpdater extends AbstractLayerListener {
-
-        @Override
-        public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
-            for (Layer childLayer : childLayers) {
-                String id = childLayer.getId();
-                if (id != null) {
-                    layerMap.remove(id);
-                }
-            }
         }
     }
 }

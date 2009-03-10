@@ -2,6 +2,7 @@ package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.LayerStyleListener;
+import com.bc.ceres.glayer.support.LayerUtils;
 import com.jidesoft.swing.CheckBoxTree;
 import com.jidesoft.swing.CheckBoxTreeSelectionModel;
 import org.esa.beam.framework.ui.AppContext;
@@ -173,7 +174,7 @@ class LayerManagerForm {
 
     private void updateLayerTreeVisibility(Layer layer) {
         CheckBoxTreeSelectionModel checkBoxTreeSelectionModel = layerTree.getCheckBoxTreeSelectionModel();
-        Layer[] layerPath = LayerTreeModel.getLayerPath(layerTreeModel.getRootLayer(), layer);
+        Layer[] layerPath = LayerUtils.getLayerPath(layerTreeModel.getRootLayer(), layer);
         if (layerPath.length > 0) {
             if (layer.isVisible()) {
                 checkBoxTreeSelectionModel.addSelectionPath(new TreePath(layerPath));
@@ -185,7 +186,7 @@ class LayerManagerForm {
 
     private void updateLayerTreeSelection(Layer selectedLayer) {
         if (selectedLayer != null) {
-            Layer[] layerPath = LayerTreeModel.getLayerPath(layerTreeModel.getRootLayer(), selectedLayer);
+            Layer[] layerPath = LayerUtils.getLayerPath(layerTreeModel.getRootLayer(), selectedLayer);
             if (layerPath.length > 0) {
                 layerTree.setSelectionPath(new TreePath(layerPath));
             } else {

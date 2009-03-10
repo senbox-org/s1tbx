@@ -15,6 +15,7 @@
 package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.LayerUtils;
 import junit.framework.TestCase;
 
 import javax.swing.event.TreeModelEvent;
@@ -42,25 +43,25 @@ public class LayerTreeModelTest extends TestCase {
 
         assertSame(layer0, treeModel.getRoot());
 
-        Layer[] path = LayerTreeModel.getLayerPath(layer0, layer0);
+        Layer[] path = LayerUtils.getLayerPath(layer0, layer0);
         assertNotNull(path);
         assertEquals(1, path.length);
         assertSame(layer0, path[0]);
 
-        path = LayerTreeModel.getLayerPath(layer3, layer4);
+        path = LayerUtils.getLayerPath(layer3, layer4);
         assertNotNull(path);
         assertEquals(2, path.length);
         assertSame(layer3, path[0]);
         assertSame(layer4, path[1]);
 
-        path = LayerTreeModel.getLayerPath(layer0, layer4);
+        path = LayerUtils.getLayerPath(layer0, layer4);
         assertNotNull(path);
         assertEquals(3, path.length);
         assertSame(layer0, path[0]);
         assertSame(layer3, path[1]);
         assertSame(layer4, path[2]);
 
-        path = LayerTreeModel.getLayerPath(layer4, layer3);
+        path = LayerUtils.getLayerPath(layer4, layer3);
         assertNotNull(path);
         assertEquals(0, path.length);
 
