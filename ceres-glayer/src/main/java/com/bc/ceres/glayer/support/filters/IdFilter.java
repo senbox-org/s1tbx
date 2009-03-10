@@ -1,12 +1,13 @@
-package com.bc.ceres.glayer.support;
+package com.bc.ceres.glayer.support.filters;
 
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.LayerFilter;
 import com.bc.ceres.core.Assert;
 
-public class IdLayerFilter implements LayerFilter {
+public class IdFilter implements LayerFilter {
     private final String id;
 
-    public IdLayerFilter(String id) {
+    public IdFilter(String id) {
         Assert.notNull(id, "id");
         this.id = id;
     }

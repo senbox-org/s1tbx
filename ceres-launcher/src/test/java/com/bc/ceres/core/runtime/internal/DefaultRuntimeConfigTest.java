@@ -25,7 +25,7 @@ public class DefaultRuntimeConfigTest extends AbstractRuntimeTest {
         assertEquals("ceres", config.getContextId());
         assertEquals(new File(".").getCanonicalFile(), new File(config.getHomeDirPath()));
         assertEquals(null, config.getConfigFilePath());
-        assertEquals(null, config.getModulesDirPath());
+        assertNotNull(config.getModulesDirPath());
         assertNotNull(config.getLibDirPaths());
         assertEquals(0, config.getLibDirPaths().length);
     }

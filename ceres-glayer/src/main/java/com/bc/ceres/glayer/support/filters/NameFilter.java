@@ -1,12 +1,13 @@
-package com.bc.ceres.glayer.support;
+package com.bc.ceres.glayer.support.filters;
 
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.LayerFilter;
 import com.bc.ceres.core.Assert;
 
-public class NameLayerFilter implements LayerFilter {
+public class NameFilter implements LayerFilter {
     private final String name;
 
-    public NameLayerFilter(String name) {
+    public NameFilter(String name) {
         Assert.notNull(name, "name");
         this.name = name;
     }
