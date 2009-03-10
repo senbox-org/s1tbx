@@ -96,9 +96,10 @@ public class BandArithmeticOp extends Operator {
             throw new OperatorException("No target bands specified.");
         }
 
-        int height = sourceProducts[0].getSceneRasterHeight();
         int width = sourceProducts[0].getSceneRasterWidth();
-        targetProduct = new Product(sourceProducts[0].getName() + "_BandArithmetic", "BandArithmetic", width, height);
+        int height = sourceProducts[0].getSceneRasterHeight();
+        targetProduct = new Product(sourceProducts[0].getName() + "_BandArithmetic",
+                                    "BandArithmetic", width, height);
 
         WritableNamespace namespace = BandArithmetic.createDefaultNamespace(sourceProducts, 0, new ProductPrefixProvider() {
             public String getPrefix(Product product) {
