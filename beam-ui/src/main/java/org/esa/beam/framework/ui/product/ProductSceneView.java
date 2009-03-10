@@ -86,7 +86,9 @@ import java.util.Vector;
  * @author Norman Fomferra
  * @version $revision$ $date$
  */
-public class ProductSceneView extends BasicView implements ProductNodeView, DrawingEditor, PropertyMapChangeListener, PixelInfoFactory {
+public class ProductSceneView extends BasicView
+        implements ProductNodeView, DrawingEditor, PropertyMapChangeListener, PixelInfoFactory {
+
     public static final String BASE_IMAGE_LAYER_ID = "org.esa.beam.layers.baseImage";
     public static final String NO_DATA_LAYER_ID = "org.esa.beam.layers.noData";
     public static final String BITMASK_LAYER_ID = "org.esa.beam.layers.bitmask";
@@ -195,12 +197,15 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         this.pixelBorderViewScale = 2.0;
         this.pixelPositionListeners = new Vector<PixelPositionListener>();
 
-        this.layerCanvas = new LayerCanvas(sceneImage.getRootLayer(), new DefaultViewport(isModelYAxisDown(baseImageLayer)));
-        final boolean navControlShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true);
+        this.layerCanvas = new LayerCanvas(sceneImage.getRootLayer(),
+                                           new DefaultViewport(isModelYAxisDown(baseImageLayer)));
+        final boolean navControlShown = sceneImage.getConfiguration().getPropertyBool(
+                PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true);
         this.layerCanvas.setNavControlShown(navControlShown);
         this.layerCanvas.setPreferredSize(new Dimension(400, 400));
 
-        this.scrollBarsShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN, false);
+        this.scrollBarsShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN,
+                                                                             false);
         if (scrollBarsShown) {
             this.scrollPane = createScrollPane();
             add(scrollPane, BorderLayout.CENTER);
@@ -217,7 +222,8 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     private AdjustableViewScrollPane createScrollPane() {
-        AbstractButton zoomAllButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomAll13.gif"), false);
+        AbstractButton zoomAllButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomAll13.gif"),
+                                                                      false);
         zoomAllButton.setFocusable(false);
         zoomAllButton.setFocusPainted(false);
         zoomAllButton.addActionListener(new ActionListener() {
@@ -259,6 +265,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
      *
      * @param pixelX the pixel X co-ordinate
      * @param pixelY the pixel Y co-ordinate
+     *
      * @return the info string at the given position
      */
     @Override
@@ -282,6 +289,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
      * otherwise defer to the component's layout manager.
      *
      * @return the value of the <code>preferredSize</code> property
+     *
      * @see #setPreferredSize
      * @see javax.swing.plaf.ComponentUI
      */
@@ -396,6 +404,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
      * Gets the product raster with the specified index.
      *
      * @param index the zero-based product raster index
+     *
      * @return the product raster with the given index
      */
     public RasterDataNode getRaster(int index) {
@@ -517,6 +526,17 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         }
     }
 
+    public boolean isBitmaskOverlayEnabled() {
+        final Layer bitmaskLayer = getBitmaskLayer(false);
+        return bitmaskLayer != null && bitmaskLayer.isVisible();
+    }
+
+    public void setBitmaskOverlayEnabled(boolean enabled) {
+        if (isBitmaskOverlayEnabled() != enabled) {
+            getBitmaskLayer(true).setVisible(enabled);
+        }
+    }
+
     public boolean isShapeOverlayEnabled() {
         final FigureLayer figureLayer = getFigureLayer(false);
         return figureLayer != null && figureLayer.isVisible();
@@ -617,7 +637,8 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     public void setLayerProperties(PropertyMap configuration) {
         setScrollBarsShown(configuration.getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN, false));
         layerCanvas.setNavControlShown(configuration.getPropertyBool(PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true));
-        layerCanvas.setBackground(configuration.getPropertyColor("image.background.color", DEFAULT_IMAGE_BACKGROUND_COLOR));
+        layerCanvas.setBackground(
+                configuration.getPropertyColor("image.background.color", DEFAULT_IMAGE_BACKGROUND_COLOR));
 
         final ImageLayer imageLayer = getBaseImageLayer();
         if (imageLayer != null) {
@@ -734,7 +755,8 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         if (imageLayer != null) {
             final RenderedImage image = imageLayer.getImage();
             final Area imageArea = new Area(new Rectangle(0, 0, image.getWidth(), image.getHeight()));
-            final Area visibleImageArea = new Area(imageLayer.getModelToImageTransform().createTransformedShape(getVisibleModelBounds()));
+            final Area visibleImageArea = new Area(
+                    imageLayer.getModelToImageTransform().createTransformedShape(getVisibleModelBounds()));
             imageArea.intersect(visibleImageArea);
             return imageArea.getBounds();
         }
@@ -777,7 +799,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
         final Product currentProduct = getRaster().getProduct();
         final Product otherProduct = view.getRaster().getProduct();
         if (otherProduct == currentProduct ||
-                otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
+            otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
 
             Viewport viewPortToChange = view.layerCanvas.getViewport();
             Viewport myViewPort = layerCanvas.getViewport();
@@ -905,7 +927,8 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
                 final Style style = noDataLayer.getStyle();
                 final Color color = (Color) style.getProperty("color");
                 final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(),
-                                                                                           color, expression, true, getBaseImageLayer().getImageToModelTransform());
+                                                                                           color, expression, true,
+                                                                                           getBaseImageLayer().getImageToModelTransform());
                 noDataLayer.setMultiLevelSource(multiLevelSource);
             } else {
                 noDataLayer.setMultiLevelSource(MultiLevelSource.NULL);
@@ -925,7 +948,8 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
             if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
                 final Color color = (Color) roiLayer.getStyle().getProperty("color");
                 final MultiLevelSource multiLevelSource = RoiImageMultiLevelSource.create(getRaster(),
-                                                                                          color, getBaseImageLayer().getImageToModelTransform());
+                                                                                          color,
+                                                                                          getBaseImageLayer().getImageToModelTransform());
                 roiLayer.setMultiLevelSource(multiLevelSource);
             } else {
                 roiLayer.setMultiLevelSource(MultiLevelSource.NULL);
@@ -976,6 +1000,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     protected class RasterChangeHandler implements ProductNodeListener {
+
         private final List<String> imageChangingProperties = Arrays.asList(RasterDataNode.PROPERTY_NAME_DATA,
                                                                            RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE,
                                                                            RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE_USED,
@@ -1006,7 +1031,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
             final RasterDataNode[] rasters = getRasters();
             final ProductNode productNode = event.getSourceNode();
             if (imageChangingProperties.contains(event.getPropertyName()) &&
-                    Arrays.asList(rasters).contains(productNode)) {
+                Arrays.asList(rasters).contains(productNode)) {
 
                 RasterDataNode raster = (RasterDataNode) productNode;
                 final ImageInfo imageInfo = raster.createDefaultImageInfo(null, ProgressMonitor.NULL);
@@ -1022,6 +1047,10 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
     private FigureLayer getFigureLayer(boolean create) {
         return getSceneImage().getFigureLayer(create);
+    }
+
+    private Layer getBitmaskLayer(boolean create) {
+        return getSceneImage().getBitmaskLayer(create);
     }
 
     private ImageLayer getRoiLayer(boolean create) {
@@ -1089,8 +1118,9 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     private boolean isPixelPosValid(int currentPixelX, int currentPixelY, int currentLevel) {
-        return currentPixelX >= 0 && currentPixelX < baseImageLayer.getImage(currentLevel).getWidth() && currentPixelY >= 0
-                && currentPixelY < baseImageLayer.getImage(currentLevel).getHeight();
+        return currentPixelX >= 0 && currentPixelX < baseImageLayer.getImage(
+                currentLevel).getWidth() && currentPixelY >= 0
+               && currentPixelY < baseImageLayer.getImage(currentLevel).getHeight();
     }
 
     private void firePixelPosChanged(MouseEvent e, int currentPixelX, int currentPixelY, int currentLevel) {
@@ -1146,8 +1176,8 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
 
     private boolean isPixelBorderDisplayEnabled() {
         return pixelBorderShown &&
-                (getTool() == null || getTool().getDrawable() != null) &&
-                getLayerCanvas().getViewport().getZoomFactor() >= pixelBorderViewScale;
+               (getTool() == null || getTool().getDrawable() != null) &&
+               getLayerCanvas().getViewport().getZoomFactor() >= pixelBorderViewScale;
     }
 
     private void drawPixelBorder(int currentPixelX, int currentPixelY, int currentLevel, boolean showBorder) {
@@ -1230,6 +1260,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     private class LayerCanvasComponentHandler extends ComponentAdapter {
+
         /**
          * Invoked when the component has been made invisible.
          */
@@ -1271,6 +1302,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView, Draw
     }
 
     private class ToolPainter implements LayerCanvas.Overlay {
+
         @Override
         public void paintOverlay(LayerCanvas canvas, Graphics2D g2d) {
             if (tool != null && tool.isActive()) {
