@@ -93,7 +93,7 @@ public class CeosFileReaderTest extends TestCase {
     }
 
     public void testReadB2() throws IOException, IllegalCeosFormatException {
-        final String prefix = "ﬂ3534aﬂ0uawemqw34mfavsdpvhawefˆldv:";
+        final String prefix = "√ü3534a√ü0uawemqw34mfavsdpvhawef√∂ldv:";
         final String suffix = "lfjldfkjvg45";
         final short expected = -12354;
         _ios.writeBytes(prefix);
@@ -107,7 +107,7 @@ public class CeosFileReaderTest extends TestCase {
     }
 
     public void testReadB4() throws IOException, IllegalCeosFormatException {
-        final String prefix = "ﬂ3534aﬂ0uawemqw34mfavsdpvhawefˆldv:";
+        final String prefix = "√ü3534a√ü0uawemqw34mfavsdpvhawef√∂ldv:";
         final String suffix = "lfjldfkjvg45";
         _ios.writeBytes(prefix);
         _ios.writeInt(7100);

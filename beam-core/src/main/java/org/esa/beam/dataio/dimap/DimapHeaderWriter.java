@@ -18,8 +18,36 @@ package org.esa.beam.dataio.dimap;
 
 import org.esa.beam.dataio.dimap.spi.DimapPersistable;
 import org.esa.beam.dataio.dimap.spi.DimapPersistence;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.FXYGeoCoding;
+import org.esa.beam.framework.datamodel.FilterBand;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GcpGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PixelGeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.ROIDefinition;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.SampleCoding;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
+import org.esa.beam.framework.dataop.maptransf.MapTransform;
+import org.esa.beam.framework.dataop.maptransf.MapTransformDescriptor;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
@@ -170,8 +198,8 @@ public final class DimapHeaderWriter extends XmlWriter {
                 xmlAttribs.add(new String[]{DimapProductConstants.ATTRIB_MODE, "rw"});
             }
             if (attribute.getNumDataElems() > 1 &&
-                    !ProductData.TYPESTRING_ASCII.equals(dataTypeString) &&
-                    !ProductData.TYPESTRING_UTC.equals(dataTypeString)) {
+                !ProductData.TYPESTRING_ASCII.equals(dataTypeString) &&
+                !ProductData.TYPESTRING_UTC.equals(dataTypeString)) {
                 xmlAttribs.add(
                         new String[]{DimapProductConstants.ATTRIB_ELEMS, String.valueOf(attribute.getNumDataElems())});
             }
@@ -245,7 +273,7 @@ public final class DimapHeaderWriter extends XmlWriter {
         }
     }
 
-    protected void writeBitmaskDefinitions(int indent) { //übernommen
+    protected void writeBitmaskDefinitions(int indent) { //ï¿½bernommen
         final BitmaskDef[] bitmaskDefs = _product.getBitmaskDefs();
         if (bitmaskDefs.length > 0) {
             final String[] bdTags = createTags(indent, DimapProductConstants.TAG_BITMASK_DEFINITIONS);
@@ -289,9 +317,12 @@ public final class DimapHeaderWriter extends XmlWriter {
                 if (band.isStxSet()) {
                     sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_MIN, band.scale(band.getStx().getMin()));
                     sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_MAX, band.scale(band.getStx().getMax()));
-                    sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_MEAN, band.scale(band.getStx().getMean()));
-                    sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_STDDEV, band.scale(band.getStx().getStandardDeviation()));
-                    sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_LEVEL, band.getStx().getResolutionLevel());
+                    sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_MEAN,
+                                    band.scale(band.getStx().getMean()));
+                    sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_STDDEV,
+                                    band.scale(band.getStx().getStandardDeviation()));
+                    sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_LEVEL,
+                                    band.getStx().getResolutionLevel());
                     final int[] bins = band.getStx().getHistogramBins();
                     if (bins != null && bins.length > 0) {
                         sXmlW.printLine(indent + 2, DimapProductConstants.TAG_HISTOGRAM, StringUtils.arrayToCsv(bins));
@@ -310,11 +341,14 @@ public final class DimapHeaderWriter extends XmlWriter {
                         if (StringUtils.isNotNullAndNotEmpty(point.getLabel())) {
                             sXmlW.printLine(indent + 3, DimapProductConstants.TAG_LABEL, point.getLabel());
                         }
-                        DimapProductHelpers.printColorTag(indent + 3, DimapProductConstants.TAG_COLOR, point.getColor(), sXmlW);
+                        DimapProductHelpers.printColorTag(indent + 3, DimapProductConstants.TAG_COLOR, point.getColor(),
+                                                          sXmlW);
                         sXmlW.println(cppTags[1]);
                     }
-                    DimapProductHelpers.printColorTag(indent + 2, DimapProductConstants.TAG_NO_DATA_COLOR, band.getImageInfo().getNoDataColor(), sXmlW);
-                    sXmlW.printLine(indent + 2, DimapProductConstants.TAG_HISTOGRAM_MATCHING, band.getImageInfo().getHistogramMatching().toString());
+                    DimapProductHelpers.printColorTag(indent + 2, DimapProductConstants.TAG_NO_DATA_COLOR,
+                                                      band.getImageInfo().getNoDataColor(), sXmlW);
+                    sXmlW.printLine(indent + 2, DimapProductConstants.TAG_HISTOGRAM_MATCHING,
+                                    band.getImageInfo().getHistogramMatching().toString());
                 }
 
                 sXmlW.println(bsTags[1]);
@@ -398,17 +432,17 @@ public final class DimapHeaderWriter extends XmlWriter {
             final Line2D.Float line = (Line2D.Float) shape;
             type = "Line2D";
             values = "" + line.getX1() + "," + line.getY1()
-                    + "," + line.getX2() + "," + line.getY2();
+                     + "," + line.getX2() + "," + line.getY2();
         } else if (shape instanceof Rectangle2D.Float) {
             final Rectangle2D.Float rectangle = (Rectangle2D.Float) shape;
             type = "Rectangle2D";
             values = "" + rectangle.getX() + "," + rectangle.getY()
-                    + "," + rectangle.getWidth() + "," + rectangle.getHeight();
+                     + "," + rectangle.getWidth() + "," + rectangle.getHeight();
         } else if (shape instanceof Ellipse2D.Float) {
             final Ellipse2D.Float ellipse = (Ellipse2D.Float) shape;
             type = "Ellipse2D";
             values = "" + ellipse.getX() + "," + ellipse.getY()
-                    + "," + ellipse.getWidth() + "," + ellipse.getHeight();
+                     + "," + ellipse.getWidth() + "," + ellipse.getHeight();
         } else {
             type = "Path";
             sw = new StringWriter();
@@ -497,7 +531,7 @@ public final class DimapHeaderWriter extends XmlWriter {
         }
     }
 
-    protected void writeTiePointGridElements(int indent) { //übernommen
+    protected void writeTiePointGridElements(int indent) { //Ãœbernommen
         final int numTiePointGrids = _product.getNumTiePointGrids();
         if (numTiePointGrids > 0) {
             final String[] tpgTags = createTags(indent, DimapProductConstants.TAG_TIE_POINT_GRIDS);
@@ -582,15 +616,20 @@ public final class DimapHeaderWriter extends XmlWriter {
 
     protected void writeFlagCoding(int indent) {
         SampleCoding[] a = _product.getFlagCodingGroup().toArray(new FlagCoding[0]);
-        vvv(indent, a, DimapProductConstants.TAG_FLAG_CODING, DimapProductConstants.TAG_FLAG, DimapProductConstants.TAG_FLAG_NAME, DimapProductConstants.TAG_FLAG_INDEX, DimapProductConstants.TAG_FLAG_DESCRIPTION);
+        vvv(indent, a, DimapProductConstants.TAG_FLAG_CODING, DimapProductConstants.TAG_FLAG,
+            DimapProductConstants.TAG_FLAG_NAME, DimapProductConstants.TAG_FLAG_INDEX,
+            DimapProductConstants.TAG_FLAG_DESCRIPTION);
     }
 
     protected void writeIndexCoding(int indent) {
         SampleCoding[] a = _product.getIndexCodingGroup().toArray(new IndexCoding[0]);
-        vvv(indent, a, DimapProductConstants.TAG_INDEX_CODING, DimapProductConstants.TAG_INDEX, DimapProductConstants.TAG_INDEX_NAME, DimapProductConstants.TAG_INDEX_VALUE, DimapProductConstants.TAG_INDEX_DESCRIPTION);
+        vvv(indent, a, DimapProductConstants.TAG_INDEX_CODING, DimapProductConstants.TAG_INDEX,
+            DimapProductConstants.TAG_INDEX_NAME, DimapProductConstants.TAG_INDEX_VALUE,
+            DimapProductConstants.TAG_INDEX_DESCRIPTION);
     }
 
-    private void vvv(int indent, SampleCoding[] a, String tagCoding, String tagFlag, String tagName, String tagIndex, String tagDescription) {
+    private void vvv(int indent, SampleCoding[] a, String tagCoding, String tagFlag, String tagName, String tagIndex,
+                     String tagDescription) {
         for (SampleCoding sampleCoding : a) {
             final String[][] attributes = new String[1][];
             attributes[0] = new String[]{DimapProductConstants.ATTRIB_NAME, sampleCoding.getName()};
@@ -600,7 +639,8 @@ public final class DimapHeaderWriter extends XmlWriter {
         }
     }
 
-    private void uuu(int indent, SampleCoding sampleCoding, String[] fcTags, String tagFlag, String tagName, String tagIndex, String tagDescription) {
+    private void uuu(int indent, SampleCoding sampleCoding, String[] fcTags, String tagFlag, String tagName,
+                     String tagIndex, String tagDescription) {
         final String[] names = sampleCoding.getAttributeNames();
         for (String name : names) {
             final MetadataAttribute attribute = sampleCoding.getAttribute(name);

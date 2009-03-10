@@ -53,7 +53,7 @@ import java.io.IOException;
 public class NewProductDialog extends ModalDialog {
 
     private static final String DEFAULT_NUMBER_TEXT = "####";
-    private static final String DEFAULT_LATLON_TEXT = "##°";
+    private static final String DEFAULT_LATLON_TEXT = "##Â°";
 
     private static final String COPY_ALL_COMMAND = "all";
     private static final String COPY_GEOCODING_COMMAND = "geo";
@@ -153,19 +153,20 @@ public class NewProductDialog extends ModalDialog {
                 def.addNodeName("longitude");
                 def.addNodeName(Product.HISTORY_ROOT_NAME);
                 resultProduct = ProductSubsetBuilder.createProductSubset(sourceProduct, sourceProductOwner, def,
-                                                                          prodName, prodDesc);
+                                                                         prodName, prodDesc);
                 // @todo 1 nf/** - check: do we really need the following code or is it done in the  ProductSubsetBuilder?
                 TiePointGrid latGrid = resultProduct.getTiePointGrid("latitude");
                 TiePointGrid lonGrid = resultProduct.getTiePointGrid("longitude");
                 if (latGrid != null && lonGrid != null) {
-                    resultProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, sourceProduct.getGeoCoding().getDatum()));
+                    resultProduct.setGeoCoding(
+                            new TiePointGeoCoding(latGrid, lonGrid, sourceProduct.getGeoCoding().getDatum()));
                 }
             } else if (subsetDef != null && subsetRButton.isSelected()) {
                 resultProduct = ProductSubsetBuilder.createProductSubset(sourceProduct, sourceProductOwner,
-                                                                          subsetDef, prodName, prodDesc);
+                                                                         subsetDef, prodName, prodDesc);
             } else {
                 resultProduct = ProductSubsetBuilder.createProductSubset(sourceProduct, sourceProductOwner, null,
-                                                                          prodName, prodDesc);
+                                                                         prodName, prodDesc);
             }
         } catch (IOException e) {
             exception = e;
@@ -197,7 +198,7 @@ public class NewProductDialog extends ModalDialog {
         boolean enableSourceProduct;
         if (editProduct == null) {
             valueSet = sourceProducts.getDisplayNames();
-            Product product = (Product)sourceProducts.getAt(selectedProductIndex);
+            Product product = (Product) sourceProducts.getAt(selectedProductIndex);
             prodName = createNewProductName(valueSet.length > 0 ? product.getName() : "");
             prodDesc = "";
             enableSourceProduct = true;
@@ -360,7 +361,7 @@ public class NewProductDialog extends ModalDialog {
         } else {
             subsetButton.setText("Edit Subset...");
             final Rectangle region = subsetDef.getRegion();
-            final int subSamplingX = subsetDef.getSubSamplingX() ;
+            final int subSamplingX = subsetDef.getSubSamplingX();
             final int subSamplingY = subsetDef.getSubSamplingY();
             labelWidthInfo.setText("" + ((region.width - 1) / subSamplingX + 1));
             labelHeightInfo.setText("" + ((region.height - 1) / subSamplingY + 1));

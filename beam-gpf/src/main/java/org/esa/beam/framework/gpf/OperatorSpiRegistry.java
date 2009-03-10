@@ -6,10 +6,11 @@ import com.bc.ceres.core.ServiceRegistry;
  * A registry for operator SPI instances.
  *
  * @author Norman Fomferra
- * @author Marco Zühlke
+ * @author Marco ZÃ¼hlke
  * @since 4.1
  */
 public interface OperatorSpiRegistry {
+
     /**
      * Loads the SPI's defined in {@code META-INF/services}.
      */
@@ -28,6 +29,7 @@ public interface OperatorSpiRegistry {
      * or an alias name.
      *
      * @param operatorName a name identifying the operator SPI.
+     *
      * @return the operator SPI, or <code>null</code>
      */
     OperatorSpi getOperatorSpi(String operatorName);
@@ -36,6 +38,7 @@ public interface OperatorSpiRegistry {
      * Adds the given {@link OperatorSpi operatorSpi} to this registry.
      *
      * @param operatorSpi the SPI to add
+     *
      * @return {@code true}, if the {@link OperatorSpi} could be succesfully added, otherwise {@code false}
      */
     boolean addOperatorSpi(OperatorSpi operatorSpi);
@@ -44,6 +47,7 @@ public interface OperatorSpiRegistry {
      * Removes the given {@link OperatorSpi operatorSpi} this registry.
      *
      * @param operatorSpi the SPI to remove
+     *
      * @return {@code true}, if the SPI could be removed, otherwise {@code false}
      */
     boolean removeOperatorSpi(OperatorSpi operatorSpi);

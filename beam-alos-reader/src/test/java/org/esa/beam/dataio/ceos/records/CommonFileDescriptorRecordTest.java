@@ -35,7 +35,7 @@ public class CommonFileDescriptorRecordTest extends TestCase {
         final String prefix = "fdkjglsdkfhierr.m b9b0970w34";
         ios.writeBytes(prefix);
         writeRecordData(ios);
-        ios.writeBytes("nq3tf9ß8nvnvpdi er 0 324p3f"); // as suffix
+        ios.writeBytes("nq3tf9ÃŸ8nvnvpdi er 0 324p3f"); // as suffix
 
         final CommonFileDescriptorRecord record = new CommonFileDescriptorRecord(new CeosFileReader(ios),
                                                                                  prefix.length());

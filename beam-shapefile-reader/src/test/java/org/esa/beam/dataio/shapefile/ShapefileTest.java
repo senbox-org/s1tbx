@@ -3,7 +3,6 @@ package org.esa.beam.dataio.shapefile;
 import junit.framework.TestCase;
 
 import java.io.IOException;
-import java.io.EOFException;
 
 public class ShapefileTest extends TestCase {
 
@@ -173,11 +172,12 @@ public class ShapefileTest extends TestCase {
     }
 
     private Shapefile.Record getLastRecord(Shapefile shapefile, int expectedNumRemaining) throws IOException {
-        Shapefile.Record lastRecord = null;
         int numRemaining = 0;
+        Shapefile.Record lastRecord = null;
         while (true) {
-            lastRecord = shapefile.readRecord();
-            if (lastRecord != null) {
+            Shapefile.Record currentRecord = shapefile.readRecord();
+            if (currentRecord != null) {
+                lastRecord = currentRecord;
                 numRemaining++;
             } else {
                 break;

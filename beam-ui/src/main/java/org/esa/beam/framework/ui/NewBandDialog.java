@@ -16,14 +16,6 @@
  */
 package org.esa.beam.framework.ui;
 
-import java.awt.GridBagConstraints;
-import java.awt.Window;
-
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.text.JTextComponent;
-
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
@@ -34,6 +26,13 @@ import org.esa.beam.framework.param.ParamProperties;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
+
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.text.JTextComponent;
+import java.awt.GridBagConstraints;
+import java.awt.Window;
 
 //@todo 1 se/** - add (more) class documentation
 
@@ -153,8 +152,8 @@ public class NewBandDialog extends ModalDialog {
         final JLabel parentProductLabel = new JLabel(_currentProduct.getDisplayName());
         final JLabel widthValueLabel = new JLabel("" + _currentProduct.getSceneRasterWidth() + " pixel");
         final JLabel heightValueLabel = new JLabel("" + _currentProduct.getSceneRasterHeight() + " pixel");
-        final JLabel centerValueLatLabel = new JLabel("##°");
-        final JLabel centerValueLonLabel = new JLabel("##°");
+        final JLabel centerValueLatLabel = new JLabel("##Â°");
+        final JLabel centerValueLonLabel = new JLabel("##Â°");
         final GeoCoding geoCoding = _currentProduct.getGeoCoding();
         if (geoCoding != null) {
             final float centerX = 0.5f * _currentProduct.getSceneRasterWidth();

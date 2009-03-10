@@ -332,7 +332,7 @@ public class CommandLineArgsTest extends TestCase {
         testFailure(new String[]{"MapProj", "-p"}, "Option argument missing");
         testFailure(new String[]{"MapProj", "-f"}, "Option argument missing");
         testFailure(new String[]{"MapProj", "-t", "out.tammomat"}, "Output format unknown");
-        testFailure(new String[]{"MapProj", "-ö"}, "Unknown option '-ö'");
+        testFailure(new String[]{"MapProj", "-Ã¶"}, "Unknown option '-Ã¶'");
         testFailure(new String[]{"MapProj", "-P=9"}, "Empty identifier");
         testFailure(new String[]{"MapProj", "-Pobelix10"}, "Missing '='");
         testFailure(new String[]{"MapProj", "-Tsubset=subset.dim",}, "Only valid with a given graph XML");

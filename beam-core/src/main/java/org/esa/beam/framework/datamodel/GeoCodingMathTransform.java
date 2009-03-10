@@ -9,7 +9,7 @@ import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.TransformException;
 
 /**
- * A math transform which converts from grid (pixel) coordinates to geograhícal coordinates.
+ * A math transform which converts from grid (pixel) coordinates to geograhical coordinates.
  *
  * @author Marco Peters
  * @author Norman Fomferra

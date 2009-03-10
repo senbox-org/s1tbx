@@ -21,22 +21,48 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.esa.beam.GlobalTestTools;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GcpGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.framework.dataop.maptransf.LambertConformalConicDescriptor;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
+import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.util.BeamConstants;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.math.MathUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -480,7 +506,7 @@ public class DimapDocumentTest extends TestCase {
     }
 
     private Stx createStx() {
-        int[] bins = new int[]{4, 5, 4, 7, 5, 8};        
+        int[] bins = new int[]{4, 5, 4, 7, 5, 8};
         return new Stx(-0.2, 3, 5.5, 3.67, false, bins, 0);
     }
 
@@ -682,8 +708,10 @@ public class DimapDocumentTest extends TestCase {
         pw.println("    </Raster_Dimensions>");
         pw.println("    <Data_Access>");
         pw.println("        <DATA_FILE_FORMAT>" + DimapProductConstants.DATA_FILE_FORMAT + "</DATA_FILE_FORMAT>");
-        pw.println("        <DATA_FILE_FORMAT_DESC>" + DimapProductConstants.DATA_FILE_FORMAT_DESCRIPTION + "</DATA_FILE_FORMAT_DESC>");
-        pw.println("        <DATA_FILE_ORGANISATION>" + DimapProductConstants.DATA_FILE_ORGANISATION + "</DATA_FILE_ORGANISATION>");
+        pw.println(
+                "        <DATA_FILE_FORMAT_DESC>" + DimapProductConstants.DATA_FILE_FORMAT_DESCRIPTION + "</DATA_FILE_FORMAT_DESC>");
+        pw.println(
+                "        <DATA_FILE_ORGANISATION>" + DimapProductConstants.DATA_FILE_ORGANISATION + "</DATA_FILE_ORGANISATION>");
         pw.println("        <Data_File>");
         pw.println("            <DATA_FILE_PATH href=\"" + dataDir + "Band1.hdr\" />");
         pw.println("            <BAND_INDEX>0</BAND_INDEX>");
@@ -705,11 +733,13 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <BAND_INDEX>4</BAND_INDEX>");
         pw.println("        </Data_File>");
         pw.println("        <Tie_Point_Grid_File>");
-        pw.println("            <TIE_POINT_GRID_FILE_PATH href=\"" + dataDir + DimapProductConstants.TIE_POINT_GRID_DIR_NAME + "/tpg1.hdr\" />");
+        pw.println(
+                "            <TIE_POINT_GRID_FILE_PATH href=\"" + dataDir + DimapProductConstants.TIE_POINT_GRID_DIR_NAME + "/tpg1.hdr\" />");
         pw.println("            <TIE_POINT_GRID_INDEX>0</TIE_POINT_GRID_INDEX>");
         pw.println("        </Tie_Point_Grid_File>");
         pw.println("        <Tie_Point_Grid_File>");
-        pw.println("            <TIE_POINT_GRID_FILE_PATH href=\"" + dataDir + DimapProductConstants.TIE_POINT_GRID_DIR_NAME + "/tpg2.hdr\" />");
+        pw.println(
+                "            <TIE_POINT_GRID_FILE_PATH href=\"" + dataDir + DimapProductConstants.TIE_POINT_GRID_DIR_NAME + "/tpg2.hdr\" />");
         pw.println("            <TIE_POINT_GRID_INDEX>1</TIE_POINT_GRID_INDEX>");
         pw.println("        </Tie_Point_Grid_File>");
         pw.println("    </Data_Access>");
@@ -912,15 +942,19 @@ public class DimapDocumentTest extends TestCase {
         pw.println("    <Dataset_Sources>");
         pw.println("        <MDElem name=\"metadata\" desc=\"metadata-desc\">");
         pw.println("            <MDATTR name=\"attrib1\" type=\"int16\" mode=\"rw\">123</MDATTR>");
-        pw.println("            <MDATTR name=\"attrib2\" type=\"float32\" elems=\"6\">1.0,2.0,3.0,4.0,5.0,6.0</MDATTR>");
-        pw.println("            <MDATTR name=\"attrib3\" type=\"float64\" mode=\"rw\" elems=\"6\">7.0,8.0,9.0,10.0,11.0,12.0</MDATTR>");
+        pw.println(
+                "            <MDATTR name=\"attrib2\" type=\"float32\" elems=\"6\">1.0,2.0,3.0,4.0,5.0,6.0</MDATTR>");
+        pw.println(
+                "            <MDATTR name=\"attrib3\" type=\"float64\" mode=\"rw\" elems=\"6\">7.0,8.0,9.0,10.0,11.0,12.0</MDATTR>");
         if (oldUtcFormat) {
             pw.println("            <MDATTR name=\"attrib5\" type=\"utc\" mode=\"rw\">123,234,345</MDATTR>");
         } else {
-            pw.println("            <MDATTR name=\"attrib5\" type=\"utc\" mode=\"rw\">03-MAY-2000 00:03:54.000345</MDATTR>");
+            pw.println(
+                    "            <MDATTR name=\"attrib5\" type=\"utc\" mode=\"rw\">03-MAY-2000 00:03:54.000345</MDATTR>");
         }
         pw.println("            <MDElem name=\"mdElemName1\" desc=\"mdElem1-desc\">");
-        pw.println("                <MDATTR name=\"attrib4\" type=\"float64\" elems=\"3\">23.547,-8.0001,-59.989898</MDATTR>");
+        pw.println(
+                "                <MDATTR name=\"attrib4\" type=\"float64\" elems=\"3\">23.547,-8.0001,-59.989898</MDATTR>");
         pw.println("                <MDATTR name=\"StringAttrib\" type=\"ascii\">StringAttribValue</MDATTR>");
         pw.println("            </MDElem>");
         pw.println("        </MDElem>");
@@ -936,6 +970,7 @@ public class DimapDocumentTest extends TestCase {
      * Creates a DOM represenation (BEAM-DIMAP format) of the given data product.
      *
      * @param product the data product
+     *
      * @return a DOM in BEAM-DIMAP format
      */
     private final static Document createDOM(Product product, String nameDataDirectory) {
@@ -969,17 +1004,17 @@ public class DimapDocumentTest extends TestCase {
                 Line2D.Float line = (Line2D.Float) shape;
                 type = "Line2D";
                 values = "" + line.getX1() + "," + line.getY1()
-                        + "," + line.getX2() + "," + line.getY2();
+                         + "," + line.getX2() + "," + line.getY2();
             } else if (shape instanceof Rectangle2D.Float) {
                 final Rectangle2D.Float rectangle = (Rectangle2D.Float) shape;
                 type = "Rectangle2D";
                 values = "" + rectangle.getX() + "," + rectangle.getY()
-                        + "," + rectangle.getWidth() + "," + rectangle.getHeight();
+                         + "," + rectangle.getWidth() + "," + rectangle.getHeight();
             } else if (shape instanceof Ellipse2D.Float) {
                 final Ellipse2D.Float ellipse = (Ellipse2D.Float) shape;
                 type = "Ellipse2D";
                 values = "" + ellipse.getX() + "," + ellipse.getY()
-                        + "," + ellipse.getWidth() + "," + ellipse.getHeight();
+                         + "," + ellipse.getWidth() + "," + ellipse.getHeight();
             } else {
                 type = "Path";
                 final PathIterator iterator = shape.getPathIterator(null);
@@ -1068,7 +1103,7 @@ public class DimapDocumentTest extends TestCase {
             return document;
         }
 
-        private void addBitmaskDefinitions() { //übernommen
+        private void addBitmaskDefinitions() { //Ãœbernommen
             final String[] defNames = _product.getBitmaskDefNames();
             for (int i = 0; i < defNames.length; i++) {
                 final BitmaskDef bitmaskDef = _product.getBitmaskDef(defNames[i]);
@@ -1098,7 +1133,7 @@ public class DimapDocumentTest extends TestCase {
             }
         }
 
-        private void addAnnotatonDataSet() { //übernommen
+        private void addAnnotatonDataSet() { //Ãœbernommen
             final MetadataElement metadataRoot = _product.getMetadataRoot();
             if (metadataRoot != null) {
                 final Element datasetSourcesElem = new Element(DimapProductConstants.TAG_DATASET_SOURCES);
@@ -1107,7 +1142,7 @@ public class DimapDocumentTest extends TestCase {
             }
         }
 
-        private void addMetadataElements(final MetadataElement[] elementes, final Element mdElem) { //übernommen
+        private void addMetadataElements(final MetadataElement[] elementes, final Element mdElem) { //Ãœbernommen
             if (elementes == null) {
                 return;
             }
@@ -1129,7 +1164,7 @@ public class DimapDocumentTest extends TestCase {
             }
         }
 
-        private void addMetadataAttributes(final MetadataAttribute[] attributes, final Element mdElem) { //übernommen
+        private void addMetadataAttributes(final MetadataAttribute[] attributes, final Element mdElem) { //Ãœbernommen
             if (attributes == null) {
                 return;
             }
@@ -1152,8 +1187,8 @@ public class DimapDocumentTest extends TestCase {
                     mdAttr.setAttribute(DimapProductConstants.ATTRIB_MODE, "rw");
                 }
                 if (attribute.getNumDataElems() > 1 &&
-                        !ProductData.TYPESTRING_ASCII.equals(dataTypeString) &&
-                        !ProductData.TYPESTRING_UTC.equals(dataTypeString)) {
+                    !ProductData.TYPESTRING_ASCII.equals(dataTypeString) &&
+                    !ProductData.TYPESTRING_UTC.equals(dataTypeString)) {
                     mdAttr.setAttribute(DimapProductConstants.ATTRIB_ELEMS,
                                         String.valueOf(attribute.getNumDataElems()));
                 }
@@ -1182,7 +1217,7 @@ public class DimapDocumentTest extends TestCase {
             return root;
         }
 
-        private void addDataAccessElements() { //übernommen
+        private void addDataAccessElements() { //Ãœbernommen
             Element dataAccess = new Element(DimapProductConstants.TAG_DATA_ACCESS);
             JDomHelper.addElement(DimapProductConstants.TAG_DATA_FILE_FORMAT, DimapProductConstants.DATA_FILE_FORMAT,
                                   dataAccess);
@@ -1219,7 +1254,7 @@ public class DimapDocumentTest extends TestCase {
             _root.addContent(dataAccess);
         }
 
-        private void addTiePointGridElements() { //übernommen
+        private void addTiePointGridElements() { //Ãœbernommen
             int numTiePointGrids = getProduct().getNumTiePointGrids();
             if (numTiePointGrids > 0) {
                 Element tiePointGrids = new Element(DimapProductConstants.TAG_TIE_POINT_GRIDS);
@@ -1274,7 +1309,8 @@ public class DimapDocumentTest extends TestCase {
                                               bandStatisticsElem);
                         JDomHelper.addElement(DimapProductConstants.TAG_STX_MEAN, band.getStx().getMean(),
                                               bandStatisticsElem);
-                        JDomHelper.addElement(DimapProductConstants.TAG_STX_STDDEV, band.getStx().getStandardDeviation(),
+                        JDomHelper.addElement(DimapProductConstants.TAG_STX_STDDEV,
+                                              band.getStx().getStandardDeviation(),
                                               bandStatisticsElem);
                         JDomHelper.addElement(DimapProductConstants.TAG_STX_LEVEL, band.getStx().getResolutionLevel(),
                                               bandStatisticsElem);
@@ -1285,7 +1321,8 @@ public class DimapDocumentTest extends TestCase {
                                                   bandStatisticsElem);
                         }
                     }
-                    JDomHelper.addElement(DimapProductConstants.TAG_NUM_COLORS, imageInfo.getColorPaletteDef().getNumColors(),
+                    JDomHelper.addElement(DimapProductConstants.TAG_NUM_COLORS,
+                                          imageInfo.getColorPaletteDef().getNumColors(),
                                           bandStatisticsElem);
                     ColorPaletteDef paletteDefinition = imageInfo.getColorPaletteDef();
 
@@ -1321,7 +1358,7 @@ public class DimapDocumentTest extends TestCase {
             }
         }
 
-        private void addBitmaskDefinitions(RasterDataNode[] rasterDataNodes, Element imageDisplayElem) {  //übernommen
+        private void addBitmaskDefinitions(RasterDataNode[] rasterDataNodes, Element imageDisplayElem) {  //Ãœbernommen
             for (int i = 0; i < rasterDataNodes.length; i++) {
                 RasterDataNode rasterDataNode = rasterDataNodes[i];
                 final BitmaskOverlayInfo bitmaskOverlayInfo = rasterDataNode.getBitmaskOverlayInfo();
@@ -1349,7 +1386,7 @@ public class DimapDocumentTest extends TestCase {
             }
         }
 
-        private Element createColorElement(Color color) {  //übernommen
+        private Element createColorElement(Color color) {  //Ãœbernommen
             Element colorElem = new Element(DimapProductConstants.TAG_COLOR);
             colorElem.setAttribute(DimapProductConstants.ATTRIB_RED, String.valueOf(color.getRed()));
             colorElem.setAttribute(DimapProductConstants.ATTRIB_GREEN, String.valueOf(color.getGreen()));
@@ -1358,7 +1395,7 @@ public class DimapDocumentTest extends TestCase {
             return colorElem;
         }
 
-        private void addFlagCodingElements() { // übernommen
+        private void addFlagCodingElements() { // Ãœbernommen
             String[] codingNames = getProduct().getFlagCodingNames();
             for (int i = 0; i < codingNames.length; i++) {
                 Element flagCodingElem = new Element(DimapProductConstants.TAG_FLAG_CODING);
@@ -1377,7 +1414,7 @@ public class DimapDocumentTest extends TestCase {
             }
         }
 
-        private void addImageInterpretationElements() { //übernommen
+        private void addImageInterpretationElements() { //Ãœbernommen
             Element imageInterpreElem = new Element(DimapProductConstants.TAG_IMAGE_INTERPRETATION);
             Band[] bands = getProduct().getBands();
             for (int i = 0; i < bands.length; i++) {
@@ -1411,7 +1448,7 @@ public class DimapDocumentTest extends TestCase {
             _root.addContent(imageInterpreElem);
         }
 
-        private void addMetadataIdElements() { //übernommen
+        private void addMetadataIdElements() { //Ãœbernommen
             Element metadataID = new Element(DimapProductConstants.TAG_METADATA_ID);
             addMetadataFormatElement(metadataID);
             JDomHelper.addElement(DimapProductConstants.TAG_METADATA_PROFILE,
@@ -1425,7 +1462,7 @@ public class DimapDocumentTest extends TestCase {
             parent.addContent(element);
         }
 
-        private void addRasterDimensionsElements() { //übernommen
+        private void addRasterDimensionsElements() { //Ãœbernommen
             Element rasterDimension = new Element(DimapProductConstants.TAG_RASTER_DIMENSIONS);
             JDomHelper.addElement(DimapProductConstants.TAG_NCOLS, getProduct().getSceneRasterWidth(), rasterDimension);
             JDomHelper.addElement(DimapProductConstants.TAG_NROWS, getProduct().getSceneRasterHeight(),
@@ -1434,7 +1471,7 @@ public class DimapDocumentTest extends TestCase {
             _root.addContent(rasterDimension);
         }
 
-        private void addProductionElements() { //übernommen
+        private void addProductionElements() { //Ãœbernommen
             Element production = new Element(DimapProductConstants.TAG_PRODUCTION);
             JDomHelper.addElement(DimapProductConstants.TAG_DATASET_PRODUCER_NAME,
                                   DimapProductConstants.DATASET_PRODUCER_NAME, production);
@@ -1442,7 +1479,7 @@ public class DimapDocumentTest extends TestCase {
             _root.addContent(production);
         }
 
-        private void addGeocodingElements() { // übernommen
+        private void addGeocodingElements() { // Ãœbernommen
             final GeoCoding geoCoding = getProduct().getGeoCoding();
             if (geoCoding != null) {
                 Element crsElem = new Element(DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
@@ -1476,7 +1513,7 @@ public class DimapDocumentTest extends TestCase {
             }
         }
 
-        private void addDatasetIdElements() {  //übernommen
+        private void addDatasetIdElements() {  //Ãœbernommen
             Element datasetID = new Element(DimapProductConstants.TAG_DATASET_ID);
             JDomHelper.addElement(DimapProductConstants.TAG_DATASET_SERIES, DimapProductConstants.DIMAP_DATASET_SERIES,
                                   datasetID);

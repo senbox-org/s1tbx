@@ -16,11 +16,6 @@
  */
 package org.esa.beam.processor.smac;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Vector;
-import java.util.logging.Logger;
-
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
@@ -28,12 +23,16 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.processor.IllegalProcessorStateException;
-import org.esa.beam.framework.processor.Processor;
 import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.framework.processor.ProductRef;
 import org.esa.beam.framework.processor.Request;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ObjectUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Vector;
+import java.util.logging.Logger;
 
 //@todo 1 se/** - add (more) class documentation
 
@@ -130,7 +129,7 @@ public abstract class SmacAbstractProcessor {
         int sceneHeight = getInputProductSafe().getSceneRasterHeight();
 
         _outputProduct = new Product(productName, productType, sceneWith, sceneHeight);
-        /* @todo 3 tb/tb - der übergebene Name "ENVI" eigentlich aus dem request */
+        /* @todo 3 tb/tb - der Ãœbergebene Name "ENVI" eigentlich aus dem request */
         writer = ProductIO.getProductWriter("BEAM-DIMAP");
 //        writer = ProductIO.getProductWriter("ENVI");
         _outputProduct.setProductWriter(writer);

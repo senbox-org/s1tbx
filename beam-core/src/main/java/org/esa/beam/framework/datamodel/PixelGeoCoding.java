@@ -91,7 +91,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         }
         if (latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2) {
             throw new IllegalArgumentException(
-                        "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
+                    "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
         }
         if (searchRadius <= 0) {
             throw new IllegalArgumentException("searchRadius <= 0");
@@ -238,11 +238,11 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             final PixelPos[] pixelPoses = ProductUtils.createPixelBoundary(_lonBand, null, 1);
             float[] firstLonValue = new float[1];
             try {
-                _lonBand.readPixels(0, 0,1,1, firstLonValue);
+                _lonBand.readPixels(0, 0, 1, 1, firstLonValue);
                 float[] secondLonValue = new float[1];
                 for (int i = 1; i < pixelPoses.length; i++) {
                     final PixelPos pixelPos = pixelPoses[i];
-                    _lonBand.readPixels((int) pixelPos.x, (int) pixelPos.y ,1,1, secondLonValue);
+                    _lonBand.readPixels((int) pixelPos.x, (int) pixelPos.y, 1, 1, secondLonValue);
                     if (Math.abs(firstLonValue[0] - secondLonValue[0]) > 180) {
                         _crossingMeridianAt180 = true;
                         break;
@@ -479,7 +479,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         final float lat2 = latArray[x2 + lineOffset1];
         final float lat3 = latArray[x2 + lineOffset2];
 
-        // todo - solve 180° longitude problem here
+        // todo - solve 180Â° longitude problem here
         final float lon0 = lonArray[x1 + lineOffset1];
         final float lon1 = lonArray[x1 + lineOffset2];
         final float lon2 = lonArray[x2 + lineOffset1];
@@ -518,7 +518,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                 System.out.print("  ");
             }
             System.out.println(
-                        depth + ": (" + x + "," + y + ") (" + w + "," + h + ") " + definitelyOutside + "  " + pixelFound);
+                    depth + ": (" + x + "," + y + ") (" + w + "," + h + ") " + definitelyOutside + "  " + pixelFound);
         }
         return pixelFound;
     }

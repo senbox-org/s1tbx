@@ -24,7 +24,19 @@ import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
 import org.esa.beam.framework.dataio.AbstractProductWriter;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
@@ -83,6 +95,7 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
      * Returns wether the given product node is to be written.
      *
      * @param node the product node
+     *
      * @return <code>true</code> if so
      */
     public boolean shouldWrite(ProductNode node) {
@@ -256,7 +269,7 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
     }
 
     /**
-     * Deletes the physically representation of the given product from the hard disk. (oder anderem datenträger???)
+     * Deletes the physically representation of the given product from the hard disk.
      */
     public void deleteOutput() {
         if (_outputFile != null) {
@@ -419,7 +432,7 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
     private void writeMetadataAttribute(int locationID, MetadataAttribute attribute) throws IOException {
         int productDataType = attribute.getDataType();
         if (attribute.getData() instanceof ProductData.ASCII
-                || attribute.getData() instanceof ProductData.UTC) {
+            || attribute.getData() instanceof ProductData.UTC) {
             createScalarAttribute(locationID,
                                   attribute.getName(),
                                   attribute.getData().getElemString());
@@ -536,14 +549,14 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
     }
 
     private void createScalarAttribute(int locationID, String name, int jh5DataType, int typeSize, Object value) throws
-            IOException {
+                                                                                                                 IOException {
         Debug.trace("Hdf5ProductWriter.createScalarAttribute("
-                + "locationID=" + locationID
-                + ", name=" + name
-                + ", jh5DataType=" + jh5DataType
-                + ", typeSize=" + typeSize
-                + ", value=" + value
-                + ")");
+                    + "locationID=" + locationID
+                    + ", name=" + name
+                    + ", jh5DataType=" + jh5DataType
+                    + ", typeSize=" + typeSize
+                    + ", value=" + value
+                    + ")");
         int attrTypeID = -1;
         int attrSpaceID = -1;
         int attributeID = -1;
@@ -569,7 +582,7 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
     }
 
     private void createArrayAttribute(int locationID, String name, int jh5DataType, int arraySize, Object value) throws
-            IOException {
+                                                                                                                 IOException {
         //Debug.trace("creating array attribute " + name + ", JH5 type " + jh5DataType + ", size " + arraySize);
         int attrTypeID = -1;
         int attrSpaceID = -1;

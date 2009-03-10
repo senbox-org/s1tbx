@@ -196,7 +196,7 @@ public class GeoPos {
     /**
      * Returns a string representation of the latitude value.
      *
-     * @return a string of the form DDD°[MM'[SS"]] [N|S].
+     * @return a string of the form DDDÂ°[MM'[SS"]] [N|S].
      */
     public String getLatString() {
         return getLatString(lat);
@@ -205,7 +205,7 @@ public class GeoPos {
     /**
      * Returns a string representation of the latitude value.
      *
-     * @return a string of the form DDD°[MM'[SS"]] [W|E].
+     * @return a string of the form DDDÂ°[MM'[SS"]] [W|E].
      */
     public String getLonString() {
         return getLonString(lon);
@@ -216,7 +216,7 @@ public class GeoPos {
      *
      * @param lat the geographical latitude in decimal degree
      *
-     * @return a string of the form DDD°[MM'[SS"]] [N|S].
+     * @return a string of the form DDDÂ°[MM'[SS"]] [N|S].
      */
     public static String getLatString(float lat) {
         if (isLatValid(lat)) {
@@ -231,7 +231,7 @@ public class GeoPos {
      *
      * @param lon the geographical longitude in decimal degree
      *
-     * @return a string of the form DDD°[MM'[SS"]] [W|E].
+     * @return a string of the form DDDÂ°[MM'[SS"]] [W|E].
      */
     public static String getLonString(float lon) {
         if (isLonValid(lon)) {
@@ -244,7 +244,7 @@ public class GeoPos {
 
     /**
      * Creates a string representation of the given decimal degree value. The string returned has the format
-     * DDD°[MM'[SS"]] [N|S|W|E].
+     * DDDÂ°[MM'[SS"]] [N|S|W|E].
      */
     private static String getDegreeString(float value, boolean longitudial) {
 

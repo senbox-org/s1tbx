@@ -3,7 +3,11 @@ package org.esa.beam.visat.toolviews.stat;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
@@ -51,8 +55,8 @@ import java.util.concurrent.ExecutionException;
 class ScatterPlotPanel extends PagePanel {
 
     private static final String NO_DATA_MESSAGE = "No scatter plot computed yet.\n" +
-            "TIP: To zoom within the chart draw a rectangle\n" +
-            "with the mouse or use the context menu.";  /*I18N*/
+                                                  "TIP: To zoom within the chart draw a rectangle\n" +
+                                                  "with the mouse or use the context menu.";  /*I18N*/
     private static final String CHART_TITLE = "Scatter Plot";
     private static final String TITLE_PREFIX = CHART_TITLE;
 
@@ -375,7 +379,8 @@ class ScatterPlotPanel extends PagePanel {
         } else {
             roiImage = null;
         }
-        ProgressMonitorSwingWorker<ScatterPlot, Object> swingWorker = new ProgressMonitorSwingWorker<ScatterPlot, Object>(this, "Computing scatter plot") {
+        ProgressMonitorSwingWorker<ScatterPlot, Object> swingWorker = new ProgressMonitorSwingWorker<ScatterPlot, Object>(
+                this, "Computing scatter plot") {
 
             @Override
             protected ScatterPlot doInBackground(ProgressMonitor pm) throws Exception {
@@ -412,7 +417,7 @@ class ScatterPlotPanel extends PagePanel {
                     if (minX > maxX || minY > maxY) {
                         JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                       "Failed to compute scatter plot.\n" +
-                                                              "No Pixels considered..",
+                                                      "No Pixels considered..",
                                                       /*I18N*/
                                                       CHART_TITLE, /*I18N*/
                                                       JOptionPane.ERROR_MESSAGE);
@@ -439,7 +444,7 @@ class ScatterPlotPanel extends PagePanel {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute scatter plot.\n" +
-                                                          "Calculation canceled.",
+                                                  "Calculation canceled.",
                                                   /*I18N*/
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
@@ -447,7 +452,7 @@ class ScatterPlotPanel extends PagePanel {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute scatter plot.\n" +
-                                                          "Calculation canceled.",
+                                                  "Calculation canceled.",
                                                   /*I18N*/
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
@@ -455,8 +460,8 @@ class ScatterPlotPanel extends PagePanel {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute scatter plot.\n" +
-                                                          "An error occured:\n" +
-                                                          e.getCause().getMessage(),
+                                                  "An error occured:\n" +
+                                                  e.getCause().getMessage(),
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
                 }
@@ -473,7 +478,8 @@ class ScatterPlotPanel extends PagePanel {
         return raster.getName();
     }
 
-    private Range getRange(int varIndex, RasterDataNode raster, RenderedImage roiImage, ProgressMonitor pm) throws IOException {
+    private Range getRange(int varIndex, RasterDataNode raster, RenderedImage roiImage, ProgressMonitor pm) throws
+                                                                                                            IOException {
         final boolean autoMinMax = (Boolean) autoMinMaxParams[varIndex].getValue();
         if (autoMinMax) {
             Stx stx;
@@ -531,13 +537,13 @@ class ScatterPlotPanel extends PagePanel {
         if (numNonEmptyBins > warnLimit) {
             String excelNote = "";
             if (numNonEmptyBins > excelLimit - 100) {
-                excelNote = "Note that e.g., Microsoft® Excel 2002 only supports a total of "
-                        + excelLimit + " rows in a sheet.\n";   /*I18N*/
+                excelNote = "Note that e.g., MicrosoftÂ® Excel 2002 only supports a total of "
+                            + excelLimit + " rows in a sheet.\n";   /*I18N*/
             }
             final String message = MessageFormat.format(
                     "This scatter plot diagram contains {0} non-empty bins.\n" +
-                            "For each bin, a text data row containing an x, y and z value will be created.\n" +
-                            "{1}\nPress ''Yes'' if you really want to copy this amount of data to the system clipboard.\n",
+                    "For each bin, a text data row containing an x, y and z value will be created.\n" +
+                    "{1}\nPress ''Yes'' if you really want to copy this amount of data to the system clipboard.\n",
                     numNonEmptyBins, excelNote);
             final int status = JOptionPane.showConfirmDialog(this,
                                                              message, /*I18N*/
@@ -553,8 +559,8 @@ class ScatterPlotPanel extends PagePanel {
 
     private byte[] getValidData(BufferedImage image) {
         if (image != null &&
-                image.getColorModel() instanceof IndexColorModel &&
-                image.getData().getDataBuffer() instanceof DataBufferByte) {
+            image.getColorModel() instanceof IndexColorModel &&
+            image.getData().getDataBuffer() instanceof DataBufferByte) {
             return ((DataBufferByte) image.getData().getDataBuffer()).getData();
         }
         return null;

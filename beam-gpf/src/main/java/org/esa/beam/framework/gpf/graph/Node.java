@@ -1,10 +1,9 @@
 package org.esa.beam.framework.gpf.graph;
 
 
+import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
-
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 
 /**
  * A node in a processing graph. A <code>Node</code> has an arbitrary nummber
@@ -18,7 +17,7 @@ import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
  * @author Maximilian Aulinger
  * @author Norman Fomferra
  * @author Ralf Quast
- * @author Marco Zühlke
+ * @author Marco ZÃ¼hlke
  * @since 4.1
  */
 public class Node {
@@ -73,7 +72,9 @@ public class Node {
      * Returns the <code>NodeSource</code> at the given index position
      *
      * @param index the index of the <code>NodeSource</code> to return
+     *
      * @return the <code>NodeSource</code> at the given index position
+     *
      * @throws IndexOutOfBoundsException if index is out of range
      */
     public NodeSource getSource(int index) throws IndexOutOfBoundsException {

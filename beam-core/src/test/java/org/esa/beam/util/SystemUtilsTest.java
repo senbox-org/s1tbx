@@ -93,14 +93,14 @@ public class SystemUtilsTest extends TestCase {
         assertNotNull(SystemUtils.createHumanReadableExceptionMessage(new Exception((String) null)));
         assertNotNull(SystemUtils.createHumanReadableExceptionMessage(new Exception("")));
 
-        assertEquals("Heidewitzka, herr kapit‰n.",
-                     SystemUtils.createHumanReadableExceptionMessage(new Exception("heidewitzka, herr kapit‰n")));
+        assertEquals("Heidewitzka, herr kapit√§n.",
+                     SystemUtils.createHumanReadableExceptionMessage(new Exception("heidewitzka, herr kapit√§n")));
 
-        assertEquals("Heidewitzka, herr kapit‰n.",
-                     SystemUtils.createHumanReadableExceptionMessage(new Exception("heidewitzka, herr kapit‰n.")));
+        assertEquals("Heidewitzka, herr kapit√§n.",
+                     SystemUtils.createHumanReadableExceptionMessage(new Exception("heidewitzka, herr kapit√§n.")));
 
-        assertEquals("Heidewitzka, herr kapit‰n!",
-                     SystemUtils.createHumanReadableExceptionMessage(new Exception("heidewitzka, herr kapit‰n!")));
+        assertEquals("Heidewitzka, herr kapit√§n!",
+                     SystemUtils.createHumanReadableExceptionMessage(new Exception("heidewitzka, herr kapit√§n!")));
     }
 
     public void testConvertPath() {

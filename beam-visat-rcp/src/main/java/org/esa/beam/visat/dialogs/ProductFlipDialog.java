@@ -16,18 +16,6 @@
  */
 package org.esa.beam.visat.dialogs;
 
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.Window;
-import java.io.IOException;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.text.JTextComponent;
-
 import org.esa.beam.framework.dataio.ProductFlipper;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -39,6 +27,17 @@ import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.Guardian;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.text.JTextComponent;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.Window;
+import java.io.IOException;
 
 public class ProductFlipDialog extends ModalDialog {
 
@@ -56,7 +55,7 @@ public class ProductFlipDialog extends ModalDialog {
     private JLabel _labelCenterLatInfo;
     private JLabel _labelCenterLonInfo;
     private static final String _defaultNumberText = "####";
-    private static final String _defaultLatLonText = "##°/##°";
+    private static final String _defaultLatLonText = "##Â°/##Â°";
 
     private JRadioButton _buttonHorizontal;
     private JRadioButton _buttonVertical;

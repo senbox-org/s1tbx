@@ -51,7 +51,8 @@ public class VisatAboutBox extends ModalDialog {
     }
 
     private VisatAboutBox(JButton[] others) {
-        super(VisatApp.getApp().getMainFrame(), String.format("About %s", VisatApp.getApp().getAppName()), ModalDialog.ID_OK, others, null);    /*I18N*/
+        super(VisatApp.getApp().getMainFrame(), String.format("About %s", VisatApp.getApp().getAppName()),
+              ModalDialog.ID_OK, others, null);    /*I18N*/
 
         JButton creditsButton = others[0];
         creditsButton.setText("Credits...");  /*I18N*/
@@ -121,22 +122,22 @@ public class VisatAboutBox extends ModalDialog {
     private static String getVersionHtml() {
         // todo - load text from resource
         final String pattern = "<html>" +
-                "<b>{0} Version {1}</b>" +
-                "<br><b>{2}</b>" +
-                "<br>" +
-                "<br>This software is based on the BEAM toolbox." +
-                "<br>(c) Copyright 2002-2008 by Brockmann Consult and contributors." +
-                "<br>Visit http://www.brockmann-consult.de/beam/" +
-                "<br>BEAM is developed under contract to ESA (ESRIN)." +
-                "<br>Visit http://envisat.esa.int/services/" +
-                "<br>" +
-                "<br>BEAM is free software; you can redistribute it and/or modify it" +
-                "<br>under the terms of the GNU General Public License as published by the" +
-                "<br>Free Software Foundation. This program is distributed in the hope it will be" +
-                "<br>useful, but WITHOUT ANY WARRANTY; without even the implied warranty" +
-                "<br>of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." +
-                "<br>See the GNU General Public License for more details." +
-                "</html>";
+                               "<b>{0} Version {1}</b>" +
+                               "<br><b>{2}</b>" +
+                               "<br>" +
+                               "<br>This software is based on the BEAM toolbox." +
+                               "<br>(c) Copyright 2002-2008 by Brockmann Consult and contributors." +
+                               "<br>Visit http://www.brockmann-consult.de/beam/" +
+                               "<br>BEAM is developed under contract to ESA (ESRIN)." +
+                               "<br>Visit http://envisat.esa.int/services/" +
+                               "<br>" +
+                               "<br>BEAM is free software; you can redistribute it and/or modify it" +
+                               "<br>under the terms of the GNU General Public License as published by the" +
+                               "<br>Free Software Foundation. This program is distributed in the hope it will be" +
+                               "<br>useful, but WITHOUT ANY WARRANTY; without even the implied warranty" +
+                               "<br>of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." +
+                               "<br>See the GNU General Public License for more details." +
+                               "</html>";
         return MessageFormat.format(pattern,
                                     VisatApp.getApp().getAppName(),
                                     VisatApp.getApp().getAppVersion(),
@@ -147,48 +148,48 @@ public class VisatAboutBox extends ModalDialog {
         // todo - load text from resource
         return
                 "<html>" +
-                        "<br>Special thanks for their BEAM contributions goes to" +
-                        "<br>&nbsp;&nbsp;<b>Max Aulinger</b> for the implementation of the ROI pixel export," +
-                        "<br>&nbsp;&nbsp;<b>Christian Berwanger</b> for the LANDSAT TM reader," +
-                        "<br>&nbsp;&nbsp;<b>Marc Bouvet</b> from ESRIN for the GETASSE30 elevation model," +
-                        "<br>&nbsp;&nbsp;<b>Roland Doerffer</b> from GKSS for the valuable ideas and promoting BEAM," +
-                        "<br>&nbsp;&nbsp;<b>Jim Gower</b> from Fisheries and Oceans Canada for the FLH/MCI algorithm," +
-                        "<br>&nbsp;&nbsp;<b>Tom Lancester</b> from InfoTerra for the implementation of the flux conserving binning," +
-                        "<br>&nbsp;&nbsp;<b>Rene Preusker</b> from FU Berlin for the neural nets used in the MERIS cloud detection," +
-                        "<br>&nbsp;&nbsp;<b>Peter Regner</b> from ESRIN for his enthusiasm in 'his' project," +
-                        "<br>&nbsp;&nbsp;<b>Serge Riazanoff</b> from VisioTerra for the development of orthorectification algorithm," +
-                        "<br>&nbsp;&nbsp;<b>Mike Rast</b> from ESTEC for promoting BEAM and training users," +
-                        "<br>&nbsp;&nbsp;<b>Helmut Schiller</b> from GKSS for his advice on tricky mathematical problems," +
-                        "<br>&nbsp;&nbsp;and all the other people who helped us making this software (better)." +
-                        "<br><hr>" +
-                        "<br>The BEAM developers would also like to say thank you to" +
-                        "<br>&nbsp;&nbsp;<b>Sun</b> for the beautiful programming language they have invented," +
-                        "<br>&nbsp;&nbsp;<b>IntelliJ</b> for the best IDE in the world," +
-                        "<br>&nbsp;&nbsp;<b>Eclipse.org</b> for the second best IDE in the world," +
-                        "<br>&nbsp;&nbsp;<b>JIDE Software</b> for a great docking framework," +
-                        "<br>&nbsp;&nbsp;<b>Atlassian</b> for JIRA and Confluence," +
-                        "<br>&nbsp;&nbsp;all companies and organisations supporting the open-source idea." +
-                        "<br><hr>" +
-                        "<br>The BEAM team at Brockmann Consult is:" +
-                        "<table border=0>" +
-                        "<tr><td>" +
-                        "&nbsp;&nbsp;<b>Tom Block</b> (programming)<br>" +
-                        "&nbsp;&nbsp;<b>Carsten Brockmann</b> (quality control)<br>" +
-                        "&nbsp;&nbsp;<b>Sabine Embacher</b> (programming)<br>" +
-                        "&nbsp;&nbsp;<b>Olga Faber</b> (testing)<br>" +
-                        "&nbsp;&nbsp;<b>Norman Fomferra</b> (project lead)<br>" +
-                        "&nbsp;&nbsp;<b>Uwe Krämer</b> (Mac OS X porting)<br>" +
-                        "</td><td>" +
-                        "&nbsp;&nbsp;<b>Des Murphy</b> (contract management)<br>" +
-                        "&nbsp;&nbsp;<b>Michael Paperin</b> (web development)<br>" +
-                        "&nbsp;&nbsp;<b>Marco Peters</b> (programming)<br>" +
-                        "&nbsp;&nbsp;<b>Ralf Quast</b> (programming)<br>" +
-                        "&nbsp;&nbsp;<b>Kerstin Stelzer</b> (quality control)<br>" +
-                        "&nbsp;&nbsp;<b>Marco Zühlke</b> (programming)<br>" +
-                        "</td></tr>" +
-                        "</table>" +
-                        "<hr>" +
-                        "</html>"; /*I18N*/
+                "<br>Special thanks for their BEAM contributions goes to" +
+                "<br>&nbsp;&nbsp;<b>Max Aulinger</b> for the implementation of the ROI pixel export," +
+                "<br>&nbsp;&nbsp;<b>Christian Berwanger</b> for the LANDSAT TM reader," +
+                "<br>&nbsp;&nbsp;<b>Marc Bouvet</b> from ESRIN for the GETASSE30 elevation model," +
+                "<br>&nbsp;&nbsp;<b>Roland Doerffer</b> from GKSS for the valuable ideas and promoting BEAM," +
+                "<br>&nbsp;&nbsp;<b>Jim Gower</b> from Fisheries and Oceans Canada for the FLH/MCI algorithm," +
+                "<br>&nbsp;&nbsp;<b>Tom Lancester</b> from InfoTerra for the implementation of the flux conserving binning," +
+                "<br>&nbsp;&nbsp;<b>Rene Preusker</b> from FU Berlin for the neural nets used in the MERIS cloud detection," +
+                "<br>&nbsp;&nbsp;<b>Peter Regner</b> from ESRIN for his enthusiasm in 'his' project," +
+                "<br>&nbsp;&nbsp;<b>Serge Riazanoff</b> from VisioTerra for the development of orthorectification algorithm," +
+                "<br>&nbsp;&nbsp;<b>Mike Rast</b> from ESTEC for promoting BEAM and training users," +
+                "<br>&nbsp;&nbsp;<b>Helmut Schiller</b> from GKSS for his advice on tricky mathematical problems," +
+                "<br>&nbsp;&nbsp;and all the other people who helped us making this software (better)." +
+                "<br><hr>" +
+                "<br>The BEAM developers would also like to say thank you to" +
+                "<br>&nbsp;&nbsp;<b>Sun</b> for the beautiful programming language they have invented," +
+                "<br>&nbsp;&nbsp;<b>IntelliJ</b> for the best IDE in the world," +
+                "<br>&nbsp;&nbsp;<b>Eclipse.org</b> for the second best IDE in the world," +
+                "<br>&nbsp;&nbsp;<b>JIDE Software</b> for a great docking framework," +
+                "<br>&nbsp;&nbsp;<b>Atlassian</b> for JIRA and Confluence," +
+                "<br>&nbsp;&nbsp;all companies and organisations supporting the open-source idea." +
+                "<br><hr>" +
+                "<br>The BEAM team at Brockmann Consult is:" +
+                "<table border=0>" +
+                "<tr><td>" +
+                "&nbsp;&nbsp;<b>Tom Block</b> (programming)<br>" +
+                "&nbsp;&nbsp;<b>Carsten Brockmann</b> (quality control)<br>" +
+                "&nbsp;&nbsp;<b>Sabine Embacher</b> (programming)<br>" +
+                "&nbsp;&nbsp;<b>Olga Faber</b> (testing)<br>" +
+                "&nbsp;&nbsp;<b>Norman Fomferra</b> (project lead)<br>" +
+                "&nbsp;&nbsp;<b>Uwe KrÃ¤mer</b> (Mac OS X porting)<br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Des Murphy</b> (contract management)<br>" +
+                "&nbsp;&nbsp;<b>Michael Paperin</b> (web development)<br>" +
+                "&nbsp;&nbsp;<b>Marco Peters</b> (programming)<br>" +
+                "&nbsp;&nbsp;<b>Ralf Quast</b> (programming)<br>" +
+                "&nbsp;&nbsp;<b>Kerstin Stelzer</b> (quality control)<br>" +
+                "&nbsp;&nbsp;<b>Marco ZÃ¼hlke</b> (programming)<br>" +
+                "</td></tr>" +
+                "</table>" +
+                "<hr>" +
+                "</html>"; /*I18N*/
     }
 
     private static Object[][] getSystemInfo() {

@@ -73,7 +73,7 @@ public class TiffHeaderTest extends TestCase {
 
         try {
             _tiffHeader.getIfdAt(1);
-            fail("IllegalArgumentException expected because index ist greater than number of ifd´s");
+            fail("IllegalArgumentException expected because index ist greater than number of ifd's");
         } catch (IllegalArgumentException expected) {
             // expected Exception
         } catch (Exception notExpected) {

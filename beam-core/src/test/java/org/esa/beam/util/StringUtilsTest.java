@@ -17,13 +17,13 @@
 
 package org.esa.beam.util;
 
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.util.HashMap;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.util.HashMap;
 
 public class StringUtilsTest extends TestCase {
 
@@ -360,9 +360,9 @@ public class StringUtilsTest extends TestCase {
                      "1.0" +
                      "-1.0", StringUtils.arrayToString(doubles, ""));
 
-        final String[] strings = new String[]{"a", "b", "string", "noch einer", "a_%&§$\"!"};
-        assertEquals("a,b,string,noch einer,a_%&§$\"!", StringUtils.arrayToString(strings, ","));
-        assertEquals("abstringnoch einera_%&§$\"!", StringUtils.arrayToString(strings, ""));
+        final String[] strings = new String[]{"a", "b", "string", "noch einer", "a_%&Â§$\"!"};
+        assertEquals("a,b,string,noch einer,a_%&Â§$\"!", StringUtils.arrayToString(strings, ","));
+        assertEquals("abstringnoch einera_%&Â§$\"!", StringUtils.arrayToString(strings, ""));
 
         final boolean[] booleans = new boolean[]{false, true, true, false, true, false};
         assertEquals("false,true,true,false,true,false", StringUtils.arrayToString(booleans, ","));
@@ -450,9 +450,9 @@ public class StringUtilsTest extends TestCase {
 
     public void testAreEntriesUnique() {
         String[] expFail_1 = {"bla", "blubber", "bla"};
-        String[] expFail_2 = {"laber", "schwafel", "sülz", "schwafel"};
-        String[] expPass_1 = {"laber", "schwafel", "sülz"};
-        String[] expPass_2 = {"laber", "test", "schwafel", "sülz", "anotherTest"};
+        String[] expFail_2 = {"laber", "schwafel", "sÃ¼lz", "schwafel"};
+        String[] expPass_1 = {"laber", "schwafel", "sÃ¼lz"};
+        String[] expPass_2 = {"laber", "test", "schwafel", "sÃ¼lz", "anotherTest"};
 
         // null not allowed as parameter
         try {

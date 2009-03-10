@@ -21,7 +21,6 @@ import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glayer.swing.LayerCanvasModel;
 import com.bc.ceres.grender.AdjustableView;
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.binding.swing.internal.SpinnerAdapter;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
@@ -39,7 +38,16 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameAdapter;
@@ -357,8 +365,8 @@ public class NavigationToolView extends AbstractToolView {
     private Double getRotationAngleFieldValue() {
         String text = rotationAngleField.getText();
         if (text != null) {
-            while (text.endsWith("°")) {
-                text = text.substring(0,text.length()-1);
+            while (text.endsWith("Â°")) {
+                text = text.substring(0, text.length() - 1);
             }
         }
         try {
@@ -376,7 +384,7 @@ public class NavigationToolView extends AbstractToolView {
 
     private static Double parseTextualValue(String text) {
         final String[] numbers = text.split(":");
-        if(numbers.length == 2){
+        if (numbers.length == 2) {
             double dividend = 0;
             double divisor = 0;
             try {
@@ -385,12 +393,12 @@ public class NavigationToolView extends AbstractToolView {
             } catch (NumberFormatException e) {
                 return null;
             }
-            if(divisor == 0){
+            if (divisor == 0) {
                 return null;
             }
             double factor = dividend / divisor;
             return factor > 0 ? factor : null;
-        }else {
+        } else {
             return null;
         }
     }
@@ -460,6 +468,7 @@ public class NavigationToolView extends AbstractToolView {
 
     /**
      * @param sv a value between MIN_SLIDER_VALUE and MAX_SLIDER_VALUE
+     *
      * @return a value between min and max zoom factor of the AdjustableView
      */
     private double sliderValueToZoomFactor(final int sv) {
@@ -487,6 +496,7 @@ public class NavigationToolView extends AbstractToolView {
 
     /**
      * @param zf a value between min and max zoom factor of the AdjustableView
+     *
      * @return a value between MIN_SLIDER_VALUE and MAX_SLIDER_VALUE
      */
     private int zoomFactorToSliderValue(final double zf) {
@@ -576,18 +586,18 @@ public class NavigationToolView extends AbstractToolView {
 
     private void updateRotationField(Double ra) {
         while (ra > 180) {
-            ra = ra -360;
+            ra = ra - 360;
         }
         while (ra < -180) {
             ra = ra + 360;
         }
-        rotationAngleField.setText(scaleAndRotationFormat.format(ra) + "°");
+        rotationAngleField.setText(scaleAndRotationFormat.format(ra) + "Â°");
         if (zeroRotationAngleBackground == null) {
             zeroRotationAngleBackground = rotationAngleField.getBackground();
         }
         if (ra > 0) {
             rotationAngleField.setBackground(positiveRotationAngleBackground);
-        } else if (ra <0) {
+        } else if (ra < 0) {
             rotationAngleField.setBackground(negativeRotationAngleBackground);
         } else {
             rotationAngleField.setBackground(zeroRotationAngleBackground);
@@ -629,7 +639,7 @@ public class NavigationToolView extends AbstractToolView {
                 if (event.getPropertyName().equalsIgnoreCase(Product.PROPERTY_NAME_NAME)) {
                     final ProductNode sourceNode = event.getSourceNode();
                     if ((currentView.isRGB() && sourceNode == currentView.getProduct())
-                            || sourceNode == currentView.getRaster()) {
+                        || sourceNode == currentView.getRaster()) {
                         updateTitle();
                     }
                 }
@@ -644,7 +654,8 @@ public class NavigationToolView extends AbstractToolView {
             final Container contentPane = e.getInternalFrame().getContentPane();
             if (contentPane instanceof ProductSceneView) {
                 PropertyMap preferences = VisatApp.getApp().getPreferences();
-                final boolean showWindow = preferences.getPropertyBool(VisatApp.PROPERTY_KEY_AUTO_SHOW_NAVIGATION, true);
+                final boolean showWindow = preferences.getPropertyBool(VisatApp.PROPERTY_KEY_AUTO_SHOW_NAVIGATION,
+                                                                       true);
                 if (showWindow) {
                     ApplicationPage page = VisatApp.getApp().getPage();
                     ToolView toolView = page.getToolView(NavigationToolView.ID);
@@ -684,6 +695,7 @@ public class NavigationToolView extends AbstractToolView {
     }
 
     private class LayerCanvasModelChangeHandler implements LayerCanvasModel.ChangeListener {
+
         @Override
         public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
         }

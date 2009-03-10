@@ -35,12 +35,9 @@ public class ModisDaacUtilsTest_correctAmpersandWrap extends TestCase {
     }
 
     public void testLeaveSpecialCharactersUnchanged() {
-        final String corrected = ModisDaacUtils.correctAmpersandWrap(
-                "ßÄÖÜ?#~@|<>€µ}][{");
+        final String corrected = ModisDaacUtils.correctAmpersandWrap("ÃŸÃ„Ã–Ãœ?#~@|<>â‚¬Âµ}][{");
 
-        assertEquals(
-                "ßÄÖÜ?#~@|<>€µ}][{",
-                corrected);
+        assertEquals("ÃŸÃ„Ã–Ãœ?#~@|<>â‚¬Âµ}][{", corrected);
     }
 
     public void testConcrete() {

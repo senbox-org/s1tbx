@@ -47,7 +47,7 @@ public abstract class Ancillary1RecordTest extends TestCase {
     public void testInitRecord_SimpleConstructor() throws IOException,
                                                           IllegalCeosFormatException {
         writeRecordData(_ios);
-        _ios.writeBytes("nq3tf9ß8nvnvpdi er 0 324p3f"); // as suffix
+        _ios.writeBytes("nq3tf9ÃŸ8nvnvpdi er 0 324p3f"); // as suffix
         _reader.seek(_prefix.length());
 
         final Ancillary1Record record = createAncillary1Record(_reader);
@@ -58,7 +58,7 @@ public abstract class Ancillary1RecordTest extends TestCase {
     public void testInitRecord() throws IOException,
                                         IllegalCeosFormatException {
         writeRecordData(_ios);
-        _ios.writeBytes("nq3tf9ß8nvnvpdi er 0 324p3f"); // as suffix
+        _ios.writeBytes("nq3tf9ÃŸ8nvnvpdi er 0 324p3f"); // as suffix
 
         final Ancillary1Record record = createAncillary1Record(_reader, _prefix.length());
 
@@ -70,7 +70,7 @@ public abstract class Ancillary1RecordTest extends TestCase {
                                                    NoSuchMethodException,
                                                    IllegalAccessException {
         writeRecordDataForExceptions(_ios);
-        _ios.writeBytes("nq3tf9ß8nvnvpdi er 0 324p3f"); // as suffix
+        _ios.writeBytes("nq3tf9ÃŸ8nvnvpdi er 0 324p3f"); // as suffix
 
         final Ancillary1Record record = createAncillary1Record(new CeosFileReader(_ios), _prefix.length());
 

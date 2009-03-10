@@ -53,7 +53,7 @@ public abstract class BaseSceneHeaderRecordTest extends TestCase {
     public void testInit_Level1A_SimpleConstructor() throws IOException,
                                                             IllegalCeosFormatException {
         writeRecordData(_ios, _level1A);
-        _ios.writeBytes("nq3tf9ß8nvnvpdi er 0 324p3f"); // as suffix
+        _ios.writeBytes("nq3tf9ÃŸ8nvnvpdi er 0 324p3f"); // as suffix
         final CeosFileReader reader = new CeosFileReader(_ios);
         reader.seek(_prefix.length());
 
@@ -68,7 +68,7 @@ public abstract class BaseSceneHeaderRecordTest extends TestCase {
     public void testInit_Level1B1() throws IOException,
                                            IllegalCeosFormatException {
         writeRecordData(_ios, _level1B1);
-        _ios.writeBytes("nq3tf9ß8nvnvpdi er 0 324p3f"); // as suffix
+        _ios.writeBytes("nq3tf9ÃŸ8nvnvpdi er 0 324p3f"); // as suffix
         final CeosFileReader reader = new CeosFileReader(_ios);
 
         final BaseSceneHeaderRecord record = createSceneHeaderRecord(reader, _prefix.length());
@@ -83,7 +83,7 @@ public abstract class BaseSceneHeaderRecordTest extends TestCase {
     public void testInit_Level1B2() throws IOException,
                                            IllegalCeosFormatException {
         writeRecordData(_ios, _level1B2);
-        _ios.writeBytes("nq3tf9ß8nvnvpdi er 0 324p3f"); // as suffix
+        _ios.writeBytes("nq3tf9ÃŸ8nvnvpdi er 0 324p3f"); // as suffix
         final CeosFileReader reader = new CeosFileReader(_ios);
 
         final BaseSceneHeaderRecord record = createSceneHeaderRecord(reader, _prefix.length());
@@ -112,12 +112,12 @@ public abstract class BaseSceneHeaderRecordTest extends TestCase {
         assertEquals(2.3456789, record.getSceneCenterLon_L1A_L1B1(), 1e-8);
         assertEquals(3.4567891, record.getSceneCenterLineNum_L1A_L1B1(), 1e-8);
         assertEquals(4.5678912, record.getSceneCenterPixelNum_L1A_L1B1(), 1e-8);
-        assertEquals("öpkdfperioerngpeiunöwerngpiufver", record.getSceneCenterTime());
+        assertEquals("?pkdfperioerngpeiun?werngpiufver", record.getSceneCenterTime());
         assertEquals(5165486514651865L, record.getTimeOffsetFromNominalRspCenter());
         assertEquals("dgponronvsdkl   ", record.getRspId());
         assertEquals(9845131842323841L, record.getOrbitsPerCycle());
 
-        assertEquals("poerpovömdörefui", record.getSceneID_L1B2());
+        assertEquals("poerpov?md?refui", record.getSceneID_L1B2());
         assertEquals(5.6789123, record.getSceneCenterLat_L1B2(), 1e-8);
         assertEquals(6.7891234, record.getSceneCenterLon_L1B2(), 1e-8);
         assertEquals(7.8912345, record.getSceneCenterLineNum_L1B2(), 1e-8);
@@ -194,12 +194,12 @@ public abstract class BaseSceneHeaderRecordTest extends TestCase {
         ios.writeBytes("       2.3456789"); // sceneCenterLon_L1A_L1B1 // F16.7
         ios.writeBytes("       3.4567891"); // sceneCenterLineNum_L1A_L1B1 // F16.7
         ios.writeBytes("       4.5678912"); // sceneCenterPixelNum_L1A_L1B1 // F16.7
-        ios.writeBytes("öpkdfperioerngpeiunöwerngpiufver"); // sceneCenterTime // A32
+        ios.writeBytes("?pkdfperioerngpeiun?werngpiufver"); // sceneCenterTime // A32
         ios.writeBytes("5165486514651865"); // timeOffsetFromNominalRspCenter // I16
         ios.writeBytes("dgponronvsdkl   "); // rspId // A16
         ios.writeBytes("9845131842323841"); // orbitsPerCycle // I16
 
-        ios.writeBytes("poerpovömdörefui"); // sceneID_L1B2 // A16
+        ios.writeBytes("poerpov?md?refui"); // sceneID_L1B2 // A16
         ios.writeBytes("       5.6789123"); // sceneCenterLat_L1B2 // F16.7
         ios.writeBytes("       6.7891234"); // sceneCenterLon_L1B2 // F16.7
         ios.writeBytes("       7.8912345"); // sceneCenterLineNum_L1B2 // F16.7

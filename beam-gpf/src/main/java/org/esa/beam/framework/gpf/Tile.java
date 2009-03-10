@@ -28,12 +28,12 @@ import java.util.Iterator;
  * </pre>
  * which can also be written even simpler using a tile itertor:
  * <pre>
-  *   for (Tile.Pos pos : tile) {
-  *       // compute sample value...
-  *       tile.setSample(pos.x, pos.y, sample);
-  *   }
-  * </pre>
- *
+ *   for (Tile.Pos pos : tile) {
+ *       // compute sample value...
+ *       tile.setSample(pos.x, pos.y, sample);
+ *   }
+ * </pre>
+ * <p/>
  * <p>(2) More performance is gained if the sample data buffer is checked out and committed
  * (required after modification only):</p>
  * <pre>
@@ -71,7 +71,7 @@ import java.util.Iterator;
  *
  * @author Norman Fomferra
  * @author Marco Peters
- * @author Marco Zühlke
+ * @author Marco ZÃ¼hlke
  * @since 4.1
  */
 public interface Tile extends Iterable<Tile.Pos> {
@@ -161,6 +161,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      *
      * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
      * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     *
      * @return an index into the underlying data buffer
      */
     int getDataBufferIndex(int x, int y);
@@ -213,6 +214,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      * <p>Refer to {@link #getDataBuffer()} for using the primitive array.</p>
      *
      * @return The underlying data buffer's primitive array, or <code>null</code> (see above).
+     *
      * @see #getDataBufferIndex(int,int)
      * @see #getDataBuffer()
      */
@@ -224,6 +226,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      * <p>Refer to {@link #getDataBuffer()} for using the primitive array.</p>
      *
      * @return The underlying data buffer's primitive array, or <code>null</code> (see above).
+     *
      * @see #getDataBufferIndex(int,int)
      * @see #getDataBuffer()
      */
@@ -235,6 +238,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      * <p>Refer to {@link #getDataBuffer()} for using the primitive array.</p>
      *
      * @return The underlying data buffer's primitive array, or <code>null</code> (see above).
+     *
      * @see #getDataBufferIndex(int,int)
      * @see #getDataBuffer()
      */
@@ -246,6 +250,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      * <p>Refer to {@link #getDataBuffer()} for using the primitive array.</p>
      *
      * @return The underlying data buffer's primitive array, or <code>null</code> (see above).
+     *
      * @see #getDataBufferIndex(int,int)
      * @see #getDataBuffer()
      */
@@ -257,6 +262,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      * <p>Refer to {@link #getDataBuffer()} for using the primitive array.</p>
      *
      * @return The underlying data buffer's primitive array, or <code>null</code> (see above).
+     *
      * @see #getDataBufferIndex(int,int)
      * @see #getDataBuffer()
      */
@@ -267,6 +273,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      * The scanline offset is the index to the first valid sample element in the data buffer.
      *
      * @return The raster scanline offset.
+     *
      * @see #getScanlineStride()
      */
     int getScanlineOffset();
@@ -276,6 +283,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      * The scanline stride is added to the scanline offset in order to compute offsets of subsequent scanlines.
      *
      * @return The raster scanline stride.
+     *
      * @see #getScanlineOffset()
      */
     int getScanlineStride();
@@ -315,6 +323,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      *
      * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
      * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     *
      * @return The geophysical sample as {@code boolean} value.
      */
     boolean getSampleBoolean(int x, int y);
@@ -339,6 +348,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      *
      * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
      * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     *
      * @return The geophysical sample as {@code int} value.
      */
     int getSampleInt(int x, int y);
@@ -363,6 +373,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      *
      * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
      * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     *
      * @return The geophysical sample as {@code float} value.
      */
     float getSampleFloat(int x, int y);
@@ -387,6 +398,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      *
      * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
      * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     *
      * @return The geophysical sample as {@code double} value.
      */
     double getSampleDouble(int x, int y);
@@ -412,6 +424,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      * @param x        The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
      * @param y        The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
      * @param bitIndex The bit index.
+     *
      * @return The sample as {@code boolean} value.
      */
     boolean getSampleBit(int x, int y, int bitIndex);
@@ -456,6 +469,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      * A pixel position within the tile's raster.
      */
     public final class Pos {
+
         public final int x;
         public final int y;
 
