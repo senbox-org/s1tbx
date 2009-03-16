@@ -103,6 +103,11 @@ public class HistoryComboBoxModelTest {
         model.setSelectedItem("one");
         assertEquals(1, model.getSize());
         assertEquals("one", model.getElementAt(0));
+
+        model.setSelectedItem("two");
+        assertEquals(2, model.getSize());
+        assertEquals("two", model.getElementAt(0));
+        assertEquals("one", model.getElementAt(1));
     }
 
     @Test

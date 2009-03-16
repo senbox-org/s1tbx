@@ -22,10 +22,10 @@ public class HistoryComboBoxModel extends DefaultComboBoxModel {
 
     @Override
     public synchronized void setSelectedItem(Object anObject) {
-        if (getIndexOf(anObject) >= 0) {    // if contained
-            removeElement(anObject);        // remove item
-        } else if (getSize() > 0) {           // else
-            removeElementAt(getSize() - 1); // remove oldest
+        if (getIndexOf(anObject) >= 0) {            // if contained
+            removeElement(anObject);                // remove item
+        } else if (getSize() >= historySize) {      // else
+            removeElementAt(getSize() - 1);         // remove oldest
         }
 
         insertElementAt(anObject, 0);
