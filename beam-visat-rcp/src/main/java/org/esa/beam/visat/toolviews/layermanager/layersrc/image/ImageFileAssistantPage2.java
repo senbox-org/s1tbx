@@ -57,7 +57,6 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
     public boolean validatePage() {
         try {
             return createTransform().getDeterminant() != 0.0;
-
         } catch (Exception ignore) {
             return false;
         }
