@@ -10,11 +10,10 @@ public class HistoryComboBoxModel extends DefaultComboBoxModel {
 
     private final PropertyMap preferences;
     private final int historySize;
-    private String propertyFormat;
+    private final String propertyFormat;
 
 
     public HistoryComboBoxModel(PropertyMap preferences, String propertyPrefix, int historySize) {
-        super();
         this.preferences = preferences;
         this.historySize = historySize;
         this.propertyFormat = propertyPrefix + ".%d";
@@ -22,27 +21,23 @@ public class HistoryComboBoxModel extends DefaultComboBoxModel {
     }
 
     @Override
-    public void setSelectedItem(Object anObject) {
-        synchronized (this) {
-            if (getIndexOf(anObject) >= 0) {    // if contained
-                removeElement(anObject);        // remove item
-            } else {                             // else
-                removeElementAt(getSize() - 1);  // remove oldest
-            }
-
-            insertElementAt(anObject, 0);
-            super.setSelectedItem(anObject);
+    public synchronized void setSelectedItem(Object anObject) {
+        if (getIndexOf(anObject) >= 0) {    // if contained
+            removeElement(anObject);        // remove item
+        } else if (getSize() > 0) {           // else
+            removeElementAt(getSize() - 1); // remove oldest
         }
+
+        insertElementAt(anObject, 0);
+        super.setSelectedItem(anObject);
     }
 
     @Override
-    public void addElement(Object anObject) {
-        synchronized (this) {
-            if (getSize() >= historySize) {
-                removeElementAt(getSize() - 1);
-            }
-            insertElementAt(anObject, 0);
+    public synchronized void addElement(Object anObject) {
+        if (getSize() >= historySize) {
+            removeElementAt(getSize() - 1);
         }
+        insertElementAt(anObject, 0);
     }
 
     public void loadHistory() {
@@ -57,10 +52,8 @@ public class HistoryComboBoxModel extends DefaultComboBoxModel {
         }
     }
 
-    public void saveHistory() {
-        synchronized (this) {
-            saveHistory(preferences, propertyFormat, historySize);
-        }
+    public synchronized void saveHistory() {
+        saveHistory(preferences, propertyFormat, historySize);
     }
 
     private static String[] loadHistory(PropertyMap preferences, String propertyFormat, int historySize) {

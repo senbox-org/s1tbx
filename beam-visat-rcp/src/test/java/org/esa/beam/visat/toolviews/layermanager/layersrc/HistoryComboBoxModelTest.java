@@ -95,6 +95,17 @@ public class HistoryComboBoxModelTest {
     }
 
     @Test
+    public void testSetSelectedOnEmptyHistory() {
+        final PropertyMap map = new PropertyMap();
+        final HistoryComboBoxModel model = new HistoryComboBoxModel(map, "historyItem", 3);
+        assertEquals(0, model.getSize());
+
+        model.setSelectedItem("one");
+        assertEquals(1, model.getSize());
+        assertEquals("one", model.getElementAt(0));
+    }
+
+    @Test
     public void testLoadHistory() {
         final PropertyMap map = new PropertyMap();
         map.setPropertyString("historyItem.0", "one");
