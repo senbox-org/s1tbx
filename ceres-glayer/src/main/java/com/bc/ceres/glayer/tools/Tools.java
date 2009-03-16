@@ -7,14 +7,30 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.FileMultiLevelSource;
 import com.sun.media.jai.codec.TIFFEncodeParam;
 
-import javax.media.jai.*;
-import javax.media.jai.operator.*;
+import javax.media.jai.ImageLayout;
+import javax.media.jai.ImageMIPMap;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.operator.AffineDescriptor;
+import javax.media.jai.operator.FileLoadDescriptor;
+import javax.media.jai.operator.FileStoreDescriptor;
+import javax.media.jai.operator.FormatDescriptor;
+import javax.media.jai.operator.MosaicDescriptor;
+import javax.media.jai.operator.ScaleDescriptor;
 import javax.media.jai.util.ImagingListener;
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JSlider;
+import javax.swing.JWindow;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputAdapter;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseEvent;
@@ -32,7 +48,9 @@ public class Tools {
 
     public static void configureJAI() {
         JAI.getDefaultInstance().setImagingListener(new ImagingListener() {
-            public boolean errorOccurred(String message, Throwable thrown, Object where, boolean isRetryable) throws RuntimeException {
+            @Override
+            public boolean errorOccurred(String message, Throwable thrown, Object where, boolean isRetryable) throws
+                                                                                                              RuntimeException {
                 System.out.println("JAI error occured: " + message);
                 return false;
             }
@@ -47,14 +65,14 @@ public class Tools {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filename));
             try {
-                double[] flatMatrix = new double[]{
-                        Double.parseDouble(reader.readLine().trim()), // X scale in resulting X direction
-                        Double.parseDouble(reader.readLine().trim()), // Y scale in resulting X direction
-                        Double.parseDouble(reader.readLine().trim()), // X scale in resulting Y direction
-                        Double.parseDouble(reader.readLine().trim()), // Y scale in resulting Y direction
-                        Double.parseDouble(reader.readLine().trim()), // X coordinate of the center of rotation (the center of the Upper Left Pixel of the unrotated image)
-                        Double.parseDouble(reader.readLine().trim()), // Y coordinate of the center of rotation (the center of the Upper Left Pixel of the unrotated image)
-                };
+                double[] flatMatrix = new double[6];
+                new AffineTransform().getMatrix(flatMatrix); // init with identity
+                for (int i = 0; i < flatMatrix.length; i++) {
+                    final String parameter = reader.readLine();
+                    if (parameter != null) {
+                        flatMatrix[i] = Double.valueOf(parameter);
+                    }
+                }
                 return new AffineTransform(flatMatrix);
             } finally {
                 reader.close();
@@ -66,7 +84,7 @@ public class Tools {
 
     public static RenderedOp createMosaic(RenderedImage[] images) {
         return MosaicDescriptor.create(images, MosaicDescriptor.MOSAIC_TYPE_OVERLAY,
-                null, null, null, new double[]{0.0}, null);
+                                       null, null, null, new double[]{0.0}, null);
 
     }
 
@@ -94,8 +112,8 @@ public class Tools {
 
     public static RenderedOp transformImage(RenderedImage image, AffineTransform transform) {
         return AffineDescriptor.create(image, transform,
-                Interpolation.getInstance(Interpolation.INTERP_NEAREST),
-                new double[]{0.0}, null);
+                                       Interpolation.getInstance(Interpolation.INTERP_NEAREST),
+                                       new double[]{0.0}, null);
     }
 
     public static RenderedOp createTiledImage(RenderedImage image, int tileWidth, int tileHeight) {
@@ -120,7 +138,8 @@ public class Tools {
         final LayerCanvas layerCanvas = new LayerCanvas();
         installLayerCanvasNavigation(layerCanvas);
         final Layer collectionLayer = layerCanvas.getLayer();
-        final MultiLevelSource source = FileMultiLevelSource.create(location, extension, imageToModelTransform, levelCount);
+        final MultiLevelSource source = FileMultiLevelSource.create(location, extension, imageToModelTransform,
+                                                                    levelCount);
         final ImageLayer layer = new ImageLayer(source);
         collectionLayer.getChildren().add(layer);
         final Rectangle viewportBounds = new Rectangle(0, 0, 640, 480);
@@ -136,10 +155,10 @@ public class Tools {
                                     int levelCount,
                                     boolean concurrent) {
         displayImages(title,
-                new RenderedImage[]{image},
-                new AffineTransform[]{imageToModelTransform},
-                levelCount,
-                concurrent);
+                      new RenderedImage[]{image},
+                      new AffineTransform[]{imageToModelTransform},
+                      levelCount,
+                      concurrent);
     }
 
     public static void displayImages(String title, RenderedImage[] images,
@@ -181,15 +200,18 @@ public class Tools {
     }
 
     public static void storeTiffPyramid(RenderedImage sourceImage, String targetBaseName, int maxLevel) {
-        ImageMIPMap imageMIPMap = new ImageMIPMap(sourceImage, AffineTransform.getScaleInstance(0.5, 0.5), Interpolation.getInstance(Interpolation.INTERP_NEAREST));
+        ImageMIPMap imageMIPMap = new ImageMIPMap(sourceImage, AffineTransform.getScaleInstance(0.5, 0.5),
+                                                  Interpolation.getInstance(Interpolation.INTERP_NEAREST));
         for (int level = 0; level <= maxLevel; level++) {
             final RenderedImage scaledImage = imageMIPMap.getImage(level);
             storeTiledTiff(scaledImage, targetBaseName + "." + level + ".tif");
         }
     }
 
-    public static void storeImagePyramid(RenderedImage sourceImage, String targetBaseName, int maxLevel, String format) {
-        ImageMIPMap imageMIPMap = new ImageMIPMap(sourceImage, AffineTransform.getScaleInstance(0.5, 0.5), Interpolation.getInstance(Interpolation.INTERP_NEAREST));
+    public static void storeImagePyramid(RenderedImage sourceImage, String targetBaseName, int maxLevel,
+                                         String format) {
+        ImageMIPMap imageMIPMap = new ImageMIPMap(sourceImage, AffineTransform.getScaleInstance(0.5, 0.5),
+                                                  Interpolation.getInstance(Interpolation.INTERP_NEAREST));
         for (int level = 0; level <= maxLevel; level++) {
             final RenderedImage scaledImage = imageMIPMap.getImage(level);
             storeTiledTiff(scaledImage, targetBaseName + "." + level + ".tif");
@@ -213,7 +235,8 @@ public class Tools {
     }
 
     public static class MouseHandler extends MouseInputAdapter {
-        LayerCanvas layerCanvas;
+
+        private LayerCanvas layerCanvas;
         private SliderPopUp sliderPopUp;
         private Point p0;
 
@@ -256,6 +279,7 @@ public class Tools {
         }
 
         private class SliderPopUp {
+
             private JWindow window;
             private JSlider slider;
 
