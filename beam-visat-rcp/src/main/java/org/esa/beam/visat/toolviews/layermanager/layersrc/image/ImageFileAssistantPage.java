@@ -117,8 +117,8 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         imageFileBox.addActionListener(new ImageFileItemListener());
         final JLabel imageFileLabel = new JLabel("Path to image file (.png, .jpg, .tif, .gif):");
         JButton imageFileButton = new JButton("...");
-        final FileNameExtensionFilter imageFileFilter = new FileNameExtensionFilter("Image Files", "png", "jpg", "tif",
-                                                                                    "gif");
+        final FileNameExtensionFilter imageFileFilter = new FileNameExtensionFilter("Image Files",
+                                                                                    "png", "jpg", "tif", "gif");
         imageFileButton.addActionListener(new FileChooserActionListener(imageFileFilter));
         addRow(panel, gbc, imageFileLabel, imageFileBox, imageFileButton);
 
@@ -126,14 +126,13 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         worldFileField.getDocument().addDocumentListener(new MyDocumentListener());
         final JLabel worldFileLabel = new JLabel("Path to world file (.pgw, .jgw, .tfw, .gfw):");
         JButton worldFileButton = new JButton("...");
-        final FileNameExtensionFilter worldFileFilter = new FileNameExtensionFilter("World Files", "pgw", "jgw", "tfw",
-                                                                                    "gfw");
+        final FileNameExtensionFilter worldFileFilter = new FileNameExtensionFilter("World Files",
+                                                                                    "pgw", "jgw", "tfw", "gfw");
         worldFileButton.addActionListener(new FileChooserActionListener(worldFileFilter));
         addRow(panel, gbc, worldFileLabel, worldFileField, worldFileButton);
 
         layerNameField = new JTextField();
         addRow(panel, gbc, new JLabel("Layer Name:"), layerNameField, null);
-
 
         gbc.insets = new Insets(4, 4, 4, 4);
         gbc.gridx = 0;
@@ -252,7 +251,6 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
             ImagePreviewWorker worker = new ImagePreviewWorker(image, imagePreviewLabel);
             worker.execute();
 
-
             String worldFilePath = createWorldFilePath(imageFilePath);
 
             if (new File(worldFilePath).isFile()) {
@@ -271,8 +269,8 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
             // see http://support.esri.com/index.cfm?fa=knowledgebase.techarticles.articleShow&d=17489
             String worldFilePath;
             if (imageFileExt != null && imageFileExt.length() == 4) { // three chars + leading dot
-                String worldFileExt = imageFileExt.substring(0, 2) + imageFileExt.charAt(
-                        imageFileExt.length() - 1) + "w";
+                String worldFileExt = imageFileExt.substring(0, 2) +
+                                      imageFileExt.charAt(imageFileExt.length() - 1) + "w";
                 worldFilePath = FileUtils.exchangeExtension(imageFilePath, worldFileExt);
             } else {
                 worldFilePath = imageFilePath + "w";
@@ -303,9 +301,11 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
                     scale = 1.0f;
                 }
 
-                RenderedImage scaledImage = ScaleDescriptor.create(sourceImage, scale, scale, 0.0f, 0.0f,
-                                                                   Interpolation.getInstance(
-                                                                           Interpolation.INTERP_NEAREST), null);
+                Interpolation interpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
+                RenderedImage scaledImage = ScaleDescriptor.create(sourceImage,
+                                                                   scale, scale,
+                                                                   0.0f, 0.0f,
+                                                                   interpolation, null);
                 PlanarImage planarImage = PlanarImage.wrapRenderedImage(scaledImage);
                 BufferedImage bufferedImage = planarImage.getAsBufferedImage();
                 planarImage.dispose();
