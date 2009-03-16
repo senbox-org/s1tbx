@@ -40,15 +40,13 @@ public class HistoryComboBoxModel extends DefaultComboBoxModel {
         insertElementAt(anObject, 0);
     }
 
-    public void loadHistory() {
+    public final synchronized void loadHistory() {
         final String[] historyItems = loadHistory(preferences, propertyFormat, historySize);
-        synchronized (this) {
-            for (int i = 0; i < getSize(); i++) {
-                removeElementAt(0);
-            }
-            for (String item : historyItems) {
-                addElement(item);
-            }
+        for (int i = 0; i < getSize(); i++) {
+            removeElementAt(0);
+        }
+        for (String item : historyItems) {
+            addElement(item);
         }
     }
 
