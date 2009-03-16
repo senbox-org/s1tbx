@@ -10,6 +10,7 @@ import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.FeatureCollectionClipper;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.HistoryComboBoxModel;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
@@ -20,7 +21,6 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -33,23 +33,13 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ShapefileAssistantPage extends AbstractAppAssistantPage {
 
-    private static final String PROPERTY_LAST_FILE_PREFIX = String.format("%s.lastFiles.",
-                                                                          ShapefileAssistantPage.class.getSimpleName());
-    private static final String[] PROPERTY_LAST_FILE_NAMES = new String[]{
-            String.format("%s1", PROPERTY_LAST_FILE_PREFIX),
-            String.format("%s2", PROPERTY_LAST_FILE_PREFIX),
-            String.format("%s3", PROPERTY_LAST_FILE_PREFIX),
-            String.format("%s4", PROPERTY_LAST_FILE_PREFIX),
-            String.format("%s5", PROPERTY_LAST_FILE_PREFIX),
-    };
-
-    private JComboBox shapefileBox;
+    private static final String PROPERTY_LAST_FILE_PREFIX = "ShapefileAssistantPage.Shapefile.history";
+    private HistoryComboBoxModel fileHistoryModel;
 
     public ShapefileAssistantPage() {
         super("Select ESRI Shapefile");
@@ -57,8 +47,8 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
 
     @Override
     public boolean validatePage() {
-        if (shapefileBox != null) {
-            String path = (String) shapefileBox.getSelectedItem();
+        if (fileHistoryModel != null) {
+            String path = (String) fileHistoryModel.getSelectedItem();
             return path != null && !path.trim().isEmpty();
         }
 
@@ -72,8 +62,8 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
 
     @Override
     public AbstractAppAssistantPage getNextPage(AppAssistantPageContext pageContext) {
-        saveShapefileHistory(pageContext);
-        String path = (String) shapefileBox.getSelectedItem();
+        fileHistoryModel.saveHistory();
+        String path = (String) fileHistoryModel.getSelectedItem();
         if (path != null && !path.trim().isEmpty()) {
             try {
                 Product targetProduct = getAppPageContext().getAppContext().getSelectedProductSceneView().getProduct();
@@ -152,7 +142,9 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridwidth = 1;
 
-        shapefileBox = new JComboBox(loadShapeFileHistory(context));
+        final PropertyMap preferences = context.getAppContext().getPreferences();
+        fileHistoryModel = new HistoryComboBoxModel(preferences, PROPERTY_LAST_FILE_PREFIX, 5);
+        JComboBox shapefileBox = new JComboBox(fileHistoryModel);
         shapefileBox.setEditable(true);
         panel.add(shapefileBox, gbc);
 
@@ -168,27 +160,6 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
         return panel;
     }
 
-    private String[] loadShapeFileHistory(AppAssistantPageContext context) {
-        PropertyMap preferences = context.getAppContext().getPreferences();
-        ArrayList<String> lastFilePaths = new ArrayList<String>();
-        for (String propertyName : PROPERTY_LAST_FILE_NAMES) {
-            String filePath = preferences.getPropertyString(propertyName);
-            if (!filePath.isEmpty()) {
-                lastFilePaths.add(filePath);
-            }
-        }
-        return lastFilePaths.toArray(new String[lastFilePaths.size()]);
-    }
-
-    private void saveShapefileHistory(AppAssistantPageContext pageContext) {
-        PropertyMap preferences = pageContext.getAppContext().getPreferences();
-        ComboBoxModel boxModel = shapefileBox.getModel();
-        for (int i = 0; i < boxModel.getSize(); i++) {
-            preferences.setPropertyString(PROPERTY_LAST_FILE_NAMES[i], (String) boxModel.getElementAt(i));
-        }
-    }
-
-
     private class MyActionListener implements ActionListener {
 
         @Override
@@ -199,33 +170,21 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
             fileChooser.addChoosableFileFilter(shapefileFilter);
             fileChooser.setFileFilter(shapefileFilter);
 
-            if (shapefileBox.getSelectedItem() != null) {
-                File file = new File((String) shapefileBox.getSelectedItem());
+            if (fileHistoryModel.getSelectedItem() != null) {
+                File file = new File((String) fileHistoryModel.getSelectedItem());
                 if (file.isFile()) {
                     fileChooser.setCurrentDirectory(file.getParentFile());
                 }
             }
 
             fileChooser.showOpenDialog(getPageContext().getWindow());
-            ComboBoxModel boxModel = shapefileBox.getModel();
             if (fileChooser.getSelectedFile() != null) {
                 String filePath = fileChooser.getSelectedFile().getPath();
-                if (!containsFilePath(boxModel, filePath)) {
-                    shapefileBox.insertItemAt(filePath, 0);
-                }
-                shapefileBox.setSelectedItem(filePath);
+                fileHistoryModel.setSelectedItem(filePath);
                 getPageContext().updateState();
             }
         }
 
-        private boolean containsFilePath(ComboBoxModel boxModel, String path) {
-            for (int i = 0; i < boxModel.getSize(); i++) {
-                if (path.equals(boxModel.getElementAt(i))) {
-                    return true;
-                }
-            }
-            return false;
-        }
     }
 
 }
