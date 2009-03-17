@@ -51,7 +51,7 @@ public class HistoryComboBoxModel extends DefaultComboBoxModel {
     }
 
     public synchronized void saveHistory() {
-        saveHistory(preferences, propertyFormat, historySize);
+        saveHistory(preferences, propertyFormat);
     }
 
     private static String[] loadHistory(PropertyMap preferences, String propertyFormat, int historySize) {
@@ -65,9 +65,13 @@ public class HistoryComboBoxModel extends DefaultComboBoxModel {
         return historyList.toArray(new String[historyList.size()]);
     }
 
-    private void saveHistory(PropertyMap preferences, String propertyFormat, int historySize) {
+    private void saveHistory(PropertyMap preferences, String propertyFormat) {
         for (int i = 0; i < historySize; i++) {
-            preferences.setPropertyString(String.format(propertyFormat, i), (String) getElementAt(i));
+            String property = "";
+            if (i < getSize()) {
+                property = (String) getElementAt(i);
+            }
+            preferences.setPropertyString(String.format(propertyFormat, i), property);
         }
     }
 

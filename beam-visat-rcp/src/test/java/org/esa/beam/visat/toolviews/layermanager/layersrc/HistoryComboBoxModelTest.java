@@ -157,12 +157,18 @@ public class HistoryComboBoxModelTest {
         model.saveHistory();
         assertEquals("two", map.getPropertyString("historyItem.0"));
         assertEquals("one", map.getPropertyString("historyItem.1"));
-        assertEquals(null, map.getPropertyString("historyItem.2", null));
+        assertEquals("", map.getPropertyString("historyItem.2"));
 
         model.addElement("three");
         model.saveHistory();
         assertEquals("three", map.getPropertyString("historyItem.0"));
         assertEquals("two", map.getPropertyString("historyItem.1"));
         assertEquals("one", map.getPropertyString("historyItem.2"));
+
+        model.removeElementAt(1);
+        model.saveHistory();
+        assertEquals("three", map.getPropertyString("historyItem.0"));
+        assertEquals("one", map.getPropertyString("historyItem.1"));
+        assertEquals("", map.getPropertyString("historyItem.2"));
     }
 }
