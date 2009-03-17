@@ -40,6 +40,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 // todo - Check, if image is GeoTIFF -> no world file is needed
@@ -81,13 +82,32 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
 
     @Override
     public boolean hasNextPage() {
+        String worldFilePath = getText(worldFileField);
+        try {
+            Tools.loadWorldFile(worldFilePath);
+        } catch (IOException ignored) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public AbstractAppAssistantPage getNextPage(AppAssistantPageContext pageContext) {
         imageHistoryModel.saveHistory();
-        return new ImageFileAssistantPage2(image, getText(layerNameField), createTransform(getText(worldFileField)));
+        String worldFilePath = getText(worldFileField);
+        AffineTransform transform;
+        if (!worldFilePath.isEmpty()) {
+            try {
+                transform = Tools.loadWorldFile(worldFilePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+                getAppPageContext().showErrorDialog(e.getMessage());
+                return null;
+            }
+        } else {
+            transform = new AffineTransform();
+        }
+        return new ImageFileAssistantPage2(image, getText(layerNameField), transform);
     }
 
     @Override
@@ -95,12 +115,19 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         imageHistoryModel.saveHistory();
         String worldFilePath = getText(worldFileField);
         String layerName = layerNameField.getText().trim();
-        AffineTransform transform = createTransform(worldFilePath);
+        AffineTransform transform;
+        if (!worldFilePath.isEmpty()) {
+            try {
+                transform = Tools.loadWorldFile(worldFilePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+                getAppPageContext().showErrorDialog(e.getMessage());
+                return false;
+            }
+        } else {
+            transform = new AffineTransform();
+        }
         return ImageFileAssistantPage.insertImageLayer(getAppPageContext(), image, layerName, transform);
-    }
-
-    private AffineTransform createTransform(String worldFilePath) {
-        return !worldFilePath.isEmpty() ? Tools.loadWorldFile(worldFilePath) : new AffineTransform();
     }
 
     @Override
@@ -242,7 +269,7 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         @Override
         public void actionPerformed(ActionEvent e) {
             String imageFilePath = (String) imageFileBox.getSelectedItem();
-            if (imageFilePath == null) {
+            if (imageFilePath == null || !new File(imageFilePath).isFile()) {
                 return;
             }
 
