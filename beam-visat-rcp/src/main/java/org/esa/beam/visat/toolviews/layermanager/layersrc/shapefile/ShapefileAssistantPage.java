@@ -143,7 +143,14 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
         gbc.gridwidth = 1;
 
         final PropertyMap preferences = context.getAppContext().getPreferences();
-        fileHistoryModel = new HistoryComboBoxModel(preferences, PROPERTY_LAST_FILE_PREFIX, 5);
+        HistoryComboBoxModel.Validator validator = new HistoryComboBoxModel.Validator() {
+            @Override
+            public boolean isValid(String entry) {
+                return new File(entry).isFile();
+            }
+        };
+        fileHistoryModel = new HistoryComboBoxModel(preferences, PROPERTY_LAST_FILE_PREFIX, 5, validator);
+
         JComboBox shapefileBox = new JComboBox(fileHistoryModel);
         shapefileBox.setEditable(true);
         panel.add(shapefileBox, gbc);

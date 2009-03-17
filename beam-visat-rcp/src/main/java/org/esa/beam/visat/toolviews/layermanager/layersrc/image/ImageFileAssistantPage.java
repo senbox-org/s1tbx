@@ -139,7 +139,13 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         gbc.gridy = 0;
 
         final PropertyMap preferences = context.getAppContext().getPreferences();
-        imageHistoryModel = new HistoryComboBoxModel(preferences, PROPERTY_LAST_IMAGE_PREFIX, 5);
+        HistoryComboBoxModel.Validator validator = new HistoryComboBoxModel.Validator() {
+            @Override
+            public boolean isValid(String entry) {
+                return new File(entry).isFile();
+            }
+        };
+        imageHistoryModel = new HistoryComboBoxModel(preferences, PROPERTY_LAST_IMAGE_PREFIX, 5, validator);
         imageFileBox = new JComboBox(imageHistoryModel);
         imageFileBox.addActionListener(new ImageFileItemListener());
         final JLabel imageFileLabel = new JLabel("Path to image file (.png, .jpg, .tif, .gif):");

@@ -59,6 +59,25 @@ public class HistoryComboBoxModelTest {
 
     }
 
+
+    @Test
+    public void testValidation() {
+        final PropertyMap map = new PropertyMap();
+        map.setPropertyString("historyItem.0", "one");
+        map.setPropertyString("historyItem.1", "two");
+        map.setPropertyString("historyItem.2", "three");
+
+        final HistoryComboBoxModel model = new HistoryComboBoxModel(map, "historyItem", 3,
+                                                                    new HistoryComboBoxModel.Validator() {
+                                                                        @Override
+                                                                        public boolean isValid(String entry) {
+                                                                            return "two".equals(entry);
+                                                                        }
+                                                                    });
+        assertEquals(1, model.getSize());
+        assertEquals("two", model.getElementAt(0));
+    }
+
     @Test
     public void testSetSelected() {
         final PropertyMap map = new PropertyMap();
