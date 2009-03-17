@@ -1,17 +1,18 @@
 package com.bc.ceres.glayer.jaitests;
 
 import com.bc.ceres.glayer.tools.Tools;
+import org.junit.Ignore;
 
 import javax.media.jai.RenderedOp;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
-
-import org.junit.Ignore;
+import java.io.IOException;
 
 @Ignore
 public class GeoMosaicTest {
 
     private static class ImageFeature {
+
         RenderedImage image;
         AffineTransform transform;
 
@@ -21,7 +22,7 @@ public class GeoMosaicTest {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Tools.configureJAI();
 
 

@@ -61,24 +61,27 @@ public class Tools {
     }
 
 
-    public static AffineTransform loadWorldFile(String filename) {
+    public static AffineTransform loadWorldFile(String filename) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(filename));
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(filename));
-            try {
-                double[] flatMatrix = new double[6];
-                new AffineTransform().getMatrix(flatMatrix); // init with identity
-                for (int i = 0; i < flatMatrix.length; i++) {
-                    final String parameter = reader.readLine();
-                    if (parameter != null) {
-                        flatMatrix[i] = Double.valueOf(parameter);
-                    }
+            double[] flatMatrix = new double[6];
+            new AffineTransform().getMatrix(flatMatrix); // init with identity
+            for (int i = 0; i < flatMatrix.length; i++) {
+                final String parameter = reader.readLine();
+                if (parameter == null) {
+                    throw new IOException("Could not read world file: Missing a parameter.");
                 }
-                return new AffineTransform(flatMatrix);
-            } finally {
-                reader.close();
+                try {
+                    flatMatrix[i] = Double.valueOf(parameter);
+                } catch (NumberFormatException e) {
+                    IOException ioException = new IOException("Could not read world file. " + e.getMessage());
+                    ioException.initCause(e);
+                    throw ioException;
+                }
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            return new AffineTransform(flatMatrix);
+        } finally {
+            reader.close();
         }
     }
 
