@@ -23,6 +23,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingWorker;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
@@ -35,6 +36,7 @@ import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
+import java.util.concurrent.ExecutionException;
 
 public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
@@ -232,16 +234,22 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Envelope layerEnv = getLayerEnvelope();
-            final CoordinateSystem layerCS = layerEnv.getCoordinateReferenceSystem().getCoordinateSystem();
-            final AxisDirection layerYDirection = layerCS.getAxis(1).getDirection();
-            double value;
-            if (layerYDirection.compareTo(AxisDirection.DISPLAY_DOWN) == 0) {
-                value = layerEnv.getMinimum(1);
-            } else {
-                value = layerEnv.getMaximum(1);
-            }
-            numberFields[5].setText(String.valueOf(value));
+            SwingWorker<String, String> worker = new AlignmentSwingWorker(numberFields[5]) {
+                @Override
+                protected String doInBackground() throws Exception {
+                    Envelope layerEnv = getLayerEnvelope();
+                    final CoordinateSystem layerCS = layerEnv.getCoordinateReferenceSystem().getCoordinateSystem();
+                    final AxisDirection layerYDirection = layerCS.getAxis(1).getDirection();
+                    double value;
+                    if (layerYDirection.compareTo(AxisDirection.DISPLAY_DOWN) == 0) {
+                        value = layerEnv.getMinimum(1);
+                    } else {
+                        value = layerEnv.getMaximum(1);
+                    }
+                    return String.valueOf(value);
+                }
+            };
+            worker.execute();
         }
     }
 
@@ -255,17 +263,23 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Envelope layerEnv = getLayerEnvelope();
-            Envelope imageEnv = getImageEnvelope();
-            final CoordinateSystem layerCS = layerEnv.getCoordinateReferenceSystem().getCoordinateSystem();
-            final AxisDirection layerYDirection = layerCS.getAxis(1).getDirection();
-            double value;
-            if (layerYDirection.compareTo(AxisDirection.DISPLAY_DOWN) == 0) {
-                value = layerEnv.getMedian(1) - imageEnv.getSpan(1) / 2;
-            } else {
-                value = layerEnv.getMedian(1) + imageEnv.getSpan(1) / 2;
-            }
-            numberFields[5].setText(String.valueOf(value));
+            SwingWorker<String, String> worker = new AlignmentSwingWorker(numberFields[5]) {
+                @Override
+                protected String doInBackground() throws Exception {
+                    Envelope layerEnv = getLayerEnvelope();
+                    Envelope imageEnv = getImageEnvelope();
+                    final CoordinateSystem layerCS = layerEnv.getCoordinateReferenceSystem().getCoordinateSystem();
+                    final AxisDirection layerYDirection = layerCS.getAxis(1).getDirection();
+                    double value;
+                    if (layerYDirection.compareTo(AxisDirection.DISPLAY_DOWN) == 0) {
+                        value = layerEnv.getMedian(1) - imageEnv.getSpan(1) / 2;
+                    } else {
+                        value = layerEnv.getMedian(1) + imageEnv.getSpan(1) / 2;
+                    }
+                    return String.valueOf(value);
+                }
+            };
+            worker.execute();
         }
     }
 
@@ -279,17 +293,23 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Envelope layerEnv = getLayerEnvelope();
-            Envelope imageEnv = getImageEnvelope();
-            final CoordinateSystem layerCS = layerEnv.getCoordinateReferenceSystem().getCoordinateSystem();
-            final AxisDirection layerYDirection = layerCS.getAxis(1).getDirection();
-            double value;
-            if (layerYDirection.compareTo(AxisDirection.DISPLAY_DOWN) == 0) {
-                value = layerEnv.getMaximum(1) - imageEnv.getSpan(1);
-            } else {
-                value = layerEnv.getMinimum(1) + imageEnv.getSpan(1);
-            }
-            numberFields[5].setText(String.valueOf(value));
+            SwingWorker<String, String> worker = new AlignmentSwingWorker(numberFields[5]) {
+                @Override
+                protected String doInBackground() throws Exception {
+                    Envelope layerEnv = getLayerEnvelope();
+                    Envelope imageEnv = getImageEnvelope();
+                    final CoordinateSystem layerCS = layerEnv.getCoordinateReferenceSystem().getCoordinateSystem();
+                    final AxisDirection layerYDirection = layerCS.getAxis(1).getDirection();
+                    double value;
+                    if (layerYDirection.compareTo(AxisDirection.DISPLAY_DOWN) == 0) {
+                        value = layerEnv.getMaximum(1) - imageEnv.getSpan(1);
+                    } else {
+                        value = layerEnv.getMinimum(1) + imageEnv.getSpan(1);
+                    }
+                    return String.valueOf(String.valueOf(value));
+                }
+            };
+            worker.execute();
         }
     }
 
@@ -303,8 +323,14 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Envelope layerEnv = getLayerEnvelope();
-            numberFields[4].setText(String.valueOf(layerEnv.getMinimum(0)));
+            SwingWorker<String, String> worker = new AlignmentSwingWorker(numberFields[4]) {
+                @Override
+                protected String doInBackground() throws Exception {
+                    Envelope layerEnv = getLayerEnvelope();
+                    return String.valueOf(layerEnv.getMinimum(0));
+                }
+            };
+            worker.execute();
         }
     }
 
@@ -318,9 +344,15 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Envelope layerEnv = getLayerEnvelope();
-            Envelope imageEnv = getImageEnvelope();
-            numberFields[4].setText(String.valueOf(layerEnv.getMedian(0) - imageEnv.getSpan(0) / 2));
+            SwingWorker<String, String> worker = new AlignmentSwingWorker(numberFields[4]) {
+                @Override
+                protected String doInBackground() throws Exception {
+                    Envelope layerEnv = getLayerEnvelope();
+                    Envelope imageEnv = getImageEnvelope();
+                    return String.valueOf(String.valueOf(layerEnv.getMedian(0) - imageEnv.getSpan(0) / 2));
+                }
+            };
+            worker.execute();
         }
     }
 
@@ -334,9 +366,42 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Envelope layerEnv = getLayerEnvelope();
-            Envelope imageEnv = getImageEnvelope();
-            numberFields[4].setText(String.valueOf(layerEnv.getMaximum(0) - imageEnv.getSpan(0)));
+            SwingWorker<String, String> worker = new AlignmentSwingWorker(numberFields[4]) {
+                @Override
+                protected String doInBackground() throws Exception {
+                    Envelope layerEnv = getLayerEnvelope();
+                    Envelope imageEnv = getImageEnvelope();
+                    return String.valueOf(layerEnv.getMaximum(0) - imageEnv.getSpan(0));
+                }
+            };
+            worker.execute();
+        }
+
+    }
+
+    private abstract class AlignmentSwingWorker extends SwingWorker<String, String> {
+
+        private final JTextField numberField;
+
+        private AlignmentSwingWorker(JTextField textField) {
+            numberField = textField;
+        }
+
+        @Override
+        protected void done() {
+            try {
+                numberField.setText(get());
+            } catch (InterruptedException e1) {
+                showError(e1);
+            } catch (ExecutionException e1) {
+                showError(e1);
+            }
+        }
+
+        private void showError(Exception e1) {
+            Throwable cause = e1.getCause() == null ? e1 : e1.getCause();
+            String message = String.format("Could not compute transformation parameter.\n%s", cause.getMessage());
+            getAppPageContext().showErrorDialog(message);
         }
     }
 }
