@@ -23,11 +23,29 @@ public class DefaultRuntimeConfigTest extends AbstractRuntimeTest {
     public void testWithNoProperties() throws RuntimeConfigException, IOException {
         DefaultRuntimeConfig config = new DefaultRuntimeConfig();
         assertEquals("ceres", config.getContextId());
-        assertEquals(new File(".").getCanonicalFile(), new File(config.getHomeDirPath()));
-        assertEquals(null, config.getConfigFilePath());
-        assertNotNull(config.getModulesDirPath());
+
+        final File cwd = new File(".").getCanonicalFile();
+        boolean hasConfig = new File(cwd, "config/ceres.config").exists();
+        boolean hasLib = new File(cwd, "lib").exists();
+        boolean hasModules = new File(cwd, "modules").exists();
+
+        assertEquals(cwd, new File(config.getHomeDirPath()));
+        if (hasConfig) {
+            assertNotNull(config.getConfigFilePath());
+        }else {
+            assertNull(config.getConfigFilePath());
+        }
         assertNotNull(config.getLibDirPaths());
-        assertEquals(0, config.getLibDirPaths().length);
+        if (hasLib) {
+            assertEquals(1, config.getLibDirPaths().length);
+        }else {
+            assertEquals(0, config.getLibDirPaths().length);
+        }
+        if (hasModules) {
+            assertNotNull(config.getModulesDirPath());
+        }else {
+            assertNull(config.getModulesDirPath());
+        }
     }
 
     public void testWithSystemProperties() throws RuntimeConfigException, IOException {
