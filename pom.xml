@@ -453,6 +453,7 @@
                 <version>2.3-bc</version>
             </plugin>
 
+<!--
             <plugin>
                 <groupId>com.bc.maven.plugins</groupId>
                 <artifactId>maven-template-plugin</artifactId>
@@ -506,6 +507,7 @@
                     </templates>
                 </configuration>
             </plugin>
+-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
