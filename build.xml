@@ -1,25 +1,44 @@
-<project name="beam-javahelp-index" basedir=".">
+<!--
+    Ant tasks for BEAM. The following properties need to be specified:
 
-    <!--
-        use the build.properties file to set, for instance, the jhindexer path:
-        jhindexer = P:/Ongoing/BEAM/software/javahelp20_02/javahelp/bin/jhindexer.bat
-    -->
-    <target name="set-jhindexer">
-        <property file="build.properties"/>
+    javahelp.indexer  = <path to jhindexer script of java help 2.x installation>
+    install4j.ant.jar = <path to ant.jar of install4j 4.x installation>
+-->
 
-        <condition property="jhindexer-is-set">
-            <isset property="jhindexer"/>
+<project name="beam-ant-tasks">
+
+    <property file="${basedir}/build.properties" />
+
+    <target name="javahelp-create-index-check">
+        <condition property="javahelp.indexer.checked">
+            <isset property="javahelp.indexer"/>
         </condition>
     </target>
 
-    <target name="create-jh-search-db" depends="set-jhindexer" if="jhindexer-is-set">
-        <echo>Creating Search Database for Java Help</echo>
+    <target name="javahelp-create-index" depends="javahelp-create-index-check" if="javahelp.indexer.checked">
+        <echo>Creating index for Java Help...</echo>
         <delete includeEmptyDirs="true" failonerror="false">
-            <fileset dir="${helpdir}/JavaHelpSearch"/>
+            <fileset dir="${javahelp.targetDir}/JavaHelpSearch"/>
         </delete>
-        <exec dir="${helpdir}" executable="${jhindexer}">
+        <exec dir="${javahelp.targetDir}" executable="${javahelp.indexer}">
             <arg line="."/>
         </exec>
+    </target>
+
+    <taskdef name="install4j"
+             classpath="${install4j.ant.jar}"
+             classname="com.install4j.Install4JTask" />
+
+    <target name="install4j-media-check">
+        <condition property="install4j.media.checked">
+            <isset property="install4j.ant.jar"/>
+        </condition>
+    </target>
+
+    <target name="install4j-media" depends="install4j-media-check" if="install4j.media.checked">
+
+        <echo>Building index for Java Help...</echo>
+        <install4j projectfile="${basedir}/beam-installer/beam.install4j"/>
     </target>
 
 </project>

@@ -22,7 +22,7 @@
         <dependency>
             <groupId>com.install4j</groupId>
             <artifactId>i4jruntime</artifactId>
-            <version>4.2</version>
+            <version>4.2.1</version>
         </dependency>
     </dependencies>
 
@@ -82,6 +82,7 @@
                 </configuration>
             </plugin>
 
+<!--
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
@@ -92,13 +93,14 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <property file="../build.properties"/>
-                                <ant antfile="../build.xml" target="install4j-media"/>
+                                <property file="${project.parent.basedir}/build.properties"/>
+                                <ant antfile="${project.parent.basedir}/build.xml" target="install4j-media"/>
                             </tasks>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+-->
 
         </plugins>
     </build>

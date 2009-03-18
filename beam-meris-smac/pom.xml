@@ -42,9 +42,8 @@
                         <phase>compile</phase>
                         <configuration>
                             <tasks>
-                                <property file="../build.properties"/>
-                                <property name="helpdir" value="${project.build.outputDirectory}/doc/help"/>
-                                <ant antfile="../build.xml" target="create-jh-search-db"/>
+                                <property name="javahelp.targetDir" value="${project.build.outputDirectory}/doc/help"/>
+                                <ant target="javahelp-create-index" dir="${project.parent.basedir}" />
                             </tasks>
                         </configuration>
                         <goals>
