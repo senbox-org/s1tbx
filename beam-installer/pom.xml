@@ -31,7 +31,7 @@
             <plugin>
                 <groupId>com.bc.maven.plugins</groupId>
                 <artifactId>maven-template-plugin</artifactId>
-                <version>1.1</version>
+                <version>1.2</version>
                 <executions>
                     <execution>
                         <phase>process-sources</phase>
