@@ -75,7 +75,6 @@
         </pluginRepository>
     </pluginRepositories>
 
-
     <modules>
         <module>../ceres-0.x</module>
 
@@ -452,62 +451,6 @@
                 <artifactId>maven-eclipse-plugin</artifactId>
                 <version>2.3-bc</version>
             </plugin>
-
-<!--
-            <plugin>
-                <groupId>com.bc.maven.plugins</groupId>
-                <artifactId>maven-template-plugin</artifactId>
-                <version>1.1</version>
-                <executions>
-                    <execution>
-                        <phase>process-sources</phase>
-                        <goals>
-                            <goal>template</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <templates>
-                        <template>
-                            <source>src/main/bin/win/beam-cli-template.bat</source>
-                            <lineEnding>dos</lineEnding>
-                            <outputDirectory>target/beam-bin.dir/bin</outputDirectory>
-                            <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
-                            <filterSet>
-                                <directory>src/main/filters</directory>
-                                <includes>
-                                    <include>*.properties</include>
-                                </includes>
-                            </filterSet>
-                        </template>
-                        <template>
-                            <source>src/main/bin/linux/beam-cli-template.sh</source>
-                            <lineEnding>unix</lineEnding>
-                            <outputDirectory>target/beam-bin.dir/bin</outputDirectory>
-                            <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
-                            <filterSet>
-                                <directory>src/main/filters</directory>
-                                <includes>
-                                    <include>*.properties</include>
-                                </includes>
-                            </filterSet>
-                        </template>
-                        <template>
-                            <source>src/main/bin/macosx/beam-cli-template.command</source>
-                            <lineEnding>unix</lineEnding>
-                            <outputDirectory>target/beam-bin.dir/bin</outputDirectory>
-                            <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
-                            <filterSet>
-                                <directory>src/main/filters</directory>
-                                <includes>
-                                    <include>*.properties</include>
-                                </includes>
-                            </filterSet>
-                        </template>
-                    </templates>
-                </configuration>
-            </plugin>
--->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
