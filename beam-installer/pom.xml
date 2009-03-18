@@ -43,36 +43,36 @@
                 <configuration>
                     <templates>
                         <template>
-                            <source>${project.parent.basedir}/src/main/bin/win/beam-cli-template.bat</source>
+                            <source>${basedir}/../src/main/bin/win/beam-cli-template.bat</source>
                             <lineEnding>dos</lineEnding>
-                            <outputDirectory>${project.parent.basedir}/target/beam-bin.dir/bin</outputDirectory>
+                            <outputDirectory>${basedir}/../target/beam-bin.dir/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
                             <filterSet>
-                                <directory>${project.parent.basedir}/src/main/filters</directory>
+                                <directory>${basedir}/../src/main/filters</directory>
                                 <includes>
                                     <include>*.properties</include>
                                 </includes>
                             </filterSet>
                         </template>
                         <template>
-                            <source>${project.parent.basedir}/src/main/bin/linux/beam-cli-template.sh</source>
+                            <source>${basedir}/../src/main/bin/linux/beam-cli-template.sh</source>
                             <lineEnding>unix</lineEnding>
-                            <outputDirectory>${project.parent.basedir}/target/beam-bin.dir/bin</outputDirectory>
+                            <outputDirectory>${basedir}/../target/beam-bin.dir/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
                             <filterSet>
-                                <directory>${project.parent.basedir}/src/main/filters</directory>
+                                <directory>${basedir}/../src/main/filters</directory>
                                 <includes>
                                     <include>*.properties</include>
                                 </includes>
                             </filterSet>
                         </template>
                         <template>
-                            <source>${project.parent.basedir}/src/main/bin/macosx/beam-cli-template.command</source>
+                            <source>${basedir}/../src/main/bin/macosx/beam-cli-template.command</source>
                             <lineEnding>unix</lineEnding>
-                            <outputDirectory>${project.parent.basedir}/target/beam-bin.dir/bin</outputDirectory>
+                            <outputDirectory>${basedir}/../target/beam-bin.dir/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
                             <filterSet>
-                                <directory>${project.parent.basedir}/src/main/filters</directory>
+                                <directory>${basedir}/../src/main/filters</directory>
                                 <includes>
                                     <include>*.properties</include>
                                 </includes>
