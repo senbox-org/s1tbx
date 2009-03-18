@@ -48,7 +48,7 @@
                             <outputDirectory>../target/beam-bin.dir/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
                             <filterSet>
-                                <directory>src/main/filters</directory>
+                                <directory>../src/main/filters</directory>
                                 <includes>
                                     <include>*.properties</include>
                                 </includes>
@@ -60,7 +60,7 @@
                             <outputDirectory>../target/beam-bin.dir/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
                             <filterSet>
-                                <directory>src/main/filters</directory>
+                                <directory>../src/main/filters</directory>
                                 <includes>
                                     <include>*.properties</include>
                                 </includes>
@@ -72,7 +72,7 @@
                             <outputDirectory>../target/beam-bin.dir/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
                             <filterSet>
-                                <directory>src/main/filters</directory>
+                                <directory>../src/main/filters</directory>
                                 <includes>
                                     <include>*.properties</include>
                                 </includes>
