@@ -28,7 +28,7 @@
                         <configuration>
                             <tasks>
                                 <property name="javahelp.targetDir" value="${project.build.outputDirectory}/doc/help"/>
-                                <ant target="javahelp-create-index" dir="${project.parent.basedir}" />
+                                <ant target="javahelp-create-index" dir="${project.parent.basedir}/." />
                             </tasks>
                         </configuration>
                         <goals>
