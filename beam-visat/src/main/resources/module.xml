@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.6:<br/>
+          [BEAM-976] Time Info displays wrong UTC time<br/>
           [BEAM-939] No-data samples not considered in band math<br/>
           [BEAM-937] Colour palette sometimes incorrectly imported<br/>
           [BEAM-932] Inconsistent handling of adding and copying bitmasks<br/>

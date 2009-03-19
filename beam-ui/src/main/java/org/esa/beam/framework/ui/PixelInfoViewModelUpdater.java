@@ -37,14 +37,13 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.MathUtils;
 
+import javax.media.jai.PlanarImage;
+import javax.swing.SwingUtilities;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.Raster;
 import java.util.Calendar;
 import java.util.Vector;
-
-import javax.media.jai.PlanarImage;
-import javax.swing.SwingUtilities;
 
 /**
  * @author Marco Zuehlke
@@ -52,7 +51,7 @@ import javax.swing.SwingUtilities;
  * @since BEAM 4.5.2
  */
 class PixelInfoViewModelUpdater {
-    
+
     private static final String _INVALID_POS_TEXT = "Invalid pos.";
 
     private final PixelInfoViewTableModel geolocModel;
@@ -60,12 +59,12 @@ class PixelInfoViewModelUpdater {
     private final PixelInfoViewTableModel bandModel;
     private final PixelInfoViewTableModel tiePointModel;
     private final PixelInfoViewTableModel flagModel;
-    
+
     private volatile Product currentProduct;
     private volatile RasterDataNode currentRaster;
     private volatile ProductSceneView currentView;
     private Band[] currentFlagBands;
-    
+
     private int _pixelX;
     private int _pixelY;
     private int _level;
@@ -74,8 +73,10 @@ class PixelInfoViewModelUpdater {
     private boolean _pixelPosValid;
 
     private final PixelInfoView pixelInfoView;
-    
-    PixelInfoViewModelUpdater(PixelInfoViewTableModel geolocModel, PixelInfoViewTableModel scanlineModel, PixelInfoViewTableModel bandModel, PixelInfoViewTableModel tiePointModel, PixelInfoViewTableModel flagModel, PixelInfoView pixelInfoView) {
+
+    PixelInfoViewModelUpdater(PixelInfoViewTableModel geolocModel, PixelInfoViewTableModel scanlineModel,
+                              PixelInfoViewTableModel bandModel, PixelInfoViewTableModel tiePointModel,
+                              PixelInfoViewTableModel flagModel, PixelInfoView pixelInfoView) {
         this.geolocModel = geolocModel;
         this.scanlineModel = scanlineModel;
         this.bandModel = bandModel;
@@ -83,20 +84,20 @@ class PixelInfoViewModelUpdater {
         this.flagModel = flagModel;
         this.pixelInfoView = pixelInfoView;
     }
-    
+
     Product getCurrentProduct() {
         return currentProduct;
     }
-    
+
     RasterDataNode getCurrentRaster() {
         return currentRaster;
     }
-    
+
     void update(PixelInfoState state) {
         update(state.view, state.pixelX, state.pixelY, state.level, state.pixelPosValid);
     }
 
-    void  update(ProductSceneView view, int pixelX, int pixelY, int level, boolean pixelPosValid) {
+    void update(ProductSceneView view, int pixelX, int pixelY, int level, boolean pixelPosValid) {
         Guardian.assertNotNull("view", view);
         boolean clearRasterTableSelection = false;
         RasterDataNode raster = view.getRaster();
@@ -136,12 +137,12 @@ class PixelInfoViewModelUpdater {
         Point2D modelP = i2mTransform.transform(new Point2D.Double(pixelX + 0.5, pixelY + 0.5), null);
         AffineTransform m2iTransform = view.getBaseImageLayer().getModelToImageTransform();
         Point2D levelZeroP = m2iTransform.transform(modelP, null);
-        levelZeroX = (int)Math.floor(levelZeroP.getX());
-        levelZeroY = (int)Math.floor(levelZeroP.getY());
-        
+        levelZeroX = (int) Math.floor(levelZeroP.getX());
+        levelZeroY = (int) Math.floor(levelZeroP.getY());
+
         updateDataDisplay(clearRasterTableSelection);
     }
-    
+
     private void resetTableModels() {
         resetGeolocTableModel();
         resetScanLineTableModel();
@@ -149,7 +150,7 @@ class PixelInfoViewModelUpdater {
         resetTiePointGridTableModel();
         resetFlagTableModel();
     }
-    
+
     private void fireTableChanged(final boolean clearRasterTableSelection) {
         SwingUtilities.invokeLater(new Runnable() {
 
@@ -166,36 +167,36 @@ class PixelInfoViewModelUpdater {
             }
         });
     }
-   
+
     private void updateDataDisplay(boolean clearRasterTableSelection) {
         if (currentProduct == null) {
             return;
         }
-        if(pixelInfoView.isDockablePaneVisible(DockablePaneKey.GEOLOCATION)) {
+        if (pixelInfoView.isDockablePaneVisible(DockablePaneKey.GEOLOCATION)) {
             updateGeolocValues();
         }
-        if(pixelInfoView.isDockablePaneVisible(DockablePaneKey.SCANLINE)) {
+        if (pixelInfoView.isDockablePaneVisible(DockablePaneKey.SCANLINE)) {
             updateScanLineValues();
         }
-        if(pixelInfoView.isDockablePaneVisible(DockablePaneKey.BANDS)) {
+        if (pixelInfoView.isDockablePaneVisible(DockablePaneKey.BANDS)) {
             updateBandPixelValues();
         }
-        if(pixelInfoView.isDockablePaneVisible(DockablePaneKey.TIEPOINTS)) {
+        if (pixelInfoView.isDockablePaneVisible(DockablePaneKey.TIEPOINTS)) {
             updateTiePointGridPixelValues();
         }
-        if(pixelInfoView.isDockablePaneVisible(DockablePaneKey.FLAGS)){
+        if (pixelInfoView.isDockablePaneVisible(DockablePaneKey.FLAGS)) {
             updateFlagPixelValues();
         }
         fireTableChanged(clearRasterTableSelection);
     }
-    
+
     private void resetGeolocTableModel() {
         geolocModel.clear();
         if (currentRaster != null) {
             final GeoCoding geoCoding = currentRaster.getGeoCoding();
             geolocModel.addRow("Image-X", "", "pixel");
             geolocModel.addRow("Image-Y", "", "pixel");
-            
+
             if (geoCoding != null) {
                 geolocModel.addRow("Longitude", "", "degree");
                 geolocModel.addRow("Latitude", "", "degree");
@@ -265,7 +266,7 @@ class PixelInfoViewModelUpdater {
             }
         }
     }
-    
+
     private void registerFlagDatasets() {
         final Band[] bands = currentProduct.getBands();
         Vector<Band> flagBandsVector = new Vector<Band>();
@@ -280,7 +281,7 @@ class PixelInfoViewModelUpdater {
     private boolean isFlagBand(final Band band) {
         return band.getFlagCoding() != null;
     }
-    
+
     private int getBandRowCount() {
         int rowCount = 0;
         if (currentProduct != null) {
@@ -301,7 +302,7 @@ class PixelInfoViewModelUpdater {
         }
         return rowCount;
     }
-    
+
     private void updateGeolocValues() {
         final boolean available = isSampleValueAvailable(levelZeroX, levelZeroY, _pixelPosValid);
         final float pX = levelZeroX + pixelInfoView.getPixelOffsetX();
@@ -344,19 +345,20 @@ class PixelInfoViewModelUpdater {
             }
         }
     }
-    
+
     private void updateScanLineValues() {
         final ProductData.UTC utcStartTime = currentProduct.getStartTime();
         final ProductData.UTC utcEndTime = currentProduct.getEndTime();
 
         final double dStart = utcStartTime != null ? utcStartTime.getMJD() : 0;
         final double dStop = utcEndTime != null ? utcEndTime.getMJD() : 0;
-        if (dStart == 0 || dStop == 0) {
+        if (dStart == 0 || dStop == 0 || !isSampleValueAvailable(0, levelZeroY, true)) {
             scanlineModel.updateValue("No date information", 0);
             scanlineModel.updateValue("No time information", 1);
         } else {
             final double vPerLine = (dStop - dStart) / (currentProduct.getSceneRasterHeight() - 1);
-            final double currentLine = vPerLine * _pixelY + dStart;
+            final float pY = levelZeroY + pixelInfoView.getPixelOffsetY();
+            final double currentLine = vPerLine * pY + dStart;
             final ProductData.UTC utcCurrentLine = new ProductData.UTC(currentLine);
             final Calendar currentLineTime = utcCurrentLine.getAsCalendar();
 
@@ -367,7 +369,7 @@ class PixelInfoViewModelUpdater {
             scanlineModel.updateValue(timeString, 1);
         }
     }
-    
+
     private void updateBandPixelValues() {
         Band[] bands = currentProduct.getBands();
         int rowIndex = 0;
@@ -378,7 +380,7 @@ class PixelInfoViewModelUpdater {
             }
         }
     }
-    
+
     private String getPixelString(Band band) {
         if (!_pixelPosValid) {
             return RasterDataNode.INVALID_POS_TEXT;
@@ -386,7 +388,7 @@ class PixelInfoViewModelUpdater {
         if (isPixelValid(band, _pixelX, _pixelY, _level)) {
             if (band.isFloatingPointType()) {
                 return String.valueOf(getSampleFloat(band, _pixelX, _pixelY, _level));
-            }else {
+            } else {
                 return String.valueOf(getSampleInt(band, _pixelX, _pixelY, _level));
             }
         } else {
@@ -403,7 +405,7 @@ class PixelInfoViewModelUpdater {
             return true;
         }
     }
-    
+
     private float getSampleFloat(Band band, int pixelX, int pixelY, int level) {
         PlanarImage image = ImageManager.getInstance().getSourceImage(band, level);
         Raster data = getRasterTile(image, pixelX, pixelY);
@@ -413,7 +415,7 @@ class PixelInfoViewModelUpdater {
         }
         return sampleFloat;
     }
-    
+
     private int getSampleInt(Band band, int pixelX, int pixelY, int level) {
         PlanarImage image = ImageManager.getInstance().getSourceImage(band, level);
         Raster data = getRasterTile(image, pixelX, pixelY);
@@ -423,7 +425,7 @@ class PixelInfoViewModelUpdater {
         }
         return sampleInt;
     }
-    
+
     private Raster getRasterTile(PlanarImage image, int pixelX, int pixelY) {
         final int tileX = image.XToTileX(pixelX);
         final int tileY = image.YToTileY(pixelY);
@@ -462,14 +464,14 @@ class PixelInfoViewModelUpdater {
             }
         }
     }
-    
+
     private boolean isSampleValueAvailable(int pixelX, int pixelY, boolean pixelValid) {
         return currentProduct != null
-                && pixelValid
-                && pixelX >= 0
-                && pixelY >= 0
-                && pixelX < currentProduct.getSceneRasterWidth()
-                && pixelY < currentProduct.getSceneRasterHeight();
+               && pixelValid
+               && pixelX >= 0
+               && pixelY >= 0
+               && pixelX < currentProduct.getSceneRasterWidth()
+               && pixelY < currentProduct.getSceneRasterHeight();
     }
 
     void clearProductNodeRefs() {

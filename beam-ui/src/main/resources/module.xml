@@ -10,6 +10,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.6<br/>
+        [BEAM-976] Time Info displays wrong UTC time<br/>
         [BEAM-958] PixelInfo blocks the EDT while updating its table<br/>
         [BEAM-954] PixelInfoView updates too often<br/>
         [BEAM-931] Shapes are not displayed while drawing<br/>
@@ -62,7 +63,8 @@
             <descriptorClass type="java.lang.Class">
                 org.esa.beam.framework.ui.application.support.DefaultApplicationDescriptor
             </descriptorClass>
-            <applicationId type="java.lang.String"/>   <!-- ID of the ceres application -->
+            <applicationId type="java.lang.String"/>
+            <!-- ID of the ceres application -->
             <displayName type="java.lang.String"/>
             <frameIcon field="iconPath" type="java.lang.String"/>
             <resourceBundle type="java.lang.String"/>
