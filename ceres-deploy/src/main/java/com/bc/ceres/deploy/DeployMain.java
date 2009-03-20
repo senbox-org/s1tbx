@@ -227,7 +227,8 @@ public class DeployMain {
         return copyIntoDir(sourceFile, mustExist, targetDir, sourceFile.getName());
     }
 
-    private boolean copyIntoDir(File sourceFile, boolean mustExist, File targetDir, String targetName) throws IOException {
+    private boolean copyIntoDir(File sourceFile, boolean mustExist, File targetDir, String targetName) throws
+                                                                                                       IOException {
         InputStream inputStream = null;
         try {
             inputStream = new FileInputStream(sourceFile);
@@ -257,7 +258,7 @@ public class DeployMain {
             if (numBytes != -1) {
                 outputStream.write(buffer, 0, numBytes);
             }
-        } while (numBytes == buffer.length);
+        } while (numBytes > 0);
     }
 
     private void closeBoth(InputStream inputStream, OutputStream outputStream) {
