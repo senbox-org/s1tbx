@@ -91,11 +91,11 @@ public class SmileAuxDataTest extends TestCase {
         assertEquals(true, data.getRadCorrFlagsWater()[12]);
         assertEquals(13 - 1, data.getLowerBandIndexesWater()[12]);
         assertEquals(14 - 1, data.getUpperBandIndexesWater()[12]);
-        assertEquals(865.0, data.getTheoreticalWavelengths()[12], 1e-6);
-        assertEquals(958.885498, data.getTheoreticalSunSpectralFluxes()[12], 1e-6);
+        assertEquals(865.0, data.getTheoreticalWavelengths()[12], 1.0e-6);
+        assertEquals(958.885498, data.getTheoreticalSunSpectralFluxes()[12], 1.0e-6);
 
-        assertEquals(489.8478699, data.getDetectorWavelengths()[20][2], 1e-6);
-        assertEquals(1927.9865723, data.getDetectorSunSpectralFluxes()[20][2], 1e-6);
+        assertEquals(490.0209579, data.getDetectorWavelengths()[20][2], 1.0e-6);
+        assertEquals(1929.29938966317, data.getDetectorSunSpectralFluxes()[20][2], 1.0e-10);
     }
 
     public void testCurrentFrData() {
@@ -108,10 +108,10 @@ public class SmileAuxDataTest extends TestCase {
         assertEquals(true, data.getRadCorrFlagsWater()[2]);
         assertEquals(2 - 1, data.getLowerBandIndexesWater()[2]);
         assertEquals(4 - 1, data.getUpperBandIndexesWater()[2]);
-        assertEquals(490.0, data.getTheoreticalWavelengths()[2], 1e-6);
-        assertEquals(1929.325562, data.getTheoreticalSunSpectralFluxes()[2], 1e-6);
+        assertEquals(490.0, data.getTheoreticalWavelengths()[2], 1.0e-6);
+        assertEquals(1929.325562, data.getTheoreticalSunSpectralFluxes()[2], 1.0e-6);
 
-        assertEquals(489.9304504, data.getDetectorWavelengths()[20][2], 1e-6);
-        assertEquals(1928.5653076, data.getDetectorSunSpectralFluxes()[20][2], 1e-6);
+        assertEquals(490.1104498, data.getDetectorWavelengths()[20][2], 1.0e-6);
+        assertEquals(1930.1682671039, data.getDetectorSunSpectralFluxes()[20][2], 1.0e-10);
     }
 }
