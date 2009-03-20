@@ -27,6 +27,10 @@
     </dependencies>
 
     <build>
+	    <directory>target</directory>
+	    <outputDirectory>target/classes</outputDirectory>
+	    <finalName>${project.artifactId}</finalName>
+
         <plugins>
             <plugin>
                 <groupId>com.bc.maven.plugins</groupId>
@@ -81,26 +85,6 @@
                     </templates>
                 </configuration>
             </plugin>
-
-<!--   todo
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <property file="${project.parent.basedir}/build.properties"/>
-                                <ant antfile="${project.parent.basedir}/build.xml" target="install4j-media"/>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
--->
 
         </plugins>
     </build>
