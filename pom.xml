@@ -412,7 +412,7 @@
 
                 <plugin>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>2.2-beta-3</version>
+                    <version>2.2-beta-2</version>
                 </plugin>
 
                 <plugin>
@@ -513,12 +513,12 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
+                    <finalName>beam</finalName>
                     <descriptors>
                         <!-- <descriptor>src/main/assembly/beam-web-help.xml</descriptor> -->
                         <descriptor>src/main/assembly/bin.xml</descriptor>
                         <descriptor>src/main/assembly/src.xml</descriptor>
                     </descriptors>
-                    <finalName>beam</finalName>
                 </configuration>
             </plugin>
         </plugins>

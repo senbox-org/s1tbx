@@ -7,7 +7,6 @@
 
     <formats>
         <format>dir</format>
-        <!-- used by installer-files.xml -->
     </formats>
 
     <files>
@@ -91,9 +90,7 @@
     </fileSets>
 
     <moduleSets>
-
-        <!-- (1) Artifacts that go into 'bin', 'lib' or 'modules' -->
-        <moduleSet>
+		<moduleSet>
             <excludes>
                 <exclude>org.esa.beam:beam-bootstrap</exclude>
                 <exclude>org.esa.beam:beam-installer</exclude>
@@ -101,65 +98,33 @@
                 <exclude>com.bc.ceres:ceres-launcher</exclude>
                 <exclude>com.bc.ceres:ceres-deploy</exclude>
                 <exclude>com.bc.ceres:ceres-fs</exclude>
-                <exclude>com.bc.ceres:ceres-launcher</exclude>
                 <exclude>com.bc.ceres:ceres-site</exclude>
             </excludes>
-
             <binaries>
-                <includeDependencies>false</includeDependencies>
-                <unpack>false</unpack>
-
                 <outputDirectory>modules</outputDirectory>
-                <outputFileNameMapping>${artifactId}-${version}.${extension}</outputFileNameMapping>
-
+				<unpack>false</unpack>
+                <outputFileNameMapping>${module.artifactId}-${module.version}.${module.extension}</outputFileNameMapping>
+                <includeDependencies>false</includeDependencies>
                 <dependencySets>
-
-                    <!-- (1) Put packed launcher into 'bin' -->
                     <dependencySet>
                         <outputDirectory>bin</outputDirectory>
-                        <outputFileNameMapping>${artifactId}.${extension}</outputFileNameMapping>
+                        <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
                         <includes>
                             <include>com.bc.ceres:ceres-launcher</include>
                         </includes>
                     </dependencySet>
-
-                    <!-- (2) Put packed dependencies into 'lib' -->
                     <dependencySet>
                         <outputDirectory>lib</outputDirectory>
+						<outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}</outputFileNameMapping>
                         <excludes>
-                            <exclude>com.bc.ceres:ceres-launcher</exclude>
+                            <exclude>com.bc.ceres:ceres-*</exclude>
+                            <exclude>org.esa.beam:beam-*</exclude>
+                            <exclude>org.esa.beam:lib-*</exclude>
                         </excludes>
-<!--
-                        <includes>
-                            <include>com.bc:bc-jnn</include>
-                            <include>com.sun.media:clibwrapper-jiio</include>
-                            <include>javax.media.jai:jai-codec</include>
-                            <include>javax.media.jai:jai-core</include>
-                            <include>com.sun.media:jai-imageio</include>
-                            <include>Jama:Jama</include>
-                            <include>jdom:jdom</include>
-                            <include>javax.help:javahelp</include>
-                            <include>com.jidesoft:jide-action</include>
-                            <include>com.jidesoft:jide-common</include>
-                            <include>com.jidesoft:jide-components</include>
-                            <include>com.jidesoft:jide-dock</include>
-                            <include>com.jidesoft:jide-grids</include>
-                            <include>junit:junit</include>
-                            <include>javax.media.jai:mlibwrapper-jai</include>
-                            <include>com.thoughtworks.xstream:xstream</include>
-                            <include>xpp3:xpp3</include>
-							<include>jfree:jfreechart</include>
-							<include>jfree:jcommon</include>
-							<include>com.lowagie:itext</include>
-                        </includes>
--->
                     </dependencySet>
-
                 </dependencySets>
-            </binaries>
-
-        </moduleSet>
-
+		    </binaries>
+		</moduleSet>
     </moduleSets>
-
+	
 </assembly>
