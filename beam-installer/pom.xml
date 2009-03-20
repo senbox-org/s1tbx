@@ -27,9 +27,9 @@
     </dependencies>
 
     <build>
-	    <directory>target</directory>
-	    <outputDirectory>target/classes</outputDirectory>
-	    <finalName>${project.artifactId}</finalName>
+        <directory>target</directory>
+        <outputDirectory>target/classes</outputDirectory>
+        <finalName>${project.artifactId}</finalName>
 
         <plugins>
             <plugin>
