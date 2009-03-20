@@ -12,21 +12,31 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.PixelInfoView;
 import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.TableLayout;
-import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JInternalFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Insets;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -35,6 +45,7 @@ import java.util.HashMap;
  * The tool window which displays the pixel info view.
  */
 public class PixelInfoToolView extends AbstractToolView {
+
     public static final String ID = PixelInfoToolView.class.getName();
 
     private PixelInfoView pixelInfoView;
@@ -99,7 +110,7 @@ public class PixelInfoToolView extends AbstractToolView {
         layout.setTableFill(TableLayout.Fill.HORIZONTAL);
         layout.setTablePadding(new Insets(2, 2, 2, 2));
         layout.setTableWeightX(1.0);
-        layout.setCellColspan(1,0, 5);
+        layout.setCellColspan(1, 0, 5);
         final JPanel optionPanel = new JPanel(layout);
 
 
@@ -139,9 +150,11 @@ public class PixelInfoToolView extends AbstractToolView {
 
         dockablePane.addComponentListener(new ComponentListener() {
 
-            public void componentResized(ComponentEvent e) { }
+            public void componentResized(ComponentEvent e) {
+            }
 
-            public void componentMoved(ComponentEvent e) { }
+            public void componentMoved(ComponentEvent e) {
+            }
 
             public void componentShown(ComponentEvent e) {
                 button.setSelected(dockablePane.isContentShown());
@@ -312,7 +325,8 @@ public class PixelInfoToolView extends AbstractToolView {
             this.view = view;
         }
 
-        public void pixelPosChanged(ImageLayer imageLayer, int pixelX, int pixelY, int currentLevel, boolean pixelPosValid, MouseEvent e) {
+        public void pixelPosChanged(ImageLayer imageLayer, int pixelX, int pixelY, int currentLevel,
+                                    boolean pixelPosValid, MouseEvent e) {
             if (isActive()) {
                 pixelInfoView.updatePixelValues(view, pixelX, pixelY, currentLevel, pixelPosValid);
             }
@@ -325,7 +339,7 @@ public class PixelInfoToolView extends AbstractToolView {
         }
 
         private boolean isActive() {
-            return  isVisible() && !isSnapToPin();
+            return isVisible() && !isSnapToPin();
         }
     }
 
@@ -333,10 +347,10 @@ public class PixelInfoToolView extends AbstractToolView {
 
         public void nodeChanged(ProductNodeEvent event) {
             if (isActive()) {
-                if (!Pin.PROPERTY_NAME_SELECTED.equals(event.getPropertyName())) {
-                    return;
+                if (Pin.PROPERTY_NAME_SELECTED.equals(event.getPropertyName()) ||
+                    Pin.PROPERTY_NAME_PIXELPOS.equals(event.getPropertyName())) {
+                    updatePin(event);
                 }
-                updatePin(event);
             }
         }
 
@@ -354,17 +368,19 @@ public class PixelInfoToolView extends AbstractToolView {
 
         public void nodeRemoved(ProductNodeEvent event) {
             if (isActive()) {
-                ProductNode sourceNode = event.getSourceNode();
-                if (sourceNode instanceof Pin && sourceNode.isSelected()) {
-                    setToSelectedPin(currentView);
-                }
+                updatePin(event);
             }
         }
 
         private void updatePin(ProductNodeEvent event) {
             final ProductNode sourceNode = event.getSourceNode();
             if (sourceNode instanceof Pin && sourceNode.isSelected()) {
-                setToSelectedPin(currentView);
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        setToSelectedPin(currentView);
+                    }
+                });
             }
         }
 

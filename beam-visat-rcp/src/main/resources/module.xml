@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.6:<br/>
+          [BEAM-967] PixelInfoView disregards pin movements if "Snap to selected pin" is selected<br/> 
           [BEAM-954] PixelInfoView updates too often<br/>
           [BEAM-942] VISAT sometimes hangs on startup<br/>
           [BEAM-937] Colour palette sometimes incorrectly imported<br/>
@@ -125,8 +126,8 @@
     -->
     <extensionPoint id="layerUIs">
         <layerUI type="org.esa.beam.framework.ui.layer.LayerUIDescriptor"
-                  class="@descriptorClass"
-                  autoConfig="true">
+                 class="@descriptorClass"
+                 autoConfig="true">
             <descriptorClass type="java.lang.Class">
                 org.esa.beam.framework.ui.layer.DefaultLayerUIDescriptor
             </descriptorClass>
@@ -218,7 +219,8 @@
             <description>Manage view layer visibility and transparency.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/LayerManager16.png</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/LayerManager24.png</largeIcon>
-            <helpId>showLayerManagerWnd</helpId><!-- todo provide help -->
+            <helpId>showLayerManagerWnd</helpId>
+            <!-- todo provide help -->
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
