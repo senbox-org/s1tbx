@@ -161,6 +161,12 @@
             <description>Retrieves images from a Web Mapping Server (WMS)</description>
             <controller>org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsSourceController</controller>    
         </layerSource>
+        <layerSource>
+            <id>shapefile-layer-source</id>
+            <name>ESRI Shapefile</name>
+            <description>Displays shapes from an ESRI Shapefile</description>
+            <controller>org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefileController</controller>    
+        </layerSource>
     </extension>
 
     <!--
