@@ -24,6 +24,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class AssistantPane implements AssistantPageContext {
+
     private AssistantPage currentPage;
     private Deque<AssistantPage> pageStack;
     private JDialog dialog;
@@ -131,6 +132,7 @@ public class AssistantPane implements AssistantPageContext {
     }
 
     private class PrevAction extends AbstractAction {
+
         private PrevAction() {
             super("< Previous");
             putValue(ACTION_COMMAND_KEY, "Previous");
@@ -145,6 +147,7 @@ public class AssistantPane implements AssistantPageContext {
     }
 
     private class NextAction extends AbstractAction {
+
         private NextAction() {
             super("Next >");
             putValue(ACTION_COMMAND_KEY, "Next");
@@ -164,6 +167,7 @@ public class AssistantPane implements AssistantPageContext {
     }
 
     private class FinishAction extends AbstractAction {
+
         private FinishAction() {
             super("Finish");
             putValue(ACTION_COMMAND_KEY, "Finish");
@@ -173,7 +177,7 @@ public class AssistantPane implements AssistantPageContext {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (getCurrentPage().performFinish()) {
+            if (getCurrentPage().performFinish(AssistantPane.this)) {
                 close();
             }
         }
@@ -181,6 +185,7 @@ public class AssistantPane implements AssistantPageContext {
     }
 
     private class CancelAction extends AbstractAction {
+
         private CancelAction() {
             super("Cancel");
             putValue(ACTION_COMMAND_KEY, "Cancel");
@@ -202,6 +207,7 @@ public class AssistantPane implements AssistantPageContext {
     }
 
     private class HelpAction extends AbstractAction {
+
         private HelpAction() {
             super("Help");
             putValue(ACTION_COMMAND_KEY, "Help");

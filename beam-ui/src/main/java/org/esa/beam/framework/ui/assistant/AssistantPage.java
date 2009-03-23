@@ -15,20 +15,23 @@ public interface AssistantPage {
 
     /**
      * Called only if {@link #validatePage()} returns true.
-     * @return the next page, or {@code null} if no next page exists or the page could not be created.
+     *
      * @param pageContext
+     *
+     * @return the next page, or {@code null} if no next page exists or the page could not be created.
      */
     AssistantPage getNextPage(AssistantPageContext pageContext);
 
     /**
      * Called from {@link AssistantPageContext#updateState()} in order to validate user inputs.
+     *
      * @return true, if the current page is valid
      */
     boolean validatePage();
 
     boolean canFinish();
 
-    boolean performFinish();
+    boolean performFinish(AssistantPageContext pageContext);
 
     void performCancel();
 

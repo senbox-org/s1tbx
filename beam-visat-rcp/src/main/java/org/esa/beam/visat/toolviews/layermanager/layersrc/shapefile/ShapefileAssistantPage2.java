@@ -7,6 +7,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
+import org.esa.beam.framework.ui.assistant.AssistantPageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
@@ -43,10 +44,10 @@ import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Cursor;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
@@ -134,7 +135,7 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean performFinish() {
+    public boolean performFinish(AssistantPageContext pageContext) {
         Style style = FeatureLayer.createStyle(file, schema);
         FeatureLayer featureLayer = new FeatureLayer(featureCollection, style);
 

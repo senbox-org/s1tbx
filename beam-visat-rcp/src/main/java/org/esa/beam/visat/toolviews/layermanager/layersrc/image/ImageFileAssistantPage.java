@@ -6,6 +6,7 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.tools.Tools;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
+import org.esa.beam.framework.ui.assistant.AssistantPageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.io.FileUtils;
@@ -111,7 +112,7 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean performFinish() {
+    public boolean performFinish(AssistantPageContext pageContext) {
         imageHistoryModel.saveHistory();
         String worldFilePath = getText(worldFileField);
         String layerName = layerNameField.getText().trim();

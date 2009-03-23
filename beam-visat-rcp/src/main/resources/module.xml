@@ -139,6 +139,21 @@
         </layerUI>
     </extensionPoint>
 
+    <extensionPoint id="layerSources">
+        <layerSource type="org.esa.beam.visat.toolviews.layermanager.LayerSourceDescriptor"
+                     class="@descriptorClass"
+                     autoConfig="true">
+            <!-- todo - SimpleLayerSourceDescriptor requires LayerType property, but not controllerClass-->
+            <descriptorClass type="java.lang.Class">
+                org.esa.beam.visat.toolviews.layermanager.DefaultLayerSourceDescriptor
+            </descriptorClass>
+            <id field="id" type="java.lang.String"/>
+            <name field="name" type="java.lang.String"/>
+            <description field="description" type="java.lang.String"/>
+            <controller field="controllerClass" type="java.lang.Class"/>
+        </layerSource>
+    </extensionPoint>
+
     <!--
        todo - The VisatPlugIn interface should be deprecated, use an ApplicationLifecycleListener instead
     -->

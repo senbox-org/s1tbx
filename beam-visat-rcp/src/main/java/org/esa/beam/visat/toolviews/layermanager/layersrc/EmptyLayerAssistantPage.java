@@ -4,6 +4,7 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc;
 import com.bc.ceres.glayer.Layer;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
+import org.esa.beam.framework.ui.assistant.AssistantPageContext;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -48,7 +49,7 @@ public class EmptyLayerAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean performFinish() {
+    public boolean performFinish(AssistantPageContext pageContext) {
         Layer layer = new Layer();
         layer.setName(nameBox.getSelectedItem().toString().trim());
         Layer rootLayer = getAppPageContext().getAppContext().getSelectedProductSceneView().getRootLayer();
@@ -83,12 +84,14 @@ public class EmptyLayerAssistantPage extends AbstractAppAssistantPage {
     }
 
     private class MyItemListener implements ItemListener {
+
         public void itemStateChanged(ItemEvent e) {
             getAppPageContext().updateState();
         }
     }
 
     private class MyActionListener implements ActionListener {
+
         public void actionPerformed(ActionEvent e) {
             getAppPageContext().updateState();
         }

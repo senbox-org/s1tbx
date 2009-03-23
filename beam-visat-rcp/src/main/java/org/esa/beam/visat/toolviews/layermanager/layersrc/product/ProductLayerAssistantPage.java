@@ -12,9 +12,10 @@ import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
+import org.esa.beam.framework.ui.assistant.AssistantPageContext;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -61,7 +62,7 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean performFinish() {
+    public boolean performFinish(AssistantPageContext pageContext) {
 
         final RasterDataNode rasterDataNode = (RasterDataNode) tree.getSelectionPath().getLastPathComponent();
 
@@ -84,6 +85,7 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
     }
 
     static class CompatibleNodeList {
+
         final String name;
         final List<RasterDataNode> rasterDataNodes;
 
@@ -154,8 +156,9 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
         return new ProductTreeModel(compatibleNodeLists);
     }
 
-    private void collectCompatibleRasterDataNodes(RasterDataNode[] bands, CoordinateReferenceSystem crs, Collection<RasterDataNode> rasterDataNodes) {
-        for (RasterDataNode node: bands) {
+    private void collectCompatibleRasterDataNodes(RasterDataNode[] bands, CoordinateReferenceSystem crs,
+                                                  Collection<RasterDataNode> rasterDataNodes) {
+        for (RasterDataNode node : bands) {
             GeoCoding geoCoding = node.getGeoCoding();
             if (geoCoding != null && node.getGeoCoding().getModelCRS().equals(crs)) {
                 rasterDataNodes.add(node);
@@ -164,27 +167,32 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
     }
 
     private static class MyDefaultTreeCellRenderer extends DefaultTreeCellRenderer {
+
         @Override
-        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded,
+                                                      boolean leaf, int row, boolean hasFocus) {
             JLabel label = (JLabel) super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
             if (value instanceof CompatibleNodeList) {
                 label.setText(MessageFormat.format("<html><b>{0}</b></html>", ((CompatibleNodeList) value).name));
             } else if (value instanceof Band) {
                 label.setText(MessageFormat.format("<html><b>{0}</b></html>", ((Band) value).getName()));
             } else if (value instanceof TiePointGrid) {
-                label.setText(MessageFormat.format("<html><b>{0}</b> (Tie-point grid)</html>", ((TiePointGrid) value).getName()));
+                label.setText(MessageFormat.format("<html><b>{0}</b> (Tie-point grid)</html>",
+                                                   ((TiePointGrid) value).getName()));
             }
             return label;
         }
     }
 
     private class MyListSelectionListener implements TreeSelectionListener {
+
         public void valueChanged(TreeSelectionEvent e) {
             getAppPageContext().updateState();
         }
     }
 
     private static class ProductTreeModel extends AbstractTreeModel {
+
         private final List<CompatibleNodeList> compatibleNodeLists;
 
         public ProductTreeModel(List<CompatibleNodeList> compatibleNodeLists) {

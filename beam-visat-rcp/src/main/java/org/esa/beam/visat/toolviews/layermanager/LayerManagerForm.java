@@ -10,12 +10,8 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.assistant.AppAssistantPane;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.product.ProductLayerAssistantPage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.EmptyLayerAssistantPage;
+import org.esa.beam.visat.VisatActivator;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.SelectLayerSourceAssistantPage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.image.ImageFileAssistantPage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefileAssistantPage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsAssistantPage;
 
 import javax.swing.AbstractButton;
 import javax.swing.DropMode;
@@ -139,7 +135,7 @@ class LayerManagerForm {
         moveLayerRightAction.setEnabled(isLayerSelected);
     }
 
-    public  boolean isLayerProtected(Layer layer) {
+    public boolean isLayerProtected(Layer layer) {
         return isLayerProtectedImpl(layer) || isChildLayerProtected(layer);
     }
 
@@ -303,15 +299,18 @@ class LayerManagerForm {
 
             AppAssistantPane pane = new AppAssistantPane(SwingUtilities.getWindowAncestor(control), "Add Layer",
                                                          appContext);
+            LayerSourceDescriptor[] layerSourceDescriptors = VisatActivator.getInstance().getLayerSources();
+            pane.show(new SelectLayerSourceAssistantPage(layerSourceDescriptors));
+
 
             // Todo - select layer sources from extension point
-            pane.show(new SelectLayerSourceAssistantPage(new LayerSource[]{
-                    new LayerSource("Layer Group", new EmptyLayerAssistantPage()),
-                    new LayerSource("ESRI Shapefile", new ShapefileAssistantPage()),
-                    new LayerSource("Image of Band / Tie-Point Grid", new ProductLayerAssistantPage()),
-                    new LayerSource("Image from File", new ImageFileAssistantPage()),
-                    new LayerSource("Image from Web Mapping Server (WMS)", new WmsAssistantPage()),
-            }));
+//            pane.show(new SelectLayerSourceAssistantPage(new DefaultLayerSource[]{
+//                    new DefaultLayerSource("Layer Group", new EmptyLayerAssistantPage()),
+//                    new DefaultLayerSource("ESRI Shapefile", new ShapefileAssistantPage()),
+//                    new DefaultLayerSource("Image of Band / Tie-Point Grid", new ProductLayerAssistantPage()),
+//                    new DefaultLayerSource("Image from File", new ImageFileAssistantPage()),
+//                    new DefaultLayerSource("Image from Web Mapping Server (WMS)", new WmsAssistantPage()),
+//            }));
         }
     }
 

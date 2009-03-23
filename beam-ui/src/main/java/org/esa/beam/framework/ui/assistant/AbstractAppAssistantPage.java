@@ -22,6 +22,16 @@ public abstract class AbstractAppAssistantPage extends AbstractAssistantPage {
     }
 
     @Override
+    public boolean performFinish(AssistantPageContext pageContext) {
+        return performFinish(getAppPageContext());
+
+    }
+
+    public boolean performFinish(AppAssistantPageContext pageContext) {
+        return true;
+    }
+
+    @Override
     protected final Component createPageComponent(AssistantPageContext context) {
         return createLayerPageComponent((AppAssistantPageContext) context);
     }

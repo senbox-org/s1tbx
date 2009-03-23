@@ -8,6 +8,7 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
+import org.esa.beam.framework.ui.assistant.AssistantPageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.referencing.CRS;
@@ -65,7 +66,7 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean performFinish() {
+    public boolean performFinish(AssistantPageContext pageContext) {
         return ImageFileAssistantPage.insertImageLayer(getAppPageContext(), image, layerName, createTransform());
     }
 

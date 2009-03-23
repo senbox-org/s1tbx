@@ -4,6 +4,7 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
+import org.esa.beam.framework.ui.assistant.AssistantPageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
@@ -66,7 +67,7 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean performFinish() {
+    public boolean performFinish(AssistantPageContext pageContext) {
         cancelPreviewWorker();
         ProductSceneView view = getAppPageContext().getAppContext().getSelectedProductSceneView();
         RasterDataNode raster = view.getRaster();
@@ -275,7 +276,8 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
             this.rootLayer = rootLayer;
             progressBar = new JProgressBar();
             progressBar.setIndeterminate(true);
-            dialog = new JDialog(getAppPageContext().getWindow(), "Loading image from WMS...", Dialog.ModalityType.DOCUMENT_MODAL);
+            dialog = new JDialog(getAppPageContext().getWindow(), "Loading image from WMS...",
+                                 Dialog.ModalityType.DOCUMENT_MODAL);
             dialog.getContentPane().add(progressBar, BorderLayout.SOUTH);
             dialog.pack();
         }

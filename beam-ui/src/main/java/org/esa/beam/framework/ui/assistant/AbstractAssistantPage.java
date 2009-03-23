@@ -3,6 +3,7 @@ package org.esa.beam.framework.ui.assistant;
 import java.awt.Component;
 
 public abstract class AbstractAssistantPage implements AssistantPage {
+
     private String pageTitle;
     private Component pageComponent;
     private AssistantPageContext context;
@@ -64,7 +65,7 @@ public abstract class AbstractAssistantPage implements AssistantPage {
     }
 
     @Override
-    public boolean performFinish() {
+    public boolean performFinish(AssistantPageContext pageContext) {
         return true;
     }
 
