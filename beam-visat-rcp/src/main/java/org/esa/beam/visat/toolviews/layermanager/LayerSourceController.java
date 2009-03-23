@@ -14,7 +14,7 @@ public interface LayerSourceController {
 
     boolean isApplicable(AppAssistantPageContext pageContext);
 
-    AbstractAppAssistantPage getNextPage(AppAssistantPageContext pageContext);
+    AbstractAppAssistantPage getFirstPage(AppAssistantPageContext pageContext);
 
     boolean finish(AppAssistantPageContext pageContext);
 

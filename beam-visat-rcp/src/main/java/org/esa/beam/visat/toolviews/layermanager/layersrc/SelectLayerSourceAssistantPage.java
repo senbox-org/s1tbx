@@ -50,7 +50,7 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
             return null;
         }
         LayerSourceDescriptor layerSourceDescriptor = sourceDescriptors[index];
-        return controlMap.get(layerSourceDescriptor).getNextPage(pageContext);
+        return controlMap.get(layerSourceDescriptor).getFirstPage(pageContext);
     }
 
     @Override
