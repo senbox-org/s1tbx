@@ -153,6 +153,15 @@
             <controller field="controllerClass" type="java.lang.Class"/>
         </layerSource>
     </extensionPoint>
+    
+    <extension point="beam-visat-rcp:layerSources">
+        <layerSource>
+            <id>wms-layer-source</id>
+            <name>Image from Web Mapping Server (WMS)</name>
+            <description>Retrieves images from a Web Mapping Server (WMS)</description>
+            <controller>org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsSourceController</controller>    
+        </layerSource>
+    </extension>
 
     <!--
        todo - The VisatPlugIn interface should be deprecated, use an ApplicationLifecycleListener instead
