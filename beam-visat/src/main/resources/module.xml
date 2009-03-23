@@ -115,6 +115,7 @@
         <applicationDescriptor>
             <applicationId>VisatMain</applicationId>
             <displayName>VISAT</displayName>
+            <version>${beam.version}</version>
             <excludedToolViews>
                 <!-- place tool view IDs here you wish to exclude from your application -->
                 <!-- e.g. <id>org.esa.beam.visat.toolviews.lm.LayersToolView</id> -->
