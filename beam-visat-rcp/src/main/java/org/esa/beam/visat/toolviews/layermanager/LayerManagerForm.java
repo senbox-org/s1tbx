@@ -306,10 +306,7 @@ class LayerManagerForm {
             // Todo - select layer sources from extension point
 //            pane.show(new SelectLayerSourceAssistantPage(new DefaultLayerSource[]{
 //                    new DefaultLayerSource("Layer Group", new EmptyLayerAssistantPage()),
-//                    new DefaultLayerSource("ESRI Shapefile", new ShapefileAssistantPage()),
-//                    new DefaultLayerSource("Image of Band / Tie-Point Grid", new ProductLayerAssistantPage()),
 //                    new DefaultLayerSource("Image from File", new ImageFileAssistantPage()),
-//                    new DefaultLayerSource("Image from Web Mapping Server (WMS)", new WmsAssistantPage()),
 //            }));
         }
     }

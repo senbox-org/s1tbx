@@ -167,6 +167,12 @@
             <description>Displays shapes from an ESRI Shapefile</description>
             <controller>org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefileController</controller>    
         </layerSource>
+        <layerSource>
+            <id>productdata-layer-source</id>
+            <name>Image of Band / Tie-Point Grid</name>
+            <description>Displays images from a Band or Tie-Point Grid of compatible products</description>
+            <controller>org.esa.beam.visat.toolviews.layermanager.layersrc.product.ProductSourceController</controller>    
+        </layerSource>
     </extension>
 
     <!--
