@@ -173,6 +173,12 @@
             <description>Displays images from a Band or Tie-Point Grid of compatible products</description>
             <controller>org.esa.beam.visat.toolviews.layermanager.layersrc.product.ProductSourceController</controller>    
         </layerSource>
+        <layerSource>
+            <id>image-layer-source</id>
+            <name>Image from File</name>
+            <description>Displays images from a file</description>
+            <controller>org.esa.beam.visat.toolviews.layermanager.layersrc.image.ImageFileSourceController</controller>    
+        </layerSource>
     </extension>
 
     <!--

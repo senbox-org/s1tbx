@@ -306,7 +306,6 @@ class LayerManagerForm {
             // Todo - select layer sources from extension point
 //            pane.show(new SelectLayerSourceAssistantPage(new DefaultLayerSource[]{
 //                    new DefaultLayerSource("Layer Group", new EmptyLayerAssistantPage()),
-//                    new DefaultLayerSource("Image from File", new ImageFileAssistantPage()),
 //            }));
         }
     }
