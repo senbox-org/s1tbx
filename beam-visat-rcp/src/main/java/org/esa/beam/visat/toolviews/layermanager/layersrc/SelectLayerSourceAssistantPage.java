@@ -22,14 +22,14 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
 
     private JList list;
     private LayerSourceDescriptor[] sourceDescriptors;
-    private Map<LayerSourceDescriptor, LayerSourceController> controlMap;
+    private Map<LayerSourceDescriptor, LayerSourceController> controllerMap;
 
     public SelectLayerSourceAssistantPage(LayerSourceDescriptor[] sourceDescriptors) {
         super("Select Layer Source");
         this.sourceDescriptors = sourceDescriptors.clone();
-        controlMap = new HashMap<LayerSourceDescriptor, LayerSourceController>();
+        controllerMap = new HashMap<LayerSourceDescriptor, LayerSourceController>();
         for (LayerSourceDescriptor sourceDescriptor : this.sourceDescriptors) {
-            controlMap.put(sourceDescriptor, sourceDescriptor.createController());
+            controllerMap.put(sourceDescriptor, sourceDescriptor.createController());
         }
     }
 
@@ -50,7 +50,7 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
             return null;
         }
         LayerSourceDescriptor layerSourceDescriptor = sourceDescriptors[index];
-        return controlMap.get(layerSourceDescriptor).getFirstPage(pageContext);
+        return controllerMap.get(layerSourceDescriptor).getFirstPage(pageContext);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
             return false;
         }
         LayerSourceDescriptor layerSourceDescriptor = sourceDescriptors[index];
-        return controlMap.get(layerSourceDescriptor).finish(pageContext);
+        return controllerMap.get(layerSourceDescriptor).finish(pageContext);
     }
 
     @Override
