@@ -179,6 +179,12 @@
             <description>Displays images from a file</description>
             <controller>org.esa.beam.visat.toolviews.layermanager.layersrc.image.ImageFileSourceController</controller>    
         </layerSource>
+        <layerSource>
+            <id>group-layer-source</id>
+            <name>Layer Group</name>
+            <description>Inserts an empty Layer Group</description>
+            <controller>org.esa.beam.visat.toolviews.layermanager.layersrc.LayerGroupSourceController</controller>    
+        </layerSource>
     </extension>
 
     <!--

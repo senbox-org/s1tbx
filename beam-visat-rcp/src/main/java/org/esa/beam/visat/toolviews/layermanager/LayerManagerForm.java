@@ -296,17 +296,10 @@ class LayerManagerForm {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-
             AppAssistantPane pane = new AppAssistantPane(SwingUtilities.getWindowAncestor(control), "Add Layer",
                                                          appContext);
             LayerSourceDescriptor[] layerSourceDescriptors = VisatActivator.getInstance().getLayerSources();
             pane.show(new SelectLayerSourceAssistantPage(layerSourceDescriptors));
-
-
-            // Todo - select layer sources from extension point
-//            pane.show(new SelectLayerSourceAssistantPage(new DefaultLayerSource[]{
-//                    new DefaultLayerSource("Layer Group", new EmptyLayerAssistantPage()),
-//            }));
         }
     }
 
