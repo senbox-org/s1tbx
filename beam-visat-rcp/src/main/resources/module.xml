@@ -275,6 +275,18 @@
         </toolView>
 
         <toolView>
+            <id>org.esa.beam.visat.toolviews.layermanager.LayerEditorToolView</id>
+            <class>org.esa.beam.visat.toolviews.layermanager.LayerEditorToolView</class>
+            <title>Layer Editor</title>
+            <description>Edit layer properties.</description>
+            <helpId>showLayerEditorWnd</helpId>
+            <!-- todo provide help -->
+            <initState>HIDDEN</initState>
+            <initSide>SOUTH</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+
+        <toolView>
             <id>org.esa.beam.visat.toolviews.bitmask.BitmaskOverlayToolView</id>
             <class>org.esa.beam.visat.toolviews.bitmask.BitmaskOverlayToolView</class>
             <title>Bitmask Overlay</title>

@@ -36,9 +36,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 
-class LayerManagerForm {
+class LayerManagerForm extends AbstractLayerForm {
 
-    private final AppContext appContext;
     private final ProductSceneView view;
     private CheckBoxTree layerTree;
     private JSlider transparencySlider;
@@ -53,7 +52,7 @@ class LayerManagerForm {
     private MoveLayerRightAction moveLayerRightAction;
 
     LayerManagerForm(AppContext appContext) {
-        this.appContext = appContext;
+        super(appContext);
         this.view = appContext.getSelectedProductSceneView();
         initUI();
     }
@@ -75,19 +74,19 @@ class LayerManagerForm {
 
         AbstractButton addButton = createToolButton("icons/Plus24.gif");
         addButton.addActionListener(new AddLayerActionListener());
-        removeLayerAction = new RemoveLayerAction(appContext);
+        removeLayerAction = new RemoveLayerAction(getAppContext());
         AbstractButton removeButton = ToolButtonFactory.createButton(removeLayerAction, false);
 
-        moveLayerUpAction = new MoveLayerUpAction(appContext);
+        moveLayerUpAction = new MoveLayerUpAction(getAppContext());
         AbstractButton upButton = ToolButtonFactory.createButton(moveLayerUpAction, false);
 
-        moveLayerDownAction = new MoveLayerDownAction(appContext);
+        moveLayerDownAction = new MoveLayerDownAction(getAppContext());
         AbstractButton downButton = ToolButtonFactory.createButton(moveLayerDownAction, false);
 
-        moveLayerLeftAction = new MoveLayerLeftAction(appContext);
+        moveLayerLeftAction = new MoveLayerLeftAction(getAppContext());
         AbstractButton leftButton = ToolButtonFactory.createButton(moveLayerLeftAction, false);
 
-        moveLayerRightAction = new MoveLayerRightAction(appContext);
+        moveLayerRightAction = new MoveLayerRightAction(getAppContext());
         AbstractButton rightButton = ToolButtonFactory.createButton(moveLayerRightAction, false);
 
         JPanel actionBar = new JPanel(new GridLayout(-1, 1, 2, 2));
@@ -108,22 +107,20 @@ class LayerManagerForm {
         control.add(actionPanel, BorderLayout.EAST);
 
         initLayerTreeVisibility(view.getRootLayer());
-        updateFormUI();
+        updateFormControl();
     }
 
     public Layer getRootLayer() {
         return view.getRootLayer();
     }
 
-    public JComponent getControl() {
+    @Override
+    public JComponent getFormControl() {
         return control;
     }
 
-    private Layer getSelectedLayer() {
-        return view.getSelectedLayer();
-    }
-
-    void updateFormUI() {
+    @Override
+    public void updateFormControl() {
         Layer selectedLayer = getSelectedLayer();
         updateLayerStyleUI(selectedLayer);
         updateLayerTreeSelection(selectedLayer);
@@ -139,6 +136,10 @@ class LayerManagerForm {
         return isLayerProtectedImpl(layer) || isChildLayerProtected(layer);
     }
 
+    private Layer getSelectedLayer() {
+        return view.getSelectedLayer();
+    }
+
     private boolean isLayerProtectedImpl(Layer layer) {
         return layer.getId().equals(ProductSceneView.BASE_IMAGE_LAYER_ID);
     }
@@ -147,7 +148,7 @@ class LayerManagerForm {
         Layer[] children = selectedLayer.getChildren().toArray(new Layer[selectedLayer.getChildren().size()]);
         for (Layer childLayer : children) {
             if (isLayerProtectedImpl(childLayer) ||
-                isChildLayerProtected(childLayer)) {
+                    isChildLayerProtected(childLayer)) {
                 return true;
             }
         }
@@ -225,7 +226,7 @@ class LayerManagerForm {
                 } else {
                     selectedLayer = null;
                 }
-                appContext.getSelectedProductSceneView().setSelectedLayer(selectedLayer);
+                getAppContext().getSelectedProductSceneView().setSelectedLayer(selectedLayer);
             }
         });
 
@@ -256,7 +257,7 @@ class LayerManagerForm {
         @Override
         public void handleLayerStylePropertyChanged(Layer layer, PropertyChangeEvent event) {
             if (!adjusting) {
-                updateFormUI();
+                updateFormControl();
             }
         }
 
@@ -297,7 +298,7 @@ class LayerManagerForm {
         @Override
         public void actionPerformed(ActionEvent e) {
             AppAssistantPane pane = new AppAssistantPane(SwingUtilities.getWindowAncestor(control), "Add Layer",
-                                                         appContext);
+                                                         getAppContext());
             LayerSourceDescriptor[] layerSourceDescriptors = VisatActivator.getInstance().getLayerSources();
             pane.show(new SelectLayerSourceAssistantPage(layerSourceDescriptors));
         }

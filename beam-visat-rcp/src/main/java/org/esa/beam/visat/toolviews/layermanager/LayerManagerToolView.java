@@ -14,121 +14,75 @@
  */
 package org.esa.beam.visat.toolviews.layermanager;
 
-import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.visat.VisatApp;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.WeakHashMap;
+import java.awt.BorderLayout;
+
+import com.bc.ceres.glayer.Layer;
 
 /**
  * Layer manager tool view.
  */
-public class LayerManagerToolView extends AbstractToolView {
+public class LayerManagerToolView extends AbstractLayerToolView {
 
-    private JPanel panel;
     private WeakHashMap<ProductSceneView, LayerManagerForm> layerManagerMap;
-    private ProductSceneView activeView;
     private LayerManagerForm activeForm;
-    private final SelectedLayerPCL selectedLayerPCL;
 
     public LayerManagerToolView() {
-        selectedLayerPCL = new SelectedLayerPCL();
     }
-
 
     @Override
     protected JComponent createControl() {
-        panel = new JPanel(new BorderLayout());
         layerManagerMap = new WeakHashMap<ProductSceneView, LayerManagerForm>();
-
-        final ProductSceneView sceneView = VisatApp.getApp().getSelectedProductSceneView();
-        setProductSceneView(sceneView);
-
-        VisatApp.getApp().addInternalFrameListener(new LayerManagerIFL());
-
-        return panel;
+        return super.createControl();
     }
 
+    @Override
+    protected void viewClosed(ProductSceneView view) {
+        layerManagerMap.remove(view);
+    }
 
-    private void setProductSceneView(final ProductSceneView view) {
-        if (panel.getComponentCount() > 0) {
-            panel.remove(0);
+    @Override
+    protected void viewSelectionChanged(ProductSceneView oldView, ProductSceneView newView) {
+        realizeActiveForm();
+    }
+
+    @Override
+    protected void layerSelectionChanged(Layer oldLayer, Layer selectedLayer) {
+        if (activeForm != null) {
+            activeForm.updateFormControl();
+        }
+    }
+
+    private void realizeActiveForm() {
+        final JPanel controlPanel = getControlPanel();
+
+        if (controlPanel.getComponentCount() > 0) {
+            controlPanel.remove(0);
         }
 
-        if (view != null) {
-            if (layerManagerMap.containsKey(view)) {
-                activeForm = layerManagerMap.get(view);
-            } else {
-                activeForm = new LayerManagerForm(VisatApp.getApp());
-                layerManagerMap.put(view, activeForm);
-            }
-            panel.add(activeForm.getControl(), BorderLayout.CENTER);
+        if (getSelectedView() != null) {
+            activeForm = getOrCreateActiveForm(getSelectedView());
+            controlPanel.add(activeForm.getFormControl(), BorderLayout.CENTER);
         } else {
             activeForm = null;
         }
 
-        panel.validate();
-        panel.repaint();
-
-        if (activeView != null) {
-            activeView.removePropertyChangeListener("selectedLayer", selectedLayerPCL);
-        }
-        activeView = view;
-        if (activeView != null) {
-            activeView.addPropertyChangeListener("selectedLayer", selectedLayerPCL);
-        }
+        controlPanel.validate();
+        controlPanel.repaint();
     }
 
-    private class LayerManagerIFL extends InternalFrameAdapter {
-        @Override
-        public void internalFrameActivated(InternalFrameEvent e) {
-            final Container container = e.getInternalFrame().getContentPane();
-
-            if (container instanceof ProductSceneView) {
-                setProductSceneView((ProductSceneView) container);
-            } else {
-                setProductSceneView(null);
-            }
+    protected LayerManagerForm getOrCreateActiveForm(ProductSceneView view) {
+        if (layerManagerMap.containsKey(view)) {
+            activeForm = layerManagerMap.get(view);
+        } else {
+            activeForm = new LayerManagerForm(getAppContext());
+            layerManagerMap.put(view, activeForm);
         }
-
-        @Override
-        public void internalFrameDeactivated(InternalFrameEvent e) {
-            final Container container = e.getInternalFrame().getContentPane();
-
-            if (container instanceof ProductSceneView) {
-                setProductSceneView(null);
-            }
-        }
-
-        @Override
-        public void internalFrameClosed(InternalFrameEvent e) {
-            final Container contentPane = e.getInternalFrame().getContentPane();
-
-            if (contentPane instanceof ProductSceneView) {
-
-                final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
-                if (activeView == view) {
-                    setProductSceneView(null);
-                }
-                layerManagerMap.remove(view);
-            }
-        }
+        return activeForm;
     }
 
-    private class SelectedLayerPCL implements PropertyChangeListener {
-
-        public void propertyChange(PropertyChangeEvent evt) {
-            if (activeForm != null && activeView != null) {
-                activeForm.updateFormUI();
-            }
-        }
-    }
 }
