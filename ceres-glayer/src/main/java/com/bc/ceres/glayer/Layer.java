@@ -59,6 +59,7 @@ public class Layer extends ExtensibleObject {
      * <li>{@code visible = true}</li>
      * <li>{@code style.opaccity = 1.0}</li>
      * </ul>
+     *
      * @param name A name.
      */
     public Layer(String name) {
@@ -88,7 +89,7 @@ public class Layer extends ExtensibleObject {
      * </ul>
      *
      * @param layerType The layer type.
-     * @param name A name.
+     * @param name      A name.
      */
     protected Layer(LayerType layerType, String name) {
         Assert.notNull(layerType, "layerType");
@@ -608,7 +609,19 @@ public class Layer extends ExtensibleObject {
 
         @Override
         public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
+            // todo - use configuration.get("children"); ?
             return new Layer();
         }
+
+        @Override
+        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
+            return null;
+        }
+
+// todo - check this use case (nf)
+//        public Layer createLayerCopy(LayerContext ctx, Layer layer) {
+//            return createLayer(ctx, createConfiguration(ctx, layer));
+//        }
+
     }
 }

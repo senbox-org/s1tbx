@@ -14,4 +14,6 @@ public abstract class LayerType extends ExtensibleObject {
     public abstract boolean isValidFor(LayerContext ctx);
 
     public abstract Layer createLayer(LayerContext ctx, Map<String, Object> configuration);
+
+    public abstract Map<String, Object> createConfiguration(LayerContext ctx, Layer layer);
 }

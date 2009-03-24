@@ -20,6 +20,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.util.Map;
+import java.util.HashMap;
 
 /**
  * A multi-resolution capable image layer.
@@ -69,8 +70,8 @@ public class ImageLayer extends Layer {
      */
     public ImageLayer(RenderedImage image, AffineTransform imageToModelTransform, int levelCount) {
         this(new DefaultMultiLevelSource(image,
-                new DefaultMultiLevelModel(levelCount, imageToModelTransform,
-                        DefaultMultiLevelModel.getModelBounds(imageToModelTransform, image))
+                                         new DefaultMultiLevelModel(levelCount, imageToModelTransform,
+                                                                    DefaultMultiLevelModel.getModelBounds(imageToModelTransform, image))
         ));
     }
 
@@ -86,7 +87,7 @@ public class ImageLayer extends Layer {
     /**
      * Constructs a multi-resolution-level image layer.
      *
-     * @param type The layer type.
+     * @param type             The layer type.
      * @param multiLevelSource the multi-resolution-level image.
      */
     protected ImageLayer(LayerType type, MultiLevelSource multiLevelSource) {
@@ -285,6 +286,13 @@ public class ImageLayer extends Layer {
         public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
             MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.get("multiLevelSource");
             return new ImageLayer(multiLevelSource);
+        }
+
+        @Override
+        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
+            final HashMap<String, Object> configuration = new HashMap<String, Object>();
+            configuration.put("multiLevelSource", ((ImageLayer) layer).getMultiLevelSource());
+            return configuration;
         }
     }
 }
