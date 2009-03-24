@@ -6,6 +6,7 @@ import com.bc.ceres.glayer.LayerType;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -34,5 +35,10 @@ public class BlueMarbleLayerType extends LayerType {
         Layer worldMapLayer = BlueMarbleWorldMapLayer.createWorldMapLayer();
         worldMapLayer.setVisible(true);
         return worldMapLayer;
+    }
+
+    @Override
+    public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
+        return new HashMap<String, Object>();
     }
 }
