@@ -1,17 +1,35 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.ProductNode;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PlacemarkLayer extends Layer {
+
+    private final static LayerType TYPE = new Type();
 
     public static final String PROPERTY_NAME_TEXT_FONT = "text.font";
     public static final String PROPERTY_NAME_TEXT_ENABLED = "text.enabled";
@@ -23,20 +41,26 @@ public class PlacemarkLayer extends Layer {
     private static final Color DEFAULT_TEXT_FG_COLOR = Color.WHITE;
     private static final Color DEFAULT_TEXT_BG_COLOR = Color.BLACK;
 
+    private final MyProductNodeListenerAdapter pnl;
     private Product product;
     private PlacemarkDescriptor placemarkDescriptor;
     private final AffineTransform imageToModelTransform;
 
     public PlacemarkLayer(Product product, PlacemarkDescriptor placemarkDescriptor, AffineTransform imageToModelTransform) {
+        super(TYPE);
         this.product = product;
         this.placemarkDescriptor = placemarkDescriptor;
         this.imageToModelTransform = new AffineTransform(imageToModelTransform);
+        this.pnl = new MyProductNodeListenerAdapter();
+        product.addProductNodeListener(pnl);
     }
 
     @Override
     public void disposeLayer() {
-        product = null;
-        placemarkDescriptor = null;
+        if (product != null) {
+            product.removeProductNodeListener(pnl);
+            product = null;
+        }
     }
 
     protected ProductNodeGroup<Pin> getPlacemarkGroup() {
@@ -45,6 +69,10 @@ public class PlacemarkLayer extends Layer {
 
     public Product getProduct() {
         return product;
+    }
+
+    public PlacemarkDescriptor getPlacemarkDescriptor() {
+        return placemarkDescriptor;
     }
 
     public AffineTransform getImageToModelTransform() {
@@ -117,9 +145,9 @@ public class PlacemarkLayer extends Layer {
         for (int i = 0; i < alphas.length; i++) {
             BasicStroke selectionStroke = new BasicStroke((alphas.length - i));
             Color selectionColor = new Color(getTextBgColor().getRed(),
-                    getTextBgColor().getGreen(),
-                    getTextBgColor().getGreen(),
-                    alphas[i]);
+                                             getTextBgColor().getGreen(),
+                                             getTextBgColor().getGreen(),
+                                             alphas[i]);
             g2d.setStroke(selectionStroke);
             g2d.setPaint(selectionColor);
             g2d.draw(outline);
@@ -183,5 +211,61 @@ public class PlacemarkLayer extends Layer {
 
     public void setTextBgColor(Color color) {
         getStyle().setProperty(PROPERTY_NAME_TEXT_BG_COLOR, color);
+    }
+
+    public static class Type extends LayerType {
+        @Override
+        public String getName() {
+            return "Placemark";
+        }
+
+        @Override
+        public boolean isValidFor(LayerContext ctx) {
+            return true;
+        }
+
+        @Override
+        public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
+            Product product = (Product) configuration.get("product");
+            PlacemarkDescriptor placemarkDescriptor = (PlacemarkDescriptor) configuration.get("placemarkDescriptor");
+            AffineTransform imageToModelTransform = (AffineTransform) configuration.get("imageToModelTransform");
+            return new PlacemarkLayer(product, placemarkDescriptor, imageToModelTransform);
+        }
+
+        @Override
+        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
+            final PlacemarkLayer placemarkLayer = (PlacemarkLayer) layer;
+            final HashMap<String, Object> configuration = new HashMap<String, Object>();
+            configuration.put("product", placemarkLayer.getProduct());
+            configuration.put("placemarkDescriptor", placemarkLayer.getPlacemarkDescriptor());
+            configuration.put("imageToModelTransform", placemarkLayer.getImageToModelTransform());
+            return configuration;
+        }
+    }
+
+    private class MyProductNodeListenerAdapter extends ProductNodeListenerAdapter {
+        @Override
+        public void nodeAdded(ProductNodeEvent event) {
+            maybeFireLayerDataChanged(event);
+        }
+
+        @Override
+        public void nodeRemoved(ProductNodeEvent event) {
+            maybeFireLayerDataChanged(event);
+        }
+
+        @Override
+        public void nodeChanged(ProductNodeEvent event) {
+            maybeFireLayerDataChanged(event);
+        }
+
+        private void maybeFireLayerDataChanged(ProductNodeEvent event) {
+            if (event.getSourceNode() instanceof Pin &&
+                    !ProductNode.PROPERTY_NAME_OWNER.equals(event.getPropertyName())) {
+                final Rectangle2D region = null; // todo - compute region (nf)
+                fireLayerDataChanged(region);
+            }
+        }
+
     }
 }
