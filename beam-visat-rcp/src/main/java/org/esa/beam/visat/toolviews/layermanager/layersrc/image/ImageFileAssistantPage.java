@@ -93,7 +93,7 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
                 transform = Tools.loadWorldFile(worldFilePath);
             } catch (IOException e) {
                 e.printStackTrace();
-                getAppPageContext().showErrorDialog(e.getMessage());
+                pageContext.showErrorDialog(e.getMessage());
                 return null;
             }
         } else {
@@ -110,7 +110,7 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean performFinish(AssistantPageContext pageContext) {
+    public boolean performFinish(AppAssistantPageContext pageContext) {
         imageHistoryModel.saveHistory();
         String worldFilePath = getText(worldFileField);
         AffineTransform transform;
@@ -119,20 +119,20 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
                 transform = Tools.loadWorldFile(worldFilePath);
             } catch (IOException e) {
                 e.printStackTrace();
-                getAppPageContext().showErrorDialog(e.getMessage());
+                pageContext.showErrorDialog(e.getMessage());
                 return false;
             }
         } else {
             transform = new AffineTransform();
         }
-        return ImageFileAssistantPage.insertImageLayer(getAppPageContext(),
+        return ImageFileAssistantPage.insertImageLayer(pageContext,
                                                        image,
                                                        FileUtils.getFileNameFromPath(getText(imageFileBox)),
                                                        transform);
     }
 
     @Override
-    protected Component createLayerPageComponent(AppAssistantPageContext context) {
+    public Component createLayerPageComponent(AppAssistantPageContext context) {
         GridBagConstraints gbc = new GridBagConstraints();
         final JPanel panel = new JPanel(new GridBagLayout());
 
@@ -148,21 +148,21 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         };
         imageHistoryModel = new HistoryComboBoxModel(preferences, PROPERTY_LAST_IMAGE_PREFIX, 5, validator);
         imageFileBox = new JComboBox(imageHistoryModel);
-        imageFileBox.addActionListener(new ImageFileItemListener());
+        imageFileBox.addActionListener(new ImageFileItemListener(context));
         final JLabel imageFileLabel = new JLabel("Path to image file (.png, .jpg, .tif, .gif):");
         JButton imageFileButton = new JButton("...");
         final FileNameExtensionFilter imageFileFilter = new FileNameExtensionFilter("Image Files",
                                                                                     "png", "jpg", "tif", "gif");
-        imageFileButton.addActionListener(new FileChooserActionListener(imageFileFilter));
+        imageFileButton.addActionListener(new FileChooserActionListener(imageFileFilter, context));
         addRow(panel, gbc, imageFileLabel, imageFileBox, imageFileButton);
 
         worldFileField = new JTextField();
-        worldFileField.getDocument().addDocumentListener(new MyDocumentListener());
+        worldFileField.getDocument().addDocumentListener(new MyDocumentListener(context));
         final JLabel worldFileLabel = new JLabel("Path to world file (.pgw, .jgw, .tfw, .gfw):");
         JButton worldFileButton = new JButton("...");
         final FileNameExtensionFilter worldFileFilter = new FileNameExtensionFilter("World Files",
                                                                                     "pgw", "jgw", "tfw", "gfw");
-        worldFileButton.addActionListener(new FileChooserActionListener(worldFileFilter));
+        worldFileButton.addActionListener(new FileChooserActionListener(worldFileFilter, context));
         addRow(panel, gbc, worldFileLabel, worldFileField, worldFileButton);
 
 
@@ -223,46 +223,59 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
 
     private class MyDocumentListener implements DocumentListener {
 
+        private final AppAssistantPageContext pageContext;
+
+        public MyDocumentListener(AppAssistantPageContext pageContext) {
+            this.pageContext = pageContext;
+        }
+
         @Override
         public void insertUpdate(DocumentEvent e) {
-            getPageContext().updateState();
+            pageContext.updateState();
         }
 
         @Override
         public void removeUpdate(DocumentEvent e) {
-            getPageContext().updateState();
+            pageContext.updateState();
         }
 
         @Override
         public void changedUpdate(DocumentEvent e) {
-            getPageContext().updateState();
+            pageContext.updateState();
         }
     }
 
     private class FileChooserActionListener implements ActionListener {
 
-        private FileFilter filter;
+        private final FileFilter filter;
+        private final AppAssistantPageContext pageContext;
 
-        private FileChooserActionListener(FileFilter fileFilter) {
+        private FileChooserActionListener(FileFilter fileFilter, AppAssistantPageContext pageContext) {
             filter = fileFilter;
+            this.pageContext = pageContext;
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.addChoosableFileFilter(filter);
-            fileChooser.showOpenDialog(getPageContext().getWindow());
+            fileChooser.showOpenDialog(pageContext.getWindow());
             if (fileChooser.getSelectedFile() != null) {
                 String filePath = fileChooser.getSelectedFile().getPath();
                 imageHistoryModel.setSelectedItem(filePath);
-                getPageContext().updateState();
+                pageContext.updateState();
             }
         }
     }
 
     private class ImageFileItemListener implements ActionListener {
 
-
+        private final AppAssistantPageContext pageContext;
+        
+        public ImageFileItemListener(AppAssistantPageContext pageContext) {
+            this.pageContext = pageContext;
+        }
+        
         @Override
         public void actionPerformed(ActionEvent e) {
             String imageFilePath = (String) imageFileBox.getSelectedItem();
@@ -283,7 +296,7 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
                 worldFileField.setText(null);
             }
 
-            getPageContext().updateState();
+            pageContext.updateState();
         }
 
         private String createWorldFilePath(String imageFilePath) {

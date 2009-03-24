@@ -14,7 +14,7 @@ public class Main {
 //        DefaultLayerSource[] sources = new DefaultLayerSource[]{
 //                new DefaultLayerSource("Image layer from band"),
 //                new DefaultLayerSource("Image layer from file", new ImageFileAssistantPage()),
-//                new DefaultLayerSource("WMS", new WmsAssistantPage()),
+//                new DefaultLayerSource("WMS", new WmsAssistantPage1()),
 //                new DefaultLayerSource("WFS"),
 //                new DefaultLayerSource("Shapefile", new ShapefileAssistantPage()),
 //

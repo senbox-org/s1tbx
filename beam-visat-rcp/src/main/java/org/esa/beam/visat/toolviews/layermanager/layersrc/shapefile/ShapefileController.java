@@ -35,6 +35,11 @@ public class ShapefileController implements LayerSourceController {
     }
     
     @Override
+    public boolean hasFirstPage() {
+        return true;
+    }
+
+    @Override
     public AbstractAppAssistantPage getFirstPage(AppAssistantPageContext pageContext) {
         return new ShapefileAssistantPage();
     }

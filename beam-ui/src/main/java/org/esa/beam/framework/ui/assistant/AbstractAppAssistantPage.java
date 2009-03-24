@@ -8,13 +8,9 @@ public abstract class AbstractAppAssistantPage extends AbstractAssistantPage {
         super(pageTitle);
     }
 
-    public final AppAssistantPageContext getAppPageContext() {
-        return (AppAssistantPageContext) getPageContext();
-    }
-
     @Override
     public final AssistantPage getNextPage(AssistantPageContext pageContext) {
-        return getNextPage(getAppPageContext());
+        return getNextPage((AppAssistantPageContext)pageContext);
     }
 
     public AbstractAppAssistantPage getNextPage(AppAssistantPageContext pageContext) {
@@ -23,7 +19,7 @@ public abstract class AbstractAppAssistantPage extends AbstractAssistantPage {
 
     @Override
     public boolean performFinish(AssistantPageContext pageContext) {
-        return performFinish(getAppPageContext());
+        return performFinish((AppAssistantPageContext)pageContext);
 
     }
 
@@ -36,5 +32,5 @@ public abstract class AbstractAppAssistantPage extends AbstractAssistantPage {
         return createLayerPageComponent((AppAssistantPageContext) context);
     }
 
-    protected abstract Component createLayerPageComponent(AppAssistantPageContext context);
+    public abstract Component createLayerPageComponent(AppAssistantPageContext context);
 }

@@ -30,6 +30,11 @@ public class SimpleLayerSourceController implements LayerSourceController {
     }
 
     @Override
+    public boolean hasFirstPage() {
+        return false;
+    }
+
+    @Override
     public AbstractAppAssistantPage getFirstPage(AppAssistantPageContext pageContext) {
         return null;
     }
@@ -49,4 +54,5 @@ public class SimpleLayerSourceController implements LayerSourceController {
     @Override
     public void cancel() {
     }
+
 }

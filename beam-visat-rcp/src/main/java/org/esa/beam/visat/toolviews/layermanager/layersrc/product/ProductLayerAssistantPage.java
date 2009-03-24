@@ -62,7 +62,7 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean performFinish(AssistantPageContext pageContext) {
+    public boolean performFinish(AppAssistantPageContext pageContext) {
 
         final RasterDataNode rasterDataNode = (RasterDataNode) tree.getSelectionPath().getLastPathComponent();
 
@@ -73,7 +73,7 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
         imageLayer.setName(rasterDataNode.getDisplayName());
         imageLayer.setVisible(true);
 
-        ProductSceneView sceneView = getAppPageContext().getAppContext().getSelectedProductSceneView();
+        ProductSceneView sceneView = pageContext.getAppContext().getSelectedProductSceneView();
         Layer rootLayer = sceneView.getRootLayer();
         rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), imageLayer);
 
@@ -96,7 +96,7 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    protected Component createLayerPageComponent(AppAssistantPageContext context) {
+    public Component createLayerPageComponent(AppAssistantPageContext context) {
 
         ProductTreeModel model = createTreeModel(context.getAppContext());
         tree = new JTree(model);
@@ -105,7 +105,7 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
         tree.setRootVisible(false);
         tree.setCellRenderer(new MyDefaultTreeCellRenderer());
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        tree.getSelectionModel().addTreeSelectionListener(new MyListSelectionListener());
+        tree.getSelectionModel().addTreeSelectionListener(new MyListSelectionListener(context));
 
         List<CompatibleNodeList> nodeLists = model.compatibleNodeLists;
         for (CompatibleNodeList nodeList : nodeLists) {
@@ -185,9 +185,14 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
     }
 
     private class MyListSelectionListener implements TreeSelectionListener {
+        private final AppAssistantPageContext pageContext;
+        
+        public MyListSelectionListener(AppAssistantPageContext context) {
+            pageContext = context;
+        }
 
         public void valueChanged(TreeSelectionEvent e) {
-            getAppPageContext().updateState();
+            pageContext.updateState();
         }
     }
 

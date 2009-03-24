@@ -66,7 +66,7 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
         String path = (String) fileHistoryModel.getSelectedItem();
         if (path != null && !path.trim().isEmpty()) {
             try {
-                Product targetProduct = getAppPageContext().getAppContext().getSelectedProductSceneView().getProduct();
+                Product targetProduct = pageContext.getAppContext().getSelectedProductSceneView().getProduct();
 
                 CoordinateReferenceSystem targetCrs = targetProduct.getGeoCoding().getModelCRS();
 
@@ -96,7 +96,7 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
                                                                                        featureCollection.getSchema()));
             } catch (Exception e) {
                 e.printStackTrace();
-                getPageContext().showErrorDialog("Failed to load ESRI shapefile:\n" + e.getMessage());
+                pageContext.showErrorDialog("Failed to load ESRI shapefile:\n" + e.getMessage());
             }
         }
 
@@ -122,7 +122,7 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    protected Component createLayerPageComponent(AppAssistantPageContext context) {
+    public Component createLayerPageComponent(AppAssistantPageContext context) {
         GridBagConstraints gbc = new GridBagConstraints();
         final JPanel panel = new JPanel(new GridBagLayout());
 
@@ -161,14 +161,20 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridwidth = 1;
         JButton button = new JButton("...");
-        button.addActionListener(new MyActionListener());
+        button.addActionListener(new MyActionListener(context));
         panel.add(button, gbc);
 
         return panel;
     }
 
     private class MyActionListener implements ActionListener {
-
+        
+        private final AppAssistantPageContext pageContext;
+        
+        public MyActionListener(AppAssistantPageContext pageContext) {
+            this.pageContext = pageContext;
+        }
+        
         @Override
         public void actionPerformed(ActionEvent e) {
             JFileChooser fileChooser = new JFileChooser();
@@ -184,14 +190,12 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
                 }
             }
 
-            fileChooser.showOpenDialog(getPageContext().getWindow());
+            fileChooser.showOpenDialog(pageContext.getWindow());
             if (fileChooser.getSelectedFile() != null) {
                 String filePath = fileChooser.getSelectedFile().getPath();
                 fileHistoryModel.setSelectedItem(filePath);
-                getPageContext().updateState();
+                pageContext.updateState();
             }
         }
-
     }
-
 }

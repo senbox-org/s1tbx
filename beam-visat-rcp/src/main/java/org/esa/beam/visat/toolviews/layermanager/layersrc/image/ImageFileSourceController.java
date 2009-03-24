@@ -33,7 +33,12 @@ public class ImageFileSourceController implements LayerSourceController {
     public boolean isApplicable(AppAssistantPageContext pageContext) {
         return true;
     }
-    
+
+    @Override
+    public boolean hasFirstPage() {
+        return true;
+    }
+   
     @Override
     public AbstractAppAssistantPage getFirstPage(AppAssistantPageContext pageContext) {
         return new ImageFileAssistantPage();

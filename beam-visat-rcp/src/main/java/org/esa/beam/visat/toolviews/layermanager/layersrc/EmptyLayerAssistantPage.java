@@ -49,10 +49,10 @@ public class EmptyLayerAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean performFinish(AssistantPageContext pageContext) {
+    public boolean performFinish(AppAssistantPageContext pageContext) {
         Layer layer = new Layer();
         layer.setName(nameBox.getSelectedItem().toString().trim());
-        Layer rootLayer = getAppPageContext().getAppContext().getSelectedProductSceneView().getRootLayer();
+        Layer rootLayer = pageContext.getAppContext().getSelectedProductSceneView().getRootLayer();
         rootLayer.getChildren().add(0, layer);
         if (!names.contains(layer.getName())) {
             names.add(1, layer.getName());
@@ -61,10 +61,10 @@ public class EmptyLayerAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    protected Component createLayerPageComponent(AppAssistantPageContext context) {
+    public Component createLayerPageComponent(AppAssistantPageContext context) {
         nameBox = new JComboBox(names.toArray());
-        nameBox.addItemListener(new MyItemListener());
-        nameBox.addActionListener(new MyActionListener());
+        nameBox.addItemListener(new MyItemListener(context));
+        nameBox.addActionListener(new MyActionListener(context));
         nameBox.setEditable(true);
 
         final JPanel panel = new JPanel(new GridBagLayout());
@@ -85,15 +85,27 @@ public class EmptyLayerAssistantPage extends AbstractAppAssistantPage {
 
     private class MyItemListener implements ItemListener {
 
+        private final AppAssistantPageContext pageContext;
+
+        public MyItemListener(AppAssistantPageContext context) {
+            pageContext = context;
+        }
+        
         public void itemStateChanged(ItemEvent e) {
-            getAppPageContext().updateState();
+            pageContext.updateState();
         }
     }
 
     private class MyActionListener implements ActionListener {
 
+        private final AppAssistantPageContext pageContext;
+
+        public MyActionListener(AppAssistantPageContext context) {
+            pageContext = context;
+        }
+        
         public void actionPerformed(ActionEvent e) {
-            getAppPageContext().updateState();
+            pageContext.updateState();
         }
     }
 }

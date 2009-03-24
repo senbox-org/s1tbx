@@ -41,7 +41,11 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
 
     @Override
     public boolean hasNextPage() {
-        return getNextPage(getPageContext()) != null;
+        LayerSourceDescriptor selected = (LayerSourceDescriptor) list.getSelectedValue();
+        if (selected == null) {
+            return false;
+        }
+        return controllerMap.get(selected).hasFirstPage();
     }
 
     @Override
@@ -68,7 +72,7 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    protected Component createLayerPageComponent(AppAssistantPageContext context) {
+    public Component createLayerPageComponent(AppAssistantPageContext context) {
         Set<LayerSourceDescriptor> descriptorSet = controllerMap.keySet();
         List<LayerSourceDescriptor> descriptorList = new ArrayList<LayerSourceDescriptor>(descriptorSet.size());
         for (LayerSourceDescriptor lsd : descriptorSet) {
@@ -78,7 +82,7 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
             }
         }
         list = new JList(descriptorList.toArray(new LayerSourceDescriptor[descriptorList.size()]));
-        list.getSelectionModel().addListSelectionListener(new MyListSelectionListener());
+        list.getSelectionModel().addListSelectionListener(new MyListSelectionListener(context));
         list.setCellRenderer(new MyDefaultListCellRenderer());
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -99,9 +103,15 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
 
     private class MyListSelectionListener implements ListSelectionListener {
 
+        private final AppAssistantPageContext pageContext;
+        
+        public MyListSelectionListener(AppAssistantPageContext pageContext) {
+            this.pageContext = pageContext;
+        }
+        
         @Override
         public void valueChanged(ListSelectionEvent e) {
-            getPageContext().updateState();
+            pageContext.updateState();
         }
     }
 

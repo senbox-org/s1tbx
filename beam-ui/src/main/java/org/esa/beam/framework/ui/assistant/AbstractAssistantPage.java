@@ -6,7 +6,6 @@ public abstract class AbstractAssistantPage implements AssistantPage {
 
     private String pageTitle;
     private Component pageComponent;
-    private AssistantPageContext context;
 
     protected AbstractAssistantPage(String pageTitle) {
         this.pageTitle = pageTitle;
@@ -29,13 +28,8 @@ public abstract class AbstractAssistantPage implements AssistantPage {
         this.pageComponent = pageComponent;
     }
 
-    public final AssistantPageContext getPageContext() {
-        return context;
-    }
-
     @Override
     public final Component getPageComponent(AssistantPageContext context) {
-        this.context = context;
         if (pageComponent == null) {
             pageComponent = createPageComponent(context);
         }
