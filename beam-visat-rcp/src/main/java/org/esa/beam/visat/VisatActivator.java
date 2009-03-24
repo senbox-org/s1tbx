@@ -11,6 +11,7 @@ import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.application.ToolViewDescriptorRegistry;
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.visat.toolviews.layermanager.DefaultLayerSourceDescriptor;
+import org.esa.beam.visat.toolviews.layermanager.LayerEditorDescriptor;
 import org.esa.beam.visat.toolviews.layermanager.LayerSourceDescriptor;
 
 import java.util.HashMap;
@@ -67,6 +68,7 @@ public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
         instance = this;
         this.moduleContext = moduleContext;
         visatPluginRegistry = ServiceRegistryFactory.getInstance().getServiceRegistry(VisatPlugIn.class);
+        registerLayerEditors(this.moduleContext);
         registerLayerSources(this.moduleContext);
     }
 
@@ -77,17 +79,25 @@ public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
         instance = null;
     }
 
+    private void registerLayerEditors(ModuleContext moduleContext) {
+        BeamCoreActivator.loadExecutableExtensions(moduleContext,
+                                                   "layerEditors",
+                                                   "layerEditor",
+                                                   LayerEditorDescriptor.class);
+    }
+
     private void registerLayerSources(ModuleContext moduleContext) {
-        List<LayerSourceDescriptor> layerSourceListDescriptor = BeamCoreActivator.loadExecutableExtensions(
-                moduleContext,
-                "layerSources",
-                "layerSource",
-                LayerSourceDescriptor.class);
+        List<LayerSourceDescriptor> layerSourceListDescriptor =
+                BeamCoreActivator.loadExecutableExtensions(moduleContext,
+                                                           "layerSources",
+                                                           "layerSource",
+                                                           LayerSourceDescriptor.class);
         layerSourcesRegistry = new HashMap<String, LayerSourceDescriptor>(2 * layerSourceListDescriptor.size());
         for (LayerSourceDescriptor layerSourceDescriptor : layerSourceListDescriptor) {
             final String id = layerSourceDescriptor.getId();
             final LayerSourceDescriptor existingLayerSourceDescriptor = layerSourcesRegistry.get(id);
-            if (existingLayerSourceDescriptor != null) {
+            if (existingLayerSourceDescriptor
+                    != null) {
                 moduleContext.getLogger().info(String.format("Layer source [%s] has been redeclared!\n", id));
             }
             layerSourcesRegistry.put(id, layerSourceDescriptor);

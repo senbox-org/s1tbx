@@ -14,11 +14,12 @@
  */
 package org.esa.beam.visat.toolviews.layermanager;
 
-import javax.swing.JPanel;
-
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
@@ -28,76 +29,90 @@ import java.beans.PropertyChangeEvent;
  */
 public class LayerEditorToolView extends AbstractLayerToolView {
 
-    private final LayerEditorForm.Empty emptyForm;
-    private LayerEditorForm activeForm;
-    private final MyAbstractLayerListener layerListener;
+    private final NullLayerEditor nullLayerEditor;
+    private LayerEditor activeEditor;
+    private final LayerHandler layerHandler;
 
     public LayerEditorToolView() {
-        emptyForm = new LayerEditorForm.Empty(getAppContext());
-        layerListener = new MyAbstractLayerListener();
+        layerHandler = new LayerHandler();
+        nullLayerEditor = new NullLayerEditor();
     }
 
     @Override
     protected void layerSelectionChanged(Layer oldLayer, Layer newLayer) {
 
         if (oldLayer != null) {
-            oldLayer.removeListener(layerListener);
+            oldLayer.removeListener(layerHandler);
         }
-        if (newLayer != null) {
-            newLayer.addListener(layerListener);
-        }
-
         final JPanel controlPanel = getControlPanel();
 
         if (controlPanel.getComponentCount() > 0) {
             controlPanel.remove(0);
         }
 
-        if (getSelectedView() != null) {
-            activeForm = getOrCreateActiveForm(newLayer);
-            controlPanel.add(activeForm.getFormControl(), BorderLayout.CENTER);
+        if (newLayer != null) {
+            activeEditor = getLayerEditor(newLayer);
         } else {
-            activeForm = null;
+            activeEditor = nullLayerEditor;
         }
+        controlPanel.add(activeEditor.createControl(), BorderLayout.CENTER);
+        updateEditorControl();
 
         controlPanel.validate();
         controlPanel.repaint();
+
+        if (newLayer != null) {
+            newLayer.addListener(layerHandler);
+        }
+
     }
 
-    private LayerEditorForm getOrCreateActiveForm(Layer layer) {
-        // todo - select LayerUI from Layer.getType()
-        if (layer != null) {
-            return new LayerEditorForm.NonEmpty(getAppContext(), layer);
+    private LayerEditor getLayerEditor(Layer layer) {
+        final LayerEditor layerEditor = layer.getLayerType().getExtension(LayerEditor.class);
+
+        if (layerEditor != null) {
+            return layerEditor;
         } else {
-            return emptyForm;
+            return nullLayerEditor;
         }
     }
 
-    private void updateFormControl() {
-        if (activeForm != null) {
-            activeForm.updateFormControl();
+    private void updateEditorControl() {
+        if (activeEditor != null) {
+            activeEditor.updateControl(getSelectedLayer());
         }
     }
 
-    private class MyAbstractLayerListener extends AbstractLayerListener {
+    private class LayerHandler extends AbstractLayerListener {
         @Override
         public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
-            updateFormControl();
+            updateEditorControl();
         }
 
         @Override
         public void handleLayerDataChanged(Layer layer, Rectangle2D modelRegion) {
-            updateFormControl();
+            updateEditorControl();
         }
 
         @Override
         public void handleLayersAdded(Layer parentLayer, Layer[] childLayers) {
-            updateFormControl();
+            updateEditorControl();
         }
 
         @Override
         public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
-            updateFormControl();
+            updateEditorControl();
+        }
+    }
+
+    private static class NullLayerEditor implements LayerEditor {
+        @Override
+        public JComponent createControl() {
+            return new JLabel("No layer selected.");
+        }
+
+        @Override
+        public void updateControl(Layer selectedLayer) {
         }
     }
 }

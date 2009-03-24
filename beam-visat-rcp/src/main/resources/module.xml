@@ -121,23 +121,24 @@
 
     <categories>System,Application,VISAT</categories>
 
-    <!--
-       todo - extensionPoint in progress
-    -->
-    <extensionPoint id="layerUIs">
-        <layerUI type="org.esa.beam.framework.ui.layer.LayerUIDescriptor"
+    <extensionPoint id="layerEditors">
+        <layerEditor type="org.esa.beam.visat.toolviews.layermanager.LayerEditorDescriptor"
                  class="@descriptorClass"
                  autoConfig="true">
             <descriptorClass type="java.lang.Class">
-                org.esa.beam.framework.ui.layer.DefaultLayerUIDescriptor
+                org.esa.beam.visat.toolviews.layermanager.DefaultLayerEditorDescriptor
             </descriptorClass>
-            <name field="name" type="java.lang.String"/>
-            <icon16 field="icon16Path" type="java.lang.String"/>
-            <icon24 field="icon24Path" type="java.lang.String"/>
-            <layerType field="layerType" type="java.lang.Class"/>
-            <layerUIType field="layerUIType" type="java.lang.Class"/>
-        </layerUI>
+            <editor field="editorClass" type="java.lang.Class"/>
+            <layerType field="layerTypeClass" type="java.lang.Class"/>
+        </layerEditor>
     </extensionPoint>
+
+    <extension point="beam-visat-rcp:layerEditors">
+        <layerEditor>
+            <editor>org.esa.beam.visat.toolviews.layermanager.editors.PlacemarkLayerEditor</editor>
+            <layerType>org.esa.beam.glayer.PlacemarkLayer$Type</layerType>
+        </layerEditor>
+    </extension>
 
     <extensionPoint id="layerSources">
         <layerSource type="org.esa.beam.visat.toolviews.layermanager.LayerSourceDescriptor"

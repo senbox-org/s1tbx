@@ -157,7 +157,7 @@ public class PlacemarkLayer extends Layer {
         g2d.fill(outline);
     }
 
-    private boolean isTextEnabled() {
+    public boolean isTextEnabled() {
         final Style style = getStyle();
 
         if (style.hasProperty(PROPERTY_NAME_TEXT_ENABLED)) {
