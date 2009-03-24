@@ -80,7 +80,7 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
 
     @Override
     public boolean hasNextPage() {
-        return true;
+        return image != null;
     }
 
     @Override
@@ -102,6 +102,11 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         return new ImageFileAssistantPage2(image,
                                            FileUtils.getFileNameFromPath(getText(imageFileBox)),
                                            transform);
+    }
+
+    @Override
+    public boolean canFinish() {
+        return image != null;
     }
 
     @Override
