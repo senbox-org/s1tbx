@@ -52,7 +52,6 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
     private JComboBox imageFileBox;
     private JTextField worldFileField;
     private HistoryComboBoxModel imageHistoryModel;
-    private JTextField layerNameField;
     private JLabel imagePreviewLabel;
     private RenderedImage image;
 
@@ -65,9 +64,7 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
     public boolean validatePage() {
         String imageFilePath = getText(imageFileBox);
         String worldFilePath = getText(worldFileField);
-        String layerName = getText(layerNameField);
         return new File(imageFilePath).exists() &&
-               !layerName.isEmpty() &&
                (worldFilePath.isEmpty() || new File(worldFilePath).exists());
     }
 
@@ -83,12 +80,6 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
 
     @Override
     public boolean hasNextPage() {
-        String worldFilePath = getText(worldFileField);
-        try {
-            Tools.loadWorldFile(worldFilePath);
-        } catch (IOException ignored) {
-            return false;
-        }
         return true;
     }
 
@@ -108,14 +99,15 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         } else {
             transform = new AffineTransform();
         }
-        return new ImageFileAssistantPage2(image, getText(layerNameField), transform);
+        return new ImageFileAssistantPage2(image,
+                                           FileUtils.getFileNameFromPath(getText(imageFileBox)),
+                                           transform);
     }
 
     @Override
     public boolean performFinish(AssistantPageContext pageContext) {
         imageHistoryModel.saveHistory();
         String worldFilePath = getText(worldFileField);
-        String layerName = layerNameField.getText().trim();
         AffineTransform transform;
         if (!worldFilePath.isEmpty()) {
             try {
@@ -128,7 +120,10 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         } else {
             transform = new AffineTransform();
         }
-        return ImageFileAssistantPage.insertImageLayer(getAppPageContext(), image, layerName, transform);
+        return ImageFileAssistantPage.insertImageLayer(getAppPageContext(),
+                                                       image,
+                                                       FileUtils.getFileNameFromPath(getText(imageFileBox)),
+                                                       transform);
     }
 
     @Override
@@ -165,25 +160,17 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         worldFileButton.addActionListener(new FileChooserActionListener(worldFileFilter));
         addRow(panel, gbc, worldFileLabel, worldFileField, worldFileButton);
 
-        layerNameField = new JTextField();
-        addRow(panel, gbc, new JLabel("Layer Name:"), layerNameField, null);
 
         gbc.insets = new Insets(4, 4, 4, 4);
-        gbc.gridx = 0;
-        gbc.gridy++;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel.add(new JLabel("Preview:"), gbc);
-
-        gbc.insets = new Insets(0, 4, 0, 4);
         gbc.weightx = 1;
         gbc.weighty = 1;
         gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridx = 0;
         gbc.gridy++;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridwidth = 1;
         imagePreviewLabel = new JLabel();
-        imagePreviewLabel.setSize(new Dimension(200, 200));
-        imagePreviewLabel.setText("No preview available!");
+        imagePreviewLabel.setPreferredSize(new Dimension(200, 200));
         panel.add(imagePreviewLabel, gbc);
 
         return panel;
@@ -194,7 +181,7 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridwidth = 2;
+        gbc.gridwidth = 1;
         panel.add(label, gbc);
 
         gbc.insets = new Insets(0, 4, 0, 4);
@@ -206,14 +193,12 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         gbc.gridwidth = 1;
         panel.add(component, gbc);
 
-        if (button != null) {
-            gbc.weightx = 0;
-            gbc.weighty = 0;
-            gbc.gridx = 1;
-            gbc.fill = GridBagConstraints.NONE;
-            gbc.gridwidth = 1;
-            panel.add(button, gbc);
-        }
+        gbc.weightx = 0;
+        gbc.weighty = 0;
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridwidth = 1;
+        panel.add(button, gbc);
     }
 
     static boolean insertImageLayer(AppAssistantPageContext pageContext, RenderedImage image, String layerName,
@@ -293,7 +278,6 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
                 worldFileField.setText(null);
             }
 
-            layerNameField.setText(FileUtils.getFileNameFromPath(imageFilePath));
             getPageContext().updateState();
         }
 
