@@ -1,10 +1,9 @@
 package org.esa.beam.framework.ui.product;
 
-import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.Style;
-import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.support.LayerFilter;
@@ -33,7 +32,7 @@ import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
 
 
-public class ProductSceneImage {
+public class ProductSceneImage implements LayerContext {
 
     private static final ImageLayerFilter IMAGE_LAYER_FILTER = new ImageLayerFilter();
     private final String name;
@@ -122,7 +121,13 @@ public class ProductSceneImage {
         this.rasters = rasters;
     }
 
-    Layer getRootLayer() {
+    @Override
+    public Object getCoordinateReferenceSystem() {
+        return rasters[0].getGeoCoding().getModelCRS();
+    }
+
+    @Override
+    public Layer getRootLayer() {
         return rootLayer;
     }
 

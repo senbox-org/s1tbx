@@ -15,20 +15,21 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
 
     private JList list;
-    private LayerSourceDescriptor[] sourceDescriptors;
     private Map<LayerSourceDescriptor, LayerSourceController> controllerMap;
 
     public SelectLayerSourceAssistantPage(LayerSourceDescriptor[] sourceDescriptors) {
         super("Select Layer Source");
-        this.sourceDescriptors = sourceDescriptors.clone();
         controllerMap = new HashMap<LayerSourceDescriptor, LayerSourceController>();
-        for (LayerSourceDescriptor sourceDescriptor : this.sourceDescriptors) {
+        for (LayerSourceDescriptor sourceDescriptor : sourceDescriptors) {
             controllerMap.put(sourceDescriptor, sourceDescriptor.createController());
         }
     }
@@ -45,12 +46,11 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
 
     @Override
     public AbstractAppAssistantPage getNextPage(AppAssistantPageContext pageContext) {
-        int index = list.getSelectedIndex();
-        if (index < 0) {
+        LayerSourceDescriptor selected = (LayerSourceDescriptor) list.getSelectedValue();
+        if (selected == null) {
             return null;
         }
-        LayerSourceDescriptor layerSourceDescriptor = sourceDescriptors[index];
-        return controllerMap.get(layerSourceDescriptor).getFirstPage(pageContext);
+        return controllerMap.get(selected).getFirstPage(pageContext);
     }
 
     @Override
@@ -60,17 +60,24 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
 
     @Override
     public boolean performFinish(AppAssistantPageContext pageContext) {
-        int index = list.getSelectedIndex();
-        if (index < 0) {
+        LayerSourceDescriptor selected = (LayerSourceDescriptor) list.getSelectedValue();
+        if (selected == null) {
             return false;
         }
-        LayerSourceDescriptor layerSourceDescriptor = sourceDescriptors[index];
-        return controllerMap.get(layerSourceDescriptor).finish(pageContext);
+        return controllerMap.get(selected).finish(pageContext);
     }
 
     @Override
     protected Component createLayerPageComponent(AppAssistantPageContext context) {
-        list = new JList(sourceDescriptors);
+        Set<LayerSourceDescriptor> descriptorSet = controllerMap.keySet();
+        List<LayerSourceDescriptor> descriptorList = new ArrayList<LayerSourceDescriptor>(descriptorSet.size());
+        for (LayerSourceDescriptor lsd : descriptorSet) {
+            LayerSourceController lsc = controllerMap.get(lsd);
+            if (lsc.isApplicable(context)) {
+                descriptorList.add(lsd);
+            }
+        }
+        list = new JList(descriptorList.toArray(new LayerSourceDescriptor[descriptorList.size()]));
         list.getSelectionModel().addListSelectionListener(new MyListSelectionListener());
         list.setCellRenderer(new MyDefaultListCellRenderer());
 
@@ -94,7 +101,6 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
 
         @Override
         public void valueChanged(ListSelectionEvent e) {
-
             getPageContext().updateState();
         }
     }

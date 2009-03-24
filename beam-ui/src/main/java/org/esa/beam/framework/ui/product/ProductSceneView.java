@@ -3,6 +3,7 @@ package org.esa.beam.framework.ui.product;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.AdjustableViewScrollPane;
@@ -245,6 +246,10 @@ public class ProductSceneView extends BasicView
 
     public Layer getRootLayer() {
         return sceneImage.getRootLayer();
+    }
+
+    public LayerContext getLayerContext() {
+        return sceneImage;
     }
 
     public LayerCanvas getLayerCanvas() {
