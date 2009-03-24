@@ -126,7 +126,7 @@
 
         <module>lib-hdf</module>
         <module>lib-netcdf</module>
-
+        <module>blue-marble-worldmap</module>
         <!--<module>nest-dat</module>-->
 
     </modules>
@@ -392,7 +392,6 @@
     </properties>
 
 
-
     <build>
         <outputDirectory>../modules/${artifactId}-${version}</outputDirectory>
 
@@ -434,7 +433,7 @@
                         <excludeResources>true</excludeResources>
                     </configuration>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>com.bc.maven.plugins</groupId>
                     <artifactId>maven-javahelp-plugin</artifactId>
@@ -465,7 +464,7 @@
                         </systemProperties>
                         <argLine>-Xmx512M -enableassertions</argLine>
                     </configuration>
-                    
+
                 </plugin>
 
                 <plugin>
@@ -522,7 +521,7 @@
                 </configuration>
             </plugin>
         </plugins>
-        
+
     </build>
 
     <reporting>
