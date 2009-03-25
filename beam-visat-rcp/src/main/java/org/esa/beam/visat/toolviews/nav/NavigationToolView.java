@@ -41,6 +41,7 @@ import org.esa.beam.visat.VisatApp;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -52,6 +53,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+import javax.swing.text.NumberFormatter;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -90,10 +92,10 @@ public class NavigationToolView extends AbstractToolView {
     private AbstractButton zoomAllButton;
     private AbstractButton syncViewsButton;
     private JTextField zoomFactorField;
-    private JTextField rotationAngleField;
+    private JFormattedTextField rotationAngleField;
     private JSlider zoomSlider;
     private boolean inUpdateMode;
-    private DecimalFormat scaleAndRotationFormat;
+    private DecimalFormat scaleFormat;
 
     private boolean debug;
 
@@ -111,9 +113,9 @@ public class NavigationToolView extends AbstractToolView {
         productNodeChangeHandler = createProductNodeListener();
 
         final DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.ENGLISH);
-        scaleAndRotationFormat = new DecimalFormat("#####.##", decimalFormatSymbols);
-        scaleAndRotationFormat.setGroupingUsed(false);
-        scaleAndRotationFormat.setDecimalSeparatorAlwaysShown(false);
+        scaleFormat = new DecimalFormat("#####.##", decimalFormatSymbols);
+        scaleFormat.setGroupingUsed(false);
+        scaleFormat.setDecimalSeparatorAlwaysShown(false);
 
         zoomInButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomIn24.gif"), false);
         zoomInButton.setToolTipText("Zoom in."); /*I18N*/
@@ -221,21 +223,34 @@ public class NavigationToolView extends AbstractToolView {
         rotationAngleSpinner = new JSpinner(new SpinnerNumberModel(0.0, -1800.0, 1800.0, 5.0));
         final JSpinner.NumberEditor editor = (JSpinner.NumberEditor) rotationAngleSpinner.getEditor();
         rotationAngleField = editor.getTextField();
+        final DecimalFormat rotationFormat;
+        rotationFormat = new DecimalFormat("#####.##°", decimalFormatSymbols);
+        rotationFormat.setGroupingUsed(false);
+        rotationFormat.setDecimalSeparatorAlwaysShown(false);
+        rotationAngleField.setFormatterFactory(new JFormattedTextField.AbstractFormatterFactory() {
+            @Override
+            public JFormattedTextField.AbstractFormatter getFormatter(JFormattedTextField tf) {
+                return new NumberFormatter(rotationFormat);
+            }
+        });
         rotationAngleField.setColumns(6);
         rotationAngleField.setEditable(false);
         rotationAngleField.setHorizontalAlignment(JTextField.CENTER);
         rotationAngleField.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 handleRotationAngleFieldUserInput();
             }
         });
         rotationAngleField.addFocusListener(new FocusAdapter() {
+            @Override
             public void focusLost(FocusEvent e) {
                 handleRotationAngleFieldUserInput();
             }
         });
         rotationAngleField.addPropertyChangeListener("value", new PropertyChangeListener() {
 
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 handleRotationAngleFieldUserInput();
             }
@@ -575,9 +590,9 @@ public class NavigationToolView extends AbstractToolView {
     private void updateScaleField(double zf) {
         String text;
         if (zf > 1.0) {
-            text = scaleAndRotationFormat.format(roundScale(zf)) + " : 1";
+            text = scaleFormat.format(roundScale(zf)) + " : 1";
         } else if (zf < 1.0) {
-            text = "1 : " + scaleAndRotationFormat.format(roundScale(1.0 / zf));
+            text = "1 : " + scaleFormat.format(roundScale(1.0 / zf));
         } else {
             text = "1 : 1";
         }
@@ -586,12 +601,12 @@ public class NavigationToolView extends AbstractToolView {
 
     private void updateRotationField(Double ra) {
         while (ra > 180) {
-            ra = ra - 360;
+            ra -= 360;
         }
         while (ra < -180) {
-            ra = ra + 360;
+            ra += 360;
         }
-        rotationAngleField.setText(scaleAndRotationFormat.format(ra) + "°");
+        rotationAngleField.setValue(ra);
         if (zeroRotationAngleBackground == null) {
             zeroRotationAngleBackground = rotationAngleField.getBackground();
         }
