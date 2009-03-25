@@ -125,9 +125,36 @@ public class Layer extends ExtensibleObject {
      *
      * @return The child layers of this layer. May be empty.
      */
+    @Deprecated
     public List<Layer> getChildren() {
         return children;
     }
+
+    public boolean add(Layer child) {
+         return getChildren().add(child);
+    }
+    public boolean remove(Layer child) {
+         return getChildren().remove(child);
+    }
+    public Layer remove(int index) {
+         return getChildren().remove(index);
+    }
+    public int size() {
+         return getChildren().size();
+    }
+    public Layer get(int index) {
+         return getChildren().get(index);
+    }
+    public int indexOf(Layer layer) {
+         return getChildren().indexOf(layer);
+    }
+    public boolean isEmpty() {
+         return getChildren().isEmpty();
+    }
+    public Layer[] toArray() {
+         return getChildren().toArray(new Layer[getChildren().size()]);
+    }
+
 
     /**
      * @return The name.
@@ -316,7 +343,7 @@ public class Layer extends ExtensibleObject {
             }
             if (filter == null) {
                 renderLayer(rendering);
-                renderChildren(rendering, (LayerFilter) null);
+                renderChildren(rendering, null);
             } else {
                 if (filter.accept(this)) {
                     renderLayer(rendering);
