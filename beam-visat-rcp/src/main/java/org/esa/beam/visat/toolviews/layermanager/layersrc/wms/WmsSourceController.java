@@ -135,7 +135,7 @@ public class WmsSourceController implements LayerSourceController {
                     ProductSceneView sceneView = pageContext.getAppContext().getSelectedProductSceneView();
                     AffineTransform i2mTransform = sceneView.getRaster().getGeoCoding().getGridToModelTransform();
                     ImageLayer imageLayer = new ImageLayer(PlanarImage.wrapRenderedImage(image), i2mTransform);
-                    imageLayer.setName(wmsModel.selectedLayer.getName());
+                    imageLayer.setName(wmsModel.getSelectedLayer().getName());
                     rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), imageLayer);
                 } catch (Exception e) {
                     pageContext.showErrorDialog(e.getMessage());

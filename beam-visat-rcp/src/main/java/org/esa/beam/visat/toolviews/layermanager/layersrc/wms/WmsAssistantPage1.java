@@ -2,6 +2,7 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
+import org.geotools.data.ows.WMSCapabilities;
 import org.geotools.data.wms.WebMapServer;
 
 import java.awt.Component;
@@ -43,21 +44,23 @@ class WmsAssistantPage1 extends AbstractAppAssistantPage {
 
     @Override
     public AbstractAppAssistantPage getNextPage(AppAssistantPageContext pageContext) {
-        wmsModel.wms= null;
-        wmsModel.wmsCapabilities = null;
+        WebMapServer wms = null;
+        WMSCapabilities wmsCapabilities = null;
 
-        wmsModel.wmsUrl = wmsUrlBox.getSelectedItem().toString();
-        if (wmsModel.wmsUrl != null && !wmsModel.wmsUrl.isEmpty()) {
+        String wmsUrl = wmsUrlBox.getSelectedItem().toString();
+        if (wmsUrl != null && !wmsUrl.isEmpty()) {
             try {
-                wmsModel.wms = getWms(pageContext.getWindow(), wmsModel.wmsUrl);
-                wmsModel.wmsCapabilities = wmsModel.wms.getCapabilities();
+                wms = getWms(pageContext.getWindow(), wmsUrl);
+                wmsCapabilities = wms.getCapabilities();
             } catch (Exception e) {
                 e.printStackTrace();
                 pageContext.showErrorDialog("Failed to access WMS:\n" + e.getMessage());
             }
         }
 
-        if (wmsModel.wms != null && wmsModel.wmsCapabilities != null) {
+        if (wms != null && wmsCapabilities != null) {
+            wmsModel.setWms(wms);
+            wmsModel.setWmsCapabilities(wmsCapabilities);
             return new WmsAssistantPage2(wmsModel);
         } else {
             return null;

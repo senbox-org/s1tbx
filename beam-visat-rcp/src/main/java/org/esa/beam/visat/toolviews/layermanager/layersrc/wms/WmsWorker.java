@@ -16,6 +16,7 @@
  */
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
+import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.wms.request.GetMapRequest;
 import org.geotools.data.wms.response.GetMapResponse;
 import org.geotools.ows.ServiceException;
@@ -40,18 +41,19 @@ abstract class WmsWorker extends SwingWorker<BufferedImage, Object> {
 
     @Override
     protected BufferedImage doInBackground() throws Exception {
-        GetMapRequest mapRequest = wmsModel.wms.createGetMapRequest();
-        mapRequest.addLayer(wmsModel.selectedLayer, wmsModel.selectedStyle);
+        GetMapRequest mapRequest = wmsModel.getWms().createGetMapRequest();
+        mapRequest.addLayer(wmsModel.getSelectedLayer(), wmsModel.getSelectedStyle());
         mapRequest.setTransparent(true);
         mapRequest.setDimensions(size.width, size.height);
-        mapRequest.setSRS(wmsModel.crsEnvelope.getEPSGCode()); // e.g. "EPSG:4326" = Geographic CRS
-        mapRequest.setBBox(wmsModel.crsEnvelope); // todo - adjust crsEnvelope to exactly match dimensions w x h (nf)
+        CRSEnvelope crsEnvelope = wmsModel.getCrsEnvelope();
+        mapRequest.setSRS(crsEnvelope.getEPSGCode()); // e.g. "EPSG:4326" = Geographic CRS
+        mapRequest.setBBox(crsEnvelope); // todo - adjust crsEnvelope to exactly match dimensions w x h (nf)
         mapRequest.setFormat("image/png");
         return downloadWmsImage(mapRequest);
     }
     
     private BufferedImage downloadWmsImage(GetMapRequest mapRequest) throws IOException, ServiceException {
-        GetMapResponse mapResponse = wmsModel.wms.issueRequest(mapRequest);
+        GetMapResponse mapResponse = wmsModel.getWms().issueRequest(mapRequest);
         InputStream inputStream = mapResponse.getInputStream();
         try {
             return ImageIO.read(inputStream);

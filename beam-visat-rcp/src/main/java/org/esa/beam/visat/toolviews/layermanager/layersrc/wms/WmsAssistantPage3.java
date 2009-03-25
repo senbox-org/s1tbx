@@ -3,6 +3,7 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.geotools.data.ows.CRSEnvelope;
+import org.geotools.data.ows.Layer;
 import org.opengis.layer.Style;
 import org.opengis.util.InternationalString;
 
@@ -50,16 +51,13 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
         previewCanvas = new JLabel();
         previewCanvas.setHorizontalTextPosition(SwingConstants.CENTER);
         previewCanvas.setVerticalTextPosition(SwingConstants.CENTER);
-        JLabel infoLabel = new JLabel(WmsAssistantPage2.getLatLonBoundingBoxText(wmsModel.selectedLayer.getLatLonBoundingBox()));
+        Layer selectedLayer = wmsModel.getSelectedLayer();
+        JLabel infoLabel = new JLabel(WmsAssistantPage2.getLatLonBoundingBoxText(selectedLayer.getLatLonBoundingBox()));
 
-        List<Style> styles = wmsModel.selectedLayer.getStyles();
-        if (!styles.isEmpty()) {
-            wmsModel.selectedStyle = styles.get(0);
-        } else {
-            wmsModel.selectedStyle = null;
-        }
+        List<Style> styles = selectedLayer.getStyles();
+        
         styleList = new JComboBox(styles.toArray(new Style[styles.size()]));
-        styleList.setSelectedItem(wmsModel.selectedStyle);
+        styleList.setSelectedItem(wmsModel.getSelectedStyle());
         styleList.setRenderer(new MyDefaultListCellRenderer());
         styleList.addItemListener(new MyItemListener(context));
 
@@ -70,7 +68,7 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
 
         JPanel panel3 = new JPanel(new BorderLayout(4, 4));
         panel3.setBorder(new EmptyBorder(4, 4, 4, 4));
-        panel3.add(new JLabel(String.format("<html><b>%s</b></html>", wmsModel.selectedLayer.getTitle())), BorderLayout.CENTER);
+        panel3.add(new JLabel(String.format("<html><b>%s</b></html>", selectedLayer.getTitle())), BorderLayout.CENTER);
         panel3.add(panel2, BorderLayout.EAST);
 
         JPanel panel = new JPanel(new BorderLayout(4, 4));
@@ -130,7 +128,7 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
 
     private Dimension getPreviewImageSize(Dimension preferredSize) {
         int width, height;
-        CRSEnvelope crsEnvelope = wmsModel.crsEnvelope;
+        CRSEnvelope crsEnvelope = wmsModel.getCrsEnvelope();
         double ratio = (crsEnvelope.getMaxX() - crsEnvelope.getMinX()) / (crsEnvelope.getMaxY() - crsEnvelope.getMinY());
         if (ratio >= 1.0) {
             width = preferredSize.width;
@@ -152,7 +150,7 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
         
         @Override
         public void itemStateChanged(ItemEvent e) {
-            wmsModel.selectedStyle = (Style) styleList.getSelectedItem();
+            wmsModel.setSelectedStyle((Style) styleList.getSelectedItem());
             pageContext.updateState();
             updatePreview(pageContext);
         }

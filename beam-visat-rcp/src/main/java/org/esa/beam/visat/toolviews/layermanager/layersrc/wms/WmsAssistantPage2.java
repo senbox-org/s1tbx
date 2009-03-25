@@ -11,6 +11,7 @@ import org.geotools.data.ows.Layer;
 import org.geotools.data.ows.WMSCapabilities;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.layer.Style;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.BorderLayout;
@@ -20,6 +21,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.JLabel;
@@ -47,23 +49,11 @@ class WmsAssistantPage2 extends AbstractAppAssistantPage {
 
     @Override
     public boolean canFinish() {
-        return false;
+        return true;
     }
 
     @Override
     public AbstractAppAssistantPage getNextPage(AppAssistantPageContext pageContext) {
-        String crsCode = getMatchingCRSCode(wmsModel.selectedLayer);
-        if (crsCode == null) {
-            pageContext.showErrorDialog("Coordinate system not supported.");
-            return null;
-        }
-        RasterDataNode raster = pageContext.getAppContext().getSelectedProductSceneView().getRaster();
-        GeoCoding geoCoding = raster.getGeoCoding();
-        AffineTransform g2mTransform = geoCoding.getGridToModelTransform();
-        Rectangle2D bounds = g2mTransform.createTransformedShape(
-                new Rectangle(0, 0, raster.getSceneRasterWidth(), raster.getSceneRasterHeight())).getBounds2D();
-        wmsModel.crsEnvelope = new CRSEnvelope(crsCode, bounds.getMinX(), bounds.getMinY(), bounds.getMaxX(),
-                                                  bounds.getMaxY());
         return new WmsAssistantPage3(wmsModel);
     }
 
@@ -74,7 +64,7 @@ class WmsAssistantPage2 extends AbstractAppAssistantPage {
 
     @Override
     public boolean validatePage() {
-        return wmsModel.selectedLayer != null;
+        return wmsModel.getSelectedLayer() != null;
     }
 
     @Override
@@ -85,7 +75,7 @@ class WmsAssistantPage2 extends AbstractAppAssistantPage {
 
         modelCRS = context.getAppContext().getSelectedProductSceneView().getRaster().getGeoCoding().getModelCRS();
 
-        layerTree = new JTree(new WMSTreeModel(wmsModel.wmsCapabilities.getLayer()));
+        layerTree = new JTree(new WMSTreeModel(wmsModel.getWmsCapabilities().getLayer()));
         layerTree.setRootVisible(false);
         layerTree.setShowsRootHandles(true);
         layerTree.setCellRenderer(new MyDefaultTreeCellRenderer());
@@ -192,9 +182,28 @@ class WmsAssistantPage2 extends AbstractAppAssistantPage {
         @Override
         public void valueChanged(TreeSelectionEvent e) {
             TreePath path = layerTree.getSelectionModel().getSelectionPath();
-            wmsModel.selectedLayer = (Layer) path.getLastPathComponent();
-            if (wmsModel.selectedLayer != null) {
-                infoLabel.setText(getLatLonBoundingBoxText(wmsModel.selectedLayer.getLatLonBoundingBox()));
+            Layer selectedLayer = (Layer) path.getLastPathComponent();
+            if (selectedLayer != null) {
+                infoLabel.setText(getLatLonBoundingBoxText(selectedLayer.getLatLonBoundingBox()));
+                String crsCode = getMatchingCRSCode(selectedLayer);
+                if (crsCode == null) {
+                    infoLabel.setText("Coordinate system not supported.");
+                } else {
+                    RasterDataNode raster = pageContext.getAppContext().getSelectedProductSceneView().getRaster();
+                    GeoCoding geoCoding = raster.getGeoCoding();
+                    AffineTransform g2mTransform = geoCoding.getGridToModelTransform();
+                    Rectangle2D bounds = g2mTransform.createTransformedShape(new Rectangle(0, 0, raster.getSceneRasterWidth(), raster.getSceneRasterHeight())).getBounds2D();
+                    CRSEnvelope crsEnvelope = new CRSEnvelope(crsCode, bounds.getMinX(), bounds.getMinY(), bounds.getMaxX(),
+                                                          bounds.getMaxY());
+                    List<Style> styles = selectedLayer.getStyles();
+                    if (!styles.isEmpty()) {
+                        wmsModel.setSelectedStyle(styles.get(0));
+                    } else {
+                        wmsModel.setSelectedStyle(null);
+                    }
+                    wmsModel.setSelectedLayer(selectedLayer);
+                    wmsModel.setCrsEnvelope(crsEnvelope);
+                }
             } else {
                 infoLabel.setText("");
             }
