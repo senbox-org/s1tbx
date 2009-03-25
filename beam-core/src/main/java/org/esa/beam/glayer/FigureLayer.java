@@ -52,9 +52,9 @@ public class FigureLayer extends Layer {
     private final List<Figure> figureList;
     private final AffineTransform shapeToModelTransform;
 
-    public FigureLayer(AffineTransform i2mTransform, Figure[] figures) {
+    public FigureLayer(AffineTransform shapeToModelTransform, Figure[] figures) {
         this.figureList = new ArrayList<Figure>(Arrays.asList(figures));
-        this.shapeToModelTransform = new AffineTransform(i2mTransform);
+        this.shapeToModelTransform = new AffineTransform(shapeToModelTransform);
     }
 
     public void addFigure(Figure currentShapeFigure) {

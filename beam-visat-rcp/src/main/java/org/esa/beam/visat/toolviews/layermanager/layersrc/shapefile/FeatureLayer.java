@@ -45,6 +45,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+// todo - compute bounds
 /**
  * @author Marco Peters
  * @version $Revision: $ $Date: $

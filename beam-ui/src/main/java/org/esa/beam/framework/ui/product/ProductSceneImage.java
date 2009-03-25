@@ -4,9 +4,9 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.Style;
+import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glayer.support.LayerFilter;
 import com.bc.ceres.glayer.support.LayerStyleListener;
 import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.glevel.MultiLevelSource;
@@ -528,6 +528,7 @@ public class ProductSceneImage implements LayerContext {
 
     private static class ImageLayerFilter implements LayerFilter {
 
+        @Override
         public boolean accept(Layer layer) {
             return layer instanceof ImageLayer;
         }

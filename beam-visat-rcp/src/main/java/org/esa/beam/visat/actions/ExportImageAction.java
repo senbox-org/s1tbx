@@ -17,7 +17,7 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.Layer.RenderFilter;
+import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.BufferedImageRendering;
@@ -88,16 +88,16 @@ public class ExportImageAction extends AbstractExportImageAction {
     protected RenderedImage createImage(String imageFormat, ProductSceneView view) {
         final boolean useAlpha = !"BMP".equals(imageFormat);
         final boolean entireImage = isEntireImageSelected();
-        final RenderFilter renderFilter = new Layer.RenderFilter() {
+        final LayerFilter layerFilter = new LayerFilter() {
             @Override
-            public boolean canRender(Layer layer) {
+            public boolean accept(Layer layer) {
                 return layer instanceof ImageLayer;
             }
         };
-        return createImage(view, entireImage, useAlpha, renderFilter);
+        return createImage(view, entireImage, useAlpha, layerFilter);
     }
 
-    static RenderedImage createImage(ProductSceneView view, boolean entireImage, boolean useAlpha, RenderFilter renderFilter) {
+    static RenderedImage createImage(ProductSceneView view, boolean entireImage, boolean useAlpha, LayerFilter layerFilter) {
         Rectangle2D modelBounds;
         final ImageLayer imageLayer = view.getBaseImageLayer();
         if (entireImage) {
@@ -130,7 +130,7 @@ public class ExportImageAction extends AbstractExportImageAction {
         snapshotVp.zoom(modelBounds);
         snapshotVp.moveViewDelta(snapshotVp.getViewBounds().x, snapshotVp.getViewBounds().y);
 
-        view.getRootLayer().render(imageRendering, renderFilter);
+        view.getRootLayer().render(imageRendering, layerFilter);
         return bi;
     }
 

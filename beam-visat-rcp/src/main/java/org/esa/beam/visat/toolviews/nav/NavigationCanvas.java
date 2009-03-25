@@ -1,6 +1,7 @@
 package org.esa.beam.visat.toolviews.nav;
 
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.DefaultLayerCanvasModel;
 import com.bc.ceres.glayer.swing.LayerCanvas;
@@ -39,13 +40,14 @@ public class NavigationCanvas extends JPanel {
         this.navigationWindow = navigationWindow;
         thumbnailCanvas = new LayerCanvas();
         thumbnailCanvas.setBackground(ProductSceneView.DEFAULT_IMAGE_BACKGROUND_COLOR);
-        thumbnailCanvas.setRenderCustomizer(new Layer.RenderFilter() {
+        thumbnailCanvas.setLayerFilter(new LayerFilter() {
             @Override
-            public boolean canRender(Layer layer) {
+            public boolean accept(Layer layer) {
                 return layer instanceof ImageLayer;
             }
         });
         thumbnailCanvas.addOverlay(new LayerCanvas.Overlay() {
+            @Override
             public void paintOverlay(LayerCanvas canvas, Graphics2D g) {
                 if (moveSliderRect != null && !moveSliderRect.isEmpty()) {
                     g.setColor(new Color(getForeground().getRed(), getForeground().getGreen(),

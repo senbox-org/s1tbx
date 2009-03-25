@@ -2,7 +2,7 @@ package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.Layer.RenderFilter;
+import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.sun.media.jai.codec.ImageCodec;
@@ -71,7 +71,7 @@ public class ExportKmzFileAction extends ExecCommand {
             if (typeID.equals(IdentityTransformDescriptor.TYPE_ID)) {
                 exportImage(view);
             }
-        }else {
+        } else {
             String message = MessageFormat.format("Product must be in ''{0}'' projection.",
                                                   IdentityTransformDescriptor.NAME);
             VisatApp.getApp().showInfoDialog(message, null);
@@ -255,18 +255,17 @@ public class ExportKmzFileAction extends ExecCommand {
         protected Object doInBackground(ProgressMonitor pm) throws Exception {
             try {
                 final String message = "Saving image as " + file.getPath() + "...";
-                pm.beginTask(message, view.isRGB()? 4 : 3);
+                pm.beginTask(message, view.isRGB() ? 4 : 3);
                 visatApp.setStatusBarMessage(message);
                 visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-                final RenderFilter renderFilter = new Layer.RenderFilter() {
+                final LayerFilter layerFilter = new LayerFilter() {
                     @Override
-                    public boolean canRender(Layer layer) {
-                        return (layer instanceof ImageLayer) &&
-                                !layer.getName().startsWith("No-data");
+                    public boolean accept(Layer layer) {
+                        return layer instanceof ImageLayer;
                     }
                 };
-                RenderedImage image = ExportImageAction.createImage(view, true, true, renderFilter);
+                RenderedImage image = ExportImageAction.createImage(view, true, true, layerFilter);
                 pm.worked(1);
                 String imageType = "PNG";
                 String imageName = "overlay.png";
