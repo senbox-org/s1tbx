@@ -1,7 +1,7 @@
 package com.bc.ceres.glayer.support.filters;
 
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.support.LayerFilter;
+import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.core.Assert;
 
 public class IdFilter implements LayerFilter {

@@ -26,7 +26,7 @@ import java.util.Vector;
  * @version $revision$ $date$
  */
 public class Layer extends ExtensibleObject {
-    private static final Type DEFAULT_LAYER_TYPE = new Type();
+    private static final LayerType DEFAULT_LAYER_TYPE = LayerType.getLayerType(Layer.Type.class.getName());
     private static final String NO_NAME = Layer.class.getName();
     private static int instanceCount = 0;
 
@@ -286,23 +286,23 @@ public class Layer extends ExtensibleObject {
      * Renders the layer. Calls {@code render(rendering,null)}.
      *
      * @param rendering The rendering to which the layer will be rendered.
-     * @see #render(com.bc.ceres.grender.Rendering, RenderCustomizer)
+     * @see #render(com.bc.ceres.grender.Rendering, LayerFilter)
      */
     public final void render(Rendering rendering) {
         render(rendering, null);
     }
 
+
     /**
      * Renders the layer. The base class implementation configures the rendering with respect to the
      * "opacity" and "composite" style properties. Then
      * {@link #renderLayer(com.bc.ceres.grender.Rendering)} followed by
-     * {@link #renderChildren(com.bc.ceres.grender.Rendering, RenderCustomizer)} are called if
-     * {@code customizer} is {@code null}. Otherwise {@link RenderCustomizer#render(com.bc.ceres.grender.Rendering, Layer)} is called.
+     * {@link #renderChildren(com.bc.ceres.grender.Rendering, LayerFilter)} are called.
      *
      * @param rendering  The rendering to which the layer will be rendered.
-     * @param customizer An optional customizer for rendering the layer. May be {@code null}.
+     * @param filter An optional layer filter. May be {@code null}.
      */
-    public final void render(Rendering rendering, RenderCustomizer customizer) {
+    public final void render(Rendering rendering, LayerFilter filter) {
         final double opacity = getStyle().getOpacity();
         if (!isVisible() || opacity == 0.0) {
             return;
@@ -314,11 +314,14 @@ public class Layer extends ExtensibleObject {
                 oldComposite = g.getComposite();
                 g.setComposite(getStyle().getComposite().getAlphaComposite((float) opacity));
             }
-            if (customizer == null) {
+            if (filter == null) {
                 renderLayer(rendering);
-                renderChildren(rendering, null);
+                renderChildren(rendering, (LayerFilter) null);
             } else {
-                customizer.render(rendering, this);
+                if (filter.accept(this)) {
+                    renderLayer(rendering);
+                }
+                renderChildren(rendering, filter);
             }
         } finally {
             if (oldComposite != null) {
@@ -341,11 +344,11 @@ public class Layer extends ExtensibleObject {
      * The default implementation calls {@link #render(com.bc.ceres.grender.Rendering)} on all child layers.
      *
      * @param rendering  The rendering to which the layer will be rendered.
-     * @param customizer An optional customizer for rendering the layer. May be {@code null}.
+     * @param filter A layer filter. May be {@code null}.
      */
-    protected void renderChildren(Rendering rendering, RenderCustomizer customizer) {
+    protected void renderChildren(Rendering rendering, LayerFilter filter) {
         for (int i = children.size() - 1; i >= 0; --i) {
-            children.get(i).render(rendering, customizer);
+            children.get(i).render(rendering, filter);
         }
     }
 
@@ -546,54 +549,6 @@ public class Layer extends ExtensibleObject {
                 }
             }
         }
-    }
-
-    // todo - apidoc (nf - 22.10.2008)
-    public static interface RenderCustomizer {
-
-        void render(Rendering rendering, Layer layer);
-    }
-
-    // todo - apidoc (nf - 22.10.2008)
-    public abstract static class AbstractRenderCustomizer implements RenderCustomizer {
-
-        public final void render(Rendering rendering, Layer layer) {
-            renderBackground(rendering, layer);
-            renderForeground(rendering, layer);
-            renderOverlay(rendering, layer);
-        }
-
-        protected void renderBackground(Rendering rendering, Layer layer) {
-        }
-
-        protected void renderForeground(Rendering rendering, Layer layer) {
-            renderLayer(rendering, layer);
-            renderChildLayers(rendering, layer);
-        }
-
-        protected void renderLayer(Rendering rendering, Layer layer) {
-            layer.renderLayer(rendering);
-        }
-
-        protected void renderChildLayers(Rendering rendering, Layer layer) {
-            layer.renderChildren(rendering, this);
-        }
-
-        protected void renderOverlay(Rendering rendering, Layer layer) {
-        }
-    }
-
-    // todo - apidoc (nf - 22.10.2008)
-    public abstract static class RenderFilter implements RenderCustomizer {
-
-        public final void render(Rendering rendering, Layer layer) {
-            if (canRender(layer)) {
-                layer.renderLayer(rendering);
-            }
-            layer.renderChildren(rendering, this);
-        }
-
-        public abstract boolean canRender(Layer layer);
     }
 
     public static class Type extends LayerType {

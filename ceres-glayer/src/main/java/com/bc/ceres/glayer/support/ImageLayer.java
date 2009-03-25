@@ -28,7 +28,7 @@ import java.util.HashMap;
  * @author Norman Fomferra
  */
 public class ImageLayer extends Layer {
-    private static final Type DEFAULT_LAYER_TYPE = new Type();
+    private static final LayerType DEFAULT_LAYER_TYPE = LayerType.getLayerType(ImageLayer.Type.class.getName());
 
     public static final String PROPERTY_NAME_BORDER_SHOWN = "border.shown";
     public static final String PROPERTY_NAME_BORDER_WIDTH = "border.width";

@@ -18,6 +18,7 @@ package com.bc.ceres.glayer.swing;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.support.LayerViewInvalidationListener;
 import com.bc.ceres.glayer.swing.NavControl.NavControlModel;
@@ -44,7 +45,6 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
     private LayerCanvasModel model;
     private CanvasRendering canvasRendering;
-    private Layer.RenderCustomizer renderCustomizer;
 
     private boolean navControlShown;
     private WakefulComponent navControlWrapper;
@@ -61,6 +61,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
     private final ModelChangeHandler modelChangeHandler;
 
     private boolean debug = false;
+    private LayerFilter layerFilter;
 
     public LayerCanvas() {
         this(new Layer());
@@ -114,16 +115,16 @@ public class LayerCanvas extends JPanel implements AdjustableView {
         return model.getLayer();
     }
 
-    public Layer.RenderCustomizer getRenderCustomizer() {
-        return renderCustomizer;
+    public LayerFilter getLayerFilter() {
+        return layerFilter;
     }
 
-    public void setRenderCustomizer(Layer.RenderCustomizer newRenderCustomizer) {
-        Layer.RenderCustomizer oldRenderCustomizer = this.renderCustomizer;
-        if (oldRenderCustomizer != newRenderCustomizer) {
-            this.renderCustomizer = newRenderCustomizer;
+    public void setLayerFilter(LayerFilter layerFilter) {
+        LayerFilter oldLayerFilter = this.layerFilter;
+        if (oldLayerFilter != layerFilter) {
+            this.layerFilter = layerFilter;
             repaint();
-            firePropertyChange("renderCustomizer", oldRenderCustomizer, newRenderCustomizer);
+            firePropertyChange("layerFilter", oldLayerFilter, layerFilter);
         }
     }
 
@@ -326,7 +327,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
         }
 
         canvasRendering.setGraphics2D((Graphics2D) g);
-        getLayer().render(canvasRendering, renderCustomizer);
+        getLayer().render(canvasRendering, layerFilter);
 
         if (!isPaintingForPrint()) {
             for (Overlay overlay : overlays) {

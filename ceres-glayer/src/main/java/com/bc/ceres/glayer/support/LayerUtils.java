@@ -2,6 +2,7 @@ package com.bc.ceres.glayer.support;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.filters.IdFilter;
 import com.bc.ceres.glayer.support.filters.NameFilter;
 

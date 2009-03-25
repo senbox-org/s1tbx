@@ -33,6 +33,7 @@ public class BufferedImageRendering implements Rendering {
         updateViewportViewBounds();
     }
 
+    @Override
     public synchronized Graphics2D getGraphics() {
         if (graphics == null) {
             graphics = image.createGraphics();

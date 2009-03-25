@@ -14,6 +14,15 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public class LayerTest {
+    @Test
+    public void testType() {
+        Layer layer1 = new Layer();
+        Layer layer2 = new Layer();
+
+        assertNotNull(layer1.getLayerType());
+        assertSame(layer1.getLayerType(), layer2.getLayerType());
+        assertSame(layer1.getLayerType(), LayerType.getLayerType(Layer.Type.class.getName()));
+    }
 
     @Test
     public void testDefaults() {
