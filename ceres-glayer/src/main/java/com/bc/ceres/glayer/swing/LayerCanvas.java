@@ -17,6 +17,7 @@
 package com.bc.ceres.glayer.swing;
 
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.ImageLayer;
@@ -64,7 +65,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
     private LayerFilter layerFilter;
 
     public LayerCanvas() {
-        this(new Layer());
+        this(new CollectionLayer());
     }
 
     public LayerCanvas(Layer layer) {
@@ -218,7 +219,8 @@ public class LayerCanvas extends JPanel implements AdjustableView {
     }
 
     private void updateAdjustableViewProperties() {
-        maxVisibleModelBounds = computeMaxVisibleModelBounds(getLayer().getModelBounds(), getViewport().getOrientation());
+        maxVisibleModelBounds = computeMaxVisibleModelBounds(getLayer().getModelBounds(),
+                                                             getViewport().getOrientation());
         minZoomFactor = computeMinZoomFactor(getViewport().getViewBounds(), maxVisibleModelBounds);
         Layer layer = getLayer();
         double minScale = computeMinImageToModelScale(layer);
@@ -345,6 +347,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
     /////////////////////////////////////////////////////////////////////////
 
     private class CanvasRendering implements InteractiveRendering {
+
         private Graphics2D graphics2D;
 
         public CanvasRendering() {
@@ -376,6 +379,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
     }
 
     private static class NavControlModelImpl implements NavControlModel {
+
         private final Viewport viewport;
 
         public NavControlModelImpl(Viewport viewport) {
@@ -407,6 +411,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
     }
 
     public interface Overlay {
+
         void paintOverlay(LayerCanvas canvas, Graphics2D graphics);
     }
 
