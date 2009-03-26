@@ -1,19 +1,14 @@
 package com.bc.ceres.glayer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class LayerTest {
+
     @Test
     public void testType() {
-        Layer layer1 = new Layer();
-        Layer layer2 = new Layer();
+        Layer layer1 = new CollectionLayer();
+        Layer layer2 = new CollectionLayer();
 
         assertNotNull(layer1.getLayerType());
         assertSame(layer1.getLayerType(), layer2.getLayerType());
@@ -22,15 +17,15 @@ public class LayerTest {
 
     @Test
     public void testDefaults() {
-        Layer layer = new Layer();
+        Layer layer = new CollectionLayer();
         LayerType layerType = layer.getLayerType();
         assertNotNull(layerType);
-        assertTrue(layerType.createLayer(null, null) instanceof Layer);
+        assertTrue(layerType.createLayer(null, null) != null);
         assertTrue(layerType.isValidFor(null));
         assertNotNull(layer.getId());
         assertEquals(layer.getClass().getName(), layer.getName());
         assertEquals(true, layer.isVisible());
-        assertEquals(1.0, layer.getStyle().getOpacity(), 1e-10);
+        assertEquals(1.0, layer.getStyle().getOpacity(), 1.0e-10);
         assertEquals(Composite.SRC_OVER, layer.getStyle().getComposite());
 
         assertNull(layer.getModelBounds());
@@ -38,7 +33,7 @@ public class LayerTest {
 
     @Test
     public void testPropertyAccess() {
-        Layer layer = new Layer();
+        Layer layer = new CollectionLayer();
 
         assertEquals(true, layer.isVisible());
         layer.setVisible(false);
@@ -54,15 +49,15 @@ public class LayerTest {
         try {
             layer.setName(null);
             fail("NullPointerException expected");
-        } catch (NullPointerException e) {
+        } catch (NullPointerException ignored) {
             // expected
         }
 
-        assertEquals(1.0, layer.getStyle().getOpacity(), 1e-10);
+        assertEquals(1.0, layer.getStyle().getOpacity(), 1.0e-10);
         layer.getStyle().setOpacity(0.1);
-        assertEquals(0.1, layer.getStyle().getOpacity(), 1e-10);
+        assertEquals(0.1, layer.getStyle().getOpacity(), 1.0e-10);
         layer.getStyle().setOpacity(1.0);
-        assertEquals(1.0, layer.getStyle().getOpacity(), 1e-10);
+        assertEquals(1.0, layer.getStyle().getOpacity(), 1.0e-10);
 
         assertEquals(Composite.SRC_OVER, layer.getStyle().getComposite());
         layer.getStyle().setComposite(Composite.DST_OUT);
@@ -71,7 +66,7 @@ public class LayerTest {
 
     @Test
     public void testPropertyChangeNotification() {
-        final Layer layer = new Layer();
+        final Layer layer = new CollectionLayer();
         final TracingLayerListener ll = new TracingLayerListener();
         layer.addListener(ll);
 
