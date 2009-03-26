@@ -23,7 +23,6 @@ import com.bc.ceres.glayer.support.ShapeLayer;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.support.BufferedImageRendering;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.awt.Rectangle;
@@ -33,17 +32,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public class CollectionLayerTest {
-    
-    private static LayerType collectionLayerType;
-    
-    @BeforeClass
-    public static void setUpClass() {
-        collectionLayerType = LayerType.getLayerType(CollectionLayer.Type.class.getName());
-    }
-    
+
     @Test
     public void testCollection() {
-        Layer collectionLayer = new CollectionLayer(collectionLayerType, "test");
+        Layer collectionLayer = new CollectionLayer();
         assertTrue(collectionLayer.isCollectionLayer());
         
         Layer normalLayer = new Layer();
@@ -58,13 +50,13 @@ public class CollectionLayerTest {
         layer = new Layer();
         assertEquals(null, layer.getModelBounds());
 
-        layer = new CollectionLayer(collectionLayerType, "test");
+        layer = new CollectionLayer();
         layer.getChildren().add(new Layer());
         layer.getChildren().add(new Layer());
         layer.getChildren().add(new Layer());
         assertEquals(null, layer.getModelBounds());
 
-        layer = new CollectionLayer(collectionLayerType, "test");
+        layer = new CollectionLayer();
         layer.getChildren().add(new Layer());
         layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(20, 10, 30, 50)}));
         layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(10, 20, 20, 60)}));
@@ -74,7 +66,7 @@ public class CollectionLayerTest {
         y2 = Math.max(10 + 50, 20 + 60);
         assertEquals(new Rectangle(x1, y1, x2 - x1, y2 - y1), layer.getModelBounds());
 
-        layer = new CollectionLayer(collectionLayerType, "test");
+        layer = new CollectionLayer();
         layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(-20, 10, 30, 50)}));
         layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(-10, 20, 20, 60)}));
         layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(1, 2, 40, 50)}));
@@ -87,7 +79,7 @@ public class CollectionLayerTest {
 
     @Test
     public void testRenderRecognisesVisibileState() {
-        final Layer layer = new CollectionLayer(collectionLayerType, "test");
+        final Layer layer = new CollectionLayer();
         final RenderCountingLayer l1 = new RenderCountingLayer();
         final RenderCountingLayer l2 = new RenderCountingLayer();
         final RenderCountingLayer l3 = new RenderCountingLayer();
@@ -123,7 +115,7 @@ public class CollectionLayerTest {
 
     @Test
     public void testListInterfaceImplementionSpecConformance() {
-        final Layer layer = new CollectionLayer(collectionLayerType, "test");
+        final Layer layer = new CollectionLayer();
         final java.util.List<Layer> list = layer.getChildren();
 
         assertEquals(true, list.isEmpty());
@@ -198,7 +190,7 @@ public class CollectionLayerTest {
     @Test
     public void testChildLayerListIsLife() {
 
-        Layer owner = new CollectionLayer(collectionLayerType, "test");
+        Layer owner = new CollectionLayer();
         final List<Layer> list = owner.getChildren();
 
 

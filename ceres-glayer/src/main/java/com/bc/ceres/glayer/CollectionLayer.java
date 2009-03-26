@@ -12,13 +12,18 @@ import java.util.Map;
  * @version $revision$ $date$
  */
 public class CollectionLayer extends Layer {
+    private static final LayerType LAYER_TYPE = LayerType.getLayerType(CollectionLayer.Type.class.getName());
+
+    public CollectionLayer() {
+        this("Collection layer");
+    }
+
+    public CollectionLayer(String name) {
+        this(LAYER_TYPE, name);
+    }
     
-    /**
-     * @param layerType
-     * @param name
-     */
-    public CollectionLayer(LayerType layerType, String name) {
-        super(layerType, name);
+    protected CollectionLayer(LayerType type, String name) {
+        super(type, name);
     }
 
     @Override
