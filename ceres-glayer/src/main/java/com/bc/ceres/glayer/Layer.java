@@ -27,9 +27,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @version $revision$ $date$
  */
 public class Layer extends ExtensibleObject {
+
     private static final LayerType DEFAULT_LAYER_TYPE = LayerType.getLayerType(Layer.Type.class.getName());
     private static final String NO_NAME = Layer.class.getName();
-    private static volatile AtomicInteger instanceCount = new AtomicInteger(0);    
+    private static volatile AtomicInteger instanceCount = new AtomicInteger(0);
 
     private final LayerType layerType;
     private Layer parent;
@@ -54,20 +55,6 @@ public class Layer extends ExtensibleObject {
         this(DEFAULT_LAYER_TYPE, NO_NAME);
     }
 
-    /**
-     * Constructor. The following default properties are used:
-     * <ul>
-     * <li>{@code name = getClass().getName()}</li>
-     * <li>{@code visible = true}</li>
-     * <li>{@code style.opacity = 1.0}</li>
-     * </ul>
-     *
-     * @param name A name.
-     */
-    @Deprecated
-    public Layer(String name) {
-        this(DEFAULT_LAYER_TYPE, name);
-    }
 
     /**
      * Constructor. The following default properties are used:
@@ -121,7 +108,7 @@ public class Layer extends ExtensibleObject {
     public Layer getParent() {
         return parent;
     }
-    
+
     /**
      * @return true, if this layer is a collection of other layers.
      */
@@ -160,6 +147,7 @@ public class Layer extends ExtensibleObject {
 
     /**
      * @return An identifier which can be used to search for special layers.
+     *
      * @since Ceres 0.9
      */
     public String getId() {
@@ -168,6 +156,7 @@ public class Layer extends ExtensibleObject {
 
     /**
      * @param id An identifier which can be used to search for special layers.
+     *
      * @since Ceres 0.9
      */
     public void setId(String id) {
@@ -179,7 +168,9 @@ public class Layer extends ExtensibleObject {
      * Gets the index of the first child layer having the given identifier.
      *
      * @param id The identifier.
+     *
      * @return The child index, or {@code -1} if no such layer exists.
+     *
      * @since Ceres 0.9
      */
     public int getChildIndex(String id) {
@@ -296,6 +287,7 @@ public class Layer extends ExtensibleObject {
      * Renders the layer. Calls {@code render(rendering,null)}.
      *
      * @param rendering The rendering to which the layer will be rendered.
+     *
      * @see #render(com.bc.ceres.grender.Rendering, LayerFilter)
      */
     public final void render(Rendering rendering) {
@@ -309,8 +301,8 @@ public class Layer extends ExtensibleObject {
      * {@link #renderLayer(com.bc.ceres.grender.Rendering)} followed by
      * {@link #renderChildren(com.bc.ceres.grender.Rendering, LayerFilter)} are called.
      *
-     * @param rendering  The rendering to which the layer will be rendered.
-     * @param filter An optional layer filter. May be {@code null}.
+     * @param rendering The rendering to which the layer will be rendered.
+     * @param filter    An optional layer filter. May be {@code null}.
      */
     public final void render(Rendering rendering, LayerFilter filter) {
         final double opacity = getStyle().getOpacity();
@@ -353,8 +345,8 @@ public class Layer extends ExtensibleObject {
      * Renders the child layers of this layer. Called by {@link #render(com.bc.ceres.grender.Rendering)}.
      * The default implementation calls {@link #render(com.bc.ceres.grender.Rendering)} on all child layers.
      *
-     * @param rendering  The rendering to which the layer will be rendered.
-     * @param filter A layer filter. May be {@code null}.
+     * @param rendering The rendering to which the layer will be rendered.
+     * @param filter    A layer filter. May be {@code null}.
      */
     protected void renderChildren(Rendering rendering, LayerFilter filter) {
         for (int i = children.size() - 1; i >= 0; --i) {
@@ -562,6 +554,7 @@ public class Layer extends ExtensibleObject {
     }
 
     public static class Type extends LayerType {
+
         @Override
         public String getName() {
             return "Empty Layer";

@@ -1,22 +1,24 @@
 package com.bc.ceres.glayer.support;
 
+import com.bc.ceres.glayer.DummyTestLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.filters.NameFilter;
 import junit.framework.TestCase;
 
 public class LayerUtilsTest extends TestCase {
+
     static Layer createLayerTree() {
-        Layer root = new Layer("R");
-        root.getChildren().add(new Layer("A"));
-        root.getChildren().add(new Layer("B"));
-        root.getChildren().add(new Layer("C"));
-        root.getChildren().add(new Layer("D"));
+        Layer root = new DummyTestLayer("R");
+        root.getChildren().add(new DummyTestLayer("A"));
+        root.getChildren().add(new DummyTestLayer("B"));
+        root.getChildren().add(new DummyTestLayer("C"));
+        root.getChildren().add(new DummyTestLayer("D"));
 
         Layer layerC = LayerUtils.getChildLayerByName(root, "C");
         assertNotNull(layerC);
-        layerC.getChildren().add(new Layer("C1"));
-        layerC.getChildren().add(new Layer("C2"));
-        layerC.getChildren().add(new Layer("C3"));
+        layerC.getChildren().add(new DummyTestLayer("C1"));
+        layerC.getChildren().add(new DummyTestLayer("C2"));
+        layerC.getChildren().add(new DummyTestLayer("C3"));
         return root;
     }
 
