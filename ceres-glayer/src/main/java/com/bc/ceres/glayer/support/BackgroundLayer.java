@@ -8,6 +8,7 @@ import com.bc.ceres.grender.Rendering;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Rectangle;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -54,14 +55,15 @@ public class BackgroundLayer extends Layer {
 
         @Override
         public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-            // TODO Auto-generated method stub
-            return null;
+            final HashMap<String, Object> configuration = new HashMap<String, Object>();
+            configuration.put("paint", ((BackgroundLayer) layer).getPaint());
+            return configuration;
         }
 
         @Override
         public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
-            // TODO Auto-generated method stub
-            return null;
+            Paint paint = (Paint) configuration.get("paint");
+            return new BackgroundLayer(paint);
         }
     }
 }
