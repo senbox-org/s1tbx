@@ -1,10 +1,10 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc;
 
 
+import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
-import org.esa.beam.framework.ui.assistant.AssistantPageContext;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
 
 public class EmptyLayerAssistantPage extends AbstractAppAssistantPage {
 
-    private final static ArrayList<String> names = new ArrayList<String>();
+    private static final ArrayList<String> names = new ArrayList<String>();
     private JComboBox nameBox;
 
     static {
@@ -39,18 +39,8 @@ public class EmptyLayerAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean hasNextPage() {
-        return false;
-    }
-
-    @Override
-    public boolean canFinish() {
-        return true;
-    }
-
-    @Override
     public boolean performFinish(AppAssistantPageContext pageContext) {
-        Layer layer = new Layer();
+        Layer layer = new CollectionLayer();
         layer.setName(nameBox.getSelectedItem().toString().trim());
         Layer rootLayer = pageContext.getAppContext().getSelectedProductSceneView().getRootLayer();
         rootLayer.getChildren().add(0, layer);
@@ -83,27 +73,29 @@ public class EmptyLayerAssistantPage extends AbstractAppAssistantPage {
         return panel;
     }
 
-    private class MyItemListener implements ItemListener {
+    private static class MyItemListener implements ItemListener {
 
         private final AppAssistantPageContext pageContext;
 
-        public MyItemListener(AppAssistantPageContext context) {
+        private MyItemListener(AppAssistantPageContext context) {
             pageContext = context;
         }
-        
+
+        @Override
         public void itemStateChanged(ItemEvent e) {
             pageContext.updateState();
         }
     }
 
-    private class MyActionListener implements ActionListener {
+    private static class MyActionListener implements ActionListener {
 
         private final AppAssistantPageContext pageContext;
 
-        public MyActionListener(AppAssistantPageContext context) {
+        private MyActionListener(AppAssistantPageContext context) {
             pageContext = context;
         }
-        
+
+        @Override
         public void actionPerformed(ActionEvent e) {
             pageContext.updateState();
         }
