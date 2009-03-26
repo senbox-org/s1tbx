@@ -46,9 +46,10 @@ public class Layer extends ExtensibleObject {
      * <ul>
      * <li>{@code name = getClass().getName()}</li>
      * <li>{@code visible = true}</li>
-     * <li>{@code style.opaccity = 1.0}</li>
+     * <li>{@code style.opacity = 1.0}</li>
      * </ul>
      */
+    @Deprecated
     public Layer() {
         this(DEFAULT_LAYER_TYPE, NO_NAME);
     }
@@ -58,11 +59,12 @@ public class Layer extends ExtensibleObject {
      * <ul>
      * <li>{@code name = getClass().getName()}</li>
      * <li>{@code visible = true}</li>
-     * <li>{@code style.opaccity = 1.0}</li>
+     * <li>{@code style.opacity = 1.0}</li>
      * </ul>
      *
      * @param name A name.
      */
+    @Deprecated
     public Layer(String name) {
         this(DEFAULT_LAYER_TYPE, name);
     }
@@ -86,7 +88,7 @@ public class Layer extends ExtensibleObject {
      * <ul>
      * <li>{@code name = getClass().getName()}</li>
      * <li>{@code visible = true}</li>
-     * <li>{@code style.opaccity = 1.0}</li>
+     * <li>{@code style.opacity = 1.0}</li>
      * </ul>
      *
      * @param layerType The layer type.
