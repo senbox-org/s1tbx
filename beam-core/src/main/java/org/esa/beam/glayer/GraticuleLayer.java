@@ -16,17 +16,31 @@
  */
 package org.esa.beam.glayer;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Graticule;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.util.Guardian;
 
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Composite;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Marco Zuehlke
@@ -35,11 +49,15 @@ import java.awt.geom.Rectangle2D;
  */
 public class GraticuleLayer extends Layer {
 
+    private static final LayerType LAYER_TYPE = LayerType.getLayerType(Type.class.getName());
+
+    public static final String PROPERTY_NAME_PRODUCT = "graticule.product";
+    public static final String PROPERTY_NAME_RASTER = "graticule.raster";
+    public static final String PROPERTY_NAME_TRANSFORM = "graticule.i2mTransform";
     public static final String PROPERTY_NAME_RES_AUTO = "graticule.res.auto";
     public static final String PROPERTY_NAME_RES_PIXELS = "graticule.res.pixels";
     public static final String PROPERTY_NAME_RES_LAT = "graticule.res.lat";
     public static final String PROPERTY_NAME_RES_LON = "graticule.res.lon";
-
     public static final String PROPERTY_NAME_LINE_COLOR = "graticule.line.color";
     public static final String PROPERTY_NAME_LINE_TRANSPARENCY = "graticule.line.transparency";
     public static final String PROPERTY_NAME_LINE_WIDTH = "graticule.line.width";
@@ -53,24 +71,24 @@ public class GraticuleLayer extends Layer {
     public static final int DEFAULT_RES_PIXELS = 128;
     public static final double DEFAULT_RES_LAT = 1.0;
     public static final double DEFAULT_RES_LON = 1.0;
-
-    public static final boolean DEFAULT_TEXT_ENABLED = true;
     public static final Color DEFAULT_LINE_COLOR = new Color(204, 204, 255);
     public static final double DEFAULT_LINE_TRANSPARENCY = 0.0;
     public static final double DEFAULT_LINE_WIDTH = 0.5;
+    public static final boolean DEFAULT_TEXT_ENABLED = true;
     public static final Font DEFAULT_TEXT_FONT = new Font("SansSerif", Font.ITALIC, 12);
     public static final Color DEFAULT_TEXT_FG_COLOR = Color.WHITE;
     public static final Color DEFAULT_TEXT_BG_COLOR = Color.BLACK;
-
-
     public static final double DEFAULT_TEXT_BG_TRANSPARENCY = 0.7;
+
     private Product product;
     private RasterDataNode raster;
-    private ProductNodeHandler productNodeHandler;
-    private Graticule _graticule;
     private final AffineTransform i2mTransform;
 
+    private ProductNodeHandler productNodeHandler;
+    private Graticule graticule;
+
     public GraticuleLayer(Product product, RasterDataNode raster, AffineTransform i2mTransform) {
+        super(LAYER_TYPE, "Graticule");
         Guardian.assertNotNull("product", product);
         this.i2mTransform = i2mTransform;
 
@@ -83,16 +101,28 @@ public class GraticuleLayer extends Layer {
         getStyle().setOpacity(0.5);
     }
 
+    Product getProduct() {
+        return product;
+    }
+
+    RasterDataNode getRaster() {
+        return raster;
+    }
+
+    AffineTransform getI2mTransform() {
+        return i2mTransform;
+    }
+
     @Override
     public void renderLayer(Rendering rendering) {
-        if (_graticule == null) {
-            _graticule = Graticule.create(raster,
-                    getResAuto(),
-                    getResPixels(),
-                    (float) getResLat(),
-                    (float) getResLon());
+        if (graticule == null) {
+            graticule = Graticule.create(raster,
+                                         getResAuto(),
+                                         getResPixels(),
+                                         (float) getResLat(),
+                                         (float) getResLon());
         }
-        if (_graticule != null) {
+        if (graticule != null) {
             final Graphics2D g2d = rendering.getGraphics();
             final Viewport vp = rendering.getViewport();
             final AffineTransform transformSave = g2d.getTransform();
@@ -102,12 +132,12 @@ public class GraticuleLayer extends Layer {
                 transform.concatenate(vp.getModelToViewTransform());
                 transform.concatenate(i2mTransform);
                 g2d.setTransform(transform);
-                final GeneralPath[] linePaths = _graticule.getLinePaths();
+                final GeneralPath[] linePaths = graticule.getLinePaths();
                 if (linePaths != null) {
                     drawLinePaths(g2d, linePaths);
                 }
                 if (isTextEnabled()) {
-                    final Graticule.TextGlyph[] textGlyphs = _graticule.getTextGlyphs();
+                    final Graticule.TextGlyph[] textGlyphs = graticule.getTextGlyphs();
                     if (textGlyphs != null) {
                         drawTextLabels(g2d, textGlyphs);
                     }
@@ -122,7 +152,8 @@ public class GraticuleLayer extends Layer {
         Composite oldComposite = null;
         if (getLineTransparency() > 0.0) {
             oldComposite = g2d.getComposite();
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) (1.0 - getLineTransparency())));
+            g2d.setComposite(
+                    AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) (1.0 - getLineTransparency())));
         }
         g2d.setPaint(getLineColor());
         g2d.setStroke(new BasicStroke((float) getLineWidth()));
@@ -143,21 +174,20 @@ public class GraticuleLayer extends Layer {
             if (getTextBgTransparency() > 0.0) {
                 oldComposite = g2d.getComposite();
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-                        (float) (1.0 - getTextBgTransparency())));
+                                                            (float) (1.0 - getTextBgTransparency())));
             }
 
             g2d.setPaint(getTextBgColor());
             g2d.setStroke(new BasicStroke(0));
-            Rectangle2D labelBounds;
             for (Graticule.TextGlyph glyph : textGlyphs) {
                 g2d.translate(glyph.getX(), glyph.getY());
                 g2d.rotate(glyph.getAngle());
 
-                labelBounds = g2d.getFontMetrics().getStringBounds(glyph.getText(), g2d);
+                Rectangle2D labelBounds = g2d.getFontMetrics().getStringBounds(glyph.getText(), g2d);
                 labelBounds.setRect(labelBounds.getX() + tx - 1,
-                        labelBounds.getY() + ty - 1,
-                        labelBounds.getWidth() + 4,
-                        labelBounds.getHeight());
+                                    labelBounds.getY() + ty - 1,
+                                    labelBounds.getWidth() + 4,
+                                    labelBounds.getHeight());
                 g2d.fill(labelBounds);
 
                 g2d.rotate(-glyph.getAngle());
@@ -187,7 +217,7 @@ public class GraticuleLayer extends Layer {
         if (product != null) {
             product.removeProductNodeListener(productNodeHandler);
             product = null;
-            _graticule = null;
+            graticule = null;
         }
     }
 
@@ -322,9 +352,41 @@ public class GraticuleLayer extends Layer {
         public void nodeChanged(ProductNodeEvent event) {
             if (event.getSourceNode() == product && Product.PROPERTY_NAME_GEOCODING.equals(event.getPropertyName())) {
                 // Force recreation
-                _graticule = null;
+                graticule = null;
                 fireLayerDataChanged(getModelBounds());
             }
+        }
+    }
+
+    public static class Type extends LayerType {
+
+        @Override
+        public String getName() {
+            return "Graticule Layer";
+        }
+
+        @Override
+        public boolean isValidFor(LayerContext ctx) {
+            return true;
+        }
+
+        @Override
+        public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
+            Product product = (Product) configuration.get(PROPERTY_NAME_PRODUCT);
+            RasterDataNode raster = (RasterDataNode) configuration.get(PROPERTY_NAME_RASTER);
+            AffineTransform i2mTransform = (AffineTransform) configuration.get(PROPERTY_NAME_TRANSFORM);
+            return new GraticuleLayer(product, raster, i2mTransform);
+        }
+
+        @Override
+        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
+            Assert.argument(layer instanceof GraticuleLayer, "layer instanceof GraticuleLayer");
+            HashMap<String, Object> config = new HashMap<String, Object>();
+            GraticuleLayer graticuleLayer = (GraticuleLayer) layer;
+            config.put(PROPERTY_NAME_PRODUCT, graticuleLayer.getProduct());
+            config.put(PROPERTY_NAME_RASTER, graticuleLayer.getRaster());
+            config.put(PROPERTY_NAME_TRANSFORM, graticuleLayer.getI2mTransform());
+            return config;
         }
     }
 }
