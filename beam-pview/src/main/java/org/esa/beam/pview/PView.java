@@ -1,15 +1,28 @@
 package org.esa.beam.pview;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glayer.swing.AdjustableViewScrollPane;
+import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glayer.tools.Tools;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.jidesoft.utils.Lm;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.GcpDescriptor;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ROIDefinition;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
 import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
@@ -22,8 +35,21 @@ import org.esa.beam.glevel.TiledFileMultiLevelSource;
 
 import javax.media.jai.JAI;
 import javax.media.jai.util.ImagingListener;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Desktop;
+import java.awt.HeadlessException;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -42,6 +68,7 @@ import java.util.prefs.Preferences;
 
 
 public class PView {
+
     private static final String APPNAME = "BEAM PView 1.5";
     private static final String WORLD_IMAGE_DIR_PROPERTY_NAME = "org.esa.beam.pview.worldImageDir";
     private static final String LAST_DATA_DIR_PREF_KEY = "lastDataDir";
@@ -50,7 +77,8 @@ public class PView {
     private static final String MANUAL_HTML = "docs/pview-manual.html";
     private static final Preferences PREFERENCES = Preferences.userNodeForPackage(PView.class);
 
-    private static final java.util.List<Image> FRAME_ICONS = Arrays.asList(new ImageIcon(PView.class.getResource("/images/pview-16x16.png")).getImage(),
+    private static final java.util.List<Image> FRAME_ICONS = Arrays.asList(
+            new ImageIcon(PView.class.getResource("/images/pview-16x16.png")).getImage(),
             new ImageIcon(PView.class.getResource("/images/pview-32x32.png")).getImage());
     private static Logger logger;
 
@@ -77,7 +105,8 @@ public class PView {
         JAI.getDefaultInstance().getTileCache().setMemoryCapacity(256L * (1024 * 1024));
         JAI.getDefaultInstance().setImagingListener(new ImagingListener() {
             @Override
-            public boolean errorOccurred(String message, Throwable thrown, Object where, boolean isRetryable) throws RuntimeException {
+            public boolean errorOccurred(String message, Throwable thrown, Object where, boolean isRetryable) throws
+                                                                                                              RuntimeException {
                 System.out.println("JAI error ocurred: " + message);
                 if (thrown != null) {
                     thrown.printStackTrace();
@@ -124,7 +153,7 @@ public class PView {
         final double aspectRatio = (double) product.getSceneRasterWidth() / product.getSceneRasterHeight();
         boolean worldMode = aspectRatio == 2.0;
 
-        final Layer rootLayer = new Layer();
+        final Layer rootLayer = new CollectionLayer();
         rootLayer.setName("Root");
 
         AffineTransform i2m = createImageToModelTransform(product, worldMode);
@@ -139,8 +168,8 @@ public class PView {
             }
         }
         if (product.getProductType().startsWith("MER_RR__1P")
-                || product.getProductType().startsWith("MER_FR__1P")
-                || product.getProductType().startsWith("MER_FRS_1P")) {
+            || product.getProductType().startsWith("MER_FR__1P")
+            || product.getProductType().startsWith("MER_FRS_1P")) {
             setMerisL1bRois(product);
             rootLayer.getChildren().add(createMerisL1bRgbLayers(product, i2m));
         }
@@ -212,15 +241,15 @@ public class PView {
             product.getPinGroup().add(new Pin("pin_" + i, "Pin " + i, "", new PixelPos(
                     0.5f + (i == 0 ? 0 : (int) (Math.random() * product.getSceneRasterWidth())),
                     0.5f + (i == 0 ? 0 : (int) (Math.random() * product.getSceneRasterHeight()))),
-                    null,
-                    PlacemarkSymbol.createDefaultPinSymbol()));
+                                              null,
+                                              PlacemarkSymbol.createDefaultPinSymbol()));
         }
         for (int i = 0; i < n; i++) {
             product.getGcpGroup().add(new Pin("gcp_" + i, "GCP " + i, "", new PixelPos(
                     0.5f + (i == 0 ? 0 : (int) (Math.random() * product.getSceneRasterWidth())),
                     0.5f + (i == 0 ? 0 : (int) (Math.random() * product.getSceneRasterHeight()))),
-                    null,
-                    PlacemarkSymbol.createDefaultGcpSymbol()));
+                                              null,
+                                              PlacemarkSymbol.createDefaultGcpSymbol()));
         }
     }
 
@@ -272,7 +301,7 @@ public class PView {
     }
 
     private static Layer createMerisL1bRgbLayers(Product product, AffineTransform i2m) {
-        final Layer collectionLayer = new Layer();
+        final Layer collectionLayer = new CollectionLayer();
         collectionLayer.setName("RGB");
         Layer l2 = createRgbLayer("RGB 751", new RasterDataNode[]{
                 product.getBand("radiance_7"),
@@ -286,17 +315,17 @@ public class PView {
                 product.getBand("radiance_2"),
         }, i2m);
         collectionLayer.getChildren().add(l1);
-        Layer l = createRgbLayer("RGB 931", new RasterDataNode[]{
+        Layer l0 = createRgbLayer("RGB 931", new RasterDataNode[]{
                 product.getBand("radiance_9"),
                 product.getBand("radiance_3"),
                 product.getBand("radiance_1"),
         }, i2m);
-        collectionLayer.getChildren().add(l);
+        collectionLayer.getChildren().add(l0);
         return collectionLayer;
     }
 
     private static Layer createRoiLayers(Product product, AffineTransform i2m) {
-        final Layer collectionLayer = new Layer();
+        final Layer collectionLayer = new CollectionLayer();
         collectionLayer.setName("ROIs");
         final String[] names = product.getBandNames();
         for (final String name : names) {
@@ -314,20 +343,22 @@ public class PView {
     }
 
     private static ImageLayer createRgbLayer(String name, RasterDataNode[] rasterDataNodes, AffineTransform i2m) {
-        ImageLayer imageLayer = new ImageLayer(BandImageMultiLevelSource.create(rasterDataNodes, i2m, ProgressMonitor.NULL));
+        ImageLayer imageLayer = new ImageLayer(
+                BandImageMultiLevelSource.create(rasterDataNodes, i2m, ProgressMonitor.NULL));
         imageLayer.setName(name);
         imageLayer.setVisible(false);
         return imageLayer;
     }
 
     private static Layer createBitmasksLayer(Product product, AffineTransform i2m) {
-        final Layer collectionLayer = new Layer();
+        final Layer collectionLayer = new CollectionLayer();
         collectionLayer.setName("Bitmasks");
         final BitmaskDef[] bitmaskDefs = product.getBitmaskDefs();
         for (BitmaskDef bitmaskDef : bitmaskDefs) {
             final Color color = bitmaskDef.getColor();
             final String expression = bitmaskDef.getExpr();
-            final ImageLayer imageLayer = new ImageLayer(MaskImageMultiLevelSource.create(product, color, expression, false, i2m));
+            final ImageLayer imageLayer = new ImageLayer(
+                    MaskImageMultiLevelSource.create(product, color, expression, false, i2m));
             imageLayer.setName(bitmaskDef.getName());
             imageLayer.setVisible(false);
             imageLayer.getStyle().setOpacity(bitmaskDef.getAlpha());
@@ -337,13 +368,14 @@ public class PView {
     }
 
     private static Layer createBandsLayer(Product product, AffineTransform i2m) {
-        final Layer collectionLayer = new Layer();
+        final Layer collectionLayer = new CollectionLayer();
         collectionLayer.setName("Bands");
         final String[] names = product.getBandNames();
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
             final Band band = product.getBand(name);
-            final ImageLayer imageLayer = new ImageLayer(BandImageMultiLevelSource.create(band, i2m, ProgressMonitor.NULL));
+            final ImageLayer imageLayer = new ImageLayer(
+                    BandImageMultiLevelSource.create(band, i2m, ProgressMonitor.NULL));
             imageLayer.setName(band.getName());
             imageLayer.setVisible(i == 0);
             collectionLayer.getChildren().add(imageLayer);
@@ -365,7 +397,7 @@ public class PView {
     }
 
     private static Layer createNoDataMasksLayer(Product product, AffineTransform i2m) {
-        final Layer collectionLayer = new Layer();
+        final Layer collectionLayer = new CollectionLayer();
         collectionLayer.setName("No-Data Masks");
         final String[] names = product.getBandNames();
         for (final String name : names) {
@@ -373,7 +405,8 @@ public class PView {
             if (band.getValidMaskExpression() != null) {
                 final Color color = Color.ORANGE;
                 final String expression = band.getValidMaskExpression();
-                final ImageLayer imageLayer = new ImageLayer(MaskImageMultiLevelSource.create(product, color, expression, true, i2m));
+                final ImageLayer imageLayer = new ImageLayer(
+                        MaskImageMultiLevelSource.create(product, color, expression, true, i2m));
                 imageLayer.setName("No-data mask of " + band.getName());
                 imageLayer.setVisible(false);
                 imageLayer.getStyle().setOpacity(0.5);
@@ -384,12 +417,13 @@ public class PView {
     }
 
     private static Layer createTiePointsLayer(Product product, AffineTransform i2m) {
-        final Layer collectionLayer = new Layer();
+        final Layer collectionLayer = new CollectionLayer();
         collectionLayer.setName("Tie-Point Grids");
         final String[] names = product.getTiePointGridNames();
         for (final String name : names) {
             final TiePointGrid tiePointGrid = product.getTiePointGrid(name);
-            final ImageLayer imageLayer = new ImageLayer(BandImageMultiLevelSource.create(tiePointGrid, i2m, ProgressMonitor.NULL));
+            final ImageLayer imageLayer = new ImageLayer(
+                    BandImageMultiLevelSource.create(tiePointGrid, i2m, ProgressMonitor.NULL));
             imageLayer.setName(tiePointGrid.getName());
             imageLayer.setVisible(false);
             collectionLayer.getChildren().add(imageLayer);
@@ -398,7 +432,7 @@ public class PView {
     }
 
     private static Layer createPlacemarksLayer(Product product, AffineTransform i2m) {
-        final Layer collectionLayer = new Layer();
+        final Layer collectionLayer = new CollectionLayer();
         collectionLayer.setName("Placemarks");
 
         if (product.getGeoCoding() != null) {
@@ -420,7 +454,8 @@ public class PView {
 
 
     private static AffineTransform createImageToModelTransform(Product product, boolean worldMode) {
-        return worldMode ? AffineTransform.getScaleInstance(360.0 / product.getSceneRasterWidth(), 180.0 / product.getSceneRasterHeight()) : new AffineTransform();
+        return worldMode ? AffineTransform.getScaleInstance(360.0 / product.getSceneRasterWidth(),
+                                                            180.0 / product.getSceneRasterHeight()) : new AffineTransform();
     }
 
     private void openFrame(final File file, final Layer collectionLayer) {
@@ -452,15 +487,13 @@ public class PView {
                 frame.dispose();
                 collectionLayer.dispose();
                 frames.remove(frame);
-                if (frames.size() == 0) {
+                if (frames.isEmpty()) {
                     System.exit(0);
                 }
             }
         });
 
         frame.setVisible(true);
-//        showLayerManager(frame, "Layers - [" + file.getName() + "] - " + APPNAME,
-//                collectionLayer, new Point(initialViewWidth + frameLocation, frameLocation));
         frameLocation += 24;
         frames.add(frame);
     }
@@ -490,9 +523,10 @@ public class PView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(null, APPNAME +
-                        "\n(C) 2008 by Brockmann Consult GmbH" +
-                        "\n\nA proof of concept for forthcoming BEAM tiled imaging,\n" +
-                        "layer management and SMOS support.", "About", JOptionPane.INFORMATION_MESSAGE);
+                                                    "\n(C) 2008 by Brockmann Consult GmbH" +
+                                                    "\n\nA proof of concept for forthcoming BEAM tiled imaging,\n" +
+                                                    "layer management and SMOS support.", "About",
+                                              JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
