@@ -1,10 +1,11 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
-import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.LayerFilter;
+import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.support.LayerStyleListener;
@@ -219,7 +220,7 @@ public class ProductSceneImage implements LayerContext {
     }
 
     private void initRootLayer() {
-        rootLayer = new Layer();
+        rootLayer = new CollectionLayer();
         addLayer(0, createBaseImageLayer());
     }
 
