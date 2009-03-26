@@ -1,5 +1,6 @@
 package com.bc.ceres.glayer;
 
+import java.util.Collections;
 import java.util.Map;
 
 
@@ -44,14 +45,12 @@ public class CollectionLayer extends Layer {
 
         @Override
         public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-            // TODO Auto-generated method stub
-            return null;
+            return Collections.emptyMap();
         }
 
         @Override
         public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
-            // TODO Auto-generated method stub
-            return null;
+            return new CollectionLayer();
         }
     }
 }

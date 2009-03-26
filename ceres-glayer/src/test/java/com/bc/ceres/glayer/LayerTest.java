@@ -12,7 +12,7 @@ public class LayerTest {
 
         assertNotNull(layer1.getLayerType());
         assertSame(layer1.getLayerType(), layer2.getLayerType());
-        assertSame(layer1.getLayerType(), LayerType.getLayerType(Layer.Type.class.getName()));
+        assertSame(layer1.getLayerType(), LayerType.getLayerType(CollectionLayer.Type.class.getName()));
     }
 
     @Test
@@ -23,7 +23,7 @@ public class LayerTest {
         assertTrue(layerType.createLayer(null, null) != null);
         assertTrue(layerType.isValidFor(null));
         assertNotNull(layer.getId());
-        assertEquals(layer.getClass().getName(), layer.getName());
+        assertEquals("Collection layer", layer.getName());
         assertEquals(true, layer.isVisible());
         assertEquals(1.0, layer.getStyle().getOpacity(), 1.0e-10);
         assertEquals(Composite.SRC_OVER, layer.getStyle().getComposite());
@@ -41,7 +41,7 @@ public class LayerTest {
         layer.setVisible(true);
         assertEquals(true, layer.isVisible());
 
-        assertEquals(layer.getClass().getName(), layer.getName());
+        assertEquals("Collection layer", layer.getName());
         layer.setName("Grid");
         assertEquals("Grid", layer.getName());
         layer.setName("Earth grid");
