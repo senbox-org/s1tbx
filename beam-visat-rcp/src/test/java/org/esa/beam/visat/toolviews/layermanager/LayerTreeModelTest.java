@@ -14,6 +14,7 @@
  */
 package org.esa.beam.visat.toolviews.layermanager;
 
+import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.LayerUtils;
 import junit.framework.TestCase;
@@ -26,16 +27,16 @@ import java.util.List;
 public class LayerTreeModelTest extends TestCase {
 
     public void testIt() {
-        Layer layer0 = new Layer();
-        Layer layer1 = new Layer();
-        Layer layer2 = new Layer();
-        Layer layer3 = new Layer();
+        Layer layer0 = new CollectionLayer();
+        Layer layer1 = new CollectionLayer();
+        Layer layer2 = new CollectionLayer();
+        Layer layer3 = new CollectionLayer();
         layer0.getChildren().add(layer1);
         layer0.getChildren().add(layer2);
         layer0.getChildren().add(layer3);
 
-        Layer layer4 = new Layer();
-        Layer layer5 = new Layer();
+        Layer layer4 = new CollectionLayer();
+        Layer layer5 = new CollectionLayer();
         layer3.getChildren().add(layer4);
         layer3.getChildren().add(layer5);
 
@@ -81,7 +82,7 @@ public class LayerTreeModelTest extends TestCase {
         treeModel.addTreeModelListener(listener);
         final List<Layer> children = layer3.getChildren();
         children.remove(layer4);
-       assertEquals("treeStructureChanged;", listener.trace); 
+        assertEquals("treeStructureChanged;", listener.trace);
     }
 
     private static class MyTreeModelListener implements TreeModelListener {
@@ -90,22 +91,22 @@ public class LayerTreeModelTest extends TestCase {
         TreeModelEvent e;
 
         public void treeNodesChanged(TreeModelEvent e) {
-            trace+="treeNodesChanged;";
+            trace += "treeNodesChanged;";
             this.e = e;
         }
 
         public void treeNodesInserted(TreeModelEvent e) {
-            trace+="treeNodesInserted;";
+            trace += "treeNodesInserted;";
             this.e = e;
         }
 
         public void treeNodesRemoved(TreeModelEvent e) {
-            trace+="treeNodesRemoved;";
+            trace += "treeNodesRemoved;";
             this.e = e;
         }
 
         public void treeStructureChanged(TreeModelEvent e) {
-            trace+="treeStructureChanged;";
+            trace += "treeStructureChanged;";
             this.e = e;
         }
     }

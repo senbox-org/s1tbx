@@ -1,15 +1,15 @@
 package org.esa.beam.visat.toolviews.layermanager;
 
-import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.product.ProductSceneView;
+import com.bc.ceres.glayer.CollectionLayer;
+import com.bc.ceres.glayer.Layer;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
+import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.junit.Before;
 
 import java.awt.Window;
-
-import com.bc.ceres.glayer.Layer;
 
 /**
  * todo - add API doc
@@ -63,7 +63,7 @@ public class AbstractMoveLayerTest {
     }
 
     private static Layer createLayer(String id) {
-        final Layer layer = new Layer();
+        final Layer layer = new CollectionLayer();
         layer.setId(id);
         layer.setName(id);
         return layer;
