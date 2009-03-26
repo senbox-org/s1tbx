@@ -54,6 +54,7 @@ public class GraticuleLayer extends Layer {
     public static final String PROPERTY_NAME_PRODUCT = "graticule.product";
     public static final String PROPERTY_NAME_RASTER = "graticule.raster";
     public static final String PROPERTY_NAME_TRANSFORM = "graticule.i2mTransform";
+    public static final String PROPERTY_NAME_STYLE = "graticule.style";
     public static final String PROPERTY_NAME_RES_AUTO = "graticule.res.auto";
     public static final String PROPERTY_NAME_RES_PIXELS = "graticule.res.pixels";
     public static final String PROPERTY_NAME_RES_LAT = "graticule.res.lat";
@@ -375,17 +376,21 @@ public class GraticuleLayer extends Layer {
             Product product = (Product) configuration.get(PROPERTY_NAME_PRODUCT);
             RasterDataNode raster = (RasterDataNode) configuration.get(PROPERTY_NAME_RASTER);
             AffineTransform i2mTransform = (AffineTransform) configuration.get(PROPERTY_NAME_TRANSFORM);
-            return new GraticuleLayer(product, raster, i2mTransform);
+            Style style = (Style) configuration.get(PROPERTY_NAME_STYLE);
+            GraticuleLayer layer = new GraticuleLayer(product, raster, i2mTransform);
+            layer.setStyle(style);
+            return layer;
         }
 
         @Override
         public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-            Assert.argument(layer instanceof GraticuleLayer, "layer instanceof GraticuleLayer");
+            Assert.argument(layer instanceof GraticuleLayer, "layer not instanceof GraticuleLayer");
             HashMap<String, Object> config = new HashMap<String, Object>();
             GraticuleLayer graticuleLayer = (GraticuleLayer) layer;
             config.put(PROPERTY_NAME_PRODUCT, graticuleLayer.getProduct());
             config.put(PROPERTY_NAME_RASTER, graticuleLayer.getRaster());
             config.put(PROPERTY_NAME_TRANSFORM, graticuleLayer.getI2mTransform());
+            config.put(PROPERTY_NAME_STYLE, graticuleLayer.getStyle());
             return config;
         }
     }
