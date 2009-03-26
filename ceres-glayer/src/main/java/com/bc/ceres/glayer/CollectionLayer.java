@@ -17,7 +17,7 @@ public class CollectionLayer extends Layer {
      * @param layerType
      * @param name
      */
-    protected CollectionLayer(CollectionLayerType layerType, String name) {
+    protected CollectionLayer(LayerType layerType, String name) {
         super(layerType, name);
     }
 
