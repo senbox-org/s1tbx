@@ -13,7 +13,6 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -26,9 +25,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Norman Fomferra
  * @version $revision$ $date$
  */
-public class Layer extends ExtensibleObject {
+public abstract class Layer extends ExtensibleObject {
 
-    private static final LayerType DEFAULT_LAYER_TYPE = LayerType.getLayerType(Layer.Type.class.getName());
     private static final String NO_NAME = Layer.class.getName();
     private static volatile AtomicInteger instanceCount = new AtomicInteger(0);
 
@@ -41,19 +39,6 @@ public class Layer extends ExtensibleObject {
     private Style style;
     private ArrayList<LayerListener> layerListenerList;
     private StylePCL stylePCL;
-
-    /**
-     * Constructor. The following default properties are used:
-     * <ul>
-     * <li>{@code name = getClass().getName()}</li>
-     * <li>{@code visible = true}</li>
-     * <li>{@code style.opacity = 1.0}</li>
-     * </ul>
-     */
-    @Deprecated
-    public Layer() {
-        this(DEFAULT_LAYER_TYPE, NO_NAME);
-    }
 
 
     /**
@@ -551,35 +536,5 @@ public class Layer extends ExtensibleObject {
                 }
             }
         }
-    }
-
-    public static class Type extends LayerType {
-
-        @Override
-        public String getName() {
-            return "Empty Layer";
-        }
-
-        @Override
-        public boolean isValidFor(LayerContext ctx) {
-            return true;
-        }
-
-        @Override
-        public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
-            // todo - use configuration.get("children"); ?
-            return new Layer(this);
-        }
-
-        @Override
-        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-            return null;
-        }
-
-// todo - check this use case (nf)
-//        public Layer createLayerCopy(LayerContext ctx, Layer layer) {
-//            return createLayer(ctx, createConfiguration(ctx, layer));
-//        }
-
     }
 }
