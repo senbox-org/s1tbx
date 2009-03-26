@@ -239,6 +239,5 @@ public class BitmaskCollectionLayer extends CollectionLayer {
             }
             return configuration;
         }
-
     }
 }

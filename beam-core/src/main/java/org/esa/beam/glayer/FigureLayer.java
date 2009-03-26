@@ -17,20 +17,32 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
+
 import org.esa.beam.framework.draw.Figure;
 
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Composite;
+import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FigureLayer extends Layer {
 
+    private static final LayerType LAYER_TYPE = LayerType.getLayerType(Type.class.getName());
+    
     public static final String PROPERTY_NAME_SHAPE_OUTLINED = "shape.outlined";
     public static final String PROPERTY_NAME_SHAPE_FILLED = "shape.filled";
     public static final String PROPERTY_NAME_SHAPE_OUTL_COLOR = "shape.outl.color";
@@ -41,8 +53,8 @@ public class FigureLayer extends Layer {
     public static final String PROPERTY_NAME_SHAPE_OUTL_COMPOSITE = "shape.outl.composite";
     public static final String PROPERTY_NAME_SHAPE_FILL_COMPOSITE = "shape.fill.composite";
 
-    public static final boolean DEFAULT_SHAPE_OUTLINED = true;
-    public static final boolean DEFAULT_SHAPE_FILLED = true;
+    public static final Boolean DEFAULT_SHAPE_OUTLINED = Boolean.TRUE;
+    public static final Boolean DEFAULT_SHAPE_FILLED = Boolean.TRUE;
     public static final Color DEFAULT_SHAPE_OUTL_COLOR = Color.yellow;
     public static final Color DEFAULT_SHAPE_FILL_COLOR = Color.BLUE;
     public static final double DEFAULT_SHAPE_OUTL_TRANSPARENCY = 0.1;
@@ -53,6 +65,7 @@ public class FigureLayer extends Layer {
     private final AffineTransform shapeToModelTransform;
 
     public FigureLayer(AffineTransform shapeToModelTransform, Figure[] figures) {
+        super(LAYER_TYPE);
         this.figureList = new ArrayList<Figure>(Arrays.asList(figures));
         this.shapeToModelTransform = new AffineTransform(shapeToModelTransform);
     }
@@ -164,7 +177,7 @@ public class FigureLayer extends Layer {
         return new BasicStroke((float) width);
     }
 
-    private boolean isShapeOutlined() {
+    private Boolean isShapeOutlined() {
         final Style style = getStyle();
 
         if (style.hasProperty(PROPERTY_NAME_SHAPE_OUTLINED)) {
@@ -194,7 +207,7 @@ public class FigureLayer extends Layer {
         return DEFAULT_SHAPE_OUTL_TRANSPARENCY;
     }
 
-    private boolean isShapeFilled() {
+    private Boolean isShapeFilled() {
         final Style style = getStyle();
 
         if (style.hasProperty(PROPERTY_NAME_SHAPE_FILLED)) {
@@ -232,5 +245,37 @@ public class FigureLayer extends Layer {
         }
 
         return DEFAULT_SHAPE_FILL_TRANSPARENCY;
+    }
+    
+    public static class Type extends LayerType {
+        
+        @Override
+        public String getName() {
+            return "Figure Layer";
+        }
+
+        @Override
+        public boolean isValidFor(LayerContext ctx) {
+            return true;
+        }
+
+        @Override
+        public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
+            List<Figure> figures = (List<Figure>) configuration.get("figures");
+            AffineTransform shapeToModelTransform = (AffineTransform) configuration.get("shapeToModelTransform");
+            return new FigureLayer(shapeToModelTransform, figures.toArray(new Figure[figures.size()]));
+        }
+        
+        @Override
+        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
+            final HashMap<String, Object> configuration = new HashMap<String, Object>();
+            if (layer instanceof FigureLayer) {
+                FigureLayer figureLayer = (FigureLayer) layer;
+                configuration.put("figures", figureLayer.figureList);
+                configuration.put("shapeToModelTransform", figureLayer.shapeToModelTransform);
+            }
+            return configuration;
+        }
+
     }
 }
