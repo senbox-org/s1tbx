@@ -1,6 +1,8 @@
 package com.bc.ceres.glayer.support;
 
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 
@@ -10,7 +12,9 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 // todo - use style here
 
@@ -21,17 +25,21 @@ import java.util.List;
  */
 public class ShapeLayer extends Layer {
 
+    private static final LayerType LAYER_TYPE = LayerType.getLayerType(Type.class.getName());
+    
     private final List<Shape> shapeList;
     private final AffineTransform shapeToModelTransform;
     private final AffineTransform modelToShapeTransform;
 
     public ShapeLayer(Shape[] shapes) {
+        super(LAYER_TYPE);
         this.shapeList = new ArrayList<Shape>(Arrays.asList(shapes));
         this.shapeToModelTransform =
                 this.modelToShapeTransform = new AffineTransform();
     }
 
     public ShapeLayer(Shape[] shapes, AffineTransform shapeToModelTransform) {
+        super(LAYER_TYPE);
         this.shapeList = new ArrayList<Shape>(Arrays.asList(shapes));
         this.shapeToModelTransform = (AffineTransform) shapeToModelTransform.clone();
         try {
@@ -90,5 +98,37 @@ public class ShapeLayer extends Layer {
         } finally {
             g.setTransform(transformSave);
         }
+    }
+    
+    public static class Type extends LayerType {
+        
+        @Override
+        public String getName() {
+            return "Shape Layer";
+        }
+
+        @Override
+        public boolean isValidFor(LayerContext ctx) {
+            return true;
+        }
+
+        @Override
+        public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
+            List<Shape> shapes = (List<Shape>) configuration.get("shapes");
+            AffineTransform shapeToModelTransform = (AffineTransform) configuration.get("shapeToModelTransform");
+            return new ShapeLayer(shapes.toArray(new Shape[shapes.size()]), shapeToModelTransform);
+        }
+        
+        @Override
+        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
+            final HashMap<String, Object> configuration = new HashMap<String, Object>();
+            if (layer instanceof ShapeLayer) {
+                ShapeLayer shapeLayer = (ShapeLayer) layer;
+                configuration.put("shapes", shapeLayer.shapeList);
+                configuration.put("shapeToModelTransform", shapeLayer.shapeToModelTransform);
+            }
+            return configuration;
+        }
+
     }
 }
