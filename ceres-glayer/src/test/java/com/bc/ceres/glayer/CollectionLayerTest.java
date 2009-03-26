@@ -212,7 +212,7 @@ public class CollectionLayerTest {
         assertEquals("added 1;added 1;removed 1;removed 1;added 1;", ll.trace);
     }
 
-    private static class RenderCountingLayer extends Layer {
+    private static class RenderCountingLayer extends CollectionLayer {
 
         private int renderCount;
 
