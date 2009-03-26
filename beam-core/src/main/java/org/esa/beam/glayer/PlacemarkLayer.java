@@ -29,7 +29,7 @@ import java.util.Map;
 
 public class PlacemarkLayer extends Layer {
 
-    private final static LayerType TYPE = new Type();
+    private final static LayerType TYPE = LayerType.getLayerType(Type.class.getName());
 
     public static final String PROPERTY_NAME_TEXT_FONT = "text.font";
     public static final String PROPERTY_NAME_TEXT_ENABLED = "text.enabled";
@@ -214,6 +214,7 @@ public class PlacemarkLayer extends Layer {
     }
 
     public static class Type extends LayerType {
+        
         @Override
         public String getName() {
             return "Placemark";
