@@ -34,14 +34,6 @@
             <separatorBefore>true</separatorBefore>
             <placeBefore>importGETASSE30Product</placeBefore>
         </action>
-        <action>
-            <id>addShapefileLayer</id>
-            <class>org.esa.beam.visat.actions.AddShapefileLayerAction</class>
-            <parent>import</parent>
-            <text>Add Shapefile Layer...</text>
-            <separatorAfter>true</separatorAfter>
-            <placeAfter>importShape</placeAfter>
-        </action>
 
         <action>
             <id>mapProjAction</id>
