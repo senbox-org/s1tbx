@@ -16,13 +16,10 @@
  */
 package com.bc.ceres.glayer;
 
-import static org.junit.Assert.*;
-import static com.bc.ceres.glayer.Assert2D.*;
-
 import com.bc.ceres.glayer.support.ShapeLayer;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.support.BufferedImageRendering;
-
+import static org.junit.Assert.*;
 import org.junit.Test;
 
 import java.awt.Rectangle;
@@ -37,27 +34,27 @@ public class CollectionLayerTest {
     public void testCollection() {
         Layer collectionLayer = new CollectionLayer();
         assertTrue(collectionLayer.isCollectionLayer());
-        
-        Layer normalLayer = new Layer();
-        assertFalse(normalLayer.isCollectionLayer());
     }
 
     @Test
     public void testModelBounds() {
         Layer layer;
-        int x1, x2, y1, y2;
+        int x1;
+        int x2;
+        int y1;
+        int y2;
 
-        layer = new Layer();
+        layer = new CollectionLayer();
         assertEquals(null, layer.getModelBounds());
 
         layer = new CollectionLayer();
-        layer.getChildren().add(new Layer());
-        layer.getChildren().add(new Layer());
-        layer.getChildren().add(new Layer());
+        layer.getChildren().add(new CollectionLayer());
+        layer.getChildren().add(new CollectionLayer());
+        layer.getChildren().add(new CollectionLayer());
         assertEquals(null, layer.getModelBounds());
 
         layer = new CollectionLayer();
-        layer.getChildren().add(new Layer());
+        layer.getChildren().add(new CollectionLayer());
         layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(20, 10, 30, 50)}));
         layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(10, 20, 20, 60)}));
         x1 = Math.min(20, 10);
@@ -90,27 +87,27 @@ public class CollectionLayerTest {
 
         final Rendering rendering = new BufferedImageRendering(16, 16);
         layer.render(rendering);
-        assertEquals(1, l1.renderCount);
-        assertEquals(1, l2.renderCount);
-        assertEquals(1, l3.renderCount);
+        assertEquals(1, l1.getRenderCount());
+        assertEquals(1, l2.getRenderCount());
+        assertEquals(1, l3.getRenderCount());
 
         l2.setVisible(false);
         layer.render(rendering);
-        assertEquals(2, l1.renderCount);
-        assertEquals(1, l2.renderCount);
-        assertEquals(2, l3.renderCount);
+        assertEquals(2, l1.getRenderCount());
+        assertEquals(1, l2.getRenderCount());
+        assertEquals(2, l3.getRenderCount());
 
         l3.setVisible(false);
         layer.render(rendering);
-        assertEquals(3, l1.renderCount);
-        assertEquals(1, l2.renderCount);
-        assertEquals(2, l3.renderCount);
+        assertEquals(3, l1.getRenderCount());
+        assertEquals(1, l2.getRenderCount());
+        assertEquals(2, l3.getRenderCount());
 
         layer.setVisible(false);
         layer.render(rendering);
-        assertEquals(3, l1.renderCount);
-        assertEquals(1, l2.renderCount);
-        assertEquals(2, l3.renderCount);
+        assertEquals(3, l1.getRenderCount());
+        assertEquals(1, l2.getRenderCount());
+        assertEquals(2, l3.getRenderCount());
     }
 
     @Test
@@ -127,11 +124,11 @@ public class CollectionLayerTest {
         try {
             layerIterator.next();
             fail();
-        } catch (NoSuchElementException e) {
+        } catch (NoSuchElementException ignored) {
             // ok
         }
 
-        Layer childLayer0 = new Layer();
+        Layer childLayer0 = new CollectionLayer();
         list.add(childLayer0);
 
         assertEquals(false, list.isEmpty());
@@ -145,7 +142,7 @@ public class CollectionLayerTest {
         try {
             layerIterator.next();
             fail();
-        } catch (NoSuchElementException e) {
+        } catch (NoSuchElementException ignored) {
             // ok
         }
 
@@ -153,18 +150,18 @@ public class CollectionLayerTest {
         try {
             list.get(1);
             fail();
-        } catch (IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException ignored) {
             // ok
         }
 
-        Layer childLayer1 = new Layer();
+        Layer childLayer1 = new CollectionLayer();
         list.add(childLayer1);
 
         assertEquals(2, list.size());
         assertSame(childLayer0, list.get(0));
         assertSame(childLayer1, list.get(1));
 
-        childLayer0 = new Layer();
+        childLayer0 = new CollectionLayer();
         list.set(0, childLayer0);
         assertSame(childLayer0, list.get(0));
         assertSame(childLayer1, list.get(1));
@@ -176,9 +173,9 @@ public class CollectionLayerTest {
         list.remove(0);
         assertEquals(0, list.size());
 
-        list.add(new Layer());
-        list.add(new Layer());
-        list.add(new Layer());
+        list.add(new CollectionLayer());
+        list.add(new CollectionLayer());
+        list.add(new CollectionLayer());
         final Iterator<Layer> iterator = list.iterator();
         while (iterator.hasNext()) {
             iterator.next();
@@ -197,10 +194,10 @@ public class CollectionLayerTest {
         final TracingLayerListener ll = new TracingLayerListener();
         owner.addListener(ll);
 
-        list.add(new Layer());
+        list.add(new CollectionLayer());
         assertEquals("added 1;", ll.trace);
 
-        list.add(new Layer());
+        list.add(new CollectionLayer());
         assertEquals("added 1;added 1;", ll.trace);
 
         assertSame(owner, list.get(0).getParent());
@@ -210,17 +207,22 @@ public class CollectionLayerTest {
         assertNull(layer0.getParent());
         assertEquals("added 1;added 1;removed 1;", ll.trace);
 
-        layer0 = list.set(0, new Layer());
+        layer0 = list.set(0, new CollectionLayer());
         assertNull(layer0.getParent());
         assertEquals("added 1;added 1;removed 1;removed 1;added 1;", ll.trace);
     }
 
     private static class RenderCountingLayer extends Layer {
-        int renderCount;
+
+        private int renderCount;
 
         @Override
         protected void renderLayer(Rendering rendering) {
             renderCount++;
+        }
+
+        public int getRenderCount() {
+            return renderCount;
         }
     }
 }
