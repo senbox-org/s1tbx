@@ -413,6 +413,7 @@
     </extension>
 
     <extension point="beam-ui:actions">
+
         <action>
             <id>reopen</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
@@ -425,6 +426,47 @@
             <smallIcon>icons/History16.gif</smallIcon>
             <largeIcon>icons/History24.gif</largeIcon>
             <helpID>reopen</helpID>
+        </action>
+
+        <action>
+            <id>sessionGroup</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <parent>file</parent>
+            <text>Sessions</text>
+            <placeAfter>reopen</placeAfter>
+            <shortDescr>BEAM sessions.</shortDescr>
+            <longDescr>BEAM sessions.</longDescr>
+            <helpID>sessionGroup</helpID>
+        </action>
+
+        <action>
+            <id>openSession</id>
+            <class>org.esa.beam.visat.actions.session.OpenSessionAction</class>
+            <parent>sessionGroup</parent>
+            <text>Open Session...</text>
+            <shortDescr>Open a BEAM session.</shortDescr>
+            <longDescr>Open a BEAM session.</longDescr>
+            <helpID>openSession</helpID>
+        </action>
+
+        <action>
+            <id>saveSession</id>
+            <class>org.esa.beam.visat.actions.session.SaveSessionAction</class>
+            <parent>sessionGroup</parent>
+            <text>Save Session</text>
+            <shortDescr>Save the current BEAM session.</shortDescr>
+            <longDescr>Save the current BEAM session.</longDescr>
+            <helpID>saveSession</helpID>
+        </action>
+
+        <action>
+            <id>closeSession</id>
+            <class>org.esa.beam.visat.actions.session.CloseSessionAction</class>
+            <parent>sessionGroup</parent>
+            <text>Close Session</text>
+            <shortDescr>Close the current BEAM session.</shortDescr>
+            <longDescr>Close the current BEAM session.</longDescr>
+            <helpID>closeSession</helpID>
         </action>
 
         <action>

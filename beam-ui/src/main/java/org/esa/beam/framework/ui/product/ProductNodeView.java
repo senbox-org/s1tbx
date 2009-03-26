@@ -18,6 +18,8 @@ package org.esa.beam.framework.ui.product;
 
 import org.esa.beam.framework.datamodel.ProductNode;
 
+import java.awt.Rectangle;
+
 /**
  * An interface which can be used to mark a visible component as a view displaying a product node. Applications can ask
  * a component whether it implements this interface in order to find out which product node is currently displayed.
@@ -25,7 +27,7 @@ import org.esa.beam.framework.datamodel.ProductNode;
 public interface ProductNodeView {
 
     /**
-     * Returns the currently visible product node.
+     * @return The currently visible product node.
      */
     ProductNode getVisibleProductNode();
 
@@ -38,7 +40,13 @@ public interface ProductNodeView {
      */
     void dispose();
 
-    // @todo 3 nf/nf - define ProductNode[] getVisibleProductNodes(); */
-    // @todo 3 nf/nf - define ProductNode getSelectedProductNode(); */
-    // @todo 3 nf/nf - define ProductNode[] getSelectedProductNodes(); */
+    /**
+     * Gets the bounds of this view in the form of a
+     * <code>Rectangle</code> object. The bounds specify this
+     * view's width, height, and location relative to
+     * its parent GUI widget.
+     *
+     * @return a rectangle indicating this view's bounds
+     */
+    public Rectangle getBounds();
 }
