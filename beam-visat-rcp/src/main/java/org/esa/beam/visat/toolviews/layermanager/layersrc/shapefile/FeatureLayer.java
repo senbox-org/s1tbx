@@ -1,6 +1,9 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.support.BackgroundLayer;
 import com.bc.ceres.grender.Rendering;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
@@ -64,6 +67,7 @@ class FeatureLayer extends Layer {
 
     FeatureLayer(final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
                  final Style style) {
+        super(LayerType.getLayerType(FeatureLayerType.class.getName()));
 
         crs = featureCollection.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
 
@@ -237,6 +241,30 @@ class FeatureLayer extends Layer {
             strokeCopy.setOpacity(opa);
             pages.push(strokeCopy);
 
+        }
+    }
+    
+    public static class FeatureLayerType extends LayerType {
+        @Override
+        public String getName() {
+            return "Feature Layer";
+        }
+
+        @Override
+        public boolean isValidFor(LayerContext ctx) {
+            return true;
+        }
+
+        @Override
+        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
+            // TODO Auto-generated method stub
+            return null;
         }
     }
 }
