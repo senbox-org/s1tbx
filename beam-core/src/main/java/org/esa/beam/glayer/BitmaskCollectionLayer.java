@@ -218,21 +218,27 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         }
 
         @Override
-        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-            // TODO Auto-generated method stub
-            return null;
+        public boolean isValidFor(LayerContext ctx) {
+            return true;
         }
 
         @Override
         public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
-            // TODO Auto-generated method stub
-            return null;
+            RasterDataNode rasterDataNode = (RasterDataNode) configuration.get("rasterDataNode");
+            AffineTransform i2m = (AffineTransform) configuration.get("i2mTransform");
+            return new BitmaskCollectionLayer(rasterDataNode, i2m);
+        }
+        
+        @Override
+        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
+            final HashMap<String, Object> configuration = new HashMap<String, Object>();
+            if (layer instanceof BitmaskCollectionLayer) {
+                BitmaskCollectionLayer bitmaskCollectionLayer = (BitmaskCollectionLayer) layer;
+                configuration.put("rasterDataNode", bitmaskCollectionLayer.rasterDataNode);
+                configuration.put("i2mTransform", bitmaskCollectionLayer.i2mTransform);
+            }
+            return configuration;
         }
 
-        @Override
-        public boolean isValidFor(LayerContext ctx) {
-            // TODO Auto-generated method stub
-            return false;
-        }
     }
 }
