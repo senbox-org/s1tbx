@@ -6,7 +6,7 @@ import com.bc.ceres.glayer.LayerType;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -39,6 +39,6 @@ public class BlueMarbleLayerType extends LayerType {
 
     @Override
     public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-        return new HashMap<String, Object>();
+        return Collections.emptyMap();
     }
 }
