@@ -1,5 +1,6 @@
 package org.esa.beam.visat.toolviews.nav;
 
+import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.ImageLayer;
@@ -21,14 +22,16 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 
 public class NavigationCanvas extends JPanel {
+
     private final NavigationToolView navigationWindow;
     private LayerCanvas thumbnailCanvas;
-    private static final DefaultLayerCanvasModel NULL_MODEL = new DefaultLayerCanvasModel(new Layer(), new DefaultViewport());
+    private static final DefaultLayerCanvasModel NULL_MODEL = new DefaultLayerCanvasModel(new CollectionLayer(),
+                                                                                          new DefaultViewport());
     private ObservedViewportHandler observedViewportHandler;
     private Rectangle2D moveSliderRect;
     private boolean adjustingObservedViewport;
@@ -108,7 +111,8 @@ public class NavigationCanvas extends JPanel {
             }
             Viewport thumbnailViewport = new DefaultViewport(bounds, observedViewport.isModelYAxisDown());
             thumbnailViewport.setOrientation(observedViewport.getOrientation());
-            LayerCanvasModel thumbnailCanvasModel = new DefaultLayerCanvasModel(newView.getRootLayer(), thumbnailViewport);
+            LayerCanvasModel thumbnailCanvasModel = new DefaultLayerCanvasModel(newView.getRootLayer(),
+                                                                                thumbnailViewport);
             thumbnailCanvas.setModel(thumbnailCanvasModel);
             thumbnailCanvas.zoomAll();
         } else {
@@ -132,7 +136,8 @@ public class NavigationCanvas extends JPanel {
             System.out.println("NavigationCanvas.updateMoveSliderRect(): " + System.currentTimeMillis());
             if (currentView != null) {
                 Viewport viewport = currentView.getLayerCanvas().getViewport();
-                System.out.println("  currentView    = " + currentView.getSceneName() + ", viewBounds = " + viewport.getViewBounds() + ", viewBounds = " + viewport.getViewBounds());
+                System.out.println(
+                        "  currentView    = " + currentView.getSceneName() + ", viewBounds = " + viewport.getViewBounds() + ", viewBounds = " + viewport.getViewBounds());
             } else {
                 System.out.println("  currentView    = null");
             }
@@ -158,6 +163,7 @@ public class NavigationCanvas extends JPanel {
 
     private class ObservedViewportHandler implements ViewportListener {
 
+        @Override
         public void handleViewportChanged(Viewport observedViewport, boolean orientationChanged) {
             if (!adjustingObservedViewport) {
                 if (orientationChanged) {
