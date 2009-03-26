@@ -276,6 +276,5 @@ public class FigureLayer extends Layer {
             }
             return configuration;
         }
-
     }
 }
