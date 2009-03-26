@@ -3,12 +3,13 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.glayer.support.BackgroundLayer;
 import com.bc.ceres.grender.Rendering;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
+
+import org.geotools.data.FeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -31,6 +32,7 @@ import org.geotools.styling.Style;
 import org.geotools.styling.StyleBuilder;
 import org.geotools.styling.Symbolizer;
 import org.geotools.styling.visitor.DuplicatingStyleVisitor;
+import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
@@ -45,6 +47,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,6 +59,7 @@ import java.util.Map;
  */
 class FeatureLayer extends Layer {
 
+    private static final LayerType LAYER_TYPE = LayerType.getLayerType(Type.class.getName());
     private static final org.geotools.styling.StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
     private static final FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
 
@@ -67,7 +71,7 @@ class FeatureLayer extends Layer {
 
     FeatureLayer(final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
                  final Style style) {
-        super(LayerType.getLayerType(Type.class.getName()));
+        super(LAYER_TYPE);
 
         crs = featureCollection.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
 
@@ -245,6 +249,7 @@ class FeatureLayer extends Layer {
     }
     
     public static class Type extends LayerType {
+        
         @Override
         public String getName() {
             return "Feature Layer";
@@ -256,15 +261,28 @@ class FeatureLayer extends Layer {
         }
 
         @Override
-        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
         public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
-            // TODO Auto-generated method stub
-            return null;
+            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) configuration.get("featureCollection");
+            Style style = (Style) configuration.get("style");
+            return new FeatureLayer(featureCollection, style);
+        }
+        
+        @Override
+        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
+            final HashMap<String, Object> configuration = new HashMap<String, Object>();
+            if (layer instanceof FeatureLayer) {
+                FeatureLayer featureLayer = (FeatureLayer) layer;
+                MapLayer mapLayer = featureLayer.mapContext.getLayer(0);
+                FeatureSource<? extends FeatureType, ? extends Feature> featureSource = mapLayer.getFeatureSource();
+                FeatureCollection<? extends FeatureType, ? extends Feature> featureCollection = null;
+                try {
+                    featureCollection = featureSource.getFeatures();
+                } catch (IOException e) {
+                }
+                configuration.put("featureCollection", featureCollection);
+                configuration.put("style", mapLayer.getStyle());
+            }
+            return configuration;
         }
     }
 }
