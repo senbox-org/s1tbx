@@ -17,7 +17,7 @@ public class CollectionLayer extends Layer {
      * @param layerType
      * @param name
      */
-    protected CollectionLayer(LayerType layerType, String name) {
+    public CollectionLayer(LayerType layerType, String name) {
         super(layerType, name);
     }
 
@@ -26,7 +26,7 @@ public class CollectionLayer extends Layer {
         return true;
     }
     
-    public static class CollectionLayerType extends LayerType {
+    public static class Type extends LayerType {
         @Override
         public String getName() {
             return "Collection Layer";
