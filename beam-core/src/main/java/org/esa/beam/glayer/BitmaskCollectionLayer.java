@@ -16,21 +16,30 @@
  */
 package org.esa.beam.glayer;
 
+import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
-import org.esa.beam.framework.datamodel.*;
+
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 
-import java.awt.*;
+import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.util.HashMap;
 import java.util.Map;
 
 
-public class BitmaskCollectionLayer extends Layer {
+public class BitmaskCollectionLayer extends CollectionLayer {
 
     private RasterDataNode rasterDataNode;
     private final ProductNodeListener bitmaskDefListener;
@@ -38,6 +47,7 @@ public class BitmaskCollectionLayer extends Layer {
     private final AffineTransform i2mTransform;
 
     public BitmaskCollectionLayer(RasterDataNode rasterDataNode, AffineTransform i2mTransform) {
+        super(LayerType.getLayerType(BitmaskCollectionLayerType.class.getName()), "Bitmask collection");
         this.rasterDataNode = rasterDataNode;
         this.i2mTransform = i2mTransform;
         setName("Bitmasks");
@@ -196,6 +206,14 @@ public class BitmaskCollectionLayer extends Layer {
 
         @Override
         public void nodeRemoved(ProductNodeEvent event) {
+        }
+    }
+    
+    public static class BitmaskCollectionLayerType extends CollectionLayerType {
+        
+        @Override
+        public String getName() {
+            return "Bitmask Collection Layer";
         }
     }
 }
