@@ -568,7 +568,7 @@ public class Layer extends ExtensibleObject {
         @Override
         public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
             // todo - use configuration.get("children"); ?
-            return new Layer();
+            return new Layer(this);
         }
 
         @Override
