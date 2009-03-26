@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
 
 // todo - make this class thread safe!!!
 
@@ -26,13 +27,13 @@ import java.util.Vector;
  * @version $revision$ $date$
  */
 public class Layer extends ExtensibleObject {
-    private static final LayerType DEFAULT_LAYER_TYPE = LayerType.getLayerType(Layer.Type.class.getName());
+private static final LayerType DEFAULT_LAYER_TYPE = LayerType.getLayerType(Layer.Type.class.getName());
     private static final String NO_NAME = Layer.class.getName();
-    private static int instanceCount = 0;
+    private static volatile AtomicInteger instanceCount = new AtomicInteger(0);    
 
     private final LayerType layerType;
     private Layer parent;
-    private LayerList children;
+    private final LayerList children;
     private String id;
     private String name;
     private boolean visible;
@@ -71,7 +72,7 @@ public class Layer extends ExtensibleObject {
      * <ul>
      * <li>{@code name = getClass().getName()}</li>
      * <li>{@code visible = true}</li>
-     * <li>{@code style.opaccity = 1.0}</li>
+     * <li>{@code style.opacity = 1.0}</li>
      * </ul>
      *
      * @param layerType The layer type.
@@ -95,9 +96,9 @@ public class Layer extends ExtensibleObject {
         Assert.notNull(layerType, "layerType");
         Assert.notNull(name, "name");
         this.layerType = layerType;
+        this.name = name;
         this.parent = null;
-        this.name = (name != NO_NAME) ? name : getClass().getName();
-        this.id = Long.toHexString(System.nanoTime() + (++instanceCount));
+        this.id = Long.toHexString(System.nanoTime() + (instanceCount.incrementAndGet()));
         this.children = new LayerList();
         this.visible = true;
         this.layerListenerList = new ArrayList<LayerListener>(8);
@@ -117,6 +118,13 @@ public class Layer extends ExtensibleObject {
      */
     public Layer getParent() {
         return parent;
+    }
+    
+    /**
+     * @return true, if this layer is a collection of other layers.
+     */
+    public boolean isCollectionLayer() {
+        return false;
     }
 
     /**
@@ -565,7 +573,7 @@ public class Layer extends ExtensibleObject {
         @Override
         public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
             // todo - use configuration.get("children"); ?
-            return new Layer();
+            return null;
         }
 
         @Override
