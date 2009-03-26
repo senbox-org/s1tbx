@@ -18,6 +18,7 @@ package org.esa.beam.glayer;
 
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.DefaultStyle;
@@ -209,11 +210,29 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         }
     }
     
-    public static class Type extends CollectionLayerType {
+    public static class Type extends LayerType {
         
         @Override
         public String getName() {
             return "Bitmask Collection Layer";
+        }
+
+        @Override
+        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public boolean isValidFor(LayerContext ctx) {
+            // TODO Auto-generated method stub
+            return false;
         }
     }
 }
