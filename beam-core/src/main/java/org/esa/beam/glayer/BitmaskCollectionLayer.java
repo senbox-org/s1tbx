@@ -47,7 +47,7 @@ public class BitmaskCollectionLayer extends CollectionLayer {
     private final AffineTransform i2mTransform;
 
     public BitmaskCollectionLayer(RasterDataNode rasterDataNode, AffineTransform i2mTransform) {
-        super(LayerType.getLayerType(BitmaskCollectionLayerType.class.getName()), "Bitmask collection");
+        super(LayerType.getLayerType(Type.class.getName()), "Bitmask collection");
         this.rasterDataNode = rasterDataNode;
         this.i2mTransform = i2mTransform;
         setName("Bitmasks");
@@ -209,7 +209,7 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         }
     }
     
-    public static class BitmaskCollectionLayerType extends CollectionLayerType {
+    public static class Type extends CollectionLayerType {
         
         @Override
         public String getName() {

@@ -67,7 +67,7 @@ class FeatureLayer extends Layer {
 
     FeatureLayer(final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
                  final Style style) {
-        super(LayerType.getLayerType(FeatureLayerType.class.getName()));
+        super(LayerType.getLayerType(Type.class.getName()));
 
         crs = featureCollection.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
 
@@ -244,7 +244,7 @@ class FeatureLayer extends Layer {
         }
     }
     
-    public static class FeatureLayerType extends LayerType {
+    public static class Type extends LayerType {
         @Override
         public String getName() {
             return "Feature Layer";
