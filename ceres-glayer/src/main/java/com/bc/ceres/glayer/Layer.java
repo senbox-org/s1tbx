@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @version $revision$ $date$
  */
 public class Layer extends ExtensibleObject {
-private static final LayerType DEFAULT_LAYER_TYPE = LayerType.getLayerType(Layer.Type.class.getName());
+    private static final LayerType DEFAULT_LAYER_TYPE = LayerType.getLayerType(Layer.Type.class.getName());
     private static final String NO_NAME = Layer.class.getName();
     private static volatile AtomicInteger instanceCount = new AtomicInteger(0);    
 
@@ -573,7 +573,7 @@ private static final LayerType DEFAULT_LAYER_TYPE = LayerType.getLayerType(Layer
         @Override
         public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
             // todo - use configuration.get("children"); ?
-            return null;
+            return new Layer();
         }
 
         @Override

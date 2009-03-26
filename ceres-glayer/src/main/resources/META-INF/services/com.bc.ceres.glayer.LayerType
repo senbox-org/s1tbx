@@ -1,2 +1,3 @@
 com.bc.ceres.glayer.Layer$Type
 com.bc.ceres.glayer.support.ImageLayer$Type
+com.bc.ceres.glayer.support.BackgroundLayer$Type

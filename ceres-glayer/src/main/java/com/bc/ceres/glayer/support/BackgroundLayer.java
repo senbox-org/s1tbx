@@ -18,7 +18,7 @@ import java.util.Map;
 public class BackgroundLayer extends Layer {
 
     public BackgroundLayer(Paint paint) {
-        super(LayerType.getLayerType(BackgroundLayerType.class.getName()));
+        super(LayerType.getLayerType(Type.class.getName()));
         getStyle().setProperty("paint", paint);
     }
 
@@ -40,7 +40,7 @@ public class BackgroundLayer extends Layer {
         g.setPaint(oldPaint);
     }
     
-    public static class BackgroundLayerType extends LayerType {
+    public static class Type extends LayerType {
         
         @Override
         public String getName() {
