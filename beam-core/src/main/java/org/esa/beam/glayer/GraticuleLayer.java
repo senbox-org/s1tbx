@@ -49,7 +49,7 @@ import java.util.Map;
  */
 public class GraticuleLayer extends Layer {
 
-    private static final LayerType LAYER_TYPE = LayerType.getLayerType(Type.class.getName());
+    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
 
     public static final String PROPERTY_NAME_PRODUCT = "graticule.product";
     public static final String PROPERTY_NAME_RASTER = "graticule.raster";
@@ -89,7 +89,11 @@ public class GraticuleLayer extends Layer {
     private Graticule graticule;
 
     public GraticuleLayer(Product product, RasterDataNode raster, AffineTransform i2mTransform) {
-        super(LAYER_TYPE, "Graticule");
+        this(LAYER_TYPE, product, raster, i2mTransform);
+    }
+    
+    protected GraticuleLayer(Type type, Product product, RasterDataNode raster, AffineTransform i2mTransform) {
+        super(LAYER_TYPE);
         Guardian.assertNotNull("product", product);
         this.i2mTransform = i2mTransform;
 

@@ -41,14 +41,20 @@ import java.util.Map;
 
 
 public class BitmaskCollectionLayer extends CollectionLayer {
-
-    private RasterDataNode rasterDataNode;
+    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
+    
     private final ProductNodeListener bitmaskDefListener;
     private final ProductNodeListener bitmaskOverlayInfoListener;
     private final AffineTransform i2mTransform;
+    
+    private RasterDataNode rasterDataNode;
 
     public BitmaskCollectionLayer(RasterDataNode rasterDataNode, AffineTransform i2mTransform) {
-        super(LayerType.getLayerType(Type.class.getName()), "Bitmask collection");
+        this(LAYER_TYPE, rasterDataNode, i2mTransform);
+    }
+    
+    protected BitmaskCollectionLayer(Type type, RasterDataNode rasterDataNode, AffineTransform i2mTransform) {
+        super(type, "Bitmask collection");
         this.rasterDataNode = rasterDataNode;
         this.i2mTransform = i2mTransform;
         setName("Bitmasks");
@@ -210,7 +216,7 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         }
     }
     
-    public static class Type extends LayerType {
+    public static class Type extends CollectionLayer.Type {
         
         @Override
         public String getName() {

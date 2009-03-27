@@ -41,7 +41,7 @@ import java.util.Map;
 
 public class FigureLayer extends Layer {
 
-    private static final LayerType LAYER_TYPE = LayerType.getLayerType(Type.class.getName());
+    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
     
     public static final String PROPERTY_NAME_SHAPE_OUTLINED = "shape.outlined";
     public static final String PROPERTY_NAME_SHAPE_FILLED = "shape.filled";
@@ -65,6 +65,10 @@ public class FigureLayer extends Layer {
     private final AffineTransform shapeToModelTransform;
 
     public FigureLayer(AffineTransform shapeToModelTransform, Figure[] figures) {
+        this(LAYER_TYPE, shapeToModelTransform, figures);
+    }
+    
+    protected FigureLayer(Type type, AffineTransform shapeToModelTransform, Figure[] figures) {
         super(LAYER_TYPE);
         this.figureList = new ArrayList<Figure>(Arrays.asList(figures));
         this.shapeToModelTransform = new AffineTransform(shapeToModelTransform);

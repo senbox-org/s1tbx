@@ -58,7 +58,7 @@ import java.util.Map;
  */
 public class FeatureLayer extends Layer {
 
-    private static final LayerType LAYER_TYPE = LayerType.getLayerType(Type.class.getName());
+    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
     private static final org.geotools.styling.StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
     private static final FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
 
@@ -70,7 +70,13 @@ public class FeatureLayer extends Layer {
 
     FeatureLayer(final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
                  final Style style) {
-        super(LAYER_TYPE);
+        this(LAYER_TYPE, featureCollection, style);
+    }
+    
+    protected FeatureLayer(Type type, 
+                 final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
+                 final Style style) {
+        super(type);
 
         crs = featureCollection.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
 
@@ -120,12 +126,10 @@ public class FeatureLayer extends Layer {
         final Expression opa = sb.literalExpression(opacity);
         final MapLayer layer = mapContext.getLayer(0);
         if (layer != null) {
-
             Style style = layer.getStyle();
             DuplicatingStyleVisitor copyStyle = new ShapefileOpacityStyleVisitor(opa);
             style.accept(copyStyle);
             layer.setStyle((Style) copyStyle.getCopy());
-
         }
     }
 

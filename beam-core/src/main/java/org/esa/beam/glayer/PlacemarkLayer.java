@@ -29,7 +29,7 @@ import java.util.Map;
 
 public class PlacemarkLayer extends Layer {
 
-    private final static LayerType TYPE = LayerType.getLayerType(Type.class.getName());
+    private final static Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
 
     public static final String PROPERTY_NAME_TEXT_FONT = "text.font";
     public static final String PROPERTY_NAME_TEXT_ENABLED = "text.enabled";
@@ -47,7 +47,11 @@ public class PlacemarkLayer extends Layer {
     private final AffineTransform imageToModelTransform;
 
     public PlacemarkLayer(Product product, PlacemarkDescriptor placemarkDescriptor, AffineTransform imageToModelTransform) {
-        super(TYPE);
+        this(LAYER_TYPE, product, placemarkDescriptor, imageToModelTransform);
+    }
+    
+    protected PlacemarkLayer(Type type, Product product, PlacemarkDescriptor placemarkDescriptor, AffineTransform imageToModelTransform) {
+        super(type);
         this.product = product;
         this.placemarkDescriptor = placemarkDescriptor;
         this.imageToModelTransform = new AffineTransform(imageToModelTransform);
