@@ -265,6 +265,9 @@ public class FeatureLayer extends Layer {
 
     public static class Type extends LayerType {
 
+        public static final String PROPERTY_SLD_STYLE = "sldStyle";
+        public static final String PROPERTY_FEATURE_COLLECTION = "featureCollection";
+
         @Override
         public String getName() {
             return "Feature Layer";
@@ -277,10 +280,10 @@ public class FeatureLayer extends Layer {
 
         @Override
         public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
-            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) configuration.get(
-                    "featureCollection");
-            Style style = (Style) configuration.get("style");
-            return new FeatureLayer(featureCollection, style);
+            FeatureCollection<SimpleFeatureType, SimpleFeature> fc;
+            fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) configuration.get(PROPERTY_FEATURE_COLLECTION);
+            Style style = (Style) configuration.get(PROPERTY_SLD_STYLE);
+            return new FeatureLayer(fc, style);
         }
 
         @Override
@@ -293,10 +296,10 @@ public class FeatureLayer extends Layer {
                 FeatureCollection<? extends FeatureType, ? extends Feature> featureCollection = null;
                 try {
                     featureCollection = featureSource.getFeatures();
-                } catch (IOException e) {
+                } catch (IOException ignored) {
                 }
-                configuration.put("featureCollection", featureCollection);
-                configuration.put("style", mapLayer.getStyle());
+                configuration.put(PROPERTY_FEATURE_COLLECTION, featureCollection);
+                configuration.put(PROPERTY_SLD_STYLE, mapLayer.getStyle());
             }
             return configuration;
         }
