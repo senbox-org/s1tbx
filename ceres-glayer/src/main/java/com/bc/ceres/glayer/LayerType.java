@@ -23,8 +23,8 @@ public abstract class LayerType extends ExtensibleObject {
     public abstract Map<String, Object> createConfiguration(LayerContext ctx, Layer layer);
 
 
-    public static LayerType getLayerType(String className) {
-          return registry.getService(className);
+    public static LayerType getLayerType(String layerTypeClassName) {
+          return registry.getService(layerTypeClassName);
     }
 
     static {

@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.Map;
 
 
-
 /**
  * A layer which can contain other layers.
  *
@@ -13,7 +12,7 @@ import java.util.Map;
  * @version $revision$ $date$
  */
 public class CollectionLayer extends Layer {
-    private static final LayerType LAYER_TYPE = LayerType.getLayerType(CollectionLayer.Type.class.getName());
+    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
 
     public CollectionLayer() {
         this("Collection layer");
@@ -23,7 +22,7 @@ public class CollectionLayer extends Layer {
         this(LAYER_TYPE, name);
     }
     
-    protected CollectionLayer(LayerType type, String name) {
+    protected CollectionLayer(Type type, String name) {
         super(type, name);
     }
 

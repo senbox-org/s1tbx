@@ -28,7 +28,7 @@ import java.util.HashMap;
  * @author Norman Fomferra
  */
 public class ImageLayer extends Layer {
-    private static final LayerType DEFAULT_LAYER_TYPE = LayerType.getLayerType(ImageLayer.Type.class.getName());
+    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
 
     public static final String PROPERTY_NAME_BORDER_SHOWN = "border.shown";
     public static final String PROPERTY_NAME_BORDER_WIDTH = "border.width";
@@ -81,7 +81,7 @@ public class ImageLayer extends Layer {
      * @param multiLevelSource the multi-resolution-level image
      */
     public ImageLayer(MultiLevelSource multiLevelSource) {
-        this(DEFAULT_LAYER_TYPE, multiLevelSource);
+        this(LAYER_TYPE, multiLevelSource);
     }
 
     /**

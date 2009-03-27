@@ -25,21 +25,22 @@ import java.util.Map;
  */
 public class ShapeLayer extends Layer {
 
-    private static final LayerType LAYER_TYPE = LayerType.getLayerType(Type.class.getName());
+    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
     
     private final List<Shape> shapeList;
     private final AffineTransform shapeToModelTransform;
     private final AffineTransform modelToShapeTransform;
 
     public ShapeLayer(Shape[] shapes) {
-        super(LAYER_TYPE);
-        this.shapeList = new ArrayList<Shape>(Arrays.asList(shapes));
-        this.shapeToModelTransform =
-                this.modelToShapeTransform = new AffineTransform();
+        this(shapes, new AffineTransform());
     }
 
     public ShapeLayer(Shape[] shapes, AffineTransform shapeToModelTransform) {
-        super(LAYER_TYPE);
+        this(LAYER_TYPE, shapes, shapeToModelTransform);
+    }
+    
+    protected ShapeLayer(Type type, Shape[] shapes, AffineTransform shapeToModelTransform) {
+        super(type);
         this.shapeList = new ArrayList<Shape>(Arrays.asList(shapes));
         this.shapeToModelTransform = (AffineTransform) shapeToModelTransform.clone();
         try {
@@ -48,7 +49,7 @@ public class ShapeLayer extends Layer {
             throw new IllegalArgumentException("imageToModelTransform", e);
         }
     }
-
+    
     public List<Shape> getShapeList() {
         return new ArrayList<Shape>(shapeList);
     }

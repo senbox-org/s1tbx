@@ -17,9 +17,14 @@ import java.util.Map;
  * @author Norman Fomferra
  */
 public class BackgroundLayer extends Layer {
-
+    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
+    
     public BackgroundLayer(Paint paint) {
-        super(LayerType.getLayerType(Type.class.getName()));
+        this(LAYER_TYPE, paint);
+    }
+    
+    protected BackgroundLayer(Type type, Paint paint) {
+        super(type);
         getStyle().setProperty("paint", paint);
     }
 
