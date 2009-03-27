@@ -87,8 +87,6 @@ public class FeatureLayerEditor implements LayerEditor {
             fillCopy.setColor(color);
             pages.push(fillCopy);
         }
-
-
     }
 
     private class RetrevingStyleVisitor extends DuplicatingStyleVisitor {
@@ -101,8 +99,6 @@ public class FeatureLayerEditor implements LayerEditor {
             fillCcb.setSelectedColor(colorExpression.evaluate(colorExpression, Color.class));
             pages.push(fillCopy);
         }
-
-
     }
 
     private class ApllyingActionListener implements ActionListener {
