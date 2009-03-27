@@ -1,6 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager.editors;
 
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerType;
 import com.jidesoft.combobox.ColorComboBox;
 import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.visat.toolviews.layermanager.LayerEditor;
@@ -55,7 +56,8 @@ public class FeatureLayerEditor implements LayerEditor {
 
     @Override
     public synchronized void updateControl(Layer selectedLayer) {
-        if (currentLayer != selectedLayer) {
+        LayerType layerType = currentLayer.getLayerType();
+        if (currentLayer != selectedLayer && layerType instanceof FeatureLayer.Type) {
             currentLayer = (FeatureLayer) selectedLayer;
             currentLayer.getSLDStyle().accept(new RetrevingStyleVisitor());
         }
