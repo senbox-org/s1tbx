@@ -95,7 +95,8 @@ public class FeatureLayerEditor implements LayerEditor {
         public void visit(Fill fill) {
             super.visit(fill);
             Fill fillCopy = (Fill) pages.pop();
-            fillCcb.setSelectedColor(fill.getColor().evaluate(fill, Color.class));
+            Expression colorExpression = fill.getColor();
+            fillCcb.setSelectedColor(colorExpression.evaluate(colorExpression, Color.class));
             pages.push(fillCopy);
         }
 
