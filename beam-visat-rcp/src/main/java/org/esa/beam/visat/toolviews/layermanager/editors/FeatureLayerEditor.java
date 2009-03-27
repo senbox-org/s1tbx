@@ -56,7 +56,7 @@ public class FeatureLayerEditor implements LayerEditor {
 
     @Override
     public synchronized void updateControl(Layer selectedLayer) {
-        LayerType layerType = currentLayer.getLayerType();
+        LayerType layerType = selectedLayer.getLayerType();
         if (currentLayer != selectedLayer && layerType instanceof FeatureLayer.Type) {
             currentLayer = (FeatureLayer) selectedLayer;
             currentLayer.getSLDStyle().accept(new RetrevingStyleVisitor());
