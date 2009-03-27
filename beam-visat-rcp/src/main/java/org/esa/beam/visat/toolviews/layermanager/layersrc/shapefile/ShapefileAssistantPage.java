@@ -311,13 +311,6 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
             File lastDir = getLastDirectory();
             fileChooser.setCurrentDirectory(lastDir);
 
-            if (fileHistoryModel.getSelectedItem() != null) {
-                File file = new File((String) fileHistoryModel.getSelectedItem());
-                if (file.isFile()) {
-                    fileChooser.setCurrentDirectory(file.getParentFile());
-                }
-            }
-
             fileChooser.showOpenDialog(pageContext.getWindow());
             if (fileChooser.getSelectedFile() != null) {
                 String filePath = fileChooser.getSelectedFile().getPath();

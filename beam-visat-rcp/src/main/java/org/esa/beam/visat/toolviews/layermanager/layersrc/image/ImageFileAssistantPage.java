@@ -6,7 +6,6 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.tools.Tools;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
-import org.esa.beam.framework.ui.assistant.AssistantPageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.io.FileUtils;
@@ -49,6 +48,7 @@ import java.util.concurrent.ExecutionException;
 public class ImageFileAssistantPage extends AbstractAppAssistantPage {
 
     private static final String PROPERTY_LAST_IMAGE_PREFIX = "ImageFileAssistantPage.ImageFile.history";
+    private static final String PROPERTY_LAST_DIR = "ImageFileAssistantPage.ImageFile.lastDir";
     private JComboBox imageFileBox;
     private JTextField worldFileField;
     private HistoryComboBoxModel imageHistoryModel;
@@ -221,11 +221,11 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         }
     }
 
-    private class MyDocumentListener implements DocumentListener {
+    private static class MyDocumentListener implements DocumentListener {
 
         private final AppAssistantPageContext pageContext;
 
-        public MyDocumentListener(AppAssistantPageContext pageContext) {
+        private MyDocumentListener(AppAssistantPageContext pageContext) {
             this.pageContext = pageContext;
         }
 
@@ -259,23 +259,38 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         public void actionPerformed(ActionEvent e) {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.addChoosableFileFilter(filter);
+            fileChooser.setCurrentDirectory(getLastDirectory());
+
             fileChooser.showOpenDialog(pageContext.getWindow());
             if (fileChooser.getSelectedFile() != null) {
                 String filePath = fileChooser.getSelectedFile().getPath();
                 imageHistoryModel.setSelectedItem(filePath);
+                PropertyMap preferences = pageContext.getAppContext().getPreferences();
+                preferences.setPropertyString(PROPERTY_LAST_DIR, fileChooser.getCurrentDirectory().getAbsolutePath());
                 pageContext.updateState();
             }
         }
+
+        private File getLastDirectory() {
+            PropertyMap preferences = pageContext.getAppContext().getPreferences();
+            String dirPath = preferences.getPropertyString(PROPERTY_LAST_DIR, System.getProperty("user.home"));
+            File lastDir = new File(dirPath);
+            if (!lastDir.isDirectory()) {
+                lastDir = new File(System.getProperty("user.home"));
+            }
+            return lastDir;
+        }
+
     }
 
     private class ImageFileItemListener implements ActionListener {
 
         private final AppAssistantPageContext pageContext;
-        
-        public ImageFileItemListener(AppAssistantPageContext pageContext) {
+
+        private ImageFileItemListener(AppAssistantPageContext pageContext) {
             this.pageContext = pageContext;
         }
-        
+
         @Override
         public void actionPerformed(ActionEvent e) {
             String imageFilePath = (String) imageFileBox.getSelectedItem();
