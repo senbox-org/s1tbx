@@ -3,6 +3,10 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
@@ -15,10 +19,23 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.styling.FeatureTypeStyle;
+import org.geotools.styling.Fill;
+import org.geotools.styling.LineSymbolizer;
+import org.geotools.styling.PointSymbolizer;
+import org.geotools.styling.PolygonSymbolizer;
+import org.geotools.styling.Rule;
+import org.geotools.styling.SLD;
+import org.geotools.styling.SLDParser;
+import org.geotools.styling.Style;
+import org.geotools.styling.Symbolizer;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.FeatureType;
+import org.opengis.filter.FilterFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.JButton;
@@ -27,22 +44,29 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ShapefileAssistantPage extends AbstractAppAssistantPage {
 
     private static final String PROPERTY_LAST_FILE_PREFIX = "ShapefileAssistantPage.Shapefile.history";
+    private static final String PROPERTY_LAST_DIR = "ShapefileAssistantPage.Shapefile.lastDir";
+    private static final org.geotools.styling.StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
+    private static final FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
     private HistoryComboBoxModel fileHistoryModel;
+    private final ShapefileModel model;
 
-    public ShapefileAssistantPage() {
+    public ShapefileAssistantPage(ShapefileModel model) {
         super("Select ESRI Shapefile");
+        this.model = model;
     }
 
     @Override
@@ -58,6 +82,11 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
     @Override
     public boolean hasNextPage() {
         return true;
+    }
+
+    @Override
+    public boolean canFinish() {
+        return false;
     }
 
     @Override
@@ -88,12 +117,17 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
 
                 ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(featureCollection.getBounds(),
                                                                                targetCrs);
-                return new ShapefileAssistantPage2(file,
-                                                   featureCollection,
-                                                   referencedEnvelope,
-                                                   featureCollection.getSchema(),
-                                                   ShapefileAssistantPage2.createStyle(file,
-                                                                                       featureCollection.getSchema()));
+                Style[] styles = createStyle(file, featureCollection.getSchema());
+
+                model.setFile(file);
+                model.setFeatureCollection(featureCollection);
+                model.setFeatureSourceEnvelope(referencedEnvelope);
+                model.setSchema(featureCollection.getSchema());
+                model.setStyles(styles);
+                if (styles.length > 0) {
+                    model.setSelectedStyle(styles[0]);
+                }
+                return new ShapefileAssistantPage2(model);
             } catch (Exception e) {
                 e.printStackTrace();
                 pageContext.showErrorDialog("Failed to load ESRI shapefile:\n" + e.getMessage());
@@ -117,12 +151,7 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean canFinish() {
-        return false;
-    }
-
-    @Override
-    public Component createLayerPageComponent(AppAssistantPageContext context) {
+    public Component createLayerPageComponent(final AppAssistantPageContext context) {
         GridBagConstraints gbc = new GridBagConstraints();
         final JPanel panel = new JPanel(new GridBagLayout());
 
@@ -153,6 +182,12 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
 
         JComboBox shapefileBox = new JComboBox(fileHistoryModel);
         shapefileBox.setEditable(true);
+        shapefileBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                context.updateState();
+            }
+        });
         panel.add(shapefileBox, gbc);
 
         gbc.weightx = 0;
@@ -167,14 +202,105 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
         return panel;
     }
 
+    private static Style[] createStyle(File file, FeatureType schema) {
+        File sld = toSLDFile(file);
+        if (sld.exists()) {
+            final Style[] styles = createFromSLD(sld);
+            if (styles.length > 0) {
+                return styles;
+            }
+        }
+        Class type = schema.getGeometryDescriptor().getType().getBinding();
+        if (type.isAssignableFrom(Polygon.class)
+            || type.isAssignableFrom(MultiPolygon.class)) {
+            return new Style[]{createPolygonStyle()};
+        } else if (type.isAssignableFrom(LineString.class)
+                   || type.isAssignableFrom(MultiLineString.class)) {
+            return new Style[]{createLineStyle()};
+        } else {
+            return new Style[]{createPointStyle()};
+        }
+    }// Figure out the URL for the "sld" file
+
+    private static File toSLDFile(File file) {
+        String filename = file.getAbsolutePath();
+        if (filename.endsWith(".shp") || filename.endsWith(".dbf")
+            || filename.endsWith(".shx")) {
+            filename = filename.substring(0, filename.length() - 4);
+            filename += ".sld";
+        } else if (filename.endsWith(".SHP") || filename.endsWith(".DBF")
+                   || filename.endsWith(".SHX")) {
+            filename = filename.substring(0, filename.length() - 4);
+            filename += ".SLD";
+        }
+        return new File(filename);
+    }
+
+    private static Style[] createFromSLD(File sld) {
+        try {
+            SLDParser stylereader = new SLDParser(styleFactory, sld.toURI().toURL());
+            return stylereader.readXML();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new Style[0];
+    }
+
+    private static Style createPointStyle() {
+        PointSymbolizer symbolizer = styleFactory.createPointSymbolizer();
+        symbolizer.getGraphic().setSize(filterFactory.literal(1));
+
+        Rule rule = styleFactory.createRule();
+        rule.setSymbolizers(new Symbolizer[]{symbolizer});
+        FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
+        fts.setRules(new Rule[]{rule});
+
+        Style style = styleFactory.createStyle();
+        style.addFeatureTypeStyle(fts);
+        return style;
+    }
+
+    private static Style createLineStyle() {
+        LineSymbolizer symbolizer = styleFactory.createLineSymbolizer();
+        SLD.setLineColour(symbolizer, Color.BLUE);
+        symbolizer.getStroke().setWidth(filterFactory.literal(1));
+        symbolizer.getStroke().setColor(filterFactory.literal(Color.BLUE));
+
+        Rule rule = styleFactory.createRule();
+        rule.setSymbolizers(new Symbolizer[]{symbolizer});
+        FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
+        fts.setRules(new Rule[]{rule});
+
+        Style style = styleFactory.createStyle();
+        style.addFeatureTypeStyle(fts);
+        return style;
+    }
+
+    private static Style createPolygonStyle() {
+        PolygonSymbolizer symbolizer = styleFactory.createPolygonSymbolizer();
+        Fill fill = styleFactory.createFill(
+                filterFactory.literal("#FFAA00"),
+                filterFactory.literal(0.5)
+        );
+        symbolizer.setFill(fill);
+        Rule rule = styleFactory.createRule();
+        rule.setSymbolizers(new Symbolizer[]{symbolizer});
+        FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
+        fts.setRules(new Rule[]{rule});
+
+        Style style = styleFactory.createStyle();
+        style.addFeatureTypeStyle(fts);
+        return style;
+    }
+
     private class MyActionListener implements ActionListener {
-        
+
         private final AppAssistantPageContext pageContext;
-        
-        public MyActionListener(AppAssistantPageContext pageContext) {
+
+        private MyActionListener(AppAssistantPageContext pageContext) {
             this.pageContext = pageContext;
         }
-        
+
         @Override
         public void actionPerformed(ActionEvent e) {
             JFileChooser fileChooser = new JFileChooser();
@@ -182,6 +308,8 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
             final FileNameExtensionFilter shapefileFilter = new FileNameExtensionFilter("ESRI Shapefile", "shp");
             fileChooser.addChoosableFileFilter(shapefileFilter);
             fileChooser.setFileFilter(shapefileFilter);
+            File lastDir = getLastDirectory();
+            fileChooser.setCurrentDirectory(lastDir);
 
             if (fileHistoryModel.getSelectedItem() != null) {
                 File file = new File((String) fileHistoryModel.getSelectedItem());
@@ -194,8 +322,20 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
             if (fileChooser.getSelectedFile() != null) {
                 String filePath = fileChooser.getSelectedFile().getPath();
                 fileHistoryModel.setSelectedItem(filePath);
+                PropertyMap preferences = pageContext.getAppContext().getPreferences();
+                preferences.setPropertyString(PROPERTY_LAST_DIR, fileChooser.getCurrentDirectory().getAbsolutePath());
                 pageContext.updateState();
             }
+        }
+
+        private File getLastDirectory() {
+            PropertyMap preferences = pageContext.getAppContext().getPreferences();
+            String dirPath = preferences.getPropertyString(PROPERTY_LAST_DIR, System.getProperty("user.home"));
+            File lastDir = new File(dirPath);
+            if (!lastDir.isDirectory()) {
+                lastDir = new File(System.getProperty("user.home"));
+            }
+            return lastDir;
         }
     }
 }

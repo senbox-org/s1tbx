@@ -1,33 +1,11 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
-import com.bc.ceres.glayer.Layer;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
-import org.esa.beam.framework.ui.assistant.AssistantPageContext;
-import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.renderer.lite.StreamingRenderer;
-import org.geotools.styling.FeatureTypeStyle;
-import org.geotools.styling.Fill;
-import org.geotools.styling.LineSymbolizer;
-import org.geotools.styling.PointSymbolizer;
-import org.geotools.styling.PolygonSymbolizer;
-import org.geotools.styling.Rule;
-import org.geotools.styling.SLD;
-import org.geotools.styling.SLDParser;
 import org.geotools.styling.Style;
-import org.geotools.styling.Symbolizer;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.FeatureType;
-import org.opengis.filter.FilterFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.InternationalString;
 
@@ -42,7 +20,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -51,39 +28,21 @@ import java.awt.Rectangle;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
 
 class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
 
-    private static final org.geotools.styling.StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
-    private static final FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
-
-    private final File file;
-    private final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
-    private final ReferencedEnvelope featureSourceEnvelope;
-    private final SimpleFeatureType schema;
-    private final Style[] styles;
-
     private JComboBox styleList;
-    private org.geotools.styling.Style selectedStyle;
     private JLabel mapCanvas;
     private SwingWorker worker;
     private Throwable error;
+    private final ShapefileModel model;
 
 
-    ShapefileAssistantPage2(File file,
-                            final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
-                            final ReferencedEnvelope featureSourceEnvelope, final SimpleFeatureType schema,
-                            final org.geotools.styling.Style[] styles) {
+    ShapefileAssistantPage2(ShapefileModel model) {
         super("Layer Preview");
-        this.file = file;
-        this.featureCollection = featureCollection;
-        this.featureSourceEnvelope = featureSourceEnvelope;
-        this.schema = schema;
-        this.styles = styles.clone();
+        this.model = model;
     }
 
     @Override
@@ -96,15 +55,10 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
         mapCanvas = new JLabel();
         mapCanvas.setHorizontalTextPosition(SwingConstants.CENTER);
         mapCanvas.setVerticalTextPosition(SwingConstants.CENTER);
-        JLabel infoLabel = new JLabel(featureSourceEnvelope.toString());
+        JLabel infoLabel = new JLabel(model.getFeatureSourceEnvelope().toString());
 
-        if (styles.length > 0) {
-            selectedStyle = styles[0];
-        } else {
-            selectedStyle = null;
-        }
-        styleList = new JComboBox(styles);
-        styleList.setSelectedItem(selectedStyle);
+        styleList = new JComboBox(model.getStyles());
+        styleList.setSelectedItem(model.getSelectedStyle());
         styleList.setRenderer(new MyDefaultListCellRenderer());
         styleList.addItemListener(new MyItemListener(context));
 
@@ -115,7 +69,7 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
 
         JPanel panel3 = new JPanel(new BorderLayout(4, 4));
         panel3.setBorder(new EmptyBorder(4, 4, 4, 4));
-        panel3.add(new JLabel(String.format("<html><b>%s</b>", file.getName())), BorderLayout.CENTER);
+        panel3.add(new JLabel(String.format("<html><b>%s</b>", model.getFile().getName())), BorderLayout.CENTER);
         panel3.add(panel2, BorderLayout.EAST);
 
         JPanel panel = new JPanel(new BorderLayout(4, 4));
@@ -134,20 +88,6 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
         return panel;
     }
 
-    @Override
-    public boolean performFinish(AppAssistantPageContext pageContext) {
-        Style style = FeatureLayer.createStyle(file, schema);
-        FeatureLayer featureLayer = new FeatureLayer(featureCollection, style);
-
-        featureLayer.setName(file.getName());
-        featureLayer.setVisible(true);
-
-        ProductSceneView sceneView = pageContext.getAppContext().getSelectedProductSceneView();
-        final Layer rootLayer = sceneView.getRootLayer();
-        rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), featureLayer);
-        return true;
-    }
-
     private void updateMap(AppAssistantPageContext pageContext) {
         if (worker != null && !worker.isDone()) {
             try {
@@ -160,12 +100,12 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
         mapCanvas.setIcon(null);
         pageContext.getWindow().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-        worker = new ShapefileLoader(computeMapSize(), selectedStyle, pageContext);
+        worker = new ShapefileLoader(computeMapSize(), model.getSelectedStyle(), pageContext);
         worker.execute();
     }
 
     private Dimension computeMapSize() {
-        final ReferencedEnvelope bbox = featureSourceEnvelope;
+        final ReferencedEnvelope bbox = model.getFeatureSourceEnvelope();
         double aspectRatio = (bbox.getMaxX() - bbox.getMinX()) / (bbox.getMaxY() - bbox.getMinY());
         Dimension preferredSize = mapCanvas.getSize();
         if (preferredSize.width == 0 || preferredSize.height == 0) {
@@ -181,14 +121,14 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
     private class MyItemListener implements ItemListener {
 
         private final AppAssistantPageContext pageContext;
-        
-        public MyItemListener(AppAssistantPageContext pageContext) {
+
+        private MyItemListener(AppAssistantPageContext pageContext) {
             this.pageContext = pageContext;
         }
-        
+
         @Override
         public void itemStateChanged(ItemEvent e) {
-            selectedStyle = (org.geotools.styling.Style) styleList.getSelectedItem();
+            model.setSelectedStyle((org.geotools.styling.Style) styleList.getSelectedItem());
             pageContext.updateState();
             updateMap(pageContext);
         }
@@ -225,16 +165,17 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
 
         @Override
         protected BufferedImage doInBackground() throws Exception {
-            final CoordinateReferenceSystem crs = schema.getGeometryDescriptor().getCoordinateReferenceSystem();
+            final CoordinateReferenceSystem crs = model.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
 
             final DefaultMapContext mapContext = new DefaultMapContext(crs);
-            mapContext.addLayer(featureCollection, style);
+            mapContext.addLayer(model.getFeatureCollection(), style);
             final StreamingRenderer renderer = new StreamingRenderer();
             renderer.setContext(mapContext);
             final BufferedImage image = new BufferedImage(size.width, size.height, BufferedImage.TYPE_4BYTE_ABGR);
             final Graphics2D graphics2D = image.createGraphics();
             try {
-                renderer.paint(graphics2D, new Rectangle(0, 0, size.width, size.height), featureSourceEnvelope);
+                renderer.paint(graphics2D, new Rectangle(0, 0, size.width, size.height),
+                               model.getFeatureSourceEnvelope());
             } finally {
                 graphics2D.dispose();
             }
@@ -264,97 +205,5 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
         }
     }
 
-
-    static org.geotools.styling.Style[] createStyle(File file, FeatureType schema) {
-        File sld = toSLDFile(file);
-        if (sld.exists()) {
-            final Style[] styles = createFromSLD(sld);
-            if (styles.length > 0) {
-                return styles;
-            }
-        }
-        Class type = schema.getGeometryDescriptor().getType().getBinding();
-        if (type.isAssignableFrom(Polygon.class)
-            || type.isAssignableFrom(MultiPolygon.class)) {
-            return new Style[]{createPolygonStyle()};
-        } else if (type.isAssignableFrom(LineString.class)
-                   || type.isAssignableFrom(MultiLineString.class)) {
-            return new Style[]{createLineStyle()};
-        } else {
-            return new Style[]{createPointStyle()};
-        }
-    }
-
-    // Figure out the URL for the "sld" file
-    static File toSLDFile(File file) {
-        String filename = file.getAbsolutePath();
-        if (filename.endsWith(".shp") || filename.endsWith(".dbf")
-            || filename.endsWith(".shx")) {
-            filename = filename.substring(0, filename.length() - 4);
-            filename += ".sld";
-        } else if (filename.endsWith(".SHP") || filename.endsWith(".DBF")
-                   || filename.endsWith(".SHX")) {
-            filename = filename.substring(0, filename.length() - 4);
-            filename += ".SLD";
-        }
-        return new File(filename);
-    }
-
-    static org.geotools.styling.Style[] createFromSLD(File sld) {
-        try {
-            SLDParser stylereader = new SLDParser(styleFactory, sld.toURI().toURL());
-            return stylereader.readXML();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new Style[0];
-    }
-
-    static org.geotools.styling.Style createPointStyle() {
-        PointSymbolizer symbolizer = styleFactory.createPointSymbolizer();
-        symbolizer.getGraphic().setSize(filterFactory.literal(1));
-
-        Rule rule = styleFactory.createRule();
-        rule.setSymbolizers(new Symbolizer[]{symbolizer});
-        FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
-        fts.setRules(new Rule[]{rule});
-
-        org.geotools.styling.Style style = styleFactory.createStyle();
-        style.addFeatureTypeStyle(fts);
-        return style;
-    }
-
-    static org.geotools.styling.Style createLineStyle() {
-        LineSymbolizer symbolizer = styleFactory.createLineSymbolizer();
-        SLD.setLineColour(symbolizer, Color.BLUE);
-        symbolizer.getStroke().setWidth(filterFactory.literal(1));
-        symbolizer.getStroke().setColor(filterFactory.literal(Color.BLUE));
-
-        Rule rule = styleFactory.createRule();
-        rule.setSymbolizers(new Symbolizer[]{symbolizer});
-        FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
-        fts.setRules(new Rule[]{rule});
-
-        org.geotools.styling.Style style = styleFactory.createStyle();
-        style.addFeatureTypeStyle(fts);
-        return style;
-    }
-
-    static org.geotools.styling.Style createPolygonStyle() {
-        PolygonSymbolizer symbolizer = styleFactory.createPolygonSymbolizer();
-        Fill fill = styleFactory.createFill(
-                filterFactory.literal("#FFAA00"),
-                filterFactory.literal(0.5)
-        );
-        symbolizer.setFill(fill);
-        Rule rule = styleFactory.createRule();
-        rule.setSymbolizers(new Symbolizer[]{symbolizer});
-        FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
-        fts.setRules(new Rule[]{rule});
-
-        org.geotools.styling.Style style = styleFactory.createStyle();
-        style.addFeatureTypeStyle(fts);
-        return style;
-    }
 
 }

@@ -17,14 +17,16 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
 import com.bc.ceres.glayer.support.ImageLayer;
-
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.toolviews.layermanager.ControllerAssitantPage;
 import org.esa.beam.visat.toolviews.layermanager.LayerSourceController;
 
+import javax.media.jai.PlanarImage;
+import javax.swing.JDialog;
+import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.Dimension;
@@ -33,28 +35,23 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.ExecutionException;
 
-import javax.media.jai.PlanarImage;
-import javax.swing.JDialog;
-import javax.swing.JProgressBar;
-import javax.swing.SwingUtilities;
-
 
 public class WmsSourceController implements LayerSourceController {
-    
+
     private final WmsModel wmsModel = new WmsModel();
 
     @Override
     public boolean isApplicable(AppAssistantPageContext pageContext) {
         return true;
     }
-    
+
     @Override
     public boolean hasFirstPage() {
         return true;
     }
 
     @Override
-    public AbstractAppAssistantPage getFirstPage(AppAssistantPageContext pageContext) {
+    public ControllerAssitantPage getFirstPage(AppAssistantPageContext pageContext) {
         return new ControllerAssitantPage(new WmsAssistantPage1(wmsModel), this);
     }
 
@@ -67,14 +64,14 @@ public class WmsSourceController implements LayerSourceController {
         ProductSceneView view = pageContext.getAppContext().getSelectedProductSceneView();
         RasterDataNode raster = view.getRaster();
 
-        WmsLayerWorker layerWorker = new WmsLayerWorker(view.getRootLayer(), 
-                                                        getFinalImageSize(raster), 
+        WmsLayerWorker layerWorker = new WmsLayerWorker(view.getRootLayer(),
+                                                        getFinalImageSize(raster),
                                                         wmsModel,
                                                         pageContext);
         layerWorker.execute();   // todo - don't close dialog before image is downloaded! (nf)
         return true;
     }
-    
+
     private Dimension getFinalImageSize(RasterDataNode raster) {
         int width, height;
         double ratio = raster.getSceneRasterWidth() / (double) raster.getSceneRasterHeight();
@@ -87,7 +84,7 @@ public class WmsSourceController implements LayerSourceController {
         }
         return new Dimension(width, height);
     }
-    
+
     private class WmsLayerWorker extends WmsWorker {
 
         private final com.bc.ceres.glayer.Layer rootLayer;
