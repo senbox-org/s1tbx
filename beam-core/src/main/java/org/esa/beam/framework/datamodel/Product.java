@@ -1856,7 +1856,7 @@ public class Product extends ProductNode {
     public void setRefNo(final int refNo) {
         Guardian.assertWithinRange("refNo", refNo, 1, Integer.MAX_VALUE);
         if (this.refNo != 0 && this.refNo != refNo) {
-            throw new IllegalStateException("refNo != 0 && refNo != refNo");
+            throw new IllegalStateException("this.refNo != 0 && this.refNo != refNo");
         }
         this.refNo = refNo;
         refStr = "[" + this.refNo + "]";

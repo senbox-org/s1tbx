@@ -1,18 +1,21 @@
 package org.esa.beam.visat.actions.session;
 
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.product.ProductNodeView;
+import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.util.PropertyMap;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.awt.Rectangle;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 
 /**
  * todo - add API doc
@@ -27,18 +30,11 @@ public class Session {
 
     public static final String CURRENT_MODEL_VERSION = "1.0.0";
 
-    private String modelVersion;
-
+    final String modelVersion;
     @XStreamAlias("products")
-    private ProductRef[] productRefs;
+    final ProductRef[] productRefs;
     @XStreamAlias("views")
-    private ViewRef[] viewRefs;
-
-    public Session() {
-        modelVersion = CURRENT_MODEL_VERSION;
-        productRefs = new ProductRef[0];
-        viewRefs = new ViewRef[0];
-    }
+    final ViewRef[] viewRefs;
 
     public Session(Product[] products, ProductNodeView[] views) {
         modelVersion = CURRENT_MODEL_VERSION;
@@ -54,9 +50,9 @@ public class Session {
             ProductNodeView view = views[i];
             viewRefs[i] = new ViewRef(i,
                                       view.getClass().getName(),
-                                      view.getVisibleProductNode().getProduct().getRefNo(),
-                                      view.getVisibleProductNode().getName(),
-                                      view.getBounds());
+                                      view.getBounds(), view.getVisibleProductNode().getProduct().getRefNo(),
+                                      view.getVisibleProductNode().getName()
+            );
         }
     }
 
@@ -80,16 +76,28 @@ public class Session {
         return viewRefs[index];
     }
 
-    public Product[] restoreProducts(ProgressMonitor pm, List<IOException> problems) {
+    public RestoredSession restore(ProgressMonitor pm) {
+        try {
+            pm.beginTask("Restoring session", 100);
+            final ArrayList<Exception> problems = new ArrayList<Exception>();
+            final Product[] products = restoreProducts(SubProgressMonitor.create(pm, 80), problems);
+            final ProductNodeView[] views = restoreViews(products, SubProgressMonitor.create(pm, 20), problems);
+            return new RestoredSession(products, views, problems.toArray(new Exception[problems.size()]));
+        } finally {
+            pm.done();
+        }
+    }
+
+    Product[] restoreProducts(ProgressMonitor pm, List<Exception> problems) {
         ArrayList<Product> products = new ArrayList<Product>();
         try {
             pm.beginTask("Restoring products", productRefs.length);
             for (ProductRef productRef : productRefs) {
                 try {
-                    final Product product = ProductIO.readProduct(productRef.fileLocation, null);
+                    final Product product = ProductIO.readProduct(productRef.file, null);
                     products.add(product);
-                    product.setRefNo(productRef.refNo);
-                } catch (IOException e) {
+                    product.setRefNo(productRef.id);
+                } catch (Exception e) {
                     problems.add(e);
                 }
                 pm.worked(1);
@@ -100,35 +108,79 @@ public class Session {
         return products.toArray(new Product[products.size()]);
     }
 
-    public ProductNodeView[] restoreViews(Product[] restoredProducts, ProgressMonitor aNull) {
-        return new ProductNodeView[0];
+    ProductNodeView[] restoreViews(Product[] restoredProducts, ProgressMonitor pm, List<Exception> problems) {
+        ArrayList<ProductNodeView> views = new ArrayList<ProductNodeView>();
+        try {
+            pm.beginTask("Restoring views", viewRefs.length);
+            for (ViewRef viewRef : viewRefs) {
+                try {
+                    if (ProductSceneView.class.getName().equals(viewRef.type) ) {
+                        Product product = getProductForRefNo(restoredProducts, viewRef.productId);
+                        if (product != null) {
+                            RasterDataNode node = product.getRasterDataNode(viewRef.productNodeName);
+                            if (node != null) {
+                                final ProductSceneView view = new ProductSceneView(new ProductSceneImage(node, new PropertyMap(), SubProgressMonitor.create(pm, 1)));
+                                if (viewRef.bounds != null && !viewRef.bounds.isEmpty()) {
+                                    view.setBounds(viewRef.bounds);
+                                }
+                                views.add(view);
+                            } else {
+                                throw new Exception("Unknown raster data source: " + viewRef.productNodeName);
+                            }
+                        } else {
+                            throw new Exception("Unknown product reference number: " + viewRef.productId);
+                        }
+                    } else {
+                        throw new Exception("Unknown view type: " + viewRef.type);
+                    }
+                } catch (Exception e) {
+                    problems.add(e);
+                }
+                pm.worked(1);
+            }
+        } finally {
+            pm.done();
+        }
+        return views.toArray(new ProductNodeView[views.size()]);
+    }
+
+    private Product getProductForRefNo(Product[] products, int refNo) {
+        for (Product product : products) {
+            if (product.getRefNo() == refNo) {
+                return product;
+            }
+        }
+        return null;
     }
 
     @XStreamAlias("product")
     public static class ProductRef {
-        int refNo;
-        File fileLocation;
+        final int id;
+        final File file;
 
-        public ProductRef(int refNo, File fileLocation) {
-            this.refNo = refNo;
-            this.fileLocation = fileLocation;
+        public ProductRef(int id, File file) {
+            this.id = id;
+            this.file = file;
         }
     }
 
-    @XStreamAlias("views")
+    @XStreamAlias("view")
     public static class ViewRef {
-        int id;
-        String type;
-        int productRefNo;
-        String nodeName;
-        Rectangle bounds;
 
-        public ViewRef(int id, String type, int productRefNo, String nodeName, Rectangle bounds) {
+        final int id;
+        final String type;
+        final Rectangle bounds;
+
+        final int productId;
+        final String productNodeName;
+
+        public ViewRef(int id, String type, Rectangle bounds,
+                       int productId, String productNodeName) {
             this.id = id;
             this.type = type;
-            this.productRefNo = productRefNo;
-            this.nodeName = nodeName;
             this.bounds = bounds;
+            this.productId = productId;
+            this.productNodeName = productNodeName;
         }
     }
 }
