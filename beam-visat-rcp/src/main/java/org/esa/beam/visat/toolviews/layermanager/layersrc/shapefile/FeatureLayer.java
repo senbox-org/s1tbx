@@ -1,5 +1,6 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -72,10 +73,10 @@ public class FeatureLayer extends Layer {
                  final Style style) {
         this(LAYER_TYPE, featureCollection, style);
     }
-    
-    protected FeatureLayer(Type type, 
-                 final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
-                 final Style style) {
+
+    protected FeatureLayer(Type type,
+                           final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
+                           final Style style) {
         super(type);
 
         crs = featureCollection.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
@@ -85,6 +86,17 @@ public class FeatureLayer extends Layer {
         renderer = new StreamingRenderer();
         workaroundLabelCacheBug();
         renderer.setContext(mapContext);
+    }
+
+    public Style getSLDStyle() {
+        return mapContext.getLayer(0).getStyle();
+    }
+
+    public void setSLDStyle(Style style) {
+        Assert.argument(style != null, "style != null");
+        MapLayer mapLayer = mapContext.getLayer(0);
+        mapLayer.setStyle(style);
+        super.fireLayerDataChanged(null);
     }
 
     @Override

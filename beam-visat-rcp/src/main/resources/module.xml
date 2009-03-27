@@ -123,8 +123,8 @@
 
     <extensionPoint id="layerEditors">
         <layerEditor type="org.esa.beam.visat.toolviews.layermanager.LayerEditorDescriptor"
-                 class="@descriptorClass"
-                 autoConfig="true">
+                     class="@descriptorClass"
+                     autoConfig="true">
             <descriptorClass type="java.lang.Class">
                 org.esa.beam.visat.toolviews.layermanager.DefaultLayerEditorDescriptor
             </descriptorClass>
@@ -137,6 +137,10 @@
         <layerEditor>
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.PlacemarkLayerEditor</editor>
             <layerType>org.esa.beam.glayer.PlacemarkLayer$Type</layerType>
+        </layerEditor>
+        <layerEditor>
+            <editor>org.esa.beam.visat.toolviews.layermanager.editors.FeatureLayerEditor</editor>
+            <layerType>org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayer$Type</layerType>
         </layerEditor>
     </extension>
 
