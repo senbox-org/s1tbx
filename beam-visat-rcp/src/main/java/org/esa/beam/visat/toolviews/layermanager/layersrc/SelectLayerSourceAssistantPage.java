@@ -16,6 +16,8 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +83,12 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
                 descriptorList.add(lsd);
             }
         }
+        Collections.sort(descriptorList, new Comparator<LayerSourceDescriptor>() {
+            @Override
+            public int compare(LayerSourceDescriptor o1, LayerSourceDescriptor o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
         list = new JList(descriptorList.toArray(new LayerSourceDescriptor[descriptorList.size()]));
         list.getSelectionModel().addListSelectionListener(new MyListSelectionListener(context));
         list.setCellRenderer(new MyDefaultListCellRenderer());
@@ -104,11 +112,11 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
     private class MyListSelectionListener implements ListSelectionListener {
 
         private final AppAssistantPageContext pageContext;
-        
+
         public MyListSelectionListener(AppAssistantPageContext pageContext) {
             this.pageContext = pageContext;
         }
-        
+
         @Override
         public void valueChanged(ListSelectionEvent e) {
             pageContext.updateState();
