@@ -8,7 +8,6 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-
 import org.geotools.data.FeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
@@ -57,7 +56,7 @@ import java.util.Map;
  * @version $Revision: $ $Date: $
  * @since BEAM 4.6
  */
-class FeatureLayer extends Layer {
+public class FeatureLayer extends Layer {
 
     private static final LayerType LAYER_TYPE = LayerType.getLayerType(Type.class.getName());
     private static final org.geotools.styling.StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
@@ -247,9 +246,9 @@ class FeatureLayer extends Layer {
 
         }
     }
-    
+
     public static class Type extends LayerType {
-        
+
         @Override
         public String getName() {
             return "Feature Layer";
@@ -262,11 +261,12 @@ class FeatureLayer extends Layer {
 
         @Override
         public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
-            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) configuration.get("featureCollection");
+            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) configuration.get(
+                    "featureCollection");
             Style style = (Style) configuration.get("style");
             return new FeatureLayer(featureCollection, style);
         }
-        
+
         @Override
         public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
             final HashMap<String, Object> configuration = new HashMap<String, Object>();
