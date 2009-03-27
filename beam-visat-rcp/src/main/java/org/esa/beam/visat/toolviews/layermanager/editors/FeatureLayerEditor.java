@@ -7,6 +7,7 @@ import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.visat.toolviews.layermanager.LayerEditor;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayer;
 import org.geotools.styling.Fill;
+import org.geotools.styling.Stroke;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleBuilder;
 import org.geotools.styling.visitor.DuplicatingStyleVisitor;
@@ -31,7 +32,8 @@ public class FeatureLayerEditor implements LayerEditor {
 
     private FeatureLayer currentLayer;
     private ColorComboBox fillCcb;
-    private StyleBuilder sb;
+    private ColorComboBox lineCcb;
+    private final StyleBuilder sb;
 
     public FeatureLayerEditor() {
         sb = new StyleBuilder();
@@ -41,16 +43,25 @@ public class FeatureLayerEditor implements LayerEditor {
     @Override
     public JComponent createControl() {
         TableLayout tableLayout = new TableLayout(2);
+        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
+        tableLayout.setColumnWeightX(0, 0.1);
         tableLayout.setColumnWeightX(1, 0.9);
         JPanel control = new JPanel(tableLayout);
 
         fillCcb = new ColorComboBox();
-        fillCcb.addActionListener(new ApllyingActionListener());
-        JLabel ccbLabel = new JLabel("Filling");
-        ccbLabel.setLabelFor(fillCcb);
-        control.add(ccbLabel);
+        fillCcb.addActionListener(new ApplyingActionListener());
+        JLabel fillCcbLabel = new JLabel("Filling:");
+        fillCcbLabel.setLabelFor(fillCcb);
+        control.add(fillCcbLabel);
         control.add(fillCcb);
 
+        lineCcb = new ColorComboBox();
+        lineCcb.addActionListener(new ApplyingActionListener());
+        JLabel lineCcbLabel = new JLabel("Line:");
+        lineCcbLabel.setLabelFor(lineCcb);
+        control.add(lineCcbLabel);
+        control.add(lineCcb);
         return control;
     }
 
@@ -87,6 +98,14 @@ public class FeatureLayerEditor implements LayerEditor {
             fillCopy.setColor(color);
             pages.push(fillCopy);
         }
+
+        @Override
+        public void visit(Stroke stroke) {
+            super.visit(stroke);
+            Stroke strokeCopy = (Stroke) pages.pop();
+            strokeCopy.setColor(sb.literalExpression(lineCcb.getSelectedColor()));
+            pages.push(strokeCopy);
+        }
     }
 
     private class RetrevingStyleVisitor extends DuplicatingStyleVisitor {
@@ -99,13 +118,26 @@ public class FeatureLayerEditor implements LayerEditor {
             fillCcb.setSelectedColor(colorExpression.evaluate(colorExpression, Color.class));
             pages.push(fillCopy);
         }
+
+        @Override
+        public void visit(Stroke stroke) {
+            super.visit(stroke);
+            Stroke strokeCopy = (Stroke) pages.pop();
+            Expression colorExpression = strokeCopy.getColor();
+            lineCcb.setSelectedColor(colorExpression.evaluate(colorExpression, Color.class));
+            pages.push(strokeCopy);
+
+        }
+
     }
 
-    private class ApllyingActionListener implements ActionListener {
+    private class ApplyingActionListener implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
             applyStyling();
         }
     }
+
+
 }
