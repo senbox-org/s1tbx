@@ -23,7 +23,7 @@ import java.awt.geom.Rectangle2D;
  * </p>
  * @author Norman Fomferra
  */
-public interface Viewport {
+public interface Viewport extends Cloneable {
     /**
      * @return If {@code true}, the model coordinate's Y-axis points downwards. Returns {@code false} by default.
      */
@@ -54,17 +54,23 @@ public interface Viewport {
      */
     AffineTransform getModelToViewTransform();
 
-    // todo - add method getOffset():mp        (nf - 21.10.2008)
-
-    // todo - change name+signature to setOffset(mp) (nf - 21.10.2008)
     /**
-     * Moves the viewport to the absolute position in model coordinates.
-     * @param modelPosX The position X in model coordinates.
-     * @param modelPosY The position Y in model coordinates.
+     * @return The viewport's absolute X-offset in model coordinates.
      */
-    void move(double modelPosX, double modelPosY);
+    double getOffsetX();
 
-    // todo - rename to dragModelCS(vx, vy)??? (nf - 21.10.2008)
+    /**
+     * @return The viewport's absolute Y-offset in model coordinates.
+     */
+    double getOffsetY();
+
+    /**
+     * Sets the viewport's absolute offset in model coordinates.
+     * @param offsetX The X-offset in model coordinates.
+     * @param offsetY The Y-offset in model coordinates.
+     */
+    void setOffset(double offsetX, double offsetY);
+
     /**
      * Moves the model CS by translating it into the opposite direction of the given
      * vector in view coordinates.
@@ -119,16 +125,12 @@ public interface Viewport {
      */
     void setOrientation(double orientation);
 
-    // todo - api doc: explain what does "synchronize" mean? (nf - 21.10.2008)
-    // todo - discuss options  (nf - 21.10.2008)
-    // (1) rename synchronizeWith(vp) to setTransform(vp)
-    // (2) add method setModelToViewTransform(m2v)
     /**
-     * Synchronizes this viewport with the given one.
+     * Modifies this viewport so that it matches the given one.
      * 
-     * @param otherViewport The view port to synchronize with
+     * @param otherViewport The view port to synchronize with.
      */
-    void synchronizeWith(Viewport otherViewport);
+    void setTransform(Viewport otherViewport);
     
     /**
      * Adds a change listener to this viewport.
@@ -150,4 +152,12 @@ public interface Viewport {
      * @return The listeners.
      */
     ViewportListener[] getListeners();
+
+    /**
+     * Creates a clone of this viewport.
+     * The clone is a deep copy of this viewport but doesn't copy its listeners.
+     * @return The clone.
+     */
+    @SuppressWarnings({"CloneDoesntDeclareCloneNotSupportedException"})
+    Viewport clone();
 }

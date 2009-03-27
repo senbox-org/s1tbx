@@ -13,13 +13,12 @@ import java.util.ArrayList;
 
 public class DefaultViewport implements Viewport {
 
-    private final Rectangle viewBounds;
-    private final AffineTransform modelToViewTransform;
-    private final AffineTransform viewToModelTransform;
+    private Rectangle viewBounds;
+    private AffineTransform modelToViewTransform;
+    private AffineTransform viewToModelTransform;
     private boolean modelYAxisDown;
     private double orientation;
-    private final ArrayList<ViewportListener> changeListeners;
-    private boolean debug;
+    private ArrayList<ViewportListener> changeListeners;
 
     public DefaultViewport() {
         this(new Rectangle());
@@ -91,13 +90,23 @@ public class DefaultViewport implements Viewport {
     }
 
     @Override
-    public void move(double modelPosX, double modelPosY) {
+    public double getOffsetX() {
+        return viewToModelTransform.getTranslateX();
+    }
+
+    @Override
+    public double getOffsetY() {
+        return viewToModelTransform.getTranslateY();
+    }
+
+    @Override
+    public void setOffset(double offsetX, double offsetY) {
         viewToModelTransform.setTransform(viewToModelTransform.getScaleX(),
                                           viewToModelTransform.getShearY(),
                                           viewToModelTransform.getShearX(),
                                           viewToModelTransform.getScaleY(),
-                                          modelPosX,
-                                          modelPosY);
+                                          offsetX,
+                                          offsetY);
         updateModelToViewTransform();
         fireViewportChanged(false);
     }
@@ -129,13 +138,12 @@ public class DefaultViewport implements Viewport {
         final double zoomFactor = Math.min(viewportWidth / modelBounds.getWidth(),
                                            viewportHeight / modelBounds.getHeight());
         setZoomFactor(zoomFactor, modelBounds.getCenterX(), modelBounds.getCenterY());
-        if (debug) {
-            System.out.println(this.getClass() + " ===============================================");
-            System.out.println("  modelBounds         = " + modelBounds);
-            System.out.println("  computedModelBounds = " + getViewToModelTransform().createTransformedShape(viewBounds).getBounds2D());
-            System.out.println("  viewBounds          = " + viewBounds);
-            System.out.println("  computedViewBounds  = " + getModelToViewTransform().createTransformedShape(modelBounds).getBounds2D());
-        }
+//        // useful for debugging - don't delete
+//        System.out.println(this.getClass() + " ===============================================");
+//        System.out.println("  modelBounds         = " + modelBounds);
+//        System.out.println("  computedModelBounds = " + getViewToModelTransform().createTransformedShape(viewBounds).getBounds2D());
+//        System.out.println("  viewBounds          = " + viewBounds);
+//        System.out.println("  computedViewBounds  = " + getModelToViewTransform().createTransformedShape(modelBounds).getBounds2D());
     }
 
     @Override
@@ -208,7 +216,7 @@ public class DefaultViewport implements Viewport {
     }
 
     @Override
-    public void synchronizeWith(Viewport other) {
+    public void setTransform(Viewport other) {
         modelToViewTransform.setTransform(other.getModelToViewTransform());
         viewToModelTransform.setTransform(other.getViewToModelTransform());
         modelYAxisDown = other.isModelYAxisDown();
@@ -244,5 +252,18 @@ public class DefaultViewport implements Viewport {
     @Override
     public String toString() {
         return getClass().getName() + "[viewToModelTransform=" + viewToModelTransform + "]";
+    }
+
+    @SuppressWarnings({"CloneDoesntDeclareCloneNotSupportedException"})
+    @Override
+    public Viewport clone() {
+        try {
+            DefaultViewport vp = (DefaultViewport) super.clone();
+            vp.viewBounds = new Rectangle(viewBounds);
+            vp.changeListeners = new ArrayList<ViewportListener>(3);
+            return vp;
+        } catch (CloneNotSupportedException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }

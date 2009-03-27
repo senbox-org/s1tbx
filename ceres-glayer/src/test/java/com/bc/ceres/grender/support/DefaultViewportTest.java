@@ -177,7 +177,7 @@ public class DefaultViewportTest {
         final Point2D v0 = p(0, 0);
         Point2D u0;
 
-        viewport.move(10, 10);
+        viewport.setOffset(10, 10);
         AffineTransform v2m = viewport.getViewToModelTransform();
         u0 = t(v2m, v0);
 
