@@ -1,30 +1,33 @@
 package org.esa.beam.visat.actions.session;
 
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.grender.Viewport;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.product.ProductNodeView;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
-import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 
+import javax.swing.JComponent;
+import javax.swing.RootPaneContainer;
+import java.awt.Container;
+import java.awt.Rectangle;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.awt.Rectangle;
-
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
 
 /**
  * todo - add API doc
-*
+ *
  * @author Ralf Quast
  * @author Norman Fomferra
-* @version $Revision$ $Date$
-* @since BEAM 4.6
-*/
+ * @version $Revision$ $Date$
+ * @since BEAM 4.6
+ */
 @XStreamAlias("session")
 public class Session {
 
@@ -48,11 +51,30 @@ public class Session {
         viewRefs = new ViewRef[views.length];
         for (int i = 0; i < views.length; i++) {
             ProductNodeView view = views[i];
+            ViewportDef viewportDef = null;
+            if (view instanceof ProductSceneView) {
+                final ProductSceneView sceneView = (ProductSceneView) view;
+                final Viewport viewport = sceneView.getLayerCanvas().getViewport();
+                viewportDef = new ViewportDef(viewport.isModelYAxisDown(),
+                                              viewport.getOffsetX(),
+                                              viewport.getOffsetY(),
+                                              viewport.getZoomFactor(),
+                                              viewport.getOrientation());
+            }
+
+            Rectangle viewBounds = new Rectangle(0, 0, 200, 200);
+            if (view instanceof JComponent) {
+                viewBounds = getRootPaneContainer((JComponent) view).getBounds();
+            }
+
             viewRefs[i] = new ViewRef(i,
                                       view.getClass().getName(),
-                                      view.getBounds(), view.getVisibleProductNode().getProduct().getRefNo(),
-                                      view.getVisibleProductNode().getName()
-            );
+                                      viewBounds,
+                                      viewportDef,
+                                      view.getVisibleProductNode().getProduct().getRefNo(),
+                                      view.getVisibleProductNode().getName());
+
+
         }
     }
 
@@ -114,14 +136,23 @@ public class Session {
             pm.beginTask("Restoring views", viewRefs.length);
             for (ViewRef viewRef : viewRefs) {
                 try {
-                    if (ProductSceneView.class.getName().equals(viewRef.type) ) {
+                    if (ProductSceneView.class.getName().equals(viewRef.type)) {
                         Product product = getProductForRefNo(restoredProducts, viewRef.productId);
                         if (product != null) {
                             RasterDataNode node = product.getRasterDataNode(viewRef.productNodeName);
                             if (node != null) {
                                 final ProductSceneView view = new ProductSceneView(new ProductSceneImage(node, new PropertyMap(), SubProgressMonitor.create(pm, 1)));
-                                if (viewRef.bounds != null && !viewRef.bounds.isEmpty()) {
-                                    view.setBounds(viewRef.bounds);
+                                Rectangle bounds = viewRef.bounds;
+                                if (bounds != null && !bounds.isEmpty()) {
+                                    view.setBounds(bounds);
+                                }
+                                ViewportDef viewportDef = viewRef.viewportDef;
+                                if (viewportDef != null) {
+                                    Viewport viewport = view.getLayerCanvas().getViewport();
+                                    viewport.setModelYAxisDown(viewportDef.modelYAxisDown);
+                                    viewport.setZoomFactor(viewportDef.zoomFactor);
+                                    viewport.setOffset(viewportDef.offsetX, viewportDef.offsetY);
+                                    viewport.setOrientation(viewportDef.orientation);
                                 }
                                 views.add(view);
                             } else {
@@ -142,6 +173,19 @@ public class Session {
             pm.done();
         }
         return views.toArray(new ProductNodeView[views.size()]);
+    }
+
+    public static Container getRootPaneContainer(JComponent component) {
+        Container parent = component;
+        Container lastParent;
+        do {
+            if (parent instanceof RootPaneContainer) {
+                return parent;
+            }
+            lastParent = parent;
+            parent = lastParent.getParent();
+        } while (parent != null);
+        return lastParent;
     }
 
     private Product getProductForRefNo(Product[] products, int refNo) {
@@ -170,17 +214,44 @@ public class Session {
         final int id;
         final String type;
         final Rectangle bounds;
+        @XStreamAlias("viewport")
+        final ViewportDef viewportDef;
 
         final int productId;
         final String productNodeName;
 
+
         public ViewRef(int id, String type, Rectangle bounds,
-                       int productId, String productNodeName) {
+                       ViewportDef viewportDef, int productId,
+                       String productNodeName
+        ) {
             this.id = id;
             this.type = type;
             this.bounds = bounds;
+            this.viewportDef = viewportDef;
             this.productId = productId;
             this.productNodeName = productNodeName;
+        }
+    }
+
+    @XStreamAlias("viewport")
+    public static class ViewportDef {
+        final boolean modelYAxisDown;
+        final double offsetX;
+        final double offsetY;
+        final double zoomFactor;
+        final double orientation;
+
+        public ViewportDef(boolean modelYAxisDown,
+                           double offsetX,
+                           double offsetY,
+                           double zoomFactor,
+                           double orientation) {
+            this.modelYAxisDown = modelYAxisDown;
+            this.offsetX = offsetX;
+            this.offsetY = offsetY;
+            this.zoomFactor = zoomFactor;
+            this.orientation = orientation;
         }
     }
 }

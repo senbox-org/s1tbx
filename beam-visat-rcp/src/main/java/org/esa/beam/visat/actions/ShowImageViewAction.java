@@ -84,38 +84,46 @@ public class ShowImageViewAction extends ExecCommand {
                     }
 
                     ProductSceneView view = new ProductSceneView(productSceneImage);
-                    view.setCommandUIFactory(visatApp.getCommandUIFactory());
-                    view.setLayerProperties(visatApp.getPreferences());
-                    
-                    final String title = createInternalFrameTitle(selectedProductNode);
-                    final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
-                    final JInternalFrame internalFrame = visatApp.createInternalFrame(title, icon, view, getHelpId());
-                    final ProductNodeListenerAdapter pnl = new ProductNodeListenerAdapter() {
-                        @Override
-                        public void nodeChanged(final ProductNodeEvent event1) {
-                            if (event1.getSourceNode() == selectedProductNode &&
-                                    event1.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
-                                internalFrame.setTitle(createInternalFrameTitle(selectedProductNode));
-                            }
-                        }
-                    };
-                    final Product product = selectedProductNode.getProduct();
-                    internalFrame.addInternalFrameListener(new InternalFrameAdapter() {
-                        @Override
-                        public void internalFrameOpened(InternalFrameEvent event1) {
-                            product.addProductNodeListener(pnl);
-                        }
-
-                        @Override
-                        public void internalFrameClosed(InternalFrameEvent event11) {
-                            product.removeProductNodeListener(pnl);
-                        }
-                    });
-
-                    visatApp.updateState();
+                    openInternalFrame(view);
                 }
             };
         visatApp.getExecutorService().submit(worker);
+    }
+
+    public JInternalFrame openInternalFrame(ProductSceneView view) {
+        final VisatApp visatApp = VisatApp.getApp();
+        final RasterDataNode selectedProductNode = view.getRaster();
+        view.setCommandUIFactory(visatApp.getCommandUIFactory());
+        view.setLayerProperties(visatApp.getPreferences());
+
+        final String title = createInternalFrameTitle(selectedProductNode);
+        final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
+        final JInternalFrame internalFrame = visatApp.createInternalFrame(title, icon, view, getHelpId());
+        final ProductNodeListenerAdapter pnl = new ProductNodeListenerAdapter() {
+            @Override
+            public void nodeChanged(final ProductNodeEvent event1) {
+                if (event1.getSourceNode() == selectedProductNode &&
+                        event1.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
+                    internalFrame.setTitle(createInternalFrameTitle(selectedProductNode));
+                }
+            }
+        };
+        final Product product = selectedProductNode.getProduct();
+        internalFrame.addInternalFrameListener(new InternalFrameAdapter() {
+            @Override
+            public void internalFrameOpened(InternalFrameEvent event1) {
+                product.addProductNodeListener(pnl);
+            }
+
+            @Override
+            public void internalFrameClosed(InternalFrameEvent event11) {
+                product.removeProductNodeListener(pnl);
+            }
+        });
+
+        visatApp.updateState();
+
+        return internalFrame;
     }
 
     private String createInternalFrameTitle(final RasterDataNode raster) {

@@ -16,7 +16,7 @@ public class SessionIOTest extends TestCase {
         assertSame(SessionIO.getInstance(), SessionIO.getInstance());
     }
 
-    public void testIO() throws IOException {
+    public void testIO() throws Exception {
         final Session session1 = SessionTest.createTestSession();
         testSession(session1);
         final StringWriter writer = new StringWriter();

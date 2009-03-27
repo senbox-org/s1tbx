@@ -808,7 +808,7 @@ public class ProductSceneView extends BasicView
 
             Viewport viewPortToChange = view.layerCanvas.getViewport();
             Viewport myViewPort = layerCanvas.getViewport();
-            viewPortToChange.synchronizeWith(myViewPort);
+            viewPortToChange.setTransform(myViewPort);
         }
     }
 

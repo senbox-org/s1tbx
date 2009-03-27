@@ -27,6 +27,7 @@ public class XStreamSessionIO extends SessionIO {
 
     protected XStream createXStream() {
         XStream xStream = new XStream();
+        xStream.setClassLoader(XStreamSessionIO.class.getClassLoader());
         xStream.autodetectAnnotations(true);
         xStream.alias("session", Session.class);
         return xStream;

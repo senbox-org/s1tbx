@@ -160,7 +160,9 @@ public class ProductManager {
             }
             if (products.add(product)) {
                 setProductManager(product);
-                product.setRefNo(getNextRefNo() + 1);
+                if (product.getRefNo() <= 0) {
+                    product.setRefNo(getNextRefNo() + 1);
+                }
                 fireEvent(product, _PRODUCT_ADDED);
             }
         }

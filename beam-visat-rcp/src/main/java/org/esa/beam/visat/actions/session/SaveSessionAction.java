@@ -16,21 +16,78 @@
  */
 package org.esa.beam.visat.actions.session;
 
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.dataio.ProductWriter;
-import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.visat.VisatApp;
+
+import javax.swing.JInternalFrame;
+import java.awt.Container;
+import java.io.File;
+import java.util.ArrayList;
 
 
 public class SaveSessionAction extends ExecCommand {
+    private static final String TITLE = "Save Session";
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-       VisatApp.getApp().showInfoDialog("Save session!", null); 
+
+        final VisatApp app = VisatApp.getApp();
+        final Product[] products = app.getProductManager().getProducts();
+        ArrayList<Product> noFileProducts = new ArrayList<Product>();
+        for (Product product : products) {
+            if (product.getFileLocation() == null) {
+                noFileProducts.add(product);
+            }
+        }
+        if (!noFileProducts.isEmpty()) {
+            StringBuilder sb = new StringBuilder(
+                    "The session connon be stored because the following" +
+                            "products have not been stored yet:\n");
+            for (Product product : noFileProducts) {
+                sb.append("  ");
+                sb.append(product.getDisplayName());
+                sb.append("\n");
+            }
+            app.showErrorDialog(TITLE, sb.toString());
+            return;
+        }
+
+        File sessionFile = app.getSessionFile();
+        if (sessionFile == null) {
+            sessionFile = app.showFileSaveDialog(TITLE, false,
+                                                 OpenSessionAction.SESSION_FILE_FILTER,
+                                                 OpenSessionAction.SESSION_FILE_FILTER.getDefaultExtension(),
+                                                 System.getProperty("user.name", "noname"),
+                                                 OpenSessionAction.LAST_SESSION_DIR_KEY);
+            if (sessionFile == null) {
+                return;
+            }
+            app.setSessionFile(sessionFile);
+        }
+
+        try {
+            final Session session = createSession(app);
+            SessionIO.getInstance().writeSession(session, sessionFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+            app.showErrorDialog(e.getMessage());
+        }
+    }
+
+    private Session createSession(VisatApp app) {
+        ArrayList<ProductNodeView> nodeViews = new ArrayList<ProductNodeView>();
+        final JInternalFrame[] internalFrames = app.getAllInternalFrames();
+        for (JInternalFrame internalFrame : internalFrames) {
+            final Container contentPane = internalFrame.getContentPane();
+            if (contentPane instanceof ProductNodeView) {
+                nodeViews.add((ProductNodeView) contentPane);
+            }
+        }
+        return new Session(app.getProductManager().getProducts(),
+                           nodeViews.toArray(new ProductNodeView[nodeViews.size()]));
     }
 
     @Override

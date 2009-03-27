@@ -421,7 +421,7 @@ public class NavigationToolView extends AbstractToolView {
     public void setModelOffset(final double modelOffsetX, final double modelOffsetY) {
         final ProductSceneView view = getCurrentView();
         if (view != null) {
-            view.getLayerCanvas().getViewport().move(modelOffsetX, modelOffsetY);
+            view.getLayerCanvas().getViewport().setOffset(modelOffsetX, modelOffsetY);
             maybeSynchronizeCompatibleProductViews();
         }
     }

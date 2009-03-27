@@ -25,7 +25,9 @@ public class CloseSessionAction extends ExecCommand {
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        VisatApp.getApp().closeAllProducts();
+        final VisatApp app = VisatApp.getApp();
+        app.closeAllProducts();
+        app.setSessionFile(null);
     }
 
     @Override

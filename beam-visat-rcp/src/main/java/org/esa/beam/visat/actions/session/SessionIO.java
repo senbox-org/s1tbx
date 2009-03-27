@@ -29,7 +29,7 @@ public abstract class SessionIO {
         SessionIO.instance = instance;
     }
 
-    public Session readSession(File file)  throws IOException {
+    public Session readSession(File file)  throws Exception {
         Assert.notNull(file, "file");
         final FileReader reader = new FileReader(file);
         try {
@@ -39,9 +39,9 @@ public abstract class SessionIO {
         }
     }
 
-    public abstract Session readSession(Reader reader) throws IOException;
+    public abstract Session readSession(Reader reader) throws Exception;
 
-    public void writeSession(Session session, File file)  throws IOException {
+    public void writeSession(Session session, File file)  throws Exception {
         Assert.notNull(session, "session");
         Assert.notNull(file, "file");
         final FileWriter writer = new FileWriter(file);
@@ -52,5 +52,5 @@ public abstract class SessionIO {
         }
     }
 
-    public abstract void writeSession(Session session, Writer writer)  throws IOException;
+    public abstract void writeSession(Session session, Writer writer)  throws Exception;
 }

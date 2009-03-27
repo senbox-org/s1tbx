@@ -331,6 +331,7 @@ public class VisatApp extends BasicApp implements AppContext {
 
     private ProductsToolView productsToolView;
     private final ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+    private File sessionFile;
 
 
     /**
@@ -585,6 +586,23 @@ public class VisatApp extends BasicApp implements AppContext {
      */
     public TabbedDesktopPane getDesktopPane() {
         return desktopPane;
+    }
+
+    /**
+     * @return The file of the current session.
+     * @since BEAM 4.6
+     */
+    public File getSessionFile() {
+        return sessionFile;
+    }
+    /**
+     * Sets the file of the current session.
+     * @param sessionFile The file of the current session.
+     * @since BEAM 4.6
+     */
+    public void setSessionFile(File sessionFile) {
+        this.sessionFile = sessionFile;
+        updateCurrentDocTitle();
     }
 
 
@@ -1379,11 +1397,11 @@ public class VisatApp extends BasicApp implements AppContext {
                     docTitle.append(" - ");
                 }
                 docTitle.append("[");
-                final File fileLocation = product.getFileLocation();
-                if (fileLocation != null) {
-                    docTitle.append(fileLocation.getPath());
+                final File sessionFile = getSessionFile();
+                if (sessionFile != null) {
+                    docTitle.append(sessionFile.getPath());
                 } else {
-                    docTitle.append("Not yet saved");
+                    docTitle.append("Session not yet saved");
                 }
                 docTitle.append("]");
             }
@@ -2270,7 +2288,7 @@ public class VisatApp extends BasicApp implements AppContext {
         };
     }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Nested classes & Interfaces
 
     /**
