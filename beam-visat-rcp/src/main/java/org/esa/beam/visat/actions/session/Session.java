@@ -151,8 +151,8 @@ public class Session {
                                     Viewport viewport = view.getLayerCanvas().getViewport();
                                     viewport.setModelYAxisDown(viewportDef.modelYAxisDown);
                                     viewport.setZoomFactor(viewportDef.zoomFactor);
-                                    viewport.setOffset(viewportDef.offsetX, viewportDef.offsetY);
                                     viewport.setOrientation(viewportDef.orientation);
+                                    viewport.setOffset(viewportDef.offsetX, viewportDef.offsetY);
                                 }
                                 views.add(view);
                             } else {

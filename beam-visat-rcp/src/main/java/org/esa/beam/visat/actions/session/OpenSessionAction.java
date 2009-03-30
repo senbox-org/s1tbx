@@ -34,6 +34,7 @@ import javax.swing.JInternalFrame;
 import java.awt.Rectangle;
 import java.io.File;
 import java.util.concurrent.ExecutionException;
+import java.beans.PropertyVetoException;
 
 
 public class OpenSessionAction extends ExecCommand {
@@ -128,12 +129,18 @@ public class OpenSessionAction extends ExecCommand {
             for (ProductNodeView nodeView : nodeViews) {
                 if (nodeView instanceof ProductSceneView) {
                     ProductSceneView sceneView = (ProductSceneView) nodeView;
+                    sceneView.getLayerCanvas().setInitiallyZoomingAll(false);
 
                     Rectangle bounds = sceneView.getBounds();
                     Viewport viewport = sceneView.getLayerCanvas().getViewport().clone();
 
                     JInternalFrame internalFrame = showImageViewAction.openInternalFrame(sceneView);
 
+                    try {
+                        internalFrame.setMaximum(false);
+                    } catch (PropertyVetoException e) {
+                        // ok, ignore
+                    }
                     internalFrame.setBounds(bounds);
                     sceneView.getLayerCanvas().getViewport().setTransform(viewport);
                 }

@@ -228,6 +228,7 @@ public class ProductSceneView extends BasicView
         zoomAllButton.setFocusable(false);
         zoomAllButton.setFocusPainted(false);
         zoomAllButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 getLayerCanvas().zoomAll();
             }
@@ -721,6 +722,7 @@ public class ProductSceneView extends BasicView
         }
     }
 
+    @Override
     public AbstractTool getSelectTool() {
         if (getSelectedLayerUI() != null) {
             return getSelectedLayerUI().getSelectTool(this);
@@ -728,6 +730,7 @@ public class ProductSceneView extends BasicView
         return null;
     }
 
+    @Override
     public void handleSelection(Rectangle rectangle) {
         if (getSelectedLayerUI() != null) {
             getSelectedLayerUI().handleSelection(this, rectangle);
@@ -1280,6 +1283,7 @@ public class ProductSceneView extends BasicView
         /**
          * Invoked when a key has been pressed.
          */
+        @Override
         public void keyPressed(KeyEvent e) {
             if (tool != null) {
                 tool.handleEvent(createToolInputEvent(e));
@@ -1289,6 +1293,7 @@ public class ProductSceneView extends BasicView
         /**
          * Invoked when a key has been released.
          */
+        @Override
         public void keyReleased(KeyEvent e) {
             if (tool != null) {
                 tool.handleEvent(createToolInputEvent(e));
@@ -1299,6 +1304,7 @@ public class ProductSceneView extends BasicView
          * Invoked when a key has been typed. This event occurs when a key
          * press is followed by a key dispose.
          */
+        @Override
         public void keyTyped(KeyEvent e) {
             if (tool != null) {
                 tool.handleEvent(createToolInputEvent(e));
