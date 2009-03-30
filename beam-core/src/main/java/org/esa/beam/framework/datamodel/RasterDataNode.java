@@ -1511,10 +1511,16 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param imageInfo the image info, can be null
      */
     public void setImageInfo(ImageInfo imageInfo) {
+        setImageInfo(imageInfo, true);
+    }
+
+    protected void setImageInfo(ImageInfo imageInfo, boolean change) {
         if (this.imageInfo != imageInfo) {
             this.imageInfo = imageInfo;
-            fireProductNodeChanged(PROPERTY_NAME_IMAGE_INFO);
-            setModified(true);
+            if (change) {
+                fireProductNodeChanged(PROPERTY_NAME_IMAGE_INFO);
+                setModified(true);
+            }
         }
     }
 
@@ -1548,7 +1554,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         ImageInfo imageInfo = getImageInfo();
         if (imageInfo == null) {
             imageInfo = createDefaultImageInfo(histoSkipAreas, pm);
-            setImageInfo(imageInfo);
+            setImageInfo(imageInfo, false);
         }
         return imageInfo;
     }

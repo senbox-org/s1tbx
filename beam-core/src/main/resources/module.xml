@@ -23,6 +23,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.6:<br/>
+        [BEAM-977] Product marked "modified" after opening an image view<br/>
         [BEAM-974] NullPointerException when importing pins defined by pixel position<br/>
         [BEAM-956] Histogram color lookup tables do not work correctly with CPD files<br/>
         [CBOX-058] Probabilistic mask does not flag very bright cloud pixels<br/>
