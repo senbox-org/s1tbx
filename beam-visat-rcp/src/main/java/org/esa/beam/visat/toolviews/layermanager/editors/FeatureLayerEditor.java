@@ -115,7 +115,9 @@ public class FeatureLayerEditor implements LayerEditor {
             super.visit(fill);
             Fill fillCopy = (Fill) pages.pop();
             Expression colorExpression = fill.getColor();
-            fillCcb.setSelectedColor(colorExpression.evaluate(colorExpression, Color.class));
+            if (colorExpression != null) {
+                fillCcb.setSelectedColor(colorExpression.evaluate(colorExpression, Color.class));
+            }
             pages.push(fillCopy);
         }
 
@@ -124,11 +126,11 @@ public class FeatureLayerEditor implements LayerEditor {
             super.visit(stroke);
             Stroke strokeCopy = (Stroke) pages.pop();
             Expression colorExpression = strokeCopy.getColor();
-            lineCcb.setSelectedColor(colorExpression.evaluate(colorExpression, Color.class));
+            if (colorExpression != null) {
+                lineCcb.setSelectedColor(colorExpression.evaluate(colorExpression, Color.class));
+            }
             pages.push(strokeCopy);
-
         }
-
     }
 
     private class ApplyingActionListener implements ActionListener {
