@@ -3,6 +3,7 @@ package org.esa.beam.visat.toolviews.layermanager;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ExtensionFactory;
 import com.bc.ceres.core.ExtensionManager;
+import com.bc.ceres.core.SingleTypeExtensionFactory;
 import com.bc.ceres.core.runtime.ConfigurableExtension;
 import com.bc.ceres.core.runtime.ConfigurationElement;
 import com.bc.ceres.glayer.LayerType;
@@ -21,26 +22,17 @@ public class DefaultLayerEditorDescriptor implements LayerEditorDescriptor, Conf
 
     @Override
     public void configure(ConfigurationElement config) throws CoreException {
-        ExtensionManager.getInstance().register(layerTypeClass, new MyExtensionFactory());
+        ExtensionManager.getInstance().register(layerTypeClass, new LayerEditorFactory());
     }
 
-    private class MyExtensionFactory implements ExtensionFactory<LayerType> {
-        @Override
-        public <E> E getExtension(LayerType layerType, Class<E> extensionType) {
-            if (LayerEditor.class.isAssignableFrom(extensionType)) {
-                //noinspection EmptyCatchBlock
-                try {
-                    //noinspection unchecked
-                    return (E) editorClass.newInstance();
-                } catch (Throwable e) {
-                }
-            }
-            return null;
+    private class LayerEditorFactory extends SingleTypeExtensionFactory<LayerType> {
+        private LayerEditorFactory() {
+            super(LayerType.class, layerTypeClass);
         }
 
         @Override
-        public Class<?>[] getExtensionTypes() {
-            return new Class<?>[]{LayerEditor.class};
+        protected Object getExtensionImpl(LayerType layerType, Class<?> extensionType) throws Throwable {
+            return editorClass.newInstance();
         }
     }
 }

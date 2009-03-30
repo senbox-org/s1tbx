@@ -5,11 +5,17 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import java.awt.Rectangle;
 import java.io.File;
-import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
+import com.bc.ceres.core.ExtensionManager;
+import com.bc.ceres.core.SingleTypeExtensionFactory;
+import com.bc.ceres.glayer.LayerType;
+
 public class SessionIOTest extends TestCase {
+    private static interface LayerIO {
+
+    }
 
     public void testGetInstance() {
         assertNotNull(SessionIO.getInstance());
@@ -17,7 +23,11 @@ public class SessionIOTest extends TestCase {
     }
 
     public void testIO() throws Exception {
+        ExtensionManager.getInstance().register(LayerType.class, new GraticuleLayerIOFactory());
+
+
         final Session session1 = SessionTest.createTestSession();
+
         testSession(session1);
         final StringWriter writer = new StringWriter();
         SessionIO.getInstance().writeSession(session1, writer);
@@ -40,6 +50,10 @@ public class SessionIOTest extends TestCase {
         testViewRef(session.getViewRef(1), 1, ProductSceneView.class.getName(), new Rectangle(200, 0, 200, 100), 15, "C");
         testViewRef(session.getViewRef(2), 2, ProductSceneView.class.getName(), new Rectangle(0, 100, 200, 100), 11, "B");
         testViewRef(session.getViewRef(3), 3, ProductSceneView.class.getName(), new Rectangle(200, 100, 200, 100), 15, "D");
+
+        assertEquals(2, session.getViewRef(3).getLayerCount());
+        assertEquals("[15] D", session.getViewRef(3).getLayerRef(0).name);
+        assertEquals("Graticule", session.getViewRef(3).getLayerRef(1).name);
     }
 
     private void testProductRef(Session.ProductRef productRef, int expectedId, File expectedFile) {
@@ -54,4 +68,19 @@ public class SessionIOTest extends TestCase {
         assertEquals(expectedProductId, viewRef.productId);
         assertEquals(expectedProductNodeName, viewRef.productNodeName);
     }
+
+    static class GraticuleLayerIOFactory extends SingleTypeExtensionFactory<LayerType> {
+        private GraticuleLayerIOFactory() {
+            super(LayerIO.class, GraticuleLayerIO.class);
+        }
+
+        @Override
+        protected Object getExtensionImpl(LayerType layerType, Class<?> extensionType) throws Throwable {
+            return new GraticuleLayerIO();
+        }
+    }
+
+    static class GraticuleLayerIO implements LayerIO {
+    }
+
 }

@@ -223,8 +223,7 @@ public class Session {
 
         public ViewRef(int id, String type, Rectangle bounds,
                        ViewportDef viewportDef, int productId,
-                       String productNodeName
-        ) {
+                       String productNodeName) {
             this.id = id;
             this.type = type;
             this.bounds = bounds;
@@ -232,6 +231,34 @@ public class Session {
             this.productId = productId;
             this.productNodeName = productNodeName;
         }
+
+        public int getLayerCount() {
+            return 0;  // todo - impl. (nf)
+        }
+
+        public LayerRef getLayerRef(int index) {
+            return null;  // todo - impl. (nf)
+        }
+    }
+
+    @XStreamAlias("layer")
+    public static class LayerRef {
+
+        final String id;
+        final String name;
+        final boolean visible;
+        final LayerConfiguration configuration;
+
+        public LayerRef(String id, String name, boolean visible, LayerConfiguration configuration) {
+            this.id = id;
+            this.name = name;
+            this.visible = visible;
+            this.configuration = configuration;
+        }
+    }
+
+    @XStreamAlias("configuration")
+    public static class LayerConfiguration {
     }
 
     @XStreamAlias("viewport")
