@@ -41,10 +41,12 @@ public class DefaultViewport implements Viewport {
         this.changeListeners = new ArrayList<ViewportListener>(3);
     }
 
+    @Override
     public boolean isModelYAxisDown() {
         return modelYAxisDown;
     }
 
+    @Override
     public void setModelYAxisDown(boolean modelYAxisDown) {
         if (this.modelYAxisDown != modelYAxisDown) {
             this.modelYAxisDown = modelYAxisDown;
