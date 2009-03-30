@@ -36,10 +36,10 @@ public class PlacemarkLayer extends Layer {
     public static final String PROPERTY_NAME_TEXT_FG_COLOR = "text.fg.color";
     public static final String PROPERTY_NAME_TEXT_BG_COLOR = "text.bg.color";
 
-    private static final boolean DEFAULT_TEXT_ENABLED = false;
-    private static final Font DEFAULT_TEXT_FONT = new Font("Helvetica", Font.BOLD, 14);
-    private static final Color DEFAULT_TEXT_FG_COLOR = Color.WHITE;
-    private static final Color DEFAULT_TEXT_BG_COLOR = Color.BLACK;
+    public static final boolean DEFAULT_TEXT_ENABLED = false;
+    public static final Font DEFAULT_TEXT_FONT = new Font("Helvetica", Font.BOLD, 14);
+    public static final Color DEFAULT_TEXT_FG_COLOR = Color.WHITE;
+    public static final Color DEFAULT_TEXT_BG_COLOR = Color.BLACK;
 
     private final MyProductNodeListenerAdapter pnl;
     private Product product;

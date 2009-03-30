@@ -19,7 +19,7 @@ import org.esa.beam.framework.datamodel.ImageInfo;
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-class ColorComboBoxAdapter extends ComponentAdapter implements PropertyChangeListener {
+public class ColorComboBoxAdapter extends ComponentAdapter implements PropertyChangeListener {
     private ColorComboBox colorComboBox;
 
     public ColorComboBoxAdapter(ColorComboBox colorComboBox) {

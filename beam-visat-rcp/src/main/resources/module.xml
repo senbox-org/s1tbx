@@ -142,6 +142,10 @@
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.FeatureLayerEditor</editor>
             <layerType>org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayer$Type</layerType>
         </layerEditor>
+        <layerEditor>
+            <editor>org.esa.beam.visat.toolviews.layermanager.editors.GraticuleLayerEditor</editor>
+            <layerType>org.esa.beam.glayer.GraticuleLayer$Type</layerType>
+        </layerEditor>
     </extension>
 
     <extensionPoint id="layerSources">

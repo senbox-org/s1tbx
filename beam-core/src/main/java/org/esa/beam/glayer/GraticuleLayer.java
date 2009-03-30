@@ -39,6 +39,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -225,6 +226,18 @@ public class GraticuleLayer extends Layer {
             graticule = null;
         }
     }
+    
+    @Override
+    protected void fireLayerPropertyChanged(PropertyChangeEvent event) {
+        String propertyName = event.getPropertyName();
+        if (propertyName.equals(GraticuleLayer.PROPERTY_NAME_RES_AUTO) || 
+                propertyName.equals(GraticuleLayer.PROPERTY_NAME_RES_LAT) ||
+                propertyName.equals(GraticuleLayer.PROPERTY_NAME_RES_LON) ||
+                propertyName.equals(GraticuleLayer.PROPERTY_NAME_RES_PIXELS)) {
+            graticule = null;
+        }
+        super.fireLayerPropertyChanged(event);
+    }
 
     private boolean getResAuto() {
         final Style style = getStyle();
@@ -266,7 +279,7 @@ public class GraticuleLayer extends Layer {
         return DEFAULT_RES_PIXELS;
     }
 
-    public boolean isTextEnabled() {
+    private boolean isTextEnabled() {
         final Style style = getStyle();
 
         if (style.hasProperty(PROPERTY_NAME_TEXT_ENABLED)) {
