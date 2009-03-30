@@ -24,6 +24,30 @@ public class DefaultViewportTest {
     }
 
     @Test
+    public void testClone() {
+        final DefaultViewport viewport = new DefaultViewport(new Rectangle(40, 50), true);
+        viewport.setOrientation(0.3);
+        viewport.setZoomFactor(1.2);
+        viewport.setOffset(-4.0, 3.7);
+        viewport.setModelYAxisDown(true);
+
+        assertEquals(0.3, viewport.getOrientation(), 1e-10);
+        assertEquals(-4.0, viewport.getOffsetX(), 1e-10);
+        assertEquals(3.7, viewport.getOffsetY(), 1e-10);
+        assertEquals(1.2, viewport.getZoomFactor(), 1e-10);
+        assertEquals(true, viewport.isModelYAxisDown());
+
+        Viewport viewportClone = viewport.clone();
+
+        assertEquals(0.3, viewportClone.getOrientation(), 1e-10);
+        assertEquals(-4.0, viewportClone.getOffsetX(), 1e-10);
+        assertEquals(3.7, viewportClone.getOffsetY(), 1e-10);
+        assertEquals(1.2, viewportClone.getZoomFactor(), 1e-10);
+        assertEquals(true, viewportClone.isModelYAxisDown());
+    }
+
+
+    @Test
     public void testTransformsAreNotLife() {
         final DefaultViewport viewport = new DefaultViewport();
 
@@ -233,7 +257,7 @@ public class DefaultViewportTest {
         assertEquals(0.8, v2m.getScaleY(), 1.0e-10);
         assertEquals(p(2.5, 7.5), t(v2m, v0));
     }
-    
+
     @Test
     public void testZoomToModelPoint() {
         final DefaultViewport viewport = new DefaultViewport(new Rectangle(40, 50), true);
