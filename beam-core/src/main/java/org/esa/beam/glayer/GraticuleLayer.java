@@ -91,9 +91,9 @@ public class GraticuleLayer extends Layer {
     public GraticuleLayer(Product product, RasterDataNode raster, AffineTransform i2mTransform) {
         this(LAYER_TYPE, product, raster, i2mTransform);
     }
-    
+
     protected GraticuleLayer(Type type, Product product, RasterDataNode raster, AffineTransform i2mTransform) {
-        super(LAYER_TYPE);
+        super(type);
         Guardian.assertNotNull("product", product);
         this.i2mTransform = i2mTransform;
 
