@@ -52,8 +52,10 @@ public class LayerEditorToolView extends AbstractLayerToolView {
 
         if (newLayer != null) {
             activeEditor = getLayerEditor(newLayer);
+            getDescriptor().setTitle("Layer Editor - "+ newLayer.getName());
         } else {
             activeEditor = nullLayerEditor;
+            getDescriptor().setTitle("Layer Editor");
         }
         controlPanel.add(activeEditor.createControl(), BorderLayout.CENTER);
         updateEditorControl();
