@@ -193,7 +193,9 @@ public class ExtensionManagerTest extends TestCase {
         testFail(richModel, RichModelGui.class);
     }
 
-    private static void testSuccess(Model model, Class<? extends ModelGui> requestedType, Class<? extends ModelGui> expectedType) {
+    private static void testSuccess(Model model,
+                                    Class<? extends ModelGui> requestedType,
+                                    Class<? extends ModelGui> expectedType) {
         ModelGui modelGui = model.getExtension(requestedType);
         assertNotNull(modelGui);
         assertEquals(expectedType, modelGui.getClass());
@@ -246,50 +248,37 @@ public class ExtensionManagerTest extends TestCase {
             super(model);
         }
     }
-
-    class DefaultModelGuiFactory implements ExtensionFactory<Model> {
-        @Override
-        public <E> E getExtension(Model model, Class<E> extensionType) {
-
-            if (ModelGui.class.isAssignableFrom(extensionType)) {
-                return (E) new DefaultModelGui(model);
-            }
-            return null;
+  
+    class DefaultModelGuiFactory extends SingleTypeExtensionFactory<Model> {
+        DefaultModelGuiFactory() {
+            super(ModelGui.class, DefaultModelGui.class);
         }
 
         @Override
-        public Class<?>[] getExtensionTypes() {
-            return new Class<?>[]{DefaultModelGui.class};
+        protected Object getExtensionImpl(Model model, Class<?> extensionType) throws Throwable {
+            return new DefaultModelGui(model);
         }
     }
 
-    class SlimModelGuiFactory implements ExtensionFactory<SlimModel> {
-        @Override
-        public <E> E getExtension(SlimModel model, Class<E> extensionType) {
-            if (ModelGui.class.isAssignableFrom(extensionType)) {
-                return (E) new SlimModelGui(model);
-            }
-            return null;
+    class SlimModelGuiFactory extends SingleTypeExtensionFactory<SlimModel> {
+        SlimModelGuiFactory() {
+            super(ModelGui.class, SlimModelGui.class);
         }
 
         @Override
-        public Class<?>[] getExtensionTypes() {
-            return new Class<?>[]{SlimModelGui.class};
+        protected Object getExtensionImpl(SlimModel model, Class<?> extensionType) throws Throwable {
+            return new SlimModelGui(model);
         }
     }
 
-    class RichModelGuiFactory implements ExtensionFactory<RichModel> {
-        @Override
-        public <E> E getExtension(RichModel model, Class<E> extensionType) {
-            if (ModelGui.class.isAssignableFrom(extensionType)) {
-                return (E) new RichModelGui(model);
-            }
-            return null;
+    class RichModelGuiFactory extends SingleTypeExtensionFactory<RichModel> {
+        RichModelGuiFactory() {
+            super(ModelGui.class, RichModelGui.class);
         }
 
         @Override
-        public Class<?>[] getExtensionTypes() {
-            return new Class<?>[]{RichModelGui.class};
+        protected Object getExtensionImpl(RichModel model, Class<?> extensionType) throws Throwable {
+            return new RichModelGui(model);
         }
     }
 }

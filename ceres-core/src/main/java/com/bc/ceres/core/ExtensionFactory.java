@@ -14,7 +14,7 @@ public interface ExtensionFactory<T> {
      * @param extensionType The type of the requested extension.
      * @return The extension instance, or {@code null} if the given object is not extensible by this factory.
      */
-    <E> E getExtension(T object, Class<E> extensionType);
+    Object getExtension(T object, Class<?> extensionType);
 
     /**
      * @return The array of extension types supported by this factory.

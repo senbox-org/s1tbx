@@ -79,7 +79,7 @@ public abstract class ExtensionManager {
         final Class<T> extensibleType = (Class<T>) extensibleObject.getClass();
         final ExtensionFactory<T> factory = findFactory(extensibleType, extensionType);
         if (factory != null) {
-            return factory.getExtension(extensibleObject, extensionType);
+            return (E) factory.getExtension(extensibleObject, extensionType);
         }
         return null;
     }
