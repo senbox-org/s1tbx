@@ -37,7 +37,6 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.FilterFactory;
-import org.opengis.filter.expression.Expression;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.JOptionPane;
@@ -134,12 +133,10 @@ public class FeatureLayer extends Layer {
     }
 
     private void applyOpacity(final double opacity) {
-        StyleBuilder sb = new StyleBuilder();
-        final Expression opa = sb.literalExpression(opacity);
         final MapLayer layer = mapContext.getLayer(0);
         if (layer != null) {
             Style style = layer.getStyle();
-            DuplicatingStyleVisitor copyStyle = new ShapefileOpacityStyleVisitor(opa);
+            DuplicatingStyleVisitor copyStyle = new ShapefileOpacityStyleVisitor(opacity);
             style.accept(copyStyle);
             layer.setStyle((Style) copyStyle.getCopy());
         }
@@ -239,17 +236,20 @@ public class FeatureLayer extends Layer {
 
     private static class ShapefileOpacityStyleVisitor extends DuplicatingStyleVisitor {
 
-        private final Expression opa;
+        private final double opacity;
+        private final StyleBuilder sb;
 
-        ShapefileOpacityStyleVisitor(Expression opa) {
-            this.opa = opa;
+        ShapefileOpacityStyleVisitor(double opacity) {
+            this.opacity = opacity;
+            sb = new StyleBuilder();
         }
 
         @Override
         public void visit(Fill fill) {
             super.visit(fill);
             Fill fillCopy = (Fill) pages.pop();
-            fillCopy.setOpacity(opa);
+            double v = opacity * fill.getOpacity().evaluate(fill.getOpacity(), Double.class);
+            fillCopy.setOpacity(sb.literalExpression(v));
             pages.push(fillCopy);
         }
 
@@ -257,9 +257,9 @@ public class FeatureLayer extends Layer {
         public void visit(Stroke stroke) {
             super.visit(stroke);
             Stroke strokeCopy = (Stroke) pages.pop();
-            strokeCopy.setOpacity(opa);
+            double v = opacity * stroke.getOpacity().evaluate(stroke.getOpacity(), Double.class);
+            strokeCopy.setOpacity(sb.literalExpression(v));
             pages.push(strokeCopy);
-
         }
     }
 
