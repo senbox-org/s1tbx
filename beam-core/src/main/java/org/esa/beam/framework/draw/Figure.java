@@ -239,5 +239,6 @@ public interface Figure extends Drawable, Cloneable, Serializable {
     /**
      * Returns a Clone of this figure
      */
-    Object clone();
+    @SuppressWarnings({"CloneDoesntDeclareCloneNotSupportedException"})
+    Figure clone();
 }

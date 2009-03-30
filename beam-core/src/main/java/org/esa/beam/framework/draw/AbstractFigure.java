@@ -16,13 +16,11 @@
  */
 package org.esa.beam.framework.draw;
 
+import javax.swing.event.EventListenerList;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-
-import javax.swing.event.EventListenerList;
 
 /**
  * An abstract implementation the <code>Figure</code> interface.
@@ -54,7 +52,6 @@ public abstract class AbstractFigure implements Figure {
      * handle objects.
      *
      * @return a Vector of <code>FigureHandle</code>
-     *
      * @see FigureHandle
      */
     @Override
@@ -156,7 +153,7 @@ public abstract class AbstractFigure implements Figure {
         }
         Object oldValue = _attributes.get(name);
         if (oldValue == null && value != null
-            || oldValue != null && !oldValue.equals(value)) {
+                || oldValue != null && !oldValue.equals(value)) {
             _attributes.put(name, value);
             if (_propertyChangeSupport != null) {
                 _propertyChangeSupport.firePropertyChange(name, oldValue, value);
@@ -205,12 +202,13 @@ public abstract class AbstractFigure implements Figure {
     /**
      * Returns a clone of this figure
      */
+    @SuppressWarnings({"CloneDoesntDeclareCloneNotSupportedException"})
     @Override
-    public Object clone() {
+    public AbstractFigure clone() {
         try {
-            return super.clone();
+            return (AbstractFigure) super.clone();
         } catch (CloneNotSupportedException e) {
-            return null;
+            throw new IllegalStateException(e);
         }
     }
 
