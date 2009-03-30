@@ -49,6 +49,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
     private boolean navControlShown;
     private WakefulComponent navControlWrapper;
+    private boolean initiallyZoomingAll;
     private boolean zoomedAll;
 
     // AdjustableView properties
@@ -85,6 +86,8 @@ public class LayerCanvas extends JPanel implements AdjustableView {
         this.model.addChangeListener(modelChangeHandler);
         this.canvasRendering = new CanvasRendering();
         this.overlays = new ArrayList<Overlay>(4);
+        this.initiallyZoomingAll = true;
+        this.zoomedAll = false;
         setNavControlShown(false);
         if (!model.getViewport().getViewBounds().isEmpty()) {
             setBounds(model.getViewport().getViewBounds());
@@ -156,6 +159,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
         repaint();
     }
 
+
     /**
      * None API. Don't use this method!
      *
@@ -184,6 +188,14 @@ public class LayerCanvas extends JPanel implements AdjustableView {
             validate();
             this.navControlShown = navControlShown;
         }
+    }
+
+    public boolean isInitiallyZoomingAll() {
+        return initiallyZoomingAll;
+    }
+
+    public void setInitiallyZoomingAll(boolean initiallyZoomingAll) {
+        this.initiallyZoomingAll = initiallyZoomingAll;
     }
 
     public void zoomAll() {
@@ -323,7 +335,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
         super.paintComponent(g);
 
-        if (!zoomedAll && maxVisibleModelBounds != null && !maxVisibleModelBounds.isEmpty()) {
+        if (initiallyZoomingAll && !zoomedAll && maxVisibleModelBounds != null && !maxVisibleModelBounds.isEmpty()) {
             zoomedAll = true;
             zoomAll();
         }
