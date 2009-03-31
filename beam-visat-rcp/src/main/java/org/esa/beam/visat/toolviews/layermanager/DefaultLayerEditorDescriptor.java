@@ -27,7 +27,7 @@ public class DefaultLayerEditorDescriptor implements LayerEditorDescriptor, Conf
 
     private class LayerEditorFactory extends SingleTypeExtensionFactory<LayerType> {
         private LayerEditorFactory() {
-            super(LayerType.class, layerTypeClass);
+            super(LayerEditor.class, editorClass);
         }
 
         @Override
