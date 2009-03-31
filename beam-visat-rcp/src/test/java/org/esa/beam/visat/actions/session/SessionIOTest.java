@@ -2,6 +2,7 @@ package org.esa.beam.visat.actions.session;
 
 import junit.framework.TestCase;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.visat.toolviews.layermanager.LayerEditor;
 
 import java.awt.Rectangle;
 import java.io.File;
@@ -69,13 +70,13 @@ public class SessionIOTest extends TestCase {
         assertEquals(expectedProductNodeName, viewRef.productNodeName);
     }
 
-    static class GraticuleLayerIOFactory extends SingleTypeExtensionFactory<LayerType> {
+    static class GraticuleLayerIOFactory extends SingleTypeExtensionFactory<LayerType, LayerIO> {
         private GraticuleLayerIOFactory() {
             super(LayerIO.class, GraticuleLayerIO.class);
         }
 
         @Override
-        protected Object getExtensionImpl(LayerType layerType, Class<?> extensionType) throws Throwable {
+        protected LayerIO getExtensionImpl(LayerType layerType, Class<LayerIO> extensionType) throws Throwable {
             return new GraticuleLayerIO();
         }
     }
