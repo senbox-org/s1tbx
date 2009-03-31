@@ -1,25 +1,50 @@
 package com.bc.ceres.core;
 
 /**
- * An abstract implementation of a {@link com.bc.ceres.core.ExtensionFactory} for a single extension type.
+ * An implementation of a {@link com.bc.ceres.core.ExtensionFactory} for a single extension type.
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  * @since Ceres 0.9
  */
-public abstract class SingleTypeExtensionFactory<T> implements ExtensionFactory<T> {
-    private final Class<?> extensionType;
-    private final Class<?> extensionSubType;
+public class SingleTypeExtensionFactory<T, E> implements ExtensionFactory {
+    private final Class<E> extensionType;
+    private final Class<? extends E> extensionSubType;
 
-    protected SingleTypeExtensionFactory(Class<?> extensionType) {
+    /**
+     * Constructs a {@code SingleTypeExtensionFactory} for extensions of the given type.
+     * The {@link #getExtensionSubType() extensionSubType} will be the same as the given type.
+     *
+     * @param extensionType The extension type.
+     */
+    public SingleTypeExtensionFactory(Class<E> extensionType) {
         this(extensionType, extensionType);
     }
 
-    protected SingleTypeExtensionFactory(Class<?> extensionType, Class<?> extensionSubType) {
-        Assert.notNull(extensionType, "extensionType");
-        Assert.notNull(extensionType, "extensionSubType");
+    /**
+     * Constructs a {@code SingleTypeExtensionFactory} for extensions of the given sub-type which implement the given type.
+     *
+     * @param extensionType    The extension type. Must be {@link Class#isAssignableFrom(Class) assignable from} {@code extensionSubType}.
+     * @param extensionSubType The specific extension sub-type.
+     */
+    public SingleTypeExtensionFactory(Class<E> extensionType, Class<? extends E> extensionSubType) {
+        Assert.argument(extensionType.isAssignableFrom(extensionSubType), "extensionType.isAssignableFrom(extensionSubType)");
         this.extensionType = extensionType;
         this.extensionSubType = extensionSubType;
+    }
+
+    /**
+     * @return The extension type.
+     */
+    public final Class<E> getExtensionType() {
+        return extensionType;
+    }
+
+    /**
+     * @return The specific extension sub-type.
+     */
+    public final Class<? extends E> getExtensionSubType() {
+        return extensionSubType;
     }
 
     /**
@@ -31,11 +56,12 @@ public abstract class SingleTypeExtensionFactory<T> implements ExtensionFactory<
      * @param extensionType The type of the requested extension.
      * @return The extension object, or {@code null} if the given object is not extensible by this factory or if an error occurs during the call to {@link #getExtensionImpl(Object, Class)}.
      */
+    @SuppressWarnings({"unchecked"})
     @Override
-    public final Object getExtension(T object, Class<?> extensionType) {
+    public final E getExtension(Object object, Class<?> extensionType) {
         if (this.extensionType.isAssignableFrom(extensionType)) {
             try {
-                return getExtensionImpl(object, extensionType);
+                return getExtensionImpl((T) object, (Class<E>) extensionType);
             } catch (Throwable throwable) {
                 // Ignore
             }
@@ -47,26 +73,16 @@ public abstract class SingleTypeExtensionFactory<T> implements ExtensionFactory<
      * Creates an extension object for the given {@code object}.
      * The new extension object must be an instance of the {@code extensionSubType} passed to the constructor.
      * Called if, and only if this factory's {@code extensionType} is assignable from the given {@code extensionType}.
+     * <p>The default implementation returns {@code getExtensionSubType().newInstance()}. Clients may subclass and
+     * override this method in order to implement a more sophisticated instance creation.</p>
      *
      * @param object        The object to be extended.
      * @param extensionType The type of the requested extension.
      * @return The extension object.
      * @throws Throwable If an error occurs.
      */
-    protected abstract Object getExtensionImpl(T object, Class<?> extensionType) throws Throwable;
-
-    /**
-     * @return The general extension type.
-     */
-    public final Class<?> getExtensionType() {
-        return extensionType;
-    }
-
-    /**
-     * @return The specific extension sub-type.
-     */
-    public Class<?> getExtensionSubType() {
-        return extensionSubType;
+    protected E getExtensionImpl(T object, Class<E> extensionType) throws Throwable {
+        return getExtensionSubType().newInstance();
     }
 
     /**

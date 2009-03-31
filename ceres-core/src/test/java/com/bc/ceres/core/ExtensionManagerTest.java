@@ -2,13 +2,17 @@ package com.bc.ceres.core;
 
 import junit.framework.TestCase;
 
+import javax.swing.JComponent;
+import javax.swing.JButton;
+import java.io.File;
+
 public class ExtensionManagerTest extends TestCase {
 
     public void testExtensionManagement() {
         ExtensionManager em = ExtensionManager.getInstance();
         assertNotNull(em);
 
-        ExtensionFactory<Model>[] ml = em.getExtensionFactories(Model.class);
+        ExtensionFactory[] ml = em.getExtensionFactories(Model.class);
         assertNotNull(ml);
         assertEquals(0, ml.length);
 
@@ -36,14 +40,14 @@ public class ExtensionManagerTest extends TestCase {
 
         SlimModelGuiFactory sf = new SlimModelGuiFactory();
         em.register(SlimModel.class, sf);
-        ExtensionFactory<SlimModel>[] sl = em.getExtensionFactories(SlimModel.class);
+        ExtensionFactory[] sl = em.getExtensionFactories(SlimModel.class);
         assertNotNull(sl);
         assertEquals(1, sl.length);
         assertSame(sf, sl[0]);
 
         RichModelGuiFactory rf = new RichModelGuiFactory();
         em.register(RichModel.class, rf);
-        ExtensionFactory<RichModel>[] rl = em.getExtensionFactories(RichModel.class);
+        ExtensionFactory[] rl = em.getExtensionFactories(RichModel.class);
         assertNotNull(rl);
         assertEquals(1, rl.length);
         assertSame(rf, rl[0]);
@@ -202,6 +206,28 @@ public class ExtensionManagerTest extends TestCase {
         assertSame(model, modelGui.getModel());
     }
 
+    // Note: this is a dummy test, it is a show case for usage of the ExtensionManager API.
+    public void testCompiles() {
+        ExtensionManager em = ExtensionManager.getInstance();
+
+        JComponent component = new JButton();
+        JComponent extension1 = em.getExtension("", component.getClass());
+        JComponent extension2 = em.getExtension("", JComponent.class);
+        
+        JButton button = new JButton();
+        JComponent extension3 = em.getExtension("", button.getClass());
+        JComponent extension4 = em.getExtension("", JButton.class);
+        JButton extension5 = em.getExtension("", button.getClass());
+        JButton extension6 = em.getExtension("", JButton.class);
+
+        assertNull(extension1);
+        assertNull(extension2);
+        assertNull(extension3);
+        assertNull(extension4);
+        assertNull(extension5);
+        assertNull(extension6);
+    }
+
     private static void testFail(Model model, Class<? extends ModelGui> extensionType) {
         ModelGui modelGui = model.getExtension(extensionType);
         assertNull(modelGui);
@@ -249,35 +275,35 @@ public class ExtensionManagerTest extends TestCase {
         }
     }
   
-    class DefaultModelGuiFactory extends SingleTypeExtensionFactory<Model> {
+    class DefaultModelGuiFactory extends SingleTypeExtensionFactory<Model, ModelGui> {
         DefaultModelGuiFactory() {
             super(ModelGui.class, DefaultModelGui.class);
         }
 
         @Override
-        protected Object getExtensionImpl(Model model, Class<?> extensionType) throws Throwable {
+        protected ModelGui getExtensionImpl(Model model, Class<ModelGui> extensionType) throws Throwable {
             return new DefaultModelGui(model);
         }
     }
 
-    class SlimModelGuiFactory extends SingleTypeExtensionFactory<SlimModel> {
+    class SlimModelGuiFactory extends SingleTypeExtensionFactory<SlimModel, ModelGui> {
         SlimModelGuiFactory() {
             super(ModelGui.class, SlimModelGui.class);
         }
 
         @Override
-        protected Object getExtensionImpl(SlimModel model, Class<?> extensionType) throws Throwable {
+        protected ModelGui getExtensionImpl(SlimModel model, Class<ModelGui> extensionType) throws Throwable {
             return new SlimModelGui(model);
         }
     }
 
-    class RichModelGuiFactory extends SingleTypeExtensionFactory<RichModel> {
+    class RichModelGuiFactory extends SingleTypeExtensionFactory<RichModel, ModelGui> {
         RichModelGuiFactory() {
             super(ModelGui.class, RichModelGui.class);
         }
 
         @Override
-        protected Object getExtensionImpl(RichModel model, Class<?> extensionType) throws Throwable {
+        protected ModelGui getExtensionImpl(RichModel model, Class<ModelGui> extensionType) throws Throwable {
             return new RichModelGui(model);
         }
     }

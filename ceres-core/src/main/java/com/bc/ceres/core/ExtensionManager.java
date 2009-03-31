@@ -15,12 +15,14 @@ public abstract class ExtensionManager {
     private static ExtensionManager instance = new Impl();
 
     private static final TypeCondition IS_EQUAL_TO = new TypeCondition() {
+        @Override
         public boolean fulfilled(Class<?> a, Class<?> b) {
             return a.equals(b);
         }
     };
 
     private static final TypeCondition IS_A = new TypeCondition() {
+        @Override
         public boolean fulfilled(Class<?> a, Class<?> b) {
             return b.isAssignableFrom(a);
         }
@@ -47,7 +49,7 @@ public abstract class ExtensionManager {
      * @param extensibleType The extensible type.
      * @param factory        The factory.
      */
-    public abstract <T> void register(Class<T> extensibleType, ExtensionFactory<T> factory);
+    public abstract void register(Class<?> extensibleType, ExtensionFactory factory);
 
     /**
      * Unregisters an extension factory for the given extensible type.
@@ -55,7 +57,7 @@ public abstract class ExtensionManager {
      * @param extensibleType The extensible type.
      * @param factory        The factory.
      */
-    public abstract <T> void unregister(Class<T> extensibleType, ExtensionFactory<T> factory);
+    public abstract void unregister(Class<?> extensibleType, ExtensionFactory factory);
 
     /**
      * Gets all extension factories registered for the given type.
@@ -63,7 +65,7 @@ public abstract class ExtensionManager {
      * @param extensibleType The extensible type.
      * @return The list of extension factories. May be empty.
      */
-    public abstract <T> ExtensionFactory<T>[] getExtensionFactories(Class<T> extensibleType);
+    public abstract ExtensionFactory[] getExtensionFactories(Class<?> extensibleType);
 
     /**
      * Gets a dynamic extension for the given (extensible) object.
@@ -73,11 +75,11 @@ public abstract class ExtensionManager {
      * @return The extension instance, or {@code null} if the given object is not extensible by this factory.
      * @see ExtensionFactory#getExtension(Object, Class)
      */
-    public <E, T> E getExtension(T extensibleObject, Class<E> extensionType) {
+    public <E> E getExtension(Object extensibleObject, Class<E> extensionType) {
         Assert.notNull(extensibleObject, "extensibleObject");
         Assert.notNull(extensionType, "extensionType");
-        final Class<T> extensibleType = (Class<T>) extensibleObject.getClass();
-        final ExtensionFactory<T> factory = findFactory(extensibleType, extensionType);
+        final Class<?> extensibleType = extensibleObject.getClass();
+        final ExtensionFactory factory = findFactory(extensibleType, extensionType);
         if (factory != null) {
             return (E) factory.getExtension(extensibleObject, extensionType);
         }
@@ -91,11 +93,11 @@ public abstract class ExtensionManager {
      * @param extensionType  The type of the extension.
      * @return The factory, or {@code null} if no such can be found.
      */
-    public <T, E> ExtensionFactory<T> findFactory(Class<T> extensibleType, Class<E> extensionType) {
+    public <E> ExtensionFactory findFactory(Class<?> extensibleType, Class<E> extensionType) {
         Assert.notNull(extensibleType, "extensibleType");
         Assert.notNull(extensionType, "extensionType");
 
-        ExtensionFactory<T> factory = findFactoryFlat(extensibleType, extensionType, IS_EQUAL_TO);
+        ExtensionFactory factory = findFactoryFlat(extensibleType, extensionType, IS_EQUAL_TO);
 
         if (factory == null) {
             factory = findFactoryFlat(extensibleType, extensionType, IS_A);
@@ -104,14 +106,14 @@ public abstract class ExtensionManager {
         if (factory == null) {
             final Class<?> cls = extensibleType.getSuperclass();
             if (cls != null) {
-                factory = findFactory((Class<T>) cls, extensionType);
+                factory = findFactory(cls, extensionType);
             }
         }
 
         if (factory == null) {
             final Class<?>[] interfaces = extensibleType.getInterfaces();
             for (Class<?> ifc : interfaces) {
-                factory = findFactory((Class<T>) ifc, extensionType);
+                factory = findFactory(ifc, extensionType);
                 if (factory != null) {
                     break;
                 }
@@ -125,8 +127,8 @@ public abstract class ExtensionManager {
         boolean fulfilled(Class<?> a, Class<?> b);
     }
 
-    private <T, E> ExtensionFactory<T> findFactoryFlat(Class<T> extensibleType, Class<E> extensionType, TypeCondition condition) {
-        for (ExtensionFactory<T> factory : getExtensionFactories(extensibleType)) {
+    private <E> ExtensionFactory findFactoryFlat(Class<?> extensibleType, Class<E> extensionType, TypeCondition condition) {
+        for (ExtensionFactory factory : getExtensionFactories(extensibleType)) {
             for (Class<?> cls : factory.getExtensionTypes()) {
                 if (condition.fulfilled(cls, extensionType)) {
                     return factory;
@@ -141,7 +143,7 @@ public abstract class ExtensionManager {
         private static final ExtensionFactory[] NO_EXTENSION_FACTORIES = new ExtensionFactory[0];
 
         @Override
-        public <T> void register(Class<T> extensibleType, ExtensionFactory<T> factory) {
+        public void register(Class<?> extensibleType, ExtensionFactory factory) {
             Assert.notNull(extensibleType, "extensibleType");
             Assert.notNull(factory, "factory");
             List<ExtensionFactory> extensionFactoryList = extensionFactoryListMap.get(extensibleType);
@@ -155,7 +157,7 @@ public abstract class ExtensionManager {
         }
 
         @Override
-        public <T> void unregister(Class<T> extensibleType, ExtensionFactory<T> factory) {
+        public void unregister(Class<?> extensibleType, ExtensionFactory factory) {
             Assert.notNull(extensibleType, "extensibleType");
             Assert.notNull(factory, "factory");
             List<ExtensionFactory> extensionFactoryList = extensionFactoryListMap.get(extensibleType);
@@ -165,7 +167,7 @@ public abstract class ExtensionManager {
         }
 
         @Override
-        public <T> ExtensionFactory<T>[] getExtensionFactories(Class<T> extensibleType) {
+        public ExtensionFactory[] getExtensionFactories(Class<?> extensibleType) {
             Assert.notNull(extensibleType, "extensibleType");
             List<ExtensionFactory> extensionFactoryList = extensionFactoryListMap.get(extensibleType);
             if (extensionFactoryList != null) {
