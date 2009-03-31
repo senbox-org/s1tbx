@@ -13,13 +13,16 @@ import org.geotools.styling.TextSymbolizer;
 import org.geotools.styling.visitor.DuplicatingStyleVisitor;
 import org.opengis.filter.expression.Expression;
 
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.SwingWorker;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Font;
+import java.util.Hashtable;
 
 /**
  * Editor for placemark layers.
@@ -31,14 +34,11 @@ import java.awt.event.ActionListener;
 public class FeatureLayerEditor implements LayerEditor {
 
     private FeatureLayer currentLayer;
-    private JCheckBox fillCb;
-    private AlphaComboBox fillAcb;
-    private JCheckBox lineCb;
+    private JSlider fillOpacity;
     private final StyleBuilder sb;
-    private AlphaComboBox lineAcb;
-    private JCheckBox labelCb;
-    private AlphaComboBox labelAcb;
-    private ApplyingActionListener applyingActionListener;
+    private JSlider lineOpacity;
+    private JSlider labelOpacity;
+    private ApplyingChangeListener applyingChangeListener;
 
     public FeatureLayerEditor() {
         sb = new StyleBuilder();
@@ -47,42 +47,58 @@ public class FeatureLayerEditor implements LayerEditor {
 
     @Override
     public JComponent createControl() {
+        Hashtable sliderLabelTable = new Hashtable();
+        sliderLabelTable.put(0, createSliderLabel("0%"));
+        sliderLabelTable.put(127, createSliderLabel("50%"));
+        sliderLabelTable.put(255, createSliderLabel("100%"));
+
         TableLayout tableLayout = new TableLayout(2);
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
-        tableLayout.setColumnWeightX(0, 0.1);
-        tableLayout.setColumnWeightX(1, 0.9);
+        tableLayout.setColumnWeightX(0, 0.4);
+        tableLayout.setColumnWeightX(1, 0.6);
         tableLayout.setRowWeightY(3, 1.0);
         tableLayout.setTablePadding(4, 4);
         JPanel control = new JPanel(tableLayout);
-        applyingActionListener = new ApplyingActionListener();
+        applyingChangeListener = new ApplyingChangeListener();
 
-        fillCb = new JCheckBox("Fill:", true);
-        fillCb.setToolTipText("Toggle visibility of fillings");
-        control.add(fillCb);
-        fillAcb = new AlphaComboBox(0, 1, 1, 255);
-        fillAcb.setToolTipText("Set opacity of fillings");
-        control.add(fillAcb);
+        JLabel fillLabel = new JLabel("Fill Opacity:");
+        control.add(fillLabel);
+        fillOpacity = new JSlider(0, 255);
+        fillOpacity.setToolTipText("Set opacity of fillings");
+        fillOpacity.setLabelTable(sliderLabelTable);
+        fillOpacity.setPaintLabels(true);
+        control.add(fillOpacity);
 
-        lineCb = new JCheckBox("Line:", true);
-        lineCb.setToolTipText("Toggle visibility of lines");
-        control.add(lineCb);
-        lineAcb = new AlphaComboBox(0, 1, 1, 255);
-        lineAcb.setToolTipText("Set opacity of lines");
-        control.add(lineAcb);
+        JLabel lineLabel = new JLabel("Line Opacity:");
+        control.add(lineLabel);
+        lineOpacity = new JSlider(0, 255);
+        lineOpacity.setToolTipText("Set opacity of lines");
+        lineOpacity.setLabelTable(sliderLabelTable);
+        lineOpacity.setPaintLabels(true);
+        control.add(lineOpacity);
 
-        labelCb = new JCheckBox("Label:", true);
-        labelCb.setToolTipText("Toggle visibility of labels");
-        control.add(labelCb);
-        labelAcb = new AlphaComboBox(0, 1, 1, 255);
-        labelAcb.setToolTipText("Set opacity of labels");
-        control.add(labelAcb);
+        JLabel labelLabel = new JLabel("Label Opacity:");
+        control.add(labelLabel);
+        labelOpacity = new JSlider(0, 255);
+        labelOpacity.setToolTipText("Set opacity of labels");
+        labelOpacity.setLabelTable(sliderLabelTable);
+        labelOpacity.setPaintLabels(true);
+        control.add(labelOpacity);
 
 
         addApplyListener();
 
         control.add(new JPanel()); // filler
         return control;
+    }
+
+    private JLabel createSliderLabel(String text) {
+        JLabel label = new JLabel(text);
+        Font oldFont = label.getFont();
+        Font newFont = oldFont.deriveFont(oldFont.getSize2D() * 0.85f);
+        label.setFont(newFont);
+        return label;
     }
 
     @Override
@@ -95,12 +111,9 @@ public class FeatureLayerEditor implements LayerEditor {
     }
 
     private void addApplyListener() {
-        fillCb.addActionListener(applyingActionListener);
-        fillAcb.addActionListener(applyingActionListener);
-        lineCb.addActionListener(applyingActionListener);
-        lineAcb.addActionListener(applyingActionListener);
-        labelCb.addActionListener(applyingActionListener);
-        labelAcb.addActionListener(applyingActionListener);
+        fillOpacity.addChangeListener(applyingChangeListener);
+        lineOpacity.addChangeListener(applyingChangeListener);
+        labelOpacity.addChangeListener(applyingChangeListener);
     }
 
     private synchronized void applyStyling() {
@@ -123,10 +136,7 @@ public class FeatureLayerEditor implements LayerEditor {
         public void visit(Fill fill) {
             super.visit(fill);
             Fill fillCopy = (Fill) pages.pop();
-            double opacity = 0.0;
-            if (fillCb.isSelected()) {
-                opacity = fillAcb.getValue();
-            }
+            double opacity = fillOpacity.getValue() / 255.0;
             fillCopy.setOpacity(sb.literalExpression(opacity));
             pages.push(fillCopy);
         }
@@ -135,10 +145,7 @@ public class FeatureLayerEditor implements LayerEditor {
         public void visit(Stroke stroke) {
             super.visit(stroke);
             Stroke strokeCopy = (Stroke) pages.pop();
-            double opacity = 0.0;
-            if (lineCb.isSelected()) {
-                opacity = lineAcb.getValue();
-            }
+            double opacity = lineOpacity.getValue() / 255.0;
             strokeCopy.setOpacity(sb.literalExpression(opacity));
             pages.push(strokeCopy);
         }
@@ -147,10 +154,7 @@ public class FeatureLayerEditor implements LayerEditor {
         public void visit(TextSymbolizer text) {
             super.visit(text);
             TextSymbolizer textCopy = (TextSymbolizer) pages.pop();
-            double opacity = 0.0;
-            if (labelCb.isSelected()) {
-                opacity = labelAcb.getValue();
-            }
+            double opacity = labelOpacity.getValue() / 255.0;
             Fill textFill = textCopy.getFill();
             if (textFill == null) {
                 textFill = sb.createFill(Color.BLACK, opacity);
@@ -171,9 +175,9 @@ public class FeatureLayerEditor implements LayerEditor {
             Fill fillCopy = (Fill) pages.pop();
             Expression opacityExpression = fillCopy.getOpacity();
             if (opacityExpression != null) {
-                fillAcb.setValue(opacityExpression.evaluate(opacityExpression, Double.class));
+                fillOpacity.setValue((int) (opacityExpression.evaluate(opacityExpression, Double.class) * 255));
             } else {
-                fillAcb.setValue(1.0);
+                fillOpacity.setValue(255);
             }
             pages.push(fillCopy);
         }
@@ -184,9 +188,9 @@ public class FeatureLayerEditor implements LayerEditor {
             Stroke strokeCopy = (Stroke) pages.pop();
             Expression opacityExpression = strokeCopy.getOpacity();
             if (opacityExpression != null) {
-                lineAcb.setValue(opacityExpression.evaluate(opacityExpression, Double.class));
+                lineOpacity.setValue((int) (opacityExpression.evaluate(opacityExpression, Double.class) * 255));
             } else {
-                lineAcb.setValue(1.0);
+                lineOpacity.setValue(255);
             }
             pages.push(strokeCopy);
         }
@@ -199,22 +203,23 @@ public class FeatureLayerEditor implements LayerEditor {
             if (textFill != null) {
                 Expression opacityExpression = textFill.getOpacity();
                 if (opacityExpression != null) {
-                    labelAcb.setValue(opacityExpression.evaluate(opacityExpression, Double.class));
+                    labelOpacity.setValue((int) (opacityExpression.evaluate(opacityExpression, Double.class) * 255));
                 }
             } else {
-                labelAcb.setValue(1.0);
+                labelOpacity.setValue(255);
             }
             pages.push(textCopy);
 
         }
     }
 
-    private class ApplyingActionListener implements ActionListener {
+    private class ApplyingChangeListener implements ChangeListener {
 
         @Override
-        public void actionPerformed(ActionEvent e) {
+        public void stateChanged(ChangeEvent e) {
             applyStyling();
         }
+
     }
 
 }
