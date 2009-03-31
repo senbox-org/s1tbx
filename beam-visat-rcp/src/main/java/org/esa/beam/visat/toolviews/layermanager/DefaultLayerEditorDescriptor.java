@@ -1,7 +1,6 @@
 package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.core.CoreException;
-import com.bc.ceres.core.ExtensionFactory;
 import com.bc.ceres.core.ExtensionManager;
 import com.bc.ceres.core.SingleTypeExtensionFactory;
 import com.bc.ceres.core.runtime.ConfigurableExtension;
@@ -17,6 +16,7 @@ import com.bc.ceres.glayer.LayerType;
  */
 @SuppressWarnings({"UnusedDeclaration"})
 public class DefaultLayerEditorDescriptor implements LayerEditorDescriptor, ConfigurableExtension {
+
     private Class<LayerEditor> editorClass;
     private Class<LayerType> layerTypeClass;
 
@@ -26,6 +26,7 @@ public class DefaultLayerEditorDescriptor implements LayerEditorDescriptor, Conf
     }
 
     private class LayerEditorFactory extends SingleTypeExtensionFactory<LayerType> {
+
         private LayerEditorFactory() {
             super(LayerEditor.class, editorClass);
         }
