@@ -3,9 +3,9 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 import com.jidesoft.tree.AbstractTreeModel;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
-import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
 import org.geotools.data.ows.WMSCapabilities;
@@ -34,34 +34,35 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-class WmsAssistantPage2 extends AbstractAppAssistantPage {
+class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
+
+    static final String SELECTED_LAYER = "selectedLayer";
+    static final String SELECTED_STYLE = "selectedStyle";
+    static final String CRS_ENVELOPE = "crsEnvelope";
 
     private JLabel infoLabel;
     private JTree layerTree;
     private CoordinateReferenceSystem modelCRS;
-    private final WmsModel wmsModel;
 
-    WmsAssistantPage2(WmsModel wmsModel) {
+    WmsAssistantPage2() {
         super("Select Layer");
-        this.wmsModel = wmsModel;
     }
 
     @Override
-    public boolean performFinish(AppAssistantPageContext pageContext) {
-        ProductSceneView view = pageContext.getAppContext().getSelectedProductSceneView();
+    public boolean performFinish() {
+        ProductSceneView view = getContext().getAppContext().getSelectedProductSceneView();
         RasterDataNode raster = view.getRaster();
 
         WmsLayerWorker layerWorker = new WmsLayerWorker(view.getRootLayer(),
                                                         raster,
-                                                        wmsModel,
-                                                        pageContext);
+                                                        getContext());
         layerWorker.execute();   // todo - don't close dialog before image is downloaded! (nf)
         return true;
     }
 
     @Override
-    public AbstractAppAssistantPage getNextPage(AppAssistantPageContext pageContext) {
-        return new WmsAssistantPage3(wmsModel);
+    public AbstractLayerSourceAssistantPage getNextPage() {
+        return new WmsAssistantPage3();
     }
 
     @Override
@@ -71,26 +72,31 @@ class WmsAssistantPage2 extends AbstractAppAssistantPage {
 
     @Override
     public boolean validatePage() {
-        return wmsModel.getSelectedLayer() != null;
+        return getContext().getPropertyValue(SELECTED_LAYER) != null;
     }
 
     @Override
-    public Component createLayerPageComponent(AppAssistantPageContext context) {
+    public Component createPageComponent() {
         JPanel panel = new JPanel(new BorderLayout(4, 4));
         panel.setBorder(new EmptyBorder(4, 4, 4, 4));
         panel.add(new JLabel("Available layers:"), BorderLayout.NORTH);
 
+        LayerSourcePageContext context = getContext();
         modelCRS = context.getAppContext().getSelectedProductSceneView().getRaster().getGeoCoding().getModelCRS();
 
-        layerTree = new JTree(new WMSTreeModel(wmsModel.getWmsCapabilities().getLayer()));
+        WMSCapabilities wmsCapabilities = (WMSCapabilities) context.getPropertyValue(
+                WmsAssistantPage1.WMS_CAPABILITIES);
+        layerTree = new JTree(new WMSTreeModel(wmsCapabilities.getLayer()));
         layerTree.setRootVisible(false);
         layerTree.setShowsRootHandles(true);
+        layerTree.setExpandsSelectedPaths(true);
         layerTree.setCellRenderer(new MyDefaultTreeCellRenderer());
         layerTree.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        layerTree.getSelectionModel().addTreeSelectionListener(new MyTreeSelectionListener(context));
+        layerTree.getSelectionModel().addTreeSelectionListener(new LayerTreeSelectionListener());
         panel.add(new JScrollPane(layerTree), BorderLayout.CENTER);
         infoLabel = new JLabel(" ");
         panel.add(infoLabel, BorderLayout.SOUTH);
+        getContext().setPropertyValue(SELECTED_LAYER, null);
         return panel;
     }
 
@@ -113,18 +119,6 @@ class WmsAssistantPage2 extends AbstractAppAssistantPage {
                 }
             }
         }
-//        for (Object srsObj : srsSet) {
-//            String srs = (String) srsObj;
-//            try {
-//                CoordinateReferenceSystem crs = CRS.decode(srs);
-//                MathTransform transform = CRS.findMathTransform(crs, modelCRS, true);
-//                if (transform.isIdentity()) {
-//                    return srs;
-//                }
-//            } catch (FactoryException e) {
-//                System.out.println(MessageFormat.format("Warning: SRS ''{0}'' not found: {1}", srs, e.getMessage()));
-//            }
-//        }
         return null;
     }
 
@@ -178,25 +172,21 @@ class WmsAssistantPage2 extends AbstractAppAssistantPage {
 
     }
 
-    private class MyTreeSelectionListener implements TreeSelectionListener {
-
-        private final AppAssistantPageContext pageContext;
-
-        public MyTreeSelectionListener(AppAssistantPageContext pageContext) {
-            this.pageContext = pageContext;
-        }
+    private class LayerTreeSelectionListener implements TreeSelectionListener {
 
         @Override
         public void valueChanged(TreeSelectionEvent e) {
-            TreePath path = layerTree.getSelectionModel().getSelectionPath();
-            Layer selectedLayer = (Layer) path.getLastPathComponent();
+            LayerSourcePageContext context = getContext();
+            TreePath selectedLayerPath = layerTree.getSelectionModel().getSelectionPath();
+            Layer selectedLayer = (Layer) selectedLayerPath.getLastPathComponent();
+            context.setPropertyValue(SELECTED_LAYER, selectedLayer);
             if (selectedLayer != null) {
                 infoLabel.setText(getLatLonBoundingBoxText(selectedLayer.getLatLonBoundingBox()));
                 String crsCode = getMatchingCRSCode(selectedLayer);
                 if (crsCode == null) {
                     infoLabel.setText("Coordinate system not supported.");
                 } else {
-                    RasterDataNode raster = pageContext.getAppContext().getSelectedProductSceneView().getRaster();
+                    RasterDataNode raster = context.getAppContext().getSelectedProductSceneView().getRaster();
                     GeoCoding geoCoding = raster.getGeoCoding();
                     AffineTransform g2mTransform = geoCoding.getGridToModelTransform();
                     Rectangle2D bounds = g2mTransform.createTransformedShape(
@@ -207,17 +197,16 @@ class WmsAssistantPage2 extends AbstractAppAssistantPage {
                                                               bounds.getMaxY());
                     List<Style> styles = selectedLayer.getStyles();
                     if (!styles.isEmpty()) {
-                        wmsModel.setSelectedStyle(styles.get(0));
+                        context.setPropertyValue(SELECTED_STYLE, styles.get(0));
                     } else {
-                        wmsModel.setSelectedStyle(null);
+                        context.setPropertyValue(SELECTED_STYLE, null);
                     }
-                    wmsModel.setSelectedLayer(selectedLayer);
-                    wmsModel.setCrsEnvelope(crsEnvelope);
+                    context.setPropertyValue(CRS_ENVELOPE, crsEnvelope);
                 }
             } else {
                 infoLabel.setText("");
             }
-            pageContext.updateState();
+            context.updateState();
         }
 
     }

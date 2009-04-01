@@ -3,8 +3,6 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
-import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
-import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 
 import java.util.HashMap;
@@ -25,7 +23,7 @@ public class SimpleLayerSource implements LayerSource {
     }
 
     @Override
-    public boolean isApplicable(AppAssistantPageContext pageContext) {
+    public boolean isApplicable(LayerSourcePageContext pageContext) {
         return layerType.isValidFor(pageContext.getAppContext().getSelectedProductSceneView().getLayerContext());
     }
 
@@ -35,12 +33,12 @@ public class SimpleLayerSource implements LayerSource {
     }
 
     @Override
-    public AbstractAppAssistantPage getFirstPage(AppAssistantPageContext pageContext) {
+    public AbstractLayerSourceAssistantPage getFirstPage(LayerSourcePageContext pageContext) {
         return null;
     }
 
     @Override
-    public boolean finish(AppAssistantPageContext pageContext) {
+    public boolean finish(LayerSourcePageContext pageContext) {
         LayerContext layerCtx = pageContext.getAppContext().getSelectedProductSceneView().getLayerContext();
 
         Layer layer = layerType.createLayer(layerCtx, new HashMap<String, Object>());

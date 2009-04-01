@@ -4,12 +4,12 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.image;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.tools.Tools;
-import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
-import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.HistoryComboBoxModel;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 
 import javax.media.jai.Interpolation;
 import javax.media.jai.PlanarImage;
@@ -45,7 +45,7 @@ import java.util.concurrent.ExecutionException;
 
 // todo - Check, if image is GeoTIFF -> no world file is needed
 
-public class ImageFileAssistantPage extends AbstractAppAssistantPage {
+public class ImageFileAssistantPage extends AbstractLayerSourceAssistantPage {
 
     private static final String PROPERTY_LAST_IMAGE_PREFIX = "ImageFileAssistantPage.ImageFile.history";
     private static final String PROPERTY_LAST_DIR = "ImageFileAssistantPage.ImageFile.lastDir";
@@ -84,7 +84,7 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public AbstractAppAssistantPage getNextPage(AppAssistantPageContext pageContext) {
+    public AbstractLayerSourceAssistantPage getNextPage() {
         imageHistoryModel.saveHistory();
         String worldFilePath = getText(worldFileField);
         AffineTransform transform;
@@ -93,7 +93,7 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
                 transform = Tools.loadWorldFile(worldFilePath);
             } catch (IOException e) {
                 e.printStackTrace();
-                pageContext.showErrorDialog(e.getMessage());
+                getContext().showErrorDialog(e.getMessage());
                 return null;
             }
         } else {
@@ -110,10 +110,11 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean performFinish(AppAssistantPageContext pageContext) {
+    public boolean performFinish() {
         imageHistoryModel.saveHistory();
         String worldFilePath = getText(worldFileField);
         AffineTransform transform;
+        LayerSourcePageContext pageContext = getContext();
         if (!worldFilePath.isEmpty()) {
             try {
                 transform = Tools.loadWorldFile(worldFilePath);
@@ -125,21 +126,21 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         } else {
             transform = new AffineTransform();
         }
-        return ImageFileAssistantPage.insertImageLayer(pageContext,
-                                                       image,
-                                                       FileUtils.getFileNameFromPath(getText(imageFileBox)),
-                                                       transform);
+        return insertImageLayer(pageContext,
+                                image,
+                                FileUtils.getFileNameFromPath(getText(imageFileBox)),
+                                transform);
     }
 
     @Override
-    public Component createLayerPageComponent(AppAssistantPageContext context) {
+    public Component createPageComponent() {
         GridBagConstraints gbc = new GridBagConstraints();
         final JPanel panel = new JPanel(new GridBagLayout());
 
         gbc.anchor = GridBagConstraints.WEST;
         gbc.gridy = 0;
 
-        final PropertyMap preferences = context.getAppContext().getPreferences();
+        final PropertyMap preferences = getContext().getAppContext().getPreferences();
         HistoryComboBoxModel.Validator validator = new HistoryComboBoxModel.Validator() {
             @Override
             public boolean isValid(String entry) {
@@ -148,21 +149,21 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         };
         imageHistoryModel = new HistoryComboBoxModel(preferences, PROPERTY_LAST_IMAGE_PREFIX, 5, validator);
         imageFileBox = new JComboBox(imageHistoryModel);
-        imageFileBox.addActionListener(new ImageFileItemListener(context));
+        imageFileBox.addActionListener(new ImageFileItemListener());
         final JLabel imageFileLabel = new JLabel("Path to image file (.png, .jpg, .tif, .gif):");
         JButton imageFileButton = new JButton("...");
         final FileNameExtensionFilter imageFileFilter = new FileNameExtensionFilter("Image Files",
                                                                                     "png", "jpg", "tif", "gif");
-        imageFileButton.addActionListener(new FileChooserActionListener(imageFileFilter, context));
+        imageFileButton.addActionListener(new FileChooserActionListener(imageFileFilter));
         addRow(panel, gbc, imageFileLabel, imageFileBox, imageFileButton);
 
         worldFileField = new JTextField();
-        worldFileField.getDocument().addDocumentListener(new MyDocumentListener(context));
+        worldFileField.getDocument().addDocumentListener(new MyDocumentListener());
         final JLabel worldFileLabel = new JLabel("Path to world file (.pgw, .jgw, .tfw, .gfw):");
         JButton worldFileButton = new JButton("...");
         final FileNameExtensionFilter worldFileFilter = new FileNameExtensionFilter("World Files",
                                                                                     "pgw", "jgw", "tfw", "gfw");
-        worldFileButton.addActionListener(new FileChooserActionListener(worldFileFilter, context));
+        worldFileButton.addActionListener(new FileChooserActionListener(worldFileFilter));
         addRow(panel, gbc, worldFileLabel, worldFileField, worldFileButton);
 
 
@@ -206,7 +207,7 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         panel.add(button, gbc);
     }
 
-    static boolean insertImageLayer(AppAssistantPageContext pageContext, RenderedImage image, String layerName,
+    static boolean insertImageLayer(LayerSourcePageContext pageContext, RenderedImage image, String layerName,
                                     AffineTransform transform) {
         try {
             ImageLayer imageLayer = new ImageLayer(image, transform);
@@ -221,38 +222,30 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         }
     }
 
-    private static class MyDocumentListener implements DocumentListener {
-
-        private final AppAssistantPageContext pageContext;
-
-        private MyDocumentListener(AppAssistantPageContext pageContext) {
-            this.pageContext = pageContext;
-        }
+    private class MyDocumentListener implements DocumentListener {
 
         @Override
         public void insertUpdate(DocumentEvent e) {
-            pageContext.updateState();
+            getContext().updateState();
         }
 
         @Override
         public void removeUpdate(DocumentEvent e) {
-            pageContext.updateState();
+            getContext().updateState();
         }
 
         @Override
         public void changedUpdate(DocumentEvent e) {
-            pageContext.updateState();
+            getContext().updateState();
         }
     }
 
     private class FileChooserActionListener implements ActionListener {
 
         private final FileFilter filter;
-        private final AppAssistantPageContext pageContext;
 
-        private FileChooserActionListener(FileFilter fileFilter, AppAssistantPageContext pageContext) {
+        private FileChooserActionListener(FileFilter fileFilter) {
             filter = fileFilter;
-            this.pageContext = pageContext;
         }
 
         @Override
@@ -261,6 +254,7 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
             fileChooser.addChoosableFileFilter(filter);
             fileChooser.setCurrentDirectory(getLastDirectory());
 
+            LayerSourcePageContext pageContext = getContext();
             fileChooser.showOpenDialog(pageContext.getWindow());
             if (fileChooser.getSelectedFile() != null) {
                 String filePath = fileChooser.getSelectedFile().getPath();
@@ -272,7 +266,7 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
         }
 
         private File getLastDirectory() {
-            PropertyMap preferences = pageContext.getAppContext().getPreferences();
+            PropertyMap preferences = getContext().getAppContext().getPreferences();
             String dirPath = preferences.getPropertyString(PROPERTY_LAST_DIR, System.getProperty("user.home"));
             File lastDir = new File(dirPath);
             if (!lastDir.isDirectory()) {
@@ -284,12 +278,6 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
     }
 
     private class ImageFileItemListener implements ActionListener {
-
-        private final AppAssistantPageContext pageContext;
-
-        private ImageFileItemListener(AppAssistantPageContext pageContext) {
-            this.pageContext = pageContext;
-        }
 
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -311,7 +299,7 @@ public class ImageFileAssistantPage extends AbstractAppAssistantPage {
                 worldFileField.setText(null);
             }
 
-            pageContext.updateState();
+            getContext().updateState();
         }
 
         private String createWorldFilePath(String imageFilePath) {

@@ -7,10 +7,10 @@ import com.jidesoft.swing.CheckBoxTree;
 import com.jidesoft.swing.CheckBoxTreeSelectionModel;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.ui.assistant.AppAssistantPane;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.visat.VisatActivator;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourceAssistantPane;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.SelectLayerSourceAssistantPage;
 
 import javax.swing.AbstractButton;
@@ -148,7 +148,7 @@ class LayerManagerForm extends AbstractLayerForm {
         Layer[] children = selectedLayer.getChildren().toArray(new Layer[selectedLayer.getChildren().size()]);
         for (Layer childLayer : children) {
             if (isLayerProtectedImpl(childLayer) ||
-                    isChildLayerProtected(childLayer)) {
+                isChildLayerProtected(childLayer)) {
                 return true;
             }
         }
@@ -297,8 +297,9 @@ class LayerManagerForm extends AbstractLayerForm {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            AppAssistantPane pane = new AppAssistantPane(SwingUtilities.getWindowAncestor(control), "Add Layer",
-                                                         getAppContext());
+            LayerSourceAssistantPane pane = new LayerSourceAssistantPane(SwingUtilities.getWindowAncestor(control),
+                                                                         "Add Layer",
+                                                                         getAppContext());
             LayerSourceDescriptor[] layerSourceDescriptors = VisatActivator.getInstance().getLayerSources();
             pane.show(new SelectLayerSourceAssistantPage(layerSourceDescriptors));
         }

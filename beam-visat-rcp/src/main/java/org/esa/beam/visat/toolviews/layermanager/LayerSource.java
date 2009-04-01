@@ -1,7 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager;
 
-import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
-import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 
 /**
  * @author Marco Peters
@@ -10,13 +10,13 @@ import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
  */
 public interface LayerSource {
 
-    boolean isApplicable(AppAssistantPageContext pageContext);
+    boolean isApplicable(LayerSourcePageContext pageContext);
 
     boolean hasFirstPage();
 
-    AbstractAppAssistantPage getFirstPage(AppAssistantPageContext pageContext);
+    AbstractLayerSourceAssistantPage getFirstPage(LayerSourcePageContext pageContext);
 
-    boolean finish(AppAssistantPageContext pageContext);
+    boolean finish(LayerSourcePageContext pageContext);
 
     void cancel();
 }

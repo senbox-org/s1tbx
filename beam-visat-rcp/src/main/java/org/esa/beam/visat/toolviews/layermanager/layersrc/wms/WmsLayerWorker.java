@@ -3,8 +3,8 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 
 import javax.media.jai.PlanarImage;
 import javax.swing.JDialog;
@@ -22,15 +22,12 @@ class WmsLayerWorker extends WmsWorker {
 
     private final Layer rootLayer;
     private JDialog dialog;
-    private final AppAssistantPageContext pageContext;
 
     WmsLayerWorker(Layer rootLayer,
                    RasterDataNode raster,
-                   WmsModel wmsModel,
-                   AppAssistantPageContext pageContext) {
-        super(getFinalImageSize(raster), wmsModel);
+                   LayerSourcePageContext pageContext) {
+        super(getFinalImageSize(raster), pageContext);
         this.rootLayer = rootLayer;
-        this.pageContext = pageContext;
         dialog = new JDialog(pageContext.getWindow(), "Loading image from WMS...",
                              Dialog.ModalityType.DOCUMENT_MODAL);
         JProgressBar progressBar = new JProgressBar();
@@ -44,7 +41,7 @@ class WmsLayerWorker extends WmsWorker {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                Rectangle parentBounds = pageContext.getWindow().getBounds();
+                Rectangle parentBounds = getContext().getWindow().getBounds();
                 Rectangle bounds = dialog.getBounds();
                 dialog.setLocation(parentBounds.x + (parentBounds.width - bounds.width) / 2,
                                    parentBounds.y + (parentBounds.height - bounds.height) / 2);
@@ -62,17 +59,19 @@ class WmsLayerWorker extends WmsWorker {
         try {
             BufferedImage image = get();
             try {
-                ProductSceneView sceneView = pageContext.getAppContext().getSelectedProductSceneView();
+                ProductSceneView sceneView = getContext().getAppContext().getSelectedProductSceneView();
                 AffineTransform i2mTransform = sceneView.getRaster().getGeoCoding().getGridToModelTransform();
                 ImageLayer imageLayer = new ImageLayer(PlanarImage.wrapRenderedImage(image), i2mTransform);
-                imageLayer.setName(getWmsModel().getSelectedLayer().getName());
+                org.geotools.data.ows.Layer layer;
+                layer = (org.geotools.data.ows.Layer) getContext().getPropertyValue(WmsAssistantPage2.SELECTED_LAYER);
+                imageLayer.setName(layer.getName());
                 rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), imageLayer);
             } catch (Exception e) {
-                pageContext.showErrorDialog(e.getMessage());
+                getContext().showErrorDialog(e.getMessage());
             }
 
         } catch (ExecutionException e) {
-            pageContext.showErrorDialog(
+            getContext().showErrorDialog(
                     String.format("Error while expecting WMS response:\n%s", e.getCause().getMessage()));
         } catch (InterruptedException ignored) {
             // ok

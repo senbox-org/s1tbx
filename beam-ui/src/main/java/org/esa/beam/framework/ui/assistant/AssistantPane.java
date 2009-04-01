@@ -93,11 +93,11 @@ public class AssistantPane implements AssistantPageContext {
     }
 
     @Override
-    public void setCurrentPage(AssistantPage startPage) {
-        currentPage = startPage;
+    public void setCurrentPage(AssistantPage currentPage) {
+        this.currentPage = currentPage;
         pagePanel.removeAll();
         titleLabel.setText(currentPage.getPageTitle());
-        pagePanel.add(currentPage.getPageComponent(this), BorderLayout.CENTER);
+        pagePanel.add(currentPage.getPageComponent(), BorderLayout.CENTER);
         updateState();
         dialog.invalidate();
         dialog.validate();
@@ -107,11 +107,13 @@ public class AssistantPane implements AssistantPageContext {
     @Override
     public void updateState() {
         final AssistantPage page = getCurrentPage();
-        final boolean pageValid = page.validatePage();
-        prevAction.setEnabled(!pageStack.isEmpty());
-        nextAction.setEnabled(pageValid && page.hasNextPage());
-        finishAction.setEnabled(pageValid && page.canFinish());
-        helpAction.setEnabled(pageValid && page.canHelp());
+        if (page != null) {
+            final boolean pageValid = page.validatePage();
+            prevAction.setEnabled(!pageStack.isEmpty());
+            nextAction.setEnabled(pageValid && page.hasNextPage());
+            finishAction.setEnabled(pageValid && page.canFinish());
+            helpAction.setEnabled(pageValid && page.canHelp());
+        }
     }
 
     @Override
@@ -119,10 +121,15 @@ public class AssistantPane implements AssistantPageContext {
         JOptionPane.showMessageDialog(dialog, message, getCurrentPage().getPageTitle(), JOptionPane.ERROR_MESSAGE);
     }
 
-    public void show(AssistantPage startPage) {
-        setCurrentPage(startPage);
+    public void show(AssistantPage currentPage) {
+        initPage(currentPage);
+        setCurrentPage(currentPage);
         dialog.setSize(new Dimension(480, 320));
         dialog.setVisible(true);
+    }
+
+    private void initPage(AssistantPage currentPage) {
+        currentPage.setContext(this);
     }
 
     private void close() {
@@ -157,9 +164,10 @@ public class AssistantPane implements AssistantPageContext {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            AssistantPage nextPage = currentPage.getNextPage(AssistantPane.this);
+            AssistantPage nextPage = currentPage.getNextPage();
             if (nextPage != null) {
                 pageStack.push(currentPage);
+                initPage(nextPage);
                 setCurrentPage(nextPage);
             }
         }
@@ -177,7 +185,7 @@ public class AssistantPane implements AssistantPageContext {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (getCurrentPage().performFinish(AssistantPane.this)) {
+            if (getCurrentPage().performFinish()) {
                 close();
             }
         }

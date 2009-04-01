@@ -22,11 +22,11 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
-import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 
 /**
  * todo - add API doc
@@ -40,7 +40,7 @@ public class ShapefileLayerSource implements LayerSource {
     private ShapefileModel model;
 
     @Override
-    public boolean isApplicable(AppAssistantPageContext pageContext) {
+    public boolean isApplicable(LayerSourcePageContext pageContext) {
         return true;
     }
 
@@ -50,7 +50,7 @@ public class ShapefileLayerSource implements LayerSource {
     }
 
     @Override
-    public AbstractAppAssistantPage getFirstPage(AppAssistantPageContext pageContext) {
+    public AbstractLayerSourceAssistantPage getFirstPage(LayerSourcePageContext pageContext) {
         model = new ShapefileModel();
         return new ShapefileAssistantPage(model);
     }
@@ -60,7 +60,7 @@ public class ShapefileLayerSource implements LayerSource {
     }
 
     @Override
-    public boolean finish(AppAssistantPageContext pageContext) {
+    public boolean finish(LayerSourcePageContext pageContext) {
         FeatureLayer featureLayer = new FeatureLayer(model.getFeatureCollection(), model.getSelectedStyle());
         featureLayer.setName(model.getFile().getName());
         featureLayer.setVisible(true);

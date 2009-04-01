@@ -6,10 +6,8 @@ import com.bc.ceres.glayer.Layer;
 import com.jidesoft.swing.JideSplitButton;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
-import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
-import org.esa.beam.framework.ui.assistant.AssistantPageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.referencing.CRS;
 import org.opengis.geometry.Envelope;
@@ -39,7 +37,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.util.concurrent.ExecutionException;
 
-public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
+public class ImageFileAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
     private JTextField[] numberFields;
     private final RenderedImage image;
@@ -66,12 +64,12 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean performFinish(AppAssistantPageContext pageContext) {
-        return ImageFileAssistantPage.insertImageLayer(pageContext, image, layerName, createTransform());
+    public boolean performFinish() {
+        return ImageFileAssistantPage.insertImageLayer(getContext(), image, layerName, createTransform());
     }
 
     @Override
-    public Component createLayerPageComponent(AppAssistantPageContext context) {
+    public Component createPageComponent() {
 
         GridBagConstraints gbc = new GridBagConstraints();
         final JPanel panel = new JPanel(new GridBagLayout());
@@ -97,25 +95,25 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
                 "X-coordinate of center of upper left pixel: ",
                 "Y-coordinate of centre of upper left pixel: "
         };
-        numberFields[0] = addRow(panel, labels[0], gbc, null, context);
+        numberFields[0] = addRow(panel, labels[0], gbc, null);
         numberFields[0].setText(String.valueOf(flatmatrix[0]));
-        numberFields[1] = addRow(panel, labels[1], gbc, null, context);
+        numberFields[1] = addRow(panel, labels[1], gbc, null);
         numberFields[1].setText(String.valueOf(flatmatrix[1]));
-        numberFields[2] = addRow(panel, labels[2], gbc, null, context);
+        numberFields[2] = addRow(panel, labels[2], gbc, null);
         numberFields[2].setText(String.valueOf(flatmatrix[2]));
-        numberFields[3] = addRow(panel, labels[3], gbc, null, context);
+        numberFields[3] = addRow(panel, labels[3], gbc, null);
         numberFields[3].setText(String.valueOf(flatmatrix[3]));
 
-        final JideSplitButton horizButton = createAlignButton(new AlignLeftAction(context),
-                                                              new AlignCenterAction(context),
-                                                              new AlignRightAction(context));
-        numberFields[4] = addRow(panel, labels[4], gbc, horizButton, context);
+        final JideSplitButton horizButton = createAlignButton(new AlignLeftAction(),
+                                                              new AlignCenterAction(),
+                                                              new AlignRightAction());
+        numberFields[4] = addRow(panel, labels[4], gbc, horizButton);
         numberFields[4].setText(String.valueOf(flatmatrix[4]));
 
-        final JideSplitButton vertButton = createAlignButton(new AlignUpAction(context),
-                                                             new AlignMiddleAction(context),
-                                                             new AlignDownAction(context));
-        numberFields[5] = addRow(panel, labels[5], gbc, vertButton, context);
+        final JideSplitButton vertButton = createAlignButton(new AlignUpAction(),
+                                                             new AlignMiddleAction(),
+                                                             new AlignDownAction());
+        numberFields[5] = addRow(panel, labels[5], gbc, vertButton);
         numberFields[5].setText(String.valueOf(flatmatrix[5]));
 
         return panel;
@@ -145,7 +143,8 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
         });
     }
 
-    private JTextField addRow(JPanel panel, String label, GridBagConstraints gbc, AbstractButton button, AppAssistantPageContext pageContext) {
+    private JTextField addRow(JPanel panel, String label, GridBagConstraints gbc, AbstractButton button
+    ) {
         gbc.gridy++;
 
         gbc.weightx = 0.2;
@@ -157,7 +156,7 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
         final JTextField fileField = new JTextField(12);
         fileField.setHorizontalAlignment(JTextField.RIGHT);
         panel.add(fileField, gbc);
-        fileField.getDocument().addDocumentListener(new MyDocumentListener(pageContext));
+        fileField.getDocument().addDocumentListener(new MyDocumentListener());
         if (button != null) {
             gbc.gridx = 2;
             gbc.weightx = 0.0;
@@ -169,25 +168,19 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
     private class MyDocumentListener implements DocumentListener {
 
-        private final AppAssistantPageContext pageContext;
-
-        public MyDocumentListener(AppAssistantPageContext pageContext) {
-            this.pageContext = pageContext;
-        }
-        
         @Override
         public void insertUpdate(DocumentEvent e) {
-            pageContext.updateState();
+            getContext().updateState();
         }
 
         @Override
         public void removeUpdate(DocumentEvent e) {
-            pageContext.updateState();
+            getContext().updateState();
         }
 
         @Override
         public void changedUpdate(DocumentEvent e) {
-            pageContext.updateState();
+            getContext().updateState();
         }
     }
 
@@ -199,9 +192,9 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
         return new AffineTransform(flatmatrix);
     }
 
-    private synchronized Envelope getImageEnvelope(AppAssistantPageContext pageContext) {
+    private synchronized Envelope getImageEnvelope() {
         if (imageEnvelope == null) {
-            ProductSceneView view1 = pageContext.getAppContext().getSelectedProductSceneView();
+            ProductSceneView view1 = getContext().getAppContext().getSelectedProductSceneView();
             try {
                 GeoCoding geoCoding = view1.getRaster().getGeoCoding();
                 final Rectangle2D.Double imageBounds = new Rectangle2D.Double(0, 0, image.getWidth(),
@@ -215,11 +208,11 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
         return imageEnvelope;
     }
 
-    private synchronized Envelope2D getLayerEnvelope(AppAssistantPageContext pageContext) {
+    private synchronized Envelope2D getLayerEnvelope() {
         if (layerEnvelope == null) {
-            final ProductSceneView view = pageContext.getAppContext().getSelectedProductSceneView();
+            final ProductSceneView view = getContext().getAppContext().getSelectedProductSceneView();
             final GeoCoding geoCoding = view.getRaster().getGeoCoding();
-            final Layer layer = view.getRootLayer();
+            final Layer layer = getContext().getLayerContext().getRootLayer();
             layerEnvelope = new Envelope2D(geoCoding.getModelCRS(), layer.getModelBounds());
         }
         return layerEnvelope;
@@ -233,10 +226,8 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
     private class AlignUpAction extends AbstractAction {
 
-        private final AppAssistantPageContext pageContext;
 
-        private AlignUpAction(AppAssistantPageContext pageContext) {
-            this.pageContext = pageContext;
+        private AlignUpAction() {
             putValue(NAME, "Up");
             putValue(ACTION_COMMAND_KEY, getClass().getSimpleName());
             putValue(SMALL_ICON, UIUtils.loadImageIcon("icons/AlignUp24.png"));
@@ -244,10 +235,10 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            SwingWorker<String, String> worker = new AlignmentSwingWorker(numberFields[5], pageContext) {
+            SwingWorker<String, String> worker = new AlignmentSwingWorker(numberFields[5]) {
                 @Override
                 protected String doInBackground() throws Exception {
-                    Envelope layerEnv = getLayerEnvelope(pageContext);
+                    Envelope layerEnv = getLayerEnvelope();
                     final CoordinateSystem layerCS = layerEnv.getCoordinateReferenceSystem().getCoordinateSystem();
                     final AxisDirection layerYDirection = layerCS.getAxis(1).getDirection();
                     double value;
@@ -265,10 +256,7 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
     private class AlignMiddleAction extends AbstractAction {
 
-        private final AppAssistantPageContext pageContext;
-
-        private AlignMiddleAction(AppAssistantPageContext pageContext) {
-            this.pageContext = pageContext;
+        private AlignMiddleAction() {
             putValue(NAME, "Middle");
             putValue(ACTION_COMMAND_KEY, getClass().getSimpleName());
             putValue(SMALL_ICON, UIUtils.loadImageIcon("icons/AlignMiddle24.png"));
@@ -276,11 +264,11 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            SwingWorker<String, String> worker = new AlignmentSwingWorker(numberFields[5], pageContext) {
+            SwingWorker<String, String> worker = new AlignmentSwingWorker(numberFields[5]) {
                 @Override
                 protected String doInBackground() throws Exception {
-                    Envelope layerEnv = getLayerEnvelope(pageContext);
-                    Envelope imageEnv = getImageEnvelope(pageContext);
+                    Envelope layerEnv = getLayerEnvelope();
+                    Envelope imageEnv = getImageEnvelope();
                     final CoordinateSystem layerCS = layerEnv.getCoordinateReferenceSystem().getCoordinateSystem();
                     final AxisDirection layerYDirection = layerCS.getAxis(1).getDirection();
                     double value;
@@ -298,10 +286,7 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
     private class AlignDownAction extends AbstractAction {
 
-        private final AppAssistantPageContext pageContext;
-
-        private AlignDownAction(AppAssistantPageContext pageContext) {
-            this.pageContext = pageContext;
+        private AlignDownAction() {
             putValue(NAME, "Down");
             putValue(ACTION_COMMAND_KEY, getClass().getSimpleName());
             putValue(SMALL_ICON, UIUtils.loadImageIcon("icons/AlignDown24.png"));
@@ -309,11 +294,11 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            SwingWorker<String, String> worker = new AlignmentSwingWorker(numberFields[5], pageContext) {
+            SwingWorker<String, String> worker = new AlignmentSwingWorker(numberFields[5]) {
                 @Override
                 protected String doInBackground() throws Exception {
-                    Envelope layerEnv = getLayerEnvelope(pageContext);
-                    Envelope imageEnv = getImageEnvelope(pageContext);
+                    Envelope layerEnv = getLayerEnvelope();
+                    Envelope imageEnv = getImageEnvelope();
                     final CoordinateSystem layerCS = layerEnv.getCoordinateReferenceSystem().getCoordinateSystem();
                     final AxisDirection layerYDirection = layerCS.getAxis(1).getDirection();
                     double value;
@@ -331,10 +316,7 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
     private class AlignLeftAction extends AbstractAction {
 
-        private final AppAssistantPageContext pageContext;
-
-        private AlignLeftAction(AppAssistantPageContext pageContext) {
-            this.pageContext = pageContext;
+        private AlignLeftAction() {
             putValue(NAME, "Left");
             putValue(ACTION_COMMAND_KEY, getClass().getSimpleName());
             putValue(SMALL_ICON, UIUtils.loadImageIcon("icons/AlignLeft24.png"));
@@ -342,10 +324,10 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            SwingWorker<String, String> worker = new AlignmentSwingWorker(numberFields[4], pageContext) {
+            SwingWorker<String, String> worker = new AlignmentSwingWorker(numberFields[4]) {
                 @Override
                 protected String doInBackground() throws Exception {
-                    Envelope layerEnv = getLayerEnvelope(pageContext);
+                    Envelope layerEnv = getLayerEnvelope();
                     return String.valueOf(layerEnv.getMinimum(0));
                 }
             };
@@ -355,10 +337,7 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
     private class AlignCenterAction extends AbstractAction {
 
-        private final AppAssistantPageContext pageContext;
-
-        private AlignCenterAction(AppAssistantPageContext pageContext) {
-            this.pageContext = pageContext;
+        private AlignCenterAction() {
             putValue(NAME, "Center");
             putValue(ACTION_COMMAND_KEY, getClass().getSimpleName());
             putValue(SMALL_ICON, UIUtils.loadImageIcon("icons/AlignCenter24.png"));
@@ -366,11 +345,11 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            SwingWorker<String, String> worker = new AlignmentSwingWorker(numberFields[4], pageContext) {
+            SwingWorker<String, String> worker = new AlignmentSwingWorker(numberFields[4]) {
                 @Override
                 protected String doInBackground() throws Exception {
-                    Envelope layerEnv = getLayerEnvelope(pageContext);
-                    Envelope imageEnv = getImageEnvelope(pageContext);
+                    Envelope layerEnv = getLayerEnvelope();
+                    Envelope imageEnv = getImageEnvelope();
                     return String.valueOf(String.valueOf(layerEnv.getMedian(0) - imageEnv.getSpan(0) / 2));
                 }
             };
@@ -379,11 +358,8 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
     }
 
     private class AlignRightAction extends AbstractAction {
-       
-        private final AppAssistantPageContext pageContext;
 
-        private AlignRightAction(AppAssistantPageContext pageContext) {
-            this.pageContext = pageContext;
+        private AlignRightAction() {
             putValue(NAME, "Right");
             putValue(ACTION_COMMAND_KEY, getClass().getSimpleName());
             putValue(SMALL_ICON, UIUtils.loadImageIcon("icons/AlignRight24.png"));
@@ -391,11 +367,11 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            SwingWorker<String, String> worker = new AlignmentSwingWorker(numberFields[4], pageContext) {
+            SwingWorker<String, String> worker = new AlignmentSwingWorker(numberFields[4]) {
                 @Override
                 protected String doInBackground() throws Exception {
-                    Envelope layerEnv = getLayerEnvelope(pageContext);
-                    Envelope imageEnv = getImageEnvelope(pageContext);
+                    Envelope layerEnv = getLayerEnvelope();
+                    Envelope imageEnv = getImageEnvelope();
                     return String.valueOf(layerEnv.getMaximum(0) - imageEnv.getSpan(0));
                 }
             };
@@ -407,11 +383,9 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
     private abstract class AlignmentSwingWorker extends SwingWorker<String, String> {
 
         private final JTextField numberField;
-        private final AppAssistantPageContext pageContext;
 
-        private AlignmentSwingWorker(JTextField textField, AppAssistantPageContext pageContext) {
+        private AlignmentSwingWorker(JTextField textField) {
             numberField = textField;
-            this.pageContext = pageContext;
         }
 
         @Override
@@ -428,7 +402,7 @@ public class ImageFileAssistantPage2 extends AbstractAppAssistantPage {
         private void showError(Exception e1) {
             Throwable cause = e1.getCause() == null ? e1 : e1.getCause();
             String message = String.format("Could not compute transformation parameter.\n%s", cause.getMessage());
-            pageContext.showErrorDialog(message);
+            getContext().showErrorDialog(message);
         }
     }
 }

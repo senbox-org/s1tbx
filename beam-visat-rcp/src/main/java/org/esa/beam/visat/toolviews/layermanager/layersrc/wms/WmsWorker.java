@@ -16,10 +16,14 @@
  */
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
+import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 import org.geotools.data.ows.CRSEnvelope;
+import org.geotools.data.ows.Layer;
+import org.geotools.data.wms.WebMapServer;
 import org.geotools.data.wms.request.GetMapRequest;
 import org.geotools.data.wms.response.GetMapResponse;
 import org.geotools.ows.ServiceException;
+import org.opengis.layer.Style;
 
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
@@ -31,32 +35,36 @@ import java.io.InputStream;
 abstract class WmsWorker extends SwingWorker<BufferedImage, Object> {
 
     private final Dimension size;
-    private final WmsModel wmsModel;
+    private final LayerSourcePageContext context;
 
-    WmsWorker(Dimension size, WmsModel wmsModel) {
+    WmsWorker(Dimension size, LayerSourcePageContext context) {
         this.size = size;
-        this.wmsModel = wmsModel;
+        this.context = context;
     }
 
-    public WmsModel getWmsModel() {
-        return wmsModel;
+    public LayerSourcePageContext getContext() {
+        return context;
     }
 
     @Override
     protected BufferedImage doInBackground() throws Exception {
-        GetMapRequest mapRequest = wmsModel.getWms().createGetMapRequest();
-        mapRequest.addLayer(wmsModel.getSelectedLayer(), wmsModel.getSelectedStyle());
+        WebMapServer wms = (WebMapServer) context.getPropertyValue(WmsAssistantPage1.WMS);
+        Layer selectedLayer = (Layer) context.getPropertyValue(WmsAssistantPage2.SELECTED_LAYER);
+        Style selectedStyle = (Style) context.getPropertyValue(WmsAssistantPage2.SELECTED_STYLE);
+        CRSEnvelope crsEnvelope = (CRSEnvelope) context.getPropertyValue(WmsAssistantPage2.CRS_ENVELOPE);
+        GetMapRequest mapRequest = wms.createGetMapRequest();
+        mapRequest.addLayer(selectedLayer, selectedStyle);
         mapRequest.setTransparent(true);
         mapRequest.setDimensions(size.width, size.height);
-        CRSEnvelope crsEnvelope = wmsModel.getCrsEnvelope();
         mapRequest.setSRS(crsEnvelope.getEPSGCode()); // e.g. "EPSG:4326" = Geographic CRS
         mapRequest.setBBox(crsEnvelope); // todo - adjust crsEnvelope to exactly match dimensions w x h (nf)
         mapRequest.setFormat("image/png");
-        return downloadWmsImage(mapRequest);
+        return downloadWmsImage(mapRequest, wms);
     }
 
-    private BufferedImage downloadWmsImage(GetMapRequest mapRequest) throws IOException, ServiceException {
-        GetMapResponse mapResponse = wmsModel.getWms().issueRequest(mapRequest);
+    private BufferedImage downloadWmsImage(GetMapRequest mapRequest, WebMapServer wms) throws IOException,
+                                                                                              ServiceException {
+        GetMapResponse mapResponse = wms.issueRequest(mapRequest);
         InputStream inputStream = mapResponse.getInputStream();
         try {
             return ImageIO.read(inputStream);

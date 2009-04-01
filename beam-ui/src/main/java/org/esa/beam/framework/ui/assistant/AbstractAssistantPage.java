@@ -6,9 +6,20 @@ public abstract class AbstractAssistantPage implements AssistantPage {
 
     private String pageTitle;
     private Component pageComponent;
+    private AssistantPageContext pageContext;
 
     protected AbstractAssistantPage(String pageTitle) {
         this.pageTitle = pageTitle;
+    }
+
+    @Override
+    public void setContext(AssistantPageContext pageContext) {
+        this.pageContext = pageContext;
+    }
+
+    @Override
+    public AssistantPageContext getContext() {
+        return pageContext;
     }
 
     @Override
@@ -20,26 +31,22 @@ public abstract class AbstractAssistantPage implements AssistantPage {
         this.pageTitle = pageTitle;
     }
 
-    public Component getPageComponent() {
-        return pageComponent;
-    }
-
     void setPageComponent(Component pageComponent) {
         this.pageComponent = pageComponent;
     }
 
     @Override
-    public final Component getPageComponent(AssistantPageContext context) {
+    public final Component getPageComponent() {
         if (pageComponent == null) {
-            pageComponent = createPageComponent(context);
+            pageComponent = createPageComponent();
         }
         return pageComponent;
     }
 
-    protected abstract Component createPageComponent(AssistantPageContext context);
+    protected abstract Component createPageComponent();
 
     @Override
-    public AssistantPage getNextPage(AssistantPageContext pageContext) {
+    public AssistantPage getNextPage() {
         return null;
     }
 
@@ -59,7 +66,7 @@ public abstract class AbstractAssistantPage implements AssistantPage {
     }
 
     @Override
-    public boolean performFinish(AssistantPageContext pageContext) {
+    public boolean performFinish() {
         return true;
     }
 

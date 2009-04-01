@@ -6,7 +6,7 @@ public interface AssistantPage {
 
     String getPageTitle();
 
-    Component getPageComponent(AssistantPageContext context);
+    Component getPageComponent();
 
     /**
      * @return true, if  a next page is available
@@ -16,11 +16,9 @@ public interface AssistantPage {
     /**
      * Called only if {@link #validatePage()} returns true.
      *
-     * @param pageContext
-     *
      * @return the next page, or {@code null} if no next page exists or the page could not be created.
      */
-    AssistantPage getNextPage(AssistantPageContext pageContext);
+    AssistantPage getNextPage();
 
     /**
      * Called from {@link AssistantPageContext#updateState()} in order to validate user inputs.
@@ -31,11 +29,15 @@ public interface AssistantPage {
 
     boolean canFinish();
 
-    boolean performFinish(AssistantPageContext pageContext);
+    boolean performFinish();
 
     void performCancel();
 
     boolean canHelp();
 
     void performHelp();
+
+    void setContext(AssistantPageContext pageContext);
+
+    AssistantPageContext getContext();
 }

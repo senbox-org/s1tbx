@@ -9,12 +9,12 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
-import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.FeatureCollectionClipper;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.HistoryComboBoxModel;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
@@ -55,7 +55,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ShapefileAssistantPage extends AbstractAppAssistantPage {
+public class ShapefileAssistantPage extends AbstractLayerSourceAssistantPage {
 
     private static final String PROPERTY_LAST_FILE_PREFIX = "ShapefileAssistantPage.Shapefile.history";
     private static final String PROPERTY_LAST_DIR = "ShapefileAssistantPage.Shapefile.lastDir";
@@ -90,12 +90,12 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public AbstractAppAssistantPage getNextPage(AppAssistantPageContext pageContext) {
+    public AbstractLayerSourceAssistantPage getNextPage() {
         fileHistoryModel.saveHistory();
         String path = (String) fileHistoryModel.getSelectedItem();
         if (path != null && !path.trim().isEmpty()) {
             try {
-                Product targetProduct = pageContext.getAppContext().getSelectedProductSceneView().getProduct();
+                Product targetProduct = getContext().getAppContext().getSelectedProductSceneView().getProduct();
 
                 CoordinateReferenceSystem targetCrs = targetProduct.getGeoCoding().getModelCRS();
 
@@ -130,7 +130,7 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
                 return new ShapefileAssistantPage2(model);
             } catch (Exception e) {
                 e.printStackTrace();
-                pageContext.showErrorDialog("Failed to load ESRI shapefile:\n" + e.getMessage());
+                getContext().showErrorDialog("Failed to load ESRI shapefile:\n" + e.getMessage());
             }
         }
 
@@ -151,7 +151,7 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public Component createLayerPageComponent(final AppAssistantPageContext context) {
+    public Component createPageComponent() {
         GridBagConstraints gbc = new GridBagConstraints();
         final JPanel panel = new JPanel(new GridBagLayout());
 
@@ -170,7 +170,7 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
         gbc.gridy++;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridwidth = 1;
-
+        final LayerSourcePageContext context = getContext();
         final PropertyMap preferences = context.getAppContext().getPreferences();
         HistoryComboBoxModel.Validator validator = new HistoryComboBoxModel.Validator() {
             @Override
@@ -196,7 +196,7 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridwidth = 1;
         JButton button = new JButton("...");
-        button.addActionListener(new MyActionListener(context));
+        button.addActionListener(new MyActionListener());
         panel.add(button, gbc);
 
         return panel;
@@ -295,12 +295,6 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
 
     private class MyActionListener implements ActionListener {
 
-        private final AppAssistantPageContext pageContext;
-
-        private MyActionListener(AppAssistantPageContext pageContext) {
-            this.pageContext = pageContext;
-        }
-
         @Override
         public void actionPerformed(ActionEvent e) {
             JFileChooser fileChooser = new JFileChooser();
@@ -310,7 +304,7 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
             fileChooser.setFileFilter(shapefileFilter);
             File lastDir = getLastDirectory();
             fileChooser.setCurrentDirectory(lastDir);
-
+            LayerSourcePageContext pageContext = getContext();
             fileChooser.showOpenDialog(pageContext.getWindow());
             if (fileChooser.getSelectedFile() != null) {
                 String filePath = fileChooser.getSelectedFile().getPath();
@@ -322,7 +316,7 @@ public class ShapefileAssistantPage extends AbstractAppAssistantPage {
         }
 
         private File getLastDirectory() {
-            PropertyMap preferences = pageContext.getAppContext().getPreferences();
+            PropertyMap preferences = getContext().getAppContext().getPreferences();
             String dirPath = preferences.getPropertyString(PROPERTY_LAST_DIR, System.getProperty("user.home"));
             File lastDir = new File(dirPath);
             if (!lastDir.isDirectory()) {

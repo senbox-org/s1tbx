@@ -3,8 +3,6 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc;
 
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
-import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
-import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -19,7 +17,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
-public class EmptyLayerAssistantPage extends AbstractAppAssistantPage {
+public class EmptyLayerAssistantPage extends AbstractLayerSourceAssistantPage {
 
     private static final ArrayList<String> names = new ArrayList<String>();
     private JComboBox nameBox;
@@ -39,10 +37,10 @@ public class EmptyLayerAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean performFinish(AppAssistantPageContext pageContext) {
+    public boolean performFinish() {
         Layer layer = new CollectionLayer();
         layer.setName(nameBox.getSelectedItem().toString().trim());
-        Layer rootLayer = pageContext.getAppContext().getSelectedProductSceneView().getRootLayer();
+        Layer rootLayer = getContext().getAppContext().getSelectedProductSceneView().getRootLayer();
         rootLayer.getChildren().add(0, layer);
         if (!names.contains(layer.getName())) {
             names.add(1, layer.getName());
@@ -51,10 +49,10 @@ public class EmptyLayerAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public Component createLayerPageComponent(AppAssistantPageContext context) {
+    public Component createPageComponent() {
         nameBox = new JComboBox(names.toArray());
-        nameBox.addItemListener(new MyItemListener(context));
-        nameBox.addActionListener(new MyActionListener(context));
+        nameBox.addItemListener(new NameBoxItemListener());
+        nameBox.addActionListener(new NameBoxActionListener());
         nameBox.setEditable(true);
 
         final JPanel panel = new JPanel(new GridBagLayout());
@@ -73,31 +71,19 @@ public class EmptyLayerAssistantPage extends AbstractAppAssistantPage {
         return panel;
     }
 
-    private static class MyItemListener implements ItemListener {
-
-        private final AppAssistantPageContext pageContext;
-
-        private MyItemListener(AppAssistantPageContext context) {
-            pageContext = context;
-        }
+    private class NameBoxItemListener implements ItemListener {
 
         @Override
         public void itemStateChanged(ItemEvent e) {
-            pageContext.updateState();
+            getContext().updateState();
         }
     }
 
-    private static class MyActionListener implements ActionListener {
-
-        private final AppAssistantPageContext pageContext;
-
-        private MyActionListener(AppAssistantPageContext context) {
-            pageContext = context;
-        }
+    private class NameBoxActionListener implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            pageContext.updateState();
+            getContext().updateState();
         }
     }
 }

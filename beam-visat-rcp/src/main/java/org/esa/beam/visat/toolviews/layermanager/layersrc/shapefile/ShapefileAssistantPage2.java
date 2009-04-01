@@ -1,9 +1,9 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
 import com.bc.ceres.glayer.Layer;
-import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
-import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.renderer.lite.StreamingRenderer;
@@ -33,7 +33,7 @@ import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
 
-class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
+class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
     private JComboBox styleList;
     private JLabel mapCanvas;
@@ -53,7 +53,7 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
     }
 
     @Override
-    public Component createLayerPageComponent(final AppAssistantPageContext context) {
+    public Component createPageComponent() {
         mapCanvas = new JLabel();
         mapCanvas.setHorizontalTextPosition(SwingConstants.CENTER);
         mapCanvas.setVerticalTextPosition(SwingConstants.CENTER);
@@ -62,7 +62,7 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
         styleList = new JComboBox(model.getStyles());
         styleList.setSelectedItem(model.getSelectedStyle());
         styleList.setRenderer(new MyDefaultListCellRenderer());
-        styleList.addItemListener(new MyItemListener(context));
+        styleList.addItemListener(new MyItemListener());
 
         JPanel panel2 = new JPanel(new BorderLayout(4, 4));
         panel2.setBorder(new EmptyBorder(4, 4, 4, 4));
@@ -83,7 +83,7 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                updateMap(context);
+                updateMap(getContext());
             }
         });
 
@@ -92,18 +92,18 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
 
 
     @Override
-    public boolean performFinish(AppAssistantPageContext pageContext) {
+    public boolean performFinish() {
         FeatureLayer featureLayer = new FeatureLayer(model.getFeatureCollection(), model.getSelectedStyle());
         featureLayer.setName(model.getFile().getName());
         featureLayer.setVisible(true);
 
-        ProductSceneView sceneView = pageContext.getAppContext().getSelectedProductSceneView();
-        final Layer rootLayer = sceneView.getRootLayer();
+        ProductSceneView sceneView = getContext().getAppContext().getSelectedProductSceneView();
+        final Layer rootLayer = getContext().getLayerContext().getRootLayer();
         rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), featureLayer);
         return true;
     }
 
-    private void updateMap(AppAssistantPageContext pageContext) {
+    private void updateMap(LayerSourcePageContext pageContext) {
         if (worker != null && !worker.isDone()) {
             try {
                 worker.cancel(true);
@@ -115,7 +115,7 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
         mapCanvas.setIcon(null);
         pageContext.getWindow().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-        worker = new ShapefileLoader(computeMapSize(), model.getSelectedStyle(), pageContext);
+        worker = new ShapefileLoader(computeMapSize(), model.getSelectedStyle());
         worker.execute();
     }
 
@@ -135,17 +135,11 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
 
     private class MyItemListener implements ItemListener {
 
-        private final AppAssistantPageContext pageContext;
-
-        private MyItemListener(AppAssistantPageContext pageContext) {
-            this.pageContext = pageContext;
-        }
-
         @Override
         public void itemStateChanged(ItemEvent e) {
             model.setSelectedStyle((org.geotools.styling.Style) styleList.getSelectedItem());
-            pageContext.updateState();
-            updateMap(pageContext);
+            getContext().updateState();
+            updateMap(getContext());
         }
     }
 
@@ -170,12 +164,10 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
 
         private final Dimension size;
         private final Style style;
-        private final AppAssistantPageContext pageContext;
 
-        ShapefileLoader(Dimension size, org.geotools.styling.Style style, AppAssistantPageContext pageContext) {
+        ShapefileLoader(Dimension size, org.geotools.styling.Style style) {
             this.size = size;
             this.style = style;
-            this.pageContext = pageContext;
         }
 
         @Override
@@ -199,7 +191,7 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
 
         @Override
         protected void done() {
-            pageContext.getWindow().setCursor(Cursor.getDefaultCursor());
+            getContext().getWindow().setCursor(Cursor.getDefaultCursor());
 
             try {
                 error = null;
@@ -216,7 +208,7 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
             } catch (InterruptedException ignore) {
                 // ok
             }
-            pageContext.updateState();
+            getContext().updateState();
         }
     }
 

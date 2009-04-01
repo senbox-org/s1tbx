@@ -1,7 +1,5 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc;
 
-import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
-import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 import org.esa.beam.visat.toolviews.layermanager.LayerSourceDescriptor;
 
@@ -23,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
+public class SelectLayerSourceAssistantPage extends AbstractLayerSourceAssistantPage {
 
     private JList list;
     private Map<LayerSourceDescriptor, LayerSource> controllerMap;
@@ -51,12 +49,12 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public AbstractAppAssistantPage getNextPage(AppAssistantPageContext pageContext) {
+    public AbstractLayerSourceAssistantPage getNextPage() {
         LayerSourceDescriptor selected = (LayerSourceDescriptor) list.getSelectedValue();
         if (selected == null) {
             return null;
         }
-        return controllerMap.get(selected).getFirstPage(pageContext);
+        return controllerMap.get(selected).getFirstPage(getContext());
     }
 
     @Override
@@ -65,16 +63,17 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean performFinish(AppAssistantPageContext pageContext) {
+    public boolean performFinish() {
         LayerSourceDescriptor selected = (LayerSourceDescriptor) list.getSelectedValue();
         if (selected == null) {
             return false;
         }
-        return controllerMap.get(selected).finish(pageContext);
+        return controllerMap.get(selected).finish(getContext());
     }
 
     @Override
-    public Component createLayerPageComponent(AppAssistantPageContext context) {
+    public Component createPageComponent() {
+        LayerSourcePageContext context = getContext();
         Set<LayerSourceDescriptor> descriptorSet = controllerMap.keySet();
         List<LayerSourceDescriptor> descriptorList = new ArrayList<LayerSourceDescriptor>(descriptorSet.size());
         for (LayerSourceDescriptor lsd : descriptorSet) {
@@ -90,8 +89,8 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
             }
         });
         list = new JList(descriptorList.toArray(new LayerSourceDescriptor[descriptorList.size()]));
-        list.getSelectionModel().addListSelectionListener(new MyListSelectionListener(context));
-        list.setCellRenderer(new MyDefaultListCellRenderer());
+        list.getSelectionModel().addListSelectionListener(new LayerSourceSelectionListener());
+        list.setCellRenderer(new LayerSourceCellRenderer());
 
         GridBagConstraints gbc = new GridBagConstraints();
         final JPanel panel = new JPanel(new GridBagLayout());
@@ -109,21 +108,15 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
         return panel;
     }
 
-    private class MyListSelectionListener implements ListSelectionListener {
-
-        private final AppAssistantPageContext pageContext;
-
-        public MyListSelectionListener(AppAssistantPageContext pageContext) {
-            this.pageContext = pageContext;
-        }
+    private class LayerSourceSelectionListener implements ListSelectionListener {
 
         @Override
         public void valueChanged(ListSelectionEvent e) {
-            pageContext.updateState();
+            getContext().updateState();
         }
     }
 
-    private static class MyDefaultListCellRenderer extends DefaultListCellRenderer {
+    private static class LayerSourceCellRenderer extends DefaultListCellRenderer {
 
         @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,

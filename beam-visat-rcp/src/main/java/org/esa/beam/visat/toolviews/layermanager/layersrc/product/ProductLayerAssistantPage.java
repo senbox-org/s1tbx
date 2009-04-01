@@ -12,11 +12,9 @@ import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
-import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
-import org.esa.beam.framework.ui.assistant.AssistantPageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.JLabel;
@@ -37,7 +35,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
+public class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
 
     private JTree tree;
 
@@ -62,8 +60,7 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean performFinish(AppAssistantPageContext pageContext) {
-
+    public boolean performFinish() {
         final RasterDataNode rasterDataNode = (RasterDataNode) tree.getSelectionPath().getLastPathComponent();
 
         BandImageMultiLevelSource bandImageMultiLevelSource = BandImageMultiLevelSource.create(rasterDataNode,
@@ -73,7 +70,7 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
         imageLayer.setName(rasterDataNode.getDisplayName());
         imageLayer.setVisible(true);
 
-        ProductSceneView sceneView = pageContext.getAppContext().getSelectedProductSceneView();
+        ProductSceneView sceneView = getContext().getAppContext().getSelectedProductSceneView();
         Layer rootLayer = sceneView.getRootLayer();
         rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), imageLayer);
 
@@ -84,10 +81,10 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
         return true;
     }
 
-    static class CompatibleNodeList {
+    private static class CompatibleNodeList {
 
-        final String name;
-        final List<RasterDataNode> rasterDataNodes;
+        private final String name;
+        private final List<RasterDataNode> rasterDataNodes;
 
         CompatibleNodeList(String name, List<RasterDataNode> rasterDataNodes) {
             this.name = name;
@@ -96,16 +93,16 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
     }
 
     @Override
-    public Component createLayerPageComponent(AppAssistantPageContext context) {
+    public Component createPageComponent() {
 
-        ProductTreeModel model = createTreeModel(context.getAppContext());
+        ProductTreeModel model = createTreeModel(getContext().getAppContext());
         tree = new JTree(model);
         tree.setEditable(false);
         tree.setShowsRootHandles(true);
         tree.setRootVisible(false);
         tree.setCellRenderer(new MyDefaultTreeCellRenderer());
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        tree.getSelectionModel().addTreeSelectionListener(new MyListSelectionListener(context));
+        tree.getSelectionModel().addTreeSelectionListener(new MyListSelectionListener());
 
         List<CompatibleNodeList> nodeLists = model.compatibleNodeLists;
         for (CompatibleNodeList nodeList : nodeLists) {
@@ -122,7 +119,7 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
     }
 
     private ProductTreeModel createTreeModel(AppContext ctx) {
-        Product product0 = ctx.getSelectedProductSceneView().getProduct();
+        Product selectedProduct = ctx.getSelectedProductSceneView().getProduct();
         RasterDataNode raster = ctx.getSelectedProductSceneView().getRaster();
         GeoCoding geoCoding = raster.getGeoCoding();
         CoordinateReferenceSystem modelCRS = geoCoding != null ? geoCoding.getModelCRS() : null;
@@ -130,25 +127,24 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
         ArrayList<CompatibleNodeList> compatibleNodeLists = new ArrayList<CompatibleNodeList>(3);
 
         List<RasterDataNode> compatibleNodes = new ArrayList<RasterDataNode>();
-        compatibleNodes.addAll(Arrays.asList(product0.getBands()));
-        compatibleNodes.addAll(Arrays.asList(product0.getTiePointGrids()));
+        compatibleNodes.addAll(Arrays.asList(selectedProduct.getBands()));
+        compatibleNodes.addAll(Arrays.asList(selectedProduct.getTiePointGrids()));
         if (!compatibleNodes.isEmpty()) {
-            compatibleNodeLists.add(new CompatibleNodeList(product0.getDisplayName(), compatibleNodes));
+            compatibleNodeLists.add(new CompatibleNodeList(selectedProduct.getDisplayName(), compatibleNodes));
         }
 
         if (modelCRS != null) {
             final ProductManager productManager = ctx.getProductManager();
             final Product[] products = productManager.getProducts();
-            for (int i = 0; i < products.length; i++) {
-                Product product1 = products[i];
-                if (product1 == product0) {
+            for (Product product : products) {
+                if (product == selectedProduct) {
                     continue;
                 }
                 compatibleNodes = new ArrayList<RasterDataNode>();
-                collectCompatibleRasterDataNodes(product1.getBands(), modelCRS, compatibleNodes);
-                collectCompatibleRasterDataNodes(product1.getTiePointGrids(), modelCRS, compatibleNodes);
+                collectCompatibleRasterDataNodes(product.getBands(), modelCRS, compatibleNodes);
+                collectCompatibleRasterDataNodes(product.getTiePointGrids(), modelCRS, compatibleNodes);
                 if (!compatibleNodes.isEmpty()) {
-                    compatibleNodeLists.add(new CompatibleNodeList(product1.getDisplayName(), compatibleNodes));
+                    compatibleNodeLists.add(new CompatibleNodeList(product.getDisplayName(), compatibleNodes));
                 }
             }
         }
@@ -185,14 +181,10 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
     }
 
     private class MyListSelectionListener implements TreeSelectionListener {
-        private final AppAssistantPageContext pageContext;
-        
-        public MyListSelectionListener(AppAssistantPageContext context) {
-            pageContext = context;
-        }
 
+        @Override
         public void valueChanged(TreeSelectionEvent e) {
-            pageContext.updateState();
+            getContext().updateState();
         }
     }
 
@@ -200,14 +192,16 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
 
         private final List<CompatibleNodeList> compatibleNodeLists;
 
-        public ProductTreeModel(List<CompatibleNodeList> compatibleNodeLists) {
+        private ProductTreeModel(List<CompatibleNodeList> compatibleNodeLists) {
             this.compatibleNodeLists = compatibleNodeLists;
         }
 
+        @Override
         public Object getRoot() {
             return compatibleNodeLists;
         }
 
+        @Override
         public Object getChild(Object parent, int index) {
             if (parent == compatibleNodeLists) {
                 return compatibleNodeLists.get(index);
@@ -217,6 +211,7 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
             return null;
         }
 
+        @Override
         public int getChildCount(Object parent) {
             if (parent == compatibleNodeLists) {
                 return compatibleNodeLists.size();
@@ -226,10 +221,12 @@ public class ProductLayerAssistantPage extends AbstractAppAssistantPage {
             return 0;
         }
 
+        @Override
         public boolean isLeaf(Object node) {
             return node instanceof RasterDataNode;
         }
 
+        @Override
         public int getIndexOfChild(Object parent, Object child) {
             if (parent == compatibleNodeLists) {
                 return compatibleNodeLists.indexOf(child);

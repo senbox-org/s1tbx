@@ -1,10 +1,14 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
-import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
-import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 import org.geotools.data.ows.WMSCapabilities;
 import org.geotools.data.wms.WebMapServer;
 
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.GridBagConstraints;
@@ -16,19 +20,15 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.net.URL;
 
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+class WmsAssistantPage1 extends AbstractLayerSourceAssistantPage {
 
-class WmsAssistantPage1 extends AbstractAppAssistantPage {
+    static final String WMS = "wms";
+    static final String WMS_CAPABILITIES = "wmsCapabilities";
 
     private JComboBox wmsUrlBox;
-    private final WmsModel wmsModel;
 
-    WmsAssistantPage1(WmsModel wmsModel) {
+    WmsAssistantPage1() {
         super("Select WMS");
-        this.wmsModel = wmsModel;
     }
 
     @Override
@@ -43,7 +43,8 @@ class WmsAssistantPage1 extends AbstractAppAssistantPage {
     }
 
     @Override
-    public AbstractAppAssistantPage getNextPage(AppAssistantPageContext pageContext) {
+    public AbstractLayerSourceAssistantPage getNextPage() {
+        LayerSourcePageContext pageContext = getContext();
         WebMapServer wms = null;
         WMSCapabilities wmsCapabilities = null;
 
@@ -59,9 +60,9 @@ class WmsAssistantPage1 extends AbstractAppAssistantPage {
         }
 
         if (wms != null && wmsCapabilities != null) {
-            wmsModel.setWms(wms);
-            wmsModel.setWmsCapabilities(wmsCapabilities);
-            return new WmsAssistantPage2(wmsModel);
+            pageContext.setPropertyValue(WMS, wms);
+            pageContext.setPropertyValue(WMS_CAPABILITIES, wmsCapabilities);
+            return new WmsAssistantPage2();
         } else {
             return null;
         }
@@ -73,7 +74,7 @@ class WmsAssistantPage1 extends AbstractAppAssistantPage {
     }
 
     @Override
-    public Component createLayerPageComponent(AppAssistantPageContext context) {
+    public Component createPageComponent() {
         GridBagConstraints gbc = new GridBagConstraints();
         final JPanel panel = new JPanel(new GridBagLayout());
 
@@ -99,7 +100,7 @@ class WmsAssistantPage1 extends AbstractAppAssistantPage {
         });
         wmsUrlBox.setEditable(true);
         panel.add(wmsUrlBox, gbc);
-        wmsUrlBox.addItemListener(new MyItemListener(context));
+        wmsUrlBox.addItemListener(new MyItemListener());
 
         gbc.weightx = 0;
         gbc.weighty = 0;
@@ -107,7 +108,7 @@ class WmsAssistantPage1 extends AbstractAppAssistantPage {
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridwidth = 1;
         JButton button = new JButton("...");
-        button.addActionListener(new MyActionListener(context));
+        button.addActionListener(new MyActionListener());
         panel.add(button, gbc);
 
         return panel;
@@ -127,32 +128,20 @@ class WmsAssistantPage1 extends AbstractAppAssistantPage {
 
     private class MyActionListener implements ActionListener {
 
-        private final AppAssistantPageContext pageContext;
-        
-        public MyActionListener(AppAssistantPageContext pageContext) {
-            this.pageContext = pageContext;
-        }
-        
         @Override
         public void actionPerformed(ActionEvent e) {
-            // Show WMS URL Manager
+            // TODO Show WMS URL Manager
             String url = "";
             wmsUrlBox.setSelectedItem(url);
-            pageContext.updateState();
+            getContext().updateState();
         }
     }
 
     private class MyItemListener implements ItemListener {
 
-        private final AppAssistantPageContext pageContext;
-        
-        public MyItemListener(AppAssistantPageContext pageContext) {
-            this.pageContext = pageContext;
-        }
-        
         @Override
         public void itemStateChanged(ItemEvent e) {
-            pageContext.updateState();
+            getContext().updateState();
         }
     }
 

@@ -16,9 +16,9 @@
  */
 package org.esa.beam.visat.toolviews.layermanager.layersrc.product;
 
-import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
-import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 
 /**
  * todo - add API doc
@@ -30,7 +30,7 @@ import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 public class ProductLayerSource implements LayerSource {
 
     @Override
-    public boolean isApplicable(AppAssistantPageContext pageContext) {
+    public boolean isApplicable(LayerSourcePageContext pageContext) {
         return true;
     }
 
@@ -40,7 +40,7 @@ public class ProductLayerSource implements LayerSource {
     }
 
     @Override
-    public AbstractAppAssistantPage getFirstPage(AppAssistantPageContext pageContext) {
+    public AbstractLayerSourceAssistantPage getFirstPage(LayerSourcePageContext pageContext) {
         return new ProductLayerAssistantPage();
     }
 
@@ -49,7 +49,7 @@ public class ProductLayerSource implements LayerSource {
     }
 
     @Override
-    public boolean finish(AppAssistantPageContext pageContext) {
-        return pageContext.getCurrentPage().performFinish(pageContext);
+    public boolean finish(LayerSourcePageContext pageContext) {
+        return pageContext.getCurrentPage().performFinish();
     }
 }

@@ -1,9 +1,9 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
-import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
 import org.opengis.layer.Style;
@@ -29,17 +29,15 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-class WmsAssistantPage3 extends AbstractAppAssistantPage {
+class WmsAssistantPage3 extends AbstractLayerSourceAssistantPage {
 
     private JComboBox styleList;
     private JLabel previewCanvas;
     private SwingWorker<BufferedImage, Object> previewWorker;
     private Throwable error;
-    private final WmsModel wmsModel;
 
-    WmsAssistantPage3(WmsModel wmsModel) {
+    WmsAssistantPage3() {
         super("Layer Preview");
-        this.wmsModel = wmsModel;
     }
 
     @Override
@@ -48,19 +46,20 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
     }
 
     @Override
-    public Component createLayerPageComponent(final AppAssistantPageContext context) {
+    public Component createPageComponent() {
+        final LayerSourcePageContext context = getContext();
         previewCanvas = new JLabel();
         previewCanvas.setHorizontalTextPosition(SwingConstants.CENTER);
         previewCanvas.setVerticalTextPosition(SwingConstants.CENTER);
-        Layer selectedLayer = wmsModel.getSelectedLayer();
+        Layer selectedLayer = (Layer) context.getPropertyValue(WmsAssistantPage2.SELECTED_LAYER);
         JLabel infoLabel = new JLabel(WmsAssistantPage2.getLatLonBoundingBoxText(selectedLayer.getLatLonBoundingBox()));
 
         List<Style> styles = selectedLayer.getStyles();
 
         styleList = new JComboBox(styles.toArray(new Style[styles.size()]));
-        styleList.setSelectedItem(wmsModel.getSelectedStyle());
-        styleList.setRenderer(new MyDefaultListCellRenderer());
-        styleList.addItemListener(new MyItemListener(context));
+        styleList.setSelectedItem(context.getPropertyValue(WmsAssistantPage2.SELECTED_STYLE));
+        styleList.setRenderer(new StyleListCellRenderer());
+        styleList.addItemListener(new StyleItemListener());
 
         JPanel panel2 = new JPanel(new BorderLayout(4, 4));
         panel2.setBorder(new EmptyBorder(4, 4, 4, 4));
@@ -82,7 +81,7 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
             @Override
             public void ancestorAdded(AncestorEvent event) {
                 if (previewCanvas.getIcon() == null) {
-                    updatePreview(context);
+                    updatePreview();
                 }
             }
 
@@ -101,24 +100,24 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean performFinish(AppAssistantPageContext pageContext) {
-        ProductSceneView view = pageContext.getAppContext().getSelectedProductSceneView();
+    public boolean performFinish() {
+        ProductSceneView view = getContext().getAppContext().getSelectedProductSceneView();
         RasterDataNode raster = view.getRaster();
 
         WmsLayerWorker layerWorker = new WmsLayerWorker(view.getRootLayer(),
                                                         raster,
-                                                        wmsModel,
-                                                        pageContext);
+                                                        getContext());
         layerWorker.execute();   // todo - don't close dialog before image is downloaded! (nf)
         return true;
     }
 
-    private void updatePreview(AppAssistantPageContext pageContext) {
+    private void updatePreview() {
         cancelPreviewWorker();
         previewCanvas.setText("<html><i>Loading map...</i></html>");
         previewCanvas.setIcon(null);
 
-        previewWorker = new WmsPreviewWorker(getPreviewSize(), wmsModel, pageContext);
+        CRSEnvelope crsEnvelope = (CRSEnvelope) getContext().getPropertyValue(WmsAssistantPage2.CRS_ENVELOPE);
+        previewWorker = new WmsPreviewWorker(getPreviewSize(crsEnvelope), getContext());
         previewWorker.execute();
 
         // todo - AppContext.addWorker(previewWorker);  (nf)
@@ -134,17 +133,17 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
         }
     }
 
-    private Dimension getPreviewSize() {
+    private Dimension getPreviewSize(CRSEnvelope crsEnvelope) {
         Dimension preferredSize = previewCanvas.getSize();
         if (preferredSize.width == 0 || preferredSize.height == 0) {
             preferredSize = new Dimension(400, 200);
         }
-        return getPreviewImageSize(preferredSize);
+        return getPreviewImageSize(preferredSize, crsEnvelope);
     }
 
-    private Dimension getPreviewImageSize(Dimension preferredSize) {
-        int width, height;
-        CRSEnvelope crsEnvelope = wmsModel.getCrsEnvelope();
+    private Dimension getPreviewImageSize(Dimension preferredSize, CRSEnvelope crsEnvelope) {
+        int width;
+        int height;
         double ratio = (crsEnvelope.getMaxX() - crsEnvelope.getMinX()) / (crsEnvelope.getMaxY() - crsEnvelope.getMinY());
         if (ratio >= 1.0) {
             width = preferredSize.width;
@@ -156,23 +155,17 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
         return new Dimension(width, height);
     }
 
-    private class MyItemListener implements ItemListener {
-
-        private final AppAssistantPageContext pageContext;
-
-        public MyItemListener(AppAssistantPageContext pageContext) {
-            this.pageContext = pageContext;
-        }
+    private class StyleItemListener implements ItemListener {
 
         @Override
         public void itemStateChanged(ItemEvent e) {
-            wmsModel.setSelectedStyle((Style) styleList.getSelectedItem());
-            pageContext.updateState();
-            updatePreview(pageContext);
+            getContext().setPropertyValue(WmsAssistantPage2.SELECTED_STYLE, styleList.getSelectedItem());
+            getContext().updateState();
+            updatePreview();
         }
     }
 
-    private static class MyDefaultListCellRenderer extends DefaultListCellRenderer {
+    private static class StyleListCellRenderer extends DefaultListCellRenderer {
 
         @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
@@ -191,11 +184,9 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
 
     private class WmsPreviewWorker extends WmsWorker {
 
-        private final AppAssistantPageContext pageContext;
 
-        private WmsPreviewWorker(Dimension size, WmsModel wmsModel, AppAssistantPageContext pageContext) {
-            super(size, wmsModel);
-            this.pageContext = pageContext;
+        private WmsPreviewWorker(Dimension size, LayerSourcePageContext pageContext) {
+            super(size, pageContext);
         }
 
         @Override
@@ -211,7 +202,7 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
             } catch (InterruptedException ignored) {
                 // ok
             }
-            pageContext.updateState();
+            getContext().updateState();
         }
 
     }

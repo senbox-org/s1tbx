@@ -16,17 +16,15 @@
  */
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
-import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
-import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 
 
 public class WmsLayerSource implements LayerSource {
 
-    private final WmsModel wmsModel = new WmsModel();
-
     @Override
-    public boolean isApplicable(AppAssistantPageContext pageContext) {
+    public boolean isApplicable(LayerSourcePageContext pageContext) {
         return true;
     }
 
@@ -36,8 +34,8 @@ public class WmsLayerSource implements LayerSource {
     }
 
     @Override
-    public AbstractAppAssistantPage getFirstPage(AppAssistantPageContext pageContext) {
-        return new WmsAssistantPage1(wmsModel);
+    public AbstractLayerSourceAssistantPage getFirstPage(LayerSourcePageContext pageContext) {
+        return new WmsAssistantPage1();
     }
 
     @Override
@@ -45,7 +43,7 @@ public class WmsLayerSource implements LayerSource {
     }
 
     @Override
-    public boolean finish(AppAssistantPageContext pageContext) {
+    public boolean finish(LayerSourcePageContext pageContext) {
         return false;
     }
 
