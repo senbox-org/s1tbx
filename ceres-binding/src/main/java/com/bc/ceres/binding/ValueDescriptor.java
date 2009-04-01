@@ -167,11 +167,11 @@ public class ValueDescriptor {
         setProperty("converter", converter);
     }
 
-    public DomConverter getDomConverter() {
-        return (DomConverter) getProperty("domConverter");
+    public DomConverter<?> getDomConverter() {
+        return (DomConverter<?>) getProperty("domConverter");
     }
 
-    public void setDomConverter(DomConverter converter) {
+    public void setDomConverter(DomConverter<?> converter) {
         setProperty("domConverter", converter);
     }
 

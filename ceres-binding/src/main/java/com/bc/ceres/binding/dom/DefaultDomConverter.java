@@ -1,24 +1,24 @@
 package com.bc.ceres.binding.dom;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.bc.ceres.binding.ClassFieldDescriptorFactory;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ClassFieldDescriptorFactory;
 import com.bc.ceres.binding.ValueModel;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * {@inheritDoc}
  */
-public class DefaultDomConverter implements DomConverter {
+public class DefaultDomConverter implements DomConverter<Object> {
 
     private Class<?> valueType;
     private final ClassFieldDescriptorFactory valueDescriptorFactory;
@@ -45,30 +45,27 @@ public class DefaultDomConverter implements DomConverter {
         final ValueModel[] models = valueContainer.getModels();
         for (ValueModel model : models) {
             final ValueDescriptor descriptor = model.getDescriptor();
-            DomConverter domConverter = descriptor.getDomConverter();
+            DomConverter<Object> domConverter = (DomConverter<Object>) descriptor.getDomConverter();
             if (domConverter != null) {
                 final DomElement childElement = parentElement.createChild(getElementName(model));
                 domConverter.convertValueToDom(model.getValue(), childElement);
-            } else {
-                final String itemAlias = descriptor.getItemAlias();
-                if (descriptor.getType().isArray() && itemAlias != null && !itemAlias.isEmpty()) {
-                    final DomElement childElement = descriptor.getItemsInlined() ? parentElement : parentElement.createChild(getElementName(model));
-                    final Object array = model.getValue();
-                    if (array != null) {
-                        final int arrayLength = Array.getLength(array);
-                        final Converter itemConverter = getItemConverter(descriptor);
-                        for (int i = 0; i < arrayLength; i++) {
-                            final Object component = Array.get(array, i);
-                            final DomElement itemElement = childElement.createChild(itemAlias);
-                            convertValueToDomImpl(component, itemConverter, itemElement);
-                        }
+            } else if (isNamedItemArrayType(descriptor)) {
+                final DomElement childElement = descriptor.getItemsInlined() ? parentElement : parentElement.createChild(getElementName(model));
+                final Object array = model.getValue();
+                if (array != null) {
+                    final int arrayLength = Array.getLength(array);
+                    final Converter itemConverter = getItemConverter(descriptor);
+                    for (int i = 0; i < arrayLength; i++) {
+                        final Object component = Array.get(array, i);
+                        final DomElement itemElement = childElement.createChild(descriptor.getItemAlias());
+                        convertValueToDomImpl(component, itemConverter, itemElement);
                     }
-                } else {
-                    final DomElement childElement = parentElement.createChild(getElementName(model));
-                    final Object childValue = model.getValue();
-                    final Converter converter = descriptor.getConverter();
-                    convertValueToDomImpl(childValue, converter, childElement);
                 }
+            } else {
+                final DomElement childElement = parentElement.createChild(getElementName(model));
+                final Object childValue = model.getValue();
+                final Converter converter = descriptor.getConverter();
+                convertValueToDomImpl(childValue, converter, childElement);
             }
         }
     }
@@ -115,11 +112,10 @@ public class DefaultDomConverter implements DomConverter {
             }
             final Object childValue;
             final ValueDescriptor descriptor = valueModel.getDescriptor();
-            final String itemAlias = descriptor.getItemAlias();
             DomConverter domConverter = descriptor.getDomConverter();
-            if (descriptor.getType().isArray() && itemAlias != null && !itemAlias.isEmpty()) {
+            if (isNamedItemArrayType(descriptor)) {
                 // if and only if an itemAlias is set, we parse the array element-wise 
-                final DomElement[] arrayElements = childElement.getChildren(itemAlias);
+                final DomElement[] arrayElements = childElement.getChildren(descriptor.getItemAlias());
                 final Class<?> itemType = descriptor.getType().getComponentType();
                 final Converter itemConverter = getItemConverter(descriptor);
                 if (inlinedArray != null) {
@@ -155,6 +151,10 @@ public class DefaultDomConverter implements DomConverter {
         }
 
         return value;
+    }
+
+    private boolean isNamedItemArrayType(ValueDescriptor descriptor) {
+        return descriptor.getType().isArray() && descriptor.getItemAlias() != null && !descriptor.getItemAlias().isEmpty();
     }
 
     private Object convertDomToValueImpl(DomElement childElement,

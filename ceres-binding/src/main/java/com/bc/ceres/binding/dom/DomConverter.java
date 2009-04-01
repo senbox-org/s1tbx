@@ -18,7 +18,7 @@ public interface DomConverter<T> {
      *
      * @return The value type.
      */
-    Class<T> getValueType();
+    Class<? extends T> getValueType();
 
     /**
      * Converts a DOM to a (complex) value of the type returned by {@link #getValueType()}.
