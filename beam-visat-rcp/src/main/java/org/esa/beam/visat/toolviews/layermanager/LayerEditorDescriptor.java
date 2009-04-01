@@ -10,7 +10,7 @@ import com.bc.ceres.glayer.LayerType;
  * @since BEAM 4.6
  */
 public interface LayerEditorDescriptor {
-    Class<LayerType> getLayerTypeClass();
+    Class<? extends LayerType> getLayerTypeClass();
 
-    Class<LayerEditor> getLayerEditorClass();
+    Class<? extends LayerEditor> getLayerEditorClass();
 }

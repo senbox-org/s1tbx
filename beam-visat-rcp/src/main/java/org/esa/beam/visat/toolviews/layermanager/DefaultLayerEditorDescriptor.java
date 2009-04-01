@@ -18,10 +18,23 @@ import com.bc.ceres.glayer.LayerType;
  */
 @SuppressWarnings({"UnusedDeclaration"})
 public class DefaultLayerEditorDescriptor implements LayerEditorDescriptor, ConfigurableExtension {
-    private Class<LayerType> layerTypeClass;
-    private Class<LayerEditor> layerEditorClass;
+    private Class<? extends LayerType> layerTypeClass;
+    private Class<? extends LayerEditor> layerEditorClass;
 
-    public DefaultLayerEditorDescriptor(Class<LayerType> layerTypeClass, Class<LayerEditor> layerEditorClass) {
+    /**
+     * Constructor used by Ceres runtime for creating a dedicated {@link ConfigurationElement}s for this
+     * {@code LayerEditorDescriptor}.
+     */
+    public DefaultLayerEditorDescriptor() {
+    }
+
+    /**
+     * Used for unit testing only.
+     *
+     * @param layerTypeClass   The layer type.
+     * @param layerEditorClass The layer editor.
+     */
+    DefaultLayerEditorDescriptor(Class<? extends LayerType> layerTypeClass, Class<? extends LayerEditor> layerEditorClass) {
         Assert.notNull(layerTypeClass, "layerTypeClass");
         Assert.notNull(layerEditorClass, "layerEditorClass");
         this.layerTypeClass = layerTypeClass;
@@ -29,12 +42,12 @@ public class DefaultLayerEditorDescriptor implements LayerEditorDescriptor, Conf
     }
 
     @Override
-    public Class<LayerType> getLayerTypeClass() {
+    public Class<? extends LayerType> getLayerTypeClass() {
         return layerTypeClass;
     }
 
     @Override
-    public Class<LayerEditor> getLayerEditorClass() {
+    public Class<? extends LayerEditor> getLayerEditorClass() {
         return layerEditorClass;
     }
 
