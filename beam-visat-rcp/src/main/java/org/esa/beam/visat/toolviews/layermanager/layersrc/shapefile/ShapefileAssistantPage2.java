@@ -1,7 +1,9 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
+import com.bc.ceres.glayer.Layer;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.renderer.lite.StreamingRenderer;
@@ -86,6 +88,19 @@ class ShapefileAssistantPage2 extends AbstractAppAssistantPage {
         });
 
         return panel;
+    }
+
+
+    @Override
+    public boolean performFinish(AppAssistantPageContext pageContext) {
+        FeatureLayer featureLayer = new FeatureLayer(model.getFeatureCollection(), model.getSelectedStyle());
+        featureLayer.setName(model.getFile().getName());
+        featureLayer.setVisible(true);
+
+        ProductSceneView sceneView = pageContext.getAppContext().getSelectedProductSceneView();
+        final Layer rootLayer = sceneView.getRootLayer();
+        rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), featureLayer);
+        return true;
     }
 
     private void updateMap(AppAssistantPageContext pageContext) {

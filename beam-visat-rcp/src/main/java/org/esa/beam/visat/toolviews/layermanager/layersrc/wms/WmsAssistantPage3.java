@@ -1,20 +1,13 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
 import org.opengis.layer.Style;
 import org.opengis.util.InternationalString;
-
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.image.BufferedImage;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
@@ -27,6 +20,14 @@ import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.image.BufferedImage;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 class WmsAssistantPage3 extends AbstractAppAssistantPage {
 
@@ -55,7 +56,7 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
         JLabel infoLabel = new JLabel(WmsAssistantPage2.getLatLonBoundingBoxText(selectedLayer.getLatLonBoundingBox()));
 
         List<Style> styles = selectedLayer.getStyles();
-        
+
         styleList = new JComboBox(styles.toArray(new Style[styles.size()]));
         styleList.setSelectedItem(wmsModel.getSelectedStyle());
         styleList.setRenderer(new MyDefaultListCellRenderer());
@@ -80,21 +81,36 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
 
             @Override
             public void ancestorAdded(AncestorEvent event) {
-                if (previewCanvas.getIcon() ==  null) {
+                if (previewCanvas.getIcon() == null) {
                     updatePreview(context);
                 }
             }
 
             @Override
-            public void ancestorMoved(AncestorEvent event) {}
+            public void ancestorMoved(AncestorEvent event) {
+            }
 
             @Override
             public void ancestorRemoved(AncestorEvent event) {
                 cancelPreviewWorker();
-            }}
+            }
+        }
         );
 
         return panel;
+    }
+
+    @Override
+    public boolean performFinish(AppAssistantPageContext pageContext) {
+        ProductSceneView view = pageContext.getAppContext().getSelectedProductSceneView();
+        RasterDataNode raster = view.getRaster();
+
+        WmsLayerWorker layerWorker = new WmsLayerWorker(view.getRootLayer(),
+                                                        raster,
+                                                        wmsModel,
+                                                        pageContext);
+        layerWorker.execute();   // todo - don't close dialog before image is downloaded! (nf)
+        return true;
     }
 
     private void updatePreview(AppAssistantPageContext pageContext) {
@@ -143,11 +159,11 @@ class WmsAssistantPage3 extends AbstractAppAssistantPage {
     private class MyItemListener implements ItemListener {
 
         private final AppAssistantPageContext pageContext;
-        
+
         public MyItemListener(AppAssistantPageContext pageContext) {
             this.pageContext = pageContext;
         }
-        
+
         @Override
         public void itemStateChanged(ItemEvent e) {
             wmsModel.setSelectedStyle((Style) styleList.getSelectedItem());

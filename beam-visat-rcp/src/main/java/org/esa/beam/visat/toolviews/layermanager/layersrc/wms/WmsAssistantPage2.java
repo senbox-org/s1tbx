@@ -1,11 +1,11 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
 import com.jidesoft.tree.AbstractTreeModel;
-
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
 import org.geotools.data.ows.WMSCapabilities;
@@ -13,16 +13,6 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.layer.Style;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -34,6 +24,15 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 class WmsAssistantPage2 extends AbstractAppAssistantPage {
 
@@ -48,7 +47,15 @@ class WmsAssistantPage2 extends AbstractAppAssistantPage {
     }
 
     @Override
-    public boolean canFinish() {
+    public boolean performFinish(AppAssistantPageContext pageContext) {
+        ProductSceneView view = pageContext.getAppContext().getSelectedProductSceneView();
+        RasterDataNode raster = view.getRaster();
+
+        WmsLayerWorker layerWorker = new WmsLayerWorker(view.getRootLayer(),
+                                                        raster,
+                                                        wmsModel,
+                                                        pageContext);
+        layerWorker.execute();   // todo - don't close dialog before image is downloaded! (nf)
         return true;
     }
 
@@ -172,13 +179,13 @@ class WmsAssistantPage2 extends AbstractAppAssistantPage {
     }
 
     private class MyTreeSelectionListener implements TreeSelectionListener {
-        
+
         private final AppAssistantPageContext pageContext;
-        
+
         public MyTreeSelectionListener(AppAssistantPageContext pageContext) {
             this.pageContext = pageContext;
         }
-        
+
         @Override
         public void valueChanged(TreeSelectionEvent e) {
             TreePath path = layerTree.getSelectionModel().getSelectionPath();
@@ -192,9 +199,12 @@ class WmsAssistantPage2 extends AbstractAppAssistantPage {
                     RasterDataNode raster = pageContext.getAppContext().getSelectedProductSceneView().getRaster();
                     GeoCoding geoCoding = raster.getGeoCoding();
                     AffineTransform g2mTransform = geoCoding.getGridToModelTransform();
-                    Rectangle2D bounds = g2mTransform.createTransformedShape(new Rectangle(0, 0, raster.getSceneRasterWidth(), raster.getSceneRasterHeight())).getBounds2D();
-                    CRSEnvelope crsEnvelope = new CRSEnvelope(crsCode, bounds.getMinX(), bounds.getMinY(), bounds.getMaxX(),
-                                                          bounds.getMaxY());
+                    Rectangle2D bounds = g2mTransform.createTransformedShape(
+                            new Rectangle(0, 0, raster.getSceneRasterWidth(),
+                                          raster.getSceneRasterHeight())).getBounds2D();
+                    CRSEnvelope crsEnvelope = new CRSEnvelope(crsCode, bounds.getMinX(), bounds.getMinY(),
+                                                              bounds.getMaxX(),
+                                                              bounds.getMaxY());
                     List<Style> styles = selectedLayer.getStyles();
                     if (!styles.isEmpty()) {
                         wmsModel.setSelectedStyle(styles.get(0));

@@ -22,10 +22,10 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.visat.toolviews.layermanager.ControllerAssitantPage;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 
 /**
@@ -50,9 +50,9 @@ public class ShapefileLayerSource implements LayerSource {
     }
 
     @Override
-    public ControllerAssitantPage getFirstPage(AppAssistantPageContext pageContext) {
+    public AbstractAppAssistantPage getFirstPage(AppAssistantPageContext pageContext) {
         model = new ShapefileModel();
-        return new ControllerAssitantPage(new ShapefileAssistantPage(model), this);
+        return new ShapefileAssistantPage(model);
     }
 
     @Override

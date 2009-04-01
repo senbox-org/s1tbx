@@ -21,13 +21,12 @@ import org.geotools.data.wms.request.GetMapRequest;
 import org.geotools.data.wms.response.GetMapResponse;
 import org.geotools.ows.ServiceException;
 
+import javax.imageio.ImageIO;
+import javax.swing.SwingWorker;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-
-import javax.imageio.ImageIO;
-import javax.swing.SwingWorker;
 
 abstract class WmsWorker extends SwingWorker<BufferedImage, Object> {
 
@@ -37,6 +36,10 @@ abstract class WmsWorker extends SwingWorker<BufferedImage, Object> {
     WmsWorker(Dimension size, WmsModel wmsModel) {
         this.size = size;
         this.wmsModel = wmsModel;
+    }
+
+    public WmsModel getWmsModel() {
+        return wmsModel;
     }
 
     @Override
@@ -51,7 +54,7 @@ abstract class WmsWorker extends SwingWorker<BufferedImage, Object> {
         mapRequest.setFormat("image/png");
         return downloadWmsImage(mapRequest);
     }
-    
+
     private BufferedImage downloadWmsImage(GetMapRequest mapRequest) throws IOException, ServiceException {
         GetMapResponse mapResponse = wmsModel.getWms().issueRequest(mapRequest);
         InputStream inputStream = mapResponse.getInputStream();
