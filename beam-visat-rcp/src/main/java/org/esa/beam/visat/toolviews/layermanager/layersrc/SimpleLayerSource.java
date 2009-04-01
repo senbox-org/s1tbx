@@ -5,7 +5,7 @@ import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
-import org.esa.beam.visat.toolviews.layermanager.LayerSourceController;
+import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 
 import java.util.HashMap;
 
@@ -16,11 +16,11 @@ import java.util.HashMap;
  * @version $Revision: $ $Date: $
  * @since BEAM 4.6
  */
-public class SimpleLayerSourceController implements LayerSourceController {
+public class SimpleLayerSource implements LayerSource {
 
     private LayerType layerType;
 
-    public SimpleLayerSourceController(LayerType layerType) {
+    public SimpleLayerSource(LayerType layerType) {
         this.layerType = layerType;
     }
 

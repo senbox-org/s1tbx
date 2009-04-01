@@ -21,7 +21,7 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.toolviews.layermanager.ControllerAssitantPage;
-import org.esa.beam.visat.toolviews.layermanager.LayerSourceController;
+import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 
 import javax.media.jai.PlanarImage;
 import javax.swing.JDialog;
@@ -36,7 +36,7 @@ import java.awt.image.BufferedImage;
 import java.util.concurrent.ExecutionException;
 
 
-public class WmsSourceController implements LayerSourceController {
+public class WmsLayerSource implements LayerSource {
 
     private final WmsModel wmsModel = new WmsModel();
 

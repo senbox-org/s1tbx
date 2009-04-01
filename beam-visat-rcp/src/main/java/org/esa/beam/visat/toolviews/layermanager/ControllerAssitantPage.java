@@ -24,22 +24,22 @@ import java.awt.Component;
 
 public class ControllerAssitantPage extends AbstractAppAssistantPage {
 
-    private final LayerSourceController layerSourceController;
+    private final LayerSource layerSource;
     private final AbstractAppAssistantPage appAssistantPage;
-    
-    public ControllerAssitantPage(AbstractAppAssistantPage appAssistantPage, LayerSourceController layerSourceController) {
+
+    public ControllerAssitantPage(AbstractAppAssistantPage appAssistantPage, LayerSource layerSource) {
         super(appAssistantPage.getPageTitle());
         this.appAssistantPage = appAssistantPage;
-        this.layerSourceController = layerSourceController;
+        this.layerSource = layerSource;
     }
-    
-    public LayerSourceController getLayerSourceController() {
-        return layerSourceController;
+
+    public LayerSource getLayerSourceController() {
+        return layerSource;
     }
 
     @Override
     public boolean performFinish(AppAssistantPageContext pageContext) {
-        return layerSourceController.finish(pageContext);
+        return layerSource.finish(pageContext);
     }
 
     @Override

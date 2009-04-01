@@ -14,11 +14,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.visat.toolviews.layermanager.layersrc.image;
+package org.esa.beam.visat.toolviews.layermanager.layersrc;
 
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
-import org.esa.beam.visat.toolviews.layermanager.LayerSourceController;
+import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 
 /**
  * todo - add API doc
@@ -27,7 +27,7 @@ import org.esa.beam.visat.toolviews.layermanager.LayerSourceController;
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public class ImageFileSourceController implements LayerSourceController {
+public class LayerGroupLayerSource implements LayerSource {
 
     @Override
     public boolean isApplicable(AppAssistantPageContext pageContext) {
@@ -38,10 +38,10 @@ public class ImageFileSourceController implements LayerSourceController {
     public boolean hasFirstPage() {
         return true;
     }
-   
+
     @Override
     public AbstractAppAssistantPage getFirstPage(AppAssistantPageContext pageContext) {
-        return new ImageFileAssistantPage();
+        return new EmptyLayerAssistantPage();
     }
 
     @Override

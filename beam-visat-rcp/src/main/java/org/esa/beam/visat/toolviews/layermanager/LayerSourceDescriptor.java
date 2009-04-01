@@ -18,7 +18,7 @@ public interface LayerSourceDescriptor {
 
     String getDescription();
 
-    LayerSourceController createController();
+    LayerSource createLayerSource();
 
     LayerType getLayerType();
 }

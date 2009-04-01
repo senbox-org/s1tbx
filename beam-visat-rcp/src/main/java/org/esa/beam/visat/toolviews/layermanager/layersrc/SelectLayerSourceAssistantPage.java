@@ -2,7 +2,7 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc;
 
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
-import org.esa.beam.visat.toolviews.layermanager.LayerSourceController;
+import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 import org.esa.beam.visat.toolviews.layermanager.LayerSourceDescriptor;
 
 import javax.swing.DefaultListCellRenderer;
@@ -26,13 +26,13 @@ import java.util.Set;
 public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
 
     private JList list;
-    private Map<LayerSourceDescriptor, LayerSourceController> controllerMap;
+    private Map<LayerSourceDescriptor, LayerSource> controllerMap;
 
     public SelectLayerSourceAssistantPage(LayerSourceDescriptor[] sourceDescriptors) {
         super("Select Layer Source");
-        controllerMap = new HashMap<LayerSourceDescriptor, LayerSourceController>();
+        controllerMap = new HashMap<LayerSourceDescriptor, LayerSource>();
         for (LayerSourceDescriptor sourceDescriptor : sourceDescriptors) {
-            controllerMap.put(sourceDescriptor, sourceDescriptor.createController());
+            controllerMap.put(sourceDescriptor, sourceDescriptor.createLayerSource());
         }
     }
 
@@ -78,7 +78,7 @@ public class SelectLayerSourceAssistantPage extends AbstractAppAssistantPage {
         Set<LayerSourceDescriptor> descriptorSet = controllerMap.keySet();
         List<LayerSourceDescriptor> descriptorList = new ArrayList<LayerSourceDescriptor>(descriptorSet.size());
         for (LayerSourceDescriptor lsd : descriptorSet) {
-            LayerSourceController lsc = controllerMap.get(lsd);
+            LayerSource lsc = controllerMap.get(lsd);
             if (lsc.isApplicable(context)) {
                 descriptorList.add(lsd);
             }

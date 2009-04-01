@@ -1,7 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.glayer.LayerType;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.SimpleLayerSourceController;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.SimpleLayerSource;
 
 @SuppressWarnings({"UnusedDeclaration"})
 public class DefaultLayerSourceDescriptor implements LayerSourceDescriptor {
@@ -9,7 +9,7 @@ public class DefaultLayerSourceDescriptor implements LayerSourceDescriptor {
     private String id;
     private String name;
     private String description;
-    private Class<? extends LayerSourceController> controllerClass;
+    private Class<? extends LayerSource> layerSourceClass;
     private Class<? extends LayerType> layerTypeClass;
     private LayerType layerType;
 
@@ -35,14 +35,14 @@ public class DefaultLayerSourceDescriptor implements LayerSourceDescriptor {
     }
 
     @Override
-    public LayerSourceController createController() {
-        if (controllerClass == null) {
-            return new SimpleLayerSourceController(getLayerType());
+    public LayerSource createLayerSource() {
+        if (layerSourceClass == null) {
+            return new SimpleLayerSource(getLayerType());
         }
         try {
-            return controllerClass.newInstance();
+            return layerSourceClass.newInstance();
         } catch (Exception e) {
-            String message = String.format("Could not create instance of class [%s]", controllerClass.getName());
+            String message = String.format("Could not create instance of class [%s]", layerSourceClass.getName());
             throw new IllegalStateException(message, e);
         }
     }

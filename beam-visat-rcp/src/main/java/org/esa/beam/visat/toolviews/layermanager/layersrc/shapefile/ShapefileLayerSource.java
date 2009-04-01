@@ -26,7 +26,7 @@ import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.toolviews.layermanager.ControllerAssitantPage;
-import org.esa.beam.visat.toolviews.layermanager.LayerSourceController;
+import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 
 /**
  * todo - add API doc
@@ -35,7 +35,7 @@ import org.esa.beam.visat.toolviews.layermanager.LayerSourceController;
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public class ShapefileController implements LayerSourceController {
+public class ShapefileLayerSource implements LayerSource {
 
     private ShapefileModel model;
 

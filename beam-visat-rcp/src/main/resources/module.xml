@@ -158,7 +158,7 @@
             <id field="id" type="java.lang.String"/>
             <name field="name" type="java.lang.String"/>
             <description field="description" type="java.lang.String"/>
-            <controller field="controllerClass" type="java.lang.Class"/>
+            <class field="layerSourceClass" type="java.lang.Class"/>
             <layerType field="layerTypeClass" type="java.lang.Class"/>
         </layerSource>
     </extensionPoint>
@@ -168,31 +168,31 @@
             <id>wms-layer-source</id>
             <name>Image from Web Mapping Server (WMS)</name>
             <description>Retrieves images from a Web Mapping Server (WMS)</description>
-            <controller>org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsSourceController</controller>
+            <class>org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsLayerSource</class>
         </layerSource>
         <layerSource>
             <id>shapefile-layer-source</id>
             <name>ESRI Shapefile</name>
             <description>Displays shapes from an ESRI Shapefile</description>
-            <controller>org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefileController</controller>
+            <class>org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefileLayerSource</class>
         </layerSource>
         <layerSource>
             <id>productdata-layer-source</id>
             <name>Image of Band / Tie-Point Grid</name>
             <description>Displays images from a Band or Tie-Point Grid of compatible products</description>
-            <controller>org.esa.beam.visat.toolviews.layermanager.layersrc.product.ProductSourceController</controller>
+            <class>org.esa.beam.visat.toolviews.layermanager.layersrc.product.ProductLayerSource</class>
         </layerSource>
         <layerSource>
             <id>image-layer-source</id>
             <name>Image from File</name>
             <description>Displays images from a file</description>
-            <controller>org.esa.beam.visat.toolviews.layermanager.layersrc.image.ImageFileSourceController</controller>
+            <class>org.esa.beam.visat.toolviews.layermanager.layersrc.image.ImageFileLayerSource</class>
         </layerSource>
         <layerSource>
             <id>group-layer-source</id>
             <name>Layer Group</name>
             <description>Inserts an empty Layer Group</description>
-            <controller>org.esa.beam.visat.toolviews.layermanager.layersrc.LayerGroupSourceController</controller>
+            <class>org.esa.beam.visat.toolviews.layermanager.layersrc.LayerGroupLayerSource</class>
         </layerSource>
     </extension>
 

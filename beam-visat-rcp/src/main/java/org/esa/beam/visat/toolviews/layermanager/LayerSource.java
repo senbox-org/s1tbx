@@ -8,12 +8,12 @@ import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
  * @version $Revision: $ $Date: $
  * @since BEAM 4.6
  */
-public interface LayerSourceController {
+public interface LayerSource {
 
     boolean isApplicable(AppAssistantPageContext pageContext);
 
     boolean hasFirstPage();
-    
+
     AbstractAppAssistantPage getFirstPage(AppAssistantPageContext pageContext);
 
     boolean finish(AppAssistantPageContext pageContext);

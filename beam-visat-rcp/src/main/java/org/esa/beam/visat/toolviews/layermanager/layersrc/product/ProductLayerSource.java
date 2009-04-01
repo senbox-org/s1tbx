@@ -14,11 +14,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.visat.toolviews.layermanager.layersrc;
+package org.esa.beam.visat.toolviews.layermanager.layersrc.product;
 
 import org.esa.beam.framework.ui.assistant.AbstractAppAssistantPage;
 import org.esa.beam.framework.ui.assistant.AppAssistantPageContext;
-import org.esa.beam.visat.toolviews.layermanager.LayerSourceController;
+import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 
 /**
  * todo - add API doc
@@ -27,13 +27,13 @@ import org.esa.beam.visat.toolviews.layermanager.LayerSourceController;
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public class LayerGroupSourceController implements LayerSourceController {
+public class ProductLayerSource implements LayerSource {
 
     @Override
     public boolean isApplicable(AppAssistantPageContext pageContext) {
         return true;
     }
-    
+
     @Override
     public boolean hasFirstPage() {
         return true;
@@ -41,7 +41,7 @@ public class LayerGroupSourceController implements LayerSourceController {
 
     @Override
     public AbstractAppAssistantPage getFirstPage(AppAssistantPageContext pageContext) {
-        return new EmptyLayerAssistantPage();
+        return new ProductLayerAssistantPage();
     }
 
     @Override
