@@ -128,7 +128,7 @@
             <descriptorClass type="java.lang.Class">
                 org.esa.beam.visat.toolviews.layermanager.DefaultLayerEditorDescriptor
             </descriptorClass>
-            <editor field="editorClass" type="java.lang.Class"/>
+            <editor field="layerEditorClass" type="java.lang.Class"/>
             <layerType field="layerTypeClass" type="java.lang.Class"/>
         </layerEditor>
     </extensionPoint>

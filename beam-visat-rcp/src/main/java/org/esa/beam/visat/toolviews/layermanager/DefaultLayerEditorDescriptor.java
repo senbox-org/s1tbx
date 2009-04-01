@@ -19,13 +19,23 @@ import com.bc.ceres.glayer.LayerType;
 @SuppressWarnings({"UnusedDeclaration"})
 public class DefaultLayerEditorDescriptor implements LayerEditorDescriptor, ConfigurableExtension {
     private Class<LayerType> layerTypeClass;
-    private Class<LayerEditor> editorClass;
+    private Class<LayerEditor> layerEditorClass;
 
-    public DefaultLayerEditorDescriptor(Class<LayerType> layerTypeClass, Class<LayerEditor> editorClass) {
+    public DefaultLayerEditorDescriptor(Class<LayerType> layerTypeClass, Class<LayerEditor> layerEditorClass) {
         Assert.notNull(layerTypeClass, "layerTypeClass");
-        Assert.notNull(editorClass, "editorClass");
+        Assert.notNull(layerEditorClass, "layerEditorClass");
         this.layerTypeClass = layerTypeClass;
-        this.editorClass = editorClass;
+        this.layerEditorClass = layerEditorClass;
+    }
+
+    @Override
+    public Class<LayerType> getLayerTypeClass() {
+        return layerTypeClass;
+    }
+
+    @Override
+    public Class<LayerEditor> getLayerEditorClass() {
+        return layerEditorClass;
     }
 
     @Override
@@ -34,7 +44,7 @@ public class DefaultLayerEditorDescriptor implements LayerEditorDescriptor, Conf
     }
 
     ExtensionFactory createExtensionFactory() {
-        return new SingleTypeExtensionFactory<LayerType, LayerEditor>(LayerEditor.class, editorClass);
+        return new SingleTypeExtensionFactory<LayerType, LayerEditor>(LayerEditor.class, layerEditorClass);
     }
 
 }
