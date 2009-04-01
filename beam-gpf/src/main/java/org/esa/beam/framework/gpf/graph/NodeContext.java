@@ -6,6 +6,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.internal.OperatorContext;
 import org.esa.beam.framework.gpf.internal.OperatorImage;
+import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
 
 import java.lang.reflect.Field;
 

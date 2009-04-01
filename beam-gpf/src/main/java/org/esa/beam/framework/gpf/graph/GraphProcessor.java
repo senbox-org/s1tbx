@@ -6,6 +6,7 @@ import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.internal.OperatorImage;
+import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -283,7 +284,7 @@ public class GraphProcessor {
             }
             Node node = nodeContext.getNode();
             Xpp3Dom configuration = node.getConfiguration();
-            OperatorConfiguration opConfiguration = OperatorConfiguration.extractReferences(configuration, graphContext, Collections.EMPTY_MAP);
+            OperatorConfiguration opConfiguration = GraphContext.createOperatorConfiguration(configuration, graphContext, Collections.EMPTY_MAP);
             nodeContext.setParameters(opConfiguration);
             nodeContext.initTargetProduct();
             graphContext.getInitNodeContextDeque().addFirst(nodeContext);

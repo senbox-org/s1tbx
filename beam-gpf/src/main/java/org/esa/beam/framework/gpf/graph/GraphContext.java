@@ -1,10 +1,20 @@
 package org.esa.beam.framework.gpf.graph;
 
+import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
 
 import javax.media.jai.JAI;
 import java.awt.Dimension;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -171,5 +181,40 @@ public class GraphContext {
      */
     void addOutputNodeContext(NodeContext nodeContext) {
         outputNodeContextList.add(nodeContext);
+    }
+
+    static OperatorConfiguration createOperatorConfiguration(Xpp3Dom xpp3Dom,
+                                                             GraphContext graphContext,
+                                                             Map<String, Object> map) {
+        if (xpp3Dom == null) {
+            return null;
+        }
+        Xpp3Dom config = new Xpp3Dom(xpp3Dom.getName());
+        Set<OperatorConfiguration.Reference> references = new HashSet<OperatorConfiguration.Reference>(17);
+        Xpp3Dom[] children = xpp3Dom.getChildren();
+
+        for (Xpp3Dom child : children) {
+            String reference = child.getAttribute("refid");
+            if (reference != null) {
+                String parameterName = child.getName();
+                if (reference.contains(".")) {
+                    String[] referenceParts = reference.split("\\.");
+                    String referenceNodeId = referenceParts[0];
+                    String propertyName = referenceParts[1];
+                    Node node = graphContext.getGraph().getNode(referenceNodeId);
+                    NodeContext referedNodeContext = graphContext.getNodeContext(node);
+                    Operator operator = referedNodeContext.getOperator();
+                    OperatorConfiguration.PropertyReference propertyReference = new OperatorConfiguration.PropertyReference(parameterName, propertyName, operator);
+                    references.add(propertyReference);
+                } else {
+                    OperatorConfiguration.ParameterReference parameterReference = new OperatorConfiguration.ParameterReference(parameterName, map.get(reference));
+                    references.add(parameterReference);
+                }
+            } else {
+                config.addChild(child);
+            }
+        }
+
+        return new OperatorConfiguration(config, references);
     }
 }

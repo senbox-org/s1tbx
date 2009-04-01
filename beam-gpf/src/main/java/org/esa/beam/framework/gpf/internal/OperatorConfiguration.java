@@ -14,18 +14,16 @@
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-package org.esa.beam.framework.gpf.graph;
+package org.esa.beam.framework.gpf.internal;
 
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.gpf.Operator;
 
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
  * Created by marcoz.
- * 
+ *
  * @author marcoz
  * @version $Revision$ $Date$
  */
@@ -35,7 +33,7 @@ public class OperatorConfiguration {
     private Set<Reference> referenceSet;
 
     public OperatorConfiguration(Xpp3Dom configuration,
-            Set<Reference> references) {
+                                 Set<Reference> references) {
         this.configuration = configuration;
         this.referenceSet = references;
     }
@@ -46,40 +44,6 @@ public class OperatorConfiguration {
 
     public Set<Reference> getReferenceSet() {
         return referenceSet;
-    }
-
-    public static OperatorConfiguration extractReferences(Xpp3Dom xpp3Dom,
-            GraphContext graphContext, Map<String, Object> map) {
-        if (xpp3Dom == null) {
-            return null;
-        }
-        Xpp3Dom config = new Xpp3Dom(xpp3Dom.getName());
-        Set<Reference> references = new HashSet<Reference>(17);
-        Xpp3Dom[] children = xpp3Dom.getChildren();
-
-        for (Xpp3Dom child : children) {
-            String reference = child.getAttribute("refid");
-            if (reference != null) {
-                String parameterName = child.getName();
-                if (reference.contains(".")) {
-                    String[] referenceParts = reference.split("\\.");
-                    String referenceNodeId = referenceParts[0];
-                    String propertyName = referenceParts[1];
-                    Node node = graphContext.getGraph().getNode(referenceNodeId);
-                    NodeContext referedNodeContext = graphContext.getNodeContext(node);
-                    Operator operator = referedNodeContext.getOperator();
-                    PropertyReference propertyReference = new PropertyReference(parameterName, propertyName, operator);
-                    references.add(propertyReference);
-                } else {
-                    ParameterReference parameterReference = new ParameterReference(parameterName, map.get(reference));
-                    references.add(parameterReference);
-                }
-            } else {
-                config.addChild(child);
-            }
-        }
-
-        return new OperatorConfiguration(config, references);
     }
 
     public static interface Reference {
@@ -94,7 +58,7 @@ public class OperatorConfiguration {
         final Operator operator;
 
         public PropertyReference(String parameterName, String propertyName,
-                Operator operator) {
+                                 Operator operator) {
             this.parameterName = parameterName;
             this.propertyName = propertyName;
             this.operator = operator;

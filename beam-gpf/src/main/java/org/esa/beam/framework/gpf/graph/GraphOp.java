@@ -12,6 +12,7 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.internal.OperatorContext;
+import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
@@ -105,8 +106,8 @@ public class GraphOp extends Operator {
             }
             Node node = nodeContext.getNode();
             Xpp3Dom configuration = node.getConfiguration();
-            OperatorConfiguration opConfiguration = OperatorConfiguration
-                    .extractReferences(configuration, graphContext,
+            OperatorConfiguration opConfiguration = GraphContext
+                    .createOperatorConfiguration(configuration, graphContext,
                             operatorContext.getParameters());
             nodeContext.setParameters(opConfiguration);
             nodeContext.initTargetProduct();
