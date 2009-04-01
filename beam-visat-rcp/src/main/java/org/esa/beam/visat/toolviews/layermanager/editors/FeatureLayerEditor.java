@@ -64,24 +64,24 @@ public class FeatureLayerEditor implements LayerEditor {
 
         JLabel fillLabel = new JLabel("Fill Opacity:");
         control.add(fillLabel);
-        fillOpacity = new JSlider(0, 255);
-        fillOpacity.setToolTipText("Set opacity of fillings");
+        fillOpacity = new JSlider(0, 255, 255);
+        fillOpacity.setToolTipText("Set the opacity of fillings");
         fillOpacity.setLabelTable(sliderLabelTable);
         fillOpacity.setPaintLabels(true);
         control.add(fillOpacity);
 
         JLabel lineLabel = new JLabel("Line Opacity:");
         control.add(lineLabel);
-        lineOpacity = new JSlider(0, 255);
-        lineOpacity.setToolTipText("Set opacity of lines");
+        lineOpacity = new JSlider(0, 255, 255);
+        lineOpacity.setToolTipText("Set the opacity of lines");
         lineOpacity.setLabelTable(sliderLabelTable);
         lineOpacity.setPaintLabels(true);
         control.add(lineOpacity);
 
         JLabel labelLabel = new JLabel("Label Opacity:");
         control.add(labelLabel);
-        labelOpacity = new JSlider(0, 255);
-        labelOpacity.setToolTipText("Set opacity of labels");
+        labelOpacity = new JSlider(0, 255, 255);
+        labelOpacity.setToolTipText("Set the opacity of labels");
         labelOpacity.setLabelTable(sliderLabelTable);
         labelOpacity.setPaintLabels(true);
         control.add(labelOpacity);
@@ -135,25 +135,23 @@ public class FeatureLayerEditor implements LayerEditor {
         @Override
         public void visit(Fill fill) {
             super.visit(fill);
-            Fill fillCopy = (Fill) pages.pop();
+            Fill fillCopy = (Fill) pages.peek();
             double opacity = fillOpacity.getValue() / 255.0;
             fillCopy.setOpacity(sb.literalExpression(opacity));
-            pages.push(fillCopy);
         }
 
         @Override
         public void visit(Stroke stroke) {
             super.visit(stroke);
-            Stroke strokeCopy = (Stroke) pages.pop();
+            Stroke strokeCopy = (Stroke) pages.peek();
             double opacity = lineOpacity.getValue() / 255.0;
             strokeCopy.setOpacity(sb.literalExpression(opacity));
-            pages.push(strokeCopy);
         }
 
         @Override
         public void visit(TextSymbolizer text) {
             super.visit(text);
-            TextSymbolizer textCopy = (TextSymbolizer) pages.pop();
+            TextSymbolizer textCopy = (TextSymbolizer) pages.peek();
             double opacity = labelOpacity.getValue() / 255.0;
             Fill textFill = textCopy.getFill();
             if (textFill == null) {
@@ -162,8 +160,6 @@ public class FeatureLayerEditor implements LayerEditor {
             } else {
                 textFill.setOpacity(sb.literalExpression(opacity));
             }
-            pages.push(textCopy);
-
         }
     }
 
@@ -172,33 +168,31 @@ public class FeatureLayerEditor implements LayerEditor {
         @Override
         public void visit(Fill fill) {
             super.visit(fill);
-            Fill fillCopy = (Fill) pages.pop();
+            Fill fillCopy = (Fill) pages.peek();
             Expression opacityExpression = fillCopy.getOpacity();
             if (opacityExpression != null) {
                 fillOpacity.setValue((int) (opacityExpression.evaluate(opacityExpression, Double.class) * 255));
             } else {
                 fillOpacity.setValue(255);
             }
-            pages.push(fillCopy);
         }
 
         @Override
         public void visit(Stroke stroke) {
             super.visit(stroke);
-            Stroke strokeCopy = (Stroke) pages.pop();
+            Stroke strokeCopy = (Stroke) pages.peek();
             Expression opacityExpression = strokeCopy.getOpacity();
             if (opacityExpression != null) {
                 lineOpacity.setValue((int) (opacityExpression.evaluate(opacityExpression, Double.class) * 255));
             } else {
                 lineOpacity.setValue(255);
             }
-            pages.push(strokeCopy);
         }
 
         @Override
         public void visit(TextSymbolizer text) {
             super.visit(text);
-            TextSymbolizer textCopy = (TextSymbolizer) pages.pop();
+            TextSymbolizer textCopy = (TextSymbolizer) pages.peek();
             Fill textFill = textCopy.getFill();
             if (textFill != null) {
                 Expression opacityExpression = textFill.getOpacity();
@@ -208,8 +202,6 @@ public class FeatureLayerEditor implements LayerEditor {
             } else {
                 labelOpacity.setValue(255);
             }
-            pages.push(textCopy);
-
         }
     }
 
