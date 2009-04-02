@@ -6,10 +6,9 @@ import com.bc.ceres.core.ServiceRegistryFactory;
 
 import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.Iterator;
 
 public abstract class LayerType extends ExtensibleObject {
-    private static ServiceRegistry<LayerType> registry = ServiceRegistryFactory.getInstance().getServiceRegistry(LayerType.class);
+    private static final ServiceRegistry<LayerType> REGISTRY;
 
     protected LayerType() {
     }
@@ -24,18 +23,15 @@ public abstract class LayerType extends ExtensibleObject {
 
 
     public static LayerType getLayerType(String layerTypeClassName) {
-          return registry.getService(layerTypeClassName);
+          return REGISTRY.getService(layerTypeClassName);
     }
 
     static {
+        REGISTRY = ServiceRegistryFactory.getInstance().getServiceRegistry(LayerType.class);
 
-        ServiceLoader sl = ServiceLoader.load(LayerType.class);
-        Iterator it = sl.iterator();
-        while (it.hasNext()) {
-            registry.addService((LayerType) it.next());
+        final ServiceLoader<LayerType> serviceLoader = ServiceLoader.load(LayerType.class);
+        for (final LayerType layerType : serviceLoader) {
+            REGISTRY.addService(layerType);
         }
-
-
     }
-
 }
