@@ -19,14 +19,6 @@ public class LayerSourceAssistantPane extends AssistantPane implements LayerSour
         properties = new HashMap<String, Object>();
     }
 
-//    @Override
-//    public void setCurrentPage(AssistantPage currentPage) {
-//        if (currentPage instanceof AbstractLayerSourceAssistantPage) {
-//            AbstractLayerSourceAssistantPage layerSourcePage = (AbstractLayerSourceAssistantPage) currentPage;
-//            layerSourcePage.setContext(this);
-//        }
-//    }
-
     @Override
     public AppContext getAppContext() {
         return appContext;
