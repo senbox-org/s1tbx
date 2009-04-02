@@ -45,91 +45,52 @@ import java.util.concurrent.ExecutionException;
 
 // todo - Check, if image is GeoTIFF -> no world file is needed
 
-public class ImageFileAssistantPage extends AbstractLayerSourceAssistantPage {
+public class ImageFileAssistantPage1 extends AbstractLayerSourceAssistantPage {
 
-    private static final String PROPERTY_LAST_IMAGE_PREFIX = "ImageFileAssistantPage.ImageFile.history";
-    private static final String PROPERTY_LAST_DIR = "ImageFileAssistantPage.ImageFile.lastDir";
+    private static final String LAST_IMAGE_PREFIX = "ImageFileAssistantPage1.ImageFile.history";
+    private static final String LAST_DIR = "ImageFileAssistantPage1.ImageFile.lastDir";
     private JComboBox imageFileBox;
     private JTextField worldFileField;
     private HistoryComboBoxModel imageHistoryModel;
     private JLabel imagePreviewLabel;
-    private RenderedImage image;
 
 
-    public ImageFileAssistantPage() {
+    public ImageFileAssistantPage1() {
         super("Select Image File");
     }
 
     @Override
     public boolean validatePage() {
-        String imageFilePath = getText(imageFileBox);
-        String worldFilePath = getText(worldFileField);
-        return new File(imageFilePath).exists() &&
-               (worldFilePath.isEmpty() || new File(worldFilePath).exists());
-    }
-
-    private String getText(JComboBox comboBox) {
-        final String text = (String) comboBox.getSelectedItem();
-        return text == null ? "" : text.trim();
-    }
-
-    private String getText(JTextField field) {
-        String s = field.getText();
-        return s != null ? s.trim() : "";
+        String imageFilePath = (String) getContext().getPropertyValue(ImageFileLayerSource.PROPERTY_IMAGE_FILE_PATH);
+        String worldFilePath = (String) getContext().getPropertyValue(ImageFileLayerSource.PROPERTY_WORLD_FILE_PATH);
+        if (imageFilePath == null) {
+            return false;
+        }
+        return new File(imageFilePath).exists() && (worldFilePath == null || new File(worldFilePath).exists());
     }
 
     @Override
     public boolean hasNextPage() {
-        return image != null;
+        return getContext().getPropertyValue(ImageFileLayerSource.PROPERTY_IMAGE) != null;
     }
 
     @Override
     public AbstractLayerSourceAssistantPage getNextPage() {
         imageHistoryModel.saveHistory();
-        String worldFilePath = getText(worldFileField);
-        AffineTransform transform;
-        if (!worldFilePath.isEmpty()) {
-            try {
-                transform = Tools.loadWorldFile(worldFilePath);
-            } catch (IOException e) {
-                e.printStackTrace();
-                getContext().showErrorDialog(e.getMessage());
-                return null;
-            }
-        } else {
-            transform = new AffineTransform();
-        }
-        return new ImageFileAssistantPage2(image,
-                                           FileUtils.getFileNameFromPath(getText(imageFileBox)),
-                                           transform);
+        createTransform(getContext());
+        return new ImageFileAssistantPage2();
     }
 
     @Override
     public boolean canFinish() {
-        return image != null;
+        return getContext().getPropertyValue(ImageFileLayerSource.PROPERTY_IMAGE) != null;
     }
 
     @Override
     public boolean performFinish() {
         imageHistoryModel.saveHistory();
-        String worldFilePath = getText(worldFileField);
-        AffineTransform transform;
-        LayerSourcePageContext pageContext = getContext();
-        if (!worldFilePath.isEmpty()) {
-            try {
-                transform = Tools.loadWorldFile(worldFilePath);
-            } catch (IOException e) {
-                e.printStackTrace();
-                pageContext.showErrorDialog(e.getMessage());
-                return false;
-            }
-        } else {
-            transform = new AffineTransform();
-        }
-        return insertImageLayer(pageContext,
-                                image,
-                                FileUtils.getFileNameFromPath(getText(imageFileBox)),
-                                transform);
+        createTransform(getContext());
+        return insertImageLayer(getContext());
     }
 
     @Override
@@ -147,23 +108,34 @@ public class ImageFileAssistantPage extends AbstractLayerSourceAssistantPage {
                 return new File(entry).isFile();
             }
         };
-        imageHistoryModel = new HistoryComboBoxModel(preferences, PROPERTY_LAST_IMAGE_PREFIX, 5, validator);
+        imageHistoryModel = new HistoryComboBoxModel(preferences, LAST_IMAGE_PREFIX, 5, validator);
         imageFileBox = new JComboBox(imageHistoryModel);
         imageFileBox.addActionListener(new ImageFileItemListener());
         final JLabel imageFileLabel = new JLabel("Path to image file (.png, .jpg, .tif, .gif):");
         JButton imageFileButton = new JButton("...");
         final FileNameExtensionFilter imageFileFilter = new FileNameExtensionFilter("Image Files",
                                                                                     "png", "jpg", "tif", "gif");
-        imageFileButton.addActionListener(new FileChooserActionListener(imageFileFilter));
+        imageFileButton.addActionListener(new FileChooserActionListener(imageFileFilter) {
+            @Override
+            protected void onFileSelected(LayerSourcePageContext pageContext, String filePath) {
+                pageContext.setPropertyValue(ImageFileLayerSource.PROPERTY_IMAGE_FILE_PATH, filePath);
+            }
+        });
         addRow(panel, gbc, imageFileLabel, imageFileBox, imageFileButton);
 
         worldFileField = new JTextField();
-        worldFileField.getDocument().addDocumentListener(new MyDocumentListener());
+        worldFileField.getDocument().addDocumentListener(new WorldFilePathDocumentListener());
         final JLabel worldFileLabel = new JLabel("Path to world file (.pgw, .jgw, .tfw, .gfw):");
         JButton worldFileButton = new JButton("...");
         final FileNameExtensionFilter worldFileFilter = new FileNameExtensionFilter("World Files",
                                                                                     "pgw", "jgw", "tfw", "gfw");
-        worldFileButton.addActionListener(new FileChooserActionListener(worldFileFilter));
+        worldFileButton.addActionListener(new FileChooserActionListener(worldFileFilter) {
+            @Override
+            protected void onFileSelected(LayerSourcePageContext pageContext, String filePath) {
+                pageContext.setPropertyValue(ImageFileLayerSource.PROPERTY_WORLD_FILE_PATH, filePath);
+            }
+
+        });
         addRow(panel, gbc, worldFileLabel, worldFileField, worldFileButton);
 
 
@@ -178,6 +150,10 @@ public class ImageFileAssistantPage extends AbstractLayerSourceAssistantPage {
         imagePreviewLabel = new JLabel();
         imagePreviewLabel.setPreferredSize(new Dimension(200, 200));
         panel.add(imagePreviewLabel, gbc);
+        getContext().setPropertyValue(ImageFileLayerSource.PROPERTY_IMAGE_FILE_PATH, null);
+        getContext().setPropertyValue(ImageFileLayerSource.PROPERTY_WORLD_FILE_PATH, null);
+        getContext().setPropertyValue(ImageFileLayerSource.PROPERTY_IMAGE, null);
+        getContext().setPropertyValue(ImageFileLayerSource.PROPERTY_WORLD_TRANSFORM, null);
 
         return panel;
     }
@@ -207,11 +183,16 @@ public class ImageFileAssistantPage extends AbstractLayerSourceAssistantPage {
         panel.add(button, gbc);
     }
 
-    static boolean insertImageLayer(LayerSourcePageContext pageContext, RenderedImage image, String layerName,
-                                    AffineTransform transform) {
+    static boolean insertImageLayer(LayerSourcePageContext pageContext) {
+        AffineTransform transform = (AffineTransform) pageContext.getPropertyValue(
+                ImageFileLayerSource.PROPERTY_WORLD_TRANSFORM);
+        RenderedImage image = (RenderedImage) pageContext.getPropertyValue(ImageFileLayerSource.PROPERTY_IMAGE);
+        String imageFilePath = (String) pageContext.getPropertyValue(ImageFileLayerSource.PROPERTY_IMAGE_FILE_PATH);
+        String fileName = FileUtils.getFileNameFromPath(imageFilePath);
+
         try {
             ImageLayer imageLayer = new ImageLayer(image, transform);
-            imageLayer.setName(layerName);
+            imageLayer.setName(fileName);
             ProductSceneView sceneView = pageContext.getAppContext().getSelectedProductSceneView();
             Layer rootLayer = sceneView.getRootLayer();
             rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), imageLayer);
@@ -222,25 +203,42 @@ public class ImageFileAssistantPage extends AbstractLayerSourceAssistantPage {
         }
     }
 
-    private class MyDocumentListener implements DocumentListener {
+    private static void createTransform(LayerSourcePageContext pageContext) {
+        AffineTransform transform = new AffineTransform();
+        String worldFilePath = (String) pageContext.getPropertyValue(ImageFileLayerSource.PROPERTY_WORLD_FILE_PATH);
+        if (worldFilePath != null && !worldFilePath.isEmpty()) {
+            try {
+                transform = Tools.loadWorldFile(worldFilePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+                pageContext.showErrorDialog(e.getMessage());
+            }
+        }
+        pageContext.setPropertyValue(ImageFileLayerSource.PROPERTY_WORLD_TRANSFORM, transform);
+    }
+
+    private class WorldFilePathDocumentListener implements DocumentListener {
 
         @Override
         public void insertUpdate(DocumentEvent e) {
+            getContext().setPropertyValue(ImageFileLayerSource.PROPERTY_WORLD_FILE_PATH, worldFileField.getText());
             getContext().updateState();
         }
 
         @Override
         public void removeUpdate(DocumentEvent e) {
+            getContext().setPropertyValue(ImageFileLayerSource.PROPERTY_WORLD_FILE_PATH, worldFileField.getText());
             getContext().updateState();
         }
 
         @Override
         public void changedUpdate(DocumentEvent e) {
+            getContext().setPropertyValue(ImageFileLayerSource.PROPERTY_WORLD_FILE_PATH, worldFileField.getText());
             getContext().updateState();
         }
     }
 
-    private class FileChooserActionListener implements ActionListener {
+    private abstract class FileChooserActionListener implements ActionListener {
 
         private final FileFilter filter;
 
@@ -260,14 +258,17 @@ public class ImageFileAssistantPage extends AbstractLayerSourceAssistantPage {
                 String filePath = fileChooser.getSelectedFile().getPath();
                 imageHistoryModel.setSelectedItem(filePath);
                 PropertyMap preferences = pageContext.getAppContext().getPreferences();
-                preferences.setPropertyString(PROPERTY_LAST_DIR, fileChooser.getCurrentDirectory().getAbsolutePath());
+                preferences.setPropertyString(LAST_DIR, fileChooser.getCurrentDirectory().getAbsolutePath());
+                onFileSelected(pageContext, filePath);
                 pageContext.updateState();
             }
         }
 
+        protected abstract void onFileSelected(LayerSourcePageContext pageContext, String filePath);
+
         private File getLastDirectory() {
             PropertyMap preferences = getContext().getAppContext().getPreferences();
-            String dirPath = preferences.getPropertyString(PROPERTY_LAST_DIR, System.getProperty("user.home"));
+            String dirPath = preferences.getPropertyString(LAST_DIR, System.getProperty("user.home"));
             File lastDir = new File(dirPath);
             if (!lastDir.isDirectory()) {
                 lastDir = new File(System.getProperty("user.home"));
@@ -286,8 +287,9 @@ public class ImageFileAssistantPage extends AbstractLayerSourceAssistantPage {
                 return;
             }
 
-            image = FileLoadDescriptor.create(imageFilePath, null, true, null);
-
+            RenderedImage image = FileLoadDescriptor.create(imageFilePath, null, true, null);
+            getContext().setPropertyValue(ImageFileLayerSource.PROPERTY_IMAGE, image);
+            getContext().setPropertyValue(ImageFileLayerSource.PROPERTY_IMAGE_FILE_PATH, imageFilePath);
             ImagePreviewWorker worker = new ImagePreviewWorker(image, imagePreviewLabel);
             worker.execute();
 

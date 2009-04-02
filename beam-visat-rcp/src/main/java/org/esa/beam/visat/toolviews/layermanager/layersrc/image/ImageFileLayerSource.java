@@ -21,13 +21,16 @@ import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAss
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 
 /**
- * todo - add API doc
- *
  * @author Marco Zuehlke
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
 public class ImageFileLayerSource implements LayerSource {
+
+    static final String PROPERTY_IMAGE = "ImageFileLayerSource.image";
+    static final String PROPERTY_IMAGE_FILE_PATH = "ImageFileLayerSource.imageFilePath";
+    static final String PROPERTY_WORLD_FILE_PATH = "ImageFileLayerSource.worldFilePath";
+    static final String PROPERTY_WORLD_TRANSFORM = "ImageFileLayerSource.worldTransform";
 
     @Override
     public boolean isApplicable(LayerSourcePageContext pageContext) {
@@ -41,7 +44,7 @@ public class ImageFileLayerSource implements LayerSource {
 
     @Override
     public AbstractLayerSourceAssistantPage getFirstPage(LayerSourcePageContext pageContext) {
-        return new ImageFileAssistantPage();
+        return new ImageFileAssistantPage1();
     }
 
     @Override
@@ -55,6 +58,6 @@ public class ImageFileLayerSource implements LayerSource {
 
     @Override
     public boolean finish(LayerSourcePageContext pageContext) {
-        return pageContext.getCurrentPage().performFinish();
+        return false;
     }
 }

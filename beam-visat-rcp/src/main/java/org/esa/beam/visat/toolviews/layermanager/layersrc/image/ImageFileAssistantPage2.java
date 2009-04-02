@@ -8,6 +8,7 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.referencing.CRS;
 import org.opengis.geometry.Envelope;
@@ -40,18 +41,11 @@ import java.util.concurrent.ExecutionException;
 public class ImageFileAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
     private JTextField[] numberFields;
-    private final RenderedImage image;
-    private final String layerName;
-    private final AffineTransform transform;
     private Envelope2D layerEnvelope;
     private Envelope imageEnvelope;
 
-    public ImageFileAssistantPage2(RenderedImage image, String layerName,
-                                   AffineTransform transform) {
+    public ImageFileAssistantPage2() {
         super("Edit Affine Transformation");
-        this.image = image;
-        this.layerName = layerName;
-        this.transform = transform;
     }
 
     @Override
@@ -65,7 +59,10 @@ public class ImageFileAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
     @Override
     public boolean performFinish() {
-        return ImageFileAssistantPage.insertImageLayer(getContext(), image, layerName, createTransform());
+        AffineTransform transform = createTransform();
+        final LayerSourcePageContext context = getContext();
+        context.setPropertyValue(ImageFileLayerSource.PROPERTY_WORLD_TRANSFORM, transform);
+        return ImageFileAssistantPage1.insertImageLayer(context);
     }
 
     @Override
@@ -84,6 +81,8 @@ public class ImageFileAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
         double[] flatmatrix = new double[6];
         numberFields = new JTextField[flatmatrix.length];
+        AffineTransform transform = (AffineTransform) getContext().getPropertyValue(
+                ImageFileLayerSource.PROPERTY_WORLD_TRANSFORM);
         transform.getMatrix(flatmatrix);
 
 // see http://support.esri.com/index.cfm?fa=knowledgebase.techarticles.articleShow&d=17489
@@ -165,25 +164,6 @@ public class ImageFileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         return fileField;
     }
 
-
-    private class MyDocumentListener implements DocumentListener {
-
-        @Override
-        public void insertUpdate(DocumentEvent e) {
-            getContext().updateState();
-        }
-
-        @Override
-        public void removeUpdate(DocumentEvent e) {
-            getContext().updateState();
-        }
-
-        @Override
-        public void changedUpdate(DocumentEvent e) {
-            getContext().updateState();
-        }
-    }
-
     private AffineTransform createTransform() {
         double[] flatmatrix = new double[numberFields.length];
         for (int i = 0; i < flatmatrix.length; i++) {
@@ -196,6 +176,8 @@ public class ImageFileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         if (imageEnvelope == null) {
             ProductSceneView view1 = getContext().getAppContext().getSelectedProductSceneView();
             try {
+                RenderedImage image = (RenderedImage) getContext().getPropertyValue(
+                        ImageFileLayerSource.PROPERTY_IMAGE);
                 GeoCoding geoCoding = view1.getRaster().getGeoCoding();
                 final Rectangle2D.Double imageBounds = new Rectangle2D.Double(0, 0, image.getWidth(),
                                                                               image.getHeight());
@@ -221,6 +203,24 @@ public class ImageFileAssistantPage2 extends AbstractLayerSourceAssistantPage {
     private String getText(JTextComponent textComponent) {
         String s = textComponent.getText();
         return s != null ? s.trim() : "";
+    }
+
+    private class MyDocumentListener implements DocumentListener {
+
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            getContext().updateState();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            getContext().updateState();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            getContext().updateState();
+        }
     }
 
 
