@@ -158,8 +158,7 @@ public class GraticuleLayer extends Layer {
         Composite oldComposite = null;
         if (getLineTransparency() > 0.0) {
             oldComposite = g2d.getComposite();
-            g2d.setComposite(
-                    AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) (1.0 - getLineTransparency())));
+            g2d.setComposite(getAlphaComposite(getLineTransparency()));
         }
         g2d.setPaint(getLineColor());
         g2d.setStroke(new BasicStroke((float) getLineWidth()));
@@ -179,8 +178,7 @@ public class GraticuleLayer extends Layer {
             Composite oldComposite = null;
             if (getTextBgTransparency() > 0.0) {
                 oldComposite = g2d.getComposite();
-                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-                                                            (float) (1.0 - getTextBgTransparency())));
+                g2d.setComposite(getAlphaComposite(getTextBgTransparency()));
             }
 
             g2d.setPaint(getTextBgColor());
@@ -218,6 +216,11 @@ public class GraticuleLayer extends Layer {
         }
     }
 
+    private AlphaComposite getAlphaComposite(double itemTransparancy) {
+        double combinedAlpha = getStyle().getOpacity() * (1.0 - itemTransparancy);
+        return AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) combinedAlpha);
+    }
+
     @Override
     public void disposeLayer() {
         if (product != null) {
@@ -226,14 +229,14 @@ public class GraticuleLayer extends Layer {
             graticule = null;
         }
     }
-    
+
     @Override
     protected void fireLayerPropertyChanged(PropertyChangeEvent event) {
         String propertyName = event.getPropertyName();
-        if (propertyName.equals(GraticuleLayer.PROPERTY_NAME_RES_AUTO) || 
-                propertyName.equals(GraticuleLayer.PROPERTY_NAME_RES_LAT) ||
-                propertyName.equals(GraticuleLayer.PROPERTY_NAME_RES_LON) ||
-                propertyName.equals(GraticuleLayer.PROPERTY_NAME_RES_PIXELS)) {
+        if (propertyName.equals(GraticuleLayer.PROPERTY_NAME_RES_AUTO) ||
+            propertyName.equals(GraticuleLayer.PROPERTY_NAME_RES_LAT) ||
+            propertyName.equals(GraticuleLayer.PROPERTY_NAME_RES_LON) ||
+            propertyName.equals(GraticuleLayer.PROPERTY_NAME_RES_PIXELS)) {
             graticule = null;
         }
         super.fireLayerPropertyChanged(event);
