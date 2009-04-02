@@ -38,6 +38,11 @@ public class SimpleLayerSource implements LayerSource {
     }
 
     @Override
+    public boolean canFinish(LayerSourcePageContext pageContext) {
+        return true;
+    }
+
+    @Override
     public boolean finish(LayerSourcePageContext pageContext) {
         LayerContext layerCtx = pageContext.getAppContext().getSelectedProductSceneView().getLayerContext();
 

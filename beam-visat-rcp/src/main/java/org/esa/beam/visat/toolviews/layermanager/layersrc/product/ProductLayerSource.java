@@ -45,6 +45,11 @@ public class ProductLayerSource implements LayerSource {
     }
 
     @Override
+    public boolean canFinish(LayerSourcePageContext pageContext) {
+        return false;
+    }
+
+    @Override
     public void cancel() {
     }
 

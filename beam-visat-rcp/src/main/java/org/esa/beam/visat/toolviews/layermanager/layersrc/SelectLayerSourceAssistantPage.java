@@ -24,13 +24,13 @@ import java.util.Set;
 public class SelectLayerSourceAssistantPage extends AbstractLayerSourceAssistantPage {
 
     private JList list;
-    private Map<LayerSourceDescriptor, LayerSource> controllerMap;
+    private Map<LayerSourceDescriptor, LayerSource> layerSourceMap;
 
     public SelectLayerSourceAssistantPage(LayerSourceDescriptor[] sourceDescriptors) {
         super("Select Layer Source");
-        controllerMap = new HashMap<LayerSourceDescriptor, LayerSource>();
+        layerSourceMap = new HashMap<LayerSourceDescriptor, LayerSource>();
         for (LayerSourceDescriptor sourceDescriptor : sourceDescriptors) {
-            controllerMap.put(sourceDescriptor, sourceDescriptor.createLayerSource());
+            layerSourceMap.put(sourceDescriptor, sourceDescriptor.createLayerSource());
         }
     }
 
@@ -45,7 +45,7 @@ public class SelectLayerSourceAssistantPage extends AbstractLayerSourceAssistant
         if (selected == null) {
             return false;
         }
-        return controllerMap.get(selected).hasFirstPage();
+        return layerSourceMap.get(selected).hasFirstPage();
     }
 
     @Override
@@ -54,12 +54,16 @@ public class SelectLayerSourceAssistantPage extends AbstractLayerSourceAssistant
         if (selected == null) {
             return null;
         }
-        return controllerMap.get(selected).getFirstPage(getContext());
+        return layerSourceMap.get(selected).getFirstPage(getContext());
     }
 
     @Override
     public boolean canFinish() {
-        return !hasNextPage();
+        LayerSourceDescriptor selected = (LayerSourceDescriptor) list.getSelectedValue();
+        if (selected == null) {
+            return false;
+        }
+        return layerSourceMap.get(selected).canFinish(getContext());
     }
 
     @Override
@@ -68,16 +72,16 @@ public class SelectLayerSourceAssistantPage extends AbstractLayerSourceAssistant
         if (selected == null) {
             return false;
         }
-        return controllerMap.get(selected).finish(getContext());
+        return layerSourceMap.get(selected).finish(getContext());
     }
 
     @Override
     public Component createPageComponent() {
         LayerSourcePageContext context = getContext();
-        Set<LayerSourceDescriptor> descriptorSet = controllerMap.keySet();
+        Set<LayerSourceDescriptor> descriptorSet = layerSourceMap.keySet();
         List<LayerSourceDescriptor> descriptorList = new ArrayList<LayerSourceDescriptor>(descriptorSet.size());
         for (LayerSourceDescriptor lsd : descriptorSet) {
-            LayerSource lsc = controllerMap.get(lsd);
+            LayerSource lsc = layerSourceMap.get(lsd);
             if (lsc.isApplicable(context)) {
                 descriptorList.add(lsd);
             }
