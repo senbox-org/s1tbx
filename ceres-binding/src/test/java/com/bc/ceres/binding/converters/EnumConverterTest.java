@@ -11,7 +11,7 @@ import com.bc.ceres.binding.Converter;
  */
 public class EnumConverterTest extends AbstractConverterTest {
 
-    private EnumConverter converter;
+    private EnumConverter<Tests> converter;
 
     private enum Tests {
 
@@ -48,7 +48,7 @@ public class EnumConverterTest extends AbstractConverterTest {
     @Override
     public Converter getConverter() {
         if (converter == null) {
-            converter = new EnumConverter(Tests.class);
+            converter = new EnumConverter<Tests>(Tests.class);
         }
         return converter;
     }

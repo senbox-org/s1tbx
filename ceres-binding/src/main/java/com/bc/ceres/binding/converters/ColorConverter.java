@@ -21,8 +21,7 @@ public class ColorConverter implements Converter<Color> {
 
         final int[] array;
         try {
-            final ArrayConverter converter = new ArrayConverter(int[].class, new IntegerConverter());
-            array = (int[]) converter.parse(text);
+            array = (int[]) new ArrayConverter(int[].class, new IntegerConverter()).parse(text);
         } catch (ConversionException e) {
             throw new ConversionException(
                     MessageFormat.format("Cannot parse ''{0}'' into a color: {1}", text, e.getMessage()), e);
@@ -53,15 +52,15 @@ public class ColorConverter implements Converter<Color> {
     }
 
     @Override
-    public String format(Color value) {
-        if (value == null) {
+    public String format(Color color) {
+        if (color == null) {
             return "";
         }
         
-        final int r = value.getRed();
-        final int g = value.getGreen();
-        final int b = value.getBlue();
-        final int a = value.getAlpha();
+        final int r = color.getRed();
+        final int g = color.getGreen();
+        final int b = color.getBlue();
+        final int a = color.getAlpha();
 
         return String.format("%d,%d,%d,%d", r, g, b, a);
     }

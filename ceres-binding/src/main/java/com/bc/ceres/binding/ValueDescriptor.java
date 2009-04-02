@@ -150,12 +150,12 @@ public class ValueDescriptor {
         setProperty("valueSet", valueSet);
     }
 
-    public Converter getConverter() {
+    public Converter<?> getConverter() {
         return getConverter(false);
     }
 
-    public Converter getConverter(boolean notNull) {
-        final Converter converter = (Converter) getProperty("converter");
+    public Converter<?> getConverter(boolean notNull) {
+        final Converter<?> converter = (Converter<?>) getProperty("converter");
         if (converter == null && notNull) {
             throw new IllegalStateException("no converter defined for value '" + getName() + "'");
         }
@@ -170,7 +170,7 @@ public class ValueDescriptor {
         setConverter(ConverterRegistry.getInstance().getConverter(type));
     }
 
-    public void setConverter(Converter converter) {
+    public void setConverter(Converter<?> converter) {
         setProperty("converter", converter);
     }
 
