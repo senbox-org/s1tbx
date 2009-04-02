@@ -349,22 +349,22 @@ public class ProductFlipper extends AbstractProductBuilder {
     }
 
     private void addTiePointGridsToProduct(final Product product) {
-        int sourceOffsetX = 0;
-        int sourceOffsetY = 0;
-        int sourceStepX = 1;
-        int sourceStepY = 1;
-        if (getSubsetDef() != null) {
-            sourceStepX = getSubsetDef().getSubSamplingX();
-            sourceStepY = getSubsetDef().getSubSamplingY();
-            if (getSubsetDef().getRegion() != null) {
-                sourceOffsetX = getSubsetDef().getRegion().x;
-                sourceOffsetY = getSubsetDef().getRegion().y;
-            }
-        }
-
         for (int i = 0; i < getSourceProduct().getNumTiePointGrids(); i++) {
             final TiePointGrid sourceTiePointGrid = getSourceProduct().getTiePointGridAt(i);
             if (isNodeAccepted(sourceTiePointGrid.getName())) {
+
+                float sourceOffsetX = sourceTiePointGrid.getOffsetX();
+                float sourceOffsetY = sourceTiePointGrid.getOffsetY();
+                float sourceStepX = sourceTiePointGrid.getSubSamplingX();
+                float sourceStepY = sourceTiePointGrid.getSubSamplingY();
+                if (getSubsetDef() != null) {
+                    sourceStepX /= getSubsetDef().getSubSamplingX();
+                    sourceStepY /= getSubsetDef().getSubSamplingY();
+                    if (getSubsetDef().getRegion() != null) {
+                        sourceOffsetX -= getSubsetDef().getRegion().x;
+                        sourceOffsetY -= getSubsetDef().getRegion().y;
+                    }
+                }
 
                 final float[] sourcePoints = sourceTiePointGrid.getTiePoints();
                 final float[] targetPoints = new float[sourcePoints.length];
@@ -372,29 +372,33 @@ public class ProductFlipper extends AbstractProductBuilder {
                 final int height = sourceTiePointGrid.getRasterHeight();
 
                 if (flipType == FLIP_HORIZONTAL) {
+                    sourceOffsetX = (sourceTiePointGrid.getSceneRasterWidth() - (width - 1) * sourceStepX) - sourceOffsetX;
                     for (int y = 0; y < height; y++) {
                         for (int x = 0; x < width; x++) {
                             targetPoints[x + y * width] = sourcePoints[width - x - 1 + y * width];
                         }
                     }
                 } else if (flipType == FLIP_VERTICAL) {
+                    sourceOffsetY = (sourceTiePointGrid.getSceneRasterHeight() - (height - 1) * sourceStepY) - sourceOffsetY;
                     for (int y = 0; y < height; y++) {
                         System.arraycopy(sourcePoints, (height - y - 1) * width, targetPoints, y * width, width);
                     }
                 } else {
+                    sourceOffsetX = (sourceTiePointGrid.getSceneRasterWidth() - (width - 1) * sourceStepX) - sourceOffsetX;
+                    sourceOffsetY = (sourceTiePointGrid.getSceneRasterHeight() - (height - 1) * sourceStepY) - sourceOffsetY;
                     for (int y = 0; y < height; y++) {
+                        final int lineIndex = height - y - 1;
                         for (int x = 0; x < width; x++) {
-                            targetPoints[x + y * width] = sourcePoints[width - x - 1 + (height - y - 1) * width];
+                            targetPoints[x + y * width] = sourcePoints[((width - x - 1) + (lineIndex * width))];
                         }
                     }
                 }
+
                 final TiePointGrid tiePointGrid = new TiePointGrid(sourceTiePointGrid.getName(),
                                                                    sourceTiePointGrid.getRasterWidth(),
                                                                    sourceTiePointGrid.getRasterHeight(),
-                                                                   sourceTiePointGrid.getOffsetX() - (float) sourceOffsetX,
-                                                                   sourceTiePointGrid.getOffsetY() - (float) sourceOffsetY,
-                                                                   sourceTiePointGrid.getSubSamplingX() / (float) sourceStepX,
-                                                                   sourceTiePointGrid.getSubSamplingY() / (float) sourceStepY,
+                                                                   sourceOffsetX, sourceOffsetY,
+                                                                   sourceStepX, sourceStepY,
                                                                    targetPoints,
                                                                    sourceTiePointGrid.getDiscontinuity());
                 tiePointGrid.setUnit(sourceTiePointGrid.getUnit());
