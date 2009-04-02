@@ -16,7 +16,7 @@
  */
 package org.esa.beam.framework.gpf.internal;
 
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import com.bc.ceres.binding.dom.DomElement;
 import org.esa.beam.framework.gpf.Operator;
 
 import java.util.Set;
@@ -29,16 +29,16 @@ import java.util.Set;
  */
 public class OperatorConfiguration {
 
-    private final Xpp3Dom configuration;
+    private final DomElement configuration;
     private Set<Reference> referenceSet;
 
-    public OperatorConfiguration(Xpp3Dom configuration,
+    public OperatorConfiguration(DomElement configuration,
                                  Set<Reference> references) {
         this.configuration = configuration;
         this.referenceSet = references;
     }
 
-    public Xpp3Dom getConfiguration() {
+    public DomElement getConfiguration() {
         return configuration;
     }
 

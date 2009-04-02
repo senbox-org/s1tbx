@@ -1,6 +1,8 @@
 package org.esa.beam.framework.gpf.graph;
 
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import com.bc.ceres.binding.dom.DomElement;
+import com.bc.ceres.binding.dom.Xpp3DomElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
@@ -183,17 +185,17 @@ public class GraphContext {
         outputNodeContextList.add(nodeContext);
     }
 
-    static OperatorConfiguration createOperatorConfiguration(Xpp3Dom xpp3Dom,
+    static OperatorConfiguration createOperatorConfiguration(DomElement domElement,
                                                              GraphContext graphContext,
                                                              Map<String, Object> map) {
-        if (xpp3Dom == null) {
+        if (domElement == null) {
             return null;
         }
-        Xpp3Dom config = new Xpp3Dom(xpp3Dom.getName());
+        DomElement resolvedElement = Xpp3DomElement.createDomElement(domElement.getName());
         Set<OperatorConfiguration.Reference> references = new HashSet<OperatorConfiguration.Reference>(17);
-        Xpp3Dom[] children = xpp3Dom.getChildren();
+        DomElement[] children = domElement.getChildren();
 
-        for (Xpp3Dom child : children) {
+        for (DomElement child : children) {
             String reference = child.getAttribute("refid");
             if (reference != null) {
                 String parameterName = child.getName();
@@ -211,10 +213,10 @@ public class GraphContext {
                     references.add(parameterReference);
                 }
             } else {
-                config.addChild(child);
+                resolvedElement.addChild(child);
             }
         }
 
-        return new OperatorConfiguration(config, references);
+        return new OperatorConfiguration(resolvedElement, references);
     }
 }

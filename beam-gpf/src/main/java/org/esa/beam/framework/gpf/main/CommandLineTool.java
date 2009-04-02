@@ -3,7 +3,8 @@ package org.esa.beam.framework.gpf.main;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import com.bc.ceres.binding.dom.DefaultDomElement;
+import com.bc.ceres.binding.dom.DomElement;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
@@ -62,19 +63,19 @@ class CommandLineTool {
         CommandLineArgs lineArgs = new CommandLineArgs(args);
         try {
             lineArgs.parseArguments();
-            
+
             if (lineArgs.isHelpRequested()) {
                 if (lineArgs.getOperatorName() != null) {
                     commandLineContext.print(CommandLineUsage.getUsageTextForOperator(lineArgs.getOperatorName()));
                 } else if (lineArgs.getGraphFilepath() != null) {
                     commandLineContext.print(CommandLineUsage.getUsageTextForGraph(lineArgs.getGraphFilepath(),
-                            commandLineContext));
+                                                                                   commandLineContext));
                 } else {
                     commandLineContext.print(CommandLineUsage.getUsageText());
                 }
                 return;
             }
-        
+
             run(lineArgs);
         } catch (Exception e) {
             if (lineArgs.isStackTraceDump()) {
@@ -111,27 +112,27 @@ class CommandLineTool {
                 String sourceFilepath = entry.getValue();
                 String sourceNodeId = sourceNodeIdMap.get(sourceId);
                 if (graph.getNode(sourceNodeId) == null) {
+                    
+                    DomElement parameters = new DefaultDomElement("parameters");
+                    parameters.createChild("file").setValue(sourceFilepath);
+
                     Node sourceNode = new Node(sourceNodeId, readOperatorAlias);
-                    Xpp3Dom parameters = new Xpp3Dom("parameters");
-                    Xpp3Dom filePath = new Xpp3Dom("file");
-                    filePath.setValue(sourceFilepath);
-                    parameters.addChild(filePath);
                     sourceNode.setConfiguration(parameters);
+
                     graph.addNode(sourceNode);
                 }
             }
             String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteOp.class);
             if (!lastNode.getOperatorName().equals(writeOperatorAlias)) {
+
+                DomElement parameters = new DefaultDomElement("parameters");
+                parameters.createChild("file").setValue(lineArgs.getTargetFilepath());
+                parameters.createChild("formatName").setValue(lineArgs.getTargetFormatName());
+
                 Node targetNode = new Node("WriteProduct$" + lastNode.getId(), writeOperatorAlias);
                 targetNode.addSource(new NodeSource("input", lastNode.getId()));
-                Xpp3Dom configDom = new Xpp3Dom("parameters");
-                Xpp3Dom dom1 = new Xpp3Dom("file");
-                dom1.setValue(lineArgs.getTargetFilepath());
-                configDom.addChild(dom1);
-                Xpp3Dom dom2 = new Xpp3Dom("formatName");
-                dom2.setValue(lineArgs.getTargetFormatName());
-                configDom.addChild(dom2);
-                targetNode.setConfiguration(configDom);
+                targetNode.setConfiguration(parameters);
+
                 graph.addNode(targetNode);
             }
 

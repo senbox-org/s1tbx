@@ -712,12 +712,10 @@ public class OperatorContext {
     }
 
     private void configureOperator(Operator operator, OperatorConfiguration operatorConfiguration) throws ValidationException, ConversionException {
-        final Xpp3DomElement xpp3DomElement = Xpp3DomElement.createDomElement(operatorConfiguration.getConfiguration());
         ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
-        final DefaultDomConverter domConverter = new DefaultDomConverter(operator.getClass(), parameterDescriptorFactory);
-        domConverter.convertDomToValue(xpp3DomElement, operator);
-
-        final ValueContainer valueContainer = ValueContainer.createObjectBacked(operator, parameterDescriptorFactory);
+        DefaultDomConverter domConverter = new DefaultDomConverter(operator.getClass(), parameterDescriptorFactory);
+        domConverter.convertDomToValue(operatorConfiguration.getConfiguration(), operator);
+        ValueContainer valueContainer = ValueContainer.createObjectBacked(operator, parameterDescriptorFactory);
         Set<Reference> referenceSet = operatorConfiguration.getReferenceSet();
         for (Reference reference : referenceSet) {
             ValueModel valueModel = valueContainer.getModel(reference.getParameterName());

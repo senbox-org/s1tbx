@@ -1,26 +1,25 @@
 package org.esa.beam.framework.gpf.graph;
 
+import com.bc.ceres.binding.dom.DomElement;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
+import org.esa.beam.framework.gpf.internal.OperatorContext;
+
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
-import org.esa.beam.framework.gpf.internal.OperatorContext;
-import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
-
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
-
 @OperatorMetadata(alias = "Graph",
-        description = "Encapsulates a graph into an operator.",
-        internal = true)
+                  description = "Encapsulates a graph into an operator.",
+                  internal = true)
 public class GraphOp extends Operator {
 
     private Operator operator;
@@ -36,10 +35,10 @@ public class GraphOp extends Operator {
                 Node sourceNode = graph.getNode(sourceNodeId);
                 if (sourceNode == null
                         && !isSourceNodeIdInHeader(sourceNodeId, graph
-                                .getHeader().getSources())) {
+                        .getHeader().getSources())) {
                     throw new GraphException("Missing source. Node Id: '"
                             + node.getId() + "' Source Id: '"
-                            + source.getSourceNodeId()+"'");
+                            + source.getSourceNodeId() + "'");
                 }
                 if (sourceNode != null) {
                     graphContext.getNodeContext(sourceNode)
@@ -51,7 +50,7 @@ public class GraphOp extends Operator {
     }
 
     private static boolean isSourceNodeIdInHeader(String sourceNodeId,
-            List<HeaderSource> headerSources) {
+                                                  List<HeaderSource> headerSources) {
         for (HeaderSource headerSource : headerSources) {
             if (sourceNodeId.equals(headerSource.getName())) {
                 return true;
@@ -70,7 +69,7 @@ public class GraphOp extends Operator {
                 NodeContext nodeContext = graphContext.getNodeContext(node);
                 if (nodeContext.isOutput()) {
                     initNodeContext(graphContext, nodeContext,
-                            SubProgressMonitor.create(pm, 1));
+                                    SubProgressMonitor.create(pm, 1));
                     graphContext.addOutputNodeContext(nodeContext);
                 }
             }
@@ -80,7 +79,7 @@ public class GraphOp extends Operator {
     }
 
     private void initNodeContext(GraphContext graphContext,
-            final NodeContext nodeContext, ProgressMonitor pm)
+                                 final NodeContext nodeContext, ProgressMonitor pm)
             throws GraphException {
         try {
             NodeSource[] sources = nodeContext.getNode().getSources();
@@ -96,19 +95,19 @@ public class GraphOp extends Operator {
                         .getNodeContext(source.getSourceNode());
                 if (sourceNodeContext != null) {
                     initNodeContext(graphContext, sourceNodeContext,
-                            SubProgressMonitor.create(pm, 1));
+                                    SubProgressMonitor.create(pm, 1));
                     nodeContext.addSourceProduct(source.getName(),
-                            sourceNodeContext.getTargetProduct());
+                                                 sourceNodeContext.getTargetProduct());
                 } else {
                     Product product = getSourceProduct(source.getSourceNodeId());
                     nodeContext.addSourceProduct(source.getName(), product);
                 }
             }
             Node node = nodeContext.getNode();
-            Xpp3Dom configuration = node.getConfiguration();
-            OperatorConfiguration opConfiguration = GraphContext
-                    .createOperatorConfiguration(configuration, graphContext,
-                            operatorContext.getParameters());
+            DomElement configuration = node.getConfiguration();
+            OperatorConfiguration opConfiguration = GraphContext.createOperatorConfiguration(configuration,
+                                                                                             graphContext,
+                                                                                             operatorContext.getParameters());
             nodeContext.setParameters(opConfiguration);
             nodeContext.initTargetProduct();
             graphContext.getInitNodeContextDeque().addFirst(nodeContext);
@@ -121,10 +120,10 @@ public class GraphOp extends Operator {
             pm.done();
         }
     }
-    
+
     private void fillMapFromConfiguration(Map<String, Object> parameters) {
-            parameters.put("THR", 66.0);
-        
+        parameters.put("THR", 66.0);
+
 //        Xpp3Dom configuration = operatorContext.configuration.getConfiguration();
 //        final Xpp3DomElement xpp3DomElement = Xpp3DomElement.createDomElement(configuration);
 //        
@@ -140,14 +139,14 @@ public class GraphOp extends Operator {
             Graph graph = spi.graph;
 
             operatorContext = getOperatorContext();
-            
+
             Map<String, Object> parameters = operatorContext.getParameters();
             if (parameters == null) {
                 parameters = new HashMap<String, Object>();
             }
             fillMapFromConfiguration(parameters);
             operatorContext.setParameters(parameters);
-            
+
             GraphContext graphContext = new GraphContext(graph, Logger
                     .getAnonymousLogger());
             initNodeDependencies(graphContext);
@@ -193,7 +192,7 @@ public class GraphOp extends Operator {
 
         return operatorContext;
     }
-    
+
     private void enablePassThrough() {
         try {
             Field field = OperatorContext.class.getDeclaredField("passThrough");

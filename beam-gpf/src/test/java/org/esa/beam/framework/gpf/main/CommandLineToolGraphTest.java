@@ -1,6 +1,7 @@
 package org.esa.beam.framework.gpf.main;
 
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import com.bc.ceres.binding.dom.DomElement;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -192,7 +193,7 @@ public class CommandLineToolGraphTest extends TestCase {
         assertNotNull(generatedWriterNode);
         assertEquals("node2", generatedWriterNode.getSource(0).getSourceNodeId());
 
-        Xpp3Dom parameters = generatedWriterNode.getConfiguration();
+        DomElement parameters = generatedWriterNode.getConfiguration();
         assertNotNull(parameters);
         assertNotNull(expectedTargetFilepath, parameters.getChild("file").getValue());
         assertNotNull(expectedTargetFormat, parameters.getChild("formatName").getValue());

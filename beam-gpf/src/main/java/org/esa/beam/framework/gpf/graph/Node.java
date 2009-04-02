@@ -1,7 +1,7 @@
 package org.esa.beam.framework.gpf.graph;
 
 
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import com.bc.ceres.binding.dom.DomElement;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 
@@ -26,7 +26,7 @@ public class Node {
     private String id;
     private String operatorName;
     private SourceList sourceList;
-    private Xpp3Dom configuration;
+    private DomElement configuration;
 
     /**
      * Constructs a new <code>Node</code> instance.
@@ -60,9 +60,7 @@ public class Node {
     }
 
     /**
-     * Adds a <code>NodeSource</code> to the <code>Node</code>.
-     *
-     * @param source the <code>NodeSource</code> to be added
+     * @param source the <code>NodeSource</code> to be added.
      */
     public void addSource(NodeSource source) {
         sourceList.addSource(source);
@@ -72,9 +70,7 @@ public class Node {
      * Returns the <code>NodeSource</code> at the given index position
      *
      * @param index the index of the <code>NodeSource</code> to return
-     *
      * @return the <code>NodeSource</code> at the given index position
-     *
      * @throws IndexOutOfBoundsException if index is out of range
      */
     public NodeSource getSource(int index) throws IndexOutOfBoundsException {
@@ -82,27 +78,27 @@ public class Node {
     }
 
     /**
-     * Returns an array containig all the Sources of this Node.
-     *
-     * @return an array containing the Sources of this Node
+     * @return an array containing the Sources of this node.
      */
     public NodeSource[] getSources() {
         return sourceList.getSources();
     }
 
     /**
-     * Returns a {@link Xpp3Dom} storing the configuration elements of the Node's
-     * Operator.
+     * @return A {@link DomElement} storing the configuration elements of the node's
+     *         Operator.
      */
-    public Xpp3Dom getConfiguration() {
+    public DomElement getConfiguration() {
         return configuration;
     }
 
     /**
-     * Sets the configuration for the Node's {@link org.esa.beam.framework.gpf.Operator} that
+     * Sets the configuration for the node's {@link org.esa.beam.framework.gpf.Operator} that
      * computes the target Product.
+     *
+     * @param configuration The configuration
      */
-    public void setConfiguration(Xpp3Dom configuration) {
+    public void setConfiguration(DomElement configuration) {
         this.configuration = configuration;
     }
 
@@ -111,6 +107,7 @@ public class Node {
      *
      * @return this
      */
+    @SuppressWarnings({"UnusedDeclaration"})
     private Object readResolve() {
         init();
         return this;

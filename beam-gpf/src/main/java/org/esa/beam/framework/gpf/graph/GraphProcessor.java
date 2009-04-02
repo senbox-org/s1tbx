@@ -2,16 +2,21 @@ package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.internal.OperatorImage;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
+import org.esa.beam.framework.gpf.internal.OperatorImage;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -283,8 +288,9 @@ public class GraphProcessor {
                 nodeContext.addSourceProduct(source.getName(), sourceNodeContext.getTargetProduct());
             }
             Node node = nodeContext.getNode();
-            Xpp3Dom configuration = node.getConfiguration();
-            OperatorConfiguration opConfiguration = GraphContext.createOperatorConfiguration(configuration, graphContext, Collections.EMPTY_MAP);
+            OperatorConfiguration opConfiguration = GraphContext.createOperatorConfiguration(node.getConfiguration(),
+                                                                                             graphContext,
+                                                                                             Collections.EMPTY_MAP);
             nodeContext.setParameters(opConfiguration);
             nodeContext.initTargetProduct();
             graphContext.getInitNodeContextDeque().addFirst(nodeContext);

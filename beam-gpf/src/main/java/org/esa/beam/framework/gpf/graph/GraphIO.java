@@ -1,22 +1,15 @@
 package org.esa.beam.framework.gpf.graph;
 
+import com.bc.ceres.binding.dom.DomElementConverter;
+import com.bc.ceres.binding.dom.DomElement;
+import com.bc.ceres.util.TemplateReader;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import org.esa.beam.framework.gpf.internal.ApplicationData;
+
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Map;
-
-import org.esa.beam.framework.gpf.internal.ApplicationData;
-
-import com.bc.ceres.util.TemplateReader;
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
-import com.thoughtworks.xstream.io.xml.XppDomReader;
-import com.thoughtworks.xstream.io.xml.XppDomWriter;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 
 /**
  * The {@link GraphIO} class contains methods for the
@@ -73,7 +66,7 @@ public class GraphIO {
             throw new GraphException("No version is specified in the graph xml.");
         } else if (!Graph.CURRENT_VERSION.equals(graph.getVersion())) {
             throw new GraphException("Wrong version given in the graph xml. " +
-            		"Given version: " + graph.getVersion() + " Current version: "+Graph.CURRENT_VERSION);
+                    "Given version: " + graph.getVersion() + " Current version: " + Graph.CURRENT_VERSION);
         }
         return graph;
     }
@@ -96,13 +89,13 @@ public class GraphIO {
         xStream.alias("target", HeaderTarget.class);
         xStream.useAttributeFor(HeaderTarget.class, "nodeId");
         xStream.aliasAttribute(HeaderTarget.class, "nodeId", "refid");
-        
+
         xStream.addImplicitCollection(Header.class, "sources", "source", HeaderSource.class);
         xStream.registerConverter(new HeaderSource.Converter());
-        
+
         xStream.addImplicitCollection(Header.class, "parameters", "parameter", HeaderParameter.class);
         xStream.registerConverter(new HeaderParameter.Converter());
-        
+
         xStream.alias("node", Node.class);
         xStream.aliasField("operator", Node.class, "operatorName");
         xStream.useAttributeFor(Node.class, "id");
@@ -111,9 +104,9 @@ public class GraphIO {
         xStream.aliasField("sources", Node.class, "sourceList");
         xStream.registerConverter(new SourceList.Converter());
 
-        xStream.alias("parameters", Xpp3Dom.class);
+        xStream.alias("parameters", DomElement.class);
         xStream.aliasField("parameters", Node.class, "configuration");
-        xStream.registerConverter(new Xpp3DomConverter());
+        xStream.registerConverter(new DomElementConverter());
 
         xStream.alias("applicationData", ApplicationData.class);
         xStream.addImplicitCollection(Graph.class, "applicationData", ApplicationData.class);
@@ -126,31 +119,5 @@ public class GraphIO {
      */
     private GraphIO() {
 
-    }
-
-    private static class Xpp3DomConverter implements Converter {
-
-        public boolean canConvert(Class aClass) {
-            return Xpp3Dom.class.equals(aClass);
-        }
-
-        public void marshal(Object object, HierarchicalStreamWriter hierarchicalStreamWriter,
-                            MarshallingContext marshallingContext) {
-            Xpp3Dom configuration = (Xpp3Dom) object;
-            Xpp3Dom[] children = configuration.getChildren();
-            for (Xpp3Dom child : children) {
-                HierarchicalStreamCopier copier = new HierarchicalStreamCopier();
-                XppDomReader source = new XppDomReader(child);
-                copier.copy(source, hierarchicalStreamWriter);
-            }
-        }
-
-        public Object unmarshal(HierarchicalStreamReader hierarchicalStreamReader,
-                                UnmarshallingContext unmarshallingContext) {
-            HierarchicalStreamCopier copier = new HierarchicalStreamCopier();
-            XppDomWriter xppDomWriter = new XppDomWriter();
-            copier.copy(hierarchicalStreamReader, xppDomWriter);
-            return xppDomWriter.getConfiguration();
-        }
     }
 }
