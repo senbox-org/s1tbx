@@ -174,11 +174,11 @@ public class ValueDescriptor {
         setProperty("converter", converter);
     }
 
-    public <T> DomConverter<T> getDomConverter() {
-        return (DomConverter<T>) getProperty("domConverter");
+    public DomConverter getDomConverter() {
+        return (DomConverter) getProperty("domConverter");
     }
 
-    public <T> void setDomConverter(DomConverter<T> converter) {
+    public void setDomConverter(DomConverter converter) {
         setProperty("domConverter", converter);
     }
 

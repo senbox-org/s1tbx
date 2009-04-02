@@ -21,36 +21,36 @@ public class ConverterRegistry {
     private Map<Class<?>, Converter<?>> converters;
 
     {
-        converters = new HashMap<Class<?>, Converter<?>>(10);
+        converters = new HashMap<Class<?>, Converter<?>>(33);
 
         // Primitive types
-        converters.put(Boolean.TYPE, new BooleanConverter());
-        converters.put(Character.TYPE, new CharacterConverter());
-        converters.put(Byte.TYPE, new ByteConverter());
-        converters.put(Short.TYPE, new ShortConverter());
-        converters.put(Integer.TYPE, new IntegerConverter());
-        converters.put(Long.TYPE, new LongConverter());
-        converters.put(Float.TYPE, new FloatConverter());
-        converters.put(Double.TYPE, new DoubleConverter());
+        setConverter(Boolean.TYPE, new BooleanConverter());
+        setConverter(Character.TYPE, new CharacterConverter());
+        setConverter(Byte.TYPE, new ByteConverter());
+        setConverter(Short.TYPE, new ShortConverter());
+        setConverter(Integer.TYPE, new IntegerConverter());
+        setConverter(Long.TYPE, new LongConverter());
+        setConverter(Float.TYPE, new FloatConverter());
+        setConverter(Double.TYPE, new DoubleConverter());
 
         // Primitive type wrappers
-        converters.put(Boolean.class, new BooleanConverter());
-        converters.put(Character.class, new CharacterConverter());
-        converters.put(Byte.class, new ByteConverter());
-        converters.put(Short.class, new ShortConverter());
-        converters.put(Integer.class, new IntegerConverter());
-        converters.put(Long.class, new LongConverter());
-        converters.put(Float.class, new FloatConverter());
-        converters.put(Double.class, new DoubleConverter());
+        setConverter(Boolean.class, new BooleanConverter());
+        setConverter(Character.class, new CharacterConverter());
+        setConverter(Byte.class, new ByteConverter());
+        setConverter(Short.class, new ShortConverter());
+        setConverter(Integer.class, new IntegerConverter());
+        setConverter(Long.class, new LongConverter());
+        setConverter(Float.class, new FloatConverter());
+        setConverter(Double.class, new DoubleConverter());
 
         // Objects
-        converters.put(Color.class, new ColorConverter());
-        converters.put(Date.class, new DateFormatConverter());
-        converters.put(File.class, new FileConverter());
-        converters.put(Font.class, new FontConverter());
-        converters.put(Pattern.class, new PatternConverter());
-        converters.put(String.class, new StringConverter());
-        converters.put(ValueRange.class, new IntervalConverter());
+        setConverter(Color.class, new ColorConverter());
+        setConverter(Date.class, new DateFormatConverter());
+        setConverter(File.class, new FileConverter());
+        setConverter(Font.class, new FontConverter());
+        setConverter(Pattern.class, new PatternConverter());
+        setConverter(String.class, new StringConverter());
+        setConverter(ValueRange.class, new IntervalConverter());
     }
 
     /**
@@ -68,7 +68,7 @@ public class ConverterRegistry {
      * @param type      The type.
      * @param converter The converter.
      */
-    public void setConverter(Class<?> type, Converter<?> converter) {
+    public <T> void setConverter(Class<? extends T> type, Converter<T> converter) {
         converters.put(type, converter);
     }
 
@@ -78,7 +78,7 @@ public class ConverterRegistry {
      * @param type The type.
      * @return The converter or {@code null} if no such exists.
      */
-    public Converter<?> getConverter(Class<?> type) {
+    public <T> Converter<T> getConverter(Class<? extends T> type) {
         Converter<?> converter = converters.get(type);
         if (converter == null) {
             for (Map.Entry<Class<?>, Converter<?>> entry : converters.entrySet()) {
@@ -91,13 +91,13 @@ public class ConverterRegistry {
                 if (type.isArray()) {
                     converter = getConverter(type.getComponentType());
                     if (converter != null) {
-                        return new ArrayConverter(type, converter);
+                        return (Converter<T>) new ArrayConverter(type, converter);
                     }
                 } else if (type.isEnum()) {
                     return new EnumConverter(type);
                 }
             }
         }
-        return converter;
+        return (Converter<T>) converter;
     }
 }
