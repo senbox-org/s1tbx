@@ -37,13 +37,18 @@ import java.util.concurrent.ExecutionException;
 import java.beans.PropertyVetoException;
 
 
+/**
+ * Opens a VISAT session.
+ *
+ * @author Norman Fomferra
+ * @version $Revision$ $Date$
+ * @since BEAM 4.6
+ */
 public class OpenSessionAction extends ExecCommand {
+    public static final String ID = "openSession";
     public static final BeamFileFilter SESSION_FILE_FILTER = new BeamFileFilter("BEAM-SESSION", ".beam", "BEAM session");
     public static final String LAST_SESSION_DIR_KEY = "beam.lastSessionDir";
     private static final String TITLE = "Open Session";
-
-    // todo - move this file into the application instance
-    static File sessionFile;
 
     @Override
     public void actionPerformed(final CommandEvent event) {

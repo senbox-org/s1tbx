@@ -1,5 +1,5 @@
 /*
- * $Id: CloseAllAction.java,v 1.1 2006/11/15 16:21:48 marcop Exp $
+ * $Id: SaveAction.java,v 1.2 2006/11/21 09:05:56 olga Exp $
  *
  * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
  *
@@ -16,30 +16,40 @@
  */
 package org.esa.beam.visat.actions.session;
 
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.framework.ui.command.Command;
+import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.visat.VisatApp;
+
+import javax.swing.JInternalFrame;
+import java.awt.Container;
+import java.io.File;
+import java.util.ArrayList;
 
 
 /**
- * Closes a VISAT session.
+ * Saves a VISAT session with a new filename.
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public class CloseSessionAction extends ExecCommand {
-    public static final String ID = "closeSession";
+public class SaveSessionAsAction extends ExecCommand {
+    public static final String ID = "saveSessionAs";
+    
+    @Override
+    public final void actionPerformed(final CommandEvent event) {
+        final SaveSessionAction action = (SaveSessionAction) VisatApp.getApp().getCommandManager().getCommand(SaveSessionAction.ID);
+        action.saveSession(true);
+    }
 
     @Override
-    public void actionPerformed(final CommandEvent event) {
+    public final void updateState(final CommandEvent event) {
         final VisatApp app = VisatApp.getApp();
-        app.closeAllProducts();
-        app.setSessionFile(null);
+        setEnabled(app.getSessionFile() != null && app.getProductManager().getProductCount() > 0);
     }
 
-    @Override
-    public void updateState(final CommandEvent event) {
-        setEnabled(VisatApp.getApp().getProductManager().getProductCount() > 0);
-    }
+
 }
