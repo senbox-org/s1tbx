@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.awt.Color;
+import java.awt.Font;
 
 /**
  * A registry for {@link Converter}s.
@@ -16,10 +18,10 @@ import java.util.regex.Pattern;
  */
 public class ConverterRegistry {
     private static final ConverterRegistry instance = new ConverterRegistry();
-    private Map<Class<?>, Converter> converters;
+    private Map<Class<?>, Converter<?>> converters;
 
     {
-        converters = new HashMap<Class<?>, Converter>(10);
+        converters = new HashMap<Class<?>, Converter<?>>(10);
 
         // Primitive types
         converters.put(Boolean.TYPE, new BooleanConverter());
@@ -42,10 +44,12 @@ public class ConverterRegistry {
         converters.put(Double.class, new DoubleConverter());
 
         // Objects
-        converters.put(String.class, new StringConverter());
-        converters.put(File.class, new FileConverter());
+        converters.put(Color.class, new ColorConverter());
         converters.put(Date.class, new DateFormatConverter());
+        converters.put(File.class, new FileConverter());
+        converters.put(Font.class, new FontConverter());
         converters.put(Pattern.class, new PatternConverter());
+        converters.put(String.class, new StringConverter());
         converters.put(ValueRange.class, new IntervalConverter());
     }
 
@@ -64,7 +68,7 @@ public class ConverterRegistry {
      * @param type      The type.
      * @param converter The converter.
      */
-    public void setConverter(Class<?> type, Converter converter) {
+    public void setConverter(Class<?> type, Converter<?> converter) {
         converters.put(type, converter);
     }
 
@@ -74,10 +78,10 @@ public class ConverterRegistry {
      * @param type The type.
      * @return The converter or {@code null} if no such exists.
      */
-    public Converter getConverter(Class<?> type) {
-        Converter converter = converters.get(type);
+    public Converter<?> getConverter(Class<?> type) {
+        Converter<?> converter = converters.get(type);
         if (converter == null) {
-            for (Map.Entry<Class<?>, Converter> entry : converters.entrySet()) {
+            for (Map.Entry<Class<?>, Converter<?>> entry : converters.entrySet()) {
                 if (entry.getKey().isAssignableFrom(type)) {
                     converter = entry.getValue();
                     break;
@@ -90,7 +94,7 @@ public class ConverterRegistry {
                         return new ArrayConverter(type, converter);
                     }
                 } else if (type.isEnum()) {
-                    return new EnumConverter((Class<? extends Enum>) type);
+                    return new EnumConverter(type);
                 }
             }
         }
