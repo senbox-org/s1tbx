@@ -7,6 +7,7 @@ import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -225,9 +226,12 @@ public class ValueContainer {
             collect(vc, type.getSuperclass(), valueAccessorFactory, classFieldDescriptorFactory);
             Field[] declaredFields = type.getDeclaredFields();
             for (Field field : declaredFields) {
+                final int mod = field.getModifiers();
+                if (!Modifier.isTransient(mod) && !Modifier.isFinal(mod) && !Modifier.isStatic(mod)) {
                 final ValueDescriptor valueDescriptor = ValueDescriptor.createValueDescriptor(field, classFieldDescriptorFactory);
                 if (valueDescriptor != null) {
                     vc.addModel(new ValueModel(valueDescriptor, valueAccessorFactory.createValueAccessor(field)));
+                }
                 }
             }
         }
