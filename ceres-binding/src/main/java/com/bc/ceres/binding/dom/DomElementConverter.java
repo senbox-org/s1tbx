@@ -44,7 +44,7 @@ public class DomElementConverter implements Converter {
 
     private static class DomElementReader extends AbstractDocumentReader {
 
-        DomElement current;
+        private DomElement current;
         private String[] attributeNames;
 
         public DomElementReader(DomElement child) {
