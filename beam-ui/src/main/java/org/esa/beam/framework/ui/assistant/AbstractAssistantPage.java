@@ -46,20 +46,20 @@ public abstract class AbstractAssistantPage implements AssistantPage {
     protected abstract Component createPageComponent();
 
     @Override
-    public AssistantPage getNextPage() {
-        return null;
+    public boolean validatePage() {
+        return true;
     }
 
     @Override
     public boolean hasNextPage() {
         return false;
     }
-
+    
     @Override
-    public boolean validatePage() {
-        return true;
+    public AssistantPage getNextPage() {
+        return null;
     }
-
+    
     @Override
     public boolean canFinish() {
         return true;
