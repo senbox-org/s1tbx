@@ -21,6 +21,11 @@ import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAss
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 
 /**
+ * A layer source for images.
+ * 
+ * The image can either be associated with an "world-file" or 
+ * the orientation relative to the existing layers has to be given by hand.
+ *
  * @author Marco Zuehlke
  * @version $Revision$ $Date$
  * @since BEAM 4.6
