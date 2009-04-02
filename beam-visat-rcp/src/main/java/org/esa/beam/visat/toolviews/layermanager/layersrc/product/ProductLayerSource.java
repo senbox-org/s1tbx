@@ -21,7 +21,8 @@ import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAss
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 
 /**
- * todo - add API doc
+ * A layer source that adds band or tie-point-grids
+ * from compatible products as new bands.
  *
  * @author Marco Zuehlke
  * @version $Revision$ $Date$

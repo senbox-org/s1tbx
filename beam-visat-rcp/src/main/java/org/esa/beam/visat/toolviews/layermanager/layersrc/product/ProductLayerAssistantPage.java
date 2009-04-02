@@ -35,12 +35,35 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
+class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
 
     private JTree tree;
 
     public ProductLayerAssistantPage() {
         super("Select Band / Tie-Point Grid");
+    }
+    
+    @Override
+    public Component createPageComponent() {
+        ProductTreeModel model = createTreeModel(getContext().getAppContext());
+        tree = new JTree(model);
+        tree.setEditable(false);
+        tree.setShowsRootHandles(true);
+        tree.setRootVisible(false);
+        tree.setCellRenderer(new ProductNodeTreeCellRenderer());
+        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        tree.getSelectionModel().addTreeSelectionListener(new ProductNodeSelectionListener());
+
+        List<CompatibleNodeList> nodeLists = model.compatibleNodeLists;
+        for (CompatibleNodeList nodeList : nodeLists) {
+            tree.expandPath(new TreePath(new Object[]{nodeLists, nodeList}));
+        }
+
+        JPanel panel = new JPanel(new BorderLayout(4, 4));
+        panel.setBorder(new EmptyBorder(4, 4, 4, 4));
+        panel.add(new JLabel("Compatible bands and tie-point grids:"), BorderLayout.NORTH);
+        panel.add(new JScrollPane(tree), BorderLayout.CENTER);
+        return panel;
     }
 
     @Override
@@ -63,10 +86,9 @@ public class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage 
     public boolean performFinish() {
         final RasterDataNode rasterDataNode = (RasterDataNode) tree.getSelectionPath().getLastPathComponent();
 
-        BandImageMultiLevelSource bandImageMultiLevelSource = BandImageMultiLevelSource.create(rasterDataNode,
-                                                                                               ProgressMonitor.NULL);
+        BandImageMultiLevelSource bandImageMultiLevelSource = 
+            BandImageMultiLevelSource.create(rasterDataNode,ProgressMonitor.NULL);
         final ImageLayer imageLayer = new ImageLayer(bandImageMultiLevelSource);
-
         imageLayer.setName(rasterDataNode.getDisplayName());
         imageLayer.setVisible(true);
 
@@ -82,7 +104,6 @@ public class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage 
     }
 
     private static class CompatibleNodeList {
-
         private final String name;
         private final List<RasterDataNode> rasterDataNodes;
 
@@ -90,32 +111,6 @@ public class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage 
             this.name = name;
             this.rasterDataNodes = rasterDataNodes;
         }
-    }
-
-    @Override
-    public Component createPageComponent() {
-
-        ProductTreeModel model = createTreeModel(getContext().getAppContext());
-        tree = new JTree(model);
-        tree.setEditable(false);
-        tree.setShowsRootHandles(true);
-        tree.setRootVisible(false);
-        tree.setCellRenderer(new MyDefaultTreeCellRenderer());
-        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        tree.getSelectionModel().addTreeSelectionListener(new MyListSelectionListener());
-
-        List<CompatibleNodeList> nodeLists = model.compatibleNodeLists;
-        for (CompatibleNodeList nodeList : nodeLists) {
-            tree.expandPath(new TreePath(new Object[]{nodeLists, nodeList}));
-        }
-
-        JPanel panel = new JPanel(new BorderLayout(4, 4));
-        panel.setBorder(new EmptyBorder(4, 4, 4, 4));
-
-        panel.add(new JLabel("Compatible bands and tie-point grids:"), BorderLayout.NORTH);
-        panel.add(new JScrollPane(tree), BorderLayout.CENTER);
-
-        return panel;
     }
 
     private ProductTreeModel createTreeModel(AppContext ctx) {
@@ -148,7 +143,6 @@ public class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage 
                 }
             }
         }
-
         return new ProductTreeModel(compatibleNodeLists);
     }
 
@@ -162,7 +156,7 @@ public class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage 
         }
     }
 
-    private static class MyDefaultTreeCellRenderer extends DefaultTreeCellRenderer {
+    private static class ProductNodeTreeCellRenderer extends DefaultTreeCellRenderer {
 
         @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded,
@@ -180,7 +174,7 @@ public class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage 
         }
     }
 
-    private class MyListSelectionListener implements TreeSelectionListener {
+    private class ProductNodeSelectionListener implements TreeSelectionListener {
 
         @Override
         public void valueChanged(TreeSelectionEvent e) {
