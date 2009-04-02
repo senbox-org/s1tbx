@@ -1,26 +1,20 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
 import com.bc.ceres.glayer.Layer;
+
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.styling.Style;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.InternationalString;
 
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -33,18 +27,26 @@ import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
 
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.border.EmptyBorder;
+
 class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
     private JComboBox styleList;
     private JLabel mapCanvas;
-    private SwingWorker worker;
+    private SwingWorker<BufferedImage, Object> worker;
     private Throwable error;
-    private final ShapefileModel model;
 
-
-    ShapefileAssistantPage2(ShapefileModel model) {
+    ShapefileAssistantPage2() {
         super("Layer Preview");
-        this.model = model;
     }
 
     @Override
@@ -57,12 +59,19 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         mapCanvas = new JLabel();
         mapCanvas.setHorizontalTextPosition(SwingConstants.CENTER);
         mapCanvas.setVerticalTextPosition(SwingConstants.CENTER);
-        JLabel infoLabel = new JLabel(model.getFeatureSourceEnvelope().toString());
+        
+        LayerSourcePageContext context = getContext();
+        String fileName = (String) context.getPropertyValue(ShapefileAssistantPage1.FILE_NAME);
+        ReferencedEnvelope featureSourceEnvelope = (ReferencedEnvelope) context.getPropertyValue(ShapefileAssistantPage1.FEATURE_SOURCE_ENVELOPE);
+        Style[] styles = (Style[]) context.getPropertyValue(ShapefileAssistantPage1.STYLES);
+        Style selectedStyle = (Style) context.getPropertyValue(ShapefileAssistantPage1.SELECTED_STYLE);
 
-        styleList = new JComboBox(model.getStyles());
-        styleList.setSelectedItem(model.getSelectedStyle());
-        styleList.setRenderer(new MyDefaultListCellRenderer());
-        styleList.addItemListener(new MyItemListener());
+        JLabel infoLabel = new JLabel(featureSourceEnvelope.toString());
+
+        styleList = new JComboBox(styles);
+        styleList.setSelectedItem(selectedStyle);
+        styleList.setRenderer(new StyleListCellRenderer());
+        styleList.addItemListener(new StyleSelectionListener());
 
         JPanel panel2 = new JPanel(new BorderLayout(4, 4));
         panel2.setBorder(new EmptyBorder(4, 4, 4, 4));
@@ -71,7 +80,7 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
         JPanel panel3 = new JPanel(new BorderLayout(4, 4));
         panel3.setBorder(new EmptyBorder(4, 4, 4, 4));
-        panel3.add(new JLabel(String.format("<html><b>%s</b>", model.getFile().getName())), BorderLayout.CENTER);
+        panel3.add(new JLabel(String.format("<html><b>%s</b>", fileName)), BorderLayout.CENTER);
         panel3.add(panel2, BorderLayout.EAST);
 
         JPanel panel = new JPanel(new BorderLayout(4, 4));
@@ -83,18 +92,22 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                updateMap(getContext());
+                updateMap();
             }
         });
-
         return panel;
     }
 
-
     @Override
     public boolean performFinish() {
-        FeatureLayer featureLayer = new FeatureLayer(model.getFeatureCollection(), model.getSelectedStyle());
-        featureLayer.setName(model.getFile().getName());
+        LayerSourcePageContext context = getContext();
+        String fileName = (String) context.getPropertyValue(ShapefileAssistantPage1.FILE_NAME);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = 
+            (FeatureCollection<SimpleFeatureType, SimpleFeature>) context.getPropertyValue(ShapefileAssistantPage1.FEATURE_COLLECTION);
+        Style selectedStyle = (Style) context.getPropertyValue(ShapefileAssistantPage1.SELECTED_STYLE);
+        
+        FeatureLayer featureLayer = new FeatureLayer(featureCollection, selectedStyle);
+        featureLayer.setName(fileName);
         featureLayer.setVisible(true);
 
         ProductSceneView sceneView = getContext().getAppContext().getSelectedProductSceneView();
@@ -103,7 +116,7 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         return true;
     }
 
-    private void updateMap(LayerSourcePageContext pageContext) {
+    private void updateMap() {
         if (worker != null && !worker.isDone()) {
             try {
                 worker.cancel(true);
@@ -113,14 +126,14 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         }
         mapCanvas.setText("<html><i>Loading map...</i></html>");
         mapCanvas.setIcon(null);
-        pageContext.getWindow().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        getContext().getWindow().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-        worker = new ShapefileLoader(computeMapSize(), model.getSelectedStyle());
+        ReferencedEnvelope featureSourceEnvelope = (ReferencedEnvelope) getContext().getPropertyValue(ShapefileAssistantPage1.FEATURE_SOURCE_ENVELOPE);
+        worker = new ShapefileLoader(computeMapSize(featureSourceEnvelope));
         worker.execute();
     }
 
-    private Dimension computeMapSize() {
-        final ReferencedEnvelope bbox = model.getFeatureSourceEnvelope();
+    private Dimension computeMapSize(ReferencedEnvelope bbox) {
         double aspectRatio = (bbox.getMaxX() - bbox.getMinX()) / (bbox.getMaxY() - bbox.getMinY());
         Dimension preferredSize = mapCanvas.getSize();
         if (preferredSize.width == 0 || preferredSize.height == 0) {
@@ -133,17 +146,18 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         }
     }
 
-    private class MyItemListener implements ItemListener {
+    private class StyleSelectionListener implements ItemListener {
 
         @Override
         public void itemStateChanged(ItemEvent e) {
-            model.setSelectedStyle((org.geotools.styling.Style) styleList.getSelectedItem());
-            getContext().updateState();
-            updateMap(getContext());
+            LayerSourcePageContext context = getContext();
+            context.setPropertyValue(ShapefileAssistantPage1.SELECTED_STYLE, styleList.getSelectedItem());
+            context.updateState();
+            updateMap();
         }
     }
 
-    private static class MyDefaultListCellRenderer extends DefaultListCellRenderer {
+    private static class StyleListCellRenderer extends DefaultListCellRenderer {
 
         @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
@@ -163,26 +177,30 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
     private class ShapefileLoader extends SwingWorker<BufferedImage, Object> {
 
         private final Dimension size;
-        private final Style style;
 
-        ShapefileLoader(Dimension size, org.geotools.styling.Style style) {
+        ShapefileLoader(Dimension size) {
             this.size = size;
-            this.style = style;
         }
 
         @Override
         protected BufferedImage doInBackground() throws Exception {
-            final CoordinateReferenceSystem crs = model.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
+            LayerSourcePageContext context = getContext();
+            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = 
+                (FeatureCollection<SimpleFeatureType, SimpleFeature>) context.getPropertyValue(ShapefileAssistantPage1.FEATURE_COLLECTION);
+            ReferencedEnvelope featureSourceEnvelope = (ReferencedEnvelope) context.getPropertyValue(ShapefileAssistantPage1.FEATURE_SOURCE_ENVELOPE);
+            Style selectedStyle = (Style) context.getPropertyValue(ShapefileAssistantPage1.SELECTED_STYLE);
+            SimpleFeatureType schema = featureCollection.getSchema();
+            
+            final CoordinateReferenceSystem crs = schema.getGeometryDescriptor().getCoordinateReferenceSystem();
 
             final DefaultMapContext mapContext = new DefaultMapContext(crs);
-            mapContext.addLayer(model.getFeatureCollection(), style);
+            mapContext.addLayer(featureCollection, selectedStyle);
             final StreamingRenderer renderer = new StreamingRenderer();
             renderer.setContext(mapContext);
             final BufferedImage image = new BufferedImage(size.width, size.height, BufferedImage.TYPE_4BYTE_ABGR);
             final Graphics2D graphics2D = image.createGraphics();
             try {
-                renderer.paint(graphics2D, new Rectangle(0, 0, size.width, size.height),
-                               model.getFeatureSourceEnvelope());
+                renderer.paint(graphics2D, new Rectangle(0, 0, size.width, size.height), featureSourceEnvelope);
             } finally {
                 graphics2D.dispose();
             }
@@ -211,6 +229,4 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
             getContext().updateState();
         }
     }
-
-
 }

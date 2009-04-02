@@ -38,6 +38,8 @@ import java.util.Map;
 
 // todo - compute bounds
 /**
+ * A layer that renders a feature collection using a given style.
+ * 
  * @author Marco Peters
  * @author Marco Zühlke
  * @version $Revision: $ $Date: $
@@ -57,7 +59,7 @@ public class FeatureLayer extends Layer {
     private double textOpacity = 1.0;
 
 
-    FeatureLayer(final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
+    public FeatureLayer(final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
                  final Style style) {
         this(LAYER_TYPE, featureCollection, style);
     }

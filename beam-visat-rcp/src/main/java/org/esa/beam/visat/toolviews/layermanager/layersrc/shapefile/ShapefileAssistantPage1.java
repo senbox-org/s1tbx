@@ -55,101 +55,25 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ShapefileAssistantPage extends AbstractLayerSourceAssistantPage {
+class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
 
-    private static final String PROPERTY_LAST_FILE_PREFIX = "ShapefileAssistantPage.Shapefile.history";
-    private static final String PROPERTY_LAST_DIR = "ShapefileAssistantPage.Shapefile.lastDir";
+    static final String FILE_NAME = "fileName";
+    static final String FEATURE_COLLECTION = "featureCollection";
+    static final String FEATURE_SOURCE_ENVELOPE = "featureSourceEnvelope";
+    static final String STYLES = "styles";
+    static final String SELECTED_STYLE = "selectedStyle";
+    
+    private static final String PROPERTY_LAST_FILE_PREFIX = "ShapefileAssistant.Shapefile.history";
+    private static final String PROPERTY_LAST_DIR = "ShapefileAssistant.Shapefile.lastDir";
     private static final org.geotools.styling.StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
     private static final FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
     private HistoryComboBoxModel fileHistoryModel;
-    private final ShapefileModel model;
 
-    public ShapefileAssistantPage(ShapefileModel model) {
+    
+    ShapefileAssistantPage1() {
         super("Select ESRI Shapefile");
-        this.model = model;
     }
-
-    @Override
-    public boolean validatePage() {
-        if (fileHistoryModel != null) {
-            String path = (String) fileHistoryModel.getSelectedItem();
-            return path != null && !path.trim().isEmpty();
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean hasNextPage() {
-        return true;
-    }
-
-    @Override
-    public boolean canFinish() {
-        return false;
-    }
-
-    @Override
-    public AbstractLayerSourceAssistantPage getNextPage() {
-        fileHistoryModel.saveHistory();
-        String path = (String) fileHistoryModel.getSelectedItem();
-        if (path != null && !path.trim().isEmpty()) {
-            try {
-                Product targetProduct = getContext().getAppContext().getSelectedProductSceneView().getProduct();
-
-                CoordinateReferenceSystem targetCrs = targetProduct.getGeoCoding().getModelCRS();
-
-                File file = new File(path);
-                Map<String, Object> map = new HashMap<String, Object>();
-                map.put(ShapefileDataStoreFactory.URLP.key, file.toURI().toURL());
-                map.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, true);
-                DataStore shapefileStore = DataStoreFinder.getDataStore(map);
-
-                String typeName = shapefileStore.getTypeNames()[0]; // Shapefiles do only have one type name
-                FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
-                featureSource = shapefileStore.getFeatureSource(typeName);
-
-                FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
-                featureCollection = featureSource.getFeatures();
-
-                Geometry clipGeometry = createProductGeometry(targetProduct);
-                featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, targetCrs);
-
-                ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(featureCollection.getBounds(),
-                                                                               targetCrs);
-                Style[] styles = createStyle(file, featureCollection.getSchema());
-
-                model.setFile(file);
-                model.setFeatureCollection(featureCollection);
-                model.setFeatureSourceEnvelope(referencedEnvelope);
-                model.setSchema(featureCollection.getSchema());
-                model.setStyles(styles);
-                if (styles.length > 0) {
-                    model.setSelectedStyle(styles[0]);
-                }
-                return new ShapefileAssistantPage2(model);
-            } catch (Exception e) {
-                e.printStackTrace();
-                getContext().showErrorDialog("Failed to load ESRI shapefile:\n" + e.getMessage());
-            }
-        }
-
-        return null;
-    }
-
-    private Geometry createProductGeometry(Product targetProduct) {
-        GeometryFactory gf = new GeometryFactory();
-        GeoPos[] geoPoses = ProductUtils.createGeoBoundary(targetProduct, 100);
-        Coordinate[] coordinates = new Coordinate[geoPoses.length + 1];
-        for (int i = 0; i < geoPoses.length; i++) {
-            GeoPos geoPose = geoPoses[i];
-            coordinates[i] = new Coordinate(geoPose.lon, geoPose.lat);
-        }
-        coordinates[coordinates.length - 1] = coordinates[0];
-
-        return gf.createPolygon(gf.createLinearRing(coordinates), null);
-    }
-
+    
     @Override
     public Component createPageComponent() {
         GridBagConstraints gbc = new GridBagConstraints();
@@ -196,10 +120,90 @@ public class ShapefileAssistantPage extends AbstractLayerSourceAssistantPage {
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridwidth = 1;
         JButton button = new JButton("...");
-        button.addActionListener(new MyActionListener());
+        button.addActionListener(new ShpaeFilechooserActionListener());
         panel.add(button, gbc);
 
         return panel;
+    }
+
+    @Override
+    public boolean validatePage() {
+        if (fileHistoryModel != null) {
+            String path = (String) fileHistoryModel.getSelectedItem();
+            return path != null && !path.trim().isEmpty();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean hasNextPage() {
+        return true;
+    }
+
+    @Override
+    public AbstractLayerSourceAssistantPage getNextPage() {
+        fileHistoryModel.saveHistory();
+        String path = (String) fileHistoryModel.getSelectedItem();
+        if (path != null && !path.trim().isEmpty()) {
+            try {
+                Product targetProduct = getContext().getAppContext().getSelectedProductSceneView().getProduct();
+
+                CoordinateReferenceSystem targetCrs = targetProduct.getGeoCoding().getModelCRS();
+
+                File file = new File(path);
+                Map<String, Object> map = new HashMap<String, Object>();
+                map.put(ShapefileDataStoreFactory.URLP.key, file.toURI().toURL());
+                map.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, Boolean.TRUE);
+                DataStore shapefileStore = DataStoreFinder.getDataStore(map);
+
+                String typeName = shapefileStore.getTypeNames()[0]; // Shapefiles do only have one type name
+                FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+                featureSource = shapefileStore.getFeatureSource(typeName);
+
+                FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
+                featureCollection = featureSource.getFeatures();
+
+                Geometry clipGeometry = createProductGeometry(targetProduct);
+                featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, targetCrs);
+
+                ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(featureCollection.getBounds(),
+                                                                               targetCrs);
+                Style[] styles = createStyle(file, featureCollection.getSchema());
+
+                LayerSourcePageContext context = getContext();
+                context.setPropertyValue(FILE_NAME, file.getName());
+                context.setPropertyValue(FEATURE_COLLECTION, featureCollection);
+                context.setPropertyValue(FEATURE_SOURCE_ENVELOPE, referencedEnvelope);
+                context.setPropertyValue(STYLES, styles);
+                if (styles.length > 0) {
+                    context.setPropertyValue(SELECTED_STYLE, styles[0]);
+                }
+                return new ShapefileAssistantPage2();
+            } catch (Exception e) {
+                e.printStackTrace();
+                getContext().showErrorDialog("Failed to load ESRI shapefile:\n" + e.getMessage());
+            }
+        }
+
+        return null;
+    }
+    
+    @Override
+    public boolean canFinish() {
+        return false;
+    }
+
+    private static Geometry createProductGeometry(Product targetProduct) {
+        GeometryFactory gf = new GeometryFactory();
+        GeoPos[] geoPoses = ProductUtils.createGeoBoundary(targetProduct, 100);
+        Coordinate[] coordinates = new Coordinate[geoPoses.length + 1];
+        for (int i = 0; i < geoPoses.length; i++) {
+            GeoPos geoPose = geoPoses[i];
+            coordinates[i] = new Coordinate(geoPose.lon, geoPose.lat);
+        }
+        coordinates[coordinates.length - 1] = coordinates[0];
+
+        return gf.createPolygon(gf.createLinearRing(coordinates), null);
     }
 
     private static Style[] createStyle(File file, FeatureType schema) {
@@ -210,7 +214,7 @@ public class ShapefileAssistantPage extends AbstractLayerSourceAssistantPage {
                 return styles;
             }
         }
-        Class type = schema.getGeometryDescriptor().getType().getBinding();
+        Class<?> type = schema.getGeometryDescriptor().getType().getBinding();
         if (type.isAssignableFrom(Polygon.class)
             || type.isAssignableFrom(MultiPolygon.class)) {
             return new Style[]{createPolygonStyle()};
@@ -293,7 +297,7 @@ public class ShapefileAssistantPage extends AbstractLayerSourceAssistantPage {
         return style;
     }
 
-    private class MyActionListener implements ActionListener {
+    private class ShpaeFilechooserActionListener implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
