@@ -16,6 +16,7 @@ import java.io.StringReader;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
+import java.util.Date;
 
 public class DefaultDomConverterTest extends TestCase {
 
@@ -46,7 +47,7 @@ public class DefaultDomConverterTest extends TestCase {
         }
     }
 
-    public void testUnmarshalSimplePojo() throws ValidationException, ConversionException {
+    public void testDomToSimplePojo() throws ValidationException, ConversionException {
         final String xml = ""
                            + "<parameters>"
                            + "  <intField>42</intField>"
@@ -71,7 +72,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertEquals(-0.034, value.doubleArrayField[2], 1.e-10);
     }
 
-    public void testMarshalSimplePojo() throws ValidationException, ConversionException {
+    public void testSimplePojoToDom() throws ValidationException, ConversionException {
         final String expectedXml = ""
                                    + "<parameters>"
                                    + "  <fileField>" + new File("C:/data/dat.ini") + "</fileField>"
@@ -89,6 +90,19 @@ public class DefaultDomConverterTest extends TestCase {
         assertEquals(createDom(expectedXml), dom);
     }
 
+    public void testWeirdPojoToDom() throws ValidationException, ConversionException {
+        final String expectedXml = ""
+                                   + "<parameters>"
+                                   + "  <weird/>"
+                                   + "  <name>ernie</name>"
+                                   + "</parameters>";
+        final Xpp3Dom dom = new Xpp3Dom("parameters");
+        final WeirdPojo value = new WeirdPojo();
+        value.weird = new Weird();
+        value.name = "ernie";
+        convertValueToDom(value, dom);
+        assertEquals(createDom(expectedXml), dom);
+    }
 
     public void testUnmarshalAnnotatedPojo() throws ValidationException, ConversionException {
 
@@ -358,9 +372,20 @@ public class DefaultDomConverterTest extends TestCase {
         Endmember[] endmembers;
     }
 
-    @Retention(value = RetentionPolicy.RUNTIME)
-            @interface X {
+    public static class WeirdPojo {
+        final Weird finalWeird = new Weird();
+        Weird weird;
+        String name;
+        transient Date timeStamp = new Date();
+    }
 
+    public static class Weird {
+        static final Weird staticFinalWeird = new Weird();
+        static Weird staticWeird = new Weird();
+    }
+
+    @Retention(value = RetentionPolicy.RUNTIME)
+    @interface X {
         String alias() default "";
 
         String componentAlias() default "";
