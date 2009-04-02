@@ -1,11 +1,12 @@
 package com.bc.ceres.binding.converters;
 
 import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Converter;
 
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-public class PatternConverter implements com.bc.ceres.binding.Converter<Pattern> {
+public class PatternConverter implements Converter<Pattern> {
 
     @Override
     public Class<Pattern> getValueType() {
