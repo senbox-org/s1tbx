@@ -8,7 +8,7 @@ import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 import java.util.HashMap;
 
 /**
- * todo - add API doc
+ * This layer source uses the given layer type to construct new layer.
  *
  * @author Marco Peters
  * @version $Revision: $ $Date: $
