@@ -1,16 +1,10 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
-import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.grender.Rendering;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
 import org.geotools.data.FeatureSource;
-import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
@@ -19,33 +13,25 @@ import org.geotools.map.MapLayer;
 import org.geotools.renderer.lite.LabelCache;
 import org.geotools.renderer.lite.LabelCacheDefault;
 import org.geotools.renderer.lite.StreamingRenderer;
-import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Fill;
-import org.geotools.styling.LineSymbolizer;
-import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
-import org.geotools.styling.Rule;
-import org.geotools.styling.SLD;
-import org.geotools.styling.SLDParser;
 import org.geotools.styling.Stroke;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleBuilder;
-import org.geotools.styling.Symbolizer;
+import org.geotools.styling.TextSymbolizer;
 import org.geotools.styling.visitor.DuplicatingStyleVisitor;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
-import org.opengis.filter.FilterFactory;
+import org.opengis.filter.expression.Expression;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.swing.JOptionPane;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,20 +39,23 @@ import java.util.Map;
 // todo - compute bounds
 /**
  * @author Marco Peters
+ * @author Marco Zühlke
  * @version $Revision: $ $Date: $
  * @since BEAM 4.6
  */
 public class FeatureLayer extends Layer {
 
     private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
-    private static final org.geotools.styling.StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
-    private static final FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
 
     private MapContext mapContext;
     private CoordinateReferenceSystem crs;
 
     private StreamingRenderer renderer;
     private LabelCache labelCache;
+    private double polyFillOpacity = 1.0;
+    private double polyStrokeOpacity = 1.0;
+    private double textOpacity = 1.0;
+
 
     FeatureLayer(final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
                  final Style style) {
@@ -84,24 +73,50 @@ public class FeatureLayer extends Layer {
         mapContext.addLayer(featureCollection, style);
         renderer = new StreamingRenderer();
         workaroundLabelCacheBug();
+        style.accept(new RetrievingStyleVisitor());
         renderer.setContext(mapContext);
     }
 
-    public Style getSLDStyle() {
-        return mapContext.getLayer(0).getStyle();
+    public double getPolyFillOpacity() {
+        return polyFillOpacity;
     }
 
-    public void setSLDStyle(Style style) {
-        Assert.argument(style != null, "style != null");
-        MapLayer mapLayer = mapContext.getLayer(0);
-        mapLayer.setStyle(style);
-        super.fireLayerDataChanged(null);
+    public double getPolyStrokeOpacity() {
+        return polyStrokeOpacity;
+    }
+
+    public double getTextOpacity() {
+        return textOpacity;
+    }
+
+    public void setPolyFillOpacity(double opacity) {
+        if (opacity != polyFillOpacity) {
+            polyFillOpacity = opacity;
+            applyOpacity();
+            fireLayerDataChanged(null);
+        }
+    }
+
+    public void setPolyStrokeOpacity(double opacity) {
+        if (opacity != polyStrokeOpacity) {
+            polyStrokeOpacity = opacity;
+            applyOpacity();
+            fireLayerDataChanged(null);
+        }
+    }
+
+    public void setTextOpacity(double opacity) {
+        if (opacity != textOpacity) {
+            textOpacity = opacity;
+            applyOpacity();
+            fireLayerDataChanged(null);
+        }
     }
 
     @Override
     protected void fireLayerPropertyChanged(PropertyChangeEvent event) {
         if (event.getPropertyName().equals(com.bc.ceres.glayer.Style.PROPERTY_NAME_OPACITY)) {
-            applyOpacity(getStyle().getOpacity());
+            applyOpacity();
         }
         super.fireLayerPropertyChanged(event);
     }
@@ -132,134 +147,94 @@ public class FeatureLayer extends Layer {
         renderer.paint(rendering.getGraphics(), bounds, mapArea);
     }
 
-    private void applyOpacity(final double opacity) {
+    private void applyOpacity() {
         final MapLayer layer = mapContext.getLayer(0);
         if (layer != null) {
             Style style = layer.getStyle();
-            DuplicatingStyleVisitor copyStyle = new ShapefileOpacityStyleVisitor(opacity);
+            DuplicatingStyleVisitor copyStyle = new ApplyingStyleVisitor();
             style.accept(copyStyle);
             layer.setStyle((Style) copyStyle.getCopy());
         }
     }
 
-    public static Style createStyle(File file, FeatureType schema) {
-        File sld = toSLDFile(file);
-        if (sld.exists()) {
-            return createFromSLD(sld);
-        }
-        Class type = schema.getGeometryDescriptor().getType().getBinding();
-        if (type.isAssignableFrom(Polygon.class)
-            || type.isAssignableFrom(MultiPolygon.class)) {
-            return createPolygonStyle();
-        } else if (type.isAssignableFrom(LineString.class)
-                   || type.isAssignableFrom(MultiLineString.class)) {
-            return createLineStyle();
-        } else {
-            return createPointStyle();
-        }
-    }
+    private class ApplyingStyleVisitor extends DuplicatingStyleVisitor {
 
-    /*
-     * Figure out the URL for the "sld" file
-     */
-    private static File toSLDFile(File file) {
-        String filename = file.getAbsolutePath();
-        if (filename.endsWith(".shp") || filename.endsWith(".dbf")
-            || filename.endsWith(".shx")) {
-            filename = filename.substring(0, filename.length() - 4);
-            filename += ".sld";
-        } else if (filename.endsWith(".SHP") || filename.endsWith(".DBF")
-                   || filename.endsWith(".SHX")) {
-            filename = filename.substring(0, filename.length() - 4);
-            filename += ".SLD";
-        }
-        return new File(filename);
-    }
+        private final Expression polyFillExp;
+        private final Expression polyStrokeExp;
+        private final Expression textExp;
+        private final Fill defaultTextFill;
 
-    private static Style createFromSLD(File sld) {
-        try {
-            SLDParser stylereader = new SLDParser(styleFactory, sld.toURI().toURL());
-            Style[] style = stylereader.readXML();
-            return style[0];
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        }
-        return null;
-    }
-
-    private static Style createPointStyle() {
-        PointSymbolizer symbolizer = styleFactory.createPointSymbolizer();
-        symbolizer.getGraphic().setSize(filterFactory.literal(1));
-
-        Rule rule = styleFactory.createRule();
-        rule.setSymbolizers(new Symbolizer[]{symbolizer});
-        FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
-        fts.setRules(new Rule[]{rule});
-
-        Style style = styleFactory.createStyle();
-        style.addFeatureTypeStyle(fts);
-        return style;
-    }
-
-    private static Style createLineStyle() {
-        LineSymbolizer symbolizer = styleFactory.createLineSymbolizer();
-        SLD.setLineColour(symbolizer, Color.BLUE);
-        symbolizer.getStroke().setWidth(filterFactory.literal(1));
-        symbolizer.getStroke().setColor(filterFactory.literal(Color.BLUE));
-
-        Rule rule = styleFactory.createRule();
-        rule.setSymbolizers(new Symbolizer[]{symbolizer});
-        FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
-        fts.setRules(new Rule[]{rule});
-
-        Style style = styleFactory.createStyle();
-        style.addFeatureTypeStyle(fts);
-        return style;
-    }
-
-    private static Style createPolygonStyle() {
-        PolygonSymbolizer symbolizer = styleFactory.createPolygonSymbolizer();
-        Fill fill = styleFactory.createFill(
-                filterFactory.literal("#FFAA00"),
-                filterFactory.literal(0.5)
-        );
-        symbolizer.setFill(fill);
-        Rule rule = styleFactory.createRule();
-        rule.setSymbolizers(new Symbolizer[]{symbolizer});
-        FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
-        fts.setRules(new Rule[]{rule});
-
-        Style style = styleFactory.createStyle();
-        style.addFeatureTypeStyle(fts);
-        return style;
-    }
-
-    private static class ShapefileOpacityStyleVisitor extends DuplicatingStyleVisitor {
-
-        private final double opacity;
-        private final StyleBuilder sb;
-
-        ShapefileOpacityStyleVisitor(double opacity) {
-            this.opacity = opacity;
-            sb = new StyleBuilder();
+        private ApplyingStyleVisitor() {
+            StyleBuilder sb = new StyleBuilder();
+            polyFillExp = sb.literalExpression(polyFillOpacity * getStyle().getOpacity());
+            polyStrokeExp = sb.literalExpression(polyStrokeOpacity * getStyle().getOpacity());
+            textExp = sb.literalExpression(textOpacity * getStyle().getOpacity());
+            defaultTextFill = sb.createFill(Color.BLACK, textOpacity * getStyle().getOpacity());
         }
 
         @Override
-        public void visit(Fill fill) {
-            super.visit(fill);
-            Fill fillCopy = (Fill) pages.pop();
-            double v = opacity * fill.getOpacity().evaluate(fill.getOpacity(), Double.class);
-            fillCopy.setOpacity(sb.literalExpression(v));
-            pages.push(fillCopy);
+        public void visit(PolygonSymbolizer poly) {
+            super.visit(poly);
+            PolygonSymbolizer polyCopy = (PolygonSymbolizer) pages.peek();
+            Fill polyFill = polyCopy.getFill();
+            if (polyFill != null) {
+                polyFill.setOpacity(polyFillExp);
+            }
+
+            Stroke polyStroke = polyCopy.getStroke();
+            if (polyStroke != null) {
+                polyStroke.setOpacity(polyStrokeExp);
+            }
+        }
+
+
+        @Override
+        public void visit(TextSymbolizer text) {
+            super.visit(text);
+            TextSymbolizer textCopy = (TextSymbolizer) pages.peek();
+            Fill textFill = textCopy.getFill();
+            if (textFill != null) {
+                textFill.setOpacity(textExp);
+            } else {
+                textCopy.setFill(defaultTextFill);
+            }
+        }
+    }
+
+    private class RetrievingStyleVisitor extends DuplicatingStyleVisitor {
+
+        @Override
+        public void visit(PolygonSymbolizer poly) {
+            super.visit(poly);
+            PolygonSymbolizer polyCopy = (PolygonSymbolizer) pages.peek();
+            Fill polyFill = polyCopy.getFill();
+            if (polyFill != null) {
+                Expression opacityExpression = polyFill.getOpacity();
+                if (opacityExpression != null) {
+                    polyFillOpacity = (opacityExpression.evaluate(opacityExpression, Double.class));
+                }
+            }
+
+            Stroke polyStroke = polyCopy.getStroke();
+            if (polyStroke != null) {
+                Expression opacityExpression = polyStroke.getOpacity();
+                if (opacityExpression != null) {
+                    polyStrokeOpacity = opacityExpression.evaluate(opacityExpression, Double.class);
+                }
+            }
         }
 
         @Override
-        public void visit(Stroke stroke) {
-            super.visit(stroke);
-            Stroke strokeCopy = (Stroke) pages.pop();
-            double v = opacity * stroke.getOpacity().evaluate(stroke.getOpacity(), Double.class);
-            strokeCopy.setOpacity(sb.literalExpression(v));
-            pages.push(strokeCopy);
+        public void visit(TextSymbolizer text) {
+            super.visit(text);
+            TextSymbolizer textCopy = (TextSymbolizer) pages.peek();
+            Fill textFill = textCopy.getFill();
+            if (textFill != null) {
+                Expression opacityExpression = textFill.getOpacity();
+                if (opacityExpression != null) {
+                    textOpacity = opacityExpression.evaluate(opacityExpression, Double.class);
+                }
+            }
         }
     }
 
