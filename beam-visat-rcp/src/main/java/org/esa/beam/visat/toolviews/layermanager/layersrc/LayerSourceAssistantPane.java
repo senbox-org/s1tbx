@@ -38,11 +38,6 @@ public class LayerSourceAssistantPane extends AssistantPane implements LayerSour
     }
 
     @Override
-    public boolean hasPropertyKey(String key) {
-        return properties.containsKey(key);
-    }
-
-    @Override
     public Object getPropertyValue(String key) {
         return properties.get(key);
     }

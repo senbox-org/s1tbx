@@ -22,15 +22,6 @@ public interface LayerSourcePageContext extends AssistantPageContext {
     LayerContext getLayerContext();
 
     /**
-     * Check if the key already exists.
-     *
-     * @param key The key to check.
-     *
-     * @return true, if the key exists, otherwise false.
-     */
-    boolean hasPropertyKey(String key);
-
-    /**
      * Gets the value for the given key.
      *
      * @param key The key of the property.
