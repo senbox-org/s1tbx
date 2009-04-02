@@ -8,7 +8,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class DateFormatConverter implements Converter {
+public class DateFormatConverter implements Converter<Date>{
     private DateFormat format;
 
     public DateFormatConverter() {
@@ -19,25 +19,28 @@ public class DateFormatConverter implements Converter {
         this.format = format;
     }
 
-    public Class<?> getValueType() {
+    @Override
+    public Class<Date> getValueType() {
         return Date.class;
     }
 
-    public Object parse(String text) throws ConversionException {
+    @Override
+    public Date parse(String text) throws ConversionException {
         if (text.isEmpty()) {
             return null;
         }
         try {
-            return format.parseObject(text);
+            return format.parse(text);
         } catch (ParseException e) {
             throw new ConversionException(e);
         }
     }
 
-    public String format(Object value) {
+    @Override
+    public String format(Date value) {
         if (value == null) {
             return "";
         }
-        return format.format((Date) value);
+        return format.format( value);
     }
 }

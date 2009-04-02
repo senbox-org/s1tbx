@@ -9,18 +9,20 @@ import com.bc.ceres.binding.ConversionException;
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
-public class EnumConverter implements Converter {
-    private Class<? extends Enum> type;
+public class EnumConverter<T extends Enum<T>> implements Converter<T> {
+    private Class<T> type;
 
-    public EnumConverter(Class<? extends Enum> type) {
+    public EnumConverter(Class<T> type) {
         this.type = type;
     }
 
-    public Class<?> getValueType() {
+    @Override
+    public Class<T> getValueType() {
         return type;
     }
 
-    public Object parse(String text) throws ConversionException {
+    @Override
+    public T parse(String text) throws ConversionException {
         if (text.isEmpty()) {
             return null;
         }
@@ -31,7 +33,8 @@ public class EnumConverter implements Converter {
         }
     }
 
-    public String format(Object value) {
+    @Override
+    public String format(T value) {
         if (value == null) {
             return "";
         }

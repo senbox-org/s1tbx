@@ -1,14 +1,14 @@
 package com.bc.ceres.binding.converters;
 
 
-public class IntegerConverter extends NumberConverter {
+public class IntegerConverter extends NumberConverter<Integer> {
     @Override
-    public Class<?> getValueType() {
+    public Class<Integer> getValueType() {
         return Integer.class;
     }
 
     @Override
-    public Object parseNumber(String value) throws NumberFormatException {
+    public Integer parseNumber(String value) throws NumberFormatException {
         return Integer.parseInt(value);
     }
 }

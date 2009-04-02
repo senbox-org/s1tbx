@@ -5,13 +5,15 @@ import com.bc.ceres.binding.ConversionException;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-public class PatternConverter implements com.bc.ceres.binding.Converter {
+public class PatternConverter implements com.bc.ceres.binding.Converter<Pattern> {
 
-    public Class<?> getValueType() {
+    @Override
+    public Class<Pattern> getValueType() {
         return Pattern.class;
     }
 
-    public Object parse(String text) throws ConversionException {
+    @Override
+    public Pattern parse(String text) throws ConversionException {
         if (text.isEmpty()) {
             return null;
         }
@@ -22,7 +24,8 @@ public class PatternConverter implements com.bc.ceres.binding.Converter {
         }
     }
 
-    public String format(Object value) {
+    @Override
+    public String format(Pattern value) {
         return value.toString();
     }
 }

@@ -5,20 +5,23 @@ import com.bc.ceres.binding.Converter;
 
 import java.io.File;
 
-public class FileConverter implements Converter {
+public class FileConverter implements Converter<File> {
 
-    public Class<?> getValueType() {
+    @Override
+    public Class<File> getValueType() {
         return File.class;
     }
 
-    public Object parse(String text) throws ConversionException {
+    @Override
+    public File parse(String text) throws ConversionException {
         if (text.isEmpty()) {
             return null;
         }
         return new File(text);
     }
 
-    public String format(Object value) {
+    @Override
+    public String format(File value) {
         if (value == null) {
             return "";
         }

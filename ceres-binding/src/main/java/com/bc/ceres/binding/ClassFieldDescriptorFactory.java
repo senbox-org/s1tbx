@@ -1,6 +1,7 @@
 package com.bc.ceres.binding;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * A factory for value descriptors derived from class {@link Field}s.
@@ -16,4 +17,8 @@ public interface ClassFieldDescriptorFactory {
      * @return The value descriptor.
      */
     ValueDescriptor createValueDescriptor(Field field);
+
+    // todo  - think about extending and renaming this interface: PropertyDescriptorFactory
+    // ValueDescriptor createValueDescriptor(Method getter, Method setter);
+
 }

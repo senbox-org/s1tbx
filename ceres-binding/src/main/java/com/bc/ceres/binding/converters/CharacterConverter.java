@@ -3,12 +3,14 @@ package com.bc.ceres.binding.converters;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConversionException;
 
-public class CharacterConverter implements Converter {
-    public Class<?> getValueType() {
+public class CharacterConverter implements Converter<Character> {
+    @Override
+    public Class<Character> getValueType() {
         return Character.class;
     }
 
-    public Object parse(String text) throws ConversionException {
+    @Override
+    public Character parse(String text) throws ConversionException {
         if (text.isEmpty()) {
             return null;
         }
@@ -18,7 +20,8 @@ public class CharacterConverter implements Converter {
         return text.charAt(0);
     }
 
-    public String format(Object value)  {
+    @Override
+    public String format(Character value)  {
         if (value == null) {
             return "";
         }

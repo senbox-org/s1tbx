@@ -1,14 +1,14 @@
 package com.bc.ceres.binding.converters;
 
-public class FloatConverter extends NumberConverter {
+public class FloatConverter extends NumberConverter<Float> {
 
     @Override
-    public Class<?> getValueType() {
+    public Class<Float> getValueType() {
         return Float.class;
     }
 
     @Override
-    public Object parseNumber(String value) throws NumberFormatException {
+    public Float parseNumber(String value) throws NumberFormatException {
         return Float.parseFloat(value);
     }
 }

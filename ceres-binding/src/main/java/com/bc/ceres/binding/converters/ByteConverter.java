@@ -1,13 +1,13 @@
 package com.bc.ceres.binding.converters;
 
-public class ByteConverter extends NumberConverter {
+public class ByteConverter extends NumberConverter<Byte> {
     @Override
-    public Class<?> getValueType() {
+    public Class<Byte> getValueType() {
         return Byte.class;
     }
 
     @Override
-    public Object parseNumber(String value) throws NumberFormatException {
+    public Byte parseNumber(String value) throws NumberFormatException {
         return Byte.parseByte(value);
     }
 }

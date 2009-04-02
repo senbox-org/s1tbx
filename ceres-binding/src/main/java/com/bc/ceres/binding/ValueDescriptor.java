@@ -1,6 +1,5 @@
 package com.bc.ceres.binding;
 
-import com.bc.ceres.core.Assert;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.validators.ArrayValidator;
 import com.bc.ceres.binding.validators.IntervalValidator;
@@ -10,13 +9,17 @@ import com.bc.ceres.binding.validators.NotNullValidator;
 import com.bc.ceres.binding.validators.PatternValidator;
 import com.bc.ceres.binding.validators.TypeValidator;
 import com.bc.ceres.binding.validators.ValueSetValidator;
+import com.bc.ceres.core.Assert;
 
-import java.lang.reflect.Field;
-import java.util.*;
-import java.util.regex.Pattern;
-import java.beans.PropertyChangeSupport;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Describes a value by its name, type and a set of optional (mutable) properties.
@@ -29,8 +32,11 @@ import java.beans.PropertyChangeEvent;
  * @since 0.6
  */
 public class ValueDescriptor {
+
     private final String name;
     private final Class<?> type;
+    private volatile Validator effectiveValidator;
+
     private Map<String, Object> properties;
     private PropertyChangeSupport propertyChangeSupport;
 
@@ -45,6 +51,7 @@ public class ValueDescriptor {
         this.name = name;
         this.type = type;
         this.properties = properties;
+        addPropertyChangeListener(new EffectiveValidatorUpdater());
     }
 
     public String getName() {
@@ -154,7 +161,7 @@ public class ValueDescriptor {
         }
         return converter;
     }
-    
+
     public void setDefaultConverter() {
         Class<?> type = getType();
         if (getItemAlias() != null && type.isArray()) {
@@ -167,11 +174,11 @@ public class ValueDescriptor {
         setProperty("converter", converter);
     }
 
-    public DomConverter<?> getDomConverter() {
-        return (DomConverter<?>) getProperty("domConverter");
+    public <T> DomConverter<T> getDomConverter() {
+        return (DomConverter<T>) getProperty("domConverter");
     }
 
-    public void setDomConverter(DomConverter<?> converter) {
+    public <T> void setDomConverter(DomConverter<T> converter) {
         setProperty("domConverter", converter);
     }
 
@@ -182,6 +189,18 @@ public class ValueDescriptor {
     public void setValidator(Validator validator) {
         setProperty("validator", validator);
     }
+
+    Validator getEffectiveValidator() {
+        if (effectiveValidator == null) {
+            synchronized (this) {
+                if (effectiveValidator == null) {
+                    effectiveValidator = createEffectiveValidator();
+                }
+            }
+        }
+        return effectiveValidator;
+    }
+
 
     //////////////////////////////////////////////////////////////////////////////
     // Array/List item properties
@@ -195,7 +214,7 @@ public class ValueDescriptor {
     }
 
     public boolean getItemsInlined() {
-        return  getBooleanProperty("itemsInlined");
+        return getBooleanProperty("itemsInlined");
     }
 
     public void setItemsInlined(boolean inlined) {
@@ -292,11 +311,11 @@ public class ValueDescriptor {
         return v != null && (Boolean) v;
     }
 
-    Validator createValidator() {
+    private Validator createEffectiveValidator() {
         List<Validator> validators = new ArrayList<Validator>(3);
-    
+
         validators.add(new TypeValidator());
-    
+
         if (isNotNull()) {
             validators.add(new NotNullValidator());
         }
@@ -330,4 +349,11 @@ public class ValueDescriptor {
         return validator;
     }
 
+    private class EffectiveValidatorUpdater implements PropertyChangeListener {
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            // Force recreation of validator
+            effectiveValidator = null;
+        }
+    }
 }

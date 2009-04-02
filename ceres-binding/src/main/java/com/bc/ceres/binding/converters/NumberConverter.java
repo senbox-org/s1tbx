@@ -3,13 +3,13 @@ package com.bc.ceres.binding.converters;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 
-public abstract class NumberConverter implements Converter {
+public abstract class NumberConverter<T extends Number > implements Converter<T> {
 
-    public Class<?> getValueType() {
-        return Number.class;
-    }
+    @Override
+    public abstract Class<? extends T> getValueType() ;
 
-    public Object parse(String value) throws ConversionException {
+    @Override
+    public T parse(String value) throws ConversionException {
         if (value.isEmpty()) {
             return null;
         }
@@ -20,9 +20,10 @@ public abstract class NumberConverter implements Converter {
         }
     }
 
-    protected abstract Object parseNumber(String value) throws NumberFormatException;
+    protected abstract T parseNumber(String value) throws NumberFormatException;
 
-    public String format(Object value) {
+    @Override
+    public String format(T value) {
         if (value == null) {
             return "";
         }

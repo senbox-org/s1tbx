@@ -1,15 +1,15 @@
 package com.bc.ceres.binding.converters;
 
 
-public class DoubleConverter extends NumberConverter {
+public class DoubleConverter extends NumberConverter<Double> {
 
     @Override
-    public Class<?> getValueType() {
+    public Class<Double> getValueType() {
         return Double.class;
     }
 
     @Override
-    public Object parseNumber(String value) throws NumberFormatException {
+    public Double parseNumber(String value) throws NumberFormatException {
         return Double.parseDouble(value);
     }
 }

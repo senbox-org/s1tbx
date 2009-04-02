@@ -7,13 +7,13 @@ package com.bc.ceres.binding;
  * @author Norman Fomferra
  * @since 0.6
  */
-public interface Converter {
+public interface Converter<T> {
     /**
      * Gets the value type.
      *
      * @return The value type.
      */
-    Class<?> getValueType();
+    Class<? extends T> getValueType();
 
     /**
      * Converts a value from its plain text representation to a Java object instance
@@ -23,7 +23,7 @@ public interface Converter {
      * @return The converted value.
      * @throws ConversionException If the conversion fails.
      */
-    Object parse(String text) throws ConversionException;
+    T parse(String text) throws ConversionException;
 
     /**
      * Converts a value of the type returned by {@link #getValueType()} to its
@@ -32,5 +32,5 @@ public interface Converter {
      * @param value The value to be converted to text.
      * @return The textual representation of the value.
      */
-    String format(Object value);
+    String format(T value);
 }

@@ -1,13 +1,13 @@
 package com.bc.ceres.binding.converters;
 
-public class ShortConverter extends NumberConverter {
+public class ShortConverter extends NumberConverter<Short> {
     @Override
-    public Class<?> getValueType() {
+    public Class<Short> getValueType() {
         return Short.class;
     }
 
     @Override
-    public Object parseNumber(String text) throws NumberFormatException {
+    public Short parseNumber(String text) throws NumberFormatException {
         return Short.parseShort(text);
     }
 }

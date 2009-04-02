@@ -3,9 +3,7 @@ package com.bc.ceres.binding;
 import com.bc.ceres.binding.accessors.ClassFieldAccessor;
 import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
-import com.bc.ceres.binding.validators.TypeValidator;
 
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -38,14 +36,11 @@ public class ValueModel {
 
     private final ValueAccessor accessor;
 
-    private Validator validator;
-
     private ValueContainer container;
 
     public ValueModel(ValueDescriptor descriptor, ValueAccessor accessor) {
         this.descriptor = descriptor;
         this.accessor = accessor;
-        this.descriptor.addPropertyChangeListener(new ValidatorPCL());
     }
 
     public static ValueModel createClassFieldModel(Object object, String name) {
@@ -86,15 +81,8 @@ public class ValueModel {
         this.container = container;
     }
 
-    public synchronized Validator getValidator() {
-        if (validator == null) {
-            validator = descriptor.createValidator();
-        }
-        return validator;
-    }
-
-    synchronized void setValidator(Validator validator) {
-        this.validator = validator;
+    public Validator getValidator() {
+        return descriptor.getEffectiveValidator();
     }
 
     public String getValueAsText() {
@@ -197,11 +185,5 @@ public class ValueModel {
         return field;
     }
 
-    private class ValidatorPCL implements PropertyChangeListener {
 
-        public void propertyChange(PropertyChangeEvent evt) {
-            // Force recreation of validator
-            setValidator(null);
-        }
-    }
 }
