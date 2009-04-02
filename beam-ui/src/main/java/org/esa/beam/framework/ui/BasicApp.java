@@ -19,7 +19,11 @@ package org.esa.beam.framework.ui;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import com.jidesoft.action.*;
+import com.jidesoft.action.CommandBar;
+import com.jidesoft.action.DefaultDockableBarDockableHolder;
+import com.jidesoft.action.DockableBar;
+import com.jidesoft.action.DockableBarContext;
+import com.jidesoft.action.DockableBarManager;
 import com.jidesoft.action.event.DockableBarAdapter;
 import com.jidesoft.action.event.DockableBarEvent;
 import com.jidesoft.docking.DefaultDockingManager;
@@ -32,8 +36,19 @@ import com.jidesoft.swing.LayoutPersistence;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.framework.ui.application.support.DefaultApplicationDescriptor;
-import org.esa.beam.framework.ui.command.*;
-import org.esa.beam.util.*;
+import org.esa.beam.framework.ui.command.Command;
+import org.esa.beam.framework.ui.command.CommandGroup;
+import org.esa.beam.framework.ui.command.CommandManager;
+import org.esa.beam.framework.ui.command.CommandMenuUtils;
+import org.esa.beam.framework.ui.command.CommandUIFactory;
+import org.esa.beam.framework.ui.command.DefaultCommandManager;
+import org.esa.beam.framework.ui.command.DefaultCommandUIFactory;
+import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.FileChooserFactory;
 import org.esa.beam.util.io.FileUtils;
@@ -42,18 +57,60 @@ import org.esa.beam.util.logging.CacheHandler;
 
 import javax.help.HelpSet;
 import javax.help.HelpSetException;
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.Action;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JToolBar;
+import javax.swing.RepaintManager;
+import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.FontUIResource;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.HeadlessException;
+import java.awt.Rectangle;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
-import java.util.logging.*;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The <code>BasicApp</code> can be used as a base class for applications which use a single main frame as user
@@ -771,7 +828,7 @@ public class BasicApp {
         }
     }
 
-     // The 'root' parent name of the given command.
+    // The 'root' parent name of the given command.
     private String findRootParent(Command command) {
         String parent = command.getParent();
         if (parent != null) {
@@ -1160,10 +1217,13 @@ public class BasicApp {
      * @param lastDirPropertyKey the key under which the last directory the user visited is stored
      * @return the file selected by the user or <code>null</code> if the user canceled file selection
      */
-    public final File showFileOpenDialog(String title, boolean dirsOnly, FileFilter fileFilter,
+    public final File showFileOpenDialog(String title,
+                                         boolean dirsOnly,
+                                         FileFilter fileFilter,
                                          String lastDirPropertyKey) {
+        Assert.notNull(lastDirPropertyKey, "lastDirPropertyKey");
+        Assert.argument(!lastDirPropertyKey.isEmpty(), "!lastDirPropertyKey.isEmpty()");
 
-        Guardian.assertNotNullOrEmpty("lastDirPropertyKey", lastDirPropertyKey);
         String lastDir = getPreferences().getPropertyString(lastDirPropertyKey,
                                                             SystemUtils.getUserHomeDir().getPath());
         File currentDir = new File(lastDir);
@@ -1236,7 +1296,45 @@ public class BasicApp {
                                          String defaultExtension,
                                          final String fileName,
                                          final String lastDirPropertyKey) {
-        Guardian.assertNotNullOrEmpty("lastDirPropertyKey", lastDirPropertyKey);
+
+        // Loop while the user does not want to overwrite a selected, existing file
+        // or if the user presses "Cancel"
+        //
+        File file = null;
+        while (file == null) {
+            file = showFileSaveDialogImpl(title,
+                                          dirsOnly,
+                                          fileFilter,
+                                          defaultExtension,
+                                          fileName,
+                                          lastDirPropertyKey);
+            if (file == null) {
+                return null; // Cancel
+            } else if (file.exists()) {
+                int status = JOptionPane.showConfirmDialog(getMainFrame(),
+                                                           MessageFormat.format("The file ''{0}'' already exists.\nOverwrite it?", file),
+                                                           MessageFormat.format("{0} - {1}", getAppName(), title),
+                                                           JOptionPane.YES_NO_CANCEL_OPTION,
+                                                           JOptionPane.WARNING_MESSAGE);
+                if (status == JOptionPane.CANCEL_OPTION) {
+                    return null; // Cancel
+                } else if (status == JOptionPane.NO_OPTION) {
+                    file = null; // No, do not overwrite, let user select other file
+                }
+            }
+        }
+        return file;
+    }
+
+    private File showFileSaveDialogImpl(String title,
+                                        boolean dirsOnly,
+                                        FileFilter fileFilter,
+                                        String defaultExtension,
+                                        final String fileName,
+                                        final String lastDirPropertyKey) {
+        Assert.notNull(lastDirPropertyKey, "lastDirPropertyKey");
+        Assert.argument(!lastDirPropertyKey.isEmpty(), "!lastDirPropertyKey.isEmpty()");
+
         String lastDir = getPreferences().getPropertyString(lastDirPropertyKey,
                                                             SystemUtils.getUserHomeDir().getPath());
         File currentDir = new File(lastDir);

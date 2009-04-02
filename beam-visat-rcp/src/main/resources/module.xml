@@ -461,6 +461,7 @@
             <id>saveSession</id>
             <class>org.esa.beam.visat.actions.session.SaveSessionAction</class>
             <parent>sessionGroup</parent>
+            <placeAfter>openSession</placeAfter>
             <text>Save Session</text>
             <shortDescr>Save the current BEAM session.</shortDescr>
             <longDescr>Save the current BEAM session.</longDescr>
@@ -468,9 +469,21 @@
         </action>
 
         <action>
+            <id>saveSessionAs</id>
+            <class>org.esa.beam.visat.actions.session.SaveSessionAsAction</class>
+            <parent>sessionGroup</parent>
+            <placeAfter>saveSession</placeAfter>
+            <text>Save Session As...</text>
+            <shortDescr>Save the current BEAM session using a different name.</shortDescr>
+            <longDescr>Save the current BEAM session using a different name.</longDescr>
+            <helpID>saveSessionAs</helpID>
+        </action>
+
+        <action>
             <id>closeSession</id>
             <class>org.esa.beam.visat.actions.session.CloseSessionAction</class>
             <parent>sessionGroup</parent>
+            <placeAfter>saveSessionAs</placeAfter>
             <text>Close Session</text>
             <shortDescr>Close the current BEAM session.</shortDescr>
             <longDescr>Close the current BEAM session.</longDescr>

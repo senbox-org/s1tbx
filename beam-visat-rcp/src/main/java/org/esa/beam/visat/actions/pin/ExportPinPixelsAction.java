@@ -213,32 +213,12 @@ public class ExportPinPixelsAction extends ExecCommand {
      * @return the selected file, <code>null</code> means "Cancel"
      */
     private File promptForFile(final VisatApp visatApp, final String defaultFileName) {
-        // Loop while the user does not want to overwrite a selected, existing file or if the user
-        // presses "Cancel"
-
-        File file = null;
-        while (file == null) {
-            file = visatApp.showFileSaveDialog(COMMAND_NAME, false, null, ".txt", defaultFileName, getCommandID()
-                                                                                                   + ".lastDir");
-            if (file == null) {
-                return null; // Cancel
-            } else if (file.exists()) {
-                final String message = MessageFormat.format("The file ''{0}'' already exists.\nOverwrite it?", file);
-                final String title = MessageFormat.format("{0} - {1}", visatApp.getAppName(), COMMAND_NAME);
-                final int status = JOptionPane.showConfirmDialog(visatApp.getMainFrame(),
-                                                                 message,
-                                                                 title,
-                                                                 JOptionPane.YES_NO_CANCEL_OPTION,
-                                                                 JOptionPane.WARNING_MESSAGE);
-                if (status == JOptionPane.CANCEL_OPTION) {
-                    return null; // Cancel
-                } else if (status == JOptionPane.NO_OPTION) {
-                    file = null; // No, do not overwrite, let user select
-                    // other file
-                }
-            }
-        }
-        return file;
+        return visatApp.showFileSaveDialog(COMMAND_NAME,
+                                           false,
+                                           null,
+                                           ".txt",
+                                           defaultFileName,
+                                           getCommandID() + ".lastDir");
     }
 
     /**

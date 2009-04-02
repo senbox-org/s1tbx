@@ -2,7 +2,6 @@ package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -21,7 +20,6 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JOptionPane;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
@@ -31,7 +29,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.MessageFormat;
 
 public class ExportROIPixelsAction extends ExecCommand {
 
@@ -85,7 +82,7 @@ public class ExportROIPixelsAction extends ExecCommand {
         final RasterDataNode raster = view.getRaster();
         // Get the ROI of the displayed raster data node
         final RenderedImage roiImage = ImageManager.getInstance().createRoiMaskImage(raster, 0);
-        
+
         // Compute total number of ROI pixels
         final long numROIPixels = getNumROIPixels(raster, roiImage);
 
@@ -195,48 +192,23 @@ public class ExportROIPixelsAction extends ExecCommand {
      * Opens a modal file chooser dialog that prompts the user to select the output file name.
      *
      * @param visatApp the VISAT application
-     *
      * @return the selected file, <code>null</code> means "Cancel"
      */
     private static File promptForFile(final VisatApp visatApp, String defaultFileName) {
-        // Loop while the user does not want to overwrite a selected, existing file
-        // or if the user presses "Cancel"
-        //
-        File file = null;
-        while (file == null) {
-            file = visatApp.showFileSaveDialog(DLG_TITLE,
-                                               false,
-                                               null,
-                                               ".txt",
-                                               defaultFileName,
-                                               "exportROIPixels.lastDir");
-            if (file == null) {
-                return null; // Cancel
-            } else if (file.exists()) {
-                final String message = MessageFormat.format("The file ''{0}'' already exists.\nOverwrite it?", file);
-                final String title = MessageFormat.format("{0} - {1}", visatApp.getAppName(), DLG_TITLE);
-                int status = JOptionPane.showConfirmDialog(visatApp.getMainFrame(),
-                                                           message,
-                                                           title,
-                                                           JOptionPane.YES_NO_CANCEL_OPTION,
-                                                           JOptionPane.WARNING_MESSAGE);
-                if (status == JOptionPane.CANCEL_OPTION) {
-                    return null; // Cancel
-                } else if (status == JOptionPane.NO_OPTION) {
-                    file = null; // No, do not overwrite, let user select other file
-                }
-            }
-        }
-        return file;
+        return visatApp.showFileSaveDialog(DLG_TITLE,
+                                           false,
+                                           null,
+                                           ".txt",
+                                           defaultFileName,
+                                           "exportROIPixels.lastDir");
     }
 
     /**
      * Writes all pixel values of the given product within the given ROI to the specified out.
      *
-     * @param out       the data output writer
-     * @param product   the product providing the pixel values
-     * @param roiImage  the mask image for the ROI
-     *
+     * @param out      the data output writer
+     * @param product  the product providing the pixel values
+     * @param roiImage the mask image for the ROI
      * @return <code>true</code> for success, <code>false</code> if export has been terminated (by user)
      */
     private static boolean exportROIPixels(final PrintWriter out,
@@ -246,17 +218,17 @@ public class ExportROIPixelsAction extends ExecCommand {
         final Band[] bands = product.getBands();
         final TiePointGrid[] tiePointGrids = product.getTiePointGrids();
         final GeoCoding geoCoding = product.getGeoCoding();
-        
+
         final int minTileX = roiImage.getMinTileX();
         final int minTileY = roiImage.getMinTileY();
 
         final int numXTiles = roiImage.getNumXTiles();
         final int numYTiles = roiImage.getNumYTiles();
-        
+
         final int w = product.getSceneRasterWidth();
         final int h = product.getSceneRasterHeight();
         final Rectangle imageRect = new Rectangle(0, 0, w, h);
-        
+
         writeHeaderLine(out, geoCoding, bands, tiePointGrids);
 
         pm.beginTask("Writing pixel data...", numXTiles * numYTiles);
@@ -269,7 +241,7 @@ public class ExportROIPixelsAction extends ExecCommand {
                     final Rectangle tileRectangle = new Rectangle(roiImage.getTileGridXOffset() + tileX * roiImage.getTileWidth(),
                                                                   roiImage.getTileGridYOffset() + tileY * roiImage.getTileHeight(),
                                                                   roiImage.getTileWidth(), roiImage.getTileHeight());
-                                                          
+
                     final Rectangle r = imageRect.intersection(tileRectangle);
                     if (!r.isEmpty()) {
                         Raster roiTile = roiImage.getTile(tileX, tileY);
@@ -373,9 +345,8 @@ public class ExportROIPixelsAction extends ExecCommand {
     /**
      * Computes the total number of pixels within the specified ROI.
      *
-     * @param raster the raster data node
-     * @param roiImage   the rendered image masking out the ROI
-     *
+     * @param raster   the raster data node
+     * @param roiImage the rendered image masking out the ROI
      * @return the total number of pixels in the ROI
      */
     private static long getNumROIPixels(final RasterDataNode raster, final RenderedImage roiImage) {
@@ -384,18 +355,18 @@ public class ExportROIPixelsAction extends ExecCommand {
 
         final int numXTiles = roiImage.getNumXTiles();
         final int numYTiles = roiImage.getNumYTiles();
-        
+
         final int w = raster.getSceneRasterWidth();
         final int h = raster.getSceneRasterHeight();
         final Rectangle imageRect = new Rectangle(0, 0, w, h);
-        
+
         long numROIPixels = 0;
         for (int tileX = minTileX; tileX < minTileX + numXTiles; ++tileX) {
             for (int tileY = minTileY; tileY < minTileY + numYTiles; ++tileY) {
                 final Rectangle tileRectangle = new Rectangle(roiImage.getTileGridXOffset() + tileX * roiImage.getTileWidth(),
                                                               roiImage.getTileGridYOffset() + tileY * roiImage.getTileHeight(),
                                                               roiImage.getTileWidth(), roiImage.getTileHeight());
-                                                      
+
                 final Rectangle r = imageRect.intersection(tileRectangle);
                 if (!r.isEmpty()) {
                     Raster roiTile = roiImage.getTile(tileX, tileY);

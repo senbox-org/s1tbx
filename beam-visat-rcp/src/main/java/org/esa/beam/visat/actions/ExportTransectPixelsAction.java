@@ -19,7 +19,6 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import java.awt.Dialog;
 import java.awt.geom.Point2D;
@@ -29,7 +28,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.MessageFormat;
 
 public class ExportTransectPixelsAction extends ExecCommand {
 
@@ -193,39 +191,15 @@ public class ExportTransectPixelsAction extends ExecCommand {
      * Opens a modal file chooser dialog that prompts the user to select the output file name.
      *
      * @param visatApp the VISAT application
-     *
      * @return the selected file, <code>null</code> means "Cancel"
      */
     private static File promptForFile(final VisatApp visatApp, String defaultFileName) {
-        // Loop while the user does not want to overwrite a selected, existing file
-        // or if the user presses "Cancel"
-        //
-        File file = null;
-        while (file == null) {
-            file = visatApp.showFileSaveDialog(DLG_TITLE,
-                                               false,
-                                               null,
-                                               ".txt",
-                                               defaultFileName,
-                                               "exportTransectPixels.lastDir");
-            if (file == null) {
-                return null; // Cancel
-            } else if (file.exists()) {
-                final String message = MessageFormat.format("The file ''{0}'' already exists.\nOverwrite it?", file);
-                final String title = MessageFormat.format("{0} - {1}", visatApp.getAppName(), DLG_TITLE);
-                int status = JOptionPane.showConfirmDialog(visatApp.getMainFrame(),
-                                                           message,
-                                                           title,
-                                                           JOptionPane.YES_NO_CANCEL_OPTION,
-                                                           JOptionPane.WARNING_MESSAGE);
-                if (status == JOptionPane.CANCEL_OPTION) {
-                    return null; // Cancel
-                } else if (status == JOptionPane.NO_OPTION) {
-                    file = null; // No, do not overwrite, let user select other file
-                }
-            }
-        }
-        return file;
+        return visatApp.showFileSaveDialog(DLG_TITLE,
+                                           false,
+                                           null,
+                                           ".txt",
+                                           defaultFileName,
+                                           "exportTransectPixels.lastDir");
     }
 
     /**
@@ -233,7 +207,6 @@ public class ExportTransectPixelsAction extends ExecCommand {
      *
      * @param out     the data output writer
      * @param product the product providing the pixel values
-     *
      * @return <code>true</code> for success, <code>false</code> if export has been terminated (by user)
      */
     private static boolean exportTransectPixels(final PrintWriter out,
@@ -254,7 +227,7 @@ public class ExportTransectPixelsAction extends ExecCommand {
                 int x = (int) Math.floor(pixelPosition.getX());
                 int y = (int) Math.floor(pixelPosition.getY());
                 if (x >= 0 && x < product.getSceneRasterWidth()
-                    && y >= 0 && y < product.getSceneRasterHeight()) {
+                        && y >= 0 && y < product.getSceneRasterHeight()) {
                     writeDataLine(out, geoCoding, bands, x, y);
                     pm.worked(1);
                     if (pm.isCanceled()) {
@@ -278,7 +251,7 @@ public class ExportTransectPixelsAction extends ExecCommand {
             int x = (int) Math.floor(pixelPosition.getX());
             int y = (int) Math.floor(pixelPosition.getY());
             if (x >= 0 && x < product.getSceneRasterWidth()
-                && y >= 0 && y < product.getSceneRasterHeight()) {
+                    && y >= 0 && y < product.getSceneRasterHeight()) {
                 numTransectPixels++;
             }
         }
