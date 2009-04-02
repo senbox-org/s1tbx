@@ -72,7 +72,7 @@ public class SelectLayerSourceAssistantPage extends AbstractLayerSourceAssistant
         if (selected == null) {
             return false;
         }
-        return layerSourceMap.get(selected).finish(getContext());
+        return layerSourceMap.get(selected).performFinish(getContext());
     }
 
     @Override

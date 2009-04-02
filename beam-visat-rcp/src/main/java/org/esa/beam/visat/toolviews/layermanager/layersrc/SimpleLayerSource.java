@@ -43,7 +43,7 @@ public class SimpleLayerSource implements LayerSource {
     }
 
     @Override
-    public boolean finish(LayerSourcePageContext pageContext) {
+    public boolean performFinish(LayerSourcePageContext pageContext) {
         LayerContext layerCtx = pageContext.getAppContext().getSelectedProductSceneView().getLayerContext();
 
         Layer layer = layerType.createLayer(layerCtx, new HashMap<String, Object>());
@@ -53,9 +53,4 @@ public class SimpleLayerSource implements LayerSource {
         }
         return false;
     }
-
-    @Override
-    public void cancel() {
-    }
-
 }

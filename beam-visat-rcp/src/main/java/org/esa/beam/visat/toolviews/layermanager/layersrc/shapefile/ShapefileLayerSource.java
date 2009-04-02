@@ -50,11 +50,7 @@ public class ShapefileLayerSource implements LayerSource {
     }
 
     @Override
-    public boolean finish(LayerSourcePageContext pageContext) {
+    public boolean performFinish(LayerSourcePageContext pageContext) {
         return false;
-    }
-    
-    @Override
-    public void cancel() {
     }
 }

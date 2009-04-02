@@ -48,11 +48,7 @@ public class CollectionLayerSource implements LayerSource {
     }
 
     @Override
-    public void cancel() {
-    }
-
-    @Override
-    public boolean finish(LayerSourcePageContext pageContext) {
+    public boolean performFinish(LayerSourcePageContext pageContext) {
         return pageContext.getCurrentPage().performFinish();
     }
 }

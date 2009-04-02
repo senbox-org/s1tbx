@@ -4,7 +4,8 @@ import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAss
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 
 /**
- * todo - api doc
+ * A layer source can add one or more layers
+ * to an already existing root layer. 
  *
  * @author Marco Peters
  * @author Marco Zühlke
@@ -13,15 +14,49 @@ import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext
  */
 public interface LayerSource {
 
+    /**
+     * Check if this layer source is applicable to the current context.
+     * 
+     * @param pageContext The current context.
+     * 
+     * @return true, if this layer source is applicable.
+     */
     boolean isApplicable(LayerSourcePageContext pageContext);
 
+    /**
+     * 
+     * @return true, if this layer source has assistant pages.   
+     */
     boolean hasFirstPage();
 
+    /**
+     * 
+     * Returns the first page (of possible many) of the assistant
+     * that belongs to this layer source. The given context can be
+     * interrogated to decide which page to return.
+     *   
+     * @param pageContext The current context.
+     *  
+     * @return the first assistant page.
+     */
     AbstractLayerSourceAssistantPage getFirstPage(LayerSourcePageContext pageContext);
 
+    /**
+     * Checks whether this layer source can perform its finishing
+     * method without further information.
+     *  
+     * @param pageContext The current context.
+     * 
+     * @return true, if finish can be called.
+     */
     boolean canFinish(LayerSourcePageContext pageContext);
 
-    boolean finish(LayerSourcePageContext pageContext);
-
-    void cancel();
+    /**
+     * Adds one or more layers to the given context  
+     * 
+     * @param pageContext The current context.
+     * 
+     * @return true, if the method completed successfully 
+     */
+    boolean performFinish(LayerSourcePageContext pageContext);
 }
