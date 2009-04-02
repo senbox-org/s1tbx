@@ -16,9 +16,7 @@
  */
 package org.esa.beam.util.io;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.esa.beam.GlobalTestTools;
 
 import java.io.File;
@@ -30,16 +28,6 @@ public class FileUtilsTest extends TestCase {
 
     public FileUtilsTest(String name) {
         super(name);
-    }
-
-    public static Test suite() {
-        return new TestSuite(FileUtilsTest.class);
-    }
-
-    public void setUp() {
-    }
-
-    public void tearDown() {
     }
 
     public void testGetExtension() {
@@ -194,18 +182,36 @@ public class FileUtilsTest extends TestCase {
     }
 
     public void testThatGetUrlAsFileIsTheInverseOfGetFileAsUrl() throws MalformedURLException,
-                                                                        URISyntaxException {
+            URISyntaxException {
         final File file1 = new File("/dummy/hugo/daten").getAbsoluteFile();
         final File file2 = FileUtils.getUrlAsFile(FileUtils.getFileAsUrl(file1));
         assertEquals(file1, file2);
     }
 
-//    public void testSpaceEncodingDecoding() throws UnsupportedEncodingException {
-//        final String s = "Dokumente und Einstellungen/sabine";
-//        final String sEncoded = "Dokumente%20und%20Einstellungen/sabine";
-//
-//        assertEquals(sEncoded, FileUtils.encodeSpacesUTF8(s));
-//        assertEquals(s, FileUtils.decodeSpacesUTF8(sEncoded));
-//    }
+    public void testGetDisplayText() {
+        try {
+            FileUtils.getDisplayText(null, 50);
+            fail("NPE expected");
+        } catch (NullPointerException e) {
+            // ok
+        }
+        try {
+            FileUtils.getDisplayText(new File("alpha/bravo/charly"), 3);
+            fail("IAE expected");
+        } catch (IllegalArgumentException e) {
+            // ok
+        }
+        //                   "5432109876543210987654321098765432109876543210987654321"
+        File file = new File("alpha/bravo/charly/delta/echo/foxtrott/golf/hotel/india");
+        char sep = File.separatorChar;
+        assertEquals("...ndia",
+                     FileUtils.getDisplayText(file, 7));
+        assertEquals(".../india".replace('/', sep),
+                     FileUtils.getDisplayText(file, 12));
+        assertEquals(".../golf/hotel/india".replace('/', sep),
+                     FileUtils.getDisplayText(file, 20));
+        assertEquals("alpha/bravo/charly/delta/echo/foxtrott/golf/hotel/india".replace('/', sep),
+                     FileUtils.getDisplayText(file, 80));
+    }
 }
 

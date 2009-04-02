@@ -26,6 +26,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import com.bc.ceres.core.Assert;
+
 /**
  * This class provides additional functionality in handling with files. All methods in this class dealing with
  * extensions, expect that an extension is the last part of a file name starting with the dot '.' character.
@@ -412,5 +414,24 @@ public class FileUtils {
      */
     public static File getUrlAsFile(URL url) throws URISyntaxException {
         return new File(url.toURI());
+    }
+
+    public static String getDisplayText(File file, int maxLength) {
+        Assert.notNull(file, "file");
+        Assert.argument(maxLength >= 4, "maxLength >= 4");
+        
+        String text = file.getPath();
+        if (text.length() <= maxLength) {
+            return text;
+        }
+
+        while (text.length() + 3 > maxLength) {
+            int pos = text.indexOf(File.separator, text.startsWith(File.separator) ? 1 : 0);
+            if (pos == -1) {
+                return "..." + text.substring(text.length() - maxLength + 3);
+            }
+            text = text.substring(pos);
+        }
+        return "..." + text;
     }
 }
