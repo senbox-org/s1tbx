@@ -19,13 +19,13 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 
 /**
- * todo - add API doc
+ * This layer source creates a new and empty collection layer.
  *
  * @author Marco Zuehlke
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public class LayerGroupLayerSource implements LayerSource {
+public class CollectionLayerSource implements LayerSource {
 
     @Override
     public boolean isApplicable(LayerSourcePageContext pageContext) {
@@ -39,7 +39,7 @@ public class LayerGroupLayerSource implements LayerSource {
 
     @Override
     public AbstractLayerSourceAssistantPage getFirstPage(LayerSourcePageContext pageContext) {
-        return new EmptyLayerAssistantPage();
+        return new CollectionLayerAssistantPage();
     }
 
     @Override

@@ -17,7 +17,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
-public class EmptyLayerAssistantPage extends AbstractLayerSourceAssistantPage {
+public class CollectionLayerAssistantPage extends AbstractLayerSourceAssistantPage {
 
     private static final ArrayList<String> names = new ArrayList<String>();
     private JComboBox nameBox;
@@ -27,27 +27,10 @@ public class EmptyLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         names.add("");
     }
 
-    public EmptyLayerAssistantPage() {
+    public CollectionLayerAssistantPage() {
         super("Set Layer Name");
     }
-
-    @Override
-    public boolean validatePage() {
-        return nameBox.getSelectedItem() != null && !nameBox.getSelectedItem().toString().trim().isEmpty();
-    }
-
-    @Override
-    public boolean performFinish() {
-        Layer layer = new CollectionLayer();
-        layer.setName(nameBox.getSelectedItem().toString().trim());
-        Layer rootLayer = getContext().getAppContext().getSelectedProductSceneView().getRootLayer();
-        rootLayer.getChildren().add(0, layer);
-        if (!names.contains(layer.getName())) {
-            names.add(1, layer.getName());
-        }
-        return true;
-    }
-
+    
     @Override
     public Component createPageComponent() {
         nameBox = new JComboBox(names.toArray());
@@ -69,6 +52,23 @@ public class EmptyLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         panel.add(nameBox, constraints);
 
         return panel;
+    }
+
+    @Override
+    public boolean validatePage() {
+        return nameBox.getSelectedItem() != null && !nameBox.getSelectedItem().toString().trim().isEmpty();
+    }
+
+    @Override
+    public boolean performFinish() {
+        Layer layer = new CollectionLayer();
+        layer.setName(nameBox.getSelectedItem().toString().trim());
+        Layer rootLayer = getContext().getAppContext().getSelectedProductSceneView().getRootLayer();
+        rootLayer.getChildren().add(0, layer);
+        if (!names.contains(layer.getName())) {
+            names.add(1, layer.getName());
+        }
+        return true;
     }
 
     private class NameBoxItemListener implements ItemListener {
