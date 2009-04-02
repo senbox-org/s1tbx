@@ -19,6 +19,7 @@ package org.esa.beam.framework.gpf.internal;
 import com.bc.ceres.binding.*;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomElement;
+import com.bc.ceres.binding.dom.Xpp3DomElement;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
@@ -701,7 +702,7 @@ public class OperatorContext {
     public void injectConfiguration() throws OperatorException {
         if (configuration != null) {
             try {
-                configureValue(configuration, operator);
+                configureOperator(operator, configuration);
             } catch (OperatorException e) {
                 throw e;
             } catch (Throwable t) {
@@ -710,13 +711,13 @@ public class OperatorContext {
         }
     }
 
-    private void configureValue(OperatorConfiguration operatorConfiguration, Object value) throws ValidationException, ConversionException {
+    private void configureOperator(Operator operator, OperatorConfiguration operatorConfiguration) throws ValidationException, ConversionException {
         final Xpp3DomElement xpp3DomElement = Xpp3DomElement.createDomElement(operatorConfiguration.getConfiguration());
         ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
-        final DefaultDomConverter domConverter = new DefaultDomConverter(value.getClass(), parameterDescriptorFactory);
-        domConverter.convertDomToValue(xpp3DomElement, value);
+        final DefaultDomConverter domConverter = new DefaultDomConverter(operator.getClass(), parameterDescriptorFactory);
+        domConverter.convertDomToValue(xpp3DomElement, operator);
 
-        final ValueContainer valueContainer = ValueContainer.createObjectBacked(value, parameterDescriptorFactory);
+        final ValueContainer valueContainer = ValueContainer.createObjectBacked(operator, parameterDescriptorFactory);
         Set<Reference> referenceSet = operatorConfiguration.getReferenceSet();
         for (Reference reference : referenceSet) {
             ValueModel valueModel = valueContainer.getModel(reference.getParameterName());

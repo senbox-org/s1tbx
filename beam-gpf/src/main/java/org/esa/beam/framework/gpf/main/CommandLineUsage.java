@@ -11,7 +11,7 @@ import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.*;
 import org.esa.beam.framework.gpf.graph.*;
 import org.esa.beam.framework.gpf.internal.OperatorClassDescriptor;
-import org.esa.beam.framework.gpf.internal.Xpp3DomElement;
+import com.bc.ceres.binding.dom.Xpp3DomElement;
 
 import java.io.BufferedReader;
 import java.io.IOException;
