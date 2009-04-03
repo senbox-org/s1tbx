@@ -16,12 +16,12 @@
  */
 package org.esa.beam.framework.ui;
 
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.PropertyMap;
+
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.PropertyMap;
 
 /**
  * <code>FileHistory</code> is a fixed-size array for the pathes of files opened/saved by a user. If a new file is added
@@ -71,7 +71,7 @@ public class UserInputHistory {
 
         for (int i = maxNumEntries - 1; i >= 0; i--) {
             String entry = propertyMap.getPropertyString(getNumKey(i), null);
-            if (entry != null) {
+            if (entry != null && isValidItem(entry)) {
                 push(entry);
             }
         }

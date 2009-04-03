@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.6:<br/>
+          [BEAM-979] History of recent products incorrect<br/>
           [BEAM-967] PixelInfoView disregards pin movements if "Snap to selected pin" is selected<br/> 
           [BEAM-954] PixelInfoView updates too often<br/>
           [BEAM-942] VISAT sometimes hangs on startup<br/>
