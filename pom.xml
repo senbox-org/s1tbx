@@ -450,7 +450,7 @@
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <configuration>
-                        <skip>true</skip>
+                        <!--<skip>true</skip>-->
                         <printSummary>true</printSummary>
                         <excludes>
                             <exclude>**/TestRaster.java</exclude>
@@ -464,7 +464,6 @@
                         </systemProperties>
                         <argLine>-Xmx512M -enableassertions</argLine>
                     </configuration>
-
                 </plugin>
 
                 <plugin>
