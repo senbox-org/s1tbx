@@ -4,17 +4,21 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.util.ProductUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.Arrays;
 
 public class ProductFlipperTest {
 
     private static Product product;
+    private static GeneralPath[] geoBoundaryPath;
 
     @BeforeClass
     public static void setup() {
@@ -40,6 +44,7 @@ public class ProductFlipperTest {
                 7, 8, 9
         });
         product.addTiePointGrid(t3);
+        geoBoundaryPath = ProductUtils.createGeoBoundaryPaths(product);
     }
 
     @Test
@@ -63,6 +68,15 @@ public class ProductFlipperTest {
         assertEquals(1, flippedT2.getOffsetY(), 1.0e-6);
         assertEquals(3, flippedT2.getSubSamplingX(), 1.0e-6);
         assertEquals(3, flippedT2.getSubSamplingY(), 1.0e-6);
+
+        GeneralPath[] flippedPath = ProductUtils.createGeoBoundaryPaths(flipped);
+        assertEquals(1, flippedPath.length);
+        final Rectangle2D expBounds = geoBoundaryPath[0].getBounds2D();
+        final Rectangle2D actualBounds = flippedPath[0].getBounds2D();
+        assertEquals(expBounds.getMinX(), actualBounds.getMinX(), 1.0e-6);
+        assertEquals(expBounds.getMinY(), actualBounds.getMinY(), 1.0e-6);
+        assertEquals(expBounds.getMaxX(), actualBounds.getMaxX(), 1.0e-6);
+        assertEquals(expBounds.getMaxY(), actualBounds.getMaxY(), 1.0e-6);
     }
 
     @Test
@@ -86,6 +100,15 @@ public class ProductFlipperTest {
         assertEquals(9, flippedT2.getOffsetY(), 1.0e-6);
         assertEquals(3, flippedT2.getSubSamplingX(), 1.0e-6);
         assertEquals(3, flippedT2.getSubSamplingY(), 1.0e-6);
+
+        GeneralPath[] flippedPath = ProductUtils.createGeoBoundaryPaths(flipped);
+        assertEquals(1, flippedPath.length);
+        final Rectangle2D expBounds = geoBoundaryPath[0].getBounds2D();
+        final Rectangle2D actualBounds = flippedPath[0].getBounds2D();
+        assertEquals(expBounds.getMinX(), actualBounds.getMinX(), 1.0e-6);
+        assertEquals(expBounds.getMinY(), actualBounds.getMinY(), 1.0e-6);
+        assertEquals(expBounds.getMaxX(), actualBounds.getMaxX(), 1.0e-6);
+        assertEquals(expBounds.getMaxY(), actualBounds.getMaxY(), 1.0e-6);
     }
 
     @Test
@@ -105,6 +128,15 @@ public class ProductFlipperTest {
         final TiePointGrid flippedT2 = flipped.getTiePointGrid("t3");
         assertEquals(7, flippedT2.getOffsetX(), 1.0e-6);
         assertEquals(9, flippedT2.getOffsetY(), 1.0e-6);
+
+        GeneralPath[] flippedPath = ProductUtils.createGeoBoundaryPaths(flipped);
+        assertEquals(1, flippedPath.length);
+        final Rectangle2D expBounds = geoBoundaryPath[0].getBounds2D();
+        final Rectangle2D actualBounds = flippedPath[0].getBounds2D();
+        assertEquals(expBounds.getMinX(), actualBounds.getMinX(), 1.0e-6);
+        assertEquals(expBounds.getMinY(), actualBounds.getMinY(), 1.0e-6);
+        assertEquals(expBounds.getMaxX(), actualBounds.getMaxX(), 1.0e-6);
+        assertEquals(expBounds.getMaxY(), actualBounds.getMaxY(), 1.0e-6);
     }
 
     @Test
@@ -130,6 +162,9 @@ public class ProductFlipperTest {
         assertEquals(1, vhbFlippedT2.getOffsetX(), 1.0e-6);
         assertEquals(1, vhbFlippedT2.getOffsetY(), 1.0e-6);
 
+        GeneralPath[] flippedPath = ProductUtils.createGeoBoundaryPaths(vhb);
+        assertEquals(1, flippedPath.length);
+        assertEquals(geoBoundaryPath[0].getBounds2D(), flippedPath[0].getBounds2D());
     }
 
     @Test
