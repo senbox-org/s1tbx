@@ -1,9 +1,27 @@
 package org.esa.beam.framework.ui;
 
-import javax.swing.*;
-import java.awt.*;
+import static junit.framework.Assert.assertEquals;
+import org.junit.Test;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
+import java.awt.BorderLayout;
 
 public class TableLayoutTest {
+
+    @Test
+    public void testCoolnessOfTableLayout() {
+        TableLayout layout = new TableLayout(3);
+        assertEquals(3, layout.getColumnCount());
+    }
+
     public TableLayoutTest() {
     }
 
@@ -13,7 +31,7 @@ public class TableLayoutTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        // showFrame(createPanel1());
+        showFrame(createPanel1());
         showFrame(createPanel2());
     }
 
@@ -66,8 +84,8 @@ public class TableLayoutTest {
         layout.setRowWeightY(1, 0.0);
 
         final JPanel panel = new JPanel(layout);
-        panel.add(new JScrollPane(new JList(new  Object[] {"Ernie", "Bibo", "Bert"})));
-        panel.add(new JScrollPane(new JList(new  Object[] {"Ernie", "Bibo", "Bert"})));
+        panel.add(new JScrollPane(new JList(new Object[]{"Ernie", "Bibo", "Bert"})));
+        panel.add(new JScrollPane(new JList(new Object[]{"Ernie", "Bibo", "Bert"})));
         JButton comp = new JButton("Start");
         comp.setMinimumSize(null);
         comp.setMaximumSize(null);

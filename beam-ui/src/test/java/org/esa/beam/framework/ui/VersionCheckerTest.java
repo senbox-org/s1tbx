@@ -15,22 +15,26 @@ public class VersionCheckerTest extends TestCase {
 
     private static final boolean PERFORM_REMOTE_TEST = true;
 
-    private VersionChecker _versionChecker;
-
-    protected void setUp() throws Exception {
-        _versionChecker = new VersionChecker();
+    public void testLocalVersion() throws IOException {
+        VersionChecker vc = new VersionChecker();
+        assertNotNull(vc.getLocalVersionFile());
+        if (vc.getLocalVersionFile().exists()) {
+            final String localVersion = vc.getLocalVersion();
+            assertNotNull(localVersion);
+            assertTrue(localVersion.startsWith("VERSION 4.6"));
+            // Failed? --> Adapt current version number here.
+        }
     }
 
-    public void testCurrentLocalVersionString() throws IOException {
-        // Failed? --> Adapt current version number here.
-        assertEquals("VERSION 4.6-SNAPSHOT", _versionChecker.getLocalVersion());
-    }
-
-    public void testCurrentRemoteVersionString() throws IOException {
+    public void testRemoteVersion() throws IOException {
+        VersionChecker vc = new VersionChecker();
+        assertNotNull(vc.getRemoteVersionUrlString());
         if (!PERFORM_REMOTE_TEST) {
             fail("testCurrentRemoteVersionString NOT PERFORMED: " +
                     "Enable this test, as soon as an internet connection is available again!");
         }
-        assertEquals(true, _versionChecker.getRemoteVersion().startsWith("VERSION "));
+        final String remoteVersion = vc.getRemoteVersion();
+        assertNotNull(remoteVersion);
+        assertTrue(remoteVersion.startsWith("VERSION "));
     }
 }

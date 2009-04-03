@@ -250,6 +250,7 @@ public class TableLayout implements LayoutManager2 {
      * where 0 represents alignment along the origin, 1 is aligned
      * the furthest away from the origin, 0.5 is centered, etc.
      */
+    @Override
     public float getLayoutAlignmentX(Container target) {
         return gbl.getLayoutAlignmentX(target);
     }
@@ -261,6 +262,7 @@ public class TableLayout implements LayoutManager2 {
      * where 0 represents alignment along the origin, 1 is aligned
      * the furthest away from the origin, 0.5 is centered, etc.
      */
+    @Override
     public float getLayoutAlignmentY(Container target) {
         return gbl.getLayoutAlignmentY(target);
     }
@@ -269,6 +271,7 @@ public class TableLayout implements LayoutManager2 {
      * Invalidates the layout, indicating that if the layout manager
      * has cached information it should be discarded.
      */
+    @Override
     public void invalidateLayout(Container target) {
         gbl.invalidateLayout(target);
     }
@@ -280,6 +283,7 @@ public class TableLayout implements LayoutManager2 {
      * @param comp        the component to be added
      * @param constraints where/how the component is added to the layout.
      */
+    @Override
     public void addLayoutComponent(Component comp, Object constraints) {
         if (constraints == null) {
             addLayoutComponent(comp, this.currentCell);
@@ -293,6 +297,7 @@ public class TableLayout implements LayoutManager2 {
     /**
      * Has no effect, since this layout manager does not use a per-component string.
      */
+    @Override
     public void addLayoutComponent(String name, Component comp) {
     }
 
@@ -301,6 +306,7 @@ public class TableLayout implements LayoutManager2 {
      *
      * @param comp the component to be removed
      */
+    @Override
     public void removeLayoutComponent(Component comp) {
         gbl.removeLayoutComponent(comp);
     }
@@ -310,6 +316,7 @@ public class TableLayout implements LayoutManager2 {
      *
      * @param parent the container to be laid out
      */
+    @Override
     public void layoutContainer(Container parent) {
         gbl.layoutContainer(parent);
     }
@@ -321,6 +328,7 @@ public class TableLayout implements LayoutManager2 {
      * @param parent the component to be laid out
      * @see #preferredLayoutSize
      */
+    @Override
     public Dimension minimumLayoutSize(Container parent) {
         return gbl.minimumLayoutSize(parent);
     }
@@ -332,6 +340,7 @@ public class TableLayout implements LayoutManager2 {
      * @param parent the container to be laid out
      * @see #minimumLayoutSize
      */
+    @Override
     public Dimension preferredLayoutSize(Container parent) {
         return gbl.preferredLayoutSize(parent);
     }
@@ -343,6 +352,7 @@ public class TableLayout implements LayoutManager2 {
      * @see java.awt.Component#getMaximumSize
      * @see java.awt.LayoutManager
      */
+    @Override
     public Dimension maximumLayoutSize(Container parent) {
         return gbl.maximumLayoutSize(parent);
     }
@@ -486,7 +496,7 @@ public class TableLayout implements LayoutManager2 {
         sb.append('[');
         Set<Map.Entry<String, Object>> entries = propertyMap.entrySet();
         for (Map.Entry<String, Object> entry : entries) {
-            sb.append(entry.getKey() + '=' + entry.getValue());
+            sb.append(entry.getKey()).append('=').append(entry.getValue());
             sb.append(',');
         }
         sb.append(']');

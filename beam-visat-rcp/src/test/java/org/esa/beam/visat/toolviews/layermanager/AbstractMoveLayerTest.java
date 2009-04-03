@@ -8,8 +8,11 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.junit.Before;
+import org.junit.Test;
 
 import java.awt.Window;
+
+import static junit.framework.Assert.*;
 
 /**
  * todo - add API doc
@@ -60,6 +63,12 @@ public class AbstractMoveLayerTest {
         layer0.getChildren().add(layer6);
         layer6.getChildren().add(layer7);
 
+    }
+
+
+    @Test
+    public void testDummy() {
+        assertEquals(true, true);
     }
 
     private static Layer createLayer(String id) {

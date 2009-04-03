@@ -25,7 +25,7 @@ import com.bc.ceres.core.ProgressMonitor;
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-public class PerfomanceTest {
+public class StxPerfomanceCheck {
 
     public static void main(String[] args) throws Exception {
         System.out.println("Stx computation performance test:");

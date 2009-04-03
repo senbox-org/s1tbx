@@ -452,10 +452,10 @@
                     <configuration>
                         <!--<skip>true</skip>-->
                         <printSummary>true</printSummary>
-                        <excludes>
-                            <exclude>**/TestRaster.java</exclude>
-                            <exclude>**/TestHelper$1.java</exclude>
-                        </excludes>
+                        <useFile>false</useFile>
+                        <includes>
+                            <include>**/*Test.java</include>
+                        </includes>
                         <systemProperties>
                             <property>
                                 <name>org.esa.beam.testdata.out</name>
