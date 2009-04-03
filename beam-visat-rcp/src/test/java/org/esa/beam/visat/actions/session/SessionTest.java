@@ -50,7 +50,6 @@ public class SessionTest extends TestCase {
     }
 
     public void testRestore() throws IOException {
-
         final SessionData sessionData = createSessionData();
         final Product[] originalProducts = sessionData.getProducts();
         final ProductNodeView[] originalViews = sessionData.getViews();
@@ -107,7 +106,6 @@ public class SessionTest extends TestCase {
         assertSame(restoredProducts[1], restoredViews[1].getVisibleProductNode().getProduct());
         assertSame(restoredProducts[0], restoredViews[2].getVisibleProductNode().getProduct());
         assertSame(restoredProducts[1], restoredViews[3].getVisibleProductNode().getProduct());
-
     }
 
     static void checkProblems(Exception[] problems) {

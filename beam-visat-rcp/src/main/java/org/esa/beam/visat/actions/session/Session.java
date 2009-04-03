@@ -1,24 +1,45 @@
 package org.esa.beam.visat.actions.session;
 
+import com.bc.ceres.binding.ClassFieldDescriptorFactory;
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.ConverterRegistry;
+import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.dom.DefaultDomConverter;
+import com.bc.ceres.binding.dom.DefaultDomElement;
+import com.bc.ceres.binding.dom.DomConverter;
+import com.bc.ceres.binding.dom.DomElement;
+import com.bc.ceres.binding.dom.DomElementConverter;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.Style;
+import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.grender.Viewport;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamConverter;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.JComponent;
 import javax.swing.RootPaneContainer;
 import java.awt.Container;
 import java.awt.Rectangle;
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * todo - add API doc
@@ -48,10 +69,13 @@ public class Session {
             productRefs[i] = new ProductRef(product.getRefNo(), product.getFileLocation());
         }
 
+        registerConverters();
+
         viewRefs = new ViewRef[views.length];
         for (int i = 0; i < views.length; i++) {
             ProductNodeView view = views[i];
             ViewportDef viewportDef = null;
+            LayerRef[] layerRefs = new LayerRef[0];
             if (view instanceof ProductSceneView) {
                 final ProductSceneView sceneView = (ProductSceneView) view;
                 final Viewport viewport = sceneView.getLayerCanvas().getViewport();
@@ -60,6 +84,20 @@ public class Session {
                                               viewport.getOffsetY(),
                                               viewport.getZoomFactor(),
                                               viewport.getOrientation());
+                final List<Layer> layers = sceneView.getRootLayer().getChildren();
+
+                final LayerContext layerContext = new LayerContext() {
+                    @Override
+                    public CoordinateReferenceSystem getCoordinateReferenceSystem() {
+                        return sceneView.getRaster().getProduct().getGeoCoding().getModelCRS();
+                    }
+
+                    @Override
+                    public Layer getRootLayer() {
+                        return sceneView.getRootLayer();
+                    }
+                };
+                layerRefs = getLayerRefs(layerContext, layers);
             }
 
             Rectangle viewBounds = new Rectangle(0, 0, 200, 200);
@@ -72,10 +110,45 @@ public class Session {
                                       viewBounds,
                                       viewportDef,
                                       view.getVisibleProductNode().getProduct().getRefNo(),
-                                      view.getVisibleProductNode().getName());
-
-
+                                      view.getVisibleProductNode().getName(),
+                                      layerRefs);
         }
+    }
+
+    private static LayerRef[] getLayerRefs(LayerContext layerContext, List<Layer> layers) {
+        final LayerRef[] layerRefs = new LayerRef[layers.size()];
+        for (int i = 0; i < layers.size(); i++) {
+            Layer layer = layers.get(i);
+            final DefaultDomElement element = new DefaultDomElement("configuration");
+            final Map<String, Object> configuration = getConfiguration(layerContext, layer);
+            final ClassFieldDescriptorFactory factory = new ClassFieldDescriptorFactory() {
+                @Override
+                public ValueDescriptor createValueDescriptor(Field field) {
+                    return new ValueDescriptor(field.getName(), field.getType());
+                }
+            };
+            final DomConverter dc = new DefaultDomConverter(Map.class, factory) {
+                @Override
+                protected ValueContainer getValueContainer(Object value) {
+                    if (!(value instanceof Map)) {
+                        return super.getValueContainer(value);
+                    }
+                    return ValueContainer.createMapBacked((Map<String, Object>) value);
+                }
+            };
+            dc.convertValueToDom(configuration, element);
+            layerRefs[i] = new LayerRef(layer.getLayerType().getName(),
+                                        layer.getId(),
+                                        layer.getName(),
+                                        layer.isVisible(),
+                                        element,
+                                        getLayerRefs(layerContext, layer.getChildren()));
+        }
+        return layerRefs;
+    }
+
+    private static Map<String, Object> getConfiguration(LayerContext ctx, Layer layer) {
+        return layer.getLayerType().createConfiguration(ctx, layer);
     }
 
     public String getModelVersion() {
@@ -111,7 +184,7 @@ public class Session {
     }
 
     Product[] restoreProducts(ProgressMonitor pm, ProblemSolver problemSolver, List<Exception> problems) {
-        ArrayList<Product> products = new ArrayList<Product>();
+        final ArrayList<Product> products = new ArrayList<Product>();
         try {
             pm.beginTask("Restoring products", productRefs.length);
             for (ProductRef productRef : productRefs) {
@@ -129,12 +202,14 @@ public class Session {
                     product.setRefNo(productRef.id);
                 } catch (Exception e) {
                     problems.add(e);
+                } finally {
+                    pm.worked(1);
                 }
-                pm.worked(1);
             }
         } finally {
             pm.done();
         }
+
         return products.toArray(new Product[products.size()]);
     }
 
@@ -149,7 +224,9 @@ public class Session {
                         if (product != null) {
                             RasterDataNode node = product.getRasterDataNode(viewRef.productNodeName);
                             if (node != null) {
-                                final ProductSceneView view = new ProductSceneView(new ProductSceneImage(node, new PropertyMap(), SubProgressMonitor.create(pm, 1)));
+                                final ProductSceneView view = new ProductSceneView(
+                                        new ProductSceneImage(node, new PropertyMap(),
+                                                              SubProgressMonitor.create(pm, 1)));
                                 Rectangle bounds = viewRef.bounds;
                                 if (bounds != null && !bounds.isEmpty()) {
                                     view.setBounds(bounds);
@@ -211,6 +288,7 @@ public class Session {
 
     @XStreamAlias("product")
     public static class ProductRef {
+
         final int id;
         final File file;
 
@@ -231,50 +309,57 @@ public class Session {
 
         final int productId;
         final String productNodeName;
+        @XStreamAlias("layers")
+        final LayerRef[] layerRefs;
 
 
         public ViewRef(int id, String type, Rectangle bounds,
                        ViewportDef viewportDef, int productId,
-                       String productNodeName) {
+                       String productNodeName, LayerRef[] layerRefs) {
             this.id = id;
             this.type = type;
             this.bounds = bounds;
             this.viewportDef = viewportDef;
             this.productId = productId;
             this.productNodeName = productNodeName;
+            this.layerRefs = layerRefs;
         }
 
         public int getLayerCount() {
-            return 0;  // todo - impl. (nf)
+            return layerRefs.length;
         }
 
         public LayerRef getLayerRef(int index) {
-            return null;  // todo - impl. (nf)
+            return layerRefs[index];
         }
     }
 
     @XStreamAlias("layer")
     public static class LayerRef {
 
+        @XStreamAlias("type")
+        final String typeName;
         final String id;
         final String name;
         final boolean visible;
-        final LayerConfiguration configuration;
+        @XStreamConverter(DomElementConverter.class)
+        final DomElement configuration;
+        final LayerRef[] children;
 
-        public LayerRef(String id, String name, boolean visible, LayerConfiguration configuration) {
+        public LayerRef(String typeName, String id, String name, boolean visible, DomElement configuration,
+                        LayerRef[] children) {
+            this.typeName = typeName;
             this.id = id;
             this.name = name;
             this.visible = visible;
             this.configuration = configuration;
+            this.children = children;
         }
-    }
-
-    @XStreamAlias("configuration")
-    public static class LayerConfiguration {
     }
 
     @XStreamAlias("viewport")
     public static class ViewportDef {
+
         final boolean modelYAxisDown;
         final double offsetX;
         final double offsetY;
@@ -292,5 +377,41 @@ public class Session {
             this.zoomFactor = zoomFactor;
             this.orientation = orientation;
         }
+    }
+
+    // TODO: implement converters - without converters doom converter recurrs infinitely
+    private static void registerConverters() {
+        ConverterRegistry.getInstance().setConverter(Product.class, new Converter<Product>(){
+            @Override
+            public Class<? extends Product> getValueType() {
+                return Product.class;
+            }
+
+            @Override
+            public Product parse(String text) throws ConversionException {
+                return new Product(text, "T", 10, 10);
+            }
+
+            @Override
+            public String format(Product value) {
+                return value.getName();
+            }
+        });
+        ConverterRegistry.getInstance().setConverter(RasterDataNode.class, new Converter<RasterDataNode>(){
+            @Override
+            public Class<? extends RasterDataNode> getValueType() {
+                return RasterDataNode.class;
+            }
+
+            @Override
+            public RasterDataNode parse(String text) throws ConversionException {
+                return new VirtualBand(text, ProductData.TYPE_INT32, 10, 10);
+            }
+
+            @Override
+            public String format(RasterDataNode value) {
+                return value.getName();
+            }
+        });
     }
 }

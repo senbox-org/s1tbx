@@ -3,17 +3,15 @@ package org.esa.beam.visat.actions.session;
 import com.bc.ceres.binding.ClassFieldDescriptorFactory;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
+import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
-import com.bc.ceres.binding.dom.Xpp3DomElement;
 import com.bc.ceres.binding.dom.DomElementConverter;
+import com.bc.ceres.binding.dom.Xpp3DomElement;
 import com.bc.ceres.core.ExtensionManager;
 import com.bc.ceres.core.SingleTypeExtensionFactory;
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -22,11 +20,13 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import java.awt.Color;
-import java.awt.Rectangle;
 import java.awt.Font;
+import java.awt.Rectangle;
 import java.io.File;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +35,9 @@ public class SessionIOTest extends TestCase {
 
     private static interface LayerIO {
 
+        void write(Layer layer, Writer writer, DomConverter domConverter);
+
+        LayerMemento read(Reader reader);
     }
 
     public void testGetInstance() {
@@ -44,7 +47,6 @@ public class SessionIOTest extends TestCase {
 
     public void testIO() throws Exception {
         ExtensionManager.getInstance().register(LayerType.class, new GraticuleLayerIOFactory());
-
 
         final Session session1 = SessionTest.createTestSession();
 
@@ -74,10 +76,9 @@ public class SessionIOTest extends TestCase {
         testViewRef(session.getViewRef(3), 3, ProductSceneView.class.getName(), new Rectangle(200, 100, 200, 100), 15,
                     "D");
 
-// todo        
-//        assertEquals(2, session.getViewRef(3).getLayerCount());
-//        assertEquals("[15] D", session.getViewRef(3).getLayerRef(0).name);
-//        assertEquals("Graticule", session.getViewRef(3).getLayerRef(1).name);
+        assertEquals(2, session.getViewRef(3).getLayerCount());
+        assertEquals("[15] D", session.getViewRef(3).getLayerRef(0).name);
+        assertEquals("Graticule", session.getViewRef(3).getLayerRef(1).name);
     }
 
     private void testProductRef(Session.ProductRef productRef, int expectedId, File expectedFile) {
@@ -108,15 +109,63 @@ public class SessionIOTest extends TestCase {
 
     static class GraticuleLayerIO implements LayerIO {
 
+        private volatile XStream xs;
+
+        @Override
+        public void write(Layer layer, Writer writer, DomConverter domConverter) {
+            initIO();
+
+            final Xpp3DomElement configuration = Xpp3DomElement.createDomElement("configuration");
+            domConverter.convertValueToDom(layer, configuration);
+
+            final LayerMemento memento = new LayerMemento(layer.getLayerType().getName(), configuration);
+            xs.toXML(memento, writer);
+        }
+
+        @Override
+        public LayerMemento read(Reader reader) {
+            initIO();
+
+            final Object obj = xs.fromXML(reader);
+            assertTrue(obj instanceof LayerMemento);
+
+            return (LayerMemento) obj;
+        }
+
+        private void initIO() {
+            if (xs == null) {
+                synchronized (this) {
+                    if (xs == null) {
+                        xs = new XStream();
+                        xs.processAnnotations(LayerMemento.class);
+                        xs.alias("configuration", DomElement.class, Xpp3DomElement.class);
+                        xs.useAttributeFor(LayerMemento.class, "typeName");
+                    }
+                }
+            }
+        }
     }
 
     @XStreamAlias("layer")
-    static class XC {
+    static class LayerMemento {
+
+        @XStreamAlias("type")
+        private String typeName;
+
         @XStreamConverter(DomElementConverter.class)
-        DomElement configuration;
+        private DomElement configuration;
+
+        LayerMemento(String typeName, DomElement configuration) {
+            this.typeName = typeName;
+            this.configuration = configuration;
+        }
+
+        DomElement getConfiguration() {
+            return configuration;
+        }
     }
 
-    static class LC {
+    static class RestaurantLayer {
         boolean visible;
         double transparency;
 
@@ -126,130 +175,106 @@ public class SessionIOTest extends TestCase {
         Font labelFont;
     }
 
-    public void testLayerConfigurationIO() throws ValidationException, ConversionException {
-        // init xstream
-        final XStream xs = new XStream();
-        xs.processAnnotations(XC.class);
-        xs.alias("configuration", DomElement.class, Xpp3DomElement.class);
+    static class RestaurantLayerIO {
+        
+        private volatile XStream xs;
+        private volatile DomConverter dc;
 
-        final ClassFieldDescriptorFactory valueDescriptorFactory = new ClassFieldDescriptorFactory() {
-            @Override
-            public ValueDescriptor createValueDescriptor(Field field) {
-                return new ValueDescriptor(field.getName(), field.getType());
-            }
-        };
-        final DefaultDomConverter domConverter = new DefaultDomConverter(LC.class, valueDescriptorFactory);
-        final LC lc1 = new LC();
-        lc1.visible = true;
-        lc1.transparency = 0.5;
-        lc1.bgPaint = Color.BLACK;
-        lc1.fgPaint = Color.GREEN;
-        lc1.showBorder = true;
-        lc1.labelFont = new Font("helvetica", Font.ITALIC, 11);
+        public void write(RestaurantLayer layer, Writer writer) {
+            initIO();
 
-        final Xpp3DomElement configuration = Xpp3DomElement.createDomElement("configuration");
-        domConverter.convertValueToDom(lc1, configuration);
+            final Xpp3DomElement configuration = Xpp3DomElement.createDomElement("configuration");
+            dc.convertValueToDom(layer, configuration);
 
-        final XC xc1 = new XC();
-        xc1.configuration = configuration;
-        final String xcXml = xs.toXML(xc1);
-        System.out.println(xcXml);
+            final Memento memento = new Memento("restaurants", configuration);
+            xs.toXML(memento, writer);
+        }
 
-        final Object o = xs.fromXML(xcXml);
-        assertTrue(o instanceof XC);
-        final XC xc2 = (XC) o;
-        final LC lc2 = new LC();
-        domConverter.convertDomToValue(xc2.configuration, lc2);
-        assertEquals(true, lc2.visible);
-        assertEquals(0.5, lc2.transparency, 0.0);
-        assertEquals(Color.BLACK, lc2.bgPaint);
-        assertEquals(Color.GREEN, lc2.fgPaint);
-        assertEquals(true, lc2.showBorder);
-        assertEquals(new Font("helvetica", Font.ITALIC, 11), lc2.labelFont);
-    }
+        public Memento readMemento(Reader reader) {
+            initIO();
 
-    public void testMyLayerCreation() {
-        // Layer configuration test
-        final LayerType type = new MyLayer.Type();
-        final LayerContext ctx = new LayerContext() {
-            @Override
-            public Object getCoordinateReferenceSystem() {
-                return null;
-            }
+            final Object obj = xs.fromXML(reader);
+            assertTrue(obj instanceof Memento);
 
-            @Override
-            public Layer getRootLayer() {
-                return null;
-            }
-        };
-        final Map<String, Object> configuration = type.createConfiguration(ctx, null);
-        assertNotNull(configuration);
-        assertEquals(1, configuration.size());
+            return (Memento) obj;
+        }
 
-        final Layer layer = type.createLayer(ctx, configuration);
-        assertTrue(layer instanceof MyLayer);
-        final MyLayer myLayer = (MyLayer) layer;
-        assertEquals(Color.BLACK, myLayer.getPaint());
-    }
-
-    private static class MyLayer extends Layer {
-
-        private static final Type LAYER_TYPE = new Type();
-
-        private Color paint;
-
-        MyLayer(Map<String, Object> configuration) {
-            super(LAYER_TYPE);
-            final ValueContainer vc1 = ValueContainer.createMapBacked(configuration);
-            final ValueContainer vc2 = ValueContainer.createObjectBacked(this);
-
-            for (ValueModel vcm2 : vc2.getModels()) {
-                final ValueModel vcm1 = vc1.getModel(vcm2.getDescriptor().getName());
-                if (vcm1 != null) {
-                    try {
-                        vcm2.setValue(vcm1.getValue());
-                    } catch (ValidationException e) {
-                        // ignore
+        private void initIO() {
+            if (xs == null) {
+                synchronized (this) {
+                    if (xs == null) {
+                        xs = new XStream();
+                        xs.processAnnotations(Memento.class);
+                        xs.alias("configuration", DomElement.class, Xpp3DomElement.class);
+                        xs.useAttributeFor(Memento.class, "typeName");
+                        final ClassFieldDescriptorFactory factory = new ClassFieldDescriptorFactory() {
+                            @Override
+                            public ValueDescriptor createValueDescriptor(Field field) {
+                                return new ValueDescriptor(field.getName(), field.getType());
+                            }
+                        };
+                        dc = new DefaultDomConverter(RestaurantLayer.class, factory);
                     }
                 }
             }
         }
 
-        Color getPaint() {
-            return paint;
-        }
+        @XStreamAlias("layer")
+        static class Memento {
+            @XStreamAlias("type")
+            private final String typeName;
 
-        public static class Type extends LayerType {
+            @XStreamConverter(DomElementConverter.class)
+            private final DomElement configuration;
 
-            @Override
-            public String getName() {
-                return "My Layer";
-            }
-
-            @Override
-            public boolean isValidFor(LayerContext ctx) {
-                return true;
-            }
-
-            @Override
-            public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-                final HashMap<String, Object> configuration = new HashMap<String, Object>();
-                final ValueContainer vc = ValueContainer.createMapBacked(configuration, MyLayer.class);
-                final ValueModel model = vc.getModel("paint");
-
-                try {
-                    model.setValue(Color.BLACK);
-                } catch (ValidationException e) {
-                    // ignore
-                }
-
+            public DomElement getConfiguration() {
                 return configuration;
             }
 
-            @Override
-            public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
-                return new MyLayer(configuration);
+            private Memento(String typeName, DomElement configuration) {
+                this.typeName = typeName;
+                this.configuration = configuration;
             }
         }
+    }
+
+    public void testRestaurantLayerIO() throws ValidationException, ConversionException {
+        // create example layer
+        final RestaurantLayer layer1 = new RestaurantLayer();
+        layer1.visible = true;
+        layer1.transparency = 0.5;
+        layer1.bgPaint = Color.BLACK;
+        layer1.fgPaint = Color.GREEN;
+        layer1.showBorder = true;
+        layer1.labelFont = new Font("helvetica", Font.ITALIC, 11);
+
+        final ClassFieldDescriptorFactory factory = new ClassFieldDescriptorFactory() {
+            @Override
+            public ValueDescriptor createValueDescriptor(Field field) {
+                return new ValueDescriptor(field.getName(), field.getType());
+            }
+        };
+        final DefaultDomConverter domConverter = new DefaultDomConverter(RestaurantLayer.class, factory);
+
+        // write layer to string
+        final RestaurantLayerIO layerIO = new RestaurantLayerIO();
+        final StringWriter writer = new StringWriter();
+        layerIO.write(layer1, writer);
+        final String xml = writer.getBuffer().toString();
+        System.out.println(xml);
+
+        final StringReader reader = new StringReader(xml);
+        RestaurantLayerIO.Memento memento = layerIO.readMemento(reader);
+        // create layer from layer representation
+        final RestaurantLayer layer2 = new RestaurantLayer();
+        domConverter.convertDomToValue(memento.getConfiguration(), layer2);
+
+        // test equality of original and restored layers
+        assertEquals(true, layer2.visible);
+        assertEquals(0.5, layer2.transparency, 0.0);
+        assertEquals(Color.BLACK, layer2.bgPaint);
+        assertEquals(Color.GREEN, layer2.fgPaint);
+        assertEquals(true, layer2.showBorder);
+        assertEquals(new Font("helvetica", Font.ITALIC, 11), layer2.labelFont);
     }
 }
