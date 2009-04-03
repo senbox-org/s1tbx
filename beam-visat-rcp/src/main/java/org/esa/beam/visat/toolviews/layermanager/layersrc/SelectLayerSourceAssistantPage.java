@@ -54,7 +54,10 @@ public class SelectLayerSourceAssistantPage extends AbstractLayerSourceAssistant
         if (selected == null) {
             return null;
         }
-        return layerSourceMap.get(selected).getFirstPage(getContext());
+        LayerSource layerSource = layerSourceMap.get(selected);
+        LayerSourcePageContext pageContext = getContext();
+        pageContext.setLayerSource(layerSource);
+        return layerSource.getFirstPage(pageContext);
     }
 
     @Override
