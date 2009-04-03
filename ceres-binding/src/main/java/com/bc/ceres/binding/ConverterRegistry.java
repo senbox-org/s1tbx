@@ -2,13 +2,14 @@ package com.bc.ceres.binding;
 
 import com.bc.ceres.binding.converters.*;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
-import java.awt.Color;
-import java.awt.Font;
 
 /**
  * A registry for {@link Converter}s.
@@ -17,6 +18,7 @@ import java.awt.Font;
  * @since 0.6
  */
 public class ConverterRegistry {
+
     private static final ConverterRegistry instance = new ConverterRegistry();
     private Map<Class<?>, Converter<?>> converters;
 
@@ -44,6 +46,7 @@ public class ConverterRegistry {
         setConverter(Double.class, new DoubleConverter());
 
         // Objects
+        setConverter(AffineTransform.class, new AffineTransformConverter());
         setConverter(Color.class, new ColorConverter());
         setConverter(Date.class, new DateFormatConverter());
         setConverter(File.class, new FileConverter());
@@ -76,6 +79,7 @@ public class ConverterRegistry {
      * Gets the converter registered with the given type.
      *
      * @param type The type.
+     *
      * @return The converter or {@code null} if no such exists.
      */
     public <T> Converter<T> getConverter(Class<? extends T> type) {
