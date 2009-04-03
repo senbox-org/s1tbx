@@ -22,9 +22,6 @@ import java.net.URL;
 
 class WmsAssistantPage1 extends AbstractLayerSourceAssistantPage {
 
-    static final String WMS = "wms";
-    static final String WMS_CAPABILITIES = "wmsCapabilities";
-
     private JComboBox wmsUrlBox;
 
     WmsAssistantPage1() {
@@ -60,8 +57,8 @@ class WmsAssistantPage1 extends AbstractLayerSourceAssistantPage {
         }
 
         if (wms != null && wmsCapabilities != null) {
-            pageContext.setPropertyValue(WMS, wms);
-            pageContext.setPropertyValue(WMS_CAPABILITIES, wmsCapabilities);
+            pageContext.setPropertyValue(WmsLayerSource.PROPERTY_WMS, wms);
+            pageContext.setPropertyValue(WmsLayerSource.PROPERTY_WMS_CAPABILITIES, wmsCapabilities);
             return new WmsAssistantPage2();
         } else {
             return null;

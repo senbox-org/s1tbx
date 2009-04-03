@@ -16,12 +16,20 @@
  */
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 
 
 public class WmsLayerSource implements LayerSource {
+
+    static final String PROPERTY_WMS = "WmsLayerSource.wms";
+    static final String PROPERTY_WMS_CAPABILITIES = "WmsLayerSource.wmsCapabilities";
+    static final String PROPERTY_SELECTED_LAYER = "WmsLayerSource.selectedLayer";
+    static final String PROPERTY_SELECTED_STYLE = "WmsLayerSource.selectedStyle";
+    static final String PROPERTY_CRS_ENVELOPE = "WmsLayerSource.crsEnvelope";
 
     @Override
     public boolean isApplicable(LayerSourcePageContext pageContext) {
@@ -47,5 +55,18 @@ public class WmsLayerSource implements LayerSource {
     public boolean performFinish(LayerSourcePageContext pageContext) {
         return false;
     }
+    
+    @Override
+    public void cancel(LayerSourcePageContext pageContext) {
+    }
+    
+    static void insertWmsLayer(LayerSourcePageContext pageContext) {
+        ProductSceneView view = pageContext.getAppContext().getSelectedProductSceneView();
+        RasterDataNode raster = view.getRaster();
 
+        WmsLayerWorker layerWorker = new WmsLayerWorker(view.getRootLayer(),
+                                                        raster,
+                                                        pageContext);
+        layerWorker.execute();   // todo - don't close dialog before image is downloaded! (nf)
+    }
 }

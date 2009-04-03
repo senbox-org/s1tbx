@@ -16,9 +16,17 @@
  */
 package org.esa.beam.visat.toolviews.layermanager.layersrc.image;
 
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.ImageLayer;
+
+import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
+
+import java.awt.geom.AffineTransform;
+import java.awt.image.RenderedImage;
 
 /**
  * A layer source for images.
@@ -60,5 +68,30 @@ public class ImageFileLayerSource implements LayerSource {
     @Override
     public boolean performFinish(LayerSourcePageContext pageContext) {
         return false;
+    }
+    
+    @Override
+    public void cancel(LayerSourcePageContext pageContext) {
+        pageContext.setPropertyValue(PROPERTY_IMAGE, null);
+    }
+
+    static boolean insertImageLayer(LayerSourcePageContext pageContext) {
+        AffineTransform transform = (AffineTransform) pageContext.getPropertyValue(
+                PROPERTY_WORLD_TRANSFORM);
+        RenderedImage image = (RenderedImage) pageContext.getPropertyValue(PROPERTY_IMAGE);
+        String imageFilePath = (String) pageContext.getPropertyValue(PROPERTY_IMAGE_FILE_PATH);
+        String fileName = FileUtils.getFileNameFromPath(imageFilePath);
+    
+        try {
+            ImageLayer imageLayer = new ImageLayer(image, transform);
+            imageLayer.setName(fileName);
+            ProductSceneView sceneView = pageContext.getAppContext().getSelectedProductSceneView();
+            Layer rootLayer = sceneView.getRootLayer();
+            rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), imageLayer);
+            return true;
+        } catch (Exception e) {
+            pageContext.showErrorDialog(e.getMessage());
+            return false;
+        }
     }
 }

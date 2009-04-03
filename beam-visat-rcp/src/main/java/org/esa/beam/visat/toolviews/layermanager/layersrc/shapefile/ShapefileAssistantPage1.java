@@ -57,16 +57,11 @@ import java.util.Map;
 
 class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
 
-    static final String FILE_NAME = "fileName";
-    static final String FEATURE_COLLECTION = "featureCollection";
-    static final String FEATURE_SOURCE_ENVELOPE = "featureSourceEnvelope";
-    static final String STYLES = "styles";
-    static final String SELECTED_STYLE = "selectedStyle";
-    
     private static final String PROPERTY_LAST_FILE_PREFIX = "ShapefileAssistant.Shapefile.history";
     private static final String PROPERTY_LAST_DIR = "ShapefileAssistant.Shapefile.lastDir";
     private static final org.geotools.styling.StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
     private static final FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
+    
     private HistoryComboBoxModel fileHistoryModel;
 
     
@@ -171,12 +166,12 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
                 Style[] styles = createStyle(file, featureCollection.getSchema());
 
                 LayerSourcePageContext context = getContext();
-                context.setPropertyValue(FILE_NAME, file.getName());
-                context.setPropertyValue(FEATURE_COLLECTION, featureCollection);
-                context.setPropertyValue(FEATURE_SOURCE_ENVELOPE, referencedEnvelope);
-                context.setPropertyValue(STYLES, styles);
+                context.setPropertyValue(ShapefileLayerSource.PROPERTY_FILE_NAME, file.getName());
+                context.setPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_COLLECTION, featureCollection);
+                context.setPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_SOURCE_ENVELOPE, referencedEnvelope);
+                context.setPropertyValue(ShapefileLayerSource.PROPERTY_STYLES, styles);
                 if (styles.length > 0) {
-                    context.setPropertyValue(SELECTED_STYLE, styles[0]);
+                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_SELECTED_STYLE, styles[0]);
                 }
                 return new ShapefileAssistantPage2();
             } catch (Exception e) {

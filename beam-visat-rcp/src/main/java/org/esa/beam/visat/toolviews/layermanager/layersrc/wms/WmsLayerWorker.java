@@ -63,7 +63,7 @@ class WmsLayerWorker extends WmsWorker {
                 AffineTransform i2mTransform = sceneView.getRaster().getGeoCoding().getGridToModelTransform();
                 ImageLayer imageLayer = new ImageLayer(PlanarImage.wrapRenderedImage(image), i2mTransform);
                 org.geotools.data.ows.Layer layer;
-                layer = (org.geotools.data.ows.Layer) getContext().getPropertyValue(WmsAssistantPage2.SELECTED_LAYER);
+                layer = (org.geotools.data.ows.Layer) getContext().getPropertyValue(WmsLayerSource.PROPERTY_SELECTED_LAYER);
                 imageLayer.setName(layer.getName());
                 rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), imageLayer);
             } catch (Exception e) {

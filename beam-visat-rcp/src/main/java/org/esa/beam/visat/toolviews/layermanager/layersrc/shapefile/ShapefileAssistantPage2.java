@@ -61,10 +61,10 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         mapCanvas.setVerticalTextPosition(SwingConstants.CENTER);
         
         LayerSourcePageContext context = getContext();
-        String fileName = (String) context.getPropertyValue(ShapefileAssistantPage1.FILE_NAME);
-        ReferencedEnvelope featureSourceEnvelope = (ReferencedEnvelope) context.getPropertyValue(ShapefileAssistantPage1.FEATURE_SOURCE_ENVELOPE);
-        Style[] styles = (Style[]) context.getPropertyValue(ShapefileAssistantPage1.STYLES);
-        Style selectedStyle = (Style) context.getPropertyValue(ShapefileAssistantPage1.SELECTED_STYLE);
+        String fileName = (String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FILE_NAME);
+        ReferencedEnvelope featureSourceEnvelope = (ReferencedEnvelope) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_SOURCE_ENVELOPE);
+        Style[] styles = (Style[]) context.getPropertyValue(ShapefileLayerSource.PROPERTY_STYLES);
+        Style selectedStyle = (Style) context.getPropertyValue(ShapefileLayerSource.PROPERTY_SELECTED_STYLE);
 
         JLabel infoLabel = new JLabel(featureSourceEnvelope.toString());
 
@@ -101,10 +101,10 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
     @Override
     public boolean performFinish() {
         LayerSourcePageContext context = getContext();
-        String fileName = (String) context.getPropertyValue(ShapefileAssistantPage1.FILE_NAME);
+        String fileName = (String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FILE_NAME);
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = 
-            (FeatureCollection<SimpleFeatureType, SimpleFeature>) context.getPropertyValue(ShapefileAssistantPage1.FEATURE_COLLECTION);
-        Style selectedStyle = (Style) context.getPropertyValue(ShapefileAssistantPage1.SELECTED_STYLE);
+            (FeatureCollection<SimpleFeatureType, SimpleFeature>) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_COLLECTION);
+        Style selectedStyle = (Style) context.getPropertyValue(ShapefileLayerSource.PROPERTY_SELECTED_STYLE);
         
         FeatureLayer featureLayer = new FeatureLayer(featureCollection, selectedStyle);
         featureLayer.setName(fileName);
@@ -128,7 +128,7 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         mapCanvas.setIcon(null);
         getContext().getWindow().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-        ReferencedEnvelope featureSourceEnvelope = (ReferencedEnvelope) getContext().getPropertyValue(ShapefileAssistantPage1.FEATURE_SOURCE_ENVELOPE);
+        ReferencedEnvelope featureSourceEnvelope = (ReferencedEnvelope) getContext().getPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_SOURCE_ENVELOPE);
         worker = new ShapefileLoader(computeMapSize(featureSourceEnvelope));
         worker.execute();
     }
@@ -151,7 +151,7 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         @Override
         public void itemStateChanged(ItemEvent e) {
             LayerSourcePageContext context = getContext();
-            context.setPropertyValue(ShapefileAssistantPage1.SELECTED_STYLE, styleList.getSelectedItem());
+            context.setPropertyValue(ShapefileLayerSource.PROPERTY_SELECTED_STYLE, styleList.getSelectedItem());
             context.updateState();
             updateMap();
         }
@@ -186,9 +186,9 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         protected BufferedImage doInBackground() throws Exception {
             LayerSourcePageContext context = getContext();
             FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = 
-                (FeatureCollection<SimpleFeatureType, SimpleFeature>) context.getPropertyValue(ShapefileAssistantPage1.FEATURE_COLLECTION);
-            ReferencedEnvelope featureSourceEnvelope = (ReferencedEnvelope) context.getPropertyValue(ShapefileAssistantPage1.FEATURE_SOURCE_ENVELOPE);
-            Style selectedStyle = (Style) context.getPropertyValue(ShapefileAssistantPage1.SELECTED_STYLE);
+                (FeatureCollection<SimpleFeatureType, SimpleFeature>) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_COLLECTION);
+            ReferencedEnvelope featureSourceEnvelope = (ReferencedEnvelope) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_SOURCE_ENVELOPE);
+            Style selectedStyle = (Style) context.getPropertyValue(ShapefileLayerSource.PROPERTY_SELECTED_STYLE);
             SimpleFeatureType schema = featureCollection.getSchema();
             
             final CoordinateReferenceSystem crs = schema.getGeometryDescriptor().getCoordinateReferenceSystem();

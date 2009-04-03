@@ -54,4 +54,8 @@ public class ProductLayerSource implements LayerSource {
     public boolean performFinish(LayerSourcePageContext pageContext) {
         return pageContext.getCurrentPage().performFinish();
     }
+    
+    @Override
+    public void cancel(LayerSourcePageContext pageContext) {
+    }
 }

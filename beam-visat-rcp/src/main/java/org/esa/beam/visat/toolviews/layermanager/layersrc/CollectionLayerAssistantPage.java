@@ -17,7 +17,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
-public class CollectionLayerAssistantPage extends AbstractLayerSourceAssistantPage {
+class CollectionLayerAssistantPage extends AbstractLayerSourceAssistantPage {
 
     private static final ArrayList<String> names = new ArrayList<String>();
     private JComboBox nameBox;
@@ -27,7 +27,7 @@ public class CollectionLayerAssistantPage extends AbstractLayerSourceAssistantPa
         names.add("");
     }
 
-    public CollectionLayerAssistantPage() {
+    CollectionLayerAssistantPage() {
         super("Set Layer Name");
     }
     

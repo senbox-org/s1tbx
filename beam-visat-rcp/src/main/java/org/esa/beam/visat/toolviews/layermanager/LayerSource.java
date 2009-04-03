@@ -59,4 +59,13 @@ public interface LayerSource {
      * @return true, if the method completed successfully 
      */
     boolean performFinish(LayerSourcePageContext pageContext);
+    
+    /**
+     * Aborts the operation of this layer source.
+     * This method is responsible for freeing all resources acquired by
+     * the layer source.
+     * 
+     * @param pageContext The current context.
+     */
+    void cancel(LayerSourcePageContext pageContext);
 }

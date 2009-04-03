@@ -1,10 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.image;
 
 
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.tools.Tools;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
@@ -45,7 +42,7 @@ import java.util.concurrent.ExecutionException;
 
 // todo - Check, if image is GeoTIFF -> no world file is needed
 
-public class ImageFileAssistantPage1 extends AbstractLayerSourceAssistantPage {
+class ImageFileAssistantPage1 extends AbstractLayerSourceAssistantPage {
 
     private static final String LAST_IMAGE_PREFIX = "ImageFileAssistantPage1.ImageFile.history";
     private static final String LAST_DIR = "ImageFileAssistantPage1.ImageFile.lastDir";
@@ -55,7 +52,7 @@ public class ImageFileAssistantPage1 extends AbstractLayerSourceAssistantPage {
     private JLabel imagePreviewLabel;
 
 
-    public ImageFileAssistantPage1() {
+    ImageFileAssistantPage1() {
         super("Select Image File");
     }
 
@@ -90,7 +87,7 @@ public class ImageFileAssistantPage1 extends AbstractLayerSourceAssistantPage {
     public boolean performFinish() {
         imageHistoryModel.saveHistory();
         createTransform(getContext());
-        return insertImageLayer(getContext());
+        return ImageFileLayerSource.insertImageLayer(getContext());
     }
 
     @Override
@@ -181,26 +178,6 @@ public class ImageFileAssistantPage1 extends AbstractLayerSourceAssistantPage {
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridwidth = 1;
         panel.add(button, gbc);
-    }
-
-    static boolean insertImageLayer(LayerSourcePageContext pageContext) {
-        AffineTransform transform = (AffineTransform) pageContext.getPropertyValue(
-                ImageFileLayerSource.PROPERTY_WORLD_TRANSFORM);
-        RenderedImage image = (RenderedImage) pageContext.getPropertyValue(ImageFileLayerSource.PROPERTY_IMAGE);
-        String imageFilePath = (String) pageContext.getPropertyValue(ImageFileLayerSource.PROPERTY_IMAGE_FILE_PATH);
-        String fileName = FileUtils.getFileNameFromPath(imageFilePath);
-
-        try {
-            ImageLayer imageLayer = new ImageLayer(image, transform);
-            imageLayer.setName(fileName);
-            ProductSceneView sceneView = pageContext.getAppContext().getSelectedProductSceneView();
-            Layer rootLayer = sceneView.getRootLayer();
-            rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), imageLayer);
-            return true;
-        } catch (Exception e) {
-            pageContext.showErrorDialog(e.getMessage());
-            return false;
-        }
     }
 
     private static void createTransform(LayerSourcePageContext pageContext) {

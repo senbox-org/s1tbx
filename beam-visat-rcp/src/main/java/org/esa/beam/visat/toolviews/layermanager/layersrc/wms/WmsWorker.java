@@ -48,10 +48,10 @@ abstract class WmsWorker extends SwingWorker<BufferedImage, Object> {
 
     @Override
     protected BufferedImage doInBackground() throws Exception {
-        WebMapServer wms = (WebMapServer) context.getPropertyValue(WmsAssistantPage1.WMS);
-        Layer selectedLayer = (Layer) context.getPropertyValue(WmsAssistantPage2.SELECTED_LAYER);
-        Style selectedStyle = (Style) context.getPropertyValue(WmsAssistantPage2.SELECTED_STYLE);
-        CRSEnvelope crsEnvelope = (CRSEnvelope) context.getPropertyValue(WmsAssistantPage2.CRS_ENVELOPE);
+        WebMapServer wms = (WebMapServer) context.getPropertyValue(WmsLayerSource.PROPERTY_WMS);
+        Layer selectedLayer = (Layer) context.getPropertyValue(WmsLayerSource.PROPERTY_SELECTED_LAYER);
+        Style selectedStyle = (Style) context.getPropertyValue(WmsLayerSource.PROPERTY_SELECTED_STYLE);
+        CRSEnvelope crsEnvelope = (CRSEnvelope) context.getPropertyValue(WmsLayerSource.PROPERTY_CRS_ENVELOPE);
         GetMapRequest mapRequest = wms.createGetMapRequest();
         mapRequest.addLayer(selectedLayer, selectedStyle);
         mapRequest.setTransparent(true);

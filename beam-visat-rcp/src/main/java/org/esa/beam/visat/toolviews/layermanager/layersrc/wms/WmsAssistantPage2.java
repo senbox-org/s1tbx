@@ -1,9 +1,9 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
 import com.jidesoft.tree.AbstractTreeModel;
+
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 import org.geotools.data.ows.CRSEnvelope;
@@ -13,6 +13,16 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.layer.Style;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -24,21 +34,8 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
 
 class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
-
-    static final String SELECTED_LAYER = "selectedLayer";
-    static final String SELECTED_STYLE = "selectedStyle";
-    static final String CRS_ENVELOPE = "crsEnvelope";
 
     private JLabel infoLabel;
     private JTree layerTree;
@@ -50,13 +47,7 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
     @Override
     public boolean performFinish() {
-        ProductSceneView view = getContext().getAppContext().getSelectedProductSceneView();
-        RasterDataNode raster = view.getRaster();
-
-        WmsLayerWorker layerWorker = new WmsLayerWorker(view.getRootLayer(),
-                                                        raster,
-                                                        getContext());
-        layerWorker.execute();   // todo - don't close dialog before image is downloaded! (nf)
+        WmsLayerSource.insertWmsLayer(getContext());
         return true;
     }
 
@@ -72,7 +63,7 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
     @Override
     public boolean validatePage() {
-        return getContext().getPropertyValue(SELECTED_LAYER) != null;
+        return getContext().getPropertyValue(WmsLayerSource.PROPERTY_SELECTED_LAYER) != null;
     }
 
     @Override
@@ -85,7 +76,7 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
         modelCRS = context.getAppContext().getSelectedProductSceneView().getRaster().getGeoCoding().getModelCRS();
 
         WMSCapabilities wmsCapabilities = (WMSCapabilities) context.getPropertyValue(
-                WmsAssistantPage1.WMS_CAPABILITIES);
+                WmsLayerSource.PROPERTY_WMS_CAPABILITIES);
         layerTree = new JTree(new WMSTreeModel(wmsCapabilities.getLayer()));
         layerTree.setRootVisible(false);
         layerTree.setShowsRootHandles(true);
@@ -96,7 +87,7 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
         panel.add(new JScrollPane(layerTree), BorderLayout.CENTER);
         infoLabel = new JLabel(" ");
         panel.add(infoLabel, BorderLayout.SOUTH);
-        getContext().setPropertyValue(SELECTED_LAYER, null);
+        getContext().setPropertyValue(WmsLayerSource.PROPERTY_SELECTED_LAYER, null);
         return panel;
     }
 
@@ -179,7 +170,7 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
             LayerSourcePageContext context = getContext();
             TreePath selectedLayerPath = layerTree.getSelectionModel().getSelectionPath();
             Layer selectedLayer = (Layer) selectedLayerPath.getLastPathComponent();
-            context.setPropertyValue(SELECTED_LAYER, selectedLayer);
+            context.setPropertyValue(WmsLayerSource.PROPERTY_SELECTED_LAYER, selectedLayer);
             if (selectedLayer != null) {
                 infoLabel.setText(getLatLonBoundingBoxText(selectedLayer.getLatLonBoundingBox()));
                 String crsCode = getMatchingCRSCode(selectedLayer);
@@ -197,11 +188,11 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
                                                               bounds.getMaxY());
                     List<Style> styles = selectedLayer.getStyles();
                     if (!styles.isEmpty()) {
-                        context.setPropertyValue(SELECTED_STYLE, styles.get(0));
+                        context.setPropertyValue(WmsLayerSource.PROPERTY_SELECTED_STYLE, styles.get(0));
                     } else {
-                        context.setPropertyValue(SELECTED_STYLE, null);
+                        context.setPropertyValue(WmsLayerSource.PROPERTY_SELECTED_STYLE, null);
                     }
-                    context.setPropertyValue(CRS_ENVELOPE, crsEnvelope);
+                    context.setPropertyValue(WmsLayerSource.PROPERTY_CRS_ENVELOPE, crsEnvelope);
                 }
             } else {
                 infoLabel.setText("");

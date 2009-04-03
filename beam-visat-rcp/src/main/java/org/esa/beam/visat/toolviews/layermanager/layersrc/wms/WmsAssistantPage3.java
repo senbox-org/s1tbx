@@ -1,13 +1,20 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
 import org.opengis.layer.Style;
 import org.opengis.util.InternationalString;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.image.BufferedImage;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
@@ -20,14 +27,6 @@ import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.image.BufferedImage;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 class WmsAssistantPage3 extends AbstractLayerSourceAssistantPage {
 
@@ -51,13 +50,13 @@ class WmsAssistantPage3 extends AbstractLayerSourceAssistantPage {
         previewCanvas = new JLabel();
         previewCanvas.setHorizontalTextPosition(SwingConstants.CENTER);
         previewCanvas.setVerticalTextPosition(SwingConstants.CENTER);
-        Layer selectedLayer = (Layer) context.getPropertyValue(WmsAssistantPage2.SELECTED_LAYER);
+        Layer selectedLayer = (Layer) context.getPropertyValue(WmsLayerSource.PROPERTY_SELECTED_LAYER);
         JLabel infoLabel = new JLabel(WmsAssistantPage2.getLatLonBoundingBoxText(selectedLayer.getLatLonBoundingBox()));
 
         List<Style> styles = selectedLayer.getStyles();
 
         styleList = new JComboBox(styles.toArray(new Style[styles.size()]));
-        styleList.setSelectedItem(context.getPropertyValue(WmsAssistantPage2.SELECTED_STYLE));
+        styleList.setSelectedItem(context.getPropertyValue(WmsLayerSource.PROPERTY_SELECTED_STYLE));
         styleList.setRenderer(new StyleListCellRenderer());
         styleList.addItemListener(new StyleItemListener());
 
@@ -101,14 +100,14 @@ class WmsAssistantPage3 extends AbstractLayerSourceAssistantPage {
 
     @Override
     public boolean performFinish() {
-        ProductSceneView view = getContext().getAppContext().getSelectedProductSceneView();
-        RasterDataNode raster = view.getRaster();
-
-        WmsLayerWorker layerWorker = new WmsLayerWorker(view.getRootLayer(),
-                                                        raster,
-                                                        getContext());
-        layerWorker.execute();   // todo - don't close dialog before image is downloaded! (nf)
+        WmsLayerSource.insertWmsLayer(getContext());
         return true;
+    }
+    
+    @Override
+    public void performCancel() {
+        cancelPreviewWorker();
+        super.performCancel();
     }
 
     private void updatePreview() {
@@ -116,7 +115,7 @@ class WmsAssistantPage3 extends AbstractLayerSourceAssistantPage {
         previewCanvas.setText("<html><i>Loading map...</i></html>");
         previewCanvas.setIcon(null);
 
-        CRSEnvelope crsEnvelope = (CRSEnvelope) getContext().getPropertyValue(WmsAssistantPage2.CRS_ENVELOPE);
+        CRSEnvelope crsEnvelope = (CRSEnvelope) getContext().getPropertyValue(WmsLayerSource.PROPERTY_CRS_ENVELOPE);
         previewWorker = new WmsPreviewWorker(getPreviewSize(crsEnvelope), getContext());
         previewWorker.execute();
 
@@ -159,7 +158,7 @@ class WmsAssistantPage3 extends AbstractLayerSourceAssistantPage {
 
         @Override
         public void itemStateChanged(ItemEvent e) {
-            getContext().setPropertyValue(WmsAssistantPage2.SELECTED_STYLE, styleList.getSelectedItem());
+            getContext().setPropertyValue(WmsLayerSource.PROPERTY_SELECTED_STYLE, styleList.getSelectedItem());
             getContext().updateState();
             updatePreview();
         }

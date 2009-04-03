@@ -29,6 +29,12 @@ import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext
  */
 public class ShapefileLayerSource implements LayerSource {
 
+    static final String PROPERTY_FILE_NAME = "ShapefileLayerSource.fileName";
+    static final String PROPERTY_FEATURE_COLLECTION = "ShapefileLayerSource.featureCollection";
+    static final String PROPERTY_FEATURE_SOURCE_ENVELOPE = "ShapefileLayerSource.featureSourceEnvelope";
+    static final String PROPERTY_STYLES = "ShapefileLayerSource.styles";
+    static final String PROPERTY_SELECTED_STYLE = "ShapefileLayerSource.selectedStyle";
+
     @Override
     public boolean isApplicable(LayerSourcePageContext pageContext) {
         return true;
@@ -52,5 +58,9 @@ public class ShapefileLayerSource implements LayerSource {
     @Override
     public boolean performFinish(LayerSourcePageContext pageContext) {
         return false;
+    }
+    
+    @Override
+    public void cancel(LayerSourcePageContext pageContext) {
     }
 }

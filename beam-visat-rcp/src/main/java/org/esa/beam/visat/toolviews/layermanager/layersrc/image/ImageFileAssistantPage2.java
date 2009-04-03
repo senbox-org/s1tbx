@@ -38,36 +38,18 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.util.concurrent.ExecutionException;
 
-public class ImageFileAssistantPage2 extends AbstractLayerSourceAssistantPage {
+class ImageFileAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
     private JTextField[] numberFields;
     private Envelope2D layerEnvelope;
     private Envelope imageEnvelope;
 
-    public ImageFileAssistantPage2() {
+    ImageFileAssistantPage2() {
         super("Edit Affine Transformation");
     }
 
     @Override
-    public boolean validatePage() {
-        try {
-            return createTransform().getDeterminant() != 0.0;
-        } catch (Exception ignore) {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean performFinish() {
-        AffineTransform transform = createTransform();
-        final LayerSourcePageContext context = getContext();
-        context.setPropertyValue(ImageFileLayerSource.PROPERTY_WORLD_TRANSFORM, transform);
-        return ImageFileAssistantPage1.insertImageLayer(context);
-    }
-
-    @Override
     public Component createPageComponent() {
-
         GridBagConstraints gbc = new GridBagConstraints();
         final JPanel panel = new JPanel(new GridBagLayout());
 
@@ -117,6 +99,23 @@ public class ImageFileAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
         return panel;
     }
+    
+    @Override
+    public boolean validatePage() {
+        try {
+            return createTransform().getDeterminant() != 0.0;
+        } catch (Exception ignore) {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean performFinish() {
+        AffineTransform transform = createTransform();
+        final LayerSourcePageContext context = getContext();
+        context.setPropertyValue(ImageFileLayerSource.PROPERTY_WORLD_TRANSFORM, transform);
+        return ImageFileLayerSource.insertImageLayer(context);
+    }
 
     private JideSplitButton createAlignButton(Action... actions) {
         Assert.argument(actions.length >= 1, "actions.length >= 1");
@@ -142,8 +141,7 @@ public class ImageFileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         });
     }
 
-    private JTextField addRow(JPanel panel, String label, GridBagConstraints gbc, AbstractButton button
-    ) {
+    private JTextField addRow(JPanel panel, String label, GridBagConstraints gbc, AbstractButton button) {
         gbc.gridy++;
 
         gbc.weightx = 0.2;

@@ -53,4 +53,8 @@ public class SimpleLayerSource implements LayerSource {
         }
         return false;
     }
+    
+    @Override
+    public void cancel(LayerSourcePageContext pageContext) {
+    }
 }

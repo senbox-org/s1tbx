@@ -39,7 +39,7 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
 
     private JTree tree;
 
-    public ProductLayerAssistantPage() {
+    ProductLayerAssistantPage() {
         super("Select Band / Tie-Point Grid");
     }
     
