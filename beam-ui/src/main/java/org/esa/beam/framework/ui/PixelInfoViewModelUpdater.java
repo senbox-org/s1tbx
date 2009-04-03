@@ -362,8 +362,8 @@ class PixelInfoViewModelUpdater {
             final ProductData.UTC utcCurrentLine = new ProductData.UTC(currentLine);
             final Calendar currentLineTime = utcCurrentLine.getAsCalendar();
 
-            final String dateString = String.format("%1$tF", new Object[]{currentLineTime});
-            final String timeString = String.format("%1$tI:%1$tM:%1$tS:%1$tL %1$Tp", new Object[]{currentLineTime});
+            final String dateString = String.format("%1$tF", currentLineTime);
+            final String timeString = String.format("%1$tI:%1$tM:%1$tS:%1$tL %1$Tp", currentLineTime);
 
             scanlineModel.updateValue(dateString, 0);
             scanlineModel.updateValue(timeString, 1);
