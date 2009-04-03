@@ -59,7 +59,12 @@ public class SessionTest extends TestCase {
         assertEquals(4, originalViews.length);
 
         final Session originalSession = new Session(originalProducts, originalViews);
-        final RestoredSession restoredSession = originalSession.restore(ProgressMonitor.NULL);
+        final RestoredSession restoredSession = originalSession.restore(ProgressMonitor.NULL, new Session.ProblemSolver() {
+            @Override
+            public Product solveProductNotFound(File file) {
+                return null;
+            }
+        });
         checkProblems(restoredSession.getProblems());
         final Product[] restoredProducts = restoredSession.getProducts();
         assertNotNull(restoredProducts);

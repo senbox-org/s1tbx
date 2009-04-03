@@ -98,11 +98,11 @@ public class Session {
         return viewRefs[index];
     }
 
-    public RestoredSession restore(ProgressMonitor pm) {
+    public RestoredSession restore(ProgressMonitor pm, ProblemSolver problemSolver) {
         try {
             pm.beginTask("Restoring session", 100);
             final ArrayList<Exception> problems = new ArrayList<Exception>();
-            final Product[] products = restoreProducts(SubProgressMonitor.create(pm, 80), problems);
+            final Product[] products = restoreProducts(SubProgressMonitor.create(pm, 80), problemSolver, problems);
             final ProductNodeView[] views = restoreViews(products, SubProgressMonitor.create(pm, 20), problems);
             return new RestoredSession(products, views, problems.toArray(new Exception[problems.size()]));
         } finally {
@@ -110,13 +110,21 @@ public class Session {
         }
     }
 
-    Product[] restoreProducts(ProgressMonitor pm, List<Exception> problems) {
+    Product[] restoreProducts(ProgressMonitor pm, ProblemSolver problemSolver, List<Exception> problems) {
         ArrayList<Product> products = new ArrayList<Product>();
         try {
             pm.beginTask("Restoring products", productRefs.length);
             for (ProductRef productRef : productRefs) {
                 try {
-                    final Product product = ProductIO.readProduct(productRef.file, null);
+                    final Product product;
+                    if (productRef.file.exists()) {
+                        product = ProductIO.readProduct(productRef.file, null);
+                    } else {
+                        product = problemSolver.solveProductNotFound(productRef.file);
+                        if (product == null) {
+                            throw new Exception("Product [" + productRef.id + "] not found.");
+                        }
+                    }
                     products.add(product);
                     product.setRefNo(productRef.id);
                 } catch (Exception e) {
@@ -195,6 +203,10 @@ public class Session {
             }
         }
         return null;
+    }
+
+    public static interface ProblemSolver {
+        Product solveProductNotFound(File file);
     }
 
     @XStreamAlias("product")

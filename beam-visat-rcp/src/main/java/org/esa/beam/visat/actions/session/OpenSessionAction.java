@@ -31,6 +31,7 @@ import org.esa.beam.visat.actions.ShowImageViewAction;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.swing.JInternalFrame;
+import javax.swing.SwingUtilities;
 import java.awt.Rectangle;
 import java.io.File;
 import java.util.concurrent.ExecutionException;
@@ -95,7 +96,13 @@ public class OpenSessionAction extends ExecCommand {
         @Override
         protected RestoredSession doInBackground(ProgressMonitor pm) throws Exception {
             final Session session = SessionIO.getInstance().readSession(sessionFile);
-            return session.restore(pm);
+            return session.restore(pm, new Session.ProblemSolver() {
+                @Override
+                public Product solveProductNotFound(File file) {
+                    // todo - prompt for product file in EDT (nf)
+                    return null;
+                }
+            });
         }
 
         @Override
