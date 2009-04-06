@@ -57,7 +57,7 @@ abstract class WmsWorker extends SwingWorker<BufferedImage, Object> {
         mapRequest.setTransparent(true);
         mapRequest.setDimensions(size.width, size.height);
         mapRequest.setSRS(crsEnvelope.getEPSGCode()); // e.g. "EPSG:4326" = Geographic CRS
-        mapRequest.setBBox(crsEnvelope); // todo - adjust crsEnvelope to exactly match dimensions w x h (nf)
+        mapRequest.setBBox(crsEnvelope);
         mapRequest.setFormat("image/png");
         return downloadWmsImage(mapRequest, wms);
     }

@@ -60,10 +60,16 @@ class WmsLayerWorker extends WmsWorker {
             BufferedImage image = get();
             try {
                 ProductSceneView sceneView = getContext().getAppContext().getSelectedProductSceneView();
-                AffineTransform i2mTransform = sceneView.getRaster().getGeoCoding().getGridToModelTransform();
-                ImageLayer imageLayer = new ImageLayer(PlanarImage.wrapRenderedImage(image), i2mTransform);
                 org.geotools.data.ows.Layer layer;
-                layer = (org.geotools.data.ows.Layer) getContext().getPropertyValue(WmsLayerSource.PROPERTY_SELECTED_LAYER);
+                layer = (org.geotools.data.ows.Layer) getContext().getPropertyValue(
+                        WmsLayerSource.PROPERTY_SELECTED_LAYER);
+                final int sceneWidth = getContext().getAppContext().getSelectedProductSceneView().getRaster().getSceneRasterWidth();
+                final int sceneHeight = getContext().getAppContext().getSelectedProductSceneView().getRaster().getSceneRasterHeight();
+
+                final AffineTransform g2mTransform = sceneView.getRaster().getGeoCoding().getGridToModelTransform();
+                AffineTransform i2mTransform = new AffineTransform(g2mTransform);
+                i2mTransform.scale((double) sceneWidth / image.getWidth(), (double) sceneHeight / image.getHeight());
+                ImageLayer imageLayer = new ImageLayer(PlanarImage.wrapRenderedImage(image), i2mTransform);
                 imageLayer.setName(layer.getName());
                 rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), imageLayer);
             } catch (Exception e) {
