@@ -13,7 +13,12 @@ import java.io.File;
 
 public class ParametersPaneTest extends TestCase {
     public void testComponentsInPanel() throws ConversionException {
-        ParametersPane parametersPane = createParametersPane();
+        ParametersPane parametersPane = createParametersPane(new BindingContext.ErrorHandler() {
+            @Override
+            public void handleError(Exception e, JComponent component) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        });
         JPanel panel = parametersPane.createPanel();
         Component[] components = panel.getComponents();
         assertEquals(14, components.length);
@@ -59,24 +64,13 @@ public class ParametersPaneTest extends TestCase {
         File imageFile = new File(".").getAbsoluteFile();
     }
 
-    private static ParametersPane createParametersPane() throws ConversionException {
-        ValueContainer vc = ValueContainer.createObjectBacked(new V());
-
-        vc.getDescriptor("threshold").setValueRange(ValueRange.parseValueRange("[0,1)")); // todo - not recognised (nf - 24.10.2007)
-        vc.getDescriptor("resamplingMethod").setValueSet(
-                new ValueSet(new String[]{"NN", "CC", "BQ"}));
-
-        BindingContext sbc = new BindingContext(vc, new BindingContext.ErrorHandler() {
+    public static void main(String[] args) throws ConversionException {
+        ParametersPane propertyPane = createParametersPane(new BindingContext.ErrorHandler() {
             @Override
             public void handleError(Exception e, JComponent component) {
                 JOptionPane.showMessageDialog(null, e.getMessage());
             }
         });
-        return new ParametersPane(sbc);
-    }
-
-    public static void main(String[] args) throws ConversionException {
-        ParametersPane propertyPane = createParametersPane();
         JPanel panel = propertyPane.createPanel();
         JFrame frame = new JFrame("PropertyPaneTest");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -86,9 +80,22 @@ public class ParametersPaneTest extends TestCase {
 
         propertyPane.getBindingContext().getValueContainer().addPropertyChangeListener(new PropertyChangeListener() {
 
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 System.out.println("ValueContainer." + evt.getPropertyName() + " = " + evt.getNewValue());
             }
         });
     }
+
+    private static ParametersPane createParametersPane(BindingContext.ErrorHandler errorHandler) throws ConversionException {
+        ValueContainer vc = ValueContainer.createObjectBacked(new V());
+
+        vc.getDescriptor("threshold").setValueRange(ValueRange.parseValueRange("[0,1)")); // todo - not recognised (nf - 24.10.2007)
+        vc.getDescriptor("resamplingMethod").setValueSet(
+                new ValueSet(new String[]{"NN", "CC", "BQ"}));
+
+        BindingContext sbc = new BindingContext(vc, errorHandler);
+        return new ParametersPane(sbc);
+    }
+
 }
