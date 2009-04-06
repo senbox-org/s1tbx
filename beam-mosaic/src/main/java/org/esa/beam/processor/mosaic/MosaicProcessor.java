@@ -27,7 +27,20 @@ import org.esa.beam.framework.dataio.ProductProjectionBuilder;
 import org.esa.beam.framework.dataio.ProductSubsetBuilder;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataio.ProductWriter;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.PixelGeoCoding;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
@@ -168,7 +181,7 @@ public class MosaicProcessor extends Processor {
         } catch (IOException e) {
             exception = e;
         }
-        final StringBuffer msgBuffer = new StringBuffer();
+        final StringBuilder msgBuffer = new StringBuilder();
         if (exception != null || !success) {
             try {
                 getProductWriter().deleteOutput(); // product writer already exists
@@ -263,6 +276,7 @@ public class MosaicProcessor extends Processor {
      * Creates the graphical user interface of the processor and returns the base component to the framework.
      *
      * @return the graphical user interface of the processor.
+     *
      * @throws org.esa.beam.framework.processor.ProcessorException
      *
      */
@@ -319,14 +333,14 @@ public class MosaicProcessor extends Processor {
 
 
     private boolean createOutputProductPhysically(ProgressMonitor pm) throws IOException,
-            ProcessorException {
+                                                                             ProcessorException {
 
         final String outputFile = _outputProductRef.getFilePath();
         final String productName = FileUtils.getFilenameWithoutExtension(_outputProductRef.getFile());
         final Rectangle2D outputRect = createOutputProductBoundaries();
         if (outputRect.getWidth() * outputRect.getHeight() < 0) {
             throw new ProcessorException("Size of output product exceeds the maximum size.\n" +
-                    "Possibly caused by a small pixel size parameter.");
+                                         "Possibly caused by a small pixel size parameter.");
         }
         final float pixelSizeX = _projectionParams.getPixelSizeX();
         final float pixelSizeY = _projectionParams.getPixelSizeY();
@@ -435,7 +449,6 @@ public class MosaicProcessor extends Processor {
     private void setNoDataValueOfBands(Product outputProduct) {
         MapGeoCoding mapGeoCoding = (MapGeoCoding) outputProduct.getGeoCoding();
         MapInfo mapInfo = mapGeoCoding.getMapInfo();
-        String expressionPattern = "fneq({0},{1},{2})";
         for (MosaicUtils.MosaicIoChannel channel : _outputChannels) {
             final String name = channel.getVariable().getName();
             final RasterDataNode band = outputProduct.getRasterDataNode(name);
@@ -445,10 +458,10 @@ public class MosaicProcessor extends Processor {
                 if (band.isLog10Scaled()) {
                     final double geophysicalNoDataValue = band.getGeophysicalNoDataValue();
                     double eps = Math.pow(10.0, -Math.log10(Math.abs(geophysicalNoDataValue)));
-                    String externalName = BandArithmetic.createExternalName(
-                            band.getName());
-                    band.setValidPixelExpression(MessageFormat.format(expressionPattern,
-                                                                      externalName, geophysicalNoDataValue, eps));
+                    String externalName = BandArithmetic.createExternalName(band.getName());
+                    final String expression = String.format("fneq(%s,%f,%f)",
+                                                            externalName, geophysicalNoDataValue, eps);
+                    band.setValidPixelExpression(expression);
                 }
             }
         }
@@ -462,15 +475,15 @@ public class MosaicProcessor extends Processor {
     }
 
     private Product getInputProductOrSubset() throws ProcessorException,
-            IOException {
+                                                     IOException {
         final Product inputProduct = _currentInputProduct;
         final ProductSubsetBuilder productSubsetBuilder = new ProductSubsetBuilder();
         final Product subset = productSubsetBuilder.readProductNodes(inputProduct, _productSubsetDef);
         if (subset.getNumBands() == 0) {
             throw new ProcessorException("Unable to map-project the product '" +
-                    getRequest().getInputProductAt(0).getFilePath() +
-                    "' because the 'bands' parameter in the processing " +
-                    "request results in a product without bands.");
+                                         getRequest().getInputProductAt(0).getFilePath() +
+                                         "' because the 'bands' parameter in the processing " +
+                                         "request results in a product without bands.");
         }
         return subset;
     }
@@ -519,7 +532,7 @@ public class MosaicProcessor extends Processor {
         final float pixelSizeY;
         final MapProjection projection;
         String projectionParamsExceptionText = "Failed to create output product, projection parameters not " +
-                "given or invalid";
+                                               "given or invalid";
         if (_projectionParams != null && _projectionParams.isValid()) {
             initProjection();
             projection = _outputProductMapProjection;
@@ -550,8 +563,8 @@ public class MosaicProcessor extends Processor {
         } else if (_northEastMapParams != null && _northEastMapParams.isValid()) {
             final float easting = _northEastMapParams.getEasting();
             final float northing = _northEastMapParams.getNorthing();
-            final int width = _northEastMapParams.getOutputWidth();
-            final int height = _northEastMapParams.getOutputHeight();
+            final float width = _northEastMapParams.getOutputWidth();
+            final float height = _northEastMapParams.getOutputHeight();
             return new Rectangle2D.Double(easting, northing, width, height);
         } else if (_centerLatLonMapParams != null && _centerLatLonMapParams.isValid()) {
 //            final GeoPos cp = _centerLatLonMapParams.getCenterPos();
@@ -779,7 +792,10 @@ public class MosaicProcessor extends Processor {
                                                                final ProgressMonitor pm) throws ProcessorException {
         if (isIntersectingOutputProduct(subset)) {
             try {
-                _projectedInputProduct = ProductProjectionBuilder.createProductProjection(subset, false, _includeTiePointGrids, subsetMapInfo, "temp", "temp-desc");
+                _projectedInputProduct = ProductProjectionBuilder.createProductProjection(subset, false,
+                                                                                          _includeTiePointGrids,
+                                                                                          subsetMapInfo, "temp",
+                                                                                          "temp-desc");
                 disableLogScalingToPreventFromNoDataProblems(_projectedInputProduct);
             } catch (IOException e) {
                 _logger.warning("Unable to project the input product according to the output product.");
@@ -802,9 +818,9 @@ public class MosaicProcessor extends Processor {
         Band[] bands = projectedInputProduct.getBands();
         for (Band band : bands) {
             if (band.getDataType() == ProductData.TYPE_FLOAT32
-                    && band.isLog10Scaled()
-                    && band.getScalingFactor() == 1.0
-                    && band.getScalingOffset() == 0.0) {
+                && band.isLog10Scaled()
+                && band.getScalingFactor() == 1.0
+                && band.getScalingOffset() == 0.0) {
                 band.setLog10Scaled(false);
                 MapGeoCoding mapGeoCoding = ((MapGeoCoding) projectedInputProduct.getGeoCoding());
                 MapInfo mapInfo = mapGeoCoding.getMapInfo();
@@ -820,7 +836,7 @@ public class MosaicProcessor extends Processor {
     }
 
     private boolean updateData(final Rectangle[] boundingRectangles, ProgressMonitor pm) throws ProcessorException,
-            IOException {
+                                                                                                IOException {
         final int numIters = boundingRectangles.length;
         final int[] destX = new int[numIters];
         final int[] destY = new int[numIters];
@@ -1038,7 +1054,7 @@ public class MosaicProcessor extends Processor {
                 final Term term = parser.parse(expression);
                 if (variable.isCondition() && !term.isB()) {
                     _logger.severe("Boolean expression expected for '" + variable.getName() + "' but was '" +
-                            expression + "'"); /*I18N*/
+                                   expression + "'"); /*I18N*/
                     return false;
                 }
                 channel.setTerm(term);
@@ -1153,7 +1169,7 @@ public class MosaicProcessor extends Processor {
     }
 
     private void initPixelGeoCoding(ProgressMonitor pm) throws ProcessorException,
-            IOException {
+                                                               IOException {
         String latName = _pixelGeoCodingParams.getSourceLatitudes();
         Band latBand = getExistingBand(latName);
         String lonName = _pixelGeoCodingParams.getSourceLongitudes();
@@ -1207,7 +1223,7 @@ public class MosaicProcessor extends Processor {
         final ProductWriter productWriter = ProcessorUtils.createProductWriter(_outputProductRef);
         if (productWriter == null) {
             final String message = msgPrefix +
-                    "Unable to create a product writer for output format '" + _outputProductRef.getFileFormat() + "'"; /*I18N*/
+                                   "Unable to create a product writer for output format '" + _outputProductRef.getFileFormat() + "'"; /*I18N*/
             _logger.severe(message);
             throw new ProcessorException(message);
         }
@@ -1269,7 +1285,7 @@ public class MosaicProcessor extends Processor {
             setOutputProduct(product);
         } catch (IOException e) {
             throw new ProcessorException("An I/O error occured while opening output product\n" + /*I18N*/
-                    "'" + outputProductPath + "'\n" + e.getMessage());
+                                         "'" + outputProductPath + "'\n" + e.getMessage());
         }
     }
 
@@ -1516,9 +1532,9 @@ public class MosaicProcessor extends Processor {
 
         public boolean isValid() {
             return eastLon != null
-                    && northLat != null
-                    && southLat != null
-                    && westLon != null;
+                   && northLat != null
+                   && southLat != null
+                   && westLon != null;
         }
 
         public float getNorthLat() {
@@ -1555,9 +1571,9 @@ public class MosaicProcessor extends Processor {
 
         public boolean isValid() {
             return northing != null
-                    && easting != null
-                    && outputWidth != null
-                    && outputHeight != null;
+                   && easting != null
+                   && outputWidth != null
+                   && outputHeight != null;
         }
 
         public float getNorthing() {
@@ -1568,12 +1584,12 @@ public class MosaicProcessor extends Processor {
             return MosaicUtils.getFloat(easting);
         }
 
-        public int getOutputWidth() {
-            return MosaicUtils.getInt(outputWidth);
+        public float getOutputWidth() {
+            return MosaicUtils.getFloat(outputWidth);
         }
 
-        public int getOutputHeight() {
-            return MosaicUtils.getInt(outputHeight);
+        public float getOutputHeight() {
+            return MosaicUtils.getFloat(outputHeight);
         }
     }
 
@@ -1594,9 +1610,9 @@ public class MosaicProcessor extends Processor {
 
         public boolean isValid() {
             return centerLat != null
-                    && centerLon != null
-                    && outputWidth != null
-                    && outputHeight != null;
+                   && centerLon != null
+                   && outputWidth != null
+                   && outputHeight != null;
         }
 
         public float getCenterLat() {
@@ -1607,12 +1623,12 @@ public class MosaicProcessor extends Processor {
             return MosaicUtils.getFloat(centerLon);
         }
 
-        public int getOutputWidth() {
-            return MosaicUtils.getInt(outputWidth);
+        public float getOutputWidth() {
+            return MosaicUtils.getFloat(outputWidth);
         }
 
-        public int getOutputHeight() {
-            return MosaicUtils.getInt(outputHeight);
+        public float getOutputHeight() {
+            return MosaicUtils.getFloat(outputHeight);
         }
 
         public GeoPos getCenterPos() {

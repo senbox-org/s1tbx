@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-mosaic</symbolicName>
-    <version>2.2.101</version>
+    <version>2.2.2-SNAPSHOT</version>
     <name>Level-3 Mosaic Processor</name>
 
 
@@ -15,16 +15,19 @@
 
     <changelog>
         <![CDATA[
-        Changes in 2.2.101<br>
-        [BEAM-957] "Search" tab missing VISAT help<br>
-        Changes in 2.2.100<br>
-        [BEAM-757] Layout of help pages is not uniform<br>
-        [BEAM-720] Equal names for Mosaic valid-pixel conditions and output variables suggested<br>
-        [BEAM-721] Saving a Mosaic processing request fails without error message<br>
-        [BEAM-722] Do not use no-data value for num_pixels band<br>
-        [BEAM-707] Mosaic processor fails with tie-point grids in valid-expression<br>
-        [BEAM-667] Use UTM Automatic in mapproj tool<br>
-        [BEAM-522] Map-projection and orthorectification should also transform tie-point grids<br>
+        Changes in 2.2.2-SNAPSHOT<br>
+        [BEAM-981] Valid pixel expression is incorrectly formatted<br/>
+        [BEAM-980] Using outputWidth/outputHeight leads to ClassCastException<br/>
+        Changes in 2.2.101<br/>
+        [BEAM-957] "Search" tab missing VISAT help<br/>
+        Changes in 2.2.100<br/>
+        [BEAM-757] Layout of help pages is not uniform<br/>
+        [BEAM-720] Equal names for Mosaic valid-pixel conditions and output variables suggested<br/>
+        [BEAM-721] Saving a Mosaic processing request fails without error message<br/>
+        [BEAM-722] Do not use no-data value for num_pixels band<br/>
+        [BEAM-707] Mosaic processor fails with tie-point grids in valid-expression<br/>
+        [BEAM-667] Use UTM Automatic in mapproj tool<br/>
+        [BEAM-522] Map-projection and orthorectification should also transform tie-point grids<br/>
         ]]>
     </changelog>
 
