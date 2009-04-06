@@ -699,6 +699,9 @@ public class VisatApp extends BasicApp implements AppContext {
      */
     public void addProduct(final Product product) {
         getProductManager().addProduct(product);
+        if (product.getFileLocation() != null) {
+            historyPush(product.getFileLocation());
+        }
     }
 
     /**
@@ -1575,6 +1578,7 @@ public class VisatApp extends BasicApp implements AppContext {
                                                 incremental);
         if (saveOk) {
             product.setModified(false);
+            historyPush(product.getFileLocation());
         } else {
             if (metadataRoot != null) {
                 final MetadataElement[] elementsArray = new MetadataElement[metadataElementBackup.size()];
@@ -2512,7 +2516,6 @@ public class VisatApp extends BasicApp implements AppContext {
                     continue;
                 }
                 addProduct(product);
-                historyPush(selectedFile);
             }
 
             if (msgBuffer.length() > 0) {
