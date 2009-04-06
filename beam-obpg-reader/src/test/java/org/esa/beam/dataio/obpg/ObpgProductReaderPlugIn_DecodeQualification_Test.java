@@ -35,6 +35,9 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     private ObpgUtils obpgUtilsMock;
 
     protected void setUp() throws Exception {
+        if (TestUtil.isMacOSXIntel64()) {
+            return;
+        }
         this.file = TestUtil.createFile();
         file.getParentFile().mkdirs();
         file.createNewFile();
@@ -49,6 +52,9 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     }
 
     public void test_Unable_BecauseHDFLibrarySaysItIsNotHDF() throws HDFException {
+        if (TestUtil.isMacOSXIntel64()) {
+            return;
+        }
         stub(obpgUtilsMock.isHdfFile(anyString())).toReturn(false);
 
         final DecodeQualification qualification = plugIn.getDecodeQualification(file);
@@ -60,6 +66,9 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     }
 
     public void test_Unable_emptyAttributeList() throws HDFException {
+        if (TestUtil.isMacOSXIntel64()) {
+            return;
+        }
         final ArrayList<HdfAttribute> emptyAttributeList = new ArrayList<HdfAttribute>();
 
         stub(obpgUtilsMock.isHdfFile(anyString())).toReturn(true);
@@ -79,6 +88,9 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     }
 
     public void test_Unable_noTitleAttribute() throws HDFException {
+        if (TestUtil.isMacOSXIntel64()) {
+            return;
+        }
         final ArrayList<HdfAttribute> attributeList = new ArrayList<HdfAttribute>();
         attributeList.add(new HdfAttribute("anyName", 5, "gsch", 4));
         attributeList.add(new HdfAttribute("anyName2", 6, "gsche", 5));
@@ -100,6 +112,9 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     }
 
     public void test_Unable_WithTitleAttributeButUnexpectedValue() throws HDFException {
+        if (TestUtil.isMacOSXIntel64()) {
+            return;
+        }
         final ArrayList<HdfAttribute> attributeList = new ArrayList<HdfAttribute>();
         attributeList.add(new HdfAttribute("Title", HDFConstants.DFNT_CHAR8, "gsch", 4));
         attributeList.add(new HdfAttribute("anyName2", 6, "gsche", 5));
@@ -121,6 +136,9 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     }
 
     public void test_INTENDED___MODIS_A_Level_2_Data() throws HDFException {
+        if (TestUtil.isMacOSXIntel64()) {
+            return;
+        }
         final ArrayList<HdfAttribute> attributeList = new ArrayList<HdfAttribute>();
         attributeList.add(new HdfAttribute("Title", HDFConstants.DFNT_CHAR8, "MODISA Level-2 Data", 19));
         attributeList.add(new HdfAttribute("anyName2", 6, "gsche", 5));
@@ -142,6 +160,9 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     }
 
     public void test_INTENDED___MODIS_T_Level_2_Data() throws HDFException {
+        if (TestUtil.isMacOSXIntel64()) {
+            return;
+        }
         final ArrayList<HdfAttribute> attributeList = new ArrayList<HdfAttribute>();
         attributeList.add(new HdfAttribute("Title", HDFConstants.DFNT_CHAR8, "MODIST Level-2 Data", 19));
         attributeList.add(new HdfAttribute("anyName2", 6, "gsche", 5));
@@ -163,6 +184,9 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     }
 
     public void test_INTENDED___CZCS_Level_2_Data() throws HDFException {
+        if (TestUtil.isMacOSXIntel64()) {
+            return;
+        }
         final ArrayList<HdfAttribute> attributeList = new ArrayList<HdfAttribute>();
         attributeList.add(new HdfAttribute("Title", HDFConstants.DFNT_CHAR8, "CZCS Level-2 Data", 17));
         attributeList.add(new HdfAttribute("anyName2", 6, "gsche", 5));
@@ -184,6 +208,9 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     }
 
     public void test_INTENDED___OCTS_Level_2_Data() throws HDFException {
+        if (TestUtil.isMacOSXIntel64()) {
+            return;
+        }
         final ArrayList<HdfAttribute> attributeList = new ArrayList<HdfAttribute>();
         attributeList.add(new HdfAttribute("Title", HDFConstants.DFNT_CHAR8, "OCTS Level-2 Data", 17));
         attributeList.add(new HdfAttribute("anyName2", 6, "gsche", 5));

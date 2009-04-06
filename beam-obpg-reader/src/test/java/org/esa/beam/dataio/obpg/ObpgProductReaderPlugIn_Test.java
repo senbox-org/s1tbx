@@ -28,10 +28,17 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
     private ObpgProductReaderPlugIn plugIn;
 
     protected void setUp() throws Exception {
+        if (TestUtil.isMacOSXIntel64()) {
+            return;
+        }
+
         plugIn = new ObpgProductReaderPlugIn();
     }
 
     public void testDefaultFileExtensions() {
+        if (TestUtil.isMacOSXIntel64()) {
+            return;
+        }
         final String[] fileExtensions = plugIn.getDefaultFileExtensions();
 
         assertNotNull(fileExtensions);
@@ -42,6 +49,9 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
     }
 
     public void testCreateReaderInstance() {
+        if (TestUtil.isMacOSXIntel64()) {
+            return;
+        }
         final ProductReader productReader = plugIn.createReaderInstance();
 
         assertNotNull(productReader);
@@ -50,6 +60,9 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
     }
 
     public void testGetFormatNames() {
+        if (TestUtil.isMacOSXIntel64()) {
+            return;
+        }
         final String[] formatNames = plugIn.getFormatNames();
 
         assertNotNull(formatNames);
@@ -58,6 +71,9 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
     }
 
     public void testGetInputTypes() {
+        if (TestUtil.isMacOSXIntel64()) {
+            return;
+        }
         final Class[] classes = plugIn.getInputTypes();
 
         assertNotNull(classes);
@@ -67,6 +83,9 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
     }
 
     public void test() {
+        if (TestUtil.isMacOSXIntel64()) {
+            return;
+        }
         final BeamFileFilter beamFileFilter = plugIn.getProductFileFilter();
 
         assertNotNull(beamFileFilter);
@@ -78,4 +97,5 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
         assertEquals(".L2_MLAC", extensions[2]);
         assertEquals("NASA-OBPG", beamFileFilter.getFormatName());
     }
+
 }

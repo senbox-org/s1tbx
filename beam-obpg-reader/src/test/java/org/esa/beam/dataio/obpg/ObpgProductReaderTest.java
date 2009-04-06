@@ -16,15 +16,17 @@
  */
 package org.esa.beam.dataio.obpg;
 
+import junit.framework.TestCase;
 import ncsa.hdf.hdflib.HDFException;
 import org.esa.beam.dataio.obpg.hdf.HdfAttribute;
 import org.esa.beam.dataio.obpg.hdf.ObpgUtils;
 import org.esa.beam.dataio.obpg.hdf.SdsInfo;
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import static org.mockito.Mockito.*;
 import org.mockito.InOrder;
+import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,21 +34,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import junit.framework.TestCase;
-
 public class ObpgProductReaderTest extends TestCase {
 
-    private ObpgProductReaderPlugIn plugIn;
     private File file;
     private ObpgUtils obpgUtilsMock;
     private ObpgProductReader productReader;
 
     @Override
     protected void setUp() throws Exception {
+        if (TestUtil.isMacOSXIntel64()) {
+            return;
+        }
+
         this.file = TestUtil.createFile();
         obpgUtilsMock = mock(ObpgUtils.class);
 
-        plugIn = new ObpgProductReaderPlugIn();
+        final ProductReaderPlugIn plugIn = new ObpgProductReaderPlugIn();
         productReader = (ObpgProductReader) plugIn.createReaderInstance();
         productReader.obpgUtils = obpgUtilsMock;
     }
@@ -57,6 +60,10 @@ public class ObpgProductReaderTest extends TestCase {
     }
 
     public void fixThisTestOK() throws IOException, HDFException {
+        if (TestUtil.isMacOSXIntel64()) {
+            return;
+        }
+        
         final ArrayList<HdfAttribute> globalAttributes = new ArrayList<HdfAttribute>();
         final Product prodRet = new Product("name", "type", 22, 33);
         final int fileID = 222;
@@ -82,7 +89,8 @@ public class ObpgProductReaderTest extends TestCase {
         order.verify(obpgUtilsMock, times(1)).addGlobalMetadata(prodRet, new ArrayList<HdfAttribute>());
         order.verify(obpgUtilsMock, times(1)).extractSdsData(sdStart);
         order.verify(obpgUtilsMock, times(1)).addScientificMetadata(prodRet, sdsInfos);
-        order.verify(obpgUtilsMock, times(1)).addBands(prodRet, sdsInfos, new HashMap<String, String>(), new HashMap<String, String>());
+        order.verify(obpgUtilsMock, times(1)).addBands(prodRet, sdsInfos, new HashMap<String, String>(),
+                                                       new HashMap<String, String>());
         order.verify(obpgUtilsMock, times(1)).addGeocoding(prodRet, sdsInfos, false);
         order.verify(obpgUtilsMock, times(1)).addBitmaskDefinitions(prodRet, new BitmaskDef[0]);
         order.verify(obpgUtilsMock, times(1)).closeHdfFile(fileID);
