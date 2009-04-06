@@ -1,7 +1,6 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
 import com.jidesoft.tree.AbstractTreeModel;
-
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
@@ -14,16 +13,6 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.layer.Style;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -34,6 +23,15 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
@@ -186,13 +184,13 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
                     CRSEnvelope crsEnvelope = new CRSEnvelope(crsCode, bounds.getMinX(), bounds.getMinY(),
                                                               bounds.getMaxX(),
                                                               bounds.getMaxY());
+                    context.setPropertyValue(WmsLayerSource.PROPERTY_CRS_ENVELOPE, crsEnvelope);
                     List<Style> styles = selectedLayer.getStyles();
                     if (!styles.isEmpty()) {
                         context.setPropertyValue(WmsLayerSource.PROPERTY_SELECTED_STYLE, styles.get(0));
                     } else {
                         context.setPropertyValue(WmsLayerSource.PROPERTY_SELECTED_STYLE, null);
                     }
-                    context.setPropertyValue(WmsLayerSource.PROPERTY_CRS_ENVELOPE, crsEnvelope);
                 }
             } else {
                 infoLabel.setText("");
