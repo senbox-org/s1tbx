@@ -78,7 +78,8 @@ public class SessionIOTest extends TestCase {
 
         assertEquals(2, session.getViewRef(3).getLayerCount());
         assertEquals("[15] D", session.getViewRef(3).getLayerRef(0).name);
-        assertEquals("Graticule", session.getViewRef(3).getLayerRef(1).name);
+        final Session.LayerRef graticuleLayerRef = session.getViewRef(3).getLayerRef(1);
+        assertEquals("Graticule", graticuleLayerRef.name);
     }
 
     private void testProductRef(Session.ProductRef productRef, int expectedId, File expectedFile) {

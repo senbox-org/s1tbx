@@ -21,14 +21,14 @@ import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.util.io.BeamFileFilter;
 
-import java.util.Locale;
+import java.text.MessageFormat;
 
 public class ObpgProductReaderPlugIn_Test extends TestCase {
 
     private ObpgProductReaderPlugIn plugIn;
 
     protected void setUp() throws Exception {
-        if (TestUtil.isMacOSXIntel64()) {
+        if (!TestUtil.isHdfLibraryAvailable()) {
             return;
         }
 
@@ -36,7 +36,9 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
     }
 
     public void testDefaultFileExtensions() {
-        if (TestUtil.isMacOSXIntel64()) {
+        if (!TestUtil.isHdfLibraryAvailable()) {
+            System.out.println(MessageFormat.format(
+                    "Skipping test in class ''{0}'' since HDF library is not available", getClass().getName()));
             return;
         }
         final String[] fileExtensions = plugIn.getDefaultFileExtensions();
@@ -49,7 +51,9 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
     }
 
     public void testCreateReaderInstance() {
-        if (TestUtil.isMacOSXIntel64()) {
+        if (!TestUtil.isHdfLibraryAvailable()) {
+            System.out.println(MessageFormat.format(
+                    "Skipping test in class ''{0}'' since HDF library is not available", getClass().getName()));
             return;
         }
         final ProductReader productReader = plugIn.createReaderInstance();
@@ -60,7 +64,9 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
     }
 
     public void testGetFormatNames() {
-        if (TestUtil.isMacOSXIntel64()) {
+        if (!TestUtil.isHdfLibraryAvailable()) {
+            System.out.println(MessageFormat.format(
+                    "Skipping test in class ''{0}'' since HDF library is not available", getClass().getName()));
             return;
         }
         final String[] formatNames = plugIn.getFormatNames();
@@ -71,7 +77,9 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
     }
 
     public void testGetInputTypes() {
-        if (TestUtil.isMacOSXIntel64()) {
+        if (!TestUtil.isHdfLibraryAvailable()) {
+            System.out.println(MessageFormat.format(
+                    "Skipping test in class ''{0}'' since HDF library is not available", getClass().getName()));
             return;
         }
         final Class[] classes = plugIn.getInputTypes();
@@ -83,7 +91,9 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
     }
 
     public void test() {
-        if (TestUtil.isMacOSXIntel64()) {
+        if (!TestUtil.isHdfLibraryAvailable()) {
+            System.out.println(MessageFormat.format(
+                    "Skipping test in class ''{0}'' since HDF library is not available", getClass().getName()));
             return;
         }
         final BeamFileFilter beamFileFilter = plugIn.getProductFileFilter();

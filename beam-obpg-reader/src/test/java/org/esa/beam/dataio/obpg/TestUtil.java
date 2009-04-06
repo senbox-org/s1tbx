@@ -41,10 +41,7 @@ public class TestUtil {
         return file;
     }
 
-    static boolean isMacOSXIntel64() {
-        final String osName = System.getProperty("os.name");
-        final String osArch = System.getProperty("os.arch");
-
-        return osArch.equalsIgnoreCase("x86_64") && osName.equalsIgnoreCase("Mac OS X");
+    static boolean isHdfLibraryAvailable() {
+        return ObpgProductReaderPlugIn.isHdfLibAvailable();
     }
 }

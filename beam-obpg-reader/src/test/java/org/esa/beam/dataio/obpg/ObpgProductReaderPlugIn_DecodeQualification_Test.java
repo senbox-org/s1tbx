@@ -27,6 +27,7 @@ import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.text.MessageFormat;
 
 public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCase {
 
@@ -35,7 +36,7 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     private ObpgUtils obpgUtilsMock;
 
     protected void setUp() throws Exception {
-        if (TestUtil.isMacOSXIntel64()) {
+        if (!TestUtil.isHdfLibraryAvailable()) {
             return;
         }
         this.file = TestUtil.createFile();
@@ -52,7 +53,9 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     }
 
     public void test_Unable_BecauseHDFLibrarySaysItIsNotHDF() throws HDFException {
-        if (TestUtil.isMacOSXIntel64()) {
+        if (!TestUtil.isHdfLibraryAvailable()) {
+            System.out.println(MessageFormat.format(
+                    "Skipping tests in class ''{0}'' since HDF library is not available", getClass().getName()));
             return;
         }
         stub(obpgUtilsMock.isHdfFile(anyString())).toReturn(false);
@@ -66,7 +69,9 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     }
 
     public void test_Unable_emptyAttributeList() throws HDFException {
-        if (TestUtil.isMacOSXIntel64()) {
+        if (!TestUtil.isHdfLibraryAvailable()) {
+            System.out.println(MessageFormat.format(
+                    "Skipping tests in class ''{0}'' since HDF library is not available", getClass().getName()));
             return;
         }
         final ArrayList<HdfAttribute> emptyAttributeList = new ArrayList<HdfAttribute>();
@@ -88,7 +93,9 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     }
 
     public void test_Unable_noTitleAttribute() throws HDFException {
-        if (TestUtil.isMacOSXIntel64()) {
+        if (!TestUtil.isHdfLibraryAvailable()) {
+            System.out.println(MessageFormat.format(
+                    "Skipping tests in class ''{0}'' since HDF library is not available", getClass().getName()));
             return;
         }
         final ArrayList<HdfAttribute> attributeList = new ArrayList<HdfAttribute>();
@@ -112,7 +119,9 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     }
 
     public void test_Unable_WithTitleAttributeButUnexpectedValue() throws HDFException {
-        if (TestUtil.isMacOSXIntel64()) {
+        if (!TestUtil.isHdfLibraryAvailable()) {
+            System.out.println(MessageFormat.format(
+                    "Skipping tests in class ''{0}'' since HDF library is not available", getClass().getName()));
             return;
         }
         final ArrayList<HdfAttribute> attributeList = new ArrayList<HdfAttribute>();
@@ -136,7 +145,9 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     }
 
     public void test_INTENDED___MODIS_A_Level_2_Data() throws HDFException {
-        if (TestUtil.isMacOSXIntel64()) {
+        if (!TestUtil.isHdfLibraryAvailable()) {
+            System.out.println(MessageFormat.format(
+                    "Skipping tests in class ''{0}'' since HDF library is not available", getClass().getName()));
             return;
         }
         final ArrayList<HdfAttribute> attributeList = new ArrayList<HdfAttribute>();
@@ -160,7 +171,9 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     }
 
     public void test_INTENDED___MODIS_T_Level_2_Data() throws HDFException {
-        if (TestUtil.isMacOSXIntel64()) {
+        if (!TestUtil.isHdfLibraryAvailable()) {
+            System.out.println(MessageFormat.format(
+                    "Skipping tests in class ''{0}'' since HDF library is not available", getClass().getName()));
             return;
         }
         final ArrayList<HdfAttribute> attributeList = new ArrayList<HdfAttribute>();
@@ -184,7 +197,9 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     }
 
     public void test_INTENDED___CZCS_Level_2_Data() throws HDFException {
-        if (TestUtil.isMacOSXIntel64()) {
+        if (!TestUtil.isHdfLibraryAvailable()) {
+            System.out.println(MessageFormat.format(
+                    "Skipping tests in class ''{0}'' since HDF library is not available", getClass().getName()));
             return;
         }
         final ArrayList<HdfAttribute> attributeList = new ArrayList<HdfAttribute>();
@@ -208,7 +223,9 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     }
 
     public void test_INTENDED___OCTS_Level_2_Data() throws HDFException {
-        if (TestUtil.isMacOSXIntel64()) {
+        if (!TestUtil.isHdfLibraryAvailable()) {
+            System.out.println(MessageFormat.format(
+                    "Skipping tests in class ''{0}'' since HDF library is not available", getClass().getName()));
             return;
         }
         final ArrayList<HdfAttribute> attributeList = new ArrayList<HdfAttribute>();

@@ -45,6 +45,10 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
             "OCTS Level-2 Data"
     };
 
+    public static boolean isHdfLibAvailable() {
+        return hdfLibAvailable;
+    }
+
     private static boolean hdfLibAvailable = false;
 
     ObpgUtils utils = new ObpgUtils();

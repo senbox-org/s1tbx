@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.text.MessageFormat;
 
 public class ObpgProductReaderTest extends TestCase {
 
@@ -42,7 +43,7 @@ public class ObpgProductReaderTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        if (TestUtil.isMacOSXIntel64()) {
+        if (!TestUtil.isHdfLibraryAvailable()) {
             return;
         }
 
@@ -60,7 +61,9 @@ public class ObpgProductReaderTest extends TestCase {
     }
 
     public void fixThisTestOK() throws IOException, HDFException {
-        if (TestUtil.isMacOSXIntel64()) {
+        if (!TestUtil.isHdfLibraryAvailable()) {
+            System.out.println(MessageFormat.format(
+                    "Skipping test in class ''{0}'' since HDF library is not available", getClass().getName()));
             return;
         }
         
