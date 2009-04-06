@@ -18,16 +18,24 @@ public class SourceProductSelectorTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        appContext = new DefaultAppContext("Fart, fart!");
-        defaultProducts = new Product[4];
-        for (int i = 0; i < defaultProducts.length; i++) {
-            defaultProducts[i] = new Product("P" + i, "T" + i, 10, 10);
-            appContext.getProductManager().addProduct(defaultProducts[i]);
+        try {
+            appContext = new DefaultAppContext("Fart, fart!");
+            defaultProducts = new Product[4];
+            for (int i = 0; i < defaultProducts.length; i++) {
+                defaultProducts[i] = new Product("P" + i, "T" + i, 10, 10);
+                appContext.getProductManager().addProduct(defaultProducts[i]);
+            }
+            appContext.setSelectedProduct(defaultProducts[0]);
+        } catch (HeadlessException e) {
+            appContext = null;
+            warnHeadless();
         }
-        appContext.setSelectedProduct(defaultProducts[0]);
     }
 
     public void testCreatedUIComponentsNotNull() {
+        if (appContext == null) {
+            return;
+        }
         try {
             SourceProductSelector selector = new SourceProductSelector(appContext, "Source:");
             selector.initProducts();
@@ -40,6 +48,9 @@ public class SourceProductSelectorTest extends TestCase {
     }
 
     public void testCreatedUIComponentsAreSame() {
+        if (appContext == null) {
+            return;
+        }
         try {
             SourceProductSelector selector = new SourceProductSelector(appContext, "Source:");
             selector.initProducts();
@@ -52,6 +63,9 @@ public class SourceProductSelectorTest extends TestCase {
     }
 
     public void testSetSelectedProduct() throws Exception {
+        if (appContext == null) {
+            return;
+        }
         try {
             SourceProductSelector selector = new SourceProductSelector(appContext, "Source");
             selector.initProducts();
@@ -79,6 +93,9 @@ public class SourceProductSelectorTest extends TestCase {
     }
 
     public void testNewProductIsDisposed() throws Exception {
+        if (appContext == null) {
+            return;
+        }
         try {
             SourceProductSelector selector = new SourceProductSelector(appContext, "Source");
             selector.initProducts();
@@ -98,6 +115,9 @@ public class SourceProductSelectorTest extends TestCase {
     }
 
     public void testNewProductIsNotDisposed() throws Exception {
+        if (appContext == null) {
+            return;
+        }
         try {
             SourceProductSelector selector = new SourceProductSelector(appContext, "Source");
             selector.initProducts();
@@ -117,6 +137,9 @@ public class SourceProductSelectorTest extends TestCase {
     }
 
     public void testSetSelectedIndex() throws Exception {
+        if (appContext == null) {
+            return;
+        }
         try {
             SourceProductSelector selector = new SourceProductSelector(appContext, "Source");
 
