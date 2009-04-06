@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="4.2.1" transformSequenceNumber="2">
   <directoryPresets config="./src/main/resources/images" />
-  <application name="BEAM" distributionSourceDir="" applicationId="2648-9058-9483-8098" mediaDir="../target/installers" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" keepModificationTimes="true" missingFilesStrategy="warn" shortName="beam" publisher="Brockmann Consult GmbH" publisherWeb="http://www.brockmann-consult.de" version="4.6" allPathsRelative="true" backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
+  <application name="BEAM" distributionSourceDir="" applicationId="2648-9058-9483-8098" mediaDir="../target/installers" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" keepModificationTimes="true" missingFilesStrategy="warn" shortName="beam" publisher="Brockmann Consult GmbH" publisherWeb="http://www.brockmann-consult.de" version="4.6.0" allPathsRelative="true" backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
       <additionalLanguages />
@@ -346,6 +346,72 @@
                 </serializedBean>
                 <condition />
               </action>
+              <action name="" id="4503" beanClass="com.install4j.runtime.beans.actions.files.SetModeAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.files.SetModeAction">
+                      <void property="file">
+                        <object class="java.io.File">
+                          <string>modules</string>
+                        </object>
+                      </void>
+                      <void property="mode">
+                        <string>775</string>
+                      </void>
+                      <void property="recursive">
+                        <boolean>true</boolean>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="4504" beanClass="com.install4j.runtime.beans.actions.files.AddWindowsFileRightsAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.files.AddWindowsFileRightsAction">
+                      <void property="execute">
+                        <boolean>true</boolean>
+                      </void>
+                      <void property="file">
+                        <object class="java.io.File">
+                          <string>bin</string>
+                        </object>
+                      </void>
+                      <void property="read">
+                        <boolean>true</boolean>
+                      </void>
+                      <void property="write">
+                        <boolean>true</boolean>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="4505" beanClass="com.install4j.runtime.beans.actions.files.AddWindowsFileRightsAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.files.AddWindowsFileRightsAction">
+                      <void property="execute">
+                        <boolean>true</boolean>
+                      </void>
+                      <void property="file">
+                        <object class="java.io.File">
+                          <string>modules</string>
+                        </object>
+                      </void>
+                      <void property="read">
+                        <boolean>true</boolean>
+                      </void>
+                      <void property="write">
+                        <boolean>true</boolean>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
               <action name="" id="8" beanClass="com.install4j.runtime.beans.actions.desktop.RegisterAddRemoveAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
@@ -601,13 +667,30 @@
                 </serializedBean>
                 <condition />
               </action>
-              <action name="" id="4172" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+              <action name="" id="4502" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.files.DeleteFileAction">
                       <void property="file">
                         <object class="java.io.File">
                           <string>${installer:sys.installationDir}/modules</string>
+                        </object>
+                      </void>
+                      <void property="recurse">
+                        <boolean>true</boolean>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="4172" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.files.DeleteFileAction">
+                      <void property="file">
+                        <object class="java.io.File">
+                          <string>${installer:sys.installationDir}/log</string>
                         </object>
                       </void>
                       <void property="recurse">
@@ -1462,7 +1545,7 @@ if (wizardContext != null) {
     </applications>
   </installerGui>
   <mediaSets>
-    <win32 name="Windows JRE" id="20" mediaFileName="beam_${compiler:sys.platform}_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" requires64bit="false" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" includedJRE="windows-x86-1.6.0_13" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" customInstallBaseDir="" createUninstallIcon="true" contentFilesType="1" downloadURL="" runAsAdmin="true">
+    <win32 name="Windows JRE" id="20" mediaFileName="beam_${compiler:sys.platform}_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" requires64bit="false" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" includedJRE="windows-x86-1.6.0_13" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" customInstallBaseDir="" createUninstallIcon="true" contentFilesType="1" downloadURL="" runAsAdmin="false">
       <excludedLaunchers />
       <excludedComponents />
       <excludedBeans />
