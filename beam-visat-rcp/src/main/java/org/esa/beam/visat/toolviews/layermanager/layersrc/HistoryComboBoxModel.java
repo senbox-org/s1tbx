@@ -1,101 +1,70 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc;
 
-import com.bc.ceres.core.Assert;
-import org.esa.beam.util.PropertyMap;
+import org.esa.beam.framework.ui.UserInputHistory;
 
-import javax.swing.DefaultComboBoxModel;
-import java.util.ArrayList;
-
-
-public class HistoryComboBoxModel extends DefaultComboBoxModel {
-
-    private static final Validator DEFAULT_VALIDATOR = new Validator() {
-        @Override
-        public boolean isValid(String entry) {
-            return !entry.isEmpty();
-        }
-    };
-
-    private final PropertyMap preferences;
-    private final int historySize;
-    private final String propertyFormat;
-    private Validator validator;
+import javax.swing.ComboBoxModel;
+import javax.swing.event.EventListenerList;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 
 
-    public HistoryComboBoxModel(PropertyMap preferences, String propertyPrefix, int historySize) {
-        this(preferences, propertyPrefix, historySize, DEFAULT_VALIDATOR);
+public class HistoryComboBoxModel implements ComboBoxModel {
+
+    private final UserInputHistory history;
+    private EventListenerList listenerList;
+
+
+    public HistoryComboBoxModel(UserInputHistory history) {
+        this.history = history;
+        listenerList = new EventListenerList();
     }
 
-    public HistoryComboBoxModel(PropertyMap preferences, String propertyPrefix, int historySize, Validator validator) {
-        this.preferences = preferences;
-        this.historySize = historySize;
-        this.propertyFormat = propertyPrefix + ".%d";
-        this.validator = validator;
-        loadHistory();
-    }
-
-    public void setValidator(Validator validator) {
-        Assert.argument(validator != null, "validator != null");
-        this.validator = validator;
+    public UserInputHistory getHistory() {
+        return history;
     }
 
     @Override
-    public synchronized void setSelectedItem(Object anObject) {
-        if (getIndexOf(anObject) >= 0) {            // if contained
-            removeElement(anObject);                // remove item
-        } else if (getSize() >= historySize) {      // else
-            removeElementAt(getSize() - 1);         // remove oldest
+    public void setSelectedItem(Object anObject) {
+        if (anObject instanceof String) {
+            history.push((String) anObject);
+            fireContentChanged();
         }
+    }
 
-        insertElementAt(anObject, 0);
-        super.setSelectedItem(anObject);
+    private void fireContentChanged() {
+        final ListDataListener[] listDataListeners = listenerList.getListeners(ListDataListener.class);
+        for (ListDataListener listener : listDataListeners) {
+            listener.contentsChanged(new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, 0, 0));
+        }
     }
 
     @Override
-    public synchronized void addElement(Object anObject) {
-        if (getSize() >= historySize) {
-            removeElementAt(getSize() - 1);
+    public Object getSelectedItem() {
+        final String[] entries = history.getEntries();
+        if (entries == null) {
+            return null;
         }
-        insertElementAt(anObject, 0);
+        return entries[0];
     }
 
-    public final void loadHistory() {
-        final String[] historyItems = loadHistory(preferences, propertyFormat, historySize);
-        for (int i = 0; i < getSize(); i++) {
-            removeElementAt(0);
-        }
-        for (String item : historyItems) {
-            addElement(item);
-        }
+    @Override
+    public int getSize() {
+        return history.getNumEntries();
+
     }
 
-    public synchronized void saveHistory() {
-        saveHistory(preferences, propertyFormat);
+    @Override
+    public Object getElementAt(int index) {
+        return history.getEntries()[index];
     }
 
-    private String[] loadHistory(PropertyMap preferences, String propertyFormat, int historySize) {
-        ArrayList<String> historyList = new ArrayList<String>(historySize);
-        for (int i = 0; i < historySize; i++) {
-            String filePath = preferences.getPropertyString(String.format(propertyFormat, i));
-            if (validator.isValid(filePath)) {
-                historyList.add(0, filePath);
-            }
-        }
-        return historyList.toArray(new String[historyList.size()]);
+    @Override
+    public void addListDataListener(ListDataListener listener) {
+        listenerList.add(ListDataListener.class, listener);
     }
 
-    private void saveHistory(PropertyMap preferences, String propertyFormat) {
-        for (int i = 0; i < historySize; i++) {
-            String property = "";
-            if (i < getSize()) {
-                property = (String) getElementAt(i);
-            }
-            preferences.setPropertyString(String.format(propertyFormat, i), property);
-        }
-    }
-
-    public interface Validator {
-
-        boolean isValid(String entry);
+    @Override
+    public void removeListDataListener(ListDataListener listener) {
+        listenerList.remove(ListDataListener.class, listener);
     }
 }

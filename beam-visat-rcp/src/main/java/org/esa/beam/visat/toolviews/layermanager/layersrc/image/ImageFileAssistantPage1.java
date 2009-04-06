@@ -2,6 +2,7 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.image;
 
 
 import com.bc.ceres.glayer.tools.Tools;
+import org.esa.beam.framework.ui.FileHistory;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
@@ -73,7 +74,7 @@ class ImageFileAssistantPage1 extends AbstractLayerSourceAssistantPage {
 
     @Override
     public AbstractLayerSourceAssistantPage getNextPage() {
-        imageHistoryModel.saveHistory();
+        imageHistoryModel.getHistory().copyInto(getContext().getAppContext().getPreferences());
         createTransform(getContext());
         return new ImageFileAssistantPage2();
     }
@@ -85,7 +86,7 @@ class ImageFileAssistantPage1 extends AbstractLayerSourceAssistantPage {
 
     @Override
     public boolean performFinish() {
-        imageHistoryModel.saveHistory();
+        imageHistoryModel.getHistory().copyInto(getContext().getAppContext().getPreferences());
         createTransform(getContext());
         return ImageFileLayerSource.insertImageLayer(getContext());
     }
@@ -99,13 +100,9 @@ class ImageFileAssistantPage1 extends AbstractLayerSourceAssistantPage {
         gbc.gridy = 0;
 
         final PropertyMap preferences = getContext().getAppContext().getPreferences();
-        HistoryComboBoxModel.Validator validator = new HistoryComboBoxModel.Validator() {
-            @Override
-            public boolean isValid(String entry) {
-                return new File(entry).isFile();
-            }
-        };
-        imageHistoryModel = new HistoryComboBoxModel(preferences, LAST_IMAGE_PREFIX, 5, validator);
+        FileHistory fileHistory = new FileHistory(5, LAST_IMAGE_PREFIX);
+        fileHistory.initBy(preferences);
+        imageHistoryModel = new HistoryComboBoxModel(fileHistory);
         imageFileBox = new JComboBox(imageHistoryModel);
         imageFileBox.addActionListener(new ImageFileItemListener());
         final JLabel imageFileLabel = new JLabel("Path to image file (.png, .jpg, .tif, .gif):");

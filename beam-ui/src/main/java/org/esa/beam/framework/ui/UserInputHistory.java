@@ -66,7 +66,7 @@ public class UserInputHistory {
     }
 
     public void initBy(final PropertyMap propertyMap) {
-        int maxNumEntries = propertyMap.getPropertyInt(getLengthKey(), 16);
+        int maxNumEntries = propertyMap.getPropertyInt(getLengthKey(), getMaxNumEntries());
         setMaxNumEntries(maxNumEntries);
 
         for (int i = maxNumEntries - 1; i >= 0; i--) {

@@ -9,6 +9,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.ui.FileHistory;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
@@ -61,14 +62,14 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
     private static final String PROPERTY_LAST_DIR = "ShapefileAssistant.Shapefile.lastDir";
     private static final org.geotools.styling.StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
     private static final FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
-    
+
     private HistoryComboBoxModel fileHistoryModel;
 
-    
+
     ShapefileAssistantPage1() {
         super("Select ESRI Shapefile");
     }
-    
+
     @Override
     public Component createPageComponent() {
         GridBagConstraints gbc = new GridBagConstraints();
@@ -91,14 +92,9 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
         gbc.gridwidth = 1;
         final LayerSourcePageContext context = getContext();
         final PropertyMap preferences = context.getAppContext().getPreferences();
-        HistoryComboBoxModel.Validator validator = new HistoryComboBoxModel.Validator() {
-            @Override
-            public boolean isValid(String entry) {
-                return new File(entry).isFile();
-            }
-        };
-        fileHistoryModel = new HistoryComboBoxModel(preferences, PROPERTY_LAST_FILE_PREFIX, 5, validator);
-
+        final FileHistory fileHistory = new FileHistory(5, PROPERTY_LAST_FILE_PREFIX);
+        fileHistory.initBy(preferences);
+        fileHistoryModel = new HistoryComboBoxModel(fileHistory);
         JComboBox shapefileBox = new JComboBox(fileHistoryModel);
         shapefileBox.setEditable(true);
         shapefileBox.addActionListener(new ActionListener() {
@@ -137,7 +133,7 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
 
     @Override
     public AbstractLayerSourceAssistantPage getNextPage() {
-        fileHistoryModel.saveHistory();
+        fileHistoryModel.getHistory().copyInto(getContext().getAppContext().getPreferences());
         String path = (String) fileHistoryModel.getSelectedItem();
         if (path != null && !path.trim().isEmpty()) {
             try {
@@ -182,7 +178,7 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
 
         return null;
     }
-    
+
     @Override
     public boolean canFinish() {
         return false;
