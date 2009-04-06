@@ -49,6 +49,8 @@ o Band arithmetic now takes into account no-data values from all bands and
 
 2) Complete list of bug fixes and improvements
 
+BEAM-981    Valid-pixel expression removed when running 'mapproj' tool
+BEAM-980    Cannot set output size in 'mapproj' tool
 BEAM-937    Colour palette sometimes incorrectly imported
 BEAM-936 	Layer visibility is not synchronised with tool bar buttons
 BEAM-932 	Inconsistent handling of adding and copying bitmasks
@@ -640,7 +642,7 @@ _____________________________________________________________________________
       - Added flux-conserving resampling (provided by Thomas Lankester)
         in addition to binning resampling.
       - The tailoring of the geographical size of the output product can now be controled.
-      - Fixed the handling of products crossing the 180° meridian.
+      - Fixed the handling of products crossing the 180ï¿½ meridian.
 
    o  MERIS Level-1b Cloud Probability Processor has been added.
 
@@ -688,8 +690,8 @@ _____________________________________________________________________________
    o When renaming a pin, upper/lower case letters have been ignored (#456)
    o Fixed problems with discontinuity in tie-point grids containing longitude and azimuth angles.
      In some cases, e.g. pole closeness, longitude values have not been correctly interpolated
-     when tie-points values "jumped" from -180° to 180°. MERIS azimuth tie-point grids have
-     been corrected for the range 0° to 360°.
+     when tie-points values "jumped" from -180ï¿½ to 180ï¿½. MERIS azimuth tie-point grids have
+     been corrected for the range 0ï¿½ to 360ï¿½.
    o Fixed the handling of negative values in the ATSR reader.
 
 5) API Changes
@@ -1075,7 +1077,7 @@ _____________________________________________________________________________
 2) Mosaic Processor
    o A new Level 3 processor has been added. The main intention of the Mosaic
      Processor is to provide an alternative sampling algorithm that is able to
-     create Moiré-free images. Especially when the pixel size of the input product(s)
+     create Moirï¿½-free images. Especially when the pixel size of the input product(s)
      and the bin size ofthe target L3 product are of the same order of magnitude,
      the Mosaic Processor yields good results.
    o The generated L3 products are well suited for the production of images (e.g. RGB
@@ -1785,9 +1787,9 @@ VISAT Improvements and Changes
        and as such it is stored in the BEAM-DIMAP header.
 
     4) Map projection changes:
-         o  The Gauss-Krüger map projections have been taken away, since we
+         o  The Gauss-Krï¿½ger map projections have been taken away, since we
             currently only support the WGS-84 ellipsoid (and datum) and by
-            definition, the Gauss-Krüger projection uses the Bessel ellipsoid.
+            definition, the Gauss-Krï¿½ger projection uses the Bessel ellipsoid.
          o  The UTM zones for the southern hemisphere have benn added.
          o  Map projection performance has been improved. Whenever possible,
             VISAT now uses a pair of polynomial approximation functions to

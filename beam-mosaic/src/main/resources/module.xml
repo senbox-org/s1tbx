@@ -16,8 +16,8 @@
     <changelog>
         <![CDATA[
         Changes in 2.2.2-SNAPSHOT<br>
-        [BEAM-981] Valid pixel expression is incorrectly formatted<br/>
-        [BEAM-980] Using outputWidth/outputHeight leads to ClassCastException<br/>
+        [BEAM-981] Valid-pixel expression removed when running 'mapproj' tool<br/>
+        [BEAM-980] Cannot set output size in 'mapproj' tool<br/>
         Changes in 2.2.101<br/>
         [BEAM-957] "Search" tab missing VISAT help<br/>
         Changes in 2.2.100<br/>
