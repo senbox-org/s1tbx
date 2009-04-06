@@ -1,6 +1,8 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
+import org.esa.beam.framework.ui.UserInputHistory;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.HistoryComboBoxModel;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 import org.geotools.data.ows.WMSCapabilities;
 import org.geotools.data.wms.WebMapServer;
@@ -23,6 +25,8 @@ import java.net.URL;
 class WmsAssistantPage1 extends AbstractLayerSourceAssistantPage {
 
     private JComboBox wmsUrlBox;
+    private static final String PROPERTY_WMS_HISTORY = "WmsAssistant.wms.history";
+    private UserInputHistory history;
 
     WmsAssistantPage1() {
         super("Select WMS");
@@ -55,6 +59,8 @@ class WmsAssistantPage1 extends AbstractLayerSourceAssistantPage {
                 pageContext.showErrorDialog("Failed to access WMS:\n" + e.getMessage());
             }
         }
+
+        history.copyInto(getContext().getAppContext().getPreferences());
 
         if (wms != null && wmsCapabilities != null) {
             pageContext.setPropertyValue(WmsLayerSource.PROPERTY_WMS, wms);
@@ -90,11 +96,14 @@ class WmsAssistantPage1 extends AbstractLayerSourceAssistantPage {
         gbc.gridy++;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridwidth = 1;
-        wmsUrlBox = new JComboBox(new Object[]{
-                "http://wms.globexplorer.com/gexservlets/wms",
-                "http://demo.cubewerx.com/demo/cubeserv/cubeserv.cgi",
-                "http://www.mapserver.niedersachsen.de/freezoneogc/mapserverogc",
-        });
+        history = new UserInputHistory(5, PROPERTY_WMS_HISTORY);
+        history.initBy(getContext().getAppContext().getPreferences());
+        if (history.getNumEntries() == 0) {
+            history.push("http://www.mapserver.niedersachsen.de/freezoneogc/mapserverogc");
+            history.push("http://demo.cubewerx.com/demo/cubeserv/cubeserv.cgi");
+            history.push("http://wms.globexplorer.com/gexservlets/wms");
+        }
+        wmsUrlBox = new JComboBox(new HistoryComboBoxModel(history));
         wmsUrlBox.setEditable(true);
         panel.add(wmsUrlBox, gbc);
         wmsUrlBox.addItemListener(new MyItemListener());
