@@ -11,12 +11,22 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import static junit.framework.Assert.*;
 
+import java.awt.HeadlessException;
+
 public class CollocationDialogTest {
     @Test
     public void testCollocationDialogExtensively() {
-        final CollocationDialog dialog = createDialog();
-        assertEquals("Collocation", dialog.getTitle());
-        assertEquals("collocation", dialog.getHelpID());
+        try {
+            final CollocationDialog dialog = createDialog();
+            assertEquals("Collocation", dialog.getTitle());
+            assertEquals("collocation", dialog.getHelpID());
+        } catch (HeadlessException e) {
+            warnHeadless();
+        }
+    }
+
+    private void warnHeadless() {
+        System.out.println("A " + CollocationDialogTest.class + " test has not been performed: HeadlessException");
     }
 
     public static void main(String[] args) throws IllegalAccessException, UnsupportedLookAndFeelException, InstantiationException, ClassNotFoundException {
