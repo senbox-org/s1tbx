@@ -112,7 +112,7 @@ public class AssistantPane implements AssistantPageContext {
             prevAction.setEnabled(!pageStack.isEmpty());
             nextAction.setEnabled(pageValid && page.hasNextPage());
             finishAction.setEnabled(pageValid && page.canFinish());
-            helpAction.setEnabled(pageValid && page.canHelp());
+            helpAction.setEnabled(page.canHelp());
         }
     }
 
