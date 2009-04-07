@@ -11,7 +11,7 @@ import java.util.HashMap;
  * This layer source uses the given layer type to construct new layer.
  *
  * @author Marco Peters
- * @version $Revision: $ $Date: $
+ * @version $ Revision $ $ Date $
  * @since BEAM 4.6
  */
 public class SimpleLayerSource implements LayerSource {

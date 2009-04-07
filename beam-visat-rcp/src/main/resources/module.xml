@@ -160,7 +160,7 @@
             <name field="name" type="java.lang.String"/>
             <description field="description" type="java.lang.String"/>
             <class field="layerSourceClass" type="java.lang.Class"/>
-            <layerType field="layerTypeClass" type="java.lang.Class"/>
+            <layerType field="layerTypeClassName" type="java.lang.String"/>
         </layerSource>
     </extensionPoint>
 

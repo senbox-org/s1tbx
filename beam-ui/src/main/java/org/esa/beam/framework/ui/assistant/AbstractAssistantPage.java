@@ -2,12 +2,25 @@ package org.esa.beam.framework.ui.assistant;
 
 import java.awt.Component;
 
+/**
+ * An abstract implementation of  {@link AssistantPage}.
+ * <p>
+ * The user has only to implement the {@link #createPageComponent()} method.
+ * Other methods have meaningful default implementations, which can be overriden
+ * according to the concrete implementation.
+ * </p>
+ */
 public abstract class AbstractAssistantPage implements AssistantPage {
 
     private String pageTitle;
     private Component pageComponent;
     private AssistantPageContext pageContext;
 
+    /**
+     * Creates a new instance with the given page title.
+     *
+     * @param pageTitle The title of the page.
+     */
     protected AbstractAssistantPage(String pageTitle) {
         this.pageTitle = pageTitle;
     }
@@ -27,14 +40,6 @@ public abstract class AbstractAssistantPage implements AssistantPage {
         return pageTitle;
     }
 
-    public void setPageTitle(String pageTitle) {
-        this.pageTitle = pageTitle;
-    }
-
-    void setPageComponent(Component pageComponent) {
-        this.pageComponent = pageComponent;
-    }
-
     @Override
     public final Component getPageComponent() {
         if (pageComponent == null) {
@@ -43,6 +48,11 @@ public abstract class AbstractAssistantPage implements AssistantPage {
         return pageComponent;
     }
 
+    /**
+     * Creates the component of this page.
+     *
+     * @return The component of this page
+     */
     protected abstract Component createPageComponent();
 
     @Override
@@ -54,12 +64,12 @@ public abstract class AbstractAssistantPage implements AssistantPage {
     public boolean hasNextPage() {
         return false;
     }
-    
+
     @Override
     public AssistantPage getNextPage() {
         return null;
     }
-    
+
     @Override
     public boolean canFinish() {
         return true;

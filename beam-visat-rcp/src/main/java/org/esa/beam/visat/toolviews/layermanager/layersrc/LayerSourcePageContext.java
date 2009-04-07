@@ -5,7 +5,9 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.assistant.AssistantPageContext;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 
-
+/**
+ * Instances of this interface provide the context for implementations of {@link AbstractLayerSourceAssistantPage}.
+ */
 public interface LayerSourcePageContext extends AssistantPageContext {
 
     /**
@@ -25,10 +27,10 @@ public interface LayerSourcePageContext extends AssistantPageContext {
     /**
      * Sets the {@link LayerSource} of this assistant.
      *
-     * @param layerSource   The {@link LayerSource} of this assistant.
+     * @param layerSource The {@link LayerSource} of this assistant.
      */
     void setLayerSource(LayerSource layerSource);
-    
+
     /**
      * Gets the {@link LayerSource} of this assistant.
      *

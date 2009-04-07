@@ -23,6 +23,9 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+/**
+ * Shows a sequence of {@link AssistantPage assitant pages} with an dialog.
+ */
 public class AssistantPane implements AssistantPageContext {
 
     private AssistantPage currentPage;
@@ -36,6 +39,12 @@ public class AssistantPane implements AssistantPageContext {
     private HelpAction helpAction;
     private AssistantPane.CancelAction cancelAction;
 
+    /**
+     * Creates a new {@code AssistantPane}.
+     *
+     * @param parent The parent window.
+     * @param title  The title of the dialog.
+     */
     public AssistantPane(Window parent, String title) {
 
         pageStack = new ArrayDeque<AssistantPage>();
@@ -121,9 +130,15 @@ public class AssistantPane implements AssistantPageContext {
         JOptionPane.showMessageDialog(dialog, message, getCurrentPage().getPageTitle(), JOptionPane.ERROR_MESSAGE);
     }
 
-    public void show(AssistantPage currentPage) {
-        initPage(currentPage);
-        setCurrentPage(currentPage);
+    /**
+     * Displays the dialog if this {@code AssistantPane} with
+     * the given {@link AssistantPage page} as first page.
+     *
+     * @param firstPage The first page which is displayed in the dialog.
+     */
+    public void show(AssistantPage firstPage) {
+        initPage(firstPage);
+        setCurrentPage(firstPage);
         dialog.setSize(new Dimension(480, 320));
         dialog.setVisible(true);
     }

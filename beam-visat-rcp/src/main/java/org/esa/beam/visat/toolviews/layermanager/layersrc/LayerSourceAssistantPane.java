@@ -21,6 +21,9 @@ public class LayerSourceAssistantPane extends AssistantPane implements LayerSour
         properties = new HashMap<String, Object>();
     }
 
+
+    ///// Implementation of LayerSourcePageContext
+
     @Override
     public AppContext getAppContext() {
         return appContext;
@@ -30,7 +33,7 @@ public class LayerSourceAssistantPane extends AssistantPane implements LayerSour
     public LayerContext getLayerContext() {
         return appContext.getSelectedProductSceneView().getLayerContext();
     }
-    
+
     @Override
     public void setLayerSource(LayerSource layerSource) {
         this.layerSource = layerSource;
