@@ -10,7 +10,6 @@ import org.esa.beam.BeamUiActivator;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.application.ToolViewDescriptorRegistry;
 import org.esa.beam.framework.ui.command.Command;
-import org.esa.beam.visat.toolviews.layermanager.DefaultLayerSourceDescriptor;
 import org.esa.beam.visat.toolviews.layermanager.LayerEditorDescriptor;
 import org.esa.beam.visat.toolviews.layermanager.LayerSourceDescriptor;
 
@@ -50,7 +49,7 @@ public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
 
     public LayerSourceDescriptor[] getLayerSources() {
         return layerSourcesRegistry.values().toArray(
-                new DefaultLayerSourceDescriptor[layerSourcesRegistry.values().size()]);
+                new LayerSourceDescriptor[layerSourcesRegistry.values().size()]);
     }
 
     @Override
@@ -97,7 +96,7 @@ public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
             final String id = layerSourceDescriptor.getId();
             final LayerSourceDescriptor existingLayerSourceDescriptor = layerSourcesRegistry.get(id);
             if (existingLayerSourceDescriptor
-                    != null) {
+                != null) {
                 moduleContext.getLogger().info(String.format("Layer source [%s] has been redeclared!\n", id));
             }
             layerSourcesRegistry.put(id, layerSourceDescriptor);
