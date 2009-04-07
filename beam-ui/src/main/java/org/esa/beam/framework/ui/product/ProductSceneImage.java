@@ -398,7 +398,7 @@ public class ProductSceneImage implements LayerContext {
     }
 
     private GraticuleLayer createGraticuleLayer(AffineTransform i2mTransform) {
-        final GraticuleLayer graticuleLayer = new GraticuleLayer(getProduct(), getRaster(), i2mTransform);
+        final GraticuleLayer graticuleLayer = new GraticuleLayer(getRaster(), i2mTransform);
         graticuleLayer.setId(ProductSceneView.GRATICULE_LAYER_ID);
         graticuleLayer.setVisible(false);
         graticuleLayer.setName("Graticule");

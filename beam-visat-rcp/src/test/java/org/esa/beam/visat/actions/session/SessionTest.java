@@ -1,7 +1,6 @@
 package org.esa.beam.visat.actions.session;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glayer.Layer;
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
@@ -10,18 +9,13 @@ import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.draw.Figure;
-import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.util.PropertyMap;
-import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 
 public class SessionTest extends TestCase {
     public void testConstruction() throws IOException {
@@ -158,7 +152,7 @@ public class SessionTest extends TestCase {
         sceneViewD.setBounds(new Rectangle(200, 100, 200, 100));
 
         // todo - add more layers (nf)
-        GraticuleLayer graticuleLayer = new GraticuleLayer(bandD.getProduct(), bandD, new AffineTransform());
+        GraticuleLayer graticuleLayer = new GraticuleLayer(bandD, new AffineTransform());
         graticuleLayer.setName("Graticule"); // todo - place in GraticuleLayer constructor (nf)
         graticuleLayer.setVisible(true);
         sceneViewD.getRootLayer().getChildren().add(graticuleLayer);

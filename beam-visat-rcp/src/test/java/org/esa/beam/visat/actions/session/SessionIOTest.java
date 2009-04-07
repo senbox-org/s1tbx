@@ -4,20 +4,26 @@ import com.bc.ceres.binding.ClassFieldDescriptorFactory;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.DomElementConverter;
 import com.bc.ceres.binding.dom.Xpp3DomElement;
+import com.bc.ceres.binding.dom.AbstractDomConverter;
 import com.bc.ceres.core.ExtensionManager;
 import com.bc.ceres.core.SingleTypeExtensionFactory;
+import com.bc.ceres.core.ExtensionFactory;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glevel.MultiLevelSource;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import junit.framework.TestCase;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.glayer.GraticuleLayer;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -32,6 +38,51 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SessionIOTest extends TestCase {
+
+/*
+    static {
+        ExtensionManager.getInstance().register(ImageLayer.Type.class, new ExtensionFactory() {
+            @Override
+            public Object getExtension(Object object, Class<?> extensionType) {
+                return new DomConverter() {
+                    @Override
+                    public Class<?> getValueType() {
+                        return Map.class;
+                    }
+
+                    @Override
+                    public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
+                                                                                                   ValidationException {
+                                                Map<String, Object> configuration = (Map<String, Object>) value;
+                        if (configuration == null) {
+                            configuration = new HashMap<String, Object>();
+                        }
+
+                        parentElement.getChild("multiLevelSourceType")
+                        ExtensionManager.getInstance().get
+
+                                                final DomConverter converter = mls.getExtension(DomConverter.class);
+                        converter.convertValueToDom(mls, parentElement);
+                        return null;  //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
+                    public void convertValueToDom(Object value, DomElement parentElement) {
+                        Map<String, Object> configuration = (Map<String, Object>) value;
+                        MultiLevelSource mls = (MultiLevelSource) configuration.get("multiLevelSource");
+                        final DomConverter converter = mls.getExtension(DomConverter.class);
+                        converter.convertValueToDom(mls, parentElement);
+                    }
+                };
+            }
+
+            @Override
+            public Class<?>[] getExtensionTypes() {
+                return new Class<?>[] {DomConverter.class};
+            }
+        });
+    }
+*/
 
     private static interface LayerIO {
 
@@ -80,6 +131,8 @@ public class SessionIOTest extends TestCase {
         assertEquals("[15] D", session.getViewRef(3).getLayerRef(0).name);
         final Session.LayerRef graticuleLayerRef = session.getViewRef(3).getLayerRef(1);
         assertEquals("Graticule", graticuleLayerRef.name);
+        assertNotNull(graticuleLayerRef.configuration);
+        assertEquals(3, graticuleLayerRef.configuration.getChildCount());
     }
 
     private void testProductRef(Session.ProductRef productRef, int expectedId, File expectedFile) {

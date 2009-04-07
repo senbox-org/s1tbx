@@ -119,7 +119,6 @@ public class Session {
         final LayerRef[] layerRefs = new LayerRef[layers.size()];
         for (int i = 0; i < layers.size(); i++) {
             Layer layer = layers.get(i);
-            final DefaultDomElement element = new DefaultDomElement("configuration");
             final Map<String, Object> configuration = getConfiguration(layerContext, layer);
             final ClassFieldDescriptorFactory factory = new ClassFieldDescriptorFactory() {
                 @Override
@@ -136,6 +135,7 @@ public class Session {
                     return ValueContainer.createMapBacked((Map<String, Object>) value);
                 }
             };
+            final DefaultDomElement element = new DefaultDomElement("configuration");
             dc.convertValueToDom(configuration, element);
             layerRefs[i] = new LayerRef(layer.getLayerType().getName(),
                                         layer.getId(),
@@ -345,7 +345,7 @@ public class Session {
         @XStreamConverter(DomElementConverter.class)
         final DomElement configuration;
         final LayerRef[] children;
-
+        
         public LayerRef(String typeName, String id, String name, boolean visible, DomElement configuration,
                         LayerRef[] children) {
             this.typeName = typeName;
@@ -381,22 +381,6 @@ public class Session {
 
     // TODO: implement converters - without converters doom converter recurrs infinitely
     private static void registerConverters() {
-        ConverterRegistry.getInstance().setConverter(Product.class, new Converter<Product>(){
-            @Override
-            public Class<? extends Product> getValueType() {
-                return Product.class;
-            }
-
-            @Override
-            public Product parse(String text) throws ConversionException {
-                return new Product(text, "T", 10, 10);
-            }
-
-            @Override
-            public String format(Product value) {
-                return value.getName();
-            }
-        });
         ConverterRegistry.getInstance().setConverter(RasterDataNode.class, new Converter<RasterDataNode>(){
             @Override
             public Class<? extends RasterDataNode> getValueType() {

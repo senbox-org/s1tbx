@@ -52,7 +52,6 @@ public class GraticuleLayer extends Layer {
 
     private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
 
-    public static final String PROPERTY_NAME_PRODUCT = "graticule.product";
     public static final String PROPERTY_NAME_RASTER = "graticule.raster";
     public static final String PROPERTY_NAME_TRANSFORM = "graticule.i2mTransform";
     public static final String PROPERTY_NAME_STYLE = "graticule.style";
@@ -82,33 +81,31 @@ public class GraticuleLayer extends Layer {
     public static final Color DEFAULT_TEXT_BG_COLOR = Color.BLACK;
     public static final double DEFAULT_TEXT_BG_TRANSPARENCY = 0.7;
 
-    private Product product;
     private RasterDataNode raster;
     private final AffineTransform i2mTransform;
 
     private ProductNodeHandler productNodeHandler;
     private Graticule graticule;
 
-    public GraticuleLayer(Product product, RasterDataNode raster, AffineTransform i2mTransform) {
-        this(LAYER_TYPE, product, raster, i2mTransform);
+    public GraticuleLayer(RasterDataNode raster, AffineTransform i2mTransform) {
+        this(LAYER_TYPE, raster, i2mTransform);
     }
 
-    protected GraticuleLayer(Type type, Product product, RasterDataNode raster, AffineTransform i2mTransform) {
+    protected GraticuleLayer(Type type, RasterDataNode raster, AffineTransform i2mTransform) {
         super(type);
-        Guardian.assertNotNull("product", product);
+        Guardian.assertNotNull("product", raster.getProduct());
         this.i2mTransform = i2mTransform;
 
         productNodeHandler = new ProductNodeHandler();
 
-        this.product = product;
-        this.product.addProductNodeListener(productNodeHandler);
+        raster.getProduct().addProductNodeListener(productNodeHandler);
         this.raster = raster;
 
         getStyle().setOpacity(0.5);
     }
 
-    Product getProduct() {
-        return product;
+    private Product getProduct() {
+        return getRaster().getProduct();
     }
 
     RasterDataNode getRaster() {
@@ -223,10 +220,11 @@ public class GraticuleLayer extends Layer {
 
     @Override
     public void disposeLayer() {
+        final Product product = getProduct();
         if (product != null) {
             product.removeProductNodeListener(productNodeHandler);
-            product = null;
             graticule = null;
+            raster = null;
         }
     }
 
@@ -371,7 +369,8 @@ public class GraticuleLayer extends Layer {
          */
         @Override
         public void nodeChanged(ProductNodeEvent event) {
-            if (event.getSourceNode() == product && Product.PROPERTY_NAME_GEOCODING.equals(event.getPropertyName())) {
+            if (event.getSourceNode() == getProduct() && Product.PROPERTY_NAME_GEOCODING.equals(
+                    event.getPropertyName())) {
                 // Force recreation
                 graticule = null;
                 fireLayerDataChanged(getModelBounds());
@@ -393,11 +392,10 @@ public class GraticuleLayer extends Layer {
 
         @Override
         public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
-            Product product = (Product) configuration.get(PROPERTY_NAME_PRODUCT);
             RasterDataNode raster = (RasterDataNode) configuration.get(PROPERTY_NAME_RASTER);
             AffineTransform i2mTransform = (AffineTransform) configuration.get(PROPERTY_NAME_TRANSFORM);
             Style style = (Style) configuration.get(PROPERTY_NAME_STYLE);
-            GraticuleLayer layer = new GraticuleLayer(product, raster, i2mTransform);
+            GraticuleLayer layer = new GraticuleLayer(raster, i2mTransform);
             layer.setStyle(style);
             return layer;
         }
@@ -407,7 +405,6 @@ public class GraticuleLayer extends Layer {
             Assert.argument(layer instanceof GraticuleLayer, "layer not instanceof GraticuleLayer");
             HashMap<String, Object> config = new HashMap<String, Object>();
             GraticuleLayer graticuleLayer = (GraticuleLayer) layer;
-            config.put(PROPERTY_NAME_PRODUCT, graticuleLayer.getProduct());
             config.put(PROPERTY_NAME_RASTER, graticuleLayer.getRaster());
             config.put(PROPERTY_NAME_TRANSFORM, graticuleLayer.getI2mTransform());
             config.put(PROPERTY_NAME_STYLE, graticuleLayer.getStyle());
