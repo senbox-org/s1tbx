@@ -12,6 +12,7 @@ public class HistoryComboBoxModel implements ComboBoxModel {
 
     private final UserInputHistory history;
     private EventListenerList listenerList;
+    private String selectedItem;
 
 
     public HistoryComboBoxModel(UserInputHistory history) {
@@ -26,25 +27,15 @@ public class HistoryComboBoxModel implements ComboBoxModel {
     @Override
     public void setSelectedItem(Object anObject) {
         if (anObject instanceof String) {
-            history.push((String) anObject);
+            selectedItem = (String) anObject;
+            history.push(selectedItem);
             fireContentChanged();
-        }
-    }
-
-    private void fireContentChanged() {
-        final ListDataListener[] listDataListeners = listenerList.getListeners(ListDataListener.class);
-        for (ListDataListener listener : listDataListeners) {
-            listener.contentsChanged(new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, 0, 0));
         }
     }
 
     @Override
     public Object getSelectedItem() {
-        final String[] entries = history.getEntries();
-        if (entries == null) {
-            return null;
-        }
-        return entries[0];
+        return selectedItem;
     }
 
     @Override
@@ -66,5 +57,12 @@ public class HistoryComboBoxModel implements ComboBoxModel {
     @Override
     public void removeListDataListener(ListDataListener listener) {
         listenerList.remove(ListDataListener.class, listener);
+    }
+
+    private void fireContentChanged() {
+        final ListDataListener[] listDataListeners = listenerList.getListeners(ListDataListener.class);
+        for (ListDataListener listener : listDataListeners) {
+            listener.contentsChanged(new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, 0, 0));
+        }
     }
 }
