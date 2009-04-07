@@ -19,14 +19,13 @@ package org.esa.beam.framework.ui;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.PropertyMap;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * <code>FileHistory</code> is a fixed-size array for the pathes of files opened/saved by a user. If a new file is added
- * and the file history is full, the list of registered files is shifted so that the oldest file path is beeing
- * skipped..
+ * <code>UserInputHistory</code> is a fixed-size array for {@code String} entries edited by a user. If a new entry is added
+ * and the history is full, the list of registered entries is shifted so that the oldest entry is beeing
+ * skipped.
  *
  * @author Norman Fomferra
  * @version $Revision$  $Date$
@@ -35,7 +34,7 @@ public class UserInputHistory {
 
     private String _propertyKey;
     private int _maxNumEntries;
-    private List _entriesList;
+    private List<String> _entriesList;
 
     public UserInputHistory(int maxNumEntries, String propertyKey) {
         Guardian.assertNotNullOrEmpty("propertyKey", propertyKey);
@@ -60,7 +59,7 @@ public class UserInputHistory {
 
     public String[] getEntries() {
         if (_entriesList != null) {
-            return (String[]) _entriesList.toArray(new String[_entriesList.size()]);
+            return _entriesList.toArray(new String[_entriesList.size()]);
         }
         return null;
     }
@@ -84,12 +83,11 @@ public class UserInputHistory {
     public void push(String entry) {
         if (entry != null && isValidItem(entry)) {
             if (_entriesList == null) {
-                _entriesList = new LinkedList();
+                _entriesList = new LinkedList<String>();
             }
-            for (Iterator iterator = _entriesList.iterator(); iterator.hasNext();) {
-                final String listedEntry = (String) iterator.next();
-                if (listedEntry.equals(entry)) {
-                    _entriesList.remove(listedEntry);
+            for (String anEntry : _entriesList) {
+                if (anEntry.equals(entry)) {
+                    _entriesList.remove(anEntry);
                     break;
                 }
             }
