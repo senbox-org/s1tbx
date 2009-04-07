@@ -2,6 +2,7 @@ package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -14,7 +15,6 @@ import org.esa.beam.framework.param.ParamGroup;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.param.editors.ComboBoxEditor;
 import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;

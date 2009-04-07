@@ -1,8 +1,9 @@
 package org.esa.beam.visat.toolviews.stat;
 
+import com.bc.ceres.swing.TableLayout;
+
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.help.HelpSys;
-import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;

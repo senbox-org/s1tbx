@@ -1,8 +1,9 @@
 package org.esa.beam.visat.toolviews.stat;
 
+import com.bc.ceres.swing.TableLayout;
+
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.ui.TableLayout;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

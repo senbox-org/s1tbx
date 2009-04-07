@@ -1,5 +1,7 @@
 package org.esa.beam.framework.gpf.ui;
 
+import com.bc.ceres.swing.TableLayout;
+
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -7,7 +9,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.ui.BasicApp;
-import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;

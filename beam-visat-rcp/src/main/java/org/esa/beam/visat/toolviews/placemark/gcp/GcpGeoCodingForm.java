@@ -1,5 +1,7 @@
 package org.esa.beam.visat.toolviews.placemark.gcp;
 
+import com.bc.ceres.swing.TableLayout;
+
 import org.esa.beam.framework.datamodel.GcpGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Pin;
@@ -9,7 +11,6 @@ import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.util.Debug;
 
 import javax.swing.AbstractAction;

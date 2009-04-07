@@ -2,7 +2,8 @@ package org.esa.beam.visat.toolviews.layermanager.editors;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
-import org.esa.beam.framework.ui.TableLayout;
+import com.bc.ceres.swing.TableLayout;
+
 import org.esa.beam.visat.toolviews.layermanager.LayerEditor;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayer;
 

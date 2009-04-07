@@ -1,5 +1,7 @@
 package org.esa.beam.visat.toolviews.stat;
 
+import com.bc.ceres.swing.TableLayout;
+
 import org.esa.beam.framework.datamodel.TransectProfileData;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
@@ -7,7 +9,6 @@ import org.esa.beam.framework.param.ParamGroup;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.param.validators.NumberValidator;
 import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;

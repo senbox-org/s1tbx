@@ -2,7 +2,6 @@ package org.esa.beam.collocation.visat;
 
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
-import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.framework.ui.AppContext;
 
 import javax.swing.*;
@@ -12,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import com.bc.ceres.binding.swing.BindingContext;
+import com.bc.ceres.swing.TableLayout;
 
 /**
  * Form for geographic collocation dialog.

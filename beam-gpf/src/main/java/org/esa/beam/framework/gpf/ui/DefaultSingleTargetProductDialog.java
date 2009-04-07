@@ -19,7 +19,6 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
 
@@ -28,6 +27,7 @@ import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.swing.BindingContext;
+import com.bc.ceres.swing.TableLayout;
 
 // todo (mp, 2008/04/22) add abillity to set the ProductFilter to SourceProductSelectors
 

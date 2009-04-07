@@ -4,7 +4,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
-import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
@@ -17,6 +16,7 @@ import java.util.ArrayList;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.BindingContext;
+import com.bc.ceres.swing.TableLayout;
 
 class SpectralUnmixingForm extends JPanel {
     AppContext appContext;
