@@ -30,7 +30,7 @@ class CollectionLayerAssistantPage extends AbstractLayerSourceAssistantPage {
     CollectionLayerAssistantPage() {
         super("Set Layer Name");
     }
-    
+
     @Override
     public Component createPageComponent() {
         nameBox = new JComboBox(names.toArray());
@@ -63,7 +63,7 @@ class CollectionLayerAssistantPage extends AbstractLayerSourceAssistantPage {
     public boolean performFinish() {
         Layer layer = new CollectionLayer();
         layer.setName(nameBox.getSelectedItem().toString().trim());
-        Layer rootLayer = getContext().getAppContext().getSelectedProductSceneView().getRootLayer();
+        Layer rootLayer = getContext().getLayerContext().getRootLayer();
         rootLayer.getChildren().add(0, layer);
         if (!names.contains(layer.getName())) {
             names.add(1, layer.getName());

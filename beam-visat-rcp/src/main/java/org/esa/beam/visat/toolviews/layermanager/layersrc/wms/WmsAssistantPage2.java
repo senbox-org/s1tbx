@@ -71,7 +71,7 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
         panel.add(new JLabel("Available layers:"), BorderLayout.NORTH);
 
         LayerSourcePageContext context = getContext();
-        modelCRS = context.getAppContext().getSelectedProductSceneView().getRaster().getGeoCoding().getModelCRS();
+        modelCRS = (CoordinateReferenceSystem) context.getLayerContext().getCoordinateReferenceSystem();
 
         WMSCapabilities wmsCapabilities = (WMSCapabilities) context.getPropertyValue(
                 WmsLayerSource.PROPERTY_WMS_CAPABILITIES);

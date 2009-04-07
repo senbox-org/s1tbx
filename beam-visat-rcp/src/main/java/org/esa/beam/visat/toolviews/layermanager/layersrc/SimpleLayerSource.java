@@ -24,7 +24,7 @@ public class SimpleLayerSource implements LayerSource {
 
     @Override
     public boolean isApplicable(LayerSourcePageContext pageContext) {
-        return layerType.isValidFor(pageContext.getAppContext().getSelectedProductSceneView().getLayerContext());
+        return layerType.isValidFor(pageContext.getLayerContext());
     }
 
     @Override
@@ -44,7 +44,7 @@ public class SimpleLayerSource implements LayerSource {
 
     @Override
     public boolean performFinish(LayerSourcePageContext pageContext) {
-        LayerContext layerCtx = pageContext.getAppContext().getSelectedProductSceneView().getLayerContext();
+        LayerContext layerCtx = pageContext.getLayerContext();
 
         Layer layer = layerType.createLayer(layerCtx, new HashMap<String, Object>());
         if (layer != null) {
@@ -53,7 +53,7 @@ public class SimpleLayerSource implements LayerSource {
         }
         return false;
     }
-    
+
     @Override
     public void cancel(LayerSourcePageContext pageContext) {
     }

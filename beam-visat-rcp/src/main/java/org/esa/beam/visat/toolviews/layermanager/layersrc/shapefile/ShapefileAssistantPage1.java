@@ -133,11 +133,12 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
 
     @Override
     public AbstractLayerSourceAssistantPage getNextPage() {
-        fileHistoryModel.getHistory().copyInto(getContext().getAppContext().getPreferences());
+        final LayerSourcePageContext context = getContext();
+        fileHistoryModel.getHistory().copyInto(context.getAppContext().getPreferences());
         String path = (String) fileHistoryModel.getSelectedItem();
         if (path != null && !path.trim().isEmpty()) {
             try {
-                Product targetProduct = getContext().getAppContext().getSelectedProductSceneView().getProduct();
+                Product targetProduct = context.getAppContext().getSelectedProductSceneView().getProduct();
 
                 CoordinateReferenceSystem targetCrs = targetProduct.getGeoCoding().getModelCRS();
 
@@ -161,7 +162,6 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
                                                                                targetCrs);
                 Style[] styles = createStyle(file, featureCollection.getSchema());
 
-                LayerSourcePageContext context = getContext();
                 context.setPropertyValue(ShapefileLayerSource.PROPERTY_FILE_NAME, file.getName());
                 context.setPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_COLLECTION, featureCollection);
                 context.setPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_SOURCE_ENVELOPE, referencedEnvelope);
@@ -172,7 +172,7 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
                 return new ShapefileAssistantPage2();
             } catch (Exception e) {
                 e.printStackTrace();
-                getContext().showErrorDialog("Failed to load ESRI shapefile:\n" + e.getMessage());
+                context.showErrorDialog("Failed to load ESRI shapefile:\n" + e.getMessage());
             }
         }
 

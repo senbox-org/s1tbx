@@ -3,6 +3,7 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 
@@ -59,12 +60,13 @@ class WmsLayerWorker extends WmsWorker {
         try {
             BufferedImage image = get();
             try {
-                ProductSceneView sceneView = getContext().getAppContext().getSelectedProductSceneView();
+                final AppContext appContext = getContext().getAppContext();
+                ProductSceneView sceneView = appContext.getSelectedProductSceneView();
                 org.geotools.data.ows.Layer layer;
                 layer = (org.geotools.data.ows.Layer) getContext().getPropertyValue(
                         WmsLayerSource.PROPERTY_SELECTED_LAYER);
-                final int sceneWidth = getContext().getAppContext().getSelectedProductSceneView().getRaster().getSceneRasterWidth();
-                final int sceneHeight = getContext().getAppContext().getSelectedProductSceneView().getRaster().getSceneRasterHeight();
+                final int sceneWidth = appContext.getSelectedProductSceneView().getRaster().getSceneRasterWidth();
+                final int sceneHeight = appContext.getSelectedProductSceneView().getRaster().getSceneRasterHeight();
 
                 final AffineTransform g2mTransform = sceneView.getRaster().getGeoCoding().getGridToModelTransform();
                 AffineTransform i2mTransform = new AffineTransform(g2mTransform);
