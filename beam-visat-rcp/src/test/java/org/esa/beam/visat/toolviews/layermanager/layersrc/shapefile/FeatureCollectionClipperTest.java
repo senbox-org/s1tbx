@@ -1,4 +1,4 @@
-package org.esa.beam.visat.toolviews.layermanager.layersrc;
+package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;

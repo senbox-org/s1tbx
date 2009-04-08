@@ -31,7 +31,6 @@ public class ShapefileLayerSource implements LayerSource {
 
     static final String PROPERTY_FILE_PATH = "ShapefileLayerSource.fileName";
     static final String PROPERTY_FEATURE_COLLECTION = "ShapefileLayerSource.featureCollection";
-    static final String PROPERTY_FEATURE_SOURCE_ENVELOPE = "ShapefileLayerSource.featureSourceEnvelope";
     static final String PROPERTY_STYLES = "ShapefileLayerSource.styles";
     static final String PROPERTY_SELECTED_STYLE = "ShapefileLayerSource.selectedStyle";
 

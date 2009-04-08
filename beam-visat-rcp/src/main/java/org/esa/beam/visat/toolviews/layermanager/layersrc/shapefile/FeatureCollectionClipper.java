@@ -1,4 +1,4 @@
-package org.esa.beam.visat.toolviews.layermanager.layersrc;
+package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -22,7 +22,7 @@ import org.opengis.referencing.operation.TransformException;
 import java.util.Iterator;
 
 
-public class FeatureCollectionClipper {
+class FeatureCollectionClipper {
 
     private static int idCounter;
 
@@ -78,7 +78,8 @@ public class FeatureCollectionClipper {
 
                     if (MultiPolygon.class.isAssignableFrom(geometryBinding)) {
                         if (targetGeometry instanceof Polygon) {
-                            targetGeometry = geometryFactory.createMultiPolygon(new Polygon[]{(Polygon) targetGeometry});
+                            targetGeometry = geometryFactory.createMultiPolygon(
+                                    new Polygon[]{(Polygon) targetGeometry});
                         }
                     }
 
