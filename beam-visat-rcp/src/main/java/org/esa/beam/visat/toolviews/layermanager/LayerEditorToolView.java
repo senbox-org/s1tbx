@@ -52,7 +52,7 @@ public class LayerEditorToolView extends AbstractLayerToolView {
 
         if (newLayer != null) {
             activeEditor = getLayerEditor(newLayer);
-            getDescriptor().setTitle("Layer Editor - "+ newLayer.getName());
+            getDescriptor().setTitle("Layer Editor - " + newLayer.getName());
         } else {
             activeEditor = nullLayerEditor;
             getDescriptor().setTitle("Layer Editor");
@@ -86,6 +86,7 @@ public class LayerEditorToolView extends AbstractLayerToolView {
     }
 
     private class LayerHandler extends AbstractLayerListener {
+
         @Override
         public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
             updateEditorControl();
@@ -108,9 +109,10 @@ public class LayerEditorToolView extends AbstractLayerToolView {
     }
 
     private static class NullLayerEditor implements LayerEditor {
+
         @Override
         public JComponent createControl() {
-            return new JLabel("No layer selected.");
+            return new JLabel("No editor available.");
         }
 
         @Override
