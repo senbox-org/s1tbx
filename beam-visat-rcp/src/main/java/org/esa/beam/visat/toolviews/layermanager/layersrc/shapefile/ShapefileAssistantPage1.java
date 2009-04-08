@@ -13,16 +13,10 @@ import org.esa.beam.framework.ui.FileHistory;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.FeatureCollectionClipper;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.FilePathListCellRenderer;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.HistoryComboBoxModel;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
-import org.geotools.data.DataStore;
-import org.geotools.data.DataStoreFinder;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Fill;
 import org.geotools.styling.LineSymbolizer;
@@ -33,11 +27,8 @@ import org.geotools.styling.SLD;
 import org.geotools.styling.SLDParser;
 import org.geotools.styling.Style;
 import org.geotools.styling.Symbolizer;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.FilterFactory;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -53,8 +44,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
 
@@ -96,6 +85,7 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
         fileHistory.initBy(preferences);
         fileHistoryModel = new HistoryComboBoxModel(fileHistory);
         JComboBox shapefileBox = new JComboBox(fileHistoryModel);
+        shapefileBox.setRenderer(new FilePathListCellRenderer(80));
         shapefileBox.setEditable(true);
         shapefileBox.addActionListener(new ActionListener() {
             @Override
@@ -138,36 +128,14 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
         String path = (String) fileHistoryModel.getSelectedItem();
         if (path != null && !path.trim().isEmpty()) {
             try {
-                Product targetProduct = context.getAppContext().getSelectedProductSceneView().getProduct();
-
-                CoordinateReferenceSystem targetCrs = targetProduct.getGeoCoding().getModelCRS();
-
-                File file = new File(path);
-                Map<String, Object> map = new HashMap<String, Object>();
-                map.put(ShapefileDataStoreFactory.URLP.key, file.toURI().toURL());
-                map.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, Boolean.TRUE);
-                DataStore shapefileStore = DataStoreFinder.getDataStore(map);
-
-                String typeName = shapefileStore.getTypeNames()[0]; // Shapefiles do only have one type name
-                FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
-                featureSource = shapefileStore.getFeatureSource(typeName);
-
-                FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
-                featureCollection = featureSource.getFeatures();
-
-                Geometry clipGeometry = createProductGeometry(targetProduct);
-                featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, targetCrs);
-
-                ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(featureCollection.getBounds(),
-                                                                               targetCrs);
-                Style[] styles = createStyle(file, featureCollection.getSchema());
-
-                context.setPropertyValue(ShapefileLayerSource.PROPERTY_FILE_NAME, file.getName());
-                context.setPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_COLLECTION, featureCollection);
-                context.setPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_SOURCE_ENVELOPE, referencedEnvelope);
-                context.setPropertyValue(ShapefileLayerSource.PROPERTY_STYLES, styles);
-                if (styles.length > 0) {
-                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_SELECTED_STYLE, styles[0]);
+                final String oldPath = (String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FILE_PATH);
+                if (!path.equals(oldPath)) {
+                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_FILE_PATH, path);
+                    // clear other properties they are not valid anymore
+                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_COLLECTION, null);
+                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_SOURCE_ENVELOPE, null);
+                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_SELECTED_STYLE, null);
+                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_STYLES, null);
                 }
                 return new ShapefileAssistantPage2();
             } catch (Exception e) {
@@ -184,7 +152,7 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
         return false;
     }
 
-    private static Geometry createProductGeometry(Product targetProduct) {
+    public static Geometry createProductGeometry(Product targetProduct) {
         GeometryFactory gf = new GeometryFactory();
         GeoPos[] geoPoses = ProductUtils.createGeoBoundary(targetProduct, 100);
         Coordinate[] coordinates = new Coordinate[geoPoses.length + 1];
@@ -197,7 +165,7 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
         return gf.createPolygon(gf.createLinearRing(coordinates), null);
     }
 
-    private static Style[] createStyle(File file, FeatureType schema) {
+    public static Style[] createStyle(File file, FeatureType schema) {
         File sld = toSLDFile(file);
         if (sld.exists()) {
             final Style[] styles = createFromSLD(sld);
@@ -320,4 +288,5 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
             return lastDir;
         }
     }
+
 }

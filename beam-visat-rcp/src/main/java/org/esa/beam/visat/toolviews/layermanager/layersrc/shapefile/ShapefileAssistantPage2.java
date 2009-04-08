@@ -1,10 +1,16 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
 import com.bc.ceres.glayer.Layer;
-
+import com.vividsolutions.jts.geom.Geometry;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.FeatureCollectionClipper;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
+import org.geotools.data.DataStore;
+import org.geotools.data.DataStoreFinder;
+import org.geotools.data.FeatureSource;
+import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
@@ -15,18 +21,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.InternationalString;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.image.BufferedImage;
-import java.text.MessageFormat;
-import java.util.concurrent.ExecutionException;
-
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
@@ -37,21 +32,38 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
     private JComboBox styleList;
     private JLabel mapCanvas;
     private SwingWorker<BufferedImage, Object> worker;
-    private Throwable error;
+    private boolean shapeFileLoaded;
+    private JLabel infoLabel;
 
     ShapefileAssistantPage2() {
         super("Layer Preview");
+        shapeFileLoaded = false;
     }
 
     @Override
     public boolean validatePage() {
-        return error == null;
+        return shapeFileLoaded;
     }
 
     @Override
@@ -59,19 +71,17 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         mapCanvas = new JLabel();
         mapCanvas.setHorizontalTextPosition(SwingConstants.CENTER);
         mapCanvas.setVerticalTextPosition(SwingConstants.CENTER);
-        
+
         LayerSourcePageContext context = getContext();
-        String fileName = (String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FILE_NAME);
-        ReferencedEnvelope featureSourceEnvelope = (ReferencedEnvelope) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_SOURCE_ENVELOPE);
-        Style[] styles = (Style[]) context.getPropertyValue(ShapefileLayerSource.PROPERTY_STYLES);
-        Style selectedStyle = (Style) context.getPropertyValue(ShapefileLayerSource.PROPERTY_SELECTED_STYLE);
+        String filePath = (String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FILE_PATH);
+        String fileName = new File(filePath).getName();
 
-        JLabel infoLabel = new JLabel(featureSourceEnvelope.toString());
+        infoLabel = new JLabel();
 
-        styleList = new JComboBox(styles);
-        styleList.setSelectedItem(selectedStyle);
+        styleList = new JComboBox();
         styleList.setRenderer(new StyleListCellRenderer());
         styleList.addItemListener(new StyleSelectionListener());
+        styleList.setPreferredSize(new Dimension(100, styleList.getPreferredSize().height));
 
         JPanel panel2 = new JPanel(new BorderLayout(4, 4));
         panel2.setBorder(new EmptyBorder(4, 4, 4, 4));
@@ -101,11 +111,13 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
     @Override
     public boolean performFinish() {
         LayerSourcePageContext context = getContext();
-        String fileName = (String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FILE_NAME);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = 
-            (FeatureCollection<SimpleFeatureType, SimpleFeature>) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_COLLECTION);
+        String filePath = (String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FILE_PATH);
+        String fileName = new File(filePath).getName();
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection =
+                (FeatureCollection<SimpleFeatureType, SimpleFeature>) context.getPropertyValue(
+                        ShapefileLayerSource.PROPERTY_FEATURE_COLLECTION);
         Style selectedStyle = (Style) context.getPropertyValue(ShapefileLayerSource.PROPERTY_SELECTED_STYLE);
-        
+
         FeatureLayer featureLayer = new FeatureLayer(featureCollection, selectedStyle);
         featureLayer.setName(fileName);
         featureLayer.setVisible(true);
@@ -126,10 +138,13 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         }
         mapCanvas.setText("<html><i>Loading map...</i></html>");
         mapCanvas.setIcon(null);
-        getContext().getWindow().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        final LayerSourcePageContext context = getContext();
+        context.getWindow().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-        ReferencedEnvelope featureSourceEnvelope = (ReferencedEnvelope) getContext().getPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_SOURCE_ENVELOPE);
-        worker = new ShapefileLoader(computeMapSize(featureSourceEnvelope));
+        shapeFileLoaded = false;
+        context.updateState();
+
+        worker = new ShapefileLoader();
         worker.execute();
     }
 
@@ -176,31 +191,34 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
     private class ShapefileLoader extends SwingWorker<BufferedImage, Object> {
 
-        private final Dimension size;
-
-        ShapefileLoader(Dimension size) {
-            this.size = size;
-        }
-
         @Override
         protected BufferedImage doInBackground() throws Exception {
             LayerSourcePageContext context = getContext();
-            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = 
-                (FeatureCollection<SimpleFeatureType, SimpleFeature>) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_COLLECTION);
-            ReferencedEnvelope featureSourceEnvelope = (ReferencedEnvelope) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_SOURCE_ENVELOPE);
-            Style selectedStyle = (Style) context.getPropertyValue(ShapefileLayerSource.PROPERTY_SELECTED_STYLE);
-            SimpleFeatureType schema = featureCollection.getSchema();
-            
-            final CoordinateReferenceSystem crs = schema.getGeometryDescriptor().getCoordinateReferenceSystem();
 
+            Product targetProduct = context.getAppContext().getSelectedProductSceneView().getProduct();
+            CoordinateReferenceSystem targetCrs = targetProduct.getGeoCoding().getModelCRS();
+            final Geometry clipGeometry = ShapefileAssistantPage1.createProductGeometry(targetProduct);
+
+            File file = new File((String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FILE_PATH));
+            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = getFeatureCollection(file,
+                                                                                                         targetCrs,
+                                                                                                         clipGeometry);
+            ReferencedEnvelope refEnvelope = getFeatureSourceEnvelope(targetCrs, featureCollection);
+            Style[] styles = getStyles(file, featureCollection);
+            Style selectedStyle = getSelectedStyle(styles);
+
+
+            SimpleFeatureType schema = featureCollection.getSchema();
+            final CoordinateReferenceSystem crs = schema.getGeometryDescriptor().getCoordinateReferenceSystem();
             final DefaultMapContext mapContext = new DefaultMapContext(crs);
             mapContext.addLayer(featureCollection, selectedStyle);
             final StreamingRenderer renderer = new StreamingRenderer();
             renderer.setContext(mapContext);
+            final Dimension size = computeMapSize(refEnvelope);
             final BufferedImage image = new BufferedImage(size.width, size.height, BufferedImage.TYPE_4BYTE_ABGR);
             final Graphics2D graphics2D = image.createGraphics();
             try {
-                renderer.paint(graphics2D, new Rectangle(0, 0, size.width, size.height), featureSourceEnvelope);
+                renderer.paint(graphics2D, new Rectangle(0, 0, size.width, size.height), refEnvelope);
             } finally {
                 graphics2D.dispose();
             }
@@ -209,24 +227,117 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
         @Override
         protected void done() {
-            getContext().getWindow().setCursor(Cursor.getDefaultCursor());
+            final LayerSourcePageContext context = getContext();
+            context.getWindow().setCursor(Cursor.getDefaultCursor());
 
             try {
-                error = null;
                 BufferedImage image = get();
                 ImageIcon icon = new ImageIcon(image);
                 mapCanvas.setText(null);
                 mapCanvas.setIcon(icon);
+                ReferencedEnvelope refEnvelope = (ReferencedEnvelope) context.getPropertyValue(
+                        ShapefileLayerSource.PROPERTY_FEATURE_SOURCE_ENVELOPE);
+                infoLabel.setText(getLabelString(refEnvelope));
+
+                Style[] styles = (Style[]) context.getPropertyValue(ShapefileLayerSource.PROPERTY_STYLES);
+                Style selectedStyle = (Style) context.getPropertyValue(ShapefileLayerSource.PROPERTY_SELECTED_STYLE);
+                styleList.setModel(new DefaultComboBoxModel(styles));
+                styleList.setSelectedItem(selectedStyle);
+                shapeFileLoaded = true;
             } catch (ExecutionException e) {
-                error = e.getCause();
                 final String errorMessage = MessageFormat.format("<html><b>Error:</b> <i>{0}</i></html>",
-                                                                 error.getMessage());
+                                                                 e.getMessage());
                 mapCanvas.setText(errorMessage);
                 mapCanvas.setIcon(null);
             } catch (InterruptedException ignore) {
                 // ok
+            } finally {
+                context.updateState();
             }
-            getContext().updateState();
+        }
+
+        public String getLabelString(ReferencedEnvelope refEnvelope) {
+            final String prefix = String.format("%s [", refEnvelope.getClass().getSimpleName());
+            final StringBuilder buffer = new StringBuilder(prefix);
+            final int dimension = refEnvelope.getDimension();
+
+            for (int i = 0; i < dimension; i++) {
+                if (i != 0) {
+                    buffer.append(", ");
+                }
+
+                final String values = String.format("%.3f : %.3f", refEnvelope.getMinimum(i),
+                                                    refEnvelope.getMaximum(i));
+                buffer.append(values);
+            }
+
+            return buffer.append(']').toString();
+        }
+
+        private Style getSelectedStyle(Style[] styles) {
+            LayerSourcePageContext context = getContext();
+            Style selectedStyle;
+            selectedStyle = (Style) context.getPropertyValue(ShapefileLayerSource.PROPERTY_SELECTED_STYLE);
+            if (selectedStyle == null) {
+                selectedStyle = styles[0];
+                context.setPropertyValue(ShapefileLayerSource.PROPERTY_SELECTED_STYLE, styles[0]);
+            }
+            return selectedStyle;
+        }
+
+        private Style[] getStyles(File file, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
+            LayerSourcePageContext context = getContext();
+            Style[] styles;
+            styles = (Style[]) context.getPropertyValue(ShapefileLayerSource.PROPERTY_STYLES);
+            if (styles == null) {
+                styles = ShapefileAssistantPage1.createStyle(file, featureCollection.getSchema());
+                context.setPropertyValue(ShapefileLayerSource.PROPERTY_STYLES, styles);
+            }
+            return styles;
+        }
+
+
+        private ReferencedEnvelope getFeatureSourceEnvelope(CoordinateReferenceSystem targetCrs,
+                                                            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
+            ReferencedEnvelope refEnvelope;
+            refEnvelope = (ReferencedEnvelope) getContext().getPropertyValue(
+                    ShapefileLayerSource.PROPERTY_FEATURE_SOURCE_ENVELOPE);
+            if (refEnvelope == null) {
+                refEnvelope = new ReferencedEnvelope(featureCollection.getBounds(), targetCrs);
+            }
+            getContext().setPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_SOURCE_ENVELOPE, refEnvelope);
+            return refEnvelope;
+        }
+
+        private FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatureCollection(
+                File file, CoordinateReferenceSystem targetCrs, Geometry clipGeometry) throws IOException {
+            LayerSourcePageContext context = getContext();
+
+            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
+            featureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) context.getPropertyValue(
+                    ShapefileLayerSource.PROPERTY_FEATURE_COLLECTION);
+            if (featureCollection != null) {
+                return featureCollection;
+            }
+
+            FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = getFeatureSource(file);
+            featureCollection = featureSource.getFeatures();
+
+            featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, targetCrs);
+            context.setPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_COLLECTION, featureCollection);
+            return featureCollection;
+        }
+
+        private FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(File file) throws IOException {
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put(ShapefileDataStoreFactory.URLP.key, file.toURI().toURL());
+            map.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, Boolean.TRUE);
+            DataStore shapefileStore = DataStoreFinder.getDataStore(map);
+
+            String typeName = shapefileStore.getTypeNames()[0]; // Shapefiles do only have one type name
+            FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+            featureSource = shapefileStore.getFeatureSource(typeName);
+            return featureSource;
         }
     }
 }

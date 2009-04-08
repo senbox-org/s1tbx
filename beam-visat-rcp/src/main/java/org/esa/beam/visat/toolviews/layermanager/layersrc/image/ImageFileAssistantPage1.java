@@ -6,6 +6,7 @@ import org.esa.beam.framework.ui.FileHistory;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.FilePathListCellRenderer;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.HistoryComboBoxModel;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 
@@ -105,6 +106,7 @@ class ImageFileAssistantPage1 extends AbstractLayerSourceAssistantPage {
         imageHistoryModel = new HistoryComboBoxModel(fileHistory);
         imageFileBox = new JComboBox(imageHistoryModel);
         imageFileBox.addActionListener(new ImageFileItemListener());
+        imageFileBox.setRenderer(new FilePathListCellRenderer(80));
         final JLabel imageFileLabel = new JLabel("Path to image file (.png, .jpg, .tif, .gif):");
         JButton imageFileButton = new JButton("...");
         final FileNameExtensionFilter imageFileFilter = new FileNameExtensionFilter("Image Files",
