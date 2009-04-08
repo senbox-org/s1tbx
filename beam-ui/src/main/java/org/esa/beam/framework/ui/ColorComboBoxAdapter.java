@@ -1,16 +1,15 @@
-package org.esa.beam.visat.toolviews.imageinfo;
+package org.esa.beam.framework.ui;
 
-import com.bc.ceres.binding.swing.Binding;
-import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ComponentAdapter;
 import com.jidesoft.combobox.ColorComboBox;
 
-import javax.swing.JComponent;
+import org.esa.beam.framework.datamodel.ImageInfo;
+
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import org.esa.beam.framework.datamodel.ImageInfo;
+import javax.swing.JComponent;
 
 /**
  * A binding for the JIDE {@link ColorComboBox}.

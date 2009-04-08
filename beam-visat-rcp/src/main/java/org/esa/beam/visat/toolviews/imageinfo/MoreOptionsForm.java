@@ -7,6 +7,7 @@ import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.jidesoft.combobox.ColorComboBox;
 import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.ui.ColorComboBoxAdapter;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
