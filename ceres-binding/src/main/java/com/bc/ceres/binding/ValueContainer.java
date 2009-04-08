@@ -241,7 +241,7 @@ public class ValueContainer {
             Field[] declaredFields = type.getDeclaredFields();
             for (Field field : declaredFields) {
                 final int mod = field.getModifiers();
-                if (!Modifier.isTransient(mod) && !Modifier.isFinal(mod) && !Modifier.isStatic(mod)) {
+                if (!Modifier.isTransient(mod) && !Modifier.isStatic(mod)) {
                     final ValueDescriptor valueDescriptor = ValueDescriptor.createValueDescriptor(field,
                                                                                                   classFieldDescriptorFactory);
                     if (valueDescriptor != null) {
