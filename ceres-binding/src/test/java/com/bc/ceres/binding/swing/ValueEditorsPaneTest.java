@@ -25,7 +25,7 @@ public class ValueEditorsPaneTest extends TestCase {
 
         assertEquals(JCheckBox.class, components[0].getClass());
         assertEquals(JLabel.class, components[1].getClass());
-        assertEquals(JSlider.class, components[2].getClass());
+        assertEquals(JTextField.class, components[2].getClass());
         assertEquals(JLabel.class, components[3].getClass());
         assertEquals(JTextField.class, components[4].getClass());
         assertEquals(JLabel.class, components[5].getClass());

@@ -50,7 +50,7 @@ public class NumericEditorTest extends TestCase {
         doubleDescriptor = new ValueDescriptor("test", Double.TYPE);
         valueRange = ValueRange.parseValueRange("[2.0,4.6]");
         doubleDescriptor.setValueRange(valueRange);
-        assertFalse(numericEditor.isValidFor(doubleDescriptor));
+        assertTrue(numericEditor.isValidFor(doubleDescriptor));
         
         ValueDescriptor booleanDescriptor = new ValueDescriptor("test", Boolean.TYPE);
         assertFalse(numericEditor.isValidFor(booleanDescriptor));

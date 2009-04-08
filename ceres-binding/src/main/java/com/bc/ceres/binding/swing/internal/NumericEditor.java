@@ -40,10 +40,7 @@ public class NumericEditor extends ValueEditor {
     public boolean isValidFor(ValueDescriptor valueDescriptor) {
         Class<?> type = valueDescriptor.getType();
         if (isNumericType(type)) {
-            ValueRange vr = valueDescriptor.getValueRange();
-            if (vr == null || !vr.hasMin() || !vr.hasMax()) {
-                return true;
-            }
+            return true;
         }
         return false;
     }

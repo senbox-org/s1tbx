@@ -30,7 +30,7 @@ public class SliderAdapter extends ComponentAdapter implements ChangeListener {
     private final JSlider slider;
     private double scale;
 
-    SliderAdapter(JSlider slider) {
+    public SliderAdapter(JSlider slider) {
         this.slider = slider;
     }
     

@@ -34,7 +34,7 @@ public class RangeEditorTest extends TestCase {
         ValueDescriptor doubleDescriptor = new ValueDescriptor("test", Double.TYPE);
         ValueRange valueRange = ValueRange.parseValueRange("[2.0,4.6]");
         doubleDescriptor.setValueRange(valueRange);
-        assertTrue(rangeEditor.isValidFor(doubleDescriptor));
+        assertFalse(rangeEditor.isValidFor(doubleDescriptor));
         
         doubleDescriptor = new ValueDescriptor("test", Double.class);
         assertFalse(rangeEditor.isValidFor(doubleDescriptor));
@@ -63,7 +63,6 @@ public class RangeEditorTest extends TestCase {
         valueDescriptor.setValueRange(valueRange);
         assertSame(Double.TYPE, valueDescriptor.getType());
         
-        assertTrue(rangeEditor.isValidFor(valueDescriptor));
         JComponent editorComponent = rangeEditor.createEditorComponent(valueDescriptor, bindingContext);
         assertNotNull(editorComponent);
         assertSame(JSlider.class, editorComponent.getClass());
