@@ -62,6 +62,11 @@ public class ColorConverter implements Converter<Color> {
         final int b = color.getBlue();
         final int a = color.getAlpha();
 
-        return String.format("%d,%d,%d,%d", r, g, b, a);
+
+        if (a == 255) {
+            return String.format("%d,%d,%d", r, g, b);
+        } else {
+            return String.format("%d,%d,%d,%d", r, g, b, a);
+        }
     }
 }

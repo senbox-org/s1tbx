@@ -25,7 +25,7 @@ public class ColorConverterTest extends AbstractConverterTest {
         testParseSuccess(new Color(17, 11, 67, 127), "17, \t11, 67, 127");
         testParseSuccess(null, "");
 
-        testFormatSuccess("17,11,67,255", new Color(17, 11, 67));
+        testFormatSuccess("17,11,67", new Color(17, 11, 67));
         testFormatSuccess("17,11,67,127", new Color(17, 11, 67, 127));
         testFormatSuccess("", null);
 
