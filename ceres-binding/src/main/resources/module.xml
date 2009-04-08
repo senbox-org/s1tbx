@@ -28,4 +28,7 @@
 
     <categories>Binding,UI</categories>
 
+    <extension point="ceres-core:serviceProviders">
+        <serviceProvider>com.bc.ceres.binding.swing.ValueEditor</serviceProvider>
+    </extension>
 </module>
