@@ -7,10 +7,9 @@ import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
+import com.bc.ceres.binding.swing.ValueEditorsPane;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.Style;
-
-import org.esa.beam.visat.toolviews.layermanager.LayerEditor;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -61,7 +60,7 @@ public class ValueDescriptorLayerEditor {
             }}
         );
         bindingContext = new BindingContext(valueContainer);
-        ParametersPane parametersPane = new ParametersPane(bindingContext);
+        ValueEditorsPane parametersPane = new ValueEditorsPane(bindingContext);
         return parametersPane.createPanel();
     }
 
