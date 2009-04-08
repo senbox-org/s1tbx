@@ -93,6 +93,7 @@ public class DefaultDomConverterTest extends TestCase {
     public void testWeirdPojoToDom() throws ValidationException, ConversionException {
         final String expectedXml = ""
                                    + "<parameters>"
+                                   + "  <finalWeird/>"
                                    + "  <weird/>"
                                    + "  <name>ernie</name>"
                                    + "</parameters>";
