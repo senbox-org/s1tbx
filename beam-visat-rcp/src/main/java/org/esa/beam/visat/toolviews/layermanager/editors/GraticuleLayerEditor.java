@@ -20,6 +20,7 @@ import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
+import com.bc.ceres.binding.swing.internal.RangeEditor;
 import com.bc.ceres.glayer.Layer;
 
 import org.esa.beam.glayer.GraticuleLayer;
@@ -114,6 +115,7 @@ public class GraticuleLayerEditor implements LayerEditor {
         vds[6].setValueRange(new ValueRange(0, 1));
         vds[6].setDisplayName("Line transparency");
         vds[6].setDefaultConverter();
+        vds[6].setProperty("valueEditor", RangeEditor.class.getName());
         
         vds[7] = new ValueDescriptor(GraticuleLayer.PROPERTY_NAME_TEXT_ENABLED, Boolean.class);
         vds[7].setDefaultValue(GraticuleLayer.DEFAULT_TEXT_ENABLED);
@@ -135,6 +137,7 @@ public class GraticuleLayerEditor implements LayerEditor {
         vds[10].setValueRange(new ValueRange(0, 1));
         vds[10].setDisplayName("Text background transparency");
         vds[10].setDefaultConverter();
+        vds[10].setProperty("valueEditor", RangeEditor.class.getName());
         return vds;
     }
 }
