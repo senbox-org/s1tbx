@@ -1,0 +1,7 @@
+com.bc.ceres.binding.swing.internal.CheckBoxEditor
+com.bc.ceres.binding.swing.internal.NumericEditor
+com.bc.ceres.binding.swing.internal.TextFieldEditor
+com.bc.ceres.binding.swing.internal.FileEditor
+com.bc.ceres.binding.swing.internal.SingleSelectionEditor
+com.bc.ceres.binding.swing.internal.MultiSelectionEditor
+com.bc.ceres.binding.swing.internal.RangeEditor
