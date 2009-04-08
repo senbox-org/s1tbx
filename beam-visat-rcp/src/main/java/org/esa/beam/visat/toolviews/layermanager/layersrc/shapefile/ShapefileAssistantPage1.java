@@ -119,6 +119,11 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
         return null;
     }
 
+    @Override
+    public boolean canFinish() {
+        return false;
+    }
+
     private class ShpaeFilechooserActionListener implements ActionListener {
 
         @Override
