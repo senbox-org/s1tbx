@@ -39,7 +39,7 @@ import java.util.Map;
 // todo - compute bounds
 /**
  * A layer that renders a feature collection using a given style.
- * 
+ *
  * @author Marco Peters
  * @author Marco Zühlke
  * @version $Revision: $ $Date: $
@@ -60,7 +60,7 @@ public class FeatureLayer extends Layer {
 
 
     public FeatureLayer(final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
-                 final Style style) {
+                        final Style style) {
         this(LAYER_TYPE, featureCollection, style);
     }
 
@@ -140,8 +140,8 @@ public class FeatureLayer extends Layer {
     @Override
     protected void renderLayer(final Rendering rendering) {
         Rectangle bounds = rendering.getViewport().getViewBounds();
-        final AffineTransform m2vTransform = rendering.getViewport().getViewToModelTransform();
-        Rectangle2D bounds2D = m2vTransform.createTransformedShape(bounds).getBounds2D();
+        final AffineTransform v2mTransform = rendering.getViewport().getViewToModelTransform();
+        Rectangle2D bounds2D = v2mTransform.createTransformedShape(bounds).getBounds2D();
         ReferencedEnvelope mapArea = new ReferencedEnvelope(bounds2D, crs);
         mapContext.setAreaOfInterest(mapArea);
 
