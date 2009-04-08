@@ -104,7 +104,7 @@ public abstract class ValueEditor {
         return createDisplayName(name);
     }
 
-    private static String createDisplayName(String name) {
+    public static String createDisplayName(String name) {
         StringBuilder sb = new StringBuilder(name.length());
         for (int i = 0; i < name.length(); i++) {
             char ch = name.charAt(i);
