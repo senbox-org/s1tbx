@@ -19,6 +19,7 @@ package com.bc.ceres.binding.swing;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.swing.TableLayout;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
