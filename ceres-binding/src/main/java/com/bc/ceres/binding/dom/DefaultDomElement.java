@@ -46,6 +46,7 @@ public class DefaultDomElement implements DomElement {
         return parent;
     }
 
+    @Override
     public void setParent(DomElement parent) {
         this.parent = parent;
     }
