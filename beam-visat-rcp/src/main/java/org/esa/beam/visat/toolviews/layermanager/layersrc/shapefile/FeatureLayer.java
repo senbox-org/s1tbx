@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-// todo - compute bounds
 /**
  * A layer that renders a feature collection using a given style.
  *
@@ -57,6 +56,7 @@ public class FeatureLayer extends Layer {
     private double polyFillOpacity = 1.0;
     private double polyStrokeOpacity = 1.0;
     private double textOpacity = 1.0;
+    private Rectangle2D modelBounds;
 
 
     public FeatureLayer(final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
@@ -70,13 +70,20 @@ public class FeatureLayer extends Layer {
         super(type);
 
         crs = featureCollection.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
-
+        final ReferencedEnvelope envelope = new ReferencedEnvelope(featureCollection.getBounds(), crs);
+        modelBounds = new Rectangle2D.Double(envelope.getMinX(), envelope.getMinY(),
+                                             envelope.getWidth(), envelope.getHeight());
         mapContext = new DefaultMapContext(crs);
         mapContext.addLayer(featureCollection, style);
         renderer = new StreamingRenderer();
         workaroundLabelCacheBug();
         style.accept(new RetrievingStyleVisitor());
         renderer.setContext(mapContext);
+    }
+
+    @Override
+    protected Rectangle2D getLayerModelBounds() {
+        return modelBounds;
     }
 
     public double getPolyFillOpacity() {
