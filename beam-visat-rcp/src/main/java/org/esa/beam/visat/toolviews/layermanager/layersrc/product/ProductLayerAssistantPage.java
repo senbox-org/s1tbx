@@ -3,6 +3,7 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.product;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.jidesoft.tree.AbstractTreeModel;
 import org.esa.beam.framework.datamodel.Band;
@@ -42,7 +43,7 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
     ProductLayerAssistantPage() {
         super("Select Band / Tie-Point Grid");
     }
-    
+
     @Override
     public Component createPageComponent() {
         ProductTreeModel model = createTreeModel(getContext().getAppContext());
@@ -86,11 +87,15 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
     public boolean performFinish() {
         final RasterDataNode rasterDataNode = (RasterDataNode) tree.getSelectionPath().getLastPathComponent();
 
-        BandImageMultiLevelSource bandImageMultiLevelSource = 
-            BandImageMultiLevelSource.create(rasterDataNode,ProgressMonitor.NULL);
+        BandImageMultiLevelSource bandImageMultiLevelSource =
+                BandImageMultiLevelSource.create(rasterDataNode, ProgressMonitor.NULL);
         final ImageLayer imageLayer = new ImageLayer(bandImageMultiLevelSource);
         imageLayer.setName(rasterDataNode.getDisplayName());
         imageLayer.setVisible(true);
+        final Style style = imageLayer.getStyle();
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
 
         ProductSceneView sceneView = getContext().getAppContext().getSelectedProductSceneView();
         Layer rootLayer = sceneView.getRootLayer();
@@ -104,6 +109,7 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
     }
 
     private static class CompatibleNodeList {
+
         private final String name;
         private final List<RasterDataNode> rasterDataNodes;
 

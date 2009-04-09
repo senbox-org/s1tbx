@@ -136,6 +136,10 @@
 
     <extension point="beam-visat-rcp:layerEditors">
         <layerEditor>
+            <editor>org.esa.beam.visat.toolviews.layermanager.editors.ImageLayerEditor</editor>
+            <layerType>com.bc.ceres.glayer.support.ImageLayer$Type</layerType>
+        </layerEditor>
+        <layerEditor>
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.PlacemarkLayerEditor</editor>
             <layerType>org.esa.beam.glayer.PlacemarkLayer$Type</layerType>
         </layerEditor>

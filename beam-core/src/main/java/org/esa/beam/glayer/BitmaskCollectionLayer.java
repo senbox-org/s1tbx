@@ -24,7 +24,6 @@ import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
-
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.Product;
@@ -41,18 +40,19 @@ import java.util.Map;
 
 
 public class BitmaskCollectionLayer extends CollectionLayer {
+
     private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
-    
+
     private final ProductNodeListener bitmaskDefListener;
     private final ProductNodeListener bitmaskOverlayInfoListener;
     private final AffineTransform i2mTransform;
-    
+
     private RasterDataNode rasterDataNode;
 
     public BitmaskCollectionLayer(RasterDataNode rasterDataNode, AffineTransform i2mTransform) {
         this(LAYER_TYPE, rasterDataNode, i2mTransform);
     }
-    
+
     protected BitmaskCollectionLayer(Type type, RasterDataNode rasterDataNode, AffineTransform i2mTransform) {
         super(type, "Bitmask collection");
         this.rasterDataNode = rasterDataNode;
@@ -90,7 +90,7 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         final String expr = bitmaskDef.getExpr();
 
         final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getProduct(), color, expr, false,
-                i2mTransform);
+                                                                                   i2mTransform);
 
         final Layer layer = new ImageLayer(multiLevelSource);
         layer.setName(bitmaskDef.getName());
@@ -101,6 +101,9 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         style.setOpacity(bitmaskDef.getAlpha());
         style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
         style.setComposite(layer.getStyle().getComposite());
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
         style.setDefaultStyle(layer.getStyle().getDefaultStyle());
         layer.setStyle(style);
 
@@ -108,6 +111,7 @@ public class BitmaskCollectionLayer extends CollectionLayer {
     }
 
     private class BitmaskDefListener implements ProductNodeListener {
+
         private final Layer bitmaskLayer;
         private final Map<BitmaskDef, Layer> layerMap;
 
@@ -182,6 +186,7 @@ public class BitmaskCollectionLayer extends CollectionLayer {
     }
 
     private class BitmaskOverlayInfoListener implements ProductNodeListener {
+
         private final Layer bitmaskLayer;
 
         private BitmaskOverlayInfoListener(Layer bitmaskLayer) {
@@ -193,7 +198,7 @@ public class BitmaskCollectionLayer extends CollectionLayer {
             final ProductNode sourceNode = event.getSourceNode();
 
             if (sourceNode == getRaster() &&
-                    RasterDataNode.PROPERTY_NAME_BITMASK_OVERLAY_INFO.equals(event.getPropertyName())) {
+                RasterDataNode.PROPERTY_NAME_BITMASK_OVERLAY_INFO.equals(event.getPropertyName())) {
                 final BitmaskOverlayInfo overlayInfo = getRaster().getBitmaskOverlayInfo();
                 final Product product = getProduct();
 
@@ -215,9 +220,9 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         public void nodeRemoved(ProductNodeEvent event) {
         }
     }
-    
+
     public static class Type extends CollectionLayer.Type {
-        
+
         @Override
         public String getName() {
             return "Bitmask Collection Layer";
@@ -234,7 +239,7 @@ public class BitmaskCollectionLayer extends CollectionLayer {
             AffineTransform i2m = (AffineTransform) configuration.get("i2mTransform");
             return new BitmaskCollectionLayer(rasterDataNode, i2m);
         }
-        
+
         @Override
         public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
             final HashMap<String, Object> configuration = new HashMap<String, Object>();

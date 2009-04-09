@@ -1,6 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.AppContext;
@@ -72,6 +73,11 @@ class WmsLayerWorker extends WmsWorker {
                 AffineTransform i2mTransform = new AffineTransform(g2mTransform);
                 i2mTransform.scale((double) sceneWidth / image.getWidth(), (double) sceneHeight / image.getHeight());
                 ImageLayer imageLayer = new ImageLayer(PlanarImage.wrapRenderedImage(image), i2mTransform);
+                final Style style = imageLayer.getStyle();
+                style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
+                style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
+                style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
+
                 imageLayer.setName(layer.getName());
                 rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), imageLayer);
             } catch (Exception e) {

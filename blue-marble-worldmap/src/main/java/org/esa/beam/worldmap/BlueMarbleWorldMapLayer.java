@@ -1,6 +1,7 @@
 package org.esa.beam.worldmap;
 
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.glevel.TiledFileMultiLevelSource;
@@ -49,7 +50,12 @@ public class BlueMarbleWorldMapLayer {
         final ImageLayer worldMapLayer = new ImageLayer(multiLevelSource);
         worldMapLayer.setName(WORLD_MAP_LAYER_NAME);
         worldMapLayer.setVisible(false);
-        worldMapLayer.getStyle().setOpacity(1.0);
+        final Style style = worldMapLayer.getStyle();
+        style.setOpacity(1.0);
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
+
         return worldMapLayer;
 
     }

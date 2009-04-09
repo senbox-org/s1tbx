@@ -309,6 +309,8 @@ public class ProductSceneImage implements LayerContext {
         style.setProperty("color", color);
         style.setOpacity(1.0 - transparency);
         style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
 
         style.setComposite(layer.getStyle().getComposite());
         style.setDefaultStyle(layer.getStyle().getDefaultStyle());
@@ -385,6 +387,8 @@ public class ProductSceneImage implements LayerContext {
         style.setProperty("color", color);
         style.setOpacity(1.0 - transparency);
         style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
 
         style.setComposite(layer.getStyle().getComposite());
         style.setDefaultStyle(layer.getStyle().getDefaultStyle());
