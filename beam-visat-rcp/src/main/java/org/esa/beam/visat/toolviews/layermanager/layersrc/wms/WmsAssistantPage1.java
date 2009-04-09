@@ -7,7 +7,6 @@ import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext
 import org.geotools.data.ows.WMSCapabilities;
 import org.geotools.data.wms.WebMapServer;
 
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -16,8 +15,6 @@ import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.net.URL;
@@ -99,7 +96,7 @@ class WmsAssistantPage1 extends AbstractLayerSourceAssistantPage {
         gbc.gridy++;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridwidth = 1;
-        history = new UserInputHistory(5, PROPERTY_WMS_HISTORY);
+        history = new UserInputHistory(8, PROPERTY_WMS_HISTORY);
         history.initBy(getContext().getAppContext().getPreferences());
         if (history.getNumEntries() == 0) {
             history.push("http://www.mapserver.niedersachsen.de/freezoneogc/mapserverogc");
@@ -110,15 +107,6 @@ class WmsAssistantPage1 extends AbstractLayerSourceAssistantPage {
         wmsUrlBox.setEditable(true);
         panel.add(wmsUrlBox, gbc);
         wmsUrlBox.addItemListener(new MyItemListener());
-
-        gbc.weightx = 0;
-        gbc.weighty = 0;
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.gridwidth = 1;
-        JButton button = new JButton("...");
-        button.addActionListener(new MyActionListener());
-        panel.add(button, gbc);
 
         return panel;
     }
@@ -135,16 +123,6 @@ class WmsAssistantPage1 extends AbstractLayerSourceAssistantPage {
         return wms;
     }
 
-    private class MyActionListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            // TODO Show WMS URL Manager
-            String url = "";
-            wmsUrlBox.setSelectedItem(url);
-            getContext().updateState();
-        }
-    }
 
     private class MyItemListener implements ItemListener {
 
