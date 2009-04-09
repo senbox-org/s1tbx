@@ -168,7 +168,6 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
             LayerSourcePageContext context = getContext();
             TreePath selectedLayerPath = layerTree.getSelectionModel().getSelectionPath();
             Layer selectedLayer = (Layer) selectedLayerPath.getLastPathComponent();
-            context.setPropertyValue(WmsLayerSource.PROPERTY_SELECTED_LAYER, selectedLayer);
             if (selectedLayer != null) {
                 infoLabel.setText(getLatLonBoundingBoxText(selectedLayer.getLatLonBoundingBox()));
                 String crsCode = getMatchingCRSCode(selectedLayer);
@@ -191,6 +190,7 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
                     } else {
                         context.setPropertyValue(WmsLayerSource.PROPERTY_SELECTED_STYLE, null);
                     }
+                    context.setPropertyValue(WmsLayerSource.PROPERTY_SELECTED_LAYER, selectedLayer);
                 }
             } else {
                 infoLabel.setText("");
