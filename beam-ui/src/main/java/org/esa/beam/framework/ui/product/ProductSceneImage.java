@@ -16,7 +16,6 @@ import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.glayer.BitmaskCollectionLayer;
@@ -213,10 +212,6 @@ public class ProductSceneImage implements LayerContext {
 
     private RasterDataNode getRaster() {
         return rasters[0];
-    }
-
-    private Product getProduct() {
-        return getRaster().getProduct();
     }
 
     private void initRootLayer() {
