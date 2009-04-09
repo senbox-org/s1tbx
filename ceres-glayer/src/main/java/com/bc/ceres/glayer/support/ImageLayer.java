@@ -2,9 +2,9 @@ package com.bc.ceres.glayer.support;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.Style;
-import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glevel.MultiLevelRenderer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.ConcurrentMultiLevelRenderer;
@@ -15,12 +15,19 @@ import com.bc.ceres.grender.InteractiveRendering;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A multi-resolution capable image layer.
@@ -28,7 +35,8 @@ import java.util.HashMap;
  * @author Norman Fomferra
  */
 public class ImageLayer extends Layer {
-    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
+
+    private static final LayerType LAYER_TYPE = LayerType.getLayerType(Type.class.getName());
 
     public static final String PROPERTY_NAME_BORDER_SHOWN = "border.shown";
     public static final String PROPERTY_NAME_BORDER_WIDTH = "border.width";
@@ -71,7 +79,8 @@ public class ImageLayer extends Layer {
     public ImageLayer(RenderedImage image, AffineTransform imageToModelTransform, int levelCount) {
         this(new DefaultMultiLevelSource(image,
                                          new DefaultMultiLevelModel(levelCount, imageToModelTransform,
-                                                                    DefaultMultiLevelModel.getModelBounds(imageToModelTransform, image))
+                                                                    DefaultMultiLevelModel.getModelBounds(
+                                                                            imageToModelTransform, image))
         ));
     }
 
@@ -197,7 +206,8 @@ public class ImageLayer extends Layer {
             AffineTransform i2m = multiLevelSource.getModel().getImageToModelTransform(level);
             AffineTransform m2v = viewport.getModelToViewTransform();
             RenderedImage image = multiLevelSource.getImage(level);
-            final Shape modelShape = i2m.createTransformedShape(new Rectangle(image.getMinX(), image.getMinY(), image.getWidth(), image.getHeight()));
+            final Shape modelShape = i2m.createTransformedShape(
+                    new Rectangle(image.getMinX(), image.getMinY(), image.getWidth(), image.getHeight()));
             Shape viewShape = m2v.createTransformedShape(modelShape);
 
             graphics2D.setStroke(new BasicStroke((float) Math.max(0.0, getBorderWidth())));
@@ -272,6 +282,7 @@ public class ImageLayer extends Layer {
     }
 
     public static class Type extends LayerType {
+
         @Override
         public String getName() {
             return "Image Layer";
