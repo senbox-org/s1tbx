@@ -34,8 +34,11 @@ class WmsAssistantPage1 extends AbstractLayerSourceAssistantPage {
 
     @Override
     public boolean validatePage() {
-        String wmsUrl = wmsUrlBox.getSelectedItem().toString();
-        return wmsUrl != null && !wmsUrl.trim().isEmpty();
+        if (wmsUrlBox.getSelectedItem() != null) {
+            String wmsUrl = wmsUrlBox.getSelectedItem().toString();
+            return wmsUrl != null && !wmsUrl.trim().isEmpty();
+        }
+        return false;
     }
 
     @Override
