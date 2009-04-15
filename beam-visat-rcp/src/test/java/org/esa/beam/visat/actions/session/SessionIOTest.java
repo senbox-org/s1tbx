@@ -4,26 +4,20 @@ import com.bc.ceres.binding.ClassFieldDescriptorFactory;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
-import com.bc.ceres.binding.dom.DomElementConverter;
+import com.bc.ceres.binding.dom.DomElementXStreamConverter;
 import com.bc.ceres.binding.dom.Xpp3DomElement;
-import com.bc.ceres.binding.dom.AbstractDomConverter;
 import com.bc.ceres.core.ExtensionManager;
 import com.bc.ceres.core.SingleTypeExtensionFactory;
-import com.bc.ceres.core.ExtensionFactory;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glevel.MultiLevelSource;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import junit.framework.TestCase;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.glayer.GraticuleLayer;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -34,8 +28,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
 
 public class SessionIOTest extends TestCase {
 
@@ -169,7 +161,7 @@ public class SessionIOTest extends TestCase {
         public void write(Layer layer, Writer writer, DomConverter domConverter) {
             initIO();
 
-            final Xpp3DomElement configuration = Xpp3DomElement.createDomElement("configuration");
+            final Xpp3DomElement configuration = new Xpp3DomElement("configuration");
             domConverter.convertValueToDom(layer, configuration);
 
             final LayerMemento memento = new LayerMemento(layer.getLayerType().getName(), configuration);
@@ -206,7 +198,7 @@ public class SessionIOTest extends TestCase {
         @XStreamAlias("type")
         private String typeName;
 
-        @XStreamConverter(DomElementConverter.class)
+        @XStreamConverter(DomElementXStreamConverter.class)
         private DomElement configuration;
 
         LayerMemento(String typeName, DomElement configuration) {
@@ -237,7 +229,7 @@ public class SessionIOTest extends TestCase {
         public void write(RestaurantLayer layer, Writer writer) {
             initIO();
 
-            final Xpp3DomElement configuration = Xpp3DomElement.createDomElement("configuration");
+            final Xpp3DomElement configuration = new Xpp3DomElement("configuration");
             dc.convertValueToDom(layer, configuration);
 
             final Memento memento = new Memento("restaurants", configuration);
@@ -278,7 +270,7 @@ public class SessionIOTest extends TestCase {
             @XStreamAlias("type")
             private final String typeName;
 
-            @XStreamConverter(DomElementConverter.class)
+            @XStreamConverter(DomElementXStreamConverter.class)
             private final DomElement configuration;
 
             public DomElement getConfiguration() {

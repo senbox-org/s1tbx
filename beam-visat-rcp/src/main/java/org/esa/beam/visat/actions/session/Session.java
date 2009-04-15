@@ -10,13 +10,11 @@ import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
-import com.bc.ceres.binding.dom.DomElementConverter;
+import com.bc.ceres.binding.dom.DomElementXStreamConverter;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
-import com.bc.ceres.glayer.Style;
-import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.grender.Viewport;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
@@ -342,7 +340,7 @@ public class Session {
         final String id;
         final String name;
         final boolean visible;
-        @XStreamConverter(DomElementConverter.class)
+        @XStreamConverter(DomElementXStreamConverter.class)
         final DomElement configuration;
         final LayerRef[] children;
         

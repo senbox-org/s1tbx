@@ -16,29 +16,53 @@
  */
 package org.esa.beam.framework.gpf.internal;
 
-import com.bc.ceres.binding.*;
+import com.bc.ceres.binding.ClassFieldDescriptorFactory;
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.Xpp3DomElement;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.gpf.*;
-import org.esa.beam.framework.gpf.annotations.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.gpf.annotations.TargetProperty;
 import org.esa.beam.framework.gpf.graph.GraphOp;
-import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration.Reference;
 import org.esa.beam.util.jai.JAIUtils;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -380,7 +404,7 @@ public class OperatorContext {
         final DefaultDomConverter domConverter = new DefaultDomConverter(context.operator.getClass(),
                                                                          new ParameterDescriptorFactory(
                                                                                  sourceProductMap));
-        final Xpp3DomElement parametersDom = Xpp3DomElement.createDomElement("parameters");
+        final Xpp3DomElement parametersDom = new Xpp3DomElement("parameters");
         domConverter.convertValueToDom(context.operator, parametersDom);
         final MetadataElement targetParametersME = new MetadataElement("parameters");
         addDomToMetadata(parametersDom, targetParametersME);

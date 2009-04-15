@@ -12,7 +12,7 @@ import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
-import com.bc.ceres.binding.dom.DomElementConverter;
+import com.bc.ceres.binding.dom.DomElementXStreamConverter;
 import com.bc.ceres.binding.dom.Xpp3DomElement;
 import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.core.ProgressMonitor;
@@ -109,7 +109,7 @@ public class LayerIOTest extends TestCase {
 
         // 2. Write configuration to XML
         final ValueContainerConverter dc = new ValueContainerConverter();
-        final DomElement domElement1 = Xpp3DomElement.createDomElement("configuration");
+        final DomElement domElement1 = new Xpp3DomElement("configuration");
         dc.convertValueContainerToDom(configuration1, domElement1);
 
         final M m1 = new M("T", domElement1);
@@ -122,7 +122,7 @@ public class LayerIOTest extends TestCase {
         System.out.println(xml);
 
         // 3. Read configuration from XML
-        xs.registerConverter(new DomElementConverter());
+        xs.registerConverter(new DomElementXStreamConverter());
         xs.alias("configuration", DomElement.class, Xpp3DomElement.class);
         final Object obj = xs.fromXML(xml);
         assertTrue(obj instanceof M);
@@ -145,7 +145,7 @@ public class LayerIOTest extends TestCase {
         @XStreamAlias("type")
         private final String typeName;
 
-        @XStreamConverter(DomElementConverter.class)
+        @XStreamConverter(DomElementXStreamConverter.class)
         private final DomElement configuration;
 
         M(String typeName, DomElement configuration) {
@@ -239,7 +239,7 @@ public class LayerIOTest extends TestCase {
         final ValueContainer vc = ValueContainer.createObjectBacked(testPojo);
 
         final ValueContainerConverter dc = new ValueContainerConverter();
-        final DomElement domElement = Xpp3DomElement.createDomElement("configuration");
+        final DomElement domElement = new Xpp3DomElement("configuration");
 
         dc.convertValueContainerToDom(vc, domElement);
 

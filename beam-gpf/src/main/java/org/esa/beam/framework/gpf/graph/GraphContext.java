@@ -1,6 +1,5 @@
 package org.esa.beam.framework.gpf.graph;
 
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.Xpp3DomElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -191,7 +190,7 @@ public class GraphContext {
         if (domElement == null) {
             return null;
         }
-        DomElement resolvedElement = Xpp3DomElement.createDomElement(domElement.getName());
+        DomElement resolvedElement = new Xpp3DomElement(domElement.getName());
         Set<OperatorConfiguration.Reference> references = new HashSet<OperatorConfiguration.Reference>(17);
         DomElement[] children = domElement.getChildren();
 

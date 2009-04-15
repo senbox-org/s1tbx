@@ -385,7 +385,7 @@ class CommandLineUsage {
 
     private static void appendXmlUsage(StringBuilder usageText, OperatorClassDescriptor operatorClassDescriptor) {
 
-        final DomElement graphElem = Xpp3DomElement.createDomElement("graph");
+        final DomElement graphElem = new Xpp3DomElement("graph");
         graphElem.setAttribute("id", "someGraphId");
         final DomElement nodeElem = graphElem.createChild("node");
         nodeElem.setAttribute("id", "someNodeId");

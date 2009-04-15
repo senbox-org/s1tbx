@@ -1,10 +1,9 @@
 package org.esa.beam.framework.gpf.graph;
 
-import com.bc.ceres.binding.dom.DomElementConverter;
+import com.bc.ceres.binding.dom.DomElementXStreamConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.util.TemplateReader;
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.gpf.internal.ApplicationData;
 
 import java.io.Reader;
@@ -106,7 +105,7 @@ public class GraphIO {
 
         xStream.alias("parameters", DomElement.class);
         xStream.aliasField("parameters", Node.class, "configuration");
-        xStream.registerConverter(new DomElementConverter());
+        xStream.registerConverter(new DomElementXStreamConverter());
 
         xStream.alias("applicationData", ApplicationData.class);
         xStream.addImplicitCollection(Graph.class, "applicationData", ApplicationData.class);
