@@ -1,9 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager.editors;
 
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.swing.TableLayout;
-
 import org.esa.beam.visat.toolviews.layermanager.LayerEditor;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayer;
 
@@ -34,7 +32,8 @@ public class FeatureLayerEditor implements LayerEditor {
 
 
     @Override
-    public JComponent createControl() {
+    public JComponent createControl(Layer layer) {
+        currentLayer = (FeatureLayer) layer;
         Hashtable sliderLabelTable = new Hashtable();
         sliderLabelTable.put(0, createSliderLabel("0%"));
         sliderLabelTable.put(127, createSliderLabel("50%"));
@@ -106,13 +105,9 @@ public class FeatureLayerEditor implements LayerEditor {
     }
 
     @Override
-    public void updateControl(Layer selectedLayer) {
-        LayerType layerType = selectedLayer.getLayerType();
-        if (layerType instanceof FeatureLayer.Type && currentLayer != selectedLayer) {
-            currentLayer = (FeatureLayer) selectedLayer;
-            polyFillOpacity.setValue((int) (currentLayer.getPolyFillOpacity() * 255));
-            polyStrokeOpacity.setValue((int) (currentLayer.getPolyStrokeOpacity() * 255));
-            textOpacity.setValue((int) (currentLayer.getTextOpacity() * 255));
-        }
+    public void updateControl() {
+        polyFillOpacity.setValue((int) (currentLayer.getPolyFillOpacity() * 255));
+        polyStrokeOpacity.setValue((int) (currentLayer.getPolyStrokeOpacity() * 255));
+        textOpacity.setValue((int) (currentLayer.getTextOpacity() * 255));
     }
 }

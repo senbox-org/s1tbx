@@ -12,7 +12,19 @@ import javax.swing.JComponent;
  * @since BEAM 4.6
  */
 public interface LayerEditor {
-    JComponent createControl();
 
-    void updateControl(Layer selectedLayer);
+    /**
+     * Creates the control for the user interface which is displayed
+     * in the Layer Editor Toolview.
+     *
+     * @param layer The layer to create the control for.
+     *
+     * @return The control.
+     */
+    JComponent createControl(Layer layer);
+
+    /**
+     * It is called whenever the control must be updated.
+     */
+    void updateControl();
 }

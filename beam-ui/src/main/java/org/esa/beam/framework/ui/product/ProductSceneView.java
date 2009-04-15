@@ -85,7 +85,7 @@ import java.util.Vector;
  * dataset.
  *
  * @author Norman Fomferra
- * @version $revision$ $date$
+ * @version $ Revision: $ $ Date: $
  */
 public class ProductSceneView extends BasicView
         implements ProductNodeView, DrawingEditor, PropertyMapChangeListener, PixelInfoFactory {
@@ -485,7 +485,7 @@ public class ProductSceneView extends BasicView
     }
 
     public boolean isNoDataOverlayEnabled() {
-        final ImageLayer noDataLayer = getNoDataLayer(false);
+        final Layer noDataLayer = getNoDataLayer(false);
         return noDataLayer != null && noDataLayer.isVisible();
     }
 
@@ -649,10 +649,6 @@ public class ProductSceneView extends BasicView
         final ImageLayer imageLayer = getBaseImageLayer();
         if (imageLayer != null) {
             ProductSceneImage.setBaseImageLayerStyle(configuration, imageLayer);
-        }
-        final Layer noDataLayer = getNoDataLayer(false);
-        if (noDataLayer != null) {
-            ProductSceneImage.setNoDataLayerStyle(configuration, noDataLayer);
         }
         final Layer roiLayer = getRoiLayer(false);
         if (roiLayer != null) {
@@ -928,12 +924,13 @@ public class ProductSceneView extends BasicView
 
     // used by PropertyEditor
     public void updateNoDataImage() {
+        // change configuration of layer ; not setting MultiLevelSource
         final String expression = getRaster().getValidMaskExpression();
-        final ImageLayer noDataLayer = getNoDataLayer(false);
+        final ImageLayer noDataLayer = (ImageLayer) getNoDataLayer(false);
         if (noDataLayer != null) {
             if (expression != null) {
                 final Style style = noDataLayer.getStyle();
-                final Color color = (Color) style.getProperty("color");
+                final Color color = (Color) style.getProperty("noDataOverlay.color");
                 final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(),
                                                                                            color, expression, true,
                                                                                            getBaseImageLayer().getImageToModelTransform());
@@ -1049,7 +1046,7 @@ public class ProductSceneView extends BasicView
         }
     }
 
-    private ImageLayer getNoDataLayer(boolean create) {
+    private Layer getNoDataLayer(boolean create) {
         return getSceneImage().getNoDataLayer(create);
     }
 

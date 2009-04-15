@@ -5,6 +5,7 @@ import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerFilter;
+import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.glayer.support.ImageLayer;
@@ -21,6 +22,7 @@ import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.glayer.BitmaskCollectionLayer;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
+import org.esa.beam.glayer.NoDataLayerType;
 import org.esa.beam.glayer.PlacemarkLayer;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
@@ -30,6 +32,7 @@ import org.esa.beam.util.PropertyMap;
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
+import java.util.HashMap;
 
 
 public class ProductSceneImage implements LayerContext {
@@ -147,8 +150,8 @@ public class ProductSceneImage implements LayerContext {
         return (ImageLayer) getLayer(ProductSceneView.BASE_IMAGE_LAYER_ID);
     }
 
-    ImageLayer getNoDataLayer(boolean create) {
-        ImageLayer layer = (ImageLayer) getLayer(ProductSceneView.NO_DATA_LAYER_ID);
+    Layer getNoDataLayer(boolean create) {
+        Layer layer = getLayer(ProductSceneView.NO_DATA_LAYER_ID);
         if (layer == null && create) {
             layer = createNoDataLayer(getImageToModelTransform());
             addLayer(getFirstImageLayerIndex(), layer);
@@ -273,49 +276,22 @@ public class ProductSceneImage implements LayerContext {
         layer.setStyle(style);
     }
 
-    private ImageLayer createNoDataLayer(AffineTransform imageToModelTransform) {
-        final MultiLevelSource multiLevelSource;
+    private Layer createNoDataLayer(AffineTransform imageToModelTransform) {
+        final LayerType noDatatype = LayerType.getLayerType(NoDataLayerType.class.getName());
 
-        if (getRaster().getValidMaskExpression() != null) {
-            final Color color = configuration.getPropertyColor("noDataOverlay.color", Color.ORANGE);
-            multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(), color,
-                                                                getRaster().getValidMaskExpression(), true,
-                                                                imageToModelTransform);
-        } else {
-            multiLevelSource = MultiLevelSource.NULL;
-        }
+        final HashMap<String, Object> map = new HashMap<String, Object>();
+        final Color color = configuration.getPropertyColor("noDataOverlay.color", Color.ORANGE);
+        map.put("noDataOverlay.color", color);
+        map.put("noDataOverlay.referencedRaster", getRaster());
+        map.put("noDataOverlay.imageToModelTransform", imageToModelTransform);
 
-        final ImageLayer noDataLayer = new ImageLayer(multiLevelSource);
-        noDataLayer.setName("No-data mask");
-        noDataLayer.setId(ProductSceneView.NO_DATA_LAYER_ID);
-        noDataLayer.setVisible(false);
-        setNoDataLayerStyle(configuration, noDataLayer);
-        noDataLayer.addListener(new ColorStyleListener());
-
-        return noDataLayer;
+        return noDatatype.createLayer(this, map);
     }
 
     private Layer createBitmaskCollectionLayer(AffineTransform i2mTransform) {
         BitmaskCollectionLayer layer = new BitmaskCollectionLayer(getRaster(), i2mTransform);
         layer.setId(ProductSceneView.BITMASK_LAYER_ID);
         return layer;
-    }
-
-    static void setNoDataLayerStyle(PropertyMap configuration, Layer layer) {
-        final Color color = configuration.getPropertyColor("noDataOverlay.color", Color.ORANGE);
-        final double transparency = configuration.getPropertyDouble("noDataOverlay.transparency", 0.3);
-
-        final Style style = new DefaultStyle();
-        style.setProperty("color", color);
-        style.setOpacity(1.0 - transparency);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
-
-        style.setComposite(layer.getStyle().getComposite());
-        style.setDefaultStyle(layer.getStyle().getDefaultStyle());
-
-        layer.setStyle(style);
     }
 
     private FigureLayer createFigureLayer(AffineTransform i2mTransform) {
@@ -514,8 +490,9 @@ public class ProductSceneImage implements LayerContext {
 
         @Override
         public void handleLayerStylePropertyChanged(Layer layer, PropertyChangeEvent event) {
-            if ("color".equals(event.getPropertyName())) {
-                final Color color = (Color) layer.getStyle().getProperty("color");
+            if ("roi.color".equals(event.getPropertyName())) {
+
+                final Color color = (Color) layer.getStyle().getProperty(event.getPropertyName());
                 final ImageLayer imageLayer = (ImageLayer) layer;
                 imageLayer.setMultiLevelSource(
                         MaskImageMultiLevelSource.create(getRaster().getProduct(), color,

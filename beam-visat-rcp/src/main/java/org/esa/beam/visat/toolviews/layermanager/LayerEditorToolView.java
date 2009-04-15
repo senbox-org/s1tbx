@@ -57,7 +57,7 @@ public class LayerEditorToolView extends AbstractLayerToolView {
             activeEditor = nullLayerEditor;
             getDescriptor().setTitle("Layer Editor");
         }
-        controlPanel.add(activeEditor.createControl(), BorderLayout.CENTER);
+        controlPanel.add(activeEditor.createControl(newLayer), BorderLayout.CENTER);
         updateEditorControl();
 
         controlPanel.validate();
@@ -81,7 +81,7 @@ public class LayerEditorToolView extends AbstractLayerToolView {
 
     private void updateEditorControl() {
         if (activeEditor != null) {
-            activeEditor.updateControl(getSelectedLayer());
+            activeEditor.updateControl();
         }
     }
 
@@ -111,12 +111,12 @@ public class LayerEditorToolView extends AbstractLayerToolView {
     private static class NullLayerEditor implements LayerEditor {
 
         @Override
-        public JComponent createControl() {
+        public JComponent createControl(Layer layer) {
             return new JLabel("No editor available.");
         }
 
         @Override
-        public void updateControl(Layer selectedLayer) {
+        public void updateControl() {
         }
     }
 }

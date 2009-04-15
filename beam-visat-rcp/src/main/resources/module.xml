@@ -140,6 +140,10 @@
             <layerType>com.bc.ceres.glayer.support.ImageLayer$Type</layerType>
         </layerEditor>
         <layerEditor>
+            <editor>org.esa.beam.visat.toolviews.layermanager.editors.NoDataLayerEditor</editor>
+            <layerType>org.esa.beam.glayer.NoDataLayerType</layerType>
+        </layerEditor>
+        <layerEditor>
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.PlacemarkLayerEditor</editor>
             <layerType>org.esa.beam.glayer.PlacemarkLayer$Type</layerType>
         </layerEditor>
