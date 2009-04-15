@@ -76,8 +76,8 @@ public class ValueRange {
                         String s2 = text.substring(d + 1, text.length() - 1).trim();
                         try {
                             return new ValueRange(
-                                    s1.equals("*") ? Double.NEGATIVE_INFINITY : new Double(ValueRange.trimNumberString(s1)),
-                                    s2.equals("*") ? Double.POSITIVE_INFINITY : new Double(ValueRange.trimNumberString(s2)),
+                                    s1.equals("*") ? Double.NEGATIVE_INFINITY : Double.valueOf(ValueRange.trimNumberString(s1)),
+                                    s2.equals("*") ? Double.POSITIVE_INFINITY : Double.valueOf(ValueRange.trimNumberString(s2)),
                                     c1 == '[', c2 == ']');
                         } catch (NumberFormatException e) {
                             throw new IllegalArgumentException("Invalid number format in interval.");
