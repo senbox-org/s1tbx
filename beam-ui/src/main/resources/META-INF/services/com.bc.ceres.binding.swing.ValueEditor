@@ -1,1 +1,2 @@
 org.esa.beam.framework.ui.ColorEditor
+org.esa.beam.framework.ui.product.ExpressionEditor
