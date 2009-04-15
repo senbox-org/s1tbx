@@ -16,6 +16,7 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.glevel.MultiLevelSource;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import org.esa.beam.framework.dataio.ProductIO;
@@ -127,10 +128,10 @@ public class Session {
             final DomConverter dc = new DefaultDomConverter(Map.class, factory) {
                 @Override
                 protected ValueContainer getValueContainer(Object value) {
-                    if (!(value instanceof Map)) {
-                        return super.getValueContainer(value);
+                    if (value == configuration) {
+                        return ValueContainer.createMapBacked((Map<String, Object>) value);
                     }
-                    return ValueContainer.createMapBacked((Map<String, Object>) value);
+                    return super.getValueContainer(value);
                 }
             };
             final DefaultDomElement element = new DefaultDomElement("configuration");
@@ -377,7 +378,7 @@ public class Session {
         }
     }
 
-    // TODO: implement converters - without converters doom converter recurrs infinitely
+    // TODO: implement converters - without converters dom converter recurrs infinitely
     private static void registerConverters() {
         ConverterRegistry.getInstance().setConverter(RasterDataNode.class, new Converter<RasterDataNode>(){
             @Override
