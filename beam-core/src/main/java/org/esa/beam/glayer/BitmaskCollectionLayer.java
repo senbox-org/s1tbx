@@ -99,7 +99,6 @@ public class BitmaskCollectionLayer extends CollectionLayer {
 
         final Style style = new DefaultStyle();
         style.setOpacity(bitmaskDef.getAlpha());
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
         style.setComposite(layer.getStyle().getComposite());
         style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
         style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
