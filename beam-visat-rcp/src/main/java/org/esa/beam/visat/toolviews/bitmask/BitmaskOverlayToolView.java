@@ -620,38 +620,6 @@ public class BitmaskOverlayToolView extends AbstractToolView {
                 return null;
             }
         }
-
-//        BitmaskDefEditDialog dialog = new BitmaskDefEditDialog(this, dialogTitle);
-//        dialog.getBitmaskNameParam().setValue(name, null);
-//        dialog.getBitmaskDescParam().setValue(desc, null);
-//        dialog.getBitmaskExprParam().setValue(expr, null);
-//        dialog.getBitmaskColorParam().setValue(color, null);
-//        dialog.getBitmaskTransparencyParam().setValue(new Float(transp), null);
-
-//        if (product != null) {
-//            String[] flagNames = product.getAllFlagNames();
-//            dialog.getBitmaskExprParam().getProperties().setValueSet(flagNames);
-
-//        }
-//        while (true) {
-//            if (dialog.show() == ModalDialog.ID_OK) {
-//                name = (String) dialog.getBitmaskNameParam().getValue();
-//                desc = (String) dialog.getBitmaskDescParam().getValue();
-//                expr = (String) dialog.getBitmaskExprParam().getValue();
-//                color = (Color) dialog.getBitmaskColorParam().getValue();
-//                transp = ((Number) dialog.getBitmaskTransparencyParam().getValue()).floatValue();
-//            } else {
-//                return null;
-//            }
-//            if (mustNotExist && bitmaskDefTable.getRowIndex(name) != -1) {
-//                showErrorDialog("A bitmask with the name '" + name + "' already exists.\n" +
-//                                "Please choose another one.");
-//            } else {
-//                break;
-//            }
-//        }
-//
-//        return new BitmaskDef(name, desc, expr, color, transp);
     }
 
     private String getUniqueDefaultName(final String nameBase) {
