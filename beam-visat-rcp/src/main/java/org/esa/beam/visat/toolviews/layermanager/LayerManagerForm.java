@@ -35,6 +35,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
+import java.util.List;
 
 class LayerManagerForm extends AbstractLayerForm {
 
@@ -177,6 +178,12 @@ class LayerManagerForm extends AbstractLayerForm {
                 checkBoxTreeSelectionModel.addSelectionPath(new TreePath(layerPath));
             } else {
                 checkBoxTreeSelectionModel.removeSelectionPath(new TreePath(layerPath));
+            }
+            final List<Layer> children = layer.getChildren();
+            if (!children.isEmpty()) {
+                for (Layer child : children) {
+                    updateLayerTreeVisibility(child);
+                }
             }
         }
     }
