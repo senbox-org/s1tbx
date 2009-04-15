@@ -17,9 +17,9 @@
 
 package org.esa.beam.visat;
 
+import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.swing.update.ConnectionConfigData;
 import com.bc.ceres.swing.update.ConnectionConfigPane;
-import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamExceptionHandler;
@@ -45,7 +45,17 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridBagConstraints;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 
 public class VisatPreferencesDialog extends ConfigDialog {
 
@@ -389,6 +399,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
     }
 
     public static class RepositoryConnectionConfigPage extends DefaultConfigPage {
+
         private ConnectionConfigData connectionConfigData;
         private ConnectionConfigPane connectionConfigPane;
 
@@ -1372,11 +1383,11 @@ public class VisatPreferencesDialog extends ConfigDialog {
         protected void initConfigParams(ParamGroup configParams) {
             Parameter param;
 
-            param = new Parameter("roi.color", Color.red);
+            param = new Parameter("roiOverlay.color", Color.RED);
             param.getProperties().setLabel("ROI colour"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter("roi.transparency", 0.5);
+            param = new Parameter("roiOverlay.transparency", 0.5);
             param.getProperties().setLabel("ROI transparency"); /*I18N*/
             param.getProperties().setMinValue(0.0);
             param.getProperties().setMaxValue(0.95);
@@ -1399,7 +1410,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             GridBagConstraints gbc = GridBagUtils.createConstraints("fill=HORIZONTAL,anchor=WEST");
             gbc.gridy = 0;
 
-            param = getConfigParam("roi.color");
+            param = getConfigParam("roiOverlay.color");
             gbc.weightx = 0;
             pageUI.add(param.getEditor().getLabelComponent(), gbc);
             gbc.weightx = 1;
@@ -1408,7 +1419,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
 
             gbc.insets.top = _LINE_INSET_TOP;
 
-            param = getConfigParam("roi.transparency");
+            param = getConfigParam("roiOverlay.transparency");
             gbc.weightx = 0;
             pageUI.add(param.getEditor().getLabelComponent(), gbc);
             gbc.weightx = 1;
@@ -1591,7 +1602,8 @@ public class VisatPreferencesDialog extends ConfigDialog {
 
             gbc.gridwidth = 2;
             gbc.insets.top = 25;
-            final JLabel label = new JLabel("Note: changes on this page are not effective until restart of " + getApp().getAppName());
+            final JLabel label = new JLabel(
+                    "Note: changes on this page are not effective until restart of " + getApp().getAppName());
             configureNoteLabel(label);
             logConfigPane.add(label, gbc);
             gbc.gridy++;

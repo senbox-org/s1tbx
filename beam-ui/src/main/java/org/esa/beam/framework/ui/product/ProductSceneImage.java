@@ -9,9 +9,7 @@ import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glayer.support.LayerStyleListener;
 import com.bc.ceres.glayer.support.LayerUtils;
-import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
@@ -24,14 +22,12 @@ import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glayer.NoDataLayerType;
 import org.esa.beam.glayer.PlacemarkLayer;
+import org.esa.beam.glayer.RoiLayerType;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
-import org.esa.beam.glevel.MaskImageMultiLevelSource;
-import org.esa.beam.glevel.RoiImageMultiLevelSource;
 import org.esa.beam.util.PropertyMap;
 
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
-import java.beans.PropertyChangeEvent;
 import java.util.HashMap;
 
 
@@ -336,40 +332,17 @@ public class ProductSceneImage implements LayerContext {
     }
 
     private ImageLayer createRoiLayer(AffineTransform imageToModelTransform) {
-        final MultiLevelSource multiLevelSource;
+        final LayerType roiLayerType = LayerType.getLayerType(RoiLayerType.class.getName());
 
-        if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
-            final Color color = configuration.getPropertyColor("roi.color", Color.RED);
-            multiLevelSource = RoiImageMultiLevelSource.create(getRaster(), color, imageToModelTransform);
-        } else {
-            multiLevelSource = MultiLevelSource.NULL;
-        }
+        final HashMap<String, Object> map = new HashMap<String, Object>();
+        final Color color = configuration.getPropertyColor("roiOverlay.color", Color.RED);
+        final double transparency = configuration.getPropertyDouble("roiOverlay.transparency", 0.5);
+        map.put("roiOverlay.color", color);
+        map.put("roiOverlay.transparency", transparency);
+        map.put("roiOverlay.referencedRaster", getRaster());
+        map.put("roiOverlay.imageToModelTransform", imageToModelTransform);
 
-        final ImageLayer roiLayer = new ImageLayer(multiLevelSource);
-        roiLayer.setName("ROI");
-        roiLayer.setId(ProductSceneView.ROI_LAYER_ID);
-        roiLayer.setVisible(false);
-        setRoiLayerStyle(configuration, roiLayer);
-        roiLayer.addListener(new ColorStyleListener());
-
-        return roiLayer;
-    }
-
-    public static void setRoiLayerStyle(PropertyMap configuration, Layer layer) {
-        final Color color = configuration.getPropertyColor("roi.color", Color.RED);
-        final double transparency = configuration.getPropertyDouble("roi.transparency", 0.5);
-
-        final Style style = new DefaultStyle();
-        style.setProperty("color", color);
-        style.setOpacity(1.0 - transparency);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
-
-        style.setComposite(layer.getStyle().getComposite());
-        style.setDefaultStyle(layer.getStyle().getDefaultStyle());
-
-        layer.setStyle(style);
+        return (ImageLayer) roiLayerType.createLayer(this, map);
     }
 
     private GraticuleLayer createGraticuleLayer(AffineTransform i2mTransform) {
@@ -484,22 +457,6 @@ public class ProductSceneImage implements LayerContext {
 
     private BandImageMultiLevelSource getBandImageMultiLevelSource() {
         return bandImageMultiLevelSource;
-    }
-
-    private class ColorStyleListener extends LayerStyleListener {
-
-        @Override
-        public void handleLayerStylePropertyChanged(Layer layer, PropertyChangeEvent event) {
-            if ("roi.color".equals(event.getPropertyName())) {
-
-                final Color color = (Color) layer.getStyle().getProperty(event.getPropertyName());
-                final ImageLayer imageLayer = (ImageLayer) layer;
-                imageLayer.setMultiLevelSource(
-                        MaskImageMultiLevelSource.create(getRaster().getProduct(), color,
-                                                         getRaster().getValidMaskExpression(), true,
-                                                         imageLayer.getImageToModelTransform()));
-            }
-        }
     }
 
     private static class ImageLayerFilter implements LayerFilter {

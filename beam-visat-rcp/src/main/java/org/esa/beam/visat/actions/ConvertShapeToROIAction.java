@@ -44,8 +44,10 @@ public class ConvertShapeToROIAction extends ExecCommand {
         roiDefinition.setShapeEnabled(true);
         roiDefinition.setShapeFigure(roiShapeFigure);
 
-        productSceneView.setROIOverlayEnabled(true);
+        // set first the roi definition and the enable the layer,
+        // otherwise it will be initially empty
         productSceneView.getRaster().setROIDefinition(roiDefinition);
+        productSceneView.setROIOverlayEnabled(true);
         VisatApp visatApp = VisatApp.getApp();
         final int status = visatApp.showQuestionDialog("Shape To ROI",
                                                        "The shape has been been successfully converted to a ROI.\n" +

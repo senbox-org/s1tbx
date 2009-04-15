@@ -144,6 +144,10 @@
             <layerType>org.esa.beam.glayer.NoDataLayerType</layerType>
         </layerEditor>
         <layerEditor>
+            <editor>org.esa.beam.visat.toolviews.layermanager.editors.RoiLayerEditor</editor>
+            <layerType>org.esa.beam.glayer.RoiLayerType</layerType>
+        </layerEditor>
+        <layerEditor>
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.PlacemarkLayerEditor</editor>
             <layerType>org.esa.beam.glayer.PlacemarkLayer$Type</layerType>
         </layerEditor>

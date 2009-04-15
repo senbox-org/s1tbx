@@ -555,7 +555,7 @@ public class ProductSceneView extends BasicView
     }
 
     public boolean isROIOverlayEnabled() {
-        final ImageLayer roiLayer = getRoiLayer(false);
+        final Layer roiLayer = getRoiLayer(false);
         return roiLayer != null && roiLayer.isVisible();
     }
 
@@ -649,10 +649,6 @@ public class ProductSceneView extends BasicView
         final ImageLayer imageLayer = getBaseImageLayer();
         if (imageLayer != null) {
             ProductSceneImage.setBaseImageLayerStyle(configuration, imageLayer);
-        }
-        final Layer roiLayer = getRoiLayer(false);
-        if (roiLayer != null) {
-            ProductSceneImage.setRoiLayerStyle(configuration, roiLayer);
         }
         final Layer pinLayer = getPinLayer(false);
         if (pinLayer != null) {
