@@ -54,10 +54,11 @@ public class ValueEditorRegistryTest extends TestCase {
     
     public void testFindValueEditor_SpecifiedEditor() throws Exception {
         ValueDescriptor descriptor = new ValueDescriptor("test", Double.class);
-        descriptor.setProperty("valueEditor", CheckBoxEditor.class.getName());
+        CheckBoxEditor checkBoxEditor = new CheckBoxEditor();
+        descriptor.setProperty("valueEditor", checkBoxEditor);
         ValueEditor valueEditor = ValueEditorRegistry.findValueEditor(descriptor);
         assertNotNull(valueEditor);
-        assertSame(CheckBoxEditor.class, valueEditor.getClass());
+        assertSame(checkBoxEditor, valueEditor);
     }
     
     public void testFindValueEditor_MatchingEditor() throws Exception {

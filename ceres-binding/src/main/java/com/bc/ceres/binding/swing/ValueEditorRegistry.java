@@ -70,12 +70,9 @@ public class ValueEditorRegistry {
      */
     public static ValueEditor findValueEditor(ValueDescriptor valueDescriptor) {
         Assert.notNull(valueDescriptor, "valueDescriptor must not be null");
-        String valueEditorClassName = (String) valueDescriptor.getProperty("valueEditor");
-        if (valueEditorClassName != null) {
-            ValueEditor valueEditor = getValueEditor(valueEditorClassName);
-            if (valueEditor != null) {
-                return valueEditor;
-            }
+        ValueEditor valueEditor = (ValueEditor) valueDescriptor.getProperty("valueEditor");
+        if (valueEditor != null) {
+            return valueEditor;
         }
         for (ValueEditor editor : REGISTRY.getServices()) {
             if (editor.isValidFor(valueDescriptor)) {
