@@ -99,7 +99,7 @@ public class ImageLayer extends Layer {
      * @param type             The layer type.
      * @param multiLevelSource the multi-resolution-level image.
      */
-    protected ImageLayer(LayerType type, MultiLevelSource multiLevelSource) {
+    public ImageLayer(LayerType type, MultiLevelSource multiLevelSource) {
         super(type);
         Assert.notNull(multiLevelSource);
         this.multiLevelSource = multiLevelSource;
