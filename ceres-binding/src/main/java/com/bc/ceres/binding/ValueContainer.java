@@ -265,6 +265,7 @@ public class ValueContainer {
             this.object = object;
         }
 
+        @Override
         public ValueAccessor createValueAccessor(Field field) {
             return new ClassFieldAccessor(object, field);
         }
@@ -278,6 +279,7 @@ public class ValueContainer {
             this.map = map;
         }
 
+        @Override
         public ValueAccessor createValueAccessor(Field field) {
             return new MapEntryAccessor(map, field.getName());
         }
@@ -285,6 +287,7 @@ public class ValueContainer {
 
     private static class ValueBackedValueAccessorFactory implements ValueAccessorFactory {
 
+        @Override
         public ValueAccessor createValueAccessor(Field field) {
             return new DefaultValueAccessor();
         }
@@ -292,6 +295,7 @@ public class ValueContainer {
 
     private static class DefaultClassFieldDescriptorFactory implements ClassFieldDescriptorFactory {
 
+        @Override
         public ValueDescriptor createValueDescriptor(Field field) {
             return new ValueDescriptor(field.getName(), field.getType());
         }
