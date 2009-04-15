@@ -17,7 +17,7 @@ class LayerTreeModel implements TreeModel {
     private final Layer rootLayer;
     private final WeakHashMap<TreeModelListener, Object> treeModelListeners;
 
-    public LayerTreeModel(final Layer rootLayer) {
+    LayerTreeModel(final Layer rootLayer) {
         this.rootLayer = rootLayer;
         this.rootLayer.addListener(new LayerListener());
         treeModelListeners = new WeakHashMap<TreeModelListener, Object>();
@@ -26,22 +26,27 @@ class LayerTreeModel implements TreeModel {
     ///////////////////////////////////////////////////////////////////////////
     //  TreeModel interface
 
+    @Override
     public Object getRoot() {
         return rootLayer;
     }
 
+    @Override
     public Object getChild(Object parent, int index) {
         return ((Layer) parent).getChildren().get(index);
     }
 
+    @Override
     public int getChildCount(Object parent) {
         return ((Layer) parent).getChildren().size();
     }
 
+    @Override
     public boolean isLeaf(Object node) {
         return ((Layer) node).getChildren().isEmpty();
     }
 
+    @Override
     public void valueForPathChanged(TreePath path, Object newValue) {
         if (newValue instanceof String) {
             Layer layer = (Layer) path.getLastPathComponent();
@@ -54,14 +59,17 @@ class LayerTreeModel implements TreeModel {
         }
     }
 
+    @Override
     public int getIndexOfChild(Object parent, Object child) {
         return ((Layer) parent).getChildren().indexOf(child);
     }
 
+    @Override
     public void addTreeModelListener(TreeModelListener l) {
         treeModelListeners.put(l, "");
     }
 
+    @Override
     public void removeTreeModelListener(TreeModelListener l) {
         treeModelListeners.remove(l);
     }
