@@ -34,7 +34,7 @@ import java.util.List;
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public class GraticuleLayerEditor extends ValueDescriptorLayerEditor {
+public class GraticuleLayerEditor extends AbstractValueDescriptorLayerEditor {
 
 
     @Override

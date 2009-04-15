@@ -19,12 +19,10 @@ import java.util.List;
  * @version $ Revision: $ Date: $
  * @since BEAM 4.6
  */
-public class RoiLayerEditor extends ImageLayerEditor {
+public class RoiLayerEditor extends AbstractValueDescriptorLayerEditor {
 
     @Override
     protected void collectValueDescriptors(final List<ValueDescriptor> descriptorList) {
-        super.collectValueDescriptors(descriptorList);
-
         ValueDescriptor vd = new ValueDescriptor(RoiLayerType.PROPERTY_COLOR, Color.class);
         vd.setDefaultValue(Color.RED);
         vd.setDisplayName("Roi Colour");

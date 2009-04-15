@@ -19,11 +19,10 @@ import java.util.List;
  * @version $ Revision: $ Date: $
  * @since BEAM 4.6
  */
-public class NoDataLayerEditor extends ImageLayerEditor {
+public class NoDataLayerEditor extends AbstractValueDescriptorLayerEditor {
 
     @Override
     protected void collectValueDescriptors(final List<ValueDescriptor> descriptorList) {
-        super.collectValueDescriptors(descriptorList);
 
         ValueDescriptor vd = new ValueDescriptor(NoDataLayerType.PROPERTY_COLOR, Color.class);
         vd.setDefaultValue(Color.ORANGE);

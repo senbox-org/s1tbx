@@ -13,7 +13,7 @@ import java.util.List;
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public class PlacemarkLayerEditor extends ValueDescriptorLayerEditor {
+public class PlacemarkLayerEditor extends AbstractValueDescriptorLayerEditor {
 
     @Override
     protected void collectValueDescriptors(List<ValueDescriptor> descriptorList) {

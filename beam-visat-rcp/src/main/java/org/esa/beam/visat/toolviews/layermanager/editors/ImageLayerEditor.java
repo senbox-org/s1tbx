@@ -13,7 +13,7 @@ import java.util.List;
  * @version $ Revision: $ $ Date: $
  * @since BEAM 4.6
  */
-public class ImageLayerEditor extends ValueDescriptorLayerEditor {
+public class ImageLayerEditor extends AbstractValueDescriptorLayerEditor {
 
 
     @Override

@@ -27,7 +27,7 @@ import java.util.Map;
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public abstract class ValueDescriptorLayerEditor implements LayerEditor {
+public abstract class AbstractValueDescriptorLayerEditor implements LayerEditor {
 
     private BindingContext bindingContext;
 
