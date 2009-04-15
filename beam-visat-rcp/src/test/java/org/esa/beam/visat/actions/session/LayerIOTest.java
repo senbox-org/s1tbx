@@ -10,6 +10,7 @@ import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
+import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.DomElementXStreamConverter;
@@ -86,7 +87,7 @@ public class LayerIOTest extends TestCase {
     public void testWriteAndReadL() throws ValidationException, ConversionException {
         // 1. Create an L with factory mathod in T
         final T t = new T();
-        final ValueContainer configuration1 = t.createDefaultConfiguration();
+        final ValueContainer configuration1 = t.createConfigurationTemplate();
         assertNotNull(configuration1);
 
         assertNull(configuration1.getValue("rasterRef"));
@@ -98,7 +99,7 @@ public class LayerIOTest extends TestCase {
             t.createL(context, configuration1);
             fail();
         } catch (ValidationException expected) {
-       }
+        }
 
         configuration1.setValue("rasterRef", new RasterRef(1, "a"));
         assertNotNull(configuration1.getValue("rasterRef"));
@@ -108,13 +109,29 @@ public class LayerIOTest extends TestCase {
         assertNotNull(l1.getMultiLevelSource());
 
         // 2. Write configuration to XML
-        final ValueContainerConverter dc = new ValueContainerConverter();
-        final DomElement domElement1 = new Xpp3DomElement("configuration");
-        dc.convertValueContainerToDom(configuration1, domElement1);
+        final ClassFieldDescriptorFactory cfdf = new ClassFieldDescriptorFactory() {
+            @Override
+            public ValueDescriptor createValueDescriptor(Field field) {
+                return new ValueDescriptor(field.getName(), field.getType());
+            }
+        };
+        final DefaultDomConverter dc = new DefaultDomConverter(ValueContainer.class, cfdf) {
+            @Override
+            protected ValueContainer getValueContainer(Object value) {
+                if (value instanceof ValueContainer) {
+                    return (ValueContainer) value;
+                }
+                return super.getValueContainer(value);
+            }
+        };
+        final DomElement domElement1 = new DefaultDomElement("configuration");
+        dc.convertValueToDom(configuration1, domElement1);
 
         final M m1 = new M("T", domElement1);
         final XStream xs = new XStream();
         xs.processAnnotations(M.class);
+        xs.registerConverter(new DomElementXStreamConverter());
+        xs.alias("configuration", DomElement.class, DefaultDomElement.class);
         xs.alias("configuration", DomElement.class, Xpp3DomElement.class);
         xs.useAttributeFor(M.class, "typeName");
 
@@ -122,15 +139,13 @@ public class LayerIOTest extends TestCase {
         System.out.println(xml);
 
         // 3. Read configuration from XML
-        xs.registerConverter(new DomElementXStreamConverter());
-        xs.alias("configuration", DomElement.class, Xpp3DomElement.class);
         final Object obj = xs.fromXML(xml);
         assertTrue(obj instanceof M);
         final M m2 = (M) obj;
 
         // 4. Restore layer
-        final ValueContainer configuration2 = t.createDefaultConfiguration();
-        dc.convertDomToValueContainer(m2.getConfiguration(), configuration2);
+        final ValueContainer configuration2 = t.createConfigurationTemplate();
+        dc.convertDomToValue(m2.getConfiguration(), configuration2);
 
         final L l2 = t.createL(context, configuration2);
         assertNotNull(l2);
@@ -198,7 +213,7 @@ public class LayerIOTest extends TestCase {
             return new L(multiLevelSource, configuration);
         }
 
-        ValueContainer createDefaultConfiguration() {
+        ValueContainer createConfigurationTemplate() {
             final ValueContainer configuration = new ValueContainer();
 
             final ValueDescriptor rasterRefDescriptor = new ValueDescriptor("rasterRef", RasterRef.class);
@@ -222,146 +237,6 @@ public class LayerIOTest extends TestCase {
             }
 
             return configuration;
-        }
-    }
-
-    static class TestPojo {
-
-        boolean visible = true;
-        double transparency = 0.5;
-        Color textColor = new Color(17, 11, 67);
-
-        RasterRef rasterRef = new RasterRef(1, "a");
-    }
-
-    public void testDomConverter() {
-        final TestPojo testPojo = new TestPojo();
-        final ValueContainer vc = ValueContainer.createObjectBacked(testPojo);
-
-        final ValueContainerConverter dc = new ValueContainerConverter();
-        final DomElement domElement = new Xpp3DomElement("configuration");
-
-        dc.convertValueContainerToDom(vc, domElement);
-
-        final String xml = domElement.toXml();
-        System.out.println(xml);
-    }
-
-    static class ValueContainerConverter {
-
-        private final ClassFieldDescriptorFactory descriptorFactory = new ClassFieldDescriptorFactory() {
-            @Override
-            public ValueDescriptor createValueDescriptor(Field field) {
-                return new ValueDescriptor(field.getName(), field.getType());
-            }
-        };
-
-        public void convertDomToValueContainer(DomElement parentElement, ValueContainer valueContainer) throws
-                                                                                                        ConversionException,
-                                                                                                        ValidationException {
-            for (final DomElement childElement : parentElement.getChildren()) {
-                final String childElementName = childElement.getName();
-                final ValueModel valueModel = valueContainer.getModel(childElementName);
-                // TODO: inlined array elements
-                if (valueModel == null) {
-                    throw new ConversionException(String.format("Illegal element '%s'.", childElementName));
-                }
-
-                final Object childValue;
-                final ValueDescriptor descriptor = valueModel.getDescriptor();
-                final DomConverter domConverter = descriptor.getDomConverter();
-                if (domConverter != null) {
-                    childValue = domConverter.convertDomToValue(childElement, null);
-                } else {
-                    final Class<?> valueType = descriptor.getType();
-                    Converter<?> converter = descriptor.getConverter();
-                    if (converter == null) {
-                        converter = ConverterRegistry.getInstance().getConverter(valueType);   
-                    }
-                    childValue = domToValue(childElement, converter, valueType);
-                }
-
-                valueModel.setValue(childValue);
-            }
-        }
-
-        public void convertValueContainerToDom(ValueContainer valueContainer, DomElement parentElement) {
-            for (ValueModel valueModel : valueContainer.getModels()) {
-                final ValueDescriptor descriptor = valueModel.getDescriptor();
-                final Object value = valueModel.getValue();
-                final DomConverter domConverter = descriptor.getDomConverter();
-
-                if (domConverter != null) {
-                    final DomElement childElement = parentElement.createChild(descriptor.getName());
-                    domConverter.convertValueToDom(value, childElement);
-
-                    continue;
-                }
-
-                if (descriptor.getType().isArray()) {
-                    // TODO: arrays
-                    continue;
-                }
-
-                Converter<?> converter = descriptor.getConverter();
-                if (converter == null) {
-                    converter = ConverterRegistry.getInstance().getConverter(descriptor.getType());
-                }
-                final DomElement childElement = parentElement.createChild(descriptor.getName());
-                valueToDom(value, converter, childElement);
-            }
-        }
-
-        private Object domToValue(DomElement domElement, Converter<?> converter, Class<?> valueType)
-                throws ConversionException, ValidationException {
-            final Object childValue;
-
-            if (converter != null) {
-                final String text = domElement.getValue();
-                if (text != null) {
-                    try {
-                        childValue = converter.parse(text);
-                    } catch (ConversionException e) {
-                        throw new ConversionException(MessageFormat.format(
-                                "In a member of ''{0}'': {1}", domElement.getName(), e.getMessage()), e);
-                    }
-                } else {
-                    childValue = null;
-                }
-            } else {
-                final DomConverter childConverter = getChildConverter(domElement, valueType);
-                try {
-                    childValue = childConverter.convertDomToValue(domElement, null);
-                } catch (ValidationException e) {
-                    throw new ValidationException(MessageFormat.format(
-                            "In a member of ''{0}'': {1}", domElement.getName(), e.getMessage()), e);
-                } catch (ConversionException e) {
-                    throw new ConversionException(MessageFormat.format(
-                            "In a member of ''{0}'': {1}", domElement.getName(), e.getMessage()), e);
-                }
-            }
-
-            return childValue;
-        }
-
-        private void valueToDom(Object value, Converter converter, DomElement childElement) {
-            if (converter != null) {
-                final String text = converter.format(value);
-                if (text != null && !text.isEmpty()) {
-                    childElement.setValue(text);
-                }
-            } else if (value != null) {
-                final ValueContainer valueContainer = createValueContainer(value);
-                convertValueContainerToDom(valueContainer, childElement);
-            }
-        }
-
-        private ValueContainer createValueContainer(Object obj) {
-            return ValueContainer.createObjectBacked(obj, descriptorFactory);
-        }
-
-        private DomConverter getChildConverter(DomElement element, Class<?> valueType) {
-            return new DefaultDomConverter(valueType, descriptorFactory);
         }
     }
 }
