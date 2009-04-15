@@ -2,6 +2,8 @@ package com.bc.ceres.binding.dom;
 
 import com.bc.ceres.binding.ClassFieldDescriptorFactory;
 import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.ConverterRegistry;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
@@ -15,13 +17,13 @@ import java.io.File;
 import java.io.StringReader;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.Field;
 import java.util.Date;
 
 public class DefaultDomConverterTest extends TestCase {
 
     private static final ClassFieldDescriptorFactory VALUE_DESCRIPTOR_FACTORY = new ClassFieldDescriptorFactory() {
-        public ValueDescriptor createValueDescriptor(Field field) {
+        @Override
+        public ValueDescriptor createValueDescriptor(java.lang.reflect.Field field) {
             final ValueDescriptor descriptor = new ValueDescriptor(field.getName(), field.getType());
             final X xAnnotation = field.getAnnotation(X.class);
             if (xAnnotation != null) {
@@ -102,6 +104,59 @@ public class DefaultDomConverterTest extends TestCase {
         value.weird = new Weird();
         value.name = "ernie";
         convertValueToDom(value, dom);
+        assertEquals(createDom(expectedXml), dom);
+    }
+
+    public void testDomToArrayPojo() {
+        final String expectedXml = ""
+                                   + "<parameters>"
+                                   + "  <fileField>" + new File("C:/data/dat.ini") + "</fileField>"
+                                   + "  <intField>43</intField>"
+                                   + "  <stringField>This is a test.</stringField>"
+                                   + "  <doubleArrayField>0.1,0.2,-0.4</doubleArrayField>"
+                                   + "</parameters>";
+        final Xpp3Dom dom = new Xpp3Dom("parameters");
+        final SimplePojo value = new SimplePojo();
+        value.intField = 43;
+        value.stringField = "This is a test.";
+        value.doubleArrayField = new double[]{0.1, 0.2, -0.4};
+        value.fileField = new File("C:/data/dat.ini");
+        convertValueToDom(value, dom);
+        assertEquals(createDom(expectedXml), dom);
+    }
+
+    public void testArrayPojoToDom() {
+        ConverterRegistry.getInstance().setConverter(ArrayPojo.Member.class, new Converter<ArrayPojo.Member>() {
+            @Override
+            public Class<? extends ArrayPojo.Member> getValueType() {
+                return ArrayPojo.Member.class;
+            }
+
+            @Override
+            public ArrayPojo.Member parse(String text) throws ConversionException {
+                return new ArrayPojo.Member(text);
+            }
+
+            @Override
+            public String format(ArrayPojo.Member field) {
+                return field.name;
+            }
+        });
+
+        final String expectedXml = ""
+                                   + "<parameters>"
+                                   + "  <prince>bert</prince>"
+                                   + "  <allies>bibo,mimi</allies>"
+                                   + "</parameters>";
+
+        final Xpp3Dom dom = new Xpp3Dom("parameters");
+        final ArrayPojo arrayPojo = new ArrayPojo();
+        arrayPojo.prince = new ArrayPojo.Member("bert");
+        arrayPojo.allies = new ArrayPojo.Member[2];
+        arrayPojo.allies[0] = new ArrayPojo.Member("bibo");
+        arrayPojo.allies[1] = new ArrayPojo.Member("mimi");
+
+        convertValueToDom(arrayPojo, dom);
         assertEquals(createDom(expectedXml), dom);
     }
 
@@ -355,6 +410,7 @@ public class DefaultDomConverterTest extends TestCase {
 
         @X(alias = "targetBand")
         String targetBandName;
+
         @X(alias = "targetBands", componentAlias = "band")
         String[] targetBandNames;
     }
@@ -366,14 +422,31 @@ public class DefaultDomConverterTest extends TestCase {
         AnnotatedPojo annotatedPojo;
     }
 
+    public static class ArrayPojo {
+
+        Member prince;
+        Member[] allies;
+
+        public static class Member {
+
+            private final String name;
+
+            public Member(String name) {
+                this.name = name;
+            }
+        }
+    }
+
     public static class InlinedArrayPojo {
 
         Endmember defaultEndmember;
+
         @X(componentAlias = "endmember", inlined = true)
         Endmember[] endmembers;
     }
 
     public static class WeirdPojo {
+
         final Weird finalWeird = new Weird();
         Weird weird;
         String name;
@@ -381,12 +454,14 @@ public class DefaultDomConverterTest extends TestCase {
     }
 
     public static class Weird {
+
         static final Weird staticFinalWeird = new Weird();
         static Weird staticWeird = new Weird();
     }
 
     @Retention(value = RetentionPolicy.RUNTIME)
-    @interface X {
+            @interface X {
+
         String alias() default "";
 
         String componentAlias() default "";
