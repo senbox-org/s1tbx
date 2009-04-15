@@ -1,8 +1,17 @@
 package com.bc.ceres.binding.dom;
 
-import junit.framework.TestCase;
+public class DefaultDomElementTest extends AbstractDomElementTest {
 
-public class DefaultDomElementTest extends TestCase {
+    @Override
+    protected DomElement createDomElement(String name) {
+        return new DefaultDomElement(name);
+    }
+
+    @Override
+    protected DomElement createDomElement(String name, String value) {
+        return new DefaultDomElement(name, value);
+    }
+
     public void testConstructor() {
         try {
             new DefaultDomElement(null);
@@ -16,103 +25,40 @@ public class DefaultDomElementTest extends TestCase {
         } catch (NullPointerException e) {
             // ok
         }
-
-        DefaultDomElement element = new DefaultDomElement("x", "8");
-        assertEquals("x", element.getName());
-        assertEquals("8", element.getValue());
-        assertEquals("<x>8</x>", element.toXml());
-
-        element = new DefaultDomElement("x", null);
-        assertEquals("x", element.getName());
-        assertEquals(null, element.getValue());
-        assertEquals("<x/>", element.toXml());
-
-        element = new DefaultDomElement("x");
-        assertEquals("x", element.getName());
-        assertEquals(null, element.getValue());
-        assertEquals("<x/>", element.toXml());
+        try {
+            new DefaultDomElement("color", null);
+            // ok
+        } catch (NullPointerException e) {
+            fail("NPE not expected");
+        }
     }
 
-    public void testAttribues() {
-        DefaultDomElement element = new DefaultDomElement("point");
-        assertNotNull(element.getAttributeNames());
-        assertEquals(0, element.getAttributeNames().length);
-
-        element.setAttribute("x", "56");
-        element.setAttribute("y", "24");
-        element.setAttribute("z", "98");
-
-        assertNotNull(element.getAttributeNames());
-        assertEquals(3, element.getAttributeNames().length);
-        assertEquals("x", element.getAttributeNames()[0]);
-        assertEquals("y", element.getAttributeNames()[1]);
-        assertEquals("z", element.getAttributeNames()[2]);
-
-        assertEquals("56", element.getAttribute("x"));
-        assertEquals("24", element.getAttribute("y"));
-        assertEquals("98", element.getAttribute("z"));
-        assertEquals(null, element.getAttribute("w"));
-
-        assertEquals("<point x=\"56\" y=\"24\" z=\"98\"/>", element.toXml());
+    public void testMixChildren() {
+        testMixChildren(new DefaultDomElement("a"), new DefaultDomElement("b"), new DefaultDomElement("c"));
+        testMixChildren(new DefaultDomElement("a"), new DefaultDomElement("b"), new Xpp3DomElement("c"));
+        testMixChildren(new DefaultDomElement("a"), new Xpp3DomElement("b"), new DefaultDomElement("c"));
+        testMixChildren(new DefaultDomElement("a"), new Xpp3DomElement("b"), new Xpp3DomElement("c"));
+        testMixChildren(new Xpp3DomElement("a"), new DefaultDomElement("b"), new DefaultDomElement("c"));
+        testMixChildren(new Xpp3DomElement("a"), new DefaultDomElement("b"), new Xpp3DomElement("c"));
+        testMixChildren(new Xpp3DomElement("a"), new Xpp3DomElement("b"), new DefaultDomElement("c"));
+        testMixChildren(new Xpp3DomElement("a"), new Xpp3DomElement("b"), new Xpp3DomElement("c"));
     }
 
-    public void testChildren() {
-        DefaultDomElement element = new DefaultDomElement("point");
-        assertEquals(0, element.getChildCount());
+    private void testMixChildren(DomElement a, DomElement b, DomElement c) {
+        b.addChild(c);
+        a.addChild(b);
 
-        element.createChild("x").setValue("56");
-        element.addChild(new DefaultDomElement("y", "24"));
-        element.addChild(new DefaultDomElement("z", "98"));
+        assertNotNull(a.getChild("b"));
+        assertNotNull(a.getChild("b").getChild("c"));
 
-        assertNull(element.getParent());
-        assertNotNull(element.getChildCount());
-        assertEquals(3, element.getChildCount());
+        assertNull(a.getParent());
+        assertSame(a, a.getChild("b").getParent());
+        assertSame(a.getChild("b"), a.getChild("b").getChild("c").getParent());
 
-        assertNotNull(element.getChild("x"));
-        assertNotNull(element.getChild("y"));
-        assertNotNull(element.getChild("z"));
-        assertNull(element.getChild("w"));
-
-        assertSame(element, element.getChild("x").getParent());
-        assertSame(element, element.getChild("y").getParent());
-        assertSame(element, element.getChild("z").getParent());
-
-        assertEquals("56", element.getChild("x").getValue());
-        assertEquals("24", element.getChild("y").getValue());
-        assertEquals("98", element.getChild("z").getValue());
-
-        assertEquals("" +
-                "<point>\n" +
-                "    <x>56</x>\n" +
-                "    <y>24</y>\n" +
-                "    <z>98</z>\n" +
-                "</point>",
-                     element.toXml());
+        assertEquals("<a>\n" +
+                "<b>\n" +
+                "<c/>\n" +
+                "</b>\n" +
+                "</a>", a.toXml().replace("  ", ""));
     }
-
-    public void testToXmlWithAttributesAndChildren() {
-        DefaultDomElement element = new DefaultDomElement("layer");
-        element.setAttribute("id", "a62b98ff5");
-        element.createChild("name").setValue("ROI");
-        element.createChild("visible").setValue("true");
-        element.createChild("configuration");
-        element.getChild("configuration").createChild("outlineColor").setValue("23,45,230");
-        element.getChild("configuration").createChild("fillColor").setValue("123, 64,30");
-        element.getChild("configuration").createChild("transparency").setValue("0.6");
-        String xml = element.toXml();
-        System.out.println("xml = " + xml);
-
-        assertEquals("" +
-                "<layer id=\"a62b98ff5\">\n" +
-                "    <name>ROI</name>\n" +
-                "    <visible>true</visible>\n" +
-                "    <configuration>\n" +
-                "        <outlineColor>23,45,230</outlineColor>\n" +
-                "        <fillColor>123, 64,30</fillColor>\n" +
-                "        <transparency>0.6</transparency>\n" +
-                "    </configuration>\n" +
-                "</layer>",
-                     xml);
-    }
-
 }

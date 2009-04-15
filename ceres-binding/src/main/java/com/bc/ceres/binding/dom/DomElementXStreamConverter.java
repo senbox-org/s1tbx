@@ -10,9 +10,9 @@ import com.thoughtworks.xstream.io.xml.AbstractDocumentReader;
 import com.thoughtworks.xstream.io.xml.XmlFriendlyReplacer;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 
-public class DomElementConverter implements Converter {
+public class DomElementXStreamConverter implements Converter {
 
-    public DomElementConverter() {
+    public DomElementXStreamConverter() {
     }
 
     @Override
