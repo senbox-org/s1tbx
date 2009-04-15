@@ -101,7 +101,7 @@ public class GraticuleLayerEditor extends AbstractValueDescriptorLayerEditor {
         vd6.setValueRange(new ValueRange(0, 1));
         vd6.setDisplayName("Line transparency");
         vd6.setDefaultConverter();
-        vd6.setProperty("valueEditor", RangeEditor.class.getName());
+        vd6.setProperty("valueEditor", new RangeEditor());
         descriptorList.add(vd6);
 
         ValueDescriptor vd7 = new ValueDescriptor(GraticuleLayer.PROPERTY_NAME_TEXT_ENABLED, Boolean.class);
@@ -127,7 +127,7 @@ public class GraticuleLayerEditor extends AbstractValueDescriptorLayerEditor {
         vd10.setValueRange(new ValueRange(0, 1));
         vd10.setDisplayName("Text background transparency");
         vd10.setDefaultConverter();
-        vd10.setProperty("valueEditor", RangeEditor.class.getName());
+        vd10.setProperty("valueEditor", new RangeEditor());
         descriptorList.add(vd10);
     }
 
