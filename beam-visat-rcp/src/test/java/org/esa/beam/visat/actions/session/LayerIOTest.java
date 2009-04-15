@@ -2,8 +2,6 @@ package org.esa.beam.visat.actions.session;
 
 import com.bc.ceres.binding.ClassFieldDescriptorFactory;
 import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.Converter;
-import com.bc.ceres.binding.ConverterRegistry;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
@@ -11,7 +9,6 @@ import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DefaultDomElement;
-import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.DomElementXStreamConverter;
 import com.bc.ceres.binding.dom.Xpp3DomElement;
@@ -32,7 +29,6 @@ import org.esa.beam.glevel.BandImageMultiLevelSource;
 
 import java.awt.Color;
 import java.lang.reflect.Field;
-import java.text.MessageFormat;
 
 public class LayerIOTest extends TestCase {
 
