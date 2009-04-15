@@ -58,10 +58,6 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         this.rasterDataNode = rasterDataNode;
         this.i2mTransform = i2mTransform;
         setName("Bitmasks");
-        final BitmaskDef[] bitmaskDefs = getProduct().getBitmaskDefs();
-        for (final BitmaskDef bitmaskDef : bitmaskDefs) {
-            getChildren().add(createBitmaskLayer(bitmaskDef));
-        }
         bitmaskDefListener = new BitmaskDefListener(this);
         getProduct().addProductNodeListener(bitmaskDefListener);
         bitmaskOverlayInfoListener = new BitmaskOverlayInfoListener(this);
@@ -222,6 +218,11 @@ public class BitmaskCollectionLayer extends CollectionLayer {
 
     public static class Type extends CollectionLayer.Type {
 
+        public static final String BITMASK_LAYER_ID = "org.esa.beam.layers.bitmask";
+
+        private static final String PROPERTY_RASTER = "bitmaskCollection.raster";
+        private static final String PROPERTY_IMAGE_TO_MODEL_TRANSFORM = "bitmaskCollection.i2mTransform";
+
         @Override
         public String getName() {
             return "Bitmask Collection Layer";
@@ -234,9 +235,22 @@ public class BitmaskCollectionLayer extends CollectionLayer {
 
         @Override
         public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
-            RasterDataNode rasterDataNode = (RasterDataNode) configuration.get("rasterDataNode");
-            AffineTransform i2m = (AffineTransform) configuration.get("i2mTransform");
-            return new BitmaskCollectionLayer(rasterDataNode, i2m);
+            RasterDataNode rasterDataNode = (RasterDataNode) configuration.get(PROPERTY_RASTER);
+            AffineTransform i2m = (AffineTransform) configuration.get(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
+            final BitmaskCollectionLayer bitmaskCollectionLayer = new BitmaskCollectionLayer(rasterDataNode, i2m);
+            bitmaskCollectionLayer.setId(BITMASK_LAYER_ID);
+            final BitmaskDef[] bitmaskDefs = rasterDataNode.getProduct().getBitmaskDefs();
+            final LayerType bitmaskLayerType = LayerType.getLayerType(BitmaskLayerType.class.getName());
+            for (final BitmaskDef bitmaskDef : bitmaskDefs) {
+                final HashMap<String, Object> map = new HashMap<String, Object>(configuration);
+                map.put("bitmask.raster", rasterDataNode);
+                map.put("bitmask.i2mTransform", i2m);
+                map.put("bitmask.bitmaskDef", bitmaskDef);
+                final Layer layer = bitmaskLayerType.createLayer(ctx, map);
+                bitmaskCollectionLayer.getChildren().add(layer);
+            }
+
+            return bitmaskCollectionLayer;
         }
 
         @Override
@@ -244,8 +258,8 @@ public class BitmaskCollectionLayer extends CollectionLayer {
             final HashMap<String, Object> configuration = new HashMap<String, Object>();
             if (layer instanceof BitmaskCollectionLayer) {
                 BitmaskCollectionLayer bitmaskCollectionLayer = (BitmaskCollectionLayer) layer;
-                configuration.put("rasterDataNode", bitmaskCollectionLayer.rasterDataNode);
-                configuration.put("i2mTransform", bitmaskCollectionLayer.i2mTransform);
+                configuration.put(PROPERTY_RASTER, bitmaskCollectionLayer.rasterDataNode);
+                configuration.put(PROPERTY_IMAGE_TO_MODEL_TRANSFORM, bitmaskCollectionLayer.i2mTransform);
             }
             return configuration;
         }

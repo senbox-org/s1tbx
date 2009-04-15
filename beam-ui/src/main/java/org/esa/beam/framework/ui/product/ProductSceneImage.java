@@ -285,9 +285,11 @@ public class ProductSceneImage implements LayerContext {
     }
 
     private Layer createBitmaskCollectionLayer(AffineTransform i2mTransform) {
-        BitmaskCollectionLayer layer = new BitmaskCollectionLayer(getRaster(), i2mTransform);
-        layer.setId(ProductSceneView.BITMASK_LAYER_ID);
-        return layer;
+        final LayerType bitmaskCollectionType = LayerType.getLayerType(BitmaskCollectionLayer.Type.class.getName());
+        final HashMap<String, Object> map = new HashMap<String, Object>();
+        map.put("bitmaskCollection.i2mTransform", i2mTransform);
+        map.put("bitmaskCollection.raster", getRaster());
+        return bitmaskCollectionType.createLayer(this, map);
     }
 
     private FigureLayer createFigureLayer(AffineTransform i2mTransform) {
