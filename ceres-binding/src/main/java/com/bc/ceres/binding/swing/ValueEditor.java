@@ -42,7 +42,9 @@ public abstract class ValueEditor {
      * @param valueDescriptor The value descriptor
      * @return true, is this editor can be used for the given value descriptor
      */
-    public abstract boolean isValidFor(ValueDescriptor valueDescriptor);
+    public boolean isValidFor(ValueDescriptor valueDescriptor) {
+        return false;
+    }
     
     /**
      * Creates the editor component for the {@link ValueDescriptor} and bind it

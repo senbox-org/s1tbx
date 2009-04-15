@@ -26,6 +26,10 @@ import javax.swing.JTextField;
 
 /**
  * A value editor that uses a text field.
+ * 
+ * This editor does not qualify itself 
+ * for any edit because it is the default editor.
+ * Otherwise it would take precedence over other editors.
  *
  * @author Marco Zuehlke
  * @version $Revision$ $Date$
@@ -33,13 +37,6 @@ import javax.swing.JTextField;
  */
 public class TextFieldEditor extends ValueEditor {
 
-    @Override
-    public boolean isValidFor(ValueDescriptor valueDescriptor) {
-        // because this is the DEFAULT editor. 
-        // Otherwise it would take precedence over other editors.
-        return false;
-    }
-    
     @Override
     public JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
         JTextField textField = new JTextField();
