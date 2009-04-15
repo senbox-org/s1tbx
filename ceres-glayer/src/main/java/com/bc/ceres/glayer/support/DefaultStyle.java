@@ -18,7 +18,7 @@ public class DefaultStyle extends AbstractStyle {
     private static final Style instance = new DefaultStyle(null);
 
     private final HashMap<String, Object> propertyMap;
-    private final PropertyChangeSupport propertyChangeSupport;
+    private transient final PropertyChangeSupport propertyChangeSupport;
 
     static {
         instance.setOpacity(1.0);

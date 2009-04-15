@@ -14,7 +14,7 @@ import java.beans.PropertyChangeListener;
  */
 public abstract class AbstractStyle implements Style {
     private Style defaultStyle;
-    private final DefaultStylePCL defaultStyleStylePCL;
+    private transient final DefaultStylePCL defaultStyleStylePCL;
 
     protected AbstractStyle() {
         this(null);
