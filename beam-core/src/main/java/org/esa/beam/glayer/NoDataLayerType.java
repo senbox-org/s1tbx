@@ -73,9 +73,6 @@ public class NoDataLayerType extends LayerType {
         }
         final Style style = layer.getStyle();
         style.setOpacity(1.0 - transparency);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
         style.setProperty(PROPERTY_COLOR, color);
         style.setProperty(PROPERTY_REFERENCED_RASTER, raster);
         style.setProperty(PROPERTY_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
