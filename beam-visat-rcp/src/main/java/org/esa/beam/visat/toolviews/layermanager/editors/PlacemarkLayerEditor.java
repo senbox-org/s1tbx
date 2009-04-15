@@ -1,6 +1,8 @@
 package org.esa.beam.visat.toolviews.layermanager.editors;
 
 import com.bc.ceres.binding.ValueDescriptor;
+
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.glayer.PlacemarkLayer;
 
 import java.awt.Color;
@@ -16,7 +18,7 @@ import java.util.List;
 public class PlacemarkLayerEditor extends AbstractValueDescriptorLayerEditor {
 
     @Override
-    protected void collectValueDescriptors(List<ValueDescriptor> descriptorList) {
+    protected void collectValueDescriptors(AppContext appContext, List<ValueDescriptor> descriptorList) {
         ValueDescriptor vd0 = new ValueDescriptor(PlacemarkLayer.PROPERTY_NAME_TEXT_ENABLED, Boolean.class);
         vd0.setDefaultValue(PlacemarkLayer.DEFAULT_TEXT_ENABLED);
         vd0.setDisplayName("Text enabled");

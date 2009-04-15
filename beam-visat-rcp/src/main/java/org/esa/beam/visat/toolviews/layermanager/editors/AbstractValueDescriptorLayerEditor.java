@@ -10,6 +10,8 @@ import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ValueEditorsPane;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.Style;
+
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.visat.toolviews.layermanager.LayerEditor;
 
 import javax.swing.JComponent;
@@ -34,11 +36,11 @@ public abstract class AbstractValueDescriptorLayerEditor implements LayerEditor 
     private Layer layer;
 
     @Override
-    public final JComponent createControl(Layer layer) {
+    public final JComponent createControl(AppContext appContext, Layer layer) {
         this.layer = layer;
         ValueContainer valueContainer = new ValueContainer();
         final ArrayList<ValueDescriptor> vds = new ArrayList<ValueDescriptor>(11);
-        collectValueDescriptors(vds);
+        collectValueDescriptors(appContext, vds);
 
         Map<String, Object> valueData = new HashMap<String, Object>(vds.size());
         for (ValueDescriptor valueDescriptor : vds) {
@@ -102,6 +104,6 @@ public abstract class AbstractValueDescriptorLayerEditor implements LayerEditor 
         listenerList.add(listener);
     }
 
-    protected abstract void collectValueDescriptors(final List<ValueDescriptor> descriptorList);
+    protected abstract void collectValueDescriptors(AppContext appContext, final List<ValueDescriptor> descriptorList);
 
 }

@@ -5,6 +5,7 @@ import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.glayer.NoDataLayerType;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 
@@ -22,7 +23,7 @@ import java.util.List;
 public class NoDataLayerEditor extends AbstractValueDescriptorLayerEditor {
 
     @Override
-    protected void collectValueDescriptors(final List<ValueDescriptor> descriptorList) {
+    protected void collectValueDescriptors(AppContext appContext, final List<ValueDescriptor> descriptorList) {
 
         ValueDescriptor vd = new ValueDescriptor(NoDataLayerType.PROPERTY_COLOR, Color.class);
         vd.setDefaultValue(Color.ORANGE);

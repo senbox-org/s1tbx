@@ -2,6 +2,8 @@ package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.glayer.Layer;
 
+import org.esa.beam.framework.ui.AppContext;
+
 import javax.swing.JComponent;
 
 /**
@@ -16,12 +18,12 @@ public interface LayerEditor {
     /**
      * Creates the control for the user interface which is displayed
      * in the Layer Editor Toolview.
-     *
+     * 
+     * @param appContext the application context 
      * @param layer The layer to create the control for.
-     *
      * @return The control.
      */
-    JComponent createControl(Layer layer);
+    JComponent createControl(AppContext appContext, Layer layer);
 
     /**
      * It is called whenever the control must be updated.

@@ -21,11 +21,14 @@ import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.internal.RangeEditor;
+
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.glayer.GraticuleLayer;
 
-import javax.swing.JComponent;
 import java.awt.Color;
 import java.util.List;
+
+import javax.swing.JComponent;
 
 /**
  * Editor for graticule layer.
@@ -55,7 +58,7 @@ public class GraticuleLayerEditor extends AbstractValueDescriptorLayerEditor {
     }
 
     @Override
-    protected void collectValueDescriptors(List<ValueDescriptor> descriptorList) {
+    protected void collectValueDescriptors(AppContext appContext, List<ValueDescriptor> descriptorList) {
 
         ValueDescriptor vd0 = new ValueDescriptor(GraticuleLayer.PROPERTY_NAME_RES_AUTO, Boolean.class);
         vd0.setDefaultValue(GraticuleLayer.DEFAULT_RES_AUTO);

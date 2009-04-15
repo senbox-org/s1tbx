@@ -2,6 +2,8 @@ package org.esa.beam.visat.toolviews.layermanager.editors;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.swing.TableLayout;
+
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.visat.toolviews.layermanager.LayerEditor;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayer;
 
@@ -32,7 +34,7 @@ public class FeatureLayerEditor implements LayerEditor {
 
 
     @Override
-    public JComponent createControl(Layer layer) {
+    public JComponent createControl(AppContext appContext, Layer layer) {
         currentLayer = (FeatureLayer) layer;
         Hashtable sliderLabelTable = new Hashtable();
         sliderLabelTable.put(0, createSliderLabel("0%"));

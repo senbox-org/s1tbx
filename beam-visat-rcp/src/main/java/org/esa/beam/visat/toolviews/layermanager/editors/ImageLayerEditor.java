@@ -3,6 +3,8 @@ package org.esa.beam.visat.toolviews.layermanager.editors;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.glayer.support.ImageLayer;
 
+import org.esa.beam.framework.ui.AppContext;
+
 import java.awt.Color;
 import java.util.List;
 
@@ -17,7 +19,7 @@ public class ImageLayerEditor extends AbstractValueDescriptorLayerEditor {
 
 
     @Override
-    protected void collectValueDescriptors(final List<ValueDescriptor> descriptorList) {
+    protected void collectValueDescriptors(AppContext appContext, final List<ValueDescriptor> descriptorList) {
         ValueDescriptor vd0 = new ValueDescriptor(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, Boolean.class);
         vd0.setDefaultValue(ImageLayer.DEFAULT_BORDER_SHOWN);
         vd0.setDisplayName("Show image border");

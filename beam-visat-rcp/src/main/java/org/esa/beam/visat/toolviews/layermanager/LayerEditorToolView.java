@@ -17,6 +17,8 @@ package org.esa.beam.visat.toolviews.layermanager;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 
+import org.esa.beam.framework.ui.AppContext;
+
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -57,7 +59,7 @@ public class LayerEditorToolView extends AbstractLayerToolView {
             activeEditor = nullLayerEditor;
             getDescriptor().setTitle("Layer Editor");
         }
-        controlPanel.add(activeEditor.createControl(newLayer), BorderLayout.CENTER);
+        controlPanel.add(activeEditor.createControl(getAppContext(), newLayer), BorderLayout.CENTER);
         updateEditorControl();
 
         controlPanel.validate();
@@ -111,7 +113,7 @@ public class LayerEditorToolView extends AbstractLayerToolView {
     private static class NullLayerEditor implements LayerEditor {
 
         @Override
-        public JComponent createControl(Layer layer) {
+        public JComponent createControl(AppContext appContext, Layer layer) {
             return new JLabel("No editor available.");
         }
 
