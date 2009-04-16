@@ -10,16 +10,13 @@ import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ValueEditorsPane;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.Style;
-
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.visat.toolviews.layermanager.LayerEditor;
 
 import javax.swing.JComponent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,7 +26,7 @@ import java.util.Map;
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public abstract class AbstractValueDescriptorLayerEditor implements LayerEditor {
+public abstract class AbstractBindingLayerEditor implements LayerEditor {
 
     private BindingContext bindingContext;
 
@@ -38,32 +35,25 @@ public abstract class AbstractValueDescriptorLayerEditor implements LayerEditor 
     @Override
     public final JComponent createControl(AppContext appContext, Layer layer) {
         this.layer = layer;
-        ValueContainer valueContainer = new ValueContainer();
-        final ArrayList<ValueDescriptor> vds = new ArrayList<ValueDescriptor>(11);
-        collectValueDescriptors(appContext, vds);
-
-        Map<String, Object> valueData = new HashMap<String, Object>(vds.size());
-        for (ValueDescriptor valueDescriptor : vds) {
-            String propertyName = valueDescriptor.getName();
-            Object value = layer.getStyle().getProperty(propertyName);
-            if (value == null) {
-                value = valueDescriptor.getDefaultValue();
-            }
-            valueData.put(propertyName, value);
-            ValueAccessor accessor = new MapEntryAccessor(valueData, propertyName);
-            ValueModel model = new ValueModel(valueDescriptor, accessor);
-            valueContainer.addModel(model);
-        }
-
-        final ArrayList<PropertyChangeListener> listenerList = new ArrayList<PropertyChangeListener>(11);
-        collectPropertyChangeListeners(listenerList);
-
-        for (PropertyChangeListener listener : listenerList) {
-            valueContainer.addPropertyChangeListener(listener);
-        }
-        bindingContext = new BindingContext(valueContainer);
+        bindingContext = new BindingContext();
+        ValueContainer valueContainer = bindingContext.getValueContainer();
+        valueContainer.addPropertyChangeListener(new UpdateStylePropertyChangeListener());
+        initializeBinding(appContext, bindingContext);
         ValueEditorsPane parametersPane = new ValueEditorsPane(bindingContext);
         return parametersPane.createPanel();
+    }
+
+    protected final void addValueDescriptor(ValueDescriptor valueDescriptor) {
+        Map<String, Object> valueData = new HashMap<String, Object>();
+        String propertyName = valueDescriptor.getName();
+        Object value = getLayer().getStyle().getProperty(propertyName);
+        if (value == null) {
+            value = valueDescriptor.getDefaultValue();
+        }
+        valueData.put(propertyName, value);
+        ValueAccessor accessor = new MapEntryAccessor(valueData, propertyName);
+        ValueModel model = new ValueModel(valueDescriptor, accessor);
+        bindingContext.getValueContainer().addModel(model);
     }
 
     @Override
@@ -91,19 +81,16 @@ public abstract class AbstractValueDescriptorLayerEditor implements LayerEditor 
         return layer;
     }
 
-    protected void collectPropertyChangeListeners(List<PropertyChangeListener> listenerList) {
-        final PropertyChangeListener listener = new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                String propertyName = evt.getPropertyName();
-                if (layer != null) {
-                    layer.getStyle().setProperty(propertyName, evt.getNewValue());
-                }
+    protected abstract void initializeBinding(AppContext appContext, final BindingContext bindingContext);
+
+    private class UpdateStylePropertyChangeListener implements PropertyChangeListener {
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            String propertyName = evt.getPropertyName();
+            if (layer != null) {
+                layer.getStyle().setProperty(propertyName, evt.getNewValue());
             }
-        };
-        listenerList.add(listener);
+        }
     }
-
-    protected abstract void collectValueDescriptors(AppContext appContext, final List<ValueDescriptor> descriptorList);
-
 }

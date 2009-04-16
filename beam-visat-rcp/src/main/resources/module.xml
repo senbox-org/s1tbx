@@ -148,6 +148,10 @@
             <layerType>org.esa.beam.glayer.RoiLayerType</layerType>
         </layerEditor>
         <layerEditor>
+            <editor>org.esa.beam.visat.toolviews.layermanager.editors.FigureLayerEditor</editor>
+            <layerType>org.esa.beam.glayer.FigureLayerType</layerType>
+        </layerEditor>
+        <layerEditor>
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.PlacemarkLayerEditor</editor>
             <layerType>org.esa.beam.glayer.PlacemarkLayer$Type</layerType>
         </layerEditor>

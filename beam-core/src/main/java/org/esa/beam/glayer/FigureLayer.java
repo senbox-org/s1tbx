@@ -74,7 +74,6 @@ public class FigureLayer extends Layer {
     }
 
     public void addFigure(Figure currentShapeFigure) {
-        setAttributes(currentShapeFigure);
         figureList.add(currentShapeFigure);
         Rectangle2D figureBounds = currentShapeFigure.getBounds();
         Rectangle2D modelBounds = shapeToModelTransform.createTransformedShape(figureBounds).getBounds2D();
@@ -106,9 +105,6 @@ public class FigureLayer extends Layer {
     public void setFigureList(List<Figure> list) {
         figureList.clear();
         figureList.addAll(list);
-        for (final Figure figure : figureList) {
-            setAttributes(figure);
-        }
     }
 
     public AffineTransform getShapeToModelTransform() {
@@ -143,6 +139,7 @@ public class FigureLayer extends Layer {
 
             double layerOpacity = getStyle().getOpacity();
             for (final Figure figure : figureList) {
+                setAttributes(figure);
                 Composite oldOutlComposite = (Composite) figure.getAttribute(Figure.OUTL_COMPOSITE_KEY);
                 Composite oldFillComposite = (Composite) figure.getAttribute(Figure.FILL_COMPOSITE_KEY);
                 try {

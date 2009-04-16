@@ -18,17 +18,12 @@ package org.esa.beam.visat.toolviews.layermanager.editors;
 
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueRange;
-import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.internal.RangeEditor;
-
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.glayer.GraticuleLayer;
 
 import java.awt.Color;
-import java.util.List;
-
-import javax.swing.JComponent;
 
 /**
  * Editor for graticule layer.
@@ -37,67 +32,49 @@ import javax.swing.JComponent;
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public class GraticuleLayerEditor extends AbstractValueDescriptorLayerEditor {
-
-
-    @Override
-    public void updateControl() {
-        super.updateControl();
-        BindingContext bindingContext = getBindingContext();
-
-        boolean resAuto = (Boolean) bindingContext.getValueContainer().getValue(GraticuleLayer.PROPERTY_NAME_RES_AUTO);
-        setEditorEnableState(GraticuleLayer.PROPERTY_NAME_RES_PIXELS, resAuto);
-        setEditorEnableState(GraticuleLayer.PROPERTY_NAME_RES_LAT, !resAuto);
-        setEditorEnableState(GraticuleLayer.PROPERTY_NAME_RES_LON, !resAuto);
-
-        boolean textEnabled = (Boolean) bindingContext.getValueContainer().getValue(
-                GraticuleLayer.PROPERTY_NAME_TEXT_ENABLED);
-        setEditorEnableState(GraticuleLayer.PROPERTY_NAME_TEXT_FG_COLOR, textEnabled);
-        setEditorEnableState(GraticuleLayer.PROPERTY_NAME_TEXT_BG_COLOR, textEnabled);
-        setEditorEnableState(GraticuleLayer.PROPERTY_NAME_TEXT_BG_TRANSPARENCY, textEnabled);
-    }
+public class GraticuleLayerEditor extends AbstractBindingLayerEditor {
 
     @Override
-    protected void collectValueDescriptors(AppContext appContext, List<ValueDescriptor> descriptorList) {
+    protected void initializeBinding(AppContext appContext, BindingContext bindingContext) {
 
         ValueDescriptor vd0 = new ValueDescriptor(GraticuleLayer.PROPERTY_NAME_RES_AUTO, Boolean.class);
         vd0.setDefaultValue(GraticuleLayer.DEFAULT_RES_AUTO);
         vd0.setDisplayName("Compute latitude and longitude steps");
         vd0.setDefaultConverter();
-        descriptorList.add(vd0);
+        addValueDescriptor(vd0);
 
         ValueDescriptor vd1 = new ValueDescriptor(GraticuleLayer.PROPERTY_NAME_RES_PIXELS, Integer.class);
         vd1.setDefaultValue(GraticuleLayer.DEFAULT_RES_PIXELS);
         vd1.setValueRange(new ValueRange(16, 512));
         vd1.setDisplayName("Average grid size in pixels");
         vd1.setDefaultConverter();
-        descriptorList.add(vd1);
+        addValueDescriptor(vd1);
 
         ValueDescriptor vd2 = new ValueDescriptor(GraticuleLayer.PROPERTY_NAME_RES_LAT, Double.class);
         vd2.setDefaultValue(GraticuleLayer.DEFAULT_RES_LAT);
         vd2.setValueRange(new ValueRange(0.01, 90.00));
         vd2.setDisplayName("Latitude step (dec. degree)");
         vd2.setDefaultConverter();
-        descriptorList.add(vd2);
+        addValueDescriptor(vd2);
 
         ValueDescriptor vd3 = new ValueDescriptor(GraticuleLayer.PROPERTY_NAME_RES_LON, Double.class);
         vd3.setDefaultValue(GraticuleLayer.DEFAULT_RES_LON);
         vd3.setValueRange(new ValueRange(0.01, 180.00));
         vd3.setDisplayName("Longitude step (dec. degree)");
         vd3.setDefaultConverter();
-        descriptorList.add(vd3);
+        addValueDescriptor(vd3);
 
         ValueDescriptor vd4 = new ValueDescriptor(GraticuleLayer.PROPERTY_NAME_LINE_COLOR, Color.class);
         vd4.setDefaultValue(GraticuleLayer.DEFAULT_LINE_COLOR);
         vd4.setDisplayName("Line colour");
         vd4.setDefaultConverter();
-        descriptorList.add(vd4);
+        addValueDescriptor(vd4);
 
         ValueDescriptor vd5 = new ValueDescriptor(GraticuleLayer.PROPERTY_NAME_LINE_WIDTH, Double.class);
         vd5.setDefaultValue(GraticuleLayer.DEFAULT_LINE_WIDTH);
         vd5.setDisplayName("Line width");
         vd5.setDefaultConverter();
-        descriptorList.add(vd5);
+        addValueDescriptor(vd5);
 
         ValueDescriptor vd6 = new ValueDescriptor(GraticuleLayer.PROPERTY_NAME_LINE_TRANSPARENCY, Double.class);
         vd6.setDefaultValue(GraticuleLayer.DEFAULT_LINE_TRANSPARENCY);
@@ -105,25 +82,25 @@ public class GraticuleLayerEditor extends AbstractValueDescriptorLayerEditor {
         vd6.setDisplayName("Line transparency");
         vd6.setDefaultConverter();
         vd6.setProperty("valueEditor", new RangeEditor());
-        descriptorList.add(vd6);
+        addValueDescriptor(vd6);
 
         ValueDescriptor vd7 = new ValueDescriptor(GraticuleLayer.PROPERTY_NAME_TEXT_ENABLED, Boolean.class);
         vd7.setDefaultValue(GraticuleLayer.DEFAULT_TEXT_ENABLED);
         vd7.setDisplayName("Show text labels");
         vd7.setDefaultConverter();
-        descriptorList.add(vd7);
+        addValueDescriptor(vd7);
 
         ValueDescriptor vd8 = new ValueDescriptor(GraticuleLayer.PROPERTY_NAME_TEXT_FG_COLOR, Color.class);
         vd8.setDefaultValue(GraticuleLayer.DEFAULT_TEXT_FG_COLOR);
         vd8.setDisplayName("Text foreground colour");
         vd8.setDefaultConverter();
-        descriptorList.add(vd8);
+        addValueDescriptor(vd8);
 
         ValueDescriptor vd9 = new ValueDescriptor(GraticuleLayer.PROPERTY_NAME_TEXT_BG_COLOR, Color.class);
         vd9.setDefaultValue(GraticuleLayer.DEFAULT_TEXT_BG_COLOR);
         vd9.setDisplayName("Text background colour");
         vd9.setDefaultConverter();
-        descriptorList.add(vd9);
+        addValueDescriptor(vd9);
 
         ValueDescriptor vd10 = new ValueDescriptor(GraticuleLayer.PROPERTY_NAME_TEXT_BG_TRANSPARENCY, Double.class);
         vd10.setDefaultValue(GraticuleLayer.DEFAULT_TEXT_BG_TRANSPARENCY);
@@ -131,15 +108,25 @@ public class GraticuleLayerEditor extends AbstractValueDescriptorLayerEditor {
         vd10.setDisplayName("Text background transparency");
         vd10.setDefaultConverter();
         vd10.setProperty("valueEditor", new RangeEditor());
-        descriptorList.add(vd10);
-    }
+        addValueDescriptor(vd10);
 
-    private void setEditorEnableState(String propertyName, boolean enabled) {
-        Binding pixelBinding = getBindingContext().getBinding(propertyName);
-        JComponent[] components = pixelBinding.getComponents();
-        for (JComponent component : components) {
-            component.setEnabled(enabled);
-        }
+        boolean resAuto = (Boolean) bindingContext.getValueContainer().getValue(GraticuleLayer.PROPERTY_NAME_RES_AUTO);
+        bindingContext.bindEnabledState(GraticuleLayer.PROPERTY_NAME_RES_PIXELS, resAuto,
+                                        GraticuleLayer.PROPERTY_NAME_RES_AUTO, resAuto);
+        bindingContext.bindEnabledState(GraticuleLayer.PROPERTY_NAME_RES_LAT, !resAuto,
+                                        GraticuleLayer.PROPERTY_NAME_RES_AUTO, resAuto);
+        bindingContext.bindEnabledState(GraticuleLayer.PROPERTY_NAME_RES_LON, !resAuto,
+                                        GraticuleLayer.PROPERTY_NAME_RES_AUTO, resAuto);
+
+        boolean textEnabled = (Boolean) bindingContext.getValueContainer().getValue(
+                GraticuleLayer.PROPERTY_NAME_TEXT_ENABLED);
+        bindingContext.bindEnabledState(GraticuleLayer.PROPERTY_NAME_TEXT_FG_COLOR, textEnabled,
+                                        GraticuleLayer.PROPERTY_NAME_TEXT_ENABLED, textEnabled);
+        bindingContext.bindEnabledState(GraticuleLayer.PROPERTY_NAME_TEXT_BG_COLOR, textEnabled,
+                                        GraticuleLayer.PROPERTY_NAME_TEXT_ENABLED, textEnabled);
+        bindingContext.bindEnabledState(GraticuleLayer.PROPERTY_NAME_TEXT_BG_TRANSPARENCY, textEnabled,
+                                        GraticuleLayer.PROPERTY_NAME_TEXT_ENABLED, textEnabled);
+
     }
 
 }

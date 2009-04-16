@@ -1,6 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager.editors;
 
 import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
@@ -13,46 +14,42 @@ import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.List;
 
 /**
  * @author Marco Peters
  * @version $ Revision: $ Date: $
  * @since BEAM 4.6
  */
-public class RoiLayerEditor extends AbstractValueDescriptorLayerEditor {
+public class RoiLayerEditor extends AbstractBindingLayerEditor {
 
     @Override
-    protected void collectValueDescriptors(AppContext appContext, final List<ValueDescriptor> descriptorList) {
+    protected void initializeBinding(AppContext appContext, final BindingContext bindingContext) {
         ValueDescriptor vd = new ValueDescriptor(RoiLayerType.PROPERTY_COLOR, Color.class);
         vd.setDefaultValue(Color.RED);
         vd.setDisplayName("Roi Colour");
         vd.setDefaultConverter();
+        addValueDescriptor(vd);
 
-        descriptorList.add(vd);
+        bindingContext.getValueContainer().addPropertyChangeListener(RoiLayerType.PROPERTY_COLOR,
+                                                                     new UpdateImagePropertyChangeListener());
     }
 
-    @Override
-    protected void collectPropertyChangeListeners(List<PropertyChangeListener> listenerList) {
-        super.collectPropertyChangeListeners(listenerList);
+    private class UpdateImagePropertyChangeListener implements PropertyChangeListener {
 
-        final PropertyChangeListener listener = new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                if (getLayer() != null && RoiLayerType.PROPERTY_COLOR.equals(evt.getPropertyName())) {
-                    final ImageLayer layer = (ImageLayer) getLayer();
-                    final Style style = layer.getStyle();
-                    final Color newColor = (Color) evt.getNewValue();
-                    final RasterDataNode raster = (RasterDataNode) style.getProperty(
-                            RoiLayerType.PROPERTY_REFERENCED_RASTER);
-                    final AffineTransform transform = (AffineTransform) style.getProperty(
-                            RoiLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
-                    MultiLevelSource multiLevelSource = RoiImageMultiLevelSource.create(raster, newColor, transform);
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (getLayer() != null && RoiLayerType.PROPERTY_COLOR.equals(evt.getPropertyName())) {
+                final ImageLayer layer = (ImageLayer) getLayer();
+                final Style style = layer.getStyle();
+                final Color newColor = (Color) evt.getNewValue();
+                final RasterDataNode raster = (RasterDataNode) style.getProperty(
+                        RoiLayerType.PROPERTY_REFERENCED_RASTER);
+                final AffineTransform transform = (AffineTransform) style.getProperty(
+                        RoiLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
+                MultiLevelSource multiLevelSource = RoiImageMultiLevelSource.create(raster, newColor, transform);
 
-                    layer.setMultiLevelSource(multiLevelSource);
-                }
+                layer.setMultiLevelSource(multiLevelSource);
             }
-        };
-        listenerList.add(listener);
+        }
     }
 }
