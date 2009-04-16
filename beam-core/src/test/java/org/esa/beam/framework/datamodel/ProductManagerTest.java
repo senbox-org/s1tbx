@@ -45,6 +45,7 @@ public class ProductManagerTest extends TestCase {
     /**
      * Initializytion for the tests.
      */
+    @Override
     protected void setUp() {
         _productManager = new ProductManager();
         _product1 = new Product("product1", _prodName, _sceneWidth, _sceneHeight);
@@ -52,6 +53,7 @@ public class ProductManagerTest extends TestCase {
         _product3 = new Product("product3", _prodName, _sceneWidth, _sceneHeight);
     }
 
+    @Override
     protected void tearDown() {
 
     }

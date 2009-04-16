@@ -37,10 +37,12 @@ public class ConvolutionFilterBandPersistableSpiTest extends TestCase {
 
        private ConvolutionFilterBandPersistableSpi _persistableSpi;
 
+    @Override
     public void setUp() {
         _persistableSpi = new ConvolutionFilterBandPersistableSpi();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         _persistableSpi = null;
     }

@@ -32,6 +32,7 @@ public class CombinedFXYGeoCodingTest extends TestCase {
 
     private CombinedFXYGeoCoding _srcGeoCoding;
 
+    @Override
     public void setUp() throws Exception {
         final CombinedFXYGeoCoding.CodingWrapper[] codingWrappers = new CombinedFXYGeoCoding.CodingWrapper[2];
         final FXYGeoCoding geoCoding = new FXYGeoCoding(0, 0, 1, 1,
@@ -45,6 +46,7 @@ public class CombinedFXYGeoCodingTest extends TestCase {
         _srcGeoCoding = new CombinedFXYGeoCoding(codingWrappers);
     }
 
+    @Override
     public void tearDown() throws Exception {
         super.tearDown();
         _srcGeoCoding = null;

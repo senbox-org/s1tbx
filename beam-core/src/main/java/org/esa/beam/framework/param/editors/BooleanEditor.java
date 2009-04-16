@@ -47,6 +47,7 @@ public class BooleanEditor extends AbstractParamEditor {
         return getCheckBox();
     }
 
+    @Override
     protected void initUI() {
         // do not call super.initUI() since we don't want any labels to be created
         _checkBox = new JCheckBox();
@@ -65,6 +66,7 @@ public class BooleanEditor extends AbstractParamEditor {
         });
     }
 
+    @Override
     public void updateUI() {
         super.updateUI();
 

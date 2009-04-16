@@ -8,6 +8,7 @@ package org.esa.beam.framework.dataop.dem;
 
 public class Orthorectifier2Test extends OrthorectifierTest {
 
+    @Override
     Orthorectifier createOrthorectifier() {
         return new Orthorectifier2(SCENE_WIDTH,
                                    SCENE_HEIGHT,

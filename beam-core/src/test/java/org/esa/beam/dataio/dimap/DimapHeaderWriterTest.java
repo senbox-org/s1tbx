@@ -173,6 +173,7 @@ public class DimapHeaderWriterTest extends TestCase {
         super(s);
     }
 
+    @Override
     protected void setUp() throws Exception {
         _product = new Product("test", "MER_RR__2P", 200, 300);
         _product.setStartTime(new ProductData.UTC(1234, 2045, 34));

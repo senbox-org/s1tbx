@@ -51,6 +51,7 @@ public class Orthorectifier2 extends Orthorectifier {
      *
      * @return the pixel co-ordinates as x/y
      */
+    @Override
     public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
         if (pixelPos == null) {
             pixelPos = new PixelPos();

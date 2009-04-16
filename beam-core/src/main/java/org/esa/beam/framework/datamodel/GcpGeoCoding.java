@@ -83,6 +83,7 @@ public class GcpGeoCoding extends AbstractGeoCoding {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean transferGeoCoding(Scene sourceScene, Scene targetScene, ProductSubsetDef subsetDef) {
         final double[] x2 = new double[x.length];
         final double[] y2 = new double[y.length];

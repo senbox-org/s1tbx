@@ -37,10 +37,12 @@ public class ProductSubsetInfoTest extends TestCase {
         return new TestSuite(ProductSubsetInfoTest.class);
     }
 
+    @Override
     protected void setUp() {
         _subset = new ProductSubsetDef("undefined");
     }
 
+    @Override
     protected void tearDown() {
     }
 

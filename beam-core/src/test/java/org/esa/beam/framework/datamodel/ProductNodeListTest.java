@@ -37,6 +37,7 @@ public class ProductNodeListTest extends TestCase {
         return new TestSuite(ProductNodeListTest.class);
     }
 
+    @Override
     protected void setUp() {
         _nodeList = new ProductNodeList<MetadataAttribute>();
         _attribute1 = new MetadataAttribute("attribute1", ProductData.createInstance(ProductData.TYPE_INT32), true);
@@ -45,6 +46,7 @@ public class ProductNodeListTest extends TestCase {
         _attribute4 = new MetadataAttribute("attribute4", ProductData.createInstance(ProductData.TYPE_INT32), true);
     }
 
+    @Override
     protected void tearDown() {
     }
 

@@ -396,6 +396,7 @@ public class FXYSum {
             super(FXY_LINEAR, 1, coefficients);
         }
 
+        @Override
         public double computeZ(final double x, final double y) {
             final double[] c = getCoefficients();
             return c[0] +
@@ -418,6 +419,7 @@ public class FXYSum {
             super(FXY_BI_LINEAR, 1 + 1, coefficients);
         }
 
+        @Override
         public double computeZ(final double x, final double y) {
             final double[] c = getCoefficients();
             return c[0] +
@@ -442,6 +444,7 @@ public class FXYSum {
             super(FXY_QUADRATIC, 2, coefficients);
         }
 
+        @Override
         public double computeZ(final double x, final double y) {
             final double[] c = getCoefficients();
             return c[0] +
@@ -468,6 +471,7 @@ public class FXYSum {
             super(FXY_BI_QUADRATIC, 2 + 2, coefficients);
         }
 
+        @Override
         public double computeZ(final double x, final double y) {
             final double[] c = getCoefficients();
             return c[0] +
@@ -494,6 +498,7 @@ public class FXYSum {
             super(FXY_CUBIC, 3, coefficients);
         }
 
+        @Override
         public double computeZ(final double x, final double y) {
             final double[] c = getCoefficients();
             return c[0] +
@@ -522,6 +527,7 @@ public class FXYSum {
         }
 
 
+        @Override
         public double computeZ(final double x, final double y) {
             final double[] c = getCoefficients();
             return c[0] +

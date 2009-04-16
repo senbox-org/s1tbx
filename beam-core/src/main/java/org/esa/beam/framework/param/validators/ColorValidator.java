@@ -83,6 +83,7 @@ public class ColorValidator extends AbstractParamValidator {
         validateThatValueIsInValueSet(parameter, value);
     }
 
+    @Override
     public boolean equalValues(Parameter parameter, Object value1, Object value2) {
 
         Color c1 = castToColor(value1);

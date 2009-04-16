@@ -22,12 +22,15 @@ public class ExceptionCollector extends Handler {
 
     private final ArrayList errors = new ArrayList();
 
+    @Override
     public void close() throws SecurityException {
     }
 
+    @Override
     public void flush() {
     }
 
+    @Override
     public void publish(LogRecord record) {
         final Throwable thrown = record.getThrown();
         if (thrown != null) {

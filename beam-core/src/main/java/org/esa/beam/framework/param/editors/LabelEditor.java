@@ -44,6 +44,7 @@ public class LabelEditor extends AbstractParamEditor {
         return getLabel();
     }
 
+    @Override
     protected void initUI() {
         _label = new JLabel();
         nameEditorComponent(_label);
@@ -53,6 +54,7 @@ public class LabelEditor extends AbstractParamEditor {
         }
     }
 
+    @Override
     public void updateUI() {
         super.updateUI();
 

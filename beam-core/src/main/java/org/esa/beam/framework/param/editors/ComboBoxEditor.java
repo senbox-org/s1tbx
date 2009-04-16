@@ -63,6 +63,7 @@ public class ComboBoxEditor extends AbstractParamEditor {
         return getComboBox();
     }
 
+    @Override
     protected void initUI() {
 
         setDefaultLabelComponent(true);
@@ -97,6 +98,7 @@ public class ComboBoxEditor extends AbstractParamEditor {
         }
     }
 
+    @Override
     public void updateUI() {
         super.updateUI();
 
@@ -119,6 +121,7 @@ public class ComboBoxEditor extends AbstractParamEditor {
         }
     }
 
+    @Override
     public void reconfigureUI() {
         JComboBox jComboBox = getComboBox();
         ItemListener[] itemListeners = (ItemListener[]) jComboBox.getListeners(ItemListener.class);

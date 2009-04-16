@@ -387,6 +387,7 @@ public class DimapProductWriter extends AbstractProductWriter {
         randomAccessFile.close();
     }
 
+    @Override
     public boolean shouldWrite(ProductNode node) {
         if (node instanceof VirtualBand) {
             return false;
@@ -413,6 +414,7 @@ public class DimapProductWriter extends AbstractProductWriter {
      *
      * @param enabled enables or disables progress listening.
      */
+    @Override
     public void setIncrementalMode(boolean enabled) {
         _incremental = enabled;
     }
@@ -422,6 +424,7 @@ public class DimapProductWriter extends AbstractProductWriter {
      *
      * @return <code>true</code> if so
      */
+    @Override
     public boolean isIncrementalMode() {
         return _incremental;
     }
@@ -449,6 +452,7 @@ public class DimapProductWriter extends AbstractProductWriter {
         }
     }
 
+    @Override
     public void removeBand(Band band) {
         if (band != null) {
             final String headerFilename = createEnviHeaderFilename(band);

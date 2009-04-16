@@ -40,10 +40,12 @@ public class DimapProductWriterPlugInTest extends TestCase {
         return new TestSuite(DimapProductWriterPlugInTest.class);
     }
 
+    @Override
     protected void setUp() {
         _productWriter = _plugIn.createWriterInstance();
     }
 
+    @Override
     protected void tearDown() {
         _productWriter = null;
     }

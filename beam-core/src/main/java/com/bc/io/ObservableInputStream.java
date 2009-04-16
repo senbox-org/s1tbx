@@ -65,6 +65,7 @@ public class ObservableInputStream extends FilterInputStream {
      * Overrides <code>FilterInputStream.read</code>
      * to update the progress observer after the read.
      */
+    @Override
     public int read() throws IOException {
         int c = in.read();
         if (c >= 0) {
@@ -78,6 +79,7 @@ public class ObservableInputStream extends FilterInputStream {
      * Overrides <code>FilterInputStream.read</code>
      * to update the progress observer after the read.
      */
+    @Override
     public int read(byte b[]) throws IOException {
         int nr = in.read(b);
         if (nr > 0) {
@@ -91,6 +93,7 @@ public class ObservableInputStream extends FilterInputStream {
      * Overrides <code>FilterInputStream.read</code>
      * to update the progress observer after the read.
      */
+    @Override
     public int read(byte b[], int off, int len) throws IOException {
         int nr = in.read(b, off, len);
         if (nr > 0) {
@@ -104,6 +107,7 @@ public class ObservableInputStream extends FilterInputStream {
      * Overrides <code>FilterInputStream.skip</code>
      * to update the progress observer after the skip.
      */
+    @Override
     public long skip(long n) throws IOException {
         long nr = in.skip(n);
         if (nr > 0) {
@@ -116,6 +120,7 @@ public class ObservableInputStream extends FilterInputStream {
      * Overrides <code>FilterInputStream.close</code>
      * to close the progress observer as well as the stream.
      */
+    @Override
     public void close() throws IOException {
         in.close();
         if (numBytesRead != numBytesTotal) {
@@ -127,6 +132,7 @@ public class ObservableInputStream extends FilterInputStream {
      * Overrides <code>FilterInputStream.reset</code>
      * to reset the progress observer as well as the stream.
      */
+    @Override
     public synchronized void reset() throws IOException {
         in.reset();
         fireProgress(numBytesTotal - in.available() - numBytesRead);

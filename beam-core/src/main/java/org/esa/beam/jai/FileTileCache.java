@@ -542,6 +542,7 @@ public class FileTileCache implements TileCache {
             this.hash = getHashCode(owner, tileX, tileY);
         }
 
+        @Override
         public boolean equals(Object other) {
             if (this == other) {
                 return true;
@@ -556,6 +557,7 @@ public class FileTileCache implements TileCache {
                     && tileY == tileId.tileY;
         }
 
+        @Override
         public int hashCode() {
             return hash;
         }

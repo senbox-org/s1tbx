@@ -301,6 +301,7 @@ public class StereographicDescriptor implements MapTransformDescriptor {
         /**
          * Forward project geographical coordinates into map coordinates.
          */
+        @Override
         public Point2D forward_impl(final float lat, final float lon, Point2D mapPoint) {
             final double phi = Math.toRadians(lat);
             final double lam = Math.toRadians(lon);
@@ -350,6 +351,7 @@ public class StereographicDescriptor implements MapTransformDescriptor {
         /**
          * Inverse project map coordinates into geographical coordinates.
          */
+        @Override
         public GeoPos inverse_impl(final float x, final float y, final GeoPos geoPoint) {
             return inverse_impl((double) x, (double) y, geoPoint);
         }
@@ -358,6 +360,7 @@ public class StereographicDescriptor implements MapTransformDescriptor {
         /**
          * Inverse project map coordinates into geographical coordinates.
          */
+        @Override
         public GeoPos inverse_impl(double x, double y, GeoPos geoPoint) {
             final double rho = Math.sqrt(x * x + y * y);
 

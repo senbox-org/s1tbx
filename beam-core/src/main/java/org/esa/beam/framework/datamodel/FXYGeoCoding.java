@@ -168,6 +168,7 @@ public class FXYGeoCoding extends AbstractGeoCoding {
      *
      * @return true, if the geo-coding could be transferred.
      */
+    @Override
     public boolean transferGeoCoding(final Scene srcScene, final Scene destScene, final ProductSubsetDef subsetDef) {
         float pixelOffsetX = getPixelOffsetX();
         float pixelOffsetY = getPixelOffsetY();

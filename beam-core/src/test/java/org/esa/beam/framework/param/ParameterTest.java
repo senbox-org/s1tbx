@@ -29,9 +29,11 @@ public class ParameterTest extends TestCase {
         super(testName);
     }
 
+    @Override
     protected void setUp() {
     }
 
+    @Override
     protected void tearDown() {
     }
 

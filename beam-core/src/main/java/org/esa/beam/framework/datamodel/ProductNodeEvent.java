@@ -110,6 +110,7 @@ public class ProductNodeEvent extends EventObject {
         return _oldValue;
     }
 
+    @Override
     public String toString() {
         return getClass().getName() +
                " [sourceNode=" + getSourceNode() +

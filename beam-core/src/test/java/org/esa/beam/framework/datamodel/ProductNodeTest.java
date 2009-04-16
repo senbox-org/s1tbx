@@ -31,6 +31,7 @@ public class ProductNodeTest extends TestCase {
         return new TestSuite(ProductNodeTest.class);
     }
 
+    @Override
     protected void setUp() {
     }
 
@@ -38,6 +39,7 @@ public class ProductNodeTest extends TestCase {
         final ProductNode[] owner = new Product[1];
         final Product product = new Product("product", "t", 10, 10);
         product.addProductNodeListener(new ProductNodeListenerAdapter() {
+            @Override
             public void nodeRemoved(ProductNodeEvent event) {
                 ProductNode sourceNode = event.getSourceNode();
                 owner[0] = sourceNode.getOwner();

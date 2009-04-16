@@ -33,9 +33,11 @@ public class VirtualBandTest extends AbstractRasterDataNodeTest {
         return new TestSuite(VirtualBandTest.class);
     }
 
+    @Override
     protected void setUp() {
     }
 
+    @Override
     protected void tearDown() {
     }
 
@@ -66,24 +68,28 @@ public class VirtualBandTest extends AbstractRasterDataNodeTest {
         final boolean[] isActiv = new boolean[]{false};
         final Product product = new Product("prod", "NO_TYPE", 10, 10) {
 
+            @Override
             protected void fireNodeChanged(ProductNode sourceNode, String propertyName, Object oldValue) {
                 if (isActiv[0] && !propertyName.equalsIgnoreCase(Product.PROPERTY_NAME_MODIFIED)) {
                     fail("Event '" + propertyName + "' not expected");
                 }
             }
 
+            @Override
             protected void fireNodeAdded(ProductNode sourceNode) {
                 if (isActiv[0]) {
                     fail("Event not expected");
                 }
             }
 
+            @Override
             protected void fireNodeDataChanged(DataNode sourceNode) {
                 if (isActiv[0]) {
                     fail("Event not expected");
                 }
             }
 
+            @Override
             protected void fireNodeRemoved(ProductNode sourceNode) {
                 if (isActiv[0]) {
                     fail("Event not expected");
@@ -102,6 +108,7 @@ public class VirtualBandTest extends AbstractRasterDataNodeTest {
         assertTrue(virtualBand.isModified());
     }
 
+    @Override
     protected RasterDataNode createRasterDataNode() {
         return new VirtualBand("vb", ProductData.TYPE_UINT16, 10, 10, "0");
     }

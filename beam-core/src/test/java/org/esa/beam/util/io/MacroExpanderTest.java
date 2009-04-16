@@ -46,6 +46,7 @@ public class MacroExpanderTest extends TestCase {
         return new TestSuite(MacroExpanderTest.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         _p.setProperty("org.esa.beam.home", "usr/local/org/esa/beam");
         _p.setProperty("java.home", "usr/local/java2");

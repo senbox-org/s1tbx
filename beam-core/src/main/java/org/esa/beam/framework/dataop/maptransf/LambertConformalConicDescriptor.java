@@ -300,6 +300,7 @@ public class LambertConformalConicDescriptor implements MapTransformDescriptor {
          *
          * @return the map co-ordinate
          */
+        @Override
         protected Point2D forward_impl(float lat, float lon, Point2D mapPoint) {
             final double phi = MathUtils.DTOR * lat;
             double lam = MathUtils.DTOR * lon;
@@ -338,6 +339,7 @@ public class LambertConformalConicDescriptor implements MapTransformDescriptor {
          *
          * @return the geodetic co-ordinate
          */
+        @Override
         protected GeoPos inverse_impl(float x, float y, GeoPos geoPoint) {
             double localX = x * _invK0;
             double localY = y * _invK0;

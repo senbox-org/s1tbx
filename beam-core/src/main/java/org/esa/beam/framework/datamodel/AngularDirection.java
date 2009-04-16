@@ -20,6 +20,7 @@ public class AngularDirection {
         this.zenith = zenith;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof AngularDirection) {
             AngularDirection other = (AngularDirection) obj;
@@ -29,6 +30,7 @@ public class AngularDirection {
         return false;
     }
 
+    @Override
     public String toString() {
         return "AngularDirection[" + zenith + "," + azimuth + "]";
     }

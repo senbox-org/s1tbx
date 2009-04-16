@@ -46,12 +46,15 @@ public class TiePointGridTest extends AbstractRasterDataNodeTest {
         return new TestSuite(TiePointGridTest.class);
     }
 
+    @Override
     protected void setUp() {
     }
 
+    @Override
     protected void tearDown() {
     }
 
+    @Override
     protected RasterDataNode createRasterDataNode() {
         return new TiePointGrid("dafault", 2, 2, 0, 0, 1, 1, new float[]{1f, 2f, 3f, 4f});
     }

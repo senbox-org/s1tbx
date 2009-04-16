@@ -48,6 +48,7 @@ public class DimapProductWriterTest_WriteBandRasterData extends TestCase {
         return new TestSuite(DimapProductWriterTest_WriteBandRasterData.class);
     }
 
+    @Override
     protected void setUp() {
         GlobalTestTools.deleteTestDataOutputDirectory();
         _productWriter = (DimapProductWriter) _writerPlugIn.createWriterInstance();
@@ -55,6 +56,7 @@ public class DimapProductWriterTest_WriteBandRasterData extends TestCase {
         _outputFile = new File(_outputDir, "testproduct" + DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION);
     }
 
+    @Override
     protected void tearDown() {
         GlobalTestTools.deleteTestDataOutputDirectory();
     }

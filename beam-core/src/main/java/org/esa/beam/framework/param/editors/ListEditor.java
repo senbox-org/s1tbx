@@ -60,6 +60,7 @@ public class ListEditor extends AbstractParamEditor {
         return getListScrollPane();
     }
 
+    @Override
     protected void initUI() {
 
         setDefaultLabelComponent(true);
@@ -90,6 +91,7 @@ public class ListEditor extends AbstractParamEditor {
     }
 
 
+    @Override
     public void updateUI() {
         super.updateUI();
 
@@ -105,6 +107,7 @@ public class ListEditor extends AbstractParamEditor {
         }
     }
 
+    @Override
     public void reconfigureUI() {
         EventListener[] li = _list.getListeners(ListSelectionListener.class);
         removeListSelectionListener(li);
@@ -116,6 +119,7 @@ public class ListEditor extends AbstractParamEditor {
     private FocusAdapter createListFocusListener() {
         return new FocusAdapter() {
 
+            @Override
             public void focusLost(FocusEvent e) {
                 JList list = (JList) e.getSource();
                 Object[] values = list.getSelectedValues();

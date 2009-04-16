@@ -45,15 +45,18 @@ public class ColorEditor extends AbstractParamXEditor {
         return _colorDisplay;
     }
 
+    @Override
     public JComponent getEditorComponentChild() {
         return getColorDisplay();
     }
 
+    @Override
     protected void initUIChild() {
         _colorDisplay = new ColorDisplay();
         nameComponent(_colorDisplay, "ColorDisplay");
     }
 
+    @Override
     public void updateUI() {
         super.updateUI();
         if (getColorDisplay().isEnabled() != isEnabled()) {
@@ -62,6 +65,7 @@ public class ColorEditor extends AbstractParamXEditor {
         getColorDisplay().repaint();
     }
 
+    @Override
     protected void invokeXEditor() {
         Color color = JColorChooser.showDialog(getEditorComponent(),
                                                "Select Colour", /*I18N*/
@@ -87,10 +91,12 @@ public class ColorEditor extends AbstractParamXEditor {
                                                          BorderFactory.createLineBorder(Color.darkGray)));
         }
 
+        @Override
         public Dimension getMinimumSize() {
             return getXEditorButton().getMinimumSize();
         }
 
+        @Override
         public Dimension getPreferredSize() {
             Runtime.getRuntime().maxMemory();
             Dimension size1 = getXEditorButton().getPreferredSize();
@@ -99,6 +105,7 @@ public class ColorEditor extends AbstractParamXEditor {
             return new Dimension(3 * height, height);
         }
 
+        @Override
         protected void paintComponent(Graphics g) {
             Rectangle b = getBounds();
             Insets i = getInsets();

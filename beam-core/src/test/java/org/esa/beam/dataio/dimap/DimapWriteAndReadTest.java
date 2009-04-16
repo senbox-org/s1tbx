@@ -50,6 +50,7 @@ public class DimapWriteAndReadTest extends TestCase {
         return new TestSuite(DimapWriteAndReadTest.class);
     }
 
+    @Override
     protected void setUp() {
         GlobalTestTools.deleteTestDataOutputDirectory();
         _writer = new DimapProductWriter(_writerPlugIn);
@@ -58,6 +59,7 @@ public class DimapWriteAndReadTest extends TestCase {
         _product = createProduct();
     }
 
+    @Override
     protected void tearDown() {
         try {
             if (_writer != null) {

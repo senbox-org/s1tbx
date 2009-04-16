@@ -133,6 +133,7 @@ public class StringArrayValidator extends AbstractParamValidator {
         }
     }
 
+    @Override
     public boolean equalValues(Parameter parameter, Object value1, Object value2) {
 
         String[] sa1 = castToStringArray(value1);

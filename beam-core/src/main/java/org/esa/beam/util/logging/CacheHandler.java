@@ -65,6 +65,7 @@ public class CacheHandler extends Handler {
      *
      * @param record description of the logging event
      */
+    @Override
     public void publish(LogRecord record) {
         _cache.add(record);
     }
@@ -72,6 +73,7 @@ public class CacheHandler extends Handler {
     /**
      * Removes all records from the vector.
      */
+    @Override
     public void flush() {
         _cache.clear();
     }
@@ -86,6 +88,7 @@ public class CacheHandler extends Handler {
      * @throws java.lang.SecurityException if a security manager exists and if the caller does not have
      *                                     <tt>LoggingPermission("control")</tt>.
      */
+    @Override
     public void close() throws SecurityException {
     }
 

@@ -61,6 +61,7 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
      * @throws IllegalArgumentException if <code>input</code> type is not one of the supported input sources.
      * @throws IOException              if an I/O error occurs
      */
+    @Override
     protected Product readProductNodesImpl() throws IOException {
         if (getInput() instanceof Product) {
             sourceProduct = (Product) getInput();

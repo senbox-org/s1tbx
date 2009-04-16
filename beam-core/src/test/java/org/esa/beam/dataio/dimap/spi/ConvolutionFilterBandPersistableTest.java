@@ -43,12 +43,14 @@ public class ConvolutionFilterBandPersistableTest extends TestCase {
     private Product _product;
     private Band _source;
 
+    @Override
     public void setUp() throws Exception {
         _convolutionFilterBandPersistable = new ConvolutionFilterBandPersistable();
         _product = new Product("p", "doesntMatter", 2, 2);
         _source = _product.addBand("anyBand", ProductData.TYPE_UINT16);
     }
 
+    @Override
     public void tearDown() throws Exception {
         _convolutionFilterBandPersistable = null;
         _product = null;

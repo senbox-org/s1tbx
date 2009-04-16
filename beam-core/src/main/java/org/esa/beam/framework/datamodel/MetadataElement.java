@@ -198,6 +198,7 @@ public class MetadataElement extends ProductNode {
         //attribute.setOwner(this);
     }
 
+    @Override
     public void setOwner(ProductNode own) {
         super.setOwner(own);
     }
@@ -409,6 +410,7 @@ public class MetadataElement extends ProductNode {
      *
      * @see ProductNode#setModified
      */
+    @Override
     public void setModified(boolean modified) {
         super.setModified(modified);
         if (!modified) {
@@ -436,6 +438,7 @@ public class MetadataElement extends ProductNode {
      *
      * @param visitor the visitor
      */
+    @Override
     public void acceptVisitor(ProductVisitor visitor) {
         Guardian.assertNotNull("visitor", visitor);
         for (int i = 0; i < getNumElements(); i++) {
@@ -476,6 +479,7 @@ public class MetadataElement extends ProductNode {
      *
      * @return the size in bytes.
      */
+    @Override
     public long getRawStorageSize(ProductSubsetDef subsetDef) {
         if (subsetDef != null && !subsetDef.containsNodeName(getName())) {
             return 0L;
@@ -513,6 +517,7 @@ public class MetadataElement extends ProductNode {
      * <p/>
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
      */
+    @Override
     public void dispose() {
         if (_attributes != null) {
             _attributes.dispose();

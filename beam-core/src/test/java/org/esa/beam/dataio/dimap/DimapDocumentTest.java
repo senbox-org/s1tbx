@@ -82,10 +82,12 @@ public class DimapDocumentTest extends TestCase {
         return new TestSuite(DimapDocumentTest.class);
     }
 
+    @Override
     protected void setUp() {
         GlobalTestTools.deleteTestDataOutputDirectory();
     }
 
+    @Override
     protected void tearDown() {
         GlobalTestTools.deleteTestDataOutputDirectory();
     }

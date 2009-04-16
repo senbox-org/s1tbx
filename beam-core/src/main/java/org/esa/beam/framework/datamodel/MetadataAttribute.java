@@ -64,6 +64,7 @@ public class MetadataAttribute extends DataNode {
      *
      * @param visitor the visitor
      */
+    @Override
     public void acceptVisitor(ProductVisitor visitor) {
         Guardian.assertNotNull("visitor", visitor);
         visitor.visit(this);

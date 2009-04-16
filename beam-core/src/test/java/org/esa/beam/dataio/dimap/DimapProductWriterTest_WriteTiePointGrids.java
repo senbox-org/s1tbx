@@ -47,6 +47,7 @@ public class DimapProductWriterTest_WriteTiePointGrids extends TestCase {
         return new TestSuite(DimapProductWriterTest_WriteTiePointGrids.class);
     }
 
+    @Override
     protected void setUp() {
         GlobalTestTools.deleteTestDataOutputDirectory();
         _productWriter = new DimapProductWriter(_writerPlugIn);
@@ -54,6 +55,7 @@ public class DimapProductWriterTest_WriteTiePointGrids extends TestCase {
         _outputFile = new File(_outputDir, "testproduct" + DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION);
     }
 
+    @Override
     protected void tearDown() {
         if (_productWriter != null) {
             try {

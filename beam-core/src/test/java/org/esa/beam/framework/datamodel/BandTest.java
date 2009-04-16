@@ -53,6 +53,7 @@ public class BandTest extends AbstractRasterDataNodeTest {
         return new TestSuite(BandTest.class);
     }
 
+    @Override
     protected void setUp() {
         _rsBand = new Band("band1", ProductData.TYPE_INT8, 20, 20);
         _rsBandBlaByte5050 = new Band("Bla", ProductData.TYPE_UINT8, 50, 50);
@@ -64,9 +65,11 @@ public class BandTest extends AbstractRasterDataNodeTest {
         _rsBandBlepDouble100100 = new Band("Blep", ProductData.TYPE_FLOAT64, 100, 100);
     }
 
+    @Override
     protected void tearDown() {
     }
 
+    @Override
     protected RasterDataNode createRasterDataNode() {
         return new Band("Undef", ProductData.TYPE_INT8, 10, 10);
     }

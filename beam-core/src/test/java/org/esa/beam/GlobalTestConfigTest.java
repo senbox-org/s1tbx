@@ -37,10 +37,12 @@ public class GlobalTestConfigTest extends TestCase {
         return new TestSuite(GlobalTestConfigTest.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         _propertys = System.getProperties();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         System.setProperties(_propertys);
     }

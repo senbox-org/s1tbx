@@ -110,6 +110,7 @@ public class StringValidator extends AbstractParamValidator {
         }
     }
 
+    @Override
     public boolean equalValues(Parameter parameter, Object value1, Object value2) {
         return equalValues(parameter.getProperties().isCaseSensitive(), value1, value2);
     }

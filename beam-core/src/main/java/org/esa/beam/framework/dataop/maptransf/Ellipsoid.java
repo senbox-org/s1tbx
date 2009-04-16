@@ -63,6 +63,7 @@ public class Ellipsoid {
         return _semiMajor;
     }
 
+    @Override
     public Object clone() {
         try {
             return super.clone();

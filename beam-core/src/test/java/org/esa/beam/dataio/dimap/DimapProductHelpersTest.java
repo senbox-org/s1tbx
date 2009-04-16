@@ -331,12 +331,14 @@ public class DimapProductHelpersTest extends TestCase {
 
     private Product _product;
 
+    @Override
     protected void setUp() throws Exception {
         _product = new Product("product", "type", 200, 300);
         _product.addBand("b1", ProductData.TYPE_INT8);
         _product.addBand("b2", ProductData.TYPE_INT8);
     }
 
+    @Override
     protected void tearDown() throws Exception {
     }
 

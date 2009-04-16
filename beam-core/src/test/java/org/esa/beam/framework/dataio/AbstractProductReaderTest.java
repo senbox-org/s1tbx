@@ -61,6 +61,7 @@ public class AbstractProductReaderTest extends TestCase {
         assertNull(productComponents);
     }
 
+    @Override
     protected void setUp() throws Exception {
         reader = new TestProductReader();
     }
@@ -71,10 +72,12 @@ public class AbstractProductReaderTest extends TestCase {
             super(null);
         }
 
+        @Override
         protected Product readProductNodesImpl() throws IOException {
             return new Product("test", "what", 3, 5);
         }
 
+        @Override
         protected void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight, int sourceStepX, int sourceStepY, Band destBand, int destOffsetX, int destOffsetY, int destWidth, int destHeight, ProductData destBuffer, ProgressMonitor pm) throws IOException {            
         }
     }

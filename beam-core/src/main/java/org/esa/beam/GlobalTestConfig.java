@@ -61,6 +61,7 @@ public class GlobalTestConfig {
     private static Test createEmptyTest(final Class testClass, final File inputFile) {
         return new TestCase(testClass.getName()) {
 
+            @Override
             public void runTest() {
                 System.out.println();
                 System.out.println(testClass.getName() + ": warning: test will not be performed: testdata not found: ");

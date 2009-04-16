@@ -43,6 +43,7 @@ public class ProductNode_ModifiedPropagationDirectionTest extends TestCase {
         final ArrayList propertySourceList = new ArrayList();
         final ArrayList modifiedList = new ArrayList();
         node1.addProductNodeListener(new ProductNodeListenerAdapter() {
+            @Override
             public void nodeChanged(ProductNodeEvent event) {
                 propertyNameList.add(event.getPropertyName());
                 propertySourceList.add(event.getSource());

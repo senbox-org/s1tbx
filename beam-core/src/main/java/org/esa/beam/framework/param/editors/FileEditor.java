@@ -41,6 +41,7 @@ public class FileEditor extends TextFieldXEditor {
         updateLastDir();
     }
 
+    @Override
     protected void invokeXEditor() {
         File lastDir = getLastDir();
         File file = getParameterFileValue();

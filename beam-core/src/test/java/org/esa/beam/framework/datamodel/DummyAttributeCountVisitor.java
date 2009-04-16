@@ -32,6 +32,7 @@ public class DummyAttributeCountVisitor extends ProductVisitorAdapter {
         return _attCount;
     }
 
+    @Override
     public void visit(MetadataAttribute attribute) {
         _attCount++;
     }

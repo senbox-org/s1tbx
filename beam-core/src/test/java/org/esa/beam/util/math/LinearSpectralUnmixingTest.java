@@ -97,6 +97,7 @@ public class LinearSpectralUnmixingTest extends TestCase {
         return new BufferedReader(new InputStreamReader(stream));
     }
 
+    @Override
     protected void setUp() throws Exception {
         endmembers = Matrix.read(getResourceReader("endmember-spectra.csv"));
         spectra = Matrix.read(getResourceReader("pixel-spectra.csv"));

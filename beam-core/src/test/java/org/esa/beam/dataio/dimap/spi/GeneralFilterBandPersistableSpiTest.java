@@ -36,10 +36,12 @@ public class GeneralFilterBandPersistableSpiTest extends TestCase {
 
     private GeneralFilterBandPersistableSpi _persistableSpi;
 
+    @Override
     public void setUp() {
         _persistableSpi = new GeneralFilterBandPersistableSpi();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         _persistableSpi = null;
     }

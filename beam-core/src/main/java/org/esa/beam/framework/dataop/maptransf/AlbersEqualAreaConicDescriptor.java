@@ -331,6 +331,7 @@ public class AlbersEqualAreaConicDescriptor implements MapTransformDescriptor {
          *
          * @return the map co-ordinate
          */
+        @Override
         protected Point2D forward_impl(float phi, float lam, Point2D mapPoint) {
             final double _phi = Math.toRadians(phi);
             final double _lam = Math.toRadians(lam);
@@ -370,6 +371,7 @@ public class AlbersEqualAreaConicDescriptor implements MapTransformDescriptor {
          *
          * @return the geodetic co-ordinate
          */
+        @Override
         protected GeoPos inverse_impl(float x, float y, GeoPos geoPoint) {
             double rho;
             double beta;

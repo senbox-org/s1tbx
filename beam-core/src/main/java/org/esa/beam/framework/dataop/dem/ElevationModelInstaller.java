@@ -54,6 +54,7 @@ class ElevationModelInstaller extends SwingWorker {
      * @return the computed result
      * @throws Exception if unable to compute a result
      */
+    @Override
     protected Object doInBackground() throws Exception {
         _status = ElevationModelDescriptor.DEM_INSTALLATION_IN_PROGRESS;
         _ioException = null;

@@ -41,6 +41,7 @@ public class ProductDataUIntTest extends TestCase {
         return new TestSuite(ProductDataUIntTest.class);
     }
 
+    @Override
     protected void setUp() {
         File outputFile = GlobalTestConfig.getBeamTestDataOutputFile("ProductData");
         outputFile.mkdirs();
@@ -55,6 +56,7 @@ public class ProductDataUIntTest extends TestCase {
         assertNotNull(_outputStream);
     }
 
+    @Override
     protected void tearDown() {
         try {
             _inputStream.close();

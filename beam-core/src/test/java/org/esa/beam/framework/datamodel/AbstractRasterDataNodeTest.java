@@ -67,12 +67,14 @@ public abstract class AbstractRasterDataNodeTest extends AbstractDataNodeTest {
         final int height = node.getSceneRasterHeight();
         final boolean[] isActiv = {false};
         final Product product = new Product("n", "t", width, height) {
+            @Override
             protected void fireNodeAdded(ProductNode sourceNode) {
                 if (isActiv[0]) {
                     fail("Event not expected.");
                 }
             }
 
+            @Override
             protected void fireNodeChanged(ProductNode sourceNode, String propertyName, Object oldValue) {
                 if (isActiv[0] && !ProductNode.PROPERTY_NAME_MODIFIED.equalsIgnoreCase(propertyName)
                 && !RasterDataNode.PROPERTY_NAME_ROI_DEFINITION.equalsIgnoreCase(propertyName)) {
@@ -80,12 +82,14 @@ public abstract class AbstractRasterDataNodeTest extends AbstractDataNodeTest {
                 }
             }
 
+            @Override
             protected void fireNodeDataChanged(DataNode sourceNode) {
                 if (isActiv[0]) {
                     fail("Event not expected.");
                 }
             }
 
+            @Override
             protected void fireNodeRemoved(ProductNode sourceNode) {
                 if (isActiv[0]) {
                     fail("Event not expected.");

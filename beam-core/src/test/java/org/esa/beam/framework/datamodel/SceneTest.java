@@ -16,6 +16,7 @@ public class SceneTest extends TestCase {
     private Band _destBand2;
     private ProductSubsetDef _subsetDef;
 
+    @Override
     public void setUp() throws Exception {
         _srcProduct = new Product("srcProduct", "pType", 100, 200);
         _srcBand1 = _srcProduct.addBand("Band1", ProductData.TYPE_INT8);

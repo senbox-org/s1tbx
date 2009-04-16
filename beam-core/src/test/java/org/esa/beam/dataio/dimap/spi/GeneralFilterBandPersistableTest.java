@@ -40,6 +40,7 @@ public class GeneralFilterBandPersistableTest extends TestCase {
     private Product _product;
     private Band _source;
 
+    @Override
     public void setUp() throws Exception {
         _generalFilterBandPersistable = new GeneralFilterBandPersistable();
         _product = new Product("p", "doesntMatter", 2, 2);
@@ -47,6 +48,7 @@ public class GeneralFilterBandPersistableTest extends TestCase {
 
     }
 
+    @Override
     public void tearDown() throws Exception {
         _generalFilterBandPersistable = null;
         _product = null;

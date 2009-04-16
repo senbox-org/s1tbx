@@ -39,6 +39,7 @@ public class BeamFormatter extends SimpleFormatter {
      *
      * @return header string
      */
+    @Override
     public String getHead(Handler h) {
         return _head;
     }

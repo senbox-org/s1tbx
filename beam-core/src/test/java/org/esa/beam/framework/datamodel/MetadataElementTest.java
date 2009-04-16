@@ -46,6 +46,7 @@ public class MetadataElementTest extends TestCase {
     /**
      * Initialize the tests
      */
+    @Override
     protected void setUp() {
         _testGroup = new MetadataElement("test");
     }
@@ -216,14 +217,17 @@ public class MetadataElementTest extends TestCase {
         _propertyNameList = new ArrayList();
         _propertySourceList = new ArrayList();
         product.addProductNodeListener(new ProductNodeListenerAdapter(){
+            @Override
             public void nodeAdded(ProductNodeEvent event) {
                 _addedNode = event.getSource();
             }
 
+            @Override
             public void nodeDataChanged(ProductNodeEvent event) {
                 _nodeDataChanged = event.getSource();
             }
 
+            @Override
             public void nodeChanged(ProductNodeEvent event) {
                 _propertyNameList.add( event.getPropertyName());
                 _propertySourceList.add(event.getSource());

@@ -34,6 +34,7 @@ public class ImageInputAndOutputStreamTest extends TestCase {
     private final int _numLines = 5;
     private final int elemsize = 4;
 
+    @Override
     protected void setUp() throws Exception {
         deleteOutput();
         final File outputDirectory = GlobalTestConfig.getBeamTestDataOutputDirectory();
@@ -52,6 +53,7 @@ public class ImageInputAndOutputStreamTest extends TestCase {
         imageOutputStream.close();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         deleteOutput();
     }

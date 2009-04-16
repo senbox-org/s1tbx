@@ -31,9 +31,11 @@ public class GeoPosTest extends TestCase {
         return new TestSuite(GeoPosTest.class);
     }
 
+    @Override
     protected void setUp() {
     }
 
+    @Override
     protected void tearDown() {
     }
 

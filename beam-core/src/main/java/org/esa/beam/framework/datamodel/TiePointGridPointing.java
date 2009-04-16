@@ -90,6 +90,7 @@ public final class TiePointGridPointing implements Pointing {
         return _vzGrid != null && _vaGrid != null;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -100,6 +101,7 @@ public final class TiePointGridPointing implements Pointing {
         return false;
     }
 
+    @Override
     public int hashCode() {
         return getGeoCoding().hashCode();
     }

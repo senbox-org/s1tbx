@@ -163,6 +163,7 @@ public class StopWatch {
     /**
      * Return a string representation of the elapsed time by calling <code>getTimeDiffString()</code>.
      */
+    @Override
     public String toString() {
         return getTimeDiffString();
     }

@@ -90,6 +90,7 @@ public class FileValidator extends AbstractParamValidator {
         validateThatValueIsInValueSet(parameter, value);
     }
 
+    @Override
     public boolean equalValues(Parameter parameter, Object value1, Object value2) {
 
         File f1 = castToFile(value1);

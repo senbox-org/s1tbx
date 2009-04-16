@@ -12,6 +12,7 @@ public class FXYGeoCodingTest extends TestCase {
 
     private FXYGeoCoding _geoCoding;
 
+    @Override
     public void setUp() {
         final FXYSum.Linear xFunc = new FXYSum.Linear(new double[]{0, 0, 1});
         final FXYSum.Linear yFunc = new FXYSum.Linear(new double[]{0, 1, 0});

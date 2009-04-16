@@ -35,6 +35,7 @@ public class DebugTest extends TestCase {
         } else {
             return new TestCase(DebugTest.class.getName()) {
 
+                @Override
                 public void runTest() {
                     System.out.println(DebugTest.class + ": test will not be performed: Debug.DEBUG == false");
                 }
@@ -50,10 +51,12 @@ public class DebugTest extends TestCase {
         return newDebugState;
     }
 
+    @Override
     protected void setUp() {
         _oldDebugState = Debug.isEnabled();
     }
 
+    @Override
     protected void tearDown() {
         Debug.setEnabled(_oldDebugState);
     }

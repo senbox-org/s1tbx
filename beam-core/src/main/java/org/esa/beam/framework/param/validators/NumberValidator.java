@@ -131,6 +131,7 @@ public class NumberValidator extends AbstractParamValidator {
      * @param value1    first value to be compared
      * @param value2    second value to be compared
      */
+    @Override
     public boolean equalValues(Parameter parameter, Object value1, Object value2) {
 
         Number n1 = castToNumber(value1);

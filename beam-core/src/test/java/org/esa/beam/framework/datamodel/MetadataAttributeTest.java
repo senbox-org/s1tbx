@@ -36,6 +36,7 @@ public class MetadataAttributeTest extends AbstractNamedNodeTest {
         return new TestSuite(MetadataAttributeTest.class);
     }
 
+    @Override
     protected void setUp() {
         _attributeInt = new MetadataAttribute("attributeInt", ProductData.createInstance(ProductData.TYPE_INT32, 3),
                                               false);
@@ -45,6 +46,7 @@ public class MetadataAttributeTest extends AbstractNamedNodeTest {
                                                  ProductData.createInstance(ProductData.TYPE_ASCII, 32), false);
     }
 
+    @Override
     protected void tearDown() {
     }
 

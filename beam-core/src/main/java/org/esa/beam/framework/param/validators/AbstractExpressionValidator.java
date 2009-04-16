@@ -53,6 +53,7 @@ public abstract class AbstractExpressionValidator extends StringValidator {
      * @return the validated text
      * @throws org.esa.beam.framework.param.ParamParseException
      */
+    @Override
     public Object parse(Parameter parameter, String text) throws ParamParseException {
 
         Debug.assertTrue(text != null);
@@ -72,6 +73,7 @@ public abstract class AbstractExpressionValidator extends StringValidator {
         return text;
     }
 
+    @Override
     public boolean equalValues(Parameter parameter, Object value1, Object value2) {
         return equalValues(false, value1, value2);
     }

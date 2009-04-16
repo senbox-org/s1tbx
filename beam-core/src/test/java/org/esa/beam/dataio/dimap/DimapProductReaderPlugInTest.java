@@ -43,10 +43,12 @@ public class DimapProductReaderPlugInTest extends TestCase {
         return new TestSuite(DimapProductReaderPlugInTest.class);
     }
 
+    @Override
     protected void setUp() {
         _productReader = _plugIn.createReaderInstance();
     }
 
+    @Override
     protected void tearDown() {
         _productReader = null;
     }

@@ -112,6 +112,7 @@ public class BeamFileFilter extends FileFilter {
      *
      * @see javax.swing.filechooser.FileView#getTypeDescription(java.io.File)
      */
+    @Override
     public String getDescription() {
         return _description;
     }
@@ -184,6 +185,7 @@ public class BeamFileFilter extends FileFilter {
      *
      * @return <code>true</code> if given file is accepted by this filter
      */
+    @Override
     public boolean accept(File file) {
         if (!hasExtensions()) {
             return true;

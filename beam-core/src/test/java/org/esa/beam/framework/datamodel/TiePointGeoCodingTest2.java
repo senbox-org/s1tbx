@@ -14,10 +14,12 @@ public class TiePointGeoCodingTest2 extends TestCase {
 
     private boolean _lastDebugState;
 
+    @Override
     protected void setUp() throws Exception {
         _lastDebugState = Debug.setEnabled(true);
     }
 
+    @Override
     protected void tearDown() throws Exception {
         Debug.setEnabled(_lastDebugState);
     }

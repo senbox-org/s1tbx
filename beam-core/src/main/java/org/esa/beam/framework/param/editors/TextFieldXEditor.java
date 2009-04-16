@@ -44,10 +44,12 @@ public abstract class TextFieldXEditor extends AbstractParamXEditor {
         return _textComponent;
     }
 
+    @Override
     public JComponent getEditorComponentChild() {
         return _component;
     }
 
+    @Override
     public void updateUI() {
         super.updateUI();
         String text = getParameter().getValueAsText();
@@ -60,6 +62,7 @@ public abstract class TextFieldXEditor extends AbstractParamXEditor {
         }
     }
 
+    @Override
     protected void initUIChild() {
 //        super.initUI(); // creates the default label components for us
 

@@ -66,6 +66,7 @@ public class UTMProjection extends MapProjection {
      *
      * @return <code>false</code> because UTM projections does not allow editing the transformation parameters.
      */
+    @Override
     public boolean hasMapTransformUI() {
         return false;
     }

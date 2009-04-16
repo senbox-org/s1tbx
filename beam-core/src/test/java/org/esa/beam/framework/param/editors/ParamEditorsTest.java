@@ -227,6 +227,7 @@ public class ParamEditorsTest extends TestCase {
                 return new JLabel();
             }
 
+            @Override
             public JLabel getLabelComponent() {
                 return super.getLabelComponent();
             }
