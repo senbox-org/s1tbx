@@ -38,12 +38,14 @@ public class FigureLayerEditor extends AbstractBindingLayerEditor {
         vd2.setDefaultConverter();
         addValueDescriptor(vd2);
 
+        final ValueEditorRegistry valueEditorRegistry = ValueEditorRegistry.getInstance();
+
         ValueDescriptor vd3 = new ValueDescriptor(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY, Double.class);
         vd3.setDefaultValue(FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY);
         vd3.setDisplayName("Shape outline transparency");
         vd3.setValueRange(new ValueRange(0, 0.95));
         vd3.setDefaultConverter();
-        vd3.setProperty("valueEditor", ValueEditorRegistry.getValueEditor(RangeEditor.class.getName()));
+        vd3.setProperty("valueEditor", valueEditorRegistry.getValueEditor(RangeEditor.class.getName()));
         addValueDescriptor(vd3);
 
 
@@ -64,7 +66,7 @@ public class FigureLayerEditor extends AbstractBindingLayerEditor {
         vd6.setDisplayName("Shape fill transparency");
         vd6.setValueRange(new ValueRange(0, 0.95));
         vd6.setDefaultConverter();
-        vd6.setProperty("valueEditor", ValueEditorRegistry.getValueEditor(RangeEditor.class.getName()));
+        vd6.setProperty("valueEditor", valueEditorRegistry.getValueEditor(RangeEditor.class.getName()));
         addValueDescriptor(vd6);
 
         boolean outlined = (Boolean) bindingContext.getValueContainer().getValue(

@@ -77,12 +77,14 @@ public class GraticuleLayerEditor extends AbstractBindingLayerEditor {
         vd5.setDefaultConverter();
         addValueDescriptor(vd5);
 
+        final ValueEditorRegistry valueEditorRegistry = ValueEditorRegistry.getInstance();
+
         ValueDescriptor vd6 = new ValueDescriptor(GraticuleLayer.PROPERTY_NAME_LINE_TRANSPARENCY, Double.class);
         vd6.setDefaultValue(GraticuleLayer.DEFAULT_LINE_TRANSPARENCY);
         vd6.setValueRange(new ValueRange(0, 1));
         vd6.setDisplayName("Line transparency");
         vd6.setDefaultConverter();
-        vd6.setProperty("valueEditor", ValueEditorRegistry.getValueEditor(RangeEditor.class.getName()));
+        vd6.setProperty("valueEditor", valueEditorRegistry.getValueEditor(RangeEditor.class.getName()));
         addValueDescriptor(vd6);
 
         ValueDescriptor vd7 = new ValueDescriptor(GraticuleLayer.PROPERTY_NAME_TEXT_ENABLED, Boolean.class);
@@ -108,7 +110,7 @@ public class GraticuleLayerEditor extends AbstractBindingLayerEditor {
         vd10.setValueRange(new ValueRange(0, 1));
         vd10.setDisplayName("Text background transparency");
         vd10.setDefaultConverter();
-        vd10.setProperty("valueEditor", ValueEditorRegistry.getValueEditor(RangeEditor.class.getName()));
+        vd10.setProperty("valueEditor", valueEditorRegistry.getValueEditor(RangeEditor.class.getName()));
         addValueDescriptor(vd10);
 
         boolean resAuto = (Boolean) bindingContext.getValueContainer().getValue(GraticuleLayer.PROPERTY_NAME_RES_AUTO);
