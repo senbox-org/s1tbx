@@ -19,6 +19,7 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.glayer.BitmaskCollectionLayer;
 import org.esa.beam.glayer.FigureLayer;
+import org.esa.beam.glayer.FigureLayerType;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glayer.NoDataLayerType;
 import org.esa.beam.glayer.PlacemarkLayer;
@@ -28,6 +29,7 @@ import org.esa.beam.util.PropertyMap;
 
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -293,17 +295,40 @@ public class ProductSceneImage implements LayerContext {
     }
 
     private FigureLayer createFigureLayer(AffineTransform i2mTransform) {
-        final FigureLayer figureLayer = new FigureLayer(i2mTransform, new Figure[0]);
-        figureLayer.setName("Figures");
-        figureLayer.setId(ProductSceneView.FIGURE_LAYER_ID);
-        figureLayer.setVisible(true);
-        setFigureLayerStyle(configuration, figureLayer);
+        final LayerType figureType = LayerType.getLayerType(FigureLayerType.class.getName());
+        final HashMap<String, Object> map = new HashMap<String, Object>();
+        map.put(FigureLayer.PROPERTY_NAME_FIGURE_LIST, new ArrayList<Figure>());
+        map.put(FigureLayer.PROPERTY_NAME_TRANSFORM, i2mTransform);
+        map.put(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
+                configuration.getPropertyBool(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
+                                              FigureLayer.DEFAULT_SHAPE_OUTLINED));
+        map.put(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
+                configuration.getPropertyColor(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
+                                               FigureLayer.DEFAULT_SHAPE_OUTL_COLOR));
+        map.put(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
+                configuration.getPropertyDouble(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
+                                                FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY));
+        map.put(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
+                configuration.getPropertyDouble(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
+                                                FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH));
+        map.put(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
+                configuration.getPropertyBool(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
+                                              FigureLayer.DEFAULT_SHAPE_FILLED));
+        map.put(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
+                configuration.getPropertyColor(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
+                                               FigureLayer.DEFAULT_SHAPE_FILL_COLOR));
+        map.put(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
+                configuration.getPropertyDouble(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
+                                                FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY));
+        figureType.createLayer(this, map);
 
-        return figureLayer;
+
+        return (FigureLayer) figureType.createLayer(this, map);
     }
 
     public static void setFigureLayerStyle(PropertyMap configuration, Layer layer) {
         final Style style = new DefaultStyle();
+        style.setDefaultStyle(layer.getStyle().getDefaultStyle());
         style.setProperty(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
                           configuration.getPropertyBool(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
                                                         FigureLayer.DEFAULT_SHAPE_OUTLINED));
@@ -327,7 +352,6 @@ public class ProductSceneImage implements LayerContext {
                                                           FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY));
 
         style.setComposite(layer.getStyle().getComposite());
-        style.setDefaultStyle(layer.getStyle().getDefaultStyle());
         style.setOpacity(layer.getStyle().getOpacity());
 
         layer.setStyle(style);

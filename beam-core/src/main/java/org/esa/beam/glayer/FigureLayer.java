@@ -17,7 +17,6 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.grender.Rendering;
@@ -34,14 +33,15 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class FigureLayer extends Layer {
 
-    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
+    private static final FigureLayerType LAYER_TYPE = (FigureLayerType) LayerType.getLayerType(
+            FigureLayerType.class.getName());
 
+    public static final String PROPERTY_NAME_FIGURE_LIST = "shape.figureList";
+    public static final String PROPERTY_NAME_TRANSFORM = "shape.transform";
     public static final String PROPERTY_NAME_SHAPE_OUTLINED = "shape.outlined";
     public static final String PROPERTY_NAME_SHAPE_FILLED = "shape.filled";
     public static final String PROPERTY_NAME_SHAPE_OUTL_COLOR = "shape.outl.color";
@@ -52,8 +52,8 @@ public class FigureLayer extends Layer {
     public static final String PROPERTY_NAME_SHAPE_OUTL_COMPOSITE = "shape.outl.composite";
     public static final String PROPERTY_NAME_SHAPE_FILL_COMPOSITE = "shape.fill.composite";
 
-    public static final Boolean DEFAULT_SHAPE_OUTLINED = Boolean.TRUE;
-    public static final Boolean DEFAULT_SHAPE_FILLED = Boolean.TRUE;
+    public static final boolean DEFAULT_SHAPE_OUTLINED = Boolean.TRUE;
+    public static final boolean DEFAULT_SHAPE_FILLED = Boolean.TRUE;
     public static final Color DEFAULT_SHAPE_OUTL_COLOR = Color.yellow;
     public static final Color DEFAULT_SHAPE_FILL_COLOR = Color.BLUE;
     public static final double DEFAULT_SHAPE_OUTL_TRANSPARENCY = 0.1;
@@ -64,12 +64,12 @@ public class FigureLayer extends Layer {
     private final AffineTransform shapeToModelTransform;
 
     public FigureLayer(AffineTransform shapeToModelTransform, Figure[] figures) {
-        this(LAYER_TYPE, shapeToModelTransform, figures);
+        this(LAYER_TYPE, shapeToModelTransform, Arrays.asList(figures));
     }
 
-    protected FigureLayer(Type type, AffineTransform shapeToModelTransform, Figure[] figures) {
-        super(type);
-        this.figureList = new ArrayList<Figure>(Arrays.asList(figures));
+    protected FigureLayer(FigureLayerType type, AffineTransform shapeToModelTransform, List<Figure> figureList) {
+        super(type, "Figures");
+        this.figureList = new ArrayList<Figure>(figureList);
         this.shapeToModelTransform = new AffineTransform(shapeToModelTransform);
     }
 
@@ -250,34 +250,4 @@ public class FigureLayer extends Layer {
         return DEFAULT_SHAPE_FILL_TRANSPARENCY;
     }
 
-    public static class Type extends LayerType {
-
-        @Override
-        public String getName() {
-            return "Figure Layer";
-        }
-
-        @Override
-        public boolean isValidFor(LayerContext ctx) {
-            return true;
-        }
-
-        @Override
-        public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
-            List<Figure> figures = (List<Figure>) configuration.get("figures");
-            AffineTransform shapeToModelTransform = (AffineTransform) configuration.get("shapeToModelTransform");
-            return new FigureLayer(shapeToModelTransform, figures.toArray(new Figure[figures.size()]));
-        }
-
-        @Override
-        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-            final HashMap<String, Object> configuration = new HashMap<String, Object>();
-            if (layer instanceof FigureLayer) {
-                FigureLayer figureLayer = (FigureLayer) layer;
-                configuration.put("figures", figureLayer.getFigureList());
-                configuration.put("shapeToModelTransform", figureLayer.shapeToModelTransform);
-            }
-            return configuration;
-        }
-    }
 }

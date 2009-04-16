@@ -1,5 +1,5 @@
 org.esa.beam.glayer.BitmaskCollectionLayer$Type
-org.esa.beam.glayer.FigureLayer$Type
+org.esa.beam.glayer.FigureLayerType
 org.esa.beam.glayer.GraticuleLayer$Type
 org.esa.beam.glayer.PlacemarkLayer$Type
 org.esa.beam.glayer.NoDataLayerType
