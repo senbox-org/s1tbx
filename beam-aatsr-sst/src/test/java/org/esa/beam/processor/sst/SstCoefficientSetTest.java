@@ -32,6 +32,7 @@ public class SstCoefficientSetTest extends TestCase {
         return new TestSuite(SstCoefficientSetTest.class);
     }
 
+    @Override
     protected void setUp() {
         _set = new SstCoefficientSet();
         assertNotNull(_set);

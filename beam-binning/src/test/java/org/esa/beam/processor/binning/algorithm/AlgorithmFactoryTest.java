@@ -22,6 +22,7 @@ public class AlgorithmFactoryTest extends TestCase {
 
     private AlgorithmFactory algorithmFactory;
 
+    @Override
     public void setUp() {
         algorithmFactory = new AlgorithmFactory();
     }

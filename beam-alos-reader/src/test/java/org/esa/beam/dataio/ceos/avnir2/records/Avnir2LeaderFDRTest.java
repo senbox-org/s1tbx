@@ -34,17 +34,20 @@ import java.util.Arrays;
  */
 public class Avnir2LeaderFDRTest extends BaseLeaderFileDescriptorRecordTest {
 
+    @Override
     protected BaseLeaderFileDescriptorRecord createLeaderFDR(final CeosFileReader reader, final int startPos) throws
                                                                                                               IOException,
                                                                                                               IllegalCeosFormatException {
         return new Avnir2LeaderFDR(reader, startPos);
     }
 
+    @Override
     protected BaseLeaderFileDescriptorRecord createLeaderFDR(final CeosFileReader reader) throws IOException,
                                                                                                  IllegalCeosFormatException {
         return new Avnir2LeaderFDR(reader);
     }
 
+    @Override
     protected void writeFields17To21(final ImageOutputStream ios) throws IOException {
         // Field 17
         ios.writeBytes("                "); // 16 blanks
@@ -64,6 +67,7 @@ public class Avnir2LeaderFDRTest extends BaseLeaderFileDescriptorRecordTest {
         ios.writeBytes(new String(blanks));
     }
 
+    @Override
     protected void assertRecords17To21(final BaseLeaderFileDescriptorRecord record) {
         final Avnir2LeaderFDR avnir2Record = (Avnir2LeaderFDR) record;
         assertEquals(3, avnir2Record.getPixelSizeLocator());

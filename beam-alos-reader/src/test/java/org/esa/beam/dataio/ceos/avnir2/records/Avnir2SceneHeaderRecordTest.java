@@ -34,17 +34,20 @@ import java.io.IOException;
  */
 public class Avnir2SceneHeaderRecordTest extends BaseSceneHeaderRecordTest {
 
+    @Override
     protected BaseSceneHeaderRecord createSceneHeaderRecord(final CeosFileReader reader) throws IOException,
                                                                                                 IllegalCeosFormatException {
         return new Avnir2SceneHeaderRecord(reader);
     }
 
+    @Override
     protected BaseSceneHeaderRecord createSceneHeaderRecord(final CeosFileReader reader, final int startPos) throws
                                                                                                              IOException,
                                                                                                              IllegalCeosFormatException {
         return new Avnir2SceneHeaderRecord(reader, startPos);
     }
 
+    @Override
     protected void writeFields30To31(final ImageOutputStream ios) throws IOException {
         // Field 30
         ios.writeBytes("         -26.000"); // OffNadirMirrorPointAngle
@@ -52,6 +55,7 @@ public class Avnir2SceneHeaderRecordTest extends BaseSceneHeaderRecordTest {
         ios.writeBytes(" ");    // Blank
     }
 
+    @Override
     protected void writeFields73ToEnd(final ImageOutputStream ios) throws IOException {
         // Field 73
         ios.writeBytes(" 1");   // YawSteeringFlag
@@ -59,6 +63,7 @@ public class Avnir2SceneHeaderRecordTest extends BaseSceneHeaderRecordTest {
         CeosTestHelper.writeBlanks(ios, 2808);
     }
 
+    @Override
     protected void assertFields30To31(final BaseSceneHeaderRecord record) {
         final Avnir2SceneHeaderRecord sceneHeaderRecord = (Avnir2SceneHeaderRecord) record;
 
@@ -66,6 +71,7 @@ public class Avnir2SceneHeaderRecordTest extends BaseSceneHeaderRecordTest {
         // nothing else to test
     }
 
+    @Override
     protected void assertFields73ToEnd(final BaseSceneHeaderRecord record) {
         final Avnir2SceneHeaderRecord sceneHeaderRecord = (Avnir2SceneHeaderRecord) record;
 

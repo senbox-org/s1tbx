@@ -31,14 +31,17 @@ public class IrTemperatureCalibrator extends IrRadianceCalibrator {
         super(channel);
     }
 
+    @Override
     public String getBandName() {
         return AvhrrConstants.TEMPERATURE_BAND_NAME_PREFIX + AvhrrConstants.CH_STRINGS[channel];
     }
 
+    @Override
     public String getBandUnit() {
         return AvhrrConstants.TEMPERATURE_UNIT;
     }
 
+    @Override
     public String getBandDescription() {
         return AvhrrReader.format(AvhrrConstants.TEMPERATURE_DESCRIPTION, AvhrrConstants.CH_STRINGS[channel]);
     }
@@ -47,6 +50,7 @@ public class IrTemperatureCalibrator extends IrRadianceCalibrator {
     	radianceCalibrator = new Radiance2TemperatureCalibrator(constant1, constant2, vc);
     }
 
+    @Override
     public float calibrate(int counts) {
         final float radiance = super.calibrate(counts);
         return radianceCalibrator.calibrate(radiance);

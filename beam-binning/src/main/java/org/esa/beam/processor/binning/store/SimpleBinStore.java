@@ -79,12 +79,14 @@ public class SimpleBinStore extends AbstractLinearBinStore {
         inStream.close();
     }
 
+    @Override
     public void write(int index, Bin bin) {
         bin.save(tempBinContent);
         System.arraycopy(tempBinContent, 0, data, index * numVarsPerBin, numVarsPerBin);
         dataChanged = true;
     }
 
+    @Override
     public void read(int index, Bin bin) {
         System.arraycopy(data, index * numVarsPerBin, tempBinContent, 0, numVarsPerBin);
         bin.load(tempBinContent);

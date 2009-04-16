@@ -132,6 +132,7 @@ public class Avnir2ProductReaderPlugIn implements ProductReaderPlugIn {
          *
          * @return <code>true</code> if given file is accepted by this filter
          */
+        @Override
         public boolean accept(final File file) {
             if (super.accept(file)) {
                 if (file.isDirectory() || file.getName().startsWith(Avnir2Constants.VOLUME_FILE_PREFIX)) {

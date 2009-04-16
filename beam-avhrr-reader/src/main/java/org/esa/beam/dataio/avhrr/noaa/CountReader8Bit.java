@@ -42,6 +42,7 @@ class CountReader8Bit extends CountReader {
         scanLineBuffer = new byte[SCAN_LINE_LENGTH];
     }
 
+    @Override
     protected void readData(int dataOffset) throws IOException {
         synchronized (inputStream) {
             inputStream.seek(dataOffset);

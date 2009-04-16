@@ -26,6 +26,7 @@ public class QuadTreeBinStoreTest extends TestCase {
     private File dbDir;
     private String dbName = "testQuad";
 
+    @Override
     public void setUp() throws IOException, ProcessorException {
         BinLocator locator = new SeaWiFSBinLocator(100);
         dbDir = new File("testdata");
@@ -35,6 +36,7 @@ public class QuadTreeBinStoreTest extends TestCase {
         point1 = new Point(1, 1);
     }
 
+    @Override
     public void tearDown() throws IOException {
         store.delete();
         dbDir.delete();

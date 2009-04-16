@@ -44,6 +44,7 @@ public class PrismAncillary1Record extends Ancillary1Record {
         super(reader, startPos);
     }
 
+    @Override
     public double[][] getTransformationCoefficientsFor(final int ccdIndex) throws IOException,
                                                                                   IllegalCeosFormatException {
         if (ccdIndex < 1 || ccdIndex > 8) {

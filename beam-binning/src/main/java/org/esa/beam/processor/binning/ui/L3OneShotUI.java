@@ -128,6 +128,7 @@ public class L3OneShotUI extends L3UI {
         this.requests.add(finalRequest);
     }
 
+    @Override
     public void setApp(ProcessorApp app) {
         super.setApp(app);
         app.addRequestValidator(new RequestValidator() {
@@ -184,6 +185,7 @@ public class L3OneShotUI extends L3UI {
     /////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
 
+    @Override
     protected boolean isOneShotUI() {
         return true;
     }

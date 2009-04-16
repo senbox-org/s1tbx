@@ -38,6 +38,7 @@ public class SceneHeaderRecord extends BaseSceneHeaderRecord {
         super(reader, startPos);
     }
 
+    @Override
     protected void readSpecificFields(final CeosFileReader reader) throws IOException,
                                                                           IllegalCeosFormatException {
         reader.seek(getAbsolutPosition(388));
@@ -66,6 +67,7 @@ public class SceneHeaderRecord extends BaseSceneHeaderRecord {
 //
 //    }
 
+    @Override
     public String getYawSteeringFlag() {
         return _flagYawSteering;
     }

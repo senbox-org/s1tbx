@@ -36,6 +36,7 @@ public class AtsrProductReaderPlugInTest extends TestCase {
         return new TestSuite(AtsrProductReaderPlugInTest.class);
     }
 
+    @Override
     protected void setUp() {
         _plugIn = new AtsrProductReaderPlugIn();
         assertNotNull(_plugIn);

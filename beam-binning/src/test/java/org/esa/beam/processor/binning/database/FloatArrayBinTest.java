@@ -12,6 +12,7 @@ import junit.framework.TestCase;
 public class FloatArrayBinTest  extends TestCase {
      private FloatArrayBin bin12;
 
+    @Override
     public void setUp() {
         bin12 = new FloatArrayBin(new int[]{1, 2});
     }

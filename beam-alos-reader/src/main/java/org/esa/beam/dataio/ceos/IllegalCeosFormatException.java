@@ -61,6 +61,7 @@ public class IllegalCeosFormatException extends Exception {
      * @return the detail message string of this <tt>Throwable</tt> instance
      *         (which may be <tt>null</tt>).
      */
+    @Override
     public String getMessage() {
         return super.getMessage() + "; at stream position=" + _streamPos;
     }

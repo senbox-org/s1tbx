@@ -38,6 +38,7 @@ public abstract class BaseLeaderFileDescriptorRecordTest extends TestCase {
     private String _prefix;
     private CeosFileReader _reader;
 
+    @Override
     protected void setUp() throws Exception {
         final ByteArrayOutputStream os = new ByteArrayOutputStream(24);
         _ios = new MemoryCacheImageOutputStream(os);

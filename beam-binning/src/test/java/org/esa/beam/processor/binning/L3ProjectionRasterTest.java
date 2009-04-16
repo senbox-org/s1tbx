@@ -22,6 +22,7 @@ public class L3ProjectionRasterTest extends TestCase {
         assertEquals("Height", 1110, projectionRaster.getHeight());
     }
 
+    @Override
     public void setUp() {
         projectionRaster = new L3ProjectionRaster();
         projectionRaster.init(111, new GeoPos(20, 10), new GeoPos(20, 30), new GeoPos(10, 30), new GeoPos(10, 10));

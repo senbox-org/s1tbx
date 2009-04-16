@@ -19,6 +19,7 @@ public class L3ContextTest extends TestCase {
     private File databaseDir;
     private L3Context context;
 
+    @Override
     public void setUp() {
         databaseDir = new File("testDir");
         context = new L3Context();

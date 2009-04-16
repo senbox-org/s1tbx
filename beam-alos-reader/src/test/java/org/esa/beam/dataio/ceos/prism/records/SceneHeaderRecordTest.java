@@ -27,17 +27,20 @@ import java.io.IOException;
 
 public class SceneHeaderRecordTest extends BaseSceneHeaderRecordTest {
 
+    @Override
     protected BaseSceneHeaderRecord createSceneHeaderRecord(final CeosFileReader reader) throws IOException,
                                                                                                 IllegalCeosFormatException {
         return new SceneHeaderRecord(reader);
     }
 
+    @Override
     protected BaseSceneHeaderRecord createSceneHeaderRecord(final CeosFileReader reader, final int startPos) throws
                                                                                                              IOException,
                                                                                                              IllegalCeosFormatException {
         return new SceneHeaderRecord(reader, startPos);
     }
 
+    @Override
     protected void writeFields30To31(final ImageOutputStream ios) throws IOException {
         // Field 30
         CeosTestHelper.writeBlanks(ios, 16); // 16 x blank
@@ -45,17 +48,20 @@ public class SceneHeaderRecordTest extends BaseSceneHeaderRecordTest {
         ios.writeBytes("2"); // compressionMode // A1
     }
 
+    @Override
     protected void writeFields73ToEnd(final ImageOutputStream ios) throws IOException {
         ios.writeBytes("KJHGF"); // imageExtractionPoint // A5
         ios.writeBytes("54"); // flagYawSteering // A2
         CeosTestHelper.writeBlanks(ios, 2803); // 2803 x blank
     }
 
+    @Override
     protected void assertFields30To31(final BaseSceneHeaderRecord record) {
         final SceneHeaderRecord sceneHeaderRecord = (SceneHeaderRecord) record;
         assertEquals("2", sceneHeaderRecord.getCompressionMode());
     }
 
+    @Override
     protected void assertFields73ToEnd(final BaseSceneHeaderRecord record) {
         final SceneHeaderRecord sceneHeaderRecord = (SceneHeaderRecord) record;
         assertEquals("KJHGF", sceneHeaderRecord.getImageExtractionPoint());

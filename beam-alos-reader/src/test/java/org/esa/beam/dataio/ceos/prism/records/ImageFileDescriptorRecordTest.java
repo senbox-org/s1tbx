@@ -27,6 +27,7 @@ import java.io.IOException;
 
 public class ImageFileDescriptorRecordTest extends BaseImageFileDescriptorRecordTest {
 
+    @Override
     protected BaseImageFileDescriptorRecord createImageFileDescriptorRecord(final CeosFileReader reader) throws
                                                                                                          IOException,
                                                                                                          IllegalCeosFormatException {
@@ -34,6 +35,7 @@ public class ImageFileDescriptorRecordTest extends BaseImageFileDescriptorRecord
 
     }
 
+    @Override
     protected BaseImageFileDescriptorRecord createImageFileDescriptor(final CeosFileReader reader,
                                                                       final int startPos) throws IOException,
                                                                                                  IllegalCeosFormatException {
@@ -41,6 +43,7 @@ public class ImageFileDescriptorRecordTest extends BaseImageFileDescriptorRecord
 
     }
 
+    @Override
     protected void writeBytes341To392(final ImageOutputStream ios) throws IOException {
         // Field 28
         ios.writeBytes("   148SB"); // auxDataLocator
@@ -52,6 +55,7 @@ public class ImageFileDescriptorRecordTest extends BaseImageFileDescriptorRecord
 
     }
 
+    @Override
     protected void assertBytes341To392(final BaseImageFileDescriptorRecord record) {
         final ImageFileDescriptorRecord imageFileDescriptorRecord = (ImageFileDescriptorRecord) record;
 

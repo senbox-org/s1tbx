@@ -48,6 +48,7 @@ public class Avnir2ImageFDR extends BaseImageFileDescriptorRecord {
         super(reader, startPos);
     }
 
+    @Override
     protected void readSpecificFields(final CeosFileReader reader) throws IOException,
                                                                           IllegalCeosFormatException {
         reader.seek(getAbsolutPosition(340));

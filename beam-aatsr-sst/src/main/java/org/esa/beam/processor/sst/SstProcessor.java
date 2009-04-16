@@ -245,6 +245,7 @@ public class SstProcessor extends Processor {
         return "Generating pixels for SST";
     }
 
+    @Override
     public void installAuxdata() throws ProcessorException {
         setAuxdataInstallDir(SstConstants.AUXDATA_DIR_PROPERTY, getDefaultAuxdataInstallDir());
         super.installAuxdata();

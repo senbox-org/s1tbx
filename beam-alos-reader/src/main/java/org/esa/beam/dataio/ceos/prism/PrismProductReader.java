@@ -85,6 +85,7 @@ public class PrismProductReader extends AbstractProductReader {
      *
      * @return the root TreeNode or null
      */
+    @Override
     public TreeNode<File> getProductComponents() {
         final File input = CeosHelper.getFileFromInput(getInput());
         if (input == null) {

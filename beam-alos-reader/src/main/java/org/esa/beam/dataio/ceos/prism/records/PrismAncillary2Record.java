@@ -39,6 +39,7 @@ public class PrismAncillary2Record extends Ancillary2Record {
         super(reader, startPos);
     }
 
+    @Override
     protected void readSpecificFields(final CeosFileReader reader) throws IOException,
                                                                           IllegalCeosFormatException {
         reader.seek(getAbsolutPosition(62));

@@ -148,6 +148,7 @@ public class PrismProductReaderPlugIn implements ProductReaderPlugIn {
          *
          * @return <code>true</code> if given file is accepted by this filter
          */
+        @Override
         public boolean accept(final File file) {
             if (super.accept(file)) {
                 if (file.isDirectory() || file.getName().startsWith(PrismConstants.VOLUME_FILE_PREFIX)) {

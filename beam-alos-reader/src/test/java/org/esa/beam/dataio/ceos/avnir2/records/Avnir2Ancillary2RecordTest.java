@@ -27,17 +27,20 @@ import java.io.IOException;
 
 public class Avnir2Ancillary2RecordTest extends Ancillary2RecordTest {
 
+    @Override
     protected Ancillary2Record createAncillary2Record(final CeosFileReader reader) throws IOException,
                                                                                           IllegalCeosFormatException {
         return new Avnir2Ancillary2Record(reader);
     }
 
+    @Override
     protected Ancillary2Record createAncillary2Record(final CeosFileReader reader, final int startPos) throws
                                                                                                        IOException,
                                                                                                        IllegalCeosFormatException {
         return new Avnir2Ancillary2Record(reader, startPos);
     }
 
+    @Override
     protected void writeSpecificRecordData(final MemoryCacheImageOutputStream ios) throws IOException {
         ios.seek(_prefix.length() + 24);
         ios.writeBytes("12345");    // exposure coefficient band1   // I5
@@ -68,6 +71,7 @@ public class Avnir2Ancillary2RecordTest extends Ancillary2RecordTest {
         CeosTestHelper.writeBlanks(ios, 1914);
     }
 
+    @Override
     protected void assertSpecificRecordData(final Ancillary2Record record) {
         final Avnir2Ancillary2Record avnir2Record = (Avnir2Ancillary2Record) record;
 

@@ -41,6 +41,7 @@ public class SstCoefficientLoaderTest extends TestCase {
         return new TestSuite(SstCoefficientLoaderTest.class);
     }
 
+    @Override
     protected void setUp() {
         _loader = new SstCoefficientLoader();
         assertNotNull(_loader);

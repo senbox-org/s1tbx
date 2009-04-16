@@ -35,18 +35,22 @@ public class VisibleRadianceCalibrator extends ReflectanceFactorCalibrator {
     	radianceCalibrator = new Radiance2ReflectanceFactorCalibrator(equivalentWidth, solarIrradiance, earthSunDistance);
     }
 
+    @Override
     public String getBandName() {
         return AvhrrConstants.RADIANCE_BAND_NAME_PREFIX + AvhrrConstants.CH_STRINGS[channel];
     }
 
+    @Override
     public String getBandUnit() {
         return AvhrrConstants.VIS_RADIANCE_UNIT;
     }
 
+    @Override
     public String getBandDescription() {
         return AvhrrReader.format(AvhrrConstants.RADIANCE_DESCRIPTION_VIS, AvhrrConstants.CH_STRINGS[channel]);
     }
 
+    @Override
     public float calibrate(int counts) {
         return radianceCalibrator.getConversionFactor() * super.calibrate(counts);
     }

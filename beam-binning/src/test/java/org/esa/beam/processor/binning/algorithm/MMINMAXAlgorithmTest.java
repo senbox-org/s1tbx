@@ -35,6 +35,7 @@ public class MMINMAXAlgorithmTest extends TestCase {
         return new TestSuite(MMINMAXAlgorithmTest.class);
     }
 
+    @Override
     protected void setUp() {
         AlgorithmFactory factory = new AlgorithmFactory();
         assertNotNull(factory);

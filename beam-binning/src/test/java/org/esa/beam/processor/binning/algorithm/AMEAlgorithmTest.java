@@ -36,6 +36,7 @@ public class AMEAlgorithmTest extends TestCase {
         return new TestSuite(AMEAlgorithmTest.class);
     }
 
+    @Override
     protected void setUp() {
         try {
             AlgorithmFactory factory = new AlgorithmFactory();

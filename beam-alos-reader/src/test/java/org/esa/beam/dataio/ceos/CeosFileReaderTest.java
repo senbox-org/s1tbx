@@ -11,6 +11,7 @@ public class CeosFileReaderTest extends TestCase {
 
     private MemoryCacheImageOutputStream _ios;
 
+    @Override
     protected void setUp() throws Exception {
         final ByteArrayOutputStream os = new ByteArrayOutputStream(24);
         _ios = new MemoryCacheImageOutputStream(os);

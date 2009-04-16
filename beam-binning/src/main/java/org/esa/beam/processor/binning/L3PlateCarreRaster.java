@@ -36,6 +36,7 @@ public class L3PlateCarreRaster extends L3ProjectionRaster {
     /**
      * Returns the width of the projection grid
      */
+    @Override
     public int getWidth() {
         return _colMax - _colMin;
     }
@@ -43,6 +44,7 @@ public class L3PlateCarreRaster extends L3ProjectionRaster {
     /**
      * Returns the height of the projection grid
      */
+    @Override
     public int getHeight() {
         return _rowMax - _rowMin;
     }
@@ -57,6 +59,7 @@ public class L3PlateCarreRaster extends L3ProjectionRaster {
      *
      * @param cellSize the grid cell size in kilometers
      */
+    @Override
     protected void calculateStepSize(float cellSize) {
         double kmPerDegree = BinDatabaseConstants.PI_EARTH_RADIUS / 180.f;
         int steps = (int) Math.round(kmPerDegree / cellSize);

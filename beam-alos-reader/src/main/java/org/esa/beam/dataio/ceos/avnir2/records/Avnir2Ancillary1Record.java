@@ -44,6 +44,7 @@ public class Avnir2Ancillary1Record extends Ancillary1Record {
         super(reader, startPos);
     }
 
+    @Override
     public double[][] getTransformationCoefficientsFor(final int bandIndex) throws IOException,
                                                                                    IllegalCeosFormatException {
         if (bandIndex < 1 || bandIndex > 4) {

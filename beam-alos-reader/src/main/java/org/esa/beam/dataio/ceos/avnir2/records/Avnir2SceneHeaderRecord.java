@@ -37,6 +37,7 @@ public class Avnir2SceneHeaderRecord extends BaseSceneHeaderRecord {
         super(reader, startPos);
     }
 
+    @Override
     protected void readSpecificFields(final CeosFileReader reader) throws IOException,
                                                                           IllegalCeosFormatException {
         reader.seek(getAbsolutPosition(372));
@@ -65,6 +66,7 @@ public class Avnir2SceneHeaderRecord extends BaseSceneHeaderRecord {
         return _offNadirMirrorPointAngle;
     }
 
+    @Override
     public String getYawSteeringFlag() {
         return _yawSteeringFlag;
     }

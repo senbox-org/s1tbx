@@ -63,6 +63,7 @@ public class L3FinalUI extends L3UI {
         return uiPane;
     }
 
+    @Override
     public void setRequests() throws ProcessorException {
         ensureFinalRequest();
     }
@@ -70,6 +71,7 @@ public class L3FinalUI extends L3UI {
     /**
      * Retrieves the requests currently edited.
      */
+    @Override
     protected void collectRequestsFromUI(final List requests) throws ProcessorException {
         final Request request = new Request();
         request.setType(L3Constants.REQUEST_TYPE);
@@ -81,6 +83,7 @@ public class L3FinalUI extends L3UI {
     /**
      * Create a set of new default requests.
      */
+    @Override
     protected void setDefaultRequestsImpl() throws ProcessorException {
         finalRequest = new Request();
 
@@ -198,6 +201,7 @@ public class L3FinalUI extends L3UI {
     /**
      * Updates the UI and the connected parameters with the values of the currenr request
      */
+    @Override
     protected void updateUI() throws ProcessorException {
         try {
             setOutputFile(finalRequest);

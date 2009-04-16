@@ -37,6 +37,7 @@ public class TrailerRecord extends BaseTrailerRecord {
 
     }
 
+    @Override
     protected void readSpecificFields(final CeosFileReader reader) throws IOException,
                                                                           IllegalCeosFormatException {
         reader.seek(getAbsolutPosition(20));
@@ -44,6 +45,7 @@ public class TrailerRecord extends BaseTrailerRecord {
         readHistograms(reader, _histoCCDs);
     }
 
+    @Override
     public int[] getHistogramFor(final int ccdIndex) {
         return _histoCCDs[ccdIndex - 1];
     }

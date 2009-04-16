@@ -66,6 +66,7 @@ public class AtsrGBTFile extends AtsrFile {
     /**
      * Opens the ATSR GBT file at the given location.
      */
+    @Override
     public void open(ImageInputStream inStream, File file) throws IOException {
         super.open(inStream, file);
 

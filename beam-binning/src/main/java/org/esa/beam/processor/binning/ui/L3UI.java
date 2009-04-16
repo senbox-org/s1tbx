@@ -111,6 +111,7 @@ public abstract class L3UI extends AbstractProcessorUI {
 
         public ProcessingParamsTable() {
             tableModel = new DefaultTableModel() {
+                @Override
                 public boolean isCellEditable(int row, int column) {
                     return column != 0;
                 }
@@ -124,6 +125,7 @@ public abstract class L3UI extends AbstractProcessorUI {
             });
 
             table = new JTable(tableModel) {
+                @Override
                 public Class getColumnClass(int column) {
                     if (column == 3) {
                         return Double.class;
@@ -132,6 +134,7 @@ public abstract class L3UI extends AbstractProcessorUI {
                     }
                 }
 
+                @Override
                 public void tableChanged(TableModelEvent e) {
                     super.tableChanged(e);
                     updateEstimatedProductSize(ProcessingParamsTable.this);

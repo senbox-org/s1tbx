@@ -43,6 +43,7 @@ public class Avnir2TrailerRecord extends BaseTrailerRecord {
         super(reader, startPos);
     }
 
+    @Override
     protected void readSpecificFields(final CeosFileReader reader) throws IOException,
                                                                           IllegalCeosFormatException {
         reader.seek(getAbsolutPosition(20));
@@ -50,6 +51,7 @@ public class Avnir2TrailerRecord extends BaseTrailerRecord {
         readHistograms(reader, _bandHistograms);
     }
 
+    @Override
     public int[] getHistogramFor(final int bandNumber) {
         return _bandHistograms[bandNumber - 1];
     }

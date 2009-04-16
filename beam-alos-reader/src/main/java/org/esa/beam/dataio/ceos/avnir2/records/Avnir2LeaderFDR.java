@@ -47,6 +47,7 @@ public class Avnir2LeaderFDR extends BaseLeaderFileDescriptorRecord {
 //        reader.skipBytes(16 + 16 + 4256); // skip blanks
     }
 
+    @Override
     protected void readSpecificFields(final CeosFileReader reader) throws IOException,
                                                                           IllegalCeosFormatException {
         reader.seek(getAbsolutPosition(376));

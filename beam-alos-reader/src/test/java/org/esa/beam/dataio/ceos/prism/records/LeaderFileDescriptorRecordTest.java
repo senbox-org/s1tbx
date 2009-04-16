@@ -27,18 +27,21 @@ import java.util.Arrays;
 
 public class LeaderFileDescriptorRecordTest extends BaseLeaderFileDescriptorRecordTest {
 
+    @Override
     protected BaseLeaderFileDescriptorRecord createLeaderFDR(final CeosFileReader reader, final int startPos) throws
                                                                                                               IOException,
                                                                                                               IllegalCeosFormatException {
         return new LeaderFileDescriptorRecord(reader, startPos);
     }
 
+    @Override
     protected BaseLeaderFileDescriptorRecord createLeaderFDR(final CeosFileReader reader) throws IOException,
                                                                                                  IllegalCeosFormatException {
         return new LeaderFileDescriptorRecord(reader);
     }
 
 
+    @Override
     protected void writeFields17To21(final ImageOutputStream ios) throws IOException {
         ios.writeBytes("                "); // 16 blanks
         ios.writeBytes("                "); // 16 blanks
@@ -51,6 +54,7 @@ public class LeaderFileDescriptorRecordTest extends BaseLeaderFileDescriptorReco
         ios.writeBytes(new String(blanks));
     }
 
+    @Override
     protected void assertRecords17To21(final BaseLeaderFileDescriptorRecord record) {
         // nothing to test - all blanks
     }

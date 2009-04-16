@@ -27,17 +27,20 @@ import java.io.IOException;
 
 public class PrismAncillary2RecordTest extends Ancillary2RecordTest {
 
+    @Override
     protected Ancillary2Record createAncillary2Record(final CeosFileReader reader) throws IOException,
                                                                                           IllegalCeosFormatException {
         return new PrismAncillary2Record(reader);
     }
 
+    @Override
     protected Ancillary2Record createAncillary2Record(final CeosFileReader reader, final int startPos) throws
                                                                                                        IOException,
                                                                                                        IllegalCeosFormatException {
         return new PrismAncillary2Record(reader, startPos);
     }
 
+    @Override
     protected void writeSpecificRecordData(final MemoryCacheImageOutputStream ios) throws IOException {
         ios.writeBytes("C"); // compressionMode // A1
         CeosTestHelper.writeBlanks(ios, 15);
@@ -49,6 +52,7 @@ public class PrismAncillary2RecordTest extends Ancillary2RecordTest {
         CeosTestHelper.writeBlanks(ios, 1962);
     }
 
+    @Override
     protected void assertSpecificRecordData(final Ancillary2Record record) {
         final PrismAncillary2Record prismRecord = (PrismAncillary2Record) record;
         assertEquals("C", prismRecord.getCompressionMode());

@@ -82,6 +82,7 @@ public class L3InitUI extends L3UI {
         return uiPane;
     }
 
+    @Override
     protected void setRequests() throws ProcessorException {
         ensureInitRequest();
     }
@@ -89,6 +90,7 @@ public class L3InitUI extends L3UI {
     /**
      * Retrieves the requests currently edited.
      */
+    @Override
     protected void collectRequestsFromUI(final List requests) throws ProcessorException {
         Request request = new Request();
         request.setType(L3Constants.REQUEST_TYPE);
@@ -100,6 +102,7 @@ public class L3InitUI extends L3UI {
     /**
      * Create a set of new default requests.
      */
+    @Override
     protected void setDefaultRequestsImpl() throws ProcessorException {
         initRequest = new Request();
 
@@ -150,6 +153,7 @@ public class L3InitUI extends L3UI {
         HelpSys.enableHelp(uiPane, "binningInitializeTool");
     }
 
+    @Override
     public void setApp(ProcessorApp app) {
         super.setApp(app);
         app.addRequestValidator(new RequestValidator() {
@@ -170,6 +174,7 @@ public class L3InitUI extends L3UI {
         });
     }
 
+    @Override
     protected Product getExampleProduct(boolean forBandFilter) throws IOException {
         if (exampleProduct != null) {
             final int answer;
@@ -311,6 +316,7 @@ public class L3InitUI extends L3UI {
     /**
      * Updates the UI and the connected parameters with the values of the currenr request
      */
+    @Override
     protected void updateUI() throws ProcessorException {
         try {
             updateUIComponent(L3Constants.DATABASE_PARAM_NAME, initRequest);

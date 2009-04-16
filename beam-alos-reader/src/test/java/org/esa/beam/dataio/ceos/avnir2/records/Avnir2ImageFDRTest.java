@@ -34,18 +34,21 @@ import java.io.IOException;
  */
 public class Avnir2ImageFDRTest extends BaseImageFileDescriptorRecordTest {
 
+    @Override
     protected BaseImageFileDescriptorRecord createImageFileDescriptorRecord(final CeosFileReader reader) throws
                                                                                                          IOException,
                                                                                                          IllegalCeosFormatException {
         return new Avnir2ImageFDR(reader);
     }
 
+    @Override
     protected BaseImageFileDescriptorRecord createImageFileDescriptor(final CeosFileReader reader,
                                                                       final int startPos) throws IOException,
                                                                                                  IllegalCeosFormatException {
         return new Avnir2ImageFDR(reader, startPos);
     }
 
+    @Override
     protected void writeBytes341To392(final ImageOutputStream ios) throws IOException {
         ios.writeBytes("   112SB"); // locatorDummyPixel
         ios.writeBytes("  13 8SB"); // locatorOpticalBlack
@@ -56,6 +59,7 @@ public class Avnir2ImageFDRTest extends BaseImageFileDescriptorRecordTest {
         CeosTestHelper.writeBlanks(ios, 4);
     }
 
+    @Override
     protected void assertBytes341To392(final BaseImageFileDescriptorRecord record) {
         final Avnir2ImageFDR avnir2ImageFDR = (Avnir2ImageFDR) record;
 

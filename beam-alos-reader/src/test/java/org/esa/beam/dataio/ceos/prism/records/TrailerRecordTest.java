@@ -26,16 +26,19 @@ import java.io.IOException;
 
 public class TrailerRecordTest extends BaseTrailerRecordTest {
 
+    @Override
     protected BaseTrailerRecord createTrailerRecord(final CeosFileReader reader) throws IOException,
                                                                                         IllegalCeosFormatException {
         return new TrailerRecord(reader);
     }
 
+    @Override
     protected BaseTrailerRecord createTrailerRecord(final CeosFileReader reader, final int startPos) throws IOException,
                                                                                                             IllegalCeosFormatException {
         return new TrailerRecord(reader, startPos);
     }
 
+    @Override
     protected void writeHistograms(final ImageOutputStream ios) throws IOException {
         for (int i = 0; i < 8000; i += 1000) {
             for (int j = 0; j < 256; j++) {
@@ -44,6 +47,7 @@ public class TrailerRecordTest extends BaseTrailerRecordTest {
         }
     }
 
+    @Override
     protected void assertHistograms(final BaseTrailerRecord record) {
         final TrailerRecord trailerRecord = (TrailerRecord) record;
 

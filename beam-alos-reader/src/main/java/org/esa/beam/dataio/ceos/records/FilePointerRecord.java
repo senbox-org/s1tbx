@@ -135,6 +135,7 @@ public class FilePointerRecord extends BaseRecord {
         return _firstRecordNumberOfReferencedFile;
     }
 
+    @Override
     public void assignMetadataTo(final MetadataElement root, final String suffix) {
         final MetadataElement elem = createMetadataElement("FilePointerRecord", suffix);
         root.addElement(elem);

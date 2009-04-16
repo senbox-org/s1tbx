@@ -27,6 +27,7 @@ public class SimpleBinStoreTest extends TestCase {
     private String dbName = "testDB";
     private BinLocator locator;
 
+    @Override
     public void setUp() throws IOException, URISyntaxException {
         locator = new SeaWiFSBinLocator(100);
         dbDir = new File("testdata");
@@ -37,6 +38,7 @@ public class SimpleBinStoreTest extends TestCase {
         point1 = new Point(1, 1);
     }
 
+    @Override
     public void tearDown() throws Exception {
         store.delete();
         dbDir.delete();

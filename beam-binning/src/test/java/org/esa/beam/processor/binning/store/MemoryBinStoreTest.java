@@ -21,6 +21,7 @@ public class MemoryBinStoreTest extends TestCase {
     private Point point0;
     private Point point1;
 
+    @Override
     public void setUp() {
         store = new MemoryBinStore(2, 2, 5);
         bin = new FloatArrayBin(new int[]{2, 3});

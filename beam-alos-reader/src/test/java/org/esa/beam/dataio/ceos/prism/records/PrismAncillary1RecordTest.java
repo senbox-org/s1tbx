@@ -34,17 +34,20 @@ import java.io.IOException;
 public class PrismAncillary1RecordTest extends Ancillary1RecordTest {
 
 
+    @Override
     protected Ancillary1Record createAncillary1Record(final CeosFileReader reader) throws IOException,
                                                                                           IllegalCeosFormatException {
         return new PrismAncillary1Record(reader);
     }
 
+    @Override
     protected Ancillary1Record createAncillary1Record(final CeosFileReader reader, final int startPos) throws
                                                                                                        IOException,
                                                                                                        IllegalCeosFormatException {
         return new PrismAncillary1Record(reader, startPos);
     }
 
+    @Override
     protected void writeCoefficients(final ImageOutputStream ios) throws IOException {
         // write 4 * 10 coefficients for CCD1
         writeIncrementingDoubles(123.4567, 10, ios);
@@ -97,6 +100,7 @@ public class PrismAncillary1RecordTest extends Ancillary1RecordTest {
     }
 
 
+    @Override
     protected void assertCoefficients(final Ancillary1Record record) throws IOException,
                                                                             IllegalCeosFormatException {
         final double[][] coeffsForCCD1 = record.getTransformationCoefficientsFor(1);
