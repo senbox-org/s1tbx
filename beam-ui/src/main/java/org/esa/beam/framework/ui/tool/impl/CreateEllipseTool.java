@@ -38,6 +38,7 @@ public class CreateEllipseTool extends CreateRectangleTool {
         super(figureAttributes);
     }
 
+    @Override
     public void draw(Graphics2D g2d) {
         if (getNumPoints() > 0) {
             Stroke strokeOld = g2d.getStroke();
@@ -54,6 +55,7 @@ public class CreateEllipseTool extends CreateRectangleTool {
         }
     }
 
+    @Override
     protected Figure createFigure(Map figureAttributes) {
         if (_rectangle.isEmpty()) {
             return null;
@@ -65,6 +67,7 @@ public class CreateEllipseTool extends CreateRectangleTool {
                                              figureAttributes);
     }
 
+    @Override
     protected void normalizeRectangle() {
         Point p1 = getFirstPoint();
         Point p2 = getLastPoint();

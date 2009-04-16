@@ -49,6 +49,7 @@ public abstract class AbstractTwoPointTool extends AbstractCreateFigureTool {
      * delivered to the component where the first originated until the mouse button is released (regardless of whether
      * the mouse position is within the bounds of the component).
      */
+    @Override
     public void mousePressed(ToolInputEvent event) {
         if (isSingleLeftClick(event) && _numPoints == 0) {
             setDragging(true);
@@ -65,6 +66,7 @@ public abstract class AbstractTwoPointTool extends AbstractCreateFigureTool {
     /**
      * Invoked when a mouse button has been released on a component.
      */
+    @Override
     public void mouseReleased(ToolInputEvent event) {
         setDragging(false);
         if (isSingleLeftClick(event) && _numPoints == 1) {
@@ -79,6 +81,7 @@ public abstract class AbstractTwoPointTool extends AbstractCreateFigureTool {
     /**
      * Invoked when the mouse button has been moved on a component (with no buttons no down).
      */
+    @Override
     public void mouseDragged(ToolInputEvent event) {
         if (isLeftMouseButtonDown(event) && _numPoints == 1) {
             setDragging(true);
@@ -92,6 +95,7 @@ public abstract class AbstractTwoPointTool extends AbstractCreateFigureTool {
     /**
      * Invoked when the mouse button has been moved on a component (with no buttons no down).
      */
+    @Override
     public void mouseMoved(ToolInputEvent event) {
         if (isDragging()) {
             mouseDragged(event);
@@ -109,12 +113,14 @@ public abstract class AbstractTwoPointTool extends AbstractCreateFigureTool {
      * <p/>
      * <p>Subclassers should always call <code>super.cancel()</code>.
      */
+    @Override
     public void cancel() {
         super.cancel();
         _numPoints = 0;
         setDragging(false);
     }
 
+    @Override
     protected void finish() {
         super.finish();
         _numPoints = 0;

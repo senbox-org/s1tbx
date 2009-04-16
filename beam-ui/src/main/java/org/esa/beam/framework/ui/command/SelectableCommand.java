@@ -107,6 +107,7 @@ public abstract class SelectableCommand extends Command {
      *
      * @throws IllegalArgumentException if the recource bundle is null
      */
+    @Override
     public void configure(ResourceBundle resourceBundle) {
         super.configure(resourceBundle);
         Boolean resBoolean;
@@ -138,6 +139,7 @@ public abstract class SelectableCommand extends Command {
     }
 
 
+    @Override
     protected Action createAction() {
         final AbstractAction action = new AbstractAction() {
 

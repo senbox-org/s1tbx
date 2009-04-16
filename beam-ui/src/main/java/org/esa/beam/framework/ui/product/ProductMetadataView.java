@@ -99,6 +99,7 @@ public class ProductMetadataView extends BasicView implements ProductNodeView {
     /**
      * Releases all of the resources used by this view, its subcomponents, and all of its owned children.
      */
+    @Override
     public void dispose() {
         _metadataTable = null;
         super.dispose();

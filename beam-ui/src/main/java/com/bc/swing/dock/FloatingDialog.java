@@ -108,10 +108,12 @@ public class FloatingDialog extends JDialog implements FloatingComponent {
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
 
+            @Override
             public void windowIconified(WindowEvent e) {
                 getOriginator().setDocked(true);
             }
 
+            @Override
             public void windowClosing(WindowEvent e) {
                 getOriginator().setDocked(true);
             }

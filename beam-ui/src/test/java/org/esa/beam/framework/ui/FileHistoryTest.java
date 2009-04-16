@@ -44,6 +44,7 @@ public class FileHistoryTest extends TestCase {
         super(name);
     }
 
+    @Override
     public void setUp() {
         GlobalTestTools.deleteTestDataOutputDirectory();
         _a = new File(GlobalTestConfig.getBeamTestDataOutputDirectory(), "A.dim");
@@ -62,6 +63,7 @@ public class FileHistoryTest extends TestCase {
         }
     }
 
+    @Override
     public void tearDown() {
         GlobalTestTools.deleteTestDataOutputDirectory();
     }

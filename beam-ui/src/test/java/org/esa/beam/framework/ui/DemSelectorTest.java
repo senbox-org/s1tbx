@@ -24,6 +24,7 @@ public class DemSelectorTest extends TestCase {
     private DemSelector _demSelector;
     private MyParamChangeListener _paramChangeListener;
 
+    @Override
     protected void setUp() throws Exception {
         _paramChangeListener = new MyParamChangeListener();
         _demSelector = new DemSelector(_paramChangeListener);

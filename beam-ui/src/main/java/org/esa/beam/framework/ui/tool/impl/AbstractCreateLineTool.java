@@ -140,16 +140,19 @@ public abstract class AbstractCreateLineTool extends AbstractCreateFigureTool {
      * <p/>
      * <p>Subclassers should always call <code>super.cancel()</code>.
      */
+    @Override
     public void cancel() {
         super.cancel();
         _points.clear();
     }
 
+    @Override
     protected void finish() {
         super.finish();
         _points.clear();
     }
 
+    @Override
     protected Figure createFigure(Map figureAttributes) {
         if (getNumPoints() < 2) {
             return null;
@@ -172,6 +175,7 @@ public abstract class AbstractCreateLineTool extends AbstractCreateFigureTool {
     /**
      * Invoked when a mouse button has been released on a component.
      */
+    @Override
     public void mouseReleased(ToolInputEvent event) {
         boolean finished = false;
 
@@ -251,6 +255,7 @@ public abstract class AbstractCreateLineTool extends AbstractCreateFigureTool {
     /**
      * Invoked when the mouse button has been moved on a component (with no buttons no down).
      */
+    @Override
     public void mouseMoved(ToolInputEvent e) {
         if (getNumPoints() > 0) {
             setCurrPoint(e);
@@ -258,6 +263,7 @@ public abstract class AbstractCreateLineTool extends AbstractCreateFigureTool {
         }
     }
 
+    @Override
     public void draw(Graphics2D g2d) {
         if (getNumPoints() == 0) {
             return;

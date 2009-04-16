@@ -38,6 +38,7 @@ public class CreateLineTool extends AbstractTwoPointTool {
         super(figureAttributes);
     }
 
+    @Override
     protected Figure createFigure(Map figureAttributes) {
         if (getNumPoints() != 2) {
             return null;
@@ -56,6 +57,7 @@ public class CreateLineTool extends AbstractTwoPointTool {
      *
      * @param g2d the graphics context
      */
+    @Override
     public void draw(Graphics2D g2d) {
         if (getNumPoints() > 0) {
             Point p1 = getFirstPoint();

@@ -45,6 +45,7 @@ public abstract class AbstractExpressionEditor extends TextFieldXEditor {
         super(parameter);
     }
 
+    @Override
     protected void invokeXEditor() {
 
         final ParamProperties paramProperties = getParameter().getProperties();

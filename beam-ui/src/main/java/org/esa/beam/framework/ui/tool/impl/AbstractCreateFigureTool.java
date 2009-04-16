@@ -75,6 +75,7 @@ public abstract class AbstractCreateFigureTool extends AbstractTool {
      *
      * @return the default cursor for this tool or <code>null</code> if this tool does not have a special cursor.
      */
+    @Override
     public Cursor getCursor() {
         return Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
     }
@@ -86,6 +87,7 @@ public abstract class AbstractCreateFigureTool extends AbstractTool {
         finish();
     }
 
+    @Override
     protected void finish() {
         if (getDrawingEditor() != null) {
             Figure figure = createFigure(_figureAttributes);

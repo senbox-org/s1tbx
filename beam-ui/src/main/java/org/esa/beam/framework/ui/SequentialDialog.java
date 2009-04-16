@@ -153,6 +153,7 @@ public class SequentialDialog {
 
         dialog.addWindowListener(new WindowAdapter() {
 
+            @Override
             public void windowClosing(WindowEvent e) {
                 buttonID = ID_CANCEL;
                 onCancel();
@@ -289,14 +290,17 @@ public class SequentialDialog {
             prefSize = new Dimension(w, h);
         }
 
+        @Override
         public Dimension getMinimumSize() {
             return prefSize;
         }
 
+        @Override
         public Dimension getPreferredSize() {
             return prefSize;
         }
 
+        @Override
         public void paint(Graphics g) {
             Dimension size = this.getSize();
             int x1 = 0;

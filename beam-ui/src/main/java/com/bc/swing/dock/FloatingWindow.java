@@ -190,18 +190,21 @@ public class FloatingWindow extends Window implements FloatingComponent {
         private int _resizeMode;
         private Cursor _currentCursor;
 
+        @Override
         public void mousePressed(MouseEvent e) {
             _point = convertPointToScreen(e);
             _resizeMode = getResizeMode(e);
             setResizeCursor(_resizeMode);
         }
 
+        @Override
         public void mouseReleased(MouseEvent e) {
             _point = null;
             _resizeMode = 0;
             setResizeCursor(_resizeMode);
         }
 
+        @Override
         public void mouseMoved(MouseEvent e) {
             if (_resizeMode > 0) {
                 mouseDragged(e);
@@ -210,6 +213,7 @@ public class FloatingWindow extends Window implements FloatingComponent {
             }
         }
 
+        @Override
         public void mouseDragged(MouseEvent e) {
             if (_resizeMode > 0) {
                 Point p = convertPointToScreen(e);
@@ -222,10 +226,12 @@ public class FloatingWindow extends Window implements FloatingComponent {
             }
         }
 
+        @Override
         public void mouseEntered(MouseEvent e) {
             setResizeCursor(getResizeMode(e));
         }
 
+        @Override
         public void mouseExited(MouseEvent e) {
             setResizeCursor(0);
         }
@@ -312,20 +318,24 @@ public class FloatingWindow extends Window implements FloatingComponent {
 
         private Point _point;
 
+        @Override
         public void mousePressed(MouseEvent e) {
             _point = convertPointToScreen(e);
         }
 
+        @Override
         public void mouseReleased(MouseEvent e) {
             _point = null;
         }
 
+        @Override
         public void mouseMoved(MouseEvent e) {
             if (_point != null) {
                 mouseDragged(e);
             }
         }
 
+        @Override
         public void mouseDragged(MouseEvent e) {
             Point p = convertPointToScreen(e);
             int dx = p.x - _point.x;
@@ -336,6 +346,7 @@ public class FloatingWindow extends Window implements FloatingComponent {
             }
         }
 
+        @Override
         public void mouseExited(MouseEvent e) {
             setCursor(Cursor.getDefaultCursor());
         }

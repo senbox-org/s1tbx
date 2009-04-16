@@ -156,6 +156,7 @@ public class ConfigDialog extends ModalDialog {
         updatePagePane();
     }
 
+    @Override
     protected void onOK() {
         for (int i = 0; i < getNumRootPages(); i++) {
             ConfigPage page = getRootPageAt(i);
@@ -164,6 +165,7 @@ public class ConfigDialog extends ModalDialog {
         super.onOK();
     }
 
+    @Override
     public int show() {
         for (int i = 0; i < getNumRootPages(); i++) {
             ConfigPage page = getRootPageAt(i);
@@ -172,6 +174,7 @@ public class ConfigDialog extends ModalDialog {
         return super.show();
     }
 
+    @Override
     protected boolean verifyUserInput() {
         if (_currentPage != null) {
             return _currentPage.verifyUserInput();
@@ -202,6 +205,7 @@ public class ConfigDialog extends ModalDialog {
     private void registerTreeCellRenderer() {
         _tree.setCellRenderer(new DefaultTreeCellRenderer() {
 
+            @Override
             public Component getTreeCellRendererComponent(JTree tree,
                                                           Object value,
                                                           boolean sel,

@@ -41,6 +41,7 @@ public class CommandGroup extends Command {
     /**
      * Creates a menu item (a <code>JMenu</code> instance) for this command group.
 	 */
+    @Override
     public JMenuItem createMenuItem() {
         return getCommandUIFactory().createMenuItem(this);
     }
@@ -48,6 +49,7 @@ public class CommandGroup extends Command {
     /**
      * Creates an appropriate tool bar button for this command.
      */
+    @Override
     public AbstractButton createToolBarButton() {
         return getCommandUIFactory().createToolBarButton(this);
     }
@@ -71,6 +73,7 @@ public class CommandGroup extends Command {
     }
     
     
+    @Override
     protected Action createAction() {
         return new AbstractAction() {
 

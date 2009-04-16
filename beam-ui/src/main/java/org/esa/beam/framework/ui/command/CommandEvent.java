@@ -66,6 +66,7 @@ public class CommandEvent extends ChangeEvent {
         return _argument;
     }
 
+    @Override
     public String toString() {
         return getClass().getName()
                + "[_command="

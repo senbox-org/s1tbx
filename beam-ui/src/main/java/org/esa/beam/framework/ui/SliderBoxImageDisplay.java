@@ -61,12 +61,14 @@ public class SliderBoxImageDisplay extends JComponent {
 
         addMouseListener(new MouseAdapter() {
 
+            @Override
             public void mousePressed(MouseEvent e) {
                 sliderRectOld = new Rectangle(sliderBox.getBounds());
                 clickPos = new Point(e.getPoint());
                 computeSliderSections(e);
             }
 
+            @Override
             public void mouseReleased(MouseEvent e) {
                 sliderRectOld = null;
                 clickPos = null;
@@ -76,6 +78,7 @@ public class SliderBoxImageDisplay extends JComponent {
 
         addMouseMotionListener(new MouseMotionAdapter() {
 
+            @Override
             public void mouseDragged(MouseEvent e) {
                 if (sliderRectOld == null || clickPos == null) {
                     return;
@@ -91,6 +94,7 @@ public class SliderBoxImageDisplay extends JComponent {
         repaint();
     }
 
+    @Override
     protected void paintComponent(Graphics graphics) {
         graphics.setColor(getBackground());
         if (image != null) {

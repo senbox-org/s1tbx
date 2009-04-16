@@ -100,6 +100,7 @@ public class BandChooser extends ModalDialog {
         initUI();
     }
 
+    @Override
     public int show() {
         updateUI();
         return super.show();
@@ -269,6 +270,7 @@ public class BandChooser extends ModalDialog {
         _selectNoneCheckBox.updateUI();
     }
 
+    @Override
     protected boolean verifyUserInput() {
         final List bands = new ArrayList();
         final List grids = new ArrayList();

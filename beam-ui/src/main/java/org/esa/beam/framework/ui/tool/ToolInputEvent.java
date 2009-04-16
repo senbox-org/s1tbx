@@ -122,6 +122,7 @@ public class ToolInputEvent extends EventObject {
      *
      * @return A a String representation of this EventObject.
      */
+    @Override
     public String toString() {
         return getClass().getName()
                + "[source=" + source

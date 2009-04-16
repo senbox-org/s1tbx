@@ -104,6 +104,7 @@ public class TabbedDesktopPane extends JPanel {
     }
 
 
+    @Override
     protected void addImpl(Component comp, Object constraints, int index) {
         if (comp == tabbedPane || comp == desktopPane) {
             super.addImpl(comp, constraints, index);
@@ -112,6 +113,7 @@ public class TabbedDesktopPane extends JPanel {
         }
     }
 
+    @Override
     public void remove(int index) {
         final Component comp = getComponent(index);
         if (comp == tabbedPane || comp == desktopPane) {
@@ -424,10 +426,12 @@ public class TabbedDesktopPane extends JPanel {
 
     private class InternalFrameHandler extends InternalFrameAdapter {
 
+        @Override
         public void internalFrameClosed(InternalFrameEvent e) {
             removeTabFor(e.getInternalFrame());
         }
 
+        @Override
         public void internalFrameActivated(InternalFrameEvent e) {
             final JInternalFrame internalFrame = e.getInternalFrame();
             selectTabFor(internalFrame);
@@ -493,6 +497,7 @@ public class TabbedDesktopPane extends JPanel {
         /**
          * Invoked when a mouse button has been released on a component.
          */
+        @Override
         public void mouseReleased(MouseEvent e) {
 // <JIDE>
 // todo - Context menu does not work anymore!!!    

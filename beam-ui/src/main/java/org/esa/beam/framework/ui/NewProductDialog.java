@@ -107,6 +107,7 @@ public class NewProductDialog extends ModalDialog {
         this.sourceProductOwner = sourceProductOwner;
     }
 
+    @Override
     public int show() {
         createParameter();
         createUI();
@@ -135,11 +136,13 @@ public class NewProductDialog extends ModalDialog {
         return resultProduct;
     }
 
+    @Override
     protected void onCancel() {
         super.onCancel();
         resultProduct = null;
     }
 
+    @Override
     protected void onOK() {
         super.onOK();
         String prodName = paramNewName.getValueAsText();
@@ -177,6 +180,7 @@ public class NewProductDialog extends ModalDialog {
         return exception;
     }
 
+    @Override
     protected boolean verifyUserInput() {
         boolean b = super.verifyUserInput();
         String name = paramNewName.getValueAsText();

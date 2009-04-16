@@ -18,6 +18,7 @@ public class GeneralExpressionEditor extends AbstractExpressionEditor {
         super(parameter);
     }
 
+    @Override
     protected ProductExpressionPane createProductExpressionPane(final Product[] sourceProducts,
                                                                 final Product currentProduct,
                                                                 final PropertyMap preferences) {

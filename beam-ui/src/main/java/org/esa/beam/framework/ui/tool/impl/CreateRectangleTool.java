@@ -42,6 +42,7 @@ public class CreateRectangleTool extends AbstractTwoPointTool {
         _rectangle = new Rectangle();
     }
 
+    @Override
     public void draw(Graphics2D g2d) {
         if (getNumPoints() > 0) {
             Stroke strokeOld = g2d.getStroke();
@@ -58,6 +59,7 @@ public class CreateRectangleTool extends AbstractTwoPointTool {
         }
     }
 
+    @Override
     protected Figure createFigure(Map figureAttributes) {
         if (_rectangle.isEmpty()) {
             return null;
@@ -69,6 +71,7 @@ public class CreateRectangleTool extends AbstractTwoPointTool {
                                                figureAttributes);
     }
 
+    @Override
     protected void normalizeRectangle() {
         Point p1 = getFirstPoint();
         Point p2 = getLastPoint();

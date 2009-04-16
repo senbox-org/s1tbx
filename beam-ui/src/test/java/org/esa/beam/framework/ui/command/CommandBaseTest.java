@@ -30,6 +30,7 @@ public class CommandBaseTest extends TestCase {
         return new TestSuite(CommandBaseTest.class);
     }
 
+    @Override
     public void setUp() {
 //        _commandBase = new Command("test", () null) {
 //
@@ -39,6 +40,7 @@ public class CommandBaseTest extends TestCase {
 //        };
     }
 
+    @Override
     public void tearDown() {
     }
 

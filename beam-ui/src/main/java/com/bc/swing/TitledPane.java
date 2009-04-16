@@ -96,6 +96,7 @@ public class TitledPane extends ContentContainer  { // <JIDE/>
             /**
              * Invoked when the mouse has been clicked on a component.
              */
+            @Override
             public void mouseClicked(MouseEvent e) {
                 requestFocus();
             }

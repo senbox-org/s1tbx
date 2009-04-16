@@ -566,10 +566,12 @@ public class RGBImageProfilePane extends JPanel {
             return _profile;
         }
 
+        @Override
         public int hashCode() {
             return getProfile().hashCode();
         }
 
+        @Override
         public boolean equals(Object obj) {
             if (obj == this) {
                 return true;
@@ -580,6 +582,7 @@ public class RGBImageProfilePane extends JPanel {
             return false;
         }
 
+        @Override
         public String toString() {
             String name = _profile.getName().replace('_', ' ');
             if (getSelectedProfileItem().equals(this) && isSelectedProfileModified()) {

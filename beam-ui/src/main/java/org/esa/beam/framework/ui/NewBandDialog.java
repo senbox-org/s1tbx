@@ -73,6 +73,7 @@ public class NewBandDialog extends ModalDialog {
         return ProductData.getType(_paramDataType.getValueAsText());
     }
 
+    @Override
     protected boolean verifyUserInput() {
         String name = _paramName.getValueAsText();
         if (name == null || name.length() == 0) {

@@ -26,9 +26,11 @@ public class UserInputHistoryTest extends TestCase {
         super(name);
     }
 
+    @Override
     public void setUp() {
     }
 
+    @Override
     public void tearDown() {
     }
 

@@ -36,10 +36,12 @@ public class ProjectionParamsDialog extends ModalDialog {
         return _transformUI;
     }
 
+    @Override
     protected boolean verifyUserInput() {
         return _transformUI.verifyUserInput();
     }
 
+    @Override
     protected void onReset() {
         _transformUI.resetToDefaults();
     }
