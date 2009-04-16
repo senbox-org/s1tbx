@@ -30,8 +30,8 @@
     </issueManagement>
 
     <scm>
-        <connection>scm:svn:https://www.brockmann-consult.de/svn/os/ceres/trunc</connection>
-        <url>https://www.brockmann-consult.de/svn/os/ceres/trunc</url>
+        <connection>scm:svn:https://www.brockmann-consult.de/svn/os/ceres/trunk</connection>
+        <url>https://www.brockmann-consult.de/svn/os/ceres/trunk</url>
     </scm>
 
     <repositories>
@@ -39,8 +39,13 @@
             <id>bc-public</id>
             <name>Public Maven Repository at Brockmann-Consult</name>
             <url>http://www.brockmann-consult.de/mvn/os</url>
+            <releases>
+              <enabled>true</enabled>
+              <checksumPolicy>warn</checksumPolicy>
+            </releases>
             <snapshots>
                 <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
             </snapshots>
         </repository>
     </repositories>
