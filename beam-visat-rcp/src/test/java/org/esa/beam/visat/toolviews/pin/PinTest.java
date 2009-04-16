@@ -39,6 +39,7 @@ public class PinTest extends TestCase {
     private final String _ls = SystemUtils.LS;
 
 
+    @Override
     public void setUp() {
         product = new Product("product", "t", 10, 10);
         eventTypes = new Vector();
@@ -66,6 +67,7 @@ public class PinTest extends TestCase {
         });
     }
 
+    @Override
     public void tearDown() {
     }
 

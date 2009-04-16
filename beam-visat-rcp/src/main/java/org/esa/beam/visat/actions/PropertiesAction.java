@@ -12,10 +12,12 @@ public class PropertiesAction extends ExecCommand {
 
     }
 
+    @Override
     public void actionPerformed(CommandEvent event) {
         showEditor(VisatApp.getApp());
     }
 
+    @Override
     public void updateState(CommandEvent event) {
         final ProductNode node = VisatApp.getApp().getSelectedProductNode();
         event.getCommand().setEnabled(PropertyEditor.isValidNode(node));

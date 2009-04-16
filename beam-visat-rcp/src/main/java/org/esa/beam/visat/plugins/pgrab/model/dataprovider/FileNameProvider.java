@@ -57,6 +57,7 @@ public class FileNameProvider implements DataProvider {
 
     private static class FileNameCellRenderer extends DefaultTableCellRenderer {
 
+        @Override
         public Component getTableCellRendererComponent(final JTable table,
                                                        final Object value,
                                                        final boolean isSelected,

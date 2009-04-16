@@ -56,6 +56,7 @@ public class ProductSizeProvider implements DataProvider {
 
     private static class FileSizeCellRenderer extends DefaultTableCellRenderer {
 
+        @Override
         public Component getTableCellRendererComponent(final JTable table,
                                                        final Object value,
                                                        final boolean isSelected,

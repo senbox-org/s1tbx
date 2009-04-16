@@ -67,6 +67,7 @@ public class ProductFlipDialog extends ModalDialog {
         _sourceProduct = sourceProduct;
     }
 
+    @Override
     public int show() {
         createParameter();
         createUI();
@@ -86,11 +87,13 @@ public class ProductFlipDialog extends ModalDialog {
         return _exception;
     }
 
+    @Override
     protected void onCancel() {
         super.onCancel();
         _resultProduct = null;
     }
 
+    @Override
     protected void onOK() {
         super.onOK();
         String prodName = _paramNewName.getValueAsText();
@@ -111,6 +114,7 @@ public class ProductFlipDialog extends ModalDialog {
         }
     }
 
+    @Override
     protected boolean verifyUserInput() {
         boolean b = super.verifyUserInput();
         String name = _paramNewName.getValueAsText();

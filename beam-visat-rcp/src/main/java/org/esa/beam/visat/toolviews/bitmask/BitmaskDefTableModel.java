@@ -152,6 +152,7 @@ public class BitmaskDefTableModel extends AbstractTableModel {
      *
      * @return column data type
      */
+    @Override
     public Class getColumnClass(int columnIndex) {
         return _COLUMN_CLASSES[columnIndex + (isVisibleFlagColumnEnabled() ? 0 : 1)];
     }
@@ -163,6 +164,7 @@ public class BitmaskDefTableModel extends AbstractTableModel {
      *
      * @return a string containing the default name of <code>column</code>
      */
+    @Override
     public String getColumnName(int columnIndex) {
         return _COLUMN_NAMES[columnIndex + (isVisibleFlagColumnEnabled() ? 0 : 1)];
     }
@@ -175,6 +177,7 @@ public class BitmaskDefTableModel extends AbstractTableModel {
      *
      * @return false
      */
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return isVisibleFlagColumnEnabled() && columnIndex == 0;
     }
@@ -244,6 +247,7 @@ public class BitmaskDefTableModel extends AbstractTableModel {
      * @param rowIndex    row of cell
      * @param columnIndex column of cell
      */
+    @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         fireTableCellUpdated(rowIndex, columnIndex);
     }

@@ -77,6 +77,7 @@ public class RepositoryEntry {
         }
     }
 
+    @Override
     public boolean equals(final Object obj) {
         if (!(obj instanceof RepositoryEntry)) {
             return false;

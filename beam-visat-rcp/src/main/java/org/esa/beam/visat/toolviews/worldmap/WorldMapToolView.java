@@ -74,6 +74,7 @@ public class WorldMapToolView extends AbstractToolView {
         visatApp = VisatApp.getApp();
     }
 
+    @Override
     public JComponent createControl() {
         _worldMapPane = new WorldMapPane(WorldMapImageLoader.getWorldMapImage(false));
 

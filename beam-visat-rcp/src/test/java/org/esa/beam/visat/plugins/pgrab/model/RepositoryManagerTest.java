@@ -20,6 +20,7 @@ public class RepositoryManagerTest extends TestCase {
 
     private RepositoryManager _repositoryManager;
 
+    @Override
     protected void setUp() throws Exception {
         _repositoryManager = new RepositoryManager();
     }

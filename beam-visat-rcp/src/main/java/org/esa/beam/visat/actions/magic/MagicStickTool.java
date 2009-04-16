@@ -87,6 +87,7 @@ public class MagicStickTool extends AbstractTool {
             return;
         }
         final ProgressMonitorSwingWorker<BufferedImage, Object> worker = new ProgressMonitorSwingWorker<BufferedImage, Object>(view, "Computing ROI") {
+            @Override
             protected BufferedImage doInBackground(ProgressMonitor pm) throws Exception {
                 return createRoiImage(spectrum, product, selectedBands, tolerance, pm);
             }

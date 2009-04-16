@@ -279,6 +279,7 @@ class StatisticsPanel extends TextPagePanel {
         }
     }
 
+    @Override
     public void handleLayerContentChanged() {
         computePanel.updateRoiCheckBoxState();
     }

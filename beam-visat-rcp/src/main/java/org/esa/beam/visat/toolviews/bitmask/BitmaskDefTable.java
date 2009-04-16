@@ -159,6 +159,7 @@ public class BitmaskDefTable extends JTable {
      *          if <code>newModel</code> is <code>null</code>
      * @see #getModel
      */
+    @Override
     public void setModel(TableModel model) {
         if (model instanceof BitmaskDefTableModel) {
             _model = (BitmaskDefTableModel) model;
@@ -278,10 +279,12 @@ public class BitmaskDefTable extends JTable {
             _rowIndex = -1;
         }
 
+        @Override
         public void mouseExited(MouseEvent e) {
             _rowIndex = -1;
         }
 
+        @Override
         public void mouseMoved(MouseEvent e) {
             int rowIndex = rowAtPoint(e.getPoint());
             if (rowIndex != _rowIndex) {

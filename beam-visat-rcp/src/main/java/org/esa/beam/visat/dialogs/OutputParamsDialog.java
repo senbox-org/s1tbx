@@ -64,6 +64,7 @@ public class OutputParamsDialog extends ModalDialog {
         updateUIState();
     }
 
+    @Override
     protected void onOK() {
         super.onOK();
         if (_editable) {
@@ -81,6 +82,7 @@ public class OutputParamsDialog extends ModalDialog {
         _mapInfo.setNoDataValue(((Double) _paramNoDataValue.getValue()).doubleValue());
     }
 
+    @Override
     protected void onCancel() {
         super.onCancel();
         _mapInfo = null;

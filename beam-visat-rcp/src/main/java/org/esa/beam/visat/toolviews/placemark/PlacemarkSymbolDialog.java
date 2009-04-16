@@ -50,6 +50,7 @@ public class PlacemarkSymbolDialog extends ModalDialog {
     private void creatUI() {
         final JPanel content = new JPanel(new BorderLayout());
         _symbolButton = new JButton() {
+            @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 if (_placemarkSymbol != null) {

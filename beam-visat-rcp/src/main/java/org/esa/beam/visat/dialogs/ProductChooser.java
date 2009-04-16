@@ -74,6 +74,7 @@ public class ProductChooser extends ModalDialog {
         initUI();
     }
 
+    @Override
     public int show() {
         updateUI();
         return super.show();
@@ -222,6 +223,7 @@ public class ProductChooser extends ModalDialog {
         _selectNoneCheckBox.updateUI();
     }
 
+    @Override
     protected boolean verifyUserInput() {
         final List products = new ArrayList();
         for (int i = 0; i < _checkBoxes.length; i++) {

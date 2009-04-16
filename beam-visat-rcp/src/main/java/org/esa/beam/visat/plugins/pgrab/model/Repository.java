@@ -130,10 +130,12 @@ public class Repository {
         return _entryList.indexOf(entry);
     }
 
+    @Override
     public String toString() {
         return _baseDir.getPath();
     }
 
+    @Override
     public boolean equals(final Object obj) {
         if (obj instanceof Repository) {
             final Repository repository = (Repository) obj;

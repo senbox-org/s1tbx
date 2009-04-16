@@ -215,6 +215,7 @@ class GcpGeoCodingForm extends JPanel {
         }
 
         SwingWorker sw = new SwingWorker<GcpGeoCoding, GcpGeoCoding>() {
+            @Override
             protected GcpGeoCoding doInBackground() throws Exception {
                 GcpGeoCoding gcpGeoCoding = new GcpGeoCoding(method, gcps,
                                                              product.getSceneRasterWidth(),
@@ -263,6 +264,7 @@ class GcpGeoCodingForm extends JPanel {
 
         DecimalFormat format = new DecimalFormat("0.0####");
 
+        @Override
         public StringBuffer format(double number, StringBuffer toAppendTo, FieldPosition pos) {
             if (Double.isNaN(number)) {
                 return toAppendTo.append("n/a");
@@ -271,10 +273,12 @@ class GcpGeoCodingForm extends JPanel {
             }
         }
 
+        @Override
         public StringBuffer format(long number, StringBuffer toAppendTo, FieldPosition pos) {
             return format.format(number, toAppendTo, pos);
         }
 
+        @Override
         public Number parse(String source, ParsePosition parsePosition) {
             return format.parse(source, parsePosition);
         }

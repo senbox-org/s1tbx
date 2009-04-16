@@ -167,6 +167,7 @@ class ImageInfoEditor2 extends ImageInfoEditor {
             super(ImageInfoEditor2.this, "Computing statistics");
         }
 
+        @Override
         protected Object doInBackground(ProgressMonitor pm) throws Exception {
             UIUtils.setRootFrameWaitCursor(ImageInfoEditor2.this);
             final ProductSceneView view = parentForm.getProductSceneView();

@@ -87,18 +87,22 @@ class SortingDecorator extends AbstractTableModel {
         return _tableModel.getValueAt(getSortedIndex(rowIndex), columnIndex);
     }
 
+    @Override
     public String getColumnName(final int column) {
         return _tableModel.getColumnName(column);
     }
 
+    @Override
     public Class getColumnClass(final int column) {
         return _tableModel.getColumnClass(column);
     }
 
+    @Override
     public boolean isCellEditable(final int row, final int column) {
         return _tableModel.isCellEditable(getSortedIndex(row), column);
     }
 
+    @Override
     public void setValueAt(final Object aValue, final int row, final int column) {
         _tableModel.setValueAt(aValue, getSortedIndex(row), column);
     }
@@ -131,6 +135,7 @@ class SortingDecorator extends AbstractTableModel {
 
     private class MouseHandler extends MouseAdapter {
 
+        @Override
         public void mouseClicked(final MouseEvent e) {
             final JTableHeader h = (JTableHeader) e.getSource();
             final TableColumnModel columnModel = h.getColumnModel();

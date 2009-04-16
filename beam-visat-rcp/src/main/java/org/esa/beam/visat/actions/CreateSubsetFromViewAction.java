@@ -64,6 +64,7 @@ public class CreateSubsetFromViewAction extends ExecCommand {
         }
     }
 
+    @Override
     public void updateState(CommandEvent event) {
         event.getCommand().setEnabled(VisatApp.getApp().getSelectedProductSceneView() != null);
     }

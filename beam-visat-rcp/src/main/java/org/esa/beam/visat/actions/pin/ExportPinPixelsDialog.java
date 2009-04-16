@@ -277,6 +277,7 @@ class ExportPinPixelsDialog extends ModalDialog {
         buttonUseExpressionAsMarker.setEnabled(useExpression);
     }
 
+    @Override
     protected boolean verifyUserInput() {
         final String expression = paramExpression.getValueAsText();
         final boolean useExpression = (Boolean) paramUseExpression.getValue();

@@ -24,9 +24,11 @@ public class ContrastStretchPaneTest extends TestCase {
         super(name);
     }
 
+    @Override
     public void setUp() {
     }
 
+    @Override
     public void tearDown() {
     }
 
