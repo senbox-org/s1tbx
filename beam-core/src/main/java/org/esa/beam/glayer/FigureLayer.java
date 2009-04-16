@@ -22,7 +22,6 @@ import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
-
 import org.esa.beam.framework.draw.Figure;
 
 import java.awt.AlphaComposite;
@@ -42,7 +41,7 @@ import java.util.Map;
 public class FigureLayer extends Layer {
 
     private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
-    
+
     public static final String PROPERTY_NAME_SHAPE_OUTLINED = "shape.outlined";
     public static final String PROPERTY_NAME_SHAPE_FILLED = "shape.filled";
     public static final String PROPERTY_NAME_SHAPE_OUTL_COLOR = "shape.outl.color";
@@ -67,9 +66,9 @@ public class FigureLayer extends Layer {
     public FigureLayer(AffineTransform shapeToModelTransform, Figure[] figures) {
         this(LAYER_TYPE, shapeToModelTransform, figures);
     }
-    
+
     protected FigureLayer(Type type, AffineTransform shapeToModelTransform, Figure[] figures) {
-        super(LAYER_TYPE);
+        super(type);
         this.figureList = new ArrayList<Figure>(Arrays.asList(figures));
         this.shapeToModelTransform = new AffineTransform(shapeToModelTransform);
     }
@@ -181,7 +180,7 @@ public class FigureLayer extends Layer {
         return new BasicStroke((float) width);
     }
 
-    private Boolean isShapeOutlined() {
+    private boolean isShapeOutlined() {
         final Style style = getStyle();
 
         if (style.hasProperty(PROPERTY_NAME_SHAPE_OUTLINED)) {
@@ -211,7 +210,7 @@ public class FigureLayer extends Layer {
         return DEFAULT_SHAPE_OUTL_TRANSPARENCY;
     }
 
-    private Boolean isShapeFilled() {
+    private boolean isShapeFilled() {
         final Style style = getStyle();
 
         if (style.hasProperty(PROPERTY_NAME_SHAPE_FILLED)) {
@@ -250,9 +249,9 @@ public class FigureLayer extends Layer {
 
         return DEFAULT_SHAPE_FILL_TRANSPARENCY;
     }
-    
+
     public static class Type extends LayerType {
-        
+
         @Override
         public String getName() {
             return "Figure Layer";
@@ -269,13 +268,13 @@ public class FigureLayer extends Layer {
             AffineTransform shapeToModelTransform = (AffineTransform) configuration.get("shapeToModelTransform");
             return new FigureLayer(shapeToModelTransform, figures.toArray(new Figure[figures.size()]));
         }
-        
+
         @Override
         public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
             final HashMap<String, Object> configuration = new HashMap<String, Object>();
             if (layer instanceof FigureLayer) {
                 FigureLayer figureLayer = (FigureLayer) layer;
-                configuration.put("figures", figureLayer.figureList);
+                configuration.put("figures", figureLayer.getFigureList());
                 configuration.put("shapeToModelTransform", figureLayer.shapeToModelTransform);
             }
             return configuration;
