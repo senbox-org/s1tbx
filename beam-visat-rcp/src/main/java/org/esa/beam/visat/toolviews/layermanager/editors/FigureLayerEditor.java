@@ -3,6 +3,7 @@ package org.esa.beam.visat.toolviews.layermanager.editors;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.swing.BindingContext;
+import com.bc.ceres.binding.swing.ValueEditorRegistry;
 import com.bc.ceres.binding.swing.internal.RangeEditor;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.glayer.FigureLayer;
@@ -42,7 +43,7 @@ public class FigureLayerEditor extends AbstractBindingLayerEditor {
         vd3.setDisplayName("Shape outline transparency");
         vd3.setValueRange(new ValueRange(0, 0.95));
         vd3.setDefaultConverter();
-        vd3.setProperty("valueEditor", new RangeEditor());
+        vd3.setProperty("valueEditor", ValueEditorRegistry.getValueEditor(RangeEditor.class.getName()));
         addValueDescriptor(vd3);
 
 
@@ -63,7 +64,7 @@ public class FigureLayerEditor extends AbstractBindingLayerEditor {
         vd6.setDisplayName("Shape fill transparency");
         vd6.setValueRange(new ValueRange(0, 0.95));
         vd6.setDefaultConverter();
-        vd6.setProperty("valueEditor", new RangeEditor());
+        vd6.setProperty("valueEditor", ValueEditorRegistry.getValueEditor(RangeEditor.class.getName()));
         addValueDescriptor(vd6);
 
         boolean outlined = (Boolean) bindingContext.getValueContainer().getValue(
