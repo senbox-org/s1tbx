@@ -25,6 +25,7 @@ public class GeoTiffProductWriterTest extends TestCase {
     private GeoTiffProductWriter _productWriter;
     private Product _product;
 
+    @Override
     protected void setUp() throws Exception {
         new File(FILENAME).delete();
 
@@ -35,6 +36,7 @@ public class GeoTiffProductWriterTest extends TestCase {
         fillBandWithData(_product.getBand("b1"), 1);
     }
 
+    @Override
     protected void tearDown() throws Exception {
         _productWriter.close();
         new File(FILENAME).delete();

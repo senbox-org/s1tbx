@@ -96,6 +96,7 @@ public class FieldInfo extends DataItemInfo {
     /**
      * Returns a string representation of this field-info which can be used for debugging purposes.
      */
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("FieldInfo[");

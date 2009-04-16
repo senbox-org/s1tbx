@@ -92,6 +92,7 @@ public class ErsProductReaderPlugIn extends EnvisatProductReaderPlugIn {
      * @param input the input object
      * @return <code>true</code> if the given input is an object referencing a physical ERS in ENVISAT data source.
      */
+    @Override
     public DecodeQualification getDecodeQualification(Object input) {
         if (super.getDecodeQualification(input) == DecodeQualification.INTENDED) {
             if (input instanceof String) {

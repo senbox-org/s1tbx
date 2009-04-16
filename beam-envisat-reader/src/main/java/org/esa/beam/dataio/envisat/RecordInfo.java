@@ -236,6 +236,7 @@ public final class RecordInfo extends ItemInfo {
     /**
      * Returns a string representation of this record-info which can be used for debugging purposes.
      */
+    @Override
     public String toString() {
         int n = getNumFieldInfos();
         StringBuffer sb = new StringBuffer(32 + 32 * n);
@@ -261,6 +262,7 @@ public final class RecordInfo extends ItemInfo {
      *
      * @param prefix the prefix string to be added.
      */
+    @Override
     public void setNamePrefix(String prefix) {
         FieldInfo info = null;
         for (int n = 0; n < _fieldInfos.size(); n++) {

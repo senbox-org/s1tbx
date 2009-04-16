@@ -43,6 +43,7 @@ public class ModisUint16BandReader extends ModisBandReader {
         return ProductData.TYPE_UINT16;
     }
 
+    @Override
     protected void prepareForReading(final int sourceOffsetX, final int sourceOffsetY, final int sourceWidth,
                                      final int sourceHeight, final int sourceStepX, final int sourceStepY,
                                      final ProductData destBuffer) {
@@ -59,10 +60,12 @@ public class ModisUint16BandReader extends ModisBandReader {
         ensureLineWidth(sourceWidth);
     }
 
+    @Override
     protected void readLine() throws HDFException {
         HDF.getWrap().SDreaddata(_sdsId, _start, _stride, _count, _line);
     }
 
+    @Override
     protected void validate(final int x) {
         final int value = _line[x] & 0xffff;
         if (value < min || value > max) {
@@ -70,6 +73,7 @@ public class ModisUint16BandReader extends ModisBandReader {
         }
     }
 
+    @Override
     protected void assign(final int x) {
         targetData[targetIdx++] = _line[x];
     }

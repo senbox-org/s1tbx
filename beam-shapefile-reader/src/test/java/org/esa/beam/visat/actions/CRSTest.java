@@ -80,6 +80,7 @@ public class CRSTest extends TestCase {
             this.at = at;
         }
 
+        @Override
         public boolean transferGeoCoding(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef) {
             return false;
         }

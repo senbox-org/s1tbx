@@ -32,9 +32,11 @@ public class ProductFileTest extends TestCase {
         return new TestSuite(ProductFileTest.class);
     }
 
+    @Override
     protected void setUp() {
     }
 
+    @Override
     protected void tearDown() {
     }
 

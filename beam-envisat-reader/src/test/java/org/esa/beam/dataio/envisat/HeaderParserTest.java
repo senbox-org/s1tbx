@@ -37,11 +37,13 @@ public class HeaderParserTest extends TestCase {
         return new TestSuite(HeaderParserTest.class);
     }
 
+    @Override
     protected void setUp() {
         //_oldDebugState = Debug.setEnabled(true);
         _oldDebugState = Debug.setEnabled(false);
     }
 
+    @Override
     protected void tearDown() {
         Debug.setEnabled(_oldDebugState);
     }

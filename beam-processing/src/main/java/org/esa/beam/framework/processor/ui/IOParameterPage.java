@@ -191,6 +191,7 @@ public class IOParameterPage extends ParameterPage {
      *
      * @throws ProcessorException if an error occured
      */
+    @Override
     public void setUIFromRequest(final Request request) throws ProcessorException {
         updateParamInputFile(request);
         updateParamOutputFile(request);
@@ -205,6 +206,7 @@ public class IOParameterPage extends ParameterPage {
      *
      * @throws ProcessorException if an error occured
      */
+    @Override
     public void initRequestFromUI(final Request request) throws ProcessorException {
         request.addInputProduct(createInputProductRef());
         final Parameter outputProductParam = getParamGroup().getParameter(OUTPUT_PRODUCT_PARAM_NAME);
@@ -226,6 +228,7 @@ public class IOParameterPage extends ParameterPage {
      *
      * @return the UI component displayed as page of the {@link MultiPageProcessorUI}.
      */
+    @Override
     public JComponent createUI() {
         final ParamGroup paramGroup = getParamGroup();
         final JPanel productsPanel = createProductsPanel(paramGroup);

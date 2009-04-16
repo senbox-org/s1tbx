@@ -227,6 +227,7 @@ public class AsarProductFile extends ProductFile {
      * @param parameters product specific parameters (possibly referenced within in the DDDB
      * @throws java.io.IOException if a header format error was detected or if an I/O error occurs
      */
+    @Override
     protected void postProcessMPH(Map parameters) throws IOException {
         _ioddVersion = IODD.VERSION_UNKNOWN;
     }
@@ -325,6 +326,7 @@ public class AsarProductFile extends ProductFile {
     }
 
     // @todo tb/** check with IODD if this is correct behaivoiur - right now implements the current global behaviour.
+    @Override
     void setInvalidPixelExpression(Band band) {
         if (band.getName().startsWith("reflec_")) {
             band.setNoDataValueUsed(true);
@@ -414,6 +416,7 @@ public class AsarProductFile extends ProductFile {
      *
      * @return the product type string
      */
+    @Override
     protected String getDddbProductType() {
         // Debug.trace("MerisProductFile.getDddbProductType: IODD version still unknown");
         final String productType = getDddbProductTypeReplacement(getProductType(), getIODDVersion());
@@ -581,6 +584,7 @@ public class AsarProductFile extends ProductFile {
      * @param expression virtual band expression
      * @return the new expression
      */
+    @Override
     public String updateExpression(String expression) {
         try {
             if (expression != null && !getProductType().equals("ASA_WSS_1P")) {
@@ -667,6 +671,7 @@ public class AsarProductFile extends ProductFile {
      * @param product the product
      * @throws IOException if reading from files
      */
+    @Override
     protected void addCustomMetadata(Product product) throws IOException {
 
         // wss metadata preprocesing to retrieve image record times

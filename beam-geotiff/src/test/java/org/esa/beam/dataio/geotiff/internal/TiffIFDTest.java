@@ -27,6 +27,7 @@ public class TiffIFDTest extends TestCase {
     private static final int WIDTH = 10;
     private static final int HEIGHT = 20;
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         _product = new Product("name", "type", WIDTH, HEIGHT);

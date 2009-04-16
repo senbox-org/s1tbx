@@ -98,6 +98,7 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
      *
      * @return <code>true</code> if so
      */
+    @Override
     public boolean shouldWrite(ProductNode node) {
         if (node instanceof VirtualBand) {
             return false;
@@ -112,6 +113,7 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
      * @throws IllegalArgumentException if <code>output</code> type is not one of the supported output sources.
      * @throws IOException              if an I/O error occurs
      */
+    @Override
     protected void writeProductNodesImpl() throws IOException {
 
         if (!_hdf5LibInit) {

@@ -9,9 +9,11 @@ import java.util.GregorianCalendar;
 
 public class ModisUtilsTest_CreateDateFromString extends TestCase {
 
+    @Override
     protected void setUp() throws Exception {
     }
 
+    @Override
     protected void tearDown() throws Exception {
     }
 

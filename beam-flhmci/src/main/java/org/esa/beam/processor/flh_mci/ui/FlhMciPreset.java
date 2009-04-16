@@ -162,6 +162,7 @@ public final class FlhMciPreset {
     /**
      * Compares this Object with the one passed in
      */
+    @Override
     public final boolean equals(Object other) {
         Guardian.assertNotNull("other", other);
 

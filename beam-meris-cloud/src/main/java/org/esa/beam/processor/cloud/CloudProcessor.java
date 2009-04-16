@@ -180,6 +180,7 @@ public class CloudProcessor extends Processor {
         }
     }
 
+    @Override
     public void installAuxdata() throws ProcessorException {
         setAuxdataInstallDir(CloudPN.CLOUD_AUXDATA_DIR_PROPERTY, getDefaultAuxdataInstallDir());
         super.installAuxdata();

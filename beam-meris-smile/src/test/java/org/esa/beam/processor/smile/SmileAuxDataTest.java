@@ -49,6 +49,7 @@ public class SmileAuxDataTest extends TestCase {
         super(testName);
     }
 
+    @Override
     protected void setUp() throws Exception {
         new SmileProcessor().installAuxdata(); // just to extract auxdata
         _rrData = SmileAuxData.loadRRAuxData();

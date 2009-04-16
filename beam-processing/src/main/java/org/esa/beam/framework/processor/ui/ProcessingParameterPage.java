@@ -66,6 +66,7 @@ public class ProcessingParameterPage extends ParameterPage {
      *
      * @throws ProcessorException if an error occured
      */
+    @Override
     public void setUIFromRequest(final Request request) throws ProcessorException {
         final ParamGroup paramGroup = getParamGroup();
         final int numGroupParameters = paramGroup.getNumParameters();
@@ -88,6 +89,7 @@ public class ProcessingParameterPage extends ParameterPage {
      *
      * @throws ProcessorException if an error occured
      */
+    @Override
     public void initRequestFromUI(final Request request) throws ProcessorException {
         final ParamGroup paramGroup = getParamGroup();
         final int numGroupParameters = paramGroup.getNumParameters();
@@ -104,6 +106,7 @@ public class ProcessingParameterPage extends ParameterPage {
      *
      * @return the UI component displayed as page of the {@link MultiPageProcessorUI}.
      */
+    @Override
     public JComponent createUI() {
         final ParamGroup paramGroup = getParamGroup();
 

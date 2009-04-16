@@ -20,11 +20,13 @@ public class TiffValueTest extends TestCase {
     private TiffValue _tiffValue;
     private ImageOutputStream _stream;
 
+    @Override
     public void setUp() throws Exception {
         _tiffValue = createTiffValueInstance();
         _stream = new MemoryCacheImageOutputStream(new ByteArrayOutputStream());
     }
 
+    @Override
     public void tearDown() throws Exception {
     }
 
@@ -81,6 +83,7 @@ public class TiffValueTest extends TestCase {
             super(5);
         }
 
+        @Override
         public void writeTo(final ImageOutputStream output) throws IOException {
             throw new IOException("dummy exception");
         }

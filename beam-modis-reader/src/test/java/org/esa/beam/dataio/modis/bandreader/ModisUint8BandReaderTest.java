@@ -14,6 +14,7 @@ public class ModisUint8BandReaderTest extends HDFTestCase {
         setHdfMock(new IHDFAdapterForMocking() {
             byte value = -7;
 
+            @Override
             public void SDreaddata(int sdsId, int[] start, int[] stride, int[] count, Object buffer)
                     throws HDFException {
                 final byte[] bytes = (byte[]) buffer;
@@ -40,6 +41,7 @@ public class ModisUint8BandReaderTest extends HDFTestCase {
 
     public void testHDFException() throws ProductIOException, HDFException {
         setHdfMock(new IHDFAdapterForMocking() {
+            @Override
             public void SDreaddata(int sdsId, int[] start, int[] stride, int[] count, Object buffer)
                     throws HDFException {
                 throw new HDFException("TestMessage");

@@ -1088,6 +1088,7 @@ public class DDDB {
         /**
          * Returns a string representation of this product-info which can be used for debugging purposes.
          */
+        @Override
         public String toString() {
             StringBuffer sb = new StringBuffer();
             sb.append("DDDB.ProductInfo[");
@@ -1120,6 +1121,7 @@ public class DDDB {
         /**
          * Returns a string representation of this dataset-info which can be used for debugging purposes.
          */
+        @Override
         public String toString() {
             StringBuffer sb = new StringBuffer();
             sb.append("DDDB.DatasetInfo[");

@@ -302,6 +302,7 @@ public class CommandLineArgsTest extends TestCase {
             @TargetProduct
             Object targetProduct;
 
+            @Override
             public void initialize() throws OperatorException {
             }
         }

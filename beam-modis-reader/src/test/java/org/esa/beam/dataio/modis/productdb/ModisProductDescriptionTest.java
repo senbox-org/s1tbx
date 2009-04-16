@@ -18,6 +18,7 @@ public class ModisProductDescriptionTest extends TestCase {
 
     private ModisProductDescription _prod;
 
+    @Override
     protected void setUp() {
         _prod = new ModisProductDescription();
         assertTrue(_prod != null);

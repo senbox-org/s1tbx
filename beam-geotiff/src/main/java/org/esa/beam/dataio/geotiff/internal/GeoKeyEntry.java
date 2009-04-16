@@ -80,6 +80,7 @@ public class GeoKeyEntry {
         return dblValue;
     }
 
+    @Override
     public String toString() {
         final String s1 = "" +
                           keyId + ", " +

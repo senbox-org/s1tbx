@@ -32,9 +32,11 @@ public class RecordInfoTest extends TestCase {
         return new TestSuite(RecordInfoTest.class);
     }
 
+    @Override
     protected void setUp() {
     }
 
+    @Override
     protected void tearDown() {
     }
 

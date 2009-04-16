@@ -94,6 +94,7 @@ public class TargetProductSelectorModelTest extends TestCase {
             super(writerPlugIn);
         }
 
+        @Override
         protected void writeProductNodesImpl() throws IOException {
 
         }

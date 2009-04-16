@@ -39,6 +39,7 @@ public class DDDBTest extends TestCase {
         } else {
             return new TestCase(DDDBTest.class.getName()) {
 
+                @Override
                 public void runTest() {
                     System.out.println();
                     System.out.println(DDDBTest.class + ": warning: test will not be performed: DDDB not installed: ");
@@ -48,10 +49,12 @@ public class DDDBTest extends TestCase {
         }
     }
 
+    @Override
     protected void setUp() {
         _dddb = DDDB.getInstance();
     }
 
+    @Override
     protected void tearDown() {
         _dddb = null;
     }

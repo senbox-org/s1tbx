@@ -26,6 +26,7 @@ import org.esa.beam.dataio.modis.hdf.IHDF;
  */
 public abstract class HDFTestCase extends TestCase {
 
+    @Override
     public void runBare() throws Throwable {
         final IHDF[] ihdf = new IHDF[1];
         try {

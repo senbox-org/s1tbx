@@ -34,6 +34,7 @@ public class BaselineAlgorithmTest extends TestCase {
         return new TestSuite(BaselineAlgorithmTest.class);
     }
 
+    @Override
     public void setUp() {
         _algo = new BaselineAlgorithm();
     }

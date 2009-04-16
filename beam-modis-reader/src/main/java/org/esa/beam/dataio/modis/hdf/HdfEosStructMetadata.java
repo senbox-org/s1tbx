@@ -581,6 +581,7 @@ public class HdfEosStructMetadata {
                     this.projectionParameters = projectionParameters;
                 }
 
+                @Override
                 protected Point2D forward_impl(float lat, float lon, Point2D mapPoint) {
                     final double phi = Math.toRadians(lat);
                     final double lam = Math.toRadians(lon);
@@ -596,6 +597,7 @@ public class HdfEosStructMetadata {
                     return mapPoint;
                 }
 
+                @Override
                 protected GeoPos inverse_impl(float x, float y, GeoPos geoPoint) {
                     final float cm = _centralMeridian;
                     final double phi = y;

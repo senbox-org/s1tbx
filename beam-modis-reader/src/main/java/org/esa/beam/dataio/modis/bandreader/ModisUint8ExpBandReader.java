@@ -44,6 +44,7 @@ public class ModisUint8ExpBandReader extends ModisBandReader {
         return ProductData.TYPE_FLOAT32;
     }
 
+    @Override
     protected void prepareForReading(final int sourceOffsetX, final int sourceOffsetY, final int sourceWidth,
                                      final int sourceHeight, final int sourceStepX, final int sourceStepY,
                                      final ProductData destBuffer) {
@@ -61,10 +62,12 @@ public class ModisUint8ExpBandReader extends ModisBandReader {
         ensureLineWidth(sourceWidth);
     }
 
+    @Override
     protected void readLine() throws HDFException {
         HDF.getWrap().SDreaddata(_sdsId, _start, _stride, _count, _line);
     }
 
+    @Override
     protected void validate(final int x) {
         final int value = _line[x] & 0xff;
         if (value < min || value > max) {
@@ -72,6 +75,7 @@ public class ModisUint8ExpBandReader extends ModisBandReader {
         }
     }
 
+    @Override
     protected void assign(final int x) {
         targetData[targetDataIdx++] = _offset * (float) Math.exp(_line[x] * invScale);
     }

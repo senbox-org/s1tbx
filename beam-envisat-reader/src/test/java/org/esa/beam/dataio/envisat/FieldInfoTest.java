@@ -32,9 +32,11 @@ public class FieldInfoTest extends TestCase {
         return new TestSuite(FieldInfoTest.class);
     }
 
+    @Override
     protected void setUp() {
     }
 
+    @Override
     protected void tearDown() {
     }
 

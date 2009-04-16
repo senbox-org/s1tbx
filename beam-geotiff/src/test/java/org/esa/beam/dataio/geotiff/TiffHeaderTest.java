@@ -21,12 +21,14 @@ public class TiffHeaderTest extends TestCase {
 
     private TiffHeader _tiffHeader;
 
+    @Override
     public void setUp() throws Exception {
         final Product product = new Product("name", "type", 10, 15);
         product.addBand("b1", ProductData.TYPE_UINT16);
         _tiffHeader = new TiffHeader(new Product[]{product});
     }
 
+    @Override
     public void tearDown() throws Exception {
     }
 

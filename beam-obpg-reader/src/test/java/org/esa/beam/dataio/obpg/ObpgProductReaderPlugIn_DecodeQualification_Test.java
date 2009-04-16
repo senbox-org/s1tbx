@@ -35,6 +35,7 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
     private File file;
     private ObpgUtils obpgUtilsMock;
 
+    @Override
     protected void setUp() throws Exception {
         if (!TestUtil.isHdfLibraryAvailable()) {
             return;
@@ -48,6 +49,7 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
         plugIn.utils = obpgUtilsMock;
     }
 
+    @Override
     protected void tearDown() throws Exception {
         TestUtil.deleteFileTree();
     }

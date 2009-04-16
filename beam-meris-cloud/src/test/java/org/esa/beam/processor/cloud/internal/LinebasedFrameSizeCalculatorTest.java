@@ -86,6 +86,7 @@ public class LinebasedFrameSizeCalculatorTest extends TestCase {
         assertRectangle("maxFrameSize", 10, 6, maxFrameSize);
     }
 
+    @Override
     public void setUp() {
         frameSizeCalculator = new LinebasedFrameSizeCalculator(10, 20);
     }

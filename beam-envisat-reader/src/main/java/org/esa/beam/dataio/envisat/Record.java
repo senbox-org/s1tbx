@@ -152,6 +152,7 @@ public class Record {
     /**
      * Returns a string representation of this record which can be used for debugging purposes.
      */
+    @Override
     public String toString() {
         int n = getNumFields();
         StringBuffer sb = new StringBuffer(32 + 32 * n);

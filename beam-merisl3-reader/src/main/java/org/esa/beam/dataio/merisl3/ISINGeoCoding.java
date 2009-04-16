@@ -19,6 +19,7 @@ public class ISINGeoCoding extends AbstractGeoCoding {
         _grid = grid;
     }
 
+    @Override
     public boolean transferGeoCoding(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef) {
         return false;
     }

@@ -10,6 +10,7 @@ public class ModisDaacUtilsTest_ExtractCoreString extends TestCase {
 
     private HdfAttributes hdfGlobalAttributes;
 
+    @Override
     protected void setUp() throws Exception {
         final ArrayList<HdfAttributeContainer> attribList = new ArrayList<HdfAttributeContainer>();
         attribList.add(new HdfAttributeContainer("CoreMetadata.0.somewhatelse", 4, "otherPart", 9));

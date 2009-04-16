@@ -27,6 +27,7 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
 
     private ObpgProductReaderPlugIn plugIn;
 
+    @Override
     protected void setUp() throws Exception {
         if (!TestUtil.isHdfLibraryAvailable()) {
             return;

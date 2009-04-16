@@ -109,6 +109,7 @@ public class AatsrProductFile extends ProductFile {
      *
      * @return the sensing start time, can be null e.g. for non-swath products
      */
+    @Override
     public ProductData.UTC getSceneRasterStartTime() {
         try {
             return getMPH().getParamUTC(KEY_SENSING_START);
@@ -126,6 +127,7 @@ public class AatsrProductFile extends ProductFile {
      *
      * @return the sensing stop time, can be null e.g. for non-swath products
      */
+    @Override
     public ProductData.UTC getSceneRasterStopTime() {
         try {
             return getMPH().getParamUTC(KEY_SENSING_STOP);
@@ -143,6 +145,7 @@ public class AatsrProductFile extends ProductFile {
      *
      * @see org.esa.beam.dataio.envisat.ProductFile#getSceneRasterWidth()
      */
+    @Override
     public int getSceneRasterWidth() {
         return EnvisatConstants.AATSR_SCENE_RASTER_WIDTH;
     }
@@ -152,6 +155,7 @@ public class AatsrProductFile extends ProductFile {
      *
      * @see org.esa.beam.dataio.envisat.ProductFile#getSceneRasterHeight()
      */
+    @Override
     public int getSceneRasterHeight() {
         return _sceneRasterHeight;
     }
@@ -159,6 +163,7 @@ public class AatsrProductFile extends ProductFile {
     /**
      * Overrides the base class method.
      */
+    @Override
     public float getTiePointGridOffsetX(int gridWidth) {
         return gridWidth == _solTiePointGridWidth ? _solTiePointGridOffsetX : _locTiePointGridOffsetX;
     }
@@ -166,6 +171,7 @@ public class AatsrProductFile extends ProductFile {
     /**
      * Overrides the base class method.
      */
+    @Override
     public float getTiePointGridOffsetY(int gridWidth) {
         return gridWidth == _solTiePointGridWidth ? _solTiePointGridOffsetY : _locTiePointGridOffsetY;
     }
@@ -176,6 +182,7 @@ public class AatsrProductFile extends ProductFile {
      * @param gridWidth for AATSR products, this is the number of tie points in a tie point ADSR
      * @see org.esa.beam.dataio.envisat.ProductFile#getTiePointSubSamplingX(int)
      */
+    @Override
     public float getTiePointSubSamplingX(int gridWidth) {
         return gridWidth == _solTiePointGridWidth ? _solTiePointSubSamplingX : _locTiePointSubSamplingX;
     }
@@ -186,6 +193,7 @@ public class AatsrProductFile extends ProductFile {
      * @param gridWidth for AATSR products, this is the number of tie points in a tie point ADSR
      * @see org.esa.beam.dataio.envisat.ProductFile#getTiePointSubSamplingY(int)
      */
+    @Override
     public float getTiePointSubSamplingY(int gridWidth) {
         return gridWidth == _solTiePointGridWidth ? _solTiePointSubSamplingY : _locTiePointSubSamplingY;
     }
@@ -194,6 +202,7 @@ public class AatsrProductFile extends ProductFile {
      * Determines whether the scan lines in this product data file have to be flipped before in "normal" view (pixel
      * numbers increase from west to east). <p>For MERIS products the method always returns true.
      */
+    @Override
     public boolean storesPixelsInChronologicalOrder() {
         return true;
     }
@@ -204,6 +213,7 @@ public class AatsrProductFile extends ProductFile {
      * @return the GADS name "VISIBLE_CALIB_COEFS_GADS", or <code>null</code> if this product file does not have a
      *         GADS.
      */
+    @Override
     public String getGADSName() {
         return getProductType().equalsIgnoreCase(EnvisatConstants.AATSR_L1B_TOA_PRODUCT_TYPE_NAME)
                 ? EnvisatConstants.AATSR_L1B_GADS_NAME
@@ -222,6 +232,7 @@ public class AatsrProductFile extends ProductFile {
      *
      * @param parameters product specific parameters (possibly referenced within in the DDDB
      */
+    @Override
     protected void postProcessSPH(Map parameters) throws IOException {
         DSD[] mdsDsds = getValidDSDs(EnvisatConstants.DS_TYPE_MEASUREMENT);
         int numMDSR;
@@ -302,6 +313,7 @@ public class AatsrProductFile extends ProductFile {
         }
     }
 
+    @Override
     int getMappedMDSRIndex(int lineIndex) {
         if (mdsMapIndex == null) {
             return lineIndex;
@@ -309,10 +321,12 @@ public class AatsrProductFile extends ProductFile {
         return mdsMapIndex[lineIndex];
     }
 
+    @Override
     double getMissingMDSRPixelValue() {
         return -2.0;
     }
 
+    @Override
     void setInvalidPixelExpression(Band band) {
         if (band.isFlagBand()) {
             band.setNoDataValueUsed(false);
@@ -329,6 +343,7 @@ public class AatsrProductFile extends ProductFile {
      * @param datasetType the desired dataset type
      * @return all valis dsds conforming to the dataset type
      */
+    @Override
     public DSD[] getValidDSDs(char datasetType) {
         ArrayList<DSD> dsdList = new ArrayList<DSD>();
         for (int i = 0; i < getNumDSDs(); i++) {
@@ -352,6 +367,7 @@ public class AatsrProductFile extends ProductFile {
     /**
      * Returns an array containing the center wavelengths for all bands in the AATSR product (in nm).
      */
+    @Override
     public float[] getSpectralBandWavelengths() {
         return EnvisatConstants.AATSR_WAVELENGTHS;
     }
@@ -359,6 +375,7 @@ public class AatsrProductFile extends ProductFile {
     /**
      * Returns an array containing the bandwidth for each band in nm.
      */
+    @Override
     public float[] getSpectralBandBandwidths() {
         return EnvisatConstants.AATSR_BANDWIDTHS;
     }
@@ -366,6 +383,7 @@ public class AatsrProductFile extends ProductFile {
     /**
      * Returns an array containing the solar spectral flux for each band.
      */
+    @Override
     public float[] getSpectralBandSolarFluxes() {
         return EnvisatConstants.AATSR_SOLAR_FLUXES;
     }
@@ -377,6 +395,7 @@ public class AatsrProductFile extends ProductFile {
      * @return a new default set, an empty array if no default set is given for this product type, never
      *         <code>null</code>.
      */
+    @Override
     public BitmaskDef[] createDefaultBitmaskDefs(String dsName) {
         if (getProductType().endsWith("1P")) {
             if ("confid_flags_nadir".equalsIgnoreCase(dsName) || "confid_flags_fward".equalsIgnoreCase(dsName)) {

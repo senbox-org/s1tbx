@@ -49,6 +49,7 @@ class ComputeValidMaskOp extends Operator {
         this.sourceProduct = sourceProduct;
     }
 
+    @Override
     public void initialize() throws OperatorException {
         termMap = new HashMap<Band, Term>();
         tileSymbolsMap = new HashMap<Term, TileSymbol[]>();

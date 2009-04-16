@@ -96,6 +96,7 @@ public class MultiPageProcessorUI extends AbstractProcessorUI {
      *
      * @param app the {@link ProcessorApp processor app} associated with this ui
      */
+    @Override
     public void setApp(final ProcessorApp app) {
         for (ParameterPage paramPage : _pageList) {
             paramPage.setApp(app);

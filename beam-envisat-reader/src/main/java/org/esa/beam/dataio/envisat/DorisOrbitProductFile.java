@@ -53,6 +53,7 @@ public class DorisOrbitProductFile extends ProductFile {
      * @param parameters product specific parameters (possibly referenced within in the DDDB
      * @throws java.io.IOException if a header format error was detected or if an I/O error occurs
      */
+    @Override
     protected void postProcessMPH(Map parameters) throws IOException {
     }
 
@@ -142,6 +143,7 @@ public class DorisOrbitProductFile extends ProductFile {
      *
      * @return the sensing start time, can be null e.g. for non-swath products
      */
+    @Override
     public ProductData.UTC getSceneRasterStartTime() {
         return null;
     }
@@ -151,34 +153,42 @@ public class DorisOrbitProductFile extends ProductFile {
      *
      * @return the sensing stop time, can be null e.g. for non-swath products
      */
+    @Override
     public ProductData.UTC getSceneRasterStopTime() {
         return null;
     }
 
+    @Override
     public int getSceneRasterWidth() {
         return 0;
     }
 
+    @Override
     public int getSceneRasterHeight() {
         return 0;
     }
 
+    @Override
     public float getTiePointGridOffsetX(int gridWidth) {
         return 0;
     }
 
+    @Override
     public float getTiePointGridOffsetY(int gridWidth) {
         return 0;
     }
 
+    @Override
     public float getTiePointSubSamplingX(int gridWidth) {
         return 0;
     }
 
+    @Override
     public float getTiePointSubSamplingY(int gridWidth) {
         return 0;
     }
 
+    @Override
     public boolean storesPixelsInChronologicalOrder() {
         return false;
     }
@@ -188,6 +198,7 @@ public class DorisOrbitProductFile extends ProductFile {
      * @param product the product
      * @throws IOException if reading from files
      */
+    @Override
     protected void addCustomMetadata(Product product) throws IOException {
 
         MetadataElement root = product.getMetadataRoot();

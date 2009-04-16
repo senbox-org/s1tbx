@@ -195,6 +195,7 @@ public class MerisProductFile extends ProductFile {
      *
      * @return the sensing start time, can be null e.g. for non-swath products
      */
+    @Override
     public ProductData.UTC getSceneRasterStartTime() {
         return _sceneRasterStartTime;
     }
@@ -205,6 +206,7 @@ public class MerisProductFile extends ProductFile {
      *
      * @return the sensing stop time, can be null e.g. for non-swath products
      */
+    @Override
     public ProductData.UTC getSceneRasterStopTime() {
         return _sceneRasterStopTime;
     }
@@ -214,6 +216,7 @@ public class MerisProductFile extends ProductFile {
      *
      * @see org.esa.beam.dataio.envisat.ProductFile#getSceneRasterWidth()
      */
+    @Override
     public int getSceneRasterWidth() {
         return _sceneRasterWidth;
     }
@@ -223,6 +226,7 @@ public class MerisProductFile extends ProductFile {
      *
      * @see org.esa.beam.dataio.envisat.ProductFile#getSceneRasterHeight()
      */
+    @Override
     public int getSceneRasterHeight() {
         return _sceneRasterHeight;
     }
@@ -230,6 +234,7 @@ public class MerisProductFile extends ProductFile {
     /**
      * Overrides the base class method.
      */
+    @Override
     public float getTiePointGridOffsetX(int gridWidth) {
         return EnvisatConstants.MERIS_TIE_POINT_OFFSET_X;
     }
@@ -237,6 +242,7 @@ public class MerisProductFile extends ProductFile {
     /**
      * Overrides the base class method.
      */
+    @Override
     public float getTiePointGridOffsetY(int gridWidth) {
         return EnvisatConstants.MERIS_TIE_POINT_OFFSET_Y;
     }
@@ -246,6 +252,7 @@ public class MerisProductFile extends ProductFile {
      *
      * @param gridWidth this parameter is ignored for MERIS products
      */
+    @Override
     public float getTiePointSubSamplingX(int gridWidth) {
         return _tiePointSubSamplingX;
     }
@@ -255,6 +262,7 @@ public class MerisProductFile extends ProductFile {
      *
      * @param gridWidth this parameter is ignored for MERIS products
      */
+    @Override
     public float getTiePointSubSamplingY(int gridWidth) {
         return _tiePointSubSamplingY;
     }
@@ -264,6 +272,7 @@ public class MerisProductFile extends ProductFile {
      *
      * @return the GADS name "Scaling_Factor_GADS"
      */
+    @Override
     public String getGADSName() {
         return EnvisatConstants.MERIS_GADS_NAME;
     }
@@ -272,20 +281,24 @@ public class MerisProductFile extends ProductFile {
      * Determines whether the scan lines in this product data file have to be flipped before in "normal" view (pixel
      * numbers increase from west to east). <p>For MERIS products the method always returns true.
      */
+    @Override
     public boolean storesPixelsInChronologicalOrder() {
         return true;
     }
 
+    @Override
     public float[] getSpectralBandWavelengths() {
         Field field = getSPH().getParam("BAND_WAVELEN");
         return createFloatArray(field, 1.0E-3F);
     }
 
+    @Override
     public float[] getSpectralBandBandwidths() {
         Field field = getSPH().getParam("BANDWIDTH");
         return createFloatArray(field, 1.0E-3F);
     }
 
+    @Override
     public float[] getSpectralBandSolarFluxes() {
         Field field = (getGADS() != null) ? getGADS().getField("sun_spec_flux") : null;
         return createFloatArray(field, 1.0F);
@@ -304,6 +317,7 @@ public class MerisProductFile extends ProductFile {
      * @param parameters product specific parameters (possibly referenced within in the DDDB
      * @throws java.io.IOException if a header format error was detected or if an I/O error occurs
      */
+    @Override
     protected void postProcessMPH(Map parameters) throws IOException {
         _ioddVersion = IODD_VERSION_UNKNOWN;
     }
@@ -320,6 +334,7 @@ public class MerisProductFile extends ProductFile {
      *
      * @param parameters product specific parameters (possibly referenced within in the DDDB
      */
+    @Override
     protected void postProcessSPH(final Map parameters) throws IOException {
         final String[] validDatasetNames = getValidDatasetNames(EnvisatConstants.DS_TYPE_MEASUREMENT);
         if (validDatasetNames.length == 0) {
@@ -375,6 +390,7 @@ public class MerisProductFile extends ProductFile {
      *
      * @return the product type string
      */
+    @Override
     protected String getDddbProductType() {
         // Debug.trace("MerisProductFile.getDddbProductType: IODD version still unknown");
         final String productType = getDddbProductTypeReplacement(getProductType(), getIODDVersion());
@@ -440,6 +456,7 @@ public class MerisProductFile extends ProductFile {
      * @param dataSetName       the name of the dataset
      * @return a newly created <code>BandInfo</code> object.
      */
+    @Override
     public BandInfo createBandInfo(String bandName,
                                    int dataType,
                                    int spectralBandIndex,
@@ -523,6 +540,7 @@ public class MerisProductFile extends ProductFile {
         }
     }
 
+    @Override
     void setInvalidPixelExpression(Band band) {
         if (band.getName().startsWith("reflec_")) {
             band.setNoDataValueUsed(true);
@@ -539,6 +557,7 @@ public class MerisProductFile extends ProductFile {
      * @param bandName the band's name
      * @return the array of bitmask names or null if no bitmasks are applicable
      */
+    @Override
     public String[] getDefaultBitmaskNames(String bandName) {
         if (bandName.startsWith("refl")) {
             return new String[]{
@@ -648,6 +667,7 @@ public class MerisProductFile extends ProductFile {
      * @return a new default set, an empty array if no default set is given for thios product type, never
      *         <code>null</code>.
      */
+    @Override
     public BitmaskDef[] createDefaultBitmaskDefs(String flagDsName) {
         if (getProductType().endsWith("1P")) {
             return new BitmaskDef[]{

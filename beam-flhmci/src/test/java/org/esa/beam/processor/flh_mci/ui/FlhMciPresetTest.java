@@ -34,6 +34,7 @@ public class FlhMciPresetTest extends TestCase {
         return new TestSuite(FlhMciPresetTest.class);
     }
 
+    @Override
     protected void setUp() {
         _preset = new FlhMciPreset();
     }

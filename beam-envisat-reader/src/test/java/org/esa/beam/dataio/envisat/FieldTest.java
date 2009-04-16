@@ -34,6 +34,7 @@ public class FieldTest extends TestCase {
         return new TestSuite(FieldTest.class);
     }
 
+    @Override
     protected void setUp() {
 
         FieldInfo[] fieldInfos = new FieldInfo[]{
@@ -69,6 +70,7 @@ public class FieldTest extends TestCase {
         }
     }
 
+    @Override
     protected void tearDown() {
         _fields = null;
     }

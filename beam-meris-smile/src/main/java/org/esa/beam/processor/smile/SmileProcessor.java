@@ -262,6 +262,7 @@ public class SmileProcessor extends Processor {
         return _processingMessage;
     }
 
+    @Override
     public void installAuxdata() throws ProcessorException {
         setAuxdataInstallDir(SmileConstants.AUXDATA_DIR_PROPERTY, getDefaultAuxdataInstallDir());
         super.installAuxdata();

@@ -19,7 +19,8 @@ public class RadToReflUIFactory {
     	final IOParameterPage ioParameterPage = new IOParameterPage(
     			new IOParameterPage.InputProductValidator() {
     				
-    				public boolean validate(Product product) {
+    				@Override
+                    public boolean validate(Product product) {
     					final boolean valid = RadToReflProcessor.isValidInputProduct(product);
     					
     					if (!valid) {
@@ -44,7 +45,8 @@ public class RadToReflUIFactory {
         ui.addPage(ioParameterPage);
         ui.addPage(new ProcessingParameterPage(paramGroup) {
         	
-        	public void addParameterToPanel(final Parameter parameter, final JPanel panel, final GridBagConstraints gbc) {
+        	@Override
+            public void addParameterToPanel(final Parameter parameter, final JPanel panel, final GridBagConstraints gbc) {
         		final ParamEditor editor = parameter.getEditor();
 
         		if (editor instanceof ListEditor) {

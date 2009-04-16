@@ -25,6 +25,7 @@ public class ObpgUtils_ToMetadata_Test extends TestCase {
 
     private ObpgUtils obpgUtils;
 
+    @Override
     protected void setUp() throws Exception {
         obpgUtils = new ObpgUtils();
     }

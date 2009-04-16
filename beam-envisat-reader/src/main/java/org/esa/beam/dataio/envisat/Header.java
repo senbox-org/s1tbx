@@ -352,6 +352,7 @@ public final class Header {
     /**
      * Returns a string representation of this header which can be used for debugging purposes.
      */
+    @Override
     public String toString() {
         int n = getNumParams();
         StringBuffer sb = new StringBuffer(32 + 32 * n);
