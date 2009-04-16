@@ -5,9 +5,27 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.swing.internal.*;
+import com.bc.ceres.binding.swing.internal.AbstractButtonAdapter;
+import com.bc.ceres.binding.swing.internal.BindingImpl;
+import com.bc.ceres.binding.swing.internal.ButtonGroupAdapter;
+import com.bc.ceres.binding.swing.internal.ComboBoxAdapter;
+import com.bc.ceres.binding.swing.internal.FormattedTextFieldAdapter;
+import com.bc.ceres.binding.swing.internal.ListSelectionAdapter;
+import com.bc.ceres.binding.swing.internal.SpinnerAdapter;
+import com.bc.ceres.binding.swing.internal.TextFieldAdapter;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import java.awt.Window;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -27,6 +45,7 @@ public class BindingContext {
     private final ValueContainer valueContainer;
     private BindingContext.ErrorHandler errorHandler;
     private Map<String, BindingImpl> bindingMap;
+    private Map<String, EnablePCL> enablePCLMap;
 
     public BindingContext() {
         this(new ValueContainer());
@@ -40,6 +59,7 @@ public class BindingContext {
         this.valueContainer = valueContainer;
         this.errorHandler = errorHandler;
         this.bindingMap = new HashMap<String, BindingImpl>(17);
+        this.enablePCLMap = new HashMap<String, EnablePCL>(11);
     }
 
     public ValueContainer getValueContainer() {
@@ -110,10 +130,12 @@ public class BindingContext {
     }
 
     public Binding bind(final String propertyName, final ButtonGroup buttonGroup) {
-        return bind(propertyName, buttonGroup, ButtonGroupAdapter.createButtonToValueMap(buttonGroup, getValueContainer(), propertyName));
+        return bind(propertyName, buttonGroup,
+                    ButtonGroupAdapter.createButtonToValueMap(buttonGroup, getValueContainer(), propertyName));
     }
 
-    public Binding bind(final String propertyName, final ButtonGroup buttonGroup, final Map<AbstractButton, Object> valueSet) {
+    public Binding bind(final String propertyName, final ButtonGroup buttonGroup,
+                        final Map<AbstractButton, Object> valueSet) {
         ComponentAdapter adapter = new ButtonGroupAdapter(buttonGroup, valueSet);
         return bind(propertyName, adapter);
     }
@@ -139,6 +161,7 @@ public class BindingContext {
      *
      * @param exception The error.
      * @param component The Swing component in which the error occured.
+     *
      * @see #getErrorHandler()
      * @see #setErrorHandler(ErrorHandler)
      */
@@ -186,7 +209,7 @@ public class BindingContext {
      * Sets the <i>enabled</i> state of the components associated with {@code targetProperty}.
      * If the current value of {@code sourceProperty} equals {@code sourcePropertyValue} then
      * the enabled state will be set to the value of {@code enabled}, otherwise it is the negated value
-     * of {@code enabled}. The source property doesn't need to have an active binding.
+     * of {@code enabled}. Neither the source property nor the target property need to have an active binding.
      *
      * @param targetPropertyName  The name of the target property.
      * @param enabled             The enabled state.
@@ -194,12 +217,17 @@ public class BindingContext {
      * @param sourcePropertyValue The value of the source property.
      */
     public void bindEnabledState(final String targetPropertyName,
-                                     final boolean enabled,
-                                     final String sourcePropertyName,
-                                     final Object sourcePropertyValue) {
+                                 final boolean enabled,
+                                 final String sourcePropertyName,
+                                 final Object sourcePropertyValue) {
         final EnablePCL enablePCL = new EnablePCL(targetPropertyName, enabled, sourcePropertyName, sourcePropertyValue);
-        enablePCL.apply();
-        valueContainer.addPropertyChangeListener(sourcePropertyName, enablePCL);
+        final Binding binding = getBinding(targetPropertyName);
+        if (binding != null) {
+            enablePCL.apply();
+            valueContainer.addPropertyChangeListener(sourcePropertyName, enablePCL);
+        } else {
+            enablePCLMap.put(targetPropertyName, enablePCL);
+        }
     }
 
     private void setComponentsEnabled(final JComponent[] components,
@@ -208,18 +236,23 @@ public class BindingContext {
                                       final Object sourcePropertyValue) {
         Object propertyValue = valueContainer.getValue(sourcePropertyName);
         boolean conditionIsTrue = propertyValue == sourcePropertyValue
-                || (propertyValue != null && propertyValue.equals(sourcePropertyValue));
+                                  || (propertyValue != null && propertyValue.equals(sourcePropertyValue));
         for (JComponent component : components) {
             component.setEnabled(conditionIsTrue ? enabled : !enabled);
         }
     }
 
-    private Binding addBinding(BindingImpl binding) {
-        return bindingMap.put(binding.getPropertyName(), binding);
+    private void addBinding(BindingImpl binding) {
+        bindingMap.put(binding.getPropertyName(), binding);
+        if (enablePCLMap.containsKey(binding.getPropertyName())) {
+            EnablePCL enablePCL = enablePCLMap.remove(binding.getPropertyName());
+            enablePCL.apply();
+            valueContainer.addPropertyChangeListener(enablePCL.sourcePropertyName, enablePCL);
+        }
     }
 
-    private Binding removeBinding(String propertyName) {
-        return bindingMap.remove(propertyName);
+    private void removeBinding(String propertyName) {
+        bindingMap.remove(propertyName);
     }
 
     public interface ErrorHandler {
@@ -229,12 +262,15 @@ public class BindingContext {
 
     private static class DefaultErrorHandler implements BindingContext.ErrorHandler {
 
+        @Override
         public void handleError(Exception exception, JComponent component) {
             Window window = component != null ? SwingUtilities.windowForComponent(component) : null;
             if (exception instanceof ValidationException) {
-                JOptionPane.showMessageDialog(window, exception.getMessage(), "Invalid Input", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(window, exception.getMessage(), "Invalid Input",
+                                              JOptionPane.ERROR_MESSAGE);
             } else {
-                String message = MessageFormat.format("An internal error occured:\nType: {0}\nMessage: {1}\n", exception.getClass(), exception.getMessage());
+                String message = MessageFormat.format("An internal error occured:\nType: {0}\nMessage: {1}\n",
+                                                      exception.getClass(), exception.getMessage());
                 JOptionPane.showMessageDialog(window, message, "Internal Error", JOptionPane.ERROR_MESSAGE);
                 exception.printStackTrace();
             }
@@ -245,18 +281,21 @@ public class BindingContext {
     }
 
     private class EnablePCL implements PropertyChangeListener {
+
         private final String targetPropertyName;
         private final boolean enabled;
         private final String sourcePropertyName;
         private final Object sourcePropertyValue;
 
-        public EnablePCL(String targetPropertyName, boolean enabled, String sourcePropertyName, Object sourcePropertyValue) {
+        private EnablePCL(String targetPropertyName, boolean enabled, String sourcePropertyName,
+                          Object sourcePropertyValue) {
             this.targetPropertyName = targetPropertyName;
             this.enabled = enabled;
             this.sourcePropertyName = sourcePropertyName;
             this.sourcePropertyValue = sourcePropertyValue;
         }
 
+        @Override
         public void propertyChange(PropertyChangeEvent evt) {
             apply();
         }
