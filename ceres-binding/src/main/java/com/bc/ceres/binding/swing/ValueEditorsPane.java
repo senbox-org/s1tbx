@@ -16,6 +16,7 @@ import javax.swing.JPanel;
  * a label is derived from the {@code name} property.</p>
  */
 public class ValueEditorsPane {
+
     private final BindingContext bindingContext;
 
     public ValueEditorsPane(BindingContext bindingContext) {
@@ -25,7 +26,7 @@ public class ValueEditorsPane {
     public BindingContext getBindingContext() {
         return bindingContext;
     }
-    
+
     public JPanel createPanel() {
         ValueContainer valueContainer = bindingContext.getValueContainer();
         ValueModel[] models = valueContainer.getModels();
@@ -34,11 +35,12 @@ public class ValueEditorsPane {
         layout.setTableFill(TableLayout.Fill.HORIZONTAL);
         layout.setTablePadding(3, 3);
         final JPanel panel = new JPanel(layout);
-        
+
         int rowIndex = 0;
+        final ValueEditorRegistry registry = ValueEditorRegistry.getInstance();
         for (ValueModel model : models) {
             ValueDescriptor descriptor = model.getDescriptor();
-            ValueEditor valueEditor = ValueEditorRegistry.findValueEditor(descriptor);
+            ValueEditor valueEditor = registry.findValueEditor(descriptor);
             int rows = valueEditor.addEditorComponent(panel, layout, rowIndex, descriptor, bindingContext);
             rowIndex += rows;
         }

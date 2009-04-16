@@ -32,53 +32,66 @@ import java.util.ServiceLoader;
  * @since BEAM 4.6
  */
 public class ValueEditorRegistry {
-    private static final ServiceRegistry<ValueEditor> REGISTRY;
-    private static final ValueEditor DEFAULT_EDITOR;
-    
-    static {
-        REGISTRY = ServiceRegistryFactory.getInstance().getServiceRegistry(ValueEditor.class);
+
+    private static ValueEditorRegistry instance;
+
+    private final ServiceRegistry<ValueEditor> registry;
+    private final ValueEditor defaultEditor;
+
+    private ValueEditorRegistry() {
+        registry = ServiceRegistryFactory.getInstance().getServiceRegistry(ValueEditor.class);
 
         final ServiceLoader<ValueEditor> serviceLoader = ServiceLoader.load(ValueEditor.class);
         for (final ValueEditor valueEditor : serviceLoader) {
-            REGISTRY.addService(valueEditor);
+            registry.addService(valueEditor);
         }
-        DEFAULT_EDITOR = REGISTRY.getService(TextFieldEditor.class.getName());
+        defaultEditor = registry.getService(TextFieldEditor.class.getName());
     }
-    
-    private ValueEditorRegistry() {
+
+    public static synchronized ValueEditorRegistry getInstance() {
+        if (instance == null) {
+            instance = new ValueEditorRegistry();
+        }
+        return instance;
     }
-    
+
+    public static synchronized void setInstance(ValueEditorRegistry registry) {
+        instance = registry;
+    }
+
     /**
      * Get a value editor by its class name.
+     *
      * @param className The class name of the value editor.
-     *  
+     *
      * @return the value editor or {@code null} if no editor exist for the given class name.
      */
-    public static ValueEditor getValueEditor(String className) {
-        return REGISTRY.getService(className);
+    public ValueEditor getValueEditor(String className) {
+        return registry.getService(className);
     }
-    
+
     /**
      * Finds a matching {@link ValueEditor} for the given {@link ValueDescriptor}.
-     * 
+     * <p/>
      * At first , if set, the property {@code "valueEditor"} of the value descriptor
      * is used. Afterwards all registered {@link ValueEditor}s are tested,
      * whether the can provide an editor. As a fallback a {@link TextFieldEditor} is returned.
-     *  
+     *
      * @param valueDescriptor the value descriptor
+     *
      * @return the editor that can edit values described by the value descriptor
      */
-    public static ValueEditor findValueEditor(ValueDescriptor valueDescriptor) {
+    public ValueEditor findValueEditor(ValueDescriptor valueDescriptor) {
         Assert.notNull(valueDescriptor, "valueDescriptor must not be null");
         ValueEditor valueEditor = (ValueEditor) valueDescriptor.getProperty("valueEditor");
         if (valueEditor != null) {
             return valueEditor;
         }
-        for (ValueEditor editor : REGISTRY.getServices()) {
+        for (ValueEditor editor : registry.getServices()) {
             if (editor.isValidFor(valueDescriptor)) {
                 return editor;
             }
         }
-        return DEFAULT_EDITOR;
+        return defaultEditor;
     }
 }
