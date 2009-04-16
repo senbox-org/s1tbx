@@ -29,29 +29,10 @@ import org.esa.beam.glevel.BandImageMultiLevelSource;
 
 import java.awt.Color;
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LayerIOTest extends TestCase {
-
-    private Context context;
-
-    public static interface Context {
-
-        public Product getProduct(int refNo);
-    }
-
-    public static class RasterRef {
-
-        private int refNo;
-        private String rasterName;
-
-        public RasterRef() {
-        }
-
-        public RasterRef(int refNo, String rasterName) {
-            this.refNo = refNo;
-            this.rasterName = rasterName;
-        }
-    }
 
     @Override
     protected void setUp() throws Exception {
@@ -66,9 +47,18 @@ public class LayerIOTest extends TestCase {
         pm.addProduct(a);
         pm.addProduct(b);
 
-        context = new Context() {
+        final Converter<RasterDataNode, RasterRef> rasterConverter = new Converter<RasterDataNode, RasterRef>() {
             @Override
-            public Product getProduct(int refNo) {
+            public RasterRef getR(RasterDataNode raster) {
+                return new RasterRef(raster.getProduct().getRefNo(), raster.getName());
+            }
+
+            @Override
+            public RasterDataNode getT(RasterRef rasterRef) {
+                return getProduct(rasterRef.refNo).getRasterDataNode(rasterRef.rasterName);
+            }
+
+            private Product getProduct(int refNo) {
                 for (Product product : pm.getProducts()) {
                     if (refNo == product.getRefNo()) {
                         return product;
@@ -78,6 +68,8 @@ public class LayerIOTest extends TestCase {
                 return null;
             }
         };
+
+        DefaultContext.getInstance().setConverter(RasterDataNode.class, RasterRef.class, rasterConverter);
     }
 
     public void testWriteAndReadL() throws ValidationException, ConversionException {
@@ -91,6 +83,7 @@ public class LayerIOTest extends TestCase {
         assertEquals(1.0, configuration1.getValue("borderWidth"));
         assertEquals(Color.YELLOW, configuration1.getValue("borderColor"));
 
+        final Context context = DefaultContext.getInstance();
         try {
             t.createL(context, configuration1);
             fail();
@@ -201,10 +194,10 @@ public class LayerIOTest extends TestCase {
                 model.validate(model.getValue());
             }
             final RasterRef rasterRef = (RasterRef) configuration.getValue("rasterRef");
-            final Product product = context.getProduct(rasterRef.refNo);
-            final RasterDataNode raster = product.getRasterDataNode(rasterRef.rasterName);
-            final MultiLevelSource multiLevelSource = BandImageMultiLevelSource.create(raster,
-                                                                                       ProgressMonitor.NULL);
+            final Converter<RasterDataNode, RasterRef> converter = context.getConverter(RasterDataNode.class,
+                                                                                        RasterRef.class);
+            final RasterDataNode raster = converter.getT(rasterRef);
+            final MultiLevelSource multiLevelSource = BandImageMultiLevelSource.create(raster, ProgressMonitor.NULL);
 
             return new L(multiLevelSource, configuration);
         }
@@ -235,4 +228,77 @@ public class LayerIOTest extends TestCase {
             return configuration;
         }
     }
+
+    public static class RasterRef {
+
+        private int refNo;
+        private String rasterName;
+
+        public RasterRef() {
+        }
+
+        public RasterRef(int refNo, String rasterName) {
+            this.refNo = refNo;
+            this.rasterName = rasterName;
+        }
+    }
+
+    private interface Converter<T, R> {
+
+        R getR(T t);
+
+        T getT(R r);
+    }
+
+    private interface Context {
+
+        <T, R> Converter<T, R> getConverter(Class<T> typeT, Class<R> typeR);
+    }
+
+    private static class DefaultContext implements Context {
+
+        private static final DefaultContext UNIQUE_INSTANCE = new DefaultContext();
+
+        private static class Key<T, R> {
+
+            final Class<T> typeT;
+            final Class<R> typeR;
+
+            private Key(Class<T> typeT, Class<R> typeR) {
+                this.typeT = typeT;
+                this.typeR = typeR;
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof Key && typeT == ((Key<?, ?>) obj).typeT && typeR == ((Key<?, ?>) obj).typeR;
+            }
+
+            @Override
+            public int hashCode() {
+                return (typeT.hashCode() << 16) | typeR.hashCode();
+            }
+        }
+
+        private final Map<Key<?, ?>, Converter<?, ?>> converterMap;
+
+        private DefaultContext() {
+            converterMap = new HashMap<Key<?, ?>, Converter<?, ?>>();
+        }
+
+        static DefaultContext getInstance() {
+            return UNIQUE_INSTANCE;
+        }
+
+        @Override
+        @SuppressWarnings({"unchecked"})
+        public <T, R> Converter<T, R> getConverter(Class<T> typeT, Class<R> typeR) {
+            return (Converter<T, R>) converterMap.get(new Key<T, R>(typeT, typeR));
+        }
+
+        public <T, R> void setConverter(Class<T> typeT, Class<R> typeR, Converter<T, ?> converter) {
+            converterMap.put(new Key<T, R>(typeT, typeR), converter);
+        }
+    }
+
 }
