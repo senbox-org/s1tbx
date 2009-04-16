@@ -42,8 +42,13 @@
             <id>bc-public</id>
             <name>Public Maven Repository at Brockmann-Consult</name>
             <url>http://www.brockmann-consult.de/mvn/os</url>
+            <releases>
+              <enabled>true</enabled>
+              <checksumPolicy>warn</checksumPolicy>
+            </releases>
             <snapshots>
                 <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
             </snapshots>
         </repository>
         <repository>
@@ -58,8 +63,13 @@
             <id>bc-public</id>
             <name>Public Maven Repository at Brockmann-Consult</name>
             <url>http://www.brockmann-consult.de/mvn/os</url>
+            <releases>
+              <enabled>true</enabled>
+              <checksumPolicy>warn</checksumPolicy>
+            </releases>
             <snapshots>
                 <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
             </snapshots>
         </pluginRepository>
         <pluginRepository>
