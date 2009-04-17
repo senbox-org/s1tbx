@@ -23,7 +23,7 @@ public abstract class LayerType extends ExtensibleObject {
 
     public abstract Layer createLayer(LayerContext ctx, ValueContainer configuration);
 
-    public abstract ValueContainer createConfiguration(LayerContext ctx, Layer layer);
+    public abstract ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer);
 
 
     public static LayerType getLayerType(String layerTypeClassName) {
