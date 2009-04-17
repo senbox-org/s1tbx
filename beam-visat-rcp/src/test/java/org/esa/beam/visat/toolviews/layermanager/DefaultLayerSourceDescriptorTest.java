@@ -6,6 +6,7 @@ import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.binding.ValueContainer;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsLayerSource;
 import org.junit.AfterClass;
 import static org.junit.Assert.*;
@@ -13,7 +14,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.Collections;
-import java.util.Map;
 
 public class DefaultLayerSourceDescriptorTest {
 
@@ -83,13 +83,13 @@ public class DefaultLayerSourceDescriptorTest {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
+        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
             return new CollectionLayer();
         }
 
         @Override
-        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-            return Collections.emptyMap();
+        public ValueContainer createConfiguration(LayerContext ctx, Layer layer) {
+            return new ValueContainer();
         }
     }
 }

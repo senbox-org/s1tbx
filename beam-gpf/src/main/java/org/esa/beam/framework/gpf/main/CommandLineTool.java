@@ -3,6 +3,7 @@ package org.esa.beam.framework.gpf.main;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import org.esa.beam.framework.dataio.ProductIO;
@@ -147,7 +148,13 @@ class CommandLineTool {
         for (Entry<String, String> entry : parameterMap.entrySet()) {
             String paramName = entry.getKey();
             String paramValue = entry.getValue();
-            container.setFromText(paramName, paramValue);
+            final ValueModel model = container.getModel(paramName);
+            if (model != null) {
+                model.setValueFromText(paramValue);
+            } else {
+               throw new RuntimeException(String.format(
+                       "Parameter '%s' is not known by operator '%s'", paramName, lineArgs.getOperatorName()));
+            }
         }
         return parameters;
     }

@@ -118,18 +118,18 @@ public class Session {
         final LayerRef[] layerRefs = new LayerRef[layers.size()];
         for (int i = 0; i < layers.size(); i++) {
             Layer layer = layers.get(i);
-            final Map<String, Object> configuration = getConfiguration(layerContext, layer);
+            final ValueContainer configuration = getConfiguration(layerContext, layer);
             final ClassFieldDescriptorFactory factory = new ClassFieldDescriptorFactory() {
                 @Override
                 public ValueDescriptor createValueDescriptor(Field field) {
                     return new ValueDescriptor(field.getName(), field.getType());
                 }
             };
-            final DomConverter dc = new DefaultDomConverter(Map.class, factory) {
+            final DomConverter dc = new DefaultDomConverter(ValueContainer.class, factory) {
                 @Override
                 protected ValueContainer getValueContainer(Object value) {
-                    if (value == configuration) {
-                        return ValueContainer.createMapBacked((Map<String, Object>) value);
+                    if (value instanceof ValueContainer) {
+                        return (ValueContainer) value;
                     }
                     return super.getValueContainer(value);
                 }
@@ -146,7 +146,7 @@ public class Session {
         return layerRefs;
     }
 
-    private static Map<String, Object> getConfiguration(LayerContext ctx, Layer layer) {
+    private static ValueContainer getConfiguration(LayerContext ctx, Layer layer) {
         return layer.getLayerType().createConfiguration(ctx, layer);
     }
 

@@ -1,5 +1,7 @@
 package org.esa.beam.glayer;
 
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -10,10 +12,10 @@ import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
-import org.esa.beam.framework.datamodel.ProductNode;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -24,8 +26,6 @@ import java.awt.Shape;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
-import java.util.HashMap;
-import java.util.Map;
 
 public class PlacemarkLayer extends Layer {
 
@@ -230,22 +230,29 @@ public class PlacemarkLayer extends Layer {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
-            Product product = (Product) configuration.get("product");
-            PlacemarkDescriptor placemarkDescriptor = (PlacemarkDescriptor) configuration.get("placemarkDescriptor");
-            AffineTransform imageToModelTransform = (AffineTransform) configuration.get("imageToModelTransform");
+        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+            Product product = (Product) configuration.getValue("product");
+            PlacemarkDescriptor placemarkDescriptor = (PlacemarkDescriptor) configuration.getValue(
+                    "placemarkDescriptor");
+            AffineTransform imageToModelTransform = (AffineTransform) configuration.getValue("imageToModelTransform");
             return new PlacemarkLayer(product, placemarkDescriptor, imageToModelTransform);
         }
 
         @Override
-        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
+        public ValueContainer createConfiguration(LayerContext ctx, Layer layer) {
             final PlacemarkLayer placemarkLayer = (PlacemarkLayer) layer;
-            final HashMap<String, Object> configuration = new HashMap<String, Object>();
-            configuration.put("product", placemarkLayer.getProduct());
-            configuration.put("placemarkDescriptor", placemarkLayer.getPlacemarkDescriptor());
-            configuration.put("imageToModelTransform", placemarkLayer.getImageToModelTransform());
-            return configuration;
+            final ValueModel productModel = createDefaultValueModel("product", placemarkLayer.getProduct());
+            final ValueModel placemarkModel = createDefaultValueModel("placemarkDescriptor",
+                                                               placemarkLayer.getPlacemarkDescriptor());
+            final ValueModel transformModel = createDefaultValueModel("imageToModelTransform",
+                                                               placemarkLayer.getImageToModelTransform());
+            final ValueContainer valueContainer = new ValueContainer();
+            valueContainer.addModel(productModel);
+            valueContainer.addModel(placemarkModel);
+            valueContainer.addModel(transformModel);
+            return valueContainer;
         }
+
     }
 
     private class MyProductNodeListenerAdapter extends ProductNodeListenerAdapter {

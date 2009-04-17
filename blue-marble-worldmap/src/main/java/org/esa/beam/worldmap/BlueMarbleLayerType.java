@@ -3,11 +3,11 @@ package org.esa.beam.worldmap;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.binding.ValueContainer;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.util.Collections;
-import java.util.Map;
 
 /**
  * @author Marco Peters
@@ -31,14 +31,14 @@ public class BlueMarbleLayerType extends LayerType {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
+    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
         Layer worldMapLayer = BlueMarbleWorldMapLayer.createWorldMapLayer();
         worldMapLayer.setVisible(true);
         return worldMapLayer;
     }
 
     @Override
-    public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-        return Collections.emptyMap();
+    public ValueContainer createConfiguration(LayerContext ctx, Layer layer) {
+        return new ValueContainer();
     }
 }

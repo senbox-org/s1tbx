@@ -7,13 +7,12 @@ import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.binding.ValueContainer;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.glevel.RoiImageMultiLevelSource;
 
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -40,13 +39,13 @@ public class RoiLayerType extends LayerType {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
+    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
         final MultiLevelSource multiLevelSource;
-        final Color color = (Color) configuration.get(PROPERTY_COLOR);
+        final Color color = (Color) configuration.getValue(PROPERTY_COLOR);
         Assert.notNull(color, PROPERTY_COLOR);
-        final RasterDataNode raster = (RasterDataNode) configuration.get(PROPERTY_REFERENCED_RASTER);
+        final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_REFERENCED_RASTER);
         Assert.notNull(raster, PROPERTY_REFERENCED_RASTER);
-        final AffineTransform i2mTransform = (AffineTransform) configuration.get(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
+        final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
         Assert.notNull(i2mTransform, PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
 
         if (raster.getROIDefinition() != null && raster.getROIDefinition().isUsable()) {
@@ -64,12 +63,12 @@ public class RoiLayerType extends LayerType {
         return roiLayer;
     }
 
-    private void configureLayer(Map<String, Object> configuration, Layer layer) {
+    private void configureLayer(ValueContainer configuration, Layer layer) {
 
-        Color color = (Color) configuration.get(PROPERTY_COLOR);
-        Double transparency = (Double) configuration.get(PROPERTY_TRANSPARENCY);
-        RasterDataNode raster = (RasterDataNode) configuration.get(PROPERTY_REFERENCED_RASTER);
-        AffineTransform i2mTransform = (AffineTransform) configuration.get(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
+        Color color = (Color) configuration.getValue(PROPERTY_COLOR);
+        Double transparency = (Double) configuration.getValue(PROPERTY_TRANSPARENCY);
+        RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_REFERENCED_RASTER);
+        AffineTransform i2mTransform = (AffineTransform) configuration.getValue(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
         if (transparency == null) {
             transparency = 0.0;
         }
@@ -87,9 +86,10 @@ public class RoiLayerType extends LayerType {
 
 
     @Override
-    public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-        final HashMap<String, Object> configuration = new HashMap<String, Object>();
-        configuration.put("multiLevelSource", ((ImageLayer) layer).getMultiLevelSource());
-        return configuration;
+    public ValueContainer createConfiguration(LayerContext ctx, Layer layer) {
+        final ValueContainer vc = new ValueContainer();
+        vc.addModel(createDefaultValueModel("multiLevelSource", ((ImageLayer) layer).getMultiLevelSource()));
+
+        return vc;
     }
 }

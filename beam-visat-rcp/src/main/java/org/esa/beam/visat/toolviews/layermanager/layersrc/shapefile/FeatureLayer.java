@@ -4,6 +4,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.grender.Rendering;
+import com.bc.ceres.binding.ValueContainer;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -263,16 +264,17 @@ public class FeatureLayer extends Layer {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
+        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
             FeatureCollection<SimpleFeatureType, SimpleFeature> fc;
-            fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) configuration.get(PROPERTY_FEATURE_COLLECTION);
-            Style style = (Style) configuration.get(PROPERTY_SLD_STYLE);
+            fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) configuration.getValue(
+                    PROPERTY_FEATURE_COLLECTION);
+            Style style = (Style) configuration.getValue(PROPERTY_SLD_STYLE);
             return new FeatureLayer(fc, style);
         }
 
         @Override
-        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-            final HashMap<String, Object> configuration = new HashMap<String, Object>();
+        public ValueContainer createConfiguration(LayerContext ctx, Layer layer) {
+            final ValueContainer configuration = new ValueContainer();
             if (layer instanceof FeatureLayer) {
                 FeatureLayer featureLayer = (FeatureLayer) layer;
                 MapLayer mapLayer = featureLayer.mapContext.getLayer(0);
@@ -282,8 +284,8 @@ public class FeatureLayer extends Layer {
                     featureCollection = featureSource.getFeatures();
                 } catch (IOException ignored) {
                 }
-                configuration.put(PROPERTY_FEATURE_COLLECTION, featureCollection);
-                configuration.put(PROPERTY_SLD_STYLE, mapLayer.getStyle());
+                configuration.addModel(createDefaultValueModel(PROPERTY_FEATURE_COLLECTION, featureCollection));
+                configuration.addModel(createDefaultValueModel(PROPERTY_SLD_STYLE, mapLayer.getStyle()));
             }
             return configuration;
         }

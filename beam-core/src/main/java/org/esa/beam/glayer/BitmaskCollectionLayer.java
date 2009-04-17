@@ -16,6 +16,7 @@
  */
 package org.esa.beam.glayer;
 
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -234,19 +235,21 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
-            RasterDataNode rasterDataNode = (RasterDataNode) configuration.get(PROPERTY_RASTER);
-            AffineTransform i2m = (AffineTransform) configuration.get(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
+        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+            RasterDataNode rasterDataNode = (RasterDataNode) configuration.getValue(PROPERTY_RASTER);
+            AffineTransform i2m = (AffineTransform) configuration.getValue(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
             final BitmaskCollectionLayer bitmaskCollectionLayer = new BitmaskCollectionLayer(rasterDataNode, i2m);
             bitmaskCollectionLayer.setId(BITMASK_LAYER_ID);
             final BitmaskDef[] bitmaskDefs = rasterDataNode.getProduct().getBitmaskDefs();
             final LayerType bitmaskLayerType = LayerType.getLayerType(BitmaskLayerType.class.getName());
             for (final BitmaskDef bitmaskDef : bitmaskDefs) {
-                final HashMap<String, Object> map = new HashMap<String, Object>(configuration);
+                final HashMap<String, Object> map = new HashMap<String, Object>();
                 map.put("bitmask.raster", rasterDataNode);
                 map.put("bitmask.i2mTransform", i2m);
                 map.put("bitmask.bitmaskDef", bitmaskDef);
-                final Layer layer = bitmaskLayerType.createLayer(ctx, map);
+
+                final ValueContainer vc = ValueContainer.createMapBacked(map);
+                final Layer layer = bitmaskLayerType.createLayer(ctx, vc);
                 bitmaskCollectionLayer.getChildren().add(layer);
             }
 
@@ -254,13 +257,13 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         }
 
         @Override
-        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-            final HashMap<String, Object> configuration = new HashMap<String, Object>();
-            if (layer instanceof BitmaskCollectionLayer) {
-                BitmaskCollectionLayer bitmaskCollectionLayer = (BitmaskCollectionLayer) layer;
-                configuration.put(PROPERTY_RASTER, bitmaskCollectionLayer.rasterDataNode);
-                configuration.put(PROPERTY_IMAGE_TO_MODEL_TRANSFORM, bitmaskCollectionLayer.i2mTransform);
-            }
+        public ValueContainer createConfiguration(LayerContext ctx, Layer layer) {
+            BitmaskCollectionLayer bitmaskCollectionLayer = (BitmaskCollectionLayer) layer;
+            final ValueContainer configuration = new ValueContainer();
+            configuration.addModel(createDefaultValueModel(PROPERTY_RASTER, bitmaskCollectionLayer.rasterDataNode));
+            configuration.addModel(createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM,
+                                                           bitmaskCollectionLayer.i2mTransform));
+            
             return configuration;
         }
     }

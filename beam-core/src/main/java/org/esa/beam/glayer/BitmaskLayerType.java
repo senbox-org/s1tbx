@@ -7,14 +7,13 @@ import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.binding.ValueContainer;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 
 import java.awt.geom.AffineTransform;
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -39,12 +38,12 @@ public class BitmaskLayerType extends LayerType {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
-        final RasterDataNode rasterDataNode = (RasterDataNode) configuration.get(PROPERTY_REFERENCED_RASTER);
+    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+        final RasterDataNode rasterDataNode = (RasterDataNode) configuration.getValue(PROPERTY_REFERENCED_RASTER);
         Assert.notNull(rasterDataNode, PROPERTY_REFERENCED_RASTER);
-        final AffineTransform transform = (AffineTransform) configuration.get(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
+        final AffineTransform transform = (AffineTransform) configuration.getValue(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
         Assert.notNull(transform, PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
-        final BitmaskDef bitmaskDef = (BitmaskDef) configuration.get(PROPERTY_BITMASKDEF);
+        final BitmaskDef bitmaskDef = (BitmaskDef) configuration.getValue(PROPERTY_BITMASKDEF);
         Assert.notNull(bitmaskDef, PROPERTY_BITMASKDEF);
 
         final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(rasterDataNode.getProduct(),
@@ -62,10 +61,10 @@ public class BitmaskLayerType extends LayerType {
         return layer;
     }
 
-    private void configureLayer(Map<String, Object> configuration, Layer layer) {
-        final BitmaskDef bitmaskDef = (BitmaskDef) configuration.get(PROPERTY_BITMASKDEF);
-        final RasterDataNode raster = (RasterDataNode) configuration.get(PROPERTY_REFERENCED_RASTER);
-        final AffineTransform i2mTransform = (AffineTransform) configuration.get(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
+    private void configureLayer(ValueContainer configuration, Layer layer) {
+        final BitmaskDef bitmaskDef = (BitmaskDef) configuration.getValue(PROPERTY_BITMASKDEF);
+        final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_REFERENCED_RASTER);
+        final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
 
         final Style style = layer.getStyle();
         style.setOpacity(bitmaskDef.getAlpha());
@@ -77,9 +76,10 @@ public class BitmaskLayerType extends LayerType {
 
 
     @Override
-    public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-        final HashMap<String, Object> configuration = new HashMap<String, Object>();
-        configuration.put("multiLevelSource", ((ImageLayer) layer).getMultiLevelSource());
-        return configuration;
+    public ValueContainer createConfiguration(LayerContext ctx, Layer layer) {
+        final ValueContainer vc = new ValueContainer();
+        vc.addModel(createDefaultValueModel("multiLevelSource", ((ImageLayer) layer).getMultiLevelSource()));
+
+        return vc;
     }
 }

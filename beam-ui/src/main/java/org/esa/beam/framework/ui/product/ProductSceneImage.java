@@ -10,6 +10,7 @@ import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.support.LayerUtils;
+import com.bc.ceres.binding.ValueContainer;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
@@ -283,7 +284,7 @@ public class ProductSceneImage implements LayerContext {
         map.put("noDataOverlay.referencedRaster", getRaster());
         map.put("noDataOverlay.imageToModelTransform", imageToModelTransform);
 
-        return noDatatype.createLayer(this, map);
+        return noDatatype.createLayer(this, ValueContainer.createMapBacked(map));
     }
 
     private Layer createBitmaskCollectionLayer(AffineTransform i2mTransform) {
@@ -291,7 +292,8 @@ public class ProductSceneImage implements LayerContext {
         final HashMap<String, Object> map = new HashMap<String, Object>();
         map.put("bitmaskCollection.i2mTransform", i2mTransform);
         map.put("bitmaskCollection.raster", getRaster());
-        return bitmaskCollectionType.createLayer(this, map);
+
+        return bitmaskCollectionType.createLayer(this, ValueContainer.createMapBacked(map));
     }
 
     private FigureLayer createFigureLayer(AffineTransform i2mTransform) {
@@ -320,10 +322,8 @@ public class ProductSceneImage implements LayerContext {
         map.put(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
                 configuration.getPropertyDouble(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
                                                 FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY));
-        figureType.createLayer(this, map);
 
-
-        return (FigureLayer) figureType.createLayer(this, map);
+        return (FigureLayer) figureType.createLayer(this, ValueContainer.createMapBacked(map));
     }
 
     public static void setFigureLayerStyle(PropertyMap configuration, Layer layer) {
@@ -367,8 +367,8 @@ public class ProductSceneImage implements LayerContext {
         map.put("roiOverlay.transparency", transparency);
         map.put("roiOverlay.referencedRaster", getRaster());
         map.put("roiOverlay.imageToModelTransform", imageToModelTransform);
-
-        return (ImageLayer) roiLayerType.createLayer(this, map);
+        
+        return (ImageLayer) roiLayerType.createLayer(this, ValueContainer.createMapBacked(map));
     }
 
     private GraticuleLayer createGraticuleLayer(AffineTransform i2mTransform) {

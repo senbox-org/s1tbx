@@ -3,6 +3,7 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.binding.ValueContainer;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 
 import java.util.HashMap;
@@ -46,7 +47,7 @@ public class SimpleLayerSource implements LayerSource {
     public boolean performFinish(LayerSourcePageContext pageContext) {
         LayerContext layerCtx = pageContext.getLayerContext();
 
-        Layer layer = layerType.createLayer(layerCtx, new HashMap<String, Object>());
+        Layer layer = layerType.createLayer(layerCtx, new ValueContainer());
         if (layer != null) {
             layerCtx.getRootLayer().getChildren().add(layer);
             return true;

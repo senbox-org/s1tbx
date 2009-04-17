@@ -3,6 +3,7 @@ package org.esa.beam.glayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
+import com.bc.ceres.binding.ValueContainer;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Pin;
@@ -14,7 +15,6 @@ import org.esa.beam.framework.datamodel.Product;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
-import java.util.Map;
 
 public class PlacemarkLayerTest extends TestCase {
 
@@ -32,11 +32,11 @@ public class PlacemarkLayerTest extends TestCase {
         assertTrue(type instanceof PlacemarkLayer.Type);
         assertNotNull(type.getName());
 
-        final Map<String, Object> configuration = type.createConfiguration(null, placemarkLayer);
+        final ValueContainer configuration = type.createConfiguration(null, placemarkLayer);
         assertNotNull(configuration);
-        assertEquals(product, configuration.get("product"));
-        assertEquals(pmd, configuration.get("placemarkDescriptor"));
-        assertEquals(i2m, configuration.get("imageToModelTransform"));
+        assertEquals(product, configuration.getValue("product"));
+        assertEquals(pmd, configuration.getValue("placemarkDescriptor"));
+        assertEquals(i2m, configuration.getValue("imageToModelTransform"));
 
         final Layer layerCopy = type.createLayer(null, configuration);
         assertTrue(layerCopy instanceof PlacemarkLayer);

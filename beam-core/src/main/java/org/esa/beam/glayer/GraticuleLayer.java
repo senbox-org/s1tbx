@@ -16,7 +16,8 @@
  */
 package org.esa.beam.glayer;
 
-import com.bc.ceres.core.Assert;
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -40,8 +41,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Marco Zuehlke
@@ -391,24 +390,30 @@ public class GraticuleLayer extends Layer {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
-            RasterDataNode raster = (RasterDataNode) configuration.get(PROPERTY_NAME_RASTER);
-            AffineTransform i2mTransform = (AffineTransform) configuration.get(PROPERTY_NAME_TRANSFORM);
-            Style style = (Style) configuration.get(PROPERTY_NAME_STYLE);
+        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+            RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
+            AffineTransform i2mTransform = (AffineTransform) configuration.getValue(PROPERTY_NAME_TRANSFORM);
+            Style style = (Style) configuration.getValue(PROPERTY_NAME_STYLE);
             GraticuleLayer layer = new GraticuleLayer(raster, i2mTransform);
             layer.setStyle(style);
             return layer;
         }
 
         @Override
-        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-            Assert.argument(layer instanceof GraticuleLayer, "layer not instanceof GraticuleLayer");
-            HashMap<String, Object> config = new HashMap<String, Object>();
+        public ValueContainer createConfiguration(LayerContext ctx, Layer layer) {
             GraticuleLayer graticuleLayer = (GraticuleLayer) layer;
-            config.put(PROPERTY_NAME_RASTER, graticuleLayer.getRaster());
-            config.put(PROPERTY_NAME_TRANSFORM, graticuleLayer.getI2mTransform());
-            config.put(PROPERTY_NAME_STYLE, graticuleLayer.getStyle());
-            return config;
+            final ValueContainer vc = new ValueContainer();
+
+            final ValueModel rasterModel = createDefaultValueModel(PROPERTY_NAME_RASTER, graticuleLayer.getRaster());
+            vc.addModel(rasterModel);
+
+            final ValueModel transformModel = createDefaultValueModel(PROPERTY_NAME_TRANSFORM, graticuleLayer.getI2mTransform());
+            vc.addModel(transformModel);
+
+            final ValueModel styleModel = createDefaultValueModel(PROPERTY_NAME_STYLE, graticuleLayer.getStyle());
+            vc.addModel(styleModel);
+
+            return vc;
         }
     }
 }

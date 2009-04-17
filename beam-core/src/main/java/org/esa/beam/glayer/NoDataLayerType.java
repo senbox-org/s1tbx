@@ -1,5 +1,7 @@
 package org.esa.beam.glayer;
 
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -12,8 +14,6 @@ import org.esa.beam.glevel.MaskImageMultiLevelSource;
 
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Marco Peters
@@ -39,13 +39,13 @@ public class NoDataLayerType extends LayerType {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
+    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
         final MultiLevelSource multiLevelSource;
-        final Color color = (Color) configuration.get(PROPERTY_COLOR);
+        final Color color = (Color) configuration.getValue(PROPERTY_COLOR);
         Assert.notNull(color, PROPERTY_COLOR);
-        final RasterDataNode raster = (RasterDataNode) configuration.get(PROPERTY_REFERENCED_RASTER);
+        final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_REFERENCED_RASTER);
         Assert.notNull(raster, PROPERTY_REFERENCED_RASTER);
-        final AffineTransform i2mTransform = (AffineTransform) configuration.get(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
+        final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
         Assert.notNull(i2mTransform, PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
 
         if (raster.getValidMaskExpression() != null) {
@@ -63,11 +63,11 @@ public class NoDataLayerType extends LayerType {
         return noDataLayer;
     }
 
-    private void configureLayer(Map<String, Object> configuration, Layer layer) {
-        final Color color = (Color) configuration.get(PROPERTY_COLOR);
-        Double transparency = (Double) configuration.get(PROPERTY_TRANSPARENCY);
-        final RasterDataNode raster = (RasterDataNode) configuration.get(PROPERTY_REFERENCED_RASTER);
-        final AffineTransform i2mTransform = (AffineTransform) configuration.get(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
+    private void configureLayer(ValueContainer configuration, Layer layer) {
+        final Color color = (Color) configuration.getValue(PROPERTY_COLOR);
+        Double transparency = (Double) configuration.getValue(PROPERTY_TRANSPARENCY);
+        final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_REFERENCED_RASTER);
+        final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
         if (transparency == null) {
             transparency = 0.0;
         }
@@ -83,11 +83,15 @@ public class NoDataLayerType extends LayerType {
 
 
     @Override
-    public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-        final HashMap<String, Object> configuration = new HashMap<String, Object>();
-        configuration.put("multiLevelSource", ((ImageLayer) layer).getMultiLevelSource());
-        return configuration;
+    public ValueContainer createConfiguration(LayerContext ctx, Layer layer) {
+        final ValueModel multiLevelSourceModel = createDefaultValueModel("multiLevelSource",
+                                                                  ((ImageLayer) layer).getMultiLevelSource());
+
+        final ValueContainer valueContainer = new ValueContainer();
+        valueContainer.addModel(multiLevelSourceModel);
+        return valueContainer;
     }
+
 }
 
 
