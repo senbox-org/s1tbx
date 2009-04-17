@@ -3,6 +3,10 @@ package com.bc.ceres.glayer;
 import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryFactory;
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -17,9 +21,9 @@ public abstract class LayerType extends ExtensibleObject {
 
     public abstract boolean isValidFor(LayerContext ctx);
 
-    public abstract Layer createLayer(LayerContext ctx, Map<String, Object> configuration);
+    public abstract Layer createLayer(LayerContext ctx, ValueContainer configuration);
 
-    public abstract Map<String, Object> createConfiguration(LayerContext ctx, Layer layer);
+    public abstract ValueContainer createConfiguration(LayerContext ctx, Layer layer);
 
 
     public static LayerType getLayerType(String layerTypeClassName) {
@@ -33,5 +37,13 @@ public abstract class LayerType extends ExtensibleObject {
         for (final LayerType layerType : serviceLoader) {
             REGISTRY.addService(layerType);
         }
+    }
+
+    protected static ValueModel createDefaultValueModel(String propertyName, Object value) {
+        final ValueDescriptor descriptor = new ValueDescriptor(propertyName, value.getClass());
+        final DefaultValueAccessor accessor = new DefaultValueAccessor();
+        accessor.setValue(value);
+
+        return new ValueModel(descriptor, accessor);
     }
 }

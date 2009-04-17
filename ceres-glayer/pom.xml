@@ -17,7 +17,7 @@
 
         <dependency>
             <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-core</artifactId>
+            <artifactId>ceres-binding</artifactId>
         </dependency>
 
         <!-- JAI Libraries -->

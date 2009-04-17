@@ -1,20 +1,24 @@
 package com.bc.ceres.glayer.support;
 
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 // todo - use style here
 
@@ -26,7 +30,7 @@ import java.util.Map;
 public class ShapeLayer extends Layer {
 
     private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
-    
+
     private final List<Shape> shapeList;
     private final AffineTransform shapeToModelTransform;
     private final AffineTransform modelToShapeTransform;
@@ -38,7 +42,7 @@ public class ShapeLayer extends Layer {
     public ShapeLayer(Shape[] shapes, AffineTransform shapeToModelTransform) {
         this(LAYER_TYPE, shapes, shapeToModelTransform);
     }
-    
+
     protected ShapeLayer(Type type, Shape[] shapes, AffineTransform shapeToModelTransform) {
         super(type);
         this.shapeList = new ArrayList<Shape>(Arrays.asList(shapes));
@@ -49,7 +53,7 @@ public class ShapeLayer extends Layer {
             throw new IllegalArgumentException("imageToModelTransform", e);
         }
     }
-    
+
     public List<Shape> getShapeList() {
         return new ArrayList<Shape>(shapeList);
     }
@@ -100,9 +104,9 @@ public class ShapeLayer extends Layer {
             g.setTransform(transformSave);
         }
     }
-    
+
     public static class Type extends LayerType {
-        
+
         @Override
         public String getName() {
             return "Shape Layer";
@@ -114,21 +118,21 @@ public class ShapeLayer extends Layer {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
-            List<Shape> shapes = (List<Shape>) configuration.get("shapes");
-            AffineTransform shapeToModelTransform = (AffineTransform) configuration.get("shapeToModelTransform");
+        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+            List<Shape> shapes = (List<Shape>) configuration.getValue("shapes");
+            AffineTransform shapeToModelTransform = (AffineTransform) configuration.getValue("shapeToModelTransform");
             return new ShapeLayer(shapes.toArray(new Shape[shapes.size()]), shapeToModelTransform);
         }
-        
+
         @Override
-        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-            final HashMap<String, Object> configuration = new HashMap<String, Object>();
-            if (layer instanceof ShapeLayer) {
-                ShapeLayer shapeLayer = (ShapeLayer) layer;
-                configuration.put("shapes", shapeLayer.shapeList);
-                configuration.put("shapeToModelTransform", shapeLayer.shapeToModelTransform);
-            }
-            return configuration;
+        public ValueContainer createConfiguration(LayerContext ctx, Layer layer) {
+            ShapeLayer shapeLayer = (ShapeLayer) layer;
+
+            final ValueContainer vc = new ValueContainer();
+            vc.addModel(createDefaultValueModel("shapes", shapeLayer.shapeList));
+            vc.addModel(createDefaultValueModel("shapeToModelTransform", shapeLayer.shapeToModelTransform));
+
+            return vc;
         }
 
     }

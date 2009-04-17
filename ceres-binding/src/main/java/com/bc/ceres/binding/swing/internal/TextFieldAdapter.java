@@ -2,6 +2,8 @@ package com.bc.ceres.binding.swing.internal;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.swing.ComponentAdapter;
 
 import javax.swing.InputVerifier;
@@ -45,13 +47,20 @@ public class TextFieldAdapter extends ComponentAdapter implements ActionListener
 
     @Override
     public void adjustComponents() {
-        String text = getBinding().getContext().getValueContainer().getAsText(getBinding().getPropertyName());
-        textField.setText(text);
+        final ValueContainer valueContainer = getBinding().getContext().getValueContainer();
+        final ValueModel model = valueContainer.getModel(getBinding().getPropertyName());
+        if (model != null) {
+            textField.setText(model.getValueAsText());
+        } else {
+            textField.setText("");
+        }
     }
 
     boolean adjustValue() {
         try {
-            getBinding().getContext().getValueContainer().setFromText(getBinding().getPropertyName(), textField.getText());
+            final ValueContainer valueContainer = getBinding().getContext().getValueContainer();
+            final ValueModel model = valueContainer.getModel(getBinding().getPropertyName());
+            model.setValueFromText(textField.getText());
             return true;
         } catch (ValidationException e) {
             handleError(e);

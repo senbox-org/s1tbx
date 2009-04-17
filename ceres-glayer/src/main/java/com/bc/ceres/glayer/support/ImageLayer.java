@@ -1,5 +1,9 @@
 package com.bc.ceres.glayer.support;
 
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -27,7 +31,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A multi-resolution capable image layer.
@@ -294,16 +297,17 @@ public class ImageLayer extends Layer {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, Map<String, Object> configuration) {
-            MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.get("multiLevelSource");
+        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+            MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue("multiLevelSource");
             return new ImageLayer(multiLevelSource);
         }
 
         @Override
-        public Map<String, Object> createConfiguration(LayerContext ctx, Layer layer) {
-            final HashMap<String, Object> configuration = new HashMap<String, Object>();
-            configuration.put("multiLevelSource", ((ImageLayer) layer).getMultiLevelSource());
-            return configuration;
+        public ValueContainer createConfiguration(LayerContext ctx, Layer layer) {
+            final ValueContainer vc = new ValueContainer();
+            vc.addModel(createDefaultValueModel("multiLevelSource", ((ImageLayer) layer).getMultiLevelSource()));
+
+            return vc;
         }
     }
 }

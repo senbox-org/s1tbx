@@ -95,6 +95,11 @@
             </dependency>
             <dependency>
                 <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-binding</artifactId>
+                <version>0.9-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-core</artifactId>
                 <version>0.9-SNAPSHOT</version>
             </dependency>

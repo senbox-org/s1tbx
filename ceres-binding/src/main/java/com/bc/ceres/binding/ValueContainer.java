@@ -187,22 +187,26 @@ public class ValueContainer {
     }
 
     public Object getValue(String propertyName) {
-        return getModel(propertyName).getValue();
+        final ValueModel model = getModel(propertyName);
+        if (model == null) {
+            return null;
+        }
+        return model.getValue();
     }
 
     public void setValue(String propertyName, Object value) throws ValidationException {
+        final ValueModel model = getModel(propertyName);
+        if (model == null) {
+            return;
+        }
         getModel(propertyName).setValue(value);
     }
 
-    public String getAsText(String propertyName) {
-        return getModel(propertyName).getValueAsText();
-    }
-
-    public void setFromText(String propertyName, String text) throws ValidationException, ConversionException {
-        getModel(propertyName).setValueFromText(text);
-    }
-
     public ValueDescriptor getDescriptor(String propertyName) {
+        final ValueModel model = getModel(propertyName);
+        if (model == null) {
+            return null;
+        }
         return getModel(propertyName).getDescriptor();
     }
 
