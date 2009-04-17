@@ -1,9 +1,6 @@
 package com.bc.ceres.glayer.support;
 
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -30,7 +27,6 @@ import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
-import java.util.HashMap;
 
 /**
  * A multi-resolution capable image layer.
@@ -105,6 +101,12 @@ public class ImageLayer extends Layer {
     public ImageLayer(LayerType type, MultiLevelSource multiLevelSource) {
         super(type);
         Assert.notNull(multiLevelSource);
+        this.multiLevelSource = multiLevelSource;
+    }
+
+    public ImageLayer(LayerType layerType, ValueContainer configuration, MultiLevelSource multiLevelSource) {
+        super(layerType, configuration);
+        Assert.notNull(this.multiLevelSource);
         this.multiLevelSource = multiLevelSource;
     }
 
@@ -308,6 +310,11 @@ public class ImageLayer extends Layer {
             vc.addModel(createDefaultValueModel("multiLevelSource", ((ImageLayer) layer).getMultiLevelSource()));
 
             return vc;
+        }
+
+        @Override
+        public ValueContainer createConfigurationTemplate() {
+            return null;
         }
     }
 }

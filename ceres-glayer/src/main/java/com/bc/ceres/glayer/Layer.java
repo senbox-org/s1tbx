@@ -1,5 +1,6 @@
 package com.bc.ceres.glayer;
 
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.glayer.support.DefaultStyle;
@@ -27,7 +28,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class Layer extends ExtensibleObject {
 
-    private static final String NO_NAME = Layer.class.getName();
     private static volatile AtomicInteger instanceCount = new AtomicInteger(0);
 
     private final LayerType layerType;
@@ -41,21 +41,12 @@ public abstract class Layer extends ExtensibleObject {
     private transient final ArrayList<LayerListener> layerListenerList;
     private transient final StylePCL stylePCL;
 
+    private final ValueContainer configuration;
 
-    /**
-     * Constructor. The following default properties are used:
-     * <ul>
-     * <li>{@code name = getClass().getName()}</li>
-     * <li>{@code visible = true}</li>
-     * <li>{@code style.opacity = 1.0}</li>
-     * </ul>
-     *
-     * @param layerType The layer type.
-     */
     protected Layer(LayerType layerType) {
-        this(layerType, NO_NAME);
+        this(layerType, new ValueContainer());
     }
-
+    
     /**
      * Constructor. The following default properties are used:
      * <ul>
@@ -64,14 +55,14 @@ public abstract class Layer extends ExtensibleObject {
      * <li>{@code style.opacity = 1.0}</li>
      * </ul>
      *
-     * @param layerType The layer type.
-     * @param name      A name.
+     * @param layerType     the layer type.
+     * @param configuration the configuration used by the layer type to create this layer.
      */
-    protected Layer(LayerType layerType, String name) {
+    protected Layer(LayerType layerType, ValueContainer configuration) {
+        this.configuration = configuration;
         Assert.notNull(layerType, "layerType");
-        Assert.notNull(name, "name");
         this.layerType = layerType;
-        this.name = name;
+        this.name = layerType.getName();
         this.parent = null;
         this.id = Long.toHexString(System.nanoTime() + (instanceCount.incrementAndGet()));
         this.children = new LayerList();
@@ -86,6 +77,15 @@ public abstract class Layer extends ExtensibleObject {
      */
     public LayerType getLayerType() {
         return layerType;
+    }
+
+    /**
+     * Returns the configuration which can be used by the layer type to recreate this layer.
+     *
+     * @return the configuration.
+     */
+    public ValueContainer getConfiguration() {
+        return configuration;
     }
 
     /**

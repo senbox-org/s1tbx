@@ -2,8 +2,6 @@ package com.bc.ceres.glayer;
 
 import com.bc.ceres.binding.ValueContainer;
 
-import java.util.Collections;
-
 
 /**
  * A layer which can contain other layers.
@@ -24,7 +22,8 @@ public class CollectionLayer extends Layer {
     }
     
     protected CollectionLayer(Type type, String name) {
-        super(type, name);
+        super(type);
+        setName(name);
     }
 
     @Override

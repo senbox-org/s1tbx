@@ -2,6 +2,7 @@ package com.bc.ceres.glayer;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
+import com.bc.ceres.binding.ValidationException;
 
 public class LayerTest {
 
@@ -16,7 +17,7 @@ public class LayerTest {
     }
 
     @Test
-    public void testDefaults() {
+    public void testDefaults() throws ValidationException {
         Layer layer = new CollectionLayer();
         LayerType layerType = layer.getLayerType();
         assertNotNull(layerType);

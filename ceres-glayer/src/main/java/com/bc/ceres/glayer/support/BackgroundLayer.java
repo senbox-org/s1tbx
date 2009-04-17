@@ -5,16 +5,10 @@ import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.accessors.DefaultValueAccessor;
-import com.bc.ceres.glevel.MultiLevelSource;
 
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Rectangle;
-import java.awt.Color;
-import java.util.HashMap;
 
 /**
  * A background layer is used to draw a background using a unique {@link java.awt.Paint}.

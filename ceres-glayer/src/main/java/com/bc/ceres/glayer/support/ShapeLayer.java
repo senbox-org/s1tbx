@@ -1,9 +1,6 @@
 package com.bc.ceres.glayer.support;
 
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -130,10 +127,10 @@ public class ShapeLayer extends Layer {
 
             final ValueContainer vc = new ValueContainer();
             vc.addModel(createDefaultValueModel("shapes", shapeLayer.shapeList));
-            vc.addModel(createDefaultValueModel("shapeToModelTransform", shapeLayer.shapeToModelTransform));
+            vc.addModel(createDefaultValueModel("shapeToModelTransform",
+                                                shapeLayer.shapeToModelTransform));
 
             return vc;
         }
-
     }
 }
