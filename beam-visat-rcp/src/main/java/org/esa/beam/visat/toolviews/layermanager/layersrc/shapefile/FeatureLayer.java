@@ -273,7 +273,7 @@ public class FeatureLayer extends Layer {
         }
 
         @Override
-        public ValueContainer createConfiguration(LayerContext ctx, Layer layer) {
+        public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
             final ValueContainer configuration = new ValueContainer();
             if (layer instanceof FeatureLayer) {
                 FeatureLayer featureLayer = (FeatureLayer) layer;

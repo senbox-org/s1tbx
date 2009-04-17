@@ -16,7 +16,6 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.glevel.MultiLevelSource;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import org.esa.beam.framework.dataio.ProductIO;
@@ -38,7 +37,6 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * todo - add API doc
@@ -147,7 +145,7 @@ public class Session {
     }
 
     private static ValueContainer getConfiguration(LayerContext ctx, Layer layer) {
-        return layer.getLayerType().createConfiguration(ctx, layer);
+        return layer.getLayerType().getConfigurationCopy(ctx, layer);
     }
 
     public String getModelVersion() {

@@ -400,7 +400,7 @@ public class GraticuleLayer extends Layer {
         }
 
         @Override
-        public ValueContainer createConfiguration(LayerContext ctx, Layer layer) {
+        public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
             GraticuleLayer graticuleLayer = (GraticuleLayer) layer;
             final ValueContainer vc = new ValueContainer();
 

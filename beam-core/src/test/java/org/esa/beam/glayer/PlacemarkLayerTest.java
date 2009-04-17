@@ -32,7 +32,7 @@ public class PlacemarkLayerTest extends TestCase {
         assertTrue(type instanceof PlacemarkLayer.Type);
         assertNotNull(type.getName());
 
-        final ValueContainer configuration = type.createConfiguration(null, placemarkLayer);
+        final ValueContainer configuration = type.getConfigurationCopy(null, placemarkLayer);
         assertNotNull(configuration);
         assertEquals(product, configuration.getValue("product"));
         assertEquals(pmd, configuration.getValue("placemarkDescriptor"));

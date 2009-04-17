@@ -239,7 +239,7 @@ public class PlacemarkLayer extends Layer {
         }
 
         @Override
-        public ValueContainer createConfiguration(LayerContext ctx, Layer layer) {
+        public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
             final PlacemarkLayer placemarkLayer = (PlacemarkLayer) layer;
             final ValueModel productModel = createDefaultValueModel("product", placemarkLayer.getProduct());
             final ValueModel placemarkModel = createDefaultValueModel("placemarkDescriptor",

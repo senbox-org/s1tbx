@@ -9,21 +9,21 @@ public class RasterImageLayerType extends LayerType {
 
     @Override
     public String getName() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return "Raster Data Layer";
     }
 
     @Override
     public boolean isValidFor(LayerContext ctx) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return true;
     }
 
     @Override
     public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
-    public ValueContainer createConfiguration(LayerContext ctx, Layer layer) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
+        return null;
     }
 }

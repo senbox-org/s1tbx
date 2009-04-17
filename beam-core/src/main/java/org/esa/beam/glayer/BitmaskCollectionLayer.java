@@ -257,7 +257,7 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         }
 
         @Override
-        public ValueContainer createConfiguration(LayerContext ctx, Layer layer) {
+        public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
             BitmaskCollectionLayer bitmaskCollectionLayer = (BitmaskCollectionLayer) layer;
             final ValueContainer configuration = new ValueContainer();
             configuration.addModel(createDefaultValueModel(PROPERTY_RASTER, bitmaskCollectionLayer.rasterDataNode));
