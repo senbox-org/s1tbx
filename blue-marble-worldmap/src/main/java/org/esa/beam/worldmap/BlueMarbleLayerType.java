@@ -7,8 +7,6 @@ import com.bc.ceres.binding.ValueContainer;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.util.Collections;
-
 /**
  * @author Marco Peters
  * @version $Revision: $ $Date: $

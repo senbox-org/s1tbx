@@ -85,7 +85,7 @@ public class NoDataLayerType extends LayerType {
     @Override
     public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
         final ValueModel multiLevelSourceModel = createDefaultValueModel("multiLevelSource",
-                                                                  ((ImageLayer) layer).getMultiLevelSource());
+                                                                         ((ImageLayer) layer).getMultiLevelSource());
 
         final ValueContainer valueContainer = new ValueContainer();
         valueContainer.addModel(multiLevelSourceModel);

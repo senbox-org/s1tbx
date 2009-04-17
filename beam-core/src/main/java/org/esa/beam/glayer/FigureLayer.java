@@ -68,7 +68,8 @@ public class FigureLayer extends Layer {
     }
 
     protected FigureLayer(FigureLayerType type, AffineTransform shapeToModelTransform, List<Figure> figureList) {
-        super(type, "Figures");
+        super(type);
+        setName("Figures");
         this.figureList = new ArrayList<Figure>(figureList);
         this.shapeToModelTransform = new AffineTransform(shapeToModelTransform);
     }

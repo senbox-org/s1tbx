@@ -13,8 +13,6 @@ import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.Collections;
-
 public class DefaultLayerSourceDescriptorTest {
 
     private static SimpleTestLayerType layerType = new SimpleTestLayerType();

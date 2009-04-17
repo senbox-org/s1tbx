@@ -4,6 +4,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValidationException;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Pin;
@@ -18,7 +19,7 @@ import java.awt.geom.Rectangle2D;
 
 public class PlacemarkLayerTest extends TestCase {
 
-    public void testConstruction() {
+    public void testConstruction() throws ValidationException {
         final Product product = new Product("N", "T", 16, 16);
         final PinDescriptor pmd = PinDescriptor.INSTANCE;
         final AffineTransform i2m = new AffineTransform();

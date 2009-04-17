@@ -284,8 +284,11 @@ public class FeatureLayer extends Layer {
                     featureCollection = featureSource.getFeatures();
                 } catch (IOException ignored) {
                 }
-                configuration.addModel(createDefaultValueModel(PROPERTY_FEATURE_COLLECTION, featureCollection));
-                configuration.addModel(createDefaultValueModel(PROPERTY_SLD_STYLE, mapLayer.getStyle()));
+                configuration.addModel(createDefaultValueModel(PROPERTY_FEATURE_COLLECTION,
+                                                               featureCollection
+                ));
+                configuration.addModel(createDefaultValueModel(PROPERTY_SLD_STYLE,
+                                                               mapLayer.getStyle()));
             }
             return configuration;
         }

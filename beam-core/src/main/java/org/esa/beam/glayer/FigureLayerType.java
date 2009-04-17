@@ -66,8 +66,12 @@ public class FigureLayerType extends LayerType {
         FigureLayer figureLayer = (FigureLayer) layer;
         final ValueContainer vc = new ValueContainer();
 
-        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_FIGURE_LIST, figureLayer.getFigureList()));
-        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_TRANSFORM, figureLayer.getShapeToModelTransform()));
+        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_FIGURE_LIST,
+                                            figureLayer.getFigureList()
+        ));
+        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_TRANSFORM,
+                                            figureLayer.getShapeToModelTransform()
+        ));
 
         return vc;
     }

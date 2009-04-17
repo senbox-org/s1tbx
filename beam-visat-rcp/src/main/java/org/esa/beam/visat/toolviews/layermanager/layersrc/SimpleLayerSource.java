@@ -6,8 +6,6 @@ import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.binding.ValueContainer;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 
-import java.util.HashMap;
-
 /**
  * This layer source uses the given layer type to construct new layer.
  *
