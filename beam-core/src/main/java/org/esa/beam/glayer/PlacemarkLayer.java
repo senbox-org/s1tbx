@@ -29,7 +29,7 @@ import java.awt.geom.Rectangle2D;
 
 public class PlacemarkLayer extends Layer {
 
-    private final static Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
+    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
 
     public static final String PROPERTY_NAME_TEXT_FONT = "text.font";
     public static final String PROPERTY_NAME_TEXT_ENABLED = "text.enabled";
@@ -248,17 +248,12 @@ public class PlacemarkLayer extends Layer {
         @Override
         public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
             final PlacemarkLayer placemarkLayer = (PlacemarkLayer) layer;
-            final ValueModel productModel = createDefaultValueModel(PROPERTY_PRODUCT,
-                                                                    placemarkLayer.getProduct()
-            );
-            final ValueModel placemarkModel = createDefaultValueModel(PROPERTY_PLACEMARK_DESCRIPTOR,
-                                                                      placemarkLayer.getPlacemarkDescriptor());
-            final ValueModel transformModel = createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM,
-                                                                      placemarkLayer.getImageToModelTransform());
             final ValueContainer valueContainer = new ValueContainer();
-            valueContainer.addModel(productModel);
-            valueContainer.addModel(placemarkModel);
-            valueContainer.addModel(transformModel);
+            valueContainer.addModel(createDefaultValueModel(PROPERTY_PRODUCT, placemarkLayer.getProduct()));
+            valueContainer.addModel(createDefaultValueModel(PROPERTY_PLACEMARK_DESCRIPTOR,
+                                                            placemarkLayer.getPlacemarkDescriptor()));
+            valueContainer.addModel(createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM,
+                                                            placemarkLayer.getImageToModelTransform()));
             return valueContainer;
         }
 
