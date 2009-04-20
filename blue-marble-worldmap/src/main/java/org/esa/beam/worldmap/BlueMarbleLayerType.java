@@ -35,8 +35,4 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
         return worldMapLayer;
     }
 
-    @Override
-    public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
-        return new ValueContainer();
-    }
 }

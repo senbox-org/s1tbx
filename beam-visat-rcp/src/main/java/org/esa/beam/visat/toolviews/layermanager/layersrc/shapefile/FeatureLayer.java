@@ -5,7 +5,6 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.grender.Rendering;
-import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
@@ -21,10 +20,8 @@ import org.geotools.styling.Style;
 import org.geotools.styling.StyleBuilder;
 import org.geotools.styling.TextSymbolizer;
 import org.geotools.styling.visitor.DuplicatingStyleVisitor;
-import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.expression.Expression;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -33,7 +30,6 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -270,27 +266,6 @@ public class FeatureLayer extends Layer {
                     PROPERTY_FEATURE_COLLECTION);
             Style style = (Style) configuration.getValue(PROPERTY_SLD_STYLE);
             return new FeatureLayer(fc, style);
-        }
-
-        @Override
-        public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
-            final ValueContainer configuration = new ValueContainer();
-            if (layer instanceof FeatureLayer) {
-                FeatureLayer featureLayer = (FeatureLayer) layer;
-                MapLayer mapLayer = featureLayer.mapContext.getLayer(0);
-                FeatureSource<? extends FeatureType, ? extends Feature> featureSource = mapLayer.getFeatureSource();
-                FeatureCollection<? extends FeatureType, ? extends Feature> featureCollection = null;
-                try {
-                    featureCollection = featureSource.getFeatures();
-                } catch (IOException ignored) {
-                }
-                configuration.addModel(createDefaultValueModel(PROPERTY_FEATURE_COLLECTION,
-                                                               featureCollection
-                ));
-                configuration.addModel(createDefaultValueModel(PROPERTY_SLD_STYLE,
-                                                               mapLayer.getStyle()));
-            }
-            return configuration;
         }
 
         @Override

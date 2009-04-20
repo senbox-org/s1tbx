@@ -400,25 +400,6 @@ public class GraticuleLayer extends Layer {
         }
 
         @Override
-        public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
-            GraticuleLayer graticuleLayer = (GraticuleLayer) layer;
-            final ValueContainer vc = new ValueContainer();
-
-            final ValueModel rasterModel = createDefaultValueModel(PROPERTY_NAME_RASTER,
-                                                                   graticuleLayer.getRaster());
-            vc.addModel(rasterModel);
-
-            final ValueModel transformModel = createDefaultValueModel(PROPERTY_NAME_TRANSFORM,
-                                                                      graticuleLayer.getI2mTransform());
-            vc.addModel(transformModel);
-
-            final ValueModel styleModel = createDefaultValueModel(PROPERTY_NAME_STYLE, graticuleLayer.getStyle());
-            vc.addModel(styleModel);
-
-            return vc;
-        }
-
-        @Override
         public ValueContainer getConfigurationTemplate() {
             final ValueContainer vc = new ValueContainer();
 

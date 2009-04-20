@@ -2,7 +2,6 @@ package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -102,18 +101,6 @@ public class NoDataLayerType extends ImageLayer.Type {
         style.setComposite(layer.getStyle().getComposite());
         layer.setStyle(style);
     }
-
-
-    @Override
-    public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
-        final ValueModel multiLevelSourceModel = createDefaultValueModel("multiLevelSource",
-                                                                         ((ImageLayer) layer).getMultiLevelSource());
-
-        final ValueContainer valueContainer = new ValueContainer();
-        valueContainer.addModel(multiLevelSourceModel);
-        return valueContainer;
-    }
-
 }
 
 
