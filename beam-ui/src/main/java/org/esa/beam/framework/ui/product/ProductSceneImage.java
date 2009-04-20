@@ -291,7 +291,7 @@ public class ProductSceneImage implements LayerContext {
         final LayerType bitmaskCollectionType = LayerType.getLayerType(BitmaskCollectionLayer.Type.class.getName());
         final HashMap<String, Object> map = new HashMap<String, Object>();
         map.put("bitmaskCollection.i2mTransform", i2mTransform);
-        map.put("bitmaskCollection.raster", getRaster());
+        map.put("bitmaskCollection.product", getRaster().getProduct());
 
         return bitmaskCollectionType.createLayer(this, ValueContainer.createMapBacked(map));
     }

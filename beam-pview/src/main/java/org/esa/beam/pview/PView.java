@@ -3,6 +3,7 @@ package org.esa.beam.pview;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.AdjustableViewScrollPane;
 import com.bc.ceres.glayer.swing.LayerCanvas;
@@ -28,6 +29,8 @@ import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
 import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.glayer.PlacemarkLayer;
+import org.esa.beam.glayer.RasterImageLayerType;
+import org.esa.beam.glayer.BitmaskLayerType;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.glevel.RoiImageMultiLevelSource;
@@ -179,7 +182,7 @@ public class PView {
         addNonEmptyLayer(rootLayer, createBitmasksLayer(product, i2m));
         addNonEmptyLayer(rootLayer, createRoiLayers(product, i2m));
         addNonEmptyLayer(rootLayer, createNoDataMasksLayer(product, i2m));
-        addNonEmptyLayer(rootLayer, createBandsLayer(product, i2m));
+        addNonEmptyLayer(rootLayer, createBandsLayer(product));
         addNonEmptyLayer(rootLayer, createTiePointsLayer(product, i2m));
 
         if (worldMode) {
@@ -351,31 +354,32 @@ public class PView {
     }
 
     private static Layer createBitmasksLayer(Product product, AffineTransform i2m) {
-        final Layer collectionLayer = new CollectionLayer();
+        final LayerType collectionLayerType = LayerType.getLayerType(CollectionLayer.Type.class.getName());
+        final Layer collectionLayer = collectionLayerType.createLayer(null, collectionLayerType.getConfigurationTemplate());
         collectionLayer.setName("Bitmasks");
+
+        final BitmaskLayerType bitmaskLayerType = (BitmaskLayerType) LayerType.getLayerType(BitmaskLayerType.class.getName());
+
         final BitmaskDef[] bitmaskDefs = product.getBitmaskDefs();
         for (BitmaskDef bitmaskDef : bitmaskDefs) {
-            final Color color = bitmaskDef.getColor();
-            final String expression = bitmaskDef.getExpr();
-            final ImageLayer imageLayer = new ImageLayer(
-                    MaskImageMultiLevelSource.create(product, color, expression, false, i2m));
-            imageLayer.setName(bitmaskDef.getName());
+            final ImageLayer imageLayer = bitmaskLayerType.createLayer(bitmaskDef, product, i2m);
             imageLayer.setVisible(false);
-            imageLayer.getStyle().setOpacity(bitmaskDef.getAlpha());
             collectionLayer.getChildren().add(imageLayer);
         }
         return collectionLayer;
     }
 
-    private static Layer createBandsLayer(Product product, AffineTransform i2m) {
-        final Layer collectionLayer = new CollectionLayer();
+    private static Layer createBandsLayer(Product product) {
+        final LayerType collectionLayerType = LayerType.getLayerType(CollectionLayer.Type.class.getName());
+        final Layer collectionLayer = collectionLayerType.createLayer(null, collectionLayerType.getConfigurationTemplate());
         collectionLayer.setName("Bands");
         final String[] names = product.getBandNames();
+
+        final RasterImageLayerType type = (RasterImageLayerType) LayerType.getLayerType(RasterImageLayerType.class.getName());
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
             final Band band = product.getBand(name);
-            final ImageLayer imageLayer = new ImageLayer(
-                    BandImageMultiLevelSource.create(band, i2m, ProgressMonitor.NULL));
+            final Layer imageLayer = type.createLayer(band);
             imageLayer.setName(band.getName());
             imageLayer.setVisible(i == 0);
             collectionLayer.getChildren().add(imageLayer);

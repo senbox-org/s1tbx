@@ -54,7 +54,7 @@ public class RoiLayerType extends LayerType {
             multiLevelSource = MultiLevelSource.NULL;
         }
 
-        final ImageLayer roiLayer = new ImageLayer(this, multiLevelSource);
+        final ImageLayer roiLayer = new ImageLayer(this, configuration, multiLevelSource);
         roiLayer.setName("ROI");
         roiLayer.setId(ROI_LAYER_ID);
         roiLayer.setVisible(false);

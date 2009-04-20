@@ -55,7 +55,7 @@ public class NoDataLayerType extends LayerType {
         } else {
             multiLevelSource = MultiLevelSource.NULL;
         }
-        final ImageLayer noDataLayer = new ImageLayer(this, multiLevelSource);
+        final ImageLayer noDataLayer = new ImageLayer(this, configuration, multiLevelSource);
         noDataLayer.setName(getName());
         noDataLayer.setId(NO_DATA_LAYER_ID);
         noDataLayer.setVisible(false);

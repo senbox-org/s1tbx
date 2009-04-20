@@ -17,14 +17,11 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.glayer.Style;
-import com.bc.ceres.glayer.support.DefaultStyle;
-import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.Product;
@@ -32,9 +29,7 @@ import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.glevel.MaskImageMultiLevelSource;
 
-import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.util.HashMap;
 import java.util.Map;
@@ -83,25 +78,18 @@ public class BitmaskCollectionLayer extends CollectionLayer {
     }
 
     private Layer createBitmaskLayer(final BitmaskDef bitmaskDef) {
-        final Color color = bitmaskDef.getColor();
-        final String expr = bitmaskDef.getExpr();
-
-        final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getProduct(), color, expr, false,
-                                                                                   i2mTransform);
-
-        final Layer layer = new ImageLayer(multiLevelSource);
-        layer.setName(bitmaskDef.getName());
-        final BitmaskOverlayInfo overlayInfo = rasterDataNode.getBitmaskOverlayInfo();
+        final LayerType type = LayerType.getLayerType(BitmaskLayerType.class.getName());
+        final ValueContainer configuration = type.getConfigurationTemplate();
+        try {
+            configuration.setValue(BitmaskLayerType.PROPERTY_BITMASKDEF, bitmaskDef);
+            configuration.setValue(BitmaskLayerType.PROPERTY_PRODUCT, getProduct());
+            configuration.setValue(BitmaskLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
+        } catch (ValidationException e) {
+            throw new IllegalStateException(e);
+        }
+        final Layer layer = type.createLayer(null, configuration);
+        final BitmaskOverlayInfo overlayInfo = getRaster().getBitmaskOverlayInfo();
         layer.setVisible(overlayInfo != null && overlayInfo.containsBitmaskDef(bitmaskDef));
-
-        final Style style = new DefaultStyle();
-        style.setOpacity(bitmaskDef.getAlpha());
-        style.setComposite(layer.getStyle().getComposite());
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
-        style.setDefaultStyle(layer.getStyle().getDefaultStyle());
-        layer.setStyle(style);
 
         return layer;
     }
@@ -244,12 +232,14 @@ public class BitmaskCollectionLayer extends CollectionLayer {
             final LayerType bitmaskLayerType = LayerType.getLayerType(BitmaskLayerType.class.getName());
             for (final BitmaskDef bitmaskDef : bitmaskDefs) {
                 final HashMap<String, Object> map = new HashMap<String, Object>();
-                map.put("bitmask.raster", rasterDataNode);
+                map.put("bitmask.product", rasterDataNode.getProduct());
                 map.put("bitmask.i2mTransform", i2m);
                 map.put("bitmask.bitmaskDef", bitmaskDef);
 
                 final ValueContainer vc = ValueContainer.createMapBacked(map);
                 final Layer layer = bitmaskLayerType.createLayer(ctx, vc);
+                final BitmaskOverlayInfo overlayInfo = rasterDataNode.getBitmaskOverlayInfo();
+                layer.setVisible(overlayInfo != null && overlayInfo.containsBitmaskDef(bitmaskDef));
                 bitmaskCollectionLayer.getChildren().add(layer);
             }
 
