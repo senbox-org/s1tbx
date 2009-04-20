@@ -20,6 +20,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 
+import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
@@ -30,14 +31,18 @@ import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.ShowImageViewAction;
 import org.esa.beam.visat.actions.ShowMetadataViewAction;
+import org.esa.beam.visat.actions.session.Session.ProductRef;
 
 import java.awt.Rectangle;
 import java.beans.PropertyVetoException;
 import java.io.File;
+import java.io.IOException;
+import java.lang.ref.Reference;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 
@@ -101,9 +106,35 @@ public class OpenSessionAction extends ExecCommand {
             final Session session = SessionIO.getInstance().readSession(sessionFile);
             return session.restore(sessionFile.getParentFile(), pm, new Session.ProblemSolver() {
                 @Override
-                public Product solveProductNotFound(File file) {
-                    // todo - prompt for product file in EDT (nf)
-                    return null;
+                public Product solveProductNotFound(final File file) {
+                    final FileHolder fileHolder = new FileHolder();
+                    try {
+                        SwingUtilities.invokeAndWait(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                String RECONNECT_TITLE = "Reconnect Product";
+                                final int status = VisatApp.getApp().showQuestionDialog(RECONNECT_TITLE, /*I18N*/
+                                                                                        "The file: " +
+                                                                                        file.toString() +
+                                                                                        "does not exist.\n" +
+                                                                                        "Would you like to give the right location ?", /*I18N*/
+                                                                                        false, null);
+                                if (status == JOptionPane.YES_OPTION) {
+                                    fileHolder.file = app.showFileOpenDialog(RECONNECT_TITLE, false, null);
+                                }
+                            }
+                        });
+                    } catch (Exception e) {
+                    }
+                    Product product = null;
+                    if (fileHolder.file != null) {
+                        try {
+                            product = ProductIO.readProduct(fileHolder.file, null);
+                        } catch (IOException e) {
+                        }
+                    }
+                    return product;
                 }
             });
         }
@@ -175,5 +206,9 @@ public class OpenSessionAction extends ExecCommand {
             }
             return action;
         }
+    }
+    
+    private static class FileHolder {
+        File file;
     }
 }
