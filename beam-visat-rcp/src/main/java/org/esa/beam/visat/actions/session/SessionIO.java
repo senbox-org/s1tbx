@@ -1,14 +1,12 @@
 package org.esa.beam.visat.actions.session;
 
-import com.thoughtworks.xstream.XStream;
 import com.bc.ceres.core.Assert;
 
-import java.io.Writer;
-import java.io.Reader;
-import java.io.IOException;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.Reader;
+import java.io.Writer;
 
 /**
  * The Session I/O class is used to store and restore sessions.

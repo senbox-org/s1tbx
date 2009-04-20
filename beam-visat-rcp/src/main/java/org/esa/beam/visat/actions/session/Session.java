@@ -18,6 +18,8 @@ import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.grender.Viewport;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
+import com.thoughtworks.xstream.converters.SingleValueConverterWrapper;
+import com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter;
 
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -37,6 +39,8 @@ import java.awt.Container;
 import java.awt.Rectangle;
 import java.io.File;
 import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,13 +66,16 @@ public class Session {
     @XStreamAlias("views")
     final ViewRef[] viewRefs;
 
-    public Session(Product[] products, ProductNodeView[] views) {
+    public Session(File sessionRoot, Product[] products, ProductNodeView[] views) {
         modelVersion = CURRENT_MODEL_VERSION;
 
         productRefs = new ProductRef[products.length];
+        URI rootURI = sessionRoot.toURI();
         for (int i = 0; i < products.length; i++) {
             Product product = products[i];
-            productRefs[i] = new ProductRef(product.getRefNo(), product.getFileLocation());
+            URI productURI = product.getFileLocation().toURI();
+            URI relativeProductURI = rootURI.relativize(productURI);
+            productRefs[i] = new ProductRef(product.getRefNo(), relativeProductURI);
         }
 
         registerConverters();
@@ -188,11 +195,11 @@ public class Session {
         return viewRefs[index];
     }
 
-    public RestoredSession restore(ProgressMonitor pm, ProblemSolver problemSolver) {
+    public RestoredSession restore(File sessionRoot, ProgressMonitor pm, ProblemSolver problemSolver) {
         try {
             pm.beginTask("Restoring session", 100);
             final ArrayList<Exception> problems = new ArrayList<Exception>();
-            final Product[] products = restoreProducts(SubProgressMonitor.create(pm, 80), problemSolver, problems);
+            final Product[] products = restoreProducts(sessionRoot, SubProgressMonitor.create(pm, 80), problemSolver, problems);
             final ProductNodeView[] views = restoreViews(products, SubProgressMonitor.create(pm, 20), problems);
             return new RestoredSession(products, views, problems.toArray(new Exception[problems.size()]));
         } finally {
@@ -200,17 +207,19 @@ public class Session {
         }
     }
 
-    Product[] restoreProducts(ProgressMonitor pm, ProblemSolver problemSolver, List<Exception> problems) {
+    Product[] restoreProducts(File sessionRoot, ProgressMonitor pm, ProblemSolver problemSolver, List<Exception> problems) {
         final ArrayList<Product> products = new ArrayList<Product>();
+        URI rootURI = sessionRoot.toURI();
         try {
             pm.beginTask("Restoring products", productRefs.length);
             for (ProductRef productRef : productRefs) {
                 try {
                     final Product product;
-                    if (productRef.file.exists()) {
-                        product = ProductIO.readProduct(productRef.file, null);
+                    File productFile = new File(rootURI.resolve(productRef.uri));
+                    if (productFile.exists()) {
+                        product = ProductIO.readProduct(productFile, null);
                     } else {
-                        product = problemSolver.solveProductNotFound(productRef.file);
+                        product = problemSolver.solveProductNotFound(productFile);
                         if (product == null) {
                             throw new Exception("Product [" + productRef.id + "] not found.");
                         }
@@ -329,11 +338,12 @@ public class Session {
     public static class ProductRef {
 
         final int id;
-        final File file;
+        @XStreamConverter(URIConnverterWrapper.class)
+        final URI uri;
 
-        public ProductRef(int id, File file) {
+        public ProductRef(int id, URI uri) {
             this.id = id;
-            this.file = file;
+            this.uri = uri;
         }
     }
 
@@ -436,5 +446,28 @@ public class Session {
                 return value.getName();
             }
         });
+    }
+    
+    public static class URIConnverterWrapper extends SingleValueConverterWrapper {
+        public URIConnverterWrapper() {
+            super(new URIConnverter());
+        }
+    }
+    
+    public static class URIConnverter extends AbstractSingleValueConverter {
+
+        @Override
+        public boolean canConvert(Class type) {
+            return type.equals(URI.class);
+        }
+
+        @Override
+        public Object fromString(String str) {
+            try {
+                return new URI(str);
+            } catch (URISyntaxException e) {
+                throw new com.thoughtworks.xstream.converters.ConversionException(e);
+            }
+        }
     }
 }

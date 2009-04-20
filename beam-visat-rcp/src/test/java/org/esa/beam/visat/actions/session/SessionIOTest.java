@@ -1,10 +1,5 @@
 package org.esa.beam.visat.actions.session;
 
-import com.bc.ceres.binding.ClassFieldDescriptorFactory;
-import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.DomElementXStreamConverter;
@@ -16,18 +11,16 @@ import com.bc.ceres.glayer.LayerType;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
-import junit.framework.TestCase;
+
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
-import java.awt.Color;
-import java.awt.Font;
 import java.awt.Rectangle;
-import java.io.File;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.lang.reflect.Field;
+
+import junit.framework.TestCase;
 
 public class SessionIOTest extends TestCase {
 
@@ -107,8 +100,8 @@ public class SessionIOTest extends TestCase {
         assertEquals(Session.CURRENT_MODEL_VERSION, session.getModelVersion());
 
         assertEquals(2, session.getProductCount());
-        testProductRef(session.getProductRef(0), 11, new File("testdata/out/DIMAP/X.dim"));
-        testProductRef(session.getProductRef(1), 15, new File("testdata/out/DIMAP/Y.dim"));
+        testProductRef(session.getProductRef(0), 11, "out/DIMAP/X.dim");
+        testProductRef(session.getProductRef(1), 15, "out/DIMAP/Y.dim");
 
         assertEquals(4, session.getViewCount());
         testViewRef(session.getViewRef(0), 0, ProductSceneView.class.getName(), new Rectangle(0, 0, 200, 100), 11, "A");
@@ -127,9 +120,9 @@ public class SessionIOTest extends TestCase {
         assertEquals(3, graticuleLayerRef.configuration.getChildCount());
     }
 
-    private void testProductRef(Session.ProductRef productRef, int expectedId, File expectedFile) {
+    private void testProductRef(Session.ProductRef productRef, int expectedId, String expectedRelFile) {
         assertEquals(expectedId, productRef.id);
-        assertEquals(expectedFile, productRef.file);
+        assertEquals(expectedRelFile, productRef.uri.toString());
     }
 
     private void testViewRef(Session.ViewRef viewRef, int expectedId, String expectedType, Rectangle expectedBounds,

@@ -1,10 +1,6 @@
 package org.esa.beam.visat.actions.session;
 
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.glayer.support.DefaultStyle;
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
@@ -13,8 +9,8 @@ import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.glayer.GraticuleLayer;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -22,28 +18,27 @@ import java.io.File;
 import java.io.IOException;
 
 public class SessionTest extends TestCase {
+    public void testConstruction() {
+        try {
+            new Session(null, null, new ProductNodeView[0]);
+            fail();
+        } catch (NullPointerException e) {
+            // ok
+        }
+        try {
+            new Session(null, new Product[0], null);
+            fail();
+        } catch (NullPointerException e) {
+            // ok
+        }
+        try {
+            new Session(null, null, null);
+            fail();
+        } catch (NullPointerException e) {
+            // ok
+        }
 
-    public void testConstruction() throws IOException {
-        try {
-            new Session(null, new ProductNodeView[0]);
-            fail();
-        } catch (NullPointerException e) {
-            // ok
-        }
-        try {
-            new Session(new Product[0], null);
-            fail();
-        } catch (NullPointerException e) {
-            // ok
-        }
-        try {
-            new Session(null, null);
-            fail();
-        } catch (NullPointerException e) {
-            // ok
-        }
-
-        final Session session = new Session(new Product[0], new ProductNodeView[0]);
+        final Session session = new Session(new File("foo"), new Product[0], new ProductNodeView[0]);
         assertEquals(0, session.getProductCount());
         assertEquals(0, session.getViewCount());
     }
@@ -56,15 +51,14 @@ public class SessionTest extends TestCase {
         assertEquals(2, originalProducts.length);
         assertEquals(4, originalViews.length);
 
-        final Session originalSession = new Session(originalProducts, originalViews);
-        final RestoredSession restoredSession = originalSession.restore(ProgressMonitor.NULL,
-                                                                        new Session.ProblemSolver() {
-                                                                            @Override
-                                                                            public Product solveProductNotFound(
-                                                                                    File file) {
-                                                                                return null;
-                                                                            }
-                                                                        });
+        File sessionRoot = createSessionRoot();
+        final Session originalSession = new Session(sessionRoot, originalProducts, originalViews);
+        final RestoredSession restoredSession = originalSession.restore(sessionRoot, ProgressMonitor.NULL, new Session.ProblemSolver() {
+            @Override
+            public Product solveProductNotFound(File file) {
+                return null;
+            }
+        });
         checkProblems(restoredSession.getProblems());
         final Product[] restoredProducts = restoredSession.getProducts();
         assertNotNull(restoredProducts);
@@ -80,22 +74,18 @@ public class SessionTest extends TestCase {
         assertEquals(originalProducts[0].getRefNo(), restoredProducts[0].getRefNo());
         assertEquals(originalProducts[1].getRefNo(), restoredProducts[1].getRefNo());
 
-        assertEquals(originalProducts[0].getFileLocation(), restoredProducts[0].getFileLocation());
-        assertEquals(originalProducts[1].getFileLocation(), restoredProducts[1].getFileLocation());
+        assertEquals(originalProducts[0].getFileLocation().toURI(), restoredProducts[0].getFileLocation().toURI());
+        assertEquals(originalProducts[1].getFileLocation().toURI(), restoredProducts[1].getFileLocation().toURI());
 
         assertEquals(originalViews[0].getBounds(), restoredViews[0].getBounds());
         assertEquals(originalViews[1].getBounds(), restoredViews[1].getBounds());
         assertEquals(originalViews[2].getBounds(), restoredViews[2].getBounds());
         assertEquals(originalViews[3].getBounds(), restoredViews[3].getBounds());
 
-        assertEquals(originalViews[0].getVisibleProductNode().getName(),
-                     restoredViews[0].getVisibleProductNode().getName());
-        assertEquals(originalViews[1].getVisibleProductNode().getName(),
-                     restoredViews[1].getVisibleProductNode().getName());
-        assertEquals(originalViews[2].getVisibleProductNode().getName(),
-                     restoredViews[2].getVisibleProductNode().getName());
-        assertEquals(originalViews[3].getVisibleProductNode().getName(),
-                     restoredViews[3].getVisibleProductNode().getName());
+        assertEquals(originalViews[0].getVisibleProductNode().getName(), restoredViews[0].getVisibleProductNode().getName());
+        assertEquals(originalViews[1].getVisibleProductNode().getName(), restoredViews[1].getVisibleProductNode().getName());
+        assertEquals(originalViews[2].getVisibleProductNode().getName(), restoredViews[2].getVisibleProductNode().getName());
+        assertEquals(originalViews[3].getVisibleProductNode().getName(), restoredViews[3].getVisibleProductNode().getName());
 
         assertTrue(restoredViews[0] instanceof ProductSceneView);
         assertTrue(restoredViews[1] instanceof ProductSceneView);
@@ -125,7 +115,7 @@ public class SessionTest extends TestCase {
     static Product createProduct(int refNo, String name, String type, int w, int h) {
         final Product product = new Product(name, type, w, h);
         product.setRefNo(refNo);
-        final File file = new File("testdata/out/DIMAP/" + name + ".dim");
+        final File file = new File(createSessionRoot(), "out/DIMAP/" + name + ".dim");
         product.setFileLocation(file);
         return product;
     }
@@ -136,7 +126,11 @@ public class SessionTest extends TestCase {
 
     static Session createTestSession() throws IOException {
         final SessionData sessionData = createSessionData();
-        return new Session(sessionData.getProducts(), sessionData.getViews());
+        return new Session(createSessionRoot(), sessionData.getProducts(), sessionData.getViews());
+    }
+
+    static File createSessionRoot() {
+        return new File("/testdata");
     }
 
     static SessionData createSessionData() throws IOException {
@@ -153,29 +147,16 @@ public class SessionTest extends TestCase {
         writeProduct(productX);
         writeProduct(productY);
 
-        final ProductSceneView sceneViewA = new ProductSceneView(
-                new ProductSceneImage(bandA, new PropertyMap(), ProgressMonitor.NULL));
+        final ProductSceneView sceneViewA = new ProductSceneView(new ProductSceneImage(bandA, new PropertyMap(), ProgressMonitor.NULL));
         sceneViewA.setBounds(new Rectangle(0, 0, 200, 100));
-        final ProductSceneView sceneViewB = new ProductSceneView(
-                new ProductSceneImage(bandB, new PropertyMap(), ProgressMonitor.NULL));
+        final ProductSceneView sceneViewB = new ProductSceneView(new ProductSceneImage(bandB, new PropertyMap(), ProgressMonitor.NULL));
         sceneViewB.setBounds(new Rectangle(0, 100, 200, 100));
-        final ProductSceneView sceneViewC = new ProductSceneView(
-                new ProductSceneImage(bandC, new PropertyMap(), ProgressMonitor.NULL));
+        final ProductSceneView sceneViewC = new ProductSceneView(new ProductSceneImage(bandC, new PropertyMap(), ProgressMonitor.NULL));
         sceneViewC.setBounds(new Rectangle(200, 0, 200, 100));
-        final ProductSceneView sceneViewD = new ProductSceneView(
-                new ProductSceneImage(bandD, new PropertyMap(), ProgressMonitor.NULL));
+        final ProductSceneView sceneViewD = new ProductSceneView(new ProductSceneImage(bandD, new PropertyMap(), ProgressMonitor.NULL));
         sceneViewD.setBounds(new Rectangle(200, 100, 200, 100));
 
         // todo - add more layers (nf)
-        final LayerType type = LayerType.getLayerType(GraticuleLayer.Type.class.getName());
-        final ValueContainer template = type.getConfigurationTemplate();
-        try {
-            template.setValue(GraticuleLayer.PROPERTY_NAME_RASTER, bandD);
-            template.setValue(GraticuleLayer.PROPERTY_NAME_TRANSFORM, new AffineTransform());
-            template.setValue(GraticuleLayer.PROPERTY_NAME_STYLE, new DefaultStyle());
-        } catch (ValidationException e) {
-            throw new IOException(String.format("Could not create layer [%s]", type.getName()), e);
-        }
         GraticuleLayer graticuleLayer = new GraticuleLayer(bandD, new AffineTransform());
         graticuleLayer.setName("Graticule"); // todo - place in GraticuleLayer constructor (nf)
         graticuleLayer.setVisible(true);
