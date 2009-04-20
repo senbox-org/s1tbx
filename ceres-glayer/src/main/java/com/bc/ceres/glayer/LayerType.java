@@ -1,18 +1,17 @@
 package com.bc.ceres.glayer;
 
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryFactory;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 
 import java.util.ServiceLoader;
-import java.awt.geom.AffineTransform;
 
 public abstract class LayerType extends ExtensibleObject {
+
     private static final ServiceRegistry<LayerType> REGISTRY;
 
     protected LayerType() {
@@ -40,11 +39,11 @@ public abstract class LayerType extends ExtensibleObject {
     }
 
     public ValueContainer getConfigurationTemplate() {
-        return new ValueContainer();   
+        return new ValueContainer();
     }
 
     public static LayerType getLayerType(String layerTypeClassName) {
-          return REGISTRY.getService(layerTypeClassName);
+        return REGISTRY.getService(layerTypeClassName);
     }
 
     static {
@@ -60,7 +59,7 @@ public abstract class LayerType extends ExtensibleObject {
         final ValueDescriptor descriptor = new ValueDescriptor(propertyName, value.getClass());
         final DefaultValueAccessor accessor = new DefaultValueAccessor();
         accessor.setValue(value);
-        
+
         return new ValueModel(descriptor, accessor);
     }
 
