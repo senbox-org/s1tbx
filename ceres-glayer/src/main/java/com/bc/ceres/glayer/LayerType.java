@@ -10,6 +10,7 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 
 import java.util.ServiceLoader;
+import java.awt.geom.AffineTransform;
 
 public abstract class LayerType extends ExtensibleObject {
     private static final ServiceRegistry<LayerType> REGISTRY;
@@ -23,9 +24,22 @@ public abstract class LayerType extends ExtensibleObject {
 
     public abstract Layer createLayer(LayerContext ctx, ValueContainer configuration);
 
-    public abstract ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer);
+    public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
+        final ValueContainer configuration = new ValueContainer();
 
-    public ValueContainer createConfigurationTemplate() {
+        for (ValueModel model : layer.getConfiguration().getModels()) {
+            final String name = model.getDescriptor().getName();
+            final Class<?> type = model.getDescriptor().getType();
+            final ValueDescriptor descriptor = new ValueDescriptor(name, type);
+            final DefaultValueAccessor valueAccessor = new DefaultValueAccessor();
+            valueAccessor.setValue(model.getValue());
+            configuration.addModel(new ValueModel(descriptor, valueAccessor));
+        }
+
+        return configuration;
+    }
+
+    public ValueContainer getConfigurationTemplate() {
         return new ValueContainer();   
     }
 

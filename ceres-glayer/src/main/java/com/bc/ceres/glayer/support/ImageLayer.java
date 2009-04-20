@@ -1,6 +1,9 @@
 package com.bc.ceres.glayer.support;
 
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -99,14 +102,12 @@ public class ImageLayer extends Layer {
      * @param multiLevelSource the multi-resolution-level image.
      */
     public ImageLayer(LayerType type, MultiLevelSource multiLevelSource) {
-        super(type);
-        Assert.notNull(multiLevelSource);
-        this.multiLevelSource = multiLevelSource;
+        this(type, new ValueContainer(), multiLevelSource);
     }
 
     public ImageLayer(LayerType layerType, ValueContainer configuration, MultiLevelSource multiLevelSource) {
         super(layerType, configuration);
-        Assert.notNull(this.multiLevelSource);
+        Assert.notNull(multiLevelSource);
         this.multiLevelSource = multiLevelSource;
     }
 
@@ -305,16 +306,22 @@ public class ImageLayer extends Layer {
         }
 
         @Override
-        public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
-            final ValueContainer vc = new ValueContainer();
-            vc.addModel(createDefaultValueModel("multiLevelSource", ((ImageLayer) layer).getMultiLevelSource()));
+        public ValueContainer getConfigurationTemplate() {
+            final ValueContainer template = new ValueContainer();
 
-            return vc;
-        }
+            template.addModel(createDefaultValueModel(ImageLayer.PROPERTY_NAME_BORDER_SHOWN,
+                                                      ImageLayer.DEFAULT_BORDER_SHOWN));
+            template.getDescriptor(ImageLayer.PROPERTY_NAME_BORDER_SHOWN).setDefaultValue(ImageLayer.DEFAULT_BORDER_SHOWN);
 
-        @Override
-        public ValueContainer createConfigurationTemplate() {
-            return null;
+            template.addModel(createDefaultValueModel(ImageLayer.PROPERTY_NAME_BORDER_COLOR,
+                                                      ImageLayer.DEFAULT_BORDER_COLOR));
+            template.getDescriptor(ImageLayer.PROPERTY_NAME_BORDER_COLOR).setDefaultValue(ImageLayer.DEFAULT_BORDER_COLOR);
+
+            template.addModel(createDefaultValueModel(ImageLayer.PROPERTY_NAME_BORDER_WIDTH,
+                                                      ImageLayer.DEFAULT_BORDER_WIDTH));
+            template.getDescriptor(ImageLayer.PROPERTY_NAME_BORDER_WIDTH).setDefaultValue(ImageLayer.DEFAULT_BORDER_WIDTH);
+
+            return template;
         }
     }
 }

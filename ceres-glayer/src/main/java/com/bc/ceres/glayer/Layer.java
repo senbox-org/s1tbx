@@ -39,7 +39,7 @@ public abstract class Layer extends ExtensibleObject {
     private Style style;
 
     private transient final ArrayList<LayerListener> layerListenerList;
-    private transient final StylePCL stylePCL;
+    private transient final ConfigurationPCL configurationPCL;
 
     private final ValueContainer configuration;
 
@@ -68,8 +68,10 @@ public abstract class Layer extends ExtensibleObject {
         this.children = new LayerList();
         this.visible = true;
         this.layerListenerList = new ArrayList<LayerListener>(8);
-        this.stylePCL = new StylePCL();
+        this.configurationPCL = new ConfigurationPCL();
         setStyle(new DefaultStyle());
+
+        configuration.addPropertyChangeListener(configurationPCL);
     }
 
     /**
@@ -191,6 +193,7 @@ public abstract class Layer extends ExtensibleObject {
     /**
      * @return The layer's style.
      */
+    @Deprecated
     public Style getStyle() {
         return style;
     }
@@ -198,15 +201,16 @@ public abstract class Layer extends ExtensibleObject {
     /**
      * @param style The layer's style.
      */
+    @Deprecated
     public void setStyle(Style style) {
         final Style oldStyle = this.style;
         if (oldStyle != style) {
             if (this.style != null) {
-                this.style.removePropertyChangeListener(stylePCL);
+                this.style.removePropertyChangeListener(configurationPCL);
             }
             this.style = style;
             if (this.style != null) {
-                this.style.addPropertyChangeListener(stylePCL);
+                this.style.addPropertyChangeListener(configurationPCL);
             }
             fireLayerPropertyChanged("style", oldStyle, style);
         }
@@ -455,7 +459,7 @@ public abstract class Layer extends ExtensibleObject {
     public void regenerate() {
     }
 
-    private class StylePCL implements PropertyChangeListener {
+    private class ConfigurationPCL implements PropertyChangeListener {
 
         @Override
         public void propertyChange(PropertyChangeEvent event) {
