@@ -126,18 +126,6 @@ public class ShapeLayer extends Layer {
         }
 
         @Override
-        public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
-            ShapeLayer shapeLayer = (ShapeLayer) layer;
-
-            final ValueContainer vc = new ValueContainer();
-            vc.addModel(createDefaultValueModel(PROPERTY_SHAPE_LIST, shapeLayer.shapeList));
-            vc.addModel(createDefaultValueModel(PROPTERY_SHAPE_TO_MODEL_TRANSFORM,
-                                                shapeLayer.shapeToModelTransform));
-
-            return vc;
-        }
-
-        @Override
         public ValueContainer getConfigurationTemplate() {
             final ValueContainer vc = new ValueContainer();
             vc.addModel(createDefaultValueModel(PROPERTY_SHAPE_LIST, List.class));

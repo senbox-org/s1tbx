@@ -45,11 +45,6 @@ public class CollectionLayer extends Layer {
         }
 
         @Override
-        public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
-            return new ValueContainer();
-        }
-
-        @Override
         public ValueContainer getConfigurationTemplate() {
             return new ValueContainer();
         }

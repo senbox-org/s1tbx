@@ -59,14 +59,6 @@ public class BackgroundLayer extends Layer {
         }
 
         @Override
-        public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
-            final ValueContainer vc = new ValueContainer();
-            vc.addModel(createDefaultValueModel("paint", ((BackgroundLayer) layer).getPaint()));
-
-            return vc;
-        }
-
-        @Override
         public ValueContainer getConfigurationTemplate() {
             final ValueContainer template = new ValueContainer();
             template.addModel(createDefaultValueModel("paint", Paint.class));
