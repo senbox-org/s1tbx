@@ -8,6 +8,7 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTree;
 import org.esa.beam.framework.ui.product.ProductTreeListener;
 import org.esa.beam.util.Debug;
+import org.esa.beam.visat.actions.ShowMetadataViewAction;
 
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
@@ -148,7 +149,8 @@ public class ProductsToolView extends AbstractToolView {
                 return;
             }
             if (clickCount == 2) {
-                visatApp.createProductMetadataView(group);
+                final ExecCommand command = visatApp.getCommandManager().getExecCommand(ShowMetadataViewAction.ID);
+                command.execute(group);
             }
         }
 

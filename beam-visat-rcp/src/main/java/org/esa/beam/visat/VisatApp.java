@@ -83,6 +83,7 @@ import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.visat.actions.ShowImageViewAction;
 import org.esa.beam.visat.actions.ShowImageViewRGBAction;
+import org.esa.beam.visat.actions.ShowMetadataViewAction;
 import org.esa.beam.visat.actions.ShowToolBarAction;
 import org.esa.beam.visat.actions.ToolAction;
 import org.esa.beam.visat.toolviews.diag.TileCacheDiagnosisToolView;
@@ -1639,40 +1640,6 @@ public class VisatApp extends BasicApp implements AppContext {
         return singleThreadExecutor;
     }
 
-    private ProductMetadataView createProductMetadataViewImpl(final MetadataElement element) {
-        ProductMetadataView metadataView = null;
-
-        setStatusBarMessage("Creating metadata view...");
-        getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
-        try {
-            metadataView = new ProductMetadataView(element);
-            metadataView.setCommandUIFactory(getCommandUIFactory());
-            final Icon icon = UIUtils.loadImageIcon("icons/RsMetaData16.gif");
-            final JInternalFrame internalFrame = createInternalFrame(element.getDisplayName(),
-                                                                     icon,
-                                                                     metadataView, null);
-            final Product product = metadataView.getProduct();
-            product.addProductNodeListener(new ProductNodeListenerAdapter() {
-                @Override
-                public void nodeChanged(final ProductNodeEvent event) {
-                    if (event.getSourceNode() == element &&
-                        event.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
-                        internalFrame.setTitle(element.getDisplayName());
-                    }
-                }
-            });
-            updateState();
-        } catch (Exception e) {
-            handleUnknownException(e);
-        }
-
-        getMainFrame().setCursor(Cursor.getDefaultCursor());
-        clearStatusBarMessage();
-
-        return metadataView;
-    }
-
     /**
      * Notify all listeners that have registered interest for notification on VISAT's preferences changes..
      */
@@ -2194,7 +2161,8 @@ public class VisatApp extends BasicApp implements AppContext {
      * Creates a new product metadata view and opens an internal frame for it.
      */
     public synchronized ProductMetadataView createProductMetadataView(final MetadataElement element) {
-        return createProductMetadataViewImpl(element);
+        final ShowMetadataViewAction command = (ShowMetadataViewAction) getCommandManager().getCommand(ShowMetadataViewAction.ID);
+        return command.openMetadataView(element);
     }
 
     /**

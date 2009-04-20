@@ -1014,7 +1014,22 @@
             <largeIcon>icons/ImageView24.gif</largeIcon>
             <helpId>rgbImageProfile</helpId>
         </action>
-
+        
+        <action>
+            <id>showMetadataView</id>
+            <class>org.esa.beam.visat.actions.ShowMetadataViewAction</class>
+            <placeAfter>showImageViewRGB</placeAfter>
+            <parent>view</parent>
+            <text>Open Metadata View</text>
+            <mnemonic>M</mnemonic>
+            <accellerator>control alt M</accellerator>
+            <shortDescr>Open metadata view.</shortDescr>
+            <description>Open a metadata view for the selected metadata node.</description>
+            <context>metadata</context>
+            <smallIcon>icons/ImageView16.gif</smallIcon>
+            <largeIcon>icons/ImageView24.gif</largeIcon>
+        </action>
+        
         <action>
             <id>showNoDataOverlay</id>
             <class>org.esa.beam.visat.actions.ShowNoDataOverlayAction</class>
