@@ -20,12 +20,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 
-import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
-import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductMetadataView;
@@ -36,15 +31,14 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.ShowImageViewAction;
 import org.esa.beam.visat.actions.ShowMetadataViewAction;
 
-import javax.swing.Icon;
-import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
-import javax.swing.JInternalFrame;
-import javax.swing.SwingUtilities;
 import java.awt.Rectangle;
+import java.beans.PropertyVetoException;
 import java.io.File;
 import java.util.concurrent.ExecutionException;
-import java.beans.PropertyVetoException;
+
+import javax.swing.JInternalFrame;
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 
 
 /**

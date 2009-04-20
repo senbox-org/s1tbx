@@ -1,11 +1,11 @@
 package org.esa.beam.visat.actions.session;
 
 import com.bc.ceres.binding.ClassFieldDescriptorFactory;
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.ConverterRegistry;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ConverterRegistry;
-import com.bc.ceres.binding.Converter;
-import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomConverter;
@@ -18,13 +18,14 @@ import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.grender.Viewport;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
+
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.ui.product.ProductMetadataView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
@@ -32,15 +33,15 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.swing.JComponent;
-import javax.swing.RootPaneContainer;
 import java.awt.Container;
 import java.awt.Rectangle;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import javax.swing.JComponent;
+import javax.swing.RootPaneContainer;
 
 /**
  * todo - add API doc
@@ -263,20 +264,24 @@ public class Session {
                             throw new Exception("Unknown product reference number: " + viewRef.productId);
                         }
                     } else if (ProductMetadataView.class.getName().equals(viewRef.type)) {
-                        System.out.println("Session.restoreViews()");
                         Product product = getProductForRefNo(restoredProducts, viewRef.productId);
                         if (product != null) {
                             String[] productNodeNames = viewRef.productNodeName.split("\\|");
                             MetadataElement element = product.getMetadataRoot();
                             for (int i = productNodeNames.length - 1; i >= 0; i--) {
+                                if (element == null) {
+                                    break;
+                                }
                                 element = element.getElement(productNodeNames[i]);
                             }
-                            ProductMetadataView view = new ProductMetadataView(element);
-                            Rectangle bounds = viewRef.bounds;
-                            if (bounds != null && !bounds.isEmpty()) {
-                                view.setBounds(bounds);
+                            if (element != null) {
+                                ProductMetadataView view = new ProductMetadataView(element);
+                                Rectangle bounds = viewRef.bounds;
+                                if (bounds != null && !bounds.isEmpty()) {
+                                    view.setBounds(bounds);
+                                }
+                                views.add(view);
                             }
-                            views.add(view);
                         } else {
                             throw new Exception("Unknown product reference number: " + viewRef.productId);
                         }
