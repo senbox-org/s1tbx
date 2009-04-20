@@ -1,10 +1,10 @@
 package org.esa.beam.glayer;
 
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValidationException;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Pin;
@@ -24,12 +24,16 @@ public class PlacemarkLayerTest extends TestCase {
         final PinDescriptor pmd = PinDescriptor.INSTANCE;
         final AffineTransform i2m = new AffineTransform();
 
-        final PlacemarkLayer placemarkLayer = new PlacemarkLayer(product, pmd, i2m);
+        final LayerType type = LayerType.getLayerType(PlacemarkLayer.Type.class.getName());
+        final ValueContainer template = type.getConfigurationTemplate();
+        template.setValue("product", product);
+        template.setValue("placemarkDescriptor", pmd);
+        template.setValue("imageToModelTransform", i2m);
+        final PlacemarkLayer placemarkLayer = (PlacemarkLayer) type.createLayer(null, template);
         assertEquals(product, placemarkLayer.getProduct());
         assertEquals(pmd, placemarkLayer.getPlacemarkDescriptor());
         assertEquals(i2m, placemarkLayer.getImageToModelTransform());
 
-        final LayerType type = placemarkLayer.getLayerType();
         assertTrue(type instanceof PlacemarkLayer.Type);
         assertNotNull(type.getName());
 
@@ -87,6 +91,7 @@ public class PlacemarkLayerTest extends TestCase {
     }
 
     private static class MyLayerListener extends AbstractLayerListener {
+
         String trace = "";
 
         @Override
