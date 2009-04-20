@@ -19,15 +19,24 @@ package org.esa.beam.visat.actions.session;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.framework.ui.product.ProductMetadataView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.ShowImageViewAction;
+import org.esa.beam.visat.actions.ShowMetadataViewAction;
 
+import javax.swing.Icon;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.swing.JInternalFrame;
@@ -135,35 +144,40 @@ public class OpenSessionAction extends ExecCommand {
                 app.getProductManager().addProduct(product);
             }
 
-            ShowImageViewAction showImageViewAction = getShowImageViewAction();
+            ShowImageViewAction showImageViewAction = getAction(ShowImageViewAction.ID);
+            ShowMetadataViewAction showMetadataViewAction = getAction(ShowMetadataViewAction.ID);
 
             final ProductNodeView[] nodeViews = restoredSession.getViews();
             for (ProductNodeView nodeView : nodeViews) {
+                Rectangle bounds = nodeView.getBounds();
+                JInternalFrame internalFrame = null;
                 if (nodeView instanceof ProductSceneView) {
                     ProductSceneView sceneView = (ProductSceneView) nodeView;
+                    
                     sceneView.getLayerCanvas().setInitiallyZoomingAll(false);
-
-                    Rectangle bounds = sceneView.getBounds();
                     Viewport viewport = sceneView.getLayerCanvas().getViewport().clone();
-
-                    JInternalFrame internalFrame = showImageViewAction.openInternalFrame(sceneView);
-
+                    internalFrame = showImageViewAction.openInternalFrame(sceneView);
+                    sceneView.getLayerCanvas().getViewport().setTransform(viewport);
+                } else if (nodeView instanceof ProductMetadataView) {
+                    ProductMetadataView metadataView = (ProductMetadataView) nodeView;
+                    
+                    internalFrame = showMetadataViewAction.openInternalFrame(metadataView);
+                }
+                if (internalFrame != null) {
                     try {
                         internalFrame.setMaximum(false);
                     } catch (PropertyVetoException e) {
                         // ok, ignore
                     }
                     internalFrame.setBounds(bounds);
-                    sceneView.getLayerCanvas().getViewport().setTransform(viewport);
                 }
             }
         }
 
-        private ShowImageViewAction getShowImageViewAction() {
-            String actionId = ShowImageViewAction.ID;
-            ShowImageViewAction action = (ShowImageViewAction) app.getCommandManager().getCommand(actionId);
+        private <T> T getAction(String actionId) {
+            T action = (T) app.getCommandManager().getCommand(actionId);
             if (action == null) {
-                throw new IllegalStateException("ShowImageViewAction not found: actionId=" + actionId);
+                throw new IllegalStateException("Action not found: actionId=" + actionId);
             }
             return action;
         }

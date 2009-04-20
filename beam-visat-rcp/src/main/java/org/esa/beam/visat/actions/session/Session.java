@@ -19,10 +19,13 @@ import com.bc.ceres.grender.Viewport;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.ui.product.ProductMetadataView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -36,6 +39,7 @@ import java.awt.Rectangle;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -101,13 +105,28 @@ public class Session {
             if (view instanceof JComponent) {
                 viewBounds = getRootPaneContainer((JComponent) view).getBounds();
             }
-
+            String productNodeName = "";
+            if (view instanceof ProductSceneView) {
+                productNodeName = view.getVisibleProductNode().getName();
+            } else if (view instanceof ProductMetadataView) {
+                ProductMetadataView metadataView = (ProductMetadataView) view;
+                MetadataElement metadataRoot = metadataView.getProduct().getMetadataRoot();
+                MetadataElement metadataElement = metadataView.getMetadataElement();
+                StringBuilder sb = new StringBuilder(metadataElement.getName());
+                ProductNode owner = metadataElement.getOwner();
+                while(owner != metadataRoot) {
+                    sb.append('|');
+                    sb.append(owner.getName());
+                    owner = owner.getOwner();
+                }
+                productNodeName = sb.toString();
+            }
             viewRefs[i] = new ViewRef(i,
                                       view.getClass().getName(),
                                       viewBounds,
                                       viewportDef,
                                       view.getVisibleProductNode().getProduct().getRefNo(),
-                                      view.getVisibleProductNode().getName(),
+                                      productNodeName,
                                       layerRefs);
         }
     }
@@ -240,6 +259,24 @@ public class Session {
                             } else {
                                 throw new Exception("Unknown raster data source: " + viewRef.productNodeName);
                             }
+                        } else {
+                            throw new Exception("Unknown product reference number: " + viewRef.productId);
+                        }
+                    } else if (ProductMetadataView.class.getName().equals(viewRef.type)) {
+                        System.out.println("Session.restoreViews()");
+                        Product product = getProductForRefNo(restoredProducts, viewRef.productId);
+                        if (product != null) {
+                            String[] productNodeNames = viewRef.productNodeName.split("\\|");
+                            MetadataElement element = product.getMetadataRoot();
+                            for (int i = productNodeNames.length - 1; i >= 0; i--) {
+                                element = element.getElement(productNodeNames[i]);
+                            }
+                            ProductMetadataView view = new ProductMetadataView(element);
+                            Rectangle bounds = viewRef.bounds;
+                            if (bounds != null && !bounds.isEmpty()) {
+                                view.setBounds(bounds);
+                            }
+                            views.add(view);
                         } else {
                             throw new Exception("Unknown product reference number: " + viewRef.productId);
                         }
