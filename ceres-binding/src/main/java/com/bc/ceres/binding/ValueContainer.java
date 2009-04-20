@@ -195,10 +195,6 @@ public class ValueContainer {
     }
 
     public void setValue(String propertyName, Object value) throws ValidationException {
-        final ValueModel model = getModel(propertyName);
-        if (model == null) {
-            return;
-        }
         getModel(propertyName).setValue(value);
     }
 

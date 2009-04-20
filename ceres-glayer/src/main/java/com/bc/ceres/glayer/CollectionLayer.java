@@ -11,6 +11,7 @@ import com.bc.ceres.binding.ValueContainer;
  * @version $revision$ $date$
  */
 public class CollectionLayer extends Layer {
+
     private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
 
     public CollectionLayer() {
@@ -20,7 +21,7 @@ public class CollectionLayer extends Layer {
     public CollectionLayer(String name) {
         this(LAYER_TYPE, name);
     }
-    
+
     protected CollectionLayer(Type type, String name) {
         super(type);
         setName(name);
@@ -30,8 +31,9 @@ public class CollectionLayer extends Layer {
     public boolean isCollectionLayer() {
         return true;
     }
-    
+
     public static class Type extends LayerType {
+
         @Override
         public String getName() {
             return "Collection Layer";
@@ -44,6 +46,11 @@ public class CollectionLayer extends Layer {
 
         @Override
         public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
+            return new ValueContainer();
+        }
+
+        @Override
+        public ValueContainer getConfigurationTemplate() {
             return new ValueContainer();
         }
 

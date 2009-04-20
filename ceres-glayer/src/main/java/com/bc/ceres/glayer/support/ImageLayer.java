@@ -1,8 +1,8 @@
 package com.bc.ceres.glayer.support;
 
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
@@ -40,6 +40,7 @@ public class ImageLayer extends Layer {
 
     private static final LayerType LAYER_TYPE = LayerType.getLayerType(Type.class.getName());
 
+    public static final String PROPERTY_NAME_MULTI_LEVEL_SOURCE = "multiLevelSource";
     public static final String PROPERTY_NAME_BORDER_SHOWN = "border.shown";
     public static final String PROPERTY_NAME_BORDER_WIDTH = "border.width";
     public static final String PROPERTY_NAME_BORDER_COLOR = "border.color";
@@ -58,17 +59,7 @@ public class ImageLayer extends Layer {
      * @param image the image
      */
     public ImageLayer(RenderedImage image) {
-        this(image, new AffineTransform());
-    }
-
-    /**
-     * Constructs a single-resolution-level image layer.
-     *
-     * @param image                 the image
-     * @param imageToModelTransform the transformation from image to model CS
-     */
-    public ImageLayer(RenderedImage image, AffineTransform imageToModelTransform) {
-        this(image, imageToModelTransform, 1);
+        this(image, new AffineTransform(), 1);
     }
 
     /**
@@ -102,13 +93,13 @@ public class ImageLayer extends Layer {
      * @param multiLevelSource the multi-resolution-level image.
      */
     public ImageLayer(LayerType type, MultiLevelSource multiLevelSource) {
-        this(type, new ValueContainer(), multiLevelSource);
+        this(type, addMultiLevelSourceModel(type.getConfigurationTemplate(), multiLevelSource));
     }
 
-    public ImageLayer(LayerType layerType, ValueContainer configuration, MultiLevelSource multiLevelSource) {
+    public ImageLayer(LayerType layerType, ValueContainer configuration) {
         super(layerType, configuration);
+        multiLevelSource = (MultiLevelSource) configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
         Assert.notNull(multiLevelSource);
-        this.multiLevelSource = multiLevelSource;
     }
 
     @Override
@@ -287,6 +278,19 @@ public class ImageLayer extends Layer {
         return DEFAULT_BORDER_COLOR;
     }
 
+    private static ValueContainer addMultiLevelSourceModel(ValueContainer valueContainer,
+                                                           MultiLevelSource multiLevelSource) {
+        final DefaultValueAccessor valueAccessor = new DefaultValueAccessor();
+        valueAccessor.setValue(multiLevelSource);
+
+        final ValueDescriptor descriptor = new ValueDescriptor(PROPERTY_NAME_MULTI_LEVEL_SOURCE,
+                                                               MultiLevelSource.class);
+        final ValueModel valueModel = new ValueModel(descriptor, valueAccessor);
+        valueContainer.addModel(valueModel);
+
+        return valueContainer;
+    }
+
     public static class Type extends LayerType {
 
         @Override
@@ -301,25 +305,29 @@ public class ImageLayer extends Layer {
 
         @Override
         public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
-            MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue("multiLevelSource");
-            return new ImageLayer(multiLevelSource);
+            return new ImageLayer(this, configuration);
         }
 
         @Override
         public ValueContainer getConfigurationTemplate() {
             final ValueContainer template = new ValueContainer();
 
+            template.addModel(createDefaultValueModel(PROPERTY_NAME_MULTI_LEVEL_SOURCE, MultiLevelSource.class));
+
             template.addModel(createDefaultValueModel(ImageLayer.PROPERTY_NAME_BORDER_SHOWN,
                                                       ImageLayer.DEFAULT_BORDER_SHOWN));
-            template.getDescriptor(ImageLayer.PROPERTY_NAME_BORDER_SHOWN).setDefaultValue(ImageLayer.DEFAULT_BORDER_SHOWN);
+            template.getDescriptor(ImageLayer.PROPERTY_NAME_BORDER_SHOWN).setDefaultValue(
+                    ImageLayer.DEFAULT_BORDER_SHOWN);
 
             template.addModel(createDefaultValueModel(ImageLayer.PROPERTY_NAME_BORDER_COLOR,
                                                       ImageLayer.DEFAULT_BORDER_COLOR));
-            template.getDescriptor(ImageLayer.PROPERTY_NAME_BORDER_COLOR).setDefaultValue(ImageLayer.DEFAULT_BORDER_COLOR);
+            template.getDescriptor(ImageLayer.PROPERTY_NAME_BORDER_COLOR).setDefaultValue(
+                    ImageLayer.DEFAULT_BORDER_COLOR);
 
             template.addModel(createDefaultValueModel(ImageLayer.PROPERTY_NAME_BORDER_WIDTH,
                                                       ImageLayer.DEFAULT_BORDER_WIDTH));
-            template.getDescriptor(ImageLayer.PROPERTY_NAME_BORDER_WIDTH).setDefaultValue(ImageLayer.DEFAULT_BORDER_WIDTH);
+            template.getDescriptor(ImageLayer.PROPERTY_NAME_BORDER_WIDTH).setDefaultValue(
+                    ImageLayer.DEFAULT_BORDER_WIDTH);
 
             return template;
         }

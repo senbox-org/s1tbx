@@ -23,6 +23,8 @@ public abstract class LayerType extends ExtensibleObject {
 
     public abstract Layer createLayer(LayerContext ctx, ValueContainer configuration);
 
+    public abstract ValueContainer getConfigurationTemplate();
+
     public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
         final ValueContainer configuration = new ValueContainer();
 
@@ -38,9 +40,6 @@ public abstract class LayerType extends ExtensibleObject {
         return configuration;
     }
 
-    public ValueContainer getConfigurationTemplate() {
-        return new ValueContainer();
-    }
 
     public static LayerType getLayerType(String layerTypeClassName) {
         return REGISTRY.getService(layerTypeClassName);
