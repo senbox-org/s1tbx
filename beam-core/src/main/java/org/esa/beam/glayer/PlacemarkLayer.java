@@ -46,11 +46,13 @@ public class PlacemarkLayer extends Layer {
     private PlacemarkDescriptor placemarkDescriptor;
     private final AffineTransform imageToModelTransform;
 
-    public PlacemarkLayer(Product product, PlacemarkDescriptor placemarkDescriptor, AffineTransform imageToModelTransform) {
+    public PlacemarkLayer(Product product, PlacemarkDescriptor placemarkDescriptor,
+                          AffineTransform imageToModelTransform) {
         this(LAYER_TYPE, product, placemarkDescriptor, imageToModelTransform);
     }
-    
-    protected PlacemarkLayer(Type type, Product product, PlacemarkDescriptor placemarkDescriptor, AffineTransform imageToModelTransform) {
+
+    protected PlacemarkLayer(Type type, Product product, PlacemarkDescriptor placemarkDescriptor,
+                             AffineTransform imageToModelTransform) {
         super(type);
         this.product = product;
         this.placemarkDescriptor = placemarkDescriptor;
@@ -218,7 +220,11 @@ public class PlacemarkLayer extends Layer {
     }
 
     public static class Type extends LayerType {
-        
+
+        public static final String PROPERTY_PRODUCT = "product";
+        public static final String PROPERTY_PLACEMARK_DESCRIPTOR = "placemarkDescriptor";
+        public static final String PROPERTY_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
+
         @Override
         public String getName() {
             return "Placemark";
@@ -231,22 +237,23 @@ public class PlacemarkLayer extends Layer {
 
         @Override
         public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
-            Product product = (Product) configuration.getValue("product");
+            Product product = (Product) configuration.getValue(PROPERTY_PRODUCT);
             PlacemarkDescriptor placemarkDescriptor = (PlacemarkDescriptor) configuration.getValue(
-                    "placemarkDescriptor");
-            AffineTransform imageToModelTransform = (AffineTransform) configuration.getValue("imageToModelTransform");
+                    PROPERTY_PLACEMARK_DESCRIPTOR);
+            AffineTransform imageToModelTransform = (AffineTransform) configuration.getValue(
+                    PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
             return new PlacemarkLayer(product, placemarkDescriptor, imageToModelTransform);
         }
 
         @Override
         public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
             final PlacemarkLayer placemarkLayer = (PlacemarkLayer) layer;
-            final ValueModel productModel = createDefaultValueModel("product",
+            final ValueModel productModel = createDefaultValueModel(PROPERTY_PRODUCT,
                                                                     placemarkLayer.getProduct()
             );
-            final ValueModel placemarkModel = createDefaultValueModel("placemarkDescriptor",
+            final ValueModel placemarkModel = createDefaultValueModel(PROPERTY_PLACEMARK_DESCRIPTOR,
                                                                       placemarkLayer.getPlacemarkDescriptor());
-            final ValueModel transformModel = createDefaultValueModel("imageToModelTransform",
+            final ValueModel transformModel = createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM,
                                                                       placemarkLayer.getImageToModelTransform());
             final ValueContainer valueContainer = new ValueContainer();
             valueContainer.addModel(productModel);
@@ -255,9 +262,23 @@ public class PlacemarkLayer extends Layer {
             return valueContainer;
         }
 
+        @Override
+        public ValueContainer getConfigurationTemplate() {
+            final ValueModel productModel = createDefaultValueModel(PROPERTY_PRODUCT, Product.class);
+            final ValueModel placemarkModel = createDefaultValueModel(PROPERTY_PLACEMARK_DESCRIPTOR,
+                                                                      PlacemarkDescriptor.class);
+            final ValueModel transformModel = createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM,
+                                                                      AffineTransform.class);
+            final ValueContainer valueContainer = new ValueContainer();
+            valueContainer.addModel(productModel);
+            valueContainer.addModel(placemarkModel);
+            valueContainer.addModel(transformModel);
+            return valueContainer;
+        }
     }
 
     private class MyProductNodeListenerAdapter extends ProductNodeListenerAdapter {
+
         @Override
         public void nodeAdded(ProductNodeEvent event) {
             maybeFireLayerDataChanged(event);
@@ -275,7 +296,7 @@ public class PlacemarkLayer extends Layer {
 
         private void maybeFireLayerDataChanged(ProductNodeEvent event) {
             if (event.getSourceNode() instanceof Pin &&
-                    !ProductNode.PROPERTY_NAME_OWNER.equals(event.getPropertyName())) {
+                !ProductNode.PROPERTY_NAME_OWNER.equals(event.getPropertyName())) {
                 final Rectangle2D region = null; // todo - compute region (nf)
                 fireLayerDataChanged(region);
             }

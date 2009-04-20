@@ -3,5 +3,6 @@ org.esa.beam.glayer.FigureLayerType
 org.esa.beam.glayer.GraticuleLayer$Type
 org.esa.beam.glayer.PlacemarkLayer$Type
 org.esa.beam.glayer.NoDataLayerType
+org.esa.beam.glayer.RasterImageLayerType
 org.esa.beam.glayer.RoiLayerType
 org.esa.beam.glayer.BitmaskLayerType

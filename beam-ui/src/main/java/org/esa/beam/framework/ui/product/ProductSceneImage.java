@@ -1,5 +1,7 @@
 package org.esa.beam.framework.ui.product;
 
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
@@ -10,7 +12,6 @@ import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.support.LayerUtils;
-import com.bc.ceres.binding.ValueContainer;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
@@ -24,6 +25,7 @@ import org.esa.beam.glayer.FigureLayerType;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glayer.NoDataLayerType;
 import org.esa.beam.glayer.PlacemarkLayer;
+import org.esa.beam.glayer.RasterImageLayerType;
 import org.esa.beam.glayer.RoiLayerType;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.util.PropertyMap;
@@ -245,8 +247,9 @@ public class ProductSceneImage implements LayerContext {
     }
 
     private ImageLayer createBaseImageLayer() {
-        final ImageLayer imageLayer = new ImageLayer(bandImageMultiLevelSource);
-
+        final RasterImageLayerType type = (RasterImageLayerType) LayerType.getLayerType(
+                RasterImageLayerType.class.getName());
+        final ImageLayer imageLayer = type.createLayer(getRasters(), bandImageMultiLevelSource);
         imageLayer.setName(getRaster().getDisplayName());
         imageLayer.setVisible(true);
         imageLayer.setId(ProductSceneView.BASE_IMAGE_LAYER_ID);
@@ -277,23 +280,29 @@ public class ProductSceneImage implements LayerContext {
 
     private Layer createNoDataLayer(AffineTransform imageToModelTransform) {
         final LayerType noDatatype = LayerType.getLayerType(NoDataLayerType.class.getName());
+        final ValueContainer configTemplate = noDatatype.getConfigurationTemplate();
 
-        final HashMap<String, Object> map = new HashMap<String, Object>();
         final Color color = configuration.getPropertyColor("noDataOverlay.color", Color.ORANGE);
-        map.put("noDataOverlay.color", color);
-        map.put("noDataOverlay.referencedRaster", getRaster());
-        map.put("noDataOverlay.imageToModelTransform", imageToModelTransform);
-
-        return noDatatype.createLayer(this, ValueContainer.createMapBacked(map));
+        try {
+            configTemplate.setValue(NoDataLayerType.PROPERTY_COLOR, color);
+            configTemplate.setValue(NoDataLayerType.PROPERTY_REFERENCED_RASTER, getRaster());
+            configTemplate.setValue(NoDataLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
+        } catch (ValidationException e) {
+            throw new IllegalArgumentException(e);
+        }
+        return noDatatype.createLayer(this, configTemplate);
     }
 
     private Layer createBitmaskCollectionLayer(AffineTransform i2mTransform) {
         final LayerType bitmaskCollectionType = LayerType.getLayerType(BitmaskCollectionLayer.Type.class.getName());
-        final HashMap<String, Object> map = new HashMap<String, Object>();
-        map.put("bitmaskCollection.i2mTransform", i2mTransform);
-        map.put("bitmaskCollection.product", getRaster().getProduct());
-
-        return bitmaskCollectionType.createLayer(this, ValueContainer.createMapBacked(map));
+        final ValueContainer layerConfig = bitmaskCollectionType.getConfigurationTemplate();
+        try {
+            layerConfig.setValue(BitmaskCollectionLayer.Type.PROPERTY_RASTER, getRaster());
+            layerConfig.setValue(BitmaskCollectionLayer.Type.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
+        } catch (ValidationException e) {
+            throw new IllegalArgumentException(e);
+        }
+        return bitmaskCollectionType.createLayer(this, layerConfig);
     }
 
     private FigureLayer createFigureLayer(AffineTransform i2mTransform) {
@@ -360,15 +369,19 @@ public class ProductSceneImage implements LayerContext {
     private ImageLayer createRoiLayer(AffineTransform imageToModelTransform) {
         final LayerType roiLayerType = LayerType.getLayerType(RoiLayerType.class.getName());
 
-        final HashMap<String, Object> map = new HashMap<String, Object>();
-        final Color color = configuration.getPropertyColor("roiOverlay.color", Color.RED);
-        final double transparency = configuration.getPropertyDouble("roiOverlay.transparency", 0.5);
-        map.put("roiOverlay.color", color);
-        map.put("roiOverlay.transparency", transparency);
-        map.put("roiOverlay.referencedRaster", getRaster());
-        map.put("roiOverlay.imageToModelTransform", imageToModelTransform);
-        
-        return (ImageLayer) roiLayerType.createLayer(this, ValueContainer.createMapBacked(map));
+        final Color color = configuration.getPropertyColor(RoiLayerType.PROPERTY_COLOR, Color.RED);
+        final double transparency = configuration.getPropertyDouble(RoiLayerType.PROPERTY_TRANSPARENCY, 0.5);
+
+        final ValueContainer template = roiLayerType.getConfigurationTemplate();
+        try {
+            template.setValue(RoiLayerType.PROPERTY_COLOR, color);
+            template.setValue(RoiLayerType.PROPERTY_TRANSPARENCY, transparency);
+            template.setValue(RoiLayerType.PROPERTY_REFERENCED_RASTER, getRaster());
+            template.setValue(RoiLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
+        } catch (ValidationException e) {
+            throw new IllegalArgumentException(e);
+        }
+        return (ImageLayer) roiLayerType.createLayer(this, template);
     }
 
     private GraticuleLayer createGraticuleLayer(AffineTransform i2mTransform) {

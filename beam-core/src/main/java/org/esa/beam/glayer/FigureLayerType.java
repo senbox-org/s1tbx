@@ -1,10 +1,10 @@
 package org.esa.beam.glayer;
 
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
-import com.bc.ceres.binding.ValueContainer;
 import org.esa.beam.framework.draw.Figure;
 
 import java.awt.geom.AffineTransform;
@@ -72,6 +72,16 @@ public class FigureLayerType extends LayerType {
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_TRANSFORM,
                                             figureLayer.getShapeToModelTransform()
         ));
+
+        return vc;
+    }
+
+    @Override
+    public ValueContainer getConfigurationTemplate() {
+        final ValueContainer vc = new ValueContainer();
+
+        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_FIGURE_LIST, List.class));
+        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_TRANSFORM, AffineTransform.class));
 
         return vc;
     }

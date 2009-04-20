@@ -16,8 +16,8 @@
  */
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -209,8 +209,8 @@ public class BitmaskCollectionLayer extends CollectionLayer {
 
         public static final String BITMASK_LAYER_ID = "org.esa.beam.layers.bitmask";
 
-        private static final String PROPERTY_RASTER = "bitmaskCollection.raster";
-        private static final String PROPERTY_IMAGE_TO_MODEL_TRANSFORM = "bitmaskCollection.i2mTransform";
+        public static final String PROPERTY_RASTER = "bitmaskCollection.raster";
+        public static final String PROPERTY_IMAGE_TO_MODEL_TRANSFORM = "bitmaskCollection.i2mTransform";
 
         @Override
         public String getName() {
@@ -231,13 +231,16 @@ public class BitmaskCollectionLayer extends CollectionLayer {
             final BitmaskDef[] bitmaskDefs = rasterDataNode.getProduct().getBitmaskDefs();
             final LayerType bitmaskLayerType = LayerType.getLayerType(BitmaskLayerType.class.getName());
             for (final BitmaskDef bitmaskDef : bitmaskDefs) {
-                final HashMap<String, Object> map = new HashMap<String, Object>();
-                map.put("bitmask.product", rasterDataNode.getProduct());
-                map.put("bitmask.i2mTransform", i2m);
-                map.put("bitmask.bitmaskDef", bitmaskDef);
+                final ValueContainer template = bitmaskLayerType.getConfigurationTemplate();
+                try {
+                    template.setValue(BitmaskLayerType.PROPERTY_BITMASKDEF, bitmaskDef);
+                    template.setValue(BitmaskLayerType.PROPERTY_PRODUCT, rasterDataNode.getProduct());
+                    template.setValue(BitmaskLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, i2m);
+                } catch (ValidationException e) {
+                    throw new IllegalArgumentException(e);
+                }
 
-                final ValueContainer vc = ValueContainer.createMapBacked(map);
-                final Layer layer = bitmaskLayerType.createLayer(ctx, vc);
+                final Layer layer = bitmaskLayerType.createLayer(ctx, template);
                 final BitmaskOverlayInfo overlayInfo = rasterDataNode.getBitmaskOverlayInfo();
                 layer.setVisible(overlayInfo != null && overlayInfo.containsBitmaskDef(bitmaskDef));
                 bitmaskCollectionLayer.getChildren().add(layer);
@@ -247,14 +250,17 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         }
 
         @Override
-        public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
-            BitmaskCollectionLayer bitmaskCollectionLayer = (BitmaskCollectionLayer) layer;
-            final ValueContainer configuration = new ValueContainer();
-            configuration.addModel(createDefaultValueModel(PROPERTY_RASTER, bitmaskCollectionLayer.rasterDataNode));
-            configuration.addModel(createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM,
-                                                           bitmaskCollectionLayer.i2mTransform));
-            
-            return configuration;
+        public ValueContainer getConfigurationTemplate() {
+            final ValueContainer template = super.getConfigurationTemplate();
+
+            template.addModel(createDefaultValueModel(PROPERTY_RASTER, RasterDataNode.class));
+            template.getDescriptor(PROPERTY_RASTER).setNotNull(true);
+
+            template.addModel(createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class));
+            template.getDescriptor(PROPERTY_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
+
+            return template;
+
         }
     }
 }

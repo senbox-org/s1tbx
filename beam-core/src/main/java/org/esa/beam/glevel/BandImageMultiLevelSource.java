@@ -54,7 +54,7 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
         return new BandImageMultiLevelSource(model, rasterDataNodes);
     }
 
-    public BandImageMultiLevelSource(MultiLevelModel model, RasterDataNode[] rasterDataNodes) {
+    private BandImageMultiLevelSource(MultiLevelModel model, RasterDataNode[] rasterDataNodes) {
         super(model);
         this.rasterDataNodes = rasterDataNodes.clone();
         imageInfo = ImageManager.getInstance().getImageInfo(rasterDataNodes);

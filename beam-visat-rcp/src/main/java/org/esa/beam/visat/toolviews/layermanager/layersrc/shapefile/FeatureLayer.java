@@ -1,10 +1,10 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.grender.Rendering;
-import com.bc.ceres.binding.ValueContainer;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -290,6 +290,14 @@ public class FeatureLayer extends Layer {
                 configuration.addModel(createDefaultValueModel(PROPERTY_SLD_STYLE,
                                                                mapLayer.getStyle()));
             }
+            return configuration;
+        }
+
+        @Override
+        public ValueContainer getConfigurationTemplate() {
+            final ValueContainer configuration = new ValueContainer();
+            configuration.addModel(createDefaultValueModel(PROPERTY_FEATURE_COLLECTION, FeatureCollection.class));
+            configuration.addModel(createDefaultValueModel(PROPERTY_SLD_STYLE, Style.class));
             return configuration;
         }
     }

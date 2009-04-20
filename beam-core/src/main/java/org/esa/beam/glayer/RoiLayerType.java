@@ -1,13 +1,13 @@
 package org.esa.beam.glayer;
 
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
-import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
-import com.bc.ceres.binding.ValueContainer;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.glevel.RoiImageMultiLevelSource;
 
@@ -20,7 +20,7 @@ import java.awt.geom.AffineTransform;
  * @version $ Revision: $ Date: $
  * @since BEAM 4.6
  */
-public class RoiLayerType extends LayerType {
+public class RoiLayerType extends ImageLayer.Type {
 
     public static final String ROI_LAYER_ID = "org.esa.beam.layers.roi";
     public static final String PROPERTY_COLOR = "roiOverlay.color";
@@ -34,33 +34,51 @@ public class RoiLayerType extends LayerType {
     }
 
     @Override
-    public boolean isValidFor(LayerContext ctx) {
-        return true;
-    }
-
-    @Override
     public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
-        final MultiLevelSource multiLevelSource;
         final Color color = (Color) configuration.getValue(PROPERTY_COLOR);
         Assert.notNull(color, PROPERTY_COLOR);
         final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_REFERENCED_RASTER);
         Assert.notNull(raster, PROPERTY_REFERENCED_RASTER);
-        final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
+        final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(
+                PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
         Assert.notNull(i2mTransform, PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
 
-        if (raster.getROIDefinition() != null && raster.getROIDefinition().isUsable()) {
-            multiLevelSource = RoiImageMultiLevelSource.create(raster, color, i2mTransform);
-        } else {
-            multiLevelSource = MultiLevelSource.NULL;
+        if (configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
+            final MultiLevelSource multiLevelSource;
+            if (raster.getROIDefinition() != null && raster.getROIDefinition().isUsable()) {
+                multiLevelSource = RoiImageMultiLevelSource.create(raster, color, i2mTransform);
+            } else {
+                multiLevelSource = MultiLevelSource.NULL;
+            }
+            try {
+                configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
+            } catch (ValidationException e) {
+                throw new IllegalArgumentException(e);
+            }
         }
 
-        final ImageLayer roiLayer = new ImageLayer(this, configuration, multiLevelSource);
+        final ImageLayer roiLayer = new ImageLayer(this, configuration);
         roiLayer.setName("ROI");
         roiLayer.setId(ROI_LAYER_ID);
         roiLayer.setVisible(false);
         configureLayer(configuration, roiLayer);
 
         return roiLayer;
+    }
+
+    @Override
+    public ValueContainer getConfigurationTemplate() {
+        final ValueContainer template = super.getConfigurationTemplate();
+        template.addModel(createDefaultValueModel(PROPERTY_REFERENCED_RASTER, RasterDataNode.class));
+        template.getDescriptor(PROPERTY_REFERENCED_RASTER).setNotNull(true);
+
+        template.addModel(createDefaultValueModel(PROPERTY_COLOR, Color.class));
+        template.getDescriptor(PROPERTY_COLOR).setNotNull(true);
+
+        template.addModel(createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class));
+        template.getDescriptor(PROPERTY_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
+
+        return template;
     }
 
     private void configureLayer(ValueContainer configuration, Layer layer) {
@@ -82,14 +100,5 @@ public class RoiLayerType extends LayerType {
         style.setComposite(layer.getStyle().getComposite());
 
         layer.setStyle(style);
-    }
-
-
-    @Override
-    public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
-        final ValueContainer vc = new ValueContainer();
-        vc.addModel(createDefaultValueModel("multiLevelSource", ((ImageLayer) layer).getMultiLevelSource()));
-
-        return vc;
     }
 }

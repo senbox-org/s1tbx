@@ -28,9 +28,9 @@ import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
 import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
 import org.esa.beam.framework.draw.ShapeFigure;
+import org.esa.beam.glayer.BitmaskLayerType;
 import org.esa.beam.glayer.PlacemarkLayer;
 import org.esa.beam.glayer.RasterImageLayerType;
-import org.esa.beam.glayer.BitmaskLayerType;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.glevel.RoiImageMultiLevelSource;
@@ -355,10 +355,12 @@ public class PView {
 
     private static Layer createBitmasksLayer(Product product, AffineTransform i2m) {
         final LayerType collectionLayerType = LayerType.getLayerType(CollectionLayer.Type.class.getName());
-        final Layer collectionLayer = collectionLayerType.createLayer(null, collectionLayerType.getConfigurationTemplate());
+        final Layer collectionLayer = collectionLayerType.createLayer(null,
+                                                                      collectionLayerType.getConfigurationTemplate());
         collectionLayer.setName("Bitmasks");
 
-        final BitmaskLayerType bitmaskLayerType = (BitmaskLayerType) LayerType.getLayerType(BitmaskLayerType.class.getName());
+        final BitmaskLayerType bitmaskLayerType = (BitmaskLayerType) LayerType.getLayerType(
+                BitmaskLayerType.class.getName());
 
         final BitmaskDef[] bitmaskDefs = product.getBitmaskDefs();
         for (BitmaskDef bitmaskDef : bitmaskDefs) {
@@ -371,15 +373,17 @@ public class PView {
 
     private static Layer createBandsLayer(Product product) {
         final LayerType collectionLayerType = LayerType.getLayerType(CollectionLayer.Type.class.getName());
-        final Layer collectionLayer = collectionLayerType.createLayer(null, collectionLayerType.getConfigurationTemplate());
+        final Layer collectionLayer = collectionLayerType.createLayer(null,
+                                                                      collectionLayerType.getConfigurationTemplate());
         collectionLayer.setName("Bands");
         final String[] names = product.getBandNames();
 
-        final RasterImageLayerType type = (RasterImageLayerType) LayerType.getLayerType(RasterImageLayerType.class.getName());
+        final RasterImageLayerType type = (RasterImageLayerType) LayerType.getLayerType(
+                RasterImageLayerType.class.getName());
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
             final Band band = product.getBand(name);
-            final Layer imageLayer = type.createLayer(band);
+            final Layer imageLayer = type.createLayer(new RasterDataNode[]{band}, null);
             imageLayer.setName(band.getName());
             imageLayer.setVisible(i == 0);
             collectionLayer.getChildren().add(imageLayer);

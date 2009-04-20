@@ -1,12 +1,12 @@
 package org.esa.beam.visat.toolviews.layermanager;
 
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryFactory;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.binding.ValueContainer;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsLayerSource;
 import org.junit.AfterClass;
 import static org.junit.Assert.*;
@@ -87,6 +87,11 @@ public class DefaultLayerSourceDescriptorTest {
 
         @Override
         public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
+            return new ValueContainer();
+        }
+
+        @Override
+        public ValueContainer getConfigurationTemplate() {
             return new ValueContainer();
         }
     }

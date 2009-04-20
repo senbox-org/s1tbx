@@ -72,7 +72,7 @@ class WmsLayerWorker extends WmsWorker {
                 final AffineTransform g2mTransform = sceneView.getRaster().getGeoCoding().getGridToModelTransform();
                 AffineTransform i2mTransform = new AffineTransform(g2mTransform);
                 i2mTransform.scale((double) sceneWidth / image.getWidth(), (double) sceneHeight / image.getHeight());
-                ImageLayer imageLayer = new ImageLayer(PlanarImage.wrapRenderedImage(image), i2mTransform);
+                ImageLayer imageLayer = new ImageLayer(PlanarImage.wrapRenderedImage(image), i2mTransform, 1);
                 final Style style = imageLayer.getStyle();
                 style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
                 style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);

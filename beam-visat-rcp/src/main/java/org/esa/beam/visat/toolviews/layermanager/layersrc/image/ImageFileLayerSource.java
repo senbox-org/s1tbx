@@ -18,7 +18,6 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.image;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
-
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
@@ -30,8 +29,8 @@ import java.awt.image.RenderedImage;
 
 /**
  * A layer source for images.
- * 
- * The image can either be associated with an "world-file" or 
+ * <p/>
+ * The image can either be associated with an "world-file" or
  * the orientation relative to the existing layers has to be given by hand.
  *
  * @author Marco Zuehlke
@@ -69,7 +68,7 @@ public class ImageFileLayerSource implements LayerSource {
     public boolean performFinish(LayerSourcePageContext pageContext) {
         return false;
     }
-    
+
     @Override
     public void cancel(LayerSourcePageContext pageContext) {
         pageContext.setPropertyValue(PROPERTY_IMAGE, null);
@@ -81,9 +80,9 @@ public class ImageFileLayerSource implements LayerSource {
         RenderedImage image = (RenderedImage) pageContext.getPropertyValue(PROPERTY_IMAGE);
         String imageFilePath = (String) pageContext.getPropertyValue(PROPERTY_IMAGE_FILE_PATH);
         String fileName = FileUtils.getFileNameFromPath(imageFilePath);
-    
+
         try {
-            ImageLayer imageLayer = new ImageLayer(image, transform);
+            ImageLayer imageLayer = new ImageLayer(image, transform, 1);
             imageLayer.setName(fileName);
             ProductSceneView sceneView = pageContext.getAppContext().getSelectedProductSceneView();
             Layer rootLayer = sceneView.getRootLayer();

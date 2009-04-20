@@ -405,18 +405,30 @@ public class GraticuleLayer extends Layer {
             final ValueContainer vc = new ValueContainer();
 
             final ValueModel rasterModel = createDefaultValueModel(PROPERTY_NAME_RASTER,
-                                                                   graticuleLayer.getRaster()
-            );
+                                                                   graticuleLayer.getRaster());
             vc.addModel(rasterModel);
 
             final ValueModel transformModel = createDefaultValueModel(PROPERTY_NAME_TRANSFORM,
-                                                                      graticuleLayer.getI2mTransform()
-            );
+                                                                      graticuleLayer.getI2mTransform());
             vc.addModel(transformModel);
 
-            final ValueModel styleModel = createDefaultValueModel(PROPERTY_NAME_STYLE,
-                                                                  graticuleLayer.getStyle()
-            );
+            final ValueModel styleModel = createDefaultValueModel(PROPERTY_NAME_STYLE, graticuleLayer.getStyle());
+            vc.addModel(styleModel);
+
+            return vc;
+        }
+
+        @Override
+        public ValueContainer getConfigurationTemplate() {
+            final ValueContainer vc = new ValueContainer();
+
+            final ValueModel rasterModel = createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class);
+            vc.addModel(rasterModel);
+
+            final ValueModel transformModel = createDefaultValueModel(PROPERTY_NAME_TRANSFORM, AffineTransform.class);
+            vc.addModel(transformModel);
+
+            final ValueModel styleModel = createDefaultValueModel(PROPERTY_NAME_STYLE, Style.class);
             vc.addModel(styleModel);
 
             return vc;

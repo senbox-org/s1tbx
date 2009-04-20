@@ -1,9 +1,9 @@
 package org.esa.beam.worldmap;
 
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
-import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.glayer.support.ImageLayer;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -12,7 +12,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @version $Revision: $ $Date: $
  * @since BEAM 4.6
  */
-public class BlueMarbleLayerType extends LayerType {
+public class BlueMarbleLayerType extends ImageLayer.Type {
 
     @Override
     public String getName() {
