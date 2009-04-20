@@ -130,7 +130,7 @@ public class SessionTest extends TestCase {
     }
 
     static File createSessionRoot() {
-        return new File("/testdata");
+        return new File("testdata");
     }
 
     static SessionData createSessionData() throws IOException {
