@@ -13,6 +13,7 @@ import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.DomElementXStreamConverter;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.core.CanceledException;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.grender.Viewport;
@@ -39,6 +40,7 @@ import javax.swing.RootPaneContainer;
 import java.awt.Container;
 import java.awt.Rectangle;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -194,7 +196,7 @@ public class Session {
         return viewRefs[index];
     }
 
-    public RestoredSession restore(File sessionRoot, ProgressMonitor pm, ProblemSolver problemSolver) {
+    public RestoredSession restore(File sessionRoot, ProgressMonitor pm, ProblemSolver problemSolver) throws CanceledException {
         try {
             pm.beginTask("Restoring session", 100);
             final ArrayList<Exception> problems = new ArrayList<Exception>();
@@ -208,7 +210,7 @@ public class Session {
     }
 
     Product[] restoreProducts(File sessionRoot, ProgressMonitor pm, ProblemSolver problemSolver,
-                              List<Exception> problems) {
+                              List<Exception> problems) throws CanceledException {
         final ArrayList<Product> products = new ArrayList<Product>();
         URI rootURI = sessionRoot.toURI();
         try {
@@ -220,14 +222,14 @@ public class Session {
                     if (productFile.exists()) {
                         product = ProductIO.readProduct(productFile, null);
                     } else {
-                        product = problemSolver.solveProductNotFound(productFile);
+                        product = problemSolver.solveProductNotFound(productRef.id, productFile);
                         if (product == null) {
-                            throw new Exception("Product [" + productRef.id + "] not found.");
+                            throw new IOException("Product [" + productRef.id + "] not found.");
                         }
                     }
                     products.add(product);
                     product.setRefNo(productRef.id);
-                } catch (Exception e) {
+                } catch (IOException e) {
                     problems.add(e);
                 } finally {
                     pm.worked(1);
@@ -332,8 +334,7 @@ public class Session {
     }
 
     public static interface ProblemSolver {
-
-        Product solveProductNotFound(File file);
+        Product solveProductNotFound(int id, File file) throws CanceledException;
     }
 
     @XStreamAlias("product")

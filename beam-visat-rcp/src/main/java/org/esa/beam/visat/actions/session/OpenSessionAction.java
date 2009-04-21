@@ -17,6 +17,7 @@
 package org.esa.beam.visat.actions.session;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.CanceledException;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 
@@ -32,11 +33,16 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.ShowImageViewAction;
 import org.esa.beam.visat.actions.ShowMetadataViewAction;
 
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
+import javax.swing.JInternalFrame;
 import java.awt.Rectangle;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
+import java.beans.PropertyVetoException;
+import java.text.MessageFormat;
 
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
@@ -107,26 +113,17 @@ public class OpenSessionAction extends ExecCommand {
             final Session session = SessionIO.getInstance().readSession(sessionFile);
             return session.restore(sessionFile.getParentFile(), pm, new Session.ProblemSolver() {
                 @Override
-                public Product solveProductNotFound(final File file) {
-                    final FileHolder fileHolder = new FileHolder();
-                    try {
-                        SwingUtilities.invokeAndWait(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                String RECONNECT_TITLE = "Reconnect Product";
-                                final int status = VisatApp.getApp().showQuestionDialog(RECONNECT_TITLE, /*I18N*/
-                                                                                        "The file: " +
-                                                                                        file.toString() +
-                                                                                        "does not exist.\n" +
-                                                                                        "Would you like to give the right location ?", /*I18N*/
-                                                                                        false, null);
-                                if (status == JOptionPane.YES_OPTION) {
-                                    fileHolder.file = app.showFileOpenDialog(RECONNECT_TITLE, false, null);
-                                }
-                            }
-                        });
-                    } catch (Exception e) {
+                public Product solveProductNotFound(int id, File file) throws CanceledException {
+                    String msg = MessageFormat.format("Product [{0}] has been renamed or (re-)moved.\n" +
+                            "Its location was [{1}].\n" +
+                            "Do you wish to provide its new location?\n" +
+                            "(Select ''No'' if the product shall no longer be part of the session.)",
+                                                      id, file);
+                    int a = app.showQuestionDialog(TITLE, msg);
+                    if (a == JOptionPane.CANCEL_OPTION) {
+                        throw new CanceledException();
+                    } else if (a == JOptionPane.NO_OPTION) {
+                        return null;
                     }
                     Product product = null;
                     if (fileHolder.file != null) {
@@ -179,14 +176,14 @@ public class OpenSessionAction extends ExecCommand {
                 JInternalFrame internalFrame = null;
                 if (nodeView instanceof ProductSceneView) {
                     ProductSceneView sceneView = (ProductSceneView) nodeView;
-                    
+
                     sceneView.getLayerCanvas().setInitiallyZoomingAll(false);
                     Viewport viewport = sceneView.getLayerCanvas().getViewport().clone();
                     internalFrame = showImageViewAction.openInternalFrame(sceneView);
                     sceneView.getLayerCanvas().getViewport().setTransform(viewport);
                 } else if (nodeView instanceof ProductMetadataView) {
                     ProductMetadataView metadataView = (ProductMetadataView) nodeView;
-                    
+
                     internalFrame = showMetadataViewAction.openInternalFrame(metadataView);
                 }
                 if (internalFrame != null) {
@@ -208,8 +205,5 @@ public class OpenSessionAction extends ExecCommand {
             return action;
         }
     }
-    
-    private static class FileHolder {
-        File file;
-    }
+
 }

@@ -1235,16 +1235,15 @@ public class VisatApp extends BasicApp implements AppContext {
         return newProductImpl();
     }
 
+    public synchronized void openProduct(final File file) {
+        openProductImpl(file);
+    }
 
     private void openProductImpl(final File file) {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(new OpenProductRunnable(file));
     }
 
-
-    public synchronized void openProduct(final File file) {
-        openProductImpl(file);
-    }
 
     /**
      * Closes the currently selected product.

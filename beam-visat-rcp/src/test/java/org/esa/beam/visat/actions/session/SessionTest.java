@@ -1,6 +1,7 @@
 package org.esa.beam.visat.actions.session;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.CanceledException;
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
@@ -43,7 +44,7 @@ public class SessionTest extends TestCase {
         assertEquals(0, session.getViewCount());
     }
 
-    public void testRestore() throws IOException {
+    public void testRestore() throws IOException, CanceledException {
         final SessionData sessionData = createSessionData();
         final Product[] originalProducts = sessionData.getProducts();
         final ProductNodeView[] originalViews = sessionData.getViews();
@@ -55,7 +56,7 @@ public class SessionTest extends TestCase {
         final Session originalSession = new Session(sessionRoot, originalProducts, originalViews);
         final RestoredSession restoredSession = originalSession.restore(sessionRoot, ProgressMonitor.NULL, new Session.ProblemSolver() {
             @Override
-            public Product solveProductNotFound(File file) {
+            public Product solveProductNotFound(int id, File file) {
                 return null;
             }
         });
