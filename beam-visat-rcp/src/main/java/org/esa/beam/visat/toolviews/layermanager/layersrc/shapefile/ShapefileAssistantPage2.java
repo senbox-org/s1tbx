@@ -187,6 +187,7 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
             } catch (ExecutionException e) {
                 final String errorMessage = MessageFormat.format("<html><b>Error:</b> <i>{0}</i></html>",
                                                                  e.getMessage());
+                e.printStackTrace();
                 mapLabel.setText(errorMessage);
                 showInMapPanel(mapLabel);
             } catch (InterruptedException ignore) {
