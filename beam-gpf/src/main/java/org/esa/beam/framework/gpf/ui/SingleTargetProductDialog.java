@@ -27,6 +27,7 @@ import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.framework.ui.SuppressibleOptionPane;
 import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.io.FileUtils;
 
 import javax.swing.AbstractButton;
 import javax.swing.JOptionPane;
@@ -62,6 +63,7 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
         targetProductSelector.getOpenInAppCheckBox().setText("Open in " + appContext.getApplicationName());
         targetProductSelector.getModel().getValueContainer().addPropertyChangeListener(new PropertyChangeListener() {
 
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (evt.getPropertyName().equals("saveToFileSelected") ||
                         evt.getPropertyName().equals("openInAppSelected")) {
@@ -171,10 +173,13 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
         return true;
     }
 
-    private void showSaveInfo() {
+    private void showSaveInfo(long saveTime) {
+        File productFile = getTargetProductSelector().getModel().getProductFile();
         final String message = MessageFormat.format(
-                "The target product has been successfully written to\n{0}",
-                getTargetProductSelector().getModel().getProductFile());
+                "The target product has been successfully written to\n{0}\n" +
+                        "Total time spend for processing: {2}",
+                formatFile(productFile),
+                formatDuration(saveTime));
         showSuppressibleInformationDialog(message, "saveInfo");
     }
 
@@ -187,15 +192,32 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
         showSuppressibleInformationDialog(message, "openInAppInfo");
     }
 
-    private void showSaveAndOpenInAppInfo() {
+    private void showSaveAndOpenInAppInfo(long saveTime) {
+        File productFile = getTargetProductSelector().getModel().getProductFile();
         final String message = MessageFormat.format(
-                "The target product has been successfully written to\n{0}\n" +
-                        "and has been opened in {1}.",
-                getTargetProductSelector().getModel().getProductFile(),
-                appContext.getApplicationName());
+                "The target product has been successfully written to\n" +
+                        "{0}\n" +
+                        "and has been opened in {1}.\n" +
+                        "Total time spend for processing: {2}\n" ,
+                formatFile(productFile),
+                appContext.getApplicationName(),
+                formatDuration(saveTime));
         showSuppressibleInformationDialog(message, "saveAndOpenInAppInfo");
     }
 
+    String formatFile(File file) {
+        return FileUtils.getDisplayText(file, 54);
+    }
+
+    String formatDuration(long millis) {
+        long seconds = millis / 1000;
+        millis -= seconds * 1000;
+        long minutes = seconds / 60;
+        seconds -= minutes * 60;
+        long hours = minutes / 60;
+        minutes -= hours * 60;
+        return String.format("%02d:%02d:%02d.%03d", hours, minutes, seconds, millis);
+    }
 
     /**
      * Shows an information dialog on top of this dialog.
@@ -215,6 +237,7 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
 
     private class ProductWriterSwingWorker extends ProgressMonitorSwingWorker<Product, Object> {
         private final Product targetProduct;
+        private long saveTime;
 
         private ProductWriterSwingWorker(Product targetProduct) {
             super(getJDialog(), "Writing Target Product");
@@ -225,11 +248,14 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
         protected Product doInBackground(ProgressMonitor pm) throws Exception {
             final TargetProductSelectorModel model = getTargetProductSelector().getModel();
             pm.beginTask("Writing...", model.isOpenInAppSelected() ? 100 : 95);
+            saveTime = 0L;
             Product product = null;
             try {
+                long t0 = System.currentTimeMillis();
                 WriteOp.writeProduct(targetProduct,
                                      model.getProductFile(),
                                      model.getFormatName(), SubProgressMonitor.create(pm, 95));
+                saveTime = System.currentTimeMillis() - t0;
                 if (model.isOpenInAppSelected()) {
                     product = ProductIO.readProduct(model.getProductFile(), null);
                     if (product == null) {
@@ -253,14 +279,14 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
                 final Product targetProduct = get();
                 if (model.isOpenInAppSelected()) {
                     appContext.getProductManager().addProduct(targetProduct);
-                    showSaveAndOpenInAppInfo();
+                    showSaveAndOpenInAppInfo(saveTime);
                 } else {
-                    showSaveInfo();
+                    showSaveInfo(saveTime);
                 }
             } catch (InterruptedException e) {
                 // ignore
             } catch (ExecutionException e) {
-                appContext.handleError(e.getCause());
+                appContext.handleError("An error occured while creating the target product.", e.getCause());
             }
         }
     }

@@ -15,6 +15,8 @@
     <changelog>
         <![CDATA[
         <p>From 4.2 to 4.6:<br/>
+            [BEAM-988] Processor dialogs to output performance statistics<br/>
+            [BEAM-987] Processor dialogs to output detailed error messages<br/>
             [BEAM-918] Source product selector label and tool tip text are not set<br/>
         </p>
         <p>From 4.1 to 4.2:<br/>
