@@ -31,11 +31,6 @@ public class BitmaskLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public boolean isValidFor(LayerContext ctx) {
-        return true;
-    }
-
-    @Override
     protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
         if (configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
             final MultiLevelSource multiLevelSource = createMultiLevelSource(configuration);
@@ -49,7 +44,7 @@ public class BitmaskLayerType extends ImageLayer.Type {
         final BitmaskDef bitmaskDef = (BitmaskDef) configuration.getValue(PROPERTY_BITMASKDEF);
         layer.setName(bitmaskDef.getName());
         configureLayer(configuration, layer);
-        
+
         return layer;
     }
 
