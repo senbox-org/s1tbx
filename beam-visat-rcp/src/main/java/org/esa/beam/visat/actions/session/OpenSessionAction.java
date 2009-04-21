@@ -31,13 +31,11 @@ import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.ShowImageViewAction;
 import org.esa.beam.visat.actions.ShowMetadataViewAction;
-import org.esa.beam.visat.actions.session.Session.ProductRef;
 
 import java.awt.Rectangle;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
-import java.lang.ref.Reference;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.JInternalFrame;
@@ -83,10 +81,13 @@ public class OpenSessionAction extends ExecCommand {
             app.showErrorDialog(TITLE, "Session has already been opened.");
             return;
         }
-
+        
+        openSession(app, sessionFile);
+    }
+    
+    public void openSession(VisatApp app, File sessionFile) {
         app.setSessionFile(sessionFile);
-
-        VisatApp.getApp().closeAllProducts();
+        app.closeAllProducts();
         SwingWorker<RestoredSession, Object> worker = new OpenSessionWorker(app, sessionFile);
         worker.execute();
     }

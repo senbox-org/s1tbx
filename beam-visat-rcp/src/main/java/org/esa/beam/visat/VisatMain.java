@@ -26,6 +26,7 @@ import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.util.Debug;
+import org.esa.beam.visat.actions.session.OpenSessionAction;
 import org.esa.beam.BeamUiActivator;
 
 import javax.swing.JOptionPane;
@@ -86,6 +87,7 @@ public class VisatMain implements RuntimeRunnable {
 
         boolean debugEnabled = false;
         ArrayList<String> productFilepathList = new ArrayList<String>();
+        String sessionFile = null;
         for (String arg : args) {
             if (arg.startsWith("-")) {
                 if (arg.equals("-d") || arg.equals("--debug")) {
@@ -94,6 +96,8 @@ public class VisatMain implements RuntimeRunnable {
                     System.err.printf("%s error: illegal option '" + arg + "'", applicationDescriptor.getDisplayName());
                     return;
                 }
+            } if (arg.endsWith(OpenSessionAction.SESSION_FILE_FILTER.getDefaultExtension())) {
+                sessionFile = arg;
             } else {
                 productFilepathList.add(arg);
             }
@@ -113,11 +117,19 @@ public class VisatMain implements RuntimeRunnable {
 
         final VisatApp app = createApplication(applicationDescriptor);
         app.startUp(progressMonitor);
+        openSession(app, sessionFile);
         openProducts(app, productFilepathList);
     }
 
     protected VisatApp createApplication(ApplicationDescriptor applicationDescriptor) {
         return new VisatApp(applicationDescriptor);
+    }
+    
+    private void openSession(VisatApp app, String sessionFile) {
+        if (sessionFile != null && !(sessionFile.trim().isEmpty())) {
+            final OpenSessionAction action = (OpenSessionAction) app.getCommandManager().getCommand(OpenSessionAction.ID);
+            action.openSession(app, new File(sessionFile));
+        }
     }
 
     private static void openProducts(VisatApp app, ArrayList<String> productFilepathList) {
