@@ -51,6 +51,7 @@ public class ColorComboBoxAdapter extends ComponentAdapter implements PropertyCh
         getBinding().setPropertyValue(color == null ? ImageInfo.NO_COLOR : color);
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         adjustPropertyValue();
     }
