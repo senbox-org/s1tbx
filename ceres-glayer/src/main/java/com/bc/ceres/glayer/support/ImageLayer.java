@@ -313,6 +313,7 @@ public class ImageLayer extends Layer {
             final ValueContainer template = new ValueContainer();
 
             template.addModel(createDefaultValueModel(PROPERTY_NAME_MULTI_LEVEL_SOURCE, MultiLevelSource.class));
+            template.getDescriptor(PROPERTY_NAME_MULTI_LEVEL_SOURCE).setTransient(true);
 
             template.addModel(createDefaultValueModel(ImageLayer.PROPERTY_NAME_BORDER_SHOWN,
                                                       ImageLayer.DEFAULT_BORDER_SHOWN));

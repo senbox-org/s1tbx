@@ -8,7 +8,6 @@ import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryFactory;
-import com.bc.ceres.core.Assert;
 
 import java.util.ServiceLoader;
 
@@ -51,9 +50,7 @@ public abstract class LayerType extends ExtensibleObject {
         final ValueContainer configuration = new ValueContainer();
 
         for (ValueModel model : layer.getConfiguration().getModels()) {
-            final String name = model.getDescriptor().getName();
-            final Class<?> type = model.getDescriptor().getType();
-            final ValueDescriptor descriptor = new ValueDescriptor(name, type);
+            final ValueDescriptor descriptor = new ValueDescriptor(model.getDescriptor());
             final DefaultValueAccessor valueAccessor = new DefaultValueAccessor();
             valueAccessor.setValue(model.getValue());
             configuration.addModel(new ValueModel(descriptor, valueAccessor));

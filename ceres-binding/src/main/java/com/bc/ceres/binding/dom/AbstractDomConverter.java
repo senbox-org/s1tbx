@@ -42,35 +42,37 @@ public abstract class AbstractDomConverter implements DomConverter {
         final ValueModel[] models = valueContainer.getModels();
         for (ValueModel model : models) {
             final ValueDescriptor descriptor = model.getDescriptor();
-            final DomConverter domConverter = descriptor.getDomConverter();
-            if (domConverter != null) {
-                final DomElement childElement = parentElement.createChild(getNameOrAlias(model));
-                domConverter.convertValueToDom(model.getValue(), childElement);
-            } else if (isArrayTypeWithNamedItems(descriptor)) {
-                final DomElement childElement;
-                if (descriptor.getItemsInlined()) {
-                    childElement = parentElement;
-                } else {
-                    childElement = parentElement.createChild(getNameOrAlias(model));
-                }
-                final Object array = model.getValue();
-                if (array != null) {
-                    final int arrayLength = Array.getLength(array);
-                    final Converter<?> itemConverter = getItemConverter(descriptor);
-                    for (int i = 0; i < arrayLength; i++) {
-                        final Object component = Array.get(array, i);
-                        final DomElement itemElement = childElement.createChild(descriptor.getItemAlias());
-                        convertValueToDomImpl(component, itemConverter, itemElement);
+            if (!descriptor.isTransient()) {
+                final DomConverter domConverter = descriptor.getDomConverter();
+                if (domConverter != null) {
+                    final DomElement childElement = parentElement.createChild(getNameOrAlias(model));
+                    domConverter.convertValueToDom(model.getValue(), childElement);
+                } else if (isArrayTypeWithNamedItems(descriptor)) {
+                    final DomElement childElement;
+                    if (descriptor.getItemsInlined()) {
+                        childElement = parentElement;
+                    } else {
+                        childElement = parentElement.createChild(getNameOrAlias(model));
                     }
+                    final Object array = model.getValue();
+                    if (array != null) {
+                        final int arrayLength = Array.getLength(array);
+                        final Converter<?> itemConverter = getItemConverter(descriptor);
+                        for (int i = 0; i < arrayLength; i++) {
+                            final Object component = Array.get(array, i);
+                            final DomElement itemElement = childElement.createChild(descriptor.getItemAlias());
+                            convertValueToDomImpl(component, itemConverter, itemElement);
+                        }
+                    }
+                } else {
+                    final DomElement childElement = parentElement.createChild(getNameOrAlias(model));
+                    final Object childValue = model.getValue();
+                    Converter<?> converter = descriptor.getConverter();
+                    if (converter == null) {
+                        converter = ConverterRegistry.getInstance().getConverter(descriptor.getType());
+                    }
+                    convertValueToDomImpl(childValue, converter, childElement);
                 }
-            } else {
-                final DomElement childElement = parentElement.createChild(getNameOrAlias(model));
-                final Object childValue = model.getValue();
-                Converter<?> converter = descriptor.getConverter();
-                if (converter == null) {
-                    converter = ConverterRegistry.getInstance().getConverter(descriptor.getType());
-                }
-                convertValueToDomImpl(childValue, converter, childElement);
             }
         }
     }

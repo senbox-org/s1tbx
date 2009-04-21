@@ -44,6 +44,10 @@ public class ValueDescriptor {
         this(name, type, new HashMap<String, Object>(8));
     }
 
+    public ValueDescriptor(ValueDescriptor valueDescriptor) {
+        this(valueDescriptor.getName(), valueDescriptor.getType(), valueDescriptor.properties);
+    }
+
     public ValueDescriptor(String name, Class<?> type, Map<String, Object> properties) {
         Assert.notNull(name, "name");
         Assert.notNull(type, "type");
