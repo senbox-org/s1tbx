@@ -11,7 +11,7 @@ import com.bc.ceres.glayer.LayerType;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
-
+import junit.framework.TestCase;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import java.awt.Rectangle;
@@ -19,8 +19,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-
-import junit.framework.TestCase;
 
 public class SessionIOTest extends TestCase {
 
@@ -69,7 +67,7 @@ public class SessionIOTest extends TestCase {
     }
 */
 
-    private static interface LayerIO {
+    private interface LayerIO {
 
         void write(Layer layer, Writer writer, DomConverter domConverter);
 

@@ -20,7 +20,6 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import com.thoughtworks.xstream.converters.SingleValueConverterWrapper;
 import com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter;
-
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -35,6 +34,8 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import javax.swing.JComponent;
+import javax.swing.RootPaneContainer;
 import java.awt.Container;
 import java.awt.Rectangle;
 import java.io.File;
@@ -43,9 +44,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JComponent;
-import javax.swing.RootPaneContainer;
 
 /**
  * todo - add API doc
@@ -78,6 +76,7 @@ public class Session {
             productRefs[i] = new ProductRef(product.getRefNo(), relativeProductURI);
         }
 
+        // todo - move somwhere else (rq,mp - 21.04.2009)
         registerConverters();
 
         viewRefs = new ViewRef[views.length];
@@ -122,7 +121,7 @@ public class Session {
                 MetadataElement metadataElement = metadataView.getMetadataElement();
                 StringBuilder sb = new StringBuilder(metadataElement.getName());
                 ProductNode owner = metadataElement.getOwner();
-                while(owner != metadataRoot) {
+                while (owner != metadataRoot) {
                     sb.append('|');
                     sb.append(owner.getName());
                     owner = owner.getOwner();
@@ -199,7 +198,8 @@ public class Session {
         try {
             pm.beginTask("Restoring session", 100);
             final ArrayList<Exception> problems = new ArrayList<Exception>();
-            final Product[] products = restoreProducts(sessionRoot, SubProgressMonitor.create(pm, 80), problemSolver, problems);
+            final Product[] products = restoreProducts(sessionRoot, SubProgressMonitor.create(pm, 80), problemSolver,
+                                                       problems);
             final ProductNodeView[] views = restoreViews(products, SubProgressMonitor.create(pm, 20), problems);
             return new RestoredSession(products, views, problems.toArray(new Exception[problems.size()]));
         } finally {
@@ -207,7 +207,8 @@ public class Session {
         }
     }
 
-    Product[] restoreProducts(File sessionRoot, ProgressMonitor pm, ProblemSolver problemSolver, List<Exception> problems) {
+    Product[] restoreProducts(File sessionRoot, ProgressMonitor pm, ProblemSolver problemSolver,
+                              List<Exception> problems) {
         final ArrayList<Product> products = new ArrayList<Product>();
         URI rootURI = sessionRoot.toURI();
         try {
@@ -331,6 +332,7 @@ public class Session {
     }
 
     public static interface ProblemSolver {
+
         Product solveProductNotFound(File file);
     }
 
@@ -394,7 +396,7 @@ public class Session {
         @XStreamConverter(DomElementXStreamConverter.class)
         final DomElement configuration;
         final LayerRef[] children;
-        
+
         public LayerRef(String typeName, String id, String name, boolean visible, DomElement configuration,
                         LayerRef[] children) {
             this.typeName = typeName;
@@ -430,7 +432,7 @@ public class Session {
 
     // TODO: implement converters - without converters dom converter recurrs infinitely
     private static void registerConverters() {
-        ConverterRegistry.getInstance().setConverter(RasterDataNode.class, new Converter<RasterDataNode>(){
+        ConverterRegistry.getInstance().setConverter(RasterDataNode.class, new Converter<RasterDataNode>() {
             @Override
             public Class<? extends RasterDataNode> getValueType() {
                 return RasterDataNode.class;
@@ -447,13 +449,14 @@ public class Session {
             }
         });
     }
-    
+
     public static class URIConnverterWrapper extends SingleValueConverterWrapper {
+
         public URIConnverterWrapper() {
             super(new URIConnverter());
         }
     }
-    
+
     public static class URIConnverter extends AbstractSingleValueConverter {
 
         @Override

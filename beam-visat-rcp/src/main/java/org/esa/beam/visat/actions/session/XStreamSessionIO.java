@@ -1,14 +1,13 @@
 package org.esa.beam.visat.actions.session;
 
-import com.thoughtworks.xstream.XStream;
+import com.bc.ceres.binding.dom.DefaultDomElement;
+import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.Assert;
+import com.thoughtworks.xstream.XStream;
 
-import java.io.Writer;
-import java.io.Reader;
 import java.io.IOException;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.FileReader;
+import java.io.Reader;
+import java.io.Writer;
 
 /**
  * A Session I/O implementation which uses {@link XStream} to marshall and unmarshall {@link Session} instances
@@ -30,6 +29,7 @@ public class XStreamSessionIO extends SessionIO {
         xStream.setClassLoader(XStreamSessionIO.class.getClassLoader());
         xStream.autodetectAnnotations(true);
         xStream.alias("session", Session.class);
+        xStream.alias("configuration", DomElement.class, DefaultDomElement.class);
         return xStream;
     }
 
@@ -40,7 +40,7 @@ public class XStreamSessionIO extends SessionIO {
     }
 
     @Override
-    public void writeSession(Session session, Writer writer)  throws IOException {
+    public void writeSession(Session session, Writer writer) throws IOException {
         Assert.notNull(session, "session");
         Assert.notNull(writer, "writer");
         createXStream().toXML(session, writer);
