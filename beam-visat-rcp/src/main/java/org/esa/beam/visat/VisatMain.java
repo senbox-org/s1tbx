@@ -96,7 +96,7 @@ public class VisatMain implements RuntimeRunnable {
                     System.err.printf("%s error: illegal option '" + arg + "'", applicationDescriptor.getDisplayName());
                     return;
                 }
-            } if (arg.endsWith(OpenSessionAction.SESSION_FILE_FILTER.getDefaultExtension())) {
+            } else if (arg.endsWith(OpenSessionAction.SESSION_FILE_FILTER.getDefaultExtension())) {
                 sessionFile = arg;
             } else {
                 productFilepathList.add(arg);
