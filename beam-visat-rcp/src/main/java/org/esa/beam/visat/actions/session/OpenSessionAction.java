@@ -16,8 +16,8 @@
  */
 package org.esa.beam.visat.actions.session;
 
-import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.CanceledException;
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 
@@ -33,16 +33,12 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.ShowImageViewAction;
 import org.esa.beam.visat.actions.ShowMetadataViewAction;
 
-import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
-import javax.swing.JInternalFrame;
 import java.awt.Rectangle;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-import java.beans.PropertyVetoException;
 import java.text.MessageFormat;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
@@ -114,25 +110,38 @@ public class OpenSessionAction extends ExecCommand {
             return session.restore(sessionFile.getParentFile(), pm, new Session.ProblemSolver() {
                 @Override
                 public Product solveProductNotFound(int id, File file) throws CanceledException {
-                    String msg = MessageFormat.format("Product [{0}] has been renamed or (re-)moved.\n" +
-                            "Its location was [{1}].\n" +
-                            "Do you wish to provide its new location?\n" +
-                            "(Select ''No'' if the product shall no longer be part of the session.)",
+                    final File[] newFile = new File[1];
+                    final int[] answer = new int[1];
+                    final String msg = MessageFormat.format("Product [{0}] has been renamed or (re-)moved.\n" +
+                                                      "Its location was [{1}].\n" +
+                                                      "Do you wish to provide its new location?\n" +
+                                                      "(Select ''No'' if the product shall no longer be part of the session.)",
                                                       id, file);
-                    int a = app.showQuestionDialog(TITLE, msg);
-                    if (a == JOptionPane.CANCEL_OPTION) {
+                    try {
+                        SwingUtilities.invokeAndWait(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                answer[0] = app.showQuestionDialog(TITLE, msg);
+                                if (answer[0] == JOptionPane.YES_OPTION) {
+                                    newFile[0] = app.showFileOpenDialog(TITLE, false, null);
+                                }
+                            }});
+                    } catch (Exception e) {
                         throw new CanceledException();
-                    } else if (a == JOptionPane.NO_OPTION) {
-                        return null;
                     }
-                    Product product = null;
-                    if (fileHolder.file != null) {
+                    
+                    if (answer[0]== JOptionPane.CANCEL_OPTION) {
+                        throw new CanceledException();
+                    }
+                    
+                    if (newFile[0] != null) {
                         try {
-                            product = ProductIO.readProduct(fileHolder.file, null);
+                            return ProductIO.readProduct(newFile[0], null);
                         } catch (IOException e) {
                         }
                     }
-                    return product;
+                    return null;
                 }
             });
         }
