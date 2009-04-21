@@ -50,7 +50,8 @@ public class ValueDescriptor {
         Assert.notNull(properties, "properties");
         this.name = name;
         this.type = type;
-        this.properties = properties;
+        this.properties = new HashMap<String, Object>(properties);
+
         addPropertyChangeListener(new EffectiveValidatorUpdater());
     }
 
@@ -109,6 +110,15 @@ public class ValueDescriptor {
     public void setNotEmpty(boolean notEmpty) {
         setProperty("notEmpty", notEmpty);
     }
+
+    public boolean isTransient() {
+        return getBooleanProperty("transient");
+    }
+
+    public void setTransient(boolean b) {
+        setProperty("transient", b);
+    }
+
 
     public String getFormat() {
         return (String) getProperty("format");
@@ -240,14 +250,14 @@ public class ValueDescriptor {
         }
     }
 
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
+    public final void addPropertyChangeListener(PropertyChangeListener listener) {
         if (propertyChangeSupport == null) {
             propertyChangeSupport = new PropertyChangeSupport(this);
         }
         propertyChangeSupport.addPropertyChangeListener(listener);
     }
 
-    public void removePropertyChangeListener(PropertyChangeListener listener) {
+    public final void removePropertyChangeListener(PropertyChangeListener listener) {
         if (propertyChangeSupport != null) {
             propertyChangeSupport.removePropertyChangeListener(listener);
         }
@@ -350,6 +360,7 @@ public class ValueDescriptor {
     }
 
     private class EffectiveValidatorUpdater implements PropertyChangeListener {
+
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             // Force recreation of validator
