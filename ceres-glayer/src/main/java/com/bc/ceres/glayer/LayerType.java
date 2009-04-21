@@ -1,5 +1,6 @@
 package com.bc.ceres.glayer;
 
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
@@ -7,6 +8,7 @@ import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryFactory;
+import com.bc.ceres.core.Assert;
 
 import java.util.ServiceLoader;
 
@@ -21,7 +23,27 @@ public abstract class LayerType extends ExtensibleObject {
 
     public abstract boolean isValidFor(LayerContext ctx);
 
-    public abstract Layer createLayer(LayerContext ctx, ValueContainer configuration);
+    public final Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+        for (final ValueModel expectedModel : getConfigurationTemplate().getModels()) {
+            final String propertyName = expectedModel.getDescriptor().getName();
+            final ValueModel actualModel = configuration.getModel(propertyName);
+            if (actualModel != null) {
+                try {
+                    expectedModel.validate(actualModel.getValue());
+                } catch (ValidationException e) {
+                    throw new IllegalArgumentException(String.format(
+                            "Invalid value for property '%s': %s", propertyName, e.getMessage()), e);
+                }
+            } else {
+                throw new IllegalArgumentException(String.format(
+                        "No model defined for property '%s'", propertyName));
+            }
+        }
+
+        return createLayerImpl(ctx, configuration);
+    }
+
+    protected abstract Layer createLayerImpl(LayerContext ctx, ValueContainer configuration);
 
     public abstract ValueContainer getConfigurationTemplate();
 

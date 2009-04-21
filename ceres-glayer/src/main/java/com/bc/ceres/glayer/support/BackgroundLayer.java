@@ -68,7 +68,7 @@ public class BackgroundLayer extends Layer {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+        protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
             Paint paint = (Paint) configuration.getValue("paint");
             return new BackgroundLayer(paint);
         }

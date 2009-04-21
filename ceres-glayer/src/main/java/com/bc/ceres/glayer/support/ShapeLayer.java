@@ -118,7 +118,7 @@ public class ShapeLayer extends Layer {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+        protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
             List<Shape> shapes = (List<Shape>) configuration.getValue(PROPERTY_SHAPE_LIST);
             AffineTransform shapeToModelTransform = (AffineTransform) configuration.getValue(
                     PROPTERY_SHAPE_TO_MODEL_TRANSFORM);

@@ -50,7 +50,7 @@ public class CollectionLayer extends Layer {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+        protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
             return new CollectionLayer();
         }
     }
