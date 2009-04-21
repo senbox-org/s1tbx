@@ -3,8 +3,6 @@ package org.esa.beam.visat.actions.session;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 
-import java.util.List;
-
 /**
  * A restored session comprising products and views.
  *
