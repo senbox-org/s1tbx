@@ -390,12 +390,13 @@ public class GraticuleLayer extends Layer {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+        protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
             RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
             AffineTransform i2mTransform = (AffineTransform) configuration.getValue(PROPERTY_NAME_TRANSFORM);
             Style style = (Style) configuration.getValue(PROPERTY_NAME_STYLE);
             GraticuleLayer layer = new GraticuleLayer(raster, i2mTransform);
             layer.setStyle(style);
+
             return layer;
         }
 

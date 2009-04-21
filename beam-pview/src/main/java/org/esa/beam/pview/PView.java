@@ -364,9 +364,9 @@ public class PView {
 
         final BitmaskDef[] bitmaskDefs = product.getBitmaskDefs();
         for (BitmaskDef bitmaskDef : bitmaskDefs) {
-            final ImageLayer imageLayer = bitmaskLayerType.createLayer(bitmaskDef, product, i2m);
-            imageLayer.setVisible(false);
-            collectionLayer.getChildren().add(imageLayer);
+            final Layer layer = bitmaskLayerType.createLayer(bitmaskDef, product, i2m);
+            layer.setVisible(false);
+            collectionLayer.getChildren().add(layer);
         }
         return collectionLayer;
     }

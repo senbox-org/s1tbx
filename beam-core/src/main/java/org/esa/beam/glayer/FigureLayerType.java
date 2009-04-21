@@ -30,7 +30,7 @@ public class FigureLayerType extends LayerType {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+    protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
         List<Figure> figureList = (List<Figure>) configuration.getValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST);
         AffineTransform shapeToModelTransform = (AffineTransform) configuration.getValue(
                 FigureLayer.PROPERTY_NAME_TRANSFORM);

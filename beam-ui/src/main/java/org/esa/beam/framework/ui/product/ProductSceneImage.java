@@ -246,16 +246,16 @@ public class ProductSceneImage implements LayerContext {
         return bandImageMultiLevelSource.getModel().getImageToModelTransform(0);
     }
 
-    private ImageLayer createBaseImageLayer() {
+    private Layer createBaseImageLayer() {
         final RasterImageLayerType type = (RasterImageLayerType) LayerType.getLayerType(
                 RasterImageLayerType.class.getName());
-        final ImageLayer imageLayer = type.createLayer(getRasters(), bandImageMultiLevelSource);
-        imageLayer.setName(getRaster().getDisplayName());
-        imageLayer.setVisible(true);
-        imageLayer.setId(ProductSceneView.BASE_IMAGE_LAYER_ID);
+        final Layer layer = type.createLayer(getRasters(), bandImageMultiLevelSource);
+        layer.setName(getRaster().getDisplayName());
+        layer.setVisible(true);
+        layer.setId(ProductSceneView.BASE_IMAGE_LAYER_ID);
 
-        setBaseImageLayerStyle(configuration, imageLayer);
-        return imageLayer;
+        setBaseImageLayerStyle(configuration, layer);
+        return layer;
     }
 
     static void setBaseImageLayerStyle(PropertyMap configuration, Layer layer) {

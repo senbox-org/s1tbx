@@ -81,7 +81,7 @@ public class DefaultLayerSourceDescriptorTest {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+        protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
             return new CollectionLayer();
         }
 

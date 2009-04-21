@@ -29,7 +29,7 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+    protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
         Layer worldMapLayer = BlueMarbleWorldMapLayer.createWorldMapLayer();
         worldMapLayer.setVisible(true);
         return worldMapLayer;

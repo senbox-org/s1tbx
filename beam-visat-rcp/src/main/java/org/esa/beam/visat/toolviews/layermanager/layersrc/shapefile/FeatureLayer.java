@@ -260,7 +260,7 @@ public class FeatureLayer extends Layer {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+        protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
             FeatureCollection<SimpleFeatureType, SimpleFeature> fc;
             fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) configuration.getValue(
                     PROPERTY_FEATURE_COLLECTION);

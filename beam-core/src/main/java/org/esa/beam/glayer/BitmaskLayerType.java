@@ -36,7 +36,7 @@ public class BitmaskLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public ImageLayer createLayer(LayerContext ctx, ValueContainer configuration) {
+    protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
         if (configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
             final MultiLevelSource multiLevelSource = createMultiLevelSource(configuration);
             try {
@@ -49,6 +49,7 @@ public class BitmaskLayerType extends ImageLayer.Type {
         final BitmaskDef bitmaskDef = (BitmaskDef) configuration.getValue(PROPERTY_BITMASKDEF);
         layer.setName(bitmaskDef.getName());
         configureLayer(configuration, layer);
+        
         return layer;
     }
 
@@ -83,7 +84,7 @@ public class BitmaskLayerType extends ImageLayer.Type {
         return vc;
     }
 
-    public ImageLayer createLayer(BitmaskDef bitmaskDef, Product product, AffineTransform i2m) {
+    public Layer createLayer(BitmaskDef bitmaskDef, Product product, AffineTransform i2m) {
         final ValueContainer configuration = getConfigurationTemplate();
 
         try {

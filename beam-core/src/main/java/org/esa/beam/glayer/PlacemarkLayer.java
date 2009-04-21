@@ -236,7 +236,7 @@ public class PlacemarkLayer extends Layer {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+        protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
             Product product = (Product) configuration.getValue(PROPERTY_PRODUCT);
             PlacemarkDescriptor placemarkDescriptor = (PlacemarkDescriptor) configuration.getValue(
                     PROPERTY_PLACEMARK_DESCRIPTOR);

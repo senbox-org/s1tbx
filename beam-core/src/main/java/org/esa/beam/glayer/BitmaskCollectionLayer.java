@@ -223,7 +223,7 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+        protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
             RasterDataNode rasterDataNode = (RasterDataNode) configuration.getValue(PROPERTY_RASTER);
             AffineTransform i2m = (AffineTransform) configuration.getValue(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
             final BitmaskCollectionLayer bitmaskCollectionLayer = new BitmaskCollectionLayer(rasterDataNode, i2m);
