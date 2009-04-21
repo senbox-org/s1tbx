@@ -56,6 +56,7 @@ public class FileEditor extends ValueEditor {
         subPanel.add(textField, BorderLayout.CENTER);
         JButton etcButton = new JButton("...");
         etcButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser();
                 int i = fileChooser.showDialog(subPanel, "Select");

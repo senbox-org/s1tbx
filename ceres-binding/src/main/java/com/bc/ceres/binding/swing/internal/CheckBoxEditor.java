@@ -44,7 +44,7 @@ public class CheckBoxEditor extends ValueEditor {
     @Override
     public int addEditorComponent(JPanel panel, TableLayout tableLayout, int rowIndex, ValueDescriptor valueDescriptor, BindingContext bindingContext) {
         JCheckBox checkBox = (JCheckBox) createEditorComponent(valueDescriptor, bindingContext);
-        decorateEditor(checkBox, valueDescriptor);
+        configureEditorComponent(checkBox, valueDescriptor);
         
         checkBox.setText(getDisplayName(valueDescriptor));
         tableLayout.setCellColspan(rowIndex, 0, tableLayout.getColumnCount());

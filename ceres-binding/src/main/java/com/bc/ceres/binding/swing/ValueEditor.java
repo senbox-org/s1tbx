@@ -57,7 +57,7 @@ public abstract class ValueEditor {
     public abstract JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext);
     
     /**
-     * <p>Creates the editor component for the {@link ValueDescriptor} and bind it
+     * <p>Creates the editor component for the {@link ValueDescriptor} and binds it
      * to a {@link ValueContainer} using the {@link BindingContext}.
      * This editor component is then added to the {@link JPanel}.
      * </p><p>
@@ -77,7 +77,7 @@ public abstract class ValueEditor {
         Assert.state(tableLayout.getColumnCount() >= 2);
         
         JComponent editorComponent = createEditorComponent(valueDescriptor, bindingContext);
-        decorateEditor(editorComponent, valueDescriptor);
+        configureEditorComponent(editorComponent, valueDescriptor);
         
         JLabel label = new JLabel(getDisplayName(valueDescriptor) + ":");
         
@@ -92,7 +92,7 @@ public abstract class ValueEditor {
         return 1;
     }
     
-    protected void decorateEditor(JComponent editorComponent, ValueDescriptor valueDescriptor) {
+    protected void configureEditorComponent(JComponent editorComponent, ValueDescriptor valueDescriptor) {
         editorComponent.setName(valueDescriptor.getName());
         editorComponent.setToolTipText(valueDescriptor.getDescription());
     }
