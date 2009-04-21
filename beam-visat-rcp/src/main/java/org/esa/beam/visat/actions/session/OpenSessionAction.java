@@ -122,7 +122,7 @@ public class OpenSessionAction extends ExecCommand {
 
                             @Override
                             public void run() {
-                                answer[0] = app.showQuestionDialog(TITLE, msg);
+                                answer[0] = app.showQuestionDialog(TITLE, msg, true, null);
                                 if (answer[0] == JOptionPane.YES_OPTION) {
                                     newFile[0] = app.showFileOpenDialog(TITLE, false, null);
                                 }
@@ -154,6 +154,9 @@ public class OpenSessionAction extends ExecCommand {
             } catch (InterruptedException e) {
                 return;
             } catch (ExecutionException e) {
+                if (e.getCause() instanceof CanceledException) {
+                    return;
+                }
                 app.showErrorDialog("An unexpected exception occured!\n" +
                         "Message: " + e.getCause().getMessage());
                 return;
