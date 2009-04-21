@@ -3,14 +3,12 @@ package org.esa.beam.glayer;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
-
-import java.awt.Color;
 
 public class RasterImageLayerType extends ImageLayer.Type {
 
@@ -61,86 +59,5 @@ public class RasterImageLayerType extends ImageLayer.Type {
         }
 
         return createLayer(null, configuration);
-    }
-
-    public static class Configuration {
-
-        private RasterDataNode[] rasterDataNodes;
-        private MultiLevelSource multiLevelSource;
-        private boolean borderShown;
-        private double borderWidth;
-        private Color borderColor;
-
-        private double transparency;
-        private boolean visible;
-
-        public Configuration(RasterDataNode[] rasterDataNodes) {
-            this.rasterDataNodes = rasterDataNodes;
-            borderShown = false;
-            borderWidth = 1.0;
-            borderColor = Color.ORANGE;
-            transparency = 0.0;
-            visible = true;
-        }
-
-        public RasterDataNode[] getRasterDataNodes() {
-            return rasterDataNodes;
-        }
-
-        public MultiLevelSource getMultiLevelSource() {
-            return multiLevelSource;
-        }
-
-        public boolean isBorderShown() {
-            return borderShown;
-        }
-
-        public double getBorderWidth() {
-            return borderWidth;
-        }
-
-        public Color getBorderColor() {
-            return borderColor;
-        }
-
-        public double getTransparency() {
-            return transparency;
-        }
-
-        public boolean isVisible() {
-            return visible;
-        }
-
-        public void setRasterDataNodes(RasterDataNode[] rasterDataNodes) {
-            this.rasterDataNodes = rasterDataNodes.clone();
-        }
-
-        public Configuration setMultiLevelSource(MultiLevelSource multiLevelSource) {
-            this.multiLevelSource =  multiLevelSource;
-            return this;
-        }
-
-        public Configuration setBorderShown(boolean borderShown) {
-            this.borderShown = borderShown;
-            return this;
-        }
-
-        public Configuration setBorderWidth(double borderWidth) {
-            this.borderWidth = borderWidth;
-            return this;
-        }
-
-        public Configuration setBorderColor(Color borderColor) {
-            this.borderColor = borderColor;
-            return this;
-        }
-
-        public void setTransparency(double transparency) {
-            this.transparency = transparency;
-        }
-
-        public void setVisible(boolean visible) {
-            this.visible = visible;
-        }
     }
 }
