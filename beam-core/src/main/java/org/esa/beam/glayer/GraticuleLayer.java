@@ -216,6 +216,13 @@ public class GraticuleLayer extends Layer {
             propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_PIXELS)) {
             graticule = null;
         }
+        if (getConfiguration().getModel(propertyName) != null) {
+            try {
+                getConfiguration().setValue(propertyName, event.getNewValue());
+            } catch (ValidationException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
         super.fireLayerPropertyChanged(event);
     }
 
