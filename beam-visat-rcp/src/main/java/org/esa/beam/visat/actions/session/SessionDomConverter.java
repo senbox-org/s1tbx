@@ -9,6 +9,7 @@ import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.BitmaskDef;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -64,24 +65,25 @@ public class SessionDomConverter extends DefaultDomConverter implements SessionA
         return domConverter;
     }
 
-    private static class RasterDataNodeDomConverter implements DomConverter, SessionAccessorHolder {
+    public <T> void registerDomConverter(Class<? extends T> type, AbstractSingleTypeDomConverter<T> domConverter) {
+        // TODO: implement
+    }
 
-        private Session.SessionAccessor sessionAccesor;
+    private static class RasterDataNodeDomConverter extends AbstractSingleTypeDomConverter<RasterDataNode> {
 
-        @Override
-        public Class<?> getValueType() {
-            return RasterDataNode.class;
+        private RasterDataNodeDomConverter() {
+            super(RasterDataNode.class);
         }
 
         @Override
-        public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
-                                                                                       ValidationException {
+        public RasterDataNode convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
+                                                                                               ValidationException {
 
             final Integer refNo = Integer.valueOf(parentElement.getChild("refNo").getValue());
             final String rasterName = parentElement.getChild("rasterName").getValue();
 
             value = getSessionAccessor().getRasterDataNode(refNo, rasterName);
-            return value;
+            return (RasterDataNode) value;
         }
 
         @Override
@@ -91,16 +93,6 @@ public class SessionDomConverter extends DefaultDomConverter implements SessionA
             final DomElement rasterName = parentElement.createChild("rasterName");
             refNo.setValue(String.valueOf(node.getProduct().getRefNo()));
             rasterName.setValue(node.getName());
-        }
-
-        @Override
-        public Session.SessionAccessor getSessionAccessor() {
-            return sessionAccesor;
-        }
-
-        @Override
-        public void setSessionAccessor(Session.SessionAccessor session) {
-            this.sessionAccesor = session;
         }
 
     }

@@ -31,8 +31,8 @@ public class BitmaskLayerTypeTest extends LayerTypeTest {
         assertNotNull(template);
         ensurePropertyIsDeclaredButNotDefined(template, "bitmask.bitmaskDef", BitmaskDef.class);
         ensurePropertyIsDeclaredButNotDefined(template, "bitmask.product", Product.class);
-        ensurePropertyIsDeclaredButNotDefined(template, "bitmask.i2mTransform",
-                                              AffineTransform.class);
+
+        ensurePropertyIsDefined(template, "bitmask.i2mTransform", AffineTransform.class);
         ensurePropertyIsDefined(template, "border.shown", Boolean.class);
         ensurePropertyIsDefined(template, "border.width", Double.class);
         ensurePropertyIsDefined(template, "border.color", Color.class);
