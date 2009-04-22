@@ -430,6 +430,7 @@ public class GraticuleLayer extends Layer {
             vc.addModel(transformModel);
 
             final ValueModel styleModel = createDefaultValueModel(PROPERTY_NAME_STYLE, Style.class);
+            styleModel.getDescriptor().setTransient(true);
             vc.addModel(styleModel);
 
             return vc;

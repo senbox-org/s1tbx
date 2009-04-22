@@ -1,21 +1,19 @@
 package org.esa.beam.visat.actions.session;
 
-import com.bc.ceres.binding.ClassFieldDescriptorFactory;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DefaultDomElement;
-import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.DomElementXStreamConverter;
+import com.bc.ceres.core.CanceledException;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import com.bc.ceres.core.CanceledException;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.grender.Viewport;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
@@ -41,7 +39,6 @@ import java.awt.Container;
 import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -140,29 +137,15 @@ public class Session {
         }
     }
 
-    private static LayerRef[] getLayerRefs(LayerContext layerContext, List<Layer> layers) {
+    private LayerRef[] getLayerRefs(LayerContext layerContext, List<Layer> layers) {
         final LayerRef[] layerRefs = new LayerRef[layers.size()];
         for (int i = 0; i < layers.size(); i++) {
             Layer layer = layers.get(i);
             final ValueContainer configuration = getConfiguration(layerContext, layer);
-            final ClassFieldDescriptorFactory factory = new ClassFieldDescriptorFactory() {
-                @Override
-                public ValueDescriptor createValueDescriptor(Field field) {
-                    return new ValueDescriptor(field.getName(), field.getType());
-                }
-            };
-            final DomConverter dc = new DefaultDomConverter(ValueContainer.class, factory) {
-                @Override
-                protected ValueContainer getValueContainer(Object value) {
-                    if (value instanceof ValueContainer) {
-                        return (ValueContainer) value;
-                    }
-                    return super.getValueContainer(value);
-                }
-            };
-            final DefaultDomElement element = new DefaultDomElement("configuration");
-            dc.convertValueToDom(configuration, element);
-            layerRefs[i] = new LayerRef(layer.getLayerType().getName(),
+            final SessionDomConverter domConverter = new SessionDomConverter();
+            final DomElement element = new DefaultDomElement("configuration");
+            domConverter.convertValueToDom(configuration, element);
+            layerRefs[i] = new LayerRef(layer.getLayerType().getClass(),
                                         layer.getId(),
                                         layer.getName(),
                                         layer.isVisible(),
@@ -171,6 +154,31 @@ public class Session {
         }
         return layerRefs;
     }
+
+//    private DomConverter createValueContainerDomConverter() {
+//        final ClassFieldDescriptorFactory factory = new ClassFieldDescriptorFactory() {
+//            @Override
+//            public ValueDescriptor createValueDescriptor(Field field) {
+//                return new ValueDescriptor(field.getName(), field.getType());
+//            }
+//        };
+//        return new DefaultDomConverter(ValueContainer.class, factory) {
+//            @Override
+//            protected ValueContainer getValueContainer(Object value) {
+//                if (value instanceof ValueContainer) {
+//
+//                    return (ValueContainer) value;
+//                }
+//                return super.getValueContainer(value);
+//            }
+//
+//            @Override
+//             protected DomConverter createChildConverter(DomElement element, Class<?> valueType) {
+//                return SessionIO.getConverterRegistry().getConverter(valueType, Session.this);
+//
+//            }
+//        };
+//    }
 
     private static ValueContainer getConfiguration(LayerContext ctx, Layer layer) {
         return layer.getLayerType().getConfigurationCopy(ctx, layer);
@@ -196,7 +204,8 @@ public class Session {
         return viewRefs[index];
     }
 
-    public RestoredSession restore(File sessionRoot, ProgressMonitor pm, ProblemSolver problemSolver) throws CanceledException {
+    public RestoredSession restore(File sessionRoot, ProgressMonitor pm, ProblemSolver problemSolver) throws
+                                                                                                      CanceledException {
         try {
             pm.beginTask("Restoring session", 100);
             final ArrayList<Exception> problems = new ArrayList<Exception>();
@@ -249,11 +258,12 @@ public class Session {
             for (ViewRef viewRef : viewRefs) {
                 try {
                     if (ProductSceneView.class.getName().equals(viewRef.type)) {
+                        final ProductSceneView view;
                         Product product = getProductForRefNo(restoredProducts, viewRef.productId);
                         if (product != null) {
                             RasterDataNode node = product.getRasterDataNode(viewRef.productNodeName);
                             if (node != null) {
-                                final ProductSceneView view = new ProductSceneView(
+                                view = new ProductSceneView(
                                         new ProductSceneImage(node, new PropertyMap(),
                                                               SubProgressMonitor.create(pm, 1)));
                                 Rectangle bounds = viewRef.bounds;
@@ -275,6 +285,14 @@ public class Session {
                         } else {
                             throw new Exception("Unknown product reference number: " + viewRef.productId);
                         }
+
+                        for (int i = 0; i < viewRef.getLayerCount(); i++) {
+                            final LayerRef ref = viewRef.getLayerRef(i);
+                            if (!view.getBaseImageLayer().getId().equals(ref.id)) {
+                                addLayerRef(view.getRootLayer(), ref, new SessionAccessor(
+                                        restoredProducts));
+                            }
+                        }
                     } else if (ProductMetadataView.class.getName().equals(viewRef.type)) {
                         Product product = getProductForRefNo(restoredProducts, viewRef.productId);
                         if (product != null) {
@@ -287,12 +305,12 @@ public class Session {
                                 element = element.getElement(productNodeNames[i]);
                             }
                             if (element != null) {
-                                ProductMetadataView view = new ProductMetadataView(element);
+                                ProductMetadataView metadataView = new ProductMetadataView(element);
                                 Rectangle bounds = viewRef.bounds;
                                 if (bounds != null && !bounds.isEmpty()) {
-                                    view.setBounds(bounds);
+                                    metadataView.setBounds(bounds);
                                 }
-                                views.add(view);
+                                views.add(metadataView);
                             }
                         } else {
                             throw new Exception("Unknown product reference number: " + viewRef.productId);
@@ -311,6 +329,21 @@ public class Session {
         return views.toArray(new ProductNodeView[views.size()]);
     }
 
+    private void addLayerRef(Layer parentLayer, LayerRef ref, SessionAccessor sessionAccessor) throws
+                                                                                               ConversionException,
+                                                                                               ValidationException {
+        final LayerType type = LayerType.getLayerType(ref.layerType.getName());
+        final SessionDomConverter converter = new SessionDomConverter();
+        converter.setSessionAccessor(sessionAccessor);
+        final ValueContainer template = type.getConfigurationTemplate();
+        converter.convertDomToValue(ref.configuration, template);
+        final Layer layer = type.createLayer(null, template);
+        parentLayer.getChildren().add(layer);
+        for (LayerRef child : ref.children) {
+            addLayerRef(parentLayer, child, sessionAccessor);
+        }
+    }
+
     public static Container getRootPaneContainer(JComponent component) {
         Container parent = component;
         Container lastParent;
@@ -324,7 +357,7 @@ public class Session {
         return lastParent;
     }
 
-    private Product getProductForRefNo(Product[] products, int refNo) {
+    private static Product getProductForRefNo(Product[] products, int refNo) {
         for (Product product : products) {
             if (product.getRefNo() == refNo) {
                 return product;
@@ -334,6 +367,7 @@ public class Session {
     }
 
     public static interface ProblemSolver {
+
         Product solveProductNotFound(int id, File file) throws CanceledException;
     }
 
@@ -390,7 +424,7 @@ public class Session {
     public static class LayerRef {
 
         @XStreamAlias("type")
-        final String typeName;
+        final Class<? extends LayerType> layerType;
         final String id;
         final String name;
         final boolean visible;
@@ -398,9 +432,10 @@ public class Session {
         final DomElement configuration;
         final LayerRef[] children;
 
-        public LayerRef(String typeName, String id, String name, boolean visible, DomElement configuration,
+        public LayerRef(Class<? extends LayerType> layerType, String id, String name, boolean visible,
+                        DomElement configuration,
                         LayerRef[] children) {
-            this.typeName = typeName;
+            this.layerType = layerType;
             this.id = id;
             this.name = name;
             this.visible = visible;
@@ -472,6 +507,24 @@ public class Session {
             } catch (URISyntaxException e) {
                 throw new com.thoughtworks.xstream.converters.ConversionException(e);
             }
+        }
+    }
+
+    public static class SessionAccessor {
+
+        private final Product[] products;
+
+        public SessionAccessor(Product[] products) {
+            this.products = products;
+        }
+
+        Product getProduct(int refNo) {
+            return getProductForRefNo(products, refNo);
+        }
+
+        RasterDataNode getRasterDataNode(int refNo, String nodeName) {
+            final Product product = getProductForRefNo(products, refNo);
+            return product.getRasterDataNode(nodeName);
         }
     }
 }

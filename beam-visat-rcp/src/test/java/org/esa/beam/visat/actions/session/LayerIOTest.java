@@ -104,15 +104,7 @@ public class LayerIOTest extends TestCase {
                 return new ValueDescriptor(field.getName(), field.getType());
             }
         };
-        final DefaultDomConverter dc = new DefaultDomConverter(ValueContainer.class, cfdf) {
-            @Override
-            protected ValueContainer getValueContainer(Object value) {
-                if (value instanceof ValueContainer) {
-                    return (ValueContainer) value;
-                }
-                return super.getValueContainer(value);
-            }
-        };
+        final DefaultDomConverter dc = new DefaultDomConverter(ValueContainer.class, cfdf);
         final DomElement domElement1 = new DefaultDomElement("configuration");
         dc.convertValueToDom(configuration1, domElement1);
 

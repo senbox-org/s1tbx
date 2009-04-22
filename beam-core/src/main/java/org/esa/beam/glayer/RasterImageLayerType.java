@@ -20,11 +20,6 @@ public class RasterImageLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public boolean isValidFor(LayerContext ctx) {
-        return true;
-    }
-
-    @Override
     protected ImageLayer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
         if (configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
             final RasterDataNode[] rasters = (RasterDataNode[]) configuration.getValue(PROPERTY_NAME_RASTERS);
@@ -44,6 +39,7 @@ public class RasterImageLayerType extends ImageLayer.Type {
 
         template.addModel(createDefaultValueModel(PROPERTY_NAME_RASTERS, RasterDataNode[].class));
         template.getDescriptor(PROPERTY_NAME_RASTERS).setNotNull(true);
+        template.getDescriptor(PROPERTY_NAME_RASTERS).setItemAlias("raster");
 
         return template;
     }
