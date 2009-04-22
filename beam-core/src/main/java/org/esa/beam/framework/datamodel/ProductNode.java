@@ -37,11 +37,11 @@ public abstract class ProductNode {
     public final static String PROPERTY_NAME_DESCRIPTION = "description";
     public final static String PROPERTY_NAME_MODIFIED = "modified";
 
-    private Product _product;
-    private ProductNode _owner;
+    private transient Product _product;
+    private transient ProductNode _owner;
     private String _name;
     private String _description;
-    private boolean _modified;
+    private transient boolean _modified;
     public final static String PROPERTY_NAME_SELECTED = "selected";
     private boolean selected;
 

@@ -2,6 +2,7 @@ package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -51,14 +52,38 @@ public class PlacemarkLayer extends Layer {
         this(LAYER_TYPE, product, placemarkDescriptor, imageToModelTransform);
     }
 
-    protected PlacemarkLayer(Type type, Product product, PlacemarkDescriptor placemarkDescriptor,
-                             AffineTransform imageToModelTransform) {
-        super(type);
-        this.product = product;
-        this.placemarkDescriptor = placemarkDescriptor;
-        this.imageToModelTransform = new AffineTransform(imageToModelTransform);
+    protected PlacemarkLayer(LayerType layerType, ValueContainer configuration) {
+        super(layerType, configuration);
+        this.product = (Product) configuration.getValue(Type.PROPERTY_PRODUCT);
+        this.placemarkDescriptor = (PlacemarkDescriptor) configuration.getValue(Type.PROPERTY_PLACEMARK_DESCRIPTOR);
+        this.imageToModelTransform = (AffineTransform) configuration.getValue(Type.PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
         this.pnl = new MyProductNodeListenerAdapter();
         product.addProductNodeListener(pnl);
+
+        setTextEnabled((Boolean) configuration.getValue(PROPERTY_NAME_TEXT_ENABLED));
+        setTextFont((Font) configuration.getValue(PROPERTY_NAME_TEXT_FONT));
+        setTextBgColor((Color) configuration.getValue(PROPERTY_NAME_TEXT_BG_COLOR));
+        setTextFgColor((Color) configuration.getValue(PROPERTY_NAME_TEXT_FG_COLOR));
+    }
+
+
+
+    private static ValueContainer initConfiguration(ValueContainer configurationTemplate, Product product, PlacemarkDescriptor placemarkDescriptor,
+                          AffineTransform imageToModelTransform) {
+        try {
+            configurationTemplate.setValue(Type.PROPERTY_PRODUCT, product);
+            configurationTemplate.setValue(Type.PROPERTY_PLACEMARK_DESCRIPTOR, placemarkDescriptor);
+            configurationTemplate.setValue(Type.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
+        } catch (ValidationException e) {
+            throw new IllegalArgumentException(e);
+        }
+
+        return configurationTemplate;
+    }
+    
+    protected PlacemarkLayer(Type type, Product product, PlacemarkDescriptor placemarkDescriptor,
+                             AffineTransform imageToModelTransform) {
+        this(type, initConfiguration(type.getConfigurationTemplate(), product, placemarkDescriptor, imageToModelTransform));
     }
 
     @Override
@@ -237,37 +262,47 @@ public class PlacemarkLayer extends Layer {
 
         @Override
         protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
-            Product product = (Product) configuration.getValue(PROPERTY_PRODUCT);
-            PlacemarkDescriptor placemarkDescriptor = (PlacemarkDescriptor) configuration.getValue(
-                    PROPERTY_PLACEMARK_DESCRIPTOR);
-            AffineTransform imageToModelTransform = (AffineTransform) configuration.getValue(
-                    PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
-            return new PlacemarkLayer(product, placemarkDescriptor, imageToModelTransform);
-        }
-
-        @Override
-        public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
-            final PlacemarkLayer placemarkLayer = (PlacemarkLayer) layer;
-            final ValueContainer valueContainer = new ValueContainer();
-            valueContainer.addModel(createDefaultValueModel(PROPERTY_PRODUCT, placemarkLayer.getProduct()));
-            valueContainer.addModel(createDefaultValueModel(PROPERTY_PLACEMARK_DESCRIPTOR,
-                                                            placemarkLayer.getPlacemarkDescriptor()));
-            valueContainer.addModel(createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM,
-                                                            placemarkLayer.getImageToModelTransform()));
-            return valueContainer;
+            return new PlacemarkLayer(this, configuration);
         }
 
         @Override
         public ValueContainer getConfigurationTemplate() {
+            final ValueContainer valueContainer = new ValueContainer();
+
+            final ValueModel textBgColorModel = createDefaultValueModel(PROPERTY_NAME_TEXT_BG_COLOR,
+                                                                        DEFAULT_TEXT_BG_COLOR);
+            textBgColorModel.getDescriptor().setDefaultValue(DEFAULT_TEXT_BG_COLOR);
+            valueContainer.addModel(textBgColorModel);
+
+            final ValueModel textFgColorModel = createDefaultValueModel(PROPERTY_NAME_TEXT_FG_COLOR,
+                                                                        DEFAULT_TEXT_FG_COLOR);
+            textFgColorModel.getDescriptor().setDefaultValue(DEFAULT_TEXT_FG_COLOR);
+            valueContainer.addModel(textFgColorModel);
+
+            final ValueModel textEnabledModel = createDefaultValueModel(PROPERTY_NAME_TEXT_ENABLED,
+                                                                        DEFAULT_TEXT_ENABLED);
+            textEnabledModel.getDescriptor().setDefaultValue(DEFAULT_TEXT_ENABLED);
+            valueContainer.addModel(textEnabledModel);
+
+            final ValueModel textFontModel = createDefaultValueModel(PROPERTY_NAME_TEXT_FONT,
+                                                                     DEFAULT_TEXT_FONT);
+            textEnabledModel.getDescriptor().setDefaultValue(DEFAULT_TEXT_FONT);
+            valueContainer.addModel(textFontModel);
+
             final ValueModel productModel = createDefaultValueModel(PROPERTY_PRODUCT, Product.class);
+            productModel.getDescriptor().setNotNull(true);
+            valueContainer.addModel(productModel);
+
             final ValueModel placemarkModel = createDefaultValueModel(PROPERTY_PLACEMARK_DESCRIPTOR,
                                                                       PlacemarkDescriptor.class);
+            placemarkModel.getDescriptor().setNotNull(true);
+            valueContainer.addModel(placemarkModel);
+
             final ValueModel transformModel = createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM,
                                                                       AffineTransform.class);
-            final ValueContainer valueContainer = new ValueContainer();
-            valueContainer.addModel(productModel);
-            valueContainer.addModel(placemarkModel);
+            placemarkModel.getDescriptor().setNotNull(true);
             valueContainer.addModel(transformModel);
+
             return valueContainer;
         }
     }
