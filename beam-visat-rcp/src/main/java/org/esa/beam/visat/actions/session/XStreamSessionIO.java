@@ -21,9 +21,6 @@ import java.io.Writer;
  */
 public class XStreamSessionIO extends SessionIO {
 
-    public XStreamSessionIO() {
-    }
-
     protected XStream createXStream() {
         XStream xStream = new XStream();
         xStream.setClassLoader(XStreamSessionIO.class.getClassLoader());
