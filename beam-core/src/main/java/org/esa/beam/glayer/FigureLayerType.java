@@ -31,13 +31,14 @@ public class FigureLayerType extends LayerType {
 
     @Override
     protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
-        List<Figure> figureList = (List<Figure>) configuration.getValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST);
-        AffineTransform shapeToModelTransform = (AffineTransform) configuration.getValue(
+        final List<Figure> figureList = (List<Figure>) configuration.getValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST);
+        final AffineTransform shapeToModelTransform = (AffineTransform) configuration.getValue(
                 FigureLayer.PROPERTY_NAME_TRANSFORM);
         final FigureLayer layer = new FigureLayer(this, shapeToModelTransform, figureList);
         layer.setId(FIGURE_LAYER_ID);
         layer.setVisible(true);
         configureLayer(configuration, layer);
+
         return layer;
     }
 
@@ -64,6 +65,22 @@ public class FigureLayerType extends LayerType {
     @Override
     public ValueContainer getConfigurationTemplate() {
         final ValueContainer vc = new ValueContainer();
+
+        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
+                                            FigureLayer.DEFAULT_SHAPE_OUTLINED));
+        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
+                                            FigureLayer.DEFAULT_SHAPE_OUTL_COLOR));
+        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
+                                            FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY));
+        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
+                                            FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH));
+
+        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
+                                            FigureLayer.DEFAULT_SHAPE_FILLED));
+        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
+                                            FigureLayer.DEFAULT_SHAPE_FILL_COLOR));
+        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
+                                            FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY));
 
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_FIGURE_LIST, List.class));
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_TRANSFORM, AffineTransform.class));
