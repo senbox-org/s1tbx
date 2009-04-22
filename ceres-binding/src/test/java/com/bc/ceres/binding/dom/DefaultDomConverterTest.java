@@ -160,7 +160,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertEquals(createDom(expectedXml), dom);
     }
 
-    public void testUnmarshalAnnotatedPojo() throws ValidationException, ConversionException {
+    public void testDomToAnnotatedPojo() throws ValidationException, ConversionException {
 
         final String xml = ""
                            + "<parameters>"
@@ -182,7 +182,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertEquals("b", value.targetBandNames[1]);
     }
 
-    public void testMarshalAnnotatedPojo() throws ValidationException, ConversionException {
+    public void testAnnotatedPojoToDom() throws ValidationException, ConversionException {
 
         final String expectedXml = ""
                                    + "<parameters>"
@@ -201,7 +201,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertEquals(createDom(expectedXml), dom);
     }
 
-    public void testUnmarshalComplexPojo() throws ValidationException, ConversionException {
+    public void testDomToComplexPojo() throws ValidationException, ConversionException {
 
         final String xmlString = ""
                                  + "<parameters>"
@@ -241,7 +241,7 @@ public class DefaultDomConverterTest extends TestCase {
 
     }
 
-    public void testMarshalComplexPojo() throws ValidationException, ConversionException {
+    public void testComplexPojoToDom() throws ValidationException, ConversionException {
 
         final String expectedXml = ""
                                    + "<parameters>"
@@ -272,7 +272,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertEquals(createDom(expectedXml), dom);
     }
 
-    public void testUnmarshalInlinedArrayPojo() throws ValidationException, ConversionException {
+    public void testDomToInlinedArrayPojo() throws ValidationException, ConversionException {
 
         final String xml = ""
                            + "<parameters>"
@@ -334,7 +334,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertNotNull(value.endmembers[2].radiances);
     }
 
-    public void testMarshalInlinedArrayPojo() throws ValidationException, ConversionException {
+    public void testInlinedArrayPojoToDom() throws ValidationException, ConversionException {
 
         final String expectedXml = ""
                                    + "<parameters>"
