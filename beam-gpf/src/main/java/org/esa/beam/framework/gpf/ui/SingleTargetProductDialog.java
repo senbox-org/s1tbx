@@ -21,6 +21,7 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.operators.common.WriteOp;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.BasicApp;
@@ -116,8 +117,11 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
         Product targetProduct = null;
         try {
             targetProduct = createTargetProduct();
-        } catch (Exception e) {
-            showErrorDialog(e.getMessage());
+            if (targetProduct == null) {
+                throw new NullPointerException("Target product is null.");
+            }
+        } catch (Throwable t) {
+            handleInitialisationError(t);
         }
         if (targetProduct == null) {
             return;
@@ -132,6 +136,36 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
             appContext.getProductManager().addProduct(targetProduct);
             showOpenInAppInfo();
         }
+    }
+
+    protected void handleInitialisationError(Throwable t) {
+        String msg;
+        if (t instanceof RuntimeException || t instanceof Error) {
+            msg = MessageFormat.format("A internal error occured during the target product initialisation.\n{0}",
+                                       formatThrowable(t));
+        } else {
+            msg = MessageFormat.format("A error occured during the target product initialisation.\n{0}",
+                                       formatThrowable(t));
+        }
+        appContext.handleError(msg, t);
+    }
+
+    protected void handleProcessingError(Throwable t) {
+        String msg;
+        if (t instanceof RuntimeException || t instanceof Error) {
+            msg = MessageFormat.format("A internal error occured during the target product processing.\n{0}",
+                                       formatThrowable(t));
+        } else {
+            msg = MessageFormat.format("A error occured during processing the target product processing.\n{0}",
+                                       formatThrowable(t));
+        }
+        appContext.handleError(msg, t);
+    }
+
+    private String formatThrowable(Throwable t) {
+        return MessageFormat.format("Type: {0}\nMessage: {1}\n",
+                                    t.getClass().getSimpleName(),
+                                    t.getMessage());
     }
 
     private boolean canApply() {
@@ -198,7 +232,7 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
                 "The target product has been successfully written to\n" +
                         "{0}\n" +
                         "and has been opened in {1}.\n" +
-                        "Total time spend for processing: {2}\n" ,
+                        "Total time spend for processing: {2}\n",
                 formatFile(productFile),
                 appContext.getApplicationName(),
                 formatDuration(saveTime));
@@ -259,7 +293,7 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
                 if (model.isOpenInAppSelected()) {
                     product = ProductIO.readProduct(model.getProductFile(), null);
                     if (product == null) {
-                        product = targetProduct;
+                        product = targetProduct; // todo - check - this cannot be ok!!! (nf)
                     }
                     pm.worked(5);
                 }
@@ -286,10 +320,23 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
             } catch (InterruptedException e) {
                 // ignore
             } catch (ExecutionException e) {
-                appContext.handleError("An error occured while creating the target product.", e.getCause());
+                handleProcessingError(e.getCause());
+            } catch (Throwable t) {
+                handleProcessingError(t);
             }
         }
     }
 
+    /**
+     * Creates the desired target product.
+     * Usually, this method will be implemented by invoking one of the multiple {@link org.esa.beam.framework.gpf.GPF GPF}
+     * {@code createProduct} methods.
+     * <p/>
+     * The method should throw a {@link OperatorException} in order to signal "nominal" processing errors,
+     * other exeption types are treated as internal errors.
+     *
+     * @return The target product.
+     * @throws Exception if an error occurs, an {@link OperatorException} is signaling "nominal" processing errors.
+     */
     protected abstract Product createTargetProduct() throws Exception;
 }

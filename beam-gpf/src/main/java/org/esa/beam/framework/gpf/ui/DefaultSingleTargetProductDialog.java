@@ -8,7 +8,6 @@ import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ValueEditor;
 import com.bc.ceres.binding.swing.ValueEditorsPane;
 import com.bc.ceres.swing.TableLayout;
-
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.gpf.GPF;
@@ -19,16 +18,15 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
 
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.border.EmptyBorder;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.border.EmptyBorder;
 
 // todo (mp, 2008/04/22) add abillity to set the ProductFilter to SourceProductSelectors
 
@@ -80,6 +78,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         ioParametersPanel.add(getTargetProductSelector().createDefaultPanel());
         ioParametersPanel.add(tableLayout.createVerticalSpacer());
         sourceProductSelectorList.get(0).addSelectionChangeListener(new SelectionChangeListener() {
+            @Override
             public void selectionChanged(SelectionChangeEvent event) {
                 final Product selectedProduct = (Product) event.getSelection().getFirstElement();
                 final TargetProductSelectorModel targetProductSelectorModel = getTargetProductSelector().getModel();
@@ -106,17 +105,17 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             final JPanel paremetersPanel = parametersPane.createPanel();
             paremetersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
             this.form.add("Processing Parameters", new JScrollPane(paremetersPanel));
-            
+
             for (final Field field : sourceProductSelectorMap.keySet()) {
                 final SourceProductSelector sourceProductSelector = sourceProductSelectorMap.get(field);
                 final String sourceAlias = field.getAnnotation(SourceProduct.class).alias();
-            
+
                 for (ValueModel valueModel : valueContainer.getModels()) {
                     ValueDescriptor parameterDescriptor = valueModel.getDescriptor();
                     String sourceId = (String) parameterDescriptor.getProperty("sourceId");
                     if (sourceId != null && (sourceId.equals(field.getName()) || sourceId.equals(sourceAlias))) {
                         SelectionChangeListener valueSetUpdater = new ValueSetUpdater(parameterDescriptor);
-                        sourceProductSelector.addSelectionChangeListener(valueSetUpdater);                        
+                        sourceProductSelector.addSelectionChangeListener(valueSetUpdater);
                     }
                 }
             }
@@ -238,6 +237,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             this.annot = annot;
         }
 
+        @Override
         public boolean accept(Product product) {
 
             if (!annot.type().isEmpty() && !product.getProductType().matches(annot.type())) {
