@@ -37,6 +37,7 @@ import java.awt.Rectangle;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
 
@@ -107,11 +108,13 @@ public class OpenSessionAction extends ExecCommand {
         @Override
         protected RestoredSession doInBackground(ProgressMonitor pm) throws Exception {
             final Session session = SessionIO.getInstance().readSession(sessionFile);
-            return session.restore(sessionFile.getParentFile(), pm, new Session.ProblemSolver() {
+            URI rootURI = sessionFile.getParentFile().toURI();
+            return session.restore(rootURI, pm, new Session.ProblemSolver() {
                 @Override
                 public Product solveProductNotFound(int id, File file) throws CanceledException {
                     final File[] newFile = new File[1];
                     final int[] answer = new int[1];
+                    final String title = MessageFormat.format(TITLE + " - Resolving [{0}]", file);
                     final String msg = MessageFormat.format("Product [{0}] has been renamed or (re-)moved.\n" +
                                                       "Its location was [{1}].\n" +
                                                       "Do you wish to provide its new location?\n" +
@@ -122,9 +125,9 @@ public class OpenSessionAction extends ExecCommand {
 
                             @Override
                             public void run() {
-                                answer[0] = app.showQuestionDialog(TITLE, msg, true, null);
+                                answer[0] = app.showQuestionDialog(title, msg, true, null);
                                 if (answer[0] == JOptionPane.YES_OPTION) {
-                                    newFile[0] = app.showFileOpenDialog(TITLE, false, null);
+                                    newFile[0] = app.showFileOpenDialog(title, false, null);
                                 }
                             }});
                     } catch (Exception e) {

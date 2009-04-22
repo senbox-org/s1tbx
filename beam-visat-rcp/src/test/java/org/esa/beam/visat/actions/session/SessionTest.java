@@ -17,6 +17,7 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 
 public class SessionTest extends TestCase {
     public void testConstruction() {
@@ -39,7 +40,7 @@ public class SessionTest extends TestCase {
             // ok
         }
 
-        final Session session = new Session(new File("foo"), new Product[0], new ProductNodeView[0]);
+        final Session session = new Session(URI.create("foo"), new Product[0], new ProductNodeView[0]);
         assertEquals(0, session.getProductCount());
         assertEquals(0, session.getViewCount());
     }
@@ -52,11 +53,77 @@ public class SessionTest extends TestCase {
         assertEquals(2, originalProducts.length);
         assertEquals(4, originalViews.length);
 
-        File sessionRoot = createSessionRoot();
+        URI sessionRoot = createSessionRootURI();
         final Session originalSession = new Session(sessionRoot, originalProducts, originalViews);
         final RestoredSession restoredSession = originalSession.restore(sessionRoot, ProgressMonitor.NULL, new Session.ProblemSolver() {
             @Override
             public Product solveProductNotFound(int id, File file) {
+                return null;
+            }
+        });
+        checkProblems(restoredSession.getProblems());
+        final Product[] restoredProducts = restoredSession.getProducts();
+        assertNotNull(restoredProducts);
+        final ProductNodeView[] restoredViews = restoredSession.getViews();
+        assertNotNull(restoredViews);
+
+        assertEquals(2, originalProducts.length);
+        assertEquals(2, restoredProducts.length);
+
+        assertEquals(4, originalViews.length);
+        assertEquals(4, restoredViews.length);
+
+        assertEquals(originalProducts[0].getRefNo(), restoredProducts[0].getRefNo());
+        assertEquals(originalProducts[1].getRefNo(), restoredProducts[1].getRefNo());
+
+        assertEquals(originalProducts[0].getFileLocation().toURI(), restoredProducts[0].getFileLocation().toURI());
+        assertEquals(originalProducts[1].getFileLocation().toURI(), restoredProducts[1].getFileLocation().toURI());
+
+        assertEquals(originalViews[0].getBounds(), restoredViews[0].getBounds());
+        assertEquals(originalViews[1].getBounds(), restoredViews[1].getBounds());
+        assertEquals(originalViews[2].getBounds(), restoredViews[2].getBounds());
+        assertEquals(originalViews[3].getBounds(), restoredViews[3].getBounds());
+
+        assertEquals(originalViews[0].getVisibleProductNode().getName(), restoredViews[0].getVisibleProductNode().getName());
+        assertEquals(originalViews[1].getVisibleProductNode().getName(), restoredViews[1].getVisibleProductNode().getName());
+        assertEquals(originalViews[2].getVisibleProductNode().getName(), restoredViews[2].getVisibleProductNode().getName());
+        assertEquals(originalViews[3].getVisibleProductNode().getName(), restoredViews[3].getVisibleProductNode().getName());
+
+        assertTrue(restoredViews[0] instanceof ProductSceneView);
+        assertTrue(restoredViews[1] instanceof ProductSceneView);
+        assertTrue(restoredViews[2] instanceof ProductSceneView);
+        assertTrue(restoredViews[3] instanceof ProductSceneView);
+
+        assertTrue(restoredViews[0].getVisibleProductNode() instanceof VirtualBand);
+        assertTrue(restoredViews[1].getVisibleProductNode() instanceof VirtualBand);
+        assertTrue(restoredViews[2].getVisibleProductNode() instanceof VirtualBand);
+        assertTrue(restoredViews[3].getVisibleProductNode() instanceof VirtualBand);
+
+        assertSame(restoredProducts[0], restoredViews[0].getVisibleProductNode().getProduct());
+        assertSame(restoredProducts[1], restoredViews[1].getVisibleProductNode().getProduct());
+        assertSame(restoredProducts[0], restoredViews[2].getVisibleProductNode().getProduct());
+        assertSame(restoredProducts[1], restoredViews[3].getVisibleProductNode().getProduct());
+    }
+    
+    public void testRestoreAfterMove() throws IOException, CanceledException {
+        final SessionData sessionData = createSessionData();
+        final Product[] originalProducts = sessionData.getProducts();
+        final ProductNodeView[] originalViews = sessionData.getViews();
+
+        assertEquals(2, originalProducts.length);
+        assertEquals(4, originalViews.length);
+
+        URI sessionRoot = createSessionRootURI();
+        URI movedSesissionRoot = new File("testdata/moved/here/").toURI();
+        final Session originalSession = new Session(sessionRoot, originalProducts, originalViews);
+        final RestoredSession restoredSession = originalSession.restore(movedSesissionRoot, ProgressMonitor.NULL, new Session.ProblemSolver() {
+            @Override
+            public Product solveProductNotFound(int id, File file) {
+                for (Product product : originalProducts) {
+                    if (product.getRefNo() == id) {
+                        return product;
+                    }
+                }
                 return null;
             }
         });
@@ -116,7 +183,7 @@ public class SessionTest extends TestCase {
     static Product createProduct(int refNo, String name, String type, int w, int h) {
         final Product product = new Product(name, type, w, h);
         product.setRefNo(refNo);
-        final File file = new File(createSessionRoot(), "out/DIMAP/" + name + ".dim");
+        final File file = new File(new File(createSessionRootURI()), "out/DIMAP/" + name + ".dim");
         product.setFileLocation(file);
         return product;
     }
@@ -127,11 +194,11 @@ public class SessionTest extends TestCase {
 
     static Session createTestSession() throws IOException {
         final SessionData sessionData = createSessionData();
-        return new Session(createSessionRoot(), sessionData.getProducts(), sessionData.getViews());
+        return new Session(createSessionRootURI(), sessionData.getProducts(), sessionData.getViews());
     }
 
-    static File createSessionRoot() {
-        return new File("testdata");
+    static URI createSessionRootURI() {
+        return new File("testdata").toURI();
     }
 
     static SessionData createSessionData() throws IOException {

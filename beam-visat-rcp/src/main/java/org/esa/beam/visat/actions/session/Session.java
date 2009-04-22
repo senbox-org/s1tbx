@@ -63,11 +63,10 @@ public class Session {
     @XStreamAlias("views")
     final ViewRef[] viewRefs;
 
-    public Session(File sessionRoot, Product[] products, ProductNodeView[] views) {
+    public Session(URI rootURI, Product[] products, ProductNodeView[] views) {
         modelVersion = CURRENT_MODEL_VERSION;
 
         productRefs = new ProductRef[products.length];
-        URI rootURI = sessionRoot.toURI();
         for (int i = 0; i < products.length; i++) {
             Product product = products[i];
             URI productURI = product.getFileLocation().toURI();
@@ -204,12 +203,11 @@ public class Session {
         return viewRefs[index];
     }
 
-    public RestoredSession restore(File sessionRoot, ProgressMonitor pm, ProblemSolver problemSolver) throws
-                                                                                                      CanceledException {
+    public RestoredSession restore(URI rootURI, ProgressMonitor pm, ProblemSolver problemSolver) throws CanceledException {
         try {
             pm.beginTask("Restoring session", 100);
             final ArrayList<Exception> problems = new ArrayList<Exception>();
-            final Product[] products = restoreProducts(sessionRoot, SubProgressMonitor.create(pm, 80), problemSolver,
+            final Product[] products = restoreProducts(rootURI, SubProgressMonitor.create(pm, 80), problemSolver,
                                                        problems);
             final ProductNodeView[] views = restoreViews(products, SubProgressMonitor.create(pm, 20), problems);
             return new RestoredSession(products, views, problems.toArray(new Exception[problems.size()]));
@@ -218,10 +216,9 @@ public class Session {
         }
     }
 
-    Product[] restoreProducts(File sessionRoot, ProgressMonitor pm, ProblemSolver problemSolver,
+    Product[] restoreProducts(URI rootURI, ProgressMonitor pm, ProblemSolver problemSolver,
                               List<Exception> problems) throws CanceledException {
         final ArrayList<Product> products = new ArrayList<Product>();
-        URI rootURI = sessionRoot.toURI();
         try {
             pm.beginTask("Restoring products", productRefs.length);
             for (ProductRef productRef : productRefs) {

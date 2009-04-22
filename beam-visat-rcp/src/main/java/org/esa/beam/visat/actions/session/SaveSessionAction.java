@@ -101,7 +101,7 @@ public class SaveSessionAction extends ExecCommand {
                 nodeViews.add((ProductNodeView) contentPane);
             }
         }
-        return new Session(app.getSessionFile().getParentFile(),
+        return new Session(app.getSessionFile().getParentFile().toURI(),
                            app.getProductManager().getProducts(),
                            nodeViews.toArray(new ProductNodeView[nodeViews.size()]));
     }
