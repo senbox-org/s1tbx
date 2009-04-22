@@ -161,7 +161,7 @@
         </layerEditor>
         <layerEditor>
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.GraticuleLayerEditor</editor>
-            <layerType>org.esa.beam.glayer.GraticuleLayer$Type</layerType>
+            <layerType>org.esa.beam.glayer.GraticuleLayerType</layerType>
         </layerEditor>
     </extension>
 
@@ -1014,7 +1014,7 @@
             <largeIcon>icons/ImageView24.gif</largeIcon>
             <helpId>rgbImageProfile</helpId>
         </action>
-        
+
         <action>
             <id>showMetadataView</id>
             <class>org.esa.beam.visat.actions.ShowMetadataViewAction</class>
@@ -1029,7 +1029,7 @@
             <smallIcon>icons/ImageView16.gif</smallIcon>
             <largeIcon>icons/ImageView24.gif</largeIcon>
         </action>
-        
+
         <action>
             <id>showNoDataOverlay</id>
             <class>org.esa.beam.visat.actions.ShowNoDataOverlayAction</class>

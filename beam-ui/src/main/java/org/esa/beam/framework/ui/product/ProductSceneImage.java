@@ -23,6 +23,7 @@ import org.esa.beam.glayer.BitmaskCollectionLayer;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.FigureLayerType;
 import org.esa.beam.glayer.GraticuleLayer;
+import org.esa.beam.glayer.GraticuleLayerType;
 import org.esa.beam.glayer.NoDataLayerType;
 import org.esa.beam.glayer.PlacemarkLayer;
 import org.esa.beam.glayer.RasterImageLayerType;
@@ -396,40 +397,40 @@ public class ProductSceneImage implements LayerContext {
     public static void setGraticuleLayerStyle(PropertyMap configuration, Layer layer) {
         final Style style = new DefaultStyle();
 
-        style.setProperty(GraticuleLayer.PROPERTY_NAME_RES_AUTO,
-                          configuration.getPropertyBool(GraticuleLayer.PROPERTY_NAME_RES_AUTO,
-                                                        GraticuleLayer.DEFAULT_RES_AUTO));
-        style.setProperty(GraticuleLayer.PROPERTY_NAME_RES_PIXELS,
-                          configuration.getPropertyInt(GraticuleLayer.PROPERTY_NAME_RES_PIXELS,
-                                                       GraticuleLayer.DEFAULT_RES_PIXELS));
-        style.setProperty(GraticuleLayer.PROPERTY_NAME_RES_LAT,
-                          configuration.getPropertyDouble(GraticuleLayer.PROPERTY_NAME_RES_LAT,
-                                                          GraticuleLayer.DEFAULT_RES_LAT));
-        style.setProperty(GraticuleLayer.PROPERTY_NAME_RES_LON,
-                          configuration.getPropertyDouble(GraticuleLayer.PROPERTY_NAME_RES_LON,
-                                                          GraticuleLayer.DEFAULT_RES_LON));
+        style.setProperty(GraticuleLayerType.PROPERTY_NAME_RES_AUTO,
+                          configuration.getPropertyBool(GraticuleLayerType.PROPERTY_NAME_RES_AUTO,
+                                                        GraticuleLayerType.DEFAULT_RES_AUTO));
+        style.setProperty(GraticuleLayerType.PROPERTY_NAME_RES_PIXELS,
+                          configuration.getPropertyInt(GraticuleLayerType.PROPERTY_NAME_RES_PIXELS,
+                                                       GraticuleLayerType.DEFAULT_RES_PIXELS));
+        style.setProperty(GraticuleLayerType.PROPERTY_NAME_RES_LAT,
+                          configuration.getPropertyDouble(GraticuleLayerType.PROPERTY_NAME_RES_LAT,
+                                                          GraticuleLayerType.DEFAULT_RES_LAT));
+        style.setProperty(GraticuleLayerType.PROPERTY_NAME_RES_LON,
+                          configuration.getPropertyDouble(GraticuleLayerType.PROPERTY_NAME_RES_LON,
+                                                          GraticuleLayerType.DEFAULT_RES_LON));
 
-        style.setProperty(GraticuleLayer.PROPERTY_NAME_LINE_COLOR,
-                          configuration.getPropertyColor(GraticuleLayer.PROPERTY_NAME_LINE_COLOR,
-                                                         GraticuleLayer.DEFAULT_LINE_COLOR));
-        style.setProperty(GraticuleLayer.PROPERTY_NAME_LINE_WIDTH,
-                          configuration.getPropertyDouble(GraticuleLayer.PROPERTY_NAME_LINE_WIDTH,
-                                                          GraticuleLayer.DEFAULT_LINE_WIDTH));
-        style.setProperty(GraticuleLayer.PROPERTY_NAME_LINE_TRANSPARENCY,
-                          configuration.getPropertyDouble(GraticuleLayer.PROPERTY_NAME_LINE_TRANSPARENCY,
-                                                          GraticuleLayer.DEFAULT_LINE_TRANSPARENCY));
-        style.setProperty(GraticuleLayer.PROPERTY_NAME_TEXT_ENABLED,
-                          configuration.getPropertyBool(GraticuleLayer.PROPERTY_NAME_TEXT_ENABLED,
-                                                        GraticuleLayer.DEFAULT_TEXT_ENABLED));
-        style.setProperty(GraticuleLayer.PROPERTY_NAME_TEXT_FG_COLOR,
-                          configuration.getPropertyColor(GraticuleLayer.PROPERTY_NAME_TEXT_FG_COLOR,
-                                                         GraticuleLayer.DEFAULT_TEXT_FG_COLOR));
-        style.setProperty(GraticuleLayer.PROPERTY_NAME_TEXT_BG_COLOR,
-                          configuration.getPropertyColor(GraticuleLayer.PROPERTY_NAME_TEXT_BG_COLOR,
-                                                         GraticuleLayer.DEFAULT_TEXT_BG_COLOR));
-        style.setProperty(GraticuleLayer.PROPERTY_NAME_TEXT_BG_TRANSPARENCY,
-                          configuration.getPropertyDouble(GraticuleLayer.PROPERTY_NAME_TEXT_BG_TRANSPARENCY,
-                                                          GraticuleLayer.DEFAULT_TEXT_BG_TRANSPARENCY));
+        style.setProperty(GraticuleLayerType.PROPERTY_NAME_LINE_COLOR,
+                          configuration.getPropertyColor(GraticuleLayerType.PROPERTY_NAME_LINE_COLOR,
+                                                         GraticuleLayerType.DEFAULT_LINE_COLOR));
+        style.setProperty(GraticuleLayerType.PROPERTY_NAME_LINE_WIDTH,
+                          configuration.getPropertyDouble(GraticuleLayerType.PROPERTY_NAME_LINE_WIDTH,
+                                                          GraticuleLayerType.DEFAULT_LINE_WIDTH));
+        style.setProperty(GraticuleLayerType.PROPERTY_NAME_LINE_TRANSPARENCY,
+                          configuration.getPropertyDouble(GraticuleLayerType.PROPERTY_NAME_LINE_TRANSPARENCY,
+                                                          GraticuleLayerType.DEFAULT_LINE_TRANSPARENCY));
+        style.setProperty(GraticuleLayerType.PROPERTY_NAME_TEXT_ENABLED,
+                          configuration.getPropertyBool(GraticuleLayerType.PROPERTY_NAME_TEXT_ENABLED,
+                                                        GraticuleLayerType.DEFAULT_TEXT_ENABLED));
+        style.setProperty(GraticuleLayerType.PROPERTY_NAME_TEXT_FG_COLOR,
+                          configuration.getPropertyColor(GraticuleLayerType.PROPERTY_NAME_TEXT_FG_COLOR,
+                                                         GraticuleLayerType.DEFAULT_TEXT_FG_COLOR));
+        style.setProperty(GraticuleLayerType.PROPERTY_NAME_TEXT_BG_COLOR,
+                          configuration.getPropertyColor(GraticuleLayerType.PROPERTY_NAME_TEXT_BG_COLOR,
+                                                         GraticuleLayerType.DEFAULT_TEXT_BG_COLOR));
+        style.setProperty(GraticuleLayerType.PROPERTY_NAME_TEXT_BG_TRANSPARENCY,
+                          configuration.getPropertyDouble(GraticuleLayerType.PROPERTY_NAME_TEXT_BG_TRANSPARENCY,
+                                                          GraticuleLayerType.DEFAULT_TEXT_BG_TRANSPARENCY));
 
         style.setComposite(layer.getStyle().getComposite());
         style.setDefaultStyle(layer.getStyle().getDefaultStyle());

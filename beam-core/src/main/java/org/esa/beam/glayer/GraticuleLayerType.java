@@ -1,0 +1,143 @@
+package org.esa.beam.glayer;
+
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.support.DefaultStyle;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.geom.AffineTransform;
+
+/**
+ * todo - add API doc
+ *
+ * @author Marco Peters
+ * @version $ Revision $ Date $
+ * @since BEAM 4.6
+ */
+public class GraticuleLayerType extends LayerType {
+
+    public static final String PROPERTY_NAME_RASTER = "graticule.raster";
+    public static final String PROPERTY_NAME_TRANSFORM = "graticule.i2mTransform";
+    public static final String PROPERTY_NAME_STYLE = "graticule.style";
+    public static final String PROPERTY_NAME_RES_AUTO = "graticule.res.auto";
+    public static final String PROPERTY_NAME_RES_PIXELS = "graticule.res.pixels";
+    public static final String PROPERTY_NAME_RES_LAT = "graticule.res.lat";
+    public static final String PROPERTY_NAME_RES_LON = "graticule.res.lon";
+    public static final String PROPERTY_NAME_LINE_COLOR = "graticule.line.color";
+    public static final String PROPERTY_NAME_LINE_TRANSPARENCY = "graticule.line.transparency";
+    public static final String PROPERTY_NAME_LINE_WIDTH = "graticule.line.width";
+    public static final String PROPERTY_NAME_TEXT_ENABLED = "graticule.text.enabled";
+    public static final String PROPERTY_NAME_TEXT_FONT = "graticule.text.font";
+    public static final String PROPERTY_NAME_TEXT_FG_COLOR = "graticule.text.fg.color";
+    public static final String PROPERTY_NAME_TEXT_BG_COLOR = "graticule.text.bg.color";
+    public static final String PROPERTY_NAME_TEXT_BG_TRANSPARENCY = "graticule.text.bg.transparency";
+    public static final boolean DEFAULT_RES_AUTO = true;
+    public static final int DEFAULT_RES_PIXELS = 128;
+    public static final double DEFAULT_RES_LAT = 1.0;
+    public static final double DEFAULT_RES_LON = 1.0;
+    public static final Color DEFAULT_LINE_COLOR = new Color(204, 204, 255);
+    public static final double DEFAULT_LINE_TRANSPARENCY = 0.0;
+    public static final double DEFAULT_LINE_WIDTH = 0.5;
+    public static final boolean DEFAULT_TEXT_ENABLED = true;
+    public static final Font DEFAULT_TEXT_FONT = new Font("SansSerif", Font.ITALIC, 12);
+    public static final Color DEFAULT_TEXT_FG_COLOR = Color.WHITE;
+    public static final Color DEFAULT_TEXT_BG_COLOR = Color.BLACK;
+    public static final double DEFAULT_TEXT_BG_TRANSPARENCY = 0.7;
+
+    @Override
+    public String getName() {
+        return "Graticule Layer";
+    }
+
+    @Override
+    public boolean isValidFor(LayerContext ctx) {
+        return true;
+    }
+
+    @Override
+    protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
+        final GraticuleLayer layer = new GraticuleLayer(this, configuration);
+        final DefaultStyle style = new DefaultStyle();
+        for (ValueModel model : configuration.getModels()) {
+            style.setProperty(model.getDescriptor().getName(), model.getValue());
+        }
+        layer.setStyle(style);
+        return layer;
+
+    }
+
+//    @Override
+//    public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
+//        GraticuleLayer graticuleLayer = (GraticuleLayer) layer;
+//        final ValueContainer vc = new ValueContainer();
+//
+//        final ValueModel rasterModel = createDefaultValueModel(PROPERTY_NAME_RASTER,
+//                                                               graticuleLayer.getRaster());
+//        vc.addModel(rasterModel);
+//
+//        final ValueModel transformModel = createDefaultValueModel(PROPERTY_NAME_TRANSFORM,
+//                                                                  graticuleLayer.getI2mTransform());
+//        vc.addModel(transformModel);
+//
+//        final ValueModel styleModel = createDefaultValueModel(PROPERTY_NAME_STYLE, graticuleLayer.getStyle());
+//        vc.addModel(styleModel);
+//
+//        return vc;
+//    }
+
+    @Override
+    public ValueContainer getConfigurationTemplate() {
+        final ValueContainer vc = new ValueContainer();
+
+        final ValueModel rasterModel = createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class);
+        vc.addModel(rasterModel);
+
+        final ValueModel transformModel = createDefaultValueModel(PROPERTY_NAME_TRANSFORM, AffineTransform.class);
+        vc.addModel(transformModel);
+
+        final ValueModel resAutoModel = createDefaultValueModel(PROPERTY_NAME_RES_AUTO, DEFAULT_RES_AUTO);
+        vc.addModel(resAutoModel);
+
+        final ValueModel resPixelsModel = createDefaultValueModel(PROPERTY_NAME_RES_PIXELS, DEFAULT_RES_PIXELS);
+        vc.addModel(resPixelsModel);
+
+        final ValueModel resLatModel = createDefaultValueModel(PROPERTY_NAME_RES_LAT, DEFAULT_RES_LAT);
+        vc.addModel(resLatModel);
+
+        final ValueModel resLonModel = createDefaultValueModel(PROPERTY_NAME_RES_LON, DEFAULT_RES_LON);
+        vc.addModel(resLonModel);
+
+        final ValueModel lineColorModel = createDefaultValueModel(PROPERTY_NAME_LINE_COLOR, DEFAULT_LINE_COLOR);
+        vc.addModel(lineColorModel);
+
+        final ValueModel lineTransparencyModel = createDefaultValueModel(PROPERTY_NAME_LINE_TRANSPARENCY,
+                                                                         DEFAULT_LINE_TRANSPARENCY);
+        vc.addModel(lineTransparencyModel);
+
+        final ValueModel lineWidthModel = createDefaultValueModel(PROPERTY_NAME_LINE_WIDTH, DEFAULT_LINE_WIDTH);
+        vc.addModel(lineWidthModel);
+
+        final ValueModel textEnabledModel = createDefaultValueModel(PROPERTY_NAME_TEXT_ENABLED, DEFAULT_TEXT_ENABLED);
+        vc.addModel(textEnabledModel);
+
+        final ValueModel textFontModel = createDefaultValueModel(PROPERTY_NAME_TEXT_FONT, DEFAULT_TEXT_FONT);
+        vc.addModel(textFontModel);
+
+        final ValueModel textFgColorModel = createDefaultValueModel(PROPERTY_NAME_TEXT_FG_COLOR, DEFAULT_TEXT_FG_COLOR);
+        vc.addModel(textFgColorModel);
+
+        final ValueModel textBgColorModel = createDefaultValueModel(PROPERTY_NAME_TEXT_BG_COLOR, DEFAULT_TEXT_BG_COLOR);
+        vc.addModel(textBgColorModel);
+
+        final ValueModel textBgTransparencyModel = createDefaultValueModel(PROPERTY_NAME_TEXT_BG_TRANSPARENCY,
+                                                                           DEFAULT_TEXT_BG_TRANSPARENCY);
+        vc.addModel(textBgTransparencyModel);
+
+        return vc;
+    }
+}

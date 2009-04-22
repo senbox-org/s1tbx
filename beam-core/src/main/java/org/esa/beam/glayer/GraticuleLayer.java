@@ -16,10 +16,9 @@
  */
 package org.esa.beam.glayer;
 
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.grender.Rendering;
@@ -29,7 +28,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.util.Guardian;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -49,36 +47,8 @@ import java.beans.PropertyChangeEvent;
  */
 public class GraticuleLayer extends Layer {
 
-    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
-
-    public static final String PROPERTY_NAME_RASTER = "graticule.raster";
-    public static final String PROPERTY_NAME_TRANSFORM = "graticule.i2mTransform";
-    public static final String PROPERTY_NAME_STYLE = "graticule.style";
-    public static final String PROPERTY_NAME_RES_AUTO = "graticule.res.auto";
-    public static final String PROPERTY_NAME_RES_PIXELS = "graticule.res.pixels";
-    public static final String PROPERTY_NAME_RES_LAT = "graticule.res.lat";
-    public static final String PROPERTY_NAME_RES_LON = "graticule.res.lon";
-    public static final String PROPERTY_NAME_LINE_COLOR = "graticule.line.color";
-    public static final String PROPERTY_NAME_LINE_TRANSPARENCY = "graticule.line.transparency";
-    public static final String PROPERTY_NAME_LINE_WIDTH = "graticule.line.width";
-    public static final String PROPERTY_NAME_TEXT_ENABLED = "graticule.text.enabled";
-    public static final String PROPERTY_NAME_TEXT_FONT = "graticule.text.font";
-    public static final String PROPERTY_NAME_TEXT_FG_COLOR = "graticule.text.fg.color";
-    public static final String PROPERTY_NAME_TEXT_BG_COLOR = "graticule.text.bg.color";
-    public static final String PROPERTY_NAME_TEXT_BG_TRANSPARENCY = "graticule.text.bg.transparency";
-
-    public static final boolean DEFAULT_RES_AUTO = true;
-    public static final int DEFAULT_RES_PIXELS = 128;
-    public static final double DEFAULT_RES_LAT = 1.0;
-    public static final double DEFAULT_RES_LON = 1.0;
-    public static final Color DEFAULT_LINE_COLOR = new Color(204, 204, 255);
-    public static final double DEFAULT_LINE_TRANSPARENCY = 0.0;
-    public static final double DEFAULT_LINE_WIDTH = 0.5;
-    public static final boolean DEFAULT_TEXT_ENABLED = true;
-    public static final Font DEFAULT_TEXT_FONT = new Font("SansSerif", Font.ITALIC, 12);
-    public static final Color DEFAULT_TEXT_FG_COLOR = Color.WHITE;
-    public static final Color DEFAULT_TEXT_BG_COLOR = Color.BLACK;
-    public static final double DEFAULT_TEXT_BG_TRANSPARENCY = 0.7;
+    private static final GraticuleLayerType LAYER_TYPE = (GraticuleLayerType) LayerType.getLayerType(
+            GraticuleLayerType.class.getName());
 
     private RasterDataNode raster;
     private final AffineTransform i2mTransform;
@@ -87,20 +57,30 @@ public class GraticuleLayer extends Layer {
     private Graticule graticule;
 
     public GraticuleLayer(RasterDataNode raster, AffineTransform i2mTransform) {
-        this(LAYER_TYPE, raster, i2mTransform);
+        this(LAYER_TYPE, initConfiguration(LAYER_TYPE.getConfigurationTemplate(), raster, i2mTransform));
     }
 
-    protected GraticuleLayer(Type type, RasterDataNode raster, AffineTransform i2mTransform) {
-        super(type);
-        Guardian.assertNotNull("product", raster.getProduct());
-        this.i2mTransform = i2mTransform;
+
+    public GraticuleLayer(GraticuleLayerType type, ValueContainer configuration) {
+        super(type, configuration);
+        this.i2mTransform = (AffineTransform) getConfiguration().getValue(GraticuleLayerType.PROPERTY_NAME_TRANSFORM);
+        this.raster = (RasterDataNode) getConfiguration().getValue(GraticuleLayerType.PROPERTY_NAME_RASTER);
 
         productNodeHandler = new ProductNodeHandler();
-
         raster.getProduct().addProductNodeListener(productNodeHandler);
-        this.raster = raster;
 
         getStyle().setOpacity(0.5);
+    }
+
+    private static ValueContainer initConfiguration(ValueContainer configurationTemplate, RasterDataNode raster,
+                                                    AffineTransform i2mTransform) {
+        try {
+            configurationTemplate.setValue(GraticuleLayerType.PROPERTY_NAME_RASTER, raster);
+            configurationTemplate.setValue(GraticuleLayerType.PROPERTY_NAME_TRANSFORM, i2mTransform);
+        } catch (ValidationException e) {
+            throw new IllegalArgumentException(e);
+        }
+        return configurationTemplate;
     }
 
     private Product getProduct() {
@@ -230,10 +210,10 @@ public class GraticuleLayer extends Layer {
     @Override
     protected void fireLayerPropertyChanged(PropertyChangeEvent event) {
         String propertyName = event.getPropertyName();
-        if (propertyName.equals(GraticuleLayer.PROPERTY_NAME_RES_AUTO) ||
-            propertyName.equals(GraticuleLayer.PROPERTY_NAME_RES_LAT) ||
-            propertyName.equals(GraticuleLayer.PROPERTY_NAME_RES_LON) ||
-            propertyName.equals(GraticuleLayer.PROPERTY_NAME_RES_PIXELS)) {
+        if (propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_AUTO) ||
+            propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_LAT) ||
+            propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_LON) ||
+            propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_PIXELS)) {
             graticule = null;
         }
         super.fireLayerPropertyChanged(event);
@@ -242,121 +222,121 @@ public class GraticuleLayer extends Layer {
     private boolean getResAuto() {
         final Style style = getStyle();
 
-        if (style.hasProperty(PROPERTY_NAME_RES_AUTO)) {
-            return (Boolean) getStyle().getProperty(PROPERTY_NAME_RES_AUTO);
+        if (style.hasProperty(GraticuleLayerType.PROPERTY_NAME_RES_AUTO)) {
+            return (Boolean) getStyle().getProperty(GraticuleLayerType.PROPERTY_NAME_RES_AUTO);
         }
 
-        return DEFAULT_RES_AUTO;
+        return GraticuleLayerType.DEFAULT_RES_AUTO;
     }
 
     private double getResLon() {
         final Style style = getStyle();
 
-        if (style.hasProperty(PROPERTY_NAME_RES_LON)) {
-            return (Double) getStyle().getProperty(PROPERTY_NAME_RES_LON);
+        if (style.hasProperty(GraticuleLayerType.PROPERTY_NAME_RES_LON)) {
+            return (Double) getStyle().getProperty(GraticuleLayerType.PROPERTY_NAME_RES_LON);
         }
 
-        return DEFAULT_RES_LON;
+        return GraticuleLayerType.DEFAULT_RES_LON;
     }
 
     private double getResLat() {
         final Style style = getStyle();
 
-        if (style.hasProperty(PROPERTY_NAME_RES_LAT)) {
-            return (Double) getStyle().getProperty(PROPERTY_NAME_RES_LAT);
+        if (style.hasProperty(GraticuleLayerType.PROPERTY_NAME_RES_LAT)) {
+            return (Double) getStyle().getProperty(GraticuleLayerType.PROPERTY_NAME_RES_LAT);
         }
 
-        return DEFAULT_RES_LAT;
+        return GraticuleLayerType.DEFAULT_RES_LAT;
     }
 
     private int getResPixels() {
         final Style style = getStyle();
 
-        if (style.hasProperty(PROPERTY_NAME_RES_PIXELS)) {
-            return (Integer) getStyle().getProperty(PROPERTY_NAME_RES_PIXELS);
+        if (style.hasProperty(GraticuleLayerType.PROPERTY_NAME_RES_PIXELS)) {
+            return (Integer) getStyle().getProperty(GraticuleLayerType.PROPERTY_NAME_RES_PIXELS);
         }
 
-        return DEFAULT_RES_PIXELS;
+        return GraticuleLayerType.DEFAULT_RES_PIXELS;
     }
 
     private boolean isTextEnabled() {
         final Style style = getStyle();
 
-        if (style.hasProperty(PROPERTY_NAME_TEXT_ENABLED)) {
-            return (Boolean) getStyle().getProperty(PROPERTY_NAME_TEXT_ENABLED);
+        if (style.hasProperty(GraticuleLayerType.PROPERTY_NAME_TEXT_ENABLED)) {
+            return (Boolean) getStyle().getProperty(GraticuleLayerType.PROPERTY_NAME_TEXT_ENABLED);
         }
 
-        return DEFAULT_TEXT_ENABLED;
+        return GraticuleLayerType.DEFAULT_TEXT_ENABLED;
     }
 
     private Color getLineColor() {
         final Style style = getStyle();
 
-        if (style.hasProperty(PROPERTY_NAME_LINE_COLOR)) {
-            return (Color) style.getProperty(PROPERTY_NAME_LINE_COLOR);
+        if (style.hasProperty(GraticuleLayerType.PROPERTY_NAME_LINE_COLOR)) {
+            return (Color) style.getProperty(GraticuleLayerType.PROPERTY_NAME_LINE_COLOR);
         }
 
-        return DEFAULT_LINE_COLOR;
+        return GraticuleLayerType.DEFAULT_LINE_COLOR;
     }
 
     private double getLineTransparency() {
         final Style style = getStyle();
 
-        if (style.hasProperty(PROPERTY_NAME_LINE_TRANSPARENCY)) {
-            return (Double) style.getProperty(PROPERTY_NAME_LINE_TRANSPARENCY);
+        if (style.hasProperty(GraticuleLayerType.PROPERTY_NAME_LINE_TRANSPARENCY)) {
+            return (Double) style.getProperty(GraticuleLayerType.PROPERTY_NAME_LINE_TRANSPARENCY);
         }
 
-        return DEFAULT_LINE_TRANSPARENCY;
+        return GraticuleLayerType.DEFAULT_LINE_TRANSPARENCY;
     }
 
     private double getLineWidth() {
         final Style style = getStyle();
 
-        if (style.hasProperty(PROPERTY_NAME_LINE_WIDTH)) {
-            return (Double) style.getProperty(PROPERTY_NAME_LINE_WIDTH);
+        if (style.hasProperty(GraticuleLayerType.PROPERTY_NAME_LINE_WIDTH)) {
+            return (Double) style.getProperty(GraticuleLayerType.PROPERTY_NAME_LINE_WIDTH);
         }
 
-        return DEFAULT_LINE_WIDTH;
+        return GraticuleLayerType.DEFAULT_LINE_WIDTH;
     }
 
     private Font getTextFont() {
         final Style style = getStyle();
 
-        if (style.hasProperty(PROPERTY_NAME_TEXT_FONT)) {
-            return (Font) style.getProperty(PROPERTY_NAME_TEXT_FONT);
+        if (style.hasProperty(GraticuleLayerType.PROPERTY_NAME_TEXT_FONT)) {
+            return (Font) style.getProperty(GraticuleLayerType.PROPERTY_NAME_TEXT_FONT);
         }
 
-        return DEFAULT_TEXT_FONT;
+        return GraticuleLayerType.DEFAULT_TEXT_FONT;
     }
 
     private Color getTextFgColor() {
         final Style style = getStyle();
 
-        if (style.hasProperty(PROPERTY_NAME_TEXT_FG_COLOR)) {
-            return (Color) style.getProperty(PROPERTY_NAME_TEXT_FG_COLOR);
+        if (getConfiguration().getModel(GraticuleLayerType.PROPERTY_NAME_TEXT_FG_COLOR) != null) {
+            return (Color) getConfiguration().getValue(GraticuleLayerType.PROPERTY_NAME_TEXT_FG_COLOR);
         }
 
-        return DEFAULT_TEXT_FG_COLOR;
+        return GraticuleLayerType.DEFAULT_TEXT_FG_COLOR;
     }
 
     private Color getTextBgColor() {
         final Style style = getStyle();
 
-        if (style.hasProperty(PROPERTY_NAME_TEXT_BG_COLOR)) {
-            return (Color) style.getProperty(PROPERTY_NAME_TEXT_BG_COLOR);
+        if (style.hasProperty(GraticuleLayerType.PROPERTY_NAME_TEXT_BG_COLOR)) {
+            return (Color) style.getProperty(GraticuleLayerType.PROPERTY_NAME_TEXT_BG_COLOR);
         }
 
-        return DEFAULT_TEXT_BG_COLOR;
+        return GraticuleLayerType.DEFAULT_TEXT_BG_COLOR;
     }
 
     private double getTextBgTransparency() {
         final Style style = getStyle();
 
-        if (style.hasProperty(PROPERTY_NAME_TEXT_BG_TRANSPARENCY)) {
-            return (Double) style.getProperty(PROPERTY_NAME_TEXT_BG_TRANSPARENCY);
+        if (style.hasProperty(GraticuleLayerType.PROPERTY_NAME_TEXT_BG_TRANSPARENCY)) {
+            return (Double) style.getProperty(GraticuleLayerType.PROPERTY_NAME_TEXT_BG_TRANSPARENCY);
         }
 
-        return DEFAULT_TEXT_BG_TRANSPARENCY;
+        return GraticuleLayerType.DEFAULT_TEXT_BG_TRANSPARENCY;
     }
 
     private class ProductNodeHandler extends ProductNodeListenerAdapter {
@@ -377,63 +357,4 @@ public class GraticuleLayer extends Layer {
         }
     }
 
-    public static class Type extends LayerType {
-
-        @Override
-        public String getName() {
-            return "Graticule Layer";
-        }
-
-        @Override
-        public boolean isValidFor(LayerContext ctx) {
-            return true;
-        }
-
-        @Override
-        protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
-            RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
-            AffineTransform i2mTransform = (AffineTransform) configuration.getValue(PROPERTY_NAME_TRANSFORM);
-            Style style = (Style) configuration.getValue(PROPERTY_NAME_STYLE);
-            GraticuleLayer layer = new GraticuleLayer(raster, i2mTransform);
-            layer.setStyle(style);
-
-            return layer;
-        }
-
-        @Override
-        public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
-            GraticuleLayer graticuleLayer = (GraticuleLayer) layer;
-            final ValueContainer vc = new ValueContainer();
-
-            final ValueModel rasterModel = createDefaultValueModel(PROPERTY_NAME_RASTER,
-                                                                   graticuleLayer.getRaster());
-            vc.addModel(rasterModel);
-
-            final ValueModel transformModel = createDefaultValueModel(PROPERTY_NAME_TRANSFORM,
-                                                                      graticuleLayer.getI2mTransform());
-            vc.addModel(transformModel);
-
-            final ValueModel styleModel = createDefaultValueModel(PROPERTY_NAME_STYLE, graticuleLayer.getStyle());
-            vc.addModel(styleModel);
-
-            return vc;
-        }
-
-        @Override
-        public ValueContainer getConfigurationTemplate() {
-            final ValueContainer vc = new ValueContainer();
-
-            final ValueModel rasterModel = createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class);
-            vc.addModel(rasterModel);
-
-            final ValueModel transformModel = createDefaultValueModel(PROPERTY_NAME_TRANSFORM, AffineTransform.class);
-            vc.addModel(transformModel);
-
-            final ValueModel styleModel = createDefaultValueModel(PROPERTY_NAME_STYLE, Style.class);
-            styleModel.getDescriptor().setTransient(true);
-            vc.addModel(styleModel);
-
-            return vc;
-        }
-    }
 }
