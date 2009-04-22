@@ -36,7 +36,7 @@ public abstract class Layer extends ExtensibleObject {
     private String id;
     private String name;
     private boolean visible;
-    private Style style;
+    private transient Style style;
 
     private transient final ArrayList<LayerListener> layerListenerList;
     private transient final ConfigurationPCL configurationPCL;
