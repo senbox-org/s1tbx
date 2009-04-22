@@ -1,7 +1,7 @@
 package org.esa.beam.visat.actions.session;
 
 /**
- * todo - add API doc
+ * todo - REVIEW this (mp, rq - 21.04.2009)
  *
  * @author Marco Peters
  * @version $ Revision $ Date $
