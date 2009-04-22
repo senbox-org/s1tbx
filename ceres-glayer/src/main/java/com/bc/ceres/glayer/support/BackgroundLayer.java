@@ -9,6 +9,7 @@ import com.bc.ceres.grender.Rendering;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Rectangle;
+import java.awt.Color;
 
 /**
  * A background layer is used to draw a background using a unique {@link java.awt.Paint}.
@@ -19,28 +20,28 @@ public class BackgroundLayer extends Layer {
 
     private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
 
-    public BackgroundLayer(Paint paint) {
+    public BackgroundLayer(Color paint) {
         this(LAYER_TYPE, paint);
     }
 
-    protected BackgroundLayer(Type type, Paint paint) {
+    protected BackgroundLayer(Type type, Color color) {
         super(type);
-        getStyle().setProperty("paint", paint);
+        setColor(color);
     }
 
-    public Paint getPaint() {
-        return (Paint) getStyle().getProperty("paint");
+    public Color getColor() {
+        return (Color) getStyle().getProperty("color");
     }
 
-    public void setPaint(Paint paint) {
-        getStyle().setProperty("paint", paint);
+    public void setColor(Color color) {
+        getStyle().setProperty("color", color);
     }
 
     @Override
     protected void renderLayer(Rendering rendering) {
         final Graphics2D g = rendering.getGraphics();
         Paint oldPaint = g.getPaint();
-        g.setPaint(getPaint());
+        g.setPaint(getColor());
         Rectangle bounds = g.getClipBounds();
         g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
         g.setPaint(oldPaint);
@@ -61,7 +62,7 @@ public class BackgroundLayer extends Layer {
         @Override
         public ValueContainer getConfigurationTemplate() {
             final ValueContainer template = new ValueContainer();
-            template.addModel(createDefaultValueModel("paint", Paint.class));
+            template.addModel(createDefaultValueModel("color", Color.class));
 
             return template;
 
@@ -69,8 +70,8 @@ public class BackgroundLayer extends Layer {
 
         @Override
         protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
-            Paint paint = (Paint) configuration.getValue("paint");
-            return new BackgroundLayer(paint);
+            Color color = (Color) configuration.getValue("color");
+            return new BackgroundLayer(color);
         }
     }
 }

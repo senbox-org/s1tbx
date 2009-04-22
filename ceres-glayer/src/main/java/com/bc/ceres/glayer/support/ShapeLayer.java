@@ -1,6 +1,7 @@
 package com.bc.ceres.glayer.support;
 
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -119,18 +120,26 @@ public class ShapeLayer extends Layer {
 
         @Override
         protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
-            List<Shape> shapes = (List<Shape>) configuration.getValue(PROPERTY_SHAPE_LIST);
+            @SuppressWarnings({"unchecked"})
+            final List<Shape> shapes = (List<Shape>) configuration.getValue(PROPERTY_SHAPE_LIST);
             AffineTransform shapeToModelTransform = (AffineTransform) configuration.getValue(
                     PROPTERY_SHAPE_TO_MODEL_TRANSFORM);
+            
             return new ShapeLayer(shapes.toArray(new Shape[shapes.size()]), shapeToModelTransform);
         }
 
         @Override
         public ValueContainer getConfigurationTemplate() {
             final ValueContainer vc = new ValueContainer();
-            vc.addModel(createDefaultValueModel(PROPERTY_SHAPE_LIST, List.class));
-            vc.addModel(createDefaultValueModel(PROPTERY_SHAPE_TO_MODEL_TRANSFORM,
-                                                AffineTransform.class));
+
+            final ValueModel shapeListModel = createDefaultValueModel(PROPERTY_SHAPE_LIST, new ArrayList<Shape>());
+            shapeListModel.getDescriptor().setDefaultValue(new ArrayList<Shape>());
+            vc.addModel(shapeListModel);
+
+            final ValueModel transformModel = createDefaultValueModel(PROPTERY_SHAPE_TO_MODEL_TRANSFORM,
+                                                                      new AffineTransform());
+            transformModel.getDescriptor().setDefaultValue(new AffineTransform());
+            vc.addModel(transformModel);
 
             return vc;
         }
