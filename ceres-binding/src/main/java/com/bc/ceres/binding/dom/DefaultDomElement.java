@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 
 public class DefaultDomElement implements DomElement {
+
     private DomElement parent;
     private String name;
     private String value;
@@ -92,8 +93,7 @@ public class DefaultDomElement implements DomElement {
             return new DomElement[0];
         }
         ArrayList<DomElement> children = new ArrayList<DomElement>(elementList.size());
-        for (int i = 0; i < children.size(); i++) {
-            DomElement domElement = children.get(i);
+        for (DomElement domElement : elementList) {
             if (elementName.equals(domElement.getName())) {
                 children.add(domElement);
             }
