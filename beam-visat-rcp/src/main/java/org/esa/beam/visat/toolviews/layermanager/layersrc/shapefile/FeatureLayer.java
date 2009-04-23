@@ -56,27 +56,26 @@ public class FeatureLayer extends Layer {
     private Rectangle2D modelBounds;
 
 
-    public FeatureLayer(final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
-                        final Style style) {
-        this(LAYER_TYPE, featureCollection, style);
-    }
+    public FeatureLayer(Type layerType, ValueContainer configuration) {
+        super(layerType, configuration);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc;
+        fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) configuration.getValue(
+                Type.PROPERTY_FEATURE_COLLECTION);
+        Style style = (Style) configuration.getValue(Type.PROPERTY_SLD_STYLE);
 
-    protected FeatureLayer(Type type,
-                           final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
-                           final Style style) {
-        super(type);
-
-        crs = featureCollection.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
-        final ReferencedEnvelope envelope = new ReferencedEnvelope(featureCollection.getBounds(), crs);
+        crs = fc.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
+        final ReferencedEnvelope envelope = new ReferencedEnvelope(fc.getBounds(), crs);
         modelBounds = new Rectangle2D.Double(envelope.getMinX(), envelope.getMinY(),
                                              envelope.getWidth(), envelope.getHeight());
         mapContext = new DefaultMapContext(crs);
-        mapContext.addLayer(featureCollection, style);
+        mapContext.addLayer(fc, style);
         renderer = new StreamingRenderer();
         workaroundLabelCacheBug();
         style.accept(new RetrievingStyleVisitor());
         renderer.setContext(mapContext);
+
     }
+
 
     @Override
     protected Rectangle2D getLayerModelBounds() {
@@ -261,11 +260,7 @@ public class FeatureLayer extends Layer {
 
         @Override
         protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
-            FeatureCollection<SimpleFeatureType, SimpleFeature> fc;
-            fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) configuration.getValue(
-                    PROPERTY_FEATURE_COLLECTION);
-            Style style = (Style) configuration.getValue(PROPERTY_SLD_STYLE);
-            return new FeatureLayer(fc, style);
+            return new FeatureLayer(this, configuration);
         }
 
         @Override

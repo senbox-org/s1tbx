@@ -1,5 +1,6 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
+import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
@@ -32,7 +33,7 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
     private JComboBox styleList;
     private JPanel mapPanel;
-    private SwingWorker<FeatureLayer, Object> worker;
+    private SwingWorker<Layer, Object> worker;
     private boolean shapeFileLoaded;
     private JLabel infoLabel;
     private JLabel mapLabel;
@@ -171,7 +172,7 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
             context.getWindow().setCursor(Cursor.getDefaultCursor());
 
             try {
-                final FeatureLayer layer = get();
+                final Layer layer = get();
                 final LayerCanvas layerCanvas = new LayerCanvas(layer);
                 showInMapPanel(layerCanvas);
                 final Rectangle2D bounds = layer.getModelBounds();

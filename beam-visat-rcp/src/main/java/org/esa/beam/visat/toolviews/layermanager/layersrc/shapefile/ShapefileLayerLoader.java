@@ -22,7 +22,7 @@ class ShapefileLayerLoader extends ShapefileLoader {
     @Override
     protected void done() {
         try {
-            final FeatureLayer layer = get();
+            final Layer layer = get();
             ProductSceneView sceneView = getContext().getAppContext().getSelectedProductSceneView();
             final Layer rootLayer = getContext().getLayerContext().getRootLayer();
             rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), layer);

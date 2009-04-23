@@ -1,5 +1,8 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerType;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -9,6 +12,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 import org.geotools.data.DataStore;
@@ -45,7 +49,7 @@ import java.util.Map;
  * @version $ Revision $ Date $
  * @since BEAM 4.6
  */
-class ShapefileLoader extends SwingWorker<FeatureLayer, Object> {
+class ShapefileLoader extends SwingWorker<Layer, Object> {
 
     private static final org.geotools.styling.StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
     private static final FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
@@ -61,9 +65,10 @@ class ShapefileLoader extends SwingWorker<FeatureLayer, Object> {
     }
 
     @Override
-    protected FeatureLayer doInBackground() throws Exception {
+    protected Layer doInBackground() throws Exception {
 
-        Product targetProduct = context.getAppContext().getSelectedProductSceneView().getProduct();
+        final ProductSceneView sceneView = context.getAppContext().getSelectedProductSceneView();
+        Product targetProduct = sceneView.getProduct();
         CoordinateReferenceSystem targetCrs = targetProduct.getGeoCoding().getModelCRS();
         final Geometry clipGeometry = createProductGeometry(targetProduct);
 
@@ -74,7 +79,11 @@ class ShapefileLoader extends SwingWorker<FeatureLayer, Object> {
         Style[] styles = getStyles(file, featureCollection);
         Style selectedStyle = getSelectedStyle(styles);
 
-        FeatureLayer featureLayer = new FeatureLayer(featureCollection, selectedStyle);
+        final LayerType type = LayerType.getLayerType(FeatureLayer.Type.class.getName());
+        final ValueContainer configuration = type.getConfigurationTemplate();
+        configuration.setValue(FeatureLayer.Type.PROPERTY_FEATURE_COLLECTION, featureCollection);
+        configuration.setValue(FeatureLayer.Type.PROPERTY_SLD_STYLE, selectedStyle);
+        Layer featureLayer = type.createLayer(sceneView.getLayerContext(), configuration);
         featureLayer.setName(file.getName());
         featureLayer.setVisible(true);
         return featureLayer;
