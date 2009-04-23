@@ -1,15 +1,16 @@
 package com.bc.ceres.glayer.support;
 
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.grender.Rendering;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Rectangle;
-import java.awt.Color;
 
 /**
  * A background layer is used to draw a background using a unique {@link java.awt.Paint}.
@@ -20,21 +21,34 @@ public class BackgroundLayer extends Layer {
 
     private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
 
-    public BackgroundLayer(Color paint) {
-        this(LAYER_TYPE, paint);
+    public BackgroundLayer(Color color) {
+        this(LAYER_TYPE, initConfiguration(LAYER_TYPE.getConfigurationTemplate(), color));
     }
 
-    protected BackgroundLayer(Type type, Color color) {
-        super(type);
-        setColor(color);
+    public BackgroundLayer(Type type, ValueContainer configuration) {
+        super(type, configuration);
     }
 
-    public Color getColor() {
-        return (Color) getStyle().getProperty("color");
+    private static ValueContainer initConfiguration(ValueContainer configuration, Color color) {
+        try {
+            configuration.setValue(Type.COLOR, color);
+        } catch (ValidationException e) {
+            e.printStackTrace();
+        }
+        return configuration;
     }
 
-    public void setColor(Color color) {
-        getStyle().setProperty("color", color);
+    Color getColor() {
+        return (Color) getConfiguration().getValue(Type.COLOR);
+    }
+
+    void setColor(Color color) {
+        try {
+            getConfiguration().setValue(Type.COLOR, color);
+        } catch (ValidationException e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Override
@@ -49,6 +63,8 @@ public class BackgroundLayer extends Layer {
 
     public static class Type extends LayerType {
 
+        private static final String COLOR = "color";
+
         @Override
         public String getName() {
             return "Background Layer";
@@ -62,7 +78,7 @@ public class BackgroundLayer extends Layer {
         @Override
         public ValueContainer getConfigurationTemplate() {
             final ValueContainer template = new ValueContainer();
-            template.addModel(createDefaultValueModel("color", Color.class));
+            template.addModel(createDefaultValueModel(COLOR, Color.class));
 
             return template;
 
@@ -70,8 +86,7 @@ public class BackgroundLayer extends Layer {
 
         @Override
         protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
-            Color color = (Color) configuration.getValue("color");
-            return new BackgroundLayer(color);
+            return new BackgroundLayer(this, configuration);
         }
     }
 }
