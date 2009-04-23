@@ -5,7 +5,6 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
-import org.esa.beam.framework.draw.Figure;
 
 import java.awt.geom.AffineTransform;
 import java.util.List;
@@ -31,10 +30,7 @@ public class FigureLayerType extends LayerType {
 
     @Override
     protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
-        final List<Figure> figureList = (List<Figure>) configuration.getValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST);
-        final AffineTransform shapeToModelTransform = (AffineTransform) configuration.getValue(
-                FigureLayer.PROPERTY_NAME_TRANSFORM);
-        final FigureLayer layer = new FigureLayer(this, shapeToModelTransform, figureList);
+        final FigureLayer layer = new FigureLayer(this, configuration);
         layer.setId(FIGURE_LAYER_ID);
         layer.setVisible(true);
         configureLayer(configuration, layer);

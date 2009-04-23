@@ -16,8 +16,8 @@
  */
 package org.esa.beam.glayer;
 
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
@@ -31,14 +31,9 @@ import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class FigureLayer extends Layer {
-
-    private static final FigureLayerType LAYER_TYPE = (FigureLayerType) LayerType.getLayerType(
-            FigureLayerType.class.getName());
 
     public static final String PROPERTY_NAME_FIGURE_LIST = "shape.figureList";
     public static final String PROPERTY_NAME_TRANSFORM = "shape.transform";
@@ -63,15 +58,11 @@ public class FigureLayer extends Layer {
     private final List<Figure> figureList;
     private final AffineTransform shapeToModelTransform;
 
-    public FigureLayer(AffineTransform shapeToModelTransform, Figure[] figures) {
-        this(LAYER_TYPE, shapeToModelTransform, Arrays.asList(figures));
-    }
-
-    protected FigureLayer(FigureLayerType type, AffineTransform shapeToModelTransform, List<Figure> figureList) {
-        super(type);
+    public FigureLayer(FigureLayerType type, ValueContainer configuration) {
+        super(type, configuration);
         setName("Figures");
-        this.figureList = new ArrayList<Figure>(figureList);
-        this.shapeToModelTransform = new AffineTransform(shapeToModelTransform);
+        this.figureList = (List<Figure>) configuration.getValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST);
+        this.shapeToModelTransform = (AffineTransform) configuration.getValue(PROPERTY_NAME_TRANSFORM);
     }
 
     public void addFigure(Figure currentShapeFigure) {
