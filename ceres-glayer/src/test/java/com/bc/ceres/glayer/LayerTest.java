@@ -1,8 +1,9 @@
 package com.bc.ceres.glayer;
 
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import com.bc.ceres.binding.ValidationException;
 
 public class LayerTest {
 
@@ -21,10 +22,10 @@ public class LayerTest {
         Layer layer = new CollectionLayer();
         LayerType layerType = layer.getLayerType();
         assertNotNull(layerType);
-        assertTrue(layerType.createLayer(null, null) != null);
+        assertTrue(layerType.createLayer(null, new ValueContainer()) != null);
         assertTrue(layerType.isValidFor(null));
         assertNotNull(layer.getId());
-        assertEquals("Collection layer", layer.getName());
+        assertEquals("Collection Layer", layer.getName());
         assertEquals(true, layer.isVisible());
         assertEquals(1.0, layer.getStyle().getOpacity(), 1.0e-10);
         assertEquals(Composite.SRC_OVER, layer.getStyle().getComposite());
@@ -42,7 +43,7 @@ public class LayerTest {
         layer.setVisible(true);
         assertEquals(true, layer.isVisible());
 
-        assertEquals("Collection layer", layer.getName());
+        assertEquals("Collection Layer", layer.getName());
         layer.setName("Grid");
         assertEquals("Grid", layer.getName());
         layer.setName("Earth grid");
