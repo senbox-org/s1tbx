@@ -5,12 +5,12 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 
-public abstract class SingleTypeDomConverter<T> implements DomConverter, SessionAccessorHolder {
+public abstract class SessionElementDomConverter<T> implements DomConverter {
 
     private final Class<? extends T> type;
     private transient Session.SessionAccessor sessionAccessor;
 
-    protected SingleTypeDomConverter(Class<? extends T> type) {
+    protected SessionElementDomConverter(Class<? extends T> type) {
         this.type = type;
     }
 
@@ -26,12 +26,10 @@ public abstract class SingleTypeDomConverter<T> implements DomConverter, Session
     @Override
     public abstract void convertValueToDom(Object value, DomElement parentElement);
 
-    @Override
     public final Session.SessionAccessor getSessionAccessor() {
         return sessionAccessor;
     }
 
-    @Override
     public final void setSessionAccessor(Session.SessionAccessor sessionAccessor) {
         this.sessionAccessor = sessionAccessor;
     }

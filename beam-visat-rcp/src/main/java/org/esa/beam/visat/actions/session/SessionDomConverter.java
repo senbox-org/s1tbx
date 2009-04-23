@@ -20,24 +20,22 @@ import java.util.HashMap;
  * @version $ Revision $ Date $
  * @since BEAM 4.6
  */
-public class SessionDomConverter extends DefaultDomConverter implements SessionAccessorHolder {
+public class SessionDomConverter extends DefaultDomConverter {
 
     private Session.SessionAccessor sessionAccesor;
-    private HashMap<Class<?>, SingleTypeDomConverter<?>> converterMap;
+    private HashMap<Class<?>, SessionElementDomConverter<?>> converterMap;
 
     public SessionDomConverter() {
         super(ValueContainer.class, new InternalClassFieldDescriptorFactory());
-        converterMap = new HashMap<Class<?>, SingleTypeDomConverter<?>>();   // todo - replace with registry
+        converterMap = new HashMap<Class<?>, SessionElementDomConverter<?>>();   // todo - replace with registry
         final RasterDataNodeDomConverter domConverter = new RasterDataNodeDomConverter();
         converterMap.put(domConverter.getValueType(), domConverter);
     }
 
-    @Override
     public Session.SessionAccessor getSessionAccessor() {
         return sessionAccesor;
     }
 
-    @Override
     public void setSessionAccessor(Session.SessionAccessor session) {
         this.sessionAccesor = session;
     }
@@ -46,17 +44,17 @@ public class SessionDomConverter extends DefaultDomConverter implements SessionA
     protected DomConverter getDomConverter(ValueDescriptor descriptor) {
         DomConverter domConverter = super.getDomConverter(descriptor);
         if (domConverter == null) {
-            domConverter = getConverterFromMap(descriptor.getType());
-            if (domConverter != null) {
-                ((SessionAccessorHolder) domConverter).setSessionAccessor(getSessionAccessor());
+            SessionElementDomConverter<?> elemDomConverter = getConverterFromMap(descriptor.getType());
+            if (elemDomConverter != null) {
+                elemDomConverter.setSessionAccessor(getSessionAccessor());
             }
         }
         return domConverter;
 
     }
 
-    private DomConverter getConverterFromMap(Class<?> type) {
-        DomConverter domConverter = converterMap.get(type);
+    private SessionElementDomConverter<?> getConverterFromMap(Class<?> type) {
+        SessionElementDomConverter<?> domConverter = converterMap.get(type);
         while (domConverter == null && type != null && type != Object.class) {
             type = type.getSuperclass();
             domConverter = converterMap.get(type);
@@ -64,11 +62,11 @@ public class SessionDomConverter extends DefaultDomConverter implements SessionA
         return domConverter;
     }
 
-    public <T> void registerDomConverter(Class<? extends T> type, SingleTypeDomConverter<T> domConverter) {
+    public <T> void registerDomConverter(Class<? extends T> type, SessionElementDomConverter<T> domConverter) {
         converterMap.put(type, domConverter);
     }
 
-    private static class RasterDataNodeDomConverter extends SingleTypeDomConverter<RasterDataNode> {
+    private static class RasterDataNodeDomConverter extends SessionElementDomConverter<RasterDataNode> {
 
         private RasterDataNodeDomConverter() {
             super(RasterDataNode.class);

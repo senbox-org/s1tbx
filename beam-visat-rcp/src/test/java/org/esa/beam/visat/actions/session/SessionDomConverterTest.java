@@ -98,7 +98,8 @@ public class SessionDomConverterTest {
         compareConfigurations(originalConfiguration, restoredConfiguration);
     }
 
-    private static void compareConfigurations(ValueContainer originalConfiguration, ValueContainer restoredConfiguration) {
+    private static void compareConfigurations(ValueContainer originalConfiguration,
+                                              ValueContainer restoredConfiguration) {
         for (ValueModel originalModel : originalConfiguration.getModels()) {
             final ValueDescriptor originalDescriptor = originalModel.getDescriptor();
             final ValueModel restoredModel = restoredConfiguration.getModel(originalDescriptor.getName());
@@ -120,7 +121,7 @@ public class SessionDomConverterTest {
         }
     }
 
-    private static class BitmaskDefDomConverter extends SingleTypeDomConverter<BitmaskDef> {
+    private static class BitmaskDefDomConverter extends SessionElementDomConverter<BitmaskDef> {
 
         public BitmaskDefDomConverter() {
             super(BitmaskDef.class);
@@ -147,7 +148,7 @@ public class SessionDomConverterTest {
         }
     }
 
-    private static class ProductDomConverter extends SingleTypeDomConverter<Product> {
+    private static class ProductDomConverter extends SessionElementDomConverter<Product> {
 
         public ProductDomConverter() {
             super(Product.class);
