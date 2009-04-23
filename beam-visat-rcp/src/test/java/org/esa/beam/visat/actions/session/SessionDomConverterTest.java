@@ -83,6 +83,7 @@ public class SessionDomConverterTest {
         }
     }
 
+    @Test
     public void testWriteReadBitmaskLayer() throws ValidationException, ConversionException {
         final BitmaskLayerType layerType = (BitmaskLayerType) LayerType.getLayerType(
                 BitmaskLayerType.class.getName());
@@ -133,25 +134,34 @@ public class SessionDomConverterTest {
         }
     }
 
-    private static class BitmaskDefDomConverter extends AbstractSingleTypeDomConverter<BitmaskDef> {
+    private static class BitmaskDefDomConverter extends SingleTypeDomConverter<BitmaskDef> {
 
         public BitmaskDefDomConverter() {
             super(BitmaskDef.class);
         }
 
         @Override
-        public BitmaskDef convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
-                                                                                           ValidationException {
-            return null; // TODO: implement
+        public BitmaskDef convertDomToValue(DomElement parentElement, Object bitmaskDef) throws ConversionException,
+                                                                                                ValidationException {
+            final Integer refNo = Integer.valueOf(parentElement.getChild("refNo").getValue());
+            final String bitmaskName = parentElement.getChild("bitmaskName").getValue();
+
+            bitmaskDef = getSessionAccessor().getProduct(refNo).getBitmaskDef(bitmaskName);
+
+            return (BitmaskDef) bitmaskDef;
         }
 
         @Override
         public void convertValueToDom(Object value, DomElement parentElement) {
-            // TODO: implement
+            BitmaskDef bitmaskDef = (BitmaskDef) value;
+            final DomElement refNo = parentElement.createChild("refNo");
+            final DomElement bitmaskName = parentElement.createChild("bitmaskName");
+            refNo.setValue(String.valueOf(bitmaskDef.getProduct().getRefNo()));
+            bitmaskName.setValue(bitmaskDef.getName());
         }
     }
 
-    private static class ProductDomConverter extends AbstractSingleTypeDomConverter<Product> {
+    private static class ProductDomConverter extends SingleTypeDomConverter<Product> {
 
         public ProductDomConverter() {
             super(Product.class);
@@ -160,12 +170,14 @@ public class SessionDomConverterTest {
         @Override
         public Product convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
                                                                                         ValidationException {
-            return null; // TODO: implement
+            final Integer refNo = Integer.valueOf(parentElement.getChild("refNo").getValue());
+            return getSessionAccessor().getProduct(refNo);
         }
 
         @Override
         public void convertValueToDom(Object value, DomElement parentElement) {
-            // TODO: implement
+            final DomElement refNo = parentElement.createChild("refNo");
+            refNo.setValue(String.valueOf(bitmaskDef.getProduct().getRefNo()));
         }
     }
 }

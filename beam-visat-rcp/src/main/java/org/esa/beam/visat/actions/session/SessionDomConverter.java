@@ -23,13 +23,13 @@ import java.util.HashMap;
 public class SessionDomConverter extends DefaultDomConverter implements SessionAccessorHolder {
 
     private Session.SessionAccessor sessionAccesor;
-    private HashMap<Class<?>, DomConverter> converterHashMap;
+    private HashMap<Class<?>, SingleTypeDomConverter<?>> converterMap;
 
     public SessionDomConverter() {
         super(ValueContainer.class, new InternalClassFieldDescriptorFactory());
-        converterHashMap = new HashMap<Class<?>, DomConverter>();   // todo - replace with registry
+        converterMap = new HashMap<Class<?>, SingleTypeDomConverter<?>>();   // todo - replace with registry
         final RasterDataNodeDomConverter domConverter = new RasterDataNodeDomConverter();
-        converterHashMap.put(domConverter.getValueType(), domConverter);
+        converterMap.put(domConverter.getValueType(), domConverter);
     }
 
     @Override
@@ -56,19 +56,19 @@ public class SessionDomConverter extends DefaultDomConverter implements SessionA
     }
 
     private DomConverter getConverterFromMap(Class<?> type) {
-        DomConverter domConverter = converterHashMap.get(type);
+        DomConverter domConverter = converterMap.get(type);
         while (domConverter == null && type != null && type != Object.class) {
             type = type.getSuperclass();
-            domConverter = converterHashMap.get(type);
+            domConverter = converterMap.get(type);
         }
         return domConverter;
     }
 
-    public <T> void registerDomConverter(Class<? extends T> type, AbstractSingleTypeDomConverter<T> domConverter) {
-        // TODO: implement
+    public <T> void registerDomConverter(Class<? extends T> type, SingleTypeDomConverter<T> domConverter) {
+        converterMap.put(type, domConverter);
     }
 
-    private static class RasterDataNodeDomConverter extends AbstractSingleTypeDomConverter<RasterDataNode> {
+    private static class RasterDataNodeDomConverter extends SingleTypeDomConverter<RasterDataNode> {
 
         private RasterDataNodeDomConverter() {
             super(RasterDataNode.class);
