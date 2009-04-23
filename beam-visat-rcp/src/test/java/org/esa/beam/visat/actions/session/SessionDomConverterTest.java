@@ -7,7 +7,6 @@ import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
-import com.bc.ceres.core.ExtensionFactory;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import static junit.framework.Assert.assertEquals;
@@ -32,7 +31,6 @@ public class SessionDomConverterTest {
 
     private static Band band;
     private static Session.SessionAccessor sessionAccessor;
-    private static ExtensionFactory extensionFactory;
     private static BitmaskDef bitmaskDef;
     private static Product product;
 
