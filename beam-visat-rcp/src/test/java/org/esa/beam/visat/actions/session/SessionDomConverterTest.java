@@ -64,23 +64,7 @@ public class SessionDomConverterTest {
 
         final ValueContainer restoredConfiguration = (ValueContainer) domConverter.convertDomToValue(elem,
                                                                                                      layerType.getConfigurationTemplate());
-        for (ValueModel outModel : originalConfiguration.getModels()) {
-            final ValueDescriptor outDescriptor = outModel.getDescriptor();
-            final ValueModel inModel = restoredConfiguration.getModel(outDescriptor.getName());
-            assertNotNull(inModel);
-            assertEquals(outDescriptor.getName(), inModel.getDescriptor().getName());
-            assertEquals(outDescriptor.getType(), inModel.getDescriptor().getType());
-            if (outModel.getDescriptor().isTransient()) {
-                assertEquals(outModel.getDescriptor().isTransient(), inModel.getDescriptor().isTransient());
-            } else {
-                final Object outValue = outModel.getValue();
-                final Object inValue = inModel.getValue();
-                assertSame(outValue.getClass(), inValue.getClass());
-                if (outValue.getClass().isArray()) {
-                    assertEquals(Array.getLength(outValue), Array.getLength(inValue));
-                }
-            }
-        }
+        compareConfigurations(originalConfiguration, restoredConfiguration);
     }
 
     @Test
@@ -111,6 +95,10 @@ public class SessionDomConverterTest {
         final ValueContainer restoredConfiguration = (ValueContainer) domConverter.convertDomToValue(domElement,
                                                                                                      layerType.getConfigurationTemplate());
 
+        compareConfigurations(originalConfiguration, restoredConfiguration);
+    }
+
+    private static void compareConfigurations(ValueContainer originalConfiguration, ValueContainer restoredConfiguration) {
         for (ValueModel originalModel : originalConfiguration.getModels()) {
             final ValueDescriptor originalDescriptor = originalModel.getDescriptor();
             final ValueModel restoredModel = restoredConfiguration.getModel(originalDescriptor.getName());
@@ -124,9 +112,7 @@ public class SessionDomConverterTest {
             } else {
                 final Object originalValue = originalModel.getValue();
                 final Object restoredValue = restoredModel.getValue();
-
                 assertSame(originalValue.getClass(), restoredValue.getClass());
-
                 if (originalValue.getClass().isArray()) {
                     assertEquals(Array.getLength(originalValue), Array.getLength(restoredValue));
                 }
