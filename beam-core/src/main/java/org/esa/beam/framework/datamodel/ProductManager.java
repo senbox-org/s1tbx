@@ -49,7 +49,7 @@ public class ProductManager {
      */
     @Deprecated
     public int getNumProducts() {
-        return products.size();
+        return getProductCount();
     }
 
     /**
@@ -64,12 +64,14 @@ public class ProductManager {
      */
     @Deprecated
     public Product getProductAt(int index) {
-        return products.getAt(index);
+        return getProduct(index);
     }
 
     /**
      * Gets the product at the given index.
+     *
      * @param index the index
+     *
      * @return The product at the given index.
      */
     public Product getProduct(int index) {
@@ -80,6 +82,7 @@ public class ProductManager {
      * Returns the display names of all products currently managed.
      *
      * @return an array containing the display names, never <code>null</code>, but the array can have zero length
+     *
      * @see ProductNode#getDisplayName()
      */
     public String[] getProductDisplayNames() {
@@ -101,11 +104,12 @@ public class ProductManager {
      * @return an array containing the products, never <code>null</code>, but the array can have zero length
      */
     public Product[] getProducts() {
-        return products.toArray(new Product[getNumProducts()]);
+        return products.toArray(new Product[getProductCount()]);
     }
 
     /**
      * @param displayName The product's display name.
+     *
      * @return The product with the given display name.
      */
     public Product getProductByDisplayName(final String displayName) {
@@ -116,7 +120,23 @@ public class ProductManager {
     }
 
     /**
+     * @param refNo The reference number.
+     *
+     * @return The product with the given reference number.
+     */
+    public Product getProductByRefNo(final int refNo) {
+        for (final Product product : getProducts()) {
+            if (refNo == product.getRefNo()) {
+                return product;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @param name The product name.
+     *
      * @return The product with the given name.
      */
     public Product getProduct(String name) {
@@ -131,6 +151,7 @@ public class ProductManager {
      * Tests whether a product with the given name is contained in this list.
      *
      * @param name the product name
+     *
      * @return true, if so
      */
     public boolean containsProduct(String name) {
@@ -141,6 +162,7 @@ public class ProductManager {
      * Tests whether the given product is contained in this list.
      *
      * @param product The product.
+     *
      * @return {@code true} if so.
      */
     public boolean contains(final Product product) {
@@ -172,6 +194,7 @@ public class ProductManager {
      * Removes the given product from this product manager if it exists.
      *
      * @param product the product to be removed, ignored if <code>null</code>
+     *
      * @return true, if the product was removed
      */
     public boolean removeProduct(Product product) {
@@ -218,10 +241,10 @@ public class ProductManager {
      * @return the next highest reference number
      */
     private int getNextRefNo() {
-        final int numProducts = getNumProducts();
+        final int numProducts = getProductCount();
         int highestRefNo = 0;
         for (int i = 0; i < numProducts; i++) {
-            final int refNo = getProductAt(i).getRefNo();
+            final int refNo = getProduct(i).getRefNo();
             if (refNo > highestRefNo) {
                 highestRefNo = refNo;
             }
@@ -237,6 +260,7 @@ public class ProductManager {
      * informed each time a product was added or removed.
      *
      * @param listener the listener to be added.
+     *
      * @return true if the listener was added, otherwise false.
      */
     public synchronized boolean addListener(Listener listener) {
@@ -259,6 +283,7 @@ public class ProductManager {
      * Removes a <code>ProductManagerListener</code> from this product manager.
      *
      * @param listener The listener.
+     *
      * @return true, if the listener was removed, otherwise false.
      */
     public synchronized boolean removeListener(Listener listener) {
@@ -278,6 +303,7 @@ public class ProductManager {
      * Removes a <code>ProductManagerListener</code> from this product manager.
      *
      * @param listener The listener.
+     *
      * @deprecated use #removeListener
      */
     @Deprecated
@@ -334,6 +360,7 @@ public class ProductManager {
      */
     @Deprecated
     public interface ProductManagerListener extends Listener {
+
     }
 
     /**
@@ -365,6 +392,7 @@ public class ProductManager {
      */
     @Deprecated
     public static class ProductManagerEvent extends Event {
+
         public ProductManagerEvent(Product product) {
             super(product);
         }

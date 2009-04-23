@@ -35,6 +35,6 @@ public class NewAction extends ExecCommand {
 
     @Override
     public void updateState(final CommandEvent event) {
-        setEnabled(VisatApp.getApp().getProductManager().getNumProducts() > 0);
+        setEnabled(VisatApp.getApp().getProductManager().getProductCount() > 0);
     }
 }

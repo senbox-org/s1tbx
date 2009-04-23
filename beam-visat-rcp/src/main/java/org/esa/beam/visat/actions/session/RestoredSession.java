@@ -11,6 +11,7 @@ import org.esa.beam.framework.ui.product.ProductNodeView;
  * @since BEAM 4.6
  */
 public class RestoredSession {
+
     private final Product[] products;
     private final ProductNodeView[] views;
     private final Exception[] problems;

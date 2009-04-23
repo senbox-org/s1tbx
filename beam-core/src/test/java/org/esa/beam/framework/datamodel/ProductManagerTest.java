@@ -64,8 +64,8 @@ public class ProductManagerTest extends TestCase {
 
         _productManager.addProduct(_product1);
 
-        assertEquals(1, _productManager.getNumProducts());
-        assertSame(_product1, _productManager.getProductAt(0));
+        assertEquals(1, _productManager.getProductCount());
+        assertSame(_product1, _productManager.getProduct(0));
         assertSame(_product1, _productManager.getProduct("product1"));
         assertEquals(1, _product1.getRefNo());
         assertSame(_productManager, _product1.getProductManager());
@@ -86,9 +86,9 @@ public class ProductManagerTest extends TestCase {
 
         _productManager.removeProduct(_product2);
 
-        assertEquals(2, _productManager.getNumProducts());
-        assertSame(_product1, _productManager.getProductAt(0));
-        assertSame(_product3, _productManager.getProductAt(1));
+        assertEquals(2, _productManager.getProductCount());
+        assertSame(_product1, _productManager.getProduct(0));
+        assertSame(_product3, _productManager.getProduct(1));
         assertSame(_product1, _productManager.getProduct("product1"));
         assertNull(_productManager.getProduct("product2"));
         assertSame(_product3, _productManager.getProduct("product3"));
@@ -113,7 +113,7 @@ public class ProductManagerTest extends TestCase {
         _productManager.addListener(listener);
         _productManager.removeAllProducts();
 
-        assertEquals(0, _productManager.getNumProducts());
+        assertEquals(0, _productManager.getProductCount());
 
         assertNull(_product1.getProductManager());
         assertNull(_product2.getProductManager());
@@ -145,27 +145,27 @@ public class ProductManagerTest extends TestCase {
     }
 
     public void testGetNumProducts() {
-        assertEquals(0, _productManager.getNumProducts());
+        assertEquals(0, _productManager.getProductCount());
         addAllProducts();
-        assertEquals(3, _productManager.getNumProducts());
+        assertEquals(3, _productManager.getProductCount());
         _productManager.removeProduct(_product1);
-        assertEquals(2, _productManager.getNumProducts());
+        assertEquals(2, _productManager.getProductCount());
         _productManager.removeProduct(_product2);
-        assertEquals(1, _productManager.getNumProducts());
+        assertEquals(1, _productManager.getProductCount());
         _productManager.removeProduct(_product2);
-        assertEquals(1, _productManager.getNumProducts());
+        assertEquals(1, _productManager.getProductCount());
         _productManager.removeProduct(null);
-        assertEquals(1, _productManager.getNumProducts());
+        assertEquals(1, _productManager.getProductCount());
         _productManager.removeProduct(_product3);
-        assertEquals(0, _productManager.getNumProducts());
+        assertEquals(0, _productManager.getProductCount());
     }
 
     public void testGetProduct() {
         addAllProducts();
 
-        assertSame(_product1, _productManager.getProductAt(0));
-        assertSame(_product2, _productManager.getProductAt(1));
-        assertSame(_product3, _productManager.getProductAt(2));
+        assertSame(_product1, _productManager.getProduct(0));
+        assertSame(_product2, _productManager.getProduct(1));
+        assertSame(_product3, _productManager.getProduct(2));
     }
 
     public void testGetProductNames() {
@@ -186,10 +186,10 @@ public class ProductManagerTest extends TestCase {
         _productManager.addProduct(product2);
         _productManager.addProduct(product3);
 
-        assertEquals(3, _productManager.getNumProducts());
-        assertSame(product1, _productManager.getProductAt(0));
-        assertSame(product2, _productManager.getProductAt(1));
-        assertSame(product3, _productManager.getProductAt(2));
+        assertEquals(3, _productManager.getProductCount());
+        assertSame(product1, _productManager.getProduct(0));
+        assertSame(product2, _productManager.getProduct(1));
+        assertSame(product3, _productManager.getProduct(2));
     }
 
     public void testGetProductDisplayNames() {
@@ -217,7 +217,7 @@ public class ProductManagerTest extends TestCase {
         _productManager.addProduct(product2);
         _productManager.addProduct(product3);
 
-        assertEquals(3, _productManager.getNumProducts());
+        assertEquals(3, _productManager.getProductCount());
         assertSame(product1, _productManager.getProductByDisplayName("[1] name"));
         assertSame(product2, _productManager.getProductByDisplayName("[2] name"));
         assertSame(product3, _productManager.getProductByDisplayName("[3] name"));

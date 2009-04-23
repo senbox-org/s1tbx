@@ -119,7 +119,7 @@ public class SessionIOTest extends TestCase {
     }
 
     private void testProductRef(Session.ProductRef productRef, int expectedId, String expectedRelFile) {
-        assertEquals(expectedId, productRef.id);
+        assertEquals(expectedId, productRef.refNo);
         assertEquals(expectedRelFile, productRef.uri.toString());
     }
 
@@ -128,7 +128,7 @@ public class SessionIOTest extends TestCase {
         assertEquals(expectedId, viewRef.id);
         assertEquals(expectedType, viewRef.type);
         assertEquals(expectedBounds, viewRef.bounds);
-        assertEquals(expectedProductId, viewRef.productId);
+        assertEquals(expectedProductId, viewRef.productRefNo);
         assertEquals(expectedProductNodeName, viewRef.productNodeName);
     }
 

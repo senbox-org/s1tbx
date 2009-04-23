@@ -627,8 +627,8 @@ public class MapProjectionDialog extends ModalDialog {
         final Rectangle2D sourceBounds = sourcePath.getBounds2D();
         final ArrayList<String> compatibleProducts = new ArrayList<String>(5);
         final ProductManager productManager = getSourceProduct().getProductManager();
-        for (int i = 0; i < productManager.getNumProducts(); i++) {
-            final Product product = productManager.getProductAt(i);
+        for (int i = 0; i < productManager.getProductCount(); i++) {
+            final Product product = productManager.getProduct(i);
             if (product != getSourceProduct()) {
                 final GeoCoding otherGeoCoding = product.getGeoCoding();
                 if (otherGeoCoding instanceof MapGeoCoding) {

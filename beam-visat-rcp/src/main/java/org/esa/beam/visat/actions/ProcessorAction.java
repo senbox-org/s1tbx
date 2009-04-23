@@ -193,9 +193,9 @@ public class ProcessorAction extends ExecCommand {
 
                 final ProductRef outputProductRef = request.getOutputProductAt(i);
                 final File outputFile = new File(outputProductRef.getFilePath()).getAbsoluteFile();
-                final int numOpenProducts = VisatApp.getApp().getProductManager().getNumProducts();
+                final int numOpenProducts = VisatApp.getApp().getProductManager().getProductCount();
                 for (int j = 0; j < numOpenProducts; j++) {
-                    final Product openProduct = VisatApp.getApp().getProductManager().getProductAt(j);
+                    final Product openProduct = VisatApp.getApp().getProductManager().getProduct(j);
                     File openFile = openProduct.getFileLocation();
                     if (openFile != null) {
                         openFile = openFile.getAbsoluteFile();

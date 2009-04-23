@@ -23,6 +23,7 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
@@ -31,6 +32,7 @@ import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.visat.actions.session.dom.SessionDomConverter;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.JComponent;
@@ -74,6 +76,10 @@ public class Session {
             productRefs[i] = new ProductRef(product.getRefNo(), relativeProductURI);
         }
 
+        final ProductManager productManager = new ProductManager();
+        for (Product product : products) {
+            productManager.addProduct(product);
+        }
         // todo - move somwhere else (rq,mp - 21.04.2009)
         registerConverters();
 
@@ -103,7 +109,7 @@ public class Session {
                         return sceneView.getRootLayer();
                     }
                 };
-                layerRefs = getLayerRefs(layerContext, layers);
+                layerRefs = getLayerRefs(layerContext, layers, productManager);
             }
 
             Rectangle viewBounds = new Rectangle(0, 0, 200, 200);
@@ -136,12 +142,12 @@ public class Session {
         }
     }
 
-    private LayerRef[] getLayerRefs(LayerContext layerContext, List<Layer> layers) {
+    private LayerRef[] getLayerRefs(LayerContext layerContext, List<Layer> layers, ProductManager productManager) {
         final LayerRef[] layerRefs = new LayerRef[layers.size()];
         for (int i = 0; i < layers.size(); i++) {
             Layer layer = layers.get(i);
             final ValueContainer configuration = getConfiguration(layerContext, layer);
-            final SessionDomConverter domConverter = new SessionDomConverter();
+            final SessionDomConverter domConverter = new SessionDomConverter(productManager);
             final DomElement element = new DefaultDomElement("configuration");
             domConverter.convertValueToDom(configuration, element);
             layerRefs[i] = new LayerRef(layer.getLayerType().getClass(),
@@ -149,7 +155,7 @@ public class Session {
                                         layer.getName(),
                                         layer.isVisible(),
                                         element,
-                                        getLayerRefs(layerContext, layer.getChildren()));
+                                        getLayerRefs(layerContext, layer.getChildren(), productManager));
         }
         return layerRefs;
     }
@@ -184,18 +190,20 @@ public class Session {
         try {
             pm.beginTask("Restoring session", 100);
             final ArrayList<Exception> problems = new ArrayList<Exception>();
-            final Product[] products = restoreProducts(rootURI, SubProgressMonitor.create(pm, 80), problemSolver,
-                                                       problems);
-            final ProductNodeView[] views = restoreViews(products, SubProgressMonitor.create(pm, 20), problems);
-            return new RestoredSession(products, views, problems.toArray(new Exception[problems.size()]));
+            final ProductManager productManager = restoreProducts(rootURI, SubProgressMonitor.create(pm, 80),
+                                                                  problemSolver, problems);
+            final ProductNodeView[] views = restoreViews(productManager, SubProgressMonitor.create(pm, 20), problems);
+            return new RestoredSession(productManager.getProducts(),
+                                       views,
+                                       problems.toArray(new Exception[problems.size()]));
         } finally {
             pm.done();
         }
     }
 
-    Product[] restoreProducts(URI rootURI, ProgressMonitor pm, ProblemSolver problemSolver,
-                              List<Exception> problems) throws CanceledException {
-        final ArrayList<Product> products = new ArrayList<Product>();
+    ProductManager restoreProducts(URI rootURI, ProgressMonitor pm, ProblemSolver problemSolver,
+                                   List<Exception> problems) throws CanceledException {
+        final ProductManager productManager = new ProductManager();
         try {
             pm.beginTask("Restoring products", productRefs.length);
             for (ProductRef productRef : productRefs) {
@@ -205,13 +213,13 @@ public class Session {
                     if (productFile.exists()) {
                         product = ProductIO.readProduct(productFile, null);
                     } else {
-                        product = problemSolver.solveProductNotFound(productRef.id, productFile);
+                        product = problemSolver.solveProductNotFound(productRef.refNo, productFile);
                         if (product == null) {
-                            throw new IOException("Product [" + productRef.id + "] not found.");
+                            throw new IOException("Product [" + productRef.refNo + "] not found.");
                         }
                     }
-                    products.add(product);
-                    product.setRefNo(productRef.id);
+                    product.setRefNo(productRef.refNo);
+                    productManager.addProduct(product);
                 } catch (IOException e) {
                     problems.add(e);
                 } finally {
@@ -222,10 +230,10 @@ public class Session {
             pm.done();
         }
 
-        return products.toArray(new Product[products.size()]);
+        return productManager;
     }
 
-    ProductNodeView[] restoreViews(Product[] restoredProducts, ProgressMonitor pm, List<Exception> problems) {
+    ProductNodeView[] restoreViews(ProductManager productManager, ProgressMonitor pm, List<Exception> problems) {
         ArrayList<ProductNodeView> views = new ArrayList<ProductNodeView>();
         try {
             pm.beginTask("Restoring views", viewRefs.length);
@@ -233,7 +241,7 @@ public class Session {
                 try {
                     if (ProductSceneView.class.getName().equals(viewRef.type)) {
                         final ProductSceneView view;
-                        Product product = getProductForRefNo(restoredProducts, viewRef.productId);
+                        Product product = productManager.getProductByRefNo(viewRef.productRefNo);
                         if (product != null) {
                             RasterDataNode node = product.getRasterDataNode(viewRef.productNodeName);
                             if (node != null) {
@@ -257,18 +265,16 @@ public class Session {
                                 throw new Exception("Unknown raster data source: " + viewRef.productNodeName);
                             }
                         } else {
-                            throw new Exception("Unknown product reference number: " + viewRef.productId);
+                            throw new Exception("Unknown product reference number: " + viewRef.productRefNo);
                         }
-
                         for (int i = 0; i < viewRef.getLayerCount(); i++) {
                             final LayerRef ref = viewRef.getLayerRef(i);
                             if (!view.getBaseImageLayer().getId().equals(ref.id)) {
-                                addLayerRef(view.getRootLayer(), ref, new SessionAccessor(
-                                        restoredProducts));
+                                addLayerRef(view.getRootLayer(), ref, productManager);
                             }
                         }
                     } else if (ProductMetadataView.class.getName().equals(viewRef.type)) {
-                        Product product = getProductForRefNo(restoredProducts, viewRef.productId);
+                        Product product = productManager.getProductByRefNo(viewRef.productRefNo);
                         if (product != null) {
                             String[] productNodeNames = viewRef.productNodeName.split("\\|");
                             MetadataElement element = product.getMetadataRoot();
@@ -287,7 +293,7 @@ public class Session {
                                 views.add(metadataView);
                             }
                         } else {
-                            throw new Exception("Unknown product reference number: " + viewRef.productId);
+                            throw new Exception("Unknown product reference number: " + viewRef.productRefNo);
                         }
                     } else {
                         throw new Exception("Unknown view type: " + viewRef.type);
@@ -303,18 +309,17 @@ public class Session {
         return views.toArray(new ProductNodeView[views.size()]);
     }
 
-    private void addLayerRef(Layer parentLayer, LayerRef ref, SessionAccessor sessionAccessor) throws
-                                                                                               ConversionException,
-                                                                                               ValidationException {
+    private void addLayerRef(Layer parentLayer, LayerRef ref, ProductManager productManager) throws
+                                                                                             ConversionException,
+                                                                                             ValidationException {
         final LayerType type = LayerType.getLayerType(ref.layerType.getName());
-        final SessionDomConverter converter = new SessionDomConverter();
-        converter.setSessionAccessor(sessionAccessor);
+        final SessionDomConverter converter = new SessionDomConverter(productManager);
         final ValueContainer template = type.getConfigurationTemplate();
         converter.convertDomToValue(ref.configuration, template);
         final Layer layer = type.createLayer(null, template);
         parentLayer.getChildren().add(layer);
         for (LayerRef child : ref.children) {
-            addLayerRef(parentLayer, child, sessionAccessor);
+            addLayerRef(parentLayer, child, productManager);
         }
     }
 
@@ -348,12 +353,12 @@ public class Session {
     @XStreamAlias("product")
     public static class ProductRef {
 
-        final int id;
+        final int refNo;
         @XStreamConverter(URIConnverterWrapper.class)
         final URI uri;
 
-        public ProductRef(int id, URI uri) {
-            this.id = id;
+        public ProductRef(int refNo, URI uri) {
+            this.refNo = refNo;
             this.uri = uri;
         }
     }
@@ -367,20 +372,20 @@ public class Session {
         @XStreamAlias("viewport")
         final ViewportDef viewportDef;
 
-        final int productId;
+        final int productRefNo;
         final String productNodeName;
         @XStreamAlias("layers")
         final LayerRef[] layerRefs;
 
 
         public ViewRef(int id, String type, Rectangle bounds,
-                       ViewportDef viewportDef, int productId,
+                       ViewportDef viewportDef, int productRefNo,
                        String productNodeName, LayerRef[] layerRefs) {
             this.id = id;
             this.type = type;
             this.bounds = bounds;
             this.viewportDef = viewportDef;
-            this.productId = productId;
+            this.productRefNo = productRefNo;
             this.productNodeName = productNodeName;
             this.layerRefs = layerRefs;
         }

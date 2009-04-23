@@ -218,11 +218,6 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         }
 
         @Override
-        public boolean isValidFor(LayerContext ctx) {
-            return true;
-        }
-
-        @Override
         protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
             RasterDataNode rasterDataNode = (RasterDataNode) configuration.getValue(PROPERTY_RASTER);
             AffineTransform i2m = (AffineTransform) configuration.getValue(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
