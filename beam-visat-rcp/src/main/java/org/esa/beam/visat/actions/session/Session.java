@@ -154,30 +154,6 @@ public class Session {
         return layerRefs;
     }
 
-//    private DomConverter createValueContainerDomConverter() {
-//        final ClassFieldDescriptorFactory factory = new ClassFieldDescriptorFactory() {
-//            @Override
-//            public ValueDescriptor createValueDescriptor(Field field) {
-//                return new ValueDescriptor(field.getName(), field.getType());
-//            }
-//        };
-//        return new DefaultDomConverter(ValueContainer.class, factory) {
-//            @Override
-//            protected ValueContainer getValueContainer(Object value) {
-//                if (value instanceof ValueContainer) {
-//
-//                    return (ValueContainer) value;
-//                }
-//                return super.getValueContainer(value);
-//            }
-//
-//            @Override
-//             protected DomConverter createChildConverter(DomElement element, Class<?> valueType) {
-//                return SessionIO.getConverterRegistry().getConverter(valueType, Session.this);
-//
-//            }
-//        };
-//    }
 
     private static ValueContainer getConfiguration(LayerContext ctx, Layer layer) {
         return layer.getLayerType().getConfigurationCopy(ctx, layer);
@@ -203,7 +179,8 @@ public class Session {
         return viewRefs[index];
     }
 
-    public RestoredSession restore(URI rootURI, ProgressMonitor pm, ProblemSolver problemSolver) throws CanceledException {
+    public RestoredSession restore(URI rootURI, ProgressMonitor pm, ProblemSolver problemSolver) throws
+                                                                                                 CanceledException {
         try {
             pm.beginTask("Restoring session", 100);
             final ArrayList<Exception> problems = new ArrayList<Exception>();
