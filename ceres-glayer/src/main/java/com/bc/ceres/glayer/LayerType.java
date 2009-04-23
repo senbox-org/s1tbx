@@ -28,6 +28,9 @@ public abstract class LayerType extends ExtensibleObject {
             final ValueModel actualModel = configuration.getModel(propertyName);
             if (actualModel != null) {
                 try {
+                    if (actualModel.getValue() == null && actualModel.getDescriptor().isNotNull()) {
+                        actualModel.setValue(actualModel.getDescriptor().getDefaultValue());
+                    }
                     expectedModel.validate(actualModel.getValue());
                 } catch (ValidationException e) {
                     throw new IllegalArgumentException(String.format(
@@ -81,10 +84,29 @@ public abstract class LayerType extends ExtensibleObject {
         return new ValueModel(descriptor, accessor);
     }
 
+    protected static <T> ValueModel createDefaultValueModel(String propertyName, T value, T defaultValue) {
+        final ValueDescriptor descriptor = new ValueDescriptor(propertyName, value.getClass());
+        descriptor.setDefaultValue(defaultValue);
+        descriptor.setNotNull(true);
+
+        final DefaultValueAccessor accessor = new DefaultValueAccessor();
+        accessor.setValue(value);
+
+        return new ValueModel(descriptor, accessor);
+    }
+
     protected static ValueModel createDefaultValueModel(String propertyName, Class<?> type) {
         final ValueDescriptor descriptor = new ValueDescriptor(propertyName, type);
         final DefaultValueAccessor accessor = new DefaultValueAccessor();
 
         return new ValueModel(descriptor, accessor);
+    }
+
+    protected static <T> ValueModel createDefaultValueModel(String propertyName, Class<T> type, T defaultValue) {
+        final ValueDescriptor descriptor = new ValueDescriptor(propertyName, type);
+        descriptor.setDefaultValue(defaultValue);
+        descriptor.setNotNull(true);
+
+        return new ValueModel(descriptor, new DefaultValueAccessor());
     }
 }
