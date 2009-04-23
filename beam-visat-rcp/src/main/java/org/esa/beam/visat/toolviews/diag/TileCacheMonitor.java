@@ -25,12 +25,26 @@ import javax.media.jai.CachedTile;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.TileCache;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.table.AbstractTableModel;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.image.RenderedImage;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 
 
 public class TileCacheMonitor {
@@ -298,8 +312,15 @@ public class TileCacheMonitor {
         } else if (image instanceof VirtualBandOpImage) {
             VirtualBandOpImage vboi = (VirtualBandOpImage) image;
             return vboi.getExpression();
+        } else {
+            final String s = image.toString();
+            final int p1 = s.indexOf('[');
+            final int p2 = s.indexOf(']', p1 + 1);
+            if (p1 > 0 && p2 > p1) {
+                return s.substring(p1 + 1, p2 - 1);
+            }
+            return s;
         }
-        return "";
     }
 
     private void dumpImageTree(Collection<CachedTile> tiles) {

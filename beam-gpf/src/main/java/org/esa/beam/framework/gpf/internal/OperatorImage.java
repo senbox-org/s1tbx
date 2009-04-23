@@ -171,13 +171,13 @@ public class OperatorImage extends SourcelessOpImage {
 
     @Override
     public String toString() {
-        String className = getClass().getSimpleName();
-        String productName = "";
-        if (band.getProduct() != null) {
-            productName = ":" + band.getProduct().getName();
-        }
-        String bandName = "." + band.getName();
-        return className + productName + bandName;
+        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
+        sb.append("[");
+        sb.append(operatorContext.getOperatorSpi().getOperatorAlias());
+        sb.append(",");
+        sb.append(band.getName());
+        sb.append("]");
+        return sb.toString();
     }
 
     public static ProgressMonitor setProgressMonitor(RenderedImage image, ProgressMonitor pm) {
