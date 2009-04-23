@@ -8,10 +8,10 @@ import javax.swing.JComponent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
-public final class BindingImpl implements Binding,PropertyChangeListener {
+public final class BindingImpl implements Binding, PropertyChangeListener {
 
     private ComponentAdapter componentAdapter;
     private final BindingContext context;
@@ -34,26 +34,32 @@ public final class BindingImpl implements Binding,PropertyChangeListener {
         context.removePropertyChangeListener(name, this);
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         adjustComponents();
     }
 
+    @Override
     public ComponentAdapter getComponentAdapter() {
         return componentAdapter;
     }
 
+    @Override
     public final BindingContext getContext() {
         return context;
     }
 
+    @Override
     public final String getPropertyName() {
         return name;
     }
 
+    @Override
     public Object getPropertyValue() {
         return context.getValueContainer().getValue(getPropertyName());
     }
 
+    @Override
     public void setPropertyValue(Object value) {
         try {
             context.getValueContainer().setValue(getPropertyName(), value);
@@ -62,11 +68,13 @@ public final class BindingImpl implements Binding,PropertyChangeListener {
         }
     }
 
-    public final boolean isAdjustingComponents() {
+    @Override
+    public boolean isAdjustingComponents() {
         return adjustingComponents;
     }
 
-    public final void adjustComponents() {
+    @Override
+    public void adjustComponents() {
         if (!adjustingComponents) {
             Exception error = null;
             try {
@@ -87,8 +95,10 @@ public final class BindingImpl implements Binding,PropertyChangeListener {
      * Gets the secondary Swing components attached to the binding, e.g. some {@link javax.swing.JLabel}s.
      *
      * @return the secondary Swing components. The returned array may be empty.
+     *
      * @see #addComponent(javax.swing.JComponent)
      */
+    @Override
     public JComponent[] getComponents() {
         if (secondaryComponents == null) {
             return componentAdapter.getComponents();
@@ -103,8 +113,10 @@ public final class BindingImpl implements Binding,PropertyChangeListener {
      * Attaches a secondary Swing component to this binding.
      *
      * @param component The secondary component.
+     *
      * @see #removeComponent(javax.swing.JComponent)
      */
+    @Override
     public void addComponent(JComponent component) {
         synchronized (this) {
             if (secondaryComponents == null) {
@@ -120,8 +132,10 @@ public final class BindingImpl implements Binding,PropertyChangeListener {
      * Detaches a secondary Swing component from this binding.
      *
      * @param component The secondary component.
+     *
      * @see #addComponent(javax.swing.JComponent)
      */
+    @Override
     public void removeComponent(JComponent component) {
         if (secondaryComponents != null) {
             secondaryComponents.remove(component);
