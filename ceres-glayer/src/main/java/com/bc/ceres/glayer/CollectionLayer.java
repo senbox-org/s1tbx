@@ -15,15 +15,15 @@ public class CollectionLayer extends Layer {
     private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
 
     public CollectionLayer() {
-        this("Collection layer");
+        this(LAYER_TYPE.getName());
     }
 
     public CollectionLayer(String name) {
-        this(LAYER_TYPE, name);
+        this(LAYER_TYPE, LAYER_TYPE.getConfigurationTemplate(), name);
     }
 
-    protected CollectionLayer(Type type, String name) {
-        super(type);
+    public CollectionLayer(Type type, ValueContainer configuration, String name) {
+        super(type, configuration);
         setName(name);
     }
 
@@ -51,7 +51,7 @@ public class CollectionLayer extends Layer {
 
         @Override
         protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
-            return new CollectionLayer();
+            return new CollectionLayer(this, configuration, "Collection layer");
         }
     }
 }
