@@ -18,13 +18,6 @@ import org.junit.Test;
 import java.io.File;
 import java.lang.reflect.Array;
 
-/**
- * todo - add API doc
- *
- * @author Marco Peters
- * @version $ Revision $ Date $
- * @since BEAM 4.6
- */
 public abstract class AbstractLayerConfigurationPersistencyTest {
 
     private static ProductManager productManager;
@@ -33,7 +26,6 @@ public abstract class AbstractLayerConfigurationPersistencyTest {
     protected AbstractLayerConfigurationPersistencyTest(LayerType layerType) {
         this.layerType = layerType;
     }
-
 
     @BeforeClass
     public static void setupClass() {
@@ -45,14 +37,20 @@ public abstract class AbstractLayerConfigurationPersistencyTest {
         productManager.addProduct(product);
     }
 
+    public static ProductManager getProductManager() {
+        return productManager;
+    }
+
     @Test
-    public void testLayerConfigurationPersistence() throws Exception {
+    public void testLayerConfigurationPersistency() throws Exception {
         final Layer layer = createLayer(layerType);
 
         final SessionDomConverter domConverter = new SessionDomConverter(getProductManager());
         final DomElement domElement = new DefaultDomElement("configuration");
         domConverter.convertValueToDom(layer.getConfiguration(), domElement);
+
         System.out.println(domElement.toXml());
+
         final ValueContainer restoredConfiguration = (ValueContainer) domConverter.convertDomToValue(domElement,
                                                                                                      layerType.getConfigurationTemplate());
         compareConfigurations(layer.getConfiguration(), restoredConfiguration);
@@ -82,10 +80,6 @@ public abstract class AbstractLayerConfigurationPersistencyTest {
                 }
             }
         }
-    }
-
-    public static ProductManager getProductManager() {
-        return productManager;
     }
 
 }

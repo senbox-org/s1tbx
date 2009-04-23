@@ -1,12 +1,15 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
+import org.esa.beam.framework.draw.Figure;
 
 import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -63,23 +66,41 @@ public class FigureLayerType extends LayerType {
         final ValueContainer vc = new ValueContainer();
 
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
+                                            FigureLayer.DEFAULT_SHAPE_OUTLINED,
                                             FigureLayer.DEFAULT_SHAPE_OUTLINED));
+
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
+                                            FigureLayer.DEFAULT_SHAPE_OUTL_COLOR,
                                             FigureLayer.DEFAULT_SHAPE_OUTL_COLOR));
+
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
+                                            FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY,
                                             FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY));
+
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
+                                            FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH,
                                             FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH));
 
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
+                                            FigureLayer.DEFAULT_SHAPE_FILLED,
                                             FigureLayer.DEFAULT_SHAPE_FILLED));
+
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
+                                            FigureLayer.DEFAULT_SHAPE_FILL_COLOR,
                                             FigureLayer.DEFAULT_SHAPE_FILL_COLOR));
+
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
+                                            FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY,
                                             FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY));
 
-        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_FIGURE_LIST, List.class));
-        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_TRANSFORM, AffineTransform.class));
+        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_TRANSFORM,
+                                            new AffineTransform(),
+                                            new AffineTransform()));
+
+        final ValueModel figureListModel = createDefaultValueModel(FigureLayer.PROPERTY_NAME_FIGURE_LIST,
+                                                                   List.class,
+                                                                   new ArrayList<Figure>());
+        vc.addModel(figureListModel);
 
         return vc;
     }

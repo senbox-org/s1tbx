@@ -80,8 +80,9 @@ public class BitmaskLayerType extends ImageLayer.Type {
         vc.addModel(createDefaultValueModel(PROPERTY_PRODUCT, Product.class));
         vc.getModel(PROPERTY_PRODUCT).getDescriptor().setNotNull(true);
 
-        vc.addModel(createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM, new AffineTransform()));
-        vc.getDescriptor(PROPERTY_IMAGE_TO_MODEL_TRANSFORM).setDefaultValue(new AffineTransform());
+        vc.addModel(createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM,
+                                            new AffineTransform(),
+                                            new AffineTransform()));
 
         return vc;
     }
