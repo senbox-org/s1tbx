@@ -40,9 +40,6 @@ public class SessionDomConverterTest {
 
     @BeforeClass
     public static void setupClass() {
-        extensionFactory = new TestExtensionFactory();
-        ExtensionManager.getInstance().register(LayerType.class, extensionFactory);
-
         product = new Product("P", "T", 10, 10);
         product.setFileLocation(new File("out/P.dim"));
         band = new VirtualBand("V", ProductData.TYPE_INT32, 10, 10, "42");
@@ -53,21 +50,15 @@ public class SessionDomConverterTest {
         sessionAccessor = new Session.SessionAccessor(new Product[]{product});
     }
 
-    @AfterClass
-    public static void tearDownClass() {
-        ExtensionManager.getInstance().unregister(LayerType.class, extensionFactory);
-    }
-
     @Test
     public void testWriteReadImageLayer() throws ValidationException, ConversionException {
         final RasterImageLayerType layerType = (RasterImageLayerType) LayerType.getLayerType(
                 RasterImageLayerType.class.getName());
-        final ValueContainer outConf = layerType.getConfigurationTemplate();
-        outConf.setValue(RasterImageLayerType.PROPERTY_NAME_RASTERS, new RasterDataNode[]{band});
-        final Layer layer = layerType.createLayer(null, outConf);
+        final ValueContainer originalConfiguration = layerType.getConfigurationTemplate();
+        originalConfiguration.setValue(RasterImageLayerType.PROPERTY_NAME_RASTERS, new RasterDataNode[]{band});
+        final Layer layer = layerType.createLayer(null, originalConfiguration);
 
-        final SessionDomConverter domConverter = layerType.getExtension(SessionDomConverter.class);
-        assertNotNull("No SessionDomConverter found", domConverter);
+        final SessionDomConverter domConverter = new SessionDomConverter();
         domConverter.setSessionAccessor(sessionAccessor);
 
         DomElement elem = new DefaultDomElement("testConfig");
@@ -75,11 +66,11 @@ public class SessionDomConverterTest {
 
         System.out.println(elem.toXml());
 
-        final ValueContainer inConf = (ValueContainer) domConverter.convertDomToValue(elem,
-                                                                                      layerType.getConfigurationTemplate());
-        for (ValueModel outModel : outConf.getModels()) {
+        final ValueContainer restoredConfiguration = (ValueContainer) domConverter.convertDomToValue(elem,
+                                                                                                     layerType.getConfigurationTemplate());
+        for (ValueModel outModel : originalConfiguration.getModels()) {
             final ValueDescriptor outDescriptor = outModel.getDescriptor();
-            final ValueModel inModel = inConf.getModel(outDescriptor.getName());
+            final ValueModel inModel = restoredConfiguration.getModel(outDescriptor.getName());
             assertNotNull(inModel);
             assertEquals(outDescriptor.getName(), inModel.getDescriptor().getName());
             assertEquals(outDescriptor.getType(), inModel.getDescriptor().getType());
@@ -143,19 +134,6 @@ public class SessionDomConverterTest {
                     assertEquals(Array.getLength(originalValue), Array.getLength(restoredValue));
                 }
             }
-        }
-    }
-
-    private static class TestExtensionFactory implements ExtensionFactory {
-
-        @Override
-        public Object getExtension(Object object, Class<?> extensionType) {
-            return new SessionDomConverter();
-        }
-
-        @Override
-        public Class<?>[] getExtensionTypes() {
-            return new Class<?>[]{SessionDomConverter.class};
         }
     }
 
