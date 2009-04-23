@@ -58,22 +58,22 @@ public class BitmaskLayerType extends ImageLayer.Type {
 
     private void configureLayer(ValueContainer configuration, Layer layer) {
         final BitmaskDef bitmaskDef = (BitmaskDef) configuration.getValue(PROPERTY_BITMASKDEF);
-        final Product product = (Product) configuration.getValue(PROPERTY_PRODUCT);
-        final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(
-                PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
 
         final Style style = layer.getStyle();
         style.setOpacity(bitmaskDef.getAlpha());
         style.setComposite(layer.getStyle().getComposite());
-        style.setProperty(PROPERTY_BITMASKDEF, bitmaskDef);
-        style.setProperty(PROPERTY_PRODUCT, product);
-        style.setProperty(PROPERTY_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN,
+                          configuration.getValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN));
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR,
+                          configuration.getValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR));
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_WIDTH,
+                          configuration.getValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH));
     }
 
     @Override
     public ValueContainer getConfigurationTemplate() {
         final ValueContainer vc = super.getConfigurationTemplate();
-        
+
         vc.addModel(createDefaultValueModel(PROPERTY_BITMASKDEF, BitmaskDef.class));
         vc.getModel(PROPERTY_BITMASKDEF).getDescriptor().setNotNull(true);
 
@@ -82,7 +82,7 @@ public class BitmaskLayerType extends ImageLayer.Type {
 
         vc.addModel(createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM, new AffineTransform()));
         vc.getDescriptor(PROPERTY_IMAGE_TO_MODEL_TRANSFORM).setDefaultValue(new AffineTransform());
-        
+
         return vc;
     }
 

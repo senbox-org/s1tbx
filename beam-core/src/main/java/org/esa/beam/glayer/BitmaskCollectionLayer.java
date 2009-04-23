@@ -31,8 +31,7 @@ import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
 import java.awt.geom.AffineTransform;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 
 public class BitmaskCollectionLayer extends CollectionLayer {
@@ -97,16 +96,9 @@ public class BitmaskCollectionLayer extends CollectionLayer {
     private class BitmaskDefListener implements ProductNodeListener {
 
         private final Layer bitmaskLayer;
-        private final Map<BitmaskDef, Layer> layerMap;
 
-        public BitmaskDefListener(Layer bitmaskLayer) {
+        private BitmaskDefListener(Layer bitmaskLayer) {
             this.bitmaskLayer = bitmaskLayer;
-            this.layerMap = new HashMap<BitmaskDef, Layer>();
-
-            final Product product = getProduct();
-            for (final Layer layer : bitmaskLayer.getChildren()) {
-                layerMap.put(product.getBitmaskDef(layer.getName()), layer);
-            }
         }
 
         @Override
@@ -115,19 +107,27 @@ public class BitmaskCollectionLayer extends CollectionLayer {
 
             if (sourceNode instanceof BitmaskDef) {
                 final BitmaskDef bitmaskDef = (BitmaskDef) sourceNode;
-                final Layer layer = layerMap.remove(bitmaskDef);
+                final Layer oldLayer = getLayerForBitmask(bitmaskDef);
 
-                if (layer != null) {
-                    final int index = bitmaskLayer.getChildren().indexOf(layer);
-                    if (index != -1) {
-                        final Layer newLayer = createBitmaskLayer(bitmaskDef);
-                        final Layer oldLayer = bitmaskLayer.getChildren().remove(index);
-                        bitmaskLayer.getChildren().add(index, newLayer);
-                        layerMap.put(bitmaskDef, newLayer);
-                        oldLayer.dispose();
-                    }
+                if (oldLayer != null) {
+                    final int index = bitmaskLayer.getChildren().indexOf(oldLayer);
+                    bitmaskLayer.getChildren().remove(oldLayer);
+                    final Layer newLayer = createBitmaskLayer(bitmaskDef);
+                    bitmaskLayer.getChildren().add(index, newLayer);
+                    oldLayer.dispose();
                 }
             }
+        }
+
+        private Layer getLayerForBitmask(BitmaskDef bitmaskDef) {
+            final List<Layer> list = bitmaskLayer.getChildren();
+            for (Layer layer : list) {
+                final Object value = layer.getConfiguration().getValue(BitmaskLayerType.PROPERTY_BITMASKDEF);
+                if (bitmaskDef.equals(value)) {
+                    return layer;
+                }
+            }
+            return null;
         }
 
         @Override
@@ -146,7 +146,6 @@ public class BitmaskCollectionLayer extends CollectionLayer {
                     if (sourceNode == bitmaskDefs[i]) {
                         final Layer layer = createBitmaskLayer(bitmaskDefs[i]);
                         bitmaskLayer.getChildren().add(i, layer);
-                        layerMap.put(bitmaskDefs[i], layer);
                         break;
                     }
                 }
@@ -159,7 +158,7 @@ public class BitmaskCollectionLayer extends CollectionLayer {
 
             if (sourceNode instanceof BitmaskDef) {
                 final BitmaskDef bitmaskDef = (BitmaskDef) sourceNode;
-                final Layer layer = layerMap.remove(bitmaskDef);
+                final Layer layer = getLayerForBitmask(bitmaskDef);
                 if (layer != null) {
                     if (bitmaskLayer.getChildren().remove(layer)) {
                         layer.dispose();
