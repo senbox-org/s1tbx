@@ -38,7 +38,6 @@ import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.NewBandDialog;
-import org.esa.beam.framework.ui.NewProductDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.util.Debug;
@@ -63,7 +62,6 @@ import java.util.Vector;
 
 public class BandArithmetikDialog extends ModalDialog {
 
-    private static final String _PARAM_NAME_USE_NEW_PRODUCT = "useNewProduct";
     private static final String _PARAM_NAME_CREATE_VIRTUAL_BAND = "createVirtualBand";
     private static final String _PARAM_NAME_USE_NEW_BAND = "useNewBand";
     private static final String _PARAM_NAME_PRODUCT = "product";
@@ -71,7 +69,6 @@ public class BandArithmetikDialog extends ModalDialog {
 
     private final VisatApp visatApp;
     private Parameter paramUseNewBand;
-    private Parameter paramUseNewProduct;
     private Parameter paramProduct;
     private Parameter paramBand;
     private Parameter paramExpression;
@@ -79,9 +76,7 @@ public class BandArithmetikDialog extends ModalDialog {
     private Product targetProduct;
     private Band targetBand;
     private ProductNodeList<Product> productsList;
-    private JButton newProductButton;
     private JButton newBandButton;
-    private String oldSelectedProduct;
     private String oldSelectedBand;
     private JButton editExpressionButton;
     private Parameter paramNoDataValueUsed;
@@ -118,12 +113,9 @@ public class BandArithmetikDialog extends ModalDialog {
 
         paramProduct.getProperties().setValueSetBound(false);
         paramProduct.setValueSet(this.productsList.getDisplayNames());
-        if ((Boolean) paramUseNewProduct.getValue()) {
-            paramProduct.setValue("", null);
-        } else {
-            paramProduct.setValue(this.targetProduct.getDisplayName(), null);
-            paramProduct.getProperties().setValueSetBound(true);
-        }
+        
+        paramProduct.setValue(this.targetProduct.getDisplayName(), null);
+        paramProduct.getProperties().setValueSetBound(true);
 
         paramBand.setValueSet(getTargetBandNames());
         if (isUseNewBand()) {
@@ -386,10 +378,6 @@ public class BandArithmetikDialog extends ModalDialog {
     private void initParameter() {
         final ParamChangeListener paramChangeListener = createParamChangeListener();
 
-        paramUseNewProduct = new Parameter(_PARAM_NAME_USE_NEW_PRODUCT, false);
-        paramUseNewProduct.getProperties().setLabel("Use new Product"); /*I18N*/
-        paramUseNewProduct.addParamChangeListener(paramChangeListener);
-
         paramProduct = new Parameter(_PARAM_NAME_PRODUCT, targetProduct.getDisplayName());
         paramProduct.setValueSet(productsList.getDisplayNames());
         paramProduct.getProperties().setValueSetBound(true);
@@ -432,10 +420,6 @@ public class BandArithmetikDialog extends ModalDialog {
     }
 
     private void createUI() {
-        newProductButton = new JButton("New...");
-        newProductButton.setName("newProductButton");
-        newProductButton.addActionListener(createNewProductButtonListener());
-
         newBandButton = new JButton("New...");
         newBandButton.setName("newBandButton");
         newBandButton.addActionListener(createNewBandButtonListener());
@@ -454,11 +438,6 @@ public class BandArithmetikDialog extends ModalDialog {
         gbc.gridy = ++line;
         GridBagUtils.addToPanel(panel, paramProduct.getEditor().getComponent(), gbc,
                                 "insets.top=3, gridwidth=3, fill=BOTH, anchor=WEST");
-        gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, paramUseNewProduct.getEditor().getComponent(), gbc,
-                                "fill=NONE, anchor=EAST, gridwidth=2");
-        GridBagUtils.addToPanel(panel, newProductButton, gbc, "weightx=0, gridwidth=1");
-
         gbc.gridy = ++line;
         GridBagUtils.addToPanel(panel, paramBand.getEditor().getLabelComponent(), gbc,
                                 "insets.top=4, gridwidth=3, fill=BOTH, anchor=WEST");
@@ -494,15 +473,11 @@ public class BandArithmetikDialog extends ModalDialog {
     }
 
     private void updateUIState(String parameterName) {
-        boolean useNewProduct = (Boolean) paramUseNewProduct.getValue();
         final String productDisplayName = paramProduct.getValueAsText();
         boolean productIsSelected = productDisplayName != null && productDisplayName.length() > 0;
         String[] bandValueSet = paramBand.getProperties().getValueSet();
         boolean paramBandHasValidValueSet = bandValueSet != null && bandValueSet.length > 0;
         boolean createVirtualBand = getCreateVirtualBand();
-        newProductButton.setEnabled(!createVirtualBand && useNewProduct);
-        paramUseNewProduct.setUIEnabled(!createVirtualBand);
-        paramProduct.setUIEnabled(!useNewProduct);
         paramUseNewBand.setUIEnabled(!createVirtualBand && productIsSelected && paramBandHasValidValueSet);
         paramBand.setUIEnabled(!isUseNewBand() && productIsSelected);
         newBandButton.setEnabled(isUseNewBand() && productIsSelected);
@@ -511,14 +486,7 @@ public class BandArithmetikDialog extends ModalDialog {
             return;
         }
 
-        if (parameterName.equals(_PARAM_NAME_USE_NEW_PRODUCT)) {
-            if (useNewProduct) {
-                oldSelectedProduct = paramProduct.getValueAsText();
-                targetProduct = null;
-            }
-            paramProduct.getProperties().setValueSetBound(!useNewProduct);
-            paramProduct.setValue(useNewProduct ? "" : oldSelectedProduct, null);
-        } else if (parameterName.equals(_PARAM_NAME_USE_NEW_BAND)) {
+        if (parameterName.equals(_PARAM_NAME_USE_NEW_BAND)) {
             if (isUseNewBand()) {
                 oldSelectedBand = paramBand.getValueAsText();
                 targetBand = null;
@@ -536,14 +504,7 @@ public class BandArithmetikDialog extends ModalDialog {
             String selectedProductDisplayName = paramProduct.getValueAsText();
             Product product = productsList.getByDisplayName(selectedProductDisplayName);
             if (product != null) {
-                if (useNewProduct) {
-                    showErrorDialog("A product with the name '" + selectedProductDisplayName + "' already exists.\n"
-                            + "Please choose a another one."); /*I18N*/
-                    paramProduct.setValue("", null);
-                    targetProduct = null;
-                } else {
-                    targetProduct = product;
-                }
+                targetProduct = product;
             }
             if (targetBand != null && targetProduct != null) {
                 targetBand = createTargetBand(targetBand.getName(), targetBand.getDataType(), targetProduct.getSceneRasterWidth(), targetProduct.getSceneRasterHeight());
@@ -576,7 +537,6 @@ public class BandArithmetikDialog extends ModalDialog {
         } else if (parameterName.equals(_PARAM_NAME_CREATE_VIRTUAL_BAND)) {
             if (createVirtualBand) {
                 paramUseNewBand.setValueAsText("true", null);
-                paramUseNewProduct.setValueAsText("false", null);
             }
             targetBand = null;
             paramBand.setValue("", null);
@@ -633,27 +593,6 @@ public class BandArithmetikDialog extends ModalDialog {
 
             public void parameterValueChanged(ParamChangeEvent event) {
                 updateUIState(event.getParameter().getName());
-            }
-        };
-    }
-
-    private ActionListener createNewProductButtonListener() {
-        return new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                final Product product = productsList.getByDisplayName(oldSelectedProduct);
-                final int selectedSourceIndex = productsList.indexOf(product);
-
-                final NewProductDialog dialog = new NewProductDialog(getJDialog(),
-                                                                     productsList,
-                                                                     selectedSourceIndex,
-                                                                     false,
-                                                                     "arithm");
-
-                if (dialog.show() == NewProductDialog.ID_OK) {
-                    targetProduct = dialog.getResultProduct();
-                    paramProduct.setValue(targetProduct.getName(), null);
-                }
             }
         };
     }
