@@ -13,7 +13,7 @@ import java.awt.Paint;
 import java.awt.Rectangle;
 
 /**
- * A background layer is used to draw a background using a unique {@link java.awt.Paint}.
+ * A background layer is used to draw a background using a unique {@link java.awt.Color}.
  *
  * @author Norman Fomferra
  */
