@@ -386,7 +386,15 @@ public class ProductSceneImage implements LayerContext {
     }
 
     private GraticuleLayer createGraticuleLayer(AffineTransform i2mTransform) {
-        final GraticuleLayer graticuleLayer = new GraticuleLayer(getRaster(), i2mTransform);
+        final LayerType layerType = LayerType.getLayerType(GraticuleLayerType.class.getName());
+        final ValueContainer template = layerType.getConfigurationTemplate();
+        try {
+            template.setValue(GraticuleLayerType.PROPERTY_NAME_RASTER, getRaster());
+            template.setValue(GraticuleLayerType.PROPERTY_NAME_TRANSFORM, i2mTransform);
+        } catch (ValidationException e) {
+            throw new IllegalArgumentException(e);
+        }
+        final GraticuleLayer graticuleLayer = (GraticuleLayer) layerType.createLayer(null, template);
         graticuleLayer.setId(ProductSceneView.GRATICULE_LAYER_ID);
         graticuleLayer.setVisible(false);
         graticuleLayer.setName("Graticule");
