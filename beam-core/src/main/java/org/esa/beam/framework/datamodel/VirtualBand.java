@@ -343,8 +343,16 @@ public class VirtualBand extends Band {
             @Override
             public RenderedImage createImage(int level) {
                 Product product = vb.getProduct();
-                Product[] products = product.getProductManager().getProducts();
-                int defaultProductIndex = product.getProductManager().getProductIndex(product);
+                ProductManager productManager = product.getProductManager();
+                Product[] products;
+                int defaultProductIndex;
+                if (productManager != null) {
+                    products = productManager.getProducts();
+                    defaultProductIndex = productManager.getProductIndex(product);
+                } else {
+                    products = new Product[] {product};
+                    defaultProductIndex = 0;
+                }
                 return VirtualBandOpImage.create(vb.getExpression(),
                                                  vb.getDataType(),
                                                  products,
