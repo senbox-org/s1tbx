@@ -159,7 +159,9 @@ public class BandArithmetikDialog extends ModalDialog {
         if (getCreateVirtualBand()) {
             final String validMaskExpression;
             try {
-                validMaskExpression = BandArithmetic.getValidMaskExpression(expression, new Product[]{targetProduct}, 0, null);
+                Product[] products = getCompatibleProducts();
+                int defaultProductIndex = Arrays.asList(products).indexOf(targetProduct);
+                validMaskExpression = BandArithmetic.getValidMaskExpression(expression, products, defaultProductIndex, null);
             } catch (ParseException e) {
                 String errorMessage = "The band could not be created.\nAn expression parse error occurred:\n" + e.getMessage(); /*I18N*/
                 visatApp.showErrorDialog(errorMessage);
@@ -568,20 +570,18 @@ public class BandArithmetikDialog extends ModalDialog {
         }
         Vector<Product> compatibleProducts = new Vector<Product>();
         compatibleProducts.add(targetProduct);
-        if (!getCreateVirtualBand()) {
-            final float geolocationEps = getGeolocationEps();
-            Debug.trace("BandArithmetikDialog.geolocationEps = " + geolocationEps);
-            Debug.trace("BandArithmetikDialog.getCompatibleProducts:");
-            Debug.trace("  comparing: " + targetProduct.getName());
-            for (int i = 0; i < productsList.size(); i++) {
-                final Product product = productsList.getAt(i);
-                if (targetProduct != product) {
-                    Debug.trace("  with:      " + product.getDisplayName());
-                    final boolean compatibleProduct = targetProduct.isCompatibleProduct(product, geolocationEps);
-                    Debug.trace("  result:    " + compatibleProduct);
-                    if (compatibleProduct) {
-                        compatibleProducts.add(product);
-                    }
+        final float geolocationEps = getGeolocationEps();
+        Debug.trace("BandArithmetikDialog.geolocationEps = " + geolocationEps);
+        Debug.trace("BandArithmetikDialog.getCompatibleProducts:");
+        Debug.trace("  comparing: " + targetProduct.getName());
+        for (int i = 0; i < productsList.size(); i++) {
+            final Product product = productsList.getAt(i);
+            if (targetProduct != product) {
+                Debug.trace("  with:      " + product.getDisplayName());
+                final boolean compatibleProduct = targetProduct.isCompatibleProduct(product, geolocationEps);
+                Debug.trace("  result:    " + compatibleProduct);
+                if (compatibleProduct) {
+                    compatibleProducts.add(product);
                 }
             }
         }

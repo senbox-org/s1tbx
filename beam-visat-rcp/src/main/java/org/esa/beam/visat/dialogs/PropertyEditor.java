@@ -17,14 +17,28 @@
 package org.esa.beam.visat.dialogs;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Term;
 import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
 import com.bc.jexp.impl.SymbolFactory;
-import org.esa.beam.framework.datamodel.*;
+
+import org.esa.beam.framework.datamodel.AbstractBand;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.ProductNodeNameValidator;
+import org.esa.beam.framework.datamodel.ProductVisitorAdapter;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamProperties;
@@ -38,10 +52,22 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Dialog;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.swing.JComponent;
+import javax.swing.JInternalFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingWorker;
 
 public class PropertyEditor {
 
@@ -55,9 +81,7 @@ public class PropertyEditor {
     public void show(final ProductNode selectedProductNode) {
         if (isValidNode(selectedProductNode)) {
             final EditorContent editorContent = new EditorContent(selectedProductNode);
-            if (editorContent != null) {
-                show(editorContent);
-            }
+            show(editorContent);
         }
     }
 
@@ -229,7 +253,9 @@ public class PropertyEditor {
                 if (expression != null && expression.trim().length() != 0) {
                     final Product product = _rasterDataNode.getProduct();
                     try {
-                        final WritableNamespace namespace = product.createBandArithmeticDefaultNamespace();
+                        Product[] products = getCompatibleProducts(_rasterDataNode);
+                        int defaultProductIndex = Arrays.asList(products).indexOf(product);
+                        final WritableNamespace namespace = BandArithmetic.createDefaultNamespace(products, defaultProductIndex);
                         namespace.registerSymbol(SymbolFactory.createConstant(_paramName.getValueAsText(), 0));
                         final Term term = new ParserImpl(namespace, false).parse(expression);
                         if (!term.isB()) {
@@ -250,9 +276,9 @@ public class PropertyEditor {
                 if (expression != null && expression.trim().length() != 0) {
                     final Product product = _virtualBand.getProduct();
                     try {
-                        final WritableNamespace namespace = product.createBandArithmeticDefaultNamespace();
-                        namespace.registerSymbol(SymbolFactory.createConstant(_paramName.getValueAsText(), 0));
-                        new ParserImpl(namespace, false).parse(expression);
+                        Product[] products = getCompatibleProducts(_virtualBand);
+                        int defaultProductIndex = Arrays.asList(products).indexOf(product);
+                        BandArithmetic.getValidMaskExpression(expression, products, defaultProductIndex, null);
                     } catch (ParseException e) {
                         JOptionPane.showMessageDialog(_dialog.getJDialog(),
                                                       "Invalid expression syntax:\n" + e.getMessage()); /*I18N*/
@@ -261,6 +287,27 @@ public class PropertyEditor {
                 }
             }
             return true;
+        }
+        
+        private Product[] getCompatibleProducts(RasterDataNode rasterDataNode) {
+            List<Product> compatibleProducts = new ArrayList<Product>(12);
+            Product vbProduct = rasterDataNode.getProduct();
+            compatibleProducts.add(vbProduct);
+            Product[] products = vbProduct.getProductManager().getProducts();
+            final float geolocationEps = getGeolocationEps();
+            for (Product product : products) {
+                if (vbProduct != product) {
+                    if (vbProduct.isCompatibleProduct(product, geolocationEps)) {
+                        compatibleProducts.add(product);
+                    }
+                }
+            }
+            return compatibleProducts.toArray(new Product[compatibleProducts.size()]);
+        }
+        
+        private float getGeolocationEps() {
+            return (float) VisatApp.getApp().getPreferences().getPropertyDouble(VisatApp.PROPERTY_KEY_GEOLOCATION_EPS,
+                                                                       VisatApp.PROPERTY_DEFAULT_GEOLOCATION_EPS);
         }
 
         public void changeProperties() {
@@ -302,7 +349,7 @@ public class PropertyEditor {
         }
 
         private void updateImages() {
-            final SwingWorker worker = new SwingWorker<Exception, Object>() {
+            final SwingWorker<Exception, Object> worker = new SwingWorker<Exception, Object>() {
 
                 @Override
                 protected Exception doInBackground() throws Exception {
@@ -407,6 +454,8 @@ public class PropertyEditor {
             // todo setting namespace as property to the ExpressionEditor for validating the expression
             properties.setPropertyValue(GeneralExpressionEditor.PROPERTY_KEY_SELECTED_PRODUCT,
                                         _virtualBand.getProduct());
+            properties.setPropertyValue(GeneralExpressionEditor.PROPERTY_KEY_INPUT_PRODUCTS,
+                                        getCompatibleProducts(_virtualBand));
             properties.setPropertyValue(GeneralExpressionEditor.PROPERTY_KEY_PREFERENCES,
                                         VisatApp.getApp().getPreferences());
             _paramVBExpression = new Parameter("virtualBandExpr", _virtualBand.getExpression(), properties);
@@ -430,6 +479,8 @@ public class PropertyEditor {
             // todo setting namespace as property to the ExpressionEditor for validating the expression
             properties.setPropertyValue(BooleanExpressionEditor.PROPERTY_KEY_SELECTED_PRODUCT,
                                         _rasterDataNode.getProduct());
+            properties.setPropertyValue(BooleanExpressionEditor.PROPERTY_KEY_INPUT_PRODUCTS,
+                                        getCompatibleProducts(_rasterDataNode));
             _paramValidPixelExpr = new Parameter("validMaskExpr",
                                                  _rasterDataNode.getValidPixelExpression(),
                                                  properties);
