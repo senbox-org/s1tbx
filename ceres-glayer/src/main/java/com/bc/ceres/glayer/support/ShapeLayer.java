@@ -1,5 +1,6 @@
 package com.bc.ceres.glayer.support;
 
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.glayer.Layer;
@@ -38,18 +39,29 @@ public class ShapeLayer extends Layer {
     }
 
     public ShapeLayer(Shape[] shapes, AffineTransform shapeToModelTransform) {
-        this(LAYER_TYPE, shapes, shapeToModelTransform);
+        this(LAYER_TYPE, initConfiguration(LAYER_TYPE.getConfigurationTemplate(), shapes, shapeToModelTransform));
     }
 
-    protected ShapeLayer(Type type, Shape[] shapes, AffineTransform shapeToModelTransform) {
-        super(type);
-        this.shapeList = new ArrayList<Shape>(Arrays.asList(shapes));
-        this.shapeToModelTransform = (AffineTransform) shapeToModelTransform.clone();
+    public ShapeLayer(Type layerType, ValueContainer configuration) {
+        super(layerType, configuration);
+        this.shapeList = (List<Shape>) configuration.getValue(Type.PROPERTY_SHAPE_LIST);
+        this.shapeToModelTransform = (AffineTransform) configuration.getValue(Type.PROPTERY_SHAPE_TO_MODEL_TRANSFORM);
         try {
             this.modelToShapeTransform = shapeToModelTransform.createInverse();
         } catch (NoninvertibleTransformException e) {
-            throw new IllegalArgumentException("imageToModelTransform", e);
+            throw new IllegalArgumentException("shapeToModelTransform", e);
         }
+    }
+
+    private static ValueContainer initConfiguration(ValueContainer template, Shape[] shapes,
+                                                    AffineTransform shapeToModelTransform) {
+        try {
+            template.setValue(Type.PROPERTY_SHAPE_LIST, Arrays.asList(shapes));
+            template.setValue(Type.PROPTERY_SHAPE_TO_MODEL_TRANSFORM, shapeToModelTransform.clone());
+        } catch (ValidationException e) {
+            throw new IllegalArgumentException(e);
+        }
+        return template;
     }
 
     public List<Shape> getShapeList() {
@@ -120,19 +132,14 @@ public class ShapeLayer extends Layer {
 
         @Override
         protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
-            @SuppressWarnings({"unchecked"})
-            final List<Shape> shapes = (List<Shape>) configuration.getValue(PROPERTY_SHAPE_LIST);
-            AffineTransform shapeToModelTransform = (AffineTransform) configuration.getValue(
-                    PROPTERY_SHAPE_TO_MODEL_TRANSFORM);
-            
-            return new ShapeLayer(shapes.toArray(new Shape[shapes.size()]), shapeToModelTransform);
+            return new ShapeLayer(this, configuration);
         }
 
         @Override
         public ValueContainer getConfigurationTemplate() {
             final ValueContainer vc = new ValueContainer();
 
-            final ValueModel shapeListModel = createDefaultValueModel(PROPERTY_SHAPE_LIST, new ArrayList<Shape>());
+            final ValueModel shapeListModel = createDefaultValueModel(PROPERTY_SHAPE_LIST, List.class);
             shapeListModel.getDescriptor().setDefaultValue(new ArrayList<Shape>());
             vc.addModel(shapeListModel);
 
