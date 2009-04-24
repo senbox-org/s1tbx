@@ -128,8 +128,7 @@ public class ProductExpressionPane extends ExpressionPane {
         JPanel accessoryPane = createDefaultAccessoryPane(nodeListPane);
         setLeftAccessory(accessoryPane);
 
-        if (!isBooleanExpressionPreferred()) {
-
+        if (products.length > 1) {
             List<String> nameList = new ArrayList<String>(products.length);
             for (Product product : products) {
                 String productName = product.getDisplayName();
