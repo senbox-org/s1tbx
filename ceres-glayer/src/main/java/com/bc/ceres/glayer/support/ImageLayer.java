@@ -38,7 +38,7 @@ import java.awt.image.RenderedImage;
  */
 public class ImageLayer extends Layer {
 
-    private static final LayerType LAYER_TYPE = LayerType.getLayerType(Type.class.getName());
+    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
 
     public static final String PROPERTY_NAME_MULTI_LEVEL_SOURCE = "multiLevelSource";
     public static final String PROPERTY_NAME_BORDER_SHOWN = "border.shown";
@@ -92,11 +92,11 @@ public class ImageLayer extends Layer {
      * @param type             The layer type.
      * @param multiLevelSource the multi-resolution-level image.
      */
-    public ImageLayer(LayerType type, MultiLevelSource multiLevelSource) {
+    public ImageLayer(Type type, MultiLevelSource multiLevelSource) {
         this(type, addMultiLevelSourceModel(type.getConfigurationTemplate(), multiLevelSource));
     }
 
-    public ImageLayer(LayerType layerType, ValueContainer configuration) {
+    public ImageLayer(Type layerType, ValueContainer configuration) {
         super(layerType, configuration);
         multiLevelSource = (MultiLevelSource) configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
         Assert.notNull(multiLevelSource);
