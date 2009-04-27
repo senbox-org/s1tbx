@@ -18,14 +18,15 @@ package org.esa.beam.dataio.atsr;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.StringUtils;
 
 import javax.imageio.stream.ImageInputStream;
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 
@@ -81,8 +82,7 @@ public class AtsrProductReader extends AbstractProductReader {
      * @throws java.io.IOException if an I/O error occurs
      */
     @Override
-    protected Product readProductNodesImpl() throws IOException,
-                                                    IllegalFileFormatException {
+    protected Product readProductNodesImpl() throws IOException {
         AtsrFileFactory factory = AtsrFileFactory.getInstance();
         Object input = getInput();
 
@@ -144,8 +144,28 @@ public class AtsrProductReader extends AbstractProductReader {
 
         // add the bands to the product
         addBandsToProduct(prodRet);
+        addActiveFireBitmaskDefs(prodRet);
 
         return prodRet;
+    }
+
+    private void addActiveFireBitmaskDefs(Product prodRet) {
+        // add bitmasks for ATSR active fires, see http://dup.esrin.esa.it/ionia/wfa/algorithm.asp
+        final String nadirBand = AtsrGBTConstants.NADIR_370_BT_NAME;
+        final String fwardBand = AtsrGBTConstants.FORWARD_370_BT_NAME;
+
+        if (prodRet.containsBand(nadirBand)) {
+            prodRet.addBitmaskDef(new BitmaskDef("fire_nadir_1", "ATSR active fire (ALGO1)", nadirBand + " > 312.0",
+                                                 Color.RED, 0.5f));
+            prodRet.addBitmaskDef(new BitmaskDef("fire_nadir_2", "ATSR active fire (ALGO2)", nadirBand + " > 308.0",
+                                                 Color.RED.darker(), 0.5f));
+        }
+        if (prodRet.containsBand(fwardBand)) {
+            prodRet.addBitmaskDef(new BitmaskDef("fire_fward_1", "ATSR active fire (ALGO1)", fwardBand + " > 312.0",
+                                                 Color.RED, 0.5f));
+            prodRet.addBitmaskDef(new BitmaskDef("fire_fward_2", "ATSR active fire (ALGO2)", fwardBand + " > 308.0",
+                                                 Color.RED.darker(), 0.5f));
+        }
     }
 
     /**
@@ -175,15 +195,15 @@ public class AtsrProductReader extends AbstractProductReader {
      * Adds all geophysical bands to the product
      */
     private void addBandsToProduct(Product prodRet) {
-        Band band = null;
-        FlagCoding flagCoding = null;
+        Band band;
+        FlagCoding flagCoding;
         for (int n = 0; n < _file.getNumBands(); n++) {
             band = _file.getBandAt(n);
             prodRet.addBand(band);
 
             flagCoding = band.getFlagCoding();
             if (flagCoding != null) {
-                prodRet.addFlagCoding(flagCoding);
+                prodRet.getFlagCodingGroup().add(flagCoding);
             }
         }
     }

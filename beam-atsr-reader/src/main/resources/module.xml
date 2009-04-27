@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-atsr-reader</symbolicName>
-    <version>1.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>ATSR Product Reader</name>
 
     <description>Enables BEAM to read ERS-1 and -2 ATSR data products.</description>
@@ -19,6 +19,13 @@
         <module>beam-visat</module>
         <optional>true</optional>
     </dependency>
+
+    <changelog>
+        <![CDATA[
+        Changes in Version 1.0.1<br/>
+       [BEAM-898] ATSR active fire bitmasks<br/>
+        ]]>
+    </changelog>
 
     <categories>Reader,ERS,ATSR</categories>
 

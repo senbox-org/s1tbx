@@ -19,11 +19,12 @@ package org.esa.beam.dataio.envisat;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.StringUtils;
 
 import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -98,6 +99,7 @@ public class AatsrProductFile extends ProductFile {
      *
      * @param file            the abstract file path representation.
      * @param dataInputStream the seekable data input stream which will be used to read data from the product file.
+     *
      * @throws java.io.IOException if an I/O error occurs
      */
     protected AatsrProductFile(File file, ImageInputStream dataInputStream) throws IOException {
@@ -180,6 +182,7 @@ public class AatsrProductFile extends ProductFile {
      * Overrides the base class method.
      *
      * @param gridWidth for AATSR products, this is the number of tie points in a tie point ADSR
+     *
      * @see org.esa.beam.dataio.envisat.ProductFile#getTiePointSubSamplingX(int)
      */
     @Override
@@ -191,6 +194,7 @@ public class AatsrProductFile extends ProductFile {
      * Overrides the base class method.
      *
      * @param gridWidth for AATSR products, this is the number of tie points in a tie point ADSR
+     *
      * @see org.esa.beam.dataio.envisat.ProductFile#getTiePointSubSamplingY(int)
      */
     @Override
@@ -216,8 +220,8 @@ public class AatsrProductFile extends ProductFile {
     @Override
     public String getGADSName() {
         return getProductType().equalsIgnoreCase(EnvisatConstants.AATSR_L1B_TOA_PRODUCT_TYPE_NAME)
-                ? EnvisatConstants.AATSR_L1B_GADS_NAME
-                : null;
+               ? EnvisatConstants.AATSR_L1B_GADS_NAME
+               : null;
     }
 
     /**
@@ -248,7 +252,8 @@ public class AatsrProductFile extends ProductFile {
         }
         DSD dsdNadirViewSolarAnglesAds = getDSD("NADIR_VIEW_SOLAR_ANGLES_ADS");
         if (dsdNadirViewSolarAnglesAds == null) {
-            throw new IllegalFileFormatException("invalid product: missing DSD for dataset 'NADIR_VIEW_SOLAR_ANGLES_ADS'"); /*I18N*/
+            throw new IllegalFileFormatException(
+                    "invalid product: missing DSD for dataset 'NADIR_VIEW_SOLAR_ANGLES_ADS'"); /*I18N*/
         }
 
         _sceneRasterHeight = calculateSceneRasterHeight(dsdGeoLocationAds, numMDSR);
@@ -341,6 +346,7 @@ public class AatsrProductFile extends ProductFile {
      * attachment_flag is rised for the whole (subset) product.
      *
      * @param datasetType the desired dataset type
+     *
      * @return all valis dsds conforming to the dataset type
      */
     @Override
@@ -388,10 +394,31 @@ public class AatsrProductFile extends ProductFile {
         return EnvisatConstants.AATSR_SOLAR_FLUXES;
     }
 
+    @Override
+    protected void addCustomMetadata(Product product) throws IOException {
+        // add bitmasks for ATSR active fires, see http://dup.esrin.esa.it/ionia/wfa/algorithm.asp
+        final String nadirBand = EnvisatConstants.AATSR_L1B_BTEMP_NADIR_0370_BAND_NAME;
+        final String fwardBand = EnvisatConstants.AATSR_L1B_BTEMP_FWARD_0370_BAND_NAME;
+        
+        if (product.containsBand(nadirBand)) {
+            product.addBitmaskDef(new BitmaskDef("fire_nadir_1", "ATSR active fire (ALGO1)", nadirBand + " > 312.0",
+                                                 Color.RED, 0.5f));
+            product.addBitmaskDef(new BitmaskDef("fire_nadir_2", "ATSR active fire (ALGO2)", nadirBand + " > 308.0",
+                                                 Color.RED.darker(), 0.5f));
+        }
+        if (product.containsBand(fwardBand)) {
+            product.addBitmaskDef(new BitmaskDef("fire_fward_1", "ATSR active fire (ALGO1)", fwardBand + " > 312.0",
+                                                 Color.RED, 0.5f));
+            product.addBitmaskDef(new BitmaskDef("fire_fward_2", "ATSR active fire (ALGO2)", fwardBand + " > 308.0",
+                                                 Color.RED.darker(), 0.5f));
+        }
+    }
+
     /**
      * Returns a new default set of bitmask definitions for this product file.
      *
      * @param dsName the name of the flag dataset
+     *
      * @return a new default set, an empty array if no default set is given for this product type, never
      *         <code>null</code>.
      */
@@ -429,30 +456,30 @@ public class AatsrProductFile extends ProductFile {
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY"), null, dsName + ".CLOUDY", Color.cyan, 0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "SUN_GLINT"), null, dsName + ".SUN_GLINT", Color.yellow, 0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_REFL_HIST"), null, dsName + ".CLOUDY_REFL_HIST", Color.orange,
-                        0.5F),
+                               0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_SPAT_COHER_16"), null, dsName + ".CLOUDY_SPAT_COHER_16",
-                        Color.red,
-                        0.5F),
+                               Color.red,
+                               0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_SPAT_COHER_11"), null, dsName + ".CLOUDY_SPAT_COHER_11",
-                        Color.blue,
-                        0.5F),
+                               Color.blue,
+                               0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_GROSS_12"), null, dsName + ".CLOUDY_GROSS_12", Color.magenta,
-                        0.5F),
+                               0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_CIRRUS_11_12"), null, dsName + ".CLOUDY_CIRRUS_11_12",
-                        Color.pink,
-                        0.5F),
+                               Color.pink,
+                               0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_MED_HI_LEVEL_37_12"), null,
-                        dsName + ".CLOUDY_MED_HI_LEVEL_37_12",
-                        Color.yellow, 0.5F),
+                               dsName + ".CLOUDY_MED_HI_LEVEL_37_12",
+                               Color.yellow, 0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_FOG_LOW_STRATUS_11_37"), null,
-                        dsName + ".CLOUDY_FOG_LOW_STRATUS_11_37", Color.orange, 0.5F),
+                               dsName + ".CLOUDY_FOG_LOW_STRATUS_11_37", Color.orange, 0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_VW_DIFF_11_12"), null, dsName + ".CLOUDY_VW_DIFF_11_12",
-                        Color.red,
-                        0.5F),
+                               Color.red,
+                               0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_VW_DIFF_37_11"), null, dsName + ".CLOUDY_VW_DIFF_37_11",
-                        Color.green, 0.5F),
+                               Color.green, 0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_THERM_HIST_11_12"), null, dsName + ".CLOUDY_THERM_HIST_11_12",
-                        Color.blue, 0.5F)
+                               Color.blue, 0.5F)
         };
     }
 
@@ -479,7 +506,7 @@ public class AatsrProductFile extends ProductFile {
         return new BitmaskDef[]{
                 new BitmaskDef(mkBMDNm("LAND"), null, "flags.LAND", Color.green, 0.5F),
                 new BitmaskDef(mkBMDNm("WATER"), null, "!flags.LAND AND !(flags.NADIR_CLOUD OR flags.FWARD_CLOUD)",
-                        Color.blue, 0.5F),
+                               Color.blue, 0.5F),
                 new BitmaskDef(mkBMDNm("CLOUD"), null, "flags.NADIR_CLOUD OR flags.FWARD_CLOUD", Color.cyan, 0.5F),
                 new BitmaskDef(mkBMDNm("NADIR_CLOUD"), null, "flags.NADIR_CLOUD", Color.cyan, 0.5F),
                 new BitmaskDef(mkBMDNm("NADIR_BLANKING"), null, "flags.NADIR_BLANKING", Color.orange, 0.5F),
@@ -492,7 +519,7 @@ public class AatsrProductFile extends ProductFile {
                 new BitmaskDef(mkBMDNm("CLOUDY_HISTO"), null, "flags.CLOUDY_HISTO", Color.cyan, 0.5F),
                 new BitmaskDef(mkBMDNm("NADIR_SST_ONLY_VALID"), null, "flags.NADIR_SST_ONLY_VALID", Color.red, 0.5F),
                 new BitmaskDef(mkBMDNm("NADIR_SST_ONLY_37_MY_VALID"), null, "flags.NADIR_SST_ONLY_37_MY_VALID",
-                        Color.orange, 0.5F),
+                               Color.orange, 0.5F),
                 new BitmaskDef(mkBMDNm("DUAL_SST_VALID"), null, "flags.DUAL_SST_VALID", Color.red, 0.5F),
                 new BitmaskDef(mkBMDNm("DUAL_SST_VALID_37_MY"), null, "flags.DUAL_SST_VALID_37_MY", Color.orange, 0.5F)
         };
