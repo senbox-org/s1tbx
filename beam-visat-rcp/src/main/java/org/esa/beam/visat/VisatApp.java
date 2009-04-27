@@ -1574,12 +1574,12 @@ public class VisatApp extends BasicApp implements AppContext {
             }
         }
 
-        final boolean saveOk = writeProductImpl(product, product.getFileLocation(),
+        final boolean saveOk = writeProductImpl(product, file,
                                                 DimapProductConstants.DIMAP_FORMAT_NAME,
                                                 incremental);
         if (saveOk) {
             product.setModified(false);
-            historyPush(product.getFileLocation());
+            historyPush(file);
         } else {
             if (metadataRoot != null) {
                 final MetadataElement[] elementsArray = new MetadataElement[metadataElementBackup.size()];
