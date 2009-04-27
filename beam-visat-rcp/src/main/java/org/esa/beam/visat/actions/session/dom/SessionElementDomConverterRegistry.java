@@ -3,20 +3,22 @@ package org.esa.beam.visat.actions.session.dom;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.draw.AbstractFigure;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class DomConverterRegistry {
+public class SessionElementDomConverterRegistry {
 
-    private static final DomConverterRegistry instance = new DomConverterRegistry();
+    private static final SessionElementDomConverterRegistry INSTANCE = new SessionElementDomConverterRegistry();
     private Map<Class<?>, SessionElementDomConverter<?>> converterMap =
             new HashMap<Class<?>, SessionElementDomConverter<?>>(33);
 
     static {
-        instance.setDomConverter(BitmaskDef.class, new BitmaskDefDomConverter());
-        instance.setDomConverter(Product.class, new ProductDomConverter());
-        instance.setDomConverter(RasterDataNode.class, new RasterDataNodeDomConverter());
+        INSTANCE.setDomConverter(BitmaskDef.class, new BitmaskDefDomConverter());
+        INSTANCE.setDomConverter(AbstractFigure.class, new AbstractFigureDomConverter());
+        INSTANCE.setDomConverter(Product.class, new ProductDomConverter());
+        INSTANCE.setDomConverter(RasterDataNode.class, new RasterDataNodeDomConverter());
     }
 
     /**
@@ -24,8 +26,8 @@ public class DomConverterRegistry {
      *
      * @return The instance.
      */
-    public static DomConverterRegistry getInstance() {
-        return DomConverterRegistry.instance;
+    public static SessionElementDomConverterRegistry getInstance() {
+        return SessionElementDomConverterRegistry.INSTANCE;
     }
 
     /**

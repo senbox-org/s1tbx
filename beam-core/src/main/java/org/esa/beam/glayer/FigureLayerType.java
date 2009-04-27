@@ -100,6 +100,7 @@ public class FigureLayerType extends LayerType {
         final ValueModel figureListModel = createDefaultValueModel(FigureLayer.PROPERTY_NAME_FIGURE_LIST,
                                                                    List.class,
                                                                    new ArrayList<Figure>());
+        figureListModel.getDescriptor().setItemAlias("figure");
         vc.addModel(figureListModel);
 
         return vc;

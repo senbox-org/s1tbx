@@ -1,6 +1,5 @@
 package org.esa.beam.visat.actions.session;
 
-import com.bc.ceres.binding.ClassFieldDescriptorFactory;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
@@ -28,7 +27,6 @@ import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 
 import java.awt.Color;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -98,13 +96,7 @@ public class LayerIOTest extends TestCase {
         assertNotNull(l1.getMultiLevelSource());
 
         // 2. Write configuration to XML
-        final ClassFieldDescriptorFactory cfdf = new ClassFieldDescriptorFactory() {
-            @Override
-            public ValueDescriptor createValueDescriptor(Field field) {
-                return new ValueDescriptor(field.getName(), field.getType());
-            }
-        };
-        final DefaultDomConverter dc = new DefaultDomConverter(ValueContainer.class, cfdf);
+        final DefaultDomConverter dc = new DefaultDomConverter(ValueContainer.class);
         final DomElement domElement1 = new DefaultDomElement("configuration");
         dc.convertValueToDom(configuration1, domElement1);
 

@@ -7,6 +7,8 @@ import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertSame;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -46,37 +48,39 @@ public abstract class AbstractLayerConfigurationPersistencyTest {
         final Layer layer = createLayer(layerType);
 
         final SessionDomConverter domConverter = new SessionDomConverter(getProductManager());
-        final DomElement domElement = new DefaultDomElement("configuration");
-        domConverter.convertValueToDom(layer.getConfiguration(), domElement);
+        final DomElement originalDomElement = new DefaultDomElement("configuration");
+        domConverter.convertValueToDom(layer.getConfiguration(), originalDomElement);
+        System.out.println(originalDomElement.toXml());
 
-        System.out.println(domElement.toXml());
-
-        final ValueContainer restoredConfiguration = (ValueContainer) domConverter.convertDomToValue(domElement,
+        final ValueContainer restoredConfiguration = (ValueContainer) domConverter.convertDomToValue(originalDomElement,
                                                                                                      layerType.getConfigurationTemplate());
         compareConfigurations(layer.getConfiguration(), restoredConfiguration);
+        final DomElement restoredDomElement = new DefaultDomElement("configuration");
+        domConverter.convertValueToDom(restoredConfiguration, restoredDomElement);
+        System.out.println(restoredDomElement.toXml());
     }
 
     protected abstract Layer createLayer(LayerType layerType) throws Exception;
 
     private static void compareConfigurations(ValueContainer originalConfiguration,
                                               ValueContainer restoredConfiguration) {
-        for (ValueModel originalModel : originalConfiguration.getModels()) {
+        for (final ValueModel originalModel : originalConfiguration.getModels()) {
             final ValueDescriptor originalDescriptor = originalModel.getDescriptor();
             final ValueModel restoredModel = restoredConfiguration.getModel(originalDescriptor.getName());
 
             org.junit.Assert.assertNotNull(restoredModel);
-            junit.framework.Assert.assertSame(originalDescriptor.getName(), restoredModel.getDescriptor().getName());
-            junit.framework.Assert.assertSame(originalDescriptor.getType(), restoredModel.getDescriptor().getType());
+            assertSame(originalDescriptor.getName(), restoredModel.getDescriptor().getName());
+            assertSame(originalDescriptor.getType(), restoredModel.getDescriptor().getType());
 
             if (originalModel.getDescriptor().isTransient()) {
-                junit.framework.Assert.assertEquals(originalModel.getDescriptor().isTransient(),
-                                                    restoredModel.getDescriptor().isTransient());
+                assertEquals(originalModel.getDescriptor().isTransient(),
+                             restoredModel.getDescriptor().isTransient());
             } else {
                 final Object originalValue = originalModel.getValue();
                 final Object restoredValue = restoredModel.getValue();
-                junit.framework.Assert.assertSame(originalValue.getClass(), restoredValue.getClass());
+                assertSame(originalValue.getClass(), restoredValue.getClass());
                 if (originalValue.getClass().isArray()) {
-                    junit.framework.Assert.assertEquals(Array.getLength(originalValue), Array.getLength(restoredValue));
+                    assertEquals(Array.getLength(originalValue), Array.getLength(restoredValue));
                 }
             }
         }
