@@ -2,7 +2,9 @@ package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.jai.ImageManager;
@@ -12,7 +14,8 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.SourcelessOpImage;
-import java.awt.*;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
@@ -60,6 +63,9 @@ public class OperatorImage extends SourcelessOpImage {
 
     @Override
     protected void computeRect(PlanarImage[] ignored, WritableRaster tile, Rectangle destRect) {
+
+        long nanos1 = System.nanoTime();
+
         if (operatorMustComputeTileStack()) {
             Map<Band, Tile> targetTiles = createTargetTileStack(tile, destRect);
             operatorContext.getOperator().computeTileStack(targetTiles, destRect, getProgressMonitor());
@@ -69,52 +75,24 @@ public class OperatorImage extends SourcelessOpImage {
                 operatorContext.getOperator().computeTile(getTargetBand(), targetTile, getProgressMonitor());
             }
         }
-    }
 
-    private Tile createTargetTile(Rectangle targetRectangle, WritableRaster targetTileRaster) {
-        Tile targetTile;
-        if (operatorContext.isPassThrough()) {
-            targetTile = operatorContext.getSourceTile(getTargetBand(), targetRectangle, getProgressMonitor());
-        } else {
-            targetTile = createTargetTile(getTargetBand(), targetTileRaster, targetRectangle);
-        }
-        return targetTile;
-    }
+        long nanos2 = System.nanoTime();
 
-    private Map<Band, Tile> createTargetTileStack(WritableRaster targetTileRaster, Rectangle targetRectangle) throws OperatorException {
-        Band[] bands = operatorContext.getTargetProduct().getBands();
-        Map<Band, Tile> targetTiles = new HashMap<Band, Tile>(bands.length * 2);
-        if (operatorContext.isPassThrough()) {
-            for (Band band : bands) {
-                if (isBandComputedByOperator(band)) {
-                    targetTiles.put(band, operatorContext.getSourceTile(band, targetRectangle, getProgressMonitor()));
-                }
-            }
-        } else {
-            for (Band band : bands) {
-                if (isBandComputedByOperator(band)) {
-                    WritableRaster tileRaster = getWritableTile(band, targetTileRaster);
-                    targetTiles.put(band, createTargetTile(band, tileRaster, targetRectangle));
-                }
+        double targetNanosPerPixel = (double) (nanos2 - nanos1) / (double) (destRect.width * destRect.height);
+        double sourceNanosPerPixel = 0;
+
+        Product[] products = operatorContext.getSourceProducts();
+        for (Product product : products) {
+            ProductReader productReader = product.getProductReader();
+            if (productReader instanceof OperatorProductReader) {
+                OperatorProductReader operatorProductReader = (OperatorProductReader) productReader;
+                OperatorContext context = operatorProductReader.getOperatorContext();
+                sourceNanosPerPixel += context.getPerformanceMetric().getTargetNanosPerPixel();
             }
         }
-        return targetTiles;
-    }
 
-    private boolean isBandComputedByOperator(Band band) {
-        return band.getSourceImage() instanceof OperatorImage;
-    }
-
-    private WritableRaster getWritableTile(Band band, WritableRaster targetTileRaster) {
-        WritableRaster tileRaster;
-        if (band == getTargetBand()) {
-            tileRaster = targetTileRaster;
-        } else {
-            OperatorImage operatorImage = operatorContext.getTargetImage(band);
-            Assert.state(operatorImage != this);
-            tileRaster = operatorImage.getWritableTile(targetTileRaster.getBounds());
-        }
-        return tileRaster;
+        operatorContext.getPerformanceMetric().updateSource(sourceNanosPerPixel);
+        operatorContext.getPerformanceMetric().updateTarget(targetNanosPerPixel);
     }
 
     public WritableRaster getWritableTile(Rectangle tileRectangle) {
@@ -135,16 +113,6 @@ public class OperatorImage extends SourcelessOpImage {
         }
         return writableRaster;
     }
-
-    private static TileImpl createTargetTile(Band band, WritableRaster targetTileRaster, Rectangle targetRectangle) {
-        return new TileImpl(band, targetTileRaster, targetRectangle, true);
-    }
-
-    private boolean operatorMustComputeTileStack() {
-        return operatorContext.isComputeTileStackMethodUsage()
-                && !operatorContext.isComputeTileMethodUsable();
-    }
-
 
     public ProgressMonitor getProgressMonitor() {
         return progressMonitor != null ? progressMonitor : ProgressMonitor.NULL;
@@ -189,4 +157,65 @@ public class OperatorImage extends SourcelessOpImage {
         }
         return oldPm;
     }
+
+    private Tile createTargetTile(Rectangle targetRectangle, WritableRaster targetTileRaster) {
+        Tile targetTile;
+        if (operatorContext.isPassThrough()) {
+            targetTile = operatorContext.getSourceTile(getTargetBand(), targetRectangle, getProgressMonitor());
+        } else {
+            targetTile = createTargetTile(getTargetBand(), targetTileRaster, targetRectangle);
+        }
+        return targetTile;
+    }
+
+    private Map<Band, Tile> createTargetTileStack(WritableRaster targetTileRaster, Rectangle targetRectangle) throws OperatorException {
+        Band[] bands = operatorContext.getTargetProduct().getBands();
+        Map<Band, Tile> targetTiles = new HashMap<Band, Tile>(bands.length * 2);
+        if (operatorContext.isPassThrough()) {
+            for (Band band : bands) {
+                if (isBandComputedByThisOperator(band)) {
+                    targetTiles.put(band, operatorContext.getSourceTile(band, targetRectangle, getProgressMonitor()));
+                }
+            }
+        } else {
+            for (Band band : bands) {
+                if (isBandComputedByThisOperator(band)) {
+                    WritableRaster tileRaster = getWritableTile(band, targetTileRaster);
+                    targetTiles.put(band, createTargetTile(band, tileRaster, targetRectangle));
+                }
+            }
+        }
+        return targetTiles;
+    }
+
+    private static TileImpl createTargetTile(Band band, WritableRaster targetTileRaster, Rectangle targetRectangle) {
+        return new TileImpl(band, targetTileRaster, targetRectangle, true);
+    }
+
+    private boolean operatorMustComputeTileStack() {
+        return operatorContext.isComputeTileStackMethodUsage()
+                && !operatorContext.isComputeTileMethodUsable();
+    }
+
+    private boolean isBandComputedByThisOperator(Band band) {
+        if (!band.isSourceImageSet()) {
+            return false;
+        }
+        OperatorImage image = operatorContext.getTargetImage(band);
+        return image != null && image == band.getSourceImage();
+    }
+
+    private WritableRaster getWritableTile(Band band, WritableRaster targetTileRaster) {
+        WritableRaster tileRaster;
+        if (band == getTargetBand()) {
+            tileRaster = targetTileRaster;
+        } else {
+            OperatorImage operatorImage = operatorContext.getTargetImage(band);
+            Assert.state(operatorImage != this);
+            tileRaster = operatorImage.getWritableTile(targetTileRaster.getBounds());
+        }
+        return tileRaster;
+    }
+
+
 }

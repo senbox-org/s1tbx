@@ -48,6 +48,7 @@ import org.esa.beam.framework.gpf.graph.GraphOp;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration.Reference;
 import org.esa.beam.util.jai.JAIUtils;
 
+import javax.media.jai.JAI;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -91,6 +92,8 @@ public class OperatorContext {
     private boolean disposed;
     private ValueContainer valueContainer;
     private RenderingHints renderingHints;
+    private PerformanceMetric performanceMetric;
+
 
     public OperatorContext(Operator operator) {
         this.operator = operator;
@@ -100,6 +103,9 @@ public class OperatorContext {
         this.sourceProductMap = new HashMap<String, Product>(3);
         this.targetPropertyMap = new HashMap<String, Object>(3);
         this.logger = Logger.getAnonymousLogger();
+        // Note: All OperatorImages in this context share the same TILE_CACHE_METRIC instance!
+        this.performanceMetric = new PerformanceMetric();
+        this.renderingHints = new RenderingHints(JAI.KEY_TILE_CACHE_METRIC, performanceMetric);
     }
 
     public String getId() {
@@ -121,6 +127,10 @@ public class OperatorContext {
     public void setLogger(Logger logger) {
         Assert.notNull(logger, "logger");
         this.logger = logger;
+    }
+
+    public PerformanceMetric getPerformanceMetric() {
+        return performanceMetric;
     }
 
     public Product getSourceProduct(String id) {
@@ -224,8 +234,8 @@ public class OperatorContext {
         return renderingHints;
     }
 
-    public void setRenderingHints(RenderingHints renderingHints) {
-        this.renderingHints = renderingHints;
+    public void addRenderingHints(RenderingHints renderingHints) {
+        this.renderingHints.add(renderingHints);
     }
 
     public void setConfiguration(OperatorConfiguration opConfiguration) {
@@ -494,13 +504,12 @@ public class OperatorContext {
         final Band[] targetBands = targetProduct.getBands();
         targetImageMap = new HashMap<Band, OperatorImage>(targetBands.length * 2);
         for (final Band targetBand : targetBands) {
-            // Set OperatorImage, "instanceof" has intentionally not been used
-            if (targetBand.getClass() == Band.class) {
+            // Note: For all pass-through operators "source band == target band",
+            // and in this case an OperatorImage is already set.
+            // Note: "instanceof" has intentionally not been used here.
+            if (targetBand.getClass() == Band.class && !targetBand.isSourceImageSet()) {
                 final OperatorImage image = new OperatorImage(targetBand, this);
-                // Note: pass-through operators have source band=target band, in this case an OperatorImage is already set
-                if (!targetBand.isSourceImageSet()) {
-                    targetBand.setSourceImage(image);
-                }
+                targetBand.setSourceImage(image);
                 targetImageMap.put(targetBand, image);
             }
         }
@@ -787,4 +796,5 @@ public class OperatorContext {
         System.arraycopy(args, 0, allArgs, 1, allArgs.length - 1);
         return String.format("Operator '%s': " + format, allArgs);
     }
+
 }
