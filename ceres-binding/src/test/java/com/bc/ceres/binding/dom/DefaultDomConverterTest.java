@@ -13,11 +13,20 @@ import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
+import java.awt.Color;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.geom.Arc2D;
+import java.awt.geom.Line2D;
 import java.io.File;
 import java.io.StringReader;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Stack;
 
 public class DefaultDomConverterTest extends TestCase {
 
@@ -379,6 +388,205 @@ public class DefaultDomConverterTest extends TestCase {
         assertEquals(createDom(expectedXml), dom);
     }
 
+    public void testInterfaceFieldsPojoToDom() {
+        final String expectedXml = ""
+                                   + "<parameters>"
+                                   + "  <shape1 class=\"java.awt.Rectangle\" >"
+                                   + "    <x>10</x>"
+                                   + "    <y>10</y>"
+                                   + "    <width>20</width>"
+                                   + "    <height>25</height>"
+                                   + "  </shape1>"
+                                   + "  <shape2 class=\"java.awt.geom.Line2D$Float\" >"
+                                   + "    <x1>0.0</x1>"
+                                   + "    <y1>10.3</y1>"
+                                   + "    <x2>15.7</x2>"
+                                   + "    <y2>34.6</y2>"
+                                   + "  </shape2>"
+                                   + "</parameters>";
+        final InterfaceFieldsPojo interfacePojo = new InterfaceFieldsPojo(new Rectangle(10, 10, 20, 25),
+                                                                          new Line2D.Float(0.0f, 10.3f, 15.7f, 34.6f));
+        final Xpp3Dom dom = new Xpp3Dom("parameters");
+        convertValueToDom(interfacePojo, dom);
+        assertEquals(createDom(expectedXml), dom);
+    }
+
+    public void testDomToInterfaceFieldsPojo() throws ValidationException, ConversionException {
+        final String xml = ""
+                           + "<parameters>"
+                           + "  <shape1 class=\"java.awt.Rectangle\" >"
+                           + "    <x>10</x>"
+                           + "    <y>10</y>"
+                           + "    <width>20</width>"
+                           + "    <height>25</height>"
+                           + "  </shape1>"
+                           + "  <shape2 class=\"java.awt.geom.Line2D$Float\" >"
+                           + "    <x1>0.0</x1>"
+                           + "    <y1>10.3</y1>"
+                           + "    <x2>15.7</x2>"
+                           + "    <y2>34.6</y2>"
+                           + "  </shape2>"
+                           + "</parameters>";
+
+        final Xpp3Dom dom = createDom(xml);
+        final InterfaceFieldsPojo value = new InterfaceFieldsPojo(null, null);
+        assertNull(value.shape1);
+        assertNull(value.shape2);
+
+        convertDomToValue(dom, value);
+
+        assertNotNull(value.shape1);
+        assertNotNull(value.shape1 instanceof Rectangle);
+        final Rectangle shape1 = (Rectangle) value.shape1;
+        assertEquals(10, shape1.x);
+        assertEquals(10, shape1.x);
+        assertEquals(20, shape1.width);
+        assertEquals(25, shape1.height);
+
+        assertNotNull(value.shape2);
+        assertNotNull(value.shape2 instanceof Line2D.Float);
+        final Line2D.Float shape2 = (Line2D.Float) value.shape2;
+        assertEquals(0.0f, shape2.x1);
+        assertEquals(10.3f, shape2.y1);
+        assertEquals(15.7f, shape2.x2);
+        assertEquals(34.6f, shape2.y2);
+    }
+
+    public void testMapFieldPojoToDom() {
+        final String expectedXml = ""
+                                   + "<parameters>"
+                                   + "  <map class=\"java.util.HashMap\" >"
+                                   + "    <entry>"
+                                   + "      <key class=\"java.lang.String\">Bibo</key>"
+                                   + "      <value class=\"java.awt.Rectangle\">"
+                                   + "        <x>10</x>"
+                                   + "        <y>10</y>"
+                                   + "        <width>20</width>"
+                                   + "        <height>25</height>"
+                                   + "      </value>"
+                                   + "    </entry>"
+                                   + "    <entry>"
+                                   + "      <key class=\"java.lang.Integer\">12345</key>"
+                                   + "      <value class=\"java.awt.Color\">12,40,123</value>"
+                                   + "    </entry>"
+                                   + "  </map>"
+                                   + "</parameters>";
+
+        Map<Object, Object> map = new HashMap<Object, Object>();
+        map.put("Bibo", new Rectangle(10, 10, 20, 25));
+        map.put(12345, new Color(12, 40, 123));
+        final MapFieldPojo mapFieldPojo = new MapFieldPojo(map);
+        final Xpp3Dom dom = new Xpp3Dom("parameters");
+        convertValueToDom(mapFieldPojo, dom);
+        assertEquals(createDom(expectedXml), dom);
+    }
+
+    public void testDomToMapFieldPojo() throws ValidationException, ConversionException {
+        final String xml = ""
+                           + "<parameters>"
+                           + "  <map class=\"java.util.HashMap\" >"
+                           + "    <entry>"
+                           + "      <key class=\"java.lang.String\">Bibo</key>"
+                           + "      <value class=\"java.awt.Rectangle\">"
+                           + "        <x>10</x>"
+                           + "        <y>10</y>"
+                           + "        <width>20</width>"
+                           + "        <height>25</height>"
+                           + "      </value>"
+                           + "    </entry>"
+                           + "    <entry>"
+                           + "      <key class=\"java.lang.Integer\">12345</key>"
+                           + "      <value class=\"java.awt.Color\">12,40,123</value>"
+                           + "    </entry>"
+                           + "  </map>"
+                           + "</parameters>";
+
+        final Xpp3Dom dom = createDom(xml);
+        final MapFieldPojo mapFieldPojo = new MapFieldPojo(null);
+        convertDomToValue(dom, mapFieldPojo);
+
+        final Map<?, ?> map = mapFieldPojo.map;
+        assertTrue(map instanceof HashMap);
+        assertEquals(2, map.size());
+    }
+
+    public void testCollectionFieldPojoToDom() {
+        final String expectedXml = ""
+                                   + "<parameters>"
+                                   + "  <collection class=\"java.util.Stack\">"
+                                   + "    <item class=\"java.awt.Rectangle\">"
+                                   + "      <x>0</x>"
+                                   + "      <y>0</y>"
+                                   + "      <width>10</width>"
+                                   + "      <height>10</height>"
+                                   + "    </item>"
+                                   + "    <item class=\"java.awt.geom.Line2D$Double\">"
+                                   + "      <x1>0.0</x1>"
+                                   + "      <y1>0.0</y1>"
+                                   + "      <x2>10.0</x2>"
+                                   + "      <y2>10.0</y2>"
+                                   + "    </item>"
+                                   + "    <item class=\"java.awt.geom.Arc2D$Double\">"
+                                   + "      <type>1</type>"
+                                   + "      <x>0.0</x>"
+                                   + "      <y>0.0</y>"
+                                   + "      <width>10.0</width>"
+                                   + "      <height>10.0</height>"
+                                   + "      <start>2.0</start>"
+                                   + "      <extent>3.0</extent>"
+                                   + "    </item>"
+                                   + "  </collection>"
+                                   + "</parameters>";
+        Collection<Shape> stack = new Stack<Shape>();
+        stack.add(new Rectangle(0, 0, 10, 10));
+        stack.add(new Line2D.Double(0, 0, 10, 10));
+        stack.add(new Arc2D.Double(0, 0, 10, 10, 2, 3, Arc2D.CHORD));
+        final CollectionFieldPojo collectionFieldPojo = new CollectionFieldPojo(stack);
+        final Xpp3Dom dom = new Xpp3Dom("parameters");
+        convertValueToDom(collectionFieldPojo, dom);
+        assertEquals(createDom(expectedXml), dom);
+    }
+
+    public void testDomToCollectionFieldPojo() throws ValidationException, ConversionException {
+        final String xml = ""
+                           + "<parameters>"
+                           + "  <collection class=\"java.util.Stack\">"
+                           + "    <item class=\"java.awt.Rectangle\">"
+                           + "      <x>0</x>"
+                           + "      <y>0</y>"
+                           + "      <width>10</width>"
+                           + "      <height>10</height>"
+                           + "    </item>"
+                           + "    <item class=\"java.awt.geom.Line2D$Double\">"
+                           + "      <x1>0.0</x1>"
+                           + "      <y1>0.0</y1>"
+                           + "      <x2>10.0</x2>"
+                           + "      <y2>10.0</y2>"
+                           + "    </item>"
+                           + "    <item class=\"java.awt.geom.Arc2D$Double\">"
+                           + "      <type>1</type>"
+                           + "      <x>0.0</x>"
+                           + "      <y>0.0</y>"
+                           + "      <width>10.0</width>"
+                           + "      <height>10.0</height>"
+                           + "      <start>2.0</start>"
+                           + "      <extent>3.0</extent>"
+                           + "    </item>"
+                           + "  </collection>"
+                           + "</parameters>";
+
+        final Xpp3Dom dom = createDom(xml);
+        final CollectionFieldPojo collectionFieldPojo = new CollectionFieldPojo(null);
+        convertDomToValue(dom, collectionFieldPojo);
+
+        assertTrue(collectionFieldPojo.collection instanceof Stack);
+        Stack stack = (Stack) collectionFieldPojo.collection;
+        assertEquals(3, stack.size());
+        assertTrue(stack.get(0) instanceof Rectangle);
+        assertTrue(stack.get(1) instanceof Line2D.Double);
+        assertTrue(stack.get(2) instanceof java.awt.geom.Arc2D.Double);
+    }
+
     private Xpp3Dom createDom(String xml) {
         XppDomWriter domWriter = new XppDomWriter();
         new HierarchicalStreamCopier().copy(new XppReader(new StringReader(xml)), domWriter);
@@ -443,6 +651,35 @@ public class DefaultDomConverterTest extends TestCase {
 
         @X(componentAlias = "endmember", inlined = true)
         Endmember[] endmembers;
+    }
+
+    public static class InterfaceFieldsPojo {
+
+        Shape shape1;
+        Shape shape2;
+
+        public InterfaceFieldsPojo(Shape shape1, Shape shape2) {
+            this.shape1 = shape1;
+            this.shape2 = shape2;
+        }
+    }
+
+    public static class MapFieldPojo {
+
+        Map<?, ?> map;
+
+        public MapFieldPojo(Map<?, ?> map) {
+            this.map = map;
+        }
+    }
+
+    public static class CollectionFieldPojo {
+
+        Collection collection;
+
+        public CollectionFieldPojo(Collection collection) {
+            this.collection = collection;
+        }
     }
 
     public static class WeirdPojo {

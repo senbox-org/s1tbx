@@ -74,7 +74,13 @@ public abstract class AbstractDomConverter implements DomConverter {
                     }
                 } else {
                     final DomElement childElement = parentElement.createChild(getNameOrAlias(model));
+                    final Class<?> type = model.getDescriptor().getType();
                     final Object childValue = model.getValue();
+                    if (type.isInstance(childValue) && type != childValue.getClass()) {
+                        // childValue is an implementation of type and it's not of same type
+                        // we have to store the implementation class in order to re-construct the object
+                        childElement.setAttribute("class", childValue.getClass().getName());
+                    }
                     Converter<?> converter = descriptor.getConverter();
                     if (converter == null) {
                         converter = ConverterRegistry.getInstance().getConverter(descriptor.getType());
@@ -92,7 +98,16 @@ public abstract class AbstractDomConverter implements DomConverter {
     public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
                                                                                    ValidationException {
         if (value == null) {
-            value = createValueInstance(getValueType());
+            Class<?> itemType = getValueType();
+            final String itemClassName = parentElement.getAttribute("class");
+            if (itemClassName != null) {  // implementation of an interface ?
+                try {
+                    itemType = Class.forName(itemClassName);
+                } catch (ClassNotFoundException e) {
+                    throw new ConversionException(e);
+                }
+            }
+            value = createValueInstance(itemType);
         }
         final Map<String, List<Object>> inlinedArrays = new HashMap<String, List<Object>>();
         final ValueContainer valueContainer = getValueContainer(value);
@@ -138,37 +153,35 @@ public abstract class AbstractDomConverter implements DomConverter {
             if (domConverter != null) {
                 childValue = domConverter.convertDomToValue(child, valueModel.getValue());
                 valueModel.setValue(childValue);
-            } else {
-                if (isArrayTypeWithNamedItems(descriptor)) {
-                    final Class<?> itemType = descriptor.getType().getComponentType();
-                    final Converter<?> itemConverter = getItemConverter(descriptor);
-                    if (inlinedArray != null) {
-                        Object item = convertDomToValueImpl(child, itemConverter, itemType);
-                        inlinedArray.add(item);
-                    } else {
-                        // if and only if an itemAlias is set, we parse the array element-wise
-                        final DomElement[] arrayElements = child.getChildren(descriptor.getItemAlias());
-                        final DomConverter itemDomConverter = getDomConverter(
-                                new ValueDescriptor(descriptor.getItemAlias(), itemType));
-                        childValue = Array.newInstance(itemType, arrayElements.length);
-                        for (int i = 0; i < arrayElements.length; i++) {
-                            Object item;
-                            if (itemDomConverter != null) {
-                                item = itemDomConverter.convertDomToValue(arrayElements[i], null);
-                            } else {
-                                item = convertDomToValueImpl(arrayElements[i], itemConverter, itemType);
-                            }
-                            Array.set(childValue, i, item);
-
-                        }
-                        valueModel.setValue(childValue);
-                    }
+            } else if (isArrayTypeWithNamedItems(descriptor)) {
+                final Class<?> itemType = descriptor.getType().getComponentType();
+                final Converter<?> itemConverter = getItemConverter(descriptor);
+                if (inlinedArray != null) {
+                    Object item = convertDomToValueImpl(child, itemConverter, itemType);
+                    inlinedArray.add(item);
                 } else {
-                    childValue = convertDomToValueImpl(child,
-                                                       descriptor.getConverter(),
-                                                       descriptor.getType());
+                    // if and only if an itemAlias is set, we parse the array element-wise
+                    final DomElement[] arrayElements = child.getChildren(descriptor.getItemAlias());
+                    final DomConverter itemDomConverter = getDomConverter(
+                            new ValueDescriptor(descriptor.getItemAlias(), itemType));
+                    childValue = Array.newInstance(itemType, arrayElements.length);
+                    for (int i = 0; i < arrayElements.length; i++) {
+                        Object item;
+                        if (itemDomConverter != null) {
+                            item = itemDomConverter.convertDomToValue(arrayElements[i], null);
+                        } else {
+                            item = convertDomToValueImpl(arrayElements[i], itemConverter, itemType);
+                        }
+                        Array.set(childValue, i, item);
+
+                    }
                     valueModel.setValue(childValue);
                 }
+            } else {
+                childValue = convertDomToValueImpl(child,
+                                                   descriptor.getConverter(),
+                                                   descriptor.getType());
+                valueModel.setValue(childValue);
             }
         }
 
