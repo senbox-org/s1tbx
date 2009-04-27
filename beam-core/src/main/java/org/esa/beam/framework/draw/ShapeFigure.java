@@ -16,6 +16,8 @@
  */
 package org.esa.beam.framework.draw;
 
+import org.esa.beam.util.Guardian;
+
 import java.awt.BasicStroke;
 import java.awt.Composite;
 import java.awt.Graphics2D;
@@ -30,8 +32,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Map;
 
-import org.esa.beam.util.Guardian;
-
 /**
  * A figure which uses a <code>java.awt.Shape</code> for its representation.
  *
@@ -40,8 +40,8 @@ import org.esa.beam.util.Guardian;
  */
 public class ShapeFigure extends AbstractFigure {
 
-    private final Shape _shape;
-    private final boolean _oneDimensional;
+    private final Shape shape;
+    private final boolean oneDimensional;
 
     /**
      * Constructs a shape figure for the given shape.
@@ -49,8 +49,8 @@ public class ShapeFigure extends AbstractFigure {
     public ShapeFigure(Shape shape, boolean oneDimensional, Map<String, Object> attributes) {
         super(attributes);
         Guardian.assertNotNull("shape", shape);
-        _shape = shape;
-        _oneDimensional = oneDimensional;
+        this.shape = shape;
+        this.oneDimensional = oneDimensional;
     }
 
     /**
@@ -60,7 +60,7 @@ public class ShapeFigure extends AbstractFigure {
      */
     @Override
     public Shape getShape() {
-        return _shape;
+        return shape;
     }
 
     /**
@@ -91,7 +91,7 @@ public class ShapeFigure extends AbstractFigure {
      */
     @Override
     public Rectangle2D getBounds() {
-        return _shape.getBounds2D();
+        return shape.getBounds2D();
     }
 
     /**
@@ -99,7 +99,7 @@ public class ShapeFigure extends AbstractFigure {
      */
     @Override
     public boolean containsPoint(double x, double y) {
-        return _shape.contains(x, y);
+        return shape.contains(x, y);
     }
 
     /**
@@ -107,7 +107,7 @@ public class ShapeFigure extends AbstractFigure {
      */
     @Override
     public boolean isOneDimensional() {
-        return _oneDimensional;
+        return oneDimensional;
     }
 
     /**
@@ -169,7 +169,7 @@ public class ShapeFigure extends AbstractFigure {
         }
 
         if (filled) {
-            g2d.fill(_shape);
+            g2d.fill(shape);
         }
 
         if (compositeNew != null) {
@@ -229,7 +229,7 @@ public class ShapeFigure extends AbstractFigure {
         }
 
         if (outlined) {
-            g2d.draw(_shape);
+            g2d.draw(shape);
         }
 
         if (compositeNew != null) {
