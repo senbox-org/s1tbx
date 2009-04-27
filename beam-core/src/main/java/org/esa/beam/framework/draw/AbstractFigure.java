@@ -30,10 +30,10 @@ import java.util.Map;
  */
 public abstract class AbstractFigure implements Figure {
 
-    private int _zValue;
-    private Map<String, Object> _attributes;
-    private EventListenerList _listenerList;
-    private PropertyChangeSupport _propertyChangeSupport;
+    private int zValue;
+    private Map<String, Object> attributes;
+    private transient EventListenerList _listenerList;
+    private transient PropertyChangeSupport _propertyChangeSupport;
 
     /**
      * Constructs an abstract figure.
@@ -42,8 +42,8 @@ public abstract class AbstractFigure implements Figure {
      */
     protected AbstractFigure(Map<String, Object> attributes) {
         if (attributes != null) {
-            _attributes = new HashMap<String, Object>();
-            _attributes.putAll(attributes);
+            this.attributes = new HashMap<String, Object>();
+            this.attributes.putAll(attributes);
         }
     }
 
@@ -52,6 +52,7 @@ public abstract class AbstractFigure implements Figure {
      * handle objects.
      *
      * @return a Vector of <code>FigureHandle</code>
+     *
      * @see FigureHandle
      */
     @Override
@@ -97,9 +98,9 @@ public abstract class AbstractFigure implements Figure {
      */
     @Override
     public void dispose() {
-        if (_attributes != null) {
-            _attributes.clear();
-            _attributes = null;
+        if (attributes != null) {
+            attributes.clear();
+            attributes = null;
         }
         if (_listenerList != null) {
             _listenerList = null;
@@ -112,7 +113,7 @@ public abstract class AbstractFigure implements Figure {
      */
     @Override
     public int getZValue() {
-        return _zValue;
+        return zValue;
     }
 
     /**
@@ -120,7 +121,7 @@ public abstract class AbstractFigure implements Figure {
      */
     @Override
     public void setZValue(int zValue) {
-        _zValue = zValue;
+        this.zValue = zValue;
     }
 
     /**
@@ -128,7 +129,7 @@ public abstract class AbstractFigure implements Figure {
      */
     @Override
     public Map<String, Object> getAttributes() {
-        return _attributes;
+        return attributes;
     }
 
     /**
@@ -137,10 +138,10 @@ public abstract class AbstractFigure implements Figure {
      */
     @Override
     public Object getAttribute(String name) {
-        if (_attributes == null) {
+        if (attributes == null) {
             return null;
         }
-        return _attributes.get(name);
+        return attributes.get(name);
     }
 
     /**
@@ -148,13 +149,13 @@ public abstract class AbstractFigure implements Figure {
      */
     @Override
     public void setAttribute(String name, Object value) {
-        if (_attributes == null) {
-            _attributes = new HashMap<String, Object>();
+        if (attributes == null) {
+            attributes = new HashMap<String, Object>();
         }
-        Object oldValue = _attributes.get(name);
+        Object oldValue = attributes.get(name);
         if (oldValue == null && value != null
-                || oldValue != null && !oldValue.equals(value)) {
-            _attributes.put(name, value);
+            || oldValue != null && !oldValue.equals(value)) {
+            attributes.put(name, value);
             if (_propertyChangeSupport != null) {
                 _propertyChangeSupport.firePropertyChange(name, oldValue, value);
             }
