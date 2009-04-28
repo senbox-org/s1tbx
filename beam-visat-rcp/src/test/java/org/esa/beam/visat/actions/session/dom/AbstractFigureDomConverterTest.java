@@ -125,6 +125,7 @@ public class AbstractFigureDomConverterTest {
 
     @Test
     public void testPlacemarkSymbol() throws ValidationException, ConversionException {
+        final PlacemarkSymbol figure = PlacemarkSymbol.createDefaultGcpSymbol();
         String expectedXml = ""
                              + "<figure class=\"org.esa.beam.framework.datamodel.PlacemarkSymbol\">"
                              + "<name>GCP-Symbol</name>"
@@ -147,13 +148,12 @@ public class AbstractFigureDomConverterTest {
                              + "    </value>"
                              + "  </entry>"
                              + "</attributes>"
-                             + "<iconLocation>file:/C:/Dokumente%20und%20Einstellungen/Marco%20Peters/Eigene%20Dateien/Projects/beam-4.x/modules/beam-core-4.6-SNAPSHOT/org/esa/beam/framework/datamodel/GcpShape.png</iconLocation>"
+                             + "<iconLocation>" + figure.getIcon().getDescription() + "</iconLocation>"
                              + "</figure>";
         final Xpp3Dom expectedDom = createDom(expectedXml);
 
         final Xpp3Dom dom = new Xpp3Dom("figure");
 
-        final PlacemarkSymbol figure = PlacemarkSymbol.createDefaultGcpSymbol();
         final AbstractFigureDomConverter figureDomConverter = new AbstractFigureDomConverter();
         figureDomConverter.convertValueToDom(figure, new Xpp3DomElement(dom));
         assertDomEquals(expectedDom, dom);
