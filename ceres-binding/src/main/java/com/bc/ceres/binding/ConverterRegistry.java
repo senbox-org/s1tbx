@@ -1,11 +1,30 @@
 package com.bc.ceres.binding;
 
-import com.bc.ceres.binding.converters.*;
+import com.bc.ceres.binding.converters.AffineTransformConverter;
+import com.bc.ceres.binding.converters.ArrayConverter;
+import com.bc.ceres.binding.converters.BooleanConverter;
+import com.bc.ceres.binding.converters.ByteConverter;
+import com.bc.ceres.binding.converters.CharacterConverter;
+import com.bc.ceres.binding.converters.ColorConverter;
+import com.bc.ceres.binding.converters.DateFormatConverter;
+import com.bc.ceres.binding.converters.DoubleConverter;
+import com.bc.ceres.binding.converters.EnumConverter;
+import com.bc.ceres.binding.converters.FileConverter;
+import com.bc.ceres.binding.converters.FloatConverter;
+import com.bc.ceres.binding.converters.FontConverter;
+import com.bc.ceres.binding.converters.IntegerConverter;
+import com.bc.ceres.binding.converters.IntervalConverter;
+import com.bc.ceres.binding.converters.LongConverter;
+import com.bc.ceres.binding.converters.PatternConverter;
+import com.bc.ceres.binding.converters.ShortConverter;
+import com.bc.ceres.binding.converters.StringConverter;
+import com.bc.ceres.binding.converters.UrlConverter;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.geom.AffineTransform;
 import java.io.File;
+import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,6 +69,7 @@ public class ConverterRegistry {
         setConverter(Color.class, new ColorConverter());
         setConverter(Date.class, new DateFormatConverter());
         setConverter(File.class, new FileConverter());
+        setConverter(URL.class, new UrlConverter());
         setConverter(Font.class, new FontConverter());
         setConverter(Pattern.class, new PatternConverter());
         setConverter(String.class, new StringConverter());
