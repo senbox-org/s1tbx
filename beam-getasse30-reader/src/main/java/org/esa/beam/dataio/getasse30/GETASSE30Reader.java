@@ -3,7 +3,6 @@ package org.esa.beam.dataio.getasse30;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -50,8 +49,7 @@ public class GETASSE30Reader extends AbstractProductReader {
      * @throws java.io.IOException if an I/O error occurs
      */
     @Override
-    protected Product readProductNodesImpl() throws IOException,
-                                                    IllegalFileFormatException {
+    protected Product readProductNodesImpl() throws IOException {
         initReader();
 
         final File dataFile = GETASSE30ReaderPlugIn.getInputFile(getInput());
@@ -106,7 +104,6 @@ public class GETASSE30Reader extends AbstractProductReader {
      * @param destHeight    the height of region to be read given in the band's raster co-ordinates
      * @param destBuffer    the destination buffer which receives the sample values to be read
      * @param pm            a monitor to inform the user about progress
-     *
      * @throws java.io.IOException if an I/O error occurs
      * @see #readBandRasterData
      * @see #getSubsetDef
@@ -202,14 +199,14 @@ public class GETASSE30Reader extends AbstractProductReader {
     }
 
 
-    private void readRasterDataImpl(final short[] elems,
-                                    final int sourceOffsetY,
-                                    final int sourceOffsetX,
-                                    final int sourceStepX,
-                                    final int sourceStepY,
-                                    final int destWidth,
-                                    final int destHeight,
-                                    ProgressMonitor pm) throws IOException {
+    private synchronized void readRasterDataImpl(final short[] elems,
+                                                 final int sourceOffsetY,
+                                                 final int sourceOffsetX,
+                                                 final int sourceStepX,
+                                                 final int sourceStepY,
+                                                 final int destWidth,
+                                                 final int destHeight,
+                                                 ProgressMonitor pm) throws IOException {
         final int sceneWidth = _product.getSceneRasterWidth();
         pm.beginTask("Reading raster data...", destHeight);
         try {

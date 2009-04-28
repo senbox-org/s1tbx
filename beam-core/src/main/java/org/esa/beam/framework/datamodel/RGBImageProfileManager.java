@@ -25,7 +25,7 @@ public class RGBImageProfileManager {
 
     private static RGBImageProfileManager _instance;
     private final List<RGBImageProfile> _profiles;
-    private static File profilesDir;
+    private final static File profilesDir;
 
     static {
         profilesDir = new File(SystemUtils.getApplicationDataDir(),
@@ -79,7 +79,8 @@ public class RGBImageProfileManager {
      * Loads all profiles from the BEAM default RGB profile location.
      */
     private void loadDefaultProfiles() {
-        if (getProfilesDir().exists()) {
+        if (!getProfilesDir().exists()) {
+            profilesDir.mkdirs();
             BeamLogManager.getSystemLogger().log(Level.INFO, "Directory for RGB-image profiles not found: " + getProfilesDir());
         }
         final File[] files = getProfilesDir().listFiles(new FilenameFilter() {

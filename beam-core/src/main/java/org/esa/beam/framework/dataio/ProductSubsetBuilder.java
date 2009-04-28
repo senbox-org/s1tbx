@@ -433,8 +433,12 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             String bandName = sourceBand.getName();
             if (isNodeAccepted(bandName)) {
                 Band destBand;
+                boolean treatVirtualBandsAsRealBands = false;
+                if(getSubsetDef() != null && getSubsetDef().treatVirtualBandsAsRealBands())
+                    treatVirtualBandsAsRealBands = true;
+
                 //@todo 1 se/se - extract copy of a band or virtual band to create deep clone of band and virtual band
-                if (sourceBand instanceof VirtualBand) {
+                if (!treatVirtualBandsAsRealBands && sourceBand instanceof VirtualBand) {
                     VirtualBand virtualSource = (VirtualBand) sourceBand;
                     VirtualBand virtualBand = new VirtualBand(bandName,
                                                               sourceBand.getDataType(),

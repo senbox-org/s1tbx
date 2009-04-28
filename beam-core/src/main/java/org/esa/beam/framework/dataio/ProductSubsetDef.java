@@ -65,6 +65,8 @@ public class ProductSubsetDef {
      */
     private boolean _ignoreMetadata = false;
 
+    private boolean _treatVirtualBandsAsRealBands = false;
+
     /**
      * Constructs a new and empty subset info.
      */
@@ -85,6 +87,14 @@ public class ProductSubsetDef {
 
     public void setSubsetName(String subsetName) {
         _subsetName = subsetName;
+    }
+
+    public void setVirtualBandsAsRealBands(boolean flag) {
+        _treatVirtualBandsAsRealBands = flag;
+    }
+
+    public boolean treatVirtualBandsAsRealBands() {
+        return _treatVirtualBandsAsRealBands;
     }
 
     /**
