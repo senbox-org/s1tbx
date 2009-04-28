@@ -17,7 +17,11 @@
 package org.esa.beam.dataio.geotiff;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.sun.media.imageio.plugins.tiff.*;
+import com.sun.media.imageio.plugins.tiff.BaselineTIFFTagSet;
+import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
+import com.sun.media.imageio.plugins.tiff.TIFFField;
+import com.sun.media.imageio.plugins.tiff.TIFFImageReadParam;
+import com.sun.media.imageio.plugins.tiff.TIFFTag;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFImageMetadata;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFRenderedImage;
@@ -25,8 +29,37 @@ import org.esa.beam.dataio.dimap.DimapProductHelpers;
 import org.esa.beam.dataio.geotiff.internal.GeoKeyEntry;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.FilterBand;
+import org.esa.beam.framework.datamodel.GcpDescriptor;
+import org.esa.beam.framework.datamodel.GcpGeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.dataop.maptransf.AlbersEqualAreaConicDescriptor;
+import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
+import org.esa.beam.framework.dataop.maptransf.LambertConformalConicDescriptor;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
+import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
+import org.esa.beam.framework.dataop.maptransf.MapTransform;
+import org.esa.beam.framework.dataop.maptransf.MapTransformDescriptor;
+import org.esa.beam.framework.dataop.maptransf.StereographicDescriptor;
+import org.esa.beam.framework.dataop.maptransf.TransverseMercatorDescriptor;
+import org.esa.beam.framework.dataop.maptransf.UTM;
+import org.esa.beam.framework.dataop.maptransf.UTMProjection;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.geotiff.EPSGCodes;
 import org.esa.beam.util.geotiff.GeoTIFFCodes;
@@ -55,7 +88,12 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class GeoTiffProductReader extends AbstractProductReader {
 
@@ -64,9 +102,9 @@ public class GeoTiffProductReader extends AbstractProductReader {
     private ImageInputStream inputStream;
     private Map<Band, Integer> bandMap;
 
-    private TIFFImageReader imageReader;
+    private TIFFImageReader imageReader = null;
 
-    GeoTiffProductReader(ProductReaderPlugIn readerPlugIn) {
+    public GeoTiffProductReader(ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
     }
 
@@ -99,7 +137,10 @@ public class GeoTiffProductReader extends AbstractProductReader {
             final Raster data = subsampledImage.getData(new Rectangle(destOffsetX, destOffsetY,
                                                                       destWidth, destHeight));
             double[] dArray = new double[destSize];
-            final Integer bandIdx = bandMap.get(destBand);
+            Integer bandIdx = bandMap.get(destBand);
+            if (bandIdx == null) {
+                bandIdx = 0;
+            }
             final DataBuffer dataBuffer = data.getDataBuffer();
             final SampleModel sampleModel = data.getSampleModel();
             sampleModel.getSamples(0, 0, destWidth, destHeight, bandIdx, dArray, dataBuffer);
@@ -124,7 +165,17 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
     Product readGeoTIFFProduct(final ImageInputStream stream, final File inputFile) throws IOException {
         Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(stream);
-        imageReader = (TIFFImageReader) imageReaders.next();
+        while (imageReaders.hasNext()) {
+            final ImageReader reader = imageReaders.next();
+            if (reader instanceof TIFFImageReader) {
+                imageReader = (TIFFImageReader) reader;
+                break;
+            }
+        }
+        if (imageReader == null) {
+            throw new IOException("GeoTiff imageReader not found");
+        }
+
         imageReader.setInput(stream);
 
         Product product = null;
@@ -179,17 +230,30 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
         TiffTagToMetadataConverter.addTiffTagsToMetadata(imageMetadata, tiffInfo, product.getMetadataRoot());
 
+        initMetadata(product, inputFile);
+
         product.setFileLocation(inputFile);
         setPreferrdTiling(product);
 
         return product;
     }
 
+    /**
+     * Allow other metadata to be injected
+     *
+     * @param product   the Product
+     * @param inputFile the source tiff file
+     * @throws IOException
+     */
+    protected void initMetadata(final Product product, final File inputFile) throws IOException {
+
+    }
+
     private void initBandsMap(Product product) {
         final Band[] bands = product.getBands();
         bandMap = new HashMap<Band, Integer>(bands.length);
         for (Band band : bands) {
-            if (!(band instanceof VirtualBand && !((VirtualBand)band).hasWrittenData() || band instanceof FilterBand)) {
+            if (!(band instanceof VirtualBand && !((VirtualBand) band).hasWrittenData() || band instanceof FilterBand)) {
                 bandMap.put(band, bandMap.size());
             }
         }
@@ -204,7 +268,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
     }
 
     private void addBandsToProduct(TiffFileInfo tiffInfo, Product product) throws
-                                                                           IOException {
+            IOException {
         final ImageReadParam readParam = imageReader.getDefaultReadParam();
         TIFFRenderedImage baseImage = (TIFFRenderedImage) imageReader.readAsRenderedImage(FIRST_IMAGE, readParam);
         SampleModel sampleModel = baseImage.getSampleModel();
@@ -333,28 +397,28 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
     private static boolean isProjectionUserDefined(Map<Integer, GeoKeyEntry> keyEntries) {
         return keyEntries.containsKey(GeoTIFFCodes.ProjectionGeoKey) &&
-               keyEntries.get(GeoTIFFCodes.ProjectionGeoKey).getIntValue() == GeoTIFFCodes.GTUserDefinedGeoKey;
+                keyEntries.get(GeoTIFFCodes.ProjectionGeoKey).getIntValue() == GeoTIFFCodes.GTUserDefinedGeoKey;
     }
 
     private static boolean isProjectionTransverseMercator(Map<Integer, GeoKeyEntry> keyEntries) {
         return containsProjCoordTrans(keyEntries) &&
-               keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_TransverseMercator;
+                keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_TransverseMercator;
     }
 
     private static boolean isProjectionLambertConfConic(Map<Integer, GeoKeyEntry> keyEntries) {
         return containsProjCoordTrans(keyEntries) &&
-               keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_LambertConfConic;
+                keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_LambertConfConic;
     }
 
     private static boolean isProjectionStereographic(Map<Integer, GeoKeyEntry> keyEntries) {
         return containsProjCoordTrans(keyEntries) &&
-               (keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_PolarStereographic ||
-                keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_Stereographic);
+                (keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_PolarStereographic ||
+                        keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_Stereographic);
     }
 
     private static boolean isProjectionAlbersEqualArea(Map<Integer, GeoKeyEntry> keyEntries) {
         return containsProjCoordTrans(keyEntries) &&
-               keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_AlbersEqualArea;
+                keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_AlbersEqualArea;
     }
 
     private static boolean containsProjCoordTrans(Map<Integer, GeoKeyEntry> keyEntries) {
