@@ -230,7 +230,7 @@ public abstract class AbstractDomConverter implements DomConverter {
      */
     protected abstract DomConverter getDomConverter(ValueDescriptor descriptor);
 
-    private void convertValueToDomImpl(Object value, Converter converter, DomElement element) {
+    protected void convertValueToDomImpl(Object value, Converter converter, DomElement element) {
         if (converter != null) {
             final String text = converter.format(value);
             if (text != null && !text.isEmpty()) {
