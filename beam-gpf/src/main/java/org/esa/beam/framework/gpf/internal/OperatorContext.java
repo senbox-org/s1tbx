@@ -48,6 +48,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProperty;
 import org.esa.beam.framework.gpf.graph.GraphOp;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration.Reference;
 import org.esa.beam.util.jai.JAIUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.media.jai.JAI;
 import java.awt.Dimension;
@@ -104,8 +105,7 @@ public class OperatorContext {
         this.sourceProductList = new ArrayList<Product>(3);
         this.sourceProductMap = new HashMap<String, Product>(3);
         this.targetPropertyMap = new HashMap<String, Object>(3);
-        this.logger = Logger.getAnonymousLogger();
-        this.logger.addHandler(new ConsoleHandler());
+        this.logger = BeamLogManager.getSystemLogger();
         // Note: All OperatorImages in this context share the same TILE_CACHE_METRIC instance!
         this.performanceMetric = new PerformanceMetric();
         this.renderingHints = new RenderingHints(JAI.KEY_TILE_CACHE_METRIC, performanceMetric);
