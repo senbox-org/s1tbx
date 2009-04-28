@@ -67,7 +67,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
-import java.util.logging.ConsoleHandler;
 import java.util.regex.Pattern;
 
 /**
@@ -119,7 +118,7 @@ public class OperatorContext {
     }
 
     public void setId(String id) {
-        Assert.notNull(id, "logger");
+        Assert.notNull(id, "id");
         this.id = id;
     }
 
