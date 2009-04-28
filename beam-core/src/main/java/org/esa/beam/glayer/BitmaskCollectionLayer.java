@@ -36,7 +36,6 @@ import java.util.List;
 
 public class BitmaskCollectionLayer extends CollectionLayer {
 
-    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
 
     private final ProductNodeListener bitmaskDefListener;
     private final ProductNodeListener bitmaskOverlayInfoListener;
