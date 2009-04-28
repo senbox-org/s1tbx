@@ -101,7 +101,8 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
     @Override
     public boolean shouldWrite(ProductNode node) {
         if (node instanceof VirtualBand) {
-            return false;
+            VirtualBand virtualBand = (VirtualBand) node;
+            return virtualBand.getWriteData();
         }
         return super.shouldWrite(node);
     }

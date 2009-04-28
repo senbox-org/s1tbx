@@ -564,6 +564,7 @@ public final class DimapProductConstants {
     public static final String TAG_VIRTUAL_BAND_EXPRESSION = "EXPRESSION";
     public static final String TAG_VIRTUAL_BAND_INVALID_VALUE = "INVALID_VALUE";
     public static final String TAG_VIRTUAL_BAND_USE_INVALID_VALUE = "USE_INVALID_VALUE";
+    public static final String TAG_VIRTUAL_BAND_WRITE_DATA = "WRITE_DATA";
 
     // Filter bands support -- version 1.0
     @Deprecated
