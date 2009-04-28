@@ -18,9 +18,20 @@ package org.esa.beam.dataio.envisat;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.PointingFactory;
+import org.esa.beam.framework.datamodel.PointingFactoryRegistry;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.ArrayUtils;
 import org.esa.beam.util.Debug;
@@ -162,7 +173,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         final BandLineReader bandLineReader = getBandLineReader(destBand);
         final int sourceMinX = sourceOffsetX;
         final int sourceMinY = sourceOffsetY;
-        final int sourceMaxX = Math.min(destBand.getRasterWidth()-1, sourceMinX + sourceWidth - 1);
+        final int sourceMaxX = Math.min(destBand.getRasterWidth() - 1, sourceMinX + sourceWidth - 1);
         final int sourceMaxY = sourceMinY + sourceHeight - 1;
         int destArrayPos = 0;
 
@@ -177,8 +188,8 @@ public class EnvisatProductReader extends AbstractProductReader {
                 }
 
                 bandLineReader.readRasterLine(sourceMinX, sourceMaxX, sourceStepX,
-                                                sourceY, 
-                                                destBuffer, destArrayPos);
+                                              sourceY,
+                                              destBuffer, destArrayPos);
 
                 destArrayPos += destWidth;
                 pm.worked(sourceStepY);
@@ -198,6 +209,8 @@ public class EnvisatProductReader extends AbstractProductReader {
         File file = getProductFile().getFile();
         String productName;
         if (file != null) {
+//            final String mission = AsarAbstractMetadata.getMission(getProductFile().getProductType(), file);
+//            productName = mission + '-' + file.getName();
             productName = file.getName();
         } else {
             productName = getProductFile().getProductId();
@@ -406,7 +419,6 @@ public class EnvisatProductReader extends AbstractProductReader {
     private void addHeaderAnnotationsToProduct(Product product) {
         Debug.assertNotNull(_productFile);
         Debug.assertNotNull(product);
-        //product.getMetadataRoot().addElement(new MetadataElement("Abstracted Metadata"));    // used by nest
         product.getMetadataRoot().addElement(createMetadataGroup("MPH", _productFile.getMPH().getParams()));
         product.getMetadataRoot().addElement(createMetadataGroup("SPH", _productFile.getSPH().getParams()));
 

@@ -72,9 +72,9 @@ public class DorisOrbitProductFile extends ProductFile {
     @Override
     protected void postProcessSPH(Map parameters) throws IOException {
 
-        DSD dsd = getDSDAt(0);
+        final DSD dsd = getDSDAt(0);
         if(dsd != null) {
-            int num = dsd.getNumRecords();
+            final int num = dsd.getNumRecords();
             parameters.put("NUM_DSR", num);
         }
     }
@@ -91,7 +91,7 @@ public class DorisOrbitProductFile extends ProductFile {
 
     @Override
     public boolean isValidDatasetName(String name) throws IOException {
-        String[] datasetNames = getValidDatasetNames();
+        final String[] datasetNames = getValidDatasetNames();
         return name.equalsIgnoreCase(getGADSName()) || StringUtils.containsIgnoreCase(datasetNames, name);
     }
 
@@ -201,10 +201,10 @@ public class DorisOrbitProductFile extends ProductFile {
     @Override
     protected void addCustomMetadata(Product product) throws IOException {
 
-        MetadataElement root = product.getMetadataRoot();
-        Record orbitRecord = readOrbitData();
+        final MetadataElement root = product.getMetadataRoot();
+        final Record orbitRecord = readOrbitData();
 
-        MetadataElement elem = EnvisatProductReader.createMetadataGroup("Orbit Vectors", orbitRecord);
+        final MetadataElement elem = EnvisatProductReader.createMetadataGroup("Orbit Vectors", orbitRecord);
         root.addElement(elem);
     }
 }

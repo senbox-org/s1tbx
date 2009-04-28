@@ -171,7 +171,6 @@ public class AsarXCAProductFile extends ProductFile {
         return DDDB.databaseResourceExists(productInfoFilePath);
     }
 
-
     @Override
     public void setInvalidPixelExpression(Band band) {
         band.setNoDataValueUsed(false);

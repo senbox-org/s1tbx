@@ -27,5 +27,5 @@ max_imag|Float|*|4|1|*|Max value of Imaginary part of cross spectrum|24|
 min_real|Float|*|4|1|*|Min value of Real part of cross spectrum|25|
 max_real|Float|*|4|1|*|Max value of Real part of cross spectrum|26|
 spare_2|Spare|*|64|1|*|Spare|27|
-real_spectra|UChar|*|1|.SPH.num_wl_bins,.SPH.num_dir_bins|*|Real part of cross spectra polar gridNumber of bins in wavelength and direction defined in SPH (nominally 24 by 36). However, only 0 to 180 degree of the spectrum need be supplied (24 by 18). Arranged as: 24 wavelength values for 0-10 deg. sector, 24 valu|28|
-imag_spectra|UChar|*|1|.SPH.num_wl_bins,.SPH.num_dir_bins|*|Complex part of cross spectra polar gridNumber of bins in wavelength and direction defined in SPH (nominally 24 by 36). However, only 0 to 180 degree of the spectrum need be supplied (24 by 18). Arranged as: 24 wavelength values for 0-10 deg. sector, 24 v|29|
+real_spectra|UChar|*|1|sceneRasterWidth|*|Real part of cross spectra polar gridNumber of bins in wavelength and direction defined in SPH (nominally 24 by 36). However, only 0 to 180 degree of the spectrum need be supplied (24 by 18). Arranged as: 24 wavelength values for 0-10 deg. sector, 24 valu|28|
+imag_spectra|UChar|*|1|sceneRasterWidth|*|Complex part of cross spectra polar gridNumber of bins in wavelength and direction defined in SPH (nominally 24 by 36). However, only 0 to 180 degree of the spectrum need be supplied (24 by 18). Arranged as: 24 wavelength values for 0-10 deg. sector, 24 v|29|

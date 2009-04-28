@@ -7,7 +7,7 @@ SQ_ADS               |@/records/asar/ASAR_Wave_SQ_ADSR.dd         |SQ ADS       
 GEOLOCATION_GRID_ADS |@/records/asar/ASAR_Wave_Geolocation_ADSR.dd|GEOLOCATION ADS      |Wave Mode Geolocation ADS
 PROCESSING_PARAMS_ADS|@/records/asar/ASAR_Wave_Param_ADSR.dd      |PROCESSING PARAMS ADS|Wave Mode processing parameters
 CROSS_SPECTRA_MDS    |@/records/asar/ASAR_Spectra_MDSR.dd         |CROSS SPECTRA MDS    |Measurement Data Set containing spectra. 1 MDSR per spectra.
-SLC_IMAGETTE_MDS_000 |@/records/asar/ASAR_Image_MDSR_SLC.dd       |SLC IMAGETTE MDS     |Measurement Data Set for a single imagette (corresponds to one spectrum MDSR)
+SLC_IMAGETTE_MDS_000 |@/records/asar/ASAR_Image_MDSR_SLC.dd       |SLC IMAGETTE MDS 000 |Measurement Data Set for a single imagette (corresponds to one spectrum MDSR)
 SLC_IMAGETTE_MDS_001 |@/records/asar/ASAR_Image_MDSR_SLC.dd       |SLC IMAGETTE MDS 001 |Measurement Data Set for a single imagette (corresponds to one spectrum MDSR)
 SLC_IMAGETTE_MDS_002 |@/records/asar/ASAR_Image_MDSR_SLC.dd       |SLC IMAGETTE MDS 002 |Measurement Data Set for a single imagette (corresponds to one spectrum MDSR)
 SLC_IMAGETTE_MDS_003 |@/records/asar/ASAR_Image_MDSR_SLC.dd       |SLC IMAGETTE MDS 003 |Measurement Data Set for a single imagette (corresponds to one spectrum MDSR)
@@ -407,4 +407,3 @@ SLC_IMAGETTE_MDS_396 |@/records/asar/ASAR_Image_MDSR_SLC.dd       |SLC IMAGETTE 
 SLC_IMAGETTE_MDS_397 |@/records/asar/ASAR_Image_MDSR_SLC.dd       |SLC IMAGETTE MDS 397 |Measurement Data Set for a single imagette (corresponds to one spectrum MDSR)
 SLC_IMAGETTE_MDS_398 |@/records/asar/ASAR_Image_MDSR_SLC.dd       |SLC IMAGETTE MDS 398 |Measurement Data Set for a single imagette (corresponds to one spectrum MDSR)
 SLC_IMAGETTE_MDS_399 |@/records/asar/ASAR_Image_MDSR_SLC.dd       |SLC IMAGETTE MDS 399 |Measurement Data Set for a single imagette (corresponds to one spectrum MDSR)
-SLC_IMAGETTE_MDS_400 |@/records/asar/ASAR_Image_MDSR_SLC.dd       |SLC IMAGETTE MDS 400 |Measurement Data Set for a single imagette (corresponds to one spectrum MDSR)

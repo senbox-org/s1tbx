@@ -13,6 +13,8 @@ import java.io.IOException;
  */
 public class EnvisatAuxReaderTest extends TestCase {
 
+    String ers1XCAFilePath = "org/esa/beam/resources/testdata/ER1_XCA_AXNXXX20050321_000000_19910101_000000_20100101_000000.txt";
+    String ers2XCAFilePath = "org/esa/beam/resources/testdata/ER2_XCA_AXNXXX20050321_000000_19950101_000000_20100101_000000.txt";
     String envisatXCAFilePath = "org/esa/beam/resources/testdata/ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000";
     String envisatXCAZipFilePath = "org/esa/beam/resources/testdata/ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000.zip";
     String envisatXCAZipFilePath2 = "org/esa/beam/resources/testdata/ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000_2";
@@ -42,6 +44,16 @@ public class EnvisatAuxReaderTest extends TestCase {
         EnvisatAuxReader reader = new EnvisatAuxReader();
         reader.readProduct(envisatXCAFilePath);
         testAuxDataFromGADS(reader);
+    }
+
+    public void testERS1() throws IOException {
+        EnvisatAuxReader reader = new EnvisatAuxReader();
+        reader.readProduct(ers1XCAFilePath);
+    }
+
+    public void testERS2() throws IOException {
+        EnvisatAuxReader reader = new EnvisatAuxReader();
+        reader.readProduct(ers2XCAFilePath);
     }
 
     public void testGZIP() throws IOException {

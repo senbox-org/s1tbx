@@ -47,17 +47,18 @@ public class EnvisatAuxReader {
             file = getFile((String) input);
         } else if (input instanceof File) {
             file = (File) input;
+            file = getFile(file.getAbsolutePath());
         } else {
             throw new IllegalArgumentException("input");
         }
 
-        ImageInputStream iis = getImageInputStream(file);
-        String productType = ProductFile.readProductType(iis);
+        final ImageInputStream iis = getImageInputStream(file);
+        final String productType = ProductFile.readProductType(iis);
         if (productType == null) {
             throw new IllegalFileFormatException("Not an ENVISAT product or ENVISAT product type not supported: " + file.toString());
         }
         // We use only the first 9 characters for comparision, since the 10th can be either 'P' or 'C'
-        String productTypeUC = productType.toUpperCase().substring(0, 9);
+        final String productTypeUC = productType.toUpperCase().substring(0, 9);
 
         if (productTypeUC.startsWith("AS")) {
             _productFile = new AsarXCAProductFile(file, iis);
@@ -82,12 +83,12 @@ public class EnvisatAuxReader {
             throw new ProductIOException("Auxiliary data file has not been read yet");
         }
 
-        Record gads = _productFile.getGADS();
+        final Record gads = _productFile.getGADS();
         if (gads == null) {
             throw new IllegalFileFormatException("GADS not found in Auxiliary data file");
         }
 
-        Field field = gads.getField(name);
+        final Field field = gads.getField(name);
         if (field == null) {
             return null;
         }
@@ -113,12 +114,12 @@ public class EnvisatAuxReader {
         }
     }
 
-    private static File getFile(String filePath) throws FileNotFoundException {
+    public static File getFile(String filePath) throws FileNotFoundException {
         File file = null;
 
-        String[] exts = new String[] {"", ".gz", ".zip"};
+        final String[] exts = new String[] {"", ".gz", ".zip"};
         for (String ext : exts) {
-            URI fileUri = getFileURI(filePath + ext);
+            final URI fileUri = getFileURI(filePath + ext);
             if (fileUri != null) {
                 file = new File(fileUri);
                 if (file.exists()) {
@@ -131,22 +132,23 @@ public class EnvisatAuxReader {
             }
         }
         if (file == null) {
-            throw new FileNotFoundException("ENVISAT auxiliary product not not found: " + filePath);
+            throw new FileNotFoundException("ENVISAT product not found: " + filePath);
         }
         return file;
     }
 
-    private static ImageInputStream getImageInputStream(File file) throws IOException {
-        if (file.getName().endsWith(".zip") || file.getName().endsWith(".gz")) {
+    private static ImageInputStream getImageInputStream(final File file) throws IOException {
+        final String name = file.getName().toLowerCase();
+        if (name.endsWith(".zip") || name.endsWith(".gz")) {
             return new FileCacheImageInputStream(EnvisatProductReaderPlugIn.getInflaterInputStream(file), null);
         } else {
             return new FileImageInputStream(file);
         }
     }
 
-    private static URI getFileURI(String filePath) {
+    private static URI getFileURI(final String filePath) {
         URI fileUri = null;
-        URL fileUrl = EnvisatAuxReader.class.getClassLoader().getResource(filePath);
+        final URL fileUrl = EnvisatAuxReader.class.getClassLoader().getResource(filePath);
         if (fileUrl != null) {
             try {
                 fileUri = fileUrl.toURI();

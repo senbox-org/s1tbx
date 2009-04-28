@@ -144,8 +144,8 @@ public class Record {
      * @throws java.io.IOException if an I/O error occurs
      */
     public void readFrom(ImageInputStream dataInputStream) throws IOException {
-        for (int i = 0; i < _fields.length; i++) {
-            _fields[i].readFrom(dataInputStream);
+        for (Field _field : _fields) {
+            _field.readFrom(dataInputStream);
         }
     }
 
