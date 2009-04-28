@@ -2,9 +2,9 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.grender.Rendering;
+import com.vividsolutions.jts.geom.Geometry;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
@@ -30,6 +30,8 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
+import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,7 +45,8 @@ import java.util.Map;
  */
 public class FeatureLayer extends Layer {
 
-    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
+    private static final FeatureLayerType LAYER_TYPE = (FeatureLayerType) LayerType.getLayerType(
+            FeatureLayerType.class.getName());
 
     private MapContext mapContext;
     private CoordinateReferenceSystem crs;
@@ -56,12 +59,24 @@ public class FeatureLayer extends Layer {
     private Rectangle2D modelBounds;
 
 
-    public FeatureLayer(Type layerType, ValueContainer configuration) {
+    public FeatureLayer(LayerType layerType, ValueContainer configuration) {
         super(layerType, configuration);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc;
         fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) configuration.getValue(
-                Type.PROPERTY_FEATURE_COLLECTION);
-        Style style = (Style) configuration.getValue(Type.PROPERTY_SLD_STYLE);
+                FeatureLayerType.PROPERTY_FEATURE_COLLECTION);
+        if (fc == null) {
+            final URL url = (URL) configuration.getValue(FeatureLayerType.PROPERTY_FEATURE_COLLECTION_URL);
+            final CoordinateReferenceSystem targetCrs = (CoordinateReferenceSystem) configuration.getValue(
+                    FeatureLayerType.PROPERTY_FEATURE_COLLECTION_CRS);
+            final Geometry clipGeometry = (Geometry) configuration.getValue(
+                    FeatureLayerType.PROPERTY_FEATURE_COLLECTION_CLIP_GEOMETRY);
+            try {
+                fc = FeatureLayerType.createFeatureCollection(targetCrs, clipGeometry, url);
+            } catch (IOException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
+        Style style = (Style) configuration.getValue(FeatureLayerType.PROPERTY_SLD_STYLE);
 
         crs = fc.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
         final ReferencedEnvelope envelope = new ReferencedEnvelope(fc.getBounds(), crs);
@@ -243,32 +258,4 @@ public class FeatureLayer extends Layer {
         }
     }
 
-    public static class Type extends LayerType {
-
-        public static final String PROPERTY_SLD_STYLE = "sldStyle";
-        public static final String PROPERTY_FEATURE_COLLECTION = "featureCollection";
-
-        @Override
-        public String getName() {
-            return "Feature Layer";
-        }
-
-        @Override
-        public boolean isValidFor(LayerContext ctx) {
-            return true;
-        }
-
-        @Override
-        protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
-            return new FeatureLayer(this, configuration);
-        }
-
-        @Override
-        public ValueContainer getConfigurationTemplate() {
-            final ValueContainer configuration = new ValueContainer();
-            configuration.addModel(createDefaultValueModel(PROPERTY_FEATURE_COLLECTION, FeatureCollection.class));
-            configuration.addModel(createDefaultValueModel(PROPERTY_SLD_STYLE, Style.class));
-            return configuration;
-        }
-    }
 }

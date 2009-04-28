@@ -50,14 +50,12 @@ public abstract class AbstractLayerConfigurationPersistencyTest {
         final SessionDomConverter domConverter = new SessionDomConverter(getProductManager());
         final DomElement originalDomElement = new DefaultDomElement("configuration");
         domConverter.convertValueToDom(layer.getConfiguration(), originalDomElement);
-        System.out.println(originalDomElement.toXml());
 
         final ValueContainer restoredConfiguration = (ValueContainer) domConverter.convertDomToValue(originalDomElement,
                                                                                                      layerType.getConfigurationTemplate());
         compareConfigurations(layer.getConfiguration(), restoredConfiguration);
         final DomElement restoredDomElement = new DefaultDomElement("configuration");
         domConverter.convertValueToDom(restoredConfiguration, restoredDomElement);
-        System.out.println(restoredDomElement.toXml());
     }
 
     protected abstract Layer createLayer(LayerType layerType) throws Exception;

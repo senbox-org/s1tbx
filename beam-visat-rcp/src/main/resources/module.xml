@@ -157,7 +157,7 @@
         </layerEditor>
         <layerEditor>
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.FeatureLayerEditor</editor>
-            <layerType>org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayer$Type</layerType>
+            <layerType>org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayerType</layerType>
         </layerEditor>
         <layerEditor>
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.GraticuleLayerEditor</editor>

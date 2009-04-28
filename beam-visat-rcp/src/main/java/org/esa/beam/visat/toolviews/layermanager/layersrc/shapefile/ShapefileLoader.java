@@ -15,10 +15,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
-import org.geotools.data.DataStore;
-import org.geotools.data.DataStoreFinder;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.styling.FeatureTypeStyle;
@@ -41,8 +37,6 @@ import javax.swing.SwingWorker;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Marco Peters
@@ -73,16 +67,24 @@ class ShapefileLoader extends SwingWorker<Layer, Object> {
         final Geometry clipGeometry = createProductGeometry(targetProduct);
 
         File file = new File((String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FILE_PATH));
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = getFeatureCollection(file,
-                                                                                                     targetCrs,
-                                                                                                     clipGeometry);
+        Object featureCollectionValue = context.getPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_COLLECTION);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
+        if (featureCollectionValue == null) {
+            featureCollection = FeatureLayerType.createFeatureCollection(targetCrs, clipGeometry, file.toURI().toURL());
+        } else {
+            featureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) featureCollectionValue;
+        }
+
         Style[] styles = getStyles(file, featureCollection);
         Style selectedStyle = getSelectedStyle(styles);
 
-        final LayerType type = LayerType.getLayerType(FeatureLayer.Type.class.getName());
+        final LayerType type = LayerType.getLayerType(FeatureLayerType.class.getName());
         final ValueContainer configuration = type.getConfigurationTemplate();
-        configuration.setValue(FeatureLayer.Type.PROPERTY_FEATURE_COLLECTION, featureCollection);
-        configuration.setValue(FeatureLayer.Type.PROPERTY_SLD_STYLE, selectedStyle);
+        configuration.setValue(FeatureLayerType.PROPERTY_FEATURE_COLLECTION_URL, file.toURI().toURL());
+        configuration.setValue(FeatureLayerType.PROPERTY_FEATURE_COLLECTION_CRS, targetCrs);
+        configuration.setValue(FeatureLayerType.PROPERTY_FEATURE_COLLECTION_CLIP_GEOMETRY, clipGeometry);
+        configuration.setValue(FeatureLayerType.PROPERTY_FEATURE_COLLECTION, featureCollection);
+        configuration.setValue(FeatureLayerType.PROPERTY_SLD_STYLE, selectedStyle);
         Layer featureLayer = type.createLayer(sceneView.getLayerContext(), configuration);
         featureLayer.setName(file.getName());
         featureLayer.setVisible(true);
@@ -107,36 +109,6 @@ class ShapefileLoader extends SwingWorker<Layer, Object> {
             context.setPropertyValue(ShapefileLayerSource.PROPERTY_STYLES, styles);
         }
         return styles;
-    }
-
-    private FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatureCollection(
-            File file, CoordinateReferenceSystem targetCrs, Geometry clipGeometry) throws IOException {
-
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
-        featureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) context.getPropertyValue(
-                ShapefileLayerSource.PROPERTY_FEATURE_COLLECTION);
-        if (featureCollection != null) {
-            return featureCollection;
-        }
-
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = getFeatureSource(file);
-        featureCollection = featureSource.getFeatures();
-
-        featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, targetCrs);
-        context.setPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_COLLECTION, featureCollection);
-        return featureCollection;
-    }
-
-    private FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(File file) throws IOException {
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(ShapefileDataStoreFactory.URLP.key, file.toURI().toURL());
-        map.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, Boolean.TRUE);
-        DataStore shapefileStore = DataStoreFinder.getDataStore(map);
-
-        String typeName = shapefileStore.getTypeNames()[0]; // Shape files do only have one type name
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
-        featureSource = shapefileStore.getFeatureSource(typeName);
-        return featureSource;
     }
 
     public static Geometry createProductGeometry(Product targetProduct) {
