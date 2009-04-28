@@ -1,6 +1,5 @@
 package org.esa.beam.visat.toolviews.layermanager.editors;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueAccessor;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
@@ -10,6 +9,7 @@ import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ValueEditorsPane;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.Style;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.visat.toolviews.layermanager.LayerEditor;
 
@@ -46,7 +46,7 @@ public abstract class AbstractBindingLayerEditor implements LayerEditor {
     protected final void addValueDescriptor(ValueDescriptor valueDescriptor) {
         Map<String, Object> valueData = new HashMap<String, Object>();
         String propertyName = valueDescriptor.getName();
-        Object value = getLayer().getConfiguration().getValue(propertyName);
+        Object value = getLayer().getStyle().getProperty(propertyName);
         if (value == null) {
             value = valueDescriptor.getDefaultValue();
         }
@@ -63,9 +63,9 @@ public abstract class AbstractBindingLayerEditor implements LayerEditor {
             final ValueDescriptor valueDescriptor = valueModel.getDescriptor();
             String propertyName = valueDescriptor.getName();
             Binding binding = bindingContext.getBinding(propertyName);
-            ValueContainer configuration = layer.getConfiguration();
+            Style style = layer.getStyle();
 
-            final Object value = configuration.getValue(propertyName);
+            final Object value = style.getProperty(propertyName);
             final Object oldValue = binding.getPropertyValue();
             if (oldValue != value && (oldValue == null || !oldValue.equals(value))) {
                 binding.setPropertyValue(value);
@@ -89,12 +89,7 @@ public abstract class AbstractBindingLayerEditor implements LayerEditor {
         public void propertyChange(PropertyChangeEvent evt) {
             String propertyName = evt.getPropertyName();
             if (layer != null) {
-                try {
-                    layer.getConfiguration().setValue(propertyName, evt.getNewValue());
-                } catch (ValidationException e) {
-                    e.printStackTrace();
-                    throw new IllegalArgumentException(e);
-                }
+                layer.getStyle().setProperty(propertyName, evt.getNewValue());
             }
         }
     }
