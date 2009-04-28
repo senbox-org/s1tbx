@@ -28,6 +28,7 @@ import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.Xpp3DomElement;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -65,6 +66,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.logging.ConsoleHandler;
 import java.util.regex.Pattern;
 
 /**
@@ -103,6 +105,7 @@ public class OperatorContext {
         this.sourceProductMap = new HashMap<String, Product>(3);
         this.targetPropertyMap = new HashMap<String, Object>(3);
         this.logger = Logger.getAnonymousLogger();
+        this.logger.addHandler(new ConsoleHandler());
         // Note: All OperatorImages in this context share the same TILE_CACHE_METRIC instance!
         this.performanceMetric = new PerformanceMetric();
         this.renderingHints = new RenderingHints(JAI.KEY_TILE_CACHE_METRIC, performanceMetric);
@@ -504,15 +507,27 @@ public class OperatorContext {
         final Band[] targetBands = targetProduct.getBands();
         targetImageMap = new HashMap<Band, OperatorImage>(targetBands.length * 2);
         for (final Band targetBand : targetBands) {
-            // Note: For all pass-through operators "source band == target band",
-            // and in this case an OperatorImage is already set.
-            // Note: "instanceof" has intentionally not been used here.
-            if (targetBand.getClass() == Band.class && !targetBand.isSourceImageSet()) {
-                final OperatorImage image = new OperatorImage(targetBand, this);
+
+            final OperatorImage image = new OperatorImage(targetBand, this);
+            targetImageMap.put(targetBand, image);
+
+            // Note: It is legal not to set the newly created operator image
+            // in the target band, if it already has a source image set.
+            // This case occurs for "pass-through" operators.
+            // Pull processing in GPF is primarily triggered by fetching tiles
+            // of the target images of this operator context, not directly
+            // by using the band's source images. Otherwise the WriteOp.computeTile()
+            // method would never be called.
+            //
+            if (isRegularBand(targetBand) && !targetBand.isSourceImageSet()) {
                 targetBand.setSourceImage(image);
-                targetImageMap.put(targetBand, image);
             }
         }
+    }
+
+    public static boolean isRegularBand(Band targetBand) {
+        // Note: "instanceof" has intentionally not been used here.
+        return targetBand.getClass() == Band.class;
     }
 
     private void initTargetProduct() throws OperatorException {
@@ -795,6 +810,52 @@ public class OperatorContext {
         allArgs[0] = operator.getClass().getSimpleName();
         System.arraycopy(args, 0, allArgs, 1, allArgs.length - 1);
         return String.format("Operator '%s': " + format, allArgs);
+    }
+
+    /**
+     * Sums the target nanos/pixel of all source images.
+     *
+     * @return the nanos/pixel spend in the sources of this operator.
+     */
+    double getSourceNanosPerPixel() {
+        double sourceNanosPerPixel = 0;
+        for (Product product : sourceProductList) {
+            OperatorContext operatorContext = getOperatorContext(product);
+            if (operatorContext != null) {
+                sourceNanosPerPixel += operatorContext.getPerformanceMetric().getTargetNanosPerPixel();
+            }
+        }
+        return sourceNanosPerPixel;
+    }
+
+    /**
+     * @param product The product.
+     * @return The operator context for the given product, or null.
+     */
+    static OperatorContext getOperatorContext(Product product) {
+        ProductReader productReader = product.getProductReader();
+        if (productReader instanceof OperatorProductReader) {
+            OperatorProductReader operatorProductReader = (OperatorProductReader) productReader;
+            return operatorProductReader.getOperatorContext();
+        }
+        return null;
+    }
+
+    public void logPerformanceAnalysis() {
+        logPerformanceAnalysis("");
+    }
+
+    private void logPerformanceAnalysis(String indent) {
+        logger.info(indent + "Performance analysis for operator " + getOperatorSpi().getOperatorAlias() + ":");
+        logger.info(indent + "  Net: " + getPerformanceMetric().getNanosPerPixel() + " ns/pixel");
+        logger.info(indent + "  Target: " + getPerformanceMetric().getTargetNanosPerPixel() + " ns/pixel");
+        logger.info(indent + "  Sources (" + sourceProductList.size() + "): " + getPerformanceMetric().getSourceNanosPerPixel() + " ns/pixel");
+        for (Product product : sourceProductList) {
+            OperatorContext operatorContext = getOperatorContext(product);
+            if (operatorContext != null) {
+                operatorContext.logPerformanceAnalysis(indent + "  ");
+            }
+        }
     }
 
 }

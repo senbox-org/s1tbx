@@ -312,6 +312,13 @@ public abstract class Operator {
     }
 
     /**
+     * Non-API.
+     */
+    public void logPerformanceAnalysis() {
+        context.logPerformanceAnalysis();
+    }
+
+    /**
      * Sets the logger which can be used to log information during initialisation and tile computation.
      *
      * @param logger The logger.

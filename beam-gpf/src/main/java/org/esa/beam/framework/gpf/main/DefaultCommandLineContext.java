@@ -19,23 +19,22 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Created by IntelliJ IDEA.
- * User: Norman
- * Date: 05.10.2007
- * Time: 17:00:15
- * To change this template use File | Settings | File Templates.
+ * The default command line context.
  */
 class DefaultCommandLineContext implements CommandLineContext {
+    @Override
     public Product readProduct(String productFilepath) throws IOException {
         Product product;
         product = ProductIO.readProduct(productFilepath, null);
         return product;
     }
 
+    @Override
     public void writeProduct(Product targetProduct, String filePath, String formatName) throws IOException {
         WriteOp.writeProduct(targetProduct, new File(filePath), formatName, ProgressMonitor.NULL);
     }
 
+    @Override
     public Graph readGraph(String filepath, Map<String, String> parameterMap) throws GraphException, IOException {
         FileReader fileReader = new FileReader(filepath);
         Graph graph;
@@ -47,11 +46,13 @@ class DefaultCommandLineContext implements CommandLineContext {
         return graph;
     }
 
+    @Override
     public void executeGraph(Graph graph) throws GraphException {
         GraphProcessor processor = new GraphProcessor();
         processor.executeGraph(graph, ProgressMonitor.NULL);
     }
 
+    @Override
     public Map<String, String> readParameterFile(String filepath) throws IOException {
         Properties properties = new Properties();
         FileReader fileReader = new FileReader(filepath);
@@ -69,11 +70,12 @@ class DefaultCommandLineContext implements CommandLineContext {
         return hashMap;
     }
 
+    @Override
     public Product createOpProduct(String opName, Map<String, Object> parameters, Map<String, Product> sourceProducts) throws OperatorException {
         return GPF.createProduct(opName, parameters, sourceProducts);
     }
 
-
+    @Override
     public void print(String m) {
         System.out.print(m);
     }

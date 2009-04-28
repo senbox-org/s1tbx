@@ -5,6 +5,7 @@ import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
+import org.esa.beam.framework.gpf.internal.OperatorContext;
 import org.esa.beam.framework.gpf.internal.OperatorImage;
 
 import java.awt.Dimension;
@@ -186,13 +187,42 @@ public class GraphProcessor {
                         for (NodeContext nodeContext : nodeContextList) {
                             Product targetProduct = nodeContext.getTargetProduct();
                             if (nodeContext.canComputeTileStack()) {
-                                Band band = targetProduct.getBandAt(0);
-                                forceTileComputation(nodeContext, band, tileX, tileY);
-                            } else {
+
+                                // (1) Pull tile from first OperatorImage we find. This will trigger pulling
+                                // tiles of all other OperatorImage computed stack-wise.
+                                //
                                 for (Band band : targetProduct.getBands()) {
-                                    forceTileComputation(nodeContext, band, tileX, tileY);
+                                    OperatorImage image = nodeContext.getTargetImage(band);
+                                    if (image != null) {
+                                        forceTileComputation(image, tileX, tileY);
+                                        break;
+                                    }
+                                }
+
+                                // (2) Pull tile from source images of other regular bands.
+                                //
+                                for (Band band : targetProduct.getBands()) {
+                                    OperatorImage image = nodeContext.getTargetImage(band);
+                                    if (image == null) {
+                                        if (OperatorContext.isRegularBand(band) && band.isSourceImageSet()) {
+                                            forceTileComputation(band.getSourceImage(), tileX, tileY);
+                                        }
+                                    }
+                                }
+                            } else {
+
+                                // Simply pull tile from source images of regular bands.
+                                //
+                                for (Band band : targetProduct.getBands()) {
+                                    OperatorImage image = nodeContext.getTargetImage(band);
+                                    if (image != null) {
+                                        forceTileComputation(image, tileX, tileY);
+                                    } else if (OperatorContext.isRegularBand(band) && band.isSourceImageSet()) {
+                                        forceTileComputation(band.getSourceImage(), tileX, tileY);
+                                    }
                                 }
                             }
+
                             pm.worked(1);
                         }
                         fireTileStopped(graphContext, tileRectangle);
@@ -224,14 +254,7 @@ public class GraphProcessor {
         return tileSizeMap;
     }
 
-    private static Rectangle getProductBounds(Product targetProduct) {
-        final int rasterHeight = targetProduct.getSceneRasterHeight();
-        final int rasterWidth = targetProduct.getSceneRasterWidth();
-        return new Rectangle(rasterWidth, rasterHeight);
-    }
-
-    private static void forceTileComputation(NodeContext nodeContext, Band band, int tileX, int tileY) {
-        OperatorImage image = nodeContext.getTargetImage(band);
+    private static void forceTileComputation(RenderedImage image, int tileX, int tileY) {
         /////////////////////////////////////////////////////////////////////
         //
         // GPF pull-processing is triggered here!!!

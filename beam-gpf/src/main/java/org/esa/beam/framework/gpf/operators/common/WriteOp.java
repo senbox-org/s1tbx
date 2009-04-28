@@ -2,14 +2,15 @@ package org.esa.beam.framework.gpf.operators.common;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import org.esa.beam.dataio.dimap.DimapProductWriter;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.DataNode;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -20,7 +21,6 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.internal.OperatorImage;
 import org.esa.beam.util.math.MathUtils;
-import org.esa.beam.dataio.dimap.DimapProductWriter;
 
 import javax.media.jai.JAI;
 import java.awt.Dimension;
@@ -101,7 +101,7 @@ public class WriteOp extends Operator {
                     productWriter.writeProductNodes(targetProduct, file);
                     productFileWritten = true;
                     // rewrite of product header is only supported for DIMAP
-                    if(productWriter instanceof DimapProductWriter) {
+                    if (productWriter instanceof DimapProductWriter) {
                         targetProduct.addProductNodeListener(productNodeChangeListener);
                     }
                 }
@@ -147,7 +147,7 @@ public class WriteOp extends Operator {
                     }
                 }
                 // If we get here all tiles are written
-                if(headerChanged) {   // ask if we have to update the header
+                if (headerChanged) {   // ask if we have to update the header
                     productWriter.writeProductNodes(targetProduct, file);
                 }
             }
@@ -242,13 +242,15 @@ public class WriteOp extends Operator {
             }
             pm.done();
         }
+
+        writeOp.logPerformanceAnalysis();
     }
 
     private class ProductNodeChangeListener extends ProductNodeListenerAdapter {
 
         @Override
         public void nodeChanged(ProductNodeEvent event) {
-            if(!DataNode.PROPERTY_NAME_DATA.equalsIgnoreCase(event.getPropertyName()))  {
+            if (!DataNode.PROPERTY_NAME_DATA.equalsIgnoreCase(event.getPropertyName())) {
                 headerChanged = true;
             }
         }

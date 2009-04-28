@@ -2,9 +2,7 @@ package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.jai.ImageManager;
@@ -79,20 +77,10 @@ public class OperatorImage extends SourcelessOpImage {
         long nanos2 = System.nanoTime();
 
         double targetNanosPerPixel = (double) (nanos2 - nanos1) / (double) (destRect.width * destRect.height);
-        double sourceNanosPerPixel = 0;
-
-        Product[] products = operatorContext.getSourceProducts();
-        for (Product product : products) {
-            ProductReader productReader = product.getProductReader();
-            if (productReader instanceof OperatorProductReader) {
-                OperatorProductReader operatorProductReader = (OperatorProductReader) productReader;
-                OperatorContext context = operatorProductReader.getOperatorContext();
-                sourceNanosPerPixel += context.getPerformanceMetric().getTargetNanosPerPixel();
-            }
-        }
-
-        operatorContext.getPerformanceMetric().updateSource(sourceNanosPerPixel);
         operatorContext.getPerformanceMetric().updateTarget(targetNanosPerPixel);
+
+        double sourceNanosPerPixel = operatorContext.getSourceNanosPerPixel();
+        operatorContext.getPerformanceMetric().updateSource(sourceNanosPerPixel);
     }
 
     public WritableRaster getWritableTile(Rectangle tileRectangle) {
