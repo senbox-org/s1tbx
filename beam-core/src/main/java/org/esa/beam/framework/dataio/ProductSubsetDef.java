@@ -38,34 +38,34 @@ public class ProductSubsetDef {
     /**
      * The optional name of the subset
      */
-    private String _subsetName = null;
+    private String subsetName = null;
 
     /**
      * The spatial subset.
      */
-    private Rectangle _region = null;
+    private Rectangle region = null;
 
     /**
      * Subsampling in X direction.
      */
-    private int _subSamplingX = 1;
+    private int subSamplingX = 1;
 
     /**
      * Subsampling in Y direction.
      */
-    private int _subSamplingY = 1;
+    private int subSamplingY = 1;
 
     /**
      * The band subset.
      */
-    private List _nodeNameList = null;
+    private List nodeNameList = null;
 
     /**
      * ignores or not ignores Metadata at writing or reading a product
      */
-    private boolean _ignoreMetadata = false;
+    private boolean ignoreMetadata = false;
 
-    private boolean _treatVirtualBandsAsRealBands = false;
+    private boolean treatVirtualBandsAsRealBands = false;
 
     /**
      * Constructs a new and empty subset info.
@@ -76,25 +76,26 @@ public class ProductSubsetDef {
 
     /**
      * Constructs a new and empty subset info.
+     * @param subsetName The name of the subset to be created.
      */
     public ProductSubsetDef(String subsetName) {
-        _subsetName = subsetName;
+        this.subsetName = subsetName;
     }
 
     public String getSubsetName() {
-        return _subsetName;
+        return subsetName;
     }
 
     public void setSubsetName(String subsetName) {
-        _subsetName = subsetName;
+        this.subsetName = subsetName;
     }
 
-    public void setVirtualBandsAsRealBands(boolean flag) {
-        _treatVirtualBandsAsRealBands = flag;
+    public void setTreatVirtualBandsAsRealBands(boolean flag) {
+        treatVirtualBandsAsRealBands = flag;
     }
 
-    public boolean treatVirtualBandsAsRealBands() {
-        return _treatVirtualBandsAsRealBands;
+    public boolean getTreatVirtualBandsAsRealBands() {
+        return treatVirtualBandsAsRealBands;
     }
 
     /**
@@ -104,12 +105,12 @@ public class ProductSubsetDef {
      * @return an array of names, or <code>null</code> if the no node subset is given
      */
     public String[] getNodeNames() {
-        if (_nodeNameList == null) {
+        if (nodeNameList == null) {
             return null;
         }
-        String[] result = new String[_nodeNameList.size()];
-        for (int i = 0; i < _nodeNameList.size(); i++) {
-            result[i] = (String) _nodeNameList.get(i);
+        String[] result = new String[nodeNameList.size()];
+        for (int i = 0; i < nodeNameList.size(); i++) {
+            result[i] = (String) nodeNameList.get(i);
         }
         return result;
     }
@@ -122,12 +123,12 @@ public class ProductSubsetDef {
      */
     public void setNodeNames(String[] names) {
         if (names != null) {
-            if (_nodeNameList != null) {
-                _nodeNameList.clear();
+            if (nodeNameList != null) {
+                nodeNameList.clear();
             }
             addNodeNames(names);
         } else {
-            _nodeNameList = null;
+            nodeNameList = null;
         }
     }
 
@@ -141,10 +142,10 @@ public class ProductSubsetDef {
         if (containsNodeName(name)) {
             return;
         }
-        if (_nodeNameList == null) {
-            _nodeNameList = new ArrayList();
+        if (nodeNameList == null) {
+            nodeNameList = new ArrayList();
         }
-        _nodeNameList.add(name);
+        nodeNameList.add(name);
     }
 
     /**
@@ -174,9 +175,9 @@ public class ProductSubsetDef {
         if (index < 0) {
             return false;
         }
-        _nodeNameList.remove(index);
-        if (_nodeNameList.size() == 0) {
-            _nodeNameList = null;
+        nodeNameList.remove(index);
+        if (nodeNameList.size() == 0) {
+            nodeNameList = null;
         }
         return true;
     }
@@ -201,7 +202,7 @@ public class ProductSubsetDef {
      * @return true if so
      */
     public boolean isNodeAccepted(String name) {
-        return _nodeNameList == null || containsNodeName(name);
+        return nodeNameList == null || containsNodeName(name);
     }
 
     /**
@@ -211,7 +212,7 @@ public class ProductSubsetDef {
      * @return the spatial subset as a rectangular region, or <code>null</code> if no spatial region was defined
      */
     public Rectangle getRegion() {
-        return _region != null ? new Rectangle(_region) : null;
+        return region != null ? new Rectangle(region) : null;
     }
 
     /**
@@ -222,7 +223,7 @@ public class ProductSubsetDef {
      */
     public void setRegion(Rectangle region) {
         if (region == null) {
-            _region = null;
+            this.region = null;
         } else {
             setRegion(region.x, region.y, region.width, region.height);
         }
@@ -240,7 +241,7 @@ public class ProductSubsetDef {
         if (x < 0 || y < 0 || w < 1 || h < 1) {
             throw new IllegalArgumentException("invalid region");
         }
-        _region = new Rectangle(x, y, w, h);
+        region = new Rectangle(x, y, w, h);
     }
 
     /**
@@ -253,8 +254,8 @@ public class ProductSubsetDef {
         if (subSamplingX < 1 || subSamplingY < 1) {
             throw new IllegalArgumentException("invalid sub-sampling");
         }
-        _subSamplingX = subSamplingX;
-        _subSamplingY = subSamplingY;
+        this.subSamplingX = subSamplingX;
+        this.subSamplingY = subSamplingY;
     }
 
     /**
@@ -263,7 +264,7 @@ public class ProductSubsetDef {
      * @return the sub-sampling in X-direction which is always greater than zero
      */
     public int getSubSamplingX() {
-        return _subSamplingX;
+        return subSamplingX;
     }
 
     /**
@@ -272,7 +273,7 @@ public class ProductSubsetDef {
      * @return the sub-sampling in Y-direction which is always greater than zero
      */
     public int getSubSamplingY() {
-        return _subSamplingY;
+        return subSamplingY;
     }
 
 
@@ -288,12 +289,12 @@ public class ProductSubsetDef {
     public Dimension getSceneRasterSize(int maxWidth, int maxHeight) {
         int width = maxWidth;
         int height = maxHeight;
-        if (_region != null) {
-            width = _region.width;
-            height = _region.height;
+        if (region != null) {
+            width = region.width;
+            height = region.height;
         }
-        return new Dimension((width - 1) / _subSamplingX + 1,
-                             (height - 1) / _subSamplingY + 1);
+        return new Dimension((width - 1) / subSamplingX + 1,
+                             (height - 1) / subSamplingY + 1);
     }
 
     /**
@@ -302,25 +303,25 @@ public class ProductSubsetDef {
      * @param ignoreMetadata if <code>true</code>, metadata may be ignored during write or read a product.
      */
     public void setIgnoreMetadata(boolean ignoreMetadata) {
-        _ignoreMetadata = ignoreMetadata;
+        this.ignoreMetadata = ignoreMetadata;
     }
 
     /**
      * Gets the ignore metadata information
      */
     public boolean isIgnoreMetadata() {
-        return _ignoreMetadata;
+        return ignoreMetadata;
     }
 
     /**
      * Checks whether or not this subset definition select the entire product.
      */
     public boolean isEntireProductSelected() {
-        return _region == null
-               && _subSamplingX == 1
-               && _subSamplingY == 1
-               && _nodeNameList == null
-               && !_ignoreMetadata;
+        return region == null
+               && subSamplingX == 1
+               && subSamplingY == 1
+               && nodeNameList == null
+               && !ignoreMetadata;
     }
 
     /**
@@ -332,9 +333,9 @@ public class ProductSubsetDef {
      * @return the node index or <code>-1</code>
      */
     private int getNodeNameIndex(String name) {
-        if (_nodeNameList != null) {
-            for (int i = 0; i < _nodeNameList.size(); i++) {
-                String nodeName = (String) _nodeNameList.get(i);
+        if (nodeNameList != null) {
+            for (int i = 0; i < nodeNameList.size(); i++) {
+                String nodeName = (String) nodeNameList.get(i);
                 if (nodeName.equalsIgnoreCase(name)) {
                     return i;
                 }

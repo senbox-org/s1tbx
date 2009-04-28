@@ -43,23 +43,28 @@ public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDes
     public GETASSE30ElevationModelDescriptor() {
     }
 
+    @Override
     public String getName() {
         return NAME;
     }
 
+    @Override
     public Datum getDatum() {
         return DATUM;
     }
 
+    @Override
     public float getNoDataValue() {
         return NO_DATA_VALUE;
     }
 
+    @Override
     public boolean isDemInstalled() {
         final File file = getTileFile(-180, -90);   // todo (nf) - check all tiles
         return file.canRead();
     }
 
+    @Override
     public URL getDemArchiveUrl() {
         try {
             return new URL(ARCHIVE_URL_PATH);
@@ -68,6 +73,7 @@ public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDes
         }
     }
 
+    @Override
     public ElevationModel createDem() {
         try {
             return new GETASSE30ElevationModel(this);
