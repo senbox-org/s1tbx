@@ -20,7 +20,6 @@ import com.bc.ceres.core.CanceledException;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.command.CommandEvent;
@@ -33,6 +32,10 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.ShowImageViewAction;
 import org.esa.beam.visat.actions.ShowMetadataViewAction;
 
+import javax.swing.JInternalFrame;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import java.awt.Rectangle;
 import java.beans.PropertyVetoException;
 import java.io.File;
@@ -40,11 +43,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
-
-import javax.swing.JInternalFrame;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 
 
 /**
@@ -55,8 +53,10 @@ import javax.swing.SwingWorker;
  * @since BEAM 4.6
  */
 public class OpenSessionAction extends ExecCommand {
+
     public static final String ID = "openSession";
-    public static final BeamFileFilter SESSION_FILE_FILTER = new BeamFileFilter("BEAM-SESSION", ".beam", "BEAM session");
+    public static final BeamFileFilter SESSION_FILE_FILTER = new BeamFileFilter("BEAM-SESSION", ".beam",
+                                                                                "BEAM session");
     public static final String LAST_SESSION_DIR_KEY = "beam.lastSessionDir";
     private static final String TITLE = "Open Session";
 
@@ -68,7 +68,7 @@ public class OpenSessionAction extends ExecCommand {
         if (app.getProductManager().getProductCount() > 0) {
             final int i = app.showQuestionDialog(TITLE,
                                                  "This will close the current session.\n" +
-                                                         "Do you want to continue?", null);
+                                                 "Do you want to continue?", null);
             if (i != JOptionPane.YES_OPTION) {
                 return;
             }
@@ -84,10 +84,10 @@ public class OpenSessionAction extends ExecCommand {
             app.showErrorDialog(TITLE, "Session has already been opened.");
             return;
         }
-        
+
         openSession(app, sessionFile);
     }
-    
+
     public void openSession(VisatApp app, File sessionFile) {
         app.setSessionFile(sessionFile);
         app.closeAllProducts();
@@ -96,6 +96,7 @@ public class OpenSessionAction extends ExecCommand {
     }
 
     private static class OpenSessionWorker extends ProgressMonitorSwingWorker<RestoredSession, Object> {
+
         private final VisatApp app;
         private final File sessionFile;
 
@@ -116,10 +117,10 @@ public class OpenSessionAction extends ExecCommand {
                     final int[] answer = new int[1];
                     final String title = MessageFormat.format(TITLE + " - Resolving [{0}]", file);
                     final String msg = MessageFormat.format("Product [{0}] has been renamed or (re-)moved.\n" +
-                                                      "Its location was [{1}].\n" +
-                                                      "Do you wish to provide its new location?\n" +
-                                                      "(Select ''No'' if the product shall no longer be part of the session.)",
-                                                      id, file);
+                                                            "Its location was [{1}].\n" +
+                                                            "Do you wish to provide its new location?\n" +
+                                                            "(Select ''No'' if the product shall no longer be part of the session.)",
+                                                            id, file);
                     try {
                         SwingUtilities.invokeAndWait(new Runnable() {
 
@@ -129,15 +130,16 @@ public class OpenSessionAction extends ExecCommand {
                                 if (answer[0] == JOptionPane.YES_OPTION) {
                                     newFile[0] = app.showFileOpenDialog(title, false, null);
                                 }
-                            }});
+                            }
+                        });
                     } catch (Exception e) {
                         throw new CanceledException();
                     }
-                    
-                    if (answer[0]== JOptionPane.CANCEL_OPTION) {
+
+                    if (answer[0] == JOptionPane.CANCEL_OPTION) {
                         throw new CanceledException();
                     }
-                    
+
                     if (newFile[0] != null) {
                         try {
                             return ProductIO.readProduct(newFile[0], null);
@@ -161,7 +163,8 @@ public class OpenSessionAction extends ExecCommand {
                     return;
                 }
                 app.showErrorDialog("An unexpected exception occured!\n" +
-                        "Message: " + e.getCause().getMessage());
+                                    "Message: " + e.getCause().getMessage());
+                e.printStackTrace();
                 return;
             }
             final Exception[] problems = restoredSession.getProblems();
