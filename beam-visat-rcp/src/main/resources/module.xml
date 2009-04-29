@@ -153,7 +153,7 @@
         </layerEditor>
         <layerEditor>
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.PlacemarkLayerEditor</editor>
-            <layerType>org.esa.beam.glayer.PlacemarkLayer$Type</layerType>
+            <layerType>org.esa.beam.glayer.PlacemarkLayerType</layerType>
         </layerEditor>
         <layerEditor>
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.FeatureLayerEditor</editor>
