@@ -16,12 +16,10 @@
  */
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
-import com.bc.ceres.glayer.LayerType;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.Product;
@@ -38,7 +36,6 @@ public class BitmaskCollectionLayer extends CollectionLayer {
 
 
     private final ProductNodeListener bitmaskDefListener;
-    private final ProductNodeListener bitmaskOverlayInfoListener;
     private final AffineTransform i2mTransform;
 
     private RasterDataNode rasterDataNode;
@@ -49,18 +46,16 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         this.i2mTransform = (AffineTransform) configuration.getValue(Type.PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
         bitmaskDefListener = new BitmaskDefListener(this);
         getProduct().addProductNodeListener(bitmaskDefListener);
-        bitmaskOverlayInfoListener = new BitmaskOverlayInfoListener(this);
-        getProduct().addProductNodeListener(bitmaskOverlayInfoListener);
     }
 
     @Override
     public void disposeLayer() {
         if (rasterDataNode != null) {
             getProduct().removeProductNodeListener(bitmaskDefListener);
-            getProduct().removeProductNodeListener(bitmaskOverlayInfoListener);
             rasterDataNode = null;
         }
     }
+
 
     private Product getProduct() {
         return rasterDataNode.getProduct();
@@ -71,28 +66,15 @@ public class BitmaskCollectionLayer extends CollectionLayer {
     }
 
     private Layer createBitmaskLayer(final BitmaskDef bitmaskDef) {
-        final LayerType type = LayerType.getLayerType(BitmaskLayerType.class.getName());
-        final ValueContainer configuration = type.getConfigurationTemplate();
-        try {
-            configuration.setValue(BitmaskLayerType.PROPERTY_BITMASKDEF, bitmaskDef);
-            configuration.setValue(BitmaskLayerType.PROPERTY_PRODUCT, getProduct());
-            configuration.setValue(BitmaskLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
-        } catch (ValidationException e) {
-            throw new IllegalStateException(e);
-        }
-        final Layer layer = type.createLayer(null, configuration);
-        final BitmaskOverlayInfo overlayInfo = getRaster().getBitmaskOverlayInfo();
-        layer.setVisible(overlayInfo != null && overlayInfo.containsBitmaskDef(bitmaskDef));
-
-        return layer;
+        return BitmaskLayerType.createBitmaskLayer(getRaster(), bitmaskDef, i2mTransform);
     }
 
-    private class BitmaskDefListener implements ProductNodeListener {
+    public static class BitmaskDefListener implements ProductNodeListener {
 
-        private final Layer bitmaskLayer;
+        private final BitmaskCollectionLayer bitmaskCollectionLayer;
 
-        private BitmaskDefListener(Layer bitmaskLayer) {
-            this.bitmaskLayer = bitmaskLayer;
+        private BitmaskDefListener(BitmaskCollectionLayer bitmaskCollectionLayer) {
+            this.bitmaskCollectionLayer = bitmaskCollectionLayer;
         }
 
         @Override
@@ -104,17 +86,25 @@ public class BitmaskCollectionLayer extends CollectionLayer {
                 final Layer oldLayer = getLayerForBitmask(bitmaskDef);
 
                 if (oldLayer != null) {
-                    final int index = bitmaskLayer.getChildren().indexOf(oldLayer);
-                    bitmaskLayer.getChildren().remove(oldLayer);
-                    final Layer newLayer = createBitmaskLayer(bitmaskDef);
-                    bitmaskLayer.getChildren().add(index, newLayer);
+                    final int index = bitmaskCollectionLayer.getChildren().indexOf(oldLayer);
+                    bitmaskCollectionLayer.getChildren().remove(oldLayer);
+                    final Layer newLayer = bitmaskCollectionLayer.createBitmaskLayer(bitmaskDef);
+                    bitmaskCollectionLayer.getChildren().add(index, newLayer);
                     oldLayer.dispose();
+                }
+            } else if (sourceNode == bitmaskCollectionLayer.getRaster() &&
+                       RasterDataNode.PROPERTY_NAME_BITMASK_OVERLAY_INFO.equals(event.getPropertyName())) {
+                final BitmaskOverlayInfo overlayInfo = bitmaskCollectionLayer.getRaster().getBitmaskOverlayInfo();
+                final Product product = bitmaskCollectionLayer.getProduct();
+
+                for (final Layer layer : bitmaskCollectionLayer.getChildren()) {
+                    layer.setVisible(overlayInfo.containsBitmaskDef(product.getBitmaskDef(layer.getName())));
                 }
             }
         }
 
         private Layer getLayerForBitmask(BitmaskDef bitmaskDef) {
-            final List<Layer> list = bitmaskLayer.getChildren();
+            final List<Layer> list = bitmaskCollectionLayer.getChildren();
             for (Layer layer : list) {
                 final Object value = layer.getConfiguration().getValue(BitmaskLayerType.PROPERTY_BITMASKDEF);
                 if (bitmaskDef.equals(value)) {
@@ -134,12 +124,12 @@ public class BitmaskCollectionLayer extends CollectionLayer {
             final ProductNode sourceNode = event.getSourceNode();
 
             if (sourceNode instanceof BitmaskDef) {
-                final BitmaskDef[] bitmaskDefs = getProduct().getBitmaskDefs();
+                final BitmaskDef[] bitmaskDefs = bitmaskCollectionLayer.getProduct().getBitmaskDefs();
 
                 for (int i = 0; i < bitmaskDefs.length; i++) {
                     if (sourceNode == bitmaskDefs[i]) {
-                        final Layer layer = createBitmaskLayer(bitmaskDefs[i]);
-                        bitmaskLayer.getChildren().add(i, layer);
+                        final Layer layer = bitmaskCollectionLayer.createBitmaskLayer(bitmaskDefs[i]);
+                        bitmaskCollectionLayer.getChildren().add(i, layer);
                         break;
                     }
                 }
@@ -154,47 +144,11 @@ public class BitmaskCollectionLayer extends CollectionLayer {
                 final BitmaskDef bitmaskDef = (BitmaskDef) sourceNode;
                 final Layer layer = getLayerForBitmask(bitmaskDef);
                 if (layer != null) {
-                    if (bitmaskLayer.getChildren().remove(layer)) {
+                    if (bitmaskCollectionLayer.getChildren().remove(layer)) {
                         layer.dispose();
                     }
                 }
             }
-        }
-    }
-
-    private class BitmaskOverlayInfoListener implements ProductNodeListener {
-
-        private final Layer bitmaskLayer;
-
-        private BitmaskOverlayInfoListener(Layer bitmaskLayer) {
-            this.bitmaskLayer = bitmaskLayer;
-        }
-
-        @Override
-        public void nodeChanged(ProductNodeEvent event) {
-            final ProductNode sourceNode = event.getSourceNode();
-
-            if (sourceNode == getRaster() &&
-                RasterDataNode.PROPERTY_NAME_BITMASK_OVERLAY_INFO.equals(event.getPropertyName())) {
-                final BitmaskOverlayInfo overlayInfo = getRaster().getBitmaskOverlayInfo();
-                final Product product = getProduct();
-
-                for (final Layer layer : bitmaskLayer.getChildren()) {
-                    layer.setVisible(overlayInfo.containsBitmaskDef(product.getBitmaskDef(layer.getName())));
-                }
-            }
-        }
-
-        @Override
-        public void nodeDataChanged(ProductNodeEvent event) {
-        }
-
-        @Override
-        public void nodeAdded(ProductNodeEvent event) {
-        }
-
-        @Override
-        public void nodeRemoved(ProductNodeEvent event) {
         }
     }
 
@@ -212,28 +166,8 @@ public class BitmaskCollectionLayer extends CollectionLayer {
 
         @Override
         protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
-            RasterDataNode rasterDataNode = (RasterDataNode) configuration.getValue(PROPERTY_RASTER);
-            AffineTransform i2m = (AffineTransform) configuration.getValue(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
             final BitmaskCollectionLayer bitmaskCollectionLayer = new BitmaskCollectionLayer(this, configuration);
             bitmaskCollectionLayer.setId(BITMASK_LAYER_ID);
-            final BitmaskDef[] bitmaskDefs = rasterDataNode.getProduct().getBitmaskDefs();
-            final LayerType bitmaskLayerType = LayerType.getLayerType(BitmaskLayerType.class.getName());
-            for (final BitmaskDef bitmaskDef : bitmaskDefs) {
-                final ValueContainer template = bitmaskLayerType.getConfigurationTemplate();
-                try {
-                    template.setValue(BitmaskLayerType.PROPERTY_BITMASKDEF, bitmaskDef);
-                    template.setValue(BitmaskLayerType.PROPERTY_PRODUCT, rasterDataNode.getProduct());
-                    template.setValue(BitmaskLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, i2m);
-                } catch (ValidationException e) {
-                    throw new IllegalArgumentException(e);
-                }
-
-                final Layer layer = bitmaskLayerType.createLayer(ctx, template);
-                final BitmaskOverlayInfo overlayInfo = rasterDataNode.getBitmaskOverlayInfo();
-                layer.setVisible(overlayInfo != null && overlayInfo.containsBitmaskDef(bitmaskDef));
-                bitmaskCollectionLayer.getChildren().add(layer);
-            }
-
             return bitmaskCollectionLayer;
         }
 

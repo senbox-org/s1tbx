@@ -4,11 +4,14 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 
 import java.awt.geom.AffineTransform;
@@ -28,6 +31,24 @@ public class BitmaskLayerType extends ImageLayer.Type {
     @Override
     public String getName() {
         return "Bitmask Layer";
+    }
+
+    public static Layer createBitmaskLayer(RasterDataNode raster, final BitmaskDef bitmaskDef,
+                                           AffineTransform i2mTransform) {
+        final LayerType type = LayerType.getLayerType(BitmaskLayerType.class.getName());
+        final ValueContainer configuration = type.getConfigurationTemplate();
+        try {
+            configuration.setValue(BitmaskLayerType.PROPERTY_BITMASKDEF, bitmaskDef);
+            configuration.setValue(BitmaskLayerType.PROPERTY_PRODUCT, raster.getProduct());
+            configuration.setValue(BitmaskLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
+        } catch (ValidationException e) {
+            throw new IllegalStateException(e);
+        }
+        final Layer layer = type.createLayer(null, configuration);
+        final BitmaskOverlayInfo overlayInfo = raster.getBitmaskOverlayInfo();
+        layer.setVisible(overlayInfo != null && overlayInfo.containsBitmaskDef(bitmaskDef));
+
+        return layer;
     }
 
     @Override

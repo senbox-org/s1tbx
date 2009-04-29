@@ -1,19 +1,25 @@
 package org.esa.beam.visat.actions.session;
 
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.core.CanceledException;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glayer.LayerType;
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.glayer.BitmaskCollectionLayer;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.util.PropertyMap;
 
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.File;
@@ -228,6 +234,15 @@ public class SessionTest extends TestCase {
         writeProduct(productX);
         writeProduct(productY);
 
+        productY.addBitmaskDef(new BitmaskDef("D_eq_23", "descr", "D > 0.23", Color.RED, 0.3f));
+        productY.addBitmaskDef(new BitmaskDef("C_lt_23", "descr", "C < 0.23", Color.BLUE, 0.3f));
+        final BitmaskOverlayInfo overlayInfo = new BitmaskOverlayInfo();
+        final BitmaskDef[] defs = productY.getBitmaskDefs();
+        for (BitmaskDef def : defs) {
+            overlayInfo.addBitmaskDef(def);
+        }
+        bandD.setBitmaskOverlayInfo(overlayInfo);
+
         final ProductSceneView sceneViewA = new ProductSceneView(
                 new ProductSceneImage(bandA, new PropertyMap(), ProgressMonitor.NULL));
         sceneViewA.setBounds(new Rectangle(0, 0, 200, 100));
@@ -246,6 +261,16 @@ public class SessionTest extends TestCase {
         graticuleLayer.setName("Graticule"); // todo - place in GraticuleLayer constructor (nf)
         graticuleLayer.setVisible(true);
         sceneViewD.getRootLayer().getChildren().add(graticuleLayer);
+
+        final BitmaskCollectionLayer.Type type = (BitmaskCollectionLayer.Type) LayerType.getLayerType(
+                BitmaskCollectionLayer.Type.class.getName());
+        final ValueContainer template = type.getConfigurationTemplate();
+        template.setValue(BitmaskCollectionLayer.Type.PROPERTY_RASTER, bandD);
+        template.setValue(BitmaskCollectionLayer.Type.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, new AffineTransform());
+        BitmaskCollectionLayer bitmaskCollectionLayer = new BitmaskCollectionLayer(type, template);
+        bitmaskCollectionLayer.setName("Bitmask Collection");
+        bitmaskCollectionLayer.setVisible(true);
+        sceneViewD.getRootLayer().getChildren().add(bitmaskCollectionLayer);
 
         return new SessionData(
                 new Product[]{

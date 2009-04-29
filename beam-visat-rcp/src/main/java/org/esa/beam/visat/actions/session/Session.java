@@ -154,6 +154,7 @@ public class Session {
                                         layer.getId(),
                                         layer.getName(),
                                         layer.isVisible(),
+                                        i,
                                         element,
                                         getLayerRefs(layerContext, layer.getChildren(), productManager));
         }
@@ -317,9 +318,12 @@ public class Session {
         final ValueContainer template = type.getConfigurationTemplate();
         converter.convertDomToValue(ref.configuration, template);
         final Layer layer = type.createLayer(null, template);
-        parentLayer.getChildren().add(layer);
+        layer.setId(ref.id);
+        layer.setVisible(ref.visible);
+        layer.setName(ref.name);
+        parentLayer.getChildren().add(ref.index, layer);
         for (LayerRef child : ref.children) {
-            addLayerRef(parentLayer, child, productManager);
+            addLayerRef(layer, child, productManager);
         }
     }
 
@@ -407,17 +411,19 @@ public class Session {
         final String id;
         final String name;
         final boolean visible;
+        final public int index;
         @XStreamConverter(DomElementXStreamConverter.class)
         final DomElement configuration;
         final LayerRef[] children;
 
-        public LayerRef(Class<? extends LayerType> layerType, String id, String name, boolean visible,
+        public LayerRef(Class<? extends LayerType> layerType, String id, String name, boolean visible, int index,
                         DomElement configuration,
                         LayerRef[] children) {
             this.layerType = layerType;
             this.id = id;
             this.name = name;
             this.visible = visible;
+            this.index = index;
             this.configuration = configuration;
             this.children = children;
         }

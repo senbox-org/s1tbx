@@ -20,6 +20,7 @@ import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.glayer.BitmaskCollectionLayer;
+import org.esa.beam.glayer.BitmaskLayerType;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.FigureLayerType;
 import org.esa.beam.glayer.GraticuleLayer;
@@ -59,7 +60,6 @@ public class ProductSceneImage implements LayerContext {
              configuration);
         bandImageMultiLevelSource = BandImageMultiLevelSource.create(raster, pm);
         initRootLayer();
-        initBitmaskLayer();
     }
 
     /**
@@ -224,7 +224,7 @@ public class ProductSceneImage implements LayerContext {
         addLayer(0, createBaseImageLayer());
     }
 
-    private void initBitmaskLayer() {
+    public void initBitmaskLayer() {
         if (mustEnableBitmaskLayer()) {
             getBitmaskLayer(true);
         }
@@ -303,7 +303,13 @@ public class ProductSceneImage implements LayerContext {
         } catch (ValidationException e) {
             throw new IllegalArgumentException(e);
         }
-        return bitmaskCollectionType.createLayer(this, layerConfig);
+        final Layer bitmaskCollectionLayer = bitmaskCollectionType.createLayer(this, layerConfig);
+        final BitmaskDef[] bitmaskDefs = getRaster().getProduct().getBitmaskDefs();
+        for (final BitmaskDef bitmaskDef : bitmaskDefs) {
+            Layer layer = BitmaskLayerType.createBitmaskLayer(getRaster(), bitmaskDef, i2mTransform);
+            bitmaskCollectionLayer.getChildren().add(layer);
+        }
+        return bitmaskCollectionLayer;
     }
 
     private FigureLayer createFigureLayer(AffineTransform i2mTransform) {

@@ -16,22 +16,27 @@
  */
 package org.esa.beam.visat.actions;
 
-import org.esa.beam.framework.datamodel.*;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.visat.VisatApp;
 import org.esa.beam.util.Debug;
+import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.JInternalFrame;
+import javax.swing.SwingWorker;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-
-import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import com.bc.ceres.core.*;
-import com.bc.ceres.core.ProgressMonitor;
 
 /**
  * This action opens an image view of the currently selected raster.
@@ -40,7 +45,8 @@ import com.bc.ceres.core.ProgressMonitor;
  * @version $Revision$ $Date$
  */
 public class ShowImageViewAction extends ExecCommand {
-    public static String ID = "showImageView";
+
+    public static final String ID = "showImageView";
 
     @Override
     public void actionPerformed(final CommandEvent event) {
@@ -54,39 +60,39 @@ public class ShowImageViewAction extends ExecCommand {
         UIUtils.setRootFrameWaitCursor(visatApp.getMainFrame());
 
         final SwingWorker worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(visatApp.getMainFrame(),
-                                                                                                 visatApp.getAppName() + " - Creating image for '" + selectedProductNode.getName() + "'") {
+                                                                                             visatApp.getAppName() + " - Creating image for '" + selectedProductNode.getName() + "'") {
 
-                @Override
-                protected ProductSceneImage doInBackground(com.bc.ceres.core.ProgressMonitor pm) throws Exception {
-                    try {
-                        return createProductSceneImage(selectedProductNode, pm);
-                    } finally {
-                        if (pm.isCanceled()) {
-                            selectedProductNode.unloadRasterData();
-                        }
+            @Override
+            protected ProductSceneImage doInBackground(com.bc.ceres.core.ProgressMonitor pm) throws Exception {
+                try {
+                    return createProductSceneImage(selectedProductNode, pm);
+                } finally {
+                    if (pm.isCanceled()) {
+                        selectedProductNode.unloadRasterData();
                     }
                 }
+            }
 
-                @Override
-                public void done() {
-                    UIUtils.setRootFrameDefaultCursor(visatApp.getMainFrame());
-                    visatApp.clearStatusBarMessage();
+            @Override
+            public void done() {
+                UIUtils.setRootFrameDefaultCursor(visatApp.getMainFrame());
+                visatApp.clearStatusBarMessage();
 
-                    final ProductSceneImage productSceneImage;
-                    try {
-                        productSceneImage = get();
-                    } catch (OutOfMemoryError e) {
-                        visatApp.showOutOfMemoryErrorDialog("The image view could not be created.");
-                        return;
-                    } catch (Exception e) {
-                        visatApp.handleUnknownException(e);
-                        return;
-                    }
-
-                    ProductSceneView view = new ProductSceneView(productSceneImage);
-                    openInternalFrame(view);
+                final ProductSceneImage productSceneImage;
+                try {
+                    productSceneImage = get();
+                } catch (OutOfMemoryError ignored) {
+                    visatApp.showOutOfMemoryErrorDialog("The image view could not be created.");
+                    return;
+                } catch (Exception e) {
+                    visatApp.handleUnknownException(e);
+                    return;
                 }
-            };
+
+                ProductSceneView view = new ProductSceneView(productSceneImage);
+                openInternalFrame(view);
+            }
+        };
         visatApp.getExecutorService().submit(worker);
     }
 
@@ -103,7 +109,7 @@ public class ShowImageViewAction extends ExecCommand {
             @Override
             public void nodeChanged(final ProductNodeEvent event1) {
                 if (event1.getSourceNode() == selectedProductNode &&
-                        event1.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
+                    event1.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
                     internalFrame.setTitle(createInternalFrameTitle(selectedProductNode));
                 }
             }
@@ -130,8 +136,7 @@ public class ShowImageViewAction extends ExecCommand {
         return UIUtils.getUniqueFrameTitle(VisatApp.getApp().getAllInternalFrames(), raster.getDisplayName());
     }
 
-    private ProductSceneImage createProductSceneImage(final RasterDataNode raster,
-                                                     ProgressMonitor pm) {
+    private ProductSceneImage createProductSceneImage(final RasterDataNode raster, ProgressMonitor pm) {
         Debug.assertNotNull(raster);
         Debug.assertNotNull(pm);
         final VisatApp app = VisatApp.getApp();
@@ -146,6 +151,7 @@ public class ShowImageViewAction extends ExecCommand {
             } else {
                 sceneImage = new ProductSceneImage(raster, app.getPreferences(), SubProgressMonitor.create(pm, 1));
             }
+            sceneImage.initBitmaskLayer();
         } finally {
             pm.done();
         }
