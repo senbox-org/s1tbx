@@ -316,19 +316,16 @@ public class ImageLayer extends Layer {
             template.getDescriptor(PROPERTY_NAME_MULTI_LEVEL_SOURCE).setTransient(true);
 
             template.addModel(createDefaultValueModel(ImageLayer.PROPERTY_NAME_BORDER_SHOWN,
+                                                      ImageLayer.DEFAULT_BORDER_SHOWN,
                                                       ImageLayer.DEFAULT_BORDER_SHOWN));
-            template.getDescriptor(ImageLayer.PROPERTY_NAME_BORDER_SHOWN).setDefaultValue(
-                    ImageLayer.DEFAULT_BORDER_SHOWN);
 
             template.addModel(createDefaultValueModel(ImageLayer.PROPERTY_NAME_BORDER_COLOR,
+                                                      ImageLayer.DEFAULT_BORDER_COLOR,
                                                       ImageLayer.DEFAULT_BORDER_COLOR));
-            template.getDescriptor(ImageLayer.PROPERTY_NAME_BORDER_COLOR).setDefaultValue(
-                    ImageLayer.DEFAULT_BORDER_COLOR);
 
             template.addModel(createDefaultValueModel(ImageLayer.PROPERTY_NAME_BORDER_WIDTH,
+                                                      ImageLayer.DEFAULT_BORDER_WIDTH,
                                                       ImageLayer.DEFAULT_BORDER_WIDTH));
-            template.getDescriptor(ImageLayer.PROPERTY_NAME_BORDER_WIDTH).setDefaultValue(
-                    ImageLayer.DEFAULT_BORDER_WIDTH);
 
             return template;
         }
