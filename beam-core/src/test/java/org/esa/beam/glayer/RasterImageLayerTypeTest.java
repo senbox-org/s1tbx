@@ -1,8 +1,6 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.datamodel.Band;
@@ -10,7 +8,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 
 import java.awt.Color;
@@ -28,7 +27,7 @@ public class RasterImageLayerTypeTest extends LayerTypeTest {
         final ValueContainer template = layerType.getConfigurationTemplate();
         assertNotNull(template);
 
-        ensurePropertyIsDeclaredButNotDefined(template, "rasters", RasterDataNode[].class);
+        ensurePropertyIsDeclaredButNotDefined(template, "raster", RasterDataNode.class);
         ensurePropertyIsDefined(template, "border.shown", Boolean.class);
         ensurePropertyIsDefined(template, "border.width", Double.class);
         ensurePropertyIsDefined(template, "border.color", Color.class);
@@ -55,7 +54,7 @@ public class RasterImageLayerTypeTest extends LayerTypeTest {
         final Band raster = new VirtualBand("A", ProductData.TYPE_INT32, 10, 10, "42");
         product.addBand(raster);
 
-        final ImageLayer imageLayer = (ImageLayer) layerType.createLayer(new RasterDataNode[]{raster}, null);
+        final ImageLayer imageLayer = (ImageLayer) layerType.createLayer(raster, null);
         assertNotNull(imageLayer.getMultiLevelSource());
     }
 

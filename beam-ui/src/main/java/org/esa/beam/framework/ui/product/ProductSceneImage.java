@@ -250,7 +250,7 @@ public class ProductSceneImage implements LayerContext {
     private Layer createBaseImageLayer() {
         final RasterImageLayerType type = (RasterImageLayerType) LayerType.getLayerType(
                 RasterImageLayerType.class.getName());
-        final Layer layer = type.createLayer(getRasters(), bandImageMultiLevelSource);
+        final Layer layer = type.createLayer(getRaster(), bandImageMultiLevelSource);
         layer.setName(getRaster().getDisplayName());
         layer.setVisible(true);
         layer.setId(ProductSceneView.BASE_IMAGE_LAYER_ID);

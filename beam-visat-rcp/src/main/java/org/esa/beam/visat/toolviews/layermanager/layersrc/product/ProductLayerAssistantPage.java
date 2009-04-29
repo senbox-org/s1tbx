@@ -92,7 +92,7 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         LayerType type = LayerType.getLayerType(RasterImageLayerType.class.getName());
         ValueContainer configuration = type.getConfigurationTemplate();
         try {
-            configuration.setValue(RasterImageLayerType.PROPERTY_NAME_RASTERS, new RasterDataNode[]{rasterDataNode});
+            configuration.setValue(RasterImageLayerType.PROPERTY_NAME_RASTER, rasterDataNode);
             configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
                                    rasterDataNode.getGeoCoding().getGridToModelTransform());
         } catch (ValidationException e) {

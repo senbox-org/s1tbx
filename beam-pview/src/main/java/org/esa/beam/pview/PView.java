@@ -383,7 +383,7 @@ public class PView {
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
             final Band band = product.getBand(name);
-            final Layer imageLayer = type.createLayer(new RasterDataNode[]{band}, null);
+            final Layer imageLayer = type.createLayer(band, null);
             imageLayer.setName(band.getName());
             imageLayer.setVisible(i == 0);
             collectionLayer.getChildren().add(imageLayer);
