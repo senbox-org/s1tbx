@@ -1,8 +1,10 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.product;
 
 
-import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.jidesoft.tree.AbstractTreeModel;
@@ -14,7 +16,7 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.glevel.BandImageMultiLevelSource;
+import org.esa.beam.glayer.RasterImageLayerType;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -87,9 +89,15 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
     public boolean performFinish() {
         final RasterDataNode rasterDataNode = (RasterDataNode) tree.getSelectionPath().getLastPathComponent();
 
-        BandImageMultiLevelSource bandImageMultiLevelSource =
-                BandImageMultiLevelSource.create(rasterDataNode, ProgressMonitor.NULL);
-        final ImageLayer imageLayer = new ImageLayer(bandImageMultiLevelSource);
+        LayerType type = LayerType.getLayerType(RasterImageLayerType.class.getName());
+        ValueContainer configuration = type.getConfigurationTemplate();
+        try {
+            configuration.setValue(RasterImageLayerType.PROPERTY_NAME_RASTERS, new RasterDataNode[]{rasterDataNode});
+        } catch (ValidationException e) {
+            throw new IllegalArgumentException(e);
+        }
+        final ImageLayer imageLayer = (ImageLayer) type.createLayer(getContext().getLayerContext(),
+                                                                    configuration);
         imageLayer.setName(rasterDataNode.getDisplayName());
         imageLayer.setVisible(true);
         final Style style = imageLayer.getStyle();
