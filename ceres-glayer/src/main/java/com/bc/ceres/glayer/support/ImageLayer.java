@@ -1,9 +1,7 @@
 package com.bc.ceres.glayer.support;
 
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -41,6 +39,7 @@ public class ImageLayer extends Layer {
     private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
 
     public static final String PROPERTY_NAME_MULTI_LEVEL_SOURCE = "multiLevelSource";
+    public static final String PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
     public static final String PROPERTY_NAME_BORDER_SHOWN = "border.shown";
     public static final String PROPERTY_NAME_BORDER_WIDTH = "border.width";
     public static final String PROPERTY_NAME_BORDER_COLOR = "border.color";
@@ -280,13 +279,24 @@ public class ImageLayer extends Layer {
 
     private static ValueContainer addMultiLevelSourceModel(ValueContainer valueContainer,
                                                            MultiLevelSource multiLevelSource) {
-        final DefaultValueAccessor valueAccessor = new DefaultValueAccessor();
-        valueAccessor.setValue(multiLevelSource);
-
-        final ValueDescriptor descriptor = new ValueDescriptor(PROPERTY_NAME_MULTI_LEVEL_SOURCE,
-                                                               MultiLevelSource.class);
-        final ValueModel valueModel = new ValueModel(descriptor, valueAccessor);
-        valueContainer.addModel(valueModel);
+//        final DefaultValueAccessor multiLevelSourceAccessor = new DefaultValueAccessor();
+//        multiLevelSourceAccessor.setValue(multiLevelSource);
+//        final ValueDescriptor multiLevelSourceDescriptor = new ValueDescriptor(PROPERTY_NAME_MULTI_LEVEL_SOURCE,
+//                                                                               MultiLevelSource.class);
+//        valueContainer.addModel(new ValueModel(multiLevelSourceDescriptor, multiLevelSourceAccessor));
+//
+//        final DefaultValueAccessor transformAccessor = new DefaultValueAccessor();
+//        transformAccessor.setValue(multiLevelSource.getModel().getImageToModelTransform(0));
+//        final ValueDescriptor transformDescriptor = new ValueDescriptor(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
+//                                                                        AffineTransform.class);
+//        valueContainer.addModel(new ValueModel(transformDescriptor, transformAccessor));
+        try {
+            valueContainer.setValue(PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
+            valueContainer.setValue(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
+                                    multiLevelSource.getModel().getImageToModelTransform(0));
+        } catch (ValidationException e) {
+            throw new IllegalArgumentException(e);
+        }
 
         return valueContainer;
     }
@@ -314,6 +324,9 @@ public class ImageLayer extends Layer {
 
             template.addModel(createDefaultValueModel(PROPERTY_NAME_MULTI_LEVEL_SOURCE, MultiLevelSource.class));
             template.getDescriptor(PROPERTY_NAME_MULTI_LEVEL_SOURCE).setTransient(true);
+
+            template.addModel(createDefaultValueModel(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class));
+            template.getDescriptor(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
 
             template.addModel(createDefaultValueModel(ImageLayer.PROPERTY_NAME_BORDER_SHOWN,
                                                       ImageLayer.DEFAULT_BORDER_SHOWN,
