@@ -1,10 +1,8 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.grender.Rendering;
@@ -30,7 +28,8 @@ import java.awt.geom.Rectangle2D;
 
 public class PlacemarkLayer extends Layer {
 
-    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
+    private static final PlacemarkLayerType LAYER_TYPE = (PlacemarkLayerType) LayerType.getLayerType(
+            PlacemarkLayerType.class.getName());
 
     public static final String PROPERTY_NAME_TEXT_FONT = "text.font";
     public static final String PROPERTY_NAME_TEXT_ENABLED = "text.enabled";
@@ -54,9 +53,11 @@ public class PlacemarkLayer extends Layer {
 
     protected PlacemarkLayer(LayerType layerType, ValueContainer configuration) {
         super(layerType, configuration);
-        this.product = (Product) configuration.getValue(Type.PROPERTY_PRODUCT);
-        this.placemarkDescriptor = (PlacemarkDescriptor) configuration.getValue(Type.PROPERTY_PLACEMARK_DESCRIPTOR);
-        this.imageToModelTransform = (AffineTransform) configuration.getValue(Type.PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
+        this.product = (Product) configuration.getValue(PlacemarkLayerType.PROPERTY_PRODUCT);
+        this.placemarkDescriptor = (PlacemarkDescriptor) configuration.getValue(
+                PlacemarkLayerType.PROPERTY_PLACEMARK_DESCRIPTOR);
+        this.imageToModelTransform = (AffineTransform) configuration.getValue(
+                PlacemarkLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
         this.pnl = new MyProductNodeListenerAdapter();
         product.addProductNodeListener(pnl);
 
@@ -67,23 +68,24 @@ public class PlacemarkLayer extends Layer {
     }
 
 
-
-    private static ValueContainer initConfiguration(ValueContainer configurationTemplate, Product product, PlacemarkDescriptor placemarkDescriptor,
-                          AffineTransform imageToModelTransform) {
+    private static ValueContainer initConfiguration(ValueContainer configurationTemplate, Product product,
+                                                    PlacemarkDescriptor placemarkDescriptor,
+                                                    AffineTransform imageToModelTransform) {
         try {
-            configurationTemplate.setValue(Type.PROPERTY_PRODUCT, product);
-            configurationTemplate.setValue(Type.PROPERTY_PLACEMARK_DESCRIPTOR, placemarkDescriptor);
-            configurationTemplate.setValue(Type.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
+            configurationTemplate.setValue(PlacemarkLayerType.PROPERTY_PRODUCT, product);
+            configurationTemplate.setValue(PlacemarkLayerType.PROPERTY_PLACEMARK_DESCRIPTOR, placemarkDescriptor);
+            configurationTemplate.setValue(PlacemarkLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
         } catch (ValidationException e) {
             throw new IllegalArgumentException(e);
         }
 
         return configurationTemplate;
     }
-    
-    protected PlacemarkLayer(Type type, Product product, PlacemarkDescriptor placemarkDescriptor,
+
+    protected PlacemarkLayer(PlacemarkLayerType type, Product product, PlacemarkDescriptor placemarkDescriptor,
                              AffineTransform imageToModelTransform) {
-        this(type, initConfiguration(type.getConfigurationTemplate(), product, placemarkDescriptor, imageToModelTransform));
+        this(type,
+             initConfiguration(type.getConfigurationTemplate(), product, placemarkDescriptor, imageToModelTransform));
     }
 
     @Override
@@ -242,69 +244,6 @@ public class PlacemarkLayer extends Layer {
 
     public void setTextBgColor(Color color) {
         getStyle().setProperty(PROPERTY_NAME_TEXT_BG_COLOR, color);
-    }
-
-    public static class Type extends LayerType {
-
-        public static final String PROPERTY_PRODUCT = "product";
-        public static final String PROPERTY_PLACEMARK_DESCRIPTOR = "placemarkDescriptor";
-        public static final String PROPERTY_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
-
-        @Override
-        public String getName() {
-            return "Placemark";
-        }
-
-        @Override
-        public boolean isValidFor(LayerContext ctx) {
-            return true;
-        }
-
-        @Override
-        protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
-            return new PlacemarkLayer(this, configuration);
-        }
-
-        @Override
-        public ValueContainer getConfigurationTemplate() {
-            final ValueContainer valueContainer = new ValueContainer();
-
-            final ValueModel textBgColorModel = createDefaultValueModel(PROPERTY_NAME_TEXT_BG_COLOR,
-                                                                        DEFAULT_TEXT_BG_COLOR);
-            textBgColorModel.getDescriptor().setDefaultValue(DEFAULT_TEXT_BG_COLOR);
-            valueContainer.addModel(textBgColorModel);
-
-            final ValueModel textFgColorModel = createDefaultValueModel(PROPERTY_NAME_TEXT_FG_COLOR,
-                                                                        DEFAULT_TEXT_FG_COLOR);
-            textFgColorModel.getDescriptor().setDefaultValue(DEFAULT_TEXT_FG_COLOR);
-            valueContainer.addModel(textFgColorModel);
-
-            final ValueModel textEnabledModel = createDefaultValueModel(PROPERTY_NAME_TEXT_ENABLED,
-                                                                        DEFAULT_TEXT_ENABLED);
-            textEnabledModel.getDescriptor().setDefaultValue(DEFAULT_TEXT_ENABLED);
-            valueContainer.addModel(textEnabledModel);
-
-            final ValueModel textFontModel = createDefaultValueModel(PROPERTY_NAME_TEXT_FONT,
-                                                                     DEFAULT_TEXT_FONT);
-            textEnabledModel.getDescriptor().setDefaultValue(DEFAULT_TEXT_FONT);
-            valueContainer.addModel(textFontModel);
-
-            final ValueModel productModel = createDefaultValueModel(PROPERTY_PRODUCT, Product.class);
-            productModel.getDescriptor().setNotNull(true);
-            valueContainer.addModel(productModel);
-
-            final ValueModel placemarkModel = createDefaultValueModel(PROPERTY_PLACEMARK_DESCRIPTOR,
-                                                                      PlacemarkDescriptor.class);
-            placemarkModel.getDescriptor().setNotNull(true);
-            valueContainer.addModel(placemarkModel);
-
-            final ValueModel transformModel = createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM,
-                                                                      AffineTransform.class);
-            placemarkModel.getDescriptor().setNotNull(true);
-            valueContainer.addModel(transformModel);
-
-            return valueContainer;
-        }
     }
 
     private class MyProductNodeListenerAdapter extends ProductNodeListenerAdapter {
