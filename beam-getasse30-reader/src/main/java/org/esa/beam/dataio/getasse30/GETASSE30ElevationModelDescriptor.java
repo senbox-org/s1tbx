@@ -19,6 +19,7 @@ package org.esa.beam.dataio.getasse30;
 import org.esa.beam.framework.dataop.dem.AbstractElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
@@ -74,9 +75,15 @@ public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDes
     }
 
     @Override
+    @Deprecated
     public ElevationModel createDem() {
+        return createDem(Resampling.BILINEAR_INTERPOLATION);
+    }
+
+    @Override
+    public ElevationModel createDem(Resampling resampling) {
         try {
-            return new GETASSE30ElevationModel(this);
+            return new GETASSE30ElevationModel(this, resampling);
         } catch (IOException e) {
             return null;
         }
