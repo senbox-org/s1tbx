@@ -1,22 +1,21 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
+import static junit.framework.Assert.assertSame;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
-import java.awt.geom.AffineTransform;
 import java.awt.Color;
-
-import static junit.framework.Assert.assertSame;
+import java.awt.geom.AffineTransform;
 
 public class BitmaskLayerTypeTest extends LayerTypeTest {
 
@@ -31,8 +30,8 @@ public class BitmaskLayerTypeTest extends LayerTypeTest {
         assertNotNull(template);
         ensurePropertyIsDeclaredButNotDefined(template, "bitmask.bitmaskDef", BitmaskDef.class);
         ensurePropertyIsDeclaredButNotDefined(template, "bitmask.product", Product.class);
+        ensurePropertyIsDeclaredButNotDefined(template, "imageToModelTransform", AffineTransform.class);
 
-        ensurePropertyIsDefined(template, "bitmask.i2mTransform", AffineTransform.class);
         ensurePropertyIsDefined(template, "border.shown", Boolean.class);
         ensurePropertyIsDefined(template, "border.width", Double.class);
         ensurePropertyIsDefined(template, "border.color", Color.class);
@@ -48,7 +47,7 @@ public class BitmaskLayerTypeTest extends LayerTypeTest {
 
         final ValueContainer config = getLayerType().getConfigurationTemplate();
         config.setValue("bitmask.product", product);
-        config.setValue("bitmask.i2mTransform", new AffineTransform());
+        config.setValue("imageToModelTransform", new AffineTransform());
         config.setValue("bitmask.bitmaskDef", bitmaskDef);
 
         final Layer layer = getLayerType().createLayer(null, config);

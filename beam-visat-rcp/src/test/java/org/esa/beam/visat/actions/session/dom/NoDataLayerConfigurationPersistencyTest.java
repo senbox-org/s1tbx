@@ -1,15 +1,14 @@
 package org.esa.beam.visat.actions.session.dom;
 
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.binding.ValueContainer;
-import org.esa.beam.glayer.NoDataLayerType;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.junit.Before;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.glayer.NoDataLayerType;
 import org.junit.After;
+import org.junit.Before;
 
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
@@ -42,7 +41,7 @@ public class NoDataLayerConfigurationPersistencyTest extends AbstractLayerConfig
 
         configuration.setValue("noDataOverlay.referencedRaster", raster);
         configuration.setValue("noDataOverlay.color", new Color(17, 11, 67));
-        configuration.setValue("noDataOverlay.imageToModelTransform", new AffineTransform());
+        configuration.setValue("imageToModelTransform", new AffineTransform());
 
         return layerType.createLayer(null, configuration);
     }

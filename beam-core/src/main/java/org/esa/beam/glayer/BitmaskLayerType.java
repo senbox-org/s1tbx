@@ -26,7 +26,6 @@ public class BitmaskLayerType extends ImageLayer.Type {
 
     public static final String PROPERTY_BITMASKDEF = "bitmask.bitmaskDef";
     public static final String PROPERTY_PRODUCT = "bitmask.product";
-    public static final String PROPERTY_IMAGE_TO_MODEL_TRANSFORM = "bitmask.i2mTransform";
 
     @Override
     public String getName() {
@@ -40,7 +39,7 @@ public class BitmaskLayerType extends ImageLayer.Type {
         try {
             configuration.setValue(BitmaskLayerType.PROPERTY_BITMASKDEF, bitmaskDef);
             configuration.setValue(BitmaskLayerType.PROPERTY_PRODUCT, raster.getProduct());
-            configuration.setValue(BitmaskLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
+            configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
         } catch (ValidationException e) {
             throw new IllegalStateException(e);
         }
@@ -72,7 +71,8 @@ public class BitmaskLayerType extends ImageLayer.Type {
     private MultiLevelSource createMultiLevelSource(ValueContainer configuration) {
         final BitmaskDef bitmaskDef = (BitmaskDef) configuration.getValue(PROPERTY_BITMASKDEF);
         final Product product = (Product) configuration.getValue(PROPERTY_PRODUCT);
-        final AffineTransform transform = (AffineTransform) configuration.getValue(PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
+        final AffineTransform transform = (AffineTransform) configuration.getValue(
+                ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
 
         return MaskImageMultiLevelSource.create(product, bitmaskDef.getColor(), bitmaskDef.getExpr(), false, transform);
     }
@@ -101,10 +101,6 @@ public class BitmaskLayerType extends ImageLayer.Type {
         vc.addModel(createDefaultValueModel(PROPERTY_PRODUCT, Product.class));
         vc.getModel(PROPERTY_PRODUCT).getDescriptor().setNotNull(true);
 
-        vc.addModel(createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM,
-                                            new AffineTransform(),
-                                            new AffineTransform()));
-
         return vc;
     }
 
@@ -114,11 +110,13 @@ public class BitmaskLayerType extends ImageLayer.Type {
         try {
             configuration.setValue(PROPERTY_BITMASKDEF, bitmaskDef);
             configuration.setValue(PROPERTY_PRODUCT, product);
-            configuration.setValue(PROPERTY_IMAGE_TO_MODEL_TRANSFORM, i2m);
+            configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2m);
         } catch (ValidationException e) {
             throw new IllegalArgumentException(e);
         }
 
         return createLayer(null, configuration);
     }
+
+
 }

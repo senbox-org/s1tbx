@@ -287,7 +287,7 @@ public class ProductSceneImage implements LayerContext {
         try {
             configTemplate.setValue(NoDataLayerType.PROPERTY_COLOR, color);
             configTemplate.setValue(NoDataLayerType.PROPERTY_REFERENCED_RASTER, getRaster());
-            configTemplate.setValue(NoDataLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
+            configTemplate.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
         } catch (ValidationException e) {
             throw new IllegalArgumentException(e);
         }
@@ -384,6 +384,7 @@ public class ProductSceneImage implements LayerContext {
             template.setValue(RoiLayerType.PROPERTY_COLOR, color);
             template.setValue(RoiLayerType.PROPERTY_TRANSPARENCY, transparency);
             template.setValue(RoiLayerType.PROPERTY_REFERENCED_RASTER, getRaster());
+            template.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
         } catch (ValidationException e) {
             throw new IllegalArgumentException(e);
         }

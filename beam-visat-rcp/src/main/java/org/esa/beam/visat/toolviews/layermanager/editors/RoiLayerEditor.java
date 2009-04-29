@@ -45,7 +45,7 @@ public class RoiLayerEditor extends AbstractBindingLayerEditor {
                 final RasterDataNode raster = (RasterDataNode) style.getProperty(
                         RoiLayerType.PROPERTY_REFERENCED_RASTER);
                 final AffineTransform transform = (AffineTransform) style.getProperty(
-                        RoiLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
+                        ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
                 MultiLevelSource multiLevelSource = RoiImageMultiLevelSource.create(raster, newColor, transform);
 
                 layer.setMultiLevelSource(multiLevelSource);

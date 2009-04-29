@@ -26,7 +26,6 @@ public class RoiLayerType extends ImageLayer.Type {
     public static final String PROPERTY_COLOR = "roiOverlay.color";
     public static final String PROPERTY_TRANSPARENCY = "roiOverlay.transparency";
     public static final String PROPERTY_REFERENCED_RASTER = "roiOverlay.referencedRaster";
-    public static final String PROPERTY_IMAGE_TO_MODEL_TRANSFORM = "roiOverlay.imageToModelTransform";
 
     @Override
     public String getName() {
@@ -40,9 +39,9 @@ public class RoiLayerType extends ImageLayer.Type {
         if (configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
             final MultiLevelSource multiLevelSource;
             if (raster.getROIDefinition() != null && raster.getROIDefinition().isUsable()) {
-                final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(
-                        PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
                 final Color color = (Color) configuration.getValue(PROPERTY_COLOR);
+                final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(
+                        ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
                 multiLevelSource = RoiImageMultiLevelSource.create(raster, color, i2mTransform);
             } else {
                 multiLevelSource = MultiLevelSource.NULL;
@@ -77,10 +76,6 @@ public class RoiLayerType extends ImageLayer.Type {
 
         template.addModel(createDefaultValueModel(PROPERTY_COLOR, Color.RED, Color.RED));
         template.addModel(createDefaultValueModel(PROPERTY_TRANSPARENCY, 0.5, 0.5));
-        final ValueModel transformModel = createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM,
-                                                                  AffineTransform.class);
-        transformModel.getDescriptor().setNotNull(true);
-        template.addModel(transformModel);
 
         return template;
     }
@@ -89,6 +84,8 @@ public class RoiLayerType extends ImageLayer.Type {
         Color color = (Color) configuration.getValue(PROPERTY_COLOR);
         Double transparency = (Double) configuration.getValue(PROPERTY_TRANSPARENCY);
         RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_REFERENCED_RASTER);
+        AffineTransform i2mTransform = (AffineTransform) configuration.getValue(
+                ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
         if (transparency == null) {
             transparency = 0.0;
         }
@@ -97,6 +94,7 @@ public class RoiLayerType extends ImageLayer.Type {
         style.setOpacity(1.0 - transparency);
         style.setProperty(PROPERTY_COLOR, color);
         style.setProperty(PROPERTY_REFERENCED_RASTER, raster);
+        style.setProperty(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
 
         style.setComposite(layer.getStyle().getComposite());
 

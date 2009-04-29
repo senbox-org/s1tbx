@@ -11,6 +11,7 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 
 import java.awt.Color;
+import java.awt.geom.AffineTransform;
 
 public class BitmaskLayerConfigurationPersistencyTest extends AbstractLayerConfigurationPersistencyTest {
 
@@ -39,6 +40,7 @@ public class BitmaskLayerConfigurationPersistencyTest extends AbstractLayerConfi
         assertNotNull(originalConfiguration);
 
         originalConfiguration.setValue("bitmask.bitmaskDef", bitmaskDef);
+        originalConfiguration.setValue("imageToModelTransform", new AffineTransform());
         originalConfiguration.setValue("bitmask.product", bitmaskDef.getProduct());
 
         return layerType.createLayer(null, originalConfiguration);

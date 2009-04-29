@@ -150,7 +150,7 @@ public class Session {
             final SessionDomConverter domConverter = new SessionDomConverter(productManager);
             final DomElement element = new DefaultDomElement("configuration");
             domConverter.convertValueToDom(configuration, element);
-            layerRefs[i] = new LayerRef(layer.getLayerType().getClass(),
+            layerRefs[i] = new LayerRef(layer.getLayerType().getClass().getName(),
                                         layer.getId(),
                                         layer.getName(),
                                         layer.isVisible(),
@@ -313,7 +313,7 @@ public class Session {
     private void addLayerRef(Layer parentLayer, LayerRef ref, ProductManager productManager) throws
                                                                                              ConversionException,
                                                                                              ValidationException {
-        final LayerType type = LayerType.getLayerType(ref.layerType.getName());
+        final LayerType type = LayerType.getLayerType(ref.layerTypeName);
         final SessionDomConverter converter = new SessionDomConverter(productManager);
         final ValueContainer template = type.getConfigurationTemplate();
         converter.convertDomToValue(ref.configuration, template);
@@ -407,7 +407,7 @@ public class Session {
     public static class LayerRef {
 
         @XStreamAlias("type")
-        final Class<? extends LayerType> layerType;
+        final String layerTypeName;
         final String id;
         final String name;
         final boolean visible;
@@ -416,10 +416,10 @@ public class Session {
         final DomElement configuration;
         final LayerRef[] children;
 
-        public LayerRef(Class<? extends LayerType> layerType, String id, String name, boolean visible, int index,
+        public LayerRef(String layerTypeName, String id, String name, boolean visible, int index,
                         DomElement configuration,
                         LayerRef[] children) {
-            this.layerType = layerType;
+            this.layerTypeName = layerTypeName;
             this.id = id;
             this.name = name;
             this.visible = visible;

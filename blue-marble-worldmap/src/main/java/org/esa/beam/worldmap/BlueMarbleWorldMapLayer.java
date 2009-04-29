@@ -1,11 +1,16 @@
 package org.esa.beam.worldmap;
 
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.grender.Rendering;
 import org.esa.beam.glevel.TiledFileMultiLevelSource;
 
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -19,45 +24,71 @@ import java.util.List;
  * @version $Revision: $ $Date: $
  * @since BEAM 4.6
  */
-public class BlueMarbleWorldMapLayer {
+public class BlueMarbleWorldMapLayer extends Layer {
 
     private static final String WORLD_IMAGE_DIR_PROPERTY_NAME = "org.esa.beam.pview.worldImageDir";
     private static final String WORLD_MAP_LAYER_NAME = "World Map (NASA Blue Marble)";
+    private ImageLayer layerDelegate;
 
-    private BlueMarbleWorldMapLayer() {
+    public BlueMarbleWorldMapLayer(ValueContainer configuration) {
+        super(LayerType.getLayerType(BlueMarbleLayerType.class.getName()), configuration);
+        final ImageLayer.Type imageLayerType = (ImageLayer.Type) LayerType.getLayerType(
+                ImageLayer.Type.class.getName());
+        final ValueContainer template = imageLayerType.getConfigurationTemplate();
+        final MultiLevelSource multiLevelSource = createMultiLevelSource();
+
+        try {
+            template.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
+            template.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
+                              multiLevelSource.getModel().getImageToModelTransform(0));
+        } catch (ValidationException e) {
+            throw new IllegalStateException(e);
+        }
+        layerDelegate = new ImageLayer(imageLayerType, template);
+        final Style style = layerDelegate.getStyle();
+        style.setOpacity(1.0);
+        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
+        setName(WORLD_MAP_LAYER_NAME);
+        setVisible(true);
     }
 
-    /**
-     * Creates a new world map layer. Its visibility state is initially set to not visible.
-     *
-     * @return The world map layer.
-     */
-    public static Layer createWorldMapLayer() {
+    @Override
+    protected void renderLayer(Rendering rendering) {
+        layerDelegate.render(rendering);
+
+    }
+
+    @Override
+    protected Rectangle2D getLayerModelBounds() {
+        return layerDelegate.getModelBounds();
+    }
+
+    @Override
+    protected void disposeLayer() {
+        layerDelegate.dispose();
+    }
+
+    @Override
+    public void regenerate() {
+        layerDelegate.regenerate();
+    }
+
+
+    private static MultiLevelSource createMultiLevelSource() {
         String dirPath = System.getProperty(WORLD_IMAGE_DIR_PROPERTY_NAME);
         if (dirPath == null || dirPath.isEmpty()) {
             dirPath = getDirPathFromModule();
         }
         if (dirPath == null) {
-            return null;
+            throw new IllegalStateException("World image Directory not found");
         }
         final MultiLevelSource multiLevelSource;
         try {
             multiLevelSource = TiledFileMultiLevelSource.create(new File(dirPath), false);
         } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            throw new IllegalStateException(e);
         }
-        final ImageLayer worldMapLayer = new ImageLayer(multiLevelSource);
-        worldMapLayer.setName(WORLD_MAP_LAYER_NAME);
-        worldMapLayer.setVisible(false);
-        final Style style = worldMapLayer.getStyle();
-        style.setOpacity(1.0);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
-
-        return worldMapLayer;
-
+        return multiLevelSource;
     }
 
     public static boolean hasWorldMapChildLayer(Layer layer) {

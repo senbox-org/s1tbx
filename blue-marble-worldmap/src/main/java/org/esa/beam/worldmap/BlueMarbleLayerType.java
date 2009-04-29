@@ -3,7 +3,7 @@ package org.esa.beam.worldmap;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
-import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glayer.LayerType;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -12,7 +12,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @version $Revision: $ $Date: $
  * @since BEAM 4.6
  */
-public class BlueMarbleLayerType extends ImageLayer.Type {
+public class BlueMarbleLayerType extends LayerType {
 
     @Override
     public String getName() {
@@ -30,9 +30,12 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
 
     @Override
     protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
-        Layer worldMapLayer = BlueMarbleWorldMapLayer.createWorldMapLayer();
-        worldMapLayer.setVisible(true);
-        return worldMapLayer;
+        return new BlueMarbleWorldMapLayer(configuration);
     }
 
+    @Override
+    public ValueContainer getConfigurationTemplate() {
+        return new ValueContainer();
+
+    }
 }

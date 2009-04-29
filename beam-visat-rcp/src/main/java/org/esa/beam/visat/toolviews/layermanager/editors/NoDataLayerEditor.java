@@ -46,7 +46,7 @@ public class NoDataLayerEditor extends AbstractBindingLayerEditor {
                 final RasterDataNode raster = (RasterDataNode) style.getProperty(
                         NoDataLayerType.PROPERTY_REFERENCED_RASTER);
                 final AffineTransform transform = (AffineTransform) style.getProperty(
-                        NoDataLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
+                        ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
                 MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(raster.getProduct(),
                                                                                      newColor,
                                                                                      raster.getValidMaskExpression(),

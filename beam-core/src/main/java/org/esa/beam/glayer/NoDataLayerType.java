@@ -25,7 +25,6 @@ public class NoDataLayerType extends ImageLayer.Type {
     public static final String PROPERTY_COLOR = "noDataOverlay.color";
     public static final String PROPERTY_TRANSPARENCY = "noDataOverlay.transparency";
     public static final String PROPERTY_REFERENCED_RASTER = "noDataOverlay.referencedRaster";
-    public static final String PROPERTY_IMAGE_TO_MODEL_TRANSFORM = "noDataOverlay.imageToModelTransform";
 
     @Override
     public String getName() {
@@ -37,10 +36,8 @@ public class NoDataLayerType extends ImageLayer.Type {
         final Color color = (Color) configuration.getValue(PROPERTY_COLOR);
         Assert.notNull(color, PROPERTY_COLOR);
         final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_REFERENCED_RASTER);
-        Assert.notNull(raster, PROPERTY_REFERENCED_RASTER);
         final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(
-                PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
-        Assert.notNull(i2mTransform, PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
+                ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
 
         if (configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
             final MultiLevelSource multiLevelSource;
@@ -76,9 +73,6 @@ public class NoDataLayerType extends ImageLayer.Type {
         template.addModel(createDefaultValueModel(PROPERTY_COLOR, Color.class));
         template.getDescriptor(PROPERTY_COLOR).setNotNull(true);
 
-        template.addModel(createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class));
-        template.getDescriptor(PROPERTY_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
-
         return template;
 
     }
@@ -88,7 +82,7 @@ public class NoDataLayerType extends ImageLayer.Type {
         Double transparency = (Double) configuration.getValue(PROPERTY_TRANSPARENCY);
         final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_REFERENCED_RASTER);
         final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(
-                PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
+                ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
         if (transparency == null) {
             transparency = 0.0;
         }
@@ -96,7 +90,7 @@ public class NoDataLayerType extends ImageLayer.Type {
         style.setOpacity(1.0 - transparency);
         style.setProperty(PROPERTY_COLOR, color);
         style.setProperty(PROPERTY_REFERENCED_RASTER, raster);
-        style.setProperty(PROPERTY_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
+        style.setProperty(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
 
         style.setComposite(layer.getStyle().getComposite());
         layer.setStyle(style);
