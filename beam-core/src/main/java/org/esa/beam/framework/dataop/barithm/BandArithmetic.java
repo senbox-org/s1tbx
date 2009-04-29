@@ -276,11 +276,11 @@ public class BandArithmetic {
         if (rasters.length == 0) {
             return validMaskExpression;
         }
-        if (validMaskExpression == null && rasters.length == 1) {
+        final Product contextProduct = products[defaultProductIndex];
+        if (validMaskExpression == null && rasters.length == 1 && contextProduct == rasters[0].getProduct()) {
             return rasters[0].getValidMaskExpression();
         }
 
-        final Product contextProduct = products[defaultProductIndex];
         final List<String> vmes = new ArrayList<String>(rasters.length);
         for (RasterDataNode raster : rasters) {
             String vme = raster.getValidMaskExpression();

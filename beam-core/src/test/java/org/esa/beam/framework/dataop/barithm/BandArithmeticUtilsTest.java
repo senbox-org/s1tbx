@@ -33,7 +33,7 @@ public class BandArithmeticUtilsTest extends TestCase {
 
         rasters = BandArithmetic.getRefRasters("c + w * q - w",
                                                new Product[]{p1});
-        assertNotNull(rasters.length);
+        assertNotNull(rasters);
         assertEquals(3, rasters.length);
         assertSame(p1.getBand("c"), rasters[0]);
         assertSame(p1.getBand("w"), rasters[1]);
@@ -44,7 +44,7 @@ public class BandArithmeticUtilsTest extends TestCase {
 
         rasters = BandArithmetic.getRefRasters("c + ($2.w - $1.w) * $3.q + ($2.l - $1.l) * $3.q",
                                                new Product[]{p1, p3, p2});
-        assertNotNull(rasters.length);
+        assertNotNull(rasters);
         assertEquals(6, rasters.length);
         assertSame(p1.getBand("c"), rasters[0]);
         assertSame(p2.getBand("w"), rasters[1]);
@@ -96,6 +96,12 @@ public class BandArithmeticUtilsTest extends TestCase {
                 "&& ($2.f.LAND && !$2.f.INVALID) " +
                 "&& (f.LAND && !f.INVALID) " +
                 "&& ($3.f.CLOUD && !$3.f.INVALID)", vme);
+        
+        vme = BandArithmetic.getValidMaskExpression("$2.w",
+                                                    new Product[]{p1, p2}, 0,
+                                                    null);
+        assertEquals("($2.f.WATER && !$2.f.INVALID)", vme);
+        System.out.println(vme);
     }
 
     private FlagCoding createFlagCoding() {
