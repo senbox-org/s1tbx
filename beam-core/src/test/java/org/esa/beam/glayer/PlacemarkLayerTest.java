@@ -24,7 +24,7 @@ public class PlacemarkLayerTest extends TestCase {
         final PinDescriptor pmd = PinDescriptor.INSTANCE;
         final AffineTransform i2m = new AffineTransform();
 
-        final LayerType type = LayerType.getLayerType(PlacemarkLayer.Type.class.getName());
+        final LayerType type = LayerType.getLayerType(PlacemarkLayerType.class.getName());
         final ValueContainer template = type.getConfigurationTemplate();
         template.setValue("product", product);
         template.setValue("placemarkDescriptor", pmd);
@@ -34,7 +34,7 @@ public class PlacemarkLayerTest extends TestCase {
         assertEquals(pmd, placemarkLayer.getPlacemarkDescriptor());
         assertEquals(i2m, placemarkLayer.getImageToModelTransform());
 
-        assertTrue(type instanceof PlacemarkLayer.Type);
+        assertTrue(type instanceof PlacemarkLayerType);
         assertNotNull(type.getName());
 
         final ValueContainer configuration = type.getConfigurationCopy(null, placemarkLayer);
