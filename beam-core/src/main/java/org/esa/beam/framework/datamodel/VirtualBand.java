@@ -160,11 +160,6 @@ public class VirtualBand extends Band {
         return numInvalidPixels;
     }
 
-    public VirtualBand(String name, int dataType, int width, int height) {
-        super(name, dataType, width, height);
-
-    }
-
     @Override
     public void setPixelInt(final int x, final int y, final int pixelValue) {
         throw new IllegalStateException("set not supported for virtual band");

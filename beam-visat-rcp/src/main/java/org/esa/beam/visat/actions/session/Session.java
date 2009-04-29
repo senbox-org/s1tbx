@@ -461,7 +461,7 @@ public class Session {
 
             @Override
             public RasterDataNode parse(String text) throws ConversionException {
-                return new VirtualBand(text, ProductData.TYPE_INT32, 10, 10);
+                return new VirtualBand(text, ProductData.TYPE_INT32, 10, 10, "0");
             }
 
             @Override
