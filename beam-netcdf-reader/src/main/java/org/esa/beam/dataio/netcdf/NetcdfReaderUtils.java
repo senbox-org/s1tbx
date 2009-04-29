@@ -336,7 +336,6 @@ public class NetcdfReaderUtils {
     }
 
     private static NcRasterDim getBestRasterDim(Map<NcRasterDim, List<Variable>> variableListMap) {
-
         final NcRasterDim[] keys = variableListMap.keySet().toArray(new NcRasterDim[0]);
         if (keys.length == 0) {
             return null;
@@ -369,8 +368,7 @@ public class NetcdfReaderUtils {
 
     private static void collectVariableLists(Group group, Map<NcRasterDim, List<Variable>> variableLists) {
         final List<Variable> variables = group.getVariables();
-        for (int i = 0; i < variables.size(); i++) {
-            Variable variable = variables.get(i);
+        for (final Variable variable : variables) {
             final int rank = variable.getRank();
             if (rank >= 2 && isValidRasterDataType(variable.getDataType())) {
                 final Dimension dimX = variable.getDimension(rank - 1);
@@ -387,8 +385,7 @@ public class NetcdfReaderUtils {
             }
         }
         final List<Group> subGroups = group.getGroups();
-        for (int i = 0; i < subGroups.size(); i++) {
-            Group subGroup = subGroups.get(i);
+        for (final Group subGroup : subGroups) {
             collectVariableLists(subGroup, variableLists);
         }
     }

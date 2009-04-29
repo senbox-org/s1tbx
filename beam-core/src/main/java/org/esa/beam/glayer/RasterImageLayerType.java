@@ -23,13 +23,14 @@ public class RasterImageLayerType extends ImageLayer.Type {
     protected ImageLayer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
         if (configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
             final RasterDataNode[] rasters = (RasterDataNode[]) configuration.getValue(PROPERTY_NAME_RASTERS);
-            MultiLevelSource levelSource = BandImageMultiLevelSource.create(rasters, ProgressMonitor.NULL);
+            final MultiLevelSource multiLevelSource = BandImageMultiLevelSource.create(rasters, ProgressMonitor.NULL);
             try {
-                configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, levelSource);
+                configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
             } catch (ValidationException e) {
                 throw new IllegalArgumentException(e);
             }
         }
+
         return new ImageLayer(this, configuration);
     }
 
@@ -38,8 +39,8 @@ public class RasterImageLayerType extends ImageLayer.Type {
         final ValueContainer template = super.getConfigurationTemplate();
 
         template.addModel(createDefaultValueModel(PROPERTY_NAME_RASTERS, RasterDataNode[].class));
-        template.getDescriptor(PROPERTY_NAME_RASTERS).setNotNull(true);
         template.getDescriptor(PROPERTY_NAME_RASTERS).setItemAlias("raster");
+        template.getDescriptor(PROPERTY_NAME_RASTERS).setNotNull(true);
 
         return template;
     }

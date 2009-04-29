@@ -232,8 +232,7 @@ public class NetcdfReader extends AbstractProductReader {
     }
 
 
-    private void addGeoCodingToProduct(final NcRasterDim rasterDim) throws
-                                                                    IOException {
+    private void addGeoCodingToProduct(final NcRasterDim rasterDim) throws IOException {
         setMapGeoCoding(rasterDim);
         if (_product.getGeoCoding() == null) {
             setPixelGeoCoding(rasterDim);
@@ -269,8 +268,7 @@ public class NetcdfReader extends AbstractProductReader {
         }
     }
 
-    private void setPixelGeoCoding(final NcRasterDim rasterDim) throws
-                                                                IOException {
+    private void setPixelGeoCoding(final NcRasterDim rasterDim) throws IOException {
         Band lonBand = _product.getBand(NetcdfConstants.LON_VAR_NAME);
         if (lonBand == null) {
             lonBand = _product.getBand(NetcdfConstants.LONGITUDE_VAR_NAME);

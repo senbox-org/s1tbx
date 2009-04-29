@@ -14,6 +14,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import static org.junit.Assert.assertNotNull;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -31,16 +33,28 @@ public abstract class AbstractLayerConfigurationPersistencyTest {
 
     @BeforeClass
     public static void setupClass() {
-        Product product = new Product("P", "T", 10, 10);
-        product.setFileLocation(new File("out/P.dim"));
-        Band band = new VirtualBand("V", ProductData.TYPE_INT32, 10, 10, "42");
-        product.addBand(band);
+        final Product product = createTestProduct("P", "T");
+        addVirtualBand(product, "V", ProductData.TYPE_INT32, "42");
         productManager = new ProductManager();
         productManager.addProduct(product);
     }
 
     public static ProductManager getProductManager() {
         return productManager;
+    }
+
+    protected static Product createTestProduct(String name, String type) {
+        Product product = new Product(name, type, 10, 10);
+        product.setFileLocation(new File(String.format("out/%s.dim", name)));
+
+        return product;
+    }
+
+    protected static RasterDataNode addVirtualBand(Product product, String bandName, int dataType, String expression) {
+        final Band band = new VirtualBand(bandName, dataType, 10, 10, expression);
+        product.addBand(band);
+
+        return band;
     }
 
     @Test
@@ -54,8 +68,11 @@ public abstract class AbstractLayerConfigurationPersistencyTest {
         final ValueContainer restoredConfiguration = (ValueContainer) domConverter.convertDomToValue(originalDomElement,
                                                                                                      layerType.getConfigurationTemplate());
         compareConfigurations(layer.getConfiguration(), restoredConfiguration);
+
         final DomElement restoredDomElement = new DefaultDomElement("configuration");
         domConverter.convertValueToDom(restoredConfiguration, restoredDomElement);
+
+//        assertEquals(originalDomElement.toXml(), restoredDomElement.toXml());
     }
 
     protected abstract Layer createLayer(LayerType layerType) throws Exception;
@@ -65,20 +82,27 @@ public abstract class AbstractLayerConfigurationPersistencyTest {
         for (final ValueModel originalModel : originalConfiguration.getModels()) {
             final ValueDescriptor originalDescriptor = originalModel.getDescriptor();
             final ValueModel restoredModel = restoredConfiguration.getModel(originalDescriptor.getName());
+            final ValueDescriptor restoredDescriptor = restoredModel.getDescriptor();
 
-            org.junit.Assert.assertNotNull(restoredModel);
-            assertSame(originalDescriptor.getName(), restoredModel.getDescriptor().getName());
-            assertSame(originalDescriptor.getType(), restoredModel.getDescriptor().getType());
+            assertNotNull(restoredModel);
+            assertSame(originalDescriptor.getName(), restoredDescriptor.getName());
+            assertSame(originalDescriptor.getType(), restoredDescriptor.getType());
 
-            if (originalModel.getDescriptor().isTransient()) {
-                assertEquals(originalModel.getDescriptor().isTransient(),
-                             restoredModel.getDescriptor().isTransient());
+            if (originalDescriptor.isTransient()) {
+                assertEquals(originalDescriptor.isTransient(), restoredDescriptor.isTransient());
             } else {
                 final Object originalValue = originalModel.getValue();
                 final Object restoredValue = restoredModel.getValue();
                 assertSame(originalValue.getClass(), restoredValue.getClass());
+
                 if (originalValue.getClass().isArray()) {
-                    assertEquals(Array.getLength(originalValue), Array.getLength(restoredValue));
+                    final int originalLength = Array.getLength(originalValue);
+                    final int restoredLength = Array.getLength(restoredValue);
+
+                    assertEquals(originalLength, restoredLength);
+                    for (int i = 0; i < restoredLength; i++) {
+                        assertEquals(Array.get(originalValue, i), Array.get(restoredValue, i));
+                    }
                 }
             }
         }

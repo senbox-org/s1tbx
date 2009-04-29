@@ -3,6 +3,7 @@ package org.esa.beam.visat.actions.session.dom;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.draw.AbstractFigure;
 
 import java.util.HashMap;
@@ -17,6 +18,7 @@ public class SessionElementDomConverterRegistry {
     static {
         INSTANCE.setDomConverter(BitmaskDef.class, new BitmaskDefDomConverter());
         INSTANCE.setDomConverter(AbstractFigure.class, new AbstractFigureDomConverter());
+        INSTANCE.setDomConverter(PlacemarkDescriptor.class, new PlacemarkDescriptorDomConverter());
         INSTANCE.setDomConverter(Product.class, new ProductDomConverter());
         INSTANCE.setDomConverter(RasterDataNode.class, new RasterDataNodeDomConverter());
     }
