@@ -1,7 +1,7 @@
 org.esa.beam.glayer.BitmaskCollectionLayer$Type
 org.esa.beam.glayer.FigureLayerType
 org.esa.beam.glayer.GraticuleLayerType
-org.esa.beam.glayer.PlacemarkLayer$Type
+org.esa.beam.glayer.PlacemarkLayerType
 org.esa.beam.glayer.NoDataLayerType
 org.esa.beam.glayer.RasterImageLayerType
 org.esa.beam.glayer.RoiLayerType
