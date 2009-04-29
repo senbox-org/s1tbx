@@ -12,9 +12,13 @@
         multiple graphical layers to some graphics context.
     </description>
 
+    <dependency>
+        <module>ceres-binding</module>
+    </dependency>
+
     <changelog>
         <![CDATA[
-        ]]>
+                ]]>
     </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>
