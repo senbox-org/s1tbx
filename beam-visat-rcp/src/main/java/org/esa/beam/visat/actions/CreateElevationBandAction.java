@@ -11,6 +11,7 @@ import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
+import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
@@ -111,7 +112,7 @@ public class CreateElevationBandAction extends ExecCommand {
                                             final String bandName,
                                             ProgressMonitor pm) {
 
-        final ElevationModel dem = demDescriptor.createDem();
+        final ElevationModel dem = demDescriptor.createDem(Resampling.BILINEAR_INTERPOLATION);
         final float noDataValue = dem.getDescriptor().getNoDataValue();
         final Band band = product.addBand(bandName, ProductData.TYPE_INT16);
         band.setSynthetic(true);

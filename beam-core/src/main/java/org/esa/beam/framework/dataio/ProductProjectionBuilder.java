@@ -95,7 +95,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                 if (!demDescriptor.isDemInstalled()) {
                     throw new IOException("DEM not installed: " + demName);
                 }
-                productProjectionBuilder.setElevationModel(demDescriptor.createDem());
+                productProjectionBuilder.setElevationModel(demDescriptor.createDem(Resampling.BILINEAR_INTERPOLATION));
             } else {
                 productProjectionBuilder.setElevationModel(null); // force use of elevation from tie-points
             }

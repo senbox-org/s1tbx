@@ -7,6 +7,7 @@
 package org.esa.beam.framework.dataop.dem;
 
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.dataop.resamp.Resampling;
 
 /**
  * An <code>ElevationModel</code> is used to obtain an elevation above a
@@ -30,6 +31,12 @@ public interface ElevationModel {
      * @exception Exception if a non-runtime error occurs, e.g I/O error
      */
     float getElevation(GeoPos geoPos) throws Exception;
+
+    /**
+     * @return The resampling method used.
+     * @since BEAM 4.6
+     */
+    Resampling getResampling();
 
     /**
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
