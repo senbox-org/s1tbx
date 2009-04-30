@@ -24,11 +24,12 @@ public class FloatConverterTest extends AbstractConverterTest {
         testParseSuccess(-45.789f, "-45.789");
         testParseSuccess(0.25f, "+0.25");
         testParseSuccess(null, "");
+        testParseSuccess(Float.NaN, "NaN");
 
         testFormatSuccess("2353465.0", 2353465f);
         testFormatSuccess("-6.0", -6f);
         testFormatSuccess("0.0789", 0.0789f);
-        testFormatSuccess("", null);
+        testFormatSuccess("NaN", Float.NaN);
 
         assertNullCorrectlyHandled();
     }
