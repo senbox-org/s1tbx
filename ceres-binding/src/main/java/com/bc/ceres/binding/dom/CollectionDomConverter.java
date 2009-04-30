@@ -22,7 +22,7 @@ public class CollectionDomConverter implements DomConverter {
     }
 
     @Override
-    public void convertValueToDom(Object value, DomElement parentElement) {
+    public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
         if (value == null) {
             return;
         }

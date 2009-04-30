@@ -594,8 +594,13 @@ public class DefaultDomConverterTest extends TestCase {
     }
 
     public static void convertValueToDom(Object value, Xpp3Dom parentElement) {
-        new DefaultDomConverter(value.getClass(), VALUE_DESCRIPTOR_FACTORY).convertValueToDom(value, new Xpp3DomElement(
-                parentElement));
+        try {
+            new DefaultDomConverter(value.getClass(), VALUE_DESCRIPTOR_FACTORY).convertValueToDom(value,
+                                                                                                  new Xpp3DomElement(
+                                                                                                          parentElement));
+        } catch (ConversionException e) {
+            e.printStackTrace();
+        }
     }
 
 

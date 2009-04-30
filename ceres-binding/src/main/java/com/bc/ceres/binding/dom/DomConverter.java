@@ -45,6 +45,9 @@ public interface DomConverter {
      *
      * @param value         The value to be converted to the DOM.
      * @param parentElement The parent DOM element, which receives the DOM representation of the value.
+     *
+     * @throws com.bc.ceres.binding.ConversionException
+     *          If the conversion fails (e.g. not implemented).
      */
-    void convertValueToDom(Object value, DomElement parentElement);
+    void convertValueToDom(Object value, DomElement parentElement) throws ConversionException;
 }

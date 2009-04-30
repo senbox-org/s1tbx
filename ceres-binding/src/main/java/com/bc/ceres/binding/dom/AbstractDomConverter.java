@@ -37,7 +37,7 @@ public abstract class AbstractDomConverter implements DomConverter {
      * {@inheritDoc}
      */
     @Override
-    public void convertValueToDom(Object value, DomElement parentElement) {
+    public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
         final ValueContainer valueContainer = getValueContainer(value);
         final ValueModel[] models = valueContainer.getModels();
         for (ValueModel model : models) {
@@ -230,7 +230,8 @@ public abstract class AbstractDomConverter implements DomConverter {
      */
     protected abstract DomConverter getDomConverter(ValueDescriptor descriptor);
 
-    protected void convertValueToDomImpl(Object value, Converter converter, DomElement element) {
+    protected void convertValueToDomImpl(Object value, Converter converter, DomElement element) throws
+                                                                                                ConversionException {
         if (converter != null) {
             final String text = converter.format(value);
             if (text != null && !text.isEmpty()) {
