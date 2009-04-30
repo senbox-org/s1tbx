@@ -36,7 +36,7 @@ public class FeatureLayerEditor implements LayerEditor {
     @Override
     public JComponent createControl(AppContext appContext, Layer layer) {
         currentLayer = (FeatureLayer) layer;
-        Hashtable sliderLabelTable = new Hashtable();
+        Hashtable<Integer, JLabel> sliderLabelTable = new Hashtable<Integer, JLabel>();
         sliderLabelTable.put(0, createSliderLabel("0%"));
         sliderLabelTable.put(127, createSliderLabel("50%"));
         sliderLabelTable.put(255, createSliderLabel("100%"));
