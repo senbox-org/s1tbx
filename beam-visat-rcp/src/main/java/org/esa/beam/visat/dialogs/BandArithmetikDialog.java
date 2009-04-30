@@ -339,13 +339,14 @@ public class BandArithmetikDialog extends ModalDialog {
                         } catch (ParseException e1) {
                         }
                         if (rasters != null && rasters.length > 0) {
-                            Set<Product> productSet = new HashSet<Product>(compatibleProducts.length);
+                            Set<Product> externalProducts = new HashSet<Product>(compatibleProducts.length);
                             for (RasterDataNode rdn: rasters) {
-                                productSet.add(rdn.getProduct());
+                                Product product = rdn.getProduct();
+                                if (product != targetProduct) {
+                                    externalProducts.add(product);
+                                }
                             }
-                            if (productSet.size() > 1) {
-                                showForeignProductWarning();
-                            } else if (productSet.size() == 1 && rasters[0].getProduct() != targetProduct) {
+                            if (externalProducts.size() > 0) {
                                 showForeignProductWarning();
                             }
                         }
