@@ -110,8 +110,6 @@ public class BandArithmetikDialog extends ModalDialog {
             Product[] products = getCompatibleProducts();
             int defaultProductIndex = Arrays.asList(products).indexOf(targetProduct);
             final String validMaskExpression = BandArithmetic.getValidMaskExpression(expression, products, defaultProductIndex, null);
-            Debug.trace("BandArithmetikDialog: expression is: " + expression);
-            Debug.trace("BandArithmetikDialog: validMaskExpression is: " + validMaskExpression);
             targetBand.setValidPixelExpression(validMaskExpression);
         } catch (ParseException e) {
             String errorMessage = "The band could not be created.\nAn expression parse error occurred:\n" + e.getMessage(); /*I18N*/
@@ -358,9 +356,9 @@ public class BandArithmetikDialog extends ModalDialog {
     }
     
     private void showForeignProductWarning() {
-        visatApp.showWarningDialog("Your expressions references multiple products.\n" +
-                                   "It will only usable as long as the the referenced products are available.\n" +
-        "Think about enabling 'Write data to disk' to  preserve the data.");
+        visatApp.showWarningDialog("Your expressions references multiple products.\n"
+                + "It will only usable as long as the the referenced products are available.\n"
+                + "Think about enabling 'Write data to disk' to  preserve the data.");
     }
 
     private boolean isValidExpression() {
