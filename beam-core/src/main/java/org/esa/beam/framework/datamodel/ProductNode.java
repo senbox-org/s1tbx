@@ -19,7 +19,6 @@ package org.esa.beam.framework.datamodel;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataio.ProductWriter;
-import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ObjectUtils;
 
@@ -36,14 +35,14 @@ public abstract class ProductNode {
     public final static String PROPERTY_NAME_NAME = "name";
     public final static String PROPERTY_NAME_DESCRIPTION = "description";
     public final static String PROPERTY_NAME_MODIFIED = "modified";
-
-    private transient Product _product;
-    private transient ProductNode _owner;
-    private String _name;
-    private String _description;
-    private transient boolean _modified;
     public final static String PROPERTY_NAME_SELECTED = "selected";
-    private boolean selected;
+
+    private transient Product product;
+    private transient ProductNode owner;
+    private transient boolean modified;
+    private transient boolean selected;
+    private String name;
+    private String description;
 
     /**
      * Constructs a new product node with the given name.
@@ -66,8 +65,8 @@ public abstract class ProductNode {
         Guardian.assertNotNull("name", name);
         name = name.trim();
         Guardian.assertNotNullOrEmpty("name", name);
-        _name = name;
-        _description = description;
+        this.name = name;
+        this.description = description;
     }
 
     /**
@@ -78,9 +77,9 @@ public abstract class ProductNode {
      * @param owner the new owner
      */
     protected void setOwner(ProductNode owner) {
-        if (owner != _owner) {
-            _owner = owner;
-            _product = null;
+        if (owner != this.owner) {
+            this.owner = owner;
+            product = null;
             fireProductNodeChanged(PROPERTY_NAME_OWNER);
             setModified(true);
         }
@@ -90,14 +89,14 @@ public abstract class ProductNode {
      * @return The owner node of this node.
      */
     public ProductNode getOwner() {
-        return _owner;
+        return owner;
     }
 
     /**
      * @return This node's name.
      */
     public String getName() {
-        return _name;
+        return name;
     }
 
     /**
@@ -109,7 +108,7 @@ public abstract class ProductNode {
         Guardian.assertNotNull("name", name);
         String trimmedName = name.trim();
         Guardian.assertNotNullOrEmpty("name contains only spaces", trimmedName);
-        if (!ObjectUtils.equalObjects(_name, trimmedName)) {
+        if (!ObjectUtils.equalObjects(this.name, trimmedName)) {
             if (!isValidNodeName(trimmedName)) {
                 throw new IllegalArgumentException("The given name '" + trimmedName + "' is not a valid node name.");
             }
@@ -127,8 +126,8 @@ public abstract class ProductNode {
     }
 
     private void setNodeName(String trimmedName) {
-        final String oldName = _name;
-        _name = trimmedName;
+        final String oldName = name;
+        name = trimmedName;
         fireProductNodeChanged(PROPERTY_NAME_NAME, oldName);
         setModified(true);
     }
@@ -139,7 +138,7 @@ public abstract class ProductNode {
      * @return a description or <code>null</code>
      */
     public String getDescription() {
-        return _description;
+        return description;
     }
 
     /**
@@ -148,8 +147,8 @@ public abstract class ProductNode {
      * @param description a description, can be <code>null</code>
      */
     public void setDescription(String description) {
-        if (!ObjectUtils.equalObjects(_description, description)) {
-            _description = description;
+        if (!ObjectUtils.equalObjects(this.description, description)) {
+            this.description = description;
             fireProductNodeChanged(PROPERTY_NAME_DESCRIPTION);
             setModified(true);
         }
@@ -161,7 +160,7 @@ public abstract class ProductNode {
      * @return <code>true</code> if so
      */
     public boolean isModified() {
-        return _modified;
+        return modified;
     }
 
     /**
@@ -177,10 +176,10 @@ public abstract class ProductNode {
      * @see org.esa.beam.framework.datamodel.Product#fireNodeChanged
      */
     public void setModified(boolean modified) {
-        boolean oldValue = _modified;
+        boolean oldValue = this.modified;
         if (oldValue != modified) {
-            _modified = modified;
-            if (_modified) {
+            this.modified = modified;
+            if (this.modified) {
                 if (getOwner() != null) {
                     getOwner().setModified(true);
                 }
@@ -204,9 +203,9 @@ public abstract class ProductNode {
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
      */
     public void dispose() {
-        _owner = null;
-        _description = null;
-        _name = null;
+        owner = null;
+        description = null;
+        name = null;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -236,17 +235,17 @@ public abstract class ProductNode {
      * @throws IllegalStateException if this node does not belong to a product
      */
     public Product getProduct() {
-        if (_product == null) {
+        if (product == null) {
             ProductNode owner = this;
             do {
                 if (owner instanceof Product) {
-                    _product = (Product) owner;
+                    product = (Product) owner;
                     break;
                 }
                 owner = owner.getOwner();
             } while (owner != null);
         }
-        return _product;
+        return product;
     }
 
     /**
@@ -474,10 +473,22 @@ public abstract class ProductNode {
     public void removeFromFile(ProductWriter productWriter) {
     }
 
+    /**
+     * No API - don't use.
+     * @return true or false
+     * @deprecated since BEAM 4.6
+     */
+    @Deprecated
     public boolean isSelected() {
         return selected;
     }
 
+    /**
+     * No API - don't use.
+     * @param selected true or false
+     * @deprecated since BEAM 4.6
+     */
+    @Deprecated
     public void setSelected(boolean selected) {
         if (this.selected != selected) {
             this.selected = selected;
