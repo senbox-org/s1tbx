@@ -47,7 +47,7 @@ public class SaveSessionAction extends ExecCommand {
 
     @Override
     public final void updateState(final CommandEvent event) {
-        setEnabled(VisatApp.getApp().getProductManager().getProductCount() > 0);
+        setEnabled(true);
     }
 
     public void saveSession(boolean saveAs) {

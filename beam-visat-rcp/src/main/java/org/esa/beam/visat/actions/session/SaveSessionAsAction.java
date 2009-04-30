@@ -48,8 +48,6 @@ public class SaveSessionAsAction extends ExecCommand {
     @Override
     public final void updateState(final CommandEvent event) {
         final VisatApp app = VisatApp.getApp();
-        setEnabled(app.getSessionFile() != null && app.getProductManager().getProductCount() > 0);
+        setEnabled(app.getSessionFile() != null);
     }
-
-
 }

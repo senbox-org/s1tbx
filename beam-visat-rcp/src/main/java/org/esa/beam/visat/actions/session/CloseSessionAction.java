@@ -40,6 +40,6 @@ public class CloseSessionAction extends ExecCommand {
 
     @Override
     public void updateState(final CommandEvent event) {
-        setEnabled(VisatApp.getApp().getProductManager().getProductCount() > 0);
+        setEnabled(true);
     }
 }
