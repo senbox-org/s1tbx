@@ -352,6 +352,8 @@ public class OperatorContext {
         }
         initTargetImages();
         initGraphMetadata();
+
+        targetProduct.setModified(false);
     }
 
     private ValueContainer getOperatorValueContainer() {

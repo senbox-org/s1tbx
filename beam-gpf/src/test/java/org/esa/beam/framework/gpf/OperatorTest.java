@@ -21,8 +21,9 @@ public class OperatorTest extends TestCase {
         assertFalse(op.computeTileCalled);
         final Product product = op.getTargetProduct();
         assertNotNull(product);
-        assertTrue(op.initializeCalled);
-        assertFalse(op.computeTileCalled);
+        assertFalse("products created by operators cannot be modified", product.isModified());
+        assertTrue("op.initialize not called", op.initializeCalled);
+        assertFalse("op.computeTileCalled called", op.computeTileCalled);
         product.getBand("bar").readRasterDataFully(ProgressMonitor.NULL);
         assertTrue(op.initializeCalled);
         assertTrue(op.computeTileCalled);
@@ -118,6 +119,7 @@ public class OperatorTest extends TestCase {
         public void initialize() throws OperatorException {
             initializeCalled = true;
             targetProduct = createFooProduct();
+            targetProduct.addBand("foo", ProductData.TYPE_INT8); // will set the "modified" flag
         }
 
         @Override
