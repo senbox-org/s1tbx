@@ -32,7 +32,13 @@ public class CollectionDomConverter implements DomConverter {
             String itemAlias = "item";
             final DomElement itemElement = parentElement.createChild(itemAlias);
             itemElement.setAttribute("class", item.getClass().getName());
-            parentConverter.convertValueToDom(item, itemElement);
+            final ValueDescriptor itemDescriptor = new ValueDescriptor(itemAlias, item.getClass());
+            final DomConverter domConverter = parentConverter.getDomConverter(itemDescriptor);
+            if (domConverter != null) {
+                domConverter.convertValueToDom(item, itemElement);
+            } else {
+                parentConverter.convertValueToDom(item, itemElement);
+            }
         }
 
     }

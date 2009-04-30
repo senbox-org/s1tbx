@@ -51,6 +51,5 @@ public class XStreamDomConverter implements DomConverter {
     protected void configureXStream(XStream xStream) {
 
     }
-
 }
 

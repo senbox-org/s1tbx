@@ -69,6 +69,9 @@ public class DefaultDomConverter extends AbstractDomConverter {
     protected DomConverter getDomConverter(ValueDescriptor descriptor) {
         DomConverter domConverter = descriptor.getDomConverter();
         if (domConverter == null) {
+            domConverter = DomConverterRegistry.getInstance().getConverter(descriptor.getType());
+        }
+        if (domConverter == null) {
             if (Map.class.isAssignableFrom(descriptor.getType())) {
                 return new MapDomConverter(this);
             }
