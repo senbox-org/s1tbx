@@ -35,7 +35,6 @@ import org.esa.beam.util.PropertyMap;
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 
 public class ProductSceneImage implements LayerContext {
@@ -315,7 +314,6 @@ public class ProductSceneImage implements LayerContext {
     private FigureLayer createFigureLayer(AffineTransform i2mTransform) {
         final LayerType figureType = LayerType.getLayerType(FigureLayerType.class.getName());
         final ValueContainer template = figureType.getConfigurationTemplate();
-        final HashMap<String, Object> map = new HashMap<String, Object>();
         try {
             template.setValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST, new ArrayList<Figure>());
             template.setValue(FigureLayer.PROPERTY_NAME_TRANSFORM, i2mTransform);
