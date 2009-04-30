@@ -52,16 +52,6 @@ public class ProductNodeEvent extends EventObject {
     /**
      * Constructs a productEvent object.
      *
-     * @param sourceNode   the source class where the object originates
-     * @param propertyName the name of the property that was changed
-     */
-    public ProductNodeEvent(final ProductNode sourceNode, final String propertyName) {
-        this(sourceNode, propertyName, null);
-    }
-
-    /**
-     * Constructs a productEvent object.
-     *
      * @param sourceNode   the source class where the object originates.
      * @param propertyName the name of the property that was changed.
      * @param oldValue     the old value.
