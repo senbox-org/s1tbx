@@ -30,14 +30,17 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
         super(parent, dom);
     }
 
+    @Override
     public ConfigurationShemaElement getShemaElement() {
         return shemaElement;
     }
 
+    @Override
     public Extension getDeclaringExtension() {
         return declaringExtension;
     }
 
+    @Override
     public <T> T createExecutableExtension(Class<T> extensionType) throws CoreException {
 
         ////////////////////////////////////////////////////////////
@@ -102,7 +105,7 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
         return instance;
     }
 
-    private <T>T createInstance(Class<T> someClass) throws CoreException {
+    private <T> T createInstance(Class<T> someClass) throws CoreException {
         T instance;
         try {
             instance = someClass.newInstance();
@@ -118,10 +121,10 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
         return instance;
     }
 
-    private <T>Class<T> getExtensionClass(Class<T> extensionType,
-                                          Class<T> extensionDefaultClass,
-                                          String extensionClassAttributeName,
-                                          String extensionClassElementName) throws CoreException {
+    private <T> Class<T> getExtensionClass(Class<T> extensionType,
+                                           Class<T> extensionDefaultClass,
+                                           String extensionClassAttributeName,
+                                           String extensionClassElementName) throws CoreException {
         Class<T> extensionClass = null;
         String extensionClassName = null;
         if (extensionClassElementName != null) {
@@ -151,7 +154,7 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
         return extensionClass;
     }
 
-    private <T>void checkExtensionType(Class<T> extensionType, String typeAttributeValue) throws CoreException {
+    private <T> void checkExtensionType(Class<T> extensionType, String typeAttributeValue) throws CoreException {
         if (typeAttributeValue != null) {
             Class<?> declaredExtensionType = loadClass(typeAttributeValue);
             if (!declaredExtensionType.equals(extensionType)) {
