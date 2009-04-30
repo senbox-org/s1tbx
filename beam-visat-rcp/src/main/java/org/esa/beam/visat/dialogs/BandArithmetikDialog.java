@@ -25,6 +25,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeList;
 import org.esa.beam.framework.datamodel.ProductNodeNameValidator;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
@@ -48,7 +49,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class BandArithmetikDialog extends ModalDialog {
 
@@ -328,10 +331,35 @@ public class BandArithmetikDialog extends ModalDialog {
                     String expression = pep.getCode();
                     paramExpression.setValue(expression, null);
                     Debug.trace("BandArithmetikDialog: expression is: " + expression);
+                    if (compatibleProducts.length > 1) {
+                        int defaultIndex = Arrays.asList(compatibleProducts).indexOf(targetProduct);
+                        RasterDataNode[] rasters = null;
+                        try {
+                            rasters = BandArithmetic.getRefRasters(expression, compatibleProducts, defaultIndex);
+                        } catch (ParseException e1) {
+                        }
+                        if (rasters != null && rasters.length > 0) {
+                            Set<Product> productSet = new HashSet<Product>(compatibleProducts.length);
+                            for (RasterDataNode rdn: rasters) {
+                                productSet.add(rdn.getProduct());
+                            }
+                            if (productSet.size() > 1) {
+                                showForeignProductWarning();
+                            } else if (productSet.size() == 1 && rasters[0].getProduct() != targetProduct) {
+                                showForeignProductWarning();
+                            }
+                        }
+                    }
                 }
                 pep.dispose();
             }
         };
+    }
+    
+    private void showForeignProductWarning() {
+        visatApp.showWarningDialog("Your expressions references multiple products.\n" +
+                                   "It will only usable as long as the the referenced products are available.\n" +
+        "Think about enabling 'Write data to disk' to  preserve the data.");
     }
 
     private boolean isValidExpression() {
