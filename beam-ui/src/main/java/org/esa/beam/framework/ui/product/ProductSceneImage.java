@@ -314,32 +314,37 @@ public class ProductSceneImage implements LayerContext {
 
     private FigureLayer createFigureLayer(AffineTransform i2mTransform) {
         final LayerType figureType = LayerType.getLayerType(FigureLayerType.class.getName());
+        final ValueContainer template = figureType.getConfigurationTemplate();
         final HashMap<String, Object> map = new HashMap<String, Object>();
-        map.put(FigureLayer.PROPERTY_NAME_FIGURE_LIST, new ArrayList<Figure>());
-        map.put(FigureLayer.PROPERTY_NAME_TRANSFORM, i2mTransform);
-        map.put(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
-                configuration.getPropertyBool(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
-                                              FigureLayer.DEFAULT_SHAPE_OUTLINED));
-        map.put(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
-                configuration.getPropertyColor(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
-                                               FigureLayer.DEFAULT_SHAPE_OUTL_COLOR));
-        map.put(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
-                configuration.getPropertyDouble(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
-                                                FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY));
-        map.put(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
-                configuration.getPropertyDouble(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
-                                                FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH));
-        map.put(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
-                configuration.getPropertyBool(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
-                                              FigureLayer.DEFAULT_SHAPE_FILLED));
-        map.put(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
-                configuration.getPropertyColor(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
-                                               FigureLayer.DEFAULT_SHAPE_FILL_COLOR));
-        map.put(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
-                configuration.getPropertyDouble(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
-                                                FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY));
+        try {
+            template.setValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST, new ArrayList<Figure>());
+            template.setValue(FigureLayer.PROPERTY_NAME_TRANSFORM, i2mTransform);
+            template.setValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
+                              configuration.getPropertyBool(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
+                                                            FigureLayer.DEFAULT_SHAPE_OUTLINED));
+            template.setValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
+                              configuration.getPropertyColor(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
+                                                             FigureLayer.DEFAULT_SHAPE_OUTL_COLOR));
+            template.setValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
+                              configuration.getPropertyDouble(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
+                                                              FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY));
+            template.setValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
+                              configuration.getPropertyDouble(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
+                                                              FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH));
+            template.setValue(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
+                              configuration.getPropertyBool(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
+                                                            FigureLayer.DEFAULT_SHAPE_FILLED));
+            template.setValue(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
+                              configuration.getPropertyColor(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
+                                                             FigureLayer.DEFAULT_SHAPE_FILL_COLOR));
+            template.setValue(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
+                              configuration.getPropertyDouble(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
+                                                              FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY));
+        } catch (ValidationException e) {
+            throw new IllegalStateException(e);
+        }
 
-        return (FigureLayer) figureType.createLayer(this, ValueContainer.createMapBacked(map));
+        return (FigureLayer) figureType.createLayer(this, template);
     }
 
     public static void setFigureLayerStyle(PropertyMap configuration, Layer layer) {
