@@ -531,18 +531,12 @@ public class PropertyEditor {
         }
 
         private void initNoDataValueParam() {
-            final double noDataValue = _rasterDataNode.getGeophysicalNoDataValue();
-            final Double value;
-            if (Double.isNaN(noDataValue)) {
-                value = new Double(0.0);
-            } else {
-                value = new Double(noDataValue);
-            }
+            final Double noDataValue = _rasterDataNode.getGeophysicalNoDataValue();
             final ParamProperties properties = new ParamProperties(Double.class);
             properties.setLabel("No-data value"); /*I18N*/
             properties.setDescription("The value used to indicate no-data"); /*I18N*/
             properties.setNumCols(13);
-            _paramNoDataValue = new Parameter("noDataValue", value, properties);
+            _paramNoDataValue = new Parameter("noDataValue", noDataValue, properties);
             _paramNoDataValue.getEditor().setEnabled(_rasterDataNode.isNoDataValueUsed());
         }
 
