@@ -33,7 +33,26 @@ public abstract class AbstractConverterTest extends TestCase {
                 assertEquals("index=" + i, expectedElem, actualElem);
             }
         } else {
-            assertEquals(expectedValue, getConverter().parse(text));
+            final Object actualValue = getConverter().parse(text);
+            if (expectedValue instanceof Float && actualValue instanceof Float) {
+                float ev = (Float) expectedValue;
+                float av = (Float) actualValue;
+                if (Float.isNaN(ev)) {
+                    assertTrue("Float.NaN expected", Float.isNaN(av));
+                } else {
+                    assertEquals(ev, av, 1.0e-10F);
+                }
+            } else if (expectedValue instanceof Double && actualValue instanceof Double) {
+                double ev = (Double) expectedValue;
+                double av = (Double) actualValue;
+                if (Double.isNaN(ev)) {
+                    assertTrue("Double.NaN expected", Double.isNaN(av));
+                } else {
+                    assertEquals(ev, av, 1.0e-10D);
+                }
+            } else {
+                assertEquals(expectedValue, actualValue);
+            }
         }
         if (expectedValue != null) {
             assertTrue(getConverter().getValueType().isAssignableFrom(expectedValue.getClass()));

@@ -21,15 +21,17 @@ public class DoubleConverterTest extends AbstractConverterTest {
     public void testConverter() throws ConversionException {
         testValueType(Double.class);
 
-        testParseSuccess((double) 234, "234");
-        testParseSuccess((double) -45.789, "-45.789");
-        testParseSuccess((double) 0.25, "+0.25");
+        testParseSuccess(234.0, "234");
+        testParseSuccess(-45.789, "-45.789");
+        testParseSuccess(0.25, "+0.25");
         testParseSuccess(null, "");
+        testParseSuccess(Double.NaN, "NaN");
 
-        testFormatSuccess("2353465.0", (double) 2353465);
-        testFormatSuccess("-6.0", (double) -6);
-        testFormatSuccess("0.0789", (double) 0.0789);
+        testFormatSuccess("2353465.0", 2353465.0);
+        testFormatSuccess("-6.0", -6.0);
+        testFormatSuccess("0.0789", 0.0789);
         testFormatSuccess("", null);
+        testFormatSuccess("NaN", Double.NaN);
 
         assertNullCorrectlyHandled();
     }
