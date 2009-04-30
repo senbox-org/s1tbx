@@ -23,7 +23,7 @@ public class MapDomConverter implements DomConverter {
     }
 
     @Override
-    public void convertValueToDom(Object value, DomElement parentElement) {
+    public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
         if (value == null) {
             return;
         }
@@ -48,7 +48,11 @@ public class MapDomConverter implements DomConverter {
         if (objectConverter != null) {
             keyElement.setValue(objectConverter.format(value));
         } else {
-            parentConverter.convertValueToDom(value, keyElement);
+            try {
+                parentConverter.convertValueToDom(value, keyElement);
+            } catch (ConversionException e) {
+                throw new IllegalStateException(e);
+            }
         }
     }
 
