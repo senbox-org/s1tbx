@@ -26,7 +26,7 @@ public class RoiLayerEditor extends AbstractBindingLayerEditor {
     protected void initializeBinding(AppContext appContext, final BindingContext bindingContext) {
         ValueDescriptor vd = new ValueDescriptor(RoiLayerType.PROPERTY_COLOR, Color.class);
         vd.setDefaultValue(Color.RED);
-        vd.setDisplayName("Roi Colour");
+        vd.setDisplayName("ROI colour");
         vd.setDefaultConverter();
         addValueDescriptor(vd);
 

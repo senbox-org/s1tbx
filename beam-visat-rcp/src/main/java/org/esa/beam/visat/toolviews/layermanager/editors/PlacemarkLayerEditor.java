@@ -25,12 +25,12 @@ public class PlacemarkLayerEditor extends AbstractBindingLayerEditor {
 
         ValueDescriptor vd1 = new ValueDescriptor(PlacemarkLayer.PROPERTY_NAME_TEXT_FG_COLOR, Color.class);
         vd1.setDefaultValue(PlacemarkLayer.DEFAULT_TEXT_FG_COLOR);
-        vd1.setDisplayName("Text foreground color");
+        vd1.setDisplayName("Text foreground colour");
         addValueDescriptor(vd1);
 
         ValueDescriptor vd2 = new ValueDescriptor(PlacemarkLayer.PROPERTY_NAME_TEXT_BG_COLOR, Color.class);
         vd2.setDefaultValue(PlacemarkLayer.DEFAULT_TEXT_BG_COLOR);
-        vd2.setDisplayName("Text background color");
+        vd2.setDisplayName("Text background colour");
         addValueDescriptor(vd2);
 
     }

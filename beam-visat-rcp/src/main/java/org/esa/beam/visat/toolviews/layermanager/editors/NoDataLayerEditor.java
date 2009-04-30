@@ -27,7 +27,7 @@ public class NoDataLayerEditor extends AbstractBindingLayerEditor {
 
         ValueDescriptor vd = new ValueDescriptor(NoDataLayerType.PROPERTY_COLOR, Color.class);
         vd.setDefaultValue(Color.ORANGE);
-        vd.setDisplayName("No-Data Colour");
+        vd.setDisplayName("No-data colour");
         vd.setDefaultConverter();
 
         addValueDescriptor(vd);
