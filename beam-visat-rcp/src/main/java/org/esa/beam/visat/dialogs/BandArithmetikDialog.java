@@ -328,8 +328,8 @@ public class BandArithmetikDialog extends ModalDialog {
                 if (status == ModalDialog.ID_OK) {
                     String expression = pep.getCode();
                     paramExpression.setValue(expression, null);
-                    Debug.trace("BandArithmetikDialog: expression is: " + expression);
-                    if (compatibleProducts.length > 1) {
+                    final boolean writeData = (Boolean) paramWriteData.getValue();
+                    if (!writeData && compatibleProducts.length > 1) {
                         int defaultIndex = Arrays.asList(compatibleProducts).indexOf(targetProduct);
                         RasterDataNode[] rasters = null;
                         try {
