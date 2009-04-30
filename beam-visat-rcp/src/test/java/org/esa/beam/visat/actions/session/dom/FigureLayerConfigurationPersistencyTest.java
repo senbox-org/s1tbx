@@ -25,6 +25,7 @@ public class FigureLayerConfigurationPersistencyTest extends AbstractLayerConfig
         final ArrayList<Figure> figureList = new ArrayList<Figure>();
         figureList.add(createFigure());
         configuration.setValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST, figureList);
+
         return layerType.createLayer(null, configuration);
     }
 
@@ -32,8 +33,8 @@ public class FigureLayerConfigurationPersistencyTest extends AbstractLayerConfig
         final Map<String, Object> attributes = new HashMap<String, Object>();
         attributes.put("Beam Developer1", "Ralf");
         attributes.put("Beam Developer2", "Marco");
-        final LineFigure lineFigure = new LineFigure(new Rectangle(0, 0, 10, 10), attributes);
-        return lineFigure;
+
+        return new LineFigure(new Rectangle(0, 0, 10, 10), attributes);
     }
 
 }

@@ -232,7 +232,6 @@ public abstract class ProductNode {
      *
      * @return the product, or <code>null</code> if this node was not owned by a product at the time this method was
      *         called
-     * @throws IllegalStateException if this node does not belong to a product
      */
     public Product getProduct() {
         if (product == null) {

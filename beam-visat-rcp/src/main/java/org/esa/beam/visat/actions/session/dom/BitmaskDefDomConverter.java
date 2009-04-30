@@ -1,40 +1,25 @@
 package org.esa.beam.visat.actions.session.dom;
 
-import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.dom.DomElement;
 import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductManager;
 
-/**
- * todo - add API doc
- *
- * @author Marco Peters
- * @version $ Revision $ Date $
- * @since BEAM 4.6
- */
-public class BitmaskDefDomConverter extends SessionElementDomConverter<BitmaskDef> {
+class BitmaskDefDomConverter extends ProductNodeDomConverter<BitmaskDef> {
 
-    public BitmaskDefDomConverter() {
-        super(BitmaskDef.class);
+    BitmaskDefDomConverter(ProductManager productManager) {
+        super(BitmaskDef.class, productManager);
     }
 
     @Override
-    public BitmaskDef convertDomToValue(DomElement parentElement, Object bitmaskDef) throws ConversionException,
-                                                                                            ValidationException {
-        final Integer refNo = Integer.valueOf(parentElement.getChild("refNo").getValue());
+    protected BitmaskDef getProductNode(DomElement parentElement, Product product) {
         final String bitmaskName = parentElement.getChild("bitmaskName").getValue();
-
-        bitmaskDef = getProductManager().getProductByRefNo(refNo).getBitmaskDef(bitmaskName);
-
-        return (BitmaskDef) bitmaskDef;
+        return product.getBitmaskDef(bitmaskName);
     }
 
     @Override
-    public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
-        BitmaskDef bitmaskDef = (BitmaskDef) value;
-        final DomElement refNo = parentElement.createChild("refNo");
+    protected void convertProductNodeToDom(BitmaskDef bitmaskDef, DomElement parentElement) {
         final DomElement bitmaskName = parentElement.createChild("bitmaskName");
-        refNo.setValue(String.valueOf(bitmaskDef.getProduct().getRefNo()));
         bitmaskName.setValue(bitmaskDef.getName());
     }
 }

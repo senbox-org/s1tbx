@@ -2,15 +2,17 @@ package org.esa.beam.visat.actions.session.dom;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 
-public class PlacemarkDescriptorDomConverter extends SessionElementDomConverter<PlacemarkDescriptor> {
+class PlacemarkDescriptorDomConverter implements DomConverter {
 
-    public PlacemarkDescriptorDomConverter() {
-        super(PlacemarkDescriptor.class);
+    @Override
+    public Class<?> getValueType() {
+        return PlacemarkDescriptor.class;
     }
 
     @Override

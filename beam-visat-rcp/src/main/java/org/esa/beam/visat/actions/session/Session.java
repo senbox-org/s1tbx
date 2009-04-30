@@ -305,8 +305,9 @@ public class Session {
                     }
                 } catch (Exception e) {
                     problems.add(e);
+                } finally {
+                    pm.worked(1);
                 }
-                pm.worked(1);
             }
         } finally {
             pm.done();
