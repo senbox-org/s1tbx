@@ -30,7 +30,7 @@ public class BitmaskDefDomConverter extends SessionElementDomConverter<BitmaskDe
     }
 
     @Override
-    public void convertValueToDom(Object value, DomElement parentElement) {
+    public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
         BitmaskDef bitmaskDef = (BitmaskDef) value;
         final DomElement refNo = parentElement.createChild("refNo");
         final DomElement bitmaskName = parentElement.createChild("bitmaskName");

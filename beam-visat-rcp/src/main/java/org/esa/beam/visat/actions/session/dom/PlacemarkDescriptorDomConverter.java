@@ -27,7 +27,7 @@ public class PlacemarkDescriptorDomConverter extends SessionElementDomConverter<
     }
 
     @Override
-    public void convertValueToDom(Object value, DomElement parentElement) {
+    public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
         parentElement.setAttribute("class", value.getClass().getName());
     }
 }

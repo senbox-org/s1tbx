@@ -26,7 +26,7 @@ public class ProductDomConverter extends SessionElementDomConverter<Product> {
     }
 
     @Override
-    public void convertValueToDom(Object value, DomElement parentElement) {
+    public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
         final DomElement refNo = parentElement.createChild("refNo");
         refNo.setValue(String.valueOf(((Product) value).getRefNo()));
     }

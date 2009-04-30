@@ -76,6 +76,7 @@ import java.util.regex.Pattern;
  * @since 4.1
  */
 public class OperatorContext {
+
     private static final String OPERATION_CANCELED_MESSAGE = "Operation canceled.";
     private String id;
     private Product targetProduct;
@@ -310,7 +311,8 @@ public class OperatorContext {
                                 new Class[]{
                                         Band.class,
                                         Tile.class,
-                                        ProgressMonitor.class});
+                                        ProgressMonitor.class
+                                });
     }
 
     private static boolean canOperatorComputeTileStack(Class<? extends Operator> aClass) {
@@ -318,13 +320,14 @@ public class OperatorContext {
                                 new Class[]{
                                         Map.class,
                                         Rectangle.class,
-                                        ProgressMonitor.class});
+                                        ProgressMonitor.class
+                                });
     }
 
     private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {
         while (true) {
             if (Operator.class.equals(aClass)
-                    || !Operator.class.isAssignableFrom(aClass)) {
+                || !Operator.class.isAssignableFrom(aClass)) {
                 return false;
             }
             try {
@@ -419,7 +422,11 @@ public class OperatorContext {
                                                                          new ParameterDescriptorFactory(
                                                                                  sourceProductMap));
         final Xpp3DomElement parametersDom = new Xpp3DomElement("parameters");
-        domConverter.convertValueToDom(context.operator, parametersDom);
+        try {
+            domConverter.convertValueToDom(context.operator, parametersDom);
+        } catch (ConversionException e) {
+            e.printStackTrace();
+        }
         final MetadataElement targetParametersME = new MetadataElement("parameters");
         addDomToMetadata(parametersDom, targetParametersME);
         targetNodeME.addElement(targetParametersME);
@@ -492,8 +499,8 @@ public class OperatorContext {
             Dimension tileSize = null;
             for (final Product sourceProduct : sourceProductList) {
                 if (sourceProduct.getPreferredTileSize() != null &&
-                        sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
-                        sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
+                    sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
+                    sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
                     tileSize = sourceProduct.getPreferredTileSize();
                     break;
                 }
@@ -608,7 +615,8 @@ public class OperatorContext {
         }
     }
 
-    private void processSourceProductField(Field declaredField, SourceProduct sourceProductAnnotation) throws OperatorException {
+    private void processSourceProductField(Field declaredField, SourceProduct sourceProductAnnotation) throws
+                                                                                                       OperatorException {
         if (declaredField.getType().equals(Product.class)) {
             Product sourceProduct = getSourceProduct(declaredField.getName());
             if (sourceProduct == null) {
@@ -637,7 +645,8 @@ public class OperatorContext {
         }
     }
 
-    private void processSourceProductsField(Field declaredField, SourceProducts sourceProductsAnnotation) throws OperatorException {
+    private void processSourceProductsField(Field declaredField, SourceProducts sourceProductsAnnotation) throws
+                                                                                                          OperatorException {
         if (declaredField.getType().equals(Product[].class)) {
             Product[] sourceProducts = getSourceProducts();
             if (sourceProducts.length > 0) {
@@ -693,7 +702,8 @@ public class OperatorContext {
         setOperatorFieldValue(declaredField, sourceProducts);
     }
 
-    private void validateSourceProduct(String fieldName, Product sourceProduct, String typeRegExp, String[] bandNames) throws OperatorException {
+    private void validateSourceProduct(String fieldName, Product sourceProduct, String typeRegExp,
+                                       String[] bandNames) throws OperatorException {
         if (!typeRegExp.isEmpty()) {
             final String productType = sourceProduct.getProductType();
             if (!typeRegExp.equalsIgnoreCase(productType) && !Pattern.matches(typeRegExp, productType)) {
@@ -760,7 +770,9 @@ public class OperatorContext {
         }
     }
 
-    private void configureOperator(Operator operator, OperatorConfiguration operatorConfiguration) throws ValidationException, ConversionException {
+    private void configureOperator(Operator operator, OperatorConfiguration operatorConfiguration) throws
+                                                                                                   ValidationException,
+                                                                                                   ConversionException {
         ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
         DefaultDomConverter domConverter = new DefaultDomConverter(operator.getClass(), parameterDescriptorFactory);
         domConverter.convertDomToValue(operatorConfiguration.getConfiguration(), operator);
@@ -831,6 +843,7 @@ public class OperatorContext {
 
     /**
      * @param product The product.
+     *
      * @return The operator context for the given product, or null.
      */
     static OperatorContext getOperatorContext(Product product) {
@@ -850,7 +863,8 @@ public class OperatorContext {
         logger.info(indent + "Performance analysis for operator " + getOperatorSpi().getOperatorAlias() + ":");
         logger.info(indent + "  Net: " + getPerformanceMetric().getNanosPerPixel() + " ns/pixel");
         logger.info(indent + "  Target: " + getPerformanceMetric().getTargetNanosPerPixel() + " ns/pixel");
-        logger.info(indent + "  Sources (" + sourceProductList.size() + "): " + getPerformanceMetric().getSourceNanosPerPixel() + " ns/pixel");
+        logger.info(
+                indent + "  Sources (" + sourceProductList.size() + "): " + getPerformanceMetric().getSourceNanosPerPixel() + " ns/pixel");
         for (Product product : sourceProductList) {
             OperatorContext operatorContext = getOperatorContext(product);
             if (operatorContext != null) {

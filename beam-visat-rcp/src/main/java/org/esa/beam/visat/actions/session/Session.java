@@ -149,7 +149,11 @@ public class Session {
             final ValueContainer configuration = getConfiguration(layerContext, layer);
             final SessionDomConverter domConverter = new SessionDomConverter(productManager);
             final DomElement element = new DefaultDomElement("configuration");
-            domConverter.convertValueToDom(configuration, element);
+            try {
+                domConverter.convertValueToDom(configuration, element);
+            } catch (ConversionException e) {
+                e.printStackTrace();
+            }
             layerRefs[i] = new LayerRef(layer.getLayerType().getClass().getName(),
                                         layer.getId(),
                                         layer.getName(),

@@ -91,7 +91,7 @@ public class AbstractFigureDomConverter extends SessionElementDomConverter<Abstr
     }
 
     @Override
-    public void convertValueToDom(Object value, DomElement parentElement) {
+    public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
         final Class<?> valueType = value.getClass();
         parentElement.setAttribute("class", valueType.getName());
 

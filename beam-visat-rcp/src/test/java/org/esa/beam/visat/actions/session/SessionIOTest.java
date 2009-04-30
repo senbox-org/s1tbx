@@ -157,7 +157,11 @@ public class SessionIOTest extends TestCase {
             initIO();
 
             final Xpp3DomElement configuration = new Xpp3DomElement("configuration");
-            domConverter.convertValueToDom(layer, configuration);
+            try {
+                domConverter.convertValueToDom(layer, configuration);
+            } catch (com.bc.ceres.binding.ConversionException e) {
+                e.printStackTrace();
+            }
 
             final LayerMemento memento = new LayerMemento(layer.getLayerType().getName(), configuration);
             xs.toXML(memento, writer);

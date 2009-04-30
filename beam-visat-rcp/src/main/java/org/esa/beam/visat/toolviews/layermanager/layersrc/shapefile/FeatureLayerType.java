@@ -128,7 +128,7 @@ public class FeatureLayerType extends LayerType {
         }
 
         @Override
-        public void convertValueToDom(Object value, DomElement parentElement) {
+        public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
             Style style = (Style) value;
             final SLDTransformer transformer = new SLDTransformer();
             transformer.setIndentation(2);
@@ -162,7 +162,7 @@ public class FeatureLayerType extends LayerType {
         }
 
         @Override
-        public void convertValueToDom(Object value, DomElement parentElement) {
+        public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
             CoordinateReferenceSystem crs = (CoordinateReferenceSystem) value;
             parentElement.setValue(crs.toWKT());
 
@@ -191,7 +191,7 @@ public class FeatureLayerType extends LayerType {
         }
 
         @Override
-        public void convertValueToDom(Object value, DomElement parentElement) {
+        public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
             Geometry geom = (Geometry) value;
             final Coordinate[] coordinates = geom.getCoordinates();
             final DefaultDomConverter domConverter = new DefaultDomConverter(Coordinate.class);
