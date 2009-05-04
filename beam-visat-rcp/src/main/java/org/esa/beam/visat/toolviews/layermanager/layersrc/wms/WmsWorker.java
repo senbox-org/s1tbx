@@ -16,23 +16,21 @@
  */
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.glayer.LayerType;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
 import org.geotools.data.wms.WebMapServer;
-import org.geotools.data.wms.request.GetMapRequest;
-import org.geotools.data.wms.response.GetMapResponse;
-import org.geotools.ows.ServiceException;
 import org.opengis.layer.Style;
 
-import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
 import java.awt.Dimension;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
+import java.net.URL;
+import java.util.List;
 
-abstract class WmsWorker extends SwingWorker<BufferedImage, Object> {
+abstract class WmsWorker extends SwingWorker<com.bc.ceres.glayer.Layer, Object> {
 
     private final Dimension size;
     private final LayerSourcePageContext context;
@@ -47,29 +45,29 @@ abstract class WmsWorker extends SwingWorker<BufferedImage, Object> {
     }
 
     @Override
-    protected BufferedImage doInBackground() throws Exception {
-        WebMapServer wms = (WebMapServer) context.getPropertyValue(WmsLayerSource.PROPERTY_WMS);
-        Layer selectedLayer = (Layer) context.getPropertyValue(WmsLayerSource.PROPERTY_SELECTED_LAYER);
-        Style selectedStyle = (Style) context.getPropertyValue(WmsLayerSource.PROPERTY_SELECTED_STYLE);
-        CRSEnvelope crsEnvelope = (CRSEnvelope) context.getPropertyValue(WmsLayerSource.PROPERTY_CRS_ENVELOPE);
-        GetMapRequest mapRequest = wms.createGetMapRequest();
-        mapRequest.addLayer(selectedLayer, selectedStyle);
-        mapRequest.setTransparent(true);
-        mapRequest.setDimensions(size.width, size.height);
-        mapRequest.setSRS(crsEnvelope.getEPSGCode()); // e.g. "EPSG:4326" = Geographic CRS
-        mapRequest.setBBox(crsEnvelope);
-        mapRequest.setFormat("image/png");
-        return downloadWmsImage(mapRequest, wms);
-    }
+    protected com.bc.ceres.glayer.Layer doInBackground() throws Exception {
+        final LayerType wmsType = LayerType.getLayerType(WmsLayerType.class.getName());
+        final ValueContainer template = wmsType.getConfigurationTemplate();
 
-    private BufferedImage downloadWmsImage(GetMapRequest mapRequest, WebMapServer wms) throws IOException,
-                                                                                              ServiceException {
-        GetMapResponse mapResponse = wms.issueRequest(mapRequest);
-        InputStream inputStream = mapResponse.getInputStream();
-        try {
-            return ImageIO.read(inputStream);
-        } finally {
-            inputStream.close();
+        final RasterDataNode raster = getContext().getAppContext().getSelectedProductSceneView().getRaster();
+        template.setValue(WmsLayerType.PROPERTY_WMS_RASTER, raster);
+        template.setValue(WmsLayerType.PROPERTY_WMS_IMAGE_SIZE, size);
+        URL wmsUrl = (URL) context.getPropertyValue(WmsLayerSource.PROPERTY_WMS_URL);
+        template.setValue(WmsLayerType.PROPERTY_WMS_URL, wmsUrl);
+        Style selectedStyle = (Style) context.getPropertyValue(WmsLayerSource.PROPERTY_SELECTED_STYLE);
+        String styleName = null;
+        if (selectedStyle != null) {
+            styleName = selectedStyle.getName();
         }
+        template.setValue(WmsLayerType.PROPERTY_WMS_STYLE_NAME, styleName);
+        WebMapServer wms = (WebMapServer) context.getPropertyValue(WmsLayerSource.PROPERTY_WMS);
+        final List<Layer> layerList = wms.getCapabilities().getLayerList();
+        Layer selectedLayer = (Layer) context.getPropertyValue(WmsLayerSource.PROPERTY_SELECTED_LAYER);
+        template.setValue(WmsLayerType.PROPERTY_WMS_LAYER_INDEX, layerList.indexOf(selectedLayer));
+        CRSEnvelope crsEnvelope = (CRSEnvelope) context.getPropertyValue(WmsLayerSource.PROPERTY_CRS_ENVELOPE);
+        template.setValue(WmsLayerType.PROPERTY_WMS_CRSENVELOPE, crsEnvelope);
+        final com.bc.ceres.glayer.Layer layer = wmsType.createLayer(getContext().getLayerContext(), template);
+        layer.setName(selectedLayer.getName());
+        return layer;
     }
 }

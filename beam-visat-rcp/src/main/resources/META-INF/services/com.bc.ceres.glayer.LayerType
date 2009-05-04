@@ -1,1 +1,2 @@
 org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayerType
+org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsLayerType

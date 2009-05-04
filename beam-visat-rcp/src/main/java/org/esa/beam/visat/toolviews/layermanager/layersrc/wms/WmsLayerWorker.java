@@ -1,13 +1,11 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 
-import javax.media.jai.PlanarImage;
 import javax.swing.JDialog;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
@@ -15,8 +13,6 @@ import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 import java.util.concurrent.ExecutionException;
 
 class WmsLayerWorker extends WmsWorker {
@@ -38,7 +34,7 @@ class WmsLayerWorker extends WmsWorker {
     }
 
     @Override
-    protected BufferedImage doInBackground() throws Exception {
+    protected Layer doInBackground() throws Exception {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -58,23 +54,11 @@ class WmsLayerWorker extends WmsWorker {
         dialog.dispose();
 
         try {
-            BufferedImage image = get();
+            Layer layer = get();
             try {
                 final AppContext appContext = getContext().getAppContext();
                 ProductSceneView sceneView = appContext.getSelectedProductSceneView();
-                org.geotools.data.ows.Layer layer;
-                layer = (org.geotools.data.ows.Layer) getContext().getPropertyValue(
-                        WmsLayerSource.PROPERTY_SELECTED_LAYER);
-                final int sceneWidth = appContext.getSelectedProductSceneView().getRaster().getSceneRasterWidth();
-                final int sceneHeight = appContext.getSelectedProductSceneView().getRaster().getSceneRasterHeight();
-
-                final AffineTransform g2mTransform = sceneView.getRaster().getGeoCoding().getGridToModelTransform();
-                AffineTransform i2mTransform = new AffineTransform(g2mTransform);
-                i2mTransform.scale((double) sceneWidth / image.getWidth(), (double) sceneHeight / image.getHeight());
-                ImageLayer imageLayer = new ImageLayer(PlanarImage.wrapRenderedImage(image), i2mTransform, 1);
-
-                imageLayer.setName(layer.getName());
-                rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), imageLayer);
+                rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), layer);
             } catch (Exception e) {
                 getContext().showErrorDialog(e.getMessage());
             }

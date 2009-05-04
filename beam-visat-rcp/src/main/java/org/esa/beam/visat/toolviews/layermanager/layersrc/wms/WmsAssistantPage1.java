@@ -117,6 +117,7 @@ class WmsAssistantPage1 extends AbstractLayerSourceAssistantPage {
             window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             URL url = new URL(wmsUrl);
             wms = new WebMapServer(url);
+            getContext().setPropertyValue(WmsLayerSource.PROPERTY_WMS_URL, url);
         } finally {
             window.setCursor(Cursor.getDefaultCursor());
         }
