@@ -61,8 +61,7 @@ class CollectionLayerAssistantPage extends AbstractLayerSourceAssistantPage {
 
     @Override
     public boolean performFinish() {
-        Layer layer = new CollectionLayer();
-        layer.setName(nameBox.getSelectedItem().toString().trim());
+        Layer layer = new CollectionLayer(nameBox.getSelectedItem().toString().trim());
         Layer rootLayer = getContext().getLayerContext().getRootLayer();
         rootLayer.getChildren().add(0, layer);
         if (!names.contains(layer.getName())) {
