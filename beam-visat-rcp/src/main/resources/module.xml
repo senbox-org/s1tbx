@@ -183,8 +183,8 @@
     <extension point="beam-visat-rcp:layerSources">
         <layerSource>
             <id>wms-layer-source</id>
-            <name>Image from Web Mapping Server (WMS)</name>
-            <description>Retrieves images from a Web Mapping Server (WMS)</description>
+            <name>Image from Web Map Server (WMS)</name>
+            <description>Retrieves images from a Web Map Server (WMS)</description>
             <class>org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsLayerSource</class>
         </layerSource>
         <layerSource>
