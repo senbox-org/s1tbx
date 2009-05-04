@@ -28,7 +28,6 @@ import java.awt.Component;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -89,10 +88,6 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
         return panel;
     }
 
-    private static double roundDeg(double v) {
-        return Math.round(100.0 * v) / 100.0;
-    }
-
     private String getMatchingCRSCode(Layer layer) {
         Set<String> srsSet = layer.getSrs();
         if (modelCRS.equals(DefaultGeographicCRS.WGS84)) {
@@ -115,11 +110,9 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
         if (bbox == null) {
             return "Lon = ?° ... ?°, Lat = ?° ... ?°";
         }
-        return MessageFormat.format("Lon = {0}° ... {1}°, Lat = {2}° ... {3}°",
-                                    roundDeg(bbox.getMinX()),
-                                    roundDeg(bbox.getMaxX()),
-                                    roundDeg(bbox.getMinY()),
-                                    roundDeg(bbox.getMaxY()));
+        return String.format("Lon = %.3f° ... %.3f°, Lat = %.3f° ... %.3f°",
+                             bbox.getMinX(), bbox.getMaxX(),
+                             bbox.getMinY(), bbox.getMaxY());
     }
 
     private static class MyDefaultTreeCellRenderer extends DefaultTreeCellRenderer {
