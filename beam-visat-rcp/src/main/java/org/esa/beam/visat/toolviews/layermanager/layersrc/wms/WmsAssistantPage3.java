@@ -159,6 +159,7 @@ class WmsAssistantPage3 extends AbstractLayerSourceAssistantPage {
         messageLabel.setText(message);
         mapPanel.removeAll();
         mapPanel.add(messageLabel, BorderLayout.CENTER);
+        mapPanel.repaint();
     }
 
     private void showLayerCanvas(LayerCanvas canvas) {
