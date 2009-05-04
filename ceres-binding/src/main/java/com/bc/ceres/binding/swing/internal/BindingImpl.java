@@ -103,9 +103,17 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
         if (secondaryComponents == null) {
             return componentAdapter.getComponents();
         } else {
-            final List<JComponent> list = Arrays.asList(componentAdapter.getComponents());
-            list.addAll(secondaryComponents);
-            return list.toArray(new JComponent[list.size()]);
+            JComponent[] primaryComponents = componentAdapter.getComponents();
+            JComponent[] allComponents = new JComponent[primaryComponents.length + secondaryComponents.size()];
+            for (int i = 0; i < primaryComponents.length; i++) {
+                allComponents[i] = primaryComponents[i];
+            }
+            int j = primaryComponents.length;
+            for (JComponent component : secondaryComponents) {
+                allComponents[j] = component;
+                j++;
+            }
+            return allComponents;
         }
     }
 

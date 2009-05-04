@@ -4,6 +4,7 @@ import com.bc.ceres.binding.*;
 import junit.framework.TestCase;
 
 import javax.swing.*;
+
 import java.util.Arrays;
 
 /**
@@ -251,6 +252,19 @@ public class BindingContextTest extends TestCase {
 
         valueContainerVB.setValue("listValue", new int[]{6});
         assertEquals(6, list.getSelectedValue());
+    }
+    
+    public void testSecondaryComponent() throws Exception {
+        JTextField textField = new JTextField();
+        Binding binding = bindingContextVB.bind("stringValue", textField);
+        JLabel label = new JLabel("myLabel");
+        binding.addComponent(label);
+        
+        JComponent[] components = binding.getComponents();
+        assertNotNull(components);
+        assertEquals(2, components.length);
+        assertSame(getPrimaryComponent(binding), components[0]);
+        assertSame(label, components[1]);
     }
 
     private JComponent getPrimaryComponent(Binding binding) {
