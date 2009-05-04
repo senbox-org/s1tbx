@@ -18,12 +18,14 @@ package org.esa.beam.framework.ui.tool.impl;
 
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.ui.tool.AbstractTool;
+import org.esa.beam.framework.ui.tool.DrawingEditor;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Stroke;
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -83,18 +85,25 @@ public abstract class AbstractCreateFigureTool extends AbstractTool {
     protected abstract Figure createFigure(Map figureAttributes);
 
     protected void finish(ToolInputEvent toolInputEvent) {
-        _figureAttributes.put(Figure.TOOL_INPUT_EVENT_KEY, toolInputEvent);
+        if (getDrawingEditor() != null) {
+            Figure figure = createFigure(_figureAttributes);
+            DrawingEditor.InsertMode insertMode = DrawingEditor.InsertMode.REPLACE; // replace
+            MouseEvent mouseEvent = toolInputEvent.getMouseEvent();
+            if ((mouseEvent.isShiftDown())) {
+                insertMode = DrawingEditor.InsertMode.ADD; // add
+            } else if ((mouseEvent.isControlDown())) {
+                insertMode = DrawingEditor.InsertMode.SUBTRACT; // subtract
+            }
+
+            if (figure != null) {
+                getDrawingEditor().insertFigure(figure, insertMode);
+            }
+        }
         finish();
     }
 
     @Override
     protected void finish() {
-        if (getDrawingEditor() != null) {
-            Figure figure = createFigure(_figureAttributes);
-            if (figure != null) {
-                getDrawingEditor().addFigure(figure);
-            }
-        }
         super.finish();
     }
 }

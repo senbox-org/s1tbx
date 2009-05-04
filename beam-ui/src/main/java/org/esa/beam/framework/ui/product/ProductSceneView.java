@@ -443,27 +443,30 @@ public class ProductSceneView extends BasicView
         return getSceneImage().getRasters().length >= 3;
     }
 
-    /**
-     * Adds a new figure to the drawing.
-     */
     @Override
     public void addFigure(Figure figure) {
         Guardian.assertNotNull("figure", figure);
-
-        int insertMode = 0; // replace
+        InsertMode insertMode = InsertMode.REPLACE;
         ToolInputEvent toolInputEvent = (ToolInputEvent) figure.getAttribute(Figure.TOOL_INPUT_EVENT_KEY);
         if (toolInputEvent != null && toolInputEvent.getMouseEvent() != null) {
             MouseEvent mouseEvent = toolInputEvent.getMouseEvent();
             if ((mouseEvent.isShiftDown())) {
-                insertMode = +1; // add
+                insertMode = InsertMode.ADD;
             } else if ((mouseEvent.isControlDown())) {
-                insertMode = -1; // subtract
+                insertMode = InsertMode.SUBTRACT;
             }
         }
 
+        insertFigure(figure, insertMode);
+    }
+
+    @Override
+    public void insertFigure(Figure figure, InsertMode insertMode) {
+        Guardian.assertNotNull("figure", figure);
+
         Figure oldFigure = getCurrentShapeFigure();
 
-        if (insertMode == 0 || oldFigure == null) {
+        if (InsertMode.REPLACE.equals(insertMode) || oldFigure == null) {
             setCurrentShapeFigure(figure);
             return;
         }
@@ -475,7 +478,7 @@ public class ProductSceneView extends BasicView
 
         Area area1 = oldFigure.getAsArea();
         Area area2 = figure.getAsArea();
-        if (insertMode == 1) {
+        if (InsertMode.ADD.equals(insertMode)) {
             area1.add(area2);
         } else {
             area1.subtract(area2);

@@ -16,7 +16,6 @@
  */
 package org.esa.beam.framework.ui.tool;
 
-import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.framework.draw.Figure;
 
 import java.awt.Rectangle;
@@ -28,6 +27,13 @@ import java.awt.Rectangle;
  * @version $Revision$  $Date$
  */
 public interface DrawingEditor {
+
+    enum InsertMode {
+
+        REPLACE,
+        ADD,
+        SUBTRACT
+    }
 
     /**
      * @return The current tool for this drawing.
@@ -46,6 +52,7 @@ public interface DrawingEditor {
 
     /**
      * Called if a selection occured.
+     *
      * @param rectangle The selection rectangle in view coordinates.
      */
     void handleSelection(Rectangle rectangle);
@@ -62,24 +69,43 @@ public interface DrawingEditor {
     void repaint();
 
     /**
-     * Adds a new figure to the drawing.
+     * Adds a new figure to the drawing and replaces any existing figure.
+     *
+     * @param figure The figure to add to the this drawing.
+     *
+     * @deprecated since BEAM 4.6, use {@link #insertFigure(Figure, InsertMode)} instead
      */
+    @Deprecated
     void addFigure(Figure figure);
 
     /**
+     * Adds a new figure to the drawing using the specified {@link InsertMode insertion mode}.
+     *
+     * @param figure     The figure to add to this drawing.
+     * @param insertMode Specifies how to add the figure to this drawing.
+     */
+    void insertFigure(Figure figure, InsertMode insertMode);
+
+    /**
      * Removes a figure from the drawing.
+     *
+     * @param figure The figure to remove from this drawing.
      */
     void removeFigure(Figure figure);
 
     /**
      * Returns the number of figures.
+     *
+     * @return The number of figures
      */
     int getNumFigures();
 
     /**
      * Gets the figure at the specified index.
      *
-     * @return the figure, never <code>null</code>
+     * @param index The index of the figure to retrieve.
+     *
+     * @return The figure, never <code>null</code>
      */
     Figure getFigureAt(int index);
 

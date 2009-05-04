@@ -41,9 +41,9 @@ import java.util.Map;
 public interface Figure extends Drawable, Cloneable, Serializable {
 
     /**
-     * The attribute key used to determine the tool input event (if any) which created or modified this figure. The
-     * value must be an instance of {@link org.esa.beam.framework.ui.tool.ToolInputEvent}.
+     * @deprecated since BEAM 4.6, no replacement
      */
+    @Deprecated
     public static final String TOOL_INPUT_EVENT_KEY = "toolInputEvent";
 
     /**
