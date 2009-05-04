@@ -187,7 +187,7 @@ public class BandArithmetikDialog extends ModalDialog {
         paramNoDataValueUsed.getProperties().setLabel("No-data value to be used on arithmetic exceptions: "); /*I18N*/
         paramNoDataValueUsed.addParamChangeListener(paramChangeListener);
 
-        paramNoDataValue = new Parameter("noDataValueParam", 0.0F);
+        paramNoDataValue = new Parameter("noDataValueParam", Float.NaN);
         paramNoDataValue.setUIEnabled(false);
 
         setParameterProperties();
