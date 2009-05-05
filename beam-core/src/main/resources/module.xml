@@ -23,6 +23,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.6:<br/>
+        [BEAM-993] Filter band not correct if band is UINT type and does not have scaling<br/>
         [BEAM-978] Data Flip shifts product geo-location<br/>
         [BEAM-977] Product marked "modified" after opening an image view<br/>
         [BEAM-974] NullPointerException when importing pins defined by pixel position<br/>
