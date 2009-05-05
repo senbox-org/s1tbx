@@ -1,9 +1,5 @@
                                  CHANGELOG
 
-                         MERIS/(A)ATSR Toolbox (BEAM)
-                                Version 4.6
-
-
 This file contains all significant changes for each BEAM release.
 
     o xx.xx.2009: Version 4.6
