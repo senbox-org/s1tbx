@@ -116,7 +116,7 @@ public class WmsLayer extends Layer {
 
             final int sceneWidth = raster.getSceneRasterWidth();
             final int sceneHeight = raster.getSceneRasterHeight();
-            final AffineTransform g2mTransform = raster.getGeoCoding().getGridToModelTransform();
+            final AffineTransform g2mTransform = raster.getGeoCoding().getImageToModelTransform();
             AffineTransform i2mTransform = new AffineTransform(g2mTransform);
             i2mTransform.scale((double) sceneWidth / image.getWidth(), (double) sceneHeight / image.getHeight());
             final Rectangle2D bounds = DefaultMultiLevelModel.getModelBounds(i2mTransform, image);

@@ -30,7 +30,7 @@ public abstract class AbstractGeoCoding implements GeoCoding {
                                          getBaseCRS(),
                                          new GeoCodingMathTransform(this),
                                          DefaultCartesianCS.DISPLAY));
-        setModelCRS(getGridCRS());
+        setModelCRS(getImageCRS());
     }
 
     /**
@@ -46,7 +46,7 @@ public abstract class AbstractGeoCoding implements GeoCoding {
     public abstract boolean transferGeoCoding(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef);
 
     @Override
-    public AffineTransform getGridToModelTransform() {
+    public AffineTransform getImageToModelTransform() {
         return new AffineTransform();
     }
 
@@ -61,7 +61,7 @@ public abstract class AbstractGeoCoding implements GeoCoding {
     }
 
     @Override
-    public CoordinateReferenceSystem getGridCRS() {
+    public CoordinateReferenceSystem getImageCRS() {
         return gridCRS;
     }
 

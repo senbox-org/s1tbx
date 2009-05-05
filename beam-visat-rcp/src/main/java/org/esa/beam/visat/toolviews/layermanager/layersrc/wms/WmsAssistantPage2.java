@@ -169,7 +169,7 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
                 } else {
                     RasterDataNode raster = context.getAppContext().getSelectedProductSceneView().getRaster();
                     GeoCoding geoCoding = raster.getGeoCoding();
-                    AffineTransform g2mTransform = geoCoding.getGridToModelTransform();
+                    AffineTransform g2mTransform = geoCoding.getImageToModelTransform();
                     Rectangle2D bounds = g2mTransform.createTransformedShape(
                             new Rectangle(0, 0, raster.getSceneRasterWidth(),
                                           raster.getSceneRasterHeight())).getBounds2D();

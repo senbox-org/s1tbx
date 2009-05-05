@@ -97,22 +97,27 @@ public interface GeoCoding {
      */
     void dispose();
 
+    // todo - remove? (nf - 05.05.2009)
     /**
-     * @return The coordinate reference system (CRS) which may be either a geographical CRS (nominal case is
-     *         WGS 84) or a projected CRS.
+     * @return The base coordinate reference system (CRS). It may be either a geographical CRS (nominal case is
+     *         "WGS-84") or a derived projected CRS, e.g. "UTM 32 - North".
      */
     CoordinateReferenceSystem getBaseCRS();
 
     /**
-     * @return A derived coordinate reference system (CRS) which can be used to convert grid (pixel) coordinates
-     *         into geographic coordinates.
+     * @return The image coordinate reference system (CRS). It is usually derived from the base CRS by including
+     * a linear or non-linear transformation from base (geodetic) coordinates to image coordinates.
      */
-    CoordinateReferenceSystem getGridCRS();
+    CoordinateReferenceSystem getImageCRS();
 
     /**
-     * @return ?
+     * @return The model coordinate reference system (CRS). It may be the same as the base CRS for rectified,
+     * geo-referenced images or may be same as the image CRS for unrectified images still in satellite coordinates.
      */
     CoordinateReferenceSystem getModelCRS();
 
-    AffineTransform getGridToModelTransform();
+    /**
+     * @return The affine transformation used to convert image coordinates to model coordinates.
+     */
+    AffineTransform getImageToModelTransform();
 }

@@ -94,8 +94,8 @@ public class Orthorectifier implements GeoCoding {
     }
 
     @Override
-    public CoordinateReferenceSystem getGridCRS() {
-        return _geoCoding.getGridCRS();
+    public CoordinateReferenceSystem getImageCRS() {
+        return _geoCoding.getImageCRS();
     }
 
     @Override
@@ -104,8 +104,8 @@ public class Orthorectifier implements GeoCoding {
     }
 
     @Override
-    public AffineTransform getGridToModelTransform() {
-        return _geoCoding.getGridToModelTransform();
+    public AffineTransform getImageToModelTransform() {
+        return _geoCoding.getImageToModelTransform();
     }
 
     public Pointing getPointing() {

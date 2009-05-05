@@ -62,7 +62,6 @@ public class GraphProcessorMain implements RuntimeRunnable {
             return;
         }
         Map variables = parseArgs(args);
-        BeamLogManager.setSystemLoggerName("gpf");
         Logger logger = BeamLogManager.getSystemLogger();
 
         final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();

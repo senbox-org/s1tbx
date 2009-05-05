@@ -473,7 +473,7 @@ public class ProductUtilsTest extends TestCase {
     public static class SGeoCoding implements GeoCoding {
 
         @Override
-        public AffineTransform getGridToModelTransform() {
+        public AffineTransform getImageToModelTransform() {
             return null;
         }
 
@@ -515,7 +515,7 @@ public class ProductUtilsTest extends TestCase {
         }
 
         @Override
-        public CoordinateReferenceSystem getGridCRS() {
+        public CoordinateReferenceSystem getImageCRS() {
             return null;
         }
 
@@ -560,7 +560,7 @@ public class ProductUtilsTest extends TestCase {
         }
 
         @Override
-        public CoordinateReferenceSystem getGridCRS() {
+        public CoordinateReferenceSystem getImageCRS() {
             return null;
         }
 
@@ -575,7 +575,7 @@ public class ProductUtilsTest extends TestCase {
         }
 
         @Override
-        public AffineTransform getGridToModelTransform() {
+        public AffineTransform getImageToModelTransform() {
             return null;
         }
     }

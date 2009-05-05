@@ -43,8 +43,8 @@ public class MapGeoCoding extends AbstractGeoCoding {
 
     private final MapInfo mapInfo;
     private final MapTransform mapTransform;
-    private final AffineTransform gridToModelTransform;
-    private final AffineTransform modelToGridTransform;
+    private final AffineTransform imageToModelTransform;
+    private final AffineTransform modelToImageTransform;
 
     private final boolean normalized;
     private final double normalizedLonMin;
@@ -61,9 +61,9 @@ public class MapGeoCoding extends AbstractGeoCoding {
 
         this.mapInfo = mapInfo;
 
-        gridToModelTransform = this.mapInfo.getPixelToMapTransform();
+        imageToModelTransform = this.mapInfo.getPixelToMapTransform();
         try {
-            modelToGridTransform = this.mapInfo.getPixelToMapTransform().createInverse();
+            modelToImageTransform = this.mapInfo.getPixelToMapTransform().createInverse();
         } catch (NoninvertibleTransformException e) {
             throw new IllegalArgumentException("mapInfo", e);
         }
@@ -88,7 +88,7 @@ public class MapGeoCoding extends AbstractGeoCoding {
         setBaseCRS(baseCRS);
         setGridCRS(new DefaultDerivedCRS("Grid CS based on " + baseCRS.getName(),
                                          baseCRS,
-                                         new AffineTransform2D(modelToGridTransform),
+                                         new AffineTransform2D(modelToImageTransform),
                                          DefaultCartesianCS.DISPLAY));
         setModelCRS(baseCRS);
     }
@@ -205,16 +205,16 @@ public class MapGeoCoding extends AbstractGeoCoding {
 
     private PixelPos mapToPixel(final Point2D mapPos, PixelPos pixelPos) {
         if (pixelPos != null) {
-            modelToGridTransform.transform(mapPos, pixelPos);
+            modelToImageTransform.transform(mapPos, pixelPos);
             return pixelPos;
         } else {
-            Point2D point2D = modelToGridTransform.transform(mapPos, pixelPos);
+            Point2D point2D = modelToImageTransform.transform(mapPos, pixelPos);
             return new PixelPos((float) point2D.getX(), (float) point2D.getY());
         }
     }
 
     private Point2D pixelToMap(final PixelPos pixelPos, Point2D mapPos) {
-        return gridToModelTransform.transform(pixelPos, mapPos);
+        return imageToModelTransform.transform(pixelPos, mapPos);
     }
 
     private GeoPos normGeoPos(final GeoPos geoPos, final GeoPos geoPosNorm) {
@@ -323,7 +323,7 @@ public class MapGeoCoding extends AbstractGeoCoding {
     }
 
     @Override
-    public AffineTransform getGridToModelTransform() {
-        return gridToModelTransform;
+    public AffineTransform getImageToModelTransform() {
+        return imageToModelTransform;
     }
 }

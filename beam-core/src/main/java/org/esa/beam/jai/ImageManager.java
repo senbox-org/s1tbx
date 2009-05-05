@@ -305,7 +305,7 @@ public class ImageManager {
 
         final AffineTransform i2mTransform;
         if (scene.getGeoCoding() != null) {
-            i2mTransform = scene.getGeoCoding().getGridToModelTransform();
+            i2mTransform = scene.getGeoCoding().getImageToModelTransform();
         } else {
             i2mTransform = new AffineTransform();
         }

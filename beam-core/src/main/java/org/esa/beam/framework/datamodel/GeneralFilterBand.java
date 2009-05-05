@@ -26,7 +26,6 @@ import javax.media.jai.BorderExtender;
 import javax.media.jai.BorderExtenderCopy;
 import javax.media.jai.JAI;
 import javax.media.jai.KernelJAI;
-import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConvolveDescriptor;
 import javax.media.jai.operator.MaxFilterDescriptor;
 import javax.media.jai.operator.MaxFilterShape;
@@ -68,7 +67,6 @@ public class GeneralFilterBand extends FilterBand {
      * @param subWindowWidth  the window width used by the filter
      * @param subWindowHeight the window height used by the filter
      * @param operator        the operator which performs the filter operation
-     *
      * @deprecated since BEAM 4.5; non square windows are not supported, use {@link GeneralFilterBand#GeneralFilterBand(String, RasterDataNode, int, Operator)}.
      *             It is currently implemented by delegating to the other constructor using {@code subWindowWidth}  as {@code subWindowSize}.
      */
@@ -81,10 +79,10 @@ public class GeneralFilterBand extends FilterBand {
     /**
      * Creates a GeneralFilterBand.
      *
-     * @param name            the name of the band.
-     * @param source          the source which shall be filtered.
-     * @param subWindowSize  the window size (width/height) used by the filter
-     * @param operator        the operator which performs the filter operation
+     * @param name          the name of the band.
+     * @param source        the source which shall be filtered.
+     * @param subWindowSize the window size (width/height) used by the filter
+     * @param operator      the operator which performs the filter operation
      */
     public GeneralFilterBand(String name, RasterDataNode source, int subWindowSize, Operator operator) {
         super(name,
@@ -119,7 +117,6 @@ public class GeneralFilterBand extends FilterBand {
      * Creates an instance {@link Operator} by the given class name
      *
      * @param operatorClassName the class name
-     *
      * @return instance of {@link Operator}
      */
     public static Operator createOperator(String operatorClassName) {
@@ -138,13 +135,11 @@ public class GeneralFilterBand extends FilterBand {
     }
 
     public int getSubWindowSize() {
-         return subWindowSize;
-     }
+        return subWindowSize;
+    }
 
     /**
-     *
      * @return return the width of the sub window.
-     *
      * @deprecated since BEAM 4.5, use {@link #getSubWindowSize()}
      */
     @Deprecated
@@ -153,9 +148,7 @@ public class GeneralFilterBand extends FilterBand {
     }
 
     /**
-     *
      * @return return the height of the sub window.
-     *
      * @deprecated since BEAM 4.5, use {@link #getSubWindowSize()}
      */
     @Deprecated
@@ -177,7 +170,6 @@ public class GeneralFilterBand extends FilterBand {
          *
          * @param values an array of pixel values extracted from a raster sub-window
          * @param n      the number of values in the array
-         *
          * @return the result of the operation
          */
         double evaluate(double[] values, int n);
@@ -294,7 +286,7 @@ public class GeneralFilterBand extends FilterBand {
         }
 
         @Override
-            public RenderedImage createImage(int level) {
+        public RenderedImage createImage(int level) {
             final ImageManager imageManager = ImageManager.getInstance();
             final RenderedImage geophysicalImage = imageManager.getGeophysicalImage(sourceRaster, level);
             if (getOperator() == MIN) {
@@ -316,7 +308,7 @@ public class GeneralFilterBand extends FilterBand {
                 int keyOrigin = (int) Math.ceil(subWindowSize / 2.0f);
                 KernelJAI kernel = new KernelJAI(subWindowSize, subWindowSize, keyOrigin, keyOrigin, meanFilter);
                 RenderingHints rh = new RenderingHints(JAI.KEY_BORDER_EXTENDER, noDataExtender);
-                return  ConvolveDescriptor.create(geophysicalImage, kernel, rh);
+                return ConvolveDescriptor.create(geophysicalImage, kernel, rh);
             }
             if (getOperator() == STDDEV) {
                 // TODO - implement a JAI operator

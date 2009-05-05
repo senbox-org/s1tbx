@@ -122,7 +122,7 @@ public class OrthorectifierTest extends TestCase {
     static class GeoCodingMock implements GeoCoding {
 
         @Override
-        public AffineTransform getGridToModelTransform() {
+        public AffineTransform getImageToModelTransform() {
             return null;
         }
 
@@ -143,7 +143,7 @@ public class OrthorectifierTest extends TestCase {
         }
 
         @Override
-        public CoordinateReferenceSystem getGridCRS() {
+        public CoordinateReferenceSystem getImageCRS() {
             return null;
         }
 

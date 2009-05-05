@@ -94,7 +94,7 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         try {
             configuration.setValue(RasterImageLayerType.PROPERTY_NAME_RASTER, rasterDataNode);
             configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
-                                   rasterDataNode.getGeoCoding().getGridToModelTransform());
+                                   rasterDataNode.getGeoCoding().getImageToModelTransform());
             configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
             configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
             configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);

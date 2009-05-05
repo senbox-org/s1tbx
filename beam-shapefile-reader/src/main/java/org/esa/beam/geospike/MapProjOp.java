@@ -126,7 +126,7 @@ public class MapProjOp extends Operator {
             addFlagCodingsToProduct(targetProduct);
             addIndexCodingsToProduct(targetProduct);
 
-            final Envelope2D sourceEnvelope = new Envelope2D(sourceProduct.getGeoCoding().getGridCRS(),
+            final Envelope2D sourceEnvelope = new Envelope2D(sourceProduct.getGeoCoding().getImageCRS(),
                                                              0, 0,
                                                              sourceProduct.getSceneRasterWidth(),
                                                              sourceProduct.getSceneRasterHeight());

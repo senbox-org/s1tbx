@@ -83,7 +83,7 @@ public class WorldMapPainter {
         return new GeoCoding() {
 
             @Override
-            public AffineTransform getGridToModelTransform() {
+            public AffineTransform getImageToModelTransform() {
                 return null;
             }
 
@@ -94,7 +94,7 @@ public class WorldMapPainter {
 
 
             @Override
-            public CoordinateReferenceSystem getGridCRS() {
+            public CoordinateReferenceSystem getImageCRS() {
                 return null;
             }
 
