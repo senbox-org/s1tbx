@@ -20,11 +20,9 @@ import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ComponentAdapter;
 import com.bc.ceres.binding.swing.ValueEditor;
-import com.bc.ceres.swing.TableLayout;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 
 /**
  * An editor for boolean values using a JCheckbox.
@@ -42,20 +40,18 @@ public class CheckBoxEditor extends ValueEditor {
     }
     
     @Override
-    public int addEditorComponent(JPanel panel, TableLayout tableLayout, int rowIndex, ValueDescriptor valueDescriptor, BindingContext bindingContext) {
-        JCheckBox checkBox = (JCheckBox) createEditorComponent(valueDescriptor, bindingContext);
-        configureEditorComponent(checkBox, valueDescriptor);
-        
+    public JComponent[] createComponents(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
+        JCheckBox checkBox = createCheckBoxComponent(valueDescriptor, bindingContext);
         checkBox.setText(getDisplayName(valueDescriptor));
-        tableLayout.setCellColspan(rowIndex, 0, tableLayout.getColumnCount());
-        tableLayout.setCellWeightX(rowIndex, 0, 1.0);
-        panel.add(checkBox);
-        
-        return 1;
+        return new JComponent[] {checkBox};
     }
     
     @Override
     public JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
+        return createCheckBoxComponent(valueDescriptor, bindingContext);
+    }
+    
+    private JCheckBox createCheckBoxComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
         JCheckBox checkBox = new JCheckBox();
         ComponentAdapter adapter = new AbstractButtonAdapter(checkBox);
         bindingContext.bind(valueDescriptor.getName(), adapter);

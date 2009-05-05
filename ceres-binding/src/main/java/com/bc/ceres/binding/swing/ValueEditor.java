@@ -18,12 +18,9 @@ package com.bc.ceres.binding.swing;
 
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.core.Assert;
-import com.bc.ceres.swing.TableLayout;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 /**
  * A factory for editors that can edit values of a certain type
@@ -54,48 +51,29 @@ public abstract class ValueEditor {
      * @param bindingContext The binding context
      * @return the editor component
      */
-    public abstract JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext);
-    
-    /**
-     * <p>Creates the editor component for the {@link ValueDescriptor} and binds it
-     * to a {@link ValueContainer} using the {@link BindingContext}.
-     * This editor component is then added to the {@link JPanel}.
-     * </p><p>
-     * The panel must use a {@link TableLayout} whith at least 2 columns.
-     * </p>
-     * 
-     * @param panel The panel to which the editor is added 
-     * @param tableLayout The table layout of the panel 
-     * @param rowIndex The index of the row at which the first component must be added 
-     * @param valueDescriptor The value descriptor
-     * @param bindingContext The binding context
-     * 
-     * @return the number of rows that have been added to the panel
-     */
-    public int addEditorComponent(JPanel panel, TableLayout tableLayout, int rowIndex, ValueDescriptor valueDescriptor, BindingContext bindingContext) {
-        Assert.state(panel.getLayout() instanceof TableLayout);
-        Assert.state(tableLayout.getColumnCount() >= 2);
-        
+    public JComponent[] createComponents(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
+        valueDescriptor.setDescription("a Nice and long description");
         JComponent editorComponent = createEditorComponent(valueDescriptor, bindingContext);
-        configureEditorComponent(editorComponent, valueDescriptor);
         
         JLabel label = new JLabel(getDisplayName(valueDescriptor) + ":");
+        Binding binding = bindingContext.getBinding(valueDescriptor.getName());
+        binding.addComponent(label);
         
-        tableLayout.setCellWeightX(rowIndex, 0, 0.0);
-        panel.add(label);
-        tableLayout.setCellWeightX(rowIndex, 1, 1.0);
-        panel.add(editorComponent);
-        if (tableLayout.getColumnCount() > 2) {
-            tableLayout.setCellColspan(rowIndex, 2, tableLayout.getColumnCount() - 2);
-            panel.add(new JPanel());
-        }
-        return 1;
+        return new JComponent[] {editorComponent, label};
     }
     
-    protected void configureEditorComponent(JComponent editorComponent, ValueDescriptor valueDescriptor) {
-        editorComponent.setName(valueDescriptor.getName());
-        editorComponent.setToolTipText(valueDescriptor.getDescription());
-    }
+    /**
+     * Creates the editor component together with an optional label for the {@link ValueDescriptor} and bind it
+     * to a {@link ValueContainer} using the {@link BindingContext}.
+     * 
+     * If for this editor component a label is applicable, it is return as the second element in the array.
+     * 
+     * 
+     * @param valueDescriptor The value descriptor
+     * @param bindingContext The binding context
+     * @return an array containing the editor component as first element and (if applicable) a label as second element
+     */
+    public abstract JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext);
     
     protected static String getDisplayName(ValueDescriptor valueDescriptor) {
         String label = valueDescriptor.getDisplayName();

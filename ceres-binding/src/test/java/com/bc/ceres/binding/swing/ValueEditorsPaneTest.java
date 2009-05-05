@@ -51,7 +51,6 @@ public class ValueEditorsPaneTest extends TestCase {
         assertEquals("Product description:", ((JLabel) components[9]).getText());
         assertEquals("productDescription", components[10].getName());
         assertEquals("Image file:", ((JLabel) components[11]).getText());
-        assertEquals("imageFile", components[12].getName());
     }
 
     private static class V {

@@ -5,6 +5,7 @@ import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.swing.TableLayout;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 
@@ -41,8 +42,18 @@ public class ValueEditorsPane {
         for (ValueModel model : models) {
             ValueDescriptor descriptor = model.getDescriptor();
             ValueEditor valueEditor = registry.findValueEditor(descriptor);
-            int rows = valueEditor.addEditorComponent(panel, layout, rowIndex, descriptor, bindingContext);
-            rowIndex += rows;
+            JComponent[] components = valueEditor.createComponents(descriptor, bindingContext);
+            if (components.length == 2) {
+                layout.setCellWeightX(rowIndex, 0, 0.0);
+                panel.add(components[1]);
+                layout.setCellWeightX(rowIndex, 1, 1.0);
+                panel.add(components[0]);
+            } else {
+                layout.setCellColspan(rowIndex, 0, 2);
+                layout.setCellWeightX(rowIndex, 0, 1.0);
+                panel.add(components[0]);
+            }
+            rowIndex ++;
         }
         layout.setCellColspan(rowIndex, 0, 2);
         layout.setCellWeightX(rowIndex, 0, 1.0);

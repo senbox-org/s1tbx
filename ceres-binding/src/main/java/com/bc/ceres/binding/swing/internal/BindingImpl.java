@@ -8,7 +8,6 @@ import javax.swing.JComponent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public final class BindingImpl implements Binding, PropertyChangeListener {
@@ -18,7 +17,6 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
     private final String name;
     private List<JComponent> secondaryComponents;
     private boolean adjustingComponents;
-    private PropertyChangeListener pcl;
 
     public BindingImpl(BindingContext context, String name, ComponentAdapter componentAdapter) {
         this.context = context;
