@@ -1,9 +1,12 @@
 package com.bc.ceres.binding.swing;
 
 import com.bc.ceres.binding.*;
+import com.bc.ceres.binding.swing.internal.TextComponentAdapter;
+
 import junit.framework.TestCase;
 
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
 
 import java.util.Arrays;
 
@@ -142,6 +145,24 @@ public class BindingContextTest extends TestCase {
 
         valueContainerVB.setValue("doubleValue", 2.71);
         assertEquals(2.71, textField.getValue());
+    }
+    
+    public void testBindTextArea() throws ValidationException, BadLocationException {
+        JTextArea textArea = new JTextArea();
+        TextComponentAdapter textComponentAdapter = new TextComponentAdapter(textArea);
+        Binding binding = bindingContextVB.bind("stringValue", textComponentAdapter);
+        assertNotNull(binding);
+        assertSame(textArea, getPrimaryComponent(binding));
+        assertNotNull(binding.getComponents());
+        assertEquals(1, binding.getComponents().length);
+
+        assertEquals("stringValue", textArea.getName());
+
+        textArea.setText("Bibo");
+        assertEquals("Bibo", valueContainerVB.getValue("stringValue"));
+
+        valueContainerVB.setValue("stringValue", "Samson");
+        assertEquals("Samson", textArea.getText());
     }
 
     public void testBindCheckBox() throws ValidationException {
