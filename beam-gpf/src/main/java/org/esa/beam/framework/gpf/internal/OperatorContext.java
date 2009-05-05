@@ -83,7 +83,7 @@ public class OperatorContext {
     private OperatorSpi operatorSpi;
     private Operator operator;
     private boolean computeTileMethodUsable;
-    private boolean computeTileStackMethodUsage;
+    private boolean computeTileStackMethodUsable;
     private boolean passThrough;
     private List<Product> sourceProductList;
     private Map<String, Object> parameters;
@@ -101,7 +101,7 @@ public class OperatorContext {
     public OperatorContext(Operator operator) {
         this.operator = operator;
         this.computeTileMethodUsable = canOperatorComputeTile(operator.getClass());
-        this.computeTileStackMethodUsage = canOperatorComputeTileStack(operator.getClass());
+        this.computeTileStackMethodUsable = canOperatorComputeTileStack(operator.getClass());
         this.sourceProductList = new ArrayList<Product>(3);
         this.sourceProductMap = new HashMap<String, Product>(3);
         this.targetPropertyMap = new HashMap<String, Object>(3);
@@ -253,16 +253,16 @@ public class OperatorContext {
         return computeTileMethodUsable;
     }
 
-    public boolean isComputeTileStackMethodUsage() {
-        return computeTileStackMethodUsage;
+    public boolean isComputeTileStackMethodUsable() {
+        return computeTileStackMethodUsable;
     }
 
     public void setComputeTileMethodUsable(boolean computeTileMethodUsable) {
         this.computeTileMethodUsable = computeTileMethodUsable;
     }
 
-    public void setComputeTileStackMethodUsage(boolean computeTileStackMethodUsage) {
-        this.computeTileStackMethodUsage = computeTileStackMethodUsage;
+    public void setComputeTileStackMethodUsable(boolean computeTileStackMethodUsable) {
+        this.computeTileStackMethodUsable = computeTileStackMethodUsable;
     }
 
     public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle rectangle, ProgressMonitor pm) {

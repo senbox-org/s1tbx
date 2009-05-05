@@ -126,7 +126,7 @@ public abstract class Operator {
      * @throws IllegalStateException if the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack} method is not implemented
      */
     protected final void deactivateComputeTileMethod() throws IllegalStateException {
-        if (!context.isComputeTileStackMethodUsage()) {
+        if (!context.isComputeTileStackMethodUsable()) {
             throw new IllegalStateException("!context.isComputeTileStackMethodUsable()");
         }
         context.setComputeTileMethodUsable(false);

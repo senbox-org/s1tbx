@@ -181,7 +181,7 @@ public class OperatorImage extends SourcelessOpImage {
     }
 
     private boolean operatorMustComputeTileStack() {
-        return operatorContext.isComputeTileStackMethodUsage()
+        return operatorContext.isComputeTileStackMethodUsable()
                 && !operatorContext.isComputeTileMethodUsable();
     }
 
