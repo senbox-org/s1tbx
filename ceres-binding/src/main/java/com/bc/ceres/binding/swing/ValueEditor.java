@@ -52,7 +52,6 @@ public abstract class ValueEditor {
      * @return the editor component
      */
     public JComponent[] createComponents(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
-        valueDescriptor.setDescription("a Nice and long description");
         JComponent editorComponent = createEditorComponent(valueDescriptor, bindingContext);
         
         JLabel label = new JLabel(getDisplayName(valueDescriptor) + ":");
