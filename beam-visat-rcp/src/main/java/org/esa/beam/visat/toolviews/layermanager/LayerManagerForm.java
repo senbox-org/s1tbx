@@ -127,10 +127,10 @@ class LayerManagerForm extends AbstractLayerForm {
         updateLayerTreeSelection(selectedLayer);
         boolean isLayerSelected = selectedLayer != null;
         removeLayerAction.setEnabled(isLayerSelected && !isLayerProtected(selectedLayer));
-        moveLayerUpAction.setEnabled(isLayerSelected);
-        moveLayerDownAction.setEnabled(isLayerSelected);
-        moveLayerLeftAction.setEnabled(isLayerSelected);
-        moveLayerRightAction.setEnabled(isLayerSelected);
+        moveLayerUpAction.setEnabled(isLayerSelected && moveLayerUpAction.canMove(selectedLayer));
+        moveLayerDownAction.setEnabled(isLayerSelected && moveLayerDownAction.canMove(selectedLayer));
+        moveLayerLeftAction.setEnabled(isLayerSelected && moveLayerLeftAction.canMove(selectedLayer));
+        moveLayerRightAction.setEnabled(isLayerSelected && moveLayerRightAction.canMove(selectedLayer));
     }
 
     public boolean isLayerProtected(Layer layer) {
