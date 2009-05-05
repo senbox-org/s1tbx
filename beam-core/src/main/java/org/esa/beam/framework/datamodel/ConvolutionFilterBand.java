@@ -10,9 +10,12 @@ import javax.media.jai.BorderExtender;
 import javax.media.jai.BorderExtenderCopy;
 import javax.media.jai.JAI;
 import javax.media.jai.KernelJAI;
+import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.ConvolveDescriptor;
+import javax.media.jai.operator.FormatDescriptor;
 import java.awt.RenderingHints;
 import java.awt.image.RenderedImage;
+import java.awt.image.DataBuffer;
 import java.io.IOException;
 
 /**
@@ -31,7 +34,7 @@ public class ConvolutionFilterBand extends FilterBand {
 
     public ConvolutionFilterBand(String name, RasterDataNode source, Kernel kernel) {
         super(name,
-              source.getGeophysicalDataType(),
+              source.getGeophysicalDataType() == ProductData.TYPE_FLOAT64 ? ProductData.TYPE_FLOAT64 : ProductData.TYPE_FLOAT32,
               source.getSceneRasterWidth(),
               source.getSceneRasterHeight(),
               source);
@@ -58,7 +61,9 @@ public class ConvolutionFilterBand extends FilterBand {
                         BorderExtenderCopy.BORDER_COPY));
                 final ImageManager imageManager = ImageManager.getInstance();
                 final RenderedImage geophysicalSourceImage = imageManager.getGeophysicalImage(getSource(), level);
-                return ConvolveDescriptor.create(geophysicalSourceImage, jaiKernel, rh);
+                final int floatingPointType = getDataType() == ProductData.TYPE_FLOAT64 ? DataBuffer.TYPE_DOUBLE : DataBuffer.TYPE_FLOAT;
+                final RenderedOp floatingPointImage = FormatDescriptor.create(geophysicalSourceImage, floatingPointType, null);
+                return ConvolveDescriptor.create(floatingPointImage, jaiKernel, rh);
             }
         };
         return new DefaultMultiLevelImage(multiLevelSource);
