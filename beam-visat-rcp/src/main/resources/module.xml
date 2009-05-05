@@ -304,6 +304,8 @@
             <id>org.esa.beam.visat.toolviews.layermanager.LayerEditorToolView</id>
             <class>org.esa.beam.visat.toolviews.layermanager.LayerEditorToolView</class>
             <title>Layer Editor</title>
+            <mnemonic>E</mnemonic>
+            <accelerator>ctrl alt E</accelerator>
             <description>Edit layer properties.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/LayerEditor16.png</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/LayerEditor24.png</largeIcon>

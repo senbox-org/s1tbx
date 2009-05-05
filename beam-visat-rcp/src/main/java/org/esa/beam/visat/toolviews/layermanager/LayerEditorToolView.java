@@ -16,7 +16,6 @@ package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
-
 import org.esa.beam.framework.ui.AppContext;
 
 import javax.swing.JComponent;
@@ -31,6 +30,7 @@ import java.beans.PropertyChangeEvent;
  */
 public class LayerEditorToolView extends AbstractLayerToolView {
 
+    static final String ID = LayerEditorToolView.class.getName();
     private final NullLayerEditor nullLayerEditor;
     private LayerEditor activeEditor;
     private final LayerHandler layerHandler;
