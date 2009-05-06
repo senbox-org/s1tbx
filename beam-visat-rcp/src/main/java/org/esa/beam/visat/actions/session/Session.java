@@ -1,8 +1,6 @@
 package org.esa.beam.visat.actions.session;
 
 import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.Converter;
-import com.bc.ceres.binding.ConverterRegistry;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.dom.DefaultDomElement;
@@ -20,11 +18,13 @@ import com.thoughtworks.xstream.annotations.XStreamConverter;
 import com.thoughtworks.xstream.converters.SingleValueConverterWrapper;
 import com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter;
 import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.RGBImageProfile;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.product.ProductMetadataView;
@@ -70,8 +70,7 @@ public class Session {
         productRefs = new ProductRef[products.length];
         for (int i = 0; i < products.length; i++) {
             Product product = products[i];
-            URI productURI = product.getFileLocation().toURI();
-            URI relativeProductURI = rootURI.relativize(productURI);
+            URI relativeProductURI = getFileLocationURI(rootURI, product);
             productRefs[i] = new ProductRef(product.getRefNo(), relativeProductURI);
         }
 
@@ -79,8 +78,6 @@ public class Session {
         for (Product product : products) {
             productManager.addProduct(product);
         }
-        // todo - move somwhere else (rq,mp - 21.04.2009)
-        registerConverters();
 
         viewRefs = new ViewRef[views.length];
         for (int i = 0; i < views.length; i++) {
@@ -103,9 +100,23 @@ public class Session {
             if (view instanceof JComponent) {
                 viewBounds = getRootPaneContainer((JComponent) view).getBounds();
             }
-            String productNodeName = "";
+            String productNodeName = null;
+            String viewName = null;
+            String redExpression = null;
+            String greenExpression = null;
+            String blueExpression = null;
             if (view instanceof ProductSceneView) {
-                productNodeName = view.getVisibleProductNode().getName();
+                final ProductSceneView psv = (ProductSceneView) view;
+                if (psv.isRGB()) {
+                    viewName = psv.getSceneName();
+                    final RasterDataNode[] rasters = psv.getRasters();
+
+                    redExpression = getExpression(rasters[0]);
+                    greenExpression = getExpression(rasters[1]);
+                    blueExpression = getExpression(rasters[2]);
+                } else {
+                    productNodeName = view.getVisibleProductNode().getName();
+                }
             } else if (view instanceof ProductMetadataView) {
                 ProductMetadataView metadataView = (ProductMetadataView) view;
                 MetadataElement metadataRoot = metadataView.getProduct().getMetadataRoot();
@@ -125,8 +136,41 @@ public class Session {
                                       viewportDef,
                                       view.getVisibleProductNode().getProduct().getRefNo(),
                                       productNodeName,
+                                      viewName,
+                                      redExpression,
+                                      greenExpression,
+                                      blueExpression,
                                       layerRefs);
         }
+    }
+
+    private static String getExpression(RasterDataNode raster) {
+        final ProductNode owner = raster.getOwner();
+
+        if (owner instanceof Product) {
+            final Product product = (Product) owner;
+            if (product.containsBand(raster.getName())) {
+                return raster.getName();
+            } else {
+                if (raster instanceof VirtualBand) {
+                    return ((VirtualBand) raster).getExpression();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static URI getFileLocationURI(URI rootURI, Product product) {
+        final File file = product.getFileLocation();
+        if (file == null) {
+            return null;
+        }
+        final URI uri = file.toURI();
+        if (rootURI == null) {
+            return uri;
+        }
+        return rootURI.relativize(uri);
     }
 
     private LayerRef[] getLayerRefs(LayerContext layerContext, List<Layer> layers, ProductManager productManager) {
@@ -235,27 +279,39 @@ public class Session {
                         final ProductSceneView view;
                         Product product = productManager.getProductByRefNo(viewRef.productRefNo);
                         if (product != null) {
-                            RasterDataNode node = product.getRasterDataNode(viewRef.productNodeName);
-                            if (node != null) {
-                                view = new ProductSceneView(
-                                        new ProductSceneImage(node, new PropertyMap(),
-                                                              SubProgressMonitor.create(pm, 1)));
-                                Rectangle bounds = viewRef.bounds;
-                                if (bounds != null && !bounds.isEmpty()) {
-                                    view.setBounds(bounds);
+                            final ProductSceneImage sceneImage;
+                            if (viewRef.productNodeName != null) {
+                                RasterDataNode node = product.getRasterDataNode(viewRef.productNodeName);
+                                if (node != null) {
+                                    sceneImage = new ProductSceneImage(node, new PropertyMap(),
+                                                                       SubProgressMonitor.create(pm, 1));
+                                } else {
+                                    throw new Exception("Unknown raster data source: " + viewRef.productNodeName);
                                 }
-                                ViewportDef viewportDef = viewRef.viewportDef;
-                                if (viewportDef != null) {
-                                    Viewport viewport = view.getLayerCanvas().getViewport();
-                                    viewport.setModelYAxisDown(viewportDef.modelYAxisDown);
-                                    viewport.setZoomFactor(viewportDef.zoomFactor);
-                                    viewport.setOrientation(viewportDef.orientation);
-                                    viewport.setOffset(viewportDef.offsetX, viewportDef.offsetY);
-                                }
-                                views.add(view);
                             } else {
-                                throw new Exception("Unknown raster data source: " + viewRef.productNodeName);
+                                final Band rBand = getRgbBand(product, viewRef.expressionR,
+                                                              RGBImageProfile.RGB_BAND_NAMES[0]);
+                                final Band gBand = getRgbBand(product, viewRef.expressionG,
+                                                              RGBImageProfile.RGB_BAND_NAMES[1]);
+                                final Band bBand = getRgbBand(product, viewRef.expressionB,
+                                                              RGBImageProfile.RGB_BAND_NAMES[2]);
+                                sceneImage = new ProductSceneImage(viewRef.viewName, rBand, gBand, bBand,
+                                                                   new PropertyMap(), SubProgressMonitor.create(pm, 1));
                             }
+                            view = new ProductSceneView(sceneImage);
+                            Rectangle bounds = viewRef.bounds;
+                            if (bounds != null && !bounds.isEmpty()) {
+                                view.setBounds(bounds);
+                            }
+                            ViewportDef viewportDef = viewRef.viewportDef;
+                            if (viewportDef != null) {
+                                Viewport viewport = view.getLayerCanvas().getViewport();
+                                viewport.setModelYAxisDown(viewportDef.modelYAxisDown);
+                                viewport.setZoomFactor(viewportDef.zoomFactor);
+                                viewport.setOrientation(viewportDef.orientation);
+                                viewport.setOffset(viewportDef.offsetX, viewportDef.offsetY);
+                            }
+                            views.add(view);
                         } else {
                             throw new Exception("Unknown product reference number: " + viewRef.productRefNo);
                         }
@@ -370,19 +426,29 @@ public class Session {
 
         final int productRefNo;
         final String productNodeName;
+        final String viewName;
+        final String expressionR;
+        final String expressionG;
+        final String expressionB;
+
         @XStreamAlias("layers")
         final LayerRef[] layerRefs;
 
-
         public ViewRef(int id, String type, Rectangle bounds,
                        ViewportDef viewportDef, int productRefNo,
-                       String productNodeName, LayerRef[] layerRefs) {
+                       String productNodeName, String viewName, String expressionR, String expressionG,
+                       String expressionB,
+                       LayerRef[] layerRefs) {
             this.id = id;
             this.type = type;
             this.bounds = bounds;
             this.viewportDef = viewportDef;
             this.productRefNo = productRefNo;
             this.productNodeName = productNodeName;
+            this.viewName = viewName;
+            this.expressionR = expressionR;
+            this.expressionG = expressionG;
+            this.expressionB = expressionB;
             this.layerRefs = layerRefs;
         }
 
@@ -443,24 +509,28 @@ public class Session {
         }
     }
 
-    // TODO: implement converters - without converters dom converter recurrs infinitely
-    private static void registerConverters() {
-        ConverterRegistry.getInstance().setConverter(RasterDataNode.class, new Converter<RasterDataNode>() {
-            @Override
-            public Class<? extends RasterDataNode> getValueType() {
-                return RasterDataNode.class;
+    private static Band getRgbBand(Product product, String expression, String bandName) {
+        Band band = null;
+        if (expression != null && !expression.isEmpty()) {
+            band = product.getBand(expression);
+        }
+        if (band == null) {
+            if (expression == null || expression.isEmpty()) {
+                expression = "0.0";
             }
+            band = new Channel(bandName, product, expression);
+        }
 
-            @Override
-            public RasterDataNode parse(String text) throws ConversionException {
-                return new VirtualBand(text, ProductData.TYPE_INT32, 10, 10, "0");
-            }
+        return band;
+    }
 
-            @Override
-            public String format(RasterDataNode value) {
-                return value.getName();
-            }
-        });
+    private static class Channel extends VirtualBand {
+
+        public Channel(final String name, Product product, final String expression) {
+            super(name, ProductData.TYPE_FLOAT32, product.getSceneRasterWidth(), product.getSceneRasterHeight(),
+                  expression);
+            setOwner(product);
+        }
     }
 
     public static class URIConnverterWrapper extends SingleValueConverterWrapper {
