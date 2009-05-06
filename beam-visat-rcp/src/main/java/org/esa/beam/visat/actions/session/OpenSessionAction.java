@@ -27,15 +27,18 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductMetadataView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.ShowImageViewAction;
 import org.esa.beam.visat.actions.ShowMetadataViewAction;
+import org.esa.beam.visat.actions.ShowImageViewRGBAction;
 
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.Icon;
 import java.awt.Rectangle;
 import java.beans.PropertyVetoException;
 import java.io.File;
@@ -186,6 +189,7 @@ public class OpenSessionAction extends ExecCommand {
             }
 
             ShowImageViewAction showImageViewAction = getAction(ShowImageViewAction.ID);
+            ShowImageViewRGBAction showImageViewRGBAction = getAction(ShowImageViewRGBAction.ID);
             ShowMetadataViewAction showMetadataViewAction = getAction(ShowMetadataViewAction.ID);
 
             final ProductNodeView[] nodeViews = restoredSession.getViews();
@@ -197,7 +201,11 @@ public class OpenSessionAction extends ExecCommand {
 
                     sceneView.getLayerCanvas().setInitiallyZoomingAll(false);
                     Viewport viewport = sceneView.getLayerCanvas().getViewport().clone();
-                    internalFrame = showImageViewAction.openInternalFrame(sceneView);
+                    if (sceneView.isRGB()) {
+                        internalFrame = showImageViewRGBAction.openInternalFrame(sceneView);
+                    } else {
+                        internalFrame = showImageViewAction.openInternalFrame(sceneView);
+                    }
                     sceneView.getLayerCanvas().getViewport().setTransform(viewport);
                 } else if (nodeView instanceof ProductMetadataView) {
                     ProductMetadataView metadataView = (ProductMetadataView) nodeView;
