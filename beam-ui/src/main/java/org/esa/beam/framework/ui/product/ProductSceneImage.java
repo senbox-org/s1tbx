@@ -19,16 +19,7 @@ import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.draw.Figure;
-import org.esa.beam.glayer.BitmaskCollectionLayer;
-import org.esa.beam.glayer.BitmaskLayerType;
-import org.esa.beam.glayer.FigureLayer;
-import org.esa.beam.glayer.FigureLayerType;
-import org.esa.beam.glayer.GraticuleLayer;
-import org.esa.beam.glayer.GraticuleLayerType;
-import org.esa.beam.glayer.NoDataLayerType;
-import org.esa.beam.glayer.PlacemarkLayer;
-import org.esa.beam.glayer.RasterImageLayerType;
-import org.esa.beam.glayer.RoiLayerType;
+import org.esa.beam.glayer.*;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.util.PropertyMap;
 
@@ -54,7 +45,7 @@ public class ProductSceneImage implements LayerContext {
      * @param pm            a monitor to inform the user about progress @return a color indexed product scene image
      */
     public ProductSceneImage(RasterDataNode raster, PropertyMap configuration, ProgressMonitor pm) {
-        this("Image of " + raster.getName(),
+        this(raster.getDisplayName(),
              new RasterDataNode[]{raster},
              configuration);
         bandImageMultiLevelSource = BandImageMultiLevelSource.create(raster, pm);
@@ -68,7 +59,7 @@ public class ProductSceneImage implements LayerContext {
      * @param view   An existing view.
      */
     public ProductSceneImage(RasterDataNode raster, ProductSceneView view) {
-        this("Image of " + raster.getName(),
+        this(raster.getDisplayName(),
              new RasterDataNode[]{raster},
              view.getSceneImage().getConfiguration());
         bandImageMultiLevelSource = view.getSceneImage().getBandImageMultiLevelSource();
@@ -247,13 +238,20 @@ public class ProductSceneImage implements LayerContext {
     }
 
     private Layer createBaseImageLayer() {
-        final RasterImageLayerType type = (RasterImageLayerType) LayerType.getLayerType(
-                RasterImageLayerType.class.getName());
-        final Layer layer = type.createLayer(getRaster(), bandImageMultiLevelSource);
-        layer.setName(getRaster().getDisplayName());
+        final Layer layer;
+        if (getRasters().length == 1) {
+            final RasterImageLayerType type = (RasterImageLayerType) LayerType.getLayerType(
+                    RasterImageLayerType.class.getName());
+            layer = type.createLayer(getRaster(), bandImageMultiLevelSource);
+        } else {
+            final RgbImageLayerType type = (RgbImageLayerType) LayerType.getLayerType(
+                    RgbImageLayerType.class.getName());
+            layer = type.createLayer(getRasters(), bandImageMultiLevelSource);
+        }
+
+        layer.setName(getName());
         layer.setVisible(true);
         layer.setId(ProductSceneView.BASE_IMAGE_LAYER_ID);
-
         setBaseImageLayerStyle(configuration, layer);
         return layer;
     }
