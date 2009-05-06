@@ -40,7 +40,7 @@ public class XStreamDomConverter implements DomConverter {
         getXStream().marshal(value, new XStreamDomElementWriter(parentElement));
     }
 
-    private XStream getXStream() {
+    public XStream getXStream() {
         if (xStream == null) {
             xStream = new XStream();
             configureXStream(xStream);
