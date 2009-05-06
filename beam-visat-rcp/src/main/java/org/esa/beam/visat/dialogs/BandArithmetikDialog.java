@@ -16,6 +16,20 @@
  */
 package org.esa.beam.visat.dialogs;
 
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.binding.swing.BindingContext;
+import com.bc.ceres.binding.swing.ValueEditor;
+import com.bc.ceres.binding.swing.ValueEditorRegistry;
+import com.bc.ceres.binding.swing.internal.CheckBoxEditor;
+import com.bc.ceres.binding.swing.internal.NumericEditor;
+import com.bc.ceres.binding.swing.internal.SingleSelectionEditor;
+import com.bc.ceres.binding.swing.internal.TextComponentAdapter;
+import com.bc.ceres.binding.swing.internal.TextFieldEditor;
 import com.bc.jexp.Namespace;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
@@ -23,16 +37,12 @@ import com.bc.jexp.Term;
 import com.bc.jexp.impl.ParserImpl;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeList;
-import org.esa.beam.framework.datamodel.ProductNodeNameValidator;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
-import org.esa.beam.framework.param.ParamChangeEvent;
-import org.esa.beam.framework.param.ParamChangeListener;
-import org.esa.beam.framework.param.ParamProperties;
-import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
@@ -41,12 +51,18 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
+
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -55,20 +71,28 @@ import java.util.Set;
 
 public class BandArithmetikDialog extends ModalDialog {
 
-    private static final String _PARAM_NAME_PRODUCT = "product";
-
+    private static final String PROPERTY_NAME_PRODUCT = "productName";
+    private static final String PROPERTY_NAME_EXPRESSION = "expression";
+    private static final String PROPERTY_NAME_NO_DATA_VALUE = "noDataValue";
+    private static final String PROPERTY_NAME_NO_DATA_VALUE_USED = "noDataValueUsed";
+    private static final String PROPERTY_NAME_WRITE_DATA = "writeData";
+    private static final String PROPERTY_NAME_BAND_NAME = "bandName";
+    private static final String PROPERTY_NAME_BAND_DESC = "bandDescription";
+    private static final String PROPERTY_NAME_BAND_UNIT = "bandUnit";
+    
     private final VisatApp visatApp;
     private final ProductNodeList<Product> productsList;
+    private final BindingContext bindingContext;
     private Product targetProduct;
     
-    private Parameter paramProduct;
-    private Parameter paramExpression;
-    private Parameter paramNoDataValue;
-    private Parameter paramNoDataValueUsed;
-    private Parameter paramWriteData;
-    private Parameter paramNewBandName;
-    private Parameter paramNewBandDesc;
-    private Parameter paramNewBandUnit;
+    private String productName;
+    private String expression;
+    private double noDataValue;
+    private boolean noDataValueUsed;
+    private boolean writeData;
+    private String bandName;
+    private String bandDescription;
+    private String bandUnit;
     
     private static int numNewBands = 0;
 
@@ -81,36 +105,29 @@ public class BandArithmetikDialog extends ModalDialog {
         this.visatApp = visatApp;
         targetProduct = currentProduct;
         this.productsList = productsList;
-        initParameter();
-        createUI();
-        updateUIState(null);
+        
+        bindingContext = createBindingContext();
+        makeUI();
     }
 
     @Override
     protected void onOK() {
-        final boolean writeData = (Boolean) paramWriteData.getValue();
-        final boolean noDataValueUsed = (Boolean) paramNoDataValueUsed.getValue();
-        final float noDataValue = (Float) paramNoDataValue.getValue();
-        final String expression = paramExpression.getValueAsText();
-        final String bandName = getBandName();
-        final String bandDesc = paramNewBandDesc.getValueAsText();
-        final String bandUnit = paramNewBandUnit.getValueAsText();
         final int width = targetProduct.getSceneRasterWidth();
         final int height = targetProduct.getSceneRasterHeight();
         
-        VirtualBand targetBand =  new VirtualBand(bandName, ProductData.TYPE_FLOAT32, width, height, "0");
-        targetBand.setDescription(bandDesc);
-        targetBand.setUnit(bandUnit);
-        targetBand.setGeophysicalNoDataValue(noDataValue);
-        targetBand.setNoDataValueUsed(noDataValueUsed);
-        targetBand.setExpression(expression);
-        targetBand.setWriteData(writeData);
+        VirtualBand band =  new VirtualBand(getBandName(), ProductData.TYPE_FLOAT32, width, height, "0");
+        band.setDescription(bandDescription);
+        band.setUnit(bandUnit);
+        band.setGeophysicalNoDataValue(noDataValue);
+        band.setNoDataValueUsed(noDataValueUsed);
+        band.setExpression(getExpression());
+        band.setWriteData(writeData);
 
         try {
             Product[] products = getCompatibleProducts();
             int defaultProductIndex = Arrays.asList(products).indexOf(targetProduct);
-            final String validMaskExpression = BandArithmetic.getValidMaskExpression(expression, products, defaultProductIndex, null);
-            targetBand.setValidPixelExpression(validMaskExpression);
+            final String validMaskExpression = BandArithmetic.getValidMaskExpression(band.getExpression(), products, defaultProductIndex, null);
+            band.setValidPixelExpression(validMaskExpression);
         } catch (ParseException e) {
             String errorMessage = "The band could not be created.\nAn expression parse error occurred:\n" + e.getMessage(); /*I18N*/
             visatApp.showErrorDialog(errorMessage);
@@ -118,14 +135,14 @@ public class BandArithmetikDialog extends ModalDialog {
             return;
         }
         
-        if (!targetProduct.containsBand(targetBand.getName())) {
-            targetProduct.addBand(targetBand);
+        if (!targetProduct.containsBand(band.getName())) {
+            targetProduct.addBand(band);
         }
 
         hide();
-        targetBand.setModified(true);
+        band.setModified(true);
         if (visatApp.getPreferences().getPropertyBool(VisatApp.PROPERTY_KEY_AUTO_SHOW_NEW_BANDS, true)) {
-            visatApp.openProductSceneView(targetBand);
+            visatApp.openProductSceneView(band);
         }
     }
 
@@ -136,64 +153,15 @@ public class BandArithmetikDialog extends ModalDialog {
             return false;
         }
 
-        String bandName = getBandName();
         if (isTargetBandReferencedInExpression()) {
-            showErrorDialog("You cannot reference the target band '" + bandName +
+            showErrorDialog("You cannot reference the target band '" + getBandName() +
                     "' within the expression.");
             return false;
         }
         return super.verifyUserInput();
     }
-
-    private void initParameter() {
-        final ParamChangeListener paramChangeListener = createParamChangeListener();
-
-        paramProduct = new Parameter(_PARAM_NAME_PRODUCT, targetProduct.getDisplayName());
-        paramProduct.setValueSet(productsList.getDisplayNames());
-        paramProduct.getProperties().setValueSetBound(true);
-        paramProduct.getProperties().setLabel("Target Product"); /*I18N*/
-        paramProduct.addParamChangeListener(paramChangeListener);
-        
-        ParamProperties paramProps;
-        paramProps = new ParamProperties(String.class, "new_band_" + (++numNewBands));
-        paramProps.setLabel("Name"); /* I18N */
-        paramProps.setDescription("The name for the new band."); /*I18N*/
-        paramProps.setNullValueAllowed(false);
-        paramProps.setValidatorClass(ProductNodeNameValidator.class);
-        paramNewBandName = new Parameter("bandName", paramProps);
-
-        paramProps = new ParamProperties(String.class, "");
-        paramProps.setLabel("Description"); /* I18N */
-        paramProps.setDescription("The description for the new band.");  /*I18N*/
-        paramProps.setNullValueAllowed(true);
-        paramNewBandDesc = new Parameter("bandDesc", paramProps);
-
-        paramProps = new ParamProperties(String.class, "");
-        paramProps.setLabel("Unit"); /* I18N */
-        paramProps.setDescription("The physical unit for the new band."); /*I18N*/
-        paramProps.setNullValueAllowed(true);
-        paramNewBandUnit = new Parameter("bandUnit", paramProps);
-
-        paramExpression = new Parameter("arithmetikExpr", "");
-        paramExpression.getProperties().setLabel("Expression"); /*I18N*/
-        paramExpression.getProperties().setDescription("Arithmetic expression"); /*I18N*/
-        paramExpression.getProperties().setNumRows(3);
-
-        paramWriteData = new Parameter("writeDataParam", false);
-        paramWriteData.getProperties().setLabel("Write data to disk"); /*I18N*/
-        paramWriteData.addParamChangeListener(paramChangeListener);
-
-        paramNoDataValueUsed = new Parameter("noDataValueUsedParam", true);
-        paramNoDataValueUsed.getProperties().setLabel("No-data value to be used on arithmetic exceptions: "); /*I18N*/
-        paramNoDataValueUsed.addParamChangeListener(paramChangeListener);
-
-        paramNoDataValue = new Parameter("noDataValueParam", Float.NaN);
-        paramNoDataValue.setUIEnabled(false);
-
-        setParameterProperties();
-    }
-
-    private void createUI() {
+    
+    private void makeUI() {
         JButton editExpressionButton = new JButton("Edit Expression...");
         editExpressionButton.setName("editExpressionButton");
         editExpressionButton.addActionListener(createEditExpressionButtonListener());
@@ -202,84 +170,129 @@ public class BandArithmetikDialog extends ModalDialog {
         int line = 0;
         GridBagConstraints gbc = new GridBagConstraints();
 
+        JComponent[] components = createComponents(PROPERTY_NAME_PRODUCT, SingleSelectionEditor.class);
         gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, paramProduct.getEditor().getLabelComponent(), gbc,
-                                "gridwidth=3, fill=BOTH, weightx=1");
+        GridBagUtils.addToPanel(panel, components[1], gbc, "gridwidth=3, fill=BOTH, weightx=1");
         gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, paramProduct.getEditor().getComponent(), gbc,
-                                "insets.top=3, gridwidth=3, fill=BOTH, anchor=WEST");
-        gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, paramNewBandName.getEditor().getLabelComponent(), gbc,
-                                "weightx=0, insets.top=3, gridwidth=1, fill=HORIZONTAL, anchor=WEST");
-        GridBagUtils.addToPanel(panel, paramNewBandName.getEditor().getComponent(), gbc,
-                                "weightx=1, insets.top=3, gridwidth=2, fill=HORIZONTAL, anchor=WEST");
+        GridBagUtils.addToPanel(panel, components[0], gbc, "insets.top=3, gridwidth=3, fill=BOTH, anchor=WEST");
         
         gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, paramNewBandDesc.getEditor().getLabelComponent(), gbc,
-                                "weightx=0, insets.top=3, gridwidth=1, fill=HORIZONTAL, anchor=WEST");
-        GridBagUtils.addToPanel(panel, paramNewBandDesc.getEditor().getComponent(), gbc,
-                                "weightx=1, insets.top=3, gridwidth=2, fill=HORIZONTAL, anchor=WEST");
+        components = createComponents(PROPERTY_NAME_BAND_NAME, TextFieldEditor.class);
+        GridBagUtils.addToPanel(panel, components[1], gbc, "weightx=0, insets.top=3, gridwidth=1, fill=HORIZONTAL, anchor=WEST");
+        GridBagUtils.addToPanel(panel, components[0], gbc, "weightx=1, insets.top=3, gridwidth=2, fill=HORIZONTAL, anchor=WEST");
         
         gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, paramNewBandUnit.getEditor().getLabelComponent(), gbc,
-                                "weightx=0, insets.top=3, gridwidth=1, fill=HORIZONTAL, anchor=WEST");
-        GridBagUtils.addToPanel(panel, paramNewBandUnit.getEditor().getComponent(), gbc,
-                                "weightx=1, insets.top=3, gridwidth=2, fill=HORIZONTAL, anchor=WEST");
+        components = createComponents(PROPERTY_NAME_BAND_DESC, TextFieldEditor.class);
+        GridBagUtils.addToPanel(panel, components[1], gbc, "weightx=0, insets.top=3, gridwidth=1, fill=HORIZONTAL, anchor=WEST");
+        GridBagUtils.addToPanel(panel, components[0], gbc, "weightx=1, insets.top=3, gridwidth=2, fill=HORIZONTAL, anchor=WEST");
         
         gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, paramWriteData.getEditor().getComponent(), gbc,
-                                "insets.top=3, gridwidth=3, fill=HORIZONTAL, anchor=EAST");
+        components = createComponents(PROPERTY_NAME_BAND_UNIT, TextFieldEditor.class);
+        GridBagUtils.addToPanel(panel, components[1], gbc, "weightx=0, insets.top=3, gridwidth=1, fill=HORIZONTAL, anchor=WEST");
+        GridBagUtils.addToPanel(panel, components[0], gbc, "weightx=1, insets.top=3, gridwidth=2, fill=HORIZONTAL, anchor=WEST");
+        
+        gbc.gridy = ++line;
+        components = createComponents(PROPERTY_NAME_WRITE_DATA, CheckBoxEditor.class);
+        GridBagUtils.addToPanel(panel, components[0], gbc, "insets.top=3, gridwidth=3, fill=HORIZONTAL, anchor=EAST");
         
         gbc.gridy = ++line;
         JPanel nodataPanel = new JPanel(new BorderLayout());
-        nodataPanel.add(paramNoDataValueUsed.getEditor().getComponent(), BorderLayout.WEST);
-        nodataPanel.add(paramNoDataValue.getEditor().getComponent());
-        GridBagUtils.addToPanel(panel, nodataPanel, gbc,
-                                "weightx=1, insets.top=3, gridwidth=3, fill=HORIZONTAL, anchor=WEST");
+        components = createComponents(PROPERTY_NAME_NO_DATA_VALUE_USED, CheckBoxEditor.class);
+        nodataPanel.add(components[0], BorderLayout.WEST);
+        components = createComponents(PROPERTY_NAME_NO_DATA_VALUE, NumericEditor.class);
+        nodataPanel.add(components[0]);
+        GridBagUtils.addToPanel(panel, nodataPanel, gbc, "weightx=1, insets.top=3, gridwidth=3, fill=HORIZONTAL, anchor=WEST");
         
         gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, paramExpression.getEditor().getLabelComponent(), gbc,
-                                "insets.top=3, gridwidth=3, anchor=WEST");
+        
+        JLabel expressionLabel = new JLabel("Expression:");
+        JTextArea expressionArea = new JTextArea();
+        expressionArea.setRows(3);
+        TextComponentAdapter textComponentAdapter = new TextComponentAdapter(expressionArea);
+        bindingContext.bind(PROPERTY_NAME_EXPRESSION, textComponentAdapter);
+        components = createComponents(PROPERTY_NAME_EXPRESSION, TextFieldEditor.class);
+        GridBagUtils.addToPanel(panel, expressionLabel, gbc, "insets.top=3, gridwidth=3, anchor=WEST");
         gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, paramExpression.getEditor().getComponent(), gbc,
-                                "weighty=1, insets.top=3, gridwidth=3, fill=BOTH, anchor=WEST");
+        GridBagUtils.addToPanel(panel, expressionArea, gbc, "weighty=1, insets.top=3, gridwidth=3, fill=BOTH, anchor=WEST");
         gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, editExpressionButton, gbc,
-                                "weighty=0, insets.top=3, gridwidth=3, fill=NONE, anchor=EAST");
+        GridBagUtils.addToPanel(panel, editExpressionButton, gbc, "weighty=0, insets.top=3, gridwidth=3, fill=NONE, anchor=EAST");
 
         gbc.gridy = ++line;
         GridBagUtils.addToPanel(panel, new JLabel(""), gbc, "insets.top=10, weightx=1, weighty=1, gridwidth=3, fill=BOTH, anchor=WEST");
 
         setContent(panel);
     }
+    
+    private JComponent[] createComponents(String propertyName, Class<? extends ValueEditor> editorClass) {
+        ValueDescriptor descriptor = bindingContext.getValueContainer().getDescriptor(propertyName);
+        ValueEditor editor = ValueEditorRegistry.getInstance().getValueEditor(editorClass.getName());
+        return editor.createComponents(descriptor, bindingContext);
+    }
+    
+    private BindingContext createBindingContext() {
+        final ValueContainer container = ValueContainer.createObjectBacked(this);
+        BindingContext context = new BindingContext(container);
 
-    private void updateUIState(String parameterName) {
-        paramNoDataValue.setUIEnabled((Boolean) paramNoDataValueUsed.getValue());
-        if (parameterName == null) {
-            return;
+        productName = targetProduct.getDisplayName();
+        ValueDescriptor descriptor = container.getDescriptor(PROPERTY_NAME_PRODUCT);
+        descriptor.setValueSet(new ValueSet(productsList.getDisplayNames()));
+        descriptor.setDisplayName("Target Product");
+        descriptor.addPropertyChangeListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                targetProduct = productsList.get(productName);
+            }}
+        );
+        
+        descriptor = container.getDescriptor(PROPERTY_NAME_BAND_NAME);
+        descriptor.setDisplayName("Name");
+        descriptor.setDescription("The name for the new band.");
+        descriptor.setNotEmpty(true);
+        descriptor.setValidator(new ProductNodeNameValidator());
+        descriptor.setDefaultValue("new_band_" + (++numNewBands));
+        
+        descriptor = container.getDescriptor(PROPERTY_NAME_BAND_DESC);
+        descriptor.setDisplayName("Description");
+        descriptor.setDescription("The description for the new band.");
+        
+        descriptor = container.getDescriptor(PROPERTY_NAME_BAND_UNIT);
+        descriptor.setDisplayName("Unit");
+        descriptor.setDescription("The physical unit for the new band.");
+        
+        descriptor = container.getDescriptor(PROPERTY_NAME_EXPRESSION);
+        descriptor.setDisplayName("Expression");
+        descriptor.setDescription("Arithmetic expression");
+        descriptor.setNotEmpty(true);
+        
+        descriptor = container.getDescriptor(PROPERTY_NAME_WRITE_DATA);
+        descriptor.setDisplayName("Write data to disk");
+        descriptor.setDefaultValue(Boolean.FALSE);
+        
+        descriptor = container.getDescriptor(PROPERTY_NAME_NO_DATA_VALUE_USED);
+        descriptor.setDisplayName("No-data value to be used on arithmetic exceptions");
+        descriptor.setDefaultValue(Boolean.TRUE);
+        
+        descriptor = container.getDescriptor(PROPERTY_NAME_NO_DATA_VALUE);
+        descriptor.setDefaultValue(Double.NaN);
+        
+        try {
+            container.setDefaultValues();
+        } catch (ValidationException ignore) {
         }
         
-        if (parameterName.equals(_PARAM_NAME_PRODUCT)) {
-            String selectedProductDisplayName = paramProduct.getValueAsText();
-            targetProduct = productsList.getByDisplayName(selectedProductDisplayName);
-            setParameterProperties();
-        }
+        context.bindEnabledState(PROPERTY_NAME_NO_DATA_VALUE, true, PROPERTY_NAME_NO_DATA_VALUE_USED, Boolean.TRUE);
+        return context;
     }
-
-    private void setParameterProperties() {
-        ParamProperties props = paramExpression.getProperties();
-        props.setPropertyValue(ParamProperties.COMP_PRODUCTS_FOR_BAND_ARITHMETHIK_KEY, getCompatibleProducts());
-        props.setPropertyValue(ParamProperties.SEL_PRODUCT_FOR_BAND_ARITHMETHIK_KEY, targetProduct);
-        
-        props = paramNewBandName.getProperties();
-        props.setPropertyValue(ProductNodeNameValidator.PRODUCT_PROPERTY_KEY, targetProduct);
-    }
-
+    
     private String getBandName() {
-        String bandName = paramNewBandName.getValueAsText();
         return bandName.trim();
     }
     
+    private String getExpression() {
+        return expression.trim();
+    }
+
     private Product[] getCompatibleProducts() {
         List<Product> compatibleProducts = new ArrayList<Product>(productsList.size());
         compatibleProducts.add(targetProduct);
@@ -306,15 +319,6 @@ public class BandArithmetikDialog extends ModalDialog {
                                                                    VisatApp.PROPERTY_DEFAULT_GEOLOCATION_EPS);
     }
 
-    private ParamChangeListener createParamChangeListener() {
-        return new ParamChangeListener() {
-
-            public void parameterValueChanged(ParamChangeEvent event) {
-                updateUIState(event.getParameter().getName());
-            }
-        };
-    }
-
     private ActionListener createEditExpressionButtonListener() {
         return new ActionListener() {
 
@@ -323,17 +327,15 @@ public class BandArithmetikDialog extends ModalDialog {
                 ProductExpressionPane pep = ProductExpressionPane.createGeneralExpressionPane(compatibleProducts,
                                                                                               targetProduct,
                                                                                               visatApp.getPreferences());
-                pep.setCode(paramExpression.getValueAsText());
+                pep.setCode(getExpression());
                 int status = pep.showModalDialog(getJDialog(), "Arithmetic Expression Editor");
                 if (status == ModalDialog.ID_OK) {
-                    String expression = pep.getCode();
-                    paramExpression.setValue(expression, null);
-                    final boolean writeData = (Boolean) paramWriteData.getValue();
+                    bindingContext.getBinding(PROPERTY_NAME_EXPRESSION).setPropertyValue(pep.getCode());
                     if (!writeData && compatibleProducts.length > 1) {
                         int defaultIndex = Arrays.asList(compatibleProducts).indexOf(targetProduct);
                         RasterDataNode[] rasters = null;
                         try {
-                            rasters = BandArithmetic.getRefRasters(expression, compatibleProducts, defaultIndex);
+                            rasters = BandArithmetic.getRefRasters(getExpression(), compatibleProducts, defaultIndex);
                         } catch (ParseException e1) {
                         }
                         if (rasters != null && rasters.length > 0) {
@@ -363,21 +365,16 @@ public class BandArithmetikDialog extends ModalDialog {
 
     private boolean isValidExpression() {
         final Product[] products = getCompatibleProducts();
-        if (products == null || products.length == 0) {
+        if (products.length == 0 || getExpression().isEmpty()) {
             return false;
         }
 
-        final String expression = paramExpression.getValueAsText();
-        if (expression == null || expression.length() == 0) {
-            return false;
-        }
-
-        final int defaultIndex = Arrays.asList(products).indexOf(visatApp.getSelectedProduct());
+        final int defaultIndex = Arrays.asList(products).indexOf(targetProduct);
         final Namespace namespace = BandArithmetic.createDefaultNamespace(products,
                                                                           defaultIndex == -1 ? 0 : defaultIndex);
         final Parser parser = new ParserImpl(namespace, false);
         try {
-            parser.parse(expression);
+            parser.parse(getExpression());
         } catch (ParseException e) {
             return false;
         }
@@ -387,23 +384,18 @@ public class BandArithmetikDialog extends ModalDialog {
     private boolean isTargetBandReferencedInExpression() {
         final Product[] products = getCompatibleProducts();
 
-        final String expression = paramExpression.getValueAsText();
-        if (expression.trim().length() == 0) {
-            return false;
-        }
-
         final int defaultIndex = Arrays.asList(products).indexOf(visatApp.getSelectedProduct());
         final Namespace namespace = BandArithmetic.createDefaultNamespace(products,
                                                                           defaultIndex == -1 ? 0 : defaultIndex);
         final Parser parser = new ParserImpl(namespace, false);
         try {
-            final Term term = parser.parse(expression);
+            final Term term = parser.parse(getExpression());
             final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
-            final String targetBandName = getBandName();
-            if (targetProduct.containsRasterDataNode(targetBandName)) {
+            String bName = getBandName();
+            if (targetProduct.containsRasterDataNode(bName)) {
                 for (final RasterDataSymbol refRasterDataSymbol : refRasterDataSymbols) {
                     final String refRasterName = refRasterDataSymbol.getRaster().getName();
-                    if (targetBandName.equalsIgnoreCase(refRasterName)) {
+                    if (bName.equalsIgnoreCase(refRasterName)) {
                         return true;
                     }
                 }
@@ -412,5 +404,26 @@ public class BandArithmetikDialog extends ModalDialog {
             return false;
         }
         return false;
+    }
+    
+    private class ProductNodeNameValidator implements Validator {
+
+        private static final String ERR_MSG_NO_NODE_NAME = "Value for band name is not a valid node name: ''{0}''.\n\n"
+                + "A valid node name must not start with a dot. Also a valid\n"
+                + "node name must not contain any of the following characters\n" + "\\/:*?\"<>|";
+        private static final String ERR_MSG_DUPLICATE = "Value for band name must be unique inside the product.\n"
+                + "This includes 'band names' and 'tie point grid names'.";
+
+        @Override
+        public void validateValue(ValueModel valueModel, Object value) throws ValidationException {
+            final String name = (String) value;
+            if (!ProductNode.isValidNodeName(name)) {
+                final String message = MessageFormat.format(ERR_MSG_NO_NODE_NAME,  name);
+                throw new ValidationException(message);
+            }
+            if (targetProduct.containsRasterDataNode(name)) {
+                throw new ValidationException(ERR_MSG_DUPLICATE);
+            }
+        }
     }
 }
