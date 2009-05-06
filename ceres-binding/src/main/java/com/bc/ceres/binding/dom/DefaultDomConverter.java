@@ -53,12 +53,6 @@ public class DefaultDomConverter extends AbstractDomConverter {
                 throw new IllegalArgumentException(e);
             }
         }
-        if (Map.class.isAssignableFrom(valueType)) {
-            return new MapDomConverter(this);
-        }
-        if (Collection.class.isAssignableFrom(valueType)) {
-            return new CollectionDomConverter(this);
-        }
         return new DefaultDomConverter(valueType, valueDescriptorFactory);
     }
 
@@ -70,14 +64,6 @@ public class DefaultDomConverter extends AbstractDomConverter {
         DomConverter domConverter = descriptor.getDomConverter();
         if (domConverter == null) {
             domConverter = DomConverterRegistry.getInstance().getConverter(descriptor.getType());
-        }
-        if (domConverter == null) {
-            if (Map.class.isAssignableFrom(descriptor.getType())) {
-                return new MapDomConverter(this);
-            }
-            if (Collection.class.isAssignableFrom(descriptor.getType())) {
-                return new CollectionDomConverter(this);
-            }
         }
         return domConverter;
     }
