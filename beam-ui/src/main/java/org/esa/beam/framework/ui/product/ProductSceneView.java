@@ -37,6 +37,7 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
+import org.esa.beam.glayer.RoiLayerType;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.glevel.RoiImageMultiLevelSource;
 import org.esa.beam.util.Guardian;
@@ -952,7 +953,7 @@ public class ProductSceneView extends BasicView
         final ImageLayer roiLayer = getRoiLayer(false);
         if (roiLayer != null) {
             if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
-                final Color color = (Color) roiLayer.getStyle().getProperty("color");
+                final Color color = (Color) roiLayer.getConfiguration().getValue(RoiLayerType.PROPERTY_COLOR);
                 final MultiLevelSource multiLevelSource = RoiImageMultiLevelSource.create(getRaster(),
                                                                                           color,
                                                                                           getBaseImageLayer().getImageToModelTransform());

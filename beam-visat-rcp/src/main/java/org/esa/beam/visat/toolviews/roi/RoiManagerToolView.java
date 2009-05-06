@@ -3,11 +3,25 @@ package org.esa.beam.visat.toolviews.roi;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.glayer.support.ImageLayer;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductManager;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.ROIDefinition;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.framework.help.HelpSys;
-import org.esa.beam.framework.param.*;
+import org.esa.beam.framework.param.ParamChangeEvent;
+import org.esa.beam.framework.param.ParamChangeListener;
+import org.esa.beam.framework.param.ParamException;
+import org.esa.beam.framework.param.ParamExceptionHandler;
+import org.esa.beam.framework.param.ParamGroup;
+import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.param.editors.BooleanExpressionEditor;
 import org.esa.beam.framework.param.editors.ComboBoxEditor;
 import org.esa.beam.framework.param.validators.BooleanExpressionValidator;
@@ -20,7 +34,14 @@ import org.esa.beam.framework.ui.command.ToolCommand;
 import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.util.*;
+import org.esa.beam.util.ArrayUtils;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.XmlWriter;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
@@ -30,14 +51,27 @@ import org.jdom.Document;
 import org.jdom.input.DOMBuilder;
 import org.xml.sax.SAXException;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
@@ -409,7 +443,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         final Product product = productSceneView.getProduct();
         final List<Band> availableBandList = new ArrayList<Band>(product.getNumBands());
         for (final Band availableBand : product.getBands()) {
-            if (!ArrayUtils.isMemberOf(availableBand,  protectedRasters)) {
+            if (!ArrayUtils.isMemberOf(availableBand, protectedRasters)) {
                 availableBandList.add(availableBand);
             }
         }
@@ -426,7 +460,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         final ArrayList<Band> bandsToBeModifiedList = new ArrayList<Band>();
         for (String name : bandNamesToBeModified) {
             final Band band = product.getBand(name);
-            if(band != null) {
+            if (band != null) {
                 bandsToBeModifiedList.add(band);
             }
         }
@@ -602,7 +636,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         int maxX = 0;
         int minY = height;
         int maxY = 0;
-        final int bandIndex = roiImage.getSampleModel().getNumBands() -1;
+        final int bandIndex = roiImage.getSampleModel().getNumBands() - 1;
         for (int y = 0; y < height; y++) {
             final Raster data = roiImage.getData(new Rectangle(0, y, width, 1));
             for (int x = 0; x < width; x++) {
@@ -734,8 +768,8 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         setApplyEnabled(false);
         resetButton.setEnabled(false);
 
-        productSceneView.setROIOverlayEnabled(true);
         setCurrentROIDefinition(roiDefNew);
+        productSceneView.setROIOverlayEnabled(true);
     }
 
     private void resetImpl(ROIDefinition roiDefNew) {
@@ -911,7 +945,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         if (roiPossible) {
             undoButton.setEnabled(roiDefinitionUndo != null);
             multiAssignToProductsButton.setEnabled(visatApp != null
-                                                    && visatApp.getProductManager().getProductCount() > 1);
+                                                   && visatApp.getProductManager().getProductCount() > 1);
         } else {
             applyButton.setEnabled(false);
             multiAssignToBandsButton.setEnabled(false);
@@ -922,7 +956,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         if (!shapesCritPossible) {
             shapesEnabledParam.setValue(Boolean.FALSE, null);
         }
-        
+
         final boolean zoomToPossible = productSceneView != null && productSceneView.getRaster().isROIUsable();
         zoomToButton.setEnabled(zoomToPossible);
     }

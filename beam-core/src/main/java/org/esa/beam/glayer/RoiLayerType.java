@@ -57,9 +57,6 @@ public class RoiLayerType extends ImageLayer.Type {
         roiLayer.setName("ROI");
         roiLayer.setId(ROI_LAYER_ID);
 
-        final Double transparency = (Double) configuration.getValue(PROPERTY_TRANSPARENCY);
-        roiLayer.getStyle().setOpacity(1 - transparency);
-
         configureLayer(configuration, roiLayer);
 
         return roiLayer;
@@ -91,7 +88,6 @@ public class RoiLayerType extends ImageLayer.Type {
         Style style = layer.getStyle();
         style.setProperty(PROPERTY_COLOR, color);
         style.setOpacity(1.0 - transparency);
-        style.setProperty(PROPERTY_COLOR, color);
         style.setProperty(PROPERTY_REFERENCED_RASTER, raster);
         style.setProperty(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
 
