@@ -77,6 +77,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
+// todo - Layer API: make it implement ProductSceneViewContext 
+
 /**
  * The class <code>ProductSceneView</code> is a high-level image display component for color index/RGB images created
  * from one or more raster datasets of a data product.

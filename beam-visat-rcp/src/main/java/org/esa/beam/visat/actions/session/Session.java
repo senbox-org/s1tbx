@@ -97,7 +97,7 @@ public class Session {
                                               viewport.getZoomFactor(),
                                               viewport.getOrientation());
                 final List<Layer> layers = sceneView.getRootLayer().getChildren();
-
+                // todo - Layer API: why isn't sceneView used as layer context (ProductSceneViewContext)? In fact it is THE layer context in BEAM! (nf)
                 final LayerContext layerContext = new LayerContext() {
                     @Override
                     public CoordinateReferenceSystem getCoordinateReferenceSystem() {

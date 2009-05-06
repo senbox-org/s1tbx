@@ -36,7 +36,7 @@ import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 
-
+// todo - Layer API: make it implement ProductSceneViewContext
 public class ProductSceneImage implements LayerContext {
 
     private static final ImageLayerFilter IMAGE_LAYER_FILTER = new ImageLayerFilter();
