@@ -265,6 +265,9 @@ public class ProductSceneView extends BasicView
      */
     @Override
     public ProductNode getVisibleProductNode() {
+        if (isRGB()) {
+            return null;
+        }
         return getRaster();
     }
 
