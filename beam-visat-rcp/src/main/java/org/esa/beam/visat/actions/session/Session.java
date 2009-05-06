@@ -33,7 +33,6 @@ import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.visat.actions.session.dom.SessionDomConverter;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.JComponent;
 import javax.swing.RootPaneContainer;
@@ -97,19 +96,7 @@ public class Session {
                                               viewport.getZoomFactor(),
                                               viewport.getOrientation());
                 final List<Layer> layers = sceneView.getRootLayer().getChildren();
-                // todo - Layer API: why isn't sceneView used as layer context (ProductSceneViewContext)? In fact it is THE layer context in BEAM! (nf)
-                final LayerContext layerContext = new LayerContext() {
-                    @Override
-                    public CoordinateReferenceSystem getCoordinateReferenceSystem() {
-                        return sceneView.getRaster().getProduct().getGeoCoding().getModelCRS();
-                    }
-
-                    @Override
-                    public Layer getRootLayer() {
-                        return sceneView.getRootLayer();
-                    }
-                };
-                layerRefs = getLayerRefs(layerContext, layers, productManager);
+                layerRefs = getLayerRefs(sceneView.getLayerContext(), layers, productManager);
             }
 
             Rectangle viewBounds = new Rectangle(0, 0, 200, 200);
