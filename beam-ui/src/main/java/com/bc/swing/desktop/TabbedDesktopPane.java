@@ -153,6 +153,7 @@ public class TabbedDesktopPane extends JPanel {
         }
 
         internalFrame.addPropertyChangeListener(JInternalFrame.TITLE_PROPERTY, new PropertyChangeListener() {
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 final InternalFrameProxy placeHolder = getPlaceHolderFor(internalFrame);
                 final int index = tabbedPane.indexOfComponent(placeHolder);
@@ -215,6 +216,7 @@ public class TabbedDesktopPane extends JPanel {
 
 // <JIDE>
         tabbedPane.setCloseAction(new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 final JInternalFrame selectedFrame = getSelectedFrame();
                 if(selectedFrame != null) {
@@ -302,6 +304,7 @@ public class TabbedDesktopPane extends JPanel {
         cascadeMenuItem.setMnemonic('C'); /*I18N*/
         cascadeMenuItem.setEnabled(visibleFrames.length > 1);
         cascadeMenuItem.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 cascadeFrames();
             }
@@ -312,6 +315,7 @@ public class TabbedDesktopPane extends JPanel {
         tileEMenuItem.setMnemonic('E'); /*I18N*/
         tileEMenuItem.setEnabled(visibleFrames.length > 1);
         tileEMenuItem.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 tileFramesEvenly();
             }
@@ -322,6 +326,7 @@ public class TabbedDesktopPane extends JPanel {
         tileHMenuItem.setMnemonic('H'); /*I18N*/
         tileHMenuItem.setEnabled(visibleFrames.length > 1);
         tileHMenuItem.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 tileFramesHorizontally();
             }
@@ -332,6 +337,7 @@ public class TabbedDesktopPane extends JPanel {
         tileVMenuItem.setMnemonic('V'); /*I18N*/
         tileVMenuItem.setEnabled(visibleFrames.length > 1);
         tileVMenuItem.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 tileFramesVertically();
             }
@@ -344,6 +350,7 @@ public class TabbedDesktopPane extends JPanel {
         closeAllMenuItem.setMnemonic('A'); /*I18N*/
         closeAllMenuItem.setEnabled(allFrames.length > 0);
         closeAllMenuItem.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 closeAllFrames();
             }
@@ -366,6 +373,7 @@ public class TabbedDesktopPane extends JPanel {
                 selectMenuItem.setSelected(frame == getSelectedFrame());
                 selectMenuItem.setMnemonic(mnemonic);
                 selectMenuItem.addActionListener(new ActionListener() {
+                    @Override
                     public void actionPerformed(ActionEvent e) {
                         try {
                             frame.setSelected(true);
@@ -441,6 +449,7 @@ public class TabbedDesktopPane extends JPanel {
 
     private class TabbedPaneChangeHandler implements ChangeListener {
 
+        @Override
         public void stateChanged(ChangeEvent e) {
             final Component selectedComponent = tabbedPane.getSelectedComponent();
             if (selectedComponent instanceof InternalFrameProxy) {
@@ -464,19 +473,23 @@ public class TabbedDesktopPane extends JPanel {
 
     private class WindowMenuListener implements MenuListener {
 
+        @Override
         public void menuSelected(MenuEvent e) {
             updateWindowMenu();
         }
 
+        @Override
         public void menuDeselected(MenuEvent e) {
         }
 
+        @Override
         public void menuCanceled(MenuEvent e) {
         }
     }
 
     private static class FrameComparator implements Comparator {
 
+        @Override
         public int compare(Object o1, Object o2) {
             final JInternalFrame f1 = (JInternalFrame) o1;
             final JInternalFrame f2 = (JInternalFrame) o2;
@@ -520,6 +533,7 @@ public class TabbedDesktopPane extends JPanel {
 
             final JMenuItem closeMenuItem = new JMenuItem("Close");
             closeMenuItem.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     closeFrame(thisFrame);
                 }
@@ -529,6 +543,7 @@ public class TabbedDesktopPane extends JPanel {
             if (tabbedPane.getTabCount() > 1) {
                 final JMenuItem closeAllButThisMenuItem = new JMenuItem("Close All But This");
                 closeAllButThisMenuItem.addActionListener(new ActionListener() {
+                    @Override
                     public void actionPerformed(ActionEvent e) {
                         final JInternalFrame[] allFrames = getAllFrames();
                         for (int i = 0; i < allFrames.length; i++) {
@@ -543,6 +558,7 @@ public class TabbedDesktopPane extends JPanel {
 
                 final JMenuItem closeAllMenuItem = new JMenuItem("Close All");
                 closeAllMenuItem.addActionListener(new ActionListener() {
+                    @Override
                     public void actionPerformed(ActionEvent e) {
                         closeAllFrames();
                     }
