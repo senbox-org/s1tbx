@@ -58,6 +58,7 @@ public class ProductsToolView extends AbstractToolView {
         productTree = new ProductTree();
         productTree.setExceptionHandler(new org.esa.beam.framework.ui.ExceptionHandler() {
 
+            @Override
             public boolean handleException(final Exception e) {
                 visatApp.showErrorDialog(e.getMessage());
                 return true;
@@ -67,11 +68,13 @@ public class ProductsToolView extends AbstractToolView {
         productTree.setCommandManager(visatApp.getCommandManager());
         productTree.setCommandUIFactory(visatApp.getCommandUIFactory());
         visatApp.getProductManager().addListener(new ProductManager.Listener() {
+            @Override
             public void productAdded(final ProductManager.Event event) {
                 productTree.addProduct(event.getProduct());
                 visatApp.getPage().showToolView(ID);
             }
 
+            @Override
             public void productRemoved(final ProductManager.Event event) {
                 final Product product = event.getProduct();
                 productTree.removeProduct(product);
@@ -111,11 +114,13 @@ public class ProductsToolView extends AbstractToolView {
         public VisatPTL() {
         }
 
+        @Override
         public void productAdded(final Product product) {
             Debug.trace("VisatApp: product added: " + product.getDisplayName());
             setSelectedProductNode(product);
         }
 
+        @Override
         public void productRemoved(final Product product) {
             Debug.trace("VisatApp: product removed: " + product.getDisplayName());
             if (visatApp.getSelectedProduct() != null && visatApp.getSelectedProduct() == product) {
@@ -125,18 +130,22 @@ public class ProductsToolView extends AbstractToolView {
             }
         }
 
+        @Override
         public void productSelected(final Product product, final int clickCount) {
             setSelectedProductNode(product);
         }
 
+        @Override
         public void tiePointGridSelected(final TiePointGrid tiePointGrid, final int clickCount) {
             rasterDataNodeSelected(tiePointGrid, clickCount);
         }
 
+        @Override
         public void bandSelected(final Band band, final int clickCount) {
             rasterDataNodeSelected(band, clickCount);
         }
 
+        @Override
         public void metadataElementSelected(final MetadataElement group, final int clickCount) {
             setSelectedProductNode(group);
             final JInternalFrame frame = visatApp.findInternalFrame(group);
