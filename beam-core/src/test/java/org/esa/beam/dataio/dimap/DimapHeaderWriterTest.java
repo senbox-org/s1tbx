@@ -123,7 +123,7 @@ public class DimapHeaderWriterTest extends TestCase {
             "            <BAND_INDEX>3</BAND_INDEX>" + _ls +
             "            <BAND_NAME>cfb1</BAND_NAME>" + _ls +
             "            <BAND_DESCRIPTION />" + _ls +
-            "            <DATA_TYPE>int8</DATA_TYPE>" + _ls +
+            "            <DATA_TYPE>float32</DATA_TYPE>" + _ls +
             "            <PHYSICAL_UNIT />" + _ls +
             "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + _ls +
             "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + _ls +

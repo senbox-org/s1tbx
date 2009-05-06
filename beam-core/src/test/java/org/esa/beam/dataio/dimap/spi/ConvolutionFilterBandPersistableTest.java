@@ -70,7 +70,7 @@ public class ConvolutionFilterBandPersistableTest extends TestCase {
         assertEquals(1, _product.getBandIndex(cfb.getName()));
         assertEquals("aBand", cfb.getName());
         assertEquals("this is a band", cfb.getDescription());
-        assertEquals(_source.getGeophysicalDataType(), cfb.getDataType());
+        assertEquals(ProductData.TYPE_FLOAT32, cfb.getDataType());
         assertEquals("l", cfb.getUnit());
         assertEquals(0.0, cfb.getSolarFlux(), EPS);
         assertEquals(0.0, cfb.getSpectralWavelength(), EPS);
@@ -182,8 +182,7 @@ public class ConvolutionFilterBandPersistableTest extends TestCase {
         contentList.add(createElement(DimapProductConstants.TAG_BAND_INDEX, "1"));
         contentList.add(createElement(DimapProductConstants.TAG_BAND_NAME, "aBand"));
         contentList.add(createElement(DimapProductConstants.TAG_BAND_DESCRIPTION, "this is a band"));
-        final String dataType = ProductData.getTypeString(_source.getGeophysicalDataType());
-        contentList.add(createElement(DimapProductConstants.TAG_DATA_TYPE, dataType));
+        contentList.add(createElement(DimapProductConstants.TAG_DATA_TYPE, "float32"));
         contentList.add(createElement(DimapProductConstants.TAG_PHYSICAL_UNIT, "l"));
         contentList.add(createElement(DimapProductConstants.TAG_SOLAR_FLUX, "0.0"));
         contentList.add(createElement(DimapProductConstants.TAG_BAND_WAVELEN, "0.0"));
