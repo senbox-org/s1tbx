@@ -54,7 +54,7 @@ abstract class ProductNodeDomConverter<T extends ProductNode> implements DomConv
         final T productNode = (T) value;
         final Product product = productNode.getProduct();
         if (product == null) {
-            throw new ConversionException("Product node does not belong to a product");
+            throw new ConversionException("Node does not belong to a product");
         }
         final DomElement refNo = parentElement.createChild("refNo");
         refNo.setValue(String.valueOf(product.getRefNo()));
