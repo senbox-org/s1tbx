@@ -1,16 +1,22 @@
 package org.esa.beam.glayer;
 
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.dom.DomConverter;
+import com.bc.ceres.binding.dom.DomElement;
+import com.bc.ceres.binding.dom.XStreamDomConverter;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
 import org.esa.beam.framework.draw.Figure;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Marco Peters
@@ -66,43 +72,79 @@ public class FigureLayerType extends LayerType {
         final ValueContainer vc = new ValueContainer();
 
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
-                                            FigureLayer.DEFAULT_SHAPE_OUTLINED,
+                                            Boolean.class,
                                             FigureLayer.DEFAULT_SHAPE_OUTLINED));
 
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
-                                            FigureLayer.DEFAULT_SHAPE_OUTL_COLOR,
+                                            Color.class,
                                             FigureLayer.DEFAULT_SHAPE_OUTL_COLOR));
 
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
-                                            FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY,
+                                            Double.class,
                                             FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY));
 
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
-                                            FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH,
+                                            Double.class,
                                             FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH));
 
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
-                                            FigureLayer.DEFAULT_SHAPE_FILLED,
+                                            Boolean.class,
                                             FigureLayer.DEFAULT_SHAPE_FILLED));
 
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
-                                            FigureLayer.DEFAULT_SHAPE_FILL_COLOR,
+                                            Color.class,
                                             FigureLayer.DEFAULT_SHAPE_FILL_COLOR));
 
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
-                                            FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY,
+                                            Double.class,
                                             FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY));
 
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_TRANSFORM,
-                                            new AffineTransform(),
+                                            AffineTransform.class,
                                             new AffineTransform()));
 
         final ValueModel figureListModel = createDefaultValueModel(FigureLayer.PROPERTY_NAME_FIGURE_LIST,
-                                                                   List.class,
-                                                                   new ArrayList<Figure>());
+                                                                   ArrayList.class,
+                                                                   new ArrayList());
         figureListModel.getDescriptor().setItemAlias("figure");
+        figureListModel.getDescriptor().setDomConverter(new FigureListDomConverter());
         vc.addModel(figureListModel);
-
         return vc;
+    }
+
+    private static class FigureListDomConverter implements DomConverter {
+
+        @Override
+        public Class<?> getValueType() {
+            return ArrayList.class;
+        }
+
+        @Override
+        public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
+                                                                                       ValidationException {
+            final DomElement[] listElements = parentElement.getChildren();
+            final ArrayList figureList = new ArrayList();
+            final XStreamDomConverter figureDomConverter = createFigureDomConverter();
+            for (DomElement figureElement : listElements) {
+                figureList.add(figureDomConverter.convertDomToValue(figureElement, null));
+            }
+            return figureList;
+        }
+
+        @Override
+        public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
+            ArrayList<Figure> figureList = (ArrayList<Figure>) value;
+            final XStreamDomConverter figureDomConverter = createFigureDomConverter();
+            for (Figure figure : figureList) {
+                figureDomConverter.convertValueToDom(figure, parentElement);
+            }
+        }
+
+        private XStreamDomConverter createFigureDomConverter() {
+            final XStreamDomConverter figureDomConverter = new XStreamDomConverter(Figure.class);
+            figureDomConverter.getXStream().setClassLoader(FigureLayer.class.getClassLoader());
+            figureDomConverter.getXStream().aliasField("dashPhase", BasicStroke.class, "dash_phase");
+            return figureDomConverter;
+        }
     }
 }

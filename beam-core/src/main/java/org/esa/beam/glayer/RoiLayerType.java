@@ -74,8 +74,8 @@ public class RoiLayerType extends ImageLayer.Type {
         rasterModel.getDescriptor().setNotNull(true);
         template.addModel(rasterModel);
 
-        template.addModel(createDefaultValueModel(PROPERTY_COLOR, Color.RED, Color.RED));
-        template.addModel(createDefaultValueModel(PROPERTY_TRANSPARENCY, 0.5, 0.5));
+        template.addModel(createDefaultValueModel(PROPERTY_COLOR, Color.class, Color.RED));
+        template.addModel(createDefaultValueModel(PROPERTY_TRANSPARENCY, Double.class, 0.5));
 
         return template;
     }

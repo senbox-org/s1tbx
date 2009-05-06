@@ -8,6 +8,9 @@ import org.esa.beam.framework.draw.LineFigure;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.FigureLayerType;
 
+import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,8 +34,10 @@ public class FigureLayerConfigurationPersistencyTest extends AbstractLayerConfig
 
     private LineFigure createFigure() {
         final Map<String, Object> attributes = new HashMap<String, Object>();
-        attributes.put("Beam Developer1", "Ralf");
-        attributes.put("Beam Developer2", "Marco");
+        attributes.put("Color", Color.RED);
+        attributes.put("Color", Color.RED);
+        attributes.put("Composite", AlphaComposite.Clear);
+        attributes.put("Stroke", new BasicStroke(0.7f));
 
         return new LineFigure(new Rectangle(0, 0, 10, 10), attributes);
     }

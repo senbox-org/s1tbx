@@ -12,6 +12,8 @@ import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.geom.AffineTransform;
 
 /**
@@ -48,24 +50,22 @@ public class PlacemarkLayerType extends LayerType {
 
         final ValueModel textBgColorModel = LayerType.createDefaultValueModel(
                 PlacemarkLayer.PROPERTY_NAME_TEXT_BG_COLOR,
-                PlacemarkLayer.DEFAULT_TEXT_BG_COLOR);
-        textBgColorModel.getDescriptor().setDefaultValue(PlacemarkLayer.DEFAULT_TEXT_BG_COLOR);
+                Color.class, PlacemarkLayer.DEFAULT_TEXT_BG_COLOR);
         valueContainer.addModel(textBgColorModel);
 
         final ValueModel textFgColorModel = LayerType.createDefaultValueModel(
                 PlacemarkLayer.PROPERTY_NAME_TEXT_FG_COLOR,
-                PlacemarkLayer.DEFAULT_TEXT_FG_COLOR);
-        textFgColorModel.getDescriptor().setDefaultValue(PlacemarkLayer.DEFAULT_TEXT_FG_COLOR);
+                Color.class, PlacemarkLayer.DEFAULT_TEXT_FG_COLOR);
         valueContainer.addModel(textFgColorModel);
 
         final ValueModel textEnabledModel = LayerType.createDefaultValueModel(PlacemarkLayer.PROPERTY_NAME_TEXT_ENABLED,
+                                                                              Boolean.class,
                                                                               PlacemarkLayer.DEFAULT_TEXT_ENABLED);
-        textEnabledModel.getDescriptor().setDefaultValue(PlacemarkLayer.DEFAULT_TEXT_ENABLED);
         valueContainer.addModel(textEnabledModel);
 
         final ValueModel textFontModel = LayerType.createDefaultValueModel(PlacemarkLayer.PROPERTY_NAME_TEXT_FONT,
+                                                                           Font.class,
                                                                            PlacemarkLayer.DEFAULT_TEXT_FONT);
-        textEnabledModel.getDescriptor().setDefaultValue(PlacemarkLayer.DEFAULT_TEXT_FONT);
         valueContainer.addModel(textFontModel);
 
         final ValueModel productModel = createDefaultValueModel(PROPERTY_PRODUCT, Product.class);

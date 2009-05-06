@@ -9,7 +9,6 @@ import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.draw.AbstractFigure;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +23,6 @@ public class SessionDomConverter extends DefaultDomConverter {
         setDomConverter(Product.class, new ProductDomConverter(productManager));
         setDomConverter(RasterDataNode.class, new RasterDataNodeDomConverter(productManager));
         setDomConverter(BitmaskDef.class, new BitmaskDefDomConverter(productManager));
-        setDomConverter(AbstractFigure.class, new FigureDomConverter());
         setDomConverter(PlacemarkDescriptor.class, new PlacemarkDescriptorDomConverter());
     }
 
