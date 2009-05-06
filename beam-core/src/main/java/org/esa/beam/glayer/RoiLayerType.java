@@ -56,7 +56,6 @@ public class RoiLayerType extends ImageLayer.Type {
         final ImageLayer roiLayer = new ImageLayer(this, configuration);
         roiLayer.setName("ROI");
         roiLayer.setId(ROI_LAYER_ID);
-        roiLayer.setVisible(false);
 
         final Double transparency = (Double) configuration.getValue(PROPERTY_TRANSPARENCY);
         roiLayer.getStyle().setOpacity(1 - transparency);
