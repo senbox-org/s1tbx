@@ -128,10 +128,12 @@ public class ValueContainer {
         return create(templateType, new ValueBackedValueAccessorFactory(), classFieldDescriptorFactory, true);
     }
 
+    // todo - rename - getValueModels (nf 05.2009)
     public ValueModel[] getModels() {
         return valueModelList.toArray(new ValueModel[valueModelList.size()]);
     }
 
+    // todo - rename - getValueModel (nf 05.2009)
     public ValueModel getModel(String name) {
         return valueModelMap.get(name);
     }
