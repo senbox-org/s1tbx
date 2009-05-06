@@ -52,6 +52,7 @@ public abstract class LayerType extends ExtensibleObject {
         return createLayerImpl(ctx, configuration);
     }
 
+    // todo - Layer API: why is LayerContext not used in no implementation? (mp)
     protected abstract Layer createLayerImpl(LayerContext ctx, ValueContainer configuration);
 
     // todo - Layer API: why not use annotations? (nf)
