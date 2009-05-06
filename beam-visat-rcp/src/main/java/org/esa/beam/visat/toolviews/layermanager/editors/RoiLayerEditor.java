@@ -5,6 +5,7 @@ import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
+import org.esa.beam.framework.datamodel.ROIDefinition;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.glayer.RoiLayerType;
@@ -46,8 +47,13 @@ public class RoiLayerEditor extends AbstractBindingLayerEditor {
                         RoiLayerType.PROPERTY_REFERENCED_RASTER);
                 final AffineTransform transform = (AffineTransform) style.getProperty(
                         ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
-                MultiLevelSource multiLevelSource = RoiImageMultiLevelSource.create(raster, newColor, transform);
-
+                final ROIDefinition definition = raster.getROIDefinition();
+                MultiLevelSource multiLevelSource;
+                if (definition != null && definition.isUsable()) {
+                    multiLevelSource = RoiImageMultiLevelSource.create(raster, newColor, transform);
+                } else {
+                    multiLevelSource = MultiLevelSource.NULL;
+                }
                 layer.setMultiLevelSource(multiLevelSource);
             }
         }
