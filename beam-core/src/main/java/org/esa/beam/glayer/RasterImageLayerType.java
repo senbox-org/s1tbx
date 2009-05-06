@@ -27,10 +27,10 @@ public class RasterImageLayerType extends ImageLayer.Type {
             final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
             final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(
                     ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
-            MultiLevelSource levelSource = BandImageMultiLevelSource.create(raster, i2mTransform,
-                                                                            ProgressMonitor.NULL);
+            final MultiLevelSource multiLevelSource = BandImageMultiLevelSource.create(raster, i2mTransform,
+                                                                                       ProgressMonitor.NULL);
             try {
-                configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, levelSource);
+                configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
             } catch (ValidationException e) {
                 throw new IllegalArgumentException(e);
             }
@@ -50,17 +50,17 @@ public class RasterImageLayerType extends ImageLayer.Type {
         return template;
     }
 
-    public Layer createLayer(RasterDataNode raster, MultiLevelSource levelSource) {
+    public Layer createLayer(RasterDataNode raster, MultiLevelSource multiLevelSource) {
         final ValueContainer configuration = getConfigurationTemplate();
 
         try {
             configuration.setValue(PROPERTY_NAME_RASTER, raster);
-            if (levelSource == null) {
-                levelSource = BandImageMultiLevelSource.create(raster, ProgressMonitor.NULL);
+            if (multiLevelSource == null) {
+                multiLevelSource = BandImageMultiLevelSource.create(raster, ProgressMonitor.NULL);
             }
             configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
-                                   levelSource.getModel().getImageToModelTransform(0));
-            configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, levelSource);
+                                   multiLevelSource.getModel().getImageToModelTransform(0));
+            configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         } catch (ValidationException e) {
             throw new IllegalArgumentException(e);
         }
