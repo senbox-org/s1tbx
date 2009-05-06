@@ -274,7 +274,7 @@ public final class DimapHeaderWriter extends XmlWriter {
         }
     }
 
-    protected void writeBitmaskDefinitions(int indent) { //�bernommen
+    protected void writeBitmaskDefinitions(int indent) {
         final BitmaskDef[] bitmaskDefs = _product.getBitmaskDefs();
         if (bitmaskDefs.length > 0) {
             final String[] bdTags = createTags(indent, DimapProductConstants.TAG_BITMASK_DEFINITIONS);
