@@ -31,6 +31,7 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.Icon;
+import javax.swing.JInternalFrame;
 import javax.swing.SwingWorker;
 import java.awt.Cursor;
 import java.io.IOException;
@@ -42,6 +43,7 @@ import java.io.IOException;
  * @version $Revision$ $Date$
  */
 public class ShowImageViewRGBAction extends ExecCommand {
+
     public static String ID = "showImageViewRGB";
 
     @Override
@@ -60,8 +62,8 @@ public class ShowImageViewRGBAction extends ExecCommand {
     public void openProductSceneViewRGB(final Product product, final String helpId) {
         final VisatApp visatApp = VisatApp.getApp();
         final RGBImageProfilePane profilePane = new RGBImageProfilePane(visatApp.getPreferences(), product);
-        final boolean ok = profilePane.showDialog(visatApp.getMainFrame(), visatApp.getAppName() + " - Select RGB-Image Channels",
-                                                  helpId);
+        final String title = visatApp.getAppName() + " - Select RGB-Image Channels";
+        final boolean ok = profilePane.showDialog(visatApp.getMainFrame(), title, helpId);
         if (!ok) {
             return;
         }
@@ -70,17 +72,14 @@ public class ShowImageViewRGBAction extends ExecCommand {
             RGBImageProfile.storeRgbaExpressions(product, rgbaExpressions);
         }
 
-        final RGBImageProfile selectedProfile = profilePane.getSelectedProfile();
-        final String name = selectedProfile != null ? selectedProfile.getName().replace("_", " ") : "";
-
-        openProductSceneViewRGB(name + " RGB", product, rgbaExpressions, helpId);
+        final String sceneName = createSceneName(product, profilePane.getSelectedProfile());
+        openProductSceneViewRGB(sceneName, product, rgbaExpressions);
     }
 
     /**
      * Creates product scene view using the given RGBA expressions.
      */
-    public void openProductSceneViewRGB(final String name, final Product product, final String[] rgbaExpressions,
-                                        final String helpId) {
+    public void openProductSceneViewRGB(final String name, final Product product, final String[] rgbaExpressions) {
         final VisatApp visatApp = VisatApp.getApp();
         final SwingWorker<ProductSceneImage, Object> worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(
                 visatApp.getMainFrame(),
@@ -108,23 +107,31 @@ public class ShowImageViewRGBAction extends ExecCommand {
                 visatApp.clearStatusBarMessage();
 
                 ProductSceneView productSceneView = new ProductSceneView(productSceneImage);
-                productSceneView.setCommandUIFactory(visatApp.getCommandUIFactory());
                 productSceneView.setNoDataOverlayEnabled(false);
                 productSceneView.setROIOverlayEnabled(false);
                 productSceneView.setGraticuleOverlayEnabled(false);
                 productSceneView.setPinOverlayEnabled(false);
                 productSceneView.setLayerProperties(visatApp.getPreferences());
-                final String title = createInternalFrameTitle(product, productSceneImage.getName());
-                final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
-                visatApp.createInternalFrame(title, icon, productSceneView, helpId);
-                visatApp.addPropertyMapChangeListener(productSceneView);
-                updateState();
+                openInternalFrame(productSceneView);
             }
         };
         visatApp.setStatusBarMessage("Creating RGB image view...");  /*I18N*/
         visatApp.getExecutorService().submit(worker);
     }
 
+    public JInternalFrame openInternalFrame(ProductSceneView view) {
+        final VisatApp visatApp = VisatApp.getApp();
+        view.setCommandUIFactory(visatApp.getCommandUIFactory());
+        view.setLayerProperties(visatApp.getPreferences());
+
+        final String title = createUniqueInternalFrameTitle(view.getSceneName());
+        final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
+        final JInternalFrame internalFrame = visatApp.createInternalFrame(title, icon, view, getHelpId());
+        visatApp.addPropertyMapChangeListener(view);
+        updateState();
+
+        return internalFrame;
+    }
 
 
     private static class RGBBand {
@@ -144,10 +151,10 @@ public class ShowImageViewRGBAction extends ExecCommand {
             pm.beginTask("Creating RGB image...", 2);
             rgbBands = allocateRgbBands(product, rgbaExpressions);
             productSceneImage = new ProductSceneImage(name, rgbBands[0].band,
-                                                         rgbBands[1].band,
-                                                         rgbBands[2].band,
-                                                         visatApp.getPreferences(),
-                                                         SubProgressMonitor.create(pm, 1));
+                                                      rgbBands[1].band,
+                                                      rgbBands[2].band,
+                                                      visatApp.getPreferences(),
+                                                      SubProgressMonitor.create(pm, 1));
         } catch (Exception e) {
             errorOccured = true;
             throw e;
@@ -160,8 +167,8 @@ public class ShowImageViewRGBAction extends ExecCommand {
         return productSceneImage;
     }
 
-    private  RGBBand[] allocateRgbBands(final Product product,
-                                        final String[] rgbaExpressions) throws IOException {
+    private RGBBand[] allocateRgbBands(final Product product,
+                                       final String[] rgbaExpressions) throws IOException {
         final RGBBand[] rgbBands = new RGBBand[3]; // todo - set to [4] as soon as we support alpha
         for (int i = 0; i < rgbBands.length; i++) {
             final RGBBand rgbBand = new RGBBand();
@@ -195,9 +202,23 @@ public class ShowImageViewRGBAction extends ExecCommand {
         }
     }
 
-    private String createInternalFrameTitle(final Product product, String name) {
-        return UIUtils.getUniqueFrameTitle(VisatApp.getApp().getAllInternalFrames(),
-                                           product.getProductRefString() + " " + name);
+    private static String createUniqueInternalFrameTitle(String name) {
+        return UIUtils.getUniqueFrameTitle(VisatApp.getApp().getAllInternalFrames(), name);
     }
 
+    private static String createSceneName(Product product, RGBImageProfile rgbImageProfile) {
+        final StringBuilder nameBuilder = new StringBuilder();
+        final String productRef = product.getProductRefString();
+        if (productRef != null) {
+            nameBuilder.append(productRef);
+            nameBuilder.append(" ");
+        }
+        if (rgbImageProfile != null) {
+            nameBuilder.append(rgbImageProfile.getName().replace("_", " "));
+            nameBuilder.append(" ");
+        }
+        nameBuilder.append("RGB");
+
+        return nameBuilder.toString();
+    }
 }
