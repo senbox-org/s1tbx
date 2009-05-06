@@ -211,6 +211,15 @@
             <description>Inserts an empty Layer Group</description>
             <class>org.esa.beam.visat.toolviews.layermanager.layersrc.CollectionLayerSource</class>
         </layerSource>
+
+        <layerSource>
+            <id>windfield-layer-source</id>
+            <name>Wind Field</name>
+            <description>?</description>
+            <class>org.esa.beam.visat.toolviews.layermanager.layersrc.windfield.WindFieldLayerSource</class>
+        </layerSource>
+
+
     </extension>
 
     <!--
