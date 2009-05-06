@@ -28,6 +28,7 @@ public abstract class AbstractLayerConfigurationPersistencyTest {
     private final LayerType layerType;
 
     protected AbstractLayerConfigurationPersistencyTest(LayerType layerType) {
+        assertNotNull(layerType);
         this.layerType = layerType;
     }
 
