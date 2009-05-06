@@ -12,6 +12,7 @@ import com.bc.ceres.core.ServiceRegistryFactory;
 import java.util.ServiceLoader;
 
 // todo - Layer API: the API of this class is confusing and it is hard to implement subclasses. (nf)
+
 // todo - Layer API: carefully javadoc it (nf)
 public abstract class LayerType extends ExtensibleObject {
 
@@ -90,31 +91,9 @@ public abstract class LayerType extends ExtensibleObject {
     // todo - Layer API: check following createDefaultValueModel helpers:
     // (1) why "default"? why static if protected? should be non-static for override.
     // (2) check ALT+F7: no framework usage
-
-    protected static ValueModel createDefaultValueModel(String propertyName, Object value) {
-        final ValueDescriptor descriptor = new ValueDescriptor(propertyName, value.getClass());
-        final DefaultValueAccessor accessor = new DefaultValueAccessor();
-        accessor.setValue(value);
-
-        return new ValueModel(descriptor, accessor);
-    }
-
-    protected static <T> ValueModel createDefaultValueModel(String propertyName, T value, T defaultValue) {
-        final ValueDescriptor descriptor = new ValueDescriptor(propertyName, value.getClass());
-        descriptor.setDefaultValue(defaultValue);
-        descriptor.setNotNull(true);
-
-        final DefaultValueAccessor accessor = new DefaultValueAccessor();
-        accessor.setValue(value);
-
-        return new ValueModel(descriptor, accessor);
-    }
-
     protected static ValueModel createDefaultValueModel(String propertyName, Class<?> type) {
         final ValueDescriptor descriptor = new ValueDescriptor(propertyName, type);
-        final DefaultValueAccessor accessor = new DefaultValueAccessor();
-
-        return new ValueModel(descriptor, accessor);
+        return new ValueModel(descriptor, new DefaultValueAccessor());
     }
 
     protected static <T> ValueModel createDefaultValueModel(String propertyName, Class<T> type, T defaultValue) {
@@ -122,6 +101,9 @@ public abstract class LayerType extends ExtensibleObject {
         descriptor.setDefaultValue(defaultValue);
         descriptor.setNotNull(true);
 
-        return new ValueModel(descriptor, new DefaultValueAccessor());
+        final DefaultValueAccessor accessor = new DefaultValueAccessor();
+        accessor.setValue(defaultValue);
+
+        return new ValueModel(descriptor, accessor);
     }
 }

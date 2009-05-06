@@ -329,15 +329,15 @@ public class ImageLayer extends Layer {
             template.getDescriptor(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
 
             template.addModel(createDefaultValueModel(ImageLayer.PROPERTY_NAME_BORDER_SHOWN,
-                                                      ImageLayer.DEFAULT_BORDER_SHOWN,
+                                                      Boolean.class,
                                                       ImageLayer.DEFAULT_BORDER_SHOWN));
 
             template.addModel(createDefaultValueModel(ImageLayer.PROPERTY_NAME_BORDER_COLOR,
-                                                      ImageLayer.DEFAULT_BORDER_COLOR,
+                                                      Color.class,
                                                       ImageLayer.DEFAULT_BORDER_COLOR));
 
             template.addModel(createDefaultValueModel(ImageLayer.PROPERTY_NAME_BORDER_WIDTH,
-                                                      ImageLayer.DEFAULT_BORDER_WIDTH,
+                                                      Double.class,
                                                       ImageLayer.DEFAULT_BORDER_WIDTH));
 
             return template;

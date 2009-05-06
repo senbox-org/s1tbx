@@ -144,8 +144,8 @@ public class ShapeLayer extends Layer {
             vc.addModel(shapeListModel);
 
             final ValueModel transformModel = createDefaultValueModel(PROPTERY_SHAPE_TO_MODEL_TRANSFORM,
+                                                                      AffineTransform.class,
                                                                       new AffineTransform());
-            transformModel.getDescriptor().setDefaultValue(new AffineTransform());
             vc.addModel(transformModel);
 
             return vc;
