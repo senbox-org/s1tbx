@@ -1010,7 +1010,8 @@ public class VisatApp extends BasicApp implements AppContext {
             final Container contentPane = frame.getContentPane();
             if (contentPane instanceof ProductNodeView) {
                 final ProductNodeView view = (ProductNodeView) contentPane;
-                if (view.getVisibleProductNode() == productNode) {
+                final ProductNode visibleProductNode = view.getVisibleProductNode();
+                if (visibleProductNode != null && visibleProductNode == productNode) {
                     return frame;
                 }
             }

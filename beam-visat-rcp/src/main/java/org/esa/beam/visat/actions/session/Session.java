@@ -102,20 +102,25 @@ public class Session {
             }
             String productNodeName = null;
             String viewName = null;
-            String redExpression = null;
-            String greenExpression = null;
-            String blueExpression = null;
+            String expressionR = null;
+            String expressionG = null;
+            String expressionB = null;
+            int productRefNo = 0;
+
             if (view instanceof ProductSceneView) {
                 final ProductSceneView psv = (ProductSceneView) view;
                 if (psv.isRGB()) {
                     viewName = psv.getSceneName();
-                    final RasterDataNode[] rasters = psv.getRasters();
 
-                    redExpression = getExpression(rasters[0]);
-                    greenExpression = getExpression(rasters[1]);
-                    blueExpression = getExpression(rasters[2]);
+                    final RasterDataNode[] rasters = psv.getRasters();
+                    expressionR = getExpression(rasters[0]);
+                    expressionG = getExpression(rasters[1]);
+                    expressionB = getExpression(rasters[2]);
+
+                    productRefNo = rasters[0].getProduct().getRefNo();
                 } else {
                     productNodeName = view.getVisibleProductNode().getName();
+                    productRefNo = view.getVisibleProductNode().getProduct().getRefNo();
                 }
             } else if (view instanceof ProductMetadataView) {
                 ProductMetadataView metadataView = (ProductMetadataView) view;
@@ -129,17 +134,18 @@ public class Session {
                     owner = owner.getOwner();
                 }
                 productNodeName = sb.toString();
+                productRefNo = view.getVisibleProductNode().getProduct().getRefNo();
             }
             viewRefs[i] = new ViewRef(i,
                                       view.getClass().getName(),
                                       viewBounds,
                                       viewportDef,
-                                      view.getVisibleProductNode().getProduct().getRefNo(),
+                                      productRefNo,
                                       productNodeName,
                                       viewName,
-                                      redExpression,
-                                      greenExpression,
-                                      blueExpression,
+                                      expressionR,
+                                      expressionG,
+                                      expressionB,
                                       layerRefs);
         }
     }
