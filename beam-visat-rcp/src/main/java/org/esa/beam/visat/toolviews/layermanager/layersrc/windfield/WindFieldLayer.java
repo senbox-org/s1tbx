@@ -85,11 +85,9 @@ public class WindFieldLayer extends Layer {
                     final double ondx = -ndy;
                     final double ondy = ndx;
 
-
-                    final double s0 = res * (length  / maxLength);
-                    final double s1 = 0.8 * s0;
+                    final double s0 = (length  / maxLength) * res;
+                    final double s1 = s0 - 0.2 * res;
                     final double s2 = 0.1 * res;
-
 
                     ipts[0] = x;
                     ipts[1] = y;
