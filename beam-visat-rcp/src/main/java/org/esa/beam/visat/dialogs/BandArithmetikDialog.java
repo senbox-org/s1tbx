@@ -86,13 +86,13 @@ public class BandArithmetikDialog extends ModalDialog {
     private Product targetProduct;
     
     private String productName;
-    private String expression;
+    private String expression = "";
     private double noDataValue;
     private boolean noDataValueUsed;
     private boolean writeData;
     private String bandName;
-    private String bandDescription;
-    private String bandUnit;
+    private String bandDescription = "";
+    private String bandUnit = "";
     
     private static int numNewBands = 0;
 
@@ -233,17 +233,18 @@ public class BandArithmetikDialog extends ModalDialog {
         final ValueContainer container = ValueContainer.createObjectBacked(this);
         BindingContext context = new BindingContext(container);
 
-        productName = targetProduct.getDisplayName();
-        ValueDescriptor descriptor = container.getDescriptor(PROPERTY_NAME_PRODUCT);
-        descriptor.setValueSet(new ValueSet(productsList.getDisplayNames()));
-        descriptor.setDisplayName("Target Product");
-        descriptor.addPropertyChangeListener(new PropertyChangeListener() {
-
+        container.addPropertyChangeListener(PROPERTY_NAME_PRODUCT, new PropertyChangeListener() {
+            
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 targetProduct = productsList.get(productName);
             }}
         );
+        
+        productName = targetProduct.getDisplayName();
+        ValueDescriptor descriptor = container.getDescriptor(PROPERTY_NAME_PRODUCT);
+        descriptor.setValueSet(new ValueSet(productsList.getDisplayNames()));
+        descriptor.setDisplayName("Target Product");
         
         descriptor = container.getDescriptor(PROPERTY_NAME_BAND_NAME);
         descriptor.setDisplayName("Name");
