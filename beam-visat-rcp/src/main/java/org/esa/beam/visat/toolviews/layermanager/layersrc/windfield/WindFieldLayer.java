@@ -7,11 +7,11 @@ import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.BasicStroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.NoninvertibleTransformException;
@@ -71,26 +71,42 @@ public class WindFieldLayer extends Layer {
         final int x2 = x1 + res * (1 + rectangle.width / res);
         final int y1 = res * (rectangle.y / res);
         final int y2 = y1 + res * (1 + rectangle.height / res);
-        final double[] ipts = new double[4];
-        final double[] mpts = new double[4];
-        final double[] vpts = new double[4];
+        final double[] ipts = new double[8];
+        final double[] mpts = new double[8];
+        final double[] vpts = new double[8];
         for (int y = y1; y <= y2; y += res) {
             for (int x = x1; x <= x2; x += res) {
                 if (x >= 0 && x < width && y >= 0 && y < height) {
-                    final float u = windu.getPixelFloat(x, y);
-                    final float v = windv.getPixelFloat(x, y);
+                    final double u = windu.getPixelDouble(x, y);
+                    final double v = windv.getPixelDouble(x, y);
                     final double length = Math.sqrt(u * u + v * v);
+                    final double ndx = length > 0 ? +u / length : 0;
+                    final double ndy = length > 0 ? -v / length : 0;
+                    final double ondx = -ndy;
+                    final double ondy = ndx;
+
+
+                    final double s0 = res * (length  / maxLength);
+                    final double s1 = 0.8 * s0;
+                    final double s2 = 0.1 * res;
+
 
                     ipts[0] = x;
                     ipts[1] = y;
-                    ipts[2] = x + res * u / length;
-                    ipts[3] = y - res * v / length;
-                    imageToModelTransform.transform(ipts, 0, mpts, 0, 2);
-                    modelToViewTransform.transform(mpts, 0, vpts, 0, 2);
+                    ipts[2] = x + s0 * ndx;
+                    ipts[3] = y + s0 * ndy;
+                    ipts[4] = x + s1 * ndx + s2 * ondx;
+                    ipts[5] = y + s1 * ndy + s2 * ondy;
+                    ipts[6] = x + s1 * ndx - s2 * ondx;
+                    ipts[7] = y + s1 * ndy - s2 * ondy;
+                    imageToModelTransform.transform(ipts, 0, mpts, 0, 4);
+                    modelToViewTransform.transform(mpts, 0, vpts, 0, 4);
                     final int grey = Math.min(255, (int) Math.round(256 * length / maxLength));
 
                     graphics.setColor(palette[grey]);
                     graphics.draw(new Line2D.Double(vpts[0], vpts[1], vpts[2], vpts[3]));
+                    graphics.draw(new Line2D.Double(vpts[4], vpts[5], vpts[2], vpts[3]));
+                    graphics.draw(new Line2D.Double(vpts[6], vpts[7], vpts[2], vpts[3]));
                 }
             }
         }

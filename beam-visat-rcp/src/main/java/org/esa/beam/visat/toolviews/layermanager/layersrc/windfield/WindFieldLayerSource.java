@@ -45,7 +45,7 @@ public class WindFieldLayerSource implements LayerSource {
         final RasterDataNode windu = product.getRasterDataNode(WINDU_NAME);
         final RasterDataNode windv = product.getRasterDataNode(WINDV_NAME);
         final WindFieldLayer fieldLayer = WindFieldLayerType.createLayer(windu, windv);
-        pageContext.getLayerContext().getRootLayer().getChildren().add(fieldLayer);
+        pageContext.getLayerContext().getRootLayer().getChildren().add(0, fieldLayer);
         return true;
     }
 
