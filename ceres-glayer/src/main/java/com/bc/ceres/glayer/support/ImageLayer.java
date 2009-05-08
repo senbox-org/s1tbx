@@ -279,17 +279,6 @@ public class ImageLayer extends Layer {
 
     private static ValueContainer addMultiLevelSourceModel(ValueContainer valueContainer,
                                                            MultiLevelSource multiLevelSource) {
-//        final DefaultValueAccessor multiLevelSourceAccessor = new DefaultValueAccessor();
-//        multiLevelSourceAccessor.setValue(multiLevelSource);
-//        final ValueDescriptor multiLevelSourceDescriptor = new ValueDescriptor(PROPERTY_NAME_MULTI_LEVEL_SOURCE,
-//                                                                               MultiLevelSource.class);
-//        valueContainer.addModel(new ValueModel(multiLevelSourceDescriptor, multiLevelSourceAccessor));
-//
-//        final DefaultValueAccessor transformAccessor = new DefaultValueAccessor();
-//        transformAccessor.setValue(multiLevelSource.getModel().getImageToModelTransform(0));
-//        final ValueDescriptor transformDescriptor = new ValueDescriptor(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
-//                                                                        AffineTransform.class);
-//        valueContainer.addModel(new ValueModel(transformDescriptor, transformAccessor));
         try {
             valueContainer.setValue(PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
             valueContainer.setValue(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
