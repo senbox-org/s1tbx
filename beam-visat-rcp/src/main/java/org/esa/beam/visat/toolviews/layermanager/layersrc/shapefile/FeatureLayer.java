@@ -164,7 +164,8 @@ public class FeatureLayer extends Layer {
         mapContext.setAreaOfInterest(mapArea);
 
         labelCache.clear();  // workaround for labelCache bug
-        renderer.paint(rendering.getGraphics(), bounds, mapArea);
+        final AffineTransform modelToViewTransform = rendering.getViewport().getModelToViewTransform();
+        renderer.paint(rendering.getGraphics(), bounds, mapArea, modelToViewTransform);
     }
 
     private void applyOpacity() {
