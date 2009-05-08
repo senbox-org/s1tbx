@@ -265,7 +265,7 @@ public class ExportKmzFileAction extends ExecCommand {
                         return layer instanceof ImageLayer;
                     }
                 };
-                RenderedImage image = ExportImageAction.createImage(view, true, true, layerFilter);
+                RenderedImage image = ExportImageAction.createImage(view, true, true, layerFilter, null);
                 pm.worked(1);
                 String imageType = "PNG";
                 String imageName = "overlay.png";

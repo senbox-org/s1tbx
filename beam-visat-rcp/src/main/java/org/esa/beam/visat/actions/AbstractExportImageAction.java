@@ -16,6 +16,7 @@
  */
 package org.esa.beam.visat.actions;
 
+
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.sun.media.jai.codec.ImageCodec;
@@ -33,6 +34,7 @@ import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
 
 import javax.media.jai.operator.BandSelectDescriptor;
@@ -54,11 +56,13 @@ import java.io.OutputStream;
  * @version $Revision$ $Date$
  */
 public abstract class AbstractExportImageAction extends ExecCommand {
+    
 
     public static final String EXPORT_IMAGE_CMD_ID = "exportImageFile";
     public static final String EXPORT_ROI_IMAGE_CMD_ID = "exportROIImageFile";
     public static final String EXPORT_LEGEND_IMAGE_CMD_ID = "exportLegendImageFile";
 
+    private static final int TEN_MEGA_PIXEL = 10*1000*1000;
 
     private static final String[] BMP_FORMAT_DESCRIPTION = {"BMP", "bmp", "BMP - Microsoft Windows Bitmap"};
     private static final String[] PNG_FORMAT_DESCRIPTION = {"PNG", "png", "PNG - Portable Network Graphics"};
@@ -186,6 +190,17 @@ public abstract class AbstractExportImageAction extends ExecCommand {
         final SaveImageSwingWorker worker = new SaveImageSwingWorker(visatApp, "Save Image", imageFormat, view,
                                                                      entireImageSelected, file);
         worker.executeWithBlocking();
+    }
+    
+    static Dimension truncateImageSize(int width, int height) {
+        final double ratio = width / (double)height;
+        if ((width * height) > TEN_MEGA_PIXEL) {
+            int heightT = MathUtils.floorInt(Math.sqrt(TEN_MEGA_PIXEL/ratio));
+            int widthT = MathUtils.floorInt(heightT * ratio);
+            return new Dimension(widthT, heightT);
+        } else {
+            return new Dimension(width, height);
+        }
     }
 
     protected abstract RenderedImage createImage(String imageFormat, ProductSceneView view);
