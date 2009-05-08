@@ -99,6 +99,13 @@ public class ImageLayer extends Layer {
         super(layerType, configuration);
         multiLevelSource = (MultiLevelSource) configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
         Assert.notNull(multiLevelSource);
+        getStyle().setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN,
+                               configuration.getValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN));
+        getStyle().setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR,
+                               configuration.getValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR));
+        getStyle().setProperty(ImageLayer.PROPERTY_NAME_BORDER_WIDTH,
+                               configuration.getValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH));
+
     }
 
     @Override
