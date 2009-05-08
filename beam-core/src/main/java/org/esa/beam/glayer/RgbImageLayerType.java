@@ -49,6 +49,9 @@ public class RgbImageLayerType extends ImageLayer.Type {
                                                                                        ProgressMonitor.NULL);
             try {
                 configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
+                configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, true);
+                configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
+                configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
             } catch (ValidationException e) {
                 throw new IllegalArgumentException(e);
             }
@@ -112,6 +115,9 @@ public class RgbImageLayerType extends ImageLayer.Type {
             configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
                                    multiLevelSource.getModel().getImageToModelTransform(0));
             configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
+            configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, true);
+            configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
+            configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
         } catch (ValidationException e) {
             throw new IllegalArgumentException(e);
         }
@@ -163,7 +169,7 @@ public class RgbImageLayerType extends ImageLayer.Type {
 
     private static class RgbBand extends VirtualBand {
 
-        public RgbBand(Product product, final String bandName, final String expression) {
+        private RgbBand(Product product, final String bandName, final String expression) {
             super(bandName, ProductData.TYPE_FLOAT32, product.getSceneRasterWidth(), product.getSceneRasterHeight(),
                   expression);
             setOwner(product);

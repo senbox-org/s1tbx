@@ -105,11 +105,6 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         final ImageLayer imageLayer = (ImageLayer) type.createLayer(getContext().getLayerContext(),
                                                                     configuration);
         imageLayer.setName(rasterDataNode.getDisplayName());
-        imageLayer.setVisible(true);
-        final Style style = imageLayer.getStyle();
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
 
         ProductSceneView sceneView = getContext().getAppContext().getSelectedProductSceneView();
         Layer rootLayer = sceneView.getRootLayer();
