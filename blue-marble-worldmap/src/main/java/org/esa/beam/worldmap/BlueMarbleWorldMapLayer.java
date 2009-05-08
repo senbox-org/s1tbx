@@ -80,7 +80,7 @@ public class BlueMarbleWorldMapLayer extends Layer {
             dirPath = getDirPathFromModule();
         }
         if (dirPath == null) {
-            throw new IllegalStateException("World image Directory not found");
+            throw new IllegalStateException("World image directory not found.");
         }
         final MultiLevelSource multiLevelSource;
         try {
