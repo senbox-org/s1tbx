@@ -6,15 +6,12 @@ import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
-import com.bc.ceres.binding.dom.XStreamDomConverter;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.Style;
-import org.esa.beam.framework.draw.Figure;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 
@@ -106,7 +103,6 @@ public class FigureLayerType extends LayerType {
         final ValueModel figureListModel = createDefaultValueModel(FigureLayer.PROPERTY_NAME_FIGURE_LIST,
                                                                    ArrayList.class,
                                                                    new ArrayList());
-        figureListModel.getDescriptor().setItemAlias("figure");
         figureListModel.getDescriptor().setDomConverter(new FigureListDomConverter());
         vc.addModel(figureListModel);
         return vc;
@@ -122,9 +118,9 @@ public class FigureLayerType extends LayerType {
         @Override
         public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
                                                                                        ValidationException {
-            final DomElement[] listElements = parentElement.getChildren();
+            final DomElement[] listElements = parentElement.getChildren("figure");
             final ArrayList figureList = new ArrayList();
-            final XStreamDomConverter figureDomConverter = createFigureDomConverter();
+            final DomConverter figureDomConverter = new AbstractFigureDomConverter();
             for (DomElement figureElement : listElements) {
                 figureList.add(figureDomConverter.convertDomToValue(figureElement, null));
             }
@@ -133,18 +129,12 @@ public class FigureLayerType extends LayerType {
 
         @Override
         public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
-            ArrayList<Figure> figureList = (ArrayList<Figure>) value;
-            final XStreamDomConverter figureDomConverter = createFigureDomConverter();
-            for (Figure figure : figureList) {
-                figureDomConverter.convertValueToDom(figure, parentElement);
+            ArrayList figureList = (ArrayList) value;
+            final DomConverter figureDomConverter = new AbstractFigureDomConverter();
+            for (Object figure : figureList) {
+                DomElement figureElement = parentElement.createChild("figure");
+                figureDomConverter.convertValueToDom(figure, figureElement);
             }
-        }
-
-        private XStreamDomConverter createFigureDomConverter() {
-            final XStreamDomConverter figureDomConverter = new XStreamDomConverter(Figure.class);
-            figureDomConverter.getXStream().setClassLoader(FigureLayer.class.getClassLoader());
-            figureDomConverter.getXStream().aliasField("dashPhase", BasicStroke.class, "dash_phase");
-            return figureDomConverter;
         }
     }
 }
