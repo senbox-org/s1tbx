@@ -16,12 +16,14 @@
  */
 package org.esa.beam.framework.ui.product;
 
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import com.bc.jexp.Namespace;
+import com.bc.jexp.impl.ParserImpl;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.ui.ExpressionPane;
+import org.esa.beam.util.PropertyMap;
 
 import javax.swing.Box;
 import javax.swing.JCheckBox;
@@ -30,24 +32,21 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.dataop.barithm.BandArithmetic;
-import org.esa.beam.framework.ui.ExpressionPane;
-import org.esa.beam.util.PropertyMap;
-
-import com.bc.jexp.Namespace;
-import com.bc.jexp.impl.ParserImpl;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
- * An expression pane to be used in conjunction with {@link Product}s in order to edit and assemple band arithmetic expressions.
+ * An expression pane to be used in conjunction with {@link Product}s in order to edit and assemble band arithmetic expressions.
  */
 public class ProductExpressionPane extends ExpressionPane {
 
     private Product[] products;
     private Product currentProduct;
+    private Product targetProduct;
     private JComboBox productBox;
     private JList nodeList;
     private JCheckBox inclBandsCheck;
@@ -62,6 +61,7 @@ public class ProductExpressionPane extends ExpressionPane {
         }
         this.products = products;
         this.currentProduct = currentProduct != null ? currentProduct : this.products[0];
+        this.targetProduct = this.currentProduct;
         init();
     }
 
@@ -89,6 +89,7 @@ public class ProductExpressionPane extends ExpressionPane {
 
         final ActionListener resetNodeListAL = new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() == productBox) {
                     setCurrentProduct();
@@ -169,7 +170,7 @@ public class ProductExpressionPane extends ExpressionPane {
         setCurrentProduct();
         List<String> listEntries = new ArrayList<String>(64);
         if (currentProduct != null) {
-            String[] flagNames = currentProduct.getAllFlagNames();
+            String[] flagNames = currentProduct.getFlagCodingGroup().getNodeNames();
             boolean hasBands = currentProduct.getNumBands() > 0;
             boolean hasGrids = currentProduct.getNumTiePointGrids() > 0;
             boolean hasFlags = flagNames.length > 0;
@@ -224,7 +225,7 @@ public class ProductExpressionPane extends ExpressionPane {
 
     private String getNodeNamePrefix() {
         final String namePrefix;
-        if (products.length > 1) {
+        if (currentProduct != targetProduct) {
             namePrefix = BandArithmetic.getProductNodeNamePrefix(currentProduct);
         } else {
             namePrefix = "";
