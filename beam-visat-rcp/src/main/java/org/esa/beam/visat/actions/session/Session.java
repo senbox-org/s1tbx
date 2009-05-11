@@ -375,7 +375,7 @@ public class Session {
         layer.setId(ref.id);
         layer.setVisible(ref.visible);
         layer.setName(ref.name);
-        parentLayer.getChildren().add(ref.index, layer);
+        parentLayer.getChildren().add(ref.zOrder, layer);
         for (LayerRef child : ref.children) {
             addLayerRef(layer, child, productManager);
         }
@@ -475,19 +475,19 @@ public class Session {
         final String id;
         final String name;
         final boolean visible;
-        final public int index;
+        final int zOrder;
         @XStreamConverter(DomElementXStreamConverter.class)
         final DomElement configuration;
         final LayerRef[] children;
 
-        public LayerRef(String layerTypeName, String id, String name, boolean visible, int index,
+        public LayerRef(String layerTypeName, String id, String name, boolean visible, int zOrder,
                         DomElement configuration,
                         LayerRef[] children) {
             this.layerTypeName = layerTypeName;
             this.id = id;
             this.name = name;
             this.visible = visible;
-            this.index = index;
+            this.zOrder = zOrder;
             this.configuration = configuration;
             this.children = children;
         }
