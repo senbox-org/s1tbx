@@ -119,6 +119,9 @@
     <dependency>
         <module>ceres-binding</module>
     </dependency>
+    <dependency>
+        <module>ceres-ui</module>
+    </dependency>
 
     <categories>System,Application,VISAT</categories>
 
