@@ -237,7 +237,7 @@ public class BandArithmetikDialog extends ModalDialog {
             
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                targetProduct = productsList.get(productName);
+                targetProduct = productsList.getByDisplayName(productName);
             }}
         );
         
