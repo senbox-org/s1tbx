@@ -28,9 +28,9 @@ import java.util.Hashtable;
 public class FeatureLayerEditor implements LayerEditor {
 
     private FeatureLayer currentLayer;
-    private JSlider polyFillOpacity;
-    private JSlider polyStrokeOpacity;
-    private JSlider textOpacity;
+    private JSlider polyFillTransparency;
+    private JSlider polyStrokeTransparency;
+    private JSlider textTransparency;
 
 
     @Override
@@ -50,50 +50,50 @@ public class FeatureLayerEditor implements LayerEditor {
         tableLayout.setTablePadding(4, 4);
         JPanel control = new JPanel(tableLayout);
 
-        JLabel fillLabel = new JLabel("Fill Opacity:");
+        JLabel fillLabel = new JLabel("Fill transparency:");
         control.add(fillLabel);
-        polyFillOpacity = new JSlider(0, 255, 255);
-        polyFillOpacity.setToolTipText("Set the opacity of fillings");
-        polyFillOpacity.setLabelTable(sliderLabelTable);
-        polyFillOpacity.setPaintLabels(true);
-        polyFillOpacity.addChangeListener(new ChangeListener() {
+        polyFillTransparency = new JSlider(0, 255, 255);
+        polyFillTransparency.setToolTipText("Set the opacity of fillings");
+        polyFillTransparency.setLabelTable(sliderLabelTable);
+        polyFillTransparency.setPaintLabels(true);
+        polyFillTransparency.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                currentLayer.setPolyFillOpacity(polyFillOpacity.getValue() / 255.0);
+                currentLayer.setPolyFillOpacity(1.0 - polyFillTransparency.getValue() / 255.0);
 
             }
         });
-        control.add(polyFillOpacity);
+        control.add(polyFillTransparency);
 
-        JLabel lineLabel = new JLabel("Line Opacity:");
+        JLabel lineLabel = new JLabel("Line transparency:");
         control.add(lineLabel);
-        polyStrokeOpacity = new JSlider(0, 255, 255);
-        polyStrokeOpacity.setToolTipText("Set the opacity of lines");
-        polyStrokeOpacity.setLabelTable(sliderLabelTable);
-        polyStrokeOpacity.setPaintLabels(true);
-        polyStrokeOpacity.addChangeListener(new ChangeListener() {
+        polyStrokeTransparency = new JSlider(0, 255, 255);
+        polyStrokeTransparency.setToolTipText("Set the transparency of lines");
+        polyStrokeTransparency.setLabelTable(sliderLabelTable);
+        polyStrokeTransparency.setPaintLabels(true);
+        polyStrokeTransparency.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                currentLayer.setPolyStrokeOpacity(polyStrokeOpacity.getValue() / 255.0);
+                currentLayer.setPolyStrokeOpacity(1.0 - polyStrokeTransparency.getValue() / 255.0);
 
             }
         });
-        control.add(polyStrokeOpacity);
+        control.add(polyStrokeTransparency);
 
-        JLabel labelLabel = new JLabel("Label Opacity:");
+        JLabel labelLabel = new JLabel("Label transparency:");
         control.add(labelLabel);
-        textOpacity = new JSlider(0, 255, 255);
-        textOpacity.setToolTipText("Set the opacity of labels");
-        textOpacity.setLabelTable(sliderLabelTable);
-        textOpacity.setPaintLabels(true);
-        textOpacity.addChangeListener(new ChangeListener() {
+        textTransparency = new JSlider(0, 255, 255);
+        textTransparency.setToolTipText("Set the transparency of labels");
+        textTransparency.setLabelTable(sliderLabelTable);
+        textTransparency.setPaintLabels(true);
+        textTransparency.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                currentLayer.setTextOpacity(textOpacity.getValue() / 255.0);
+                currentLayer.setTextOpacity(1.0 - textTransparency.getValue() / 255.0);
 
             }
         });
-        control.add(textOpacity);
+        control.add(textTransparency);
         control.add(new JPanel()); // filler
         return control;
     }
@@ -108,8 +108,8 @@ public class FeatureLayerEditor implements LayerEditor {
 
     @Override
     public void updateControl() {
-        polyFillOpacity.setValue((int) (currentLayer.getPolyFillOpacity() * 255));
-        polyStrokeOpacity.setValue((int) (currentLayer.getPolyStrokeOpacity() * 255));
-        textOpacity.setValue((int) (currentLayer.getTextOpacity() * 255));
+        polyFillTransparency.setValue((int) Math.round((1.0 - currentLayer.getPolyFillOpacity()) * 255));
+        polyStrokeTransparency.setValue((int) Math.round((1.0 - currentLayer.getPolyStrokeOpacity()) * 255));
+        textTransparency.setValue((int) Math.round((1.0 - currentLayer.getTextOpacity()) * 255));
     }
 }
