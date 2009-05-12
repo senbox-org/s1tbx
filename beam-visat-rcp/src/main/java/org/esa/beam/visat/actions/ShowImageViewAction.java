@@ -19,6 +19,7 @@ package org.esa.beam.visat.actions;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import com.bc.ceres.glayer.swing.LayerCanvas;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
@@ -37,6 +38,12 @@ import javax.swing.JInternalFrame;
 import javax.swing.SwingWorker;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.geom.Point2D;
+import java.awt.Container;
 
 /**
  * This action opens an image view of the currently selected raster.
@@ -96,7 +103,7 @@ public class ShowImageViewAction extends ExecCommand {
         visatApp.getExecutorService().submit(worker);
     }
 
-    public JInternalFrame openInternalFrame(ProductSceneView view) {
+    public JInternalFrame openInternalFrame(final ProductSceneView view) {
         final VisatApp visatApp = VisatApp.getApp();
         final RasterDataNode selectedProductNode = view.getRaster();
         view.setCommandUIFactory(visatApp.getCommandUIFactory());
@@ -126,6 +133,29 @@ public class ShowImageViewAction extends ExecCommand {
                 product.removeProductNodeListener(pnl);
             }
         });
+
+
+        // todo - uncomment in order to implement synchronised cursor positions (nf 20090512)
+        /*
+        view.getLayerCanvas().addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                LayerCanvas layerCanvas = (LayerCanvas) e.getSource();
+                Point2D mp = layerCanvas.getViewport().getViewToModelTransform().transform(e.getPoint(), null);
+
+                for (JInternalFrame frame : visatApp.getAllInternalFrames()) {
+                    Container contentPane = frame.getContentPane();
+                    if (contentPane instanceof ProductSceneView) {
+                        ProductSceneView otherView = (ProductSceneView) contentPane;
+                        if (otherView != view) {
+
+                            //  layerCanvas.getViewport()
+                        }
+                    }
+                }
+            }
+        });
+        */
 
         visatApp.updateState();
 
