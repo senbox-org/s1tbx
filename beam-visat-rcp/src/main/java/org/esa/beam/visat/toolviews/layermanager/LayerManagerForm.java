@@ -32,10 +32,12 @@ import javax.swing.tree.TreePath;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.util.List;
+import java.util.Hashtable;
 
 class LayerManagerForm extends AbstractLayerForm {
 
@@ -64,13 +66,21 @@ class LayerManagerForm extends AbstractLayerForm {
         layerTree = createCheckBoxTree(layerTreeModel);
         layerTree.setCellRenderer(new MyTreeCellRenderer());
 
-        transparencySlider = new JSlider(0, 100, 0);
+        Hashtable<Integer, JLabel> transparencySliderLabelTable = new Hashtable<Integer, JLabel>();
+        transparencySliderLabelTable.put(0, createSliderLabel("0%"));
+        transparencySliderLabelTable.put(127, createSliderLabel("50%"));
+        transparencySliderLabelTable.put(255, createSliderLabel("100%"));
+        transparencySlider = new JSlider(0, 255, 0);
+        transparencySlider.setLabelTable(transparencySliderLabelTable);
+        transparencySlider.setPaintLabels(true);
+        transparencySlider.addChangeListener(new TransparencySliderListener());
+
+        transparencyLabel = new JLabel("Transparency:");
+
         final JPanel sliderPanel = new JPanel(new BorderLayout(4, 4));
         sliderPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
-        transparencyLabel = new JLabel("Transparency:");
         sliderPanel.add(transparencyLabel, BorderLayout.WEST);
         sliderPanel.add(transparencySlider, BorderLayout.CENTER);
-        transparencySlider.addChangeListener(new TransparencySliderListener());
 
         getRootLayer().addListener(new RootLayerListener());
 
@@ -114,6 +124,14 @@ class LayerManagerForm extends AbstractLayerForm {
 
         initLayerTreeVisibility(view.getRootLayer());
         updateFormControl();
+    }
+
+    private JLabel createSliderLabel(String text) {
+        JLabel label = new JLabel(text);
+        Font oldFont = label.getFont();
+        Font newFont = oldFont.deriveFont(oldFont.getSize2D() * 0.85f);
+        label.setFont(newFont);
+        return label;
     }
 
     public Layer getRootLayer() {
