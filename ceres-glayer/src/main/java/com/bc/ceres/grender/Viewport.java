@@ -80,6 +80,7 @@ public interface Viewport extends Cloneable {
      */
     void moveViewDelta(double viewDeltaX, double viewDeltaY);
 
+    // todo - use term "scale"
     /**
      * Gets the zoom factor.
      * The zoom factor is equal to the number of model units per view unit.
@@ -88,6 +89,7 @@ public interface Viewport extends Cloneable {
      */
     double getZoomFactor();
 
+    // todo - use term "scale"
     /**
      * Sets the zoom factor relative to the viewport bound's center point.
      *
@@ -103,6 +105,7 @@ public interface Viewport extends Cloneable {
      */
     void zoom(Rectangle2D modelArea);
 
+    // todo - use term "scale"
     /**
      * Zooms to the given point given in model coordinates.
      *
