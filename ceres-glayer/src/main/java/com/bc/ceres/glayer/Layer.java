@@ -1,15 +1,16 @@
 package com.bc.ceres.glayer;
 
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ExtensibleObject;
-import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.grender.Rendering;
 
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.MessageFormat;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,8 +36,10 @@ public abstract class Layer extends ExtensibleObject {
     private final LayerList children;
     private String id;
     private String name;
+
     private boolean visible;
-    private transient Style style;
+    private double transparency;
+    private Composite composite;
 
     private transient final ArrayList<LayerListener> layerListenerList;
     private transient final ConfigurationPCL configurationPCL;
@@ -46,13 +49,13 @@ public abstract class Layer extends ExtensibleObject {
     protected Layer(LayerType layerType) {
         this(layerType, new ValueContainer());
     }
-    
+
     /**
      * Constructor. The following default properties are used:
      * <ul>
      * <li>{@code name = getClass().getName()}</li>
      * <li>{@code visible = true}</li>
-     * <li>{@code style.opacity = 1.0}</li>
+     * <li>{@code transparency = 0.0}</li>
      * </ul>
      *
      * @param layerType     the layer type.
@@ -66,10 +69,13 @@ public abstract class Layer extends ExtensibleObject {
         this.parent = null;
         this.id = Long.toHexString(System.nanoTime() + (instanceCount.incrementAndGet()));
         this.children = new LayerList();
+
         this.visible = true;
+        this.transparency = 0.0;
+        this.composite = Composite.SRC_OVER;
+
         this.layerListenerList = new ArrayList<LayerListener>(8);
         this.configurationPCL = new ConfigurationPCL();
-        setStyle(new DefaultStyle());
 
         configuration.addPropertyChangeListener(configurationPCL);
     }
@@ -191,28 +197,73 @@ public abstract class Layer extends ExtensibleObject {
     }
 
     /**
-     * @return The layer's style.
+     * Returns the transparency of this layer.
+     *
+     * @return the transparency of this layer.
      */
-    @Deprecated
-    public Style getStyle() {
-        return style;
+    public double getTransparency() {
+        return transparency;
     }
 
     /**
-     * @param style The layer's style.
+     * Sets the transparency of this layer to a new value.
+     *
+     * @param transparency the new transparency value of this layer.
      */
-    @Deprecated
-    public void setStyle(Style style) {
-        final Style oldStyle = this.style;
-        if (oldStyle != style) {
-            if (this.style != null) {
-                this.style.removePropertyChangeListener(configurationPCL);
+    public void setTransparency(double transparency) {
+        final double oldValue = this.transparency;
+        if (oldValue != transparency) {
+            this.transparency = transparency;
+            fireLayerPropertyChanged("transparency", oldValue, this.visible);
+        }
+    }
+
+    /**
+     * Returns the composite of this layer.
+     *
+     * @return the composite of this layer.
+     */
+    public Composite getComposite() {
+        return composite;
+    }
+
+    protected final <T> T getConfigurationProperty(String propertyName, T defaultValue) {
+        T value = defaultValue;
+
+        final ValueContainer configuration = getConfiguration();
+        final ValueModel model = configuration.getModel(propertyName);
+        if (model != null) {
+            final Class<?> expectedType = defaultValue.getClass();
+            final Class<?> actualType = model.getDescriptor().getType();
+            if (expectedType.isAssignableFrom(actualType)) {
+                if (model.getValue() != null) {
+                    //noinspection unchecked
+                    value = (T) model.getValue();
+                } else {
+                    if (model.getDescriptor().getDefaultValue() != null) {
+                        //noinspection unchecked
+                        value = (T) model.getDescriptor().getDefaultValue();
+                    }
+                }
+            } else {
+                throw new IllegalArgumentException(MessageFormat.format(
+                        "Class ''{0}'' is not assignable from class ''{1}''.", expectedType, actualType));
             }
-            this.style = style;
-            if (this.style != null) {
-                this.style.addPropertyChangeListener(configurationPCL);
-            }
-            fireLayerPropertyChanged("style", oldStyle, style);
+        }
+
+        return value;
+    }
+
+    /**
+     * Sets the composite of this layer.
+     *
+     * @param composite the new composite of this layer.
+     */
+    public void setComposite(Composite composite) {
+        final Composite oldValue = this.composite;
+        if (oldValue != composite) {
+            this.composite = composite;
+            fireLayerPropertyChanged("composite", oldValue, this.visible);
         }
     }
 
@@ -287,7 +338,7 @@ public abstract class Layer extends ExtensibleObject {
 
     /**
      * Renders the layer. The base class implementation configures the rendering with respect to the
-     * "opacity" and "composite" style properties. Then
+     * "transparency" and "composite" style properties. Then
      * {@link #renderLayer(com.bc.ceres.grender.Rendering)} followed by
      * {@link #renderChildren(com.bc.ceres.grender.Rendering, LayerFilter)} are called.
      *
@@ -295,16 +346,16 @@ public abstract class Layer extends ExtensibleObject {
      * @param filter    An optional layer filter. May be {@code null}.
      */
     public final void render(Rendering rendering, LayerFilter filter) {
-        final double opacity = getStyle().getOpacity();
-        if (!isVisible() || opacity == 0.0) {
+        final double transparency = getTransparency();
+        if (!isVisible() || transparency == 1.0) {
             return;
         }
         final Graphics2D g = rendering.getGraphics();
         java.awt.Composite oldComposite = null;
         try {
-            if (opacity < 1.0) {
+            if (transparency > 0.0) {
                 oldComposite = g.getComposite();
-                g.setComposite(getStyle().getComposite().getAlphaComposite((float) opacity));
+                g.setComposite(getComposite().getAlphaComposite((float) (1.0 - transparency)));
             }
             if (filter == null) {
                 renderLayer(rendering);

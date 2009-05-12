@@ -3,6 +3,7 @@ package com.bc.ceres.glayer.support;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerListener;
 import com.bc.ceres.glayer.Style;
+import com.bc.ceres.binding.ValueContainer;
 
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
@@ -17,7 +18,7 @@ public abstract class AbstractLayerListener implements LayerListener {
 
     /**
      * Called if a property of the given layer has changed. The source of the property change event
-     * may be either the layer itself or its style (see {@link Layer#getStyle()}).
+     * may be either the layer itself or its configuration (see {@link Layer#getConfiguration()}).
      *
      * @param layer The layer which triggered the change.
      * @param event The layer property change event.
@@ -62,7 +63,8 @@ public abstract class AbstractLayerListener implements LayerListener {
      */
     protected boolean isVisibleChangeEvent(PropertyChangeEvent propertyChangeEvent) {
         return propertyChangeEvent.getPropertyName().equals("visible")
-                || propertyChangeEvent.getPropertyName().equals("style")
-                || propertyChangeEvent.getSource() instanceof Style;
+                || propertyChangeEvent.getPropertyName().equals("transparency")
+                || propertyChangeEvent.getPropertyName().equals("composite")
+                || propertyChangeEvent.getSource() instanceof ValueContainer;
     }
 }

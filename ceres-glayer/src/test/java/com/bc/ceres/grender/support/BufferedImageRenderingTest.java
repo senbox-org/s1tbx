@@ -19,7 +19,7 @@ public class BufferedImageRenderingTest  {
 
         final BufferedImageRendering rendering = new BufferedImageRendering(2, 2);
         ImageLayer il = new ImageLayer(bi);
-        il.getStyle().setOpacity(1.0);
+        il.setTransparency(0.0);
         il.render(rendering);
         assertEquals(Color.ORANGE.getRGB(), rendering.getImage().getRGB(0, 0));
         assertEquals(Color.BLUE.getRGB(), rendering.getImage().getRGB(0, 1));

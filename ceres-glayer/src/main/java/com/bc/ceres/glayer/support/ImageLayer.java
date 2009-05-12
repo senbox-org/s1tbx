@@ -2,6 +2,7 @@ package com.bc.ceres.glayer.support;
 
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -99,13 +100,6 @@ public class ImageLayer extends Layer {
         super(layerType, configuration);
         multiLevelSource = (MultiLevelSource) configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
         Assert.notNull(multiLevelSource);
-        getStyle().setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN,
-                               configuration.getValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN));
-        getStyle().setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR,
-                               configuration.getValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR));
-        getStyle().setProperty(ImageLayer.PROPERTY_NAME_BORDER_WIDTH,
-                               configuration.getValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH));
-
     }
 
     @Override
@@ -258,30 +252,15 @@ public class ImageLayer extends Layer {
     }
 
     public boolean isBorderShown() {
-        final Style style = getStyle();
-
-        if (style.hasProperty(PROPERTY_NAME_BORDER_SHOWN)) {
-            return (Boolean) style.getProperty(PROPERTY_NAME_BORDER_SHOWN);
-        }
-        return DEFAULT_BORDER_SHOWN;
+        return getConfigurationProperty(PROPERTY_NAME_BORDER_SHOWN, DEFAULT_BORDER_SHOWN);
     }
 
     public double getBorderWidth() {
-        final Style style = getStyle();
-
-        if (style.hasProperty(PROPERTY_NAME_BORDER_WIDTH)) {
-            return (Double) style.getProperty(PROPERTY_NAME_BORDER_WIDTH);
-        }
-        return DEFAULT_BORDER_WIDTH;
+        return getConfigurationProperty(PROPERTY_NAME_BORDER_WIDTH, DEFAULT_BORDER_WIDTH);
     }
 
     public Color getBorderColor() {
-        final Style style = getStyle();
-
-        if (style.hasProperty(PROPERTY_NAME_BORDER_COLOR)) {
-            return (Color) style.getProperty(PROPERTY_NAME_BORDER_COLOR);
-        }
-        return DEFAULT_BORDER_COLOR;
+        return getConfigurationProperty(PROPERTY_NAME_BORDER_COLOR, DEFAULT_BORDER_COLOR);
     }
 
     private static ValueContainer addMultiLevelSourceModel(ValueContainer valueContainer,

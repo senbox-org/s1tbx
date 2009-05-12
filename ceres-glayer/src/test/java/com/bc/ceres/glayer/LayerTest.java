@@ -27,8 +27,8 @@ public class LayerTest {
         assertNotNull(layer.getId());
         assertEquals("Collection Layer", layer.getName());
         assertEquals(true, layer.isVisible());
-        assertEquals(1.0, layer.getStyle().getOpacity(), 1.0e-10);
-        assertEquals(Composite.SRC_OVER, layer.getStyle().getComposite());
+        assertEquals(0.0, layer.getTransparency(), 1.0e-10);
+        assertEquals(Composite.SRC_OVER, layer.getComposite());
 
         assertNull(layer.getModelBounds());
     }
@@ -55,15 +55,15 @@ public class LayerTest {
             // expected
         }
 
-        assertEquals(1.0, layer.getStyle().getOpacity(), 1.0e-10);
-        layer.getStyle().setOpacity(0.1);
-        assertEquals(0.1, layer.getStyle().getOpacity(), 1.0e-10);
-        layer.getStyle().setOpacity(1.0);
-        assertEquals(1.0, layer.getStyle().getOpacity(), 1.0e-10);
+        assertEquals(0.0, layer.getTransparency(), 1.0e-10);
+        layer.setTransparency(0.1);
+        assertEquals(0.1, layer.getTransparency(), 1.0e-10);
+        layer.setTransparency(1.0);
+        assertEquals(1.0, layer.getTransparency(), 1.0e-10);
 
-        assertEquals(Composite.SRC_OVER, layer.getStyle().getComposite());
-        layer.getStyle().setComposite(Composite.DST_OUT);
-        assertEquals(Composite.DST_OUT, layer.getStyle().getComposite());
+        assertEquals(Composite.SRC_OVER, layer.getComposite());
+        layer.setComposite(Composite.DST_OUT);
+        assertEquals(Composite.DST_OUT, layer.getComposite());
     }
 
     @Test
@@ -74,29 +74,29 @@ public class LayerTest {
 
         layer.setName("Grid");
         layer.setVisible(false);
-        layer.getStyle().setOpacity(0.5);
-        assertEquals("name;visible;opacity;", ll.trace);
+        layer.setTransparency(0.5);
+        assertEquals("name;visible;transparency;", ll.trace);
 
         layer.setName("Grid");
         layer.setVisible(false);
-        layer.getStyle().setOpacity(0.0);
-        assertEquals("name;visible;opacity;opacity;", ll.trace);
+        layer.setTransparency(0.0);
+        assertEquals("name;visible;transparency;transparency;", ll.trace);
 
-        layer.getStyle().setOpacity(0.0);
+        layer.setTransparency(0.0);
         layer.setVisible(true);
         layer.setName("Raster");
-        assertEquals("name;visible;opacity;opacity;visible;name;", ll.trace);
+        assertEquals("name;visible;transparency;transparency;visible;name;", ll.trace);
 
-        layer.getStyle().setComposite(Composite.DST_IN);
-        assertEquals("name;visible;opacity;opacity;visible;name;composite;", ll.trace);
+        layer.setComposite(Composite.DST_IN);
+        assertEquals("name;visible;transparency;transparency;visible;name;composite;", ll.trace);
 
         ll.trace = "";
         layer.removeListener(ll);
 
-        layer.getStyle().setOpacity(0.25);
+        layer.setTransparency(0.25);
         layer.setVisible(false);
         layer.setName("Graticule");
-        layer.getStyle().setComposite(Composite.SRC_OUT);
+        layer.setComposite(Composite.SRC_OUT);
         assertEquals("", ll.trace);
     }
 
