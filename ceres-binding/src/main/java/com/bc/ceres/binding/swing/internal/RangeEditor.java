@@ -17,16 +17,15 @@
 package com.bc.ceres.binding.swing.internal;
 
 import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ComponentAdapter;
-
-import java.awt.Font;
-import java.util.Hashtable;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
+import java.awt.Font;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 /**
  * An editor for numeric values that have an associated range with lower and upper bounds.
@@ -52,38 +51,34 @@ public class RangeEditor extends NumericEditor {
 //        }
         return false;
     }
-    
+
     @Override
     public JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
         JSlider slider = new JSlider(0, 100);
-        
-        Hashtable<Integer, JLabel> sliderLabelTable = createSliderLabelTable(valueDescriptor.getValueRange());
+
+        Dictionary<Integer, JLabel> sliderLabelTable = createSliderLabelTable();
         slider.setLabelTable(sliderLabelTable);
         slider.setPaintLabels(true);
-        
+
         ComponentAdapter adapter = new SliderAdapter(slider);
         bindingContext.bind(valueDescriptor.getName(), adapter);
         return slider;
     }
 
-    private Hashtable<Integer, JLabel> createSliderLabelTable(ValueRange valueRange) {
-        Hashtable<Integer, JLabel> sliderLabelTable = new Hashtable<Integer, JLabel>();
-        sliderLabelTable.put(Integer.valueOf(0), createSliderLabel(valueRange.getMin()));
-        sliderLabelTable.put(Integer.valueOf(100), createSliderLabel(valueRange.getMax()));
+    private Dictionary<Integer, JLabel> createSliderLabelTable() {
+        Dictionary<Integer, JLabel> sliderLabelTable = new Hashtable<Integer, JLabel>();
+        sliderLabelTable.put(0, createSliderLabel("0%"));
+        sliderLabelTable.put(50, createSliderLabel("50%"));
+        sliderLabelTable.put(100, createSliderLabel("100%"));
         return sliderLabelTable;
     }
-    
-    private JLabel createSliderLabel(double value) {
-        String text = toString(value);
+
+    private JLabel createSliderLabel(String text) {
         JLabel label = new JLabel(text);
         Font oldFont = label.getFont();
         Font newFont = oldFont.deriveFont(oldFont.getSize2D() * 0.85f);
         label.setFont(newFont);
         return label;
     }
-    
-    private static String toString(double d) {
-        final long l = Math.round(d);
-        return d == l ? Long.toString(l) : Double.toString(d);
-    }
+
 }
