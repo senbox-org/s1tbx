@@ -2,12 +2,11 @@ package com.bc.ceres.glayer.support;
 
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.glayer.Style;
+import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelRenderer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.ConcurrentMultiLevelRenderer;
@@ -165,10 +164,15 @@ public class ImageLayer extends Layer {
     }
 
     public int getLevel(Viewport vp) {
-        final double i2mScale = Math.sqrt(Math.abs(getImageToModelTransform().getDeterminant()));
+        return getLevel(multiLevelSource.getModel(), vp);
+    }
+
+    public static int getLevel(MultiLevelModel model, Viewport vp) {
+        final AffineTransform i2m = model.getImageToModelTransform(0);
+        final double i2mScale = Math.sqrt(Math.abs(i2m.getDeterminant()));
         final double m2vScale = 1.0 / vp.getZoomFactor();
         final double scale = m2vScale / i2mScale;
-        return multiLevelSource.getModel().getLevel(scale);
+        return model.getLevel(scale);
     }
 
     @Override
