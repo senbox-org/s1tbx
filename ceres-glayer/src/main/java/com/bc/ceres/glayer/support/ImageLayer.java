@@ -40,9 +40,9 @@ public class ImageLayer extends Layer {
 
     public static final String PROPERTY_NAME_MULTI_LEVEL_SOURCE = "multiLevelSource";
     public static final String PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
-    public static final String PROPERTY_NAME_BORDER_SHOWN = "border.shown";
-    public static final String PROPERTY_NAME_BORDER_WIDTH = "border.width";
-    public static final String PROPERTY_NAME_BORDER_COLOR = "border.color";
+    public static final String PROPERTY_NAME_BORDER_SHOWN = "borderShown";
+    public static final String PROPERTY_NAME_BORDER_WIDTH = "borderWidth";
+    public static final String PROPERTY_NAME_BORDER_COLOR = "borderColor";
 
     public static final boolean DEFAULT_BORDER_SHOWN = false;
     public static final double DEFAULT_BORDER_WIDTH = 1.0;
