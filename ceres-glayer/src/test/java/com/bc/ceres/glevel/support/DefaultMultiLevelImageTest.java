@@ -1,16 +1,15 @@
 package com.bc.ceres.glevel.support;
 
+import com.bc.ceres.glevel.MultiLevelSource;
 import junit.framework.TestCase;
 
 import javax.media.jai.PlanarImage;
+import java.awt.Image;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
-import java.awt.geom.AffineTransform;
-import java.awt.Image;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
-
-import com.bc.ceres.glevel.MultiLevelSource;
+import java.beans.PropertyChangeListener;
 
 public class DefaultMultiLevelImageTest extends TestCase {
 
@@ -98,7 +97,7 @@ public class DefaultMultiLevelImageTest extends TestCase {
         }
 
         @Override
-            protected RenderedImage createImage(int level) {
+        protected RenderedImage createImage(int level) {
             // todo - The knowledge how width and height are computed should go either into AbstractMultiLevelSource or into the MultiLevelModel (nf 20090113)
             int width = (int) Math.floor(256 / getModel().getScale(level));
             int height = (int) Math.floor(256 / getModel().getScale(level));
@@ -108,8 +107,9 @@ public class DefaultMultiLevelImageTest extends TestCase {
 
     private static class PCL implements PropertyChangeListener {
         String trace = "";
+
         public void propertyChange(PropertyChangeEvent evt) {
-           trace += evt.getPropertyName()+";";
+            trace += evt.getPropertyName() + ";";
         }
     }
 }
