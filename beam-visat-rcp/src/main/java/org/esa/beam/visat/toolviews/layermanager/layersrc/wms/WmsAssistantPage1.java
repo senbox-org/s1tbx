@@ -63,8 +63,8 @@ class WmsAssistantPage1 extends AbstractLayerSourceAssistantPage {
         history.copyInto(getContext().getAppContext().getPreferences());
 
         if (wms != null && wmsCapabilities != null) {
-            pageContext.setPropertyValue(WmsLayerSource.PROPERTY_WMS, wms);
-            pageContext.setPropertyValue(WmsLayerSource.PROPERTY_WMS_CAPABILITIES, wmsCapabilities);
+            pageContext.setPropertyValue(WmsLayerSource.PROPERTY_NAME_WMS, wms);
+            pageContext.setPropertyValue(WmsLayerSource.PROPERTY_NAME_WMS_CAPABILITIES, wmsCapabilities);
             return new WmsAssistantPage2();
         } else {
             return null;
@@ -117,7 +117,7 @@ class WmsAssistantPage1 extends AbstractLayerSourceAssistantPage {
             window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             URL url = new URL(wmsUrl);
             wms = new WebMapServer(url);
-            getContext().setPropertyValue(WmsLayerSource.PROPERTY_WMS_URL, url);
+            getContext().setPropertyValue(WmsLayerSource.PROPERTY_NAME_WMS_URL, url);
         } finally {
             window.setCursor(Cursor.getDefaultCursor());
         }

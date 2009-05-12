@@ -29,10 +29,10 @@ import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext
  */
 public class ShapefileLayerSource implements LayerSource {
 
-    static final String PROPERTY_FILE_PATH = "ShapefileLayerSource.fileName";
-    static final String PROPERTY_FEATURE_COLLECTION = "ShapefileLayerSource.featureCollection";
-    static final String PROPERTY_STYLES = "ShapefileLayerSource.styles";
-    static final String PROPERTY_SELECTED_STYLE = "ShapefileLayerSource.selectedStyle";
+    static final String PROPERTY_NAME_FILE_PATH = "fileName";
+    static final String PROPERTY_NAME_FEATURE_COLLECTION = "featureCollection";
+    static final String PROPERTY_NAME_STYLES = "styles";
+    static final String PROPERTY_NAME_SELECTED_STYLE = "selectedStyle";
 
     @Override
     public boolean isApplicable(LayerSourcePageContext pageContext) {

@@ -57,7 +57,7 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         mapPanel.add(mapLabel, BorderLayout.CENTER);
 
         LayerSourcePageContext context = getContext();
-        String filePath = (String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FILE_PATH);
+        String filePath = (String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FILE_PATH);
         String fileName = new File(filePath).getName();
 
         infoLabel = new JLabel();
@@ -137,7 +137,7 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         @Override
         public void itemStateChanged(ItemEvent e) {
             LayerSourcePageContext context = getContext();
-            context.setPropertyValue(ShapefileLayerSource.PROPERTY_SELECTED_STYLE, styleList.getSelectedItem());
+            context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_SELECTED_STYLE, styleList.getSelectedItem());
             context.updateState();
             updateMap();
         }
@@ -180,8 +180,8 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
                                                 bounds.getMinX(), bounds.getMinY(),
                                                 bounds.getMaxX(), bounds.getMaxY()));
 
-                Style[] styles = (Style[]) context.getPropertyValue(ShapefileLayerSource.PROPERTY_STYLES);
-                Style selectedStyle = (Style) context.getPropertyValue(ShapefileLayerSource.PROPERTY_SELECTED_STYLE);
+                Style[] styles = (Style[]) context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_STYLES);
+                Style selectedStyle = (Style) context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_SELECTED_STYLE);
                 styleList.setModel(new DefaultComboBoxModel(styles));
                 styleList.setSelectedItem(selectedStyle);
                 shapeFileLoaded = true;

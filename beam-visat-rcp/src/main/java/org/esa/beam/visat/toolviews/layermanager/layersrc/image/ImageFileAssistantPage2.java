@@ -40,7 +40,7 @@ class ImageFileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         double[] flatmatrix = new double[6];
         numberFields = new JTextField[flatmatrix.length];
         AffineTransform transform = (AffineTransform) getContext().getPropertyValue(
-                ImageFileLayerSource.PROPERTY_WORLD_TRANSFORM);
+                ImageFileLayerSource.PROPERTY_NAME_WORLD_TRANSFORM);
         transform.getMatrix(flatmatrix);
 
 // see http://support.esri.com/index.cfm?fa=knowledgebase.techarticles.articleShow&d=17489
@@ -83,7 +83,7 @@ class ImageFileAssistantPage2 extends AbstractLayerSourceAssistantPage {
     public boolean performFinish() {
         AffineTransform transform = createTransform();
         final LayerSourcePageContext context = getContext();
-        context.setPropertyValue(ImageFileLayerSource.PROPERTY_WORLD_TRANSFORM, transform);
+        context.setPropertyValue(ImageFileLayerSource.PROPERTY_NAME_WORLD_TRANSFORM, transform);
         return ImageFileLayerSource.insertImageLayer(context);
     }
 

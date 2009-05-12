@@ -101,13 +101,13 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
         String path = (String) fileHistoryModel.getSelectedItem();
         if (path != null && !path.trim().isEmpty()) {
             try {
-                final String oldPath = (String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_FILE_PATH);
+                final String oldPath = (String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FILE_PATH);
                 if (!path.equals(oldPath)) {
-                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_FILE_PATH, path);
+                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FILE_PATH, path);
                     // clear other properties they are not valid anymore
-                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_FEATURE_COLLECTION, null);
-                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_SELECTED_STYLE, null);
-                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_STYLES, null);
+                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION, null);
+                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_SELECTED_STYLE, null);
+                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_STYLES, null);
                 }
                 return new ShapefileAssistantPage2();
             } catch (Exception e) {

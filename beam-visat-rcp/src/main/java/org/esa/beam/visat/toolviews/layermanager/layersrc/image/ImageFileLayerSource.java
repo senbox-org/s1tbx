@@ -41,10 +41,10 @@ import java.io.File;
  */
 public class ImageFileLayerSource implements LayerSource {
 
-    static final String PROPERTY_NAME_IMAGE = "ImageFileLayerSource.image";
-    static final String PROPERTY_NAME_IMAGE_FILE_PATH = "ImageFileLayerSource.imageFilePath";
-    static final String PROPERTY_WORLD_FILE_PATH = "ImageFileLayerSource.worldFilePath";
-    static final String PROPERTY_WORLD_TRANSFORM = "ImageFileLayerSource.worldTransform";
+    static final String PROPERTY_NAME_IMAGE = "image";
+    static final String PROPERTY_NAME_IMAGE_FILE_PATH = "imageFilePath";
+    static final String PROPERTY_NAME_WORLD_FILE_PATH = "worldFilePath";
+    static final String PROPERTY_NAME_WORLD_TRANSFORM = "worldTransform";
 
     @Override
     public boolean isApplicable(LayerSourcePageContext pageContext) {
@@ -78,7 +78,7 @@ public class ImageFileLayerSource implements LayerSource {
 
     static boolean insertImageLayer(LayerSourcePageContext pageContext) {
         AffineTransform transform = (AffineTransform) pageContext.getPropertyValue(
-                PROPERTY_WORLD_TRANSFORM);
+                PROPERTY_NAME_WORLD_TRANSFORM);
         RenderedImage image = (RenderedImage) pageContext.getPropertyValue(PROPERTY_NAME_IMAGE);
         String imageFilePath = (String) pageContext.getPropertyValue(PROPERTY_NAME_IMAGE_FILE_PATH);
 

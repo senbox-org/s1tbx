@@ -52,19 +52,19 @@ abstract class WmsWorker extends SwingWorker<com.bc.ceres.glayer.Layer, Object> 
         final RasterDataNode raster = getContext().getAppContext().getSelectedProductSceneView().getRaster();
         template.setValue(WmsLayerType.PROPERTY_NAME_RASTER, raster);
         template.setValue(WmsLayerType.PROPERTY_NAME_IMAGE_SIZE, size);
-        URL wmsUrl = (URL) context.getPropertyValue(WmsLayerSource.PROPERTY_WMS_URL);
+        URL wmsUrl = (URL) context.getPropertyValue(WmsLayerSource.PROPERTY_NAME_WMS_URL);
         template.setValue(WmsLayerType.PROPERTY_NAME_URL, wmsUrl);
-        Style selectedStyle = (Style) context.getPropertyValue(WmsLayerSource.PROPERTY_SELECTED_STYLE);
+        Style selectedStyle = (Style) context.getPropertyValue(WmsLayerSource.PROPERTY_NAME_SELECTED_STYLE);
         String styleName = null;
         if (selectedStyle != null) {
             styleName = selectedStyle.getName();
         }
         template.setValue(WmsLayerType.PROPERTY_NAME_STYLE_NAME, styleName);
-        WebMapServer wms = (WebMapServer) context.getPropertyValue(WmsLayerSource.PROPERTY_WMS);
+        WebMapServer wms = (WebMapServer) context.getPropertyValue(WmsLayerSource.PROPERTY_NAME_WMS);
         final List<Layer> layerList = wms.getCapabilities().getLayerList();
-        Layer selectedLayer = (Layer) context.getPropertyValue(WmsLayerSource.PROPERTY_SELECTED_LAYER);
+        Layer selectedLayer = (Layer) context.getPropertyValue(WmsLayerSource.PROPERTY_NAME_SELECTED_LAYER);
         template.setValue(WmsLayerType.PROPERTY_NAME_LAYER_INDEX, layerList.indexOf(selectedLayer));
-        CRSEnvelope crsEnvelope = (CRSEnvelope) context.getPropertyValue(WmsLayerSource.PROPERTY_CRS_ENVELOPE);
+        CRSEnvelope crsEnvelope = (CRSEnvelope) context.getPropertyValue(WmsLayerSource.PROPERTY_NAME_CRS_ENVELOPE);
         template.setValue(WmsLayerType.PROPERTY_NAME_CRS_ENVELOPE, crsEnvelope);
         final com.bc.ceres.glayer.Layer layer = wmsType.createLayer(getContext().getLayerContext(), template);
         layer.setName(selectedLayer.getName());

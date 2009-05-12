@@ -60,7 +60,7 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
     @Override
     public boolean validatePage() {
-        return getContext().getPropertyValue(WmsLayerSource.PROPERTY_SELECTED_LAYER) != null;
+        return getContext().getPropertyValue(WmsLayerSource.PROPERTY_NAME_SELECTED_LAYER) != null;
     }
 
     @Override
@@ -73,7 +73,7 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
         modelCRS = (CoordinateReferenceSystem) context.getLayerContext().getCoordinateReferenceSystem();
 
         WMSCapabilities wmsCapabilities = (WMSCapabilities) context.getPropertyValue(
-                WmsLayerSource.PROPERTY_WMS_CAPABILITIES);
+                WmsLayerSource.PROPERTY_NAME_WMS_CAPABILITIES);
         layerTree = new JTree(new WMSTreeModel(wmsCapabilities.getLayer()));
         layerTree.setRootVisible(false);
         layerTree.setShowsRootHandles(true);
@@ -84,7 +84,7 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
         panel.add(new JScrollPane(layerTree), BorderLayout.CENTER);
         infoLabel = new JLabel(" ");
         panel.add(infoLabel, BorderLayout.SOUTH);
-        getContext().setPropertyValue(WmsLayerSource.PROPERTY_SELECTED_LAYER, null);
+        getContext().setPropertyValue(WmsLayerSource.PROPERTY_NAME_SELECTED_LAYER, null);
         return panel;
     }
 
@@ -176,14 +176,14 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
                     CRSEnvelope crsEnvelope = new CRSEnvelope(crsCode, bounds.getMinX(), bounds.getMinY(),
                                                               bounds.getMaxX(),
                                                               bounds.getMaxY());
-                    context.setPropertyValue(WmsLayerSource.PROPERTY_CRS_ENVELOPE, crsEnvelope);
+                    context.setPropertyValue(WmsLayerSource.PROPERTY_NAME_CRS_ENVELOPE, crsEnvelope);
                     List<Style> styles = selectedLayer.getStyles();
                     if (!styles.isEmpty()) {
-                        context.setPropertyValue(WmsLayerSource.PROPERTY_SELECTED_STYLE, styles.get(0));
+                        context.setPropertyValue(WmsLayerSource.PROPERTY_NAME_SELECTED_STYLE, styles.get(0));
                     } else {
-                        context.setPropertyValue(WmsLayerSource.PROPERTY_SELECTED_STYLE, null);
+                        context.setPropertyValue(WmsLayerSource.PROPERTY_NAME_SELECTED_STYLE, null);
                     }
-                    context.setPropertyValue(WmsLayerSource.PROPERTY_SELECTED_LAYER, selectedLayer);
+                    context.setPropertyValue(WmsLayerSource.PROPERTY_NAME_SELECTED_LAYER, selectedLayer);
                 }
             } else {
                 infoLabel.setText("");

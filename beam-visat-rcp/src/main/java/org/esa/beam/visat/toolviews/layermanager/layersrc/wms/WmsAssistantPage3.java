@@ -45,13 +45,13 @@ class WmsAssistantPage3 extends AbstractLayerSourceAssistantPage {
     @Override
     public Component createPageComponent() {
         final LayerSourcePageContext context = getContext();
-        Layer selectedLayer = (Layer) context.getPropertyValue(WmsLayerSource.PROPERTY_SELECTED_LAYER);
+        Layer selectedLayer = (Layer) context.getPropertyValue(WmsLayerSource.PROPERTY_NAME_SELECTED_LAYER);
         JLabel infoLabel = new JLabel(WmsAssistantPage2.getLatLonBoundingBoxText(selectedLayer.getLatLonBoundingBox()));
 
         List<Style> styles = selectedLayer.getStyles();
 
         styleList = new JComboBox(styles.toArray(new Style[styles.size()]));
-        styleList.setSelectedItem(context.getPropertyValue(WmsLayerSource.PROPERTY_SELECTED_STYLE));
+        styleList.setSelectedItem(context.getPropertyValue(WmsLayerSource.PROPERTY_NAME_SELECTED_STYLE));
         styleList.setRenderer(new StyleListCellRenderer());
         styleList.addItemListener(new StyleItemListener());
 
@@ -115,7 +115,7 @@ class WmsAssistantPage3 extends AbstractLayerSourceAssistantPage {
         cancelPreviewWorker();
         showMessage("<html><i>Loading map...</i></html>");
 
-        CRSEnvelope crsEnvelope = (CRSEnvelope) getContext().getPropertyValue(WmsLayerSource.PROPERTY_CRS_ENVELOPE);
+        CRSEnvelope crsEnvelope = (CRSEnvelope) getContext().getPropertyValue(WmsLayerSource.PROPERTY_NAME_CRS_ENVELOPE);
         previewWorker = new WmsPreviewWorker(getPreviewSize(crsEnvelope), getContext());
         previewWorker.execute();
 
@@ -172,7 +172,7 @@ class WmsAssistantPage3 extends AbstractLayerSourceAssistantPage {
 
         @Override
         public void itemStateChanged(ItemEvent e) {
-            getContext().setPropertyValue(WmsLayerSource.PROPERTY_SELECTED_STYLE, styleList.getSelectedItem());
+            getContext().setPropertyValue(WmsLayerSource.PROPERTY_NAME_SELECTED_STYLE, styleList.getSelectedItem());
             getContext().updateState();
             updatePreview();
         }
