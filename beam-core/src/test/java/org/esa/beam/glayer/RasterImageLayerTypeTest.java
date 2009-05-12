@@ -28,9 +28,9 @@ public class RasterImageLayerTypeTest extends LayerTypeTest {
         assertNotNull(template);
 
         ensurePropertyIsDeclaredButNotDefined(template, "raster", RasterDataNode.class);
-        ensurePropertyIsDefined(template, "border.shown", Boolean.class);
-        ensurePropertyIsDefined(template, "border.width", Double.class);
-        ensurePropertyIsDefined(template, "border.color", Color.class);
+        ensurePropertyIsDefined(template, "borderShown", Boolean.class);
+        ensurePropertyIsDefined(template, "borderWidth", Double.class);
+        ensurePropertyIsDefined(template, "borderColor", Color.class);
     }
 
     @Test

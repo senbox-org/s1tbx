@@ -28,13 +28,13 @@ public class BitmaskLayerTypeTest extends LayerTypeTest {
         final ValueContainer template = getLayerType().getConfigurationTemplate();
 
         assertNotNull(template);
-        ensurePropertyIsDeclaredButNotDefined(template, "bitmask.bitmaskDef", BitmaskDef.class);
-        ensurePropertyIsDeclaredButNotDefined(template, "bitmask.product", Product.class);
+        ensurePropertyIsDeclaredButNotDefined(template, "bitmaskDef", BitmaskDef.class);
+        ensurePropertyIsDeclaredButNotDefined(template, "product", Product.class);
         ensurePropertyIsDeclaredButNotDefined(template, "imageToModelTransform", AffineTransform.class);
 
-        ensurePropertyIsDefined(template, "border.shown", Boolean.class);
-        ensurePropertyIsDefined(template, "border.width", Double.class);
-        ensurePropertyIsDefined(template, "border.color", Color.class);
+        ensurePropertyIsDefined(template, "borderShown", Boolean.class);
+        ensurePropertyIsDefined(template, "borderWidth", Double.class);
+        ensurePropertyIsDefined(template, "borderColor", Color.class);
     }
 
     @Test
@@ -46,9 +46,9 @@ public class BitmaskLayerTypeTest extends LayerTypeTest {
         product.addBitmaskDef(bitmaskDef);
 
         final ValueContainer config = getLayerType().getConfigurationTemplate();
-        config.setValue("bitmask.product", product);
+        config.setValue("product", product);
         config.setValue("imageToModelTransform", new AffineTransform());
-        config.setValue("bitmask.bitmaskDef", bitmaskDef);
+        config.setValue("bitmaskDef", bitmaskDef);
 
         final Layer layer = getLayerType().createLayer(null, config);
         assertNotNull(layer);

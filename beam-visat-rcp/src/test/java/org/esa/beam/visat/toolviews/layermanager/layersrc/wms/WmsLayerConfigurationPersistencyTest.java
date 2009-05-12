@@ -49,12 +49,12 @@ public class WmsLayerConfigurationPersistencyTest {
     public void testPersistency() throws ValidationException, ConversionException, MalformedURLException {
         final WmsLayerType wmsLayerType = (WmsLayerType) LayerType.getLayerType(WmsLayerType.class.getName());
         final ValueContainer configuration = wmsLayerType.getConfigurationTemplate();
-        configuration.setValue(WmsLayerType.PROPERTY_WMS_STYLE_NAME, "FancyStyle");
-        configuration.setValue(WmsLayerType.PROPERTY_WMS_URL, new URL("http://www.mapserver.org"));
-        configuration.setValue(WmsLayerType.PROPERTY_WMS_CRSENVELOPE, new CRSEnvelope("EPSG:4324", -10, 20, 15, 50));
-        configuration.setValue(WmsLayerType.PROPERTY_WMS_IMAGE_SIZE, new Dimension(200, 300));
-        configuration.setValue(WmsLayerType.PROPERTY_WMS_LAYER_INDEX, 12);
-        configuration.setValue(WmsLayerType.PROPERTY_WMS_RASTER, band);
+        configuration.setValue(WmsLayerType.PROPERTY_NAME_STYLE_NAME, "FancyStyle");
+        configuration.setValue(WmsLayerType.PROPERTY_NAME_URL, new URL("http://www.mapserver.org"));
+        configuration.setValue(WmsLayerType.PROPERTY_NAME_CRS_ENVELOPE, new CRSEnvelope("EPSG:4324", -10, 20, 15, 50));
+        configuration.setValue(WmsLayerType.PROPERTY_NAME_IMAGE_SIZE, new Dimension(200, 300));
+        configuration.setValue(WmsLayerType.PROPERTY_NAME_LAYER_INDEX, 12);
+        configuration.setValue(WmsLayerType.PROPERTY_NAME_RASTER, band);
         final DomElement originalDomElement = new DefaultDomElement("configuration");
         final SessionDomConverter domConverter = new SessionDomConverter(productManager);
 

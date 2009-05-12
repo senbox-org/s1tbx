@@ -17,12 +17,12 @@ import java.net.URL;
  */
 public class WmsLayerType extends LayerType {
 
-    public static final String PROPERTY_WMS_RASTER = "wms.raster";
-    public static final String PROPERTY_WMS_URL = "wms.serverUrl";
-    public static final String PROPERTY_WMS_LAYER_INDEX = "wms.layerIndex";
-    public static final String PROPERTY_WMS_CRSENVELOPE = "wms.crsEnvelope";
-    public static final String PROPERTY_WMS_STYLE_NAME = "wms.styleName";
-    public static final String PROPERTY_WMS_IMAGE_SIZE = "wms.imageSize";
+    public static final String PROPERTY_NAME_RASTER = "raster";
+    public static final String PROPERTY_NAME_URL = "serverUrl";
+    public static final String PROPERTY_NAME_LAYER_INDEX = "layerIndex";
+    public static final String PROPERTY_NAME_CRS_ENVELOPE = "crsEnvelope";
+    public static final String PROPERTY_NAME_STYLE_NAME = "styleName";
+    public static final String PROPERTY_NAME_IMAGE_SIZE = "imageSize";
 
 
     @Override
@@ -45,12 +45,12 @@ public class WmsLayerType extends LayerType {
     public ValueContainer getConfigurationTemplate() {
         final ValueContainer template = new ValueContainer();
 
-        template.addModel(createDefaultValueModel(PROPERTY_WMS_RASTER, RasterDataNode.class));
-        template.addModel(createDefaultValueModel(PROPERTY_WMS_URL, URL.class));
-        template.addModel(createDefaultValueModel(PROPERTY_WMS_LAYER_INDEX, Integer.class));
-        template.addModel(createDefaultValueModel(PROPERTY_WMS_STYLE_NAME, String.class));
-        template.addModel(createDefaultValueModel(PROPERTY_WMS_IMAGE_SIZE, Dimension.class));
-        template.addModel(createDefaultValueModel(PROPERTY_WMS_CRSENVELOPE, CRSEnvelope.class));
+        template.addModel(createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
+        template.addModel(createDefaultValueModel(PROPERTY_NAME_URL, URL.class));
+        template.addModel(createDefaultValueModel(PROPERTY_NAME_LAYER_INDEX, Integer.class));
+        template.addModel(createDefaultValueModel(PROPERTY_NAME_STYLE_NAME, String.class));
+        template.addModel(createDefaultValueModel(PROPERTY_NAME_IMAGE_SIZE, Dimension.class));
+        template.addModel(createDefaultValueModel(PROPERTY_NAME_CRS_ENVELOPE, CRSEnvelope.class));
 
         return template;
     }

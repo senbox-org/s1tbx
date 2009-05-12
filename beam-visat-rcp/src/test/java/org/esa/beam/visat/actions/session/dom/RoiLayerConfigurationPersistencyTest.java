@@ -39,9 +39,9 @@ public class RoiLayerConfigurationPersistencyTest extends AbstractLayerConfigura
     protected Layer createLayer(LayerType layerType) throws Exception {
         final ValueContainer configuration = layerType.getConfigurationTemplate();
 
-        configuration.setValue("roiOverlay.referencedRaster", raster);
-        configuration.setValue("roiOverlay.color", new Color(17, 11, 67));
-        configuration.setValue("roiOverlay.transparency", 0.5);
+        configuration.setValue("raster", raster);
+        configuration.setValue("color", new Color(17, 11, 67));
+        configuration.setValue("transparency", 0.5);
         configuration.setValue("imageToModelTransform", new AffineTransform());
 
         return layerType.createLayer(null, configuration);

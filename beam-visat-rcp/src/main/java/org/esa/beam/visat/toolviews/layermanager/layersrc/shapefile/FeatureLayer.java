@@ -63,20 +63,20 @@ public class FeatureLayer extends Layer {
         super(layerType, configuration);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc;
         fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) configuration.getValue(
-                FeatureLayerType.PROPERTY_FEATURE_COLLECTION);
+                FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION);
         if (fc == null) {
-            final URL url = (URL) configuration.getValue(FeatureLayerType.PROPERTY_FEATURE_COLLECTION_URL);
+            final URL url = (URL) configuration.getValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_URL);
             final CoordinateReferenceSystem targetCrs = (CoordinateReferenceSystem) configuration.getValue(
-                    FeatureLayerType.PROPERTY_FEATURE_COLLECTION_CRS);
+                    FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CRS);
             final Geometry clipGeometry = (Geometry) configuration.getValue(
-                    FeatureLayerType.PROPERTY_FEATURE_COLLECTION_CLIP_GEOMETRY);
+                    FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY);
             try {
                 fc = FeatureLayerType.createFeatureCollection(targetCrs, clipGeometry, url);
             } catch (IOException e) {
                 throw new IllegalArgumentException(e);
             }
         }
-        Style style = (Style) configuration.getValue(FeatureLayerType.PROPERTY_SLD_STYLE);
+        Style style = (Style) configuration.getValue(FeatureLayerType.PROPERTY_NAME_SLD_STYLE);
 
         crs = fc.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
         final ReferencedEnvelope envelope = new ReferencedEnvelope(fc.getBounds(), crs);

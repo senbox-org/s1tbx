@@ -13,9 +13,9 @@ import java.io.File;
 
 public class ImageFileLayerType extends LayerType{
 
-    static final String PROPERTY_IMAGE = "image";
-    static final String PROPERTY_IMAGE_FILE = "filePath";
-    static final String PROPERTY_WORLD_TRANSFORM = "worldTransform";
+    static final String PROPERTY_NAME_IMAGE = "image";
+    static final String PROPERTY_NAME_IMAGE_FILE = "filePath";
+    static final String PROPERTY_NAME_WORLD_TRANSFORM = "worldTransform";
 
     @Override
     public String getName() {
@@ -36,15 +36,15 @@ public class ImageFileLayerType extends LayerType{
     public ValueContainer getConfigurationTemplate() {
         final ValueContainer template = new ValueContainer();
 
-        final ValueModel imageModel = createDefaultValueModel(PROPERTY_IMAGE, RenderedImage.class);
+        final ValueModel imageModel = createDefaultValueModel(PROPERTY_NAME_IMAGE, RenderedImage.class);
         imageModel.getDescriptor().setTransient(true);
         template.addModel(imageModel);
 
-        final ValueModel filePathModel = createDefaultValueModel(PROPERTY_IMAGE_FILE, File.class);
+        final ValueModel filePathModel = createDefaultValueModel(PROPERTY_NAME_IMAGE_FILE, File.class);
         filePathModel.getDescriptor().setNotNull(true);
         template.addModel(filePathModel);
 
-        final ValueModel worldTransformModel = createDefaultValueModel(PROPERTY_WORLD_TRANSFORM, AffineTransform.class);
+        final ValueModel worldTransformModel = createDefaultValueModel(PROPERTY_NAME_WORLD_TRANSFORM, AffineTransform.class);
         worldTransformModel.getDescriptor().setNotNull(true);
         template.addModel(worldTransformModel);
 

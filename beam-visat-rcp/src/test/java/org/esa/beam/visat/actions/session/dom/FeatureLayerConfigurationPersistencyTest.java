@@ -30,9 +30,9 @@ public class FeatureLayerConfigurationPersistencyTest extends AbstractLayerConfi
 
         final ValueContainer configuration = layerType.getConfigurationTemplate();
 
-        configuration.setValue(FeatureLayerType.PROPERTY_FEATURE_COLLECTION_URL,
+        configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_URL,
                                getClass().getResource("bundeslaender.shp"));
-        configuration.setValue(FeatureLayerType.PROPERTY_FEATURE_COLLECTION_CRS, DefaultGeographicCRS.WGS84);
+        configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CRS, DefaultGeographicCRS.WGS84);
         final GeometryFactory geometryFactory = new GeometryFactory();
         final Coordinate[] coordinates = {
                 new Coordinate(-10, 50),
@@ -43,8 +43,8 @@ public class FeatureLayerConfigurationPersistencyTest extends AbstractLayerConfi
         };
         final Polygon polygon = geometryFactory.createPolygon(geometryFactory.createLinearRing(coordinates),
                                                               new LinearRing[0]);
-        configuration.setValue(FeatureLayerType.PROPERTY_FEATURE_COLLECTION_CLIP_GEOMETRY, polygon);
-        configuration.setValue(FeatureLayerType.PROPERTY_SLD_STYLE, createStyle());
+        configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY, polygon);
+        configuration.setValue(FeatureLayerType.PROPERTY_NAME_SLD_STYLE, createStyle());
         return layerType.createLayer(null, configuration);
     }
 

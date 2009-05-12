@@ -5,7 +5,6 @@ import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
-import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -22,9 +21,9 @@ import java.awt.geom.AffineTransform;
 public class NoDataLayerType extends ImageLayer.Type {
 
     public static final String NO_DATA_LAYER_ID = "org.esa.beam.layers.noData";
-    public static final String PROPERTY_COLOR = "noDataOverlay.color";
-    public static final String PROPERTY_TRANSPARENCY = "noDataOverlay.transparency";
-    public static final String PROPERTY_REFERENCED_RASTER = "noDataOverlay.referencedRaster";
+    public static final String PROPERTY_NAME_COLOR = "color";
+    public static final String PROPERTY_NAME_TRANSPARENCY = "transparency";
+    public static final String PROPERTY_NAME_RASTER = "raster";
 
     @Override
     public String getName() {
@@ -33,9 +32,9 @@ public class NoDataLayerType extends ImageLayer.Type {
 
     @Override
     protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
-        final Color color = (Color) configuration.getValue(PROPERTY_COLOR);
-        Assert.notNull(color, PROPERTY_COLOR);
-        final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_REFERENCED_RASTER);
+        final Color color = (Color) configuration.getValue(PROPERTY_NAME_COLOR);
+        Assert.notNull(color, PROPERTY_NAME_COLOR);
+        final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
         final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(
                 ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
 
@@ -66,11 +65,11 @@ public class NoDataLayerType extends ImageLayer.Type {
     public ValueContainer getConfigurationTemplate() {
         final ValueContainer template = super.getConfigurationTemplate();
 
-        template.addModel(createDefaultValueModel(PROPERTY_REFERENCED_RASTER, RasterDataNode.class));
-        template.getDescriptor(PROPERTY_REFERENCED_RASTER).setNotNull(true);
+        template.addModel(createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
+        template.getDescriptor(PROPERTY_NAME_RASTER).setNotNull(true);
 
-        template.addModel(createDefaultValueModel(PROPERTY_COLOR, Color.class));
-        template.getDescriptor(PROPERTY_COLOR).setNotNull(true);
+        template.addModel(createDefaultValueModel(PROPERTY_NAME_COLOR, Color.class));
+        template.getDescriptor(PROPERTY_NAME_COLOR).setNotNull(true);
 
         return template;
 

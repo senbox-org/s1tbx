@@ -80,11 +80,11 @@ class ShapefileLoader extends SwingWorker<Layer, Object> {
 
         final LayerType type = LayerType.getLayerType(FeatureLayerType.class.getName());
         final ValueContainer configuration = type.getConfigurationTemplate();
-        configuration.setValue(FeatureLayerType.PROPERTY_FEATURE_COLLECTION_URL, file.toURI().toURL());
-        configuration.setValue(FeatureLayerType.PROPERTY_FEATURE_COLLECTION_CRS, targetCrs);
-        configuration.setValue(FeatureLayerType.PROPERTY_FEATURE_COLLECTION_CLIP_GEOMETRY, clipGeometry);
-        configuration.setValue(FeatureLayerType.PROPERTY_FEATURE_COLLECTION, featureCollection);
-        configuration.setValue(FeatureLayerType.PROPERTY_SLD_STYLE, selectedStyle);
+        configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_URL, file.toURI().toURL());
+        configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CRS, targetCrs);
+        configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY, clipGeometry);
+        configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION, featureCollection);
+        configuration.setValue(FeatureLayerType.PROPERTY_NAME_SLD_STYLE, selectedStyle);
         Layer featureLayer = type.createLayer(sceneView.getLayerContext(), configuration);
         featureLayer.setName(file.getName());
         featureLayer.setVisible(true);

@@ -19,21 +19,20 @@ import java.awt.geom.AffineTransform;
  */
 public class GraticuleLayerType extends LayerType {
 
-    public static final String PROPERTY_NAME_RASTER = "graticule.raster";
-    public static final String PROPERTY_NAME_TRANSFORM = "graticule.i2mTransform";
-    public static final String PROPERTY_NAME_STYLE = "graticule.style";
-    public static final String PROPERTY_NAME_RES_AUTO = "graticule.res.auto";
-    public static final String PROPERTY_NAME_RES_PIXELS = "graticule.res.pixels";
-    public static final String PROPERTY_NAME_RES_LAT = "graticule.res.lat";
-    public static final String PROPERTY_NAME_RES_LON = "graticule.res.lon";
-    public static final String PROPERTY_NAME_LINE_COLOR = "graticule.line.color";
-    public static final String PROPERTY_NAME_LINE_TRANSPARENCY = "graticule.line.transparency";
-    public static final String PROPERTY_NAME_LINE_WIDTH = "graticule.line.width";
-    public static final String PROPERTY_NAME_TEXT_ENABLED = "graticule.text.enabled";
-    public static final String PROPERTY_NAME_TEXT_FONT = "graticule.text.font";
-    public static final String PROPERTY_NAME_TEXT_FG_COLOR = "graticule.text.fg.color";
-    public static final String PROPERTY_NAME_TEXT_BG_COLOR = "graticule.text.bg.color";
-    public static final String PROPERTY_NAME_TEXT_BG_TRANSPARENCY = "graticule.text.bg.transparency";
+    public static final String PROPERTY_NAME_RASTER = "raster";
+    public static final String PROPERTY_NAME_TRANSFORM = "imageToModelTransform";
+    public static final String PROPERTY_NAME_RES_AUTO = "resAuto";
+    public static final String PROPERTY_NAME_RES_PIXELS = "resPixels";
+    public static final String PROPERTY_NAME_RES_LAT = "resLat";
+    public static final String PROPERTY_NAME_RES_LON = "resLon";
+    public static final String PROPERTY_NAME_LINE_COLOR = "lineColor";
+    public static final String PROPERTY_NAME_LINE_TRANSPARENCY = "lineTransparency";
+    public static final String PROPERTY_NAME_LINE_WIDTH = "lineWidth";
+    public static final String PROPERTY_NAME_TEXT_ENABLED = "textEnabled";
+    public static final String PROPERTY_NAME_TEXT_FONT = "textFont";
+    public static final String PROPERTY_NAME_TEXT_FG_COLOR = "textFgColor";
+    public static final String PROPERTY_NAME_TEXT_BG_COLOR = "textBgColor";
+    public static final String PROPERTY_NAME_TEXT_BG_TRANSPARENCY = "textBgTransparency";
     public static final boolean DEFAULT_RES_AUTO = true;
     public static final int DEFAULT_RES_PIXELS = 128;
     public static final double DEFAULT_RES_LAT = 1.0;

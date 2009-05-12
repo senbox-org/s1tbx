@@ -278,8 +278,8 @@ public class ProductSceneImage implements LayerContext {
 
         final Color color = configuration.getPropertyColor("noDataOverlay.color", Color.ORANGE);
         try {
-            configTemplate.setValue(NoDataLayerType.PROPERTY_COLOR, color);
-            configTemplate.setValue(NoDataLayerType.PROPERTY_REFERENCED_RASTER, getRaster());
+            configTemplate.setValue(NoDataLayerType.PROPERTY_NAME_COLOR, color);
+            configTemplate.setValue(NoDataLayerType.PROPERTY_NAME_RASTER, getRaster());
             configTemplate.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
         } catch (ValidationException e) {
             throw new IllegalArgumentException(e);
@@ -291,8 +291,8 @@ public class ProductSceneImage implements LayerContext {
         final LayerType bitmaskCollectionType = LayerType.getLayerType(BitmaskCollectionLayer.Type.class.getName());
         final ValueContainer layerConfig = bitmaskCollectionType.getConfigurationTemplate();
         try {
-            layerConfig.setValue(BitmaskCollectionLayer.Type.PROPERTY_RASTER, getRaster());
-            layerConfig.setValue(BitmaskCollectionLayer.Type.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
+            layerConfig.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_RASTER, getRaster());
+            layerConfig.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
         } catch (ValidationException e) {
             throw new IllegalArgumentException(e);
         }
@@ -373,14 +373,14 @@ public class ProductSceneImage implements LayerContext {
     private ImageLayer createRoiLayer(AffineTransform imageToModelTransform) {
         final LayerType roiLayerType = LayerType.getLayerType(RoiLayerType.class.getName());
 
-        final Color color = configuration.getPropertyColor(RoiLayerType.PROPERTY_COLOR, Color.RED);
-        final double transparency = configuration.getPropertyDouble(RoiLayerType.PROPERTY_TRANSPARENCY, 0.5);
+        final Color color = configuration.getPropertyColor(RoiLayerType.PROPERTY_NAME_COLOR, Color.RED);
+        final double transparency = configuration.getPropertyDouble(RoiLayerType.PROPERTY_NAME_TRANSPARENCY, 0.5);
 
         final ValueContainer template = roiLayerType.getConfigurationTemplate();
         try {
-            template.setValue(RoiLayerType.PROPERTY_COLOR, color);
-            template.setValue(RoiLayerType.PROPERTY_TRANSPARENCY, transparency);
-            template.setValue(RoiLayerType.PROPERTY_REFERENCED_RASTER, getRaster());
+            template.setValue(RoiLayerType.PROPERTY_NAME_COLOR, color);
+            template.setValue(RoiLayerType.PROPERTY_NAME_TRANSPARENCY, transparency);
+            template.setValue(RoiLayerType.PROPERTY_NAME_RASTER, getRaster());
             template.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
         } catch (ValidationException e) {
             throw new IllegalArgumentException(e);

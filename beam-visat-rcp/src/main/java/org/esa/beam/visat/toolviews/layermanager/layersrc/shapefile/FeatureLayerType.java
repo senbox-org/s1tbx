@@ -41,11 +41,11 @@ import java.util.Map;
 
 public class FeatureLayerType extends LayerType {
 
-    public static final String PROPERTY_SLD_STYLE = "sldStyle";
-    public static final String PROPERTY_FEATURE_COLLECTION = "featureCollection";
-    public static final String PROPERTY_FEATURE_COLLECTION_URL = "featureCollectionUrl";
-    public static final String PROPERTY_FEATURE_COLLECTION_CRS = "featureCollectionTargetCrs";
-    public static final String PROPERTY_FEATURE_COLLECTION_CLIP_GEOMETRY = "featureCollectionClipGeometry";
+    public static final String PROPERTY_NAME_SLD_STYLE = "sldStyle";
+    public static final String PROPERTY_NAME_FEATURE_COLLECTION = "featureCollection";
+    public static final String PROPERTY_NAME_FEATURE_COLLECTION_URL = "featureCollectionUrl";
+    public static final String PROPERTY_NAME_FEATURE_COLLECTION_CRS = "featureCollectionTargetCrs";
+    public static final String PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY = "featureCollectionClipGeometry";
 
     @Override
     public String getName() {
@@ -66,23 +66,23 @@ public class FeatureLayerType extends LayerType {
     public ValueContainer getConfigurationTemplate() {
         final ValueContainer configuration = new ValueContainer();
 
-        configuration.addModel(createDefaultValueModel(PROPERTY_FEATURE_COLLECTION_URL, URL.class));
+        configuration.addModel(createDefaultValueModel(PROPERTY_NAME_FEATURE_COLLECTION_URL, URL.class));
 
         configuration.addModel(
-                createDefaultValueModel(PROPERTY_FEATURE_COLLECTION_CRS, CoordinateReferenceSystem.class));
-        configuration.getDescriptor(PROPERTY_FEATURE_COLLECTION_CRS).setDomConverter(new CRSDomConverter());
+                createDefaultValueModel(PROPERTY_NAME_FEATURE_COLLECTION_CRS, CoordinateReferenceSystem.class));
+        configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CRS).setDomConverter(new CRSDomConverter());
 
 
-        configuration.addModel(createDefaultValueModel(PROPERTY_FEATURE_COLLECTION_CLIP_GEOMETRY, Geometry.class));
-        configuration.getDescriptor(PROPERTY_FEATURE_COLLECTION_CLIP_GEOMETRY).setDomConverter(
+        configuration.addModel(createDefaultValueModel(PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY, Geometry.class));
+        configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY).setDomConverter(
                 new GeometryDomConverter());
 
-        configuration.addModel(createDefaultValueModel(PROPERTY_SLD_STYLE, Style.class));
-        configuration.getDescriptor(PROPERTY_SLD_STYLE).setDomConverter(new StyleDomConverter());
+        configuration.addModel(createDefaultValueModel(PROPERTY_NAME_SLD_STYLE, Style.class));
+        configuration.getDescriptor(PROPERTY_NAME_SLD_STYLE).setDomConverter(new StyleDomConverter());
 
         //optional
-        configuration.addModel(createDefaultValueModel(PROPERTY_FEATURE_COLLECTION, FeatureCollection.class));
-        configuration.getDescriptor(PROPERTY_FEATURE_COLLECTION).setTransient(true);
+        configuration.addModel(createDefaultValueModel(PROPERTY_NAME_FEATURE_COLLECTION, FeatureCollection.class));
+        configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION).setTransient(true);
 
         return configuration;
     }

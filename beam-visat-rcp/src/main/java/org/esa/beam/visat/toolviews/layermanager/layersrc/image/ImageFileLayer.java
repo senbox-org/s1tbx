@@ -61,13 +61,13 @@ class ImageFileLayer extends Layer {
 
     private MultiLevelSource createMultiLevelSource() {
         final ValueContainer configuration = getConfiguration();
-        RenderedImage image = (RenderedImage) configuration.getValue(ImageFileLayerType.PROPERTY_IMAGE);
+        RenderedImage image = (RenderedImage) configuration.getValue(ImageFileLayerType.PROPERTY_NAME_IMAGE);
         if (image == null) {
-            final File file = (File) configuration.getValue(ImageFileLayerType.PROPERTY_IMAGE_FILE);
+            final File file = (File) configuration.getValue(ImageFileLayerType.PROPERTY_NAME_IMAGE_FILE);
             image = FileLoadDescriptor.create(file.getPath(), null, true, null);
         }
         final AffineTransform transform = (AffineTransform) configuration.getValue(
-                ImageFileLayerType.PROPERTY_WORLD_TRANSFORM);
+                ImageFileLayerType.PROPERTY_NAME_WORLD_TRANSFORM);
         final Rectangle2D modelBounds = DefaultMultiLevelModel.getModelBounds(transform, image);
         return new DefaultMultiLevelSource(image, new DefaultMultiLevelModel(1, transform, modelBounds));
     }

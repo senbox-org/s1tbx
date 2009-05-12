@@ -35,17 +35,17 @@ import java.util.List;
 
 public class FigureLayer extends Layer {
 
-    public static final String PROPERTY_NAME_FIGURE_LIST = "shape.figureList";
-    public static final String PROPERTY_NAME_TRANSFORM = "shape.transform";
-    public static final String PROPERTY_NAME_SHAPE_OUTLINED = "shape.outlined";
-    public static final String PROPERTY_NAME_SHAPE_FILLED = "shape.filled";
-    public static final String PROPERTY_NAME_SHAPE_OUTL_COLOR = "shape.outl.color";
-    public static final String PROPERTY_NAME_SHAPE_FILL_COLOR = "shape.fill.color";
-    public static final String PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY = "shape.outl.transparency";
-    public static final String PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY = "shape.fill.transparency";
-    public static final String PROPERTY_NAME_SHAPE_OUTL_WIDTH = "shape.outl.width";
-    public static final String PROPERTY_NAME_SHAPE_OUTL_COMPOSITE = "shape.outl.composite";
-    public static final String PROPERTY_NAME_SHAPE_FILL_COMPOSITE = "shape.fill.composite";
+    public static final String PROPERTY_NAME_FIGURE_LIST = "figureList";
+    public static final String PROPERTY_NAME_TRANSFORM = "shapeToModelTransform";
+    public static final String PROPERTY_NAME_SHAPE_OUTLINED = "outlined";
+    public static final String PROPERTY_NAME_SHAPE_FILLED = "filled";
+    public static final String PROPERTY_NAME_SHAPE_OUTL_COLOR = "outlineColor";
+    public static final String PROPERTY_NAME_SHAPE_FILL_COLOR = "fillColor";
+    public static final String PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY = "outlineTransparency";
+    public static final String PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY = "fillTransparency";
+    public static final String PROPERTY_NAME_SHAPE_OUTL_WIDTH = "outlineWidth";
+    public static final String PROPERTY_NAME_SHAPE_OUTL_COMPOSITE = "outlineComposite";
+    public static final String PROPERTY_NAME_SHAPE_FILL_COMPOSITE = "fillComposite";
 
     public static final boolean DEFAULT_SHAPE_OUTLINED = Boolean.TRUE;
     public static final boolean DEFAULT_SHAPE_FILLED = Boolean.TRUE;

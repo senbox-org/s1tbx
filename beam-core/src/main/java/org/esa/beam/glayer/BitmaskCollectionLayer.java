@@ -42,8 +42,8 @@ public class BitmaskCollectionLayer extends CollectionLayer {
 
     public BitmaskCollectionLayer(Type layerType, ValueContainer configuration) {
         super(layerType, configuration, "Bitmasks");
-        this.rasterDataNode = (RasterDataNode) configuration.getValue(Type.PROPERTY_RASTER);
-        this.i2mTransform = (AffineTransform) configuration.getValue(Type.PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
+        this.rasterDataNode = (RasterDataNode) configuration.getValue(Type.PROPERTY_NAME_RASTER);
+        this.i2mTransform = (AffineTransform) configuration.getValue(Type.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
         bitmaskDefListener = new BitmaskDefListener(this);
         getProduct().addProductNodeListener(bitmaskDefListener);
     }
@@ -106,7 +106,7 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         private Layer getLayerForBitmask(BitmaskDef bitmaskDef) {
             final List<Layer> list = bitmaskCollectionLayer.getChildren();
             for (Layer layer : list) {
-                final Object value = layer.getConfiguration().getValue(BitmaskLayerType.PROPERTY_BITMASKDEF);
+                final Object value = layer.getConfiguration().getValue(BitmaskLayerType.PROPERTY_NAME_BITMASK_DEF);
                 if (bitmaskDef.equals(value)) {
                     return layer;
                 }
@@ -156,8 +156,8 @@ public class BitmaskCollectionLayer extends CollectionLayer {
 
         public static final String BITMASK_LAYER_ID = "org.esa.beam.layers.bitmask";
 
-        public static final String PROPERTY_RASTER = "bitmaskCollection.raster";
-        public static final String PROPERTY_IMAGE_TO_MODEL_TRANSFORM = "bitmaskCollection.i2mTransform";
+        public static final String PROPERTY_NAME_RASTER = "raster";
+        public static final String PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
 
         @Override
         public String getName() {
@@ -175,11 +175,11 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         public ValueContainer getConfigurationTemplate() {
             final ValueContainer template = super.getConfigurationTemplate();
 
-            template.addModel(createDefaultValueModel(PROPERTY_RASTER, RasterDataNode.class));
-            template.getDescriptor(PROPERTY_RASTER).setNotNull(true);
+            template.addModel(createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
+            template.getDescriptor(PROPERTY_NAME_RASTER).setNotNull(true);
 
-            template.addModel(createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class));
-            template.getDescriptor(PROPERTY_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
+            template.addModel(createDefaultValueModel(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class));
+            template.getDescriptor(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
 
             return template;
 

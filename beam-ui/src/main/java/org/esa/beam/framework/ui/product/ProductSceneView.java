@@ -4,7 +4,6 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
-import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.AdjustableViewScrollPane;
 import com.bc.ceres.glayer.swing.LayerCanvas;
@@ -955,7 +954,7 @@ public class ProductSceneView extends BasicView
         final ImageLayer roiLayer = getRoiLayer(false);
         if (roiLayer != null) {
             if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
-                final Color color = (Color) roiLayer.getConfiguration().getValue(RoiLayerType.PROPERTY_COLOR);
+                final Color color = (Color) roiLayer.getConfiguration().getValue(RoiLayerType.PROPERTY_NAME_COLOR);
                 final MultiLevelSource multiLevelSource = RoiImageMultiLevelSource.create(getRaster(),
                                                                                           color,
                                                                                           getBaseImageLayer().getImageToModelTransform());

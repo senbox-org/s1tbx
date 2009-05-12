@@ -39,8 +39,8 @@ public class NoDataLayerConfigurationPersistencyTest extends AbstractLayerConfig
     protected Layer createLayer(LayerType layerType) throws Exception {
         final ValueContainer configuration = layerType.getConfigurationTemplate();
 
-        configuration.setValue("noDataOverlay.referencedRaster", raster);
-        configuration.setValue("noDataOverlay.color", new Color(17, 11, 67));
+        configuration.setValue("raster", raster);
+        configuration.setValue("color", new Color(17, 11, 67));
         configuration.setValue("imageToModelTransform", new AffineTransform());
 
         return layerType.createLayer(null, configuration);
