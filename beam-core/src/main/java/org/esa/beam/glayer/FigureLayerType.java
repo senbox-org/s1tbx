@@ -38,30 +38,8 @@ public class FigureLayerType extends LayerType {
     protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
         final FigureLayer layer = new FigureLayer(this, configuration);
         layer.setId(FIGURE_LAYER_ID);
-        layer.setVisible(true);
-        configureLayer(configuration, layer);
 
         return layer;
-    }
-
-    private void configureLayer(ValueContainer configuration, Layer layer) {
-        final Style style = layer.getStyle();
-        style.setProperty(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
-                          configuration.getValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED));
-        style.setProperty(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
-                          configuration.getValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR));
-        style.setProperty(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
-                          configuration.getValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY));
-        style.setProperty(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
-                          configuration.getValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH));
-        style.setProperty(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
-                          configuration.getValue(FigureLayer.PROPERTY_NAME_SHAPE_FILLED));
-        style.setProperty(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
-                          configuration.getValue(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR));
-        style.setProperty(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
-                          configuration.getValue(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY));
-
-        layer.setStyle(style);
     }
 
     @Override

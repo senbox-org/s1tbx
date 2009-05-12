@@ -63,7 +63,8 @@ public class BitmaskLayerType extends ImageLayer.Type {
         final ImageLayer layer = new ImageLayer(this, configuration);
         final BitmaskDef bitmaskDef = (BitmaskDef) configuration.getValue(PROPERTY_BITMASKDEF);
         layer.setName(bitmaskDef.getName());
-        configureLayer(configuration, layer);
+        // TODO: Is this correct? (rq-2009-05-11)
+        layer.setTransparency(bitmaskDef.getTransparency());
 
         return layer;
     }
@@ -75,20 +76,6 @@ public class BitmaskLayerType extends ImageLayer.Type {
                 ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
 
         return MaskImageMultiLevelSource.create(product, bitmaskDef.getColor(), bitmaskDef.getExpr(), false, transform);
-    }
-
-    private void configureLayer(ValueContainer configuration, Layer layer) {
-        final BitmaskDef bitmaskDef = (BitmaskDef) configuration.getValue(PROPERTY_BITMASKDEF);
-
-        final Style style = layer.getStyle();
-        style.setOpacity(bitmaskDef.getAlpha());
-        style.setComposite(layer.getStyle().getComposite());
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN,
-                          configuration.getValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN));
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR,
-                          configuration.getValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR));
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_WIDTH,
-                          configuration.getValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH));
     }
 
     @Override

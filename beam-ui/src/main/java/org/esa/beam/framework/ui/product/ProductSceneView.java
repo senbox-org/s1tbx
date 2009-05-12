@@ -934,8 +934,7 @@ public class ProductSceneView extends BasicView
         final ImageLayer noDataLayer = (ImageLayer) getNoDataLayer(false);
         if (noDataLayer != null) {
             if (expression != null) {
-                final Style style = noDataLayer.getStyle();
-                final Color color = (Color) style.getProperty("noDataOverlay.color");
+                final Color color = (Color) noDataLayer.getConfiguration().getValue("noDataOverlay.color");
                 final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(),
                                                                                            color, expression, true,
                                                                                            getBaseImageLayer().getImageToModelTransform());

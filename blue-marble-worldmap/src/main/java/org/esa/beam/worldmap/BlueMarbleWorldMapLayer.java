@@ -45,11 +45,35 @@ public class BlueMarbleWorldMapLayer extends Layer {
             throw new IllegalStateException(e);
         }
         layerDelegate = new ImageLayer(imageLayerType, template);
-        final Style style = layerDelegate.getStyle();
-        style.setOpacity(1.0);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
+        final ValueContainer layerDelegateConfiguration = layerDelegate.getConfiguration();
+        layerDelegate.setTransparency(0.0);
+        try {
+            layerDelegateConfiguration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
+        } catch (ValidationException e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
         setName(WORLD_MAP_LAYER_NAME);
         setVisible(true);
+    }
+
+    @Override
+    public boolean isVisible() {
+        return layerDelegate.isVisible();
+    }
+
+    @Override
+    public void setVisible(boolean visible) {
+        layerDelegate.setVisible(visible);
+    }
+
+    @Override
+    public double getTransparency() {
+        return layerDelegate.getTransparency();
+    }
+
+    @Override
+    public void setTransparency(double transparency) {
+        layerDelegate.setTransparency(transparency);
     }
 
     @Override

@@ -59,7 +59,6 @@ public class NoDataLayerType extends ImageLayer.Type {
         noDataLayer.setName(getName());
         noDataLayer.setId(NO_DATA_LAYER_ID);
         noDataLayer.setVisible(false);
-        configureLayer(configuration, noDataLayer);
         return noDataLayer;
     }
 
@@ -75,25 +74,6 @@ public class NoDataLayerType extends ImageLayer.Type {
 
         return template;
 
-    }
-
-    private void configureLayer(ValueContainer configuration, Layer layer) {
-        final Color color = (Color) configuration.getValue(PROPERTY_COLOR);
-        Double transparency = (Double) configuration.getValue(PROPERTY_TRANSPARENCY);
-        final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_REFERENCED_RASTER);
-        final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(
-                ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
-        if (transparency == null) {
-            transparency = 0.0;
-        }
-        final Style style = layer.getStyle();
-        style.setOpacity(1.0 - transparency);
-        style.setProperty(PROPERTY_COLOR, color);
-        style.setProperty(PROPERTY_REFERENCED_RASTER, raster);
-        style.setProperty(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
-
-        style.setComposite(layer.getStyle().getComposite());
-        layer.setStyle(style);
     }
 }
 

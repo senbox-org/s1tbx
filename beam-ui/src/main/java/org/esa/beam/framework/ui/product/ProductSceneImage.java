@@ -8,8 +8,6 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.glayer.Style;
-import com.bc.ceres.glayer.support.DefaultStyle;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.support.LayerUtils;
 import org.esa.beam.framework.datamodel.BitmaskDef;
@@ -264,16 +262,14 @@ public class ProductSceneImage implements LayerContext {
         final Color borderColor = configuration.getPropertyColor("image.border.color",
                                                                  ImageLayer.DEFAULT_BORDER_COLOR);
 
-        final Style style = new DefaultStyle();
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, borderShown);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, borderWidth);
-        style.setProperty(ImageLayer.PROPERTY_NAME_BORDER_COLOR, borderColor);
-
-        style.setComposite(layer.getStyle().getComposite());
-        style.setDefaultStyle(layer.getStyle().getDefaultStyle());
-        style.setOpacity(layer.getStyle().getOpacity());
-
-        layer.setStyle(style);
+        final ValueContainer layerConfiguration = layer.getConfiguration();
+        try {
+            layerConfiguration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, borderShown);
+            layerConfiguration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, borderWidth);
+            layerConfiguration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, borderColor);
+        } catch (ValidationException e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
     }
 
     private Layer createNoDataLayer(AffineTransform imageToModelTransform) {
@@ -343,35 +339,35 @@ public class ProductSceneImage implements LayerContext {
         return (FigureLayer) figureType.createLayer(this, template);
     }
 
-    public static void setFigureLayerStyle(PropertyMap configuration, Layer layer) {
-        final Style style = new DefaultStyle();
-        style.setDefaultStyle(layer.getStyle().getDefaultStyle());
-        style.setProperty(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
-                          configuration.getPropertyBool(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
-                                                        FigureLayer.DEFAULT_SHAPE_OUTLINED));
-        style.setProperty(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
-                          configuration.getPropertyColor(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
-                                                         FigureLayer.DEFAULT_SHAPE_OUTL_COLOR));
-        style.setProperty(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
-                          configuration.getPropertyDouble(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
-                                                          FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY));
-        style.setProperty(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
-                          configuration.getPropertyDouble(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
-                                                          FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH));
-        style.setProperty(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
-                          configuration.getPropertyBool(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
-                                                        FigureLayer.DEFAULT_SHAPE_FILLED));
-        style.setProperty(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
-                          configuration.getPropertyColor(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
-                                                         FigureLayer.DEFAULT_SHAPE_FILL_COLOR));
-        style.setProperty(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
-                          configuration.getPropertyDouble(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
-                                                          FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY));
-
-        style.setComposite(layer.getStyle().getComposite());
-        style.setOpacity(layer.getStyle().getOpacity());
-
-        layer.setStyle(style);
+    static void setFigureLayerStyle(PropertyMap configuration, Layer layer) {
+        final ValueContainer layerConfiguration = layer.getConfiguration();
+        try {
+            layerConfiguration.setValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
+                                        configuration.getPropertyBool(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
+                                                                      FigureLayer.DEFAULT_SHAPE_OUTLINED));
+            layerConfiguration.setValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
+                                        configuration.getPropertyColor(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
+                                                                       FigureLayer.DEFAULT_SHAPE_OUTL_COLOR));
+            layerConfiguration.setValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
+                                        configuration.getPropertyDouble(
+                                                FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
+                                                FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY));
+            layerConfiguration.setValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
+                                        configuration.getPropertyDouble(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
+                                                                        FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH));
+            layerConfiguration.setValue(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
+                                        configuration.getPropertyBool(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
+                                                                      FigureLayer.DEFAULT_SHAPE_FILLED));
+            layerConfiguration.setValue(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
+                                        configuration.getPropertyColor(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
+                                                                       FigureLayer.DEFAULT_SHAPE_FILL_COLOR));
+            layerConfiguration.setValue(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
+                                        configuration.getPropertyDouble(
+                                                FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
+                                                FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY));
+        } catch (ValidationException e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
     }
 
     private ImageLayer createRoiLayer(AffineTransform imageToModelTransform) {
@@ -409,49 +405,49 @@ public class ProductSceneImage implements LayerContext {
         return graticuleLayer;
     }
 
-    public static void setGraticuleLayerStyle(PropertyMap configuration, Layer layer) {
-        final Style style = new DefaultStyle();
+    static void setGraticuleLayerStyle(PropertyMap configuration, Layer layer) {
+        final ValueContainer layerConfiguration = layer.getConfiguration();
 
-        style.setProperty(GraticuleLayerType.PROPERTY_NAME_RES_AUTO,
-                          configuration.getPropertyBool(GraticuleLayerType.PROPERTY_NAME_RES_AUTO,
-                                                        GraticuleLayerType.DEFAULT_RES_AUTO));
-        style.setProperty(GraticuleLayerType.PROPERTY_NAME_RES_PIXELS,
-                          configuration.getPropertyInt(GraticuleLayerType.PROPERTY_NAME_RES_PIXELS,
-                                                       GraticuleLayerType.DEFAULT_RES_PIXELS));
-        style.setProperty(GraticuleLayerType.PROPERTY_NAME_RES_LAT,
-                          configuration.getPropertyDouble(GraticuleLayerType.PROPERTY_NAME_RES_LAT,
-                                                          GraticuleLayerType.DEFAULT_RES_LAT));
-        style.setProperty(GraticuleLayerType.PROPERTY_NAME_RES_LON,
-                          configuration.getPropertyDouble(GraticuleLayerType.PROPERTY_NAME_RES_LON,
-                                                          GraticuleLayerType.DEFAULT_RES_LON));
+        try {
+            layerConfiguration.setValue(GraticuleLayerType.PROPERTY_NAME_RES_AUTO,
+                                        configuration.getPropertyBool(GraticuleLayerType.PROPERTY_NAME_RES_AUTO,
+                                                                      GraticuleLayerType.DEFAULT_RES_AUTO));
+            layerConfiguration.setValue(GraticuleLayerType.PROPERTY_NAME_RES_PIXELS,
+                                        configuration.getPropertyInt(GraticuleLayerType.PROPERTY_NAME_RES_PIXELS,
+                                                                     GraticuleLayerType.DEFAULT_RES_PIXELS));
+            layerConfiguration.setValue(GraticuleLayerType.PROPERTY_NAME_RES_LAT,
+                                        configuration.getPropertyDouble(GraticuleLayerType.PROPERTY_NAME_RES_LAT,
+                                                                        GraticuleLayerType.DEFAULT_RES_LAT));
+            layerConfiguration.setValue(GraticuleLayerType.PROPERTY_NAME_RES_LON,
+                                        configuration.getPropertyDouble(GraticuleLayerType.PROPERTY_NAME_RES_LON,
+                                                                        GraticuleLayerType.DEFAULT_RES_LON));
 
-        style.setProperty(GraticuleLayerType.PROPERTY_NAME_LINE_COLOR,
-                          configuration.getPropertyColor(GraticuleLayerType.PROPERTY_NAME_LINE_COLOR,
-                                                         GraticuleLayerType.DEFAULT_LINE_COLOR));
-        style.setProperty(GraticuleLayerType.PROPERTY_NAME_LINE_WIDTH,
-                          configuration.getPropertyDouble(GraticuleLayerType.PROPERTY_NAME_LINE_WIDTH,
-                                                          GraticuleLayerType.DEFAULT_LINE_WIDTH));
-        style.setProperty(GraticuleLayerType.PROPERTY_NAME_LINE_TRANSPARENCY,
-                          configuration.getPropertyDouble(GraticuleLayerType.PROPERTY_NAME_LINE_TRANSPARENCY,
-                                                          GraticuleLayerType.DEFAULT_LINE_TRANSPARENCY));
-        style.setProperty(GraticuleLayerType.PROPERTY_NAME_TEXT_ENABLED,
-                          configuration.getPropertyBool(GraticuleLayerType.PROPERTY_NAME_TEXT_ENABLED,
-                                                        GraticuleLayerType.DEFAULT_TEXT_ENABLED));
-        style.setProperty(GraticuleLayerType.PROPERTY_NAME_TEXT_FG_COLOR,
-                          configuration.getPropertyColor(GraticuleLayerType.PROPERTY_NAME_TEXT_FG_COLOR,
-                                                         GraticuleLayerType.DEFAULT_TEXT_FG_COLOR));
-        style.setProperty(GraticuleLayerType.PROPERTY_NAME_TEXT_BG_COLOR,
-                          configuration.getPropertyColor(GraticuleLayerType.PROPERTY_NAME_TEXT_BG_COLOR,
-                                                         GraticuleLayerType.DEFAULT_TEXT_BG_COLOR));
-        style.setProperty(GraticuleLayerType.PROPERTY_NAME_TEXT_BG_TRANSPARENCY,
-                          configuration.getPropertyDouble(GraticuleLayerType.PROPERTY_NAME_TEXT_BG_TRANSPARENCY,
-                                                          GraticuleLayerType.DEFAULT_TEXT_BG_TRANSPARENCY));
-
-        style.setComposite(layer.getStyle().getComposite());
-        style.setDefaultStyle(layer.getStyle().getDefaultStyle());
-        style.setOpacity(layer.getStyle().getOpacity());
-
-        layer.setStyle(style);
+            layerConfiguration.setValue(GraticuleLayerType.PROPERTY_NAME_LINE_COLOR,
+                                        configuration.getPropertyColor(GraticuleLayerType.PROPERTY_NAME_LINE_COLOR,
+                                                                       GraticuleLayerType.DEFAULT_LINE_COLOR));
+            layerConfiguration.setValue(GraticuleLayerType.PROPERTY_NAME_LINE_WIDTH,
+                                        configuration.getPropertyDouble(GraticuleLayerType.PROPERTY_NAME_LINE_WIDTH,
+                                                                        GraticuleLayerType.DEFAULT_LINE_WIDTH));
+            layerConfiguration.setValue(GraticuleLayerType.PROPERTY_NAME_LINE_TRANSPARENCY,
+                                        configuration.getPropertyDouble(
+                                                GraticuleLayerType.PROPERTY_NAME_LINE_TRANSPARENCY,
+                                                GraticuleLayerType.DEFAULT_LINE_TRANSPARENCY));
+            layerConfiguration.setValue(GraticuleLayerType.PROPERTY_NAME_TEXT_ENABLED,
+                                        configuration.getPropertyBool(GraticuleLayerType.PROPERTY_NAME_TEXT_ENABLED,
+                                                                      GraticuleLayerType.DEFAULT_TEXT_ENABLED));
+            layerConfiguration.setValue(GraticuleLayerType.PROPERTY_NAME_TEXT_FG_COLOR,
+                                        configuration.getPropertyColor(GraticuleLayerType.PROPERTY_NAME_TEXT_FG_COLOR,
+                                                                       GraticuleLayerType.DEFAULT_TEXT_FG_COLOR));
+            layerConfiguration.setValue(GraticuleLayerType.PROPERTY_NAME_TEXT_BG_COLOR,
+                                        configuration.getPropertyColor(GraticuleLayerType.PROPERTY_NAME_TEXT_BG_COLOR,
+                                                                       GraticuleLayerType.DEFAULT_TEXT_BG_COLOR));
+            layerConfiguration.setValue(GraticuleLayerType.PROPERTY_NAME_TEXT_BG_TRANSPARENCY,
+                                        configuration.getPropertyDouble(
+                                                GraticuleLayerType.PROPERTY_NAME_TEXT_BG_TRANSPARENCY,
+                                                GraticuleLayerType.DEFAULT_TEXT_BG_TRANSPARENCY));
+        } catch (ValidationException e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
     }
 
     private PlacemarkLayer createPinLayer(AffineTransform i2mTransform) {
@@ -465,21 +461,19 @@ public class ProductSceneImage implements LayerContext {
         return pinLayer;
     }
 
-    public static void setPinLayerStyle(PropertyMap configuration, Layer layer) {
-        final DefaultStyle style = new DefaultStyle();
+    static void setPinLayerStyle(PropertyMap configuration, Layer layer) {
+        final ValueContainer layerConfiguration = layer.getConfiguration();
 
-        style.setProperty(PlacemarkLayer.PROPERTY_NAME_TEXT_ENABLED,
-                          configuration.getPropertyBool("pin.text.enabled", Boolean.TRUE));
-        style.setProperty(PlacemarkLayer.PROPERTY_NAME_TEXT_FG_COLOR,
-                          configuration.getPropertyColor("pin.text.fg.color", Color.WHITE));
-        style.setProperty(PlacemarkLayer.PROPERTY_NAME_TEXT_BG_COLOR,
-                          configuration.getPropertyColor("pin.text.bg.color", Color.BLACK));
-
-        style.setComposite(layer.getStyle().getComposite());
-        style.setDefaultStyle(layer.getStyle().getDefaultStyle());
-        style.setOpacity(layer.getStyle().getOpacity());
-
-        layer.setStyle(style);
+        try {
+            layerConfiguration.setValue(PlacemarkLayer.PROPERTY_NAME_TEXT_ENABLED,
+                                        configuration.getPropertyBool("pin.text.enabled", Boolean.TRUE));
+            layerConfiguration.setValue(PlacemarkLayer.PROPERTY_NAME_TEXT_FG_COLOR,
+                                        configuration.getPropertyColor("pin.text.fg.color", Color.WHITE));
+            layerConfiguration.setValue(PlacemarkLayer.PROPERTY_NAME_TEXT_BG_COLOR,
+                                        configuration.getPropertyColor("pin.text.bg.color", Color.BLACK));
+        } catch (ValidationException e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
     }
 
     private PlacemarkLayer createGcpLayer(AffineTransform i2mTransform) {
@@ -493,21 +487,19 @@ public class ProductSceneImage implements LayerContext {
         return gcpLayer;
     }
 
-    public static void setGcpLayerStyle(PropertyMap configuration, Layer layer) {
-        final DefaultStyle style = new DefaultStyle();
+    static void setGcpLayerStyle(PropertyMap configuration, Layer layer) {
+        final ValueContainer layerConfiguration = layer.getConfiguration();
 
-        style.setProperty(PlacemarkLayer.PROPERTY_NAME_TEXT_ENABLED,
-                          configuration.getPropertyBool("gcp.text.enabled", Boolean.TRUE));
-        style.setProperty(PlacemarkLayer.PROPERTY_NAME_TEXT_FG_COLOR,
-                          configuration.getPropertyColor("gcp.text.fg.color", Color.WHITE));
-        style.setProperty(PlacemarkLayer.PROPERTY_NAME_TEXT_BG_COLOR,
-                          configuration.getPropertyColor("gcp.text.bg.color", Color.BLACK));
-
-        style.setComposite(style.getComposite());
-        style.setDefaultStyle(layer.getStyle().getDefaultStyle());
-        style.setOpacity(layer.getStyle().getOpacity());
-
-        layer.setStyle(style);
+        try {
+            layerConfiguration.setValue(PlacemarkLayer.PROPERTY_NAME_TEXT_ENABLED,
+                                        configuration.getPropertyBool("gcp.text.enabled", Boolean.TRUE));
+            layerConfiguration.setValue(PlacemarkLayer.PROPERTY_NAME_TEXT_FG_COLOR,
+                                        configuration.getPropertyColor("gcp.text.fg.color", Color.WHITE));
+            layerConfiguration.setValue(PlacemarkLayer.PROPERTY_NAME_TEXT_BG_COLOR,
+                                        configuration.getPropertyColor("gcp.text.bg.color", Color.BLACK));
+        } catch (ValidationException e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
     }
 
     private BandImageMultiLevelSource getBandImageMultiLevelSource() {

@@ -4,7 +4,6 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.glayer.Style;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.datamodel.Pin;
@@ -191,59 +190,51 @@ public class PlacemarkLayer extends Layer {
     }
 
     public boolean isTextEnabled() {
-        final Style style = getStyle();
-
-        if (style.hasProperty(PROPERTY_NAME_TEXT_ENABLED)) {
-            return (Boolean) style.getProperty(PROPERTY_NAME_TEXT_ENABLED);
-        }
-
-        return DEFAULT_TEXT_ENABLED;
+        return getConfigurationProperty(PROPERTY_NAME_TEXT_ENABLED, DEFAULT_TEXT_ENABLED);
     }
 
-    public void setTextEnabled(boolean textEnabled) {
-        getStyle().setProperty(PROPERTY_NAME_TEXT_ENABLED, textEnabled);
+    public void setTextEnabled(boolean enabled) {
+        try {
+            getConfiguration().setValue(PROPERTY_NAME_TEXT_ENABLED, enabled);
+        } catch (ValidationException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
     }
 
     public Font getTextFont() {
-        final Style style = getStyle();
-
-        if (style.hasProperty(PROPERTY_NAME_TEXT_FONT)) {
-            return (Font) style.getProperty(PROPERTY_NAME_TEXT_FONT);
-        }
-
-        return DEFAULT_TEXT_FONT;
+        return getConfigurationProperty(PROPERTY_NAME_TEXT_FONT, DEFAULT_TEXT_FONT);
     }
 
     public void setTextFont(Font font) {
-        getStyle().setProperty(PROPERTY_NAME_TEXT_FONT, font);
+        try {
+            getConfiguration().setValue(PROPERTY_NAME_TEXT_FONT, font);
+        } catch (ValidationException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
     }
 
     public Color getTextFgColor() {
-        final Style style = getStyle();
-
-        if (style.hasProperty(PROPERTY_NAME_TEXT_FG_COLOR)) {
-            return (Color) style.getProperty(PROPERTY_NAME_TEXT_FG_COLOR);
-        }
-
-        return DEFAULT_TEXT_FG_COLOR;
+        return getConfigurationProperty(PROPERTY_NAME_TEXT_FG_COLOR, DEFAULT_TEXT_FG_COLOR);
     }
 
     public void setTextFgColor(Color color) {
-        getStyle().setProperty(PROPERTY_NAME_TEXT_FG_COLOR, color);
+        try {
+            getConfiguration().setValue(PROPERTY_NAME_TEXT_FG_COLOR, color);
+        } catch (ValidationException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
     }
 
     public Color getTextBgColor() {
-        final Style style = getStyle();
-
-        if (style.hasProperty(PROPERTY_NAME_TEXT_BG_COLOR)) {
-            return (Color) style.getProperty(PROPERTY_NAME_TEXT_BG_COLOR);
-        }
-
-        return DEFAULT_TEXT_BG_COLOR;
+        return getConfigurationProperty(PROPERTY_NAME_TEXT_BG_COLOR, DEFAULT_TEXT_BG_COLOR);
     }
 
     public void setTextBgColor(Color color) {
-        getStyle().setProperty(PROPERTY_NAME_TEXT_BG_COLOR, color);
+        try {
+            getConfiguration().setValue(PROPERTY_NAME_TEXT_BG_COLOR, color);
+        } catch (ValidationException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
     }
 
     private class MyProductNodeListenerAdapter extends ProductNodeListenerAdapter {

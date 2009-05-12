@@ -338,7 +338,7 @@ public class PView {
                 final ImageLayer imageLayer = new ImageLayer(RoiImageMultiLevelSource.create(band, color, i2m));
                 imageLayer.setName("ROI of " + band.getName());
                 imageLayer.setVisible(false);
-                imageLayer.getStyle().setOpacity(0.5);
+                imageLayer.setTransparency(0.5);
                 collectionLayer.getChildren().add(imageLayer);
             }
         }
@@ -417,7 +417,7 @@ public class PView {
                         MaskImageMultiLevelSource.create(product, color, expression, true, i2m));
                 imageLayer.setName("No-data mask of " + band.getName());
                 imageLayer.setVisible(false);
-                imageLayer.getStyle().setOpacity(0.5);
+                imageLayer.setTransparency(0.5);
                 collectionLayer.getChildren().add(imageLayer);
             }
         }

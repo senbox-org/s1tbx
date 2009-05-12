@@ -57,8 +57,6 @@ public class RoiLayerType extends ImageLayer.Type {
         roiLayer.setName("ROI");
         roiLayer.setId(ROI_LAYER_ID);
 
-        configureLayer(configuration, roiLayer);
-
         return roiLayer;
     }
 
@@ -74,25 +72,5 @@ public class RoiLayerType extends ImageLayer.Type {
         template.addModel(createDefaultValueModel(PROPERTY_TRANSPARENCY, Double.class, 0.5));
 
         return template;
-    }
-
-    private void configureLayer(ValueContainer configuration, Layer layer) {
-        Color color = (Color) configuration.getValue(PROPERTY_COLOR);
-        Double transparency = (Double) configuration.getValue(PROPERTY_TRANSPARENCY);
-        RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_REFERENCED_RASTER);
-        AffineTransform i2mTransform = (AffineTransform) configuration.getValue(
-                ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
-        if (transparency == null) {
-            transparency = 0.0;
-        }
-        Style style = layer.getStyle();
-        style.setProperty(PROPERTY_COLOR, color);
-        style.setOpacity(1.0 - transparency);
-        style.setProperty(PROPERTY_REFERENCED_RASTER, raster);
-        style.setProperty(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
-
-        style.setComposite(layer.getStyle().getComposite());
-
-        layer.setStyle(style);
     }
 }

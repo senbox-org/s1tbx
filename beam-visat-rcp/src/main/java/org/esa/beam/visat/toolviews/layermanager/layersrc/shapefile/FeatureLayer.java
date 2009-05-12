@@ -187,10 +187,11 @@ public class FeatureLayer extends Layer {
 
         private ApplyingStyleVisitor() {
             StyleBuilder sb = new StyleBuilder();
-            polyFillExp = sb.literalExpression(polyFillOpacity * getStyle().getOpacity());
-            polyStrokeExp = sb.literalExpression(polyStrokeOpacity * getStyle().getOpacity());
-            textExp = sb.literalExpression(textOpacity * getStyle().getOpacity());
-            defaultTextFill = sb.createFill(Color.BLACK, textOpacity * getStyle().getOpacity());
+            final double layerOpacity = 1.0 - getTransparency();
+            polyFillExp = sb.literalExpression(polyFillOpacity * layerOpacity);
+            polyStrokeExp = sb.literalExpression(polyStrokeOpacity * layerOpacity);
+            textExp = sb.literalExpression(textOpacity * layerOpacity);
+            defaultTextFill = sb.createFill(Color.BLACK, textOpacity * layerOpacity);
         }
 
         @Override

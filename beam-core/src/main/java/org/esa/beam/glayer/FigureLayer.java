@@ -129,7 +129,7 @@ public class FigureLayer extends Layer {
             transform.concatenate(shapeToModelTransform);
             g2d.setTransform(transform);
 
-            double layerOpacity = getStyle().getOpacity();
+            double layerOpacity = 1.0 - getTransparency();
             for (final Figure figure : figureList) {
                 setAttributes(figure);
                 Composite oldOutlComposite = (Composite) figure.getAttribute(Figure.OUTL_COMPOSITE_KEY);
@@ -170,73 +170,30 @@ public class FigureLayer extends Layer {
     }
 
     private boolean isShapeOutlined() {
-        final Style style = getStyle();
-
-        if (style.hasProperty(PROPERTY_NAME_SHAPE_OUTLINED)) {
-            return (Boolean) style.getProperty(PROPERTY_NAME_SHAPE_OUTLINED);
-        }
-
-        return DEFAULT_SHAPE_OUTLINED;
+        return getConfigurationProperty(PROPERTY_NAME_SHAPE_OUTLINED, DEFAULT_SHAPE_OUTLINED);
     }
 
     private Color getShapeOutlineColor() {
-        final Style style = getStyle();
-
-        if (style.hasProperty(PROPERTY_NAME_SHAPE_OUTL_COLOR)) {
-            return (Color) style.getProperty(PROPERTY_NAME_SHAPE_OUTL_COLOR);
-        }
-
-        return DEFAULT_SHAPE_OUTL_COLOR;
+        return getConfigurationProperty(PROPERTY_NAME_SHAPE_OUTL_COLOR, DEFAULT_SHAPE_OUTL_COLOR);
     }
 
     private double getShapeOutlineTransparency() {
-        final Style style = getStyle();
-
-        if (style.hasProperty(PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY)) {
-            return (Double) style.getProperty(PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY);
-        }
-
-        return DEFAULT_SHAPE_OUTL_TRANSPARENCY;
+        return getConfigurationProperty(PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY, DEFAULT_SHAPE_OUTL_TRANSPARENCY);
     }
 
     private boolean isShapeFilled() {
-        final Style style = getStyle();
-
-        if (style.hasProperty(PROPERTY_NAME_SHAPE_FILLED)) {
-            return (Boolean) style.getProperty(PROPERTY_NAME_SHAPE_FILLED);
-        }
-
-        return DEFAULT_SHAPE_FILLED;
+        return getConfigurationProperty(PROPERTY_NAME_SHAPE_FILLED, DEFAULT_SHAPE_FILLED);
     }
 
     private double getShapeOutlineWidth() {
-        final Style style = getStyle();
-
-        if (style.hasProperty(PROPERTY_NAME_SHAPE_OUTL_WIDTH)) {
-            return (Double) style.getProperty(PROPERTY_NAME_SHAPE_OUTL_WIDTH);
-        }
-
-        return DEFAULT_SHAPE_OUTL_WIDTH;
+        return getConfigurationProperty(PROPERTY_NAME_SHAPE_OUTL_WIDTH, DEFAULT_SHAPE_OUTL_WIDTH);
     }
 
     private Color getShapeFillColor() {
-        final Style style = getStyle();
-
-        if (style.hasProperty(PROPERTY_NAME_SHAPE_FILL_COLOR)) {
-            return (Color) style.getProperty(PROPERTY_NAME_SHAPE_FILL_COLOR);
-        }
-
-        return DEFAULT_SHAPE_FILL_COLOR;
+        return getConfigurationProperty(PROPERTY_NAME_SHAPE_FILL_COLOR, DEFAULT_SHAPE_FILL_COLOR);
     }
 
     private double getShapeFillTransparency() {
-        final Style style = getStyle();
-
-        if (style.hasProperty(PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY)) {
-            return (Double) style.getProperty(PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY);
-        }
-
-        return DEFAULT_SHAPE_FILL_TRANSPARENCY;
+        return getConfigurationProperty(PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY, DEFAULT_SHAPE_FILL_TRANSPARENCY);
     }
-
 }

@@ -59,24 +59,7 @@ public class GraticuleLayerType extends LayerType {
 
     @Override
     protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
-        final GraticuleLayer layer = new GraticuleLayer(this, configuration);
-        final DefaultStyle style = new DefaultStyle();
-        style.setProperty(PROPERTY_NAME_RES_AUTO, configuration.getValue(PROPERTY_NAME_RES_AUTO));
-        style.setProperty(PROPERTY_NAME_RES_PIXELS, configuration.getValue(PROPERTY_NAME_RES_PIXELS));
-        style.setProperty(PROPERTY_NAME_RES_LAT, configuration.getValue(PROPERTY_NAME_RES_LAT));
-        style.setProperty(PROPERTY_NAME_RES_LON, configuration.getValue(PROPERTY_NAME_RES_LON));
-        style.setProperty(PROPERTY_NAME_LINE_COLOR, configuration.getValue(PROPERTY_NAME_LINE_COLOR));
-        style.setProperty(PROPERTY_NAME_LINE_TRANSPARENCY, configuration.getValue(PROPERTY_NAME_LINE_TRANSPARENCY));
-        style.setProperty(PROPERTY_NAME_LINE_WIDTH, configuration.getValue(PROPERTY_NAME_LINE_WIDTH));
-        style.setProperty(PROPERTY_NAME_TEXT_ENABLED, configuration.getValue(PROPERTY_NAME_TEXT_ENABLED));
-        style.setProperty(PROPERTY_NAME_TEXT_FONT, configuration.getValue(PROPERTY_NAME_TEXT_FONT));
-        style.setProperty(PROPERTY_NAME_TEXT_FG_COLOR, configuration.getValue(PROPERTY_NAME_TEXT_FG_COLOR));
-        style.setProperty(PROPERTY_NAME_TEXT_BG_COLOR, configuration.getValue(PROPERTY_NAME_TEXT_BG_COLOR));
-        style.setProperty(PROPERTY_NAME_TEXT_BG_TRANSPARENCY,
-                          configuration.getValue(PROPERTY_NAME_TEXT_BG_TRANSPARENCY));
-        layer.setStyle(style);
-        return layer;
-
+        return new GraticuleLayer(this, configuration);
     }
 
     @Override
