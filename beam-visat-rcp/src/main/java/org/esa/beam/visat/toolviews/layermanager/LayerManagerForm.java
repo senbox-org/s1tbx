@@ -230,7 +230,7 @@ class LayerManagerForm extends AbstractLayerForm {
         transparencySlider.setEnabled(layer != null);
         if (layer != null) {
             final double transparency = layer.getTransparency();
-            final int n = (int) Math.round(100.0 * transparency);
+            final int n = (int) Math.round(255.0 * transparency);
             transparencySlider.setValue(n);
         }
     }
@@ -317,7 +317,7 @@ class LayerManagerForm extends AbstractLayerForm {
             if (path != null) {
                 Layer layer = getLayer(path);
                 adjusting = true;
-                layer.setTransparency(transparencySlider.getValue() / 100.0f);
+                layer.setTransparency(transparencySlider.getValue() / 255.0);
                 adjusting = false;
             }
 
