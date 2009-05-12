@@ -3,15 +3,20 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.windfield;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.jai.RasterDataNodeOpImage;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.image.RenderedImage;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.NoninvertibleTransformException;
@@ -51,34 +56,71 @@ public class WindFieldLayer extends Layer {
 
     @Override
     protected void renderLayer(Rendering rendering) {
+        final MultiLevelImage winduMLI = (MultiLevelImage) windu.getGeophysicalImage();
+        final MultiLevelImage windvMLI = (MultiLevelImage) windv.getGeophysicalImage();
         final Viewport vp = rendering.getViewport();
+        final int level = ImageLayer.getLevel(winduMLI.getModel(), vp);
+
+        final AffineTransform m2i = winduMLI.getModel().getModelToImageTransform(level);
+        final AffineTransform i2m = winduMLI.getModel().getImageToModelTransform(level);
+
         final Shape vbounds = vp.getViewBounds();
         final Shape mbounds = vp.getViewToModelTransform().createTransformedShape(vbounds);
-        final Shape ibounds = modelToImageTransform.createTransformedShape(mbounds);
-        final int width = windu.getSceneRasterWidth();
-        final int height = windu.getSceneRasterHeight();
-        final Rectangle rectangle = ibounds.getBounds().intersection(new Rectangle(0, 0, width, height));
-        if (rectangle.isEmpty()) {
+        final Shape ibounds = m2i.createTransformedShape(mbounds);
+
+        final RenderedImage winduRI = winduMLI.getImage(level);
+        final RenderedImage windvRI = windvMLI.getImage(level);
+
+        final int width = winduRI.getWidth();
+        final int height = winduRI.getHeight();
+        final Rectangle irect = ibounds.getBounds().intersection(new Rectangle(0, 0, width, height));
+        if (irect.isEmpty()) {
             return;
         }
 
-        final Graphics2D graphics = rendering.getGraphics();
-        final AffineTransform modelToViewTransform = vp.getModelToViewTransform();
+        final double s = 1 / winduMLI.getModel().getScale(level);
 
+        final AffineTransform m2v = vp.getModelToViewTransform();
+
+        final Graphics2D graphics = rendering.getGraphics();
         graphics.setStroke(new BasicStroke(lineThickness));
 
-        final int x1 = res * (rectangle.x / res);
-        final int x2 = x1 + res * (1 + rectangle.width / res);
-        final int y1 = res * (rectangle.y / res);
-        final int y2 = y1 + res * (1 + rectangle.height / res);
+        final MultiLevelImage winduValidMLI = (MultiLevelImage) windu.getValidMaskImage();
+        final MultiLevelImage windvValidMLI = (MultiLevelImage) windv.getValidMaskImage();
+
+        final RenderedImage winduValidRI = winduValidMLI != null ? winduValidMLI.getImage(level) : null;
+        final RenderedImage windvValidRI = windvValidMLI != null ? windvValidMLI.getImage(level) : null;
+/*
+        int res = (int) Math.floor(s * this.res);
+        if (res == 0) {
+            return;
+        }
+*/
+        final int x1 = res * (irect.x / res);
+        final int x2 = x1 + res * (1 + irect.width / res);
+        final int y1 = res * (irect.y / res);
+        final int y2 = y1 + res * (1 + irect.height / res);
         final double[] ipts = new double[8];
         final double[] mpts = new double[8];
         final double[] vpts = new double[8];
+
+        final Rectangle pixelRect = new Rectangle(0, 0, 1, 1);
         for (int y = y1; y <= y2; y += res) {
             for (int x = x1; x <= x2; x += res) {
                 if (x >= 0 && x < width && y >= 0 && y < height) {
-                    final double u = windu.getPixelDouble(x, y);
-                    final double v = windv.getPixelDouble(x, y);
+                    pixelRect.x = x;
+                    pixelRect.y = y;
+                    final boolean winduValid = winduValidRI == null || winduValidRI.getData(pixelRect).getSample(x, y, 0) != 0;
+                    if (!winduValid) {
+                        continue;
+                    }
+                    final boolean windvValid = windvValidRI == null || windvValidRI.getData(pixelRect).getSample(x, y, 0) != 0;
+                    if (!windvValid) {
+                        continue;
+                    }
+
+                    final double u = winduRI.getData(pixelRect).getSampleDouble(x, y, 0);
+                    final double v = windvRI.getData(pixelRect).getSampleDouble(x, y, 0);
                     final double length = Math.sqrt(u * u + v * v);
                     final double ndx = length > 0 ? +u / length : 0;
                     final double ndy = length > 0 ? -v / length : 0;
@@ -97,10 +139,10 @@ public class WindFieldLayer extends Layer {
                     ipts[5] = y + s1 * ndy + s2 * ondy;
                     ipts[6] = x + s1 * ndx - s2 * ondx;
                     ipts[7] = y + s1 * ndy - s2 * ondy;
-                    imageToModelTransform.transform(ipts, 0, mpts, 0, 4);
-                    modelToViewTransform.transform(mpts, 0, vpts, 0, 4);
-                    final int grey = Math.min(255, (int) Math.round(256 * length / maxLength));
+                    i2m.transform(ipts, 0, mpts, 0, 4);
+                    m2v.transform(mpts, 0, vpts, 0, 4);
 
+                    final int grey = Math.min(255, (int) Math.round(256 * length / maxLength));
                     graphics.setColor(palette[grey]);
                     graphics.draw(new Line2D.Double(vpts[0], vpts[1], vpts[2], vpts[3]));
                     graphics.draw(new Line2D.Double(vpts[4], vpts[5], vpts[2], vpts[3]));
