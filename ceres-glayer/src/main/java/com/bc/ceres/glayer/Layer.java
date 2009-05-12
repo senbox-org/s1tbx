@@ -214,7 +214,7 @@ public abstract class Layer extends ExtensibleObject {
         final double oldValue = this.transparency;
         if (oldValue != transparency) {
             this.transparency = transparency;
-            fireLayerPropertyChanged("transparency", oldValue, this.visible);
+            fireLayerPropertyChanged("transparency", oldValue, this.transparency);
         }
     }
 
@@ -227,6 +227,19 @@ public abstract class Layer extends ExtensibleObject {
         return composite;
     }
 
+    /**
+     * Sets the composite of this layer.
+     *
+     * @param composite the new composite of this layer.
+     */
+    public void setComposite(Composite composite) {
+        final Composite oldValue = this.composite;
+        if (oldValue != composite) {
+            this.composite = composite;
+            fireLayerPropertyChanged("composite", oldValue, this.composite);
+        }
+    }
+
     protected final <T> T getConfigurationProperty(String propertyName, T defaultValue) {
         T value = defaultValue;
 
@@ -234,8 +247,8 @@ public abstract class Layer extends ExtensibleObject {
         final ValueModel model = configuration.getModel(propertyName);
         if (model != null) {
             final Class<?> expectedType = defaultValue.getClass();
-            final Class<?> actualType = model.getDescriptor().getType();
-            if (expectedType.isAssignableFrom(actualType)) {
+            final Class<?> descriptorType = model.getDescriptor().getType();
+            if (expectedType.isAssignableFrom(descriptorType)) {
                 if (model.getValue() != null) {
                     //noinspection unchecked
                     value = (T) model.getValue();
@@ -247,24 +260,11 @@ public abstract class Layer extends ExtensibleObject {
                 }
             } else {
                 throw new IllegalArgumentException(MessageFormat.format(
-                        "Class ''{0}'' is not assignable from class ''{1}''.", expectedType, actualType));
+                        "Class ''{0}'' is not assignable from class ''{1}''.", expectedType, descriptorType));
             }
         }
 
         return value;
-    }
-
-    /**
-     * Sets the composite of this layer.
-     *
-     * @param composite the new composite of this layer.
-     */
-    public void setComposite(Composite composite) {
-        final Composite oldValue = this.composite;
-        if (oldValue != composite) {
-            this.composite = composite;
-            fireLayerPropertyChanged("composite", oldValue, this.visible);
-        }
     }
 
     /**
