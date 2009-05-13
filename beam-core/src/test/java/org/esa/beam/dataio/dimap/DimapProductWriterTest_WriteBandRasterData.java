@@ -149,6 +149,7 @@ public class DimapProductWriterTest_WriteBandRasterData extends TestCase {
         try {
             _productWriter.writeProductNodes(product, _outputFile);
         } catch (IOException e) {
+            e.printStackTrace();
             fail("IOException not expected");
         }
 
@@ -162,6 +163,7 @@ public class DimapProductWriterTest_WriteBandRasterData extends TestCase {
                                                sourceBuffer, ProgressMonitor.NULL);
             fail("IllegalArgumentException expected because region is ot of band's region");
         } catch (IOException e) {
+            e.printStackTrace();
             fail("IOException not expected");
         } catch (IllegalArgumentException e) {
         }
@@ -176,6 +178,7 @@ public class DimapProductWriterTest_WriteBandRasterData extends TestCase {
                                                sourceBuffer, ProgressMonitor.NULL);
             fail("IllegalArgumentException expected because region is ot of band's region");
         } catch (IOException e) {
+            e.printStackTrace();
             fail("IOException not expected");
         } catch (IllegalArgumentException e) {
         }
@@ -190,6 +193,7 @@ public class DimapProductWriterTest_WriteBandRasterData extends TestCase {
                                                sourceBuffer, ProgressMonitor.NULL);
             fail("IllegalArgumentException expected because region is ot of band's region");
         } catch (IOException e) {
+            e.printStackTrace();
             fail("IOException not expected");
         } catch (IllegalArgumentException e) {
         }
@@ -204,6 +208,7 @@ public class DimapProductWriterTest_WriteBandRasterData extends TestCase {
                                                sourceBuffer, ProgressMonitor.NULL);
             fail("IllegalArgumentException expected because region is ot of band's region");
         } catch (IOException e) {
+            e.printStackTrace();
             fail("IOException not expected");
         } catch (IllegalArgumentException e) {
         }
