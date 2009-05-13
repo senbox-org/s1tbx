@@ -5,11 +5,7 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 
 import javax.media.jai.ImageLayout;
-import javax.media.jai.PlanarImage;
-import java.awt.Rectangle;
-import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
-import java.awt.image.WritableRaster;
 
 /**
  * Adapts a JAI {@link javax.media.jai.PlanarImage PlanarImage} to the
@@ -20,7 +16,7 @@ import java.awt.image.WritableRaster;
  * @author Norman Fomferra
  * @version $revision$ $date$
  */
-public class DefaultMultiLevelImage extends PlanarImage implements MultiLevelImage {
+public class DefaultMultiLevelImage extends MultiLevelImage {
 
     private final MultiLevelSource source;
 
@@ -63,28 +59,5 @@ public class DefaultMultiLevelImage extends PlanarImage implements MultiLevelIma
     public void dispose() {
         source.reset();
         super.dispose();
-    }
-
-    /////////////////////////////////////////////////////////////////////////
-    // PlanarImage interface
-
-    @Override
-    public final Raster getTile(int x, int y) {
-        return getImage(0).getTile(x, y);
-    }
-
-    @Override
-    public final Raster getData() {
-        return getImage(0).getData();
-    }
-
-    @Override
-    public final Raster getData(Rectangle rect) {
-        return getImage(0).getData(rect);
-    }
-
-    @Override
-    public final WritableRaster copyData(WritableRaster raster) {
-        return getImage(0).copyData(raster);
     }
 }
