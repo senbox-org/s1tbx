@@ -324,7 +324,7 @@ public class Session {
                         for (int i = 0; i < viewRef.getLayerCount(); i++) {
                             final LayerRef ref = viewRef.getLayerRef(i);
                             if (!view.getBaseImageLayer().getId().equals(ref.id)) {
-                                addLayerRef(view.getRootLayer(), ref, productManager);
+                                addLayerRef(view.getLayerContext(), view.getRootLayer(), ref, productManager);
                             }
                         }
                     } else if (ProductMetadataView.class.getName().equals(viewRef.type)) {
@@ -364,20 +364,21 @@ public class Session {
         return views.toArray(new ProductNodeView[views.size()]);
     }
 
-    private void addLayerRef(Layer parentLayer, LayerRef ref, ProductManager productManager) throws
-                                                                                             ConversionException,
-                                                                                             ValidationException {
+    private void addLayerRef(LayerContext layerContext, Layer parentLayer, LayerRef ref,
+                             ProductManager productManager) throws
+                                                            ConversionException,
+                                                            ValidationException {
         final LayerType type = LayerType.getLayerType(ref.layerTypeName);
         final SessionDomConverter converter = new SessionDomConverter(productManager);
         final ValueContainer template = type.getConfigurationTemplate();
         converter.convertDomToValue(ref.configuration, template);
-        final Layer layer = type.createLayer(null, template);
+        final Layer layer = type.createLayer(layerContext, template);
         layer.setId(ref.id);
         layer.setVisible(ref.visible);
         layer.setName(ref.name);
         parentLayer.getChildren().add(ref.zOrder, layer);
         for (LayerRef child : ref.children) {
-            addLayerRef(layer, child, productManager);
+            addLayerRef(layerContext, layer, child, productManager);
         }
     }
 
