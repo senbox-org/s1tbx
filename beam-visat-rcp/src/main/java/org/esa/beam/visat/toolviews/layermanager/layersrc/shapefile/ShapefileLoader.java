@@ -11,7 +11,7 @@ import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
@@ -62,9 +62,8 @@ class ShapefileLoader extends SwingWorker<Layer, Object> {
     protected Layer doInBackground() throws Exception {
 
         final ProductSceneView sceneView = context.getAppContext().getSelectedProductSceneView();
-        Product targetProduct = sceneView.getProduct();
-        CoordinateReferenceSystem targetCrs = targetProduct.getGeoCoding().getModelCRS();
-        final Geometry clipGeometry = createProductGeometry(targetProduct);
+        CoordinateReferenceSystem targetCrs = (CoordinateReferenceSystem) context.getLayerContext().getCoordinateReferenceSystem();
+        final Geometry clipGeometry = createProductGeometry(sceneView.getRaster());
 
         File file = new File((String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FILE_PATH));
         Object featureCollectionValue = context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION);
@@ -111,9 +110,9 @@ class ShapefileLoader extends SwingWorker<Layer, Object> {
         return styles;
     }
 
-    public static Geometry createProductGeometry(Product targetProduct) {
+    public static Geometry createProductGeometry(RasterDataNode targetRaster) {
         GeometryFactory gf = new GeometryFactory();
-        GeoPos[] geoPoses = ProductUtils.createGeoBoundary(targetProduct, 100);
+        GeoPos[] geoPoses = ProductUtils.createGeoBoundary(targetRaster, null, 100);
         Coordinate[] coordinates = new Coordinate[geoPoses.length + 1];
         for (int i = 0; i < geoPoses.length; i++) {
             GeoPos geoPose = geoPoses[i];
