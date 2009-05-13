@@ -59,6 +59,13 @@ public class FeatureLayerType extends LayerType {
 
     @Override
     protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
+        try {
+            if (configuration.getValue(PROPERTY_NAME_FEATURE_COLLECTION_CRS) == null && ctx != null) {
+                configuration.setValue(PROPERTY_NAME_FEATURE_COLLECTION_CRS, ctx.getCoordinateReferenceSystem());
+            }
+        } catch (ValidationException e) {
+            e.printStackTrace();
+        }
         return new FeatureLayer(this, configuration);
     }
 
@@ -71,6 +78,7 @@ public class FeatureLayerType extends LayerType {
         configuration.addModel(
                 createDefaultValueModel(PROPERTY_NAME_FEATURE_COLLECTION_CRS, CoordinateReferenceSystem.class));
         configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CRS).setDomConverter(new CRSDomConverter());
+        configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CRS).setTransient(true);
 
 
         configuration.addModel(createDefaultValueModel(PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY, Geometry.class));
