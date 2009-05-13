@@ -327,7 +327,7 @@ public class OperatorContext {
     private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {
         while (true) {
             if (Operator.class.equals(aClass)
-                || !Operator.class.isAssignableFrom(aClass)) {
+                    || !Operator.class.isAssignableFrom(aClass)) {
                 return false;
             }
             try {
@@ -496,20 +496,7 @@ public class OperatorContext {
 
     private void initTargetImages() {
         if (targetProduct.getPreferredTileSize() == null) {
-            Dimension tileSize = null;
-            for (final Product sourceProduct : sourceProductList) {
-                if (sourceProduct.getPreferredTileSize() != null &&
-                    sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
-                    sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
-                    tileSize = sourceProduct.getPreferredTileSize();
-                    break;
-                }
-            }
-            if (tileSize == null) {
-                tileSize = JAIUtils.computePreferredTileSize(targetProduct.getSceneRasterWidth(),
-                                                             targetProduct.getSceneRasterHeight(), 4);
-            }
-            targetProduct.setPreferredTileSize(tileSize);
+            targetProduct.setPreferredTileSize(getPreferredTileSize());
         }
 
         final Band[] targetBands = targetProduct.getBands();
@@ -531,6 +518,23 @@ public class OperatorContext {
                 targetBand.setSourceImage(image);
             }
         }
+    }
+
+    private Dimension getPreferredTileSize() {
+        Dimension tileSize = null;
+        for (final Product sourceProduct : sourceProductList) {
+            if (sourceProduct.getPreferredTileSize() != null &&
+                    sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
+                    sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
+                tileSize = sourceProduct.getPreferredTileSize();
+                break;
+            }
+        }
+        if (tileSize == null) {
+            tileSize = JAIUtils.computePreferredTileSize(targetProduct.getSceneRasterWidth(),
+                                                         targetProduct.getSceneRasterHeight(), 4);
+        }
+        return tileSize;
     }
 
     public static boolean isRegularBand(Band targetBand) {
@@ -616,7 +620,7 @@ public class OperatorContext {
     }
 
     private void processSourceProductField(Field declaredField, SourceProduct sourceProductAnnotation) throws
-                                                                                                       OperatorException {
+            OperatorException {
         if (declaredField.getType().equals(Product.class)) {
             Product sourceProduct = getSourceProduct(declaredField.getName());
             if (sourceProduct == null) {
@@ -646,7 +650,7 @@ public class OperatorContext {
     }
 
     private void processSourceProductsField(Field declaredField, SourceProducts sourceProductsAnnotation) throws
-                                                                                                          OperatorException {
+            OperatorException {
         if (declaredField.getType().equals(Product[].class)) {
             Product[] sourceProducts = getSourceProducts();
             if (sourceProducts.length > 0) {
@@ -771,8 +775,8 @@ public class OperatorContext {
     }
 
     private void configureOperator(Operator operator, OperatorConfiguration operatorConfiguration) throws
-                                                                                                   ValidationException,
-                                                                                                   ConversionException {
+            ValidationException,
+            ConversionException {
         ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
         DefaultDomConverter domConverter = new DefaultDomConverter(operator.getClass(), parameterDescriptorFactory);
         domConverter.convertDomToValue(operatorConfiguration.getConfiguration(), operator);

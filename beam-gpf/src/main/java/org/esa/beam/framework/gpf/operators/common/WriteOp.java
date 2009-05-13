@@ -2,6 +2,7 @@ package org.esa.beam.framework.gpf.operators.common;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.dataio.dimap.DimapProductWriter;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
@@ -19,7 +20,6 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.gpf.internal.OperatorImage;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.JAI;
@@ -54,7 +54,7 @@ public class WriteOp extends Operator {
     private ProductWriter productWriter;
     private List<Band> writableBands;
     private boolean productFileWritten;
-    private Map<OperatorImage, List<Point>> notComputedTileIndexList;
+    private Map<MultiLevelImage, List<Point>> notComputedTileIndexList;
     private boolean headerChanged;
     private ProductNodeChangeListener productNodeChangeListener;
 
@@ -87,7 +87,7 @@ public class WriteOp extends Operator {
                 writableBands.add(band);
             }
         }
-        notComputedTileIndexList = new HashMap<OperatorImage, List<Point>>(writableBands.size());
+        notComputedTileIndexList = new HashMap<MultiLevelImage, List<Point>>(writableBands.size());
         headerChanged = false;
         productNodeChangeListener = new ProductNodeChangeListener();
     }
@@ -132,40 +132,40 @@ public class WriteOp extends Operator {
 
     private void updateComputedTileMap(Band targetBand, Tile targetTile) throws IOException {
         synchronized (notComputedTileIndexList) {
-            if (targetBand.getSourceImage() instanceof OperatorImage) {
-                OperatorImage operatorImage = (OperatorImage) targetBand.getSourceImage();
+            MultiLevelImage sourceImage = targetBand.getSourceImage();
 
-                final List<Point> currentList = getTileList(operatorImage);
-                currentList.remove(new Point(operatorImage.XToTileX(targetTile.getMinX()),
-                                             operatorImage.YToTileY(targetTile.getMinY())));
+            final List<Point> currentList = getTileList(sourceImage);
+            currentList.remove(new Point(sourceImage.XToTileX(targetTile.getMinX()),
+                                         sourceImage.YToTileY(targetTile.getMinY())));
 
-                for (List<Point> points : notComputedTileIndexList.values()) {
-                    if (points.isEmpty()) {
-                        targetProduct.removeProductNodeListener(productNodeChangeListener);
-                    } else { // not empty; there are more tiles to come
-                        return;
-                    }
+            for (List<Point> points : notComputedTileIndexList.values()) {
+                if (points.isEmpty()) {
+                    targetProduct.removeProductNodeListener(productNodeChangeListener);
+                } else { // not empty; there are more tiles to come
+                    return;
                 }
-                // If we get here all tiles are written
-                if (headerChanged) {   // ask if we have to update the header
-                    productWriter.writeProductNodes(targetProduct, file);
-                }
+            }
+            // If we get here all tiles are written
+            if (headerChanged) {   // ask if we have to update the header
+                getLogger().info("Product header changed. Overwriting " + file);
+                productWriter.writeProductNodes(targetProduct, file);
             }
         }
     }
 
-    private List<Point> getTileList(OperatorImage operatorImage) {
-        List<Point> list = notComputedTileIndexList.get(operatorImage);
+
+    private List<Point> getTileList(MultiLevelImage sourceImage) {
+        List<Point> list = notComputedTileIndexList.get(sourceImage);
         if (list == null) {
-            final int numXTiles = operatorImage.getNumXTiles();
-            final int numYTiles = operatorImage.getNumYTiles();
+            final int numXTiles = sourceImage.getNumXTiles();
+            final int numYTiles = sourceImage.getNumYTiles();
             list = new ArrayList<Point>(numXTiles * numYTiles);
             for (int y = 0; y < numYTiles; y++) {
                 for (int x = 0; x < numXTiles; x++) {
                     list.add(new Point(x, y));
                 }
             }
-            notComputedTileIndexList.put(operatorImage, list);
+            notComputedTileIndexList.put(sourceImage, list);
         }
         return list;
     }

@@ -18,10 +18,8 @@ package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import com.bc.ceres.glevel.MultiLevelModel;
-import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.glevel.support.GenericMultiLevelSource;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.jai.ImageManager;
@@ -135,10 +133,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private static final int READ_BUFFER_MAX_SIZE = 8 * 1024 * 1024; // 8 MB
     private Pointing pointing;
 
-    private RenderedImage sourceImage;
-    private RenderedImage validMaskImage;
+    private MultiLevelImage sourceImage;
+    private MultiLevelImage geophysicalImage;
+    private MultiLevelImage validMaskImage;
+    @Deprecated
     private ROI validMaskROI;
-    private RenderedImage geophysicalImage;
 
     /**
      * Constructs an object of type <code>RasterDataNode</code>.
@@ -243,6 +242,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * name {@link #PROPERTY_NAME_GEOCODING}.</p>
      *
      * @param geoCoding the new geo-coding
+     *
      * @see Product#setGeoCoding(GeoCoding)
      */
     public void setGeoCoding(final GeoCoding geoCoding) {
@@ -315,6 +315,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * <code>ProductData.TYPE_XXX</code> constants.
      *
      * @return the geophysical data type
+     *
      * @see ProductData
      * @see #isScalingApplied()
      */
@@ -334,6 +335,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * <code>1.0</code> (no factor).
      *
      * @return the scaling factor
+     *
      * @see #isScalingApplied()
      */
     public final double getScalingFactor() {
@@ -344,6 +346,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Sets the scaling factor which is applied to raw {@link <code>ProductData</code>}.
      *
      * @param scalingFactor the scaling factor
+     *
      * @see #isScalingApplied()
      */
     public final void setScalingFactor(double scalingFactor) {
@@ -363,6 +366,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * <code>0.0</code> (no offset).
      *
      * @return the scaling offset
+     *
      * @see #isScalingApplied()
      */
     public final double getScalingOffset() {
@@ -373,6 +377,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Sets the scaling offset which is applied to raw {@link <code>ProductData</code>}.
      *
      * @param scalingOffset the scaling offset
+     *
      * @see #isScalingApplied()
      */
     public final void setScalingOffset(double scalingOffset) {
@@ -393,6 +398,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * <code>false</code>.
      *
      * @return whether or not the data is logging-10 scaled
+     *
      * @see #isScalingApplied()
      */
     public final boolean isLog10Scaled() {
@@ -404,6 +410,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * thus the common logarithm (base 10) of the values is stored in the raw data.
      *
      * @param log10Scaled whether or not the data is logging-10 scaled
+     *
      * @see #isScalingApplied()
      */
     public final void setLog10Scaled(boolean log10Scaled) {
@@ -426,6 +433,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * and {@link #setPixelFloat}.
      *
      * @return <code>true</code> if a conversion is applyied to raw data samples before the are retuned.
+     *
      * @see #getScalingOffset
      * @see #getScalingFactor
      * @see #isLog10Scaled
@@ -438,7 +446,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Tests if the given name is the name of a property which is relevant for the computation of the valid mask.
      *
      * @param propertyName the  name to test
+     *
      * @return {@code true}, if so.
+     *
      * @since BEAM 4.2
      */
     public static boolean isValidMaskProperty(final String propertyName) {
@@ -454,6 +464,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * {@link #setNoDataValue(double)} or {@link #setGeophysicalNoDataValue(double)} is called.
      *
      * @return true, if so
+     *
      * @see #isNoDataValueUsed()
      * @see #setNoDataValue(double)
      */
@@ -476,6 +487,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * method.
      *
      * @return true, if so
+     *
      * @see #setNoDataValueUsed(boolean)
      * @see #isNoDataValueSet()
      */
@@ -494,6 +506,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * name {@link #PROPERTY_NAME_NO_DATA_VALUE_USED}.
      *
      * @param noDataValueUsed true, if so
+     *
      * @see #isNoDataValueUsed()
      */
     public void setNoDataValueUsed(boolean noDataValueUsed) {
@@ -516,6 +529,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * <p>The method returns <code>0.0</code>, if no no-data value has been specified so far.
      *
      * @return the no-data value. It is returned as a <code>double</code> in order to cover all other numeric types.
+     *
      * @see #setNoDataValue(double)
      * @see #isNoDataValueSet()
      */
@@ -535,6 +549,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * name {@link #PROPERTY_NAME_NO_DATA_VALUE}.
      *
      * @param noDataValue the no-data value. It is passed as a <code>double</code> in order to cover all other numeric types.
+     *
      * @see #getNoDataValue()
      * @see #isNoDataValueSet()
      */
@@ -564,6 +579,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * method.
      *
      * @return the geophysical no-data value
+     *
      * @see #setGeophysicalNoDataValue(double)
      */
     public double getGeophysicalNoDataValue() {
@@ -580,6 +596,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * name {@link #PROPERTY_NAME_NO_DATA_VALUE}.
      *
      * @param noDataValue the new geophysical no-data value
+     *
      * @see #setGeophysicalNoDataValue(double)
      * @see #isNoDataValueSet()
      */
@@ -627,6 +644,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * method.
      *
      * @return true, if so
+     *
      * @see #getValidMask()
      * @see #setValidMask(BitRaster)
      * @see #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)
@@ -643,6 +661,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * method.
      *
      * @return the valid pixel mask, <code>null</code> if not set.
+     *
      * @see #setValidMask(org.esa.beam.util.BitRaster)
      * @see #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)
      * @deprecated in BEAM 4.5, use {@link #getValidMaskImage()}
@@ -659,6 +678,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * method.
      *
      * @param validMask the valid pixel mask, can be null.
+     *
      * @see #getValidMask()
      * @see #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)
      * @deprecated in BEAM 4.5
@@ -675,6 +695,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * method.
      *
      * @param pm The progress monitor.
+     *
      * @throws IOException if an I/O error occurs
      * @deprecated in BEAM 4.5, no replacement
      */
@@ -696,6 +717,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @return The expression used for the computation of the mask which identifies valid pixel values,
      *         or {@code null}.
+     *
      * @see #getValidPixelExpression()
      * @see #getNoDataValue()
      * @since BEAM 4.2
@@ -779,6 +801,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * scene's pixels.
      *
      * @return raster data covering the pixels for a complete scene
+     *
      * @see #getRasterData
      * @see #getRasterWidth
      * @see #getRasterHeight
@@ -804,6 +827,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * <code>null</code>.
      *
      * @return the raster data for this band, or <code>null</code> if data has not been loaded
+     *
      * @see #setRasterData
      */
     public ProductData getRasterData() {
@@ -818,6 +842,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * dataset's data!
      *
      * @param rasterData the raster data for this dataset
+     *
      * @see #getRasterData()
      */
     public void setRasterData(ProductData rasterData) {
@@ -841,6 +866,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * <p>The default implementation of this method does nothing.
      *
      * @param pm a monitor to inform the user about progress
+     *
      * @throws IOException if an I/O error occurs
      * @see #unloadRasterData()
      */
@@ -922,7 +948,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param x the X co-ordinate of the pixel location
      * @param y the Y co-ordinate of the pixel location
+     *
      * @return <code>true</code> if the pixel is valid
+     *
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      * @see #isPixelValid(int,int,javax.media.jai.ROI)
      * @see #setNoDataValueUsed(boolean)
@@ -947,7 +975,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * expression.
      *
      * @param pixelIndex the linear pixel index in the range 0 to width * height - 1
+     *
      * @return <code>true</code> if the pixel is valid
+     *
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      * @see #isPixelValid(int,int,javax.media.jai.ROI)
      * @see #setNoDataValueUsed(boolean)
@@ -972,7 +1002,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param x   the X co-ordinate of the pixel location
      * @param y   the Y co-ordinate of the pixel location
      * @param roi the ROI, if null the method returns {@link #isPixelValid(int,int)}
+     *
      * @return <code>true</code> if the pixel is valid
+     *
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      * @see #isPixelValid(int,int)
      * @see #setNoDataValueUsed(boolean)
@@ -988,7 +1020,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param x the X co-ordinate of the pixel location
      * @param y the Y co-ordinate of the pixel location
+     *
      * @return the pixel value at (x,y)
+     *
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      */
     public abstract int getPixelInt(int x, int y);
@@ -998,7 +1032,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param x the X co-ordinate of the pixel location
      * @param y the Y co-ordinate of the pixel location
+     *
      * @return the pixel value at (x,y)
+     *
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      */
     public abstract float getPixelFloat(int x, int y);
@@ -1008,7 +1044,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param x the X co-ordinate of the pixel location
      * @param y the Y co-ordinate of the pixel location
+     *
      * @return the pixel value at (x,y)
+     *
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      */
     public abstract double getPixelDouble(int x, int y);
@@ -1019,6 +1057,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param x          the X co-ordinate of the pixel location
      * @param y          the Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value at (x,y)
+     *
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      */
     public abstract void setPixelInt(int x, int y, int pixelValue);
@@ -1029,6 +1068,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param x          the X co-ordinate of the pixel location
      * @param y          the Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value at (x,y)
+     *
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      */
     public abstract void setPixelFloat(int x, int y, float pixelValue);
@@ -1039,6 +1079,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param x          the X co-ordinate of the pixel location
      * @param y          the Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value at (x,y)
+     *
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      */
     public abstract void setPixelDouble(int x, int y, double pixelValue);
@@ -1114,6 +1155,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param w      width of the pixel array to be written
      * @param h      height of the pixel array to be written.
      * @param pixels integer array to be written
+     *
      * @throws NullPointerException if this band has no raster data
      */
     public abstract void setPixels(int x, int y, int w, int h, int[] pixels);
@@ -1127,6 +1169,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param w      width of the pixel array to be written
      * @param h      height of the pixel array to be written.
      * @param pixels float array to be written
+     *
      * @throws NullPointerException if this band has no raster data
      */
     public abstract void setPixels(int x, int y, int w, int h, float[] pixels);
@@ -1140,6 +1183,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param w      width of the pixel array to be written
      * @param h      height of the pixel array to be written.
      * @param pixels double array to be written
+     *
      * @throws NullPointerException if this band has no raster data
      */
     public abstract void setPixels(int x, int y, int w, int h, double[] pixels);
@@ -1163,6 +1207,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param h      height of the pixel array to be read
      * @param pixels array to be filled with data
      * @param pm     a progress monitor
+     *
      * @return the pixels read
      */
     public abstract int[] readPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm) throws IOException;
@@ -1186,6 +1231,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param h      height of the pixel array to be read
      * @param pixels array to be filled with data
      * @param pm     a progress monitor
+     *
      * @return the pixels read
      */
     public abstract float[] readPixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm) throws
@@ -1210,6 +1256,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param h      height of the pixel array to be read
      * @param pixels array to be filled with data
      * @param pm     a progress monitor
+     *
      * @return the pixels read
      */
     public abstract double[] readPixels(int x, int y, int w, int h, double[] pixels, ProgressMonitor pm) throws
@@ -1311,6 +1358,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * reloads the data of this product raster, independently of whether its has already been loaded or not.
      *
      * @param pm a monitor to inform the user about progress
+     *
      * @throws java.io.IOException if an I/O error occurs
      * @see #loadRasterData
      * @see #readRasterData(int,int,int,int,ProductData,com.bc.ceres.core.ProgressMonitor)
@@ -1335,6 +1383,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param height     the height of the raster data buffer
      * @param rasterData a raster data buffer receiving the pixels to be read
      * @param pm         a monitor to inform the user about progress
+     *
      * @throws java.io.IOException      if an I/O error occurs
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
@@ -1354,6 +1403,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param rectangle  the rectangle in scene raster co-ordinates of the data buffer
      * @param rasterData a raster data buffer receiving the pixels to be read
      * @param pm         a monitor to inform the user about progress
+     *
      * @throws java.io.IOException      if an I/O error occurs
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
@@ -1371,6 +1421,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Writes the complete underlying raster data.
      *
      * @param pm a monitor to inform the user about progress
+     *
      * @throws java.io.IOException if an I/O error occurs
      */
     public abstract void writeRasterDataFully(ProgressMonitor pm) throws IOException;
@@ -1392,6 +1443,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param width      the width of the raster data buffer
      * @param height     the height of the raster data buffer
      * @param pm         a monitor to inform the user about progress
+     *
      * @throws java.io.IOException      if an I/O error occurs
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
@@ -1408,6 +1460,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * <code>getRasterWidth()*getRasterHeight()</code> elements of a compatible data type.
      *
      * @return raster data compatible with this product raster
+     *
      * @see #createCompatibleSceneRasterData
      */
     public ProductData createCompatibleRasterData() {
@@ -1419,6 +1472,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * <code>getBandOutputRasterWidth()*getBandOutputRasterHeight()</code> elements of a compatible data type.
      *
      * @return raster data compatible with this product raster
+     *
      * @see #createCompatibleRasterData
      */
     public ProductData createCompatibleSceneRasterData() {
@@ -1431,7 +1485,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param width  the width of the raster data to be created
      * @param height the height of the raster data to be created
+     *
      * @return raster data compatible with this product raster
+     *
      * @see #createCompatibleRasterData
      * @see #createCompatibleSceneRasterData
      */
@@ -1445,6 +1501,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param rasterData the raster data
      * @param w          the raster width
      * @param h          the raster height
+     *
      * @return {@code true} if so
      */
     public boolean isCompatibleRasterData(ProductData rasterData, int w, int h) {
@@ -1479,7 +1536,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Creates a transect profile for the given shape (-outline).
      *
      * @param shape the shape
+     *
      * @return the profile data
+     *
      * @throws IOException if an I/O error occurs
      */
     public TransectProfileData createTransectProfileData(Shape shape) throws IOException {
@@ -1530,7 +1589,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * <p>The method simply returns the value of <code>ensureValidImageInfo(null, ProgressMonitor.NULL)</code>.
      *
      * @param pm A progress monitor.
+     *
      * @return A valid image information instance.
+     *
      * @see #getImageInfo(double[],ProgressMonitor)
      * @since BEAM 4.2
      */
@@ -1547,7 +1608,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param histoSkipAreas Only used, if new image info is created (see <code>{@link #createDefaultImageInfo}</code>
      *                       method).
      * @param pm             A progress monitor.
+     *
      * @return The image creation information.
+     *
      * @since BEAM 4.2
      */
     public final synchronized ImageInfo getImageInfo(double[] histoSkipAreas, ProgressMonitor pm) {
@@ -1569,6 +1632,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *                       stretching. Can be <code>null</code>, in this case <code>{0.01, 0.04}</code> resp. 5% of
      *                       the entire area is skipped.
      * @param pm             a monitor to inform the user about progress
+     *
      * @return a valid image information instance, never <code>null</code>.
      */
     public synchronized ImageInfo createDefaultImageInfo(double[] histoSkipAreas, ProgressMonitor pm) {
@@ -1589,6 +1653,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *                       stretching. Can be <code>null</code>, in this case <code>{0.01, 0.04}</code> resp. 5% of
      *                       the entire area is skipped.
      * @param histogram      the histogram to create the image information.
+     *
      * @return a valid image information instance, never <code>null</code>.
      */
     public final ImageInfo createDefaultImageInfo(double[] histoSkipAreas, Histogram histogram) {
@@ -1638,6 +1703,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Gets all associated bitmask definitions. An empty arry is returned if no bitmask defintions are associated.
      *
      * @return Associated bitmask definitions.
+     *
      * @see #getBitmaskOverlayInfo()
      * @see #setBitmaskOverlayInfo(BitmaskOverlayInfo)
      */
@@ -1681,7 +1747,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * null)</code>.
      *
      * @param pm a monitor to inform the user about progress
+     *
      * @return a greyscale/palette-based image for this raster data node
+     *
      * @throws IOException if the raster data is not loaded so far and reload causes an I/O error
      * @see #setImageInfo
      */
@@ -1693,7 +1761,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Creates an RGB image for this raster data node.
      *
      * @param pm a monitor to inform the user about progress
+     *
      * @return a greyscale/palette-based image for this raster data node
+     *
      * @throws IOException if the raster data is not loaded so far and reload causes an I/O error
      * @see #setImageInfo
      * @see org.esa.beam.util.ProductUtils#createRgbImage
@@ -1718,7 +1788,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Creates a new ROI from the current ROI definition.
      *
      * @param pm a monitor to inform the user about progress
+     *
      * @return a new ROI instance or null if no ROI definition is available
+     *
      * @throws java.io.IOException if an I/O error occurs
      * @deprecated since BEAM 4.5, use {@link ImageManager} for imaging.
      */
@@ -1733,7 +1805,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param color the ROI color
      * @param pm    a progress monitor
+     *
      * @return a new ROI instance or null if no ROI definition is available
+     *
      * @throws java.io.IOException if an I/O error occurs
      * @deprecated since BEAM 4.5, use {@link ImageManager} for imaging.
      */
@@ -1783,7 +1857,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param numBins the number of bins in the resulting histogram
      * @param range   the value range in which the histogram will be computed
      * @param pm      a monitor to inform the user about progress
+     *
      * @return the resulting raw data histogram
+     *
      * @throws java.io.IOException if an I/O error occurs
      * @see #isScalingApplied()
      * @deprecated since BEAM 4.5, use {@link org.esa.beam.framework.datamodel.Stx#create(RasterDataNode, java.awt.image.RenderedImage, int, com.bc.ceres.core.ProgressMonitor)}
@@ -1811,7 +1887,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param roi an optional ROI, can be null
      * @param pm  a monitor to inform the user about progress
+     *
      * @return the resulting histogram
+     *
      * @throws java.io.IOException if an I/O error occurs
      * @see #isScalingApplied()
      * @see #isLog10Scaled()
@@ -1832,7 +1910,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param roi on optional ROI, can be <code>null</code>
      * @param pm  a monitor to inform the user about progress
+     *
      * @return the statistics
+     *
      * @throws java.io.IOException if an I/O error occurs
      * @deprecated since BEAM 4.5, use {@link org.esa.beam.framework.datamodel.Stx#create(RasterDataNode, java.awt.image.RenderedImage, com.bc.ceres.core.ProgressMonitor)}
      */
@@ -1930,7 +2010,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param lineOffset the absolute line offset, zero based
      * @param roi        an optional ROI
+     *
      * @return a new validator instance, never null
+     *
      * @throws IOException if an I/O error occurs
      */
     public IndexValidator createPixelValidator(int lineOffset, final ROI roi) throws IOException {
@@ -1954,6 +2036,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * scaling.
      *
      * @param v the input value
+     *
      * @return the scaled value
      */
     public final double scale(double v) {
@@ -1970,6 +2053,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * scaling.
      *
      * @param v the input value
+     *
      * @return the scaled value
      */
     public final double scaleInverse(double v) {
@@ -1991,6 +2075,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param x the X co-ordinate of the pixel location
      * @param y the Y co-ordinate of the pixel location
+     *
      * @return the pixel value at (x,y) as string or an error message text
      */
     public String getPixelString(int x, int y) {
@@ -2071,6 +2156,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * This method belongs to preliminary API and may be removed or changed in the future.
      *
      * @return Wether the source image is set.
+     *
      * @since BEAM 4.5
      */
     public boolean isSourceImageSet() {
@@ -2083,13 +2169,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * This method belongs to preliminary API and may be removed or changed in the future.
      *
      * @return The rendered image.
+     *
      * @since BEAM 4.2
      */
-    public RenderedImage getSourceImage() {
+    public MultiLevelImage getSourceImage() {
         if (!isSourceImageSet()) {
             synchronized (this) {
                 if (!isSourceImageSet()) {
-                    sourceImage = createSourceImage();
+                    this.sourceImage = toMultiLevelImage(createSourceImage());
                 }
             }
         }
@@ -2097,24 +2184,33 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Creates the source image associated with this {@code RasterDataNode}.
-     * <p/>
-     * This method belongs to preliminary API and may be removed or changed in the future.
+     * Creates the source image associated with this {@code RasterDataNode}. This shall preferably be a {@link MultiLevelImage} instance.
      *
-     * @return The rendered image.
+     * @return The source image.
+     *
      * @since BEAM 4.5
      */
     protected abstract RenderedImage createSourceImage();
 
     /**
      * Sets the source image associated with this {@code RasterDataNode}.
-     * This image is currently not used for display purposes.
-     * Used by GPF. This method belongs to preliminary API and may be removed or changed in the future.
      *
-     * @param sourceImage The rendered image.
+     * @param sourceImage The source image.
+     *
      * @since BEAM 4.2
      */
     public synchronized void setSourceImage(RenderedImage sourceImage) {
+        setSourceImage(toMultiLevelImage(sourceImage));
+    }
+
+    /**
+     * Sets the source image associated with this {@code RasterDataNode}.
+     *
+     * @param sourceImage The source image.
+     *
+     * @since BEAM 4.6
+     */
+    public synchronized void setSourceImage(MultiLevelImage sourceImage) {
         final RenderedImage oldValue = this.sourceImage;
         if (oldValue != sourceImage) {
             this.sourceImage = sourceImage;
@@ -2123,11 +2219,71 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
+     * @return The geophysical source image.
+     *
+     * @since BEAM 4.5
+     */
+    public MultiLevelImage getGeophysicalImage() {
+        if (geophysicalImage == null) {
+            synchronized (this) {
+                if (geophysicalImage == null) {
+                    this.geophysicalImage = createGeophysicalImage();
+                }
+            }
+        }
+        return geophysicalImage;
+    }
+
+    private MultiLevelImage createGeophysicalImage() {
+        return new DefaultMultiLevelImage(new GenericMultiLevelSource(getSourceImage()) {
+
+            @Override
+            protected RenderedImage createImage(RenderedImage[] sourceImages, int level) {
+                return ImageManager.createRescaleOp(sourceImages[0],
+                                                    ImageManager.getDataBufferType(getGeophysicalDataType()),
+                                                    getScalingFactor(),
+                                                    getScalingOffset(),
+                                                    isLog10Scaled());
+            }
+        });
+    }
+
+    /**
+     * @param geophysicalImage The geophysical source image.
+     *
+     * @since BEAM 4.5
+     * @deprecated since BEAM 4.6, the geophysicalcal source image is created internally based on the {@link org.esa.beam.framework.datamodel.Scaling} of this band.
+     */
+    @Deprecated
+    public synchronized void setGeophysicalImage(RenderedImage geophysicalImage) {
+        setGeophysicalImage(toMultiLevelImage(geophysicalImage));
+    }
+
+    /**
+     * @param geophysicalImage The geophysical source image.
+     *
+     * @since BEAM 4.5
+     * @deprecated since BEAM 4.6, the geophysicalcal source image is created internally based on the {@link org.esa.beam.framework.datamodel.Scaling} of this band.
+     */
+    @Deprecated
+    public synchronized void setGeophysicalImage(MultiLevelImage geophysicalImage) {
+        final MultiLevelImage oldValue = this.geophysicalImage;
+        if (oldValue != geophysicalImage) {
+            this.geophysicalImage.dispose();
+            this.geophysicalImage = geophysicalImage;
+            fireProductNodeChanged("geophysicalImage", oldValue);
+        }
+    }
+
+    private void resetGeophysicalImage() {
+        geophysicalImage = null;
+    }
+
+    /**
      * Returns wether the valid mask image is set on this {@code RasterDataNode}.
-     * <p/>
-     * This method belongs to preliminary API and may be removed or changed in the future.
      *
      * @return Wether the source image is set.
+     *
      * @since BEAM 4.5
      */
     public boolean isValidMaskImageSet() {
@@ -2136,13 +2292,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Gets the valid-mask image associated with this {@code RasterDataNode}.
-     * This image is currently not used for display purposes.
-     * Used by GPF. This method belongs to preliminary API and may be removed or changed in the future.
      *
      * @return The rendered image.
+     *
      * @since BEAM 4.2
      */
-    public RenderedImage getValidMaskImage() {
+    public MultiLevelImage getValidMaskImage() {
         if (!isValidMaskImageSet() && isValidMaskUsed()) {
             synchronized (this) {
                 if (!isValidMaskImageSet() && isValidMaskUsed()) {
@@ -2151,6 +2306,40 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             }
         }
         return validMaskImage;
+    }
+
+    /**
+     * Sets the valid-mask image associated with this {@code RasterDataNode}.
+     *
+     * @param image The rendered image.
+     *
+     * @since BEAM 4.2
+     * @deprecated since BEAM 4.6, valid-mask images are created internally based on the {@link #getValidMaskExpression()}.
+     */
+    @Deprecated
+    public synchronized void setValidMaskImage(RenderedImage image) {
+        setValidMaskImage(toMultiLevelImage(image));
+    }
+
+    /**
+     * Sets the valid-mask image associated with this {@code RasterDataNode}.
+     *
+     * @param validMaskImage The valid-mask image.
+     *
+     * @since BEAM 4.6
+     */
+    private synchronized void setValidMaskImage(MultiLevelImage validMaskImage) {
+        final RenderedImage oldValue = this.validMaskImage;
+        if (oldValue != validMaskImage) {
+            this.validMaskImage.dispose();
+            this.validMaskImage = validMaskImage;
+            validMaskROI = null;
+            fireProductNodeChanged("validMaskImage", oldValue);
+        }
+    }
+
+    public synchronized boolean isStxSet() {
+        return stx != null;
     }
 
     /**
@@ -2171,87 +2360,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Sets the valid-mask image associated with this {@code RasterDataNode}.
-     * This image is currently not used for display purposes.
-     * Used by GPF. This method belongs to preliminary API and may be removed or changed in the future.
-     *
-     * @param image The rendered image.
-     * @since BEAM 4.2
-     */
-    public synchronized void setValidMaskImage(RenderedImage image) {
-        final RenderedImage oldValue = this.validMaskImage;
-        if (oldValue != image) {
-            if (this.validMaskImage instanceof PlanarImage) {
-                ((PlanarImage) validMaskImage).dispose();
-            }
-            this.validMaskImage = image;
-            validMaskROI = null;
-            fireProductNodeChanged("validMaskImage", oldValue);
-        }
-    }
-
-    /**
-     * @return The geophysical source image.
-     * @since BEAM 4.5
-     */
-    public RenderedImage getGeophysicalImage() {
-        if (geophysicalImage == null) {
-            synchronized (this) {
-                if (geophysicalImage == null) {
-                    geophysicalImage = createGeophysicalImage();
-                }
-            }
-        }
-        return geophysicalImage;
-    }
-
-    private RenderedImage createGeophysicalImage() {
-        RenderedImage rawSourceImage = getSourceImage(); // rawSourceImage is never null
-        MultiLevelSource multiLevelSource;
-        if (rawSourceImage instanceof MultiLevelSource) {
-            multiLevelSource = (MultiLevelSource) rawSourceImage;
-        } else {
-            final MultiLevelModel multiLevelModel = ImageManager.getInstance().getMultiLevelModel(this);
-            multiLevelSource = new DefaultMultiLevelSource(rawSourceImage, multiLevelModel);
-        }
-        final MultiLevelSource geoSource = new GenericMultiLevelSource(multiLevelSource) {
-
-            @Override
-            protected RenderedImage createImage(RenderedImage[] sourceImages, int level) {
-                return ImageManager.createRescaleOp(sourceImages[0],
-                                                    ImageManager.getDataBufferType(getGeophysicalDataType()),
-                                                    getScalingFactor(),
-                                                    getScalingOffset(),
-                                                    isLog10Scaled());
-            }
-        };
-        return new DefaultMultiLevelImage(geoSource);
-    }
-
-    /**
-     * @param geophysicalImage The geophysical source image.
-     * @since BEAM 4.5
-     */
-    public synchronized void setGeophysicalImage(RenderedImage geophysicalImage) {
-        final RenderedImage oldValue = this.geophysicalImage;
-        if (oldValue != geophysicalImage) {
-            if (this.geophysicalImage instanceof PlanarImage) {
-                ((PlanarImage) this.geophysicalImage).dispose();
-            }
-            this.geophysicalImage = geophysicalImage;
-            fireProductNodeChanged("geophysicalImage", oldValue);
-        }
-    }
-
-    private void resetGeophysicalImage() {
-        geophysicalImage = null;
-    }
-
-    public synchronized boolean isStxSet() {
-        return stx != null;
-    }
-
-    /**
      * Gets the statistics. If statistcs are not yet available,
      * the method will compute (possibly inaccurate) statistics and return those.
      * <p/>
@@ -2261,6 +2369,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * This method belongs to preliminary API and may be removed or changed in the future.
      *
      * @return The statistics.
+     *
      * @see #getStx(boolean, com.bc.ceres.core.ProgressMonitor)
      * @see #setStx(Stx)
      * @since BEAM 4.2, revised in BEAM 4.5
@@ -2284,7 +2393,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param accurate If true, accurate statistics are computed.
      * @param pm       A progress monitor which is used to compute the new statistics, if required.
+     *
      * @return The statistics.
+     *
      * @since since BEAM 4.5
      */
     public synchronized Stx getStx(boolean accurate, ProgressMonitor pm) {
@@ -2292,10 +2403,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             if (accurate) {
                 setStx(computeStxImpl(0, pm));
             } else {
-                ImageManager imageManager = ImageManager.getInstance();
-                MultiLevelSource multiLevelSource = imageManager.getMultiLevelSource(getSourceImage());
-                final int levelCount = multiLevelSource.getModel().getLevelCount();
-                final int statisticsLevel = imageManager.getStatisticsLevel(this, levelCount);
+                final int levelCount = getSourceImage().getModel().getLevelCount();
+                final int statisticsLevel = ImageManager.getInstance().getStatisticsLevel(this, levelCount);
                 setStx(computeStxImpl(statisticsLevel, pm));
             }
         }
@@ -2309,6 +2418,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * This method belongs to preliminary API and may be removed or changed in the future.
      *
      * @param stx The statistics.
+     *
      * @since BEAM 4.2, revised in BEAM 4.5
      */
     public synchronized void setStx(Stx stx) {
@@ -2326,7 +2436,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param level The resolution level.
      * @param pm    A progress monitor.
+     *
      * @return The statistics.
+     *
      * @since BEAM 4.5
      */
     protected Stx computeStxImpl(int level, ProgressMonitor pm) {
@@ -2524,6 +2636,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @return The expression used for the computation of the mask which identifies valid pixel values,
      *         or {@code null}.
+     *
      * @deprecated since BEAM 4.2, use {@link #getValidMaskExpression()} instead
      */
     @Deprecated
@@ -2537,6 +2650,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * <p>The method simply returns the value of <code>ensureValidImageInfo(null, ProgressMonitor.NULL)</code>.
      *
      * @return a valid image information instance.
+     *
      * @throws IOException if an I/O error occurs
      * @deprecated since BEAM 4.2, use {@link #getImageInfo(com.bc.ceres.core.ProgressMonitor)}
      */
@@ -2554,7 +2668,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param histoSkipAreas only used, if new image info is created (see <code>{@link #createDefaultImageInfo}</code>
      *                       method)
      * @param pm             a progress monitor
+     *
      * @return a valid image information instance, never <code>null</code>.
+     *
      * @throws IOException if an I/O error occurs
      * @deprecated since BEAM 4.2, use {@link #getImageInfo(double[], com.bc.ceres.core.ProgressMonitor)}
      */
@@ -2563,5 +2679,13 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         return getImageInfo(histoSkipAreas, pm);
     }
 
+
+    private static MultiLevelImage toMultiLevelImage(RenderedImage sourceImage) {
+        if (sourceImage instanceof MultiLevelImage) {
+            return (MultiLevelImage) sourceImage;
+        } else {
+            return new DefaultMultiLevelImage(ImageManager.getMultiLevelSource(sourceImage));
+        }
+    }
 
 }

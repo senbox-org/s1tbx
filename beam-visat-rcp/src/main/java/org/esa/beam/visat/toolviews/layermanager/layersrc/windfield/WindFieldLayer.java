@@ -4,22 +4,19 @@ import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.glevel.MultiLevelImage;
-import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.jai.RasterDataNodeOpImage;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.image.RenderedImage;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
-import java.awt.geom.NoninvertibleTransformException;
+import java.awt.image.RenderedImage;
 
 /**
  * Experimental wind field layer. Given two band names for u,v, it could
@@ -29,8 +26,6 @@ import java.awt.geom.NoninvertibleTransformException;
  * @since BEAM 4.6
  */
 public class WindFieldLayer extends Layer {
-    private AffineTransform imageToModelTransform;
-    private AffineTransform modelToImageTransform;
     private RasterDataNode windu;
     private RasterDataNode windv;
     private final Color[] palette;
@@ -42,12 +37,6 @@ public class WindFieldLayer extends Layer {
         super(LayerType.getLayerType(WindFieldLayerType.class.getName()), configuration);
         windu = (RasterDataNode) configuration.getValue("windu");
         windv = (RasterDataNode) configuration.getValue("windv");
-        imageToModelTransform = windu.getGeoCoding() != null ? windu.getGeoCoding().getImageToModelTransform() : new AffineTransform();
-        try {
-            modelToImageTransform = imageToModelTransform.createInverse();
-        } catch (NoninvertibleTransformException e) {
-            throw new IllegalStateException(e);
-        }
         palette = new Color[256];
         for (int i = 0; i < palette.length; i++) {
             palette[i] = new Color(i, i, i);
@@ -56,8 +45,8 @@ public class WindFieldLayer extends Layer {
 
     @Override
     protected void renderLayer(Rendering rendering) {
-        final MultiLevelImage winduMLI = (MultiLevelImage) windu.getGeophysicalImage();
-        final MultiLevelImage windvMLI = (MultiLevelImage) windv.getGeophysicalImage();
+        final MultiLevelImage winduMLI = windu.getGeophysicalImage();
+        final MultiLevelImage windvMLI = windv.getGeophysicalImage();
         final Viewport vp = rendering.getViewport();
         final int level = ImageLayer.getLevel(winduMLI.getModel(), vp);
 
@@ -78,24 +67,17 @@ public class WindFieldLayer extends Layer {
             return;
         }
 
-        final double s = 1 / winduMLI.getModel().getScale(level);
-
         final AffineTransform m2v = vp.getModelToViewTransform();
 
         final Graphics2D graphics = rendering.getGraphics();
         graphics.setStroke(new BasicStroke(lineThickness));
 
-        final MultiLevelImage winduValidMLI = (MultiLevelImage) windu.getValidMaskImage();
-        final MultiLevelImage windvValidMLI = (MultiLevelImage) windv.getValidMaskImage();
+        final MultiLevelImage winduValidMLI = windu.getValidMaskImage();
+        final MultiLevelImage windvValidMLI = windv.getValidMaskImage();
 
         final RenderedImage winduValidRI = winduValidMLI != null ? winduValidMLI.getImage(level) : null;
         final RenderedImage windvValidRI = windvValidMLI != null ? windvValidMLI.getImage(level) : null;
-/*
-        int res = (int) Math.floor(s * this.res);
-        if (res == 0) {
-            return;
-        }
-*/
+
         final int x1 = res * (irect.x / res);
         final int x2 = x1 + res * (1 + irect.width / res);
         final int y1 = res * (irect.y / res);
@@ -127,7 +109,7 @@ public class WindFieldLayer extends Layer {
                     final double ondx = -ndy;
                     final double ondy = ndx;
 
-                    final double s0 = (length  / maxLength) * res;
+                    final double s0 = (length / maxLength) * res;
                     final double s1 = s0 - 0.2 * res;
                     final double s2 = 0.1 * res;
 

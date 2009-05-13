@@ -185,12 +185,12 @@ public class OperatorImage extends SourcelessOpImage {
                 && !operatorContext.isComputeTileMethodUsable();
     }
 
-    private boolean isBandComputedByThisOperator(Band band) {
-        if (!band.isSourceImageSet()) {
+    private boolean isBandComputedByThisOperator(Band targetBand) {
+        if (!targetBand.isSourceImageSet()) {
             return false;
         }
-        OperatorImage image = operatorContext.getTargetImage(band);
-        return image != null && image == band.getSourceImage();
+        OperatorImage image = operatorContext.getTargetImage(targetBand);
+        return image != null && image == targetBand.getSourceImage().getImage(0);
     }
 
     private WritableRaster getWritableTile(Band band, WritableRaster targetTileRaster) {

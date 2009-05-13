@@ -58,7 +58,7 @@ public class ImageManagerTest extends TestCase {
     }
 
     private static PlanarImage createTargetImage(RasterDataNode rdn) {
-        return PlanarImage.wrapRenderedImage(rdn.getGeophysicalImage());
+        return rdn.getGeophysicalImage();
     }
 
     private static PlanarImage createSourceImage() {

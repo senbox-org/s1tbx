@@ -33,9 +33,13 @@ import org.esa.beam.framework.gpf.graph.GraphContext;
 import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.GraphProcessor;
 import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.File;
 import java.io.StringReader;
+import java.util.logging.Level;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.LogManager;
 
 /**
  * Created by marcoz.
@@ -124,6 +128,9 @@ public class WriteOpTest extends TestCase {
 
         @Override
         public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) {
+            System.out.println(getClass().getName() + ":");
+            System.out.println("  band = " + band);
+            System.out.println("  targetTile = " + targetTile.getRectangle());
             for (Pos pos : targetTile) {
                 targetTile.setSample(pos.x, pos.y, 42);
             }
