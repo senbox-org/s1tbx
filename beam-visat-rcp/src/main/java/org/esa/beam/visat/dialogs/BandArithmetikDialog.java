@@ -334,6 +334,7 @@ public class BandArithmetikDialog extends ModalDialog {
     private ActionListener createEditExpressionButtonListener() {
         return new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 Product[] compatibleProducts = getCompatibleProducts();
                 ProductExpressionPane pep = ProductExpressionPane.createGeneralExpressionPane(compatibleProducts,
@@ -358,7 +359,7 @@ public class BandArithmetikDialog extends ModalDialog {
                                     externalProducts.add(product);
                                 }
                             }
-                            if (externalProducts.size() > 0) {
+                            if (!externalProducts.isEmpty()) {
                                 showForeignProductWarning();
                             }
                         }
@@ -371,7 +372,7 @@ public class BandArithmetikDialog extends ModalDialog {
 
     private void showForeignProductWarning() {
         visatApp.showWarningDialog("The expression references multiple products.\n"
-                                   + "It will only be usable as the referenced products are available.\n"
+                                   + "It will be only usable as long the referenced products are available.\n"
                                    + "Think about enabling 'Write data to disk' to preserve the data.");
     }
 
