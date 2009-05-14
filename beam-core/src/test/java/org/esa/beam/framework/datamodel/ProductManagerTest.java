@@ -21,6 +21,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import java.awt.Color;
 import java.util.Vector;
 
 public class ProductManagerTest extends TestCase {
@@ -222,6 +223,44 @@ public class ProductManagerTest extends TestCase {
         assertSame(product2, _productManager.getProductByDisplayName("[2] name"));
         assertSame(product3, _productManager.getProductByDisplayName("[3] name"));
     }
+
+    public void testVirtualBandExpressionsAreUpdateIfForeignNodeNameChanged() {
+        final Product product1 = new Product("P1", "t", 1, 1);
+        final VirtualBand p1v1 = new VirtualBand("P1V1", ProductData.TYPE_FLOAT32, 1, 1, "42");
+        product1.addBand(p1v1);
+        final Product product2 = new Product("P2", "t", 1, 1);
+        final VirtualBand p2v1 = new VirtualBand("P2V1", ProductData.TYPE_FLOAT32, 1, 1, "$1.P1V1");
+        product2.addBand(p2v1);
+        final Product product3 = new Product("P3", "t", 1, 1);
+        final VirtualBand p3v1 = new VirtualBand("P3V1", ProductData.TYPE_FLOAT32, 1, 1, "$1.P1V1 + $2.P2V1");
+        product3.addBand(p3v1);
+
+        _productManager.addProduct(product1);
+        _productManager.addProduct(product2);
+        _productManager.addProduct(product3);
+
+        p1v1.setName("TheAnswer");
+
+        assertEquals("$1.TheAnswer", p2v1.getExpression());
+        assertEquals("$1.TheAnswer + $2.P2V1", p3v1.getExpression());
+    }
+
+    public void testBitmaskDefExpressionsAreUpdateIfForeignNodeNameChanged() {
+        final Product product1 = new Product("P1", "t", 1, 1);
+        final VirtualBand p1v1 = new VirtualBand("P1V1", ProductData.TYPE_FLOAT32, 1, 1, "42");
+        product1.addBand(p1v1);
+        final Product product2 = new Product("P2", "t", 1, 1);
+        final BitmaskDef p2bd = new BitmaskDef("P2BD", "P2-Bitmask", "$1.P1V1 == 42.0", Color.RED, 0.5f);
+        product2.addBitmaskDef(p2bd);
+
+        _productManager.addProduct(product1);
+        _productManager.addProduct(product2);
+
+        p1v1.setName("TheAnswer");
+
+        assertEquals("$1.TheAnswer == 42.0", p2bd.getExpr());
+    }
+
 
     private void addAllProducts() {
         _productManager.addProduct(_product1);
