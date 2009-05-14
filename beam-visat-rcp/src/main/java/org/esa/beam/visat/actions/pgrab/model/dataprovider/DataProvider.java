@@ -14,15 +14,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.visat.plugins.pgrab.model.dataprovider;
+package org.esa.beam.visat.actions.pgrab.model.dataprovider;
 
 import java.io.IOException;
 import java.util.Comparator;
 
 import javax.swing.table.TableColumn;
 
-import org.esa.beam.visat.plugins.pgrab.model.Repository;
-import org.esa.beam.visat.plugins.pgrab.model.RepositoryEntry;
+import org.esa.beam.visat.actions.pgrab.model.Repository;
+import org.esa.beam.visat.actions.pgrab.model.RepositoryEntry;
 
 /**
  * This interface shall be implemented to provide new data to a {@link RepositoryEntry}.
@@ -53,9 +53,9 @@ public interface DataProvider {
      * Implementation should create the data this <code>DataProvider</code> provides.
      * Also the created should be stored for performance reasons.
      * Created data can be stored into a {@link org.esa.beam.util.PropertyMap PropertyMap} retrieved by calling
-     * {@link org.esa.beam.visat.plugins.pgrab.model.Repository#getPropertyMap() Repository.getPropertyMap()}
+     * {@link org.esa.beam.visat.actions.pgrab.model.Repository#getPropertyMap() Repository.getPropertyMap()}
      * or in a directory retrieved from
-     * {@link org.esa.beam.visat.plugins.pgrab.model.Repository#getStorageDir() Repository.getStorageDir()}.
+     * {@link org.esa.beam.visat.actions.pgrab.model.Repository#getStorageDir() Repository.getStorageDir()}.
      *
      * @param entry      the entry for which the data shall be provided.
      * @param repository the repository containing the entry. // todo - (from nf)  for what? entry knows it repository!

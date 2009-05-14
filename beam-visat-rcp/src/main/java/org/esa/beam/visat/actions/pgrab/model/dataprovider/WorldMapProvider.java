@@ -1,4 +1,4 @@
-package org.esa.beam.visat.plugins.pgrab.model.dataprovider;
+package org.esa.beam.visat.actions.pgrab.model.dataprovider;
 
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
@@ -6,9 +6,9 @@ import org.esa.beam.framework.ui.WorldMapImageLoader;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.visat.plugins.pgrab.model.Repository;
-import org.esa.beam.visat.plugins.pgrab.model.RepositoryEntry;
-import org.esa.beam.visat.plugins.pgrab.util.WorldMapPainter;
+import org.esa.beam.visat.actions.pgrab.model.Repository;
+import org.esa.beam.visat.actions.pgrab.model.RepositoryEntry;
+import org.esa.beam.visat.actions.pgrab.util.WorldMapPainter;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.FileImageOutputStream;

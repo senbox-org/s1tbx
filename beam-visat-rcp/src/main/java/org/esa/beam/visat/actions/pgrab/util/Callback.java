@@ -1,4 +1,4 @@
-package org.esa.beam.visat.plugins.pgrab.util;
+package org.esa.beam.visat.actions.pgrab.util;
 
 /**
  * Created by IntelliJ IDEA.

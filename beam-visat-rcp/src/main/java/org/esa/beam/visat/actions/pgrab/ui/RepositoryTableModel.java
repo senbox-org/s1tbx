@@ -1,9 +1,9 @@
-package org.esa.beam.visat.plugins.pgrab.ui;
+package org.esa.beam.visat.actions.pgrab.ui;
 
 import org.esa.beam.util.Guardian;
-import org.esa.beam.visat.plugins.pgrab.model.Repository;
-import org.esa.beam.visat.plugins.pgrab.model.RepositoryEntry;
-import org.esa.beam.visat.plugins.pgrab.model.dataprovider.DataProvider;
+import org.esa.beam.visat.actions.pgrab.model.Repository;
+import org.esa.beam.visat.actions.pgrab.model.RepositoryEntry;
+import org.esa.beam.visat.actions.pgrab.model.dataprovider.DataProvider;
 
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableColumnModel;

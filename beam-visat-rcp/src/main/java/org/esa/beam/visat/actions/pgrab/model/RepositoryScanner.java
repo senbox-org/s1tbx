@@ -4,7 +4,7 @@
  * Copyright (c) 2003 Brockmann Consult GmbH. All right reserved.
  * http://www.brockmann-consult.de
  */
-package org.esa.beam.visat.plugins.pgrab.model;
+package org.esa.beam.visat.actions.pgrab.model;
 
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;

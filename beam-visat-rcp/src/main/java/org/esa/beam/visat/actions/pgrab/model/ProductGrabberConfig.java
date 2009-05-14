@@ -1,4 +1,4 @@
-package org.esa.beam.visat.plugins.pgrab.model;
+package org.esa.beam.visat.actions.pgrab.model;
 
 import java.awt.Rectangle;
 import java.io.File;

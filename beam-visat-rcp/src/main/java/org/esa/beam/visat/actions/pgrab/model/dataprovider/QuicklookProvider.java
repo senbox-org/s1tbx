@@ -14,14 +14,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.visat.plugins.pgrab.model.dataprovider;
+package org.esa.beam.visat.actions.pgrab.model.dataprovider;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.visat.plugins.pgrab.model.Repository;
-import org.esa.beam.visat.plugins.pgrab.model.RepositoryEntry;
+import org.esa.beam.visat.actions.pgrab.model.Repository;
+import org.esa.beam.visat.actions.pgrab.model.RepositoryEntry;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractCellEditor;

@@ -1,14 +1,14 @@
-package org.esa.beam.visat.plugins.pgrab.model;
+package org.esa.beam.visat.actions.pgrab.model;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.util.Debug;
-import org.esa.beam.visat.plugins.pgrab.ProductGrabberVPI;
-import org.esa.beam.visat.plugins.pgrab.model.dataprovider.DataProvider;
-import org.esa.beam.visat.plugins.pgrab.model.dataprovider.FileNameProvider;
-import org.esa.beam.visat.plugins.pgrab.model.dataprovider.ProductSizeProvider;
-import org.esa.beam.visat.plugins.pgrab.util.Callback;
+import org.esa.beam.visat.actions.pgrab.ProductGrabberAction;
+import org.esa.beam.visat.actions.pgrab.model.dataprovider.DataProvider;
+import org.esa.beam.visat.actions.pgrab.model.dataprovider.FileNameProvider;
+import org.esa.beam.visat.actions.pgrab.model.dataprovider.ProductSizeProvider;
+import org.esa.beam.visat.actions.pgrab.ui.ProductGrabber;
+import org.esa.beam.visat.actions.pgrab.util.Callback;
 
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -356,8 +356,8 @@ public class RepositoryManager {
                     stringBuilder.append("\n");
                 }
                 final String message = stringBuilder.toString();
-                final JFrame pgFrame = ProductGrabberVPI.getInstance().getProductGrabber().getFrame();
-                JOptionPane.showMessageDialog(pgFrame, message, "I/O Errors", JOptionPane.ERROR_MESSAGE);
+                ProductGrabber productGrabber = ProductGrabberAction.getInstance().getProductGrabber();
+                JOptionPane.showMessageDialog(productGrabber.getFrame(), message, "I/O Errors", JOptionPane.ERROR_MESSAGE);
             }
         }
     }

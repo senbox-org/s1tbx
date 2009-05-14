@@ -1,4 +1,4 @@
-package org.esa.beam.visat.plugins.pgrab.model;
+package org.esa.beam.visat.actions.pgrab.model;
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,9 +12,9 @@ import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
-import org.esa.beam.visat.plugins.pgrab.model.dataprovider.DataProvider;
-import org.esa.beam.visat.plugins.pgrab.model.dataprovider.ProductPropertiesProvider;
-import org.esa.beam.visat.plugins.pgrab.model.dataprovider.WorldMapProvider;
+import org.esa.beam.visat.actions.pgrab.model.dataprovider.DataProvider;
+import org.esa.beam.visat.actions.pgrab.model.dataprovider.ProductPropertiesProvider;
+import org.esa.beam.visat.actions.pgrab.model.dataprovider.WorldMapProvider;
 
 public class RepositoryManagerTest extends TestCase {
 

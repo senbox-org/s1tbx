@@ -1,4 +1,4 @@
-package org.esa.beam.visat.plugins.pgrab.model;
+package org.esa.beam.visat.actions.pgrab.model;
 
 import java.io.File;
 import java.io.IOException;

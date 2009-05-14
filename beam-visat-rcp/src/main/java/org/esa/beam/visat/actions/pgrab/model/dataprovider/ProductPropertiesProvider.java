@@ -1,12 +1,12 @@
-package org.esa.beam.visat.plugins.pgrab.model.dataprovider;
+package org.esa.beam.visat.actions.pgrab.model.dataprovider;
 
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData.UTC;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.PropertyMap;
-import org.esa.beam.visat.plugins.pgrab.model.Repository;
-import org.esa.beam.visat.plugins.pgrab.model.RepositoryEntry;
+import org.esa.beam.visat.actions.pgrab.model.Repository;
+import org.esa.beam.visat.actions.pgrab.model.RepositoryEntry;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;

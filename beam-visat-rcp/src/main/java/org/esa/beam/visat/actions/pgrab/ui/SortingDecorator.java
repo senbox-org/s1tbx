@@ -14,19 +14,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.visat.plugins.pgrab.ui;
+package org.esa.beam.visat.actions.pgrab.ui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.visat.actions.pgrab.ProductGrabberAction;
+import org.esa.beam.visat.actions.pgrab.model.dataprovider.DataProvider;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -38,10 +30,17 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
-
-import org.esa.beam.util.Guardian;
-import org.esa.beam.visat.plugins.pgrab.ProductGrabberVPI;
-import org.esa.beam.visat.plugins.pgrab.model.dataprovider.DataProvider;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 class SortingDecorator extends AbstractTableModel {
 
@@ -346,7 +345,7 @@ class SortingDecorator extends AbstractTableModel {
     };
 
     private Comparator getComparator(final int column) {
-        final DataProvider dataProvider = ProductGrabberVPI.getInstance().getRepositoryManager().getDataProvider(column);
+        final DataProvider dataProvider = ProductGrabberAction.getInstance().getRepositoryManager().getDataProvider(column);
 
         final Class columnType = _tableModel.getColumnClass(column);
         Comparator comparator = dataProvider.getComparator();

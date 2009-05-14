@@ -1,4 +1,4 @@
-package org.esa.beam.visat.plugins.pgrab.model;
+package org.esa.beam.visat.actions.pgrab.model;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,7 +10,7 @@ import java.util.List;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.visat.plugins.pgrab.model.dataprovider.DataProvider;
+import org.esa.beam.visat.actions.pgrab.model.dataprovider.DataProvider;
 
 public class Repository {
 

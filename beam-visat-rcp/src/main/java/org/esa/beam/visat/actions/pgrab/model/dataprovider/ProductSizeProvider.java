@@ -1,9 +1,9 @@
 /*
  * Created on: 	19.09.2005
  * Created by:	Marco Peters
- * File: 		FileNameProvider.java 
+ * File: 		ProductSizeProvider.java 
  */
-package org.esa.beam.visat.plugins.pgrab.model.dataprovider;
+package org.esa.beam.visat.actions.pgrab.model.dataprovider;
 
 import java.awt.Component;
 import java.awt.Font;
@@ -15,47 +15,46 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import org.esa.beam.visat.plugins.pgrab.model.Repository;
-import org.esa.beam.visat.plugins.pgrab.model.RepositoryEntry;
+import org.esa.beam.visat.actions.pgrab.model.Repository;
+import org.esa.beam.visat.actions.pgrab.model.RepositoryEntry;
 
-public class FileNameProvider implements DataProvider {
+public class ProductSizeProvider implements DataProvider {
 
-    private final Comparator _fileNameComparator = new FileNameComparator();
-    private TableColumn _fileNameColumn;
+    private TableColumn _fileSizeColumn;
+    private final Comparator _productSizeComparator = new ProductSizeComparator();
 
-    public boolean mustCreateData(final RepositoryEntry entry, final Repository repository) {
+    public boolean mustCreateData(final RepositoryEntry entry,final  Repository repository) {
         return false;
     }
 
-    public void createData(final RepositoryEntry entry, final Repository repository)
+    public void createData(final RepositoryEntry entry,final  Repository repository)
             throws IOException {
-
     }
 
-    public Object getData(final RepositoryEntry entry, final Repository repository)
+    public Object getData(final RepositoryEntry entry,final  Repository repository)
             throws IOException {
-        return entry.getProductFile().getName();
+        return new Float(entry.getProductSize());
     }
 
     public Comparator getComparator() {
-        return _fileNameComparator;
+        return _productSizeComparator;
     }
 
-    public void cleanUp(final RepositoryEntry entry, final Repository repository) {
+    public void cleanUp(final RepositoryEntry entry,final  Repository repository) {
     }
 
     public TableColumn getTableColumn() {
-        if(_fileNameColumn == null) {
-            _fileNameColumn = new TableColumn();
-            _fileNameColumn.setHeaderValue("File Name");
-            _fileNameColumn.setPreferredWidth(200);
-            _fileNameColumn.setResizable(true);
-            _fileNameColumn.setCellRenderer(new FileNameCellRenderer());
+        if (_fileSizeColumn == null) {
+            _fileSizeColumn = new TableColumn();
+            _fileSizeColumn.setHeaderValue("File Size");
+            _fileSizeColumn.setPreferredWidth(70);
+            _fileSizeColumn.setResizable(true);
+            _fileSizeColumn.setCellRenderer(new FileSizeCellRenderer());
         }
-        return _fileNameColumn;
+        return _fileSizeColumn;
     }
 
-    private static class FileNameCellRenderer extends DefaultTableCellRenderer {
+    private static class FileSizeCellRenderer extends DefaultTableCellRenderer {
 
         @Override
         public Component getTableCellRendererComponent(final JTable table,
@@ -68,11 +67,13 @@ public class FileNameProvider implements DataProvider {
                                                    row, column);
 
             jlabel.setFont(jlabel.getFont().deriveFont(Font.BOLD));
+            jlabel.setHorizontalAlignment(JLabel.CENTER);
+            setText(String.format("%1$.2f MB", new Object[] {value }));
             return jlabel;
         }
     }
 
-    private static class FileNameComparator implements Comparator {
+    private static class ProductSizeComparator implements Comparator {
 
         public int compare(final Object o1, final Object o2) {
             if(o1 == o2) {
@@ -83,11 +84,11 @@ public class FileNameProvider implements DataProvider {
             } else if(o2 == null) {
                 return 1;
             }
-                
-            final String s1 = (String) o1;
-            final String s2 = (String) o2;
 
-            return s1.compareTo(s2);
+            final Float f1 = (Float) o1;
+            final Float f2 = (Float) o2;
+
+            return f1.compareTo(f2);
         }
     }
 }

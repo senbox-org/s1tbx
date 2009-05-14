@@ -1,4 +1,4 @@
-package org.esa.beam.visat.plugins.pgrab.ui;
+package org.esa.beam.visat.actions.pgrab.ui;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
@@ -6,16 +6,16 @@ import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.visat.plugins.pgrab.model.ProductGrabberConfig;
-import org.esa.beam.visat.plugins.pgrab.model.Repository;
-import org.esa.beam.visat.plugins.pgrab.model.RepositoryEntry;
-import org.esa.beam.visat.plugins.pgrab.model.RepositoryManager;
-import org.esa.beam.visat.plugins.pgrab.model.RepositoryManagerListener;
-import org.esa.beam.visat.plugins.pgrab.model.RepositoryScanner;
-import org.esa.beam.visat.plugins.pgrab.model.dataprovider.ProductPropertiesProvider;
-import org.esa.beam.visat.plugins.pgrab.model.dataprovider.QuicklookProvider;
-import org.esa.beam.visat.plugins.pgrab.model.dataprovider.WorldMapProvider;
-import org.esa.beam.visat.plugins.pgrab.util.Callback;
+import org.esa.beam.visat.actions.pgrab.model.ProductGrabberConfig;
+import org.esa.beam.visat.actions.pgrab.model.Repository;
+import org.esa.beam.visat.actions.pgrab.model.RepositoryEntry;
+import org.esa.beam.visat.actions.pgrab.model.RepositoryManager;
+import org.esa.beam.visat.actions.pgrab.model.RepositoryManagerListener;
+import org.esa.beam.visat.actions.pgrab.model.RepositoryScanner;
+import org.esa.beam.visat.actions.pgrab.model.dataprovider.ProductPropertiesProvider;
+import org.esa.beam.visat.actions.pgrab.model.dataprovider.QuicklookProvider;
+import org.esa.beam.visat.actions.pgrab.model.dataprovider.WorldMapProvider;
+import org.esa.beam.visat.actions.pgrab.util.Callback;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
