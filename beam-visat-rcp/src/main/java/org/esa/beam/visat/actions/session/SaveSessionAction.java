@@ -23,8 +23,10 @@ import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.JInternalFrame;
+import javax.swing.JOptionPane;
 import java.awt.Container;
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 
 
@@ -52,25 +54,7 @@ public class SaveSessionAction extends ExecCommand {
 
     public void saveSession(boolean saveAs) {
         final VisatApp app = VisatApp.getApp();
-        final Product[] products = app.getProductManager().getProducts();
-        final ArrayList<Product> noFileProducts = new ArrayList<Product>();
-        for (Product product : products) {
-            if (product.getFileLocation() == null) {
-                noFileProducts.add(product);
-            }
-        }
-        if (!noFileProducts.isEmpty()) {
-            StringBuilder sb = new StringBuilder(
-                    "The session connot be saved because the following " +
-                    "products have not been saved yet:\n");
-            for (Product product : noFileProducts) {
-                sb.append("  ");
-                sb.append(product.getDisplayName());
-                sb.append("\n");
-            }
-            app.showErrorDialog(TITLE, sb.toString());
-            return;
-        }
+
         File sessionFile = app.getSessionFile();
         if (sessionFile == null || saveAs) {
             sessionFile = app.showFileSaveDialog(TITLE, false,
@@ -83,14 +67,73 @@ public class SaveSessionAction extends ExecCommand {
                 return;
             }
         }
-        app.setSessionFile(sessionFile);
 
+        if (!saveProductsOrLetItBe(app, sessionFile)) {
+            return;
+        }
+
+        app.setSessionFile(sessionFile);
         try {
             final Session session = createSession(app);
             SessionIO.getInstance().writeSession(session, sessionFile);
+            app.showInfoDialog(TITLE, "Session saved.", null);
         } catch (Exception e) {
             e.printStackTrace();
-            app.showErrorDialog(e.getMessage());
+            app.showErrorDialog(TITLE, e.getMessage());
+        }
+    }
+
+    private boolean saveProductsOrLetItBe(VisatApp app, File sessionFile) {
+        final Product[] products = app.getProductManager().getProducts();
+
+        for (Product product : products) {
+            if (product.getFileLocation() == null) {
+                String message = MessageFormat.format(
+                        "The following product has not been saved yet:\n" +
+                                "{0}.\n" +
+                                "Do you want to save it now?\n\n" +
+                                "Note: If you select 'No', the session cannot be saved.",
+                        product.getDisplayName());
+                // Here: No == Cancel, its because we need a file location in the session XML
+                int i = app.showQuestionDialog(TITLE, message, false, null);
+                if (i == JOptionPane.YES_OPTION) {
+                    File sessionDir = sessionFile.getAbsoluteFile().getParentFile();
+                    product.setFileLocation(new File(sessionDir, product.getName() + ".dim"));
+                    VisatApp.getApp().saveProduct(product);
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        for (Product product : products) {
+            if (product.isModified()) {
+                String message = MessageFormat.format(
+                        "The following product has been modified:\n" +
+                                "{0}.\n" +
+                                "Do you want to save it now?\n\n" +
+                                "Note: It is recommended to save the product in order to \n" +
+                                "fully restore the session later.",
+                        product.getDisplayName());
+                // Here: Yes, No + Cancel, its because we have file location for the session XML
+                int i = app.showQuestionDialog(TITLE, message, true, null);
+                if (i == JOptionPane.YES_OPTION) {
+                    VisatApp.getApp().saveProduct(product);
+                } else if (i == JOptionPane.CANCEL_OPTION) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private void saveProducts(ArrayList<Product> unsavedProducts, File sessionDir) {
+        for (Product product : unsavedProducts) {
+            if (product.getFileLocation() == null) {
+                product.setFileLocation(new File(sessionDir, product.getName() + ".dim"));
+            }
+            VisatApp.getApp().saveProduct(product);
         }
     }
 

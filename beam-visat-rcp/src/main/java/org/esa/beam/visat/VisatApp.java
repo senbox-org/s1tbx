@@ -1326,11 +1326,7 @@ public class VisatApp extends BasicApp implements AppContext {
             protected Object doInBackground() throws Exception {
                 boolean success = false;
                 try {
-                    boolean incremental = DEFAULT_VALUE_SAVE_INCREMENTAL;
-                    final PropertyMap preferences = getPreferences();
-                    if (preferences != null) {
-                        incremental = preferences.getPropertyBool(PROPERTY_KEY_SAVE_INCREMENTAL, incremental);
-                    }
+                    boolean incremental = getPreferences().getPropertyBool(PROPERTY_KEY_SAVE_INCREMENTAL, DEFAULT_VALUE_SAVE_INCREMENTAL);
                     success = saveProductImpl(product, incremental);
                 } finally {
                     if (success) {
@@ -1678,8 +1674,6 @@ public class VisatApp extends BasicApp implements AppContext {
                                                   "In order to save the product\n" +
                                                   "   " + product.getDisplayName() + "\n" +
                                                   "it has to be converted to the BEAM-DIMAP format.\n" +
-                                                // <saveAs/>
-                                                //  "The current product and all of its views will be closed.\n" +
                                                   "Depending on the product size the conversion also may take a while.\n\n" +
                                                   "Do you really want to convert the product now?\n",
                                                   "productConversionRequired"); /*I18N*/
@@ -1722,22 +1716,12 @@ public class VisatApp extends BasicApp implements AppContext {
             protected Object doInBackground() throws Exception {
                 final boolean incremental = false;
                 final boolean successfullySaved = saveProductImpl(product, incremental);
-                 // <saveAs/>
-                // final boolean successfullyClosed;
                 if (successfullySaved) {
-                     // <saveAs/>
-                    // successfullyClosed = closeProductImpl(product, false);
                     if (!isVisatExitConfirmed()) {
-                         // <saveAs/>
-                        // openProduct(newFile);
                         reopenProduct(product, newFile);
                     }
-                } else {
-                     // <saveAs/>
-                    // successfullyClosed = false;
                 }
-                 // <saveAs/>
-                if (!successfullySaved /*|| !successfullyClosed*/) {
+                if (!successfullySaved) {
                     product.setFileLocation(oldFile);
                     product.setName(oldProductName);
                 }
