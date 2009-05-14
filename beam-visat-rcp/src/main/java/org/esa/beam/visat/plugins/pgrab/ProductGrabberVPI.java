@@ -18,6 +18,7 @@ import javax.swing.SwingUtilities;
 import java.io.File;
 import java.io.IOException;
 
+// todo - convert this into a VISAT action (nf 200905)
 
 /**
  * The ProductGrabberVPI opens a dialog to preview and open products.
@@ -84,8 +85,10 @@ public class ProductGrabberVPI extends AbstractVisatPlugIn {
             }
         });
         command.setParent("file");
-        command.setPlaceAfter("reopen");
-        command.setPlaceBefore("close");
+        command.setSeparatorBefore(true);
+        command.setSeparatorAfter(true);
+        command.setPlaceAfter("export");
+        command.setPlaceBefore("exit");
         command.setText("Product Grabber");
         command.setShortDescription("Opens the product grabber dialog to preview and open products.");
         command.setSmallIcon(UIUtils.loadImageIcon("icons/RsProduct16.gif"));
