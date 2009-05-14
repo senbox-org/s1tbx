@@ -88,6 +88,7 @@ import org.esa.beam.visat.actions.ShowToolBarAction;
 import org.esa.beam.visat.actions.ToolAction;
 import org.esa.beam.visat.toolviews.diag.TileCacheDiagnosisToolView;
 import org.esa.beam.visat.toolviews.stat.StatisticsToolView;
+import org.esa.beam.jai.BandOpImage;
 
 import javax.media.jai.JAI;
 import javax.swing.AbstractButton;
@@ -1677,7 +1678,8 @@ public class VisatApp extends BasicApp implements AppContext {
                                                   "In order to save the product\n" +
                                                   "   " + product.getDisplayName() + "\n" +
                                                   "it has to be converted to the BEAM-DIMAP format.\n" +
-                                                  "The current product and all of its views will be closed.\n" +
+                                                // <saveAs/>
+                                                //  "The current product and all of its views will be closed.\n" +
                                                   "Depending on the product size the conversion also may take a while.\n\n" +
                                                   "Do you really want to convert the product now?\n",
                                                   "productConversionRequired"); /*I18N*/
@@ -1720,16 +1722,22 @@ public class VisatApp extends BasicApp implements AppContext {
             protected Object doInBackground() throws Exception {
                 final boolean incremental = false;
                 final boolean successfullySaved = saveProductImpl(product, incremental);
-                final boolean successfullyClosed;
+                 // <saveAs/>
+                // final boolean successfullyClosed;
                 if (successfullySaved) {
-                    successfullyClosed = closeProductImpl(product, false);
+                     // <saveAs/>
+                    // successfullyClosed = closeProductImpl(product, false);
                     if (!isVisatExitConfirmed()) {
-                        openProduct(newFile);
+                         // <saveAs/>
+                        // openProduct(newFile);
+                        reopenProduct(product, newFile);
                     }
                 } else {
-                    successfullyClosed = false;
+                     // <saveAs/>
+                    // successfullyClosed = false;
                 }
-                if (!successfullySaved || !successfullyClosed) {
+                 // <saveAs/>
+                if (!successfullySaved /*|| !successfullyClosed*/) {
                     product.setFileLocation(oldFile);
                     product.setName(oldProductName);
                 }
@@ -1742,6 +1750,7 @@ public class VisatApp extends BasicApp implements AppContext {
         };
         worker.execute();
     }
+
 
     @Override
     protected void applyPreferences() {
@@ -2450,6 +2459,18 @@ public class VisatApp extends BasicApp implements AppContext {
 
     public void setVisatExitConfirmed(final boolean visatExitConfirmed) {
         this.visatExitConfirmed = visatExitConfirmed;
+    }
+
+    private void reopenProduct(Product product, File newFile) throws IOException {
+        DimapProductReader productReader = (DimapProductReader) ProductIO.getProductReader(DimapProductConstants.DIMAP_FORMAT_NAME);
+        productReader.bindProduct(newFile, product);
+        product.setProductReader(productReader);
+        Band[] bands = product.getBands();
+        for (Band band : bands) {
+            if (band.isSourceImageSet() && band.getSourceImage().getImage(0) instanceof BandOpImage) {
+                band.setSourceImage(null);
+            }
+        }
     }
 
     private class OpenProductRunnable implements Runnable {

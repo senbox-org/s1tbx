@@ -16,31 +16,35 @@
  */
 package org.esa.beam.dataio.dimap;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.dataio.IllegalFileFormatException;
-import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.dataio.DecodeQualification;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FilterBand;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.PixelGeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.jdom.Document;
 import org.jdom.input.DOMBuilder;
-import org.xml.sax.SAXException;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.awt.Dimension;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -105,50 +109,84 @@ public class DimapProductReader extends AbstractProductReader {
      *                             if the input file in not decodeable
      */
     @Override
-    protected Product readProductNodesImpl() throws IOException,
-                                                    IllegalFileFormatException {
-        if (getInput() instanceof String) {
-            inputFile = new File((String) getInput());
-        } else if (getInput() instanceof File) {
-            inputFile = (File) getInput();
+    protected Product readProductNodesImpl() throws IOException {
+        return processProduct(null);
+    }
+
+    // todo - Put this into interface ReconfigurableProductReader and make DimapProductReader implement it
+    public void bindProduct(Object input, Product product) throws IOException {
+        Assert.notNull(input, "input");
+        Assert.notNull(product, "product");
+        setInput(input);
+        processProduct(product);
+    }
+
+    protected Product processProduct(Product product) throws IOException {
+        initInput();
+        Document dom = readDom();
+
+        this.product = product == null ? DimapProductHelpers.createProduct(dom) : product;
+        this.product.setProductReader(this);
+
+        if (product == null) {
+            readTiePointGrids(dom);
+        }
+
+        sourceRasterWidth = this.product.getSceneRasterWidth();
+        sourceRasterHeight = this.product.getSceneRasterHeight();
+
+        bindBandsToFiles(dom);
+        if (product == null) {
+            initGeoCodings(dom);
+        }
+        this.product.setProductReader(this);
+        this.product.setFileLocation(inputFile);
+        this.product.setModified(false);
+        return this.product;
+    }
+
+
+    private void initGeoCodings(Document dom) throws IOException {
+        final GeoCoding[] geoCodings = DimapProductHelpers.createGeoCoding(dom, product);
+        if (geoCodings != null) {
+            if (geoCodings.length == 1) {
+                product.setGeoCoding(geoCodings[0]);
+            } else {
+                for (int i = 0; i < geoCodings.length; i++) {
+                    product.getBandAt(i).setGeoCoding(geoCodings[i]);
+                }
+            }
         } else {
-            throw new IllegalArgumentException("unsupported input source: " + getInput());  /*I18N*/
-        }
-        final DimapProductReaderPlugIn readerPlugIn = new DimapProductReaderPlugIn();
-        if (DecodeQualification.UNABLE.equals(readerPlugIn.getDecodeQualification(inputFile))) {
-            throw new IOException("Not a '" + DimapProductConstants.DIMAP_FORMAT_NAME + "' product."); /*I18N*/
-        }
-
-        Debug.assertNotNull(inputFile); // super.readProductNodes should have checked getInput() != null already
-        inputDir = inputFile.getParentFile();
-        if (inputDir == null) {
-            inputDir = new File(".");
-        }
-
-        Document jDomDocument = null;
-        if (inputFile.canRead()) {
-            try {
-                final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                final DocumentBuilder builder = factory.newDocumentBuilder();
-                Debug.trace("DimapProductReader: about to open file '" + inputFile + "'..."); /*I18N*/
-                final InputStream is = new BufferedInputStream(new FileInputStream(inputFile), 256 * 1024);
-                final org.w3c.dom.Document w3cDocument = builder.parse(is);
-                is.close();
-                jDomDocument = new DOMBuilder().build(w3cDocument);
-                product = DimapProductHelpers.createProduct(jDomDocument);
-                product.setProductReader(this);
-            } catch (ParserConfigurationException e) {
-                throwIOException(e.toString());
-            } catch (SAXException e) {
-                throwIOException(e.toString());
+            final Band lonBand = product.getBand("longitude");
+            final Band latBand = product.getBand("latitude");
+            if (latBand != null && lonBand != null) {
+                product.setGeoCoding(new PixelGeoCoding(latBand, lonBand, null, 6, ProgressMonitor.NULL));
             }
         }
+    }
 
-        Debug.assertNotNull(product);
+    private void bindBandsToFiles(Document dom) {
+        bandDataFiles = DimapProductHelpers.getBandDataFiles(dom, product, getInputDir());
+        final Band[] bands = product.getBands();
+        for (final Band band : bands) {
+            if ((band instanceof VirtualBand && !((VirtualBand) band).hasWrittenData()) || band instanceof FilterBand) {
+                continue;
+            }
+            final File dataFile = (File) bandDataFiles.get(band);
+            if (dataFile == null) {
+                product.removeBand(band);
+                BeamLogManager.getSystemLogger().warning(
+                        "DimapProductReader: Unable to read file '" + dataFile + "' referenced by '" + band.getName() + "'.");
+                BeamLogManager.getSystemLogger().warning(
+                        "DimapProductReader: Removed band '" + band.getName() + "' from product '" + product.getFileLocation() + "'.");
+            }
+        }
+    }
 
+    private void readTiePointGrids(Document jDomDocument) throws IOException {
         final String[] tiePointGridNames = product.getTiePointGridNames();
-        for (int i = 0; i < tiePointGridNames.length; i++) {
-            final TiePointGrid tiePointGrid = product.getTiePointGrid(tiePointGridNames[i]);
+        for (String tiePointGridName : tiePointGridNames) {
+            final TiePointGrid tiePointGrid = product.getTiePointGrid(tiePointGridName);
             String dataFile = DimapProductHelpers.getTiePointDataFile(jDomDocument, tiePointGrid.getName());
             dataFile = FileUtils.exchangeExtension(dataFile, DimapProductConstants.IMAGE_FILE_EXTENSION);
             FileImageInputStream inputStream = null;
@@ -164,63 +202,47 @@ public class DimapProductReader extends AbstractProductReader {
                     tiePointGrid.setDiscontinuity(TiePointGrid.getDiscontinuity(floats));
                 }
             } catch (IOException e) {
+                throw new IOException(MessageFormat.format("I/O error while reading tie-point grid ''{0}''.", tiePointGridName), e);
+            } finally {
                 if (inputStream != null) {
                     inputStream.close();
                 }
-                inputStream = null;
-                throwIOException(e.toString());
             }
         }
+    }
 
-        sourceRasterWidth = product.getSceneRasterWidth();
-        sourceRasterHeight = product.getSceneRasterHeight();
-        int sceneRasterWidth = sourceRasterWidth;
-        int sceneRasterHeight = sourceRasterHeight;
-        if (getSubsetDef() != null) {
-            final Dimension s = getSubsetDef().getSceneRasterSize(sceneRasterWidth, sceneRasterHeight);
-            sceneRasterWidth = s.width;
-            sceneRasterHeight = s.height;
+    private Document readDom() throws IOException {
+        Document dom;
+        try {
+            final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            final DocumentBuilder builder = factory.newDocumentBuilder();
+            Debug.trace("DimapProductReader: about to open file '" + inputFile + "'..."); /*I18N*/
+            final InputStream is = new BufferedInputStream(new FileInputStream(inputFile), 256 * 1024);
+            dom = new DOMBuilder().build(builder.parse(is));
+            is.close();
+        } catch (Exception e) {
+            throw new IOException("Failed to read DIMAP XML header.", e);
         }
+        return dom;
+    }
 
-        final Band[] bands = product.getBands();
-
-        bandDataFiles = DimapProductHelpers.getBandDataFiles(jDomDocument, product, getInputDir());
-
-        for (int i = 0; i < bands.length; i++) {
-            final Band band = bands[i];
-            if ((band instanceof VirtualBand && !((VirtualBand)band).hasWrittenData()) || band instanceof FilterBand) {
-                continue;
-            }
-            final File dataFile = (File) bandDataFiles.get(band);
-            if (dataFile == null || !dataFile.canRead()) {
-                product.removeBand(band);
-                BeamLogManager.getSystemLogger().warning(
-                        "DimapProductReader: Unable to read file '" + dataFile + "' referenced by '" + band.getName() + "'.");
-                BeamLogManager.getSystemLogger().warning(
-                        "DimapProductReader: Removed band '" + band.getName() + "' from product '" + product.getFileLocation() + "'.");
-            }
-        }
-        final GeoCoding[] geoCodings = DimapProductHelpers.createGeoCoding(jDomDocument, product);
-
-        if (geoCodings != null) {
-            if (geoCodings.length == 1) {
-                product.setGeoCoding(geoCodings[0]);
-            } else {
-                for (int i = 0; i < geoCodings.length; i++) {
-                    product.getBandAt(i).setGeoCoding(geoCodings[i]);
-                }
-            }
+    private void initInput() throws IOException {
+        if (getInput() instanceof String) {
+            inputFile = new File((String) getInput());
+        } else if (getInput() instanceof File) {
+            inputFile = (File) getInput();
         } else {
-            final Band lonBand = product.getBand("longitude");
-            final Band latBand = product.getBand("latitude");
-            if (latBand != null && lonBand != null)  {
-                product.setGeoCoding(new PixelGeoCoding(latBand, lonBand, null, 6, ProgressMonitor.NULL));
-            }
+            throw new IllegalArgumentException("unsupported input source: " + getInput());  /*I18N*/
+        }
+        if (DecodeQualification.UNABLE.equals(getReaderPlugIn().getDecodeQualification(inputFile))) {
+            throw new IOException("Not a '" + DimapProductConstants.DIMAP_FORMAT_NAME + "' product."); /*I18N*/
         }
 
-        product.setModified(false);
-        product.setFileLocation(inputFile);
-        return product;
+        Debug.assertNotNull(inputFile); // super.readProductNodes should have checked getInput() != null already
+        inputDir = inputFile.getParentFile();
+        if (inputDir == null) {
+            inputDir = new File(".");
+        }
     }
 
     /**
@@ -319,9 +341,7 @@ public class DimapProductReader extends AbstractProductReader {
         super.close();
     }
 
-    private ImageInputStream getOrCreateImageInputStream(Band band, File file)
-            throws FileNotFoundException,
-                   IOException {
+    private ImageInputStream getOrCreateImageInputStream(Band band, File file) throws IOException {
         ImageInputStream inputStream = getImageInputStream(band);
         if (inputStream == null) {
             inputStream = new FileImageInputStream(file);
@@ -338,13 +358,6 @@ public class DimapProductReader extends AbstractProductReader {
             return bandInputStreams.get(band);
         }
         return null;
-    }
-
-    /**
-     * Trows an IOException with the given message
-     */
-    private static void throwIOException(String message) throws IOException {
-        throw new IOException(message);
     }
 
 }

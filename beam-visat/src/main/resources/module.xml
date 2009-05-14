@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.6:<br/>
+          [BEAM-994] VISAT "Save As" command shall not close views anymore<br/>
           [BEAM-976] Time Info displays wrong UTC time<br/>
           [BEAM-974] NullPointerException when importing pins defined by pixel position<br/>
           [BEAM-939] No-data samples not considered in band math<br/>

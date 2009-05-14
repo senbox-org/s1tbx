@@ -44,17 +44,17 @@ public abstract class AbstractProductReader implements ProductReader {
     /**
      * The reader plug-in responsible for creating this reader.
      */
-    private final ProductReaderPlugIn _readerPlugIn;
+    private final ProductReaderPlugIn readerPlugIn;
 
     /**
      * The input source
      */
-    private Object _input;
+    private Object input;
 
     /**
      * The spectral and spatial subset definition used to read from the original data source.
      */
-    private ProductSubsetDef _subsetDef;
+    private ProductSubsetDef subsetDef;
 
     /**
      * Constructs a new abstract product reader.
@@ -63,7 +63,7 @@ public abstract class AbstractProductReader implements ProductReader {
      *                     implementations
      */
     protected AbstractProductReader(ProductReaderPlugIn readerPlugIn) {
-        _readerPlugIn = readerPlugIn;
+        this.readerPlugIn = readerPlugIn;
     }
 
     /**
@@ -72,7 +72,7 @@ public abstract class AbstractProductReader implements ProductReader {
      * @return the product reader plug-in, should never be <code>null</code>
      */
     public ProductReaderPlugIn getReaderPlugIn() {
-        return _readerPlugIn;
+        return readerPlugIn;
     }
 
     /**
@@ -80,7 +80,11 @@ public abstract class AbstractProductReader implements ProductReader {
      * <code>setInput()</code> method has not been called so far.
      */
     public Object getInput() {
-        return _input;
+        return input;
+    }
+
+    protected void setInput(Object input) {
+        this.input = input;
     }
 
     /**
@@ -90,8 +94,8 @@ public abstract class AbstractProductReader implements ProductReader {
      */
     public boolean isMetadataIgnored() {
         boolean ignoreMetadata = false;
-        if (_subsetDef != null) {
-            ignoreMetadata = _subsetDef.isIgnoreMetadata();
+        if (subsetDef != null) {
+            ignoreMetadata = subsetDef.isIgnoreMetadata();
         }
         return ignoreMetadata;
     }
@@ -102,7 +106,7 @@ public abstract class AbstractProductReader implements ProductReader {
      * @return the subset information, can be <code>null</code>
      */
     public ProductSubsetDef getSubsetDef() {
-        return _subsetDef;
+        return subsetDef;
     }
 
     /**
@@ -112,7 +116,7 @@ public abstract class AbstractProductReader implements ProductReader {
      * @param subsetDef the subset definition
      */
     protected void setSubsetDef(ProductSubsetDef subsetDef) {
-        _subsetDef = subsetDef;
+        this.subsetDef = subsetDef;
     }
 
 
@@ -150,7 +154,7 @@ public abstract class AbstractProductReader implements ProductReader {
         if (input != null && !isInstanceOfValidInputType(input)) {
             throw new IllegalArgumentException("invalid input source: " + input);
         }
-        _input = input;
+        setInput(input);
         setSubsetDef(subsetDef);
         final Product product = readProductNodesImpl();
         product.setModified(false);
@@ -300,8 +304,8 @@ public abstract class AbstractProductReader implements ProductReader {
      */
     public void close() throws IOException {
         Debug.trace("AbstractProductReader.close(): " + toString());
-        _input = null;
-        _subsetDef = null;
+        input = null;
+        subsetDef = null;
     }
 
     /**
@@ -424,7 +428,7 @@ public abstract class AbstractProductReader implements ProductReader {
      */
     @Override
     public String toString() {
-        return getClass().getName() + "[input=" + _input + "]";
+        return getClass().getName() + "[input=" + input + "]";
     }
 
     private static boolean isNameOfLongitudeGrid(String name) {
