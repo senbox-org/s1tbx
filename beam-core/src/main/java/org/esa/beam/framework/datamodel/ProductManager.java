@@ -37,6 +37,7 @@ public class ProductManager {
     private Vector<Listener> listeners;
 
     private final ProductNodeList<Product> productList;
+    private ProductManager.ProductNodeNamesListener productNodeNamesListener;
 
 
     /**
@@ -44,6 +45,7 @@ public class ProductManager {
      */
     public ProductManager() {
         productList = new ProductNodeList<Product>();
+        productNodeNamesListener = new ProductNodeNamesListener();
     }
 
     /**
@@ -187,14 +189,7 @@ public class ProductManager {
                 if (product.getRefNo() <= 0) {
                     product.setRefNo(getNextRefNo() + 1);
                 }
-                product.addProductNodeListener(new ProductNodeListenerAdapter() {
-                    @Override
-                    public void nodeChanged(ProductNodeEvent event) {
-                        if (ProductNode.PROPERTY_NAME_NAME.equals(event.getPropertyName())) {
-                            updateExpressionToRenamedNode(event.getSourceNode(), (String) event.getOldValue());
-                        }
-                    }
-                });
+                product.addProductNodeListener(productNodeNamesListener);
                 fireEvent(product, PRODUCT_ADDED);
             }
         }
@@ -205,36 +200,9 @@ public class ProductManager {
         final String oldExternName = BandArithmetic.createExternalName(oldName);
         final String newExternName = BandArithmetic.createExternalName(renamedNode.getName());
 
-        final ProductVisitorAdapter productVisitorAdapter = new ProductVisitorAdapter() {
-            @Override
-            public void visit(TiePointGrid grid) {
-                grid.updateExpression(oldExternName, newExternName);
-            }
-
-            @Override
-            public void visit(Band band) {
-                band.updateExpression(oldExternName, newExternName);
-            }
-
-            @Override
-            public void visit(VirtualBand virtualBand) {
-                virtualBand.updateExpression(oldExternName, newExternName);
-            }
-
-            @Override
-            public void visit(BitmaskDef bitmaskDef) {
-                bitmaskDef.updateExpression(oldExternName, newExternName);
-            }
-
-            @Override
-            public void visit(ProductNodeGroup group) {
-                group.updateExpression(oldExternName, newExternName);
-            }
-        };
-
         for (Product product : products) {
             if (product != renamedNode.getProduct()) {
-                product.acceptVisitor(productVisitorAdapter);
+                product.acceptVisitor(new ExpressionUpdaterVisitor(oldExternName, newExternName));
             }
         }
     }
@@ -252,6 +220,7 @@ public class ProductManager {
             if (index >= 0) {
                 if (productList.remove(product)) {
                     productList.clearRemovedList();
+                    product.removeProductNodeListener(productNodeNamesListener);
                     product.resetRefNo();
                     clearProductManager(product);
                     fireEvent(product, PRODUCT_REMOVED);
@@ -444,6 +413,52 @@ public class ProductManager {
 
         public ProductManagerEvent(Product product) {
             super(product);
+        }
+    }
+
+    private static class ExpressionUpdaterVisitor extends ProductVisitorAdapter {
+
+        private final String oldExternName;
+        private final String newExternName;
+
+        public ExpressionUpdaterVisitor(String oldExternName, String newExternName) {
+            this.oldExternName = oldExternName;
+            this.newExternName = newExternName;
+        }
+
+        @Override
+        public void visit(TiePointGrid grid) {
+            grid.updateExpression(oldExternName, newExternName);
+        }
+
+        @Override
+        public void visit(Band band) {
+            band.updateExpression(oldExternName, newExternName);
+        }
+
+        @Override
+        public void visit(VirtualBand virtualBand) {
+            virtualBand.updateExpression(oldExternName, newExternName);
+        }
+
+        @Override
+        public void visit(BitmaskDef bitmaskDef) {
+            bitmaskDef.updateExpression(oldExternName, newExternName);
+        }
+
+        @Override
+        public void visit(ProductNodeGroup group) {
+            group.updateExpression(oldExternName, newExternName);
+        }
+    }
+
+    private class ProductNodeNamesListener extends ProductNodeListenerAdapter {
+
+        @Override
+        public void nodeChanged(ProductNodeEvent event) {
+            if (ProductNode.PROPERTY_NAME_NAME.equals(event.getPropertyName())) {
+                updateExpressionToRenamedNode(event.getSourceNode(), (String) event.getOldValue());
+            }
         }
     }
 }
