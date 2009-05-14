@@ -98,13 +98,6 @@ public interface Viewport extends Cloneable {
      */
     void setZoomFactor(double zoomFactor);
 
-    /**
-     * Zooms to the given area given in model coordinates.
-     *
-     * @param modelArea the area in model coordinates
-     */
-    void zoom(Rectangle2D modelArea);
-
     // todo - use term "scale"
     /**
      * Zooms to the given point given in model coordinates.
@@ -114,6 +107,13 @@ public interface Viewport extends Cloneable {
      * @param modelCenterY New Y of the view's center point in model coordinates.
      */
     void setZoomFactor(double zoomFactor, double modelCenterX, double modelCenterY);
+
+    /**
+     * Zooms to the given area given in model coordinates.
+     *
+     * @param modelArea the area in model coordinates
+     */
+    void zoom(Rectangle2D modelArea);
 
     /**
      * @return The rotation angle in radians.
