@@ -18,7 +18,29 @@ package org.esa.beam.dataio.dimap;
 
 import org.esa.beam.dataio.dimap.spi.DimapPersistable;
 import org.esa.beam.dataio.dimap.spi.DimapPersistence;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.FXYGeoCoding;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PointingFactory;
+import org.esa.beam.framework.datamodel.PointingFactoryRegistry;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ROIDefinition;
+import org.esa.beam.framework.datamodel.SampleCoding;
+import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
@@ -72,9 +94,10 @@ public class DimapProductHelpers {
      * Creates a in-memory data product represenation from the given DOM (BEAM-DIMAP format).
      *
      * @param dom the DOM in BEAM-DIMAP format
+     *
      * @return an in-memory data product represenation
      */
-    public final static Product createProduct(Document dom) {
+    public static Product createProduct(Document dom) {
         return new ProductBuilder(dom).createProduct();
     }
 
@@ -85,16 +108,18 @@ public class DimapProductHelpers {
      * @param dom      the JDOM in BEAM-DIMAP format
      * @param product  the product to retrieve the data files for
      * @param inputDir the directory where to search for the data files
+     *
      * @return a <code>Map</code> object which contains all the band data references from the given jDom.<br> Returns
      *         an empty <code>Map</code> if the jDom does not contain band data files
+     *
      * @throws IllegalArgumentException if one of the parameters is null.
      */
-    public final static Map getBandDataFiles(final Document dom, final Product product, final File inputDir) throws IllegalArgumentException {
+    public static Map<Band, File> getBandDataFiles(final Document dom, final Product product, final File inputDir) throws IllegalArgumentException {
         Guardian.assertNotNull("dom", dom);
         Guardian.assertNotNull("product", product);
         Guardian.assertNotNull("inputDir", inputDir);
 
-        final Map dataFilesMap = new HashMap();
+        final Map<Band, File> dataFilesMap = new HashMap<Band, File>();
         if (!dom.hasRootElement()) {
             return dataFilesMap;
         }
@@ -107,22 +132,20 @@ public class DimapProductHelpers {
             return dataFilesMap;
         }
         final List bandDataFiles = dataAccess.getChildren(DimapProductConstants.TAG_DATA_FILE);
-        if (bandDataFiles == null) {
-            return dataFilesMap;
-        }
-
-        for (Iterator iterator = bandDataFiles.iterator(); iterator.hasNext();) {
-            final Element bandDataFile = (Element) iterator.next();
+        for (Object bandDataFile1 : bandDataFiles) {
+            final Element bandDataFile = (Element) bandDataFile1;
             final String actualIndex = bandDataFile.getChildTextTrim(DimapProductConstants.TAG_BAND_INDEX);
             final String bandName = getBandName(rootElement, actualIndex);
             final Band band = product.getBand(bandName);
-            final Element filePathElement = bandDataFile.getChild(DimapProductConstants.TAG_DATA_FILE_PATH);
-            final String bandHeaderFilePath = filePathElement.getAttributeValue(DimapProductConstants.ATTRIB_HREF);
-            if (bandHeaderFilePath != null && bandHeaderFilePath.length() > 0) {
-                final String localHeaderFilePath = SystemUtils.convertToLocalPath(bandHeaderFilePath);
-                final String bandDataFilePath = FileUtils.exchangeExtension(localHeaderFilePath,
-                                                                            DimapProductConstants.IMAGE_FILE_EXTENSION);
-                dataFilesMap.put(band, new File(inputDir, bandDataFilePath));
+            if (band != null) {
+                final Element filePathElement = bandDataFile.getChild(DimapProductConstants.TAG_DATA_FILE_PATH);
+                final String bandHeaderFilePath = filePathElement.getAttributeValue(DimapProductConstants.ATTRIB_HREF);
+                if (bandHeaderFilePath != null && bandHeaderFilePath.length() > 0) {
+                    final String localHeaderFilePath = SystemUtils.convertToLocalPath(bandHeaderFilePath);
+                    final String bandDataFilePath = FileUtils.exchangeExtension(localHeaderFilePath,
+                                                                                DimapProductConstants.IMAGE_FILE_EXTENSION);
+                    dataFilesMap.put(band, new File(inputDir, bandDataFilePath));
+                }
             }
         }
 
@@ -135,35 +158,35 @@ public class DimapProductHelpers {
      *
      * @param dom              the DOM in BEAM-DIMAP format
      * @param tiePointGridName the name of the tie point grid
+     *
      * @return the <code>String</code> object which points to the data for the tie point grid.
+     *
      * @throws IllegalArgumentException if the parameter dom is null or the parameter tiePointGridName is null or empty
      */
-    public final static String getTiePointDataFile(Document dom, String tiePointGridName) throws IllegalArgumentException {
+    public static String getTiePointDataFile(Document dom, String tiePointGridName) throws IllegalArgumentException {
         Guardian.assertNotNull("dom", dom);
         Guardian.assertNotNullOrEmpty("tiePointGridName", tiePointGridName);
         final Element rootElement = dom.getRootElement();
-        Element dataAccess = null;
-        if (rootElement != null) {
-            dataAccess = rootElement.getChild(DimapProductConstants.TAG_DATA_ACCESS);
-        }
-        List tiePointGridFiles = null;
-        if (dataAccess != null) {
-            tiePointGridFiles = dataAccess.getChildren(DimapProductConstants.TAG_TIE_POINT_GRID_FILE);
+        Element dataAccess = rootElement.getChild(DimapProductConstants.TAG_DATA_ACCESS);
+        if (dataAccess == null) {
+            return null;
         }
         final String index = getTiePointGridIndex(rootElement, tiePointGridName);
-        if (index != null) {
-            for (Iterator iterator = tiePointGridFiles.iterator(); iterator.hasNext();) {
-                final Element tiePointGridFile = (Element) iterator.next();
-                final String actualIndex = tiePointGridFile.getChildTextTrim(
-                        DimapProductConstants.TAG_TIE_POINT_GRID_INDEX);
-                if (index.equals(actualIndex)) {
-                    final Element filePathElement = tiePointGridFile.getChild(
-                            DimapProductConstants.TAG_TIE_POINT_GRID_FILE_PATH);
-                    final String tiePointGridFilePath = filePathElement.getAttributeValue(
-                            DimapProductConstants.ATTRIB_HREF);
-                    if (tiePointGridFilePath != null && tiePointGridFilePath.length() > 0) {
-                        return SystemUtils.convertToLocalPath(tiePointGridFilePath);
-                    }
+        if (index == null) {
+            return null;
+        }
+        List tiePointGridFiles = dataAccess.getChildren(DimapProductConstants.TAG_TIE_POINT_GRID_FILE);
+        for (Object child : tiePointGridFiles) {
+            final Element tiePointGridFile = (Element) child;
+            final String actualIndex = tiePointGridFile.getChildTextTrim(
+                    DimapProductConstants.TAG_TIE_POINT_GRID_INDEX);
+            if (index.equals(actualIndex)) {
+                final Element filePathElement = tiePointGridFile.getChild(
+                        DimapProductConstants.TAG_TIE_POINT_GRID_FILE_PATH);
+                final String tiePointGridFilePath = filePathElement.getAttributeValue(
+                        DimapProductConstants.ATTRIB_HREF);
+                if (tiePointGridFilePath != null && tiePointGridFilePath.length() > 0) {
+                    return SystemUtils.convertToLocalPath(tiePointGridFilePath);
                 }
             }
         }
@@ -299,8 +322,8 @@ public class DimapProductHelpers {
             if (tpgElem != null) {
                 final String tpgNameLat = tpgElem.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_GRID_NAME_LAT);
                 final String tpgNameLon = tpgElem.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_GRID_NAME_LON);
-                TiePointGrid tiePointGridLat = null;
-                TiePointGrid tiePointGridLon = null;
+                TiePointGrid tiePointGridLat;
+                TiePointGrid tiePointGridLon;
                 if (tpgNameLat != null && tpgNameLon != null) {
                     tiePointGridLat = product.getTiePointGrid(tpgNameLat);
                     tiePointGridLon = product.getTiePointGrid(tpgNameLon);
@@ -338,7 +361,7 @@ public class DimapProductHelpers {
                         final MapProjection projection; // new MapProjection(projectionName, transform);
                         projection = MapProjectionRegistry.getProjection(projectionName);
                         if (projection != null) {
-                            Datum datum = null;
+                            Datum datum;
                             if (Datum.WGS_84.getName().equalsIgnoreCase(datumName)) {
                                 datum = Datum.WGS_84;
                                 final float refPixelX = Float.parseFloat(strings[1]);
@@ -573,49 +596,47 @@ public class DimapProductHelpers {
     }
 
     private static String getTiePointGridIndex(Element rootElement, String tiePointGridName) {
-        Element tiePointGrids = null;
-        if (rootElement != null) {
-            tiePointGrids = rootElement.getChild(DimapProductConstants.TAG_TIE_POINT_GRIDS);
-        }
-        final List tiePointGridInfos = tiePointGrids.getChildren(DimapProductConstants.TAG_TIE_POINT_GRID_INFO);
-        for (Iterator iterator = tiePointGridInfos.iterator(); iterator.hasNext();) {
-            final Element tiePointGridInfo = (Element) iterator.next();
-            final String actualTiePointGridName = tiePointGridInfo.getChildTextTrim(
-                    DimapProductConstants.TAG_TIE_POINT_GRID_NAME);
-            if (tiePointGridName.equals(actualTiePointGridName)) {
-                return tiePointGridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_GRID_INDEX);
+        Element tiePointGrids = rootElement.getChild(DimapProductConstants.TAG_TIE_POINT_GRIDS);
+        if (tiePointGrids != null) {
+            final List tiePointGridInfos = tiePointGrids.getChildren(DimapProductConstants.TAG_TIE_POINT_GRID_INFO);
+            for (Object child : tiePointGridInfos) {
+                final Element tiePointGridInfo = (Element) child;
+                final String actualTiePointGridName = tiePointGridInfo.getChildTextTrim(
+                        DimapProductConstants.TAG_TIE_POINT_GRID_NAME);
+                if (tiePointGridName.equals(actualTiePointGridName)) {
+                    return tiePointGridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_GRID_INDEX);
+                }
             }
         }
         return null;
     }
 
     private static String getBandName(Element rootElement, String index) {
-        Element imageInterpretation = null;
-        if (rootElement != null) {
-            imageInterpretation = rootElement.getChild(DimapProductConstants.TAG_IMAGE_INTERPRETATION);
-        }
-        final List<Element> spectralBandInfos = imageInterpretation.getChildren(DimapProductConstants.TAG_SPECTRAL_BAND_INFO);
-        for (Element bandInfo : spectralBandInfos) {
-            final String actualBandIndex = bandInfo.getChildTextTrim(DimapProductConstants.TAG_BAND_INDEX);
-            if (index.equals(actualBandIndex)) {
-                return bandInfo.getChildTextTrim(DimapProductConstants.TAG_BAND_NAME);
+        Element imageInterpretation = rootElement.getChild(DimapProductConstants.TAG_IMAGE_INTERPRETATION);
+        if (imageInterpretation != null) {
+            final List spectralBandInfos = imageInterpretation.getChildren(DimapProductConstants.TAG_SPECTRAL_BAND_INFO);
+            for (Object child : spectralBandInfos) {
+                Element bandInfo = (Element) child;
+                final String actualBandIndex = bandInfo.getChildTextTrim(DimapProductConstants.TAG_BAND_INDEX);
+                if (index.equals(actualBandIndex)) {
+                    return bandInfo.getChildTextTrim(DimapProductConstants.TAG_BAND_NAME);
+                }
             }
         }
         return null;
     }
 
     private static String getTiePointGridName(Element rootElement, String index) {
-        Element tiePointGrids = null;
-        if (rootElement != null) {
-            tiePointGrids = rootElement.getChild(DimapProductConstants.TAG_TIE_POINT_GRIDS);
-        }
-        final List tiePointGridInfos = tiePointGrids.getChildren(DimapProductConstants.TAG_TIE_POINT_GRID_INFO);
-        for (Iterator iterator = tiePointGridInfos.iterator(); iterator.hasNext();) {
-            final Element tiePointGridInfo = (Element) iterator.next();
-            final String currentTiePointGridIndex = tiePointGridInfo.getChildTextTrim(
-                    DimapProductConstants.TAG_TIE_POINT_GRID_INDEX);
-            if (index.equals(currentTiePointGridIndex)) {
-                return tiePointGridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_GRID_NAME);
+        Element tiePointGrids = rootElement.getChild(DimapProductConstants.TAG_TIE_POINT_GRIDS);
+        if (tiePointGrids != null) {
+            final List tiePointGridInfos = tiePointGrids.getChildren(DimapProductConstants.TAG_TIE_POINT_GRID_INFO);
+            for (Object child : tiePointGridInfos) {
+                final Element tiePointGridInfo = (Element) child;
+                final String currentTiePointGridIndex = tiePointGridInfo.getChildTextTrim(
+                        DimapProductConstants.TAG_TIE_POINT_GRID_INDEX);
+                if (index.equals(currentTiePointGridIndex)) {
+                    return tiePointGridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_GRID_NAME);
+                }
             }
         }
         return null;
@@ -625,17 +646,19 @@ public class DimapProductHelpers {
      * Creates a {@link FileFilter} for BEAM-DIMAP files.
      *
      * @return a FileFilter for use with a {@link javax.swing.JFileChooser}
+     *
      * @see org.esa.beam.util.io.BeamFileChooser
      */
     public static FileFilter createDimapFileFilter() {
         return new DimapFileFilter();
     }
 
-
+    // todo - move - only used in tests (nf)
     /**
      * Creates a parsed {@link Document} from the given {@link InputStream inputStream}.
      *
      * @param inputStream the stream to be parsed
+     *
      * @return a parsed inputStream
      */
     public static Document createDom(final InputStream inputStream) {
@@ -658,7 +681,9 @@ public class DimapProductHelpers {
      * Converts a given BEAM <code>unit</code> into a DIMAP conform unit.
      *
      * @param unit a BEAM unit
+     *
      * @return the converted unit
+     *
      * @see DimapProductHelpers#convertDimapUnitToBeamUnit(String)
      */
     public static String convertBeamUnitToDimapUnit(final String unit) {
@@ -679,7 +704,9 @@ public class DimapProductHelpers {
      * Converts a given DIMAP <code>unit</code> into a BEAM conform unit.
      *
      * @param unit a DIMAP unit
+     *
      * @return the converted unit
+     *
      * @see DimapProductHelpers#convertBeamUnitToDimapUnit(String)
      */
     public static String convertDimapUnitToBeamUnit(final String unit) {
@@ -788,9 +815,8 @@ public class DimapProductHelpers {
 
         private static void addMetadataElements(final Element element, MetadataElement mdElem) {
             final List metadataElements = element.getChildren(DimapProductConstants.TAG_METADATA_ELEMENT);
-            final Iterator iterator = metadataElements.iterator();
-            while (iterator.hasNext()) {
-                final Element metadataElement = (Element) iterator.next();
+            for (Object child : metadataElements) {
+                final Element metadataElement = (Element) child;
 
                 final String elemName = metadataElement.getAttributeValue(DimapProductConstants.ATTRIB_NAME);
                 if (elemName == null || elemName.length() == 0) {
@@ -807,9 +833,8 @@ public class DimapProductHelpers {
 
         private static void addMetadataAttributes(final Element element, MetadataElement mdElem) {
             final List attributeElements = element.getChildren(DimapProductConstants.TAG_METADATA_ATTRIBUTE);
-            final Iterator iterator = attributeElements.iterator();
-            while (iterator.hasNext()) {
-                final Element attribElement = (Element) iterator.next();
+            for (Object child : attributeElements) {
+                final Element attribElement = (Element) child;
 
                 final String attName = attribElement.getAttributeValue(DimapProductConstants.ATTRIB_NAME);
                 if (attName == null || attName.length() == 0) {
@@ -898,8 +923,8 @@ public class DimapProductHelpers {
 
         private void addDisplayInfosToBandsAndTiePointGrids(Product product) {
             final List imageDisplayElems = getRootElement().getChildren(DimapProductConstants.TAG_IMAGE_DISPLAY);
-            for (Iterator iteratorIDE = imageDisplayElems.iterator(); iteratorIDE.hasNext();) {
-                final Element imageDisplayElem = (Element) iteratorIDE.next();
+            for (Object child : imageDisplayElems) {
+                final Element imageDisplayElem = (Element) child;
                 addBandStatistics(imageDisplayElem, product);
                 addBitmaskOverlays(imageDisplayElem, product);
                 addRoiDefinitions(imageDisplayElem, product);
@@ -908,8 +933,8 @@ public class DimapProductHelpers {
 
         private void addRoiDefinitions(Element imageDisplayElem, Product product) {
             final List roiDefinitions = imageDisplayElem.getChildren(DimapProductConstants.TAG_ROI_DEFINITION);
-            for (Iterator iterator = roiDefinitions.iterator(); iterator.hasNext();) {
-                final Element roiDefinitionElem = (Element) iterator.next();
+            for (Object child : roiDefinitions) {
+                final Element roiDefinitionElem = (Element) child;
                 final ROIDefinition roiDefinition = new ROIDefinition();
                 roiDefinition.initFromJDOMElem(roiDefinitionElem);
                 final String index = roiDefinitionElem.getChildTextTrim(DimapProductConstants.TAG_BAND_INDEX);
@@ -1007,8 +1032,8 @@ public class DimapProductHelpers {
             if (minSample != null && maxSample != null) {
                 return new Stx(band.scaleInverse(minSample),
                                band.scaleInverse(maxSample),
-                               mean != null ? band.scaleInverse(mean): Double.NaN,
-                               stdDev != null ? band.scaleInverse(stdDev): Double.NaN,
+                               mean != null ? band.scaleInverse(mean) : Double.NaN,
+                               stdDev != null ? band.scaleInverse(stdDev) : Double.NaN,
                                ProductData.isIntType(band.getDataType()),
                                bins == null ? new int[0] : bins,
                                level == null ? 0 : level);
@@ -1121,11 +1146,11 @@ public class DimapProductHelpers {
         }
 
         private void addTiePointGrids(Product product) {
-            final Element child = getRootElement().getChild(DimapProductConstants.TAG_TIE_POINT_GRIDS);
-            if (child != null) {
-                final List children = child.getChildren(DimapProductConstants.TAG_TIE_POINT_GRID_INFO);
-                for (Iterator iterator = children.iterator(); iterator.hasNext();) {
-                    final Element gridInfo = (Element) iterator.next();
+            final Element parent = getRootElement().getChild(DimapProductConstants.TAG_TIE_POINT_GRIDS);
+            if (parent != null) {
+                final List children = parent.getChildren(DimapProductConstants.TAG_TIE_POINT_GRID_INFO);
+                for (Object child : children) {
+                    final Element gridInfo = (Element) child;
                     final String name = gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_GRID_NAME);
                     final int width = Integer.parseInt(
                             gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_NCOLS));
@@ -1222,8 +1247,8 @@ public class DimapProductHelpers {
             } else {
                 bitmaskDefList = getRootElement().getChildren(DimapProductConstants.TAG_BITMASK_DEFINITION);
             }
-            for (Iterator iterator = bitmaskDefList.iterator(); iterator.hasNext();) {
-                final Element bitmaskDefElem = (Element) iterator.next();
+            for (Object child : bitmaskDefList) {
+                final Element bitmaskDefElem = (Element) child;
                 final BitmaskDef bitmaskDef = BitmaskDef.createBitmaskDef(bitmaskDefElem);
                 if (bitmaskDef != null) {
                     product.addBitmaskDef(bitmaskDef);
@@ -1238,11 +1263,11 @@ public class DimapProductHelpers {
             }
         }
 
-        private static void addSpectralBands(final Element child, Product product) {
-            final List children = child.getChildren(DimapProductConstants.TAG_SPECTRAL_BAND_INFO);
-            final List filterBandElementList = new ArrayList();
-            for (Iterator iterator = children.iterator(); iterator.hasNext();) {
-                final Element element = (Element) iterator.next();
+        private static void addSpectralBands(final Element parent, Product product) {
+            final List children = parent.getChildren(DimapProductConstants.TAG_SPECTRAL_BAND_INFO);
+            final List<Element> filterBandElementList = new ArrayList<Element>();
+            for (Object child : children) {
+                final Element element = (Element) child;
                 if (isFilterBand(element)) {
                     // filter bands must be added as the last bands
                     // they need an already existing RasterDataNode as source
@@ -1252,8 +1277,8 @@ public class DimapProductHelpers {
                     setGeneralBandProperties(band, element, product);
                 }
             }
-            for (int i = 0; i < filterBandElementList.size(); i++) {
-                final Element element = (Element) filterBandElementList.get(i);
+            for (Object child : filterBandElementList) {
+                final Element element = (Element) child;
                 final Band band = addBand(element, product);
                 setGeneralBandProperties(band, element, product);
             }
@@ -1359,7 +1384,7 @@ public class DimapProductHelpers {
                     band = (Band) persistable.createObjectFromXml(element, product);
                     // currently it can be null if the operator of filtered band is of type
                     // GeneralFilterBand.STDDEV or GeneralFilterBand.RMS
-                    if(band == null) {
+                    if (band == null) {
                         product.addBand(band);
                     }
                 }
@@ -1399,7 +1424,7 @@ public class DimapProductHelpers {
             }
             return null;
         }
-        
+
         private static boolean getWriteData(Element element) {
             return is(element, DimapProductConstants.TAG_VIRTUAL_BAND_WRITE_DATA);
         }
@@ -1480,7 +1505,6 @@ public class DimapProductHelpers {
             Element child = getRootElement().getChild(DimapProductConstants.TAG_DATASET_USE);
             if (child != null) {
                 description = child.getChildTextTrim(DimapProductConstants.TAG_DATASET_COMMENTS);
-                child = null;
             }
             if (description == null || description.length() == 0) {
                 child = getRootElement().getChild(DimapProductConstants.TAG_DATASET_ID);
