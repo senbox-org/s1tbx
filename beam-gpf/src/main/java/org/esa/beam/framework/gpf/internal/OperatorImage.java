@@ -83,7 +83,7 @@ public class OperatorImage extends SourcelessOpImage {
         operatorContext.getPerformanceMetric().updateSource(sourceNanosPerPixel);
     }
 
-    public WritableRaster getWritableTile(Rectangle tileRectangle) {
+    WritableRaster getWritableRaster(Rectangle tileRectangle) {
         Assert.argument(tileRectangle.x % getTileWidth() == 0, "rectangle");
         Assert.argument(tileRectangle.y % getTileHeight() == 0, "rectangle");
         Assert.argument(tileRectangle.width == getTileWidth(), "rectangle");
@@ -168,7 +168,7 @@ public class OperatorImage extends SourcelessOpImage {
         } else {
             for (Band band : bands) {
                 if (isBandComputedByThisOperator(band)) {
-                    WritableRaster tileRaster = getWritableTile(band, targetTileRaster);
+                    WritableRaster tileRaster = getWritableRaster(band, targetTileRaster);
                     targetTiles.put(band, createTargetTile(band, tileRaster, targetRectangle));
                 }
             }
@@ -185,7 +185,10 @@ public class OperatorImage extends SourcelessOpImage {
                 && !operatorContext.isComputeTileMethodUsable();
     }
 
-    private boolean isBandComputedByThisOperator(Band targetBand) {
+    boolean isBandComputedByThisOperator(Band targetBand) {
+        if (targetBand == getTargetBand()) {
+            return true;
+        }
         if (!targetBand.isSourceImageSet()) {
             return false;
         }
@@ -193,14 +196,14 @@ public class OperatorImage extends SourcelessOpImage {
         return image != null && image == targetBand.getSourceImage().getImage(0);
     }
 
-    private WritableRaster getWritableTile(Band band, WritableRaster targetTileRaster) {
+    private WritableRaster getWritableRaster(Band band, WritableRaster targetTileRaster) {
         WritableRaster tileRaster;
         if (band == getTargetBand()) {
             tileRaster = targetTileRaster;
         } else {
             OperatorImage operatorImage = operatorContext.getTargetImage(band);
             Assert.state(operatorImage != this);
-            tileRaster = operatorImage.getWritableTile(targetTileRaster.getBounds());
+            tileRaster = operatorImage.getWritableRaster(targetTileRaster.getBounds());
         }
         return tileRaster;
     }

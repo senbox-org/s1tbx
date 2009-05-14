@@ -13,6 +13,7 @@ import org.esa.beam.util.io.BeamFileFilter;
 
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
+import java.awt.image.Raster;
 import java.io.IOException;
 import java.util.Locale;
 
@@ -75,10 +76,10 @@ public class OperatorProductReader implements ProductReader {
             //
             // GPF pull-processing is triggered here!!!
             //
-            java.awt.image.Raster data = image.getData(new Rectangle(destOffsetX,
-                                                                     destOffsetY,
-                                                                     destWidth,
-                                                                     destHeight));
+            Raster data = image.getData(new Rectangle(destOffsetX,
+                                                      destOffsetY,
+                                                      destWidth,
+                                                      destHeight));
             //
             /////////////////////////////////////////////////////////////////////
             data.getDataElements(destOffsetX, destOffsetY, destWidth, destHeight, destBuffer.getElems());
