@@ -16,53 +16,54 @@
  */
 package org.esa.beam.visat.actions;
 
-import com.bc.ceres.binding.ClassFieldDescriptorFactory;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.accessors.DefaultValueAccessor;
+import com.bc.ceres.binding.converters.IntegerConverter;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ValueEditorsPane;
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
-
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.math.MathUtils;
-
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.GridLayout;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.lang.reflect.Field;
+import org.esa.beam.visat.VisatApp;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.Rectangle;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
- * Created by Marco Peters.
+ * Action for exporting scene views as images.
  *
  * @author Marco Peters
+ * @author Ralf Quast
  * @version $Revision$ $Date$
  */
 public class ExportImageAction extends AbstractExportImageAction {
 
-    private JRadioButton buttonEntireImage;
+    private JRadioButton buttonFullScene;
     private SizeComponent sizeComponent;
 
     @Override
@@ -78,7 +79,8 @@ public class ExportImageAction extends AbstractExportImageAction {
     }
 
     @Override
-    protected void configureFileChooser(BeamFileChooser fileChooser, ProductSceneView view, String imageBaseName) {
+    protected void configureFileChooser(final BeamFileChooser fileChooser, final ProductSceneView view,
+                                        String imageBaseName) {
         fileChooser.setDialogTitle(getVisatApp().getAppName() + " - " + "Export Image"); /*I18N*/
         if (view.isRGB()) {
             fileChooser.setCurrentFilename(imageBaseName + "_RGB");
@@ -86,139 +88,143 @@ public class ExportImageAction extends AbstractExportImageAction {
             fileChooser.setCurrentFilename(imageBaseName + "_" + view.getRaster().getName());
         }
         final JPanel regionPanel = new JPanel(new GridLayout(2, 1));
-        regionPanel.setBorder(BorderFactory.createTitledBorder("Region")); /*I18N*/
-        buttonEntireImage = new JRadioButton("Entire image", true);
-        final JRadioButton buttonClippingOnly = new JRadioButton("Clipping only", false); /*I18N*/
+        regionPanel.setBorder(BorderFactory.createTitledBorder("Image Region")); /*I18N*/
+        buttonFullScene = new JRadioButton("Full scene", false);
+        final JRadioButton buttonVisibleRegion = new JRadioButton("Visible region", true); /*I18N*/
         ButtonGroup buttonGroup = new ButtonGroup();
-        buttonGroup.add(buttonEntireImage);
-        buttonGroup.add(buttonClippingOnly);
-        regionPanel.add(buttonEntireImage);
-        regionPanel.add(buttonClippingOnly);
+        buttonGroup.add(buttonVisibleRegion);
+        buttonGroup.add(buttonFullScene);
+        regionPanel.add(buttonVisibleRegion);
+        regionPanel.add(buttonFullScene);
         sizeComponent = new SizeComponent(view);
         JComponent sizePanel = sizeComponent.createComponent();
-        sizePanel.setBorder(BorderFactory.createTitledBorder("Size")); /*I18N*/
+        sizePanel.setBorder(BorderFactory.createTitledBorder("Image Dimension")); /*I18N*/
         final JPanel accessory = new JPanel();
         accessory.setLayout(new BoxLayout(accessory, BoxLayout.Y_AXIS));
         accessory.add(regionPanel);
         accessory.add(sizePanel);
         fileChooser.setAccessory(accessory);
-        
-        buttonEntireImage.addChangeListener(new ChangeListener() {
-            
+
+        buttonFullScene.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 sizeComponent.updateDimensions();
-            }});
+            }
+        });
     }
 
     @Override
     protected RenderedImage createImage(String imageFormat, ProductSceneView view) {
         final boolean useAlpha = !"BMP".equals(imageFormat);
         final boolean entireImage = isEntireImageSelected();
-        final LayerFilter layerFilter = new LayerFilter() {
-            @Override
-            public boolean accept(Layer layer) {
-                return layer instanceof ImageLayer;
-            }
-        };
-        return createImage(view, entireImage, useAlpha, layerFilter, sizeComponent.getDimension());
+
+        return createImage(view, entireImage, sizeComponent.getDimension(), useAlpha);
     }
-    
 
 
-    static RenderedImage createImage(ProductSceneView view, boolean entireImage, boolean useAlpha, LayerFilter layerFilter, Dimension imageDim) {
-        Rectangle2D modelBounds;
-        final ImageLayer imageLayer = view.getBaseImageLayer();
-        if (entireImage) {
-            modelBounds = imageLayer.getModelBounds();
+    static RenderedImage createImage(ProductSceneView view, boolean fullScene, Dimension dimension,
+                                     boolean alphaChannel) {
+        final int imageType = alphaChannel ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR;
+        final BufferedImage bufferedImage = new BufferedImage(dimension.width, dimension.height, imageType);
+
+        final Viewport vp1 = view.getLayerCanvas().getViewport();
+        final Viewport vp2 = new DefaultViewport(new Rectangle(dimension), vp1.isModelYAxisDown());
+        if (fullScene) {
+            vp2.zoom(view.getBaseImageLayer().getModelBounds());
         } else {
-            final RenderedImage image = imageLayer.getImage();
-            final Rectangle2D imageBounds = new Rectangle2D.Double(0, 0, image.getWidth(), image.getHeight());
-            final AffineTransform i2mTransform = imageLayer.getImageToModelTransform();
-            final Rectangle2D modelImageArea = i2mTransform.createTransformedShape(imageBounds).getBounds2D();
-
-            modelBounds = new Rectangle2D.Double();
-            Rectangle2D.intersect(view.getVisibleModelBounds(), modelImageArea, modelBounds);
+            setTransform(vp1, vp2);
         }
-        final int imageWidth;
-        final int imageHeight;
-        if (imageDim != null) {
-            imageWidth = imageDim.width;
-            imageHeight = imageDim.height;
-        } else {
-            Rectangle2D imageBounds = imageLayer.getModelToImageTransform().createTransformedShape(modelBounds).getBounds2D() ;
-            int w = MathUtils.floorInt(imageBounds.getWidth());
-            int h = MathUtils.floorInt(imageBounds.getHeight());
-            Dimension truncateImageSize = truncateImageSize(w, h);
-            imageWidth = truncateImageSize.width;
-            imageHeight = truncateImageSize.height;
-        }
-        
-        
-        final int imageType = useAlpha ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR;
-        final BufferedImage bi = new BufferedImage(imageWidth, imageHeight, imageType);
-        boolean isModelYAxisDown = view.getLayerCanvas().getViewport().isModelYAxisDown();
-        Viewport snapshotVp = new DefaultViewport(isModelYAxisDown);
-        final BufferedImageRendering imageRendering = new BufferedImageRendering(bi, snapshotVp);
 
-        if (!useAlpha) {
+        final BufferedImageRendering imageRendering = new BufferedImageRendering(bufferedImage, vp2);
+        if (!alphaChannel) {
             final Graphics2D graphics = imageRendering.getGraphics();
-            graphics.setColor(view.getBackground());
-            graphics.fillRect(0, 0, imageWidth, imageHeight);
+            graphics.setColor(view.getLayerCanvas().getBackground());
+            graphics.fillRect(0, 0, dimension.width, dimension.height);
         }
+        view.getRootLayer().render(imageRendering);
 
-        snapshotVp.zoom(modelBounds);
-        snapshotVp.moveViewDelta(snapshotVp.getViewBounds().x, snapshotVp.getViewBounds().y);
-
-        view.getRootLayer().render(imageRendering, layerFilter);
-        return bi;
+        return bufferedImage;
     }
 
+    private static void setTransform(Viewport vp1, Viewport vp2) {
+        vp2.setTransform(vp1);
+
+        final Rectangle rectangle1 = vp1.getViewBounds();
+        final Rectangle rectangle2 = vp2.getViewBounds();
+
+        final double w1 = rectangle1.getWidth();
+        final double w2 = rectangle2.getWidth();
+        final double h1 = rectangle1.getHeight();
+        final double h2 = rectangle2.getHeight();
+        final double x1 = rectangle1.getX();
+        final double y1 = rectangle1.getY();
+        final double cx = (x1 + w1) / 2.0;
+        final double cy = (y1 + h1) / 2.0;
+
+        final double magnification;
+        if (w1 > h1) {
+            magnification = w2 / w1;
+        } else {
+            magnification = h2 / h1;
+        }
+
+        final Point2D modelCenter = vp1.getViewToModelTransform().transform(new Point2D.Double(cx, cy), null);
+        vp2.setZoomFactor(vp1.getZoomFactor() * magnification, modelCenter.getX(), modelCenter.getY());
+    }
+
+    // TODO: rename method into isEntireSceneSelected
     @Override
     protected boolean isEntireImageSelected() {
-        return buttonEntireImage.isSelected();
+        return buttonFullScene.isSelected();
     }
-    
+
     private class SizeComponent {
-        
-        private static final String PROPERTY_HEIGHT = "height";
-        private static final String PROPERTY_WIDTH = "width";
-        private static final String PROPERTY_PRESERVE_RATIO = "preserveAspectRatio";
-        
+
+        private static final String PROPERTY_NAME_HEIGHT = "height";
+        private static final String PROPERTY_NAME_WIDTH = "width";
+
         private final ValueContainer valueContainer;
         private final ProductSceneView view;
-        private double ratio;
-        
-        private int width;
-        private int height;
-        private boolean preserveAspectRatio = true;
-        
+        private double aspectRatio;
+
         public SizeComponent(ProductSceneView view) {
             this.view = view;
-            valueContainer = createValueContainer();
+            valueContainer = new ValueContainer();
+            initValueContainer();
             updateDimensions();
         }
-        
-        public void updateDimensions() {
-            Rectangle2D modelBounds;
-            final ImageLayer imageLayer = view.getBaseImageLayer();
-            if (isEntireImageSelected()) {
-                modelBounds = imageLayer.getModelBounds();
-            } else {
-                final RenderedImage image = imageLayer.getImage();
-                final Rectangle2D imageBounds = new Rectangle2D.Double(0, 0, image.getWidth(), image.getHeight());
-                final AffineTransform i2mTransform = imageLayer.getImageToModelTransform();
-                final Rectangle2D modelImageArea = i2mTransform.createTransformedShape(imageBounds).getBounds2D();
 
-                modelBounds = new Rectangle2D.Double();
-                Rectangle2D.intersect(view.getVisibleModelBounds(), modelImageArea, modelBounds);
+        public void updateDimensions() {
+            final Rectangle2D bounds;
+            if (isEntireImageSelected()) {
+                final ImageLayer imageLayer = view.getBaseImageLayer();
+                final Rectangle2D modelBounds = imageLayer.getModelBounds();
+                bounds = imageLayer.getModelToImageTransform().createTransformedShape(modelBounds).getBounds2D();
+            } else {
+                bounds = view.getLayerCanvas().getViewport().getViewBounds();
+            }
+            aspectRatio = bounds.getWidth() / bounds.getHeight();
+
+            int w = toInteger(bounds.getWidth());
+            int h = toInteger(bounds.getHeight());
+
+            final long freeMemory = getFreeMemory();
+            final long expectedMemory = getExpectedMemory(w, h);
+            if (freeMemory < expectedMemory) {
+                final double scale = Math.sqrt((double) freeMemory / (double) expectedMemory);
+                final double scaledW = w * scale;
+                final double scaledH = h * scale;
+
+                w = toInteger(scaledW);
+                h = toInteger(scaledH);
             }
 
-            Rectangle2D bounds = imageLayer.getModelToImageTransform().createTransformedShape(modelBounds).getBounds2D() ;
-            ratio = bounds.getWidth() / bounds.getHeight();
-            Dimension imageSize = truncateImageSize(MathUtils.floorInt(bounds.getWidth()), MathUtils.floorInt(bounds.getHeight()));
-            update(PROPERTY_WIDTH, imageSize.width);
-            update(PROPERTY_HEIGHT, imageSize.height);
+            setWidth(w);
+            setHeight(h);
+        }
+
+        private int toInteger(double value) {
+            return MathUtils.floorInt(value);
         }
 
         public JComponent createComponent() {
@@ -226,69 +232,109 @@ public class ExportImageAction extends AbstractExportImageAction {
             ValueEditorsPane valueEditorsPane = new ValueEditorsPane(bindingContext);
             return valueEditorsPane.createPanel();
         }
-        
+
         public Dimension getDimension() {
-            return new Dimension(width, height);
+            return new Dimension(getWidth(), getHeight());
         }
-        
-        private ValueContainer createValueContainer() {
-            final ValueContainer container = ValueContainer.createObjectBacked(this, new DescriptorFactory());
-            PropertyChangeListener listener = new PropertyChangeListener() {
-                
-                private boolean isAdjusting = false;
+
+        private void initValueContainer() {
+            final ValueDescriptor widthDescriptor = new ValueDescriptor(PROPERTY_NAME_WIDTH, Integer.class);
+            widthDescriptor.setConverter(new IntegerConverter());
+            valueContainer.addModel(new ValueModel(widthDescriptor, new DefaultValueAccessor()));
+
+            final ValueDescriptor heightDescriptor = new ValueDescriptor(PROPERTY_NAME_HEIGHT, Integer.class);
+            heightDescriptor.setConverter(new IntegerConverter());
+            valueContainer.addModel(new ValueModel(heightDescriptor, new DefaultValueAccessor()));
+
+            final PropertyChangeListener listener = new PropertyChangeListener() {
+                private boolean adjusting = false;
 
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
-                    if (preserveAspectRatio && !isAdjusting) {
-                        isAdjusting = true;
-                        if (evt.getPropertyName().equals(PROPERTY_WIDTH)) {
+                    if (!adjusting) {
+                        adjusting = true;
+
+                        if (evt.getPropertyName().equals(PROPERTY_NAME_WIDTH)) {
                             adjustHeight();
-                        } else if (evt.getPropertyName().equals(PROPERTY_HEIGHT)) {
-                            adjustWidth();
-                        } else if (evt.getPropertyName().equals(PROPERTY_PRESERVE_RATIO)) {
-                            if (width > height) {
-                                adjustHeight();
-                            } else {
-                                adjustWidth();
+                            if (getFreeMemory() < getExpectedMemory(getWidth(), getAdjustedHeight())) {
+                                final int answer = showQuestionDialog();
+                                if (answer != JOptionPane.YES_OPTION) {
+                                    setWidth(evt.getOldValue());
+                                    adjustHeight();
+                                }
                             }
                         }
-                        isAdjusting = false;
+                        if (evt.getPropertyName().equals(PROPERTY_NAME_HEIGHT)) {
+                            adjustWidth();
+                            if (getFreeMemory() < getExpectedMemory(getAdjustedWidth(), getHeight())) {
+                                final int answer = showQuestionDialog();
+                                if (answer != JOptionPane.YES_OPTION) {
+                                    setHeight(evt.getOldValue());
+                                    adjustWidth();
+                                }
+                            }
+                        }
+
+                        adjusting = false;
                     }
                 }
+
+                private int showQuestionDialog() {
+                    return VisatApp.getApp().showQuestionDialog(
+                            "There may not be enough memory to export the image because\n" +
+                            "the image dimension is too large.\n\n" +
+                            "Do you really want to keep the image dimension?", null);
+                }
             };
-            container.addPropertyChangeListener(PROPERTY_HEIGHT, listener);
-            container.addPropertyChangeListener(PROPERTY_WIDTH, listener);
-            return container;
+
+            valueContainer.addPropertyChangeListener(listener);
         }
-        
+
+        private long getFreeMemory() {
+            return Runtime.getRuntime().freeMemory();
+        }
+
+        private long getExpectedMemory(int width, int height) {
+            return width * height * 6L;
+        }
+
+        private int getAdjustedWidth() {
+            return MathUtils.floorInt(getHeight() * aspectRatio);
+        }
+
+        private int getAdjustedHeight() {
+            return MathUtils.floorInt(getWidth() / aspectRatio);
+        }
+
         private void adjustWidth() {
-            update(PROPERTY_WIDTH, MathUtils.floorInt(height * ratio));
+            setWidth(getAdjustedWidth());
         }
-        
+
         private void adjustHeight() {
-            update(PROPERTY_HEIGHT, MathUtils.floorInt(width / ratio));
+            setHeight(getAdjustedHeight());
         }
-        
-        private void update(String propertyName, int intValue) {
+
+        private int getWidth() {
+            return (Integer) valueContainer.getValue(PROPERTY_NAME_WIDTH);
+        }
+
+        private void setWidth(Object value) {
             try {
-                valueContainer.setValue(propertyName, intValue);
+                valueContainer.setValue(PROPERTY_NAME_WIDTH, value);
             } catch (ValidationException e) {
+                throw new IllegalArgumentException(e);
             }
         }
 
-    }
-    
-    private class DescriptorFactory implements ClassFieldDescriptorFactory {
+        private int getHeight() {
+            return (Integer) valueContainer.getValue(PROPERTY_NAME_HEIGHT);
+        }
 
-        @Override
-        public ValueDescriptor createValueDescriptor(Field field) {
-            String name = field.getName();
-            if (name.equals(SizeComponent.PROPERTY_HEIGHT) ||
-                    name.equals(SizeComponent.PROPERTY_WIDTH) ||
-                    name.equals(SizeComponent.PROPERTY_PRESERVE_RATIO)) {
-                return new ValueDescriptor(name, field.getType());
-            } else {
-                return null;
+        private void setHeight(Object value) {
+            try {
+                valueContainer.setValue(PROPERTY_NAME_HEIGHT, value);
+            } catch (ValidationException e) {
+                throw new IllegalArgumentException(e);
             }
         }
     }

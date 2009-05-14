@@ -1,9 +1,6 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerFilter;
-import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageEncoder;
@@ -113,6 +110,7 @@ public class ExportKmzFileAction extends ExecCommand {
         int result = fileChooser.showSaveDialog(visatApp.getMainFrame());
         File file = fileChooser.getSelectedFile();
         fileChooser.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 // @todo never comes here, why?
                 Debug.trace(evt.toString());
@@ -258,14 +256,7 @@ public class ExportKmzFileAction extends ExecCommand {
                 pm.beginTask(message, view.isRGB() ? 4 : 3);
                 visatApp.setStatusBarMessage(message);
                 visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
-                final LayerFilter layerFilter = new LayerFilter() {
-                    @Override
-                    public boolean accept(Layer layer) {
-                        return layer instanceof ImageLayer;
-                    }
-                };
-                RenderedImage image = ExportImageAction.createImage(view, true, true, layerFilter, null);
+                RenderedImage image = ExportImageAction.createImage(view, true, null, true);
                 pm.worked(1);
                 String imageType = "PNG";
                 String imageName = "overlay.png";

@@ -21,7 +21,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageEncoder;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.command.SelectableCommand;
@@ -34,7 +33,6 @@ import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
 
 import javax.media.jai.operator.BandSelectDescriptor;
@@ -56,13 +54,10 @@ import java.io.OutputStream;
  * @version $Revision$ $Date$
  */
 public abstract class AbstractExportImageAction extends ExecCommand {
-    
 
     public static final String EXPORT_IMAGE_CMD_ID = "exportImageFile";
     public static final String EXPORT_ROI_IMAGE_CMD_ID = "exportROIImageFile";
     public static final String EXPORT_LEGEND_IMAGE_CMD_ID = "exportLegendImageFile";
-
-    private static final int TEN_MEGA_PIXEL = 10*1000*1000;
 
     private static final String[] BMP_FORMAT_DESCRIPTION = {"BMP", "bmp", "BMP - Microsoft Windows Bitmap"};
     private static final String[] PNG_FORMAT_DESCRIPTION = {"PNG", "png", "PNG - Portable Network Graphics"};
@@ -118,13 +113,10 @@ public abstract class AbstractExportImageAction extends ExecCommand {
     protected void exportImage(final VisatApp visatApp,
                                final BeamFileFilter[] filters,
                                final SelectableCommand command) {
-
         final ProductSceneView view = visatApp.getSelectedProductSceneView();
         if (view == null) {
             return;
         }
-        final Product product = view.getProduct();
-
         final String lastDir = visatApp.getPreferences().getPropertyString(IMAGE_EXPORT_DIR_PREFERENCES_KEY,
                                                                            SystemUtils.getUserHomeDir().getPath());
         final File currentDir = new File(lastDir);
@@ -155,6 +147,7 @@ public abstract class AbstractExportImageAction extends ExecCommand {
         int result = fileChooser.showSaveDialog(visatApp.getMainFrame());
         File file = fileChooser.getSelectedFile();
         fileChooser.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 // @todo never comes here, why?
                 Debug.trace(evt.toString());
@@ -191,17 +184,6 @@ public abstract class AbstractExportImageAction extends ExecCommand {
                                                                      entireImageSelected, file);
         worker.executeWithBlocking();
     }
-    
-    static Dimension truncateImageSize(int width, int height) {
-        final double ratio = width / (double)height;
-        if ((width * height) > TEN_MEGA_PIXEL) {
-            int heightT = MathUtils.floorInt(Math.sqrt(TEN_MEGA_PIXEL/ratio));
-            int widthT = MathUtils.floorInt(heightT * ratio);
-            return new Dimension(widthT, heightT);
-        } else {
-            return new Dimension(width, height);
-        }
-    }
 
     protected abstract RenderedImage createImage(String imageFormat, ProductSceneView view);
 
@@ -224,8 +206,8 @@ public abstract class AbstractExportImageAction extends ExecCommand {
 
     protected static boolean isTransparencySupportedByFormat(String formatName) {
         final String[] formats = TRANSPARENCY_IMAGE_FORMATS;
-        for (int i = 0; i < formats.length; i++) {
-            if (formats[i].equalsIgnoreCase(formatName)) {
+        for (final String format : formats) {
+            if (format.equalsIgnoreCase(formatName)) {
                 return true;
             }
         }
@@ -274,7 +256,6 @@ public abstract class AbstractExportImageAction extends ExecCommand {
                         geoTIFFWritten = true;
                     }
                 }
-
                 if (!geoTIFFWritten) {
                     if ("JPEG".equalsIgnoreCase(imageFormat)) {
                         image = BandSelectDescriptor.create(image, new int[]{0, 1, 2}, null);
@@ -287,7 +268,6 @@ public abstract class AbstractExportImageAction extends ExecCommand {
                         stream.close();
                     }
                 }
-
             } catch (OutOfMemoryError e) {
                 visatApp.showOutOfMemoryErrorDialog("The image could not be exported.");
             } catch (Throwable e) {
