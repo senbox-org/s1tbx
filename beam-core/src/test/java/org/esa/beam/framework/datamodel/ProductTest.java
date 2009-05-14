@@ -27,7 +27,11 @@ import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.dataop.maptransf.*;
+import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
+import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.util.BeamConstants;
 import org.esa.beam.util.BitRaster;
 import org.esa.beam.util.ObjectUtils;
@@ -48,10 +52,6 @@ public class ProductTest extends TestCase {
     private static final int _sceneHeight = 30;
 
     private Product _product;
-
-//    public static void main(String[] args) {
-//        junit.swingui.TestRunner.run(ProductTest.class);
-//    }
 
     public ProductTest(String testName) {
         super(testName);
@@ -85,7 +85,7 @@ public class ProductTest extends TestCase {
         try {
             _product.acceptVisitor(null);
             fail("Null argument for visitor not allowed");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
         }
     }
 
@@ -130,7 +130,7 @@ public class ProductTest extends TestCase {
         try {
             product.setProductReader(null);
             fail("IllegalArgumentException expected since the parameter is null");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
             //IllegalArgumentException expected since the parameter is null
         }
     }
@@ -169,9 +169,9 @@ public class ProductTest extends TestCase {
     }
 
     /**
-     * Tests the functionality of getBandOutputRasterWidth
+     * Tests the functionality of getSceneRasterWidth
      */
-    public void testGetSceneWidth() {
+    public void testGetSceneRasterWidth() {
         Product prod;
 
         prod = new Product("TestName", _prodType, 243, _sceneHeight);
@@ -182,9 +182,9 @@ public class ProductTest extends TestCase {
     }
 
     /**
-     * Tests the functionality of getBandOutputRasterHeight
+     * Tests the functionality of getSceneRasterHeight
      */
-    public void testGetSceneHeight() {
+    public void testGetSceneRasterHeight() {
         Product prod;
 
         prod = new Product("TestName", _prodType, _sceneWidth, 373);
@@ -362,17 +362,17 @@ public class ProductTest extends TestCase {
         try {
             _product.setRefNo(0);
             fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
             // expectet if value out of range
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException ignored) {
             fail("IllegalStateException not expected");
         }
 
         try {
             _product.setRefNo(14);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
             fail("IllegalArgumentException not expected");
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException ignored) {
             fail("IllegalStateException not expected");
         }
         assertEquals(14, _product.getRefNo());
@@ -380,18 +380,18 @@ public class ProductTest extends TestCase {
         try {
             _product.setRefNo(23);
             fail("IllegalStateException expected");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
             fail("IllegalArgumentException not expected");
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException ignored) {
             // expected if the reference number was alredy set
         }
 
         // no exception expected when the reference number to be set is the same as the one already set
         try {
             _product.setRefNo(14);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
             fail("IllegalArgumentException not expected");
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException ignored) {
             fail("IllegalStateException not expected");
         }
     }
@@ -480,7 +480,7 @@ public class ProductTest extends TestCase {
         try {
             product.setGeoCoding(mapGeoCoding);
             fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
             // IllegalArgumentException expected
         }
 
@@ -490,7 +490,7 @@ public class ProductTest extends TestCase {
         try {
             product.setGeoCoding(mapGeoCoding);
             fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
             // IllegalArgumentException expected
         }
 
@@ -500,7 +500,7 @@ public class ProductTest extends TestCase {
         try {
             product.setGeoCoding(mapGeoCoding);
             // IllegalArgumentException not expected
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
             fail("IllegalArgumentException not expected");
         }
     }
@@ -551,7 +551,7 @@ public class ProductTest extends TestCase {
     }
 
     public void testReadBitmaskWithByteValues() throws ParseException,
-            IOException {
+                                                       IOException {
         Product product = new Product("Y", "X", 4, 4);
         Band band = product.addBand("flags", ProductData.TYPE_INT8);
         band.setSynthetic(true);
@@ -640,7 +640,7 @@ public class ProductTest extends TestCase {
     }
 
     public void testReadBitmaskWithIntValues() throws ParseException,
-            IOException {
+                                                      IOException {
         Product product = new Product("Y", "X", 4, 4);
         Band band = product.addBand("flags", ProductData.TYPE_INT8);
         band.setSynthetic(true);
@@ -728,7 +728,7 @@ public class ProductTest extends TestCase {
     }
 
     public void testEnsureValidMask() throws ParseException,
-            IOException {
+                                             IOException {
         final Product product = new Product("n", "t", 18, 2);
         final Band flagsBand = product.addBand("flags", ProductData.TYPE_INT8);
         flagsBand.setSynthetic(true);
@@ -754,7 +754,7 @@ public class ProductTest extends TestCase {
     }
 
     public void testMaskProductData() throws ParseException,
-            IOException {
+                                             IOException {
         final Product product = new Product("Y", "X", 4, 4);
         final Band band = product.addBand("flags", ProductData.TYPE_INT8);
         band.setSynthetic(true);
@@ -843,14 +843,14 @@ public class ProductTest extends TestCase {
             product.addTiePointGrid(new TiePointGrid("grid", 1, 1, 0, 0, 1, 1, new float[]{0.0f}));
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().indexOf("name") > -1);
+            assertTrue(e.getMessage().contains("name"));
         }
 
         try {
             product.addTiePointGrid(new TiePointGrid("band1", 1, 1, 0, 0, 1, 1, new float[]{0.0f}));
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().indexOf("name") > -1);
+            assertTrue(e.getMessage().contains("name"));
         }
     }
 
@@ -907,30 +907,37 @@ class DummyProductReader extends AbstractProductReader {
 
 class DummyProductReaderPlugIn implements ProductReaderPlugIn {
 
+    @Override
     public DecodeQualification getDecodeQualification(Object input) {
         return DecodeQualification.UNABLE;
     }
 
+    @Override
     public String[] getFormatNames() {
         return new String[0];
     }
 
+    @Override
     public String[] getDefaultFileExtensions() {
         return new String[0];
     }
 
+    @Override
     public Class[] getInputTypes() {
         return new Class[0];
     }
 
+    @Override
     public String getDescription(Locale locale) {
         return null;
     }
 
+    @Override
     public ProductReader createReaderInstance() {
         return new DummyProductReader(this);
     }
 
+    @Override
     public BeamFileFilter getProductFileFilter() {
         return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
     }
@@ -942,15 +949,19 @@ class DummyProductNodeListener implements ProductNodeListener {
     public DummyProductNodeListener() {
     }
 
+    @Override
     public void nodeChanged(ProductNodeEvent event) {
     }
 
+    @Override
     public void nodeDataChanged(ProductNodeEvent event) {
     }
 
+    @Override
     public void nodeAdded(ProductNodeEvent event) {
     }
 
+    @Override
     public void nodeRemoved(ProductNodeEvent event) {
     }
 }
