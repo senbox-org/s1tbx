@@ -74,7 +74,7 @@ public class BandArithmetikDialog extends ModalDialog {
     private static final String PROPERTY_NAME_EXPRESSION = "expression";
     private static final String PROPERTY_NAME_NO_DATA_VALUE = "noDataValue";
     private static final String PROPERTY_NAME_NO_DATA_VALUE_USED = "noDataValueUsed";
-    private static final String PROPERTY_NAME_WRITE_DATA = "writeData";
+    private static final String PROPERTY_NAME_SAVE_EXPRESSION_ONLY = "saveExpressionOnly";
     private static final String PROPERTY_NAME_BAND_NAME = "bandName";
     private static final String PROPERTY_NAME_BAND_DESC = "bandDescription";
     private static final String PROPERTY_NAME_BAND_UNIT = "bandUnit";
@@ -88,7 +88,7 @@ public class BandArithmetikDialog extends ModalDialog {
     private String expression = "";
     private double noDataValue;
     private boolean noDataValueUsed;
-    private boolean writeData;
+    private boolean saveExpressionOnly;
     private String bandName;
     private String bandDescription = "";
     private String bandUnit = "";
@@ -120,7 +120,7 @@ public class BandArithmetikDialog extends ModalDialog {
         band.setGeophysicalNoDataValue(noDataValue);
         band.setNoDataValueUsed(noDataValueUsed);
         band.setExpression(getExpression());
-        band.setWriteData(writeData);
+        band.setWriteData(!saveExpressionOnly);
 
         try {
             Product[] products = getCompatibleProducts();
@@ -138,6 +138,8 @@ public class BandArithmetikDialog extends ModalDialog {
         if (!targetProduct.containsBand(band.getName())) {
             targetProduct.addBand(band);
         }
+
+        checkExpressionForExternalReferences(getExpression());
 
         hide();
         band.setModified(true);
@@ -198,7 +200,7 @@ public class BandArithmetikDialog extends ModalDialog {
                                 "weightx=1, insets.top=3, gridwidth=2, fill=HORIZONTAL, anchor=WEST");
 
         gbc.gridy = ++line;
-        components = createComponents(PROPERTY_NAME_WRITE_DATA, CheckBoxEditor.class);
+        components = createComponents(PROPERTY_NAME_SAVE_EXPRESSION_ONLY, CheckBoxEditor.class);
         GridBagUtils.addToPanel(panel, components[0], gbc, "insets.top=3, gridwidth=3, fill=HORIZONTAL, anchor=EAST");
 
         gbc.gridy = ++line;
@@ -277,12 +279,12 @@ public class BandArithmetikDialog extends ModalDialog {
         descriptor.setDescription("Arithmetic expression");
         descriptor.setNotEmpty(true);
 
-        descriptor = container.getDescriptor(PROPERTY_NAME_WRITE_DATA);
-        descriptor.setDisplayName("Write data to disk");
-        descriptor.setDefaultValue(Boolean.FALSE);
+        descriptor = container.getDescriptor(PROPERTY_NAME_SAVE_EXPRESSION_ONLY);
+        descriptor.setDisplayName("Safe expression only, do not write raster data");
+        descriptor.setDefaultValue(Boolean.TRUE);
 
         descriptor = container.getDescriptor(PROPERTY_NAME_NO_DATA_VALUE_USED);
-        descriptor.setDisplayName("No-data value to be used on arithmetic exceptions");
+        descriptor.setDisplayName("Replace NaN and infinity results by");
         descriptor.setDefaultValue(Boolean.TRUE);
 
         descriptor = container.getDescriptor(PROPERTY_NAME_NO_DATA_VALUE);
@@ -344,36 +346,36 @@ public class BandArithmetikDialog extends ModalDialog {
                 int status = pep.showModalDialog(getJDialog(), "Arithmetic Expression Editor");
                 if (status == ModalDialog.ID_OK) {
                     bindingContext.getBinding(PROPERTY_NAME_EXPRESSION).setPropertyValue(pep.getCode());
-                    if (!writeData && compatibleProducts.length > 1) {
-                        int defaultIndex = Arrays.asList(compatibleProducts).indexOf(targetProduct);
-                        RasterDataNode[] rasters = null;
-                        try {
-                            rasters = BandArithmetic.getRefRasters(getExpression(), compatibleProducts, defaultIndex);
-                        } catch (ParseException e1) {
-                        }
-                        if (rasters != null && rasters.length > 0) {
-                            Set<Product> externalProducts = new HashSet<Product>(compatibleProducts.length);
-                            for (RasterDataNode rdn : rasters) {
-                                Product product = rdn.getProduct();
-                                if (product != targetProduct) {
-                                    externalProducts.add(product);
-                                }
-                            }
-                            if (!externalProducts.isEmpty()) {
-                                showForeignProductWarning();
-                            }
-                        }
-                    }
                 }
                 pep.dispose();
             }
         };
     }
 
-    private void showForeignProductWarning() {
-        visatApp.showWarningDialog("The expression references multiple products.\n"
-                                   + "It will be only usable as long the referenced products are available.\n"
-                                   + "Think about enabling 'Write data to disk' to preserve the data.");
+    private void checkExpressionForExternalReferences(String expression) {
+        final Product[] compatibleProducts = getCompatibleProducts();
+        if (compatibleProducts.length > 1) {
+            int defaultIndex = Arrays.asList(compatibleProducts).indexOf(targetProduct);
+            RasterDataNode[] rasters = null;
+            try {
+                rasters = BandArithmetic.getRefRasters(expression, compatibleProducts, defaultIndex);
+            } catch (ParseException ignored) {
+            }
+            if (rasters != null && rasters.length > 0) {
+                Set<Product> externalProducts = new HashSet<Product>(compatibleProducts.length);
+                for (RasterDataNode rdn : rasters) {
+                    Product product = rdn.getProduct();
+                    if (product != targetProduct) {
+                        externalProducts.add(product);
+                    }
+                }
+                if (!externalProducts.isEmpty()) {
+                    visatApp.showWarningDialog("The entered expression references multiple products.\n"
+                                               + "It will cause problems unless the session is restored as is.\n\n"
+                                               + "Note: You can save the session from the file menu.");
+                }
+            }
+        }
     }
 
     private boolean isValidExpression() {
