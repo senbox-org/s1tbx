@@ -17,14 +17,20 @@
 
 package org.esa.beam.framework.ui;
 
+import org.esa.beam.framework.ui.command.Command;
+import org.esa.beam.util.Guardian;
+
+import javax.swing.AbstractButton;
+import javax.swing.Action;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-
-import javax.swing.JPopupMenu;
-
-import org.esa.beam.util.Guardian;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * A handler which can be registered on components as a mouse listener.
@@ -120,6 +126,49 @@ public class PopupMenuHandler implements MouseListener, KeyListener {
         if (popupMenu == null) {
             popupMenu = _popupMenuFactory.createPopupMenu(event);
         }
+        rearrangeMenuItems(popupMenu);
         UIUtils.showPopup(popupMenu, event);
+    }
+
+    private void rearrangeMenuItems(JPopupMenu popupMenu) {
+        Component[] components = popupMenu.getComponents();
+        Arrays.sort(components, new Comparator<Component>() {
+            @Override
+            public int compare(Component o1, Component o2) {
+                return getGroupName(o1).compareToIgnoreCase(getGroupName(o2));
+            }
+        });
+        popupMenu.removeAll();
+        String lastGroupName = null;
+        for (Component component : components) {
+            String groupName = getGroupName(component);
+            if (lastGroupName != null && !lastGroupName.equals(groupName)) {
+                popupMenu.addSeparator();
+            }
+            lastGroupName = groupName;
+            if (component instanceof JMenuItem) {
+                popupMenu.add((JMenuItem) component);
+            } else if (component instanceof Action) {
+                popupMenu.add((Action) component);
+            } else {
+                popupMenu.add(component);
+            }
+        }
+    }
+
+    private String getGroupName(Component component) {
+        Action action = null;
+        if (component instanceof AbstractButton) {
+            action = ((AbstractButton) component).getAction();
+        } else if (component instanceof Action) {
+            action = (Action) component;
+        }
+        if (action != null) {
+            Object parent = action.getValue(Command.ACTION_KEY_PARENT);
+            if (parent != null) {
+                return parent.toString();
+            }
+        }
+        return "";
     }
 }
