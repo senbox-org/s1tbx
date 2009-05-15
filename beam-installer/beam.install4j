@@ -466,7 +466,7 @@
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
                       <void property="description">
-                        <string>BEAM-DIMAP files, BEAM's standard EO data format</string>
+                        <string>BEAM-DIMAP file, BEAM's standard EO data format</string>
                       </void>
                       <void property="extension">
                         <string>dim</string>
@@ -489,7 +489,7 @@
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
                       <void property="description">
-                        <string>ENVISAT raw data files</string>
+                        <string>Envisat data product in N1 format</string>
                       </void>
                       <void property="extension">
                         <string>N1</string>
@@ -512,7 +512,7 @@
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
                       <void property="description">
-                        <string>ERS-1 raw data files</string>
+                        <string>ERS-1 data product in N1 format</string>
                       </void>
                       <void property="extension">
                         <string>E1</string>
@@ -538,7 +538,7 @@
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
                       <void property="description">
-                        <string>ERS-2 raw data files</string>
+                        <string>ERS-2 data product in N1 format</string>
                       </void>
                       <void property="extension">
                         <string>E2</string>
