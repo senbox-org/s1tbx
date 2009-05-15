@@ -218,6 +218,7 @@ public class MapGeoCodingTest extends TestCase {
 */
 
 //      TODO: create CRS from map info
+//      TODO: also see http://docs.codehaus.org/display/GEOTDOC/Coordinate+Transformation+Parameters
         final ParameterValueGroup p = mtf.getDefaultParameters("Transverse_Mercator");
         final Datum datum = mapInfo.getDatum();
         p.parameter("semi_major").setValue(datum.getEllipsoid().getSemiMajor());
