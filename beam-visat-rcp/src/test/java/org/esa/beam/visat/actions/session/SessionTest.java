@@ -11,7 +11,9 @@ import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -21,6 +23,7 @@ import org.esa.beam.util.PropertyMap;
 
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
@@ -69,7 +72,8 @@ public class SessionTest extends TestCase {
                 return null;
             }
         };
-        final RestoredSession restoredSession = originalSession.restore(sessionRoot, ProgressMonitor.NULL, solver);
+        AppContext appContext = new MyAppContext(originalProducts);
+        final RestoredSession restoredSession = originalSession.restore(appContext, sessionRoot, ProgressMonitor.NULL, solver);
         checkProblems(restoredSession.getProblems());
         final Product[] restoredProducts = restoredSession.getProducts();
         assertNotNull(restoredProducts);
@@ -129,7 +133,9 @@ public class SessionTest extends TestCase {
         URI sessionRoot = createSessionRootURI();
         URI movedSesissionRoot = new File("testdata/moved/here/").toURI();
         final Session originalSession = new Session(sessionRoot, originalProducts, originalViews);
-        final RestoredSession restoredSession = originalSession.restore(movedSesissionRoot, ProgressMonitor.NULL,
+        final AppContext appContext = new MyAppContext(originalProducts);
+        final RestoredSession restoredSession = originalSession.restore(appContext,
+                                                                        movedSesissionRoot, ProgressMonitor.NULL,
                                                                         new Session.ProblemSolver() {
                                                                             @Override
                                                                             public Product solveProductNotFound(int id,
@@ -302,6 +308,58 @@ public class SessionTest extends TestCase {
 
         public ProductNodeView[] getViews() {
             return views;
+        }
+    }
+
+    private static class MyAppContext implements AppContext {
+        private ProductManager productManager;
+        private PropertyMap propertyMap;
+
+        public MyAppContext(Product[] originalProducts) {
+
+            propertyMap = new PropertyMap();
+            productManager = new ProductManager();
+            for (Product originalProduct : originalProducts) {
+                productManager.addProduct(originalProduct);
+            }
+        }
+
+        @Override
+        public String getApplicationName() {
+            return "Hainz";
+        }
+
+        @Override
+        public Window getApplicationWindow() {
+            return null;
+        }
+
+        @Override
+        public Product getSelectedProduct() {
+            return null;
+        }
+
+        @Override
+        public void handleError(Throwable e) {
+        }
+
+        @Override
+        public void handleError(String message, Throwable e) {
+        }
+
+        @Override
+        public PropertyMap getPreferences() {
+            return propertyMap;
+        }
+
+        @Override
+        public ProductManager getProductManager() {
+            return productManager;
+        }
+
+        @Override
+        public ProductSceneView getSelectedProductSceneView() {
+            return null;
         }
     }
 }

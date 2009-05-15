@@ -124,10 +124,16 @@ public class ShowImageViewAction extends ExecCommand {
     }
 
     public JInternalFrame openInternalFrame(final ProductSceneView view) {
+        return openInternalFrame(view, true);
+    }
+    
+    public JInternalFrame openInternalFrame(final ProductSceneView view, boolean configureByPreferences) {
         final VisatApp visatApp = VisatApp.getApp();
         final RasterDataNode selectedProductNode = view.getRaster();
         view.setCommandUIFactory(visatApp.getCommandUIFactory());
-        view.setLayerProperties(visatApp.getPreferences());
+        if (configureByPreferences) {
+            view.setLayerProperties(visatApp.getPreferences());
+        }
 
         final String title = createInternalFrameTitle(selectedProductNode);
         final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");

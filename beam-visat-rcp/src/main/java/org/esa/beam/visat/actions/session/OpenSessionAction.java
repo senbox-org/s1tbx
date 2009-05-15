@@ -69,7 +69,7 @@ public class OpenSessionAction extends ExecCommand {
         if (app.getSessionFile() != null) {
             final int i = app.showQuestionDialog(TITLE,
                                                  "This will close the current session.\n" +
-                                                 "Do you want to continue?", null);
+                                                         "Do you want to continue?", null);
             if (i != JOptionPane.YES_OPTION) {
                 return;
             }
@@ -111,45 +111,7 @@ public class OpenSessionAction extends ExecCommand {
         protected RestoredSession doInBackground(ProgressMonitor pm) throws Exception {
             final Session session = SessionIO.getInstance().readSession(sessionFile);
             URI rootURI = sessionFile.getParentFile().toURI();
-            return session.restore(rootURI, pm, new Session.ProblemSolver() {
-                @Override
-                public Product solveProductNotFound(int id, File file) throws CanceledException {
-                    final File[] newFile = new File[1];
-                    final int[] answer = new int[1];
-                    final String title = MessageFormat.format(TITLE + " - Resolving [{0}]", file);
-                    final String msg = MessageFormat.format("Product [{0}] has been renamed or (re-)moved.\n" +
-                                                            "Its location was [{1}].\n" +
-                                                            "Do you wish to provide its new location?\n" +
-                                                            "(Select ''No'' if the product shall no longer be part of the session.)",
-                                                            id, file);
-                    try {
-                        SwingUtilities.invokeAndWait(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                answer[0] = app.showQuestionDialog(title, msg, true, null);
-                                if (answer[0] == JOptionPane.YES_OPTION) {
-                                    newFile[0] = app.showFileOpenDialog(title, false, null);
-                                }
-                            }
-                        });
-                    } catch (Exception e) {
-                        throw new CanceledException();
-                    }
-
-                    if (answer[0] == JOptionPane.CANCEL_OPTION) {
-                        throw new CanceledException();
-                    }
-
-                    if (newFile[0] != null) {
-                        try {
-                            return ProductIO.readProduct(newFile[0], null);
-                        } catch (IOException e) {
-                        }
-                    }
-                    return null;
-                }
-            });
+            return session.restore(app, rootURI, pm, new SessionProblemSolver());
         }
 
         @Override
@@ -205,9 +167,9 @@ public class OpenSessionAction extends ExecCommand {
                     sceneView.getLayerCanvas().setInitiallyZoomingAll(false);
                     Viewport viewport = sceneView.getLayerCanvas().getViewport().clone();
                     if (sceneView.isRGB()) {
-                        internalFrame = showImageViewRGBAction.openInternalFrame(sceneView);
+                        internalFrame = showImageViewRGBAction.openInternalFrame(sceneView, false);
                     } else {
-                        internalFrame = showImageViewAction.openInternalFrame(sceneView);
+                        internalFrame = showImageViewAction.openInternalFrame(sceneView, false);
                     }
                     sceneView.getLayerCanvas().getViewport().setTransform(viewport);
                 } else if (nodeView instanceof ProductMetadataView) {
@@ -232,6 +194,46 @@ public class OpenSessionAction extends ExecCommand {
                 throw new IllegalStateException("Action not found: actionId=" + actionId);
             }
             return action;
+        }
+
+        private class SessionProblemSolver implements Session.ProblemSolver {
+            @Override
+            public Product solveProductNotFound(int id, File file) throws CanceledException {
+                final File[] newFile = new File[1];
+                final int[] answer = new int[1];
+                final String title = MessageFormat.format(TITLE + " - Resolving [{0}]", file);
+                final String msg = MessageFormat.format("Product [{0}] has been renamed or (re-)moved.\n" +
+                        "Its location was [{1}].\n" +
+                        "Do you wish to provide its new location?\n" +
+                        "(Select ''No'' if the product shall no longer be part of the session.)",
+                                                        id, file);
+                try {
+                    SwingUtilities.invokeAndWait(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            answer[0] = app.showQuestionDialog(title, msg, true, null);
+                            if (answer[0] == JOptionPane.YES_OPTION) {
+                                newFile[0] = app.showFileOpenDialog(title, false, null);
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    throw new CanceledException();
+                }
+
+                if (answer[0] == JOptionPane.CANCEL_OPTION) {
+                    throw new CanceledException();
+                }
+
+                if (newFile[0] != null) {
+                    try {
+                        return ProductIO.readProduct(newFile[0], null);
+                    } catch (IOException e) {
+                    }
+                }
+                return null;
+            }
         }
     }
 

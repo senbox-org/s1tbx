@@ -119,10 +119,16 @@ public class ShowImageViewRGBAction extends ExecCommand {
         visatApp.getExecutorService().submit(worker);
     }
 
-    public JInternalFrame openInternalFrame(ProductSceneView view) {
+    public JInternalFrame openInternalFrame(final ProductSceneView view) {
+        return openInternalFrame(view, true);
+    }
+
+    public JInternalFrame openInternalFrame(ProductSceneView view, boolean configureByPreferences) {
         final VisatApp visatApp = VisatApp.getApp();
         view.setCommandUIFactory(visatApp.getCommandUIFactory());
-        view.setLayerProperties(visatApp.getPreferences());
+        if (configureByPreferences) {
+            view.setLayerProperties(visatApp.getPreferences());
+        }
 
         final String title = createUniqueInternalFrameTitle(view.getSceneName());
         final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
