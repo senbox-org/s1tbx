@@ -440,6 +440,7 @@ class ColorManipulationForm {
         }
     }
 
+    // todo - code duplication in all tool views with help support!!! (nf 200905)
     private void installHelp() {
         if (getToolViewDescriptor().getHelpId() != null) {
             HelpSys.enableHelpOnButton(helpButton, getToolViewDescriptor().getHelpId());

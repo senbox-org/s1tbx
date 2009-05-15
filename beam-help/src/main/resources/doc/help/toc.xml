@@ -53,6 +53,7 @@
 
             <tocitem text="Imaging Tools">
                 <tocitem text="Image View" target="imageView"/>
+                <tocitem text="Layer Manager" target="showLayerManagerWnd"/>
                 <tocitem text="Navigation Window" target="showNavigationWnd"/>
                 <tocitem text="Colour Manipulation" target="showColorManipulationWnd"/>
                 <tocitem text="RGB-Image Profile" target="rgbImageProfile"/>

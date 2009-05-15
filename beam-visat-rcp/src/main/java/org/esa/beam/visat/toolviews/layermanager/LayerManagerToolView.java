@@ -79,7 +79,7 @@ public class LayerManagerToolView extends AbstractLayerToolView {
         if (layerManagerMap.containsKey(view)) {
             activeForm = layerManagerMap.get(view);
         } else {
-            activeForm = new LayerManagerForm(getAppContext());
+            activeForm = new LayerManagerForm(getAppContext(), getDescriptor().getHelpId());
             layerManagerMap.put(view, activeForm);
         }
         return activeForm;

@@ -7,8 +7,10 @@ import com.jidesoft.swing.CheckBoxTree;
 import com.jidesoft.swing.CheckBoxTreeSelectionModel;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.visat.VisatActivator;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourceAssistantPane;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.SelectLayerSourceAssistantPage;
@@ -33,6 +35,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -55,13 +58,13 @@ class LayerManagerForm extends AbstractLayerForm {
     private MoveLayerRightAction moveLayerRightAction;
     private OpenLayerEditorAction openLayerEditorAction;
 
-    LayerManagerForm(AppContext appContext) {
+    LayerManagerForm(AppContext appContext, String helpId) {
         super(appContext);
         this.view = appContext.getSelectedProductSceneView();
-        initUI();
+        initUI(helpId);
     }
 
-    private void initUI() {
+    private void initUI(String helpId) {
         layerTreeModel = new LayerTreeModel(view.getRootLayer());
         layerTree = createCheckBoxTree(layerTreeModel);
         layerTree.setCellRenderer(new MyTreeCellRenderer());
@@ -104,26 +107,59 @@ class LayerManagerForm extends AbstractLayerForm {
         moveLayerRightAction = new MoveLayerRightAction(getAppContext());
         AbstractButton rightButton = ToolButtonFactory.createButton(moveLayerRightAction, false);
 
-        JPanel actionBar = new JPanel(new GridLayout(-1, 1, 2, 2));
-        actionBar.add(addButton);
-        actionBar.add(removeButton);
-        actionBar.add(openButton);
-        actionBar.add(upButton);
-        actionBar.add(downButton);
-        actionBar.add(leftButton);
-        actionBar.add(rightButton);
+        AbstractButton helpButton = createToolButton("icons/Help24.gif");
+        helpButton.setToolTipText("Help."); /*I18N*/
+        helpButton.setName("helpButton");
 
-        JPanel actionPanel = new JPanel(new BorderLayout());
-        actionPanel.add(actionBar, BorderLayout.NORTH);
+        final JPanel actionBar = GridBagUtils.createPanel();
+        final GridBagConstraints gbc = new GridBagConstraints();
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets.top = 2;
+        gbc.gridy = 0;
+        actionBar.add(addButton, gbc);
+        gbc.gridy++;
+        actionBar.add(removeButton, gbc);
+        gbc.gridy++;
+        actionBar.add(openButton, gbc);
+        gbc.gridy++;
+        actionBar.add(upButton, gbc);
+        gbc.gridy++;
+        actionBar.add(downButton, gbc);
+        gbc.gridy++;
+        actionBar.add(leftButton, gbc);
+        gbc.gridy++;
+        actionBar.add(rightButton, gbc);
+        gbc.gridy++;
+        gbc.insets.bottom = 0;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        gbc.weighty = 1.0;
+        gbc.gridwidth = 2;
+        actionBar.add(new JLabel(" "), gbc); // filler
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.weighty = 0.0;
+        gbc.gridy = 10;
+        gbc.anchor = GridBagConstraints.EAST;
+        actionBar.add(helpButton, gbc);
+
+
+        JPanel layerPanel = new JPanel(new BorderLayout(4, 4));
+        layerPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
+        layerPanel.add(new JScrollPane(layerTree), BorderLayout.CENTER);
+        layerPanel.add(sliderPanel, BorderLayout.SOUTH);
 
         control = new JPanel(new BorderLayout(4, 4));
         control.setBorder(new EmptyBorder(4, 4, 4, 4));
-        control.add(new JScrollPane(layerTree), BorderLayout.CENTER);
-        control.add(sliderPanel, BorderLayout.SOUTH);
-        control.add(actionPanel, BorderLayout.EAST);
+        control.add(layerPanel, BorderLayout.CENTER);
+        control.add(actionBar, BorderLayout.EAST);
 
         initLayerTreeVisibility(view.getRootLayer());
         updateFormControl();
+
+        // todo - code duplication in all tool views with help support!!! (nf 200905)
+        HelpSys.enableHelpOnButton(helpButton, helpId);
+        HelpSys.enableHelpKey(control, helpId);
+
     }
 
     private JLabel createSliderLabel(String text) {
@@ -282,6 +318,8 @@ class LayerManagerForm extends AbstractLayerForm {
     public static AbstractButton createToolButton(final String iconPath) {
         return ToolButtonFactory.createButton(UIUtils.loadImageIcon(iconPath), false);
     }
+
+
 
     private class RootLayerListener extends LayerStyleListener {
 
