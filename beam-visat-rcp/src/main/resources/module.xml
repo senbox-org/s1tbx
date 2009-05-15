@@ -693,10 +693,10 @@
             <parent>export</parent>
             <id>exportImageFile</id>
             <class>org.esa.beam.visat.actions.ExportImageAction</class>
-            <text>Export Displayed View...</text>
+            <text>Export View as Image...</text>
             <mnemonic>I</mnemonic>
-            <shortDescr>Export the currently displayed view as an image.</shortDescr>
-            <description>Export the currently displayed view as an image.</description>
+            <shortDescr>Export the current view as an image.</shortDescr>
+            <description>Export the current view as an image.</description>
             <context>image</context>
             <helpId>exportImageFile</helpId>
         </action>
@@ -705,10 +705,10 @@
             <parent>export</parent>
             <id>exportKmzFile</id>
             <class>org.esa.beam.visat.actions.ExportKmzFileAction</class>
-            <text>Export DIsplayed View as Google Earth KMZ...</text>
+            <text>Export View as Google Earth KMZ...</text>
             <mnemonic>K</mnemonic>
-            <shortDescr>Export the currently displayed view as Google Earth KMZ file.</shortDescr>
-            <description>Export the currently displayed view as Google Earth KMZ file.</description>
+            <shortDescr>Export the current view as Google Earth KMZ file.</shortDescr>
+            <description>Export the current view as Google Earth KMZ file.</description>
             <context>image</context>
             <helpId>exportKmzFile</helpId>
         </action>
@@ -717,10 +717,10 @@
             <parent>export</parent>
             <id>exportROIImageFile</id>
             <class>org.esa.beam.visat.actions.ExportRoiImageAction</class>
-            <text>Export ROI Overlay...</text>
+            <text>Export ROI Overlay as Image...</text>
             <mnemonic>O</mnemonic>
-            <shortDescr>Export the currently displayed ROI overlay.</shortDescr>
-            <description>Export the currently displayed ROI overlay to a standard image format.</description>
+            <shortDescr>Export the current ROI overlay as an image.</shortDescr>
+            <description>Export the current ROI overlay as an image.</description>
             <context>image</context>
             <helpId>exportROIImageFile</helpId>
         </action>
@@ -739,10 +739,10 @@
             <parent>export</parent>
             <id>exportLegendImageFile</id>
             <class>org.esa.beam.visat.actions.ExportLegendImageAction</class>
-            <text>Export Colour Legend...</text>
+            <text>Export Colour Legend as Image...</text>
             <mnemonic>C</mnemonic>
-            <shortDescr>Export the colour legend.</shortDescr>
-            <description>Export the colour legend for the currently displayed image.</description>
+            <shortDescr>Export the colour legend as an image.</shortDescr>
+            <description>Export the colour legend of the current view as an image.</description>
             <context>image</context>
             <helpId>exportLegendImageFile</helpId>
         </action>
@@ -751,10 +751,10 @@
             <parent>export</parent>
             <id>exportColorPalette</id>
             <class>org.esa.beam.visat.actions.ExportColorPaletteAction</class>
-            <text>Export Colour Palette...</text>
+            <text>Export Colour Palette as Image...</text>
             <mnemonic>a</mnemonic>
-            <shortDescr>Export the colour palette.</shortDescr>
-            <description>Export the colour palette for the currently displayed image.</description>
+            <shortDescr>Export the colour palette as an image.</shortDescr>
+            <description>Export the colour palette of the current view as an image.</description>
             <context>image</context>
             <helpId>exportColorPalette</helpId>
         </action>
