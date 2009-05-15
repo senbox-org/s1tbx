@@ -8,14 +8,13 @@ import org.esa.beam.framework.ui.AppContext;
 import java.awt.Color;
 
 /**
- * Editor for placemark layers.
+ * Basic editor for image layers.
  *
  * @author Ralf Quast
  * @version $ Revision: $ $ Date: $
  * @since BEAM 4.6
  */
 public class ImageLayerEditor extends AbstractBindingLayerEditor {
-
 
     @Override
     protected void initializeBinding(AppContext appContext, final BindingContext bindingContext) {

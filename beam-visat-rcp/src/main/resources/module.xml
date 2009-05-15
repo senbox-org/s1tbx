@@ -146,6 +146,10 @@
             <layerType>com.bc.ceres.glayer.support.ImageLayer$Type</layerType>
         </layerEditor>
         <layerEditor>
+            <editor>org.esa.beam.visat.toolviews.layermanager.editors.BitmaskLayerEditor</editor>
+            <layerType>org.esa.beam.glayer.BitmaskLayerType</layerType>
+        </layerEditor>
+        <layerEditor>
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.NoDataLayerEditor</editor>
             <layerType>org.esa.beam.glayer.NoDataLayerType</layerType>
         </layerEditor>
