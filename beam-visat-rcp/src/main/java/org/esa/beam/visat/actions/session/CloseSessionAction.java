@@ -29,6 +29,7 @@ import org.esa.beam.visat.VisatApp;
  * @since BEAM 4.6
  */
 public class CloseSessionAction extends ExecCommand {
+
     public static final String ID = "closeSession";
 
     @Override
@@ -40,6 +41,6 @@ public class CloseSessionAction extends ExecCommand {
 
     @Override
     public void updateState(final CommandEvent event) {
-        setEnabled(VisatApp.getApp().getProductManager().getProductCount() > 0);
+        setEnabled(VisatApp.getApp().getSessionFile() != null);
     }
 }
