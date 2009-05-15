@@ -24,6 +24,7 @@ import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -139,13 +140,17 @@ public class PopupMenuHandler implements MouseListener, KeyListener {
             }
         });
         popupMenu.removeAll();
+        Component lastComponent = null;
         String lastGroupName = null;
         for (Component component : components) {
             String groupName = getGroupName(component);
-            if (lastGroupName != null && !lastGroupName.equals(groupName)) {
+            if (lastGroupName != null
+                    && !lastGroupName.equals(groupName)
+                    && !(lastComponent instanceof JSeparator)) {
                 popupMenu.addSeparator();
             }
             lastGroupName = groupName;
+            lastComponent = component;
             if (component instanceof JMenuItem) {
                 popupMenu.add((JMenuItem) component);
             } else if (component instanceof Action) {
