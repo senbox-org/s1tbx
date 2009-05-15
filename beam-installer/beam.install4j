@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="4.2.1" transformSequenceNumber="2">
+<install4j version="4.2.2" transformSequenceNumber="2">
   <directoryPresets config="./src/main/resources/images" />
   <application name="BEAM" distributionSourceDir="" applicationId="2648-9058-9483-8098" mediaDir="../target/installers" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" keepModificationTimes="true" missingFilesStrategy="warn" shortName="beam" publisher="Brockmann Consult GmbH" publisherWeb="http://www.brockmann-consult.de" version="4.6.0" allPathsRelative="true" backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
@@ -438,12 +438,35 @@
             <preActivation />
             <postActivation />
             <actions>
+              <action name="" id="4592" beanClass="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
+                      <void property="description">
+                        <string>BEAM session file, used to restore a VISAT session</string>
+                      </void>
+                      <void property="extension">
+                        <string>beam</string>
+                      </void>
+                      <void property="launcherId">
+                        <string>19</string>
+                      </void>
+                      <void property="windowsIconFile">
+                        <object class="com.install4j.api.beans.ExternalFile">
+                          <string>./src/main/resources/images/beam-icon.ico</string>
+                        </object>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
               <action name="" id="1344" beanClass="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
                       <void property="description">
-                        <string>BEAM-DIMAP data file</string>
+                        <string>BEAM-DIMAP files, BEAM's standard EO data format</string>
                       </void>
                       <void property="extension">
                         <string>dim</string>
@@ -466,7 +489,7 @@
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
                       <void property="description">
-                        <string>ENVISAT data file</string>
+                        <string>ENVISAT raw data files</string>
                       </void>
                       <void property="extension">
                         <string>N1</string>
@@ -489,7 +512,7 @@
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
                       <void property="description">
-                        <string>ERS-1 data file</string>
+                        <string>ERS-1 raw data files</string>
                       </void>
                       <void property="extension">
                         <string>E1</string>
@@ -515,7 +538,7 @@
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
                       <void property="description">
-                        <string>ERS-2 data file</string>
+                        <string>ERS-2 raw data files</string>
                       </void>
                       <void property="extension">
                         <string>E2</string>
