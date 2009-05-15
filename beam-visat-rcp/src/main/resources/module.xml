@@ -12,6 +12,8 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.6:<br/>
+          [BEAM-996] Let user specify dimension of exported images<br/>
+          [BEAM-995] Exporting image yields out-of-memory error<br/>
           [BEAM-994] VISAT "Save As" command shall not close views anymore<br/>
           [BEAM-979] History of recent products incorrect<br/>
           [BEAM-967] PixelInfoView disregards pin movements if "Snap to selected pin" is selected<br/> 
@@ -691,10 +693,10 @@
             <parent>export</parent>
             <id>exportImageFile</id>
             <class>org.esa.beam.visat.actions.ExportImageAction</class>
-            <text>Export Displayed Image...</text>
+            <text>Export Displayed View...</text>
             <mnemonic>I</mnemonic>
-            <shortDescr>Export the currently displayed image.</shortDescr>
-            <description>Export the currently displayed image to a standard image format.</description>
+            <shortDescr>Export the currently displayed view as an image.</shortDescr>
+            <description>Export the currently displayed view as an image.</description>
             <context>image</context>
             <helpId>exportImageFile</helpId>
         </action>
@@ -703,10 +705,10 @@
             <parent>export</parent>
             <id>exportKmzFile</id>
             <class>org.esa.beam.visat.actions.ExportKmzFileAction</class>
-            <text>Export Google Earth KMZ...</text>
+            <text>Export DIsplayed View as Google Earth KMZ...</text>
             <mnemonic>K</mnemonic>
-            <shortDescr>Export the currently displayed image as Google Earth KMZ file.</shortDescr>
-            <description>Export the currently displayed image as Google Earth KMZ file.</description>
+            <shortDescr>Export the currently displayed view as Google Earth KMZ file.</shortDescr>
+            <description>Export the currently displayed view as Google Earth KMZ file.</description>
             <context>image</context>
             <helpId>exportKmzFile</helpId>
         </action>

@@ -115,12 +115,11 @@ public class ExportImageAction extends AbstractExportImageAction {
 
     @Override
     protected RenderedImage createImage(String imageFormat, ProductSceneView view) {
-        final boolean useAlpha = !"BMP".equals(imageFormat);
+        final boolean useAlpha = !"BMP".equals(imageFormat) && !"JPEG".equals(imageFormat);
         final boolean entireImage = isEntireImageSelected();
 
         return createImage(view, entireImage, sizeComponent.getDimension(), useAlpha);
     }
-
 
     static RenderedImage createImage(ProductSceneView view, boolean fullScene, Dimension dimension,
                                      boolean alphaChannel) {
@@ -172,7 +171,6 @@ public class ExportImageAction extends AbstractExportImageAction {
         vp2.setZoomFactor(vp1.getZoomFactor() * magnification, modelCenter.getX(), modelCenter.getY());
     }
 
-    // TODO: rename method into isEntireSceneSelected
     @Override
     protected boolean isEntireImageSelected() {
         return buttonFullScene.isSelected();
