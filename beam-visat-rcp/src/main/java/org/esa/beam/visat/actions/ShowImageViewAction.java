@@ -70,17 +70,19 @@ public class ShowImageViewAction extends ExecCommand {
             expressionList.add(((VirtualBand) selectedProductNode).getExpression());
         }
         for (String expression : expressionList) {
-            final ProductManager productManager = visatApp.getProductManager();
-            final int productIndex = productManager.getProductIndex(selectedProductNode.getProduct());
-            final Product[] products = productManager.getProducts();
-            try {
-                BandArithmetic.parseExpression(expression, products, productIndex);
-            } catch (ParseException e) {
-                e.printStackTrace();
-                VisatApp.getApp().showErrorDialog(MessageFormat.format("Failed to create image view.\n " +
-                                                                       "The expression ''{0}'' is invalid:\n\n{1}",
-                                                                       expression, e.getMessage()));
-                return;
+            if (expression != null) {
+                final ProductManager productManager = visatApp.getProductManager();
+                final int productIndex = productManager.getProductIndex(selectedProductNode.getProduct());
+                final Product[] products = productManager.getProducts();
+                try {
+                    BandArithmetic.parseExpression(expression, products, productIndex);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    VisatApp.getApp().showErrorDialog(MessageFormat.format("Failed to create image view.\n " +
+                                                                           "The expression ''{0}'' is invalid:\n\n{1}",
+                                                                           expression, e.getMessage()));
+                    return;
+                }
             }
         }
 
