@@ -45,9 +45,6 @@ import java.util.Map;
  */
 public class FeatureLayer extends Layer {
 
-    private static final FeatureLayerType LAYER_TYPE = (FeatureLayerType) LayerType.getLayerType(
-            FeatureLayerType.class.getName());
-
     private MapContext mapContext;
     private CoordinateReferenceSystem crs;
 
@@ -135,7 +132,7 @@ public class FeatureLayer extends Layer {
 
     @Override
     protected void fireLayerPropertyChanged(PropertyChangeEvent event) {
-        if (event.getPropertyName().equals(com.bc.ceres.glayer.Style.PROPERTY_NAME_OPACITY)) {
+        if ("transparency".equals(event.getPropertyName())) {
             applyOpacity();
         }
         super.fireLayerPropertyChanged(event);
