@@ -27,18 +27,16 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductMetadataView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.ShowImageViewAction;
-import org.esa.beam.visat.actions.ShowMetadataViewAction;
 import org.esa.beam.visat.actions.ShowImageViewRGBAction;
+import org.esa.beam.visat.actions.ShowMetadataViewAction;
 
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
-import javax.swing.Icon;
 import java.awt.Rectangle;
 import java.beans.PropertyVetoException;
 import java.io.File;
@@ -68,7 +66,7 @@ public class OpenSessionAction extends ExecCommand {
 
         final VisatApp app = VisatApp.getApp();
 
-        if (app.getProductManager().getProductCount() > 0) {
+        if (app.getSessionFile() != null) {
             final int i = app.showQuestionDialog(TITLE,
                                                  "This will close the current session.\n" +
                                                  "Do you want to continue?", null);
@@ -165,7 +163,8 @@ public class OpenSessionAction extends ExecCommand {
                 if (e.getCause() instanceof CanceledException) {
                     return;
                 }
-                app.showErrorDialog(MessageFormat.format("An unexpected exception occured!\nMessage: {0}", e.getCause().getMessage()));
+                app.showErrorDialog(MessageFormat.format("An unexpected exception occured!\nMessage: {0}",
+                                                         e.getCause().getMessage()));
                 e.printStackTrace();
                 return;
             }
