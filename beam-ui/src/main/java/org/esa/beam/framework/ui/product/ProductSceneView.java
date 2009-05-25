@@ -1004,6 +1004,7 @@ public class ProductSceneView extends BasicView
                   product.getSceneRasterHeight(),
                   expression);
             setOwner(product);
+            setModified(false);
         }
     }
 

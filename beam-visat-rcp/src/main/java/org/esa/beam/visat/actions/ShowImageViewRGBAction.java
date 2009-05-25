@@ -34,7 +34,6 @@ import javax.swing.Icon;
 import javax.swing.JInternalFrame;
 import javax.swing.SwingWorker;
 import java.awt.Cursor;
-import java.io.IOException;
 
 /**
  * This action opens an RGB image view on the currently selected Product.
@@ -173,9 +172,9 @@ public class ShowImageViewRGBAction extends ExecCommand {
         return productSceneImage;
     }
 
-    private RGBBand[] allocateRgbBands(final Product product,
-                                       final String[] rgbaExpressions) throws IOException {
+    private RGBBand[] allocateRgbBands(final Product product, final String[] rgbaExpressions) {
         final RGBBand[] rgbBands = new RGBBand[3]; // todo - set to [4] as soon as we support alpha
+        final boolean productModificationState = product.isModified();
         for (int i = 0; i < rgbBands.length; i++) {
             final RGBBand rgbBand = new RGBBand();
             String expression = rgbaExpressions[i].isEmpty() ? "0" : rgbaExpressions[i];
@@ -187,6 +186,7 @@ public class ShowImageViewRGBAction extends ExecCommand {
             }
             rgbBands[i] = rgbBand;
         }
+        product.setModified(productModificationState);
         return rgbBands;
     }
 
