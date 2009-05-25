@@ -1,16 +1,28 @@
 package com.bc.ceres.core.runtime.internal;
 
-import com.bc.ceres.core.*;
+import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.CoreException;
+import com.bc.ceres.core.ExtensibleObject;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import static com.bc.ceres.core.runtime.Constants.SYSTEM_MODULE_NAME;
-import com.bc.ceres.core.runtime.*;
+import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.core.runtime.ModuleRuntime;
+import com.bc.ceres.core.runtime.ModuleState;
+import com.bc.ceres.core.runtime.ProxyConfig;
+import com.bc.ceres.core.runtime.RuntimeConfig;
+import com.bc.ceres.core.runtime.RuntimeRunnable;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.security.CodeSource;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -193,7 +205,7 @@ public class RuntimeImpl extends ExtensibleObject implements ModuleRuntime {
         try {
             getLogger().info("Searching for modules in classpath...");
             ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-            ModuleImpl[]  modules = moduleLoader.loadModules(contextClassLoader, pm);
+            ModuleImpl[] modules = moduleLoader.loadModules(contextClassLoader, pm);
             getLogger().info(String.format("%d module(s) found.", modules.length));
             registerModules(modules);
         } catch (IOException e) {
@@ -303,57 +315,33 @@ public class RuntimeImpl extends ExtensibleObject implements ModuleRuntime {
 
     private void logResolveSummary() {
         for (ModuleImpl module : resolvedModules) {
-            getLogger().fine(MessageFormat.format("Module [{0}] resolved, reference count is {1}.",
-                                                  module.getSymbolicName(),
-                                                  module.getRefCount()));
-
-            // Log module dependencies.
-            // Note that always module.moduleDependencies != null, for all resolvedModules
+            String msg = MessageFormat.format("Module [{0}] resolved, reference count is {1}.", module.getSymbolicName(), module.getRefCount());
+            getLogger().fine(msg);
+            // Note for all resolvedModules, always module.moduleDependencies != null,
             ModuleImpl[] moduleDependencies = module.getModuleDependencies();
-            for (ModuleImpl moduleDependency : moduleDependencies) {
-                getLogger().fine(
-                        MessageFormat.format(">> Depends on module [{0}]", moduleDependency.getSymbolicName()));
+            for (int i = 0; i < moduleDependencies.length; i++) {
+                msg = MessageFormat.format("  moduleDependencies[{0}] = {1}", i, moduleDependencies[i].getSymbolicName());
+                getLogger().fine(msg);
             }
 
-            ClassLoader classLoader = module.getClassLoader();
-            logClassLoaderRecursive(classLoader, ">> module.classLoader");
-
-        }
-
-    }
-
-    private void logClassLoaderRecursive(ClassLoader cl, String prefix) {
-        logClassLoaderName(cl, prefix + ".class");
-        if (cl instanceof ModuleClassLoader) {
-            ModuleClassLoader mcl = (ModuleClassLoader) cl;
-            logURLClassLoaderClasspath(mcl, prefix);
-            logNativeUrls(mcl, prefix);
-            ClassLoader[] delegates = mcl.getDelegates();
+            ModuleClassLoader classLoader = (ModuleClassLoader) module.getClassLoader();
+            msg = MessageFormat.format("  classLoader = {0}", classLoader);
+            getLogger().fine(msg);
+            URL[] urls = classLoader.getURLs();
+            for (int i = 0; i < urls.length; i++) {
+                msg = MessageFormat.format("  classLoader.urls[{0}] = {1}", i, urls[i]);
+                getLogger().fine(msg);
+            }
+            URL[] nativeUrls = classLoader.getNativeUrls();
+            for (int i = 0; i < nativeUrls.length; i++) {
+                msg = MessageFormat.format("  classLoader.nativeUrls[{0}] = {1}", i, nativeUrls[i]);
+                getLogger().fine(msg);
+            }
+            ClassLoader[] delegates = classLoader.getDelegates();
             for (int i = 0; i < delegates.length; i++) {
-                ClassLoader delegate = delegates[i];
-                logClassLoaderRecursive(delegate, prefix + ".delegate[" + i + "]");
+                msg = MessageFormat.format("  classLoader.delegates[{0}] = {1}", i, delegates[i]);
+                getLogger().fine(msg);
             }
-            logClassLoaderRecursive(mcl.getParent(), prefix + ".parent");
-        }
-    }
-
-    private void logNativeUrls(ModuleClassLoader mcl, String prefix) {
-        URL[] nativeUrls = mcl.getNativeUrls();
-        for (int i = 0; i < nativeUrls.length; i++) {
-            URL nativeUrl = nativeUrls[i];
-            getLogger().fine(prefix + ".nativeUrl[" + i + "] = " + nativeUrl);
-        }
-    }
-
-    private void logClassLoaderName(ClassLoader cl, String prefix) {
-        getLogger().fine(prefix + " = " + cl);
-    }
-
-    private void logURLClassLoaderClasspath(URLClassLoader ucl, String prefix) {
-        URL[] urls = ucl.getURLs();
-        for (int i = 0; i < urls.length; i++) {
-            URL url = urls[i];
-            getLogger().fine(prefix + ".url[" + i + "] = " + url);
         }
     }
 
