@@ -16,8 +16,8 @@ import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileFilter;
-import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.File;
 import java.util.Locale;
@@ -30,30 +30,11 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
     private static boolean hdfLibAvailable = false;
 
     static {
-        // check the availability of the hdf library - if none is present set global flag.
-        Throwable cause = null;
-        try {
-            hdfLibAvailable = Class.forName("ncsa.hdf.hdflib.HDFLibrary") != null;
-        } catch (ClassNotFoundException e) {
-            cause = e;
-            hdfLibAvailable = false;
-        } catch (LinkageError e) {
-            cause = e;
-            hdfLibAvailable = false;
-        }
-        if (!hdfLibAvailable) {
-            String msg;
-            if (cause != null) {
-                msg = String.format("HDF-4 library not usable: %s: %s", cause.getClass(), cause.getMessage());
-            } else {
-                msg = "HDF-4 library not usable";
-            }
-            BeamLogManager.getSystemLogger().info(msg);
-        }
+        hdfLibAvailable = SystemUtils.loadHdf4Lib(ModisProductReaderPlugIn.class) != null;
     }
 
     /**
-     * @return  whether or not the HDF4 library is available.
+     * @return whether or not the HDF4 library is available.
      */
     public static boolean isHdf4LibAvailable() {
         return hdfLibAvailable;

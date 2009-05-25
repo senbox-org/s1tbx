@@ -19,8 +19,8 @@ import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileFilter;
-import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.File;
 import java.util.List;
@@ -54,26 +54,7 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
     ObpgUtils utils = new ObpgUtils();
 
     static {
-        // check the availability of the hdf library - if none is present set global flag.
-        Throwable cause = null;
-        try {
-            hdfLibAvailable = Class.forName("ncsa.hdf.hdflib.HDFLibrary") != null;
-        } catch (ClassNotFoundException e) {
-            cause = e;
-            hdfLibAvailable = false;
-        } catch (LinkageError e) {
-            cause = e;
-            hdfLibAvailable = false;
-        }
-        if (!hdfLibAvailable) {
-            String msg;
-            if (cause != null) {
-                msg = String.format("HDF-4 library not usable: %s: %s", cause.getClass(), cause.getMessage());
-            } else {
-                msg = "HDF-4 library not usable";
-            }
-            BeamLogManager.getSystemLogger().info(msg);
-        }
+        hdfLibAvailable = SystemUtils.loadHdf4Lib(ObpgProductReaderPlugIn.class) != null;
     }
 
     /**
@@ -140,7 +121,7 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
     public ProductReader createReaderInstance() {
         if (!hdfLibAvailable) {
             return null;
-        }                                       
+        }
 
         return new ObpgProductReader(this);
     }
@@ -173,6 +154,7 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
+     *
      * @return a textual description of this product reader/writer
      */
     public String getDescription(Locale locale) {

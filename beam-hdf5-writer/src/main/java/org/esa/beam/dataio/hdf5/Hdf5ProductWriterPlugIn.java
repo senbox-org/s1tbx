@@ -20,6 +20,7 @@ import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
 import java.util.Locale;
@@ -43,11 +44,7 @@ public class Hdf5ProductWriterPlugIn implements ProductWriterPlugIn {
     private static boolean hdf5LibAvailable = false;
 
     static {
-        // check the availability of the hdf library - if none is present set global flag.
-        hdf5LibAvailable = checkHdf5LibAvailability();
-        if (!hdf5LibAvailable) {
-            BeamLogManager.getSystemLogger().info("HDF-5 library not usable");
-        }
+        hdf5LibAvailable = SystemUtils.loadHdf5Lib(Hdf5ProductWriterPlugIn.class) != null;
     }
 
     /**
@@ -55,16 +52,6 @@ public class Hdf5ProductWriterPlugIn implements ProductWriterPlugIn {
      */
     public Hdf5ProductWriterPlugIn() {
     }
-
-    private static boolean checkHdf5LibAvailability() {
-        try {
-            return Class.forName(H5_CLASS_NAME) != null;
-        } catch (ClassNotFoundException e) {
-        } catch (LinkageError e) {
-        }
-        return false;
-    }
-
 
     /**
      * Returns whether or not the HDF5 library is available.

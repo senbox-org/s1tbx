@@ -18,6 +18,7 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
 import java.util.Locale;
@@ -30,15 +31,7 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
     private static boolean hdfLibraryAvailable;
 
     static {
-        try {
-            hdfLibraryAvailable = Class.forName("ncsa.hdf.hdflib.HDFLibrary") != null;
-        } catch (Throwable t) {
-            // ignore, {@code hdfLibraryAvailable} is already {@code false}
-        }
-        //noinspection StaticVariableUsedBeforeInitialization
-        if (!hdfLibraryAvailable) {
-            BeamLogManager.getSystemLogger().info("HDF library is not available");
-        }
+        hdfLibraryAvailable = SystemUtils.loadHdf4Lib(ChrisProductReaderPlugIn.class) != null;
     }
 
     /**

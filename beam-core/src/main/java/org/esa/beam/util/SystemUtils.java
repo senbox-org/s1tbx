@@ -31,6 +31,7 @@ import java.net.URLDecoder;
 import java.security.CodeSource;
 import java.util.*;
 import java.util.logging.Level;
+import java.text.MessageFormat;
 
 /**
  * A collection of (BEAM-) system level functions.
@@ -547,30 +548,22 @@ public class SystemUtils {
         return logLevel;
     }
 
-// todo nf - add docu
-
-    public static boolean isHdf4LibAvailable() {
+    public static Class<?> loadHdf4Lib(Class<?> callerClass)  {
         try {
-            return Class.forName(_H4_CLASS_NAME) != null;
-        } catch (ClassNotFoundException e) {
-            // ignore
-        } catch (LinkageError e) {
-            // ignore
+            return Class.forName(_H4_CLASS_NAME, true, callerClass.getClassLoader());
+        } catch (Throwable error) {
+            BeamLogManager.getSystemLogger().warning(MessageFormat.format("{0}: HDF-4 library not available: {1}: {2}", callerClass, error.getClass(), error.getMessage()));
+            return null;
         }
-        return false;
     }
 
-// todo nf - add docu
-
-    public static boolean isHdf5LibAvailable() {
+    public static Class<?> loadHdf5Lib(Class<?> callerClass){
         try {
-            return Class.forName(_H5_CLASS_NAME) != null;
-        } catch (ClassNotFoundException e) {
-            // ignore
-        } catch (LinkageError e) {
-            // ignore
+            return Class.forName(_H5_CLASS_NAME, true, callerClass.getClassLoader());
+        } catch (Throwable error) {
+            BeamLogManager.getSystemLogger().warning(MessageFormat.format("{0}: HDF-5 library not available: {1}: {2}", callerClass, error.getClass(), error.getMessage()));
+            return null;
         }
-        return false;
     }
 
     /**
