@@ -1,6 +1,10 @@
 package com.bc.ceres.core;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * {@inheritDoc}
@@ -21,6 +25,7 @@ public class DefaultServiceRegistry<T> implements ServiceRegistry<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Class<T> getServiceType() {
         return serviceType;
     }
@@ -28,6 +33,7 @@ public class DefaultServiceRegistry<T> implements ServiceRegistry<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Set<T> getServices() {
         return new HashSet<T>(services.values());
     }
@@ -35,6 +41,7 @@ public class DefaultServiceRegistry<T> implements ServiceRegistry<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public T getService(String className) {
         return services.get(className);
     }
@@ -42,6 +49,7 @@ public class DefaultServiceRegistry<T> implements ServiceRegistry<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean addService(T service) {
         Assert.notNull(service, "service");
         final T existingService = services.put(service.getClass().getName(), service);
@@ -57,6 +65,7 @@ public class DefaultServiceRegistry<T> implements ServiceRegistry<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean removeService(T service) {
         Assert.notNull(service, "service");
         final T existingService = services.remove(service.getClass().getName());
@@ -72,6 +81,7 @@ public class DefaultServiceRegistry<T> implements ServiceRegistry<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<ServiceRegistryListener<T>> getListeners() {
         return (List<ServiceRegistryListener<T>>) listeners.clone();
     }
@@ -79,6 +89,7 @@ public class DefaultServiceRegistry<T> implements ServiceRegistry<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addListener(ServiceRegistryListener<T> listener) {
         Assert.notNull(listener, "listener");
         listeners.add(listener);
@@ -87,6 +98,7 @@ public class DefaultServiceRegistry<T> implements ServiceRegistry<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void removeListener(ServiceRegistryListener<T> listener) {
         Assert.notNull(listener, "listener");
         listeners.remove(listener);
