@@ -24,22 +24,104 @@ import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
+import org.geotools.referencing.crs.DefaultGeocentricCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
+import org.geotools.referencing.cs.DefaultEllipsoidalCS;
+import org.geotools.referencing.datum.DefaultEllipsoid;
+import org.geotools.referencing.datum.DefaultGeodeticDatum;
+import org.geotools.referencing.datum.DefaultPrimeMeridian;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.crs.GeodeticCRS;
+import org.opengis.referencing.datum.Ellipsoid;
+import org.opengis.referencing.datum.GeodeticDatum;
 import org.opengis.referencing.operation.MathTransform;
 
+import javax.measure.quantity.Length;
+import javax.measure.unit.Unit;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
 
 public class MapGeoCodingTest extends TestCase {
 
+    private static class Units {
+
+        @SuppressWarnings({"unchecked"})
+        public static final Unit<Length> METER = (Unit<Length>) Unit.valueOf("m");
+    }
+
+    private static class Ellipsoids {
+
+        // EPSG::7019
+        public static final Ellipsoid GRS80 = DefaultEllipsoid.GRS80;
+
+        // EPSG::7043
+        public static final Ellipsoid WGS72 = createFlattenedSphere("WGS 72", 6378135.0, 298.26, Units.METER);
+
+        // EPSG::7030
+        public static final Ellipsoid WGS84 = DefaultEllipsoid.WGS84;
+
+        public static Ellipsoid createEllipsoid(String name,
+                                                double semiMajorAxis,
+                                                double semiMinorAxis,
+                                                Unit<Length> unit) {
+            return DefaultEllipsoid.createEllipsoid(name, semiMajorAxis, semiMinorAxis, unit);
+        }
+
+        public static Ellipsoid createFlattenedSphere(String name,
+                                                      double semiMajorAxis,
+                                                      double inverseFlattening,
+                                                      Unit<Length> unit) {
+            return DefaultEllipsoid.createFlattenedSphere(name, semiMajorAxis, inverseFlattening, unit);
+        }
+    }
+
+    private static class GeodeticDatums {
+
+        // EPSG::6655
+        public static final GeodeticDatum ITRF97 =
+                new DefaultGeodeticDatum(
+                        "International Terrestrial Reference Frame 1997",
+                        DefaultEllipsoid.GRS80,
+                        DefaultPrimeMeridian.GREENWICH);
+
+        // EPSG::6322
+        public static final GeodeticDatum WGS72 =
+                new DefaultGeodeticDatum(
+                        "World Geodetic System 1972",
+                        Ellipsoids.WGS72,
+                        DefaultPrimeMeridian.GREENWICH);
+
+        // EPSG::6326
+        public static final GeodeticDatum WGS84 = DefaultGeodeticDatum.WGS84;
+    }
+
+    private static class CoordinateReferenceSystems {
+
+        // EPSG::4918
+        public static final GeodeticCRS ITRF97 =
+                new DefaultGeocentricCRS(
+                        "ITRF97",
+                        GeodeticDatums.ITRF97,
+                        DefaultCartesianCS.GEOCENTRIC);
+
+        // EPSG::4322
+        public static final GeodeticCRS WGS72 =
+                new DefaultGeographicCRS(
+                        "WGS 72",
+                        GeodeticDatums.WGS72,
+                        DefaultEllipsoidalCS.GEODETIC_2D);
+
+        // EPSG::4326
+        public static final GeodeticCRS WGS84 = DefaultGeographicCRS.WGS84;
+    }
+
     // TODO: complete this test
-    public void testIdentityMapGeocidingCRS() throws FactoryException {
+    public void testMapGeocodingCRS() throws FactoryException {
 /*
         final MapProjection[] projections = MapProjectionRegistry.getProjections();
 
@@ -177,12 +259,46 @@ public class MapGeoCodingTest extends TestCase {
         projection.getName() = Universal Polar Stereographic South
 */
 
-        MapInfo mapInfo = createMapInfo(Datum.WGS_84, MapProjectionRegistry.getProjection("Geographic Lat/Lon"));
+        MapInfo mapInfo;
+        MapProjection mapProjection;
 
-        // assertEquals(getCRS(mapInfo), DefaultGeographicCRS.WGS84);
+        // Geographic
+        mapProjection = MapProjectionRegistry.getProjection("Geographic Lat/Lon");
+        mapInfo = createMapInfo(Datum.WGS_84, mapProjection);
+        assertEquals(CoordinateReferenceSystems.WGS84, getCRS(mapInfo));
+
+        mapInfo = createMapInfo(Datum.WGS_72, mapProjection);
+        assertEquals(CoordinateReferenceSystems.WGS72, getCRS(mapInfo));
+
+        mapInfo = createMapInfo(Datum.ITRF_97, mapProjection);
+        assertEquals(CoordinateReferenceSystems.ITRF97, getCRS(mapInfo));
+
+        // TODO: Universal Polar Stereographic North
+//        mapProjection = MapProjectionRegistry.getProjection("Universal Polar Stereographic North");
+//        mapInfo = createMapInfo(Datum.WGS_84, mapProjection);
+//        assertEquals(CoordinateReferenceSystems.WGS84, getCRS(mapInfo));
+//
+//        mapInfo = createMapInfo(Datum.WGS_72, mapProjection);
+//        assertEquals(CoordinateReferenceSystems.WGS72, getCRS(mapInfo));
+//
+//        mapInfo = createMapInfo(Datum.ITRF_97, mapProjection);
+//        assertEquals(CoordinateReferenceSystems.ITRF97, getCRS(mapInfo));
     }
 
     private static CoordinateReferenceSystem getCRS(MapInfo mapInfo) throws FactoryException {
+        final Datum datum = mapInfo.getDatum();
+        if ("Geographic Lat/Lon".equals(mapInfo.getMapProjection().getName())) {
+            if (Datum.WGS_84.equals(datum)) {
+                return CoordinateReferenceSystems.WGS84;
+            }
+            if (Datum.WGS_72.equals(datum)) {
+                return CoordinateReferenceSystems.WGS72;
+            }
+            if (Datum.ITRF_97.equals(datum)) {
+                return CoordinateReferenceSystems.ITRF97;
+            }
+        }
+
         final DefaultMathTransformFactory mtf = new DefaultMathTransformFactory();
 /*
         method.getName() = ESRI:Stereographic_North_Pole
@@ -219,12 +335,12 @@ public class MapGeoCodingTest extends TestCase {
 
 //      TODO: create CRS from map info
 //      TODO: also see http://docs.codehaus.org/display/GEOTDOC/Coordinate+Transformation+Parameters
-        final ParameterValueGroup p = mtf.getDefaultParameters("Transverse_Mercator");
-        final Datum datum = mapInfo.getDatum();
-        p.parameter("semi_major").setValue(datum.getEllipsoid().getSemiMajor());
-        p.parameter("semi_minor").setValue(datum.getEllipsoid().getSemiMinor());
+        final ParameterValueGroup parameters = mtf.getDefaultParameters("Polar_Stereographic");
+        assertNotNull(parameters);
+        parameters.parameter("semi_major").setValue(datum.getEllipsoid().getSemiMajor());
+        parameters.parameter("semi_minor").setValue(datum.getEllipsoid().getSemiMinor());
 
-        final MathTransform mt = mtf.createParameterizedTransform(p);
+        final MathTransform mt = mtf.createParameterizedTransform(parameters);
 
         return new DefaultProjectedCRS("tm", DefaultGeographicCRS.WGS84, mt, DefaultCartesianCS.PROJECTED);
     }
