@@ -60,10 +60,6 @@ public class PlacemarkLayer extends Layer {
         this.pnl = new MyProductNodeListenerAdapter();
         product.addProductNodeListener(pnl);
 
-        setTextEnabled((Boolean) configuration.getValue(PROPERTY_NAME_TEXT_ENABLED));
-        setTextFont((Font) configuration.getValue(PROPERTY_NAME_TEXT_FONT));
-        setTextBgColor((Color) configuration.getValue(PROPERTY_NAME_TEXT_BG_COLOR));
-        setTextFgColor((Color) configuration.getValue(PROPERTY_NAME_TEXT_FG_COLOR));
     }
 
 
@@ -139,7 +135,7 @@ public class PlacemarkLayer extends Layer {
                     g2d.scale(1 / scale, 1 / scale);
                     g2d.rotate(viewport.getOrientation());
 
-                    if (placemark.isSelected()) {
+                    if (placemark == pinGroup.getSelectedNode()) {
                         placemark.getSymbol().drawSelected(g2d);
                     } else {
                         placemark.getSymbol().draw(g2d);
@@ -178,7 +174,7 @@ public class PlacemarkLayer extends Layer {
             BasicStroke selectionStroke = new BasicStroke((alphas.length - i));
             Color selectionColor = new Color(getTextBgColor().getRed(),
                                              getTextBgColor().getGreen(),
-                                             getTextBgColor().getGreen(),
+                                             getTextBgColor().getBlue(),
                                              alphas[i]);
             g2d.setStroke(selectionStroke);
             g2d.setPaint(selectionColor);
@@ -193,7 +189,7 @@ public class PlacemarkLayer extends Layer {
         return getConfigurationProperty(PROPERTY_NAME_TEXT_ENABLED, DEFAULT_TEXT_ENABLED);
     }
 
-    public void setTextEnabled(boolean enabled) {
+    public final void setTextEnabled(boolean enabled) {
         try {
             getConfiguration().setValue(PROPERTY_NAME_TEXT_ENABLED, enabled);
         } catch (ValidationException e) {
@@ -205,7 +201,7 @@ public class PlacemarkLayer extends Layer {
         return getConfigurationProperty(PROPERTY_NAME_TEXT_FONT, DEFAULT_TEXT_FONT);
     }
 
-    public void setTextFont(Font font) {
+    public final void setTextFont(Font font) {
         try {
             getConfiguration().setValue(PROPERTY_NAME_TEXT_FONT, font);
         } catch (ValidationException e) {
@@ -217,7 +213,7 @@ public class PlacemarkLayer extends Layer {
         return getConfigurationProperty(PROPERTY_NAME_TEXT_FG_COLOR, DEFAULT_TEXT_FG_COLOR);
     }
 
-    public void setTextFgColor(Color color) {
+    public final void setTextFgColor(Color color) {
         try {
             getConfiguration().setValue(PROPERTY_NAME_TEXT_FG_COLOR, color);
         } catch (ValidationException e) {
@@ -229,7 +225,7 @@ public class PlacemarkLayer extends Layer {
         return getConfigurationProperty(PROPERTY_NAME_TEXT_BG_COLOR, DEFAULT_TEXT_BG_COLOR);
     }
 
-    public void setTextBgColor(Color color) {
+    public final void setTextBgColor(Color color) {
         try {
             getConfiguration().setValue(PROPERTY_NAME_TEXT_BG_COLOR, color);
         } catch (ValidationException e) {
