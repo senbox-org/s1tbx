@@ -22,16 +22,23 @@ import org.esa.beam.util.logging.BeamLogManager;
 import javax.swing.UIManager;
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.awt.datatransfer.*;
-import java.io.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.security.CodeSource;
-import java.util.*;
-import java.util.logging.Level;
 import java.text.MessageFormat;
+import java.util.NoSuchElementException;
+import java.util.ServiceLoader;
+import java.util.StringTokenizer;
 
 /**
  * A collection of (BEAM-) system level functions.
@@ -106,6 +113,7 @@ public class SystemUtils {
      * Gets the current user's application data directory.
      *
      * @return the current user's application data directory
+     *
      * @since BEAM 4.2
      */
     public static File getApplicationDataDir() {
@@ -116,7 +124,9 @@ public class SystemUtils {
      * Optionally creates and returns the current user's application data directory.
      *
      * @param force if true, the directory will be created if it didn't exist before
+     *
      * @return the current user's application data directory
+     *
      * @since BEAM 4.2
      */
     public static File getApplicationDataDir(boolean force) {
@@ -202,7 +212,9 @@ public class SystemUtils {
      * then assumed to be the requested home directory.
      *
      * @param url the URL
+     *
      * @return an assumption of an application's home directory, never <code>null</code>
+     *
      * @throws IllegalArgumentException if the given url is <code>null</code>.
      */
     public static File getApplicationHomeDir(final URL url) {
@@ -234,7 +246,9 @@ public class SystemUtils {
      * class <code>java.util.Date</code>.
      *
      * @param aClass The class.
+     *
      * @return the file name of the given class
+     *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
      */
     public static String getClassFileName(final Class aClass) {
@@ -317,6 +331,7 @@ public class SystemUtils {
      * <p>Its value is <code><i>$BEAM_HOME</i>/auxdata</code>.</p>
      *
      * @return the auxdata directory
+     *
      * @deprecated in 4.0, use {@link ResourceScanner} instead
      */
     @Deprecated
@@ -338,7 +353,9 @@ public class SystemUtils {
      * Replace the separator character '/' with the system-dependent path-separator character.
      *
      * @param urlPath an URL path or any other string containing the forward slash '/' as directory separator.
+     *
      * @return a path string with all occurrences of '/'
+     *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
      */
     public static String convertToLocalPath(String urlPath) {
@@ -380,6 +397,7 @@ public class SystemUtils {
      * suffixed with a dot ('.') character.
      *
      * @param e the exception
+     *
      * @return a modified message text, or <code>null</code> if <code>e</code> was null.
      */
     public static String createHumanReadableExceptionMessage(final Exception e) {
@@ -454,27 +472,15 @@ public class SystemUtils {
                 && systemLafName.equals(currentLafName);
     }
 
-    private static boolean isServiceLoaderAvailable() {
-        try {
-            Class.forName("java.util.ServiceLoader");
-            return true;
-        } catch (Throwable t) {
-            return false;
-        }
-    }
-
     /**
      * Loads services from all <code>META-INF/services/</code> resources.
      *
      * @param serviceType the type of the service to be loaded.
+     *
      * @return the services of type <code>serviceType</code> found.
      */
     public static <S> Iterable<S> loadServices(Class<S> serviceType) {
-        if (isServiceLoaderAvailable()) {
-            return ServiceLoader.load(serviceType);
-        } else {
-            return loadServicesWithoutServiceLoader(serviceType, Thread.currentThread().getContextClassLoader());
-        }
+        return ServiceLoader.load(serviceType);
     }
 
     /**
@@ -482,50 +488,11 @@ public class SystemUtils {
      *
      * @param serviceType the type of the service to be loaded.
      * @param classLoader the class loader.
+     *
      * @return the services of type <code>serviceType</code> found.
      */
     public static <S> Iterable<S> loadServices(Class<S> serviceType, ClassLoader classLoader) {
-        if (isServiceLoaderAvailable()) {
-            return ServiceLoader.load(serviceType, classLoader);
-        } else {
-            return loadServicesWithoutServiceLoader(serviceType, classLoader);
-        }
-    }
-
-    private static <S> Iterable<S> loadServicesWithoutServiceLoader(Class<S> serviceType, ClassLoader classLoader) {
-        ArrayList<S> services = new ArrayList<S>(32);
-        try {
-            Enumeration<URL> resources = classLoader.getResources("META-INF/services/" + serviceType.getName());
-            while (resources.hasMoreElements()) {
-                URL url = resources.nextElement();
-                try {
-                    InputStream inputStream = url.openStream();
-                    try {
-                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                        while (true) {
-                            String className = bufferedReader.readLine();
-                            if (className == null) {
-                                break;
-                            }
-                            try {
-                                S service = (S) classLoader.loadClass(className).newInstance();
-                                services.add(service);
-                                BeamLogManager.getSystemLogger().log(Level.FINE, "Service loaded: " + service.getClass());
-                            } catch (Throwable t) {
-                                BeamLogManager.getSystemLogger().log(Level.SEVERE, "Failed to load service: " + className, t);
-                            }
-                        }
-                    } finally {
-                        inputStream.close();
-                    }
-                } catch (IOException ioe1) {
-                    BeamLogManager.getSystemLogger().log(Level.SEVERE, "Failed to load service(s) from " + url, ioe1);
-                }
-            }
-        } catch (IOException ioe2) {
-            BeamLogManager.getSystemLogger().log(Level.SEVERE, "Failed to load services of type " + serviceType.getName(), ioe2);
-        }
-        return services;
+        return ServiceLoader.load(serviceType, classLoader);
     }
 
     public static String getBuildNumber() {
@@ -548,7 +515,7 @@ public class SystemUtils {
         return logLevel;
     }
 
-    public static Class<?> loadHdf4Lib(Class<?> callerClass)  {
+    public static Class<?> loadHdf4Lib(Class<?> callerClass) {
         try {
             return Class.forName(_H4_CLASS_NAME, true, callerClass.getClassLoader());
         } catch (Throwable error) {
@@ -557,7 +524,7 @@ public class SystemUtils {
         }
     }
 
-    public static Class<?> loadHdf5Lib(Class<?> callerClass){
+    public static Class<?> loadHdf5Lib(Class<?> callerClass) {
         try {
             return Class.forName(_H5_CLASS_NAME, true, callerClass.getClassLoader());
         } catch (Throwable error) {

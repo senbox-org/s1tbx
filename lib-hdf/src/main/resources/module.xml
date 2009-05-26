@@ -6,7 +6,6 @@
     <packaging>dir</packaging>
     <native>true</native>
     <categories>Library,HDF</categories>
-    <activator>org.esa.beam.hdf.ModuleActivator</activator>
 
     <description>A wrapper module for the native libraries used to read data products in HDF format.</description>
 
