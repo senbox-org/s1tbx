@@ -103,6 +103,7 @@ public class StereographicDescriptor implements MapTransformDescriptor {
      * method after an instance of this <code>MapTransformDescriptor</code> has been successfully registered.
      * <p/>
      */
+    @Override
     public void registerProjections() {
         MapProjectionRegistry.registerProjection(new MapProjection(getName(),
                                                                    createTransform(PARAMETER_DEFAULT_VALUES), false));
@@ -116,6 +117,7 @@ public class StereographicDescriptor implements MapTransformDescriptor {
     /**
      * Retrieves the type identifier for this transform.
      */
+    @Override
     public String getTypeID() {
         return TYPE_ID;
     }
@@ -124,6 +126,7 @@ public class StereographicDescriptor implements MapTransformDescriptor {
     /**
      * Gets a descriptive name for this map transformation descriptor.
      */
+    @Override
     public String getName() {
         return NAME;
     }
@@ -132,6 +135,7 @@ public class StereographicDescriptor implements MapTransformDescriptor {
     /**
      * Retrieves the unit of this transform.
      */
+    @Override
     public String getMapUnit() {
         return MAP_UNIT;
     }
@@ -140,6 +144,7 @@ public class StereographicDescriptor implements MapTransformDescriptor {
     /**
      * Gets the default parameter values for this map transform.
      */
+    @Override
     public double[] getParameterDefaultValues() {
         final double[] values = new double[PARAMETER_DEFAULT_VALUES.length];
         System.arraycopy(PARAMETER_DEFAULT_VALUES, 0, values, 0, values.length);
@@ -152,6 +157,7 @@ public class StereographicDescriptor implements MapTransformDescriptor {
      * Gets the list of parameters required to create an
      * instance of the map transformation.
      */
+    @Override
     public Parameter[] getParameters() {
         final Parameter[] parameters = new Parameter[PARAMETER_NAMES.length];
 
@@ -171,6 +177,7 @@ public class StereographicDescriptor implements MapTransformDescriptor {
      *
      * @return always <code>true</code>
      */
+    @Override
     public boolean hasTransformUI() {
         return true;
     }
@@ -184,6 +191,7 @@ public class StereographicDescriptor implements MapTransformDescriptor {
      *
      * @return the transformation UI, never null
      */
+    @Override
     public MapTransformUI getTransformUI(final MapTransform transform) {
         return new DefaultMapTransformUI(transform);
     }
@@ -194,6 +202,7 @@ public class StereographicDescriptor implements MapTransformDescriptor {
      *
      * @param parameterValues the parameters needed by the transform
      */
+    @Override
     public MapTransform createTransform(double[] parameterValues) {
         if (parameterValues == null) {
             parameterValues = PARAMETER_DEFAULT_VALUES;
@@ -285,11 +294,13 @@ public class StereographicDescriptor implements MapTransformDescriptor {
             System.arraycopy(parameterValues, 0, _parameterValues, 0, _parameterValues.length);
         }
 
+        @Override
         public MapTransformDescriptor getDescriptor() {
             return StereographicDescriptor.this;
         }
 
 
+        @Override
         public double[] getParameterValues() {
             final double[] values = new double[_parameterValues.length];
             System.arraycopy(_parameterValues, 0, values, 0, values.length);
@@ -421,6 +432,7 @@ public class StereographicDescriptor implements MapTransformDescriptor {
             return geoPoint;
         }
 
+        @Override
         public MapTransform createDeepClone() {
             return new ST(_parameterValues);
         }
