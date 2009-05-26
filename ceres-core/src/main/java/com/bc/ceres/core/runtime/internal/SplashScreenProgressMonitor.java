@@ -6,7 +6,17 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.RuntimeConfig;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.SplashScreen;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +29,10 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
     private static final String CONFIG_KEY_SPLASH_IMAGE = "splash.image";
     private static final String CONFIG_KEY_SPLASH_PROGRESS_BAR_COLOR = "splash.progressBar.color";
     private static final String CONFIG_KEY_SPLASH_PROGRESS_BAR_AREA = "splash.progressBar.area";
+    private static final String CONFIG_KEY_TASK_LABEL_ENABLED = "splash.taskLabel.enabled";
+    private static final String CONFIG_KEY_TASK_LABEL_FONT = "splash.taskLabel.font";
+    private static final String CONFIG_KEY_TASK_LABEL_COLOR = "splash.taskLabel.color";
+    private static final String CONFIG_KEY_TASK_LABEL_AREA = "splash.taskLabel.area";
 
     private Splash splashScreen;
     private String taskName;
@@ -29,8 +43,9 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
     private Graphics2D graphics;
     private Rectangle splashArea;
     private int progressBarHeight;
-    private Font font;
-    private Color fontColor;
+    private boolean taskLabelEnabled;
+    private Font taskLabelFont;
+    private Color taskLabelColor;
     private Color progressBarColor;
     private Rectangle progressBarArea;
     private int pixelsWorked;
@@ -39,7 +54,8 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
     /**
      * Creates a {@link SplashScreenProgressMonitor} only if a splash screen exists.
      *
-     * @param config
+     * @param config The runtime configuration
+     *
      * @return an instance of {@link SplashScreenProgressMonitor} or {@link NullProgressMonitor}
      */
     public static ProgressMonitor createProgressMonitor(RuntimeConfig config) {
@@ -67,11 +83,17 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         Assert.notNull(splashScreen, "splashScreen");
         this.splashScreen = splashScreen;
 
-        font = new Font("Verdana", Font.ITALIC, 10);
-        fontColor = Color.WHITE;
+        taskLabelEnabled = getConfiguredTaskNameEnabled(config);
+        if (taskLabelEnabled) {
+            taskLabelFont = new Font("Verdana", Font.ITALIC, 10); // todo getConfiguredTaskLabelFont(config);
+            taskLabelColor = getConfiguredTaskLabelColor(config);
+            if (taskLabelColor == null) {
+                taskLabelColor = Color.WHITE;
+            }
+        }
 
         graphics = this.splashScreen.createGraphics();
-        graphics.setFont(font);
+        graphics.setFont(taskLabelFont);
         graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -155,7 +177,7 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         boolean validSubTaskName = subTaskName != null && subTaskName.length() > 0;
         String message;
         if (validTaskName && validSubTaskName) {
-            message = taskName + ": " + subTaskName;
+            message = taskName + " - " + subTaskName;
         } else if (validTaskName) {
             message = taskName;
         } else if (validSubTaskName) {
@@ -175,7 +197,9 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         graphics.fill(splashArea);
 
         graphics.setPaintMode();
-//         paintMessage();
+        if (taskLabelEnabled) {
+            paintTaskLabel();
+        }
         paintBar();
 
         splashScreen.update();
@@ -206,10 +230,10 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
 //                          progressBarArea.y + progressBarHeight - 1);
     }
 
-    private void paintMessage() {
-        graphics.setColor(fontColor);
-        graphics.setFont(font);
-        graphics.drawString(message, 4, progressBarArea.y - 4);
+    private void paintTaskLabel() {
+        graphics.setColor(taskLabelColor);
+        graphics.setFont(taskLabelFont);
+        graphics.drawString(message, progressBarArea.x, progressBarArea.y + progressBarArea.height + 10);
     }
 
     private static BufferedImage loadImage(String imageFilePath) {
@@ -220,8 +244,21 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         }
     }
 
+    private boolean getConfiguredTaskNameEnabled(RuntimeConfig config) {
+        return Boolean.parseBoolean(config.getContextProperty(CONFIG_KEY_TASK_LABEL_ENABLED, "false"));
+    }
+
+
     private static Color getConfiguredSplashProgressBarColor(RuntimeConfig config) {
-        String areaStr = config.getContextProperty(CONFIG_KEY_SPLASH_PROGRESS_BAR_COLOR);
+        return getConfiguredColor(config, CONFIG_KEY_SPLASH_PROGRESS_BAR_COLOR);
+    }
+
+    private static Color getConfiguredTaskLabelColor(RuntimeConfig config) {
+        return getConfiguredColor(config, CONFIG_KEY_TASK_LABEL_COLOR);
+    }
+
+    private static Color getConfiguredColor(RuntimeConfig config, String key) {
+        String areaStr = config.getContextProperty(key);
         StringTokenizer st = new StringTokenizer(areaStr, ",");
         int n = st.countTokens();
         if (n == 3 || n == 4) {
@@ -235,6 +272,7 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
                 }
                 return new Color(r, g, b, a);
             } catch (Exception e) {
+                // null is returned
             }
         }
         return null;
@@ -252,6 +290,7 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
                 int h = Integer.parseInt(st.nextToken());
                 return new Rectangle(x, y, w, h);
             } catch (Exception e) {
+                // null is returned
             }
         }
         return null;

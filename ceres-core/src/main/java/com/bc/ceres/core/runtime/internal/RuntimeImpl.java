@@ -346,21 +346,23 @@ public class RuntimeImpl extends ExtensibleObject implements ModuleRuntime {
     }
 
     private void startModules(ProgressMonitor subProgressMonitor) {
-        subProgressMonitor.beginTask("Starting modules", resolvedModules.size());
-
-        for (ModuleImpl module : resolvedModules) {
-            if (module.getState() == ModuleState.RESOLVED) {
-                try {
-                    module.start();
-                    getLogger().info(MessageFormat.format("Module [{0}] started.", module.getSymbolicName()));
-                } catch (CoreException e) {
-                    logError(MessageFormat.format("Failed to start module [{0}].", module.getSymbolicName()), e);
+        try {
+            subProgressMonitor.beginTask("Starting modules", resolvedModules.size());
+            for (ModuleImpl module : resolvedModules) {
+                if (module.getState() == ModuleState.RESOLVED) {
+                    try {
+                        subProgressMonitor.setSubTaskName(module.getName());
+                        module.start();
+                        getLogger().info(MessageFormat.format("Module [{0}] started.", module.getSymbolicName()));
+                    } catch (CoreException e) {
+                        logError(MessageFormat.format("Failed to start module [{0}].", module.getSymbolicName()), e);
+                    }
                 }
+                subProgressMonitor.worked(1);
             }
-            subProgressMonitor.worked(1);
+        } finally {
+            subProgressMonitor.done();
         }
-
-        subProgressMonitor.done();
     }
 
     private void stopModules() {
