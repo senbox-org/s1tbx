@@ -7,22 +7,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Marco Peters.
+ * A doclet which scans the classpath for GPF operators and creates
+ * associated documentation derived from an operator's annotations
+ * <ol>
+ *  <li>{@link org.esa.beam.framework.gpf.annotations.OperatorMetadata OperatorMetadata}</li>
+ *  <li>{@link org.esa.beam.framework.gpf.annotations.SourceProduct SourceProduct}</li>
+ *  <li>{@link org.esa.beam.framework.gpf.annotations.SourceProducts SourceProducts}</li>
+ *  <li>{@link org.esa.beam.framework.gpf.annotations.TargetProduct TargetProduct}</li>
+ *  <li>{@link org.esa.beam.framework.gpf.annotations.Parameter Parameter}</li>
+ * </ol> 
+ *
  * <p/>
  * This Doclet can be called on Windows from the command line
  * by the following instruction.
  * <b>NOTE:</b> You have to adopt the pathes to your needs.
  * <p/>
- * SET DocletClassName=org.esa.beam.util.OperatorDoclet
- * SET SourcePath=C:\Projects\beam-4.1-contrib\beam-gpf\src\main\java
- * SET ClassPath=C:\Projects\beam-4.1-contrib\beam-gpf\target\classes
+ * <pre>
+ *  SET DocletClassName=org.esa.beam.util.OperatorDoclet
+ *  SET SourcePath=C:\Projects\beam-4.6\beam-gpf\src\main\java
+ *  SET ClassPath=C:\Projects\beam-4.6\beam-gpf\target\classes
+ * </pre>
  * <p/>
+ * <pre>
  * javadoc -doclet "%DocletClassName%" -docletpath "%DocletPath%" ^
- * -sourcepath "%SourcePath%" -classpath "%ClassPath%" ^
- * org.esa.beam.framework.gpf.operators.common
+ *         -sourcepath "%SourcePath%" -classpath "%ClassPath%" ^
+ *         org.esa.beam.framework.gpf.operators.common
+ * </pre>
  *
  * @author Marco Peters
- * @version $Revision:$ $Date:$
+ * @version $Revision$ $Date$
  */
 public class OperatorDoclet extends Doclet {
 
