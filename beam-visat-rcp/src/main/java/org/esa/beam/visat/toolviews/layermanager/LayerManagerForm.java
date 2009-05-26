@@ -36,6 +36,7 @@ import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -363,14 +364,15 @@ class LayerManagerForm extends AbstractLayerForm {
     }
 
     private class AddLayerActionListener implements ActionListener {
-
+        Rectangle screenBounds;
         @Override
         public void actionPerformed(ActionEvent e) {
             LayerSourceAssistantPane pane = new LayerSourceAssistantPane(SwingUtilities.getWindowAncestor(control),
                                                                          "Add Layer",
                                                                          getAppContext());
             LayerSourceDescriptor[] layerSourceDescriptors = VisatActivator.getInstance().getLayerSources();
-            pane.show(new SelectLayerSourceAssistantPage(layerSourceDescriptors));
+            pane.show(new SelectLayerSourceAssistantPage(layerSourceDescriptors), screenBounds);
+            screenBounds = pane.getWindow().getBounds();
         }
     }
 

@@ -1,5 +1,7 @@
 package org.esa.beam.framework.ui.assistant;
 
+import org.esa.beam.framework.ui.UIUtils;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -12,9 +14,9 @@ import javax.swing.KeyStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dialog;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -137,9 +139,25 @@ public class AssistantPane implements AssistantPageContext {
      * @param firstPage The first page which is displayed in the dialog.
      */
     public void show(AssistantPage firstPage) {
+        show(firstPage, null);
+    }
+
+    /**
+     * Displays the dialog if this {@code AssistantPane} with
+     * the given {@link AssistantPage page} as first page.
+     *
+     * @param firstPage The first page which is displayed in the dialog.
+     * @param bounds    The screen bounds of the window, may be {@code null}.
+     */
+    public void show(AssistantPage firstPage, Rectangle bounds) {
         initPage(firstPage);
         setCurrentPage(firstPage);
-        dialog.setSize(new Dimension(480, 320));
+        if (bounds == null) {
+            dialog.setSize(480, 320);
+            UIUtils.centerComponent(dialog, dialog.getParent());
+        } else {
+            dialog.setBounds(bounds);
+        }
         dialog.setVisible(true);
     }
 
