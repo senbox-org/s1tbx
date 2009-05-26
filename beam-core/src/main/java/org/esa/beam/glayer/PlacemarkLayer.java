@@ -24,6 +24,7 @@ import java.awt.Shape;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.util.Collection;
 
 public class PlacemarkLayer extends Layer {
 
@@ -135,7 +136,7 @@ public class PlacemarkLayer extends Layer {
                     g2d.scale(1 / scale, 1 / scale);
                     g2d.rotate(viewport.getOrientation());
 
-                    if (placemark == pinGroup.getSelectedNode()) {
+                    if (pinGroup.getSelectedNodes().contains(placemark)) {
                         placemark.getSymbol().drawSelected(g2d);
                     } else {
                         placemark.getSymbol().draw(g2d);
@@ -232,6 +233,74 @@ public class PlacemarkLayer extends Layer {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
+
+    public void setOutlineColor(Color color) {
+        final Pin[] placemarks = getPlacemarks();
+
+        if (placemarks != null) {
+            for (Pin pin : placemarks) {
+                pin.getSymbol().setOutlineColor(color);
+            }
+            fireLayerDataChanged(null); // todo - compute region (mp)
+        }
+    }
+
+    public Color getOutlineColor() {
+        Pin[] placemarks = getPlacemarks();
+        Color color = null;
+        if (placemarks != null) {
+            color = placemarks[0].getSymbol().getOutlineColor();
+            for (int i = 1; i < placemarks.length; i++) {
+                Pin placemark = placemarks[i];
+                if (color != null && !color.equals(placemark.getSymbol().getOutlineColor())) {
+                    return null;
+                }
+            }
+        }
+        return color;
+    }
+
+    public void setFillColor(Color color) {
+        final Pin[] placemarks = getPlacemarks();
+        if (placemarks != null) {
+            for (Pin pin : placemarks) {
+                pin.getSymbol().setFillPaint(color);
+            }
+            fireLayerDataChanged(null); // todo - compute region (mp)
+        }
+    }
+
+    public Color getFillColor() {
+        Pin[] placemarks = getPlacemarks();
+        Color color = null;
+        if (placemarks != null) {
+            color = (Color) placemarks[0].getSymbol().getFillPaint();
+            for (int i = 1; i < placemarks.length; i++) {
+                Pin placemark = placemarks[i];
+                if (color != null && !color.equals(placemark.getSymbol().getFillPaint())) {
+                    return null;
+                }
+            }
+        }
+        return color;
+    }
+
+    private Pin[] getPlacemarks() {
+        final ProductNodeGroup<Pin> placemarkGroup = placemarkDescriptor.getPlacemarkGroup(product);
+        Collection<Pin> pinCollection = placemarkGroup.getSelectedNodes();
+
+        Pin[] placemarks;
+        if (pinCollection.isEmpty()) {
+            placemarks = placemarkGroup.toArray(new Pin[placemarkGroup.getNodeCount()]);
+        } else {
+            placemarks = pinCollection.toArray(new Pin[pinCollection.size()]);
+        }
+        if (placemarks.length >= 1) {
+            return placemarks;
+        }
+        return null;
+    }
+
 
     private class MyProductNodeListenerAdapter extends ProductNodeListenerAdapter {
 

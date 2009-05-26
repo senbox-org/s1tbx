@@ -33,7 +33,7 @@ public abstract class AbstractBindingLayerEditor implements LayerEditor {
     private Layer layer;
 
     @Override
-    public final JComponent createControl(AppContext appContext, Layer layer) {
+    public JComponent createControl(AppContext appContext, Layer layer) {
         this.layer = layer;
         bindingContext = new BindingContext();
         ValueContainer valueContainer = bindingContext.getValueContainer();
