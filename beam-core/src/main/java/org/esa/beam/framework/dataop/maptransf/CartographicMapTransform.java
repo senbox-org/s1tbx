@@ -16,9 +16,9 @@
  */
 package org.esa.beam.framework.dataop.maptransf;
 
-import java.awt.geom.Point2D;
-
 import org.esa.beam.framework.datamodel.GeoPos;
+
+import java.awt.geom.Point2D;
 
 /**
  * An abstract base class for cartograohic map-transformations.
@@ -116,6 +116,7 @@ public abstract class CartographicMapTransform implements MapTransform {
      * @param geoPoint the source position in lat/lon
      * @param mapPoint the target map position in x/y (,ight be null, then a new object is created
      */
+    @Override
     public Point2D forward(GeoPos geoPoint, Point2D mapPoint) {
         if (mapPoint == null) {
             mapPoint = new Point2D.Double();
@@ -130,10 +131,10 @@ public abstract class CartographicMapTransform implements MapTransform {
         }
 
         mapPoint = forward_impl(geoPoint.getLat(),
-                lon0,
-                mapPoint);
+                                lon0,
+                                mapPoint);
         mapPoint.setLocation(_a * mapPoint.getX() + _x0,
-                _a * mapPoint.getY() + _y0);
+                             _a * mapPoint.getY() + _y0);
         return mapPoint;
     }
 
@@ -143,15 +144,16 @@ public abstract class CartographicMapTransform implements MapTransform {
      * @param mapPoint the source location in x/y map coordinates
      * @param geoPoint the target position in lat/lon (might be null, then a new object is created)
      */
+    @Override
     public GeoPos inverse(Point2D mapPoint, GeoPos geoPoint) {
         if (geoPoint == null) {
             geoPoint = new GeoPos();
         }
         geoPoint = inverse_impl((mapPoint.getX() - _x0) * _invA,
-                (mapPoint.getY() - _y0) * _invA,
-                geoPoint);
+                                (mapPoint.getY() - _y0) * _invA,
+                                geoPoint);
         geoPoint.setLocation(geoPoint.getLat(),
-                geoPoint.getLon() + _centralMeridian);
+                             geoPoint.getLon() + _centralMeridian);
 
         return geoPoint;
     }
@@ -166,8 +168,9 @@ public abstract class CartographicMapTransform implements MapTransform {
      *
      * @param lat      latitude of source location
      * @param lon      longitude of source location
-     * @param mapPoint
-     * @return the map co-ordinate
+     * @param mapPoint point on the map
+     *
+     * @return the map coordinate
      */
     abstract protected Point2D forward_impl(float lat, float lon, Point2D mapPoint);
 
@@ -180,9 +183,10 @@ public abstract class CartographicMapTransform implements MapTransform {
      * <code>{@link #inverse_impl(double, double, org.esa.beam.framework.datamodel.GeoPos)}</code> instead in order to
      * perform the actual transformation.
      *
-     * @param geoPoint
+     * @param geoPoint point on the earth's surface
      * @param x        map x coordinate
      * @param y        map y coordinate
+     *
      * @return the geodetic co-ordinate
      */
     abstract protected GeoPos inverse_impl(float x, float y, GeoPos geoPoint);
@@ -195,9 +199,10 @@ public abstract class CartographicMapTransform implements MapTransform {
      * <p/>
      * <p>The default implementation simple returns <code>inverse_impl((float)x, (float)y, geoPoint)</code>.
      *
-     * @param geoPoint
+     * @param geoPoint point on the earth's surface
      * @param x        map x coordinate
      * @param y        map y coordinate
+     *
      * @return the geodetic co-ordinate
      */
     protected GeoPos inverse_impl(double x, double y, GeoPos geoPoint) {
