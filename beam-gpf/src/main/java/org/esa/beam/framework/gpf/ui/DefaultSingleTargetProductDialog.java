@@ -6,7 +6,6 @@ import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ValueEditor;
-import com.bc.ceres.binding.swing.ValueEditorsPane;
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
@@ -15,6 +14,7 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.ValueEditorsPane;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
 
@@ -37,6 +37,7 @@ import java.util.Map;
  * @version $Revision$ $Date$
  */
 public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog {
+
     private String operatorName;
     private List<SourceProductSelector> sourceProductSelectorList;
     private Map<Field, SourceProductSelector> sourceProductSelectorMap;
@@ -92,7 +93,9 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 
         ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory();
         parameterMap = new HashMap<String, Object>(17);
-        final ValueContainer valueContainer = ValueContainer.createMapBacked(parameterMap, operatorSpi.getOperatorClass(), parameterDescriptorFactory);
+        final ValueContainer valueContainer = ValueContainer.createMapBacked(parameterMap,
+                                                                             operatorSpi.getOperatorClass(),
+                                                                             parameterDescriptorFactory);
         try {
             valueContainer.setDefaultValues();
         } catch (ValidationException e) {

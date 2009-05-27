@@ -8,9 +8,9 @@ import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
-import com.bc.ceres.binding.swing.ValueEditorsPane;
 import com.bc.ceres.glayer.Layer;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.ValueEditorsPane;
 import org.esa.beam.visat.toolviews.layermanager.LayerEditor;
 
 import javax.swing.JComponent;
