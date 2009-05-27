@@ -35,6 +35,7 @@ import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
 import com.bc.jexp.Term;
 import com.bc.jexp.impl.ParserImpl;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNode;
@@ -104,30 +105,17 @@ public class BandArithmetikDialog extends ModalDialog {
         this.visatApp = visatApp;
         targetProduct = currentProduct;
         this.productsList = productsList;
-
         bindingContext = createBindingContext();
         makeUI();
     }
 
     @Override
     protected void onOK() {
-        final int width = targetProduct.getSceneRasterWidth();
-        final int height = targetProduct.getSceneRasterHeight();
-
-        VirtualBand band = new VirtualBand(getBandName(), ProductData.TYPE_FLOAT32, width, height, "0");
-        band.setDescription(bandDescription);
-        band.setUnit(bandUnit);
-        band.setGeophysicalNoDataValue(noDataValue);
-        band.setNoDataValueUsed(noDataValueUsed);
-        band.setExpression(getExpression());
-        band.setWriteData(!saveExpressionOnly);
-
+        final String validMaskExpression;
         try {
             Product[] products = getCompatibleProducts();
             int defaultProductIndex = Arrays.asList(products).indexOf(targetProduct);
-            final String validMaskExpression = BandArithmetic.getValidMaskExpression(band.getExpression(), products,
-                                                                                     defaultProductIndex, null);
-            band.setValidPixelExpression(validMaskExpression);
+            validMaskExpression = BandArithmetic.getValidMaskExpression(getExpression(), products, defaultProductIndex, null);
         } catch (ParseException e) {
             String errorMessage = "The band could not be created.\nAn expression parse error occurred:\n" + e.getMessage(); /*I18N*/
             visatApp.showErrorDialog(errorMessage);
@@ -135,8 +123,34 @@ public class BandArithmetikDialog extends ModalDialog {
             return;
         }
 
-        if (!targetProduct.containsBand(band.getName())) {
-            targetProduct.addBand(band);
+        final int width = targetProduct.getSceneRasterWidth();
+        final int height = targetProduct.getSceneRasterHeight();
+
+        Band band;
+        if (saveExpressionOnly) {
+            band = new VirtualBand(getBandName(), ProductData.TYPE_FLOAT32, width, height, getExpression());
+            band.setDescription(bandDescription);
+            band.setUnit(bandUnit);
+            band.setGeophysicalNoDataValue(noDataValue);
+            band.setNoDataValueUsed(noDataValueUsed);
+            band.setValidPixelExpression(validMaskExpression);
+        } else {
+            band = new Band(getBandName(), ProductData.TYPE_FLOAT32, width, height);
+            band.setDescription(bandDescription);
+            band.setUnit(bandUnit);
+            band.setGeophysicalNoDataValue(noDataValue);
+            band.setNoDataValueUsed(noDataValueUsed);
+            band.setValidPixelExpression("");
+        }
+
+        targetProduct.addBand(band);
+
+        if (!saveExpressionOnly) {
+            String expression = getExpression();
+            if (!validMaskExpression.isEmpty()) {
+                expression = "(" + validMaskExpression + ") ? (" + expression + ") : NaN";
+            }
+            band.setSourceImage(VirtualBand.createVirtualSourceImage(band, expression));
         }
 
         checkExpressionForExternalReferences(getExpression());
@@ -157,7 +171,7 @@ public class BandArithmetikDialog extends ModalDialog {
 
         if (isTargetBandReferencedInExpression()) {
             showErrorDialog("You cannot reference the target band '" + getBandName() +
-                            "' within the expression.");
+                    "' within the expression.");
             return false;
         }
         return super.verifyUserInput();
@@ -243,7 +257,7 @@ public class BandArithmetikDialog extends ModalDialog {
 
     private BindingContext createBindingContext() {
         final ValueContainer container = ValueContainer.createObjectBacked(this);
-        BindingContext context = new BindingContext(container);
+        final BindingContext context = new BindingContext(container);
 
         container.addPropertyChangeListener(PROPERTY_NAME_PRODUCT, new PropertyChangeListener() {
 
@@ -280,7 +294,7 @@ public class BandArithmetikDialog extends ModalDialog {
         descriptor.setNotEmpty(true);
 
         descriptor = container.getDescriptor(PROPERTY_NAME_SAVE_EXPRESSION_ONLY);
-        descriptor.setDisplayName("Safe expression only, do not write raster data");
+        descriptor.setDisplayName("Virtual (safe expression only, don't write data)");
         descriptor.setDefaultValue(Boolean.TRUE);
 
         descriptor = container.getDescriptor(PROPERTY_NAME_NO_DATA_VALUE_USED);
@@ -295,7 +309,18 @@ public class BandArithmetikDialog extends ModalDialog {
         } catch (ValidationException ignore) {
         }
 
+        context.addPropertyChangeListener(PROPERTY_NAME_SAVE_EXPRESSION_ONLY, new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                final boolean saveExpressionOnly = (Boolean) context.getBinding(PROPERTY_NAME_SAVE_EXPRESSION_ONLY).getPropertyValue();
+                if (!saveExpressionOnly) {
+                    context.getBinding(PROPERTY_NAME_NO_DATA_VALUE_USED).setPropertyValue(true);
+                }
+            }
+        });
+        context.bindEnabledState(PROPERTY_NAME_NO_DATA_VALUE_USED, false, PROPERTY_NAME_SAVE_EXPRESSION_ONLY, Boolean.FALSE);
         context.bindEnabledState(PROPERTY_NAME_NO_DATA_VALUE, true, PROPERTY_NAME_NO_DATA_VALUE_USED, Boolean.TRUE);
+
         return context;
     }
 
@@ -371,8 +396,8 @@ public class BandArithmetikDialog extends ModalDialog {
                 }
                 if (!externalProducts.isEmpty()) {
                     visatApp.showWarningDialog("The entered expression references multiple products.\n"
-                                               + "It will cause problems unless the session is restored as is.\n\n"
-                                               + "Note: You can save the session from the file menu.");
+                            + "It will cause problems unless the session is restored as is.\n\n"
+                            + "Note: You can save the session from the file menu.");
                 }
             }
         }
@@ -423,21 +448,18 @@ public class BandArithmetikDialog extends ModalDialog {
 
     private class ProductNodeNameValidator implements Validator {
 
-        private static final String ERR_MSG_NO_NODE_NAME = "Value for band name is not a valid node name: ''{0}''.\n\n"
-                                                           + "A valid node name must not start with a dot. Also a valid\n"
-                                                           + "node name must not contain any of the following characters\n" + "\\/:*?\"<>|";
-        private static final String ERR_MSG_DUPLICATE = "Value for band name must be unique inside the product.\n"
-                                                        + "This includes 'band names' and 'tie point grid names'.";
-
         @Override
         public void validateValue(ValueModel valueModel, Object value) throws ValidationException {
             final String name = (String) value;
             if (!ProductNode.isValidNodeName(name)) {
-                final String message = MessageFormat.format(ERR_MSG_NO_NODE_NAME, name);
+                final String message = MessageFormat.format("The band name ''{0}'' is not valid.\n\n"
+                        + "Names must not start with a dot and must not\n"
+                        + "contain any of the following characters: \\/:*?\"<>|", name);
                 throw new ValidationException(message);
             }
             if (targetProduct.containsRasterDataNode(name)) {
-                throw new ValidationException(ERR_MSG_DUPLICATE);
+                throw new ValidationException("The band name must be unique within the product scope.\n"
+                        + "The scope comprises bands and tie-point grids.");
             }
         }
     }

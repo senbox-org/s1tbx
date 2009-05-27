@@ -438,11 +438,10 @@ public class ProductIO {
         if (bandsToWrite.size() > 0) {
             pm.beginTask("Writing bands of product '" + product.getName() + "'...", bandsToWrite.size());
             try {
-                for (int i = 0; i < bandsToWrite.size(); i++) {
+                for (Band band : bandsToWrite) {
                     if (pm.isCanceled()) {
                         break;
                     }
-                    Band band = bandsToWrite.get(i);
                     band.writeRasterDataFully(SubProgressMonitor.create(pm, 1));
                 }
             } finally {

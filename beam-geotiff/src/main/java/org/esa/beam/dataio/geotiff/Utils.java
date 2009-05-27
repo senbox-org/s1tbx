@@ -175,8 +175,7 @@ public class Utils {
 
     public static boolean shouldWriteNode(ProductNode node) {
         if (node instanceof VirtualBand) {
-            VirtualBand virtualBand = (VirtualBand) node;
-            return virtualBand.getWriteData();
+            return false;
         } else if (node instanceof FilterBand) {
             return false;
         }

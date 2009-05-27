@@ -169,7 +169,7 @@ public class DimapProductReader extends AbstractProductReader {
         bandDataFiles = DimapProductHelpers.getBandDataFiles(dom, product, getInputDir());
         final Band[] bands = product.getBands();
         for (final Band band : bands) {
-            if ((band instanceof VirtualBand && !((VirtualBand) band).hasWrittenData()) || band instanceof FilterBand) {
+            if (band instanceof VirtualBand || band instanceof FilterBand) {
                 continue;
             }
             final File dataFile = (File) bandDataFiles.get(band);

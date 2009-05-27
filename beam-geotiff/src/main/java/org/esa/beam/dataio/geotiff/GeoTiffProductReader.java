@@ -253,7 +253,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
         final Band[] bands = product.getBands();
         bandMap = new HashMap<Band, Integer>(bands.length);
         for (Band band : bands) {
-            if (!(band instanceof VirtualBand && !((VirtualBand) band).hasWrittenData() || band instanceof FilterBand)) {
+            if (!(band instanceof VirtualBand || band instanceof FilterBand)) {
                 bandMap.put(band, bandMap.size());
             }
         }

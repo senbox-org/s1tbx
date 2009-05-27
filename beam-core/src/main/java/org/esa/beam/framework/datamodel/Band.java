@@ -18,13 +18,20 @@ package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.beam.framework.dataio.ProductReader;
+import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataio.ProductWriter;
+import org.esa.beam.jai.BandOpImage;
+import org.esa.beam.jai.ImageManager;
+import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.util.Guardian;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
+import javax.media.jai.PlanarImage;
+import java.awt.Color;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
@@ -272,6 +279,18 @@ public class Band extends AbstractBand {
         }
     }
 
+    @Override
+    protected RenderedImage createSourceImage() {
+        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(this);
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
+
+            @Override
+            public RenderedImage createImage(int level) {
+                return new BandOpImage(Band.this, ResolutionLevel.create(getModel(), level));
+            }
+        });
+    }
+
     /**
      * Reads raster data from this dataset into the user-supplied raster data buffer.
      * <p/>
@@ -292,26 +311,23 @@ public class Band extends AbstractBand {
      * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor)
      */
     @Override
-    public void readRasterData(int offsetX, int offsetY, int width, int height, ProductData rasterData,
-                               ProgressMonitor pm)
+    public void readRasterData(final int offsetX, final int offsetY, final int width, final int height,
+                               final ProductData rasterData, ProgressMonitor pm)
             throws IOException {
         Guardian.assertNotNull("rasterData", rasterData);
-        if (!isSynthetic()) {
-            readRasterDataFromReader(offsetX, offsetY, width, height, rasterData, pm);
-        } else if (hasRasterData()) {
+        if (hasRasterData()) {
             readRasterDataFromRasterData(offsetX, offsetY, width, height, rasterData, pm);
         } else {
-            throw new IllegalStateException("no data source available");
-        }
-    }
-
-    private void readRasterDataFromReader(int offsetX, int offsetY, int width, int height, ProductData rasterData,
-                                          ProgressMonitor pm) throws IOException {
-        Product product = getProductSafe();
-        ProductReader reader = product.getProductReaderSafe();
-        reader.readBandRasterData(this, offsetX, offsetY, width, height, rasterData, pm);
-        if (rasterData == getRasterData()) {
-            fireProductNodeDataChanged();
+            try {
+                pm.beginTask("Reading data...", 100);
+                final RenderedImage sourceImage = getSourceImage();
+                final Raster data = sourceImage.getData(new Rectangle(offsetX, offsetY, width, height));
+                pm.worked(90);
+                data.getDataElements(offsetX, offsetY, width, height, rasterData.getElems());
+                pm.worked(10);
+            } finally {
+                pm.done();
+            }
         }
     }
 
@@ -351,21 +367,8 @@ public class Band extends AbstractBand {
             rasterData = createCompatibleRasterData(getRasterWidth(), getRasterHeight());
         }
 
-        pm.beginTask("Loading raster data", 100);
-
-        try {
-            readRasterData(0, 0, getRasterWidth(), getRasterHeight(),
-                           rasterData,
-                           SubProgressMonitor.create(pm, isValidMaskUsed() ? 60 : 100));
-            setRasterData(rasterData);
-            // todo - NaN values created in BandArithmetic.computeBand are ignored if
-            // todo - although isValidMaskUsed() returns true (nf 2007-08-21)
-            if (isValidMaskUsed()) {
-                computeValidMask(SubProgressMonitor.create(pm, 40));
-            }
-        } finally {
-            pm.done();
-        }
+        readRasterData(0, 0, getSceneRasterWidth(), getSceneRasterHeight(), rasterData, pm);
+        setRasterData(rasterData);
     }
 
     /**
@@ -390,24 +393,44 @@ public class Band extends AbstractBand {
         if (hasRasterData()) {
             writeRasterData(0, 0, getRasterWidth(), getRasterHeight(), getRasterData(), pm);
         } else {
-            ProductReader reader = getProductReaderSafe();
-            ProductWriter writer = getProductWriterSafe();
-            ProductData rasterData = createCompatibleRasterData(getRasterWidth(), 1);
-
-            pm.beginTask("Writing raster data...", getRasterHeight() * 2);
+            final PlanarImage sourceImage = getSourceImage();
             try {
-                for (int y = 0; y < getRasterHeight(); y++) {
+                final Point[] tileIndices = sourceImage.getTileIndices(new Rectangle(0, 0, sourceImage.getWidth(), sourceImage.getHeight()));
+                pm.beginTask("Writing raster data...", tileIndices.length);
+                for (final Point tileIndex : tileIndices) {
                     if (pm.isCanceled()) {
                         break;
                     }
-                    reader.readBandRasterData(this, 0, y, getRasterWidth(), 1, rasterData,
-                                              SubProgressMonitor.create(pm, 1));
-                    writer.writeBandRasterData(this, 0, y, getRasterWidth(), 1, rasterData,
-                                               SubProgressMonitor.create(pm, 1));
+                    final Rectangle rect = sourceImage.getTileRect(tileIndex.x, tileIndex.y);
+                    if (!rect.isEmpty()) {
+                        final Raster data = sourceImage.getData(rect);
+                        final ProductData rasterData = createCompatibleRasterData(rect.width, rect.height);
+                        data.getDataElements(rect.x, rect.y, rect.width, rect.height, rasterData.getElems());
+                        writeRasterData(rect.x, rect.y, rect.width, rect.height, rasterData);
+                    }
+                    pm.worked(1);
                 }
             } finally {
                 pm.done();
             }
+
+            /*
+            try {
+                pm.beginTask("Writing raster data...", getRasterHeight() * 2);
+                final ProductData rasterData = createCompatibleRasterData(getRasterWidth(), 1);
+                for (int y = 0; y < getRasterHeight(); y++) {
+                    if (pm.isCanceled()) {
+                        break;
+                    }
+                    readRasterData(0, y, getRasterWidth(), 1, rasterData,
+                                   SubProgressMonitor.create(pm, 1));
+                    writeRasterData(0, y, getRasterWidth(), 1, rasterData,
+                                    SubProgressMonitor.create(pm, 1));
+                }
+            } finally {
+                pm.done();
+            }
+            */
         }
     }
 

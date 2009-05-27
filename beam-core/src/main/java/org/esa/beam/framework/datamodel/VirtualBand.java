@@ -17,6 +17,7 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
@@ -28,8 +29,6 @@ import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
 
-import java.awt.Rectangle;
-import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 
@@ -68,8 +67,6 @@ public class VirtualBand extends Band {
     public static final String PROPERTY_NAME_CHECK_INVALIDS = "checkInvalids";
 
     private String expression;
-    private boolean writeData = false;
-    private boolean hasWrittenData = false;
 
 
     /**
@@ -104,7 +101,6 @@ public class VirtualBand extends Band {
             setStx(null);
             setImageInfo(null);
             setModified(true);
-            setHasWrittenData(false);
             fireProductNodeChanged(PROPERTY_NAME_EXPRESSION);
             fireProductNodeChanged(PROPERTY_NAME_DATA);
             fireProductNodeDataChanged();
@@ -131,26 +127,6 @@ public class VirtualBand extends Band {
 
     @Deprecated
     public void setCheckInvalids(final boolean checkInvalids) {
-    }
-
-    public boolean getWriteData() {
-        return writeData;
-    }
-
-    public void setWriteData(final boolean writeData) {
-        if (this.writeData != writeData) {
-            this.writeData = writeData;
-            fireProductNodeChanged(PROPERTY_NAME_WRITE_DATA);
-            setModified(true);
-        }
-    }
-
-    public boolean hasWrittenData() {
-        return hasWrittenData;
-    }
-
-    public void setHasWrittenData(final boolean hasData) {
-        this.hasWrittenData = hasData;
     }
 
     @Deprecated
@@ -225,138 +201,6 @@ public class VirtualBand extends Band {
         throw new IllegalStateException("write not supported for virtual band");
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void readRasterData(final int offsetX, final int offsetY, final int width, final int height,
-                               final ProductData rasterData, ProgressMonitor pm)
-            throws IOException {
-        Guardian.assertNotNull("rasterData", rasterData);
-        if (hasWrittenData) {
-            super.readRasterData(offsetX, offsetY, width, height, rasterData, pm);
-            return;
-        }
-        pm.beginTask("Reading data...", 2);
-        try {
-            final RenderedImage sourceImage = getSourceImage();
-            final Raster data = sourceImage.getData(new Rectangle(offsetX, offsetY, width, height));
-            pm.worked(1);
-            data.getDataElements(offsetX, offsetY, width, height, rasterData.getElems());
-            pm.worked(1);
-        } finally {
-            pm.done();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void readRasterDataFully(ProgressMonitor pm) throws IOException {
-        if (hasWrittenData) {
-            super.readRasterDataFully(pm);
-            return;
-        }
-        final ProductData rasterData;
-        if (hasRasterData()) {
-            rasterData = getRasterData();
-        } else {
-            rasterData = createCompatibleRasterData(getRasterWidth(), getRasterHeight());
-        }
-
-        readRasterData(0, 0, getSceneRasterWidth(), getSceneRasterHeight(), rasterData, pm);
-
-        setRasterData(rasterData);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void writeRasterDataFully(ProgressMonitor pm) throws IOException {
-        if (writeData) {
-            writeSourceImage(0, 0, getSceneRasterWidth(), getSceneRasterHeight(), pm);
-        } else {
-            throw new IllegalStateException("write not supported for virtual band");
-        }
-    }
-
-    /**
-     * Writes data from this product raster into the specified region of the user-supplied raster.
-     * <p/>
-     * <p> It is important to know that this method does not change this product raster's internal state nor does it
-     * write into this product raster's internal raster.
-     *
-     * @param rasterData a raster data buffer receiving the pixels to be read
-     * @param offsetX    the X-offset in raster co-ordinates where reading starts
-     * @param offsetY    the Y-offset in raster co-ordinates where reading starts
-     * @param width      the width of the raster data buffer
-     * @param height     the height of the raster data buffer
-     * @param pm         a monitor to inform the user about progress
-     *
-     * @throws IOException              if an I/O error occurs
-     * @throws IllegalArgumentException if the raster is null
-     * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
-     *                                  which this product raster belongs to, has no associated product reader
-     * @see ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor)
-     */
-    @Override
-    public void writeRasterData(final int offsetX, final int offsetY, final int width, final int height,
-                                final ProductData rasterData, ProgressMonitor pm)
-            throws IOException {
-        if (writeData) {
-            super.writeRasterData(offsetX, offsetY, width, height, rasterData, pm);
-        } else {
-            throw new IllegalStateException("write not supported for virtual band");
-        }
-    }
-
-    private void writeSourceImage(int offsetX, int offsetY, int width, int height,
-                                  ProgressMonitor pm) throws IOException {
-        final RenderedImage image = getSourceImage();
-
-        final int minTileX = image.getMinTileX();
-        final int minTileY = image.getMinTileY();
-
-        final int numXTiles = image.getNumXTiles();
-        final int numYTiles = image.getNumYTiles();
-
-        final Rectangle targetRectangle = new Rectangle(offsetX, offsetY, width, height);
-        try {
-            pm.beginTask("Writing raster data...", numXTiles * numYTiles);
-
-            for (int tileX = minTileX; tileX < minTileX + numXTiles; ++tileX) {
-                for (int tileY = minTileY; tileY < minTileY + numYTiles; ++tileY) {
-                    if (pm.isCanceled()) {
-                        break;
-                    }
-                    final Rectangle tileRectangle = new Rectangle(
-                            image.getTileGridXOffset() + tileX * image.getTileWidth(),
-                            image.getTileGridYOffset() + tileY * image.getTileHeight(),
-                            image.getTileWidth(), image.getTileHeight());
-
-                    final Rectangle rectangle = targetRectangle.intersection(tileRectangle);
-                    if (!rectangle.isEmpty()) {
-                        final Raster raster = image.getData(rectangle);
-
-                        final int x = rectangle.x;
-                        final int y = rectangle.y;
-                        final int w = rectangle.width;
-                        final int h = rectangle.height;
-                        final ProductData rasterData = createCompatibleRasterData(w, h);
-
-                        raster.getDataElements(x, y, w, h, rasterData.getElems());
-                        writeRasterData(x, y, w, h, rasterData);
-                    }
-                    pm.worked(1);
-                }
-            }
-        } finally {
-            pm.done();
-        }
-    }
-
     //////////////////////////////////////////////////////////////////////////
     // 'Visitor' pattern support
 
@@ -393,10 +237,10 @@ public class VirtualBand extends Band {
     @Override
     public String toString() {
         return getClass().getName() + "["
-               + getName() + ","
-               + ProductData.getTypeString(getDataType()) + "," +
-               +getRasterWidth() + "," +
-               +getRasterHeight() + "]";
+                + getName() + ","
+                + ProductData.getTypeString(getDataType()) + "," +
+                +getRasterWidth() + "," +
+                +getRasterHeight() + "]";
     }
 
     /**
@@ -415,19 +259,27 @@ public class VirtualBand extends Band {
 
     @Override
     protected RenderedImage createSourceImage() {
-        if (hasWrittenData) {
-            return super.createSourceImage();
-        }
-        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(this);
-        final VirtualBand vb = this;
+        return createVirtualSourceImage(this, getExpression());
+    }
+
+    /**
+     * Non-API.
+     *
+     * @param raster     The raster data node.
+     * @param expression The band-arithmetic expression.
+     *
+     * @return A multi-level image.
+     */
+    public static MultiLevelImage createVirtualSourceImage(final RasterDataNode raster, final String expression) {
+        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(raster);
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
 
             @Override
             public RenderedImage createImage(int level) {
-                return VirtualBandOpImage.create(vb.getExpression(),
-                                                 vb.getDataType(),
-                                                 vb.isNoDataValueUsed() ? vb.getGeophysicalNoDataValue() : null,
-                                                 vb.getProduct(),
+                return VirtualBandOpImage.create(expression,
+                                                 raster.getDataType(),
+                                                 raster.isNoDataValueUsed() ? raster.getGeophysicalNoDataValue() : null,
+                                                 raster.getProduct(),
                                                  ResolutionLevel.create(getModel(), level));
             }
         });

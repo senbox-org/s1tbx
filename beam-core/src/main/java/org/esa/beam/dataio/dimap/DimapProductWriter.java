@@ -390,8 +390,7 @@ public class DimapProductWriter extends AbstractProductWriter {
     @Override
     public boolean shouldWrite(ProductNode node) {
         if (node instanceof VirtualBand) {
-            VirtualBand virtualBand = (VirtualBand) node;
-            return virtualBand.getWriteData();
+            return false;
         }
         if (node instanceof FilterBand) {
             return false;

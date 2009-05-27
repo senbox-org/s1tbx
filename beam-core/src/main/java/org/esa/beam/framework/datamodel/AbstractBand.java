@@ -770,19 +770,6 @@ public abstract class AbstractBand extends RasterDataNode {
         return numInvalids;
     }
 
-    @Override
-    protected RenderedImage createSourceImage() {
-        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(this);
-        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
-
-            @Override
-            public RenderedImage createImage(int level) {
-                return new BandOpImage(AbstractBand.this,
-                                       ResolutionLevel.create(getModel(), level));
-            }
-        });
-    }
-
     //////////////////////////////////////////////////////////////////////////
     // Implementation helpers
 

@@ -1376,9 +1376,6 @@ public class DimapProductHelpers {
                 product.addBand(virtualBand);
                 virtualBand.setNoDataValue(getInvalidValue(element));
                 virtualBand.setNoDataValueUsed(getUseInvalidValue(element));
-                final boolean writeData = getWriteData(element);
-                virtualBand.setWriteData(writeData);
-                virtualBand.setHasWrittenData(writeData);
                 band = virtualBand;
             } else if (isFilterBand(element)) {
                 final DimapPersistable persistable = DimapPersistence.getPersistable(element);
@@ -1425,10 +1422,6 @@ public class DimapProductHelpers {
                 return element.getChildTextTrim(DimapProductConstants.TAG_VIRTUAL_BAND_EXPRESSION);
             }
             return null;
-        }
-
-        private static boolean getWriteData(Element element) {
-            return is(element, DimapProductConstants.TAG_VIRTUAL_BAND_WRITE_DATA);
         }
 
         private static boolean getUseInvalidValue(Element element) {
