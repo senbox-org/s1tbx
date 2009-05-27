@@ -6,13 +6,6 @@ import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext
 
 import java.util.concurrent.ExecutionException;
 
-/**
- * todo - add API doc
- *
- * @author Marco Peters
- * @version $ Revision $ Date $
- * @since BEAM 4.6
- */
 class ShapefileLayerLoader extends ShapefileLoader {
 
     ShapefileLayerLoader(LayerSourcePageContext context) {

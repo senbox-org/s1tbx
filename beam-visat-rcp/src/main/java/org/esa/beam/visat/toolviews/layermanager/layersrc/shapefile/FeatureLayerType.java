@@ -39,6 +39,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The type of a {@link FeatureLayer}.
+ * <p/>
+ * Unstable API. Use at own risk.
+ */
 public class FeatureLayerType extends LayerType {
 
     public static final String PROPERTY_NAME_SLD_STYLE = "sldStyle";
@@ -93,30 +98,6 @@ public class FeatureLayerType extends LayerType {
         configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION).setTransient(true);
 
         return configuration;
-    }
-
-    static FeatureCollection<SimpleFeatureType, SimpleFeature> createFeatureCollection(
-            CoordinateReferenceSystem targetCrs, Geometry clipGeometry, URL url) throws IOException {
-
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
-
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = getFeatureSource(url);
-        featureCollection = featureSource.getFeatures();
-
-        featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, targetCrs);
-        return featureCollection;
-    }
-
-    static FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(URL url) throws IOException {
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(ShapefileDataStoreFactory.URLP.key, url);
-        map.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, Boolean.TRUE);
-        DataStore shapefileStore = DataStoreFinder.getDataStore(map);
-
-        String typeName = shapefileStore.getTypeNames()[0]; // Shape files do only have one type name
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
-        featureSource = shapefileStore.getFeatureSource(typeName);
-        return featureSource;
     }
 
     private static class StyleDomConverter implements DomConverter {

@@ -37,6 +37,8 @@ import java.util.Map;
 
 /**
  * A layer that renders a feature collection using a given style.
+ * <p/>
+ * Unstable API. Use at own risk.
  *
  * @author Marco Peters
  * @author Marco Zühlke
@@ -55,7 +57,6 @@ public class FeatureLayer extends Layer {
     private double textOpacity = 1.0;
     private Rectangle2D modelBounds;
 
-
     public FeatureLayer(LayerType layerType, ValueContainer configuration) {
         super(layerType, configuration);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc;
@@ -68,7 +69,7 @@ public class FeatureLayer extends Layer {
             final Geometry clipGeometry = (Geometry) configuration.getValue(
                     FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY);
             try {
-                fc = FeatureLayerType.createFeatureCollection(targetCrs, clipGeometry, url);
+                fc = ShapefileUtils.createFeatureCollection(url, targetCrs, clipGeometry);
             } catch (IOException e) {
                 throw new IllegalArgumentException(e);
             }

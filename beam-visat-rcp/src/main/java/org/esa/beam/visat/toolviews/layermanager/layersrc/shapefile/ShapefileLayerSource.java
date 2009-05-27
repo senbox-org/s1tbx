@@ -21,7 +21,9 @@ import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAss
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 
 /**
- * A LayerSource for ESRI shape files.
+ * A layer source for ESRI shape files.
+ * <p/>
+ * Unstable API. Use at own risk.
  *
  * @author Marco Zuehlke
  * @version $Revision$ $Date$

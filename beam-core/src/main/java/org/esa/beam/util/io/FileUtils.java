@@ -21,6 +21,10 @@ import org.esa.beam.util.StringUtils;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -433,5 +437,25 @@ public class FileUtils {
             text = text.substring(pos);
         }
         return "..." + text;
+    }
+
+    public static String readText(File file) throws IOException {
+        final FileReader reader1 = new FileReader(file);
+        try {
+            return readText(reader1);
+        } finally {
+            reader1.close();
+        }
+    }
+
+    public static String readText(Reader reader) throws IOException {
+        final BufferedReader br = new BufferedReader(reader);
+        StringBuilder text = new StringBuilder();
+        String line;
+        while ((line = br.readLine()) != null) {
+            text.append(line);
+            text.append("\n");
+        }
+        return text.toString();
     }
 }

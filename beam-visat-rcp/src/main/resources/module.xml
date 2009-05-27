@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.6:<br/>
+          [BEAM-998] VISAT fails to import shapes from ESRI shapefiles<br/>
           [BEAM-997] VISAT should display a band's coordinate system<br/>
           [BEAM-996] Let user specify dimension of exported images<br/>
           [BEAM-995] Exporting image yields out-of-memory error<br/>
@@ -668,6 +669,18 @@
         <!--####################-->
 
         <action>
+            <id>importShape</id>
+            <class>org.esa.beam.visat.actions.ImportShapeAction</class>
+            <parent>import</parent>
+            <text>Import Shape...</text>
+            <mnemonic>S</mnemonic>
+            <shortDescr>Import shape from plain text or ESRI shapefile.</shortDescr>
+            <description>Import shape from plain text or ESRI shapefile.</description>
+            <helpId>importShape</helpId>
+            <separatorAfter>true</separatorAfter>
+        </action>
+
+        <action>
             <parent>import</parent>
             <id>importDimapProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
@@ -677,6 +690,7 @@
             <shortDescr>Import a BEAM-DIMAP data product or product subset.</shortDescr>
             <description>Import a BEAM-DIMAP data product or product subset.</description>
             <helpId>importDimapProduct</helpId>
+            <placeAfter>importShape</placeAfter>
         </action>
 
         <!--####################-->

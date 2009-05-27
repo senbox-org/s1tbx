@@ -3,17 +3,14 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
-import com.vividsolutions.jts.geom.Coordinate;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
@@ -33,7 +30,6 @@ import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.FilterFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.swing.SwingWorker;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +39,7 @@ import java.io.IOException;
  * @version $ Revision $ Date $
  * @since BEAM 4.6
  */
-class ShapefileLoader extends SwingWorker<Layer, Object> {
+class ShapefileLoader extends ProgressMonitorSwingWorker<Layer, Object> {
 
     private static final org.geotools.styling.StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
     private static final FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
@@ -51,6 +47,7 @@ class ShapefileLoader extends SwingWorker<Layer, Object> {
     private final LayerSourcePageContext context;
 
     ShapefileLoader(LayerSourcePageContext context) {
+        super(context.getWindow(), "Loading Shapefile");
         this.context = context;
     }
 
@@ -59,35 +56,40 @@ class ShapefileLoader extends SwingWorker<Layer, Object> {
     }
 
     @Override
-    protected Layer doInBackground() throws Exception {
+    protected Layer doInBackground(ProgressMonitor pm) throws Exception {
 
-        final ProductSceneView sceneView = context.getAppContext().getSelectedProductSceneView();
-        CoordinateReferenceSystem targetCrs = (CoordinateReferenceSystem) context.getLayerContext().getCoordinateReferenceSystem();
-        final Geometry clipGeometry = createProductGeometry(sceneView.getRaster());
+        try {
+            pm.beginTask("Reading shapes", ProgressMonitor.UNKNOWN);
+            final ProductSceneView sceneView = context.getAppContext().getSelectedProductSceneView();
+            CoordinateReferenceSystem targetCrs = (CoordinateReferenceSystem) context.getLayerContext().getCoordinateReferenceSystem();
+            final Geometry clipGeometry = ShapefileUtils.createGeoBoundaryPolygon(sceneView.getRaster());
 
-        File file = new File((String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FILE_PATH));
-        Object featureCollectionValue = context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
-        if (featureCollectionValue == null) {
-            featureCollection = FeatureLayerType.createFeatureCollection(targetCrs, clipGeometry, file.toURI().toURL());
-        } else {
-            featureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) featureCollectionValue;
+            File file = new File((String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FILE_PATH));
+            Object featureCollectionValue = context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION);
+            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
+            if (featureCollectionValue == null) {
+                featureCollection = ShapefileUtils.createFeatureCollection(file.toURI().toURL(), targetCrs, clipGeometry);
+            } else {
+                featureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) featureCollectionValue;
+            }
+
+            Style[] styles = getStyles(file, featureCollection);
+            Style selectedStyle = getSelectedStyle(styles);
+
+            final LayerType type = LayerType.getLayerType(FeatureLayerType.class.getName());
+            final ValueContainer configuration = type.getConfigurationTemplate();
+            configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_URL, file.toURI().toURL());
+            configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CRS, targetCrs);
+            configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY, clipGeometry);
+            configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION, featureCollection);
+            configuration.setValue(FeatureLayerType.PROPERTY_NAME_SLD_STYLE, selectedStyle);
+            Layer featureLayer = type.createLayer(sceneView.getLayerContext(), configuration);
+            featureLayer.setName(file.getName());
+            featureLayer.setVisible(true);
+            return featureLayer;
+        } finally {
+            pm.done();
         }
-
-        Style[] styles = getStyles(file, featureCollection);
-        Style selectedStyle = getSelectedStyle(styles);
-
-        final LayerType type = LayerType.getLayerType(FeatureLayerType.class.getName());
-        final ValueContainer configuration = type.getConfigurationTemplate();
-        configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_URL, file.toURI().toURL());
-        configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CRS, targetCrs);
-        configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY, clipGeometry);
-        configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION, featureCollection);
-        configuration.setValue(FeatureLayerType.PROPERTY_NAME_SLD_STYLE, selectedStyle);
-        Layer featureLayer = type.createLayer(sceneView.getLayerContext(), configuration);
-        featureLayer.setName(file.getName());
-        featureLayer.setVisible(true);
-        return featureLayer;
     }
 
     private Style getSelectedStyle(Style[] styles) {
@@ -108,19 +110,6 @@ class ShapefileLoader extends SwingWorker<Layer, Object> {
             context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_STYLES, styles);
         }
         return styles;
-    }
-
-    public static Geometry createProductGeometry(RasterDataNode targetRaster) {
-        GeometryFactory gf = new GeometryFactory();
-        GeoPos[] geoPoses = ProductUtils.createGeoBoundary(targetRaster, null, 100);
-        Coordinate[] coordinates = new Coordinate[geoPoses.length + 1];
-        for (int i = 0; i < geoPoses.length; i++) {
-            GeoPos geoPose = geoPoses[i];
-            coordinates[i] = new Coordinate(geoPose.lon, geoPose.lat);
-        }
-        coordinates[coordinates.length - 1] = coordinates[0];
-
-        return gf.createPolygon(gf.createLinearRing(coordinates), null);
     }
 
     public static Style[] createStyle(File file, FeatureType schema) {
@@ -167,7 +156,6 @@ class ShapefileLoader extends SwingWorker<Layer, Object> {
         return new Style[0];
     }
 
-    @SuppressWarnings({"deprecation"})
     private static Style createPointStyle() {
         PointSymbolizer symbolizer = styleFactory.createPointSymbolizer();
         symbolizer.getGraphic().setSize(filterFactory.literal(1));
@@ -182,7 +170,6 @@ class ShapefileLoader extends SwingWorker<Layer, Object> {
         return style;
     }
 
-    @SuppressWarnings({"deprecation"})
     private static Style createLineStyle() {
         LineSymbolizer symbolizer = styleFactory.createLineSymbolizer();
         SLD.setLineColour(symbolizer, Color.BLUE);
@@ -199,7 +186,6 @@ class ShapefileLoader extends SwingWorker<Layer, Object> {
         return style;
     }
 
-    @SuppressWarnings({"deprecation"})
     private static Style createPolygonStyle() {
         PolygonSymbolizer symbolizer = styleFactory.createPolygonSymbolizer();
         Fill fill = styleFactory.createFill(

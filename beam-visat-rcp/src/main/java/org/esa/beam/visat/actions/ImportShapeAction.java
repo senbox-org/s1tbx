@@ -1,6 +1,10 @@
 package org.esa.beam.visat.actions;
 
-import org.esa.beam.dataio.shapefile.Shapefile;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFilter;
+import com.vividsolutions.jts.geom.Polygon;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
@@ -17,6 +21,11 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefileUtils;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -25,7 +34,11 @@ import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.StreamTokenizer;
 import java.util.ArrayList;
 
 public class ImportShapeAction extends ExecCommand {
@@ -48,9 +61,15 @@ public class ImportShapeAction extends ExecCommand {
         final BeamFileChooser fileChooser = new BeamFileChooser();
         HelpSys.enableHelpKey(fileChooser, getHelpId());
         fileChooser.setDialogTitle(DLG_TITLE);
-        fileChooser.setFileFilter(
-                new BeamFileFilter("SHAPE", new String[]{".txt", ".dat", ".csv", ".shp"},
-                                   "Shape files"));/*I18N*/
+        final BeamFileFilter plainTextFilter = new BeamFileFilter("CSV",
+                                                                  new String[]{".txt", ".dat", ".csv"},
+                                                                  "Plain text");
+        final BeamFileFilter shapefileFilter = new BeamFileFilter("SHAPEFILE",
+                                                                  new String[]{".shp"},
+                                                                  "ESRI shapefiles");
+        fileChooser.addChoosableFileFilter(plainTextFilter);
+        fileChooser.addChoosableFileFilter(shapefileFilter);
+        fileChooser.setFileFilter(shapefileFilter);/*I18N*/
         fileChooser.setCurrentDirectory(getIODir(propertyMap));
         final int result = fileChooser.showOpenDialog(visatApp.getMainFrame());
         if (result == JFileChooser.APPROVE_OPTION) {
@@ -80,16 +99,17 @@ public class ImportShapeAction extends ExecCommand {
 
         final RasterDataNode raster = productSceneView.getRaster();
         final GeoCoding geoCoding = raster.getProduct().getGeoCoding();
-        if (file.getName().endsWith(".shp") && (geoCoding == null || !geoCoding.canGetPixelPos())) {
+        if (isShapefile(file)
+                && (geoCoding == null || !geoCoding.canGetPixelPos())) {
             visatApp.showErrorDialog(DLG_TITLE,
                                      "Failed to import shape.\n" +
-                                             "Suitable geo-coding required for reading ESRI shapefiles."); /*I18N*/
+                                             "Current geo-coding cannot convert from geographic to pixel coordinates."); /*I18N*/
             return;
         }
 
-        Shape shape = null;
+        Shape shape;
         try {
-            shape = readShape(file, geoCoding);
+            shape = readShape(file, raster);
             if (shape == null) {
                 visatApp.showErrorDialog(DLG_TITLE,
                                          "Failed to import shape.\n" +
@@ -112,7 +132,7 @@ public class ImportShapeAction extends ExecCommand {
                 && !shape.intersects(rasterBounds)) {
             visatApp.showErrorDialog(DLG_TITLE,
                                      "The shape was loaded successfully,\n"
-                                             + "but is entirely out of the scene bounds."); /*I18N*/
+                                             + "but no part is located within the scene boundaries."); /*I18N*/
             return;
         }
 
@@ -120,47 +140,73 @@ public class ImportShapeAction extends ExecCommand {
         productSceneView.setCurrentShapeFigure(figure);
     }
 
-    public static Shape readShape(File file, GeoCoding geoCoding) throws IOException {
+    private static boolean isShapefile(File file) {
+        return file.getName().toLowerCase().endsWith(".shp");
+    }
+
+    public static Shape readShape(File file, RasterDataNode raster) throws IOException {
         Shape shape;
-        if (file.getName().endsWith(".shp")) {
-            shape = readShapeFromShapefile(file, geoCoding);
+        if (isShapefile(file)) {
+            shape = readShapeFromShapefile(file, raster);
         } else {
-            shape = readShapeFromTextFile(file, geoCoding);
+            shape = readShapeFromTextFile(file, raster);
         }
         return shape;
     }
 
-    public static Shape readShapeFromShapefile(File file, final GeoCoding geoCoding) throws IOException {
-        final Shapefile.Transform transform = new Shapefile.Transform() {
-            public Shapefile.Point transformPoint(Shapefile.Point pt) {
-                final PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos((float) pt.y, (float) pt.x), null);
-                return new Shapefile.Point(pixelPos.x, pixelPos.y);
-            }
-        };
-        final Shapefile shapefile = Shapefile.getShapefile(file);
-        ArrayList<Shape> shapes = new ArrayList<Shape>();
-        while (true) {
-            final Shapefile.Record record = shapefile.readRecord();
-            if (record == null) {
-                break;
-            }
-            final Shapefile.Geometry geometry = record.getGeometry();
-            final Shape shape = geometry.toShape(transform);
-            if (shape != null) {
-                shapes.add(shape);
+    public static Shape readShapeFromShapefile(File file, final RasterDataNode raster) throws IOException {
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> fc = ShapefileUtils.loadShapefile(file, raster);
+        final FeatureIterator<SimpleFeature> it = fc.features();
+        final Area area = new Area();
+        while (it.hasNext()) {
+            final SimpleFeature simpleFeature = it.next();
+            final Object o = simpleFeature.getDefaultGeometry();
+            if (o instanceof Geometry) {
+                final Geometry geometry = (Geometry) o;
+                geometry.apply(new GeometryFilter() {
+                    @Override
+                    public void filter(final Geometry geometry) {
+                        if (!(geometry instanceof GeometryCollection)) {
+                            final Area subArea;
+                            if (geometry instanceof Polygon) {
+                                final Polygon polygon = (Polygon) geometry;
+                                final Area exterior = new Area(toPath2D(polygon.getExteriorRing().getCoordinates()));
+                                for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
+                                    final Area interior = new Area(toPath2D(polygon.getInteriorRingN(i).getCoordinates()));
+                                    exterior.subtract(interior);
+                                }
+                                subArea = exterior;
+                            } else {
+                                subArea = new Area(toPath2D(geometry.getCoordinates()));
+                            }
+                            area.add(subArea);
+                        }
+                    }
+                });
             }
         }
-        if (shapes.size() == 0) {
-            return null;
-        } else if (shapes.size() == 1) {
-            return shapes.get(0);
-        } else {
-            final Area area = new Area();
-            for (Shape shape : shapes) {
-                area.add(new Area(shape));
+        return area;
+    }
+
+    private static Path2D toPath2D(Coordinate[] coordinates) {
+        final Path2D path = new Path2D.Double();
+        final int n = coordinates.length;
+        for (int i = 0; i < n; i++) {
+            Coordinate coordinate = coordinates[i];
+            if (i == 0) {
+                path.moveTo(coordinate.x, coordinate.y);
+            } else {
+                path.lineTo(coordinate.x, coordinate.y);
             }
-            return area;
         }
+        if (n > 2 && coordinates[0].equals2D(coordinates[n - 1])) {
+            path.closePath();
+        }
+        return path;
+    }
+
+    public static Shape readShapeFromTextFile(final File file, final RasterDataNode raster) throws IOException {
+        return readShapeFromTextFile(file, raster.getGeoCoding());
     }
 
     public static Shape readShapeFromTextFile(final File file, final GeoCoding geoCoding) throws IOException {

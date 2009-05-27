@@ -28,13 +28,13 @@ public class FigureLayerEditor extends AbstractBindingLayerEditor {
 
         ValueDescriptor vd1 = new ValueDescriptor(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR, Color.class);
         vd1.setDefaultValue(FigureLayer.DEFAULT_SHAPE_OUTL_COLOR);
-        vd1.setDisplayName("Shape outline colour");
+        vd1.setDisplayName("Outline colour");
         vd1.setDefaultConverter();
         addValueDescriptor(vd1);
 
         ValueDescriptor vd2 = new ValueDescriptor(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH, Double.class);
         vd2.setDefaultValue(FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH);
-        vd2.setDisplayName("Shape outline width");
+        vd2.setDisplayName("Outline width");
         vd2.setDefaultConverter();
         addValueDescriptor(vd2);
 
@@ -42,7 +42,7 @@ public class FigureLayerEditor extends AbstractBindingLayerEditor {
 
         ValueDescriptor vd3 = new ValueDescriptor(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY, Double.class);
         vd3.setDefaultValue(FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY);
-        vd3.setDisplayName("Shape outline transparency");
+        vd3.setDisplayName("Outline transparency");
         vd3.setValueRange(new ValueRange(0, 0.95));
         vd3.setDefaultConverter();
         vd3.setProperty("valueEditor", valueEditorRegistry.getValueEditor(RangeEditor.class.getName()));
@@ -57,13 +57,13 @@ public class FigureLayerEditor extends AbstractBindingLayerEditor {
 
         ValueDescriptor vd5 = new ValueDescriptor(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR, Color.class);
         vd5.setDefaultValue(FigureLayer.DEFAULT_SHAPE_FILL_COLOR);
-        vd5.setDisplayName("Shape fill colour");
+        vd5.setDisplayName("Fill colour");
         vd5.setDefaultConverter();
         addValueDescriptor(vd5);
 
         ValueDescriptor vd6 = new ValueDescriptor(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY, Double.class);
         vd6.setDefaultValue(FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY);
-        vd6.setDisplayName("Shape fill transparency");
+        vd6.setDisplayName("Fill transparency");
         vd6.setValueRange(new ValueRange(0, 0.95));
         vd6.setDefaultConverter();
         vd6.setProperty("valueEditor", valueEditorRegistry.getValueEditor(RangeEditor.class.getName()));
