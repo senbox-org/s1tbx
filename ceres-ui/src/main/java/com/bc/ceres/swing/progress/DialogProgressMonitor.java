@@ -65,7 +65,6 @@ public class DialogProgressMonitor implements com.bc.ceres.core.ProgressMonitor 
      */
     public void beginTask(String name, int totalWork) {
         Assert.notNull(name, "name");
-        Assert.argument(totalWork > 0, "totalWork > 0");
         this.currentWork = 0.0;
         this.totalWork = totalWork;
         this.currentWorkUI = 0;
@@ -113,7 +112,7 @@ public class DialogProgressMonitor implements com.bc.ceres.core.ProgressMonitor 
      */
     public void internalWorked(double work) {
         currentWork += work;
-        currentWorkUI = (int) (totalWorkUI * currentWork / totalWork);
+        currentWorkUI = (int) (totalWorkUI * currentWork / (totalWork > 0 ? totalWork : totalWorkUI));
         if (currentWorkUI > lastWorkUI) {
             lastWorkUI = currentWorkUI;
             runInUI(new Runnable() {
@@ -134,6 +133,7 @@ public class DialogProgressMonitor implements com.bc.ceres.core.ProgressMonitor 
      *
      * @return <code>true</code> if cancellation has been requested,
      *         and <code>false</code> otherwise
+     *
      * @see #setCanceled(boolean)
      */
     public boolean isCanceled() {
@@ -146,6 +146,7 @@ public class DialogProgressMonitor implements com.bc.ceres.core.ProgressMonitor 
      * @param canceled <code>true</code> indicates that cancelation has
      *                 been requested (but not necessarily acknowledged);
      *                 <code>false</code> clears this flag
+     *
      * @see #isCanceled()
      */
     public void setCanceled(boolean canceled) {
@@ -165,6 +166,7 @@ public class DialogProgressMonitor implements com.bc.ceres.core.ProgressMonitor 
      * Normally there is no need for clients to call this method.
      *
      * @param name the name (or description) of the main task
+     *
      * @see #beginTask(String, int)
      */
     public void setTaskName(final String name) {
