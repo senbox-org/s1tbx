@@ -94,7 +94,6 @@
             <excludes>
                 <exclude>org.esa.beam:beam-bootstrap</exclude>
                 <exclude>org.esa.beam:beam-installer</exclude>
-                <exclude>org.esa.beam:beam-gpf-docgen</exclude>
                 <exclude>com.bc.ceres:ceres-launcher</exclude>
                 <exclude>com.bc.ceres:ceres-deploy</exclude>
                 <exclude>com.bc.ceres:ceres-fs</exclude>
@@ -119,7 +118,8 @@
                         <excludes>
                             <exclude>com.bc.ceres:ceres-*</exclude>
                             <exclude>org.esa.beam:beam-*</exclude>
-                            <exclude>org.esa.beam:lib-*</exclude>
+                            <exclude>ncsa.hdf:*</exclude>
+                            <exclude>ucar.netcdf:*</exclude>
                         </excludes>
                     </dependencySet>
                 </dependencySets>
