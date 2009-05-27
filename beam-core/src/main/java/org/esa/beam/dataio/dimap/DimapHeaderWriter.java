@@ -258,8 +258,6 @@ public final class DimapHeaderWriter extends XmlWriter {
                     if (band instanceof VirtualBand) {
                         final VirtualBand vb = (VirtualBand) band;
                         printLine(indent + 2, DimapProductConstants.TAG_VIRTUAL_BAND, true);
-                        printLine(indent + 2, DimapProductConstants.TAG_VIRTUAL_BAND_CHECK_INVALIDS,
-                                  vb.getCheckInvalids());
                         printLine(indent + 2, DimapProductConstants.TAG_VIRTUAL_BAND_EXPRESSION, vb.getExpression());
                         printLine(indent + 2, DimapProductConstants.TAG_VIRTUAL_BAND_WRITE_DATA, vb.getWriteData());
                     }
@@ -578,7 +576,7 @@ public final class DimapHeaderWriter extends XmlWriter {
             Band band;
             for (int i = 0; i < bands.length; i++) {
                 band = bands[i];
-                if (!((band instanceof VirtualBand && !((VirtualBand)band).getWriteData()) || band instanceof FilterBand)) {
+                if (!((band instanceof VirtualBand && !((VirtualBand) band).getWriteData()) || band instanceof FilterBand)) {
                     final String[] dfTags = createTags(indent + 1, DimapProductConstants.TAG_DATA_FILE);
                     println(dfTags[0]);
                     final String href = _dataDirectory + "/" + band.getName() + EnviHeader.FILE_EXTENSION;

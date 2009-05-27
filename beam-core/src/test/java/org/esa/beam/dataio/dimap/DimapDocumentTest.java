@@ -488,7 +488,6 @@ public class DimapDocumentTest extends TestCase {
         final int sceneRasterHeight = product.getSceneRasterHeight();
         VirtualBand virtualBand = new VirtualBand("vb1", ProductData.TYPE_FLOAT32, sceneRasterWidth, sceneRasterHeight,
                                                   "radiance_8");
-        virtualBand.setCheckInvalids(true);
         virtualBand.setNoDataValue(3f);
         virtualBand.setNoDataValueUsed(true);
         virtualBand.setDescription("VirtualBand-Description");
@@ -937,7 +936,6 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>");
         pw.println("            <NO_DATA_VALUE>3.0</NO_DATA_VALUE>");
         pw.println("            <VIRTUAL_BAND>true</VIRTUAL_BAND>");
-        pw.println("            <CHECK_INVALIDS>true</CHECK_INVALIDS>");
         pw.println("            <EXPRESSION>radiance_8</EXPRESSION>");
         pw.println("            <WRITE_DATA>false</WRITE_DATA>");
         pw.println("        </Spectral_Band_Info>");

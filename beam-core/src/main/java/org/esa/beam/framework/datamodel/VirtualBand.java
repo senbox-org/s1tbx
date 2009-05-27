@@ -61,13 +61,13 @@ import java.io.IOException;
  */
 public class VirtualBand extends Band {
 
-    public static final String PROPERTY_NAME_CHECK_INVALIDS = "checkInvalids";
     public static final String PROPERTY_NAME_EXPRESSION = "expression";
     public static final String PROPERTY_NAME_WRITE_DATA = "writeData";
 
+    @Deprecated
+    public static final String PROPERTY_NAME_CHECK_INVALIDS = "checkInvalids";
+
     private String expression;
-    private boolean checkInvalids;
-    private int numInvalidPixels;
     private boolean writeData = false;
     private boolean hasWrittenData = false;
 
@@ -124,22 +124,19 @@ public class VirtualBand extends Band {
         super.updateExpression(oldExternalName, newExternalName);
     }
 
+    @Deprecated
     public boolean getCheckInvalids() {
-        return checkInvalids;
+        return false;
     }
 
+    @Deprecated
     public void setCheckInvalids(final boolean checkInvalids) {
-        if (this.checkInvalids != checkInvalids) {
-            this.checkInvalids = checkInvalids;
-            fireProductNodeChanged(PROPERTY_NAME_CHECK_INVALIDS);
-            setModified(true);
-        }
     }
-    
+
     public boolean getWriteData() {
         return writeData;
     }
-     
+
     public void setWriteData(final boolean writeData) {
         if (this.writeData != writeData) {
             this.writeData = writeData;
@@ -147,17 +144,18 @@ public class VirtualBand extends Band {
             setModified(true);
         }
     }
-    
+
     public boolean hasWrittenData() {
         return hasWrittenData;
     }
-     
+
     public void setHasWrittenData(final boolean hasData) {
         this.hasWrittenData = hasData;
     }
 
+    @Deprecated
     public int getNumInvalidPixels() {
-        return numInvalidPixels;
+        return 0;
     }
 
     @Override
@@ -235,7 +233,7 @@ public class VirtualBand extends Band {
                                final ProductData rasterData, ProgressMonitor pm)
             throws IOException {
         Guardian.assertNotNull("rasterData", rasterData);
-        if (hasWrittenData ) {
+        if (hasWrittenData) {
             super.readRasterData(offsetX, offsetY, width, height, rasterData, pm);
             return;
         }
@@ -256,7 +254,7 @@ public class VirtualBand extends Band {
      */
     @Override
     public void readRasterDataFully(ProgressMonitor pm) throws IOException {
-        if (hasWrittenData ) {
+        if (hasWrittenData) {
             super.readRasterDataFully(pm);
             return;
         }
@@ -296,6 +294,7 @@ public class VirtualBand extends Band {
      * @param width      the width of the raster data buffer
      * @param height     the height of the raster data buffer
      * @param pm         a monitor to inform the user about progress
+     *
      * @throws IOException              if an I/O error occurs
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
@@ -312,9 +311,9 @@ public class VirtualBand extends Band {
             throw new IllegalStateException("write not supported for virtual band");
         }
     }
-    
+
     private void writeSourceImage(int offsetX, int offsetY, int width, int height,
-                                         ProgressMonitor pm) throws IOException {
+                                  ProgressMonitor pm) throws IOException {
         final RenderedImage image = getSourceImage();
 
         final int minTileX = image.getMinTileX();
@@ -380,6 +379,7 @@ public class VirtualBand extends Band {
      * Gets an estimated raw storage size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
+     *
      * @return the size in bytes.
      */
     @Override
@@ -393,10 +393,10 @@ public class VirtualBand extends Band {
     @Override
     public String toString() {
         return getClass().getName() + "["
-                + getName() + ","
-                + ProductData.getTypeString(getDataType()) + "," +
-                +getRasterWidth() + "," +
-                +getRasterHeight() + "]";
+               + getName() + ","
+               + ProductData.getTypeString(getDataType()) + "," +
+               +getRasterWidth() + "," +
+               +getRasterHeight() + "]";
     }
 
     /**
@@ -417,28 +417,17 @@ public class VirtualBand extends Band {
     protected RenderedImage createSourceImage() {
         if (hasWrittenData) {
             return super.createSourceImage();
-        } 
+        }
         final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(this);
         final VirtualBand vb = this;
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
 
             @Override
             public RenderedImage createImage(int level) {
-                Product product = vb.getProduct();
-                ProductManager productManager = product.getProductManager();
-                Product[] products;
-                int defaultProductIndex;
-                if (productManager != null) {
-                    products = productManager.getProducts();
-                    defaultProductIndex = productManager.getProductIndex(product);
-                } else {
-                    products = new Product[] {product};
-                    defaultProductIndex = 0;
-                }
                 return VirtualBandOpImage.create(vb.getExpression(),
                                                  vb.getDataType(),
-                                                 products,
-                                                 defaultProductIndex,
+                                                 vb.isNoDataValueUsed() ? vb.getGeophysicalNoDataValue() : null,
+                                                 vb.getProduct(),
                                                  ResolutionLevel.create(getModel(), level));
             }
         });

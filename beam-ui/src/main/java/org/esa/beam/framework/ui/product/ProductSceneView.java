@@ -36,6 +36,7 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
+import org.esa.beam.glayer.NoDataLayerType;
 import org.esa.beam.glayer.RoiLayerType;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.glevel.RoiImageMultiLevelSource;
@@ -933,7 +934,8 @@ public class ProductSceneView extends BasicView
         final ImageLayer noDataLayer = (ImageLayer) getNoDataLayer(false);
         if (noDataLayer != null) {
             if (expression != null) {
-                final Color color = (Color) noDataLayer.getConfiguration().getValue("noDataOverlay.color");
+                final Color color = (Color) noDataLayer.getConfiguration().getValue(
+                        NoDataLayerType.PROPERTY_NAME_COLOR);
                 final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(),
                                                                                            color, expression, true,
                                                                                            getBaseImageLayer().getImageToModelTransform());

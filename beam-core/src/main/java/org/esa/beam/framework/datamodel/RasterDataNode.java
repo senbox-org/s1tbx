@@ -151,13 +151,13 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     protected RasterDataNode(String name, int dataType, int width, int height) {
         super(name, dataType, (long) width * height);
         if (dataType != ProductData.TYPE_INT8
-                && dataType != ProductData.TYPE_INT16
-                && dataType != ProductData.TYPE_INT32
-                && dataType != ProductData.TYPE_UINT8
-                && dataType != ProductData.TYPE_UINT16
-                && dataType != ProductData.TYPE_UINT32
-                && dataType != ProductData.TYPE_FLOAT32
-                && dataType != ProductData.TYPE_FLOAT64) {
+            && dataType != ProductData.TYPE_INT16
+            && dataType != ProductData.TYPE_INT32
+            && dataType != ProductData.TYPE_UINT8
+            && dataType != ProductData.TYPE_UINT16
+            && dataType != ProductData.TYPE_UINT32
+            && dataType != ProductData.TYPE_FLOAT32
+            && dataType != ProductData.TYPE_FLOAT64) {
             throw new IllegalArgumentException("dataType is invalid");
         }
         rasterWidth = width;
@@ -453,9 +453,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public static boolean isValidMaskProperty(final String propertyName) {
         return PROPERTY_NAME_NO_DATA_VALUE.equals(propertyName)
-                || PROPERTY_NAME_NO_DATA_VALUE_USED.equals(propertyName)
-                || PROPERTY_NAME_VALID_PIXEL_EXPRESSION.equals(propertyName)
-                || PROPERTY_NAME_DATA.equals(propertyName);
+               || PROPERTY_NAME_NO_DATA_VALUE_USED.equals(propertyName)
+               || PROPERTY_NAME_VALID_PIXEL_EXPRESSION.equals(propertyName)
+               || PROPERTY_NAME_DATA.equals(propertyName);
     }
 
 
@@ -736,7 +736,15 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     private String createFuzzyNotEqualExpression() {
-        return "fneq(" + BandArithmetic.createExternalName(getName()) + "," + getGeophysicalNoDataValue() + ")";
+        final String ref = BandArithmetic.createExternalName(getName());
+        final double noDataValue = getGeophysicalNoDataValue();
+        if (Double.isNaN(noDataValue)) {
+            return "nan(" + ref + ")";
+        } else if (Double.isInfinite(noDataValue)) {
+            return "inf(" + ref + ")";
+        } else {
+            return "fneq(" + ref + "," + noDataValue + ")";
+        }
     }
 
     @Deprecated
@@ -1235,7 +1243,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return the pixels read
      */
     public abstract float[] readPixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm) throws
-            IOException;
+                                                                                                       IOException;
 
     /**
      * @see #readPixels(int,int,int,int,double[],ProgressMonitor)
@@ -1260,7 +1268,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return the pixels read
      */
     public abstract double[] readPixels(int x, int y, int w, int h, double[] pixels, ProgressMonitor pm) throws
-            IOException;
+                                                                                                         IOException;
 
     /**
      * @see #writePixels(int,int,int,int,int[],ProgressMonitor)
@@ -1318,7 +1326,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param pm     a progress monitor
      */
     public abstract void writePixels(int x, int y, int w, int h, double[] pixels, ProgressMonitor pm) throws
-            IOException;
+                                                                                                      IOException;
 
     public boolean[] readValidMask(int x, int y, int w, int h, boolean[] validMask) throws IOException {
         if (validMask == null) {
@@ -1506,8 +1514,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public boolean isCompatibleRasterData(ProductData rasterData, int w, int h) {
         return rasterData != null
-                && rasterData.getType() == getDataType()
-                && rasterData.getNumElems() == w * h;
+               && rasterData.getType() == getDataType()
+               && rasterData.getNumElems() == w * h;
     }
 
     /**
@@ -1776,7 +1784,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             BufferedImage rgbImage;
             try {
                 imageInfo = createDefaultImageInfo(null, SubProgressMonitor.create(pm, 1));
-                rgbImage = ProductUtils.createRgbImage(new RasterDataNode[]{this}, imageInfo, SubProgressMonitor.create(pm, 3));
+                rgbImage = ProductUtils.createRgbImage(new RasterDataNode[]{this}, imageInfo,
+                                                       SubProgressMonitor.create(pm, 3));
             } finally {
                 pm.done();
             }
@@ -1935,7 +1944,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                           new RasterDataProcessor() {
                               public void processRasterDataBuffer(final ProductData buffer, final int y0,
                                                                   final int numLines, ProgressMonitor pm) throws
-                                      IOException {
+                                                                                                          IOException {
                                   final RasterDataDoubleList values = new RasterDataDoubleList(buffer);
                                   final IndexValidator pixelValidator = createPixelValidator(y0, roi);
                                   final Statistics statistics = Statistics.computeStatisticsDouble(values,
@@ -1967,7 +1976,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     @Deprecated
     protected void processRasterData(String message, RasterDataProcessor processor, ProgressMonitor pm) throws
-            IOException {
+                                                                                                        IOException {
         Debug.trace("RasterDataNode.processRasterData: " + message);
         int readBufferLineCount = getReadBufferLineCount();
         ProductData readBuffer = null;
@@ -1978,7 +1987,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             numReadsMax++;
         }
         Debug.trace("RasterDataNode.processRasterData: numReadsMax=" + numReadsMax +
-                ", readBufferLineCount=" + readBufferLineCount);
+                    ", readBufferLineCount=" + readBufferLineCount);
         pm.beginTask(message, numReadsMax * 2);
         try {
             for (int i = 0; i < numReadsMax; i++) {
@@ -2066,8 +2075,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     private void setScalingApplied() {
         scalingApplied = getScalingFactor() != 1.0
-                || getScalingOffset() != 0.0
-                || isLog10Scaled();
+                         || getScalingOffset() != 0.0
+                         || isLog10Scaled();
     }
 
     /**
@@ -2452,6 +2461,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     final static class DelegatingValidator implements IndexValidator {
+
         private final IndexValidator validator1;
         private final IndexValidator validator2;
 
@@ -2462,11 +2472,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
         public boolean validateIndex(int pixelIndex) {
             return validator1.validateIndex(pixelIndex)
-                    && validator2.validateIndex(pixelIndex);
+                   && validator2.validateIndex(pixelIndex);
         }
     }
 
     final static class ValidMaskValidator implements IndexValidator {
+
         private final int pixelOffset;
         private final BitRaster validMask;
 
@@ -2600,7 +2611,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     @Deprecated
     public ImageInfo ensureValidImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero, ProgressMonitor pm) throws
-            IOException {
+                                                                                                                  IOException {
         return getImageInfo(histoSkipAreas, pm);
     }
 
@@ -2608,7 +2619,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @deprecated since BEAM 4.2, use {@link #getImageInfo(double[],ProgressMonitor)}
      */
     @Deprecated
-    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero, ProgressMonitor pm) throws IOException {
+    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero,
+                                            ProgressMonitor pm) throws IOException {
         return createDefaultImageInfo(histoSkipAreas, pm);
     }
 
@@ -2629,7 +2641,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         final Product product = getProduct();
         if (product != null && product.containsRasterDataNode(trimmedName)) {
             throw new IllegalArgumentException("The product '" + product.getName() + "' already contains " +
-                    "a raster data node with the name '" + trimmedName + "'.");
+                                               "a raster data node with the name '" + trimmedName + "'.");
         }
     }
 

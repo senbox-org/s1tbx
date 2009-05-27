@@ -17,7 +17,20 @@
 package org.esa.beam.dataio.dimap;
 
 import junit.framework.TestCase;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.ConvolutionFilterBand;
+import org.esa.beam.framework.datamodel.FXYGeoCoding;
+import org.esa.beam.framework.datamodel.GeneralFilterBand;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.Kernel;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
 import org.esa.beam.framework.dataop.maptransf.LambertConformalConicDescriptor;
@@ -115,7 +128,6 @@ public class DimapHeaderWriterTest extends TestCase {
             "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + _ls +
             "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + _ls +
             "            <VIRTUAL_BAND>true</VIRTUAL_BAND>" + _ls +
-            "            <CHECK_INVALIDS>false</CHECK_INVALIDS>" + _ls +
             "            <EXPRESSION>b1 * 0.4 + 1</EXPRESSION>" + _ls +
             "            <WRITE_DATA>false</WRITE_DATA>" + _ls +
             "        </Spectral_Band_Info>" + _ls +
@@ -265,11 +277,12 @@ public class DimapHeaderWriterTest extends TestCase {
         ProductNodeGroup<Pin> pinGroup = _product.getPinGroup();
         pinGroup.add(pin1);
 
-        final Pin pin2 = new Pin("pin2", "pin2", "", null, new GeoPos(4,8), PlacemarkSymbol.createDefaultPinSymbol());
+        final Pin pin2 = new Pin("pin2", "pin2", "", null, new GeoPos(4, 8), PlacemarkSymbol.createDefaultPinSymbol());
         pin2.setDescription("desc2");
         pinGroup.add(pin2);
 
-        final Pin pin3 = new Pin("pin3", "pin3", "", null, new GeoPos(-23.1234f, -80.543f), PlacemarkSymbol.createDefaultPinSymbol());
+        final Pin pin3 = new Pin("pin3", "pin3", "", null, new GeoPos(-23.1234f, -80.543f),
+                                 PlacemarkSymbol.createDefaultPinSymbol());
         pinGroup.add(pin3);
     }
 
@@ -323,11 +336,12 @@ public class DimapHeaderWriterTest extends TestCase {
         ProductNodeGroup<Pin> pinGroup = _product.getGcpGroup();
         pinGroup.add(pin1);
 
-        final Pin pin2 = new Pin("gcp2", "gcp2", "", null, new GeoPos(4,8), PlacemarkSymbol.createDefaultGcpSymbol());
+        final Pin pin2 = new Pin("gcp2", "gcp2", "", null, new GeoPos(4, 8), PlacemarkSymbol.createDefaultGcpSymbol());
         pin2.setDescription("desc2");
         pinGroup.add(pin2);
 
-        final Pin pin3 = new Pin("gcp3", "gcp3", "", null, new GeoPos(-23.1234f, -80.543f), PlacemarkSymbol.createDefaultGcpSymbol());
+        final Pin pin3 = new Pin("gcp3", "gcp3", "", null, new GeoPos(-23.1234f, -80.543f),
+                                 PlacemarkSymbol.createDefaultGcpSymbol());
         pinGroup.add(pin3);
     }
 

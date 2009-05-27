@@ -114,7 +114,8 @@ public class DimapProductHelpers {
      *
      * @throws IllegalArgumentException if one of the parameters is null.
      */
-    public static Map<Band, File> getBandDataFiles(final Document dom, final Product product, final File inputDir) throws IllegalArgumentException {
+    public static Map<Band, File> getBandDataFiles(final Document dom, final Product product,
+                                                   final File inputDir) throws IllegalArgumentException {
         Guardian.assertNotNull("dom", dom);
         Guardian.assertNotNull("product", product);
         Guardian.assertNotNull("inputDir", inputDir);
@@ -315,7 +316,7 @@ public class DimapProductHelpers {
                 }
             } else {
                 Debug.trace("DimapProductHelpers.ProductBuilder.createGeoCoding(): " +
-                        "the tag <" + tagCoordRefSys + "> contains no tag <" + tagHorizontalCs + ">"); /*I18N*/
+                            "the tag <" + tagCoordRefSys + "> contains no tag <" + tagHorizontalCs + ">"); /*I18N*/
             }
             // 1. fallback: try to find a TiePointGeoCoding
             final Element tpgElem = coordRefSysElem.getChild(DimapProductConstants.TAG_GEOCODING_TIE_POINT_GRIDS);
@@ -347,7 +348,7 @@ public class DimapProductHelpers {
                 }
             } else {
                 Debug.trace("DimapProductHelpers.ProductBuilder.createGeoCoding(): " +
-                        "the coordinate reference system tag contains no horizontal coordinat system tag"); /*I18N*/
+                            "the coordinate reference system tag contains no horizontal coordinat system tag"); /*I18N*/
             }
             // 2. fallback: try to find a MapGeoCoding
             final Element mapElem = coordRefSysElem.getChild(DimapProductConstants.TAG_GEOCODING_MAP);
@@ -404,13 +405,13 @@ public class DimapProductHelpers {
                 }
             } else {
                 Debug.trace("DimapProductHelpers.ProductBuilder.createGeoCoding(): neither '" /*I18N*/
-                        + DimapProductConstants.TAG_GEOCODING_TIE_POINT_GRIDS + "' nor '" /*I18N*/
-                        + DimapProductConstants.TAG_GEOCODING_MAP + "' found in '" /*I18N*/
-                        + tagCoordRefSys + "' element"); /*I18N*/
+                            + DimapProductConstants.TAG_GEOCODING_TIE_POINT_GRIDS + "' nor '" /*I18N*/
+                            + DimapProductConstants.TAG_GEOCODING_MAP + "' found in '" /*I18N*/
+                            + tagCoordRefSys + "' element"); /*I18N*/
             }
         } else {
             Debug.trace("DimapProductHelpers.ProductBuilder.createGeoCoding(): missing '" /*I18N*/
-                    + tagCoordRefSys + "' element"); /*I18N*/
+                        + tagCoordRefSys + "' element"); /*I18N*/
         }
 
         // 3. fallback: try to create a TiePointGeoCoding from "latitude" and "longitude"
@@ -614,7 +615,8 @@ public class DimapProductHelpers {
     private static String getBandName(Element rootElement, String index) {
         Element imageInterpretation = rootElement.getChild(DimapProductConstants.TAG_IMAGE_INTERPRETATION);
         if (imageInterpretation != null) {
-            final List spectralBandInfos = imageInterpretation.getChildren(DimapProductConstants.TAG_SPECTRAL_BAND_INFO);
+            final List spectralBandInfos = imageInterpretation.getChildren(
+                    DimapProductConstants.TAG_SPECTRAL_BAND_INFO);
             for (Object child : spectralBandInfos) {
                 Element bandInfo = (Element) child;
                 final String actualBandIndex = bandInfo.getChildTextTrim(DimapProductConstants.TAG_BAND_INDEX);
@@ -1227,7 +1229,8 @@ public class DimapProductHelpers {
             }
         }
 
-        private void addSamples(String tagList, String tagName, String tagValue, String tagDescription, Element sampleCodingElement, SampleCoding sampleCoding) {
+        private void addSamples(String tagList, String tagName, String tagValue, String tagDescription,
+                                Element sampleCodingElement, SampleCoding sampleCoding) {
             final List list = sampleCodingElement.getChildren(tagList);
             for (Object o : list) {
                 final Element element = (Element) o;
@@ -1371,7 +1374,6 @@ public class DimapProductHelpers {
                 final int height = product.getSceneRasterHeight();
                 final VirtualBand virtualBand = new VirtualBand(bandName, type, width, height, getExpression(element));
                 product.addBand(virtualBand);
-                virtualBand.setCheckInvalids(getCheckInvalids(element));
                 virtualBand.setNoDataValue(getInvalidValue(element));
                 virtualBand.setNoDataValueUsed(getUseInvalidValue(element));
                 final boolean writeData = getWriteData(element);

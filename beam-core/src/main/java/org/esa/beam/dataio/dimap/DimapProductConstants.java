@@ -324,9 +324,17 @@ public final class DimapProductConstants {
      * </pre>
      * </td>
      * </tr>
+     * <tr>
+     * <td valign="top">2.6.1</td>
+     * <td> No longer supporting
+     * <pre>
+     *   &lt;CHECK_INVALIDS&gt;true&lt;/CHECK_INVALIDS&gt;
+     * </pre>
+     * </td>
+     * </tr>
      * </table>
      */
-    public static final String DIMAP_CURRENT_VERSION = "2.6.0";
+    public static final String DIMAP_CURRENT_VERSION = "2.6.1";
 
     // BEAM-Dimap default text
     public static final String DIMAP_METADATA_PROFILE = "BEAM-DATAMODEL-V1";

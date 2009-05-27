@@ -26,24 +26,30 @@ import java.awt.image.WritableRaster;
  * given {@code RasterDataNode} at a given pyramid level.
  */
 public class VirtualBandOpImage extends SingleBandedOpImage {
+
     private static final int TRUE = 255;
     private static final int FALSE = 0;
 
     private final String expression;
     private final int dataType;
+    private final Number fillValue;
     private final boolean mask;
     private final Product[] products;
     private final int defaultProductIndex;
 
-    public static VirtualBandOpImage createMask(RasterDataNode raster, ResolutionLevel level) {
+    public static VirtualBandOpImage createMask(RasterDataNode raster,
+                                                ResolutionLevel level) {
         return createMask(raster.getValidMaskExpression(),
                           raster.getProduct(),
                           level);
     }
 
-    public static VirtualBandOpImage createMask(String expression, Product product, ResolutionLevel level) {
+    public static VirtualBandOpImage createMask(String expression,
+                                                Product product,
+                                                ResolutionLevel level) {
         return create(expression,
                       ProductData.TYPE_UINT8,
+                      null,
                       true,
                       product,
                       level);
@@ -55,6 +61,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                                                 ResolutionLevel level) {
         return create(expression,
                       ProductData.TYPE_UINT8,
+                      null,
                       true,
                       products,
                       defaultProductIndex,
@@ -63,11 +70,26 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
 
     public static VirtualBandOpImage create(String expression,
                                             int dataType,
+                                            Number fillValue,
+                                            Product product,
+                                            ResolutionLevel level) {
+        return create(expression,
+                      dataType,
+                      fillValue,
+                      false,
+                      product,
+                      level);
+    }
+
+    public static VirtualBandOpImage create(String expression,
+                                            int dataType,
+                                            Number fillValue,
                                             Product[] products,
                                             int defaultProductIndex,
                                             ResolutionLevel level) {
         return create(expression,
                       dataType,
+                      fillValue,
                       false,
                       products,
                       defaultProductIndex,
@@ -76,6 +98,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
 
     private static VirtualBandOpImage create(String expression,
                                              int dataType,
+                                             Number fillValue,
                                              boolean mask,
                                              Product product,
                                              ResolutionLevel level) {
@@ -93,6 +116,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
 
         return create(expression,
                       dataType,
+                      fillValue,
                       mask,
                       products,
                       defaultProductIndex,
@@ -101,6 +125,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
 
     private static VirtualBandOpImage create(String expression,
                                              int dataType,
+                                             Number fillValue,
                                              boolean mask,
                                              Product[] products,
                                              int defaultProductIndex,
@@ -114,6 +139,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
 
         return new VirtualBandOpImage(expression,
                                       dataType,
+                                      fillValue,
                                       mask,
                                       products,
                                       defaultProductIndex,
@@ -122,10 +148,12 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
 
     private VirtualBandOpImage(String expression,
                                int dataType,
+                               Number fillValue,
                                boolean mask,
                                Product[] products,
                                int defaultProductIndex,
-                               ResolutionLevel level) {
+                               ResolutionLevel level
+    ) {
         super(ImageManager.getDataBufferType(dataType),
               products[defaultProductIndex].getSceneRasterWidth(),
               products[defaultProductIndex].getSceneRasterHeight(),
@@ -139,6 +167,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         this.mask = mask;
         this.products = products;
         this.defaultProductIndex = defaultProductIndex;
+        this.fillValue = fillValue;
     }
 
     public String getExpression() {
@@ -173,7 +202,9 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         final Term term = parseExpression();
         addSourceToRasterDataSymbols(writableRaster.getBounds(), term);
 
-        final ProductData productData = ProductData.createInstance(dataType, ImageUtils.getPrimitiveArray(writableRaster.getDataBuffer()));
+        final ProductData productData = ProductData.createInstance(dataType,
+                                                                   ImageUtils.getPrimitiveArray(
+                                                                           writableRaster.getDataBuffer()));
         final int rasterSize = writableRaster.getDataBuffer().getSize();
         final RasterDataEvalEnv env = new RasterDataEvalEnv(destRect.x, destRect.y, destRect.width, destRect.height);
         if (mask) {
@@ -182,9 +213,22 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                 productData.setElemUIntAt(i, term.evalB(env) ? TRUE : FALSE);
             }
         } else {
-            for (int i = 0; i < rasterSize; i++) {
-                env.setElemIndex(i);
-                productData.setElemDoubleAt(i, term.evalD(env));
+            if (fillValue != null) {
+                final double fv = fillValue.doubleValue();
+                for (int i = 0; i < rasterSize; i++) {
+                    env.setElemIndex(i);
+                    final double v = term.evalD(env);
+                    if (!Double.isNaN(v) && !Double.isInfinite(v)) {
+                        productData.setElemDoubleAt(i, v);
+                    } else {
+                        productData.setElemDoubleAt(i, fv);
+                    }
+                }
+            } else {
+                for (int i = 0; i < rasterSize; i++) {
+                    env.setElemIndex(i);
+                    productData.setElemDoubleAt(i, term.evalD(env));
+                }
             }
         }
     }
@@ -221,7 +265,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                               String expression,
                               int dataType,
                               ResolutionLevel level) {
-        this(expression, dataType, false, products, 0, level);
+        this(expression, dataType, null, false, products, 0, level);
     }
 
     @Deprecated
@@ -230,7 +274,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                               Product[] products,
                               int defaultProductIndex,
                               ResolutionLevel level) {
-        this(expression, dataType, false, products, defaultProductIndex, level);
+        this(expression, dataType, null, false, products, defaultProductIndex, level);
     }
 
     @Deprecated
