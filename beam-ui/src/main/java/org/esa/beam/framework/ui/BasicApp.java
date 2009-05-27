@@ -1446,7 +1446,7 @@ public class BasicApp {
 
         getMainFrame().setCursor(Cursor.getDefaultCursor());
         setStatusBarMessage("Error.");
-        _logger.severe(message);
+        _logger.log(Level.SEVERE, message, e);
         showErrorDialog("Error", message);
         clearStatusBarMessage();
     }
