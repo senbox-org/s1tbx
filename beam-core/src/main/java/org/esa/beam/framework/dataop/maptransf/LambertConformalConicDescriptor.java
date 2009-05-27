@@ -12,11 +12,11 @@
  */
 package org.esa.beam.framework.dataop.maptransf;
 
-import java.awt.geom.Point2D;
-
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.util.math.MathUtils;
+
+import java.awt.geom.Point2D;
 
 public class LambertConformalConicDescriptor implements MapTransformDescriptor {
 
@@ -42,43 +42,43 @@ public class LambertConformalConicDescriptor implements MapTransformDescriptor {
     private final static int SCALE_FACTOR_INDEX = 6;
 
     public final static String[] PARAMETER_NAMES = new String[]{
-        "semi_major",
-        "semi_minor",
-        "latitude_of_origin",
-        "central_meridian",
-        "latitude_of_intersection_1",
-        "latitude_of_intersection_2",
-        "scale_factor"
+            "semi_major",
+            "semi_minor",
+            "latitude_of_origin",
+            "central_meridian",
+            "latitude_of_intersection_1",
+            "latitude_of_intersection_2",
+            "scale_factor"
     };
 
     public final static double[] PARAMETER_DEFAULT_VALUES = new double[]{
-        Ellipsoid.WGS_84.getSemiMajor(),
-        Ellipsoid.WGS_84.getSemiMinor(),
-        90.0,
-        0.0,
-        20.0,
-        60.0,
-        1.0
+            Ellipsoid.WGS_84.getSemiMajor(),
+            Ellipsoid.WGS_84.getSemiMinor(),
+            90.0,
+            0.0,
+            20.0,
+            60.0,
+            1.0
     };
 
     public final static String[] PARAMETER_LABELS = new String[]{
-        "Semi major",
-        "Semi minor",
-        "Latitude of origin",
-        "Central meridian",
-        "Latitude of intersection 1",
-        "Latitude of intersection 2",
-        "Scale factor"
+            "Semi major",
+            "Semi minor",
+            "Latitude of origin",
+            "Central meridian",
+            "Latitude of intersection 1",
+            "Latitude of intersection 2",
+            "Scale factor"
     };
 
     public final static String[] PARAMETER_UNITS = new String[]{
-        "meter",
-        "meter",
-        "degree",
-        "degree",
-        "degree",
-        "degree",
-        ""
+            "meter",
+            "meter",
+            "degree",
+            "degree",
+            "degree",
+            "degree",
+            ""
     };
 
     public LambertConformalConicDescriptor() {
@@ -137,9 +137,9 @@ public class LambertConformalConicDescriptor implements MapTransformDescriptor {
      * Gets the list of parameters required to create an instance of the map transform.
      */
     public Parameter[] getParameters() {
-    	final Parameter[] parameters = new Parameter[PARAMETER_NAMES.length];
+        final Parameter[] parameters = new Parameter[PARAMETER_NAMES.length];
 
-    	for (int i = 0; i < parameters.length; ++i) {
+        for (int i = 0; i < parameters.length; ++i) {
             parameters[i] = new Parameter(PARAMETER_NAMES[i], PARAMETER_DEFAULT_VALUES[i]);
             parameters[i].getProperties().setLabel(PARAMETER_LABELS[i]);
             parameters[i].getProperties().setPhysicalUnit(PARAMETER_UNITS[i]);
@@ -152,8 +152,8 @@ public class LambertConformalConicDescriptor implements MapTransformDescriptor {
      * Gets the default parameter values for this map transform.
      */
     public double[] getParameterDefaultValues() {
-    	final double[] values = new double[PARAMETER_DEFAULT_VALUES.length];
-    	System.arraycopy(PARAMETER_DEFAULT_VALUES, 0, values, 0, values.length);
+        final double[] values = new double[PARAMETER_DEFAULT_VALUES.length];
+        System.arraycopy(PARAMETER_DEFAULT_VALUES, 0, values, 0, values.length);
 
         return values;
     }
@@ -284,8 +284,8 @@ public class LambertConformalConicDescriptor implements MapTransformDescriptor {
          * MapTransformDescriptor#getParameters()}</code> method.
          */
         public double[] getParameterValues() {
-        	final double[] values = new double[_parameterValues.length];
-        	System.arraycopy(_parameterValues, 0, values, 0, values.length);
+            final double[] values = new double[_parameterValues.length];
+            System.arraycopy(_parameterValues, 0, values, 0, values.length);
 
             return values;
         }
@@ -329,7 +329,7 @@ public class LambertConformalConicDescriptor implements MapTransformDescriptor {
          * easting etc is calculated in this class.
          * <p/>
          * <p>Should be overridden in order to delegate to <code>{@link #inverse_impl(double, double,
-                * org.esa.beam.framework.datamodel.GeoPos)}</code> if transformation is performed is in 64-bit accuracy.
+         * org.esa.beam.framework.datamodel.GeoPos)}</code> if transformation is performed is in 64-bit accuracy.
          * Override <code>{@link #inverse_impl(double, double, org.esa.beam.framework.datamodel.GeoPos)}</code> instead
          * in order to perform the actual transformation.
          *
@@ -369,6 +369,26 @@ public class LambertConformalConicDescriptor implements MapTransformDescriptor {
             geoPoint.lat = geoPoint.lat * MathUtils.RTOD_F;
             geoPoint.lon = geoPoint.lon * MathUtils.RTOD_F;
             return geoPoint;
+        }
+
+        public double getSemiMinor() {
+            return _parameterValues[SEMI_MINOR_INDEX];
+        }
+
+        public double getLatitudeOfOrigin() {
+            return _parameterValues[LATITUDE_OF_ORIGIN_INDEX];
+        }
+
+        public double getScaleFactor() {
+            return _parameterValues[SCALE_FACTOR_INDEX];
+        }
+
+        public double getStandardParallel1() {
+            return _parameterValues[LATITUDE_OF_INTERSECTION_1_INDEX];
+        }
+
+        public double getStandardParallel2() {
+            return _parameterValues[LATITUDE_OF_INTERSECTION_2_INDEX];
         }
     }
 

@@ -38,41 +38,39 @@ public class Datum implements Cloneable {
      */
     public static final Datum ITRF_97 = new Datum("ITRF-97", Ellipsoid.GRS_80, 0.0, 0.0, 0.0);
 
-
-
-    private final String _name;
-    private final Ellipsoid _ellipsoid;
-    private final double _dx;
-    private final double _dy;
-    private final double _dz;
+    private final String name;
+    private final Ellipsoid ellipsoid;
+    private final double dx;
+    private final double dy;
+    private final double dz;
 
     public Datum(String name, Ellipsoid ellipsoid, double dx, double dy, double dz) {
-        _name = name;
-        _ellipsoid = ellipsoid;
-        _dx = dx;
-        _dy = dy;
-        _dz = dz;
+        this.name = name;
+        this.ellipsoid = ellipsoid;
+        this.dx = dx;
+        this.dy = dy;
+        this.dz = dz;
     }
 
     public String getName() {
-        return _name;
+        return name;
     }
 
     public Ellipsoid getEllipsoid() {
-        return _ellipsoid;
+        return ellipsoid;
     }
 
 
     public double getDX() {
-        return _dx;
+        return dx;
     }
 
     public double getDY() {
-        return _dy;
+        return dy;
     }
 
     public double getDZ() {
-        return _dz;
+        return dz;
     }
 
     @Override
@@ -82,5 +80,37 @@ public class Datum implements Cloneable {
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Datum) {
+            final Datum that = (Datum) obj;
+            return this.name.equals(that.name) &&
+                   this.dx == that.dx &&
+                   this.dy == that.dy &&
+                   this.dz == that.dz &&
+                   this.ellipsoid.equals(that.ellipsoid);
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+
+        result = 31 * result + name.hashCode();
+        result = 31 * result + hashCodeDouble(dx);
+        result = 31 * result + hashCodeDouble(dy);
+        result = 31 * result + hashCodeDouble(dz);
+        result = 31 * result + ellipsoid.hashCode();
+
+        return result;
+    }
+
+    private static int hashCodeDouble(double d) {
+        final long l = Double.doubleToLongBits(d);
+        return (int) (l ^ (l >>> 32));
     }
 }

@@ -221,8 +221,6 @@ public class AlbersEqualAreaConicDescriptor implements MapTransformDescriptor {
         private double _rho0 = 0.0;
         private double e;
         private double _c;
-        private double _q;
-        private double _x0, _y0;
         private double es;
         private double _a;
         private double _lam0;
@@ -414,6 +412,21 @@ public class AlbersEqualAreaConicDescriptor implements MapTransformDescriptor {
             return geoPoint;
         }
 
+        public double getSemiMinor() {
+            return _parameterValues[SEMI_MINOR_INDEX];
+        }
+
+        public double getLatitudeOfOrigin() {
+            return _parameterValues[LATITUDE_OF_ORIGIN_INDEX];
+        }
+
+        public double getStandardParallel1() {
+            return _parameterValues[LATITUDE_OF_INTERSECTION_1_INDEX];
+        }
+
+        public double getStandardParallel2() {
+            return _parameterValues[LATITUDE_OF_INTERSECTION_2_INDEX];
+        }
     }
 
 }

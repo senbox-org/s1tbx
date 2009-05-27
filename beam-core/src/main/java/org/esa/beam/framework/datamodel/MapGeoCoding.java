@@ -23,10 +23,9 @@ import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 import org.geotools.referencing.crs.DefaultDerivedCRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
-import org.opengis.referencing.crs.GeographicCRS;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -83,14 +82,16 @@ public class MapGeoCoding extends AbstractGeoCoding {
             normalizedLonMin = -180;
         }
 
-        // TODO - IMPORTANT BUG HERE: derive base CRS from mapInfo.getMapProjection()    (nf, mp, 2009-03-05)
-        GeographicCRS baseCRS = DefaultGeographicCRS.WGS84;
-        setBaseCRS(baseCRS);
-        setGridCRS(new DefaultDerivedCRS("Grid CS based on " + baseCRS.getName(),
-                                         baseCRS,
-                                         new AffineTransform2D(modelToImageTransform),
-                                         DefaultCartesianCS.DISPLAY));
-        setModelCRS(baseCRS);
+        final CoordinateReferenceSystem baseCRS = CoordinateReferenceSystems.getCRS(mapInfo.getMapProjection(),
+                                                                                    mapInfo.getDatum());
+        if (baseCRS != null) {
+            setBaseCRS(baseCRS);
+            setGridCRS(new DefaultDerivedCRS("Grid CS based on " + baseCRS.getName(),
+                                             baseCRS,
+                                             new AffineTransform2D(modelToImageTransform),
+                                             DefaultCartesianCS.DISPLAY));
+            setModelCRS(baseCRS);
+        }
     }
 
     /**

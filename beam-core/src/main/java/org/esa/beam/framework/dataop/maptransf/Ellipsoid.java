@@ -39,28 +39,28 @@ public class Ellipsoid {
     /**
      * The GRS-80 ellipsoid
      */
-    public static final Ellipsoid GRS_80= new Ellipsoid("GRS-80", 6356752.3141, 6378137.0);
+    public static final Ellipsoid GRS_80 = new Ellipsoid("GRS-80", 6356752.3141, 6378137.0);
 
-    private final String _name;
-    private final double _semiMinor;
-    private final double _semiMajor;
+    private final String name;
+    private final double semiMinor;
+    private final double semiMajor;
 
     public Ellipsoid(String name, double semiMinor, double semiMajor) {
-        _name = name;
-        _semiMinor = semiMinor;
-        _semiMajor = semiMajor;
+        this.name = name;
+        this.semiMinor = semiMinor;
+        this.semiMajor = semiMajor;
     }
 
     public String getName() {
-        return _name;
+        return name;
     }
 
     public double getSemiMinor() {
-        return _semiMinor;
+        return semiMinor;
     }
 
     public double getSemiMajor() {
-        return _semiMajor;
+        return semiMajor;
     }
 
     @Override
@@ -70,5 +70,33 @@ public class Ellipsoid {
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Ellipsoid) {
+            final Ellipsoid that = (Ellipsoid) obj;
+            return this.name.equals(that.name) &&
+                   this.semiMajor == that.semiMajor &&
+                   this.semiMinor == that.semiMinor;
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+
+        result = 31 * result + name.hashCode();
+        result = 31 * result + hashCodeDouble(semiMajor);
+        result = 31 * result + hashCodeDouble(semiMinor);
+
+        return result;
+    }
+
+    private static int hashCodeDouble(double d) {
+        final long l = Double.doubleToLongBits(d);
+        return (int) (l ^ (l >>> 32));
     }
 }

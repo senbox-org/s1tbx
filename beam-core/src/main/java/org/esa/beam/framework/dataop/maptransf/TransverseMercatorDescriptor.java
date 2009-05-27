@@ -94,6 +94,7 @@ public class TransverseMercatorDescriptor implements MapTransformDescriptor {
      * The method delegates the call to <code>{@link org.esa.beam.framework.dataop.maptransf.UTM#registerProjections}</code>
      * in order to register all frequently used UTM projections.
      */
+    @Override
     public void registerProjections() {
         UTM.registerProjections();
         MapProjectionRegistry.registerProjection(new MapProjection(getName(), createTransform(null), false));
@@ -102,6 +103,7 @@ public class TransverseMercatorDescriptor implements MapTransformDescriptor {
     /**
      * Retrieves the type identifier for this transform.
      */
+    @Override
     public String getTypeID() {
         return TYPE_ID;
     }
@@ -109,6 +111,7 @@ public class TransverseMercatorDescriptor implements MapTransformDescriptor {
     /**
      * Gets a descriptive name for this map transformation descriptor, e.g. "Transverse Mercator".
      */
+    @Override
     public String getName() {
         return NAME;
     }
@@ -116,6 +119,7 @@ public class TransverseMercatorDescriptor implements MapTransformDescriptor {
     /**
      * Retrieves the unit of this transform.
      */
+    @Override
     public String getMapUnit() {
         return MAP_UNIT;
     }
@@ -123,6 +127,7 @@ public class TransverseMercatorDescriptor implements MapTransformDescriptor {
     /**
      * Gets the default parameter values for this map transform.
      */
+    @Override
     public double[] getParameterDefaultValues() {
     	final double[] values = new double[PARAMETER_DEFAULT_VALUES.length];
     	System.arraycopy(PARAMETER_DEFAULT_VALUES, 0, values, 0, values.length);
@@ -133,6 +138,7 @@ public class TransverseMercatorDescriptor implements MapTransformDescriptor {
     /**
      * Gets the parameter vector for this transform.
      */
+    @Override
     public Parameter[] getParameters() {
     	final Parameter[] parameters = new Parameter[PARAMETER_NAMES.length];
         
@@ -151,6 +157,7 @@ public class TransverseMercatorDescriptor implements MapTransformDescriptor {
      *
      * @return always <code>true</code>
      */
+    @Override
     public boolean hasTransformUI() {
         return true;
     }
@@ -164,6 +171,7 @@ public class TransverseMercatorDescriptor implements MapTransformDescriptor {
      *
      * @return the transformation UI, never null
      */
+    @Override
     public MapTransformUI getTransformUI(MapTransform transform) {
         return new DefaultMapTransformUI(transform);
     }
@@ -174,6 +182,7 @@ public class TransverseMercatorDescriptor implements MapTransformDescriptor {
      *
      * @param parameterValues the parameters needed by the transform
      */
+    @Override
     public MapTransform createTransform(double[] parameterValues) {
         if (parameterValues == null) {
             parameterValues = PARAMETER_DEFAULT_VALUES;
@@ -228,10 +237,12 @@ public class TransverseMercatorDescriptor implements MapTransformDescriptor {
             System.arraycopy(parameterValues, 0, _parameterValues, 0, parameterValues.length);
         }
 
+        @Override
         public MapTransformDescriptor getDescriptor() {
             return TransverseMercatorDescriptor.this;
         }
 
+        @Override
         public double[] getParameterValues() {
         	final double[] values = new double[_parameterValues.length];
         	System.arraycopy(_parameterValues, 0, values, 0, values.length);
@@ -331,8 +342,21 @@ public class TransverseMercatorDescriptor implements MapTransformDescriptor {
             return geoPoint;
         }
 
+        @Override
         public MapTransform createDeepClone() {
             return new TMT(_parameterValues);
+        }
+
+        public double getSemiMinor() {
+            return _parameterValues[SEMI_MINOR_INDEX];
+        }
+
+        public double getLatitudeOfOrigin() {
+            return _parameterValues[LATITUDE_OF_ORIGIN_INDEX];
+        }
+
+        public double getScaleFactor() {
+            return _parameterValues[SCALE_FACTOR_INDEX];
         }
     }
 }

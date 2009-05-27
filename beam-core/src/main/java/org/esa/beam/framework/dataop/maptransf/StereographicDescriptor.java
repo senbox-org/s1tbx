@@ -24,7 +24,7 @@ public class StereographicDescriptor implements MapTransformDescriptor {
 
     private static final int SEMI_MAJOR_INDEX = 0;
     private static final int SEMI_MINOR_INDEX = 1;
-    private static final int CENTRAL_PARALLEL_INDEX = 2;
+    private static final int LATITUDE_OF_ORIGIN_INDEX = 2;
     private static final int CENTRAL_MERIDIAN_INDEX = 3;
     private static final int SCALE_FACTOR_INDEX = 4;
     private static final int FALSE_EASTING_INDEX = 5;
@@ -33,7 +33,7 @@ public class StereographicDescriptor implements MapTransformDescriptor {
     private static final String[] PARAMETER_NAMES = new String[]{
         "semi_major",
         "semi_minor",
-        "central_parallel",
+        "latitude_of_origin",
         "central_meridian",
         "scale_factor",
         "false_easting",
@@ -43,7 +43,7 @@ public class StereographicDescriptor implements MapTransformDescriptor {
     private static final String[] PARAMETER_LABELS = new String[]{
         "Semi major",
         "Semi minor",
-        "Central parallel",
+        "Latitude of origin",
         "Central meridian",
         "Scale factor",
         "False easting",
@@ -262,7 +262,7 @@ public class StereographicDescriptor implements MapTransformDescriptor {
 
             _e = Math.sqrt(1.0 - (b * b) / (_a * _a));
 
-            final double phi0 = Math.toRadians(parameterValues[CENTRAL_PARALLEL_INDEX]);
+            final double phi0 = Math.toRadians(parameterValues[LATITUDE_OF_ORIGIN_INDEX]);
             final double k0 = parameterValues[SCALE_FACTOR_INDEX];
             final double absphi0 = Math.abs(phi0);
 
@@ -435,6 +435,26 @@ public class StereographicDescriptor implements MapTransformDescriptor {
         @Override
         public MapTransform createDeepClone() {
             return new ST(_parameterValues);
+        }
+
+        public double getSemiMinor() {
+            return _parameterValues[SEMI_MINOR_INDEX];
+        }
+
+        public double getLatitudeOfOrigin() {
+            return _parameterValues[LATITUDE_OF_ORIGIN_INDEX];
+        }
+
+        public double getScaleFactor() {
+            return _parameterValues[SCALE_FACTOR_INDEX];
+        }
+
+        public boolean isPolar() {
+            return _mode == N_POLE || _mode == S_POLE;
+        }
+
+        public boolean isOblique() {
+            return _mode == OBLIQ;
         }
     }
 }

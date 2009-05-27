@@ -446,7 +446,7 @@ public class GeoTiffWriteReadTest {
                     StereographicDescriptor.TYPE_ID);
         final double[] values = descriptor.getParameterDefaultValues();
         for (int i = 0; i < values.length; i++) {
-            values[i] = values[i] + 0.001;
+            values[i] = values[i] - 0.001;
         }
         final MapTransform transform = descriptor.createTransform(values);
         final MapProjection mapProjection = new MapProjection(descriptor.getTypeID(), transform);
@@ -461,7 +461,7 @@ public class GeoTiffWriteReadTest {
                     LambertConformalConicDescriptor.TYPE_ID);
         final double[] values = descriptor.getParameterDefaultValues();
         for (int i = 0; i < values.length; i++) {
-            values[i] = values[i] + 0.001;
+            values[i] = values[i] - 0.001;
         }
         final MapTransform transform = descriptor.createTransform(values);
         final MapProjection mapProjection = new MapProjection(descriptor.getTypeID(), transform);
