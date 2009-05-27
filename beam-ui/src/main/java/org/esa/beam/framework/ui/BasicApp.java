@@ -781,7 +781,7 @@ public class BasicApp {
     /**
      * Clears the status bar message. Simply calls <code>setStatusBarMessage(&quot; Ready.&quot;)</code>.
      */
-    public final void clearStatusBarMessage() {
+    public void clearStatusBarMessage() {
         setStatusBarMessage("Ready."); /*I18N*/
     }
 

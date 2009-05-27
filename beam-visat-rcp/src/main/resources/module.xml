@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.6:<br/>
+          [BEAM-997] VISAT should display a band's coordinate system<br/>
           [BEAM-996] Let user specify dimension of exported images<br/>
           [BEAM-995] Exporting image yields out-of-memory error<br/>
           [BEAM-994] VISAT "Save As" command shall not close views anymore<br/>
