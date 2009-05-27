@@ -12,6 +12,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.SplashScreen;
@@ -32,7 +33,7 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
     private static final String CONFIG_KEY_TASK_LABEL_ENABLED = "splash.taskLabel.enabled";
     private static final String CONFIG_KEY_TASK_LABEL_FONT = "splash.taskLabel.font";
     private static final String CONFIG_KEY_TASK_LABEL_COLOR = "splash.taskLabel.color";
-    private static final String CONFIG_KEY_TASK_LABEL_AREA = "splash.taskLabel.area";
+    private static final String CONFIG_KEY_TASK_LABEL_POS = "splash.taskLabel.pos";
 
     private Splash splashScreen;
     private String taskName;
@@ -46,6 +47,7 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
     private boolean taskLabelEnabled;
     private Font taskLabelFont;
     private Color taskLabelColor;
+    private Point taskLabelPos;
     private Color progressBarColor;
     private Rectangle progressBarArea;
     private int pixelsWorked;
@@ -83,23 +85,8 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         Assert.notNull(splashScreen, "splashScreen");
         this.splashScreen = splashScreen;
 
-        taskLabelEnabled = getConfiguredTaskNameEnabled(config);
-        if (taskLabelEnabled) {
-            taskLabelFont = new Font("Verdana", Font.ITALIC, 10); // todo getConfiguredTaskLabelFont(config);
-            taskLabelColor = getConfiguredTaskLabelColor(config);
-            if (taskLabelColor == null) {
-                taskLabelColor = Color.WHITE;
-            }
-        }
-
-        graphics = this.splashScreen.createGraphics();
-        graphics.setFont(taskLabelFont);
-        graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
         Dimension size = this.splashScreen.getSize();
         splashArea = new Rectangle(size);
-        message = "";
 
         progressBarColor = getConfiguredSplashProgressBarColor(config);
         if (progressBarColor == null) {
@@ -116,6 +103,25 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
                                             splashArea.width,
                                             progressBarHeight);
         }
+
+        taskLabelEnabled = getConfiguredTaskNameEnabled(config);
+        if (taskLabelEnabled) {
+            taskLabelFont = new Font("Verdana", Font.ITALIC, 10); // todo getConfiguredTaskLabelFont(config);
+            taskLabelColor = getConfiguredTaskLabelColor(config);
+            if (taskLabelColor == null) {
+                taskLabelColor = Color.WHITE;
+            }
+            taskLabelPos = getConfiguredTaskLabelPos(config);
+            if (taskLabelPos == null) {
+                taskLabelPos = new Point(progressBarArea.x,
+                                         progressBarArea.y + progressBarArea.height + 10);
+            }
+        }
+
+        graphics = this.splashScreen.createGraphics();
+        graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        message = "";
     }
 
     public Splash getSplash() {
@@ -233,7 +239,7 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
     private void paintTaskLabel() {
         graphics.setColor(taskLabelColor);
         graphics.setFont(taskLabelFont);
-        graphics.drawString(message, progressBarArea.x, progressBarArea.y + progressBarArea.height + 10);
+        graphics.drawString(message, taskLabelPos.x, taskLabelPos.y);
     }
 
     private static BufferedImage loadImage(String imageFilePath) {
@@ -289,6 +295,22 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
                 int w = Integer.parseInt(st.nextToken());
                 int h = Integer.parseInt(st.nextToken());
                 return new Rectangle(x, y, w, h);
+            } catch (Exception e) {
+                // null is returned
+            }
+        }
+        return null;
+    }
+
+    private static Point getConfiguredTaskLabelPos(RuntimeConfig config) {
+        String posStr = config.getContextProperty(CONFIG_KEY_TASK_LABEL_POS);
+        StringTokenizer st = new StringTokenizer(posStr, ",");
+        int n = st.countTokens();
+        if (n == 2) {
+            try {
+                int x = Integer.parseInt(st.nextToken());
+                int y = Integer.parseInt(st.nextToken());
+                return new Point(x, y);
             } catch (Exception e) {
                 // null is returned
             }
