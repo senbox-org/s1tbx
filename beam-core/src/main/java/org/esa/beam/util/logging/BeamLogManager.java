@@ -189,8 +189,7 @@ public class BeamLogManager {
      */
     public static BeamFormatter createFormatter(String appName, String appVersion, String copyrightInfo) {
         final String logHeader = createLogHeader(appName, appVersion, copyrightInfo);
-        final BeamFormatter beamFormatter = new BeamFormatter(logHeader);
-        return beamFormatter;
+        return new BeamFormatter(logHeader);
     }
 
     /**

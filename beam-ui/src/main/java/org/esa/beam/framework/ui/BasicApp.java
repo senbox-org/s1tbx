@@ -54,6 +54,7 @@ import org.esa.beam.util.io.FileChooserFactory;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.logging.CacheHandler;
+import org.esa.beam.BeamUiActivator;
 
 import javax.help.HelpSet;
 import javax.help.HelpSetException;
@@ -477,6 +478,10 @@ public class BasicApp {
     }
 
     private void initLogger() {
+        if (BeamUiActivator.getInstance() != null) {
+            final Logger logger = BeamUiActivator.getInstance().getModuleContext().getLogger();
+            BeamLogManager.setSystemLoggerName(logger.getName());
+        }
         _logFormatter = BeamLogManager.createFormatter(getAppName(), getAppVersion(), getAppCopyright());
         // todo - check logging, use Ceres logger! (nf - 05.05.2009)
         //BeamLogManager.configureSystemLogger(_logFormatter, false);
