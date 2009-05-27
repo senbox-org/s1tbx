@@ -38,7 +38,7 @@ public class WmsLayer extends Layer {
         try {
             mapServer = getWmsServer(configuration);
         } catch (Exception e) {
-            final String message = String.format("Not able to access Web Map Server: %s",
+            final String message = String.format("Not able to access Web Mapping Server: %s",
                                                  configuration.getValue(WmsLayerType.PROPERTY_NAME_URL));
             throw new RuntimeException(message, e);
         }

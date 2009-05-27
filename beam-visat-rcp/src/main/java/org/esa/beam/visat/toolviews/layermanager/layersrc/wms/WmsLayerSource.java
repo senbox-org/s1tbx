@@ -17,6 +17,7 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
@@ -34,7 +35,9 @@ public class WmsLayerSource implements LayerSource {
 
     @Override
     public boolean isApplicable(LayerSourcePageContext pageContext) {
-        return true;
+        ProductSceneView view = pageContext.getAppContext().getSelectedProductSceneView();
+        RasterDataNode raster = view.getRaster();
+        return raster.getGeoCoding() instanceof MapGeoCoding;
     }
 
     @Override
@@ -64,10 +67,7 @@ public class WmsLayerSource implements LayerSource {
     static void insertWmsLayer(LayerSourcePageContext pageContext) {
         ProductSceneView view = pageContext.getAppContext().getSelectedProductSceneView();
         RasterDataNode raster = view.getRaster();
-
-        WmsLayerWorker layerWorker = new WmsLayerWorker(view.getRootLayer(),
-                                                        raster,
-                                                        pageContext);
+        WmsLayerWorker layerWorker = new WmsLayerWorker(pageContext, raster);
         layerWorker.execute();   // todo - don't close dialog before image is downloaded! (nf)
     }
 }

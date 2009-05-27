@@ -116,7 +116,7 @@ class WmsAssistantPage3 extends AbstractLayerSourceAssistantPage {
         showMessage("<html><i>Loading map...</i></html>");
 
         CRSEnvelope crsEnvelope = (CRSEnvelope) getContext().getPropertyValue(WmsLayerSource.PROPERTY_NAME_CRS_ENVELOPE);
-        previewWorker = new WmsPreviewWorker(getPreviewSize(crsEnvelope), getContext());
+        previewWorker = new WmsPreviewWorker(getContext(), getPreviewSize(crsEnvelope));
         previewWorker.execute();
 
         // todo - AppContext.addWorker(previewWorker);  (nf)
@@ -198,8 +198,8 @@ class WmsAssistantPage3 extends AbstractLayerSourceAssistantPage {
     private class WmsPreviewWorker extends WmsWorker {
 
 
-        private WmsPreviewWorker(Dimension size, LayerSourcePageContext pageContext) {
-            super(size, pageContext);
+        private WmsPreviewWorker(LayerSourcePageContext pageContext, Dimension mapImageSize) {
+            super(pageContext, mapImageSize);
         }
 
         @Override

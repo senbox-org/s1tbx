@@ -26,6 +26,7 @@ import javax.swing.tree.TreePath;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Rectangle;
+import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
@@ -74,7 +75,7 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
         WMSCapabilities wmsCapabilities = (WMSCapabilities) context.getPropertyValue(
                 WmsLayerSource.PROPERTY_NAME_WMS_CAPABILITIES);
-        layerTree = new JTree(new WMSTreeModel(wmsCapabilities.getLayer()));
+        layerTree = new JTree(new WmsTreeModel(wmsCapabilities.getLayer()));
         layerTree.setRootVisible(false);
         layerTree.setShowsRootHandles(true);
         layerTree.setExpandsSelectedPaths(true);
@@ -162,9 +163,9 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
             TreePath selectedLayerPath = layerTree.getSelectionModel().getSelectionPath();
             Layer selectedLayer = (Layer) selectedLayerPath.getLastPathComponent();
             if (selectedLayer != null) {
-                infoLabel.setText(getLatLonBoundingBoxText(selectedLayer.getLatLonBoundingBox()));
                 String crsCode = getMatchingCRSCode(selectedLayer);
                 if (crsCode == null) {
+                    infoLabel.setForeground(Color.RED.darker());
                     infoLabel.setText("Coordinate system not supported.");
                 } else {
                     RasterDataNode raster = context.getAppContext().getSelectedProductSceneView().getRaster();
@@ -184,8 +185,11 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
                         context.setPropertyValue(WmsLayerSource.PROPERTY_NAME_SELECTED_STYLE, null);
                     }
                     context.setPropertyValue(WmsLayerSource.PROPERTY_NAME_SELECTED_LAYER, selectedLayer);
+                    infoLabel.setForeground(Color.DARK_GRAY);
+                    infoLabel.setText(getLatLonBoundingBoxText(selectedLayer.getLatLonBoundingBox()));
                 }
             } else {
+                infoLabel.setForeground(Color.DARK_GRAY);
                 infoLabel.setText("");
             }
             context.updateState();
@@ -193,11 +197,11 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
     }
 
-    private static class WMSTreeModel extends AbstractTreeModel {
+    private static class WmsTreeModel extends AbstractTreeModel {
 
         private Layer rootLayer;
 
-        private WMSTreeModel(Layer rootLayer) {
+        private WmsTreeModel(Layer rootLayer) {
             this.rootLayer = rootLayer;
         }
 

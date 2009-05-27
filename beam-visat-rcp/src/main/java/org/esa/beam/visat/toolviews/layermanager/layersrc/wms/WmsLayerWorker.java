@@ -6,53 +6,20 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 
-import javax.swing.JDialog;
-import javax.swing.JProgressBar;
-import javax.swing.SwingUtilities;
-import java.awt.BorderLayout;
-import java.awt.Dialog;
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.util.concurrent.ExecutionException;
 
 class WmsLayerWorker extends WmsWorker {
 
     private final Layer rootLayer;
-    private JDialog dialog;
 
-    WmsLayerWorker(Layer rootLayer,
-                   RasterDataNode raster,
-                   LayerSourcePageContext pageContext) {
-        super(getFinalImageSize(raster), pageContext);
-        this.rootLayer = rootLayer;
-        dialog = new JDialog(pageContext.getWindow(), "Loading image from WMS...",
-                             Dialog.ModalityType.DOCUMENT_MODAL);
-        JProgressBar progressBar = new JProgressBar();
-        progressBar.setIndeterminate(true);
-        dialog.getContentPane().add(progressBar, BorderLayout.SOUTH);
-        dialog.pack();
-    }
-
-    @Override
-    protected Layer doInBackground() throws Exception {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                Rectangle parentBounds = getContext().getWindow().getBounds();
-                Rectangle bounds = dialog.getBounds();
-                dialog.setLocation(parentBounds.x + (parentBounds.width - bounds.width) / 2,
-                                   parentBounds.y + (parentBounds.height - bounds.height) / 2);
-                dialog.setVisible(true);
-            }
-        });
-
-        return super.doInBackground();
+    WmsLayerWorker(LayerSourcePageContext pageContext, RasterDataNode raster) {
+        super(pageContext, getFinalImageSize(raster));
+        this.rootLayer = pageContext.getLayerContext().getRootLayer();
     }
 
     @Override
     protected void done() {
-        dialog.dispose();
-
         try {
             Layer layer = get();
             try {
