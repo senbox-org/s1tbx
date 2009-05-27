@@ -4,10 +4,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-	    <groupId>com.bc.ceres</groupId>
-	    <artifactId>ceres</artifactId>
-	    <version>0.9-SNAPSHOT</version>
-	</parent>
+        <groupId>com.bc.ceres</groupId>
+        <artifactId>ceres</artifactId>
+        <version>0.9-SNAPSHOT</version>
+    </parent>
 
     <groupId>com.bc.ceres</groupId>
     <artifactId>ceres-binding</artifactId>
@@ -19,10 +19,6 @@
         <dependency>
             <groupId>com.bc.ceres</groupId>
             <artifactId>ceres-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-ui</artifactId>
         </dependency>
     </dependencies>
 
