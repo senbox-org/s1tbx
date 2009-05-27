@@ -5,7 +5,6 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.glayer.Style;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.jidesoft.tree.AbstractTreeModel;
 import org.esa.beam.framework.datamodel.Band;
@@ -32,6 +31,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.geom.AffineTransform;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,8 +93,12 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         ValueContainer configuration = type.getConfigurationTemplate();
         try {
             configuration.setValue(RasterImageLayerType.PROPERTY_NAME_RASTER, rasterDataNode);
-            configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
-                                   rasterDataNode.getGeoCoding().getImageToModelTransform());
+            final GeoCoding geoCoding = rasterDataNode.getGeoCoding();
+            AffineTransform i2mTransform = new AffineTransform();
+            if (geoCoding != null) {
+                i2mTransform = geoCoding.getImageToModelTransform();
+            }
+            configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
             configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
             configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
             configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
