@@ -192,12 +192,7 @@ public class Session {
             } catch (ConversionException e) {
                 e.printStackTrace();
             }
-            layerRefs[i] = new LayerRef(layer.getLayerType().getClass().getName(),
-                                        layer.getId(),
-                                        layer.getName(),
-                                        layer.isVisible(),
-                                        i,
-                                        element,
+            layerRefs[i] = new LayerRef(layer, i, element,
                                         getLayerRefs(layerContext, layer.getChildren(), productManager));
         }
         return layerRefs;
@@ -332,6 +327,11 @@ public class Session {
                             final LayerRef ref = viewRef.getLayerRef(i);
                             if (!view.getBaseImageLayer().getId().equals(ref.id)) {
                                 addLayerRef(view.getLayerContext(), view.getRootLayer(), ref, productManager);
+                            } else {
+                                // The BaseImageLayer is not restored by LayerRef, so we have to adjust
+                                // transparency and visibility  manually
+                                view.getBaseImageLayer().setTransparency(ref.transparency);
+                                view.getBaseImageLayer().setVisible(ref.visible);
                             }
                         }
                     } else if (ProductMetadataView.class.getName().equals(viewRef.type)) {
@@ -382,6 +382,7 @@ public class Session {
         final Layer layer = type.createLayer(layerContext, template);
         layer.setId(layerRef.id);
         layer.setVisible(layerRef.visible);
+        layer.setTransparency(layerRef.transparency);
         layer.setName(layerRef.name);
         parentLayer.getChildren().add(layerRef.zOrder, layer);
         for (LayerRef child : layerRef.children) {
@@ -483,18 +484,18 @@ public class Session {
         final String id;
         final String name;
         final boolean visible;
+        final double transparency;
         final int zOrder;
         @XStreamConverter(DomElementXStreamConverter.class)
         final DomElement configuration;
         final LayerRef[] children;
 
-        public LayerRef(String layerTypeName, String id, String name, boolean visible, int zOrder,
-                        DomElement configuration,
-                        LayerRef[] children) {
-            this.layerTypeName = layerTypeName;
-            this.id = id;
-            this.name = name;
-            this.visible = visible;
+        public LayerRef(Layer layer, int zOrder, DomElement configuration, LayerRef[] children) {
+            this.layerTypeName = layer.getLayerType().getClass().getName();
+            this.id = layer.getId();
+            this.name = layer.getName();
+            this.visible = layer.isVisible();
+            this.transparency = layer.getTransparency();
             this.zOrder = zOrder;
             this.configuration = configuration;
             this.children = children;
