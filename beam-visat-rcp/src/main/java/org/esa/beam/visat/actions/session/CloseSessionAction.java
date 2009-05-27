@@ -41,6 +41,7 @@ public class CloseSessionAction extends ExecCommand {
 
     @Override
     public void updateState(final CommandEvent event) {
-        setEnabled(VisatApp.getApp().getSessionFile() != null);
+        final VisatApp app = VisatApp.getApp();
+        setEnabled(app.getProductManager().getProductCount() > 0 || app.getSessionFile() != null);
     }
 }
