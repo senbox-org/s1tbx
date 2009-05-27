@@ -13,11 +13,22 @@ import com.bc.ceres.glayer.support.LayerUtils;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.draw.Figure;
-import org.esa.beam.glayer.*;
+import org.esa.beam.glayer.BitmaskCollectionLayer;
+import org.esa.beam.glayer.BitmaskLayerType;
+import org.esa.beam.glayer.FigureLayer;
+import org.esa.beam.glayer.FigureLayerType;
+import org.esa.beam.glayer.GraticuleLayer;
+import org.esa.beam.glayer.GraticuleLayerType;
+import org.esa.beam.glayer.NoDataLayerType;
+import org.esa.beam.glayer.PlacemarkLayer;
+import org.esa.beam.glayer.RasterImageLayerType;
+import org.esa.beam.glayer.RgbImageLayerType;
+import org.esa.beam.glayer.RoiLayerType;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.util.PropertyMap;
 
@@ -116,7 +127,11 @@ public class ProductSceneImage implements LayerContext {
 
     @Override
     public Object getCoordinateReferenceSystem() {
-        return rasters[0].getGeoCoding().getModelCRS();
+        final GeoCoding geoCoding = rasters[0].getGeoCoding();
+        if (geoCoding != null) {
+            return geoCoding.getModelCRS();
+        }
+        return null;
     }
 
     @Override
