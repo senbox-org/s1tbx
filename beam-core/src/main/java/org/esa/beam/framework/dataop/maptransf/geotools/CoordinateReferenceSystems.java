@@ -30,7 +30,7 @@ public class CoordinateReferenceSystems {
         try {
             ITRF97 = crsFactory.createGeocentricCRS("EPSG:4918");
             WGS72 = crsFactory.createGeographicCRS("EPSG:4322");
-            WGS84 = crsFactory.createGeographicCRS("EPSG:4326");
+            WGS84 = DefaultGeographicCRS.WGS84;
         } catch (FactoryException e) {
             throw new IllegalStateException(e);
         }

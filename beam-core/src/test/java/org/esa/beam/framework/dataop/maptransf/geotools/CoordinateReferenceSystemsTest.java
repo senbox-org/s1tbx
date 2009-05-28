@@ -7,6 +7,7 @@ import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
 import org.esa.beam.framework.dataop.maptransf.geotools.CoordinateReferenceSystems;
 import org.geotools.referencing.ReferencingFactoryFinder;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
@@ -27,7 +28,7 @@ public class CoordinateReferenceSystemsTest extends TestCase {
                    CoordinateReferenceSystems.getCRS(gp, Datum.ITRF_97));
         assertSame(factory.createCoordinateReferenceSystem("EPSG:4322"),
                    CoordinateReferenceSystems.getCRS(gp, Datum.WGS_72));
-        assertSame(factory.createCoordinateReferenceSystem("EPSG:4326"),
+        assertSame(DefaultGeographicCRS.WGS84,
                    CoordinateReferenceSystems.getCRS(gp, Datum.WGS_84));
 
         for (final MapProjection projection : MapProjectionRegistry.getProjections()) {
