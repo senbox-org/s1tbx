@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class BlueMarbleWorldMapLayer extends Layer {
 
-    private static final String WORLD_IMAGE_DIR_PROPERTY_NAME = "org.esa.beam.pview.worldImageDir";
+    private static final String WORLD_IMAGE_DIR_PROPERTY_NAME = "org.esa.beam.worldImageDir";
     private static final String WORLD_MAP_LAYER_NAME = "World Map (NASA Blue Marble)";
     private ImageLayer layerDelegate;
 
