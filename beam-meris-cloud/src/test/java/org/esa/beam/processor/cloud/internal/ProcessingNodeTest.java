@@ -42,31 +42,6 @@ public class ProcessingNodeTest extends TestCase {
         assertNull(targetProcessingNode.getFrameData("W"));
     }
 
-    public void testProcessFrameIsCalledOncePerFrame() throws IOException {
-
-        final int[] pixelData = new int[4];
-
-        targetProduct.getBand("U").readPixels(0, 0, 4, 1, pixelData, ProgressMonitor.NULL);
-        assertEquals("processFrame(0,0,4,1);", targetProcessingNode.getCallString());
-        targetProduct.getBand("V").readPixels(0, 0, 4, 1, pixelData, ProgressMonitor.NULL);
-        assertEquals("processFrame(0,0,4,1);", targetProcessingNode.getCallString());
-        targetProduct.getBand("W").readPixels(0, 0, 4, 1, pixelData, ProgressMonitor.NULL);
-        assertEquals("processFrame(0,0,4,1);", targetProcessingNode.getCallString());
-
-        targetProduct.getBand("U").readPixels(0, 2, 4, 1, pixelData, ProgressMonitor.NULL);
-        assertEquals("processFrame(0,0,4,1);processFrame(0,2,4,1);", targetProcessingNode.getCallString());
-        targetProduct.getBand("V").readPixels(0, 2, 4, 1, pixelData, ProgressMonitor.NULL);
-        assertEquals("processFrame(0,0,4,1);processFrame(0,2,4,1);", targetProcessingNode.getCallString());
-        targetProduct.getBand("W").readPixels(0, 2, 4, 1, pixelData, ProgressMonitor.NULL);
-        assertEquals("processFrame(0,0,4,1);processFrame(0,2,4,1);", targetProcessingNode.getCallString());
-        targetProduct.getBand("U").readPixels(0, 2, 4, 1, pixelData, ProgressMonitor.NULL);
-        assertEquals("processFrame(0,0,4,1);processFrame(0,2,4,1);", targetProcessingNode.getCallString());
-
-        targetProduct.getBand("U").readPixels(3, 0, 1, 4, pixelData, ProgressMonitor.NULL);
-        assertEquals("processFrame(0,0,4,1);processFrame(0,2,4,1);processFrame(3,0,1,4);",
-                     targetProcessingNode.getCallString());
-    }
-
     public void testThatDataIsProcessedCorrectly() throws IOException {
         final int[] pixelData = new int[4];
         //
