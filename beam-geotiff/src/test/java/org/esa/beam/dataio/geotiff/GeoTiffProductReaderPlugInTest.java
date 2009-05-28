@@ -1,6 +1,7 @@
 package org.esa.beam.dataio.geotiff;
 
 import com.sun.media.jai.codec.ByteArraySeekableStream;
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
@@ -118,7 +119,7 @@ public class GeoTiffProductReaderPlugInTest {
         writer.writeGeoTIFFProduct(outputStream, product);
         final Band[] bands = product.getBands();
         for (Band band : bands) {
-            band.writeRasterDataFully();
+            band.writeRasterDataFully(ProgressMonitor.NULL);
         }
         outputStream.flush();
         return new MemoryCacheImageInputStream(new ByteArraySeekableStream(byteStream.toByteArray()));
