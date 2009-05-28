@@ -29,7 +29,7 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
 
     @Override
     public String getName() {
-        return "Nasa Blue Marble";
+        return "NASA Blue Marble";
     }
 
     @Override

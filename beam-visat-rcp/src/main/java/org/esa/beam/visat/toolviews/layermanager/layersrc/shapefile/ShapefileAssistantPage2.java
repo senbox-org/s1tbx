@@ -4,6 +4,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.geotools.styling.Style;
 import org.opengis.util.InternationalString;
 
@@ -108,7 +109,7 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
             }
         }
         mapLabel.setText("<html><i>Loading map...</i></html>");
-        showInMapPanel(mapLabel);
+        addToMapPanel(mapLabel);
         final LayerSourcePageContext context = getContext();
         context.getWindow().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
@@ -119,7 +120,7 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         worker.execute();
     }
 
-    private void showInMapPanel(Component component) {
+    private void addToMapPanel(Component component) {
         if (resizeAdapter == null && component instanceof LayerCanvas) {
             final LayerCanvas layerCanvas = (LayerCanvas) component;
             resizeAdapter = new ResizeAdapter(layerCanvas);
@@ -170,13 +171,14 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         protected void done() {
             final LayerSourcePageContext context = getContext();
             context.getWindow().setCursor(Cursor.getDefaultCursor());
-
+            final ProductSceneView sceneView = context.getAppContext().getSelectedProductSceneView();
             try {
                 final Layer layer = get();
                 final LayerCanvas layerCanvas = new LayerCanvas(layer);
-                showInMapPanel(layerCanvas);
+                layerCanvas.getViewport().setModelYAxisDown(sceneView.getLayerCanvas().getViewport().isModelYAxisDown());
+                addToMapPanel(layerCanvas);
                 final Rectangle2D bounds = layer.getModelBounds();
-                infoLabel.setText(String.format("Model Bounds [%.3f : %.3f, %.3f : %.3f]",
+                infoLabel.setText(String.format("Model bounds [%.3f : %.3f, %.3f : %.3f]",
                                                 bounds.getMinX(), bounds.getMinY(),
                                                 bounds.getMaxX(), bounds.getMaxY()));
 
@@ -190,7 +192,7 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
                                                                  e.getMessage());
                 e.printStackTrace();
                 mapLabel.setText(errorMessage);
-                showInMapPanel(mapLabel);
+                addToMapPanel(mapLabel);
             } catch (InterruptedException ignore) {
                 // ok
             } finally {

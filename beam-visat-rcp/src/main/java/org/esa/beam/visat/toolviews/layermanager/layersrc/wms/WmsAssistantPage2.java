@@ -99,7 +99,7 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
         String modelSRS = CRS.toSRS(modelCRS);
         if (modelSRS != null) {
             for (String srs : srsSet) {
-                if (srs.equals(modelSRS)) {
+                if (srs.equalsIgnoreCase(modelSRS)) {
                     return srs;
                 }
             }

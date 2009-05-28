@@ -1088,7 +1088,6 @@ public class ProductSceneView extends BasicView
         return baseImageLayer.getImageToModelTransform().getDeterminant() > 0.0;
     }
 
-
     private void registerLayerCanvasListeners() {
         layerCanvasComponentHandler = new LayerCanvasComponentHandler();
         layerCanvasMouseHandler = new LayerCanvasMouseHandler();

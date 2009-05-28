@@ -20,6 +20,7 @@ import org.geotools.styling.Style;
 import org.geotools.styling.StyleBuilder;
 import org.geotools.styling.TextSymbolizer;
 import org.geotools.styling.visitor.DuplicatingStyleVisitor;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.expression.Expression;
@@ -77,6 +78,10 @@ public class FeatureLayer extends Layer {
         Style style = (Style) configuration.getValue(FeatureLayerType.PROPERTY_NAME_SLD_STYLE);
 
         crs = fc.getSchema().getGeometryDescriptor().getCoordinateReferenceSystem();
+        if (crs == null) {
+            // todo - check me! Why can this happen??? (nf)
+            crs = DefaultGeographicCRS.WGS84;
+        }
         final ReferencedEnvelope envelope = new ReferencedEnvelope(fc.getBounds(), crs);
         modelBounds = new Rectangle2D.Double(envelope.getMinX(), envelope.getMinY(),
                                              envelope.getWidth(), envelope.getHeight());

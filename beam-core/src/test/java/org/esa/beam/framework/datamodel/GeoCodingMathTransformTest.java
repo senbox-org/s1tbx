@@ -30,6 +30,21 @@ import java.awt.geom.Point2D;
  */
 public class GeoCodingMathTransformTest extends TestCase {
 
+    public void testWGS84() throws FactoryException, TransformException {
+        String expected = "GEOGCS[\"WGS 84\",\n" +
+                "    DATUM[\"WGS_1984\",\n" +
+                "        SPHEROID[\"WGS 84\",6378137,298.257223563,\n" +
+                "            AUTHORITY[\"EPSG\",\"7030\"]],\n" +
+                "        AUTHORITY[\"EPSG\",\"6326\"]],\n" +
+                "    PRIMEM[\"Greenwich\",0,\n" +
+                "        AUTHORITY[\"EPSG\",\"8901\"]],\n" +
+                "    UNIT[\"degree\",0.01745329251994328,\n" +
+                "        AUTHORITY[\"EPSG\",\"9122\"]],\n" +
+                "    AUTHORITY[\"EPSG\",\"4326\"]]";
+
+        final String actual = DefaultGeographicCRS.WGS84.toWKT();
+        //assertEquals(expected, actual);
+    }
     public void testIt() throws FactoryException, TransformException {
 
         AffineTransform at = new AffineTransform();

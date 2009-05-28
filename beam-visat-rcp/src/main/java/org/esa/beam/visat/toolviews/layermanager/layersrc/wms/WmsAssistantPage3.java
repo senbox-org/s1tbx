@@ -162,7 +162,7 @@ class WmsAssistantPage3 extends AbstractLayerSourceAssistantPage {
         mapPanel.repaint();
     }
 
-    private void showLayerCanvas(LayerCanvas canvas) {
+    private void addLayerCanvas(LayerCanvas canvas) {
         mapPanel.removeAll();
         mapPanel.add(canvas, BorderLayout.CENTER);
         mapPanel.validate();
@@ -210,7 +210,7 @@ class WmsAssistantPage3 extends AbstractLayerSourceAssistantPage {
                 final LayerCanvas layerCanvas = new LayerCanvas(layer);
                 layerCanvas.getViewport().setModelYAxisDown(false);
 
-                showLayerCanvas(layerCanvas);
+                addLayerCanvas(layerCanvas);
             } catch (ExecutionException e) {
                 error = e.getCause();
                 showMessage(String.format("<html><b>Error:</b> <i>%s</i></html>", error.getMessage()));
