@@ -21,7 +21,6 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProgressListener;
 
 import java.io.IOException;
 
@@ -145,11 +144,15 @@ public interface ProductWriter {
 
     /**
      * Complete deletes the physical representation of the given product from the file system.
+     *
+     * @throws IOException if an I/O error occurs
      */
     void deleteOutput() throws IOException;
 
     /**
-     * Implement this method to physically delete a <code>Band</code> from a product writer's output.
+     * Physically deletes a <code>Band</code> in a product writer's output.
+     *
+     * @param band The band to delete.
      */
     void removeBand(Band band);
 }
