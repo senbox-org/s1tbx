@@ -12,7 +12,6 @@ import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.visat.VisatApp;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
@@ -44,7 +43,6 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
     private final RasterDataNode[] initialChannelSources;
     private final RasterDataNode[] currentChannelSources;
     private final List<RasterDataNode> channelSourcesList;
-    private final RasterDataUnloader rasterDataUnloader;
     private final ChangeListener applyEnablerCL;
     private final BindingContext bindingContext;
     private final MoreOptionsForm moreOptionsForm;
@@ -64,7 +62,6 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
         imageInfoEditorSupport = new ImageInfoEditorSupport(imageInfoEditor);
         applyEnablerCL = parentForm.createApplyEnablerChangeListener();
         moreOptionsForm = new MoreOptionsForm(parentForm, true);
-        rasterDataUnloader = new RasterDataUnloader();
         models = new ImageInfoEditorModel3B[3];
         initialChannelSources = new RasterDataNode[3];
         currentChannelSources = new RasterDataNode[3];
@@ -279,7 +276,6 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
         if (newChannelSource != oldChannelSource) {
             final Stx stx = this.parentForm.getStx(newChannelSource);
             if (stx != null) {
-                rasterDataUnloader.unloadUnusedRasterData(oldChannelSource);
                 currentChannelSources[channel] = newChannelSource;
                 final ImageInfo imageInfo = this.parentForm.getImageInfo();
                 imageInfo.getRgbChannelDef().setSourceName(channel, channelSourceName);
@@ -299,21 +295,4 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
             }
         }
     }
-
-    private static class RasterDataUnloader {
-
-
-        public RasterDataUnloader() {
-        }
-
-        public void unloadUnusedRasterData(final RasterDataNode raster) {
-            if (raster == null) {
-                return;
-            }
-            if (!VisatApp.getApp().hasRasterProductSceneView(raster) && !raster.isSynthetic()) {
-                raster.unloadRasterData();
-            }
-        }
-    }
-
 }

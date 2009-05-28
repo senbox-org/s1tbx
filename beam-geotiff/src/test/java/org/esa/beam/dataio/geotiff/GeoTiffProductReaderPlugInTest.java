@@ -47,7 +47,6 @@ public class GeoTiffProductReaderPlugInTest {
         final Product product = new Product("p", "t", 20, 10);
         final Band band = product.addBand("band1", ProductData.TYPE_INT8);
         band.ensureRasterData();
-        band.setSynthetic(true);
         final ImageInputStream inputStream = writeToInputStream(product);
         final DecodeQualification decodeQualification = GeoTiffProductReaderPlugIn.getDecodeQualificationImpl(
                 inputStream);
@@ -60,7 +59,6 @@ public class GeoTiffProductReaderPlugInTest {
         final Product product = new Product("p", "t", 20, 10);
         final Band band = product.addBand("band1", ProductData.TYPE_INT8);
         band.ensureRasterData();
-        band.setSynthetic(true);
         final MapInfo mapInfo = new MapInfo(UTM.createProjection(26, true), 0, 0, 0, 0, 1, 1, Datum.WGS_84);
         mapInfo.setSceneWidth(product.getSceneRasterWidth());
         mapInfo.setSceneHeight(product.getSceneRasterHeight());

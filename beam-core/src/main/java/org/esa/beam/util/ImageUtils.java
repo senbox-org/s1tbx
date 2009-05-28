@@ -20,13 +20,33 @@ package org.esa.beam.util;
 // other org.esa.beam packages here above org.esa.beam.util
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.jai.SingleBandedSampleModel;
 import org.esa.beam.util.math.Quantizer;
 
+import javax.media.jai.PlanarImage;
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferDouble;
+import java.awt.image.DataBufferFloat;
+import java.awt.image.DataBufferInt;
+import java.awt.image.DataBufferShort;
+import java.awt.image.DataBufferUShort;
+import java.awt.image.IndexColorModel;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
+import java.util.Vector;
 
 /**
  * A utility class providing a set of static functions frequently used when working with images.
@@ -43,6 +63,7 @@ public class ImageUtils {
      *
      * @param image     the source image
      * @param imageType the  {#link java.awt.image.BufferedImage} type
+     *
      * @return the buffered image of the given type
      */
     public static BufferedImage convertImage(RenderedImage image, int imageType) {
@@ -70,6 +91,7 @@ public class ImageUtils {
      * the given image.
      *
      * @param dataType a data type as defined in <code>DataBuffer</code>
+     *
      * @see java.awt.image.DataBuffer
      */
     public static double[] getDataTypeMinMax(int dataType, double[] minmax) {
@@ -97,7 +119,9 @@ public class ImageUtils {
      * Gets a textual representation of the supplied raster data type
      *
      * @param dataType a data type as defined in <code>DataBuffer</code>
+     *
      * @return a textual representation of the supplied raster data type
+     *
      * @see java.awt.image.DataBuffer
      */
     public static String getDataTypeName(int dataType) {
@@ -125,7 +149,9 @@ public class ImageUtils {
      * Gets a textual representation of the supplied color space type
      *
      * @param spaceType a dcolor space type as defined in <code>ColorSpace</code>
+     *
      * @return a textual representation of the color space
+     *
      * @see java.awt.color.ColorSpace
      */
     public static String getColorSpaceName(int spaceType) {
@@ -355,5 +381,182 @@ public class ImageUtils {
         //                                                               height,
         //                                                               1);
         return new SingleBandedSampleModel(dataBufferType, width, height);
+    }
+
+    public static RenderedImage createRenderedImage(int width, int height, ProductData data) {
+        final int dataBufferType = ImageManager.getDataBufferType(data.getType());
+        DataBuffer db;
+        if (dataBufferType == DataBuffer.TYPE_BYTE) {
+            db = new DataBufferByte((byte[]) data.getElems(), data.getNumElems());
+        } else if (dataBufferType == DataBuffer.TYPE_USHORT) {
+            db = new DataBufferUShort((short[]) data.getElems(), data.getNumElems());
+        } else if (dataBufferType == DataBuffer.TYPE_SHORT) {
+            db = new DataBufferShort((short[]) data.getElems(), data.getNumElems());
+        } else if (dataBufferType == DataBuffer.TYPE_INT) {
+            db = new DataBufferInt((int[]) data.getElems(), data.getNumElems());
+        } else if (dataBufferType == DataBuffer.TYPE_FLOAT) {
+            db = new DataBufferFloat((float[]) data.getElems(), data.getNumElems());
+        } else if (dataBufferType == DataBuffer.TYPE_DOUBLE) {
+            db = new DataBufferDouble((double[]) data.getElems(), data.getNumElems());
+        } else {
+            throw new IllegalStateException("illegal image data buffer type: " + dataBufferType);
+        }
+
+        SampleModel sampleModel = createSingleBandedSampleModel(dataBufferType, width, height);
+        final ColorModel colorModel = PlanarImage.createColorModel(sampleModel);
+        final WritableRaster raster = WritableRaster.createWritableRaster(sampleModel, db, new Point(0, 0));
+
+//        final TiledImage image = new TiledImage(0, 0, width, height, 512, 512, sampleModel, colorModel);
+        // final BufferedImage image = new BufferedImage(colorModel, raster, false, null);
+        //      image.
+        return new MyRenderedImage(raster, colorModel);
+    }
+
+
+    private static class MyRenderedImage implements RenderedImage {
+        private final WritableRaster raster;
+        private final ColorModel colorModel;
+
+        public MyRenderedImage(WritableRaster raster, ColorModel colorModel) {
+            this.raster = raster;
+            this.colorModel = colorModel;
+        }
+
+        @Override
+        public Vector<RenderedImage> getSources() {
+            return null;
+        }
+
+        @Override
+        public Object getProperty(String name) {
+            return null;
+        }
+
+        @Override
+        public String[] getPropertyNames() {
+            return new String[0];
+        }
+
+        @Override
+        public ColorModel getColorModel() {
+            return colorModel;
+        }
+
+        @Override
+        public SampleModel getSampleModel() {
+            return raster.getSampleModel();
+        }
+
+        @Override
+        public int getWidth() {
+            return raster.getWidth();
+        }
+
+        @Override
+        public int getHeight() {
+            return raster.getHeight();
+        }
+
+        @Override
+        public int getMinX() {
+            return 0;
+        }
+
+        @Override
+        public int getMinY() {
+            return 0;
+        }
+
+        @Override
+        public int getNumXTiles() {
+            return 1;
+        }
+
+        @Override
+        public int getNumYTiles() {
+            return 1;
+        }
+
+        @Override
+        public int getMinTileX() {
+            return 0;
+        }
+
+        @Override
+        public int getMinTileY() {
+            return 0;
+        }
+
+        @Override
+        public int getTileWidth() {
+            return getWidth();
+        }
+
+        @Override
+        public int getTileHeight() {
+            return getHeight();
+        }
+
+        @Override
+        public int getTileGridXOffset() {
+            return 0;
+        }
+
+        @Override
+        public int getTileGridYOffset() {
+            return 0;
+        }
+
+        @Override
+        public Raster getTile(int tileX, int tileY) {
+            return raster;
+        }
+
+        @Override
+        public Raster getData() {
+            return raster;
+        }
+
+        @Override
+        public Raster getData(Rectangle rect) {
+            SampleModel sm = raster.getSampleModel();
+            SampleModel nsm = sm.createCompatibleSampleModel(rect.width,
+                                                             rect.height);
+            WritableRaster wr = Raster.createWritableRaster(nsm,
+                                                            rect.getLocation());
+            int width = rect.width;
+            int height = rect.height;
+            int startX = rect.x;
+            int startY = rect.y;
+
+            return copyData(raster, startX, startY, width, height, wr);
+        }
+
+        @Override
+        public WritableRaster copyData(WritableRaster outRaster) {
+            if (outRaster == null) {
+                return (WritableRaster) getData();
+            }
+            int width = outRaster.getWidth();
+            int height = outRaster.getHeight();
+            int startX = outRaster.getMinX();
+            int startY = outRaster.getMinY();
+
+            return copyData(raster, startX, startY, width, height, outRaster);
+        }
+
+        private static WritableRaster copyData(WritableRaster raster,
+                                               int startX, int startY,
+                                               int width, int height,
+                                               WritableRaster outRaster) {
+            Object tdata = null;
+
+            for (int i = startY; i < startY + height; i++) {
+                tdata = raster.getDataElements(startX, i, width, 1, tdata);
+                outRaster.setDataElements(startX, i, width, 1, tdata);
+            }
+
+            return outRaster;
+        }
     }
 }

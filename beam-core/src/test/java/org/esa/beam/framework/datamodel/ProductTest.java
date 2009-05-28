@@ -199,7 +199,6 @@ public class ProductTest extends TestCase {
         Product product = new Product("Y", "X", 4, 4);
 
         Band band = product.addBand("flags", ProductData.TYPE_INT8);
-        band.setSynthetic(true);
         final byte F1 = 0x01;
         final byte F2 = 0x02;
         final byte F3 = 0x04;
@@ -251,7 +250,6 @@ public class ProductTest extends TestCase {
         Product product = new Product("Y", "X", 4, 4);
 
         Band band = new Band("flags", ProductData.TYPE_UINT16, 4, 4);
-        band.setSynthetic(true);
         product.addBand(band);
 
         final byte F1 = 0x0001;
@@ -555,7 +553,6 @@ public class ProductTest extends TestCase {
                                                        IOException {
         Product product = new Product("Y", "X", 4, 4);
         Band band = product.addBand("flags", ProductData.TYPE_INT8);
-        band.setSynthetic(true);
 
         final byte F1 = 0x01;
         final byte F2 = 0x02;
@@ -644,7 +641,6 @@ public class ProductTest extends TestCase {
                                                       IOException {
         Product product = new Product("Y", "X", 4, 4);
         Band band = product.addBand("flags", ProductData.TYPE_INT8);
-        band.setSynthetic(true);
         final byte F1 = 0x01;
         final byte F2 = 0x02;
         final byte F3 = 0x04;
@@ -732,7 +728,6 @@ public class ProductTest extends TestCase {
                                              IOException {
         final Product product = new Product("n", "t", 18, 2);
         final Band flagsBand = product.addBand("flags", ProductData.TYPE_INT8);
-        flagsBand.setSynthetic(true);
         final FlagCoding flagCoding = new FlagCoding("fc");
         final int f1Mask = 1;
         flagCoding.addFlag("f1", f1Mask, "");
@@ -758,7 +753,6 @@ public class ProductTest extends TestCase {
                                              IOException {
         final Product product = new Product("Y", "X", 4, 4);
         final Band band = product.addBand("flags", ProductData.TYPE_INT8);
-        band.setSynthetic(true);
 
         final byte F1 = 0x01;
 

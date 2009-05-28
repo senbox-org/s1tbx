@@ -109,7 +109,7 @@ public class WriteOp extends Operator {
                 final Tile sourceTile = getSourceTile(targetBand, rectangle, pm);
                 final ProductData rawSamples = sourceTile.getRawSamples();
                 targetProduct.setProductWriter(productWriter);
-                targetBand.writeRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, rawSamples, pm);
+                productWriter.writeBandRasterData(targetBand, rectangle.x, rectangle.y, rectangle.width, rectangle.height, rawSamples, pm);
                 updateComputedTileMap(targetBand, targetTile);
             } catch (Exception e) {
                 if (deleteOutputOnFailure) {

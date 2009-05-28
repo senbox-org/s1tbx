@@ -41,7 +41,6 @@ public class GeoTiffWriteReadTest {
         outProduct = new Product("P", "T", width, height);
         final Band bandInt16 = outProduct.addBand("int16", ProductData.TYPE_INT16);
         bandInt16.setDataElems(createShortData(getProductSize(), 23));
-        bandInt16.setSynthetic(true);
         ImageManager.getInstance().getSourceImage(bandInt16, 0);
     }
 
@@ -125,7 +124,6 @@ public class GeoTiffWriteReadTest {
         outProduct.removeBand(outProduct.getBandAt(0));
         final Band bandUInt8 = outProduct.addBand("uint8", ProductData.TYPE_UINT8);
         bandUInt8.setDataElems(createByteData(getProductSize(), 23));
-        bandUInt8.setSynthetic(true);
         ImageManager.getInstance().getSourceImage(bandUInt8, 0);
 
         setTiePointGeoCoding(outProduct);
@@ -148,7 +146,6 @@ public class GeoTiffWriteReadTest {
     public void testWriteReadIndexCodingWith2BandsBand() throws IOException {
         final Band bandUInt8 = outProduct.addBand("uint8", ProductData.TYPE_UINT8);
         bandUInt8.setDataElems(createByteData(getProductSize(), 20));
-        bandUInt8.setSynthetic(true);
         ImageManager.getInstance().getSourceImage(bandUInt8, 0);
 
         setTiePointGeoCoding(outProduct);
@@ -220,7 +217,6 @@ public class GeoTiffWriteReadTest {
         setTiePointGeoCoding(outProduct);
         final Band bandfloat32 = outProduct.addBand("float32", ProductData.TYPE_FLOAT32);
         bandfloat32.setDataElems(createFloats(getProductSize(), 2.343f));
-        bandfloat32.setSynthetic(true);
 
         final Product inProduct = writeReadProduct();
 

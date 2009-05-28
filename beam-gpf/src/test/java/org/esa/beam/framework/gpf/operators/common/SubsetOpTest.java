@@ -50,20 +50,17 @@ public class SubsetOpTest extends TestCase {
         Product testProduct = new Product("p", "t", w, h);
 
         Band band1 = testProduct.addBand("radiance_1", ProductData.TYPE_INT32);
-        band1.setSynthetic(true);
         int[] intValues = new int[w * h];
         Arrays.fill(intValues, 1);
         band1.setData(ProductData.createInstance(intValues));
 
         Band band2 = testProduct.addBand("radiance_2", ProductData.TYPE_FLOAT32);
-        band2.setSynthetic(true);
         float[] floatValues = new float[w * h];
         Arrays.fill(floatValues, 2.5f);
         band2.setData(ProductData.createInstance(floatValues));
 
         Band band3 = testProduct.addBand("radiance_3", ProductData.TYPE_INT16);
         band3.setScalingFactor(0.5);
-        band3.setSynthetic(true);
         short[] shortValues = new short[w * h];
         Arrays.fill(shortValues, (short) 6);
         band3.setData(ProductData.createInstance(shortValues));

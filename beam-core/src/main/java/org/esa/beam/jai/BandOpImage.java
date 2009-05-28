@@ -30,6 +30,9 @@ public class BandOpImage extends RasterDataNodeOpImage {
     @Override
     protected void computeProductData(ProductData productData, Rectangle destRect) throws IOException {
         final ProductReader productReader = getBand().getProductReader();
+        if (productReader == null) {
+            throw new IllegalStateException("no product reader for band " + getBand().getDisplayName());
+        }
         if (getLevel() == 0) {
             productReader.readBandRasterData(getBand(), destRect.x, destRect.y,
                                              destRect.width, destRect.height,

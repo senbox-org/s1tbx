@@ -44,9 +44,7 @@ public class BandArithmeticTest extends TestCase {
         _targetBand = new Band("b1n", ProductData.TYPE_UINT16, _width, _height);
         _product1 = new Product("p1", "t", _width, _height);
         final Band band1 = _product1.addBand("b1", ProductData.TYPE_FLOAT32);
-        band1.setSynthetic(true);
         final Band band1_3 = _product1.addBand("band1#3", ProductData.TYPE_FLOAT32);
-        band1_3.setSynthetic(true);
         _product1.setRefNo(1);
         _product2 = new Product("p2", "t", _width, _height);
         _product2.addBand("b1", ProductData.TYPE_FLOAT32);

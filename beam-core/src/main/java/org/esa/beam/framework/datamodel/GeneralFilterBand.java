@@ -104,16 +104,6 @@ public class GeneralFilterBand extends FilterBand {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void writeRasterData(int offsetX, int offsetY,
-                                int width, int height,
-                                ProductData rasterData, ProgressMonitor pm) throws IOException {
-        throw new IllegalStateException("write not supported for filtered band");
-    }
-
-    /**
      * Creates an instance {@link Operator} by the given class name
      *
      * @param operatorClassName the class name

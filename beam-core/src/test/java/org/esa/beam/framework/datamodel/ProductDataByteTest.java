@@ -20,7 +20,6 @@ package org.esa.beam.framework.datamodel;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.esa.beam.GlobalTestConfig;
 import org.esa.beam.util.SystemUtils;
 
@@ -34,31 +33,20 @@ public class ProductDataByteTest extends TestCase {
     private FileImageOutputStream _outputStream;
     private FileImageInputStream _inputStream;
 
-    public ProductDataByteTest(String name) {
-        super(name);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ProductDataByteTest.class);
-    }
-
     @Override
-	protected void setUp() {
+    protected void setUp() throws IOException {
         File outputFile = GlobalTestConfig.getBeamTestDataOutputFile("ProductData");
         outputFile.mkdirs();
-        File streamFile = new File(outputFile, "stream.img");
-        try {
-            streamFile.createNewFile();
-            _inputStream = new FileImageInputStream(streamFile);
-            _outputStream = new FileImageOutputStream(streamFile);
-        } catch (IOException e) {
-        }
+        File streamFile = new File(outputFile, "byte.img");
+        streamFile.createNewFile();
+        _inputStream = new FileImageInputStream(streamFile);
+        _outputStream = new FileImageOutputStream(streamFile);
         assertNotNull(_inputStream);
         assertNotNull(_outputStream);
     }
 
     @Override
-	protected void tearDown() {
+    protected void tearDown() {
         try {
             _inputStream.close();
             _outputStream.close();
@@ -167,7 +155,8 @@ public class ProductDataByteTest extends TestCase {
         assertEquals(Byte.MAX_VALUE, pd.getElemIntAt(0));
         assertEquals(Byte.MIN_VALUE, pd.getElemIntAt(1));
         assertEquals(0, pd.getElemIntAt(2));
-}
+    }
+
     public void testSetElemsAsString_OutOfRange() {
         final ProductData pd1 = ProductData.createInstance(ProductData.TYPE_INT8, 1);
         try {
@@ -179,7 +168,7 @@ public class ProductDataByteTest extends TestCase {
 
         final ProductData pd2 = ProductData.createInstance(ProductData.TYPE_INT8, 1);
         try {
-            pd2.setElems(new String[]{String.valueOf(Byte.MIN_VALUE -1)});
+            pd2.setElems(new String[]{String.valueOf(Byte.MIN_VALUE - 1)});
         } catch (Exception e) {
             assertEquals(NumberFormatException.class, e.getClass());
             assertEquals("Value out of range. Value:\"-129\" Radix:10", e.getMessage());

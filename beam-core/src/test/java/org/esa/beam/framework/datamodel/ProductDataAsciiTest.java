@@ -17,16 +17,14 @@
 
 package org.esa.beam.framework.datamodel;
 
-import java.io.File;
-import java.io.IOException;
+import junit.framework.TestCase;
+import org.esa.beam.GlobalTestConfig;
+import org.esa.beam.util.SystemUtils;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
-
-import junit.framework.TestCase;
-
-import org.esa.beam.GlobalTestConfig;
-import org.esa.beam.util.SystemUtils;
+import java.io.File;
+import java.io.IOException;
 
 
 public class ProductDataAsciiTest extends TestCase {
@@ -35,22 +33,19 @@ public class ProductDataAsciiTest extends TestCase {
     private FileImageInputStream _inputStream;
 
     @Override
-	protected void setUp() {
+    protected void setUp() throws IOException {
         File outputFile = GlobalTestConfig.getBeamTestDataOutputFile("ProductData");
         outputFile.mkdirs();
-        File streamFile = new File(outputFile, "stream.img");
-        try {
-            streamFile.createNewFile();
-            _inputStream = new FileImageInputStream(streamFile);
-            _outputStream = new FileImageOutputStream(streamFile);
-        } catch (IOException e) {
-        }
+        File streamFile = new File(outputFile, "ascii.img");
+        streamFile.createNewFile();
+        _inputStream = new FileImageInputStream(streamFile);
+        _outputStream = new FileImageOutputStream(streamFile);
         assertNotNull(_inputStream);
         assertNotNull(_outputStream);
     }
 
     @Override
-	protected void tearDown() {
+    protected void tearDown() {
         try {
             _inputStream.close();
             _outputStream.close();

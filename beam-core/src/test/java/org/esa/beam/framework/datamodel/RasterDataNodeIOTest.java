@@ -21,7 +21,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
-import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
@@ -45,8 +44,8 @@ public class RasterDataNodeIOTest extends TestCase {
     private static final float DELTA = 1e-5f;
 
     private static final String FLOAT_BAND_NAME = "float_band";
-    private static final String SCALED_INT_BAND_NAME = "scaled_int_band";
-    private static final String SYNT_FLOAT_BAND_NAME = "synt_float_band";
+    private static final String SCALED_USHORT_BAND_NAME = "scaled_ushort_band";
+    private static final String BUFFERED_FLOAT_BAND_NAME = "buffered_float_band";
     private static final String TIE_POINT_GRID_NAME = "tie_point_grid";
     private static final String VIRT_BAND_NAME = "virt_band";
     private static final String VIRT_BAND_EXPR = "float_band + 1.0";
@@ -78,26 +77,26 @@ public class RasterDataNodeIOTest extends TestCase {
         assertEquals(1, pr.getNumReads());
 
         p.getBand(FLOAT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
-        assertEquals(1, pr.getNumReads());
+        assertEquals(2, pr.getNumReads());
 
         p.getBand(VIRT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
-        assertEquals(1, pr.getNumReads());
+        assertEquals(2, pr.getNumReads());
 
         p.getBand(FLOAT_BAND_NAME).unloadRasterData();
         p.getBand(VIRT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
-        assertEquals(1, pr.getNumReads());
+        assertEquals(2, pr.getNumReads());
 
-        p.getBand(SYNT_FLOAT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
-        assertEquals(1, pr.getNumReads());
+        p.getBand(BUFFERED_FLOAT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
+        assertEquals(2, pr.getNumReads());
 
         p.getBand(FLOAT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
-        assertEquals(1, pr.getNumReads());
+        assertEquals(3, pr.getNumReads());
     }
 
     public void testReadPixelsFromFloatBand() throws IOException {
         Band b = p.getBand(FLOAT_BAND_NAME);
         float[] floatElems = new float[SW * SH];
-        b.readRaster(rectangle, ProductData.createInstance(floatElems), ProgressMonitor.NULL);
+        b.readRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, ProductData.createInstance(floatElems), ProgressMonitor.NULL);
         int x, y;
         x = 0;
         y = 0;
@@ -115,25 +114,33 @@ public class RasterDataNodeIOTest extends TestCase {
     }
 
     public void testReadPixelsFromScaledIntBand() throws IOException {
-        Band b = p.getBand(SCALED_INT_BAND_NAME);
-        float[] floatElems = new float[SW * SH];
-        b.readRaster(rectangle, ProductData.createInstance(floatElems), ProgressMonitor.NULL);
+        Band b = p.getBand(SCALED_USHORT_BAND_NAME);
+        short[] intElems = new short[SW * SH];
+        b.readRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, ProductData.createInstance(intElems), ProgressMonitor.NULL);
         int x, y;
         x = 0;
         y = 0;
-        assertEquals(getRawPixelValue(x, y), floatElems[i(y, x)], DELTA);
+        assertEquals(getRawPixelValue(x, y), intElems[i(y, x)], DELTA);
         x = SW / 2;
         y = SH / 2;
-        assertEquals(getRawPixelValue(x, y), floatElems[i(y, x)], DELTA);
+        assertEquals(getRawPixelValue(x, y), intElems[i(y, x)], DELTA);
         x = SW - 1;
         y = SH - 1;
-        assertEquals(getRawPixelValue(x, y), floatElems[i(y, x)], DELTA);
+        assertEquals(getRawPixelValue(x, y), intElems[i(y, x)], DELTA);
     }
 
     public void testReadPixelsFromTiePointGrid() throws IOException {
         TiePointGrid g = p.getTiePointGrid(TIE_POINT_GRID_NAME);
         float[] floatElems = new float[SW * SH];
-        g.readRaster(rectangle, ProductData.createInstance(floatElems), ProgressMonitor.NULL);
+        ProductData rasterData = ProductData.createInstance(floatElems);
+        if (rasterData.getType() == ProductData.TYPE_FLOAT32) {
+            g.readPixels(rectangle.x, rectangle.y, rectangle.width, rectangle.height, (float[]) rasterData.getElems(), ProgressMonitor.NULL);
+        } else {
+            float[] pixels = g.readPixels(rectangle.x, rectangle.y, rectangle.width, rectangle.height, (float[])null, ProgressMonitor.NULL);
+            for (int i = 0; i < pixels.length; i++) {
+                rasterData.setElemFloatAt(i, pixels[i]);
+            }
+        }
         int x, y;
         x = 0;
         y = 0;
@@ -183,13 +190,12 @@ public class RasterDataNodeIOTest extends TestCase {
         Band floatBand = new Band(FLOAT_BAND_NAME, ProductData.TYPE_FLOAT32, SW, SH);
         p.addBand(floatBand);
 
-        Band scaledIntBand = new Band(SCALED_INT_BAND_NAME, ProductData.TYPE_UINT16, SW, SH);
+        Band scaledIntBand = new Band(SCALED_USHORT_BAND_NAME, ProductData.TYPE_UINT16, SW, SH);
         scaledIntBand.setScalingFactor(SFAC);
         scaledIntBand.setScalingOffset(SOFF);
         p.addBand(scaledIntBand);
 
-        Band syntFloatBand = new Band(SYNT_FLOAT_BAND_NAME, ProductData.TYPE_FLOAT32, SW, SH);
-        syntFloatBand.setSynthetic(true);
+        Band syntFloatBand = new Band(BUFFERED_FLOAT_BAND_NAME, ProductData.TYPE_FLOAT32, SW, SH);
         syntFloatBand.ensureRasterData();
         p.addBand(syntFloatBand);
 
@@ -243,8 +249,7 @@ public class RasterDataNodeIOTest extends TestCase {
         }
 
         @Override
-        protected Product readProductNodesImpl() throws IOException,
-                                                        IllegalFileFormatException {
+        protected Product readProductNodesImpl() throws IOException{
             return null;
         }
 

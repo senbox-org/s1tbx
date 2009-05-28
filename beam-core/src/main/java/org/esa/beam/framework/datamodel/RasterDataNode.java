@@ -1429,7 +1429,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
      *                                  which this product raster belongs to, has no associated product reader
+     * @deprecated since BEAM 4.6, use {@link #readRasterData(int, int, int, int, ProductData)} instead
      */
+    @Deprecated
     public void readRaster(Rectangle rectangle, ProductData rasterData, ProgressMonitor pm) throws IOException {
         readRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, rasterData, pm);
     }
@@ -2173,11 +2175,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Returns wether the source image is set on this {@code RasterDataNode}.
+     * Returns whether the source image is set on this {@code RasterDataNode}.
      * <p/>
      * This method belongs to preliminary API and may be removed or changed in the future.
      *
-     * @return Wether the source image is set.
+     * @return whether the source image is set.
      *
      * @since BEAM 4.5
      */
@@ -2238,6 +2240,19 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             this.sourceImage = sourceImage;
             fireProductNodeChanged("sourceImage", oldValue);
         }
+    }
+
+    /**
+     * Returns whether the geophysical image is set on this {@code RasterDataNode}.
+     * <p/>
+     * This method belongs to preliminary API and may be removed or changed in the future.
+     *
+     * @return whether the geophysical image is set.
+     *
+     * @since BEAM 4.6
+     */
+    public boolean isGeophysicalImageSet() {
+        return geophysicalImage != null;
     }
 
     /**

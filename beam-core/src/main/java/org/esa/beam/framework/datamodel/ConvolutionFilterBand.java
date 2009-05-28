@@ -72,13 +72,4 @@ public class ConvolutionFilterBand extends FilterBand {
     public Kernel getKernel() {
         return kernel;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void writeRasterData(int offsetX, int offsetY, int width, int height, ProductData rasterData,
-                                ProgressMonitor pm) throws IOException {
-        throw new IllegalStateException("write not supported for filtered band");
-    }
 }

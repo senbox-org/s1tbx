@@ -16,16 +16,14 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import java.io.File;
-import java.io.IOException;
+import junit.framework.TestCase;
+import org.esa.beam.GlobalTestConfig;
+import org.esa.beam.util.SystemUtils;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
-
-import junit.framework.TestCase;
-
-import org.esa.beam.GlobalTestConfig;
-import org.esa.beam.util.SystemUtils;
+import java.io.File;
+import java.io.IOException;
 
 public class ProductDataIntTest extends TestCase {
 
@@ -33,22 +31,19 @@ public class ProductDataIntTest extends TestCase {
     private FileImageOutputStream _outputStream;
 
     @Override
-	protected void setUp() {
+    protected void setUp() throws IOException {
         File outputFile = GlobalTestConfig.getBeamTestDataOutputFile("ProductData");
         outputFile.mkdirs();
-        File streamFile = new File(outputFile, "stream.img");
-        try {
-            streamFile.createNewFile();
-            _inputStream = new FileImageInputStream(streamFile);
-            _outputStream = new FileImageOutputStream(streamFile);
-        } catch (IOException e) {
-        }
+        File streamFile = new File(outputFile, "int.img");
+        streamFile.createNewFile();
+        _inputStream = new FileImageInputStream(streamFile);
+        _outputStream = new FileImageOutputStream(streamFile);
         assertNotNull(_inputStream);
         assertNotNull(_outputStream);
     }
 
     @Override
-	protected void tearDown() {
+    protected void tearDown() {
         try {
             _inputStream.close();
             _outputStream.close();
@@ -154,15 +149,16 @@ public class ProductDataIntTest extends TestCase {
                 String.valueOf(Integer.MIN_VALUE),
                 String.valueOf(0),
         });
-        
+
         assertEquals(Integer.MAX_VALUE, pd.getElemIntAt(0));
         assertEquals(Integer.MIN_VALUE, pd.getElemIntAt(1));
         assertEquals(0, pd.getElemIntAt(2));
-}
+    }
+
     public void testSetElemsAsString_OutOfRange() {
         final ProductData pd1 = ProductData.createInstance(ProductData.TYPE_INT32, 1);
         try {
-            pd1.setElems(new String[]{String.valueOf((long)Integer.MAX_VALUE + 1)});
+            pd1.setElems(new String[]{String.valueOf((long) Integer.MAX_VALUE + 1)});
         } catch (Exception e) {
             assertEquals(NumberFormatException.class, e.getClass());
             assertEquals(true, e.getMessage().contains("2147483648"));
@@ -170,7 +166,7 @@ public class ProductDataIntTest extends TestCase {
 
         final ProductData pd2 = ProductData.createInstance(ProductData.TYPE_INT32, 1);
         try {
-            pd2.setElems(new String[]{String.valueOf((long)Integer.MIN_VALUE -1)});
+            pd2.setElems(new String[]{String.valueOf((long) Integer.MIN_VALUE - 1)});
         } catch (Exception e) {
             assertEquals(NumberFormatException.class, e.getClass());
             assertEquals(true, e.getMessage().contains("-2147483649"));

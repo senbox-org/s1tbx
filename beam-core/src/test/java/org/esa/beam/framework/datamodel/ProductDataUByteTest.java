@@ -16,10 +16,7 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
 import org.esa.beam.GlobalTestConfig;
 import org.esa.beam.util.SystemUtils;
 
@@ -33,25 +30,15 @@ public class ProductDataUByteTest extends TestCase {
     private FileImageInputStream _inputStream;
     private FileImageOutputStream _outputStream;
 
-    public ProductDataUByteTest(String name) {
-        super(name);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ProductDataUByteTest.class);
-    }
 
     @Override
-    protected void setUp() {
+    protected void setUp() throws IOException {
         File outputFile = GlobalTestConfig.getBeamTestDataOutputFile("ProductData");
         outputFile.mkdirs();
-        File streamFile = new File(outputFile, "stream.img");
-        try {
-            streamFile.createNewFile();
-            _inputStream = new FileImageInputStream(streamFile);
-            _outputStream = new FileImageOutputStream(streamFile);
-        } catch (IOException e) {
-        }
+        File streamFile = new File(outputFile, "ubyte.img");
+        streamFile.createNewFile();
+        _inputStream = new FileImageInputStream(streamFile);
+        _outputStream = new FileImageOutputStream(streamFile);
         assertNotNull(_inputStream);
         assertNotNull(_outputStream);
     }
@@ -155,19 +142,20 @@ public class ProductDataUByteTest extends TestCase {
     public void testSetElemsAsString() {
         final ProductData pd = ProductData.createInstance(ProductData.TYPE_UINT8, 3);
         pd.setElems(new String[]{
-                String.valueOf(Byte.MAX_VALUE  * 2 + 1),
+                String.valueOf(Byte.MAX_VALUE * 2 + 1),
                 String.valueOf(Byte.MAX_VALUE),
                 String.valueOf(0),
         });
 
-        assertEquals(Byte.MAX_VALUE * 2 +1, pd.getElemIntAt(0));
+        assertEquals(Byte.MAX_VALUE * 2 + 1, pd.getElemIntAt(0));
         assertEquals(Byte.MAX_VALUE, pd.getElemIntAt(1));
         assertEquals(0, pd.getElemIntAt(2));
-}
+    }
+
     public void testSetElemsAsString_OutOfRange() {
         final ProductData pd1 = ProductData.createInstance(ProductData.TYPE_UINT8, 1);
         try {
-            pd1.setElems(new String[]{String.valueOf(Byte.MAX_VALUE  * 2 + 2)});
+            pd1.setElems(new String[]{String.valueOf(Byte.MAX_VALUE * 2 + 2)});
         } catch (Exception e) {
             assertEquals(NumberFormatException.class, e.getClass());
             assertEquals("Value out of range. The value:'256' is not an unsigned byte value.", e.getMessage());

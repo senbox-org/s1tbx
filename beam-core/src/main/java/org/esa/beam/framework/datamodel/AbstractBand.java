@@ -30,8 +30,6 @@ import java.io.IOException;
  * @author Norman Fomferra
  * @author Sabine Embacher
  * @version $Revision$ $Date$
- * @see #readRasterData
- * @see #writeRasterData
  */
 public abstract class AbstractBand extends RasterDataNode {
 

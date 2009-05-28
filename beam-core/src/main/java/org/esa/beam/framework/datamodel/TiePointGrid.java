@@ -631,8 +631,10 @@ public class TiePointGrid extends RasterDataNode {
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
      *                                  which this product raster belongs to, has no associated product reader
+     * @deprecated since BEAM 4.6, use {@link #readRasterData(int, int, int, int, ProductData)} instead
      */
     @Override
+    @Deprecated
 	public void readRaster(Rectangle rectangle, ProductData rasterData, ProgressMonitor pm) throws IOException {
     	if (rasterData.getType() == ProductData.TYPE_FLOAT32) {
     		readPixels(rectangle.x, rectangle.y, rectangle.width, rectangle.height, (float[])rasterData.getElems(), pm);

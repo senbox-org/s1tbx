@@ -83,6 +83,7 @@ public class VirtualBand extends Band {
                        final String expression) {
         super(name, dataType, width, height);
         setSpectralBandIndex(-1);
+        setSynthetic(true);
         this.expression = expression;
     }
 

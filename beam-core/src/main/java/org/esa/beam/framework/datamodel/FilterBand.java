@@ -52,4 +52,15 @@ public abstract class FilterBand extends Band {
         _source = null;
         super.dispose();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void writeRasterData(int offsetX, int offsetY,
+                                int width, int height,
+                                ProductData rasterData, ProgressMonitor pm) throws IOException {
+        throw new IllegalStateException("write not supported for filtered band");
+    }
+
 }

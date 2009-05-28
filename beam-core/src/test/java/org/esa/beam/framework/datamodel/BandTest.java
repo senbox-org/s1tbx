@@ -573,7 +573,7 @@ public class BandTest extends AbstractRasterDataNodeTest {
         bandInt8.setScalingFactor(1);
         bandInt8.setScalingOffset(0);
         bandInt8.readPixels(0, 0, 3, 2, trueInts, ProgressMonitor.NULL);
-        assertTrue(Arrays.equals(new int[]{4, 3, 3, 2, 2, 1}, trueInts));
+        assertEquals(true, Arrays.equals(new int[]{4, 3, 3, 2, 2, 1}, trueInts));
         bandInt8.setScalingFactor(2);
         bandInt8.setScalingOffset(2);
         bandInt8.readPixels(0, 0, 3, 2, trueInts, ProgressMonitor.NULL);
@@ -581,7 +581,7 @@ public class BandTest extends AbstractRasterDataNodeTest {
 
         bandInt16 = product.getBand("bandInt16");
         bandInt16.readPixels(0, 0, 3, 2, trueInts, ProgressMonitor.NULL);
-        assertTrue(Arrays.equals(testInt16s, trueInts));
+        assertEquals(true, Arrays.equals(testInt16s, trueInts));
         bandInt16.setScalingFactor(0.1);
         bandInt16.setScalingOffset(1.25);
         testScaledFloats = new float[]{2.35f, -0.95f, 4.55f, -3.15f, 6.75f, -5.35f};
