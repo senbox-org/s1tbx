@@ -48,7 +48,7 @@ class CoordinateReferenceSystems {
                 } else if (Datum.WGS_72.equals(datum)) {
                     result = WGS72;
                 }
-            } else if (projection instanceof UTMProjection) {
+            } else if (projection instanceof UTMProjection && !Datum.ITRF_97.equals(datum)) {
                 // 2. UTM map projections
                 final UTMProjection utmProjection = (UTMProjection) projection;
                 final int zone = utmProjection.getZone();
