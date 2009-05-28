@@ -311,8 +311,10 @@ public class Band extends AbstractBand {
      * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor)
      */
     @Override
-    public void readRasterData(final int offsetX, final int offsetY, final int width, final int height,
-                               final ProductData rasterData, ProgressMonitor pm)
+    public void readRasterData(final int offsetX, final int offsetY,
+                               final int width, final int height,
+                               final ProductData rasterData,
+                               ProgressMonitor pm)
             throws IOException {
         Guardian.assertNotNull("rasterData", rasterData);
         if (hasRasterData()) {
@@ -413,70 +415,6 @@ public class Band extends AbstractBand {
             } finally {
                 pm.done();
             }
-
-            /*
-            try {
-                pm.beginTask("Writing raster data...", getRasterHeight() * 2);
-                final ProductData rasterData = createCompatibleRasterData(getRasterWidth(), 1);
-                for (int y = 0; y < getRasterHeight(); y++) {
-                    if (pm.isCanceled()) {
-                        break;
-                    }
-                    readRasterData(0, y, getRasterWidth(), 1, rasterData,
-                                   SubProgressMonitor.create(pm, 1));
-                    writeRasterData(0, y, getRasterWidth(), 1, rasterData,
-                                    SubProgressMonitor.create(pm, 1));
-                }
-            } finally {
-                pm.done();
-            }
-            */
-        }
-    }
-
-    // method for writing the source image of a band, might be used in the future (rq - 30.10.2008)
-    private static void writeSourceImage(Band band, int offsetX, int offsetY, int width, int height,
-                                         ProgressMonitor pm) throws IOException {
-        final RenderedImage image = band.getSourceImage();
-
-        final int minTileX = image.getMinTileX();
-        final int minTileY = image.getMinTileY();
-
-        final int numXTiles = image.getNumXTiles();
-        final int numYTiles = image.getNumYTiles();
-
-        final Rectangle targetRectangle = new Rectangle(offsetX, offsetY, width, height);
-        try {
-            pm.beginTask("Writing raster data...", numXTiles * numYTiles);
-
-            for (int tileX = minTileX; tileX < minTileX + numXTiles; ++tileX) {
-                for (int tileY = minTileY; tileY < minTileY + numYTiles; ++tileY) {
-                    if (pm.isCanceled()) {
-                        break;
-                    }
-                    final Rectangle tileRectangle = new Rectangle(
-                            image.getTileGridXOffset() + tileX * image.getTileWidth(),
-                            image.getTileGridYOffset() + tileY * image.getTileHeight(),
-                            image.getTileWidth(), image.getTileHeight());
-
-                    final Rectangle rectangle = targetRectangle.intersection(tileRectangle);
-                    if (!rectangle.isEmpty()) {
-                        final Raster raster = image.getData(rectangle);
-
-                        final int x = rectangle.x;
-                        final int y = rectangle.y;
-                        final int w = rectangle.width;
-                        final int h = rectangle.height;
-                        final ProductData rasterData = band.createCompatibleRasterData(w, h);
-
-                        raster.getDataElements(x, y, w, h, rasterData.getElems());
-                        band.writeRasterData(x, y, w, h, rasterData);
-                    }
-                    pm.worked(1);
-                }
-            }
-        } finally {
-            pm.done();
         }
     }
 

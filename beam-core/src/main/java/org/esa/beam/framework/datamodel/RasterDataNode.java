@@ -1373,6 +1373,22 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public abstract void readRasterDataFully(ProgressMonitor pm) throws IOException;
 
+    /**
+     * Reads raster data from the node's associated data source into the given data
+     * buffer.
+     *
+     * @param offsetX    the X-offset in the raster co-ordinates where reading starts
+     * @param offsetY    the Y-offset in the raster co-ordinates where reading starts
+     * @param width      the width of the raster data buffer
+     * @param height     the height of the raster data buffer
+     * @param rasterData a raster data buffer receiving the pixels to be read
+     *
+     * @throws java.io.IOException      if an I/O error occurs
+     * @throws IllegalArgumentException if the raster is null
+     * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
+     *                                  which this product raster belongs to, has no associated product reader
+     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData(Band,int,int,int,int,ProductData,com.bc.ceres.core.ProgressMonitor)
+     */
     public void readRasterData(int offsetX, int offsetY,
                                int width, int height,
                                ProductData rasterData) throws IOException {
@@ -1380,10 +1396,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Reads raster data from this dataset into the user-supplied raster data buffer.
-     * <p/>
-     * <p>This method always directly (re-)reads this band's data from its associated data source into the given data
-     * buffer.
+     * The method behaves exactly as {@link #readRasterData(int, int, int, int, ProductData)},
+     * but clients can additionally pass a {@link ProgressMonitor}.
      *
      * @param offsetX    the X-offset in the raster co-ordinates where reading starts
      * @param offsetY    the Y-offset in the raster co-ordinates where reading starts
@@ -1396,7 +1410,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
      *                                  which this product raster belongs to, has no associated product reader
-     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData(Band,int,int,int,int,ProductData,com.bc.ceres.core.ProgressMonitor)
      */
     public abstract void readRasterData(int offsetX, int offsetY,
                                         int width, int height,

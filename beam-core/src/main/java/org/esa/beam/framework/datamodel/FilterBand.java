@@ -48,21 +48,6 @@ public abstract class FilterBand extends Band {
     }
 
     @Override
-    public void readRasterData(int offsetX, int offsetY, int width, int height, ProductData rasterData,
-                               ProgressMonitor pm) throws IOException {
-        pm.beginTask("Reading data...", 2);
-        try {
-            final RenderedImage sourceImage = getSourceImage();
-            final Raster data = sourceImage.getData(new Rectangle(offsetX, offsetY, width, height));
-            pm.worked(1);
-            data.getDataElements(offsetX, offsetY, width, height, rasterData.getElems());
-            pm.worked(1);
-        } finally {
-            pm.done();
-        }
-    }
-
-    @Override
     public void dispose() {
         _source = null;
         super.dispose();
