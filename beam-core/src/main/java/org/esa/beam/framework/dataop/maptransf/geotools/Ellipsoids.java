@@ -1,11 +1,11 @@
-package org.esa.beam.framework.datamodel;
+package org.esa.beam.framework.dataop.maptransf.geotools;
 
-import org.opengis.referencing.datum.Ellipsoid;
-import org.opengis.referencing.datum.DatumAuthorityFactory;
-import org.opengis.referencing.FactoryException;
 import org.geotools.referencing.ReferencingFactoryFinder;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.datum.DatumAuthorityFactory;
+import org.opengis.referencing.datum.Ellipsoid;
 
-class Ellipsoids {
+public class Ellipsoids {
 
     // EPSG::7004
     public static final Ellipsoid BESSEL1841;

@@ -1,7 +1,8 @@
-package org.esa.beam.framework.datamodel;
+package org.esa.beam.framework.dataop.maptransf.geotools;
 
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.framework.dataop.maptransf.geotools.GeodeticDatums;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.datum.DatumAuthorityFactory;

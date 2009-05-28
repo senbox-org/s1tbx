@@ -1,15 +1,15 @@
-package org.esa.beam.framework.datamodel;
+package org.esa.beam.framework.dataop.maptransf.geotools;
 
-import org.opengis.referencing.datum.GeodeticDatum;
-import org.opengis.referencing.datum.DatumAuthorityFactory;
-import org.opengis.referencing.FactoryException;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.geotools.referencing.ReferencingFactoryFinder;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.datum.DatumAuthorityFactory;
+import org.opengis.referencing.datum.GeodeticDatum;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
-class GeodeticDatums {
+public class GeodeticDatums {
 
     // EPSG::6655
     public static final GeodeticDatum ITRF97;

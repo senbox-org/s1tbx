@@ -20,6 +20,7 @@ import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
+import org.esa.beam.framework.dataop.maptransf.geotools.CoordinateReferenceSystems;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 import org.geotools.referencing.crs.DefaultDerivedCRS;

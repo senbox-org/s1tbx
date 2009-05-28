@@ -1,9 +1,10 @@
-package org.esa.beam.framework.datamodel;
+package org.esa.beam.framework.dataop.maptransf.geotools;
 
 import junit.framework.TestCase;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.datum.DatumAuthorityFactory;
+import org.esa.beam.framework.dataop.maptransf.geotools.Ellipsoids;
 
 public class EllipsoidsTest extends TestCase {
 
