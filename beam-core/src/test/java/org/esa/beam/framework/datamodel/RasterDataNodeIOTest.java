@@ -78,20 +78,20 @@ public class RasterDataNodeIOTest extends TestCase {
         assertEquals(1, pr.getNumReads());
 
         p.getBand(FLOAT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
-        assertEquals(2, pr.getNumReads());
+        assertEquals(1, pr.getNumReads());
 
         p.getBand(VIRT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
-        assertEquals(3, pr.getNumReads());
+        assertEquals(1, pr.getNumReads());
 
         p.getBand(FLOAT_BAND_NAME).unloadRasterData();
         p.getBand(VIRT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
-        assertEquals(3, pr.getNumReads());
+        assertEquals(1, pr.getNumReads());
 
         p.getBand(SYNT_FLOAT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
-        assertEquals(3, pr.getNumReads());
+        assertEquals(1, pr.getNumReads());
 
         p.getBand(FLOAT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
-        assertEquals(4, pr.getNumReads());
+        assertEquals(1, pr.getNumReads());
     }
 
     public void testReadPixelsFromFloatBand() throws IOException {
@@ -244,7 +244,7 @@ public class RasterDataNodeIOTest extends TestCase {
 
         @Override
         protected Product readProductNodesImpl() throws IOException,
-                IllegalFileFormatException {
+                                                        IllegalFileFormatException {
             return null;
         }
 
