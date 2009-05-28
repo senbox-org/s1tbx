@@ -36,6 +36,5 @@ public class BlueMarbleLayerType extends LayerType {
     @Override
     public ValueContainer getConfigurationTemplate() {
         return new ValueContainer();
-
     }
 }
