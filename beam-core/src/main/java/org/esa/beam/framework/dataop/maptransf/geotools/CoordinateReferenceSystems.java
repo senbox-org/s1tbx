@@ -11,7 +11,6 @@ import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.GeocentricCRS;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransformFactory;
@@ -20,21 +19,11 @@ import java.awt.geom.AffineTransform;
 
 public class CoordinateReferenceSystems {
 
-    private static final GeocentricCRS ITRF97;
-    private static final GeographicCRS WGS72;
-    private static final GeographicCRS WGS84;
-
-    static {
-        final CRSAuthorityFactory crsFactory = ReferencingFactoryFinder.getCRSAuthorityFactory("EPSG", null);
-
-        try {
-            ITRF97 = crsFactory.createGeocentricCRS("EPSG:4918");
-            WGS72 = crsFactory.createGeographicCRS("EPSG:4322");
-            WGS84 = DefaultGeographicCRS.WGS84;
-        } catch (FactoryException e) {
-            throw new IllegalStateException(e);
-        }
-    }
+    private static final GeographicCRS ITRF97 = new DefaultGeographicCRS(GeodeticDatums.ITRF97,
+                                                                         DefaultEllipsoidalCS.GEODETIC_2D);
+    private static final GeographicCRS WGS72 = new DefaultGeographicCRS(GeodeticDatums.WGS72,
+                                                                        DefaultEllipsoidalCS.GEODETIC_2D);
+    private static final GeographicCRS WGS84 = DefaultGeographicCRS.WGS84;
 
     public static CoordinateReferenceSystem getCRS(MapProjection projection, Datum datum) {
         CoordinateReferenceSystem result = WGS84;
@@ -72,11 +61,9 @@ public class CoordinateReferenceSystems {
             } else if (Datum.ITRF_97.equals(datum)) {
                 // 3. Other map projections
                 final String crsName = "ITRF 97 / " + mapTransform.getDescriptor().getName();
-                final DefaultGeographicCRS baseCrs = new DefaultGeographicCRS(GeodeticDatums.ITRF97,
-                                                                              DefaultEllipsoidalCS.GEODETIC_2D);
                 final MathTransform mathTransform = getMathTransform(mapTransform);
                 if (mathTransform != null) {
-                    result = new DefaultProjectedCRS(crsName, baseCrs, mathTransform, DefaultCartesianCS.PROJECTED);
+                    result = new DefaultProjectedCRS(crsName, ITRF97, mathTransform, DefaultCartesianCS.PROJECTED);
                 }
             } else if (Datum.WGS_72.equals(datum)) {
                 final String crsName = "WGS 72 / " + mapTransform.getDescriptor().getName();
@@ -191,4 +178,5 @@ public class CoordinateReferenceSystems {
 
         return transformFactory.createParameterizedTransform(parameters);
     }
+
 }
