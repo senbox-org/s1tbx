@@ -129,7 +129,6 @@ public class DimapHeaderWriterTest extends TestCase {
             "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + _ls +
             "            <VIRTUAL_BAND>true</VIRTUAL_BAND>" + _ls +
             "            <EXPRESSION>b1 * 0.4 + 1</EXPRESSION>" + _ls +
-            "            <WRITE_DATA>false</WRITE_DATA>" + _ls +
             "        </Spectral_Band_Info>" + _ls +
             "        <Spectral_Band_Info>" + _ls +
             "            <BAND_INDEX>3</BAND_INDEX>" + _ls +

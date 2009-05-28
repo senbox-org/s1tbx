@@ -937,7 +937,6 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <NO_DATA_VALUE>3.0</NO_DATA_VALUE>");
         pw.println("            <VIRTUAL_BAND>true</VIRTUAL_BAND>");
         pw.println("            <EXPRESSION>radiance_8</EXPRESSION>");
-        pw.println("            <WRITE_DATA>false</WRITE_DATA>");
         pw.println("        </Spectral_Band_Info>");
         pw.println("    </Image_Interpretation>");
         pw.println("    <Dataset_Sources>");
