@@ -84,14 +84,12 @@ public class MapGeoCoding extends AbstractGeoCoding {
 
         final CoordinateReferenceSystem baseCRS = CoordinateReferenceSystems.getCRS(mapInfo.getMapProjection(),
                                                                                     mapInfo.getDatum());
-        if (baseCRS != null) {
-            setBaseCRS(baseCRS);
-            setGridCRS(new DefaultDerivedCRS("Grid CS based on " + baseCRS.getName(),
-                                             baseCRS,
-                                             new AffineTransform2D(modelToImageTransform),
-                                             DefaultCartesianCS.DISPLAY));
-            setModelCRS(baseCRS);
-        }
+        setBaseCRS(baseCRS);
+        setGridCRS(new DefaultDerivedCRS("Grid CS based on " + baseCRS.getName(),
+                                         baseCRS,
+                                         new AffineTransform2D(modelToImageTransform),
+                                         DefaultCartesianCS.DISPLAY));
+        setModelCRS(baseCRS);
     }
 
     /**
