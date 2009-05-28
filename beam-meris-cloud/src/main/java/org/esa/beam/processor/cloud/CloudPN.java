@@ -33,7 +33,6 @@ import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.MathUtils;
 
 import java.awt.Color;
-import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -75,20 +74,9 @@ public class CloudPN extends ProcessingNode {
     private TiePointGrid pressGrid;
     private TiePointGrid altitudeGrid;
 
-    private float[] szaScanLine;
-    private float[] saaScanLine;
-    private float[] vzaScanLine;
-    private float[] vaaScanLine;
-    private float[] pressScanLine;
-    private float[] altitudeScanLine;
-    private int[] detectorScanLine;
     private float[] centralWavelenth;
     private CentralWavelengthProvider centralWavelengthProvider;
 
-    private float[][] radianceScanLine;
-    private boolean[] validLandScanLine;
-    private boolean[] validOceanScanLine;
-    private boolean[] landScanLine;
     private Term validLandTerm;
     private Term validOceanTerm;
     private String validLandExpression;
@@ -138,15 +126,15 @@ public class CloudPN extends ProcessingNode {
 
         centralWavelengthProvider = new CentralWavelengthProvider();
         centralWavelengthProvider.readAuxData(AUXDATA_DIR);
-        
+
         validLandExpression = landAlgo.getValidExpression();
         if (validLandExpression.isEmpty()) {
-        	validLandExpression = DEFAULT_VALID_LAND_EXP;
+            validLandExpression = DEFAULT_VALID_LAND_EXP;
         }
-        
+
         validOceanExpression = oceanAlgo.getValidExpression();
         if (validOceanExpression.isEmpty()) {
-        	validOceanExpression = DEFAULT_VALID_OCEAN_EXP;
+            validOceanExpression = DEFAULT_VALID_OCEAN_EXP;
         }
     }
 
@@ -261,7 +249,32 @@ public class CloudPN extends ProcessingNode {
     @Override
     protected void processFrame(int frameX, int frameY, int frameW, int frameH, ProgressMonitor pm) throws IOException {
         final int frameSize = frameW * frameH;
+        final int numBands = radianceBands.length;
         final double[] cloudIn = new double[15];
+
+        float[] szaScanLine;
+        float[] saaScanLine;
+        float[] vzaScanLine;
+        float[] vaaScanLine;
+        float[] pressScanLine;
+        float[] altitudeScanLine;
+        int[] detectorScanLine;
+        float[][] radianceScanLine;
+        boolean[] validLandScanLine;
+        boolean[] validOceanScanLine;
+        boolean[] landScanLine;
+
+        szaScanLine = new float[frameSize];
+        saaScanLine = new float[frameSize];
+        vzaScanLine = new float[frameSize];
+        vaaScanLine = new float[frameSize];
+        pressScanLine = new float[frameSize];
+        altitudeScanLine = new float[frameSize];
+        detectorScanLine = new int[frameSize];
+        radianceScanLine = new float[numBands][frameSize];
+        validLandScanLine = new boolean[frameSize];
+        validOceanScanLine = new boolean[frameSize];
+        landScanLine = new boolean[frameSize];
 
         pm.beginTask("Processing frame...", 10 + frameSize);
         try {
@@ -287,9 +300,9 @@ public class CloudPN extends ProcessingNode {
             detectorBand.readPixels(frameX, frameY, frameW, frameH, detectorScanLine, SubProgressMonitor.create(pm, 1));
 
             getSourceProduct().readBitmask(frameX, frameY, frameW, frameH, validLandTerm, validLandScanLine,
-                    SubProgressMonitor.create(pm, 1));
+                                           SubProgressMonitor.create(pm, 1));
             getSourceProduct().readBitmask(frameX, frameY, frameW, frameH, validOceanTerm, validOceanScanLine,
-                    SubProgressMonitor.create(pm, 1));
+                                           SubProgressMonitor.create(pm, 1));
             getSourceProduct().readBitmask(frameX, frameY, frameW, frameH, landTerm, landScanLine,
                                            SubProgressMonitor.create(pm, 1));
 
@@ -390,14 +403,8 @@ public class CloudPN extends ProcessingNode {
 
     @Override
     public void startProcessing() throws Exception {
-        final Rectangle maxFrameSize = getMaxFrameSize();
-        final int frameWidth = maxFrameSize.width;
-        final int frameHeight = maxFrameSize.height;
-        final int frameSize = frameHeight * frameWidth;
         final Product l1bProduct = getSourceProduct();
-        final int numBands = radianceBands.length;
 
-        radianceScanLine = new float[numBands][frameSize];
 
         szaGrid = l1bProduct.getTiePointGrid(EnvisatConstants.MERIS_SUN_ZENITH_DS_NAME);
         saaGrid = l1bProduct.getTiePointGrid(EnvisatConstants.MERIS_SUN_AZIMUTH_DS_NAME);
@@ -405,17 +412,6 @@ public class CloudPN extends ProcessingNode {
         vaaGrid = l1bProduct.getTiePointGrid(EnvisatConstants.MERIS_VIEW_AZIMUTH_DS_NAME);
         pressGrid = l1bProduct.getTiePointGrid("atm_press");
         altitudeGrid = l1bProduct.getTiePointGrid(EnvisatConstants.MERIS_DEM_ALTITUDE_DS_NAME);
-
-        szaScanLine = new float[frameSize];
-        saaScanLine = new float[frameSize];
-        vzaScanLine = new float[frameSize];
-        vaaScanLine = new float[frameSize];
-        pressScanLine = new float[frameSize];
-        detectorScanLine = new int[frameSize];
-        altitudeScanLine = new float[frameSize];
-        validLandScanLine = new boolean[frameSize];
-        validOceanScanLine = new boolean[frameSize];
-        landScanLine = new boolean[frameSize];
 
         validLandTerm = l1bProduct.createTerm(validLandExpression);
         validOceanTerm = l1bProduct.createTerm(validOceanExpression);

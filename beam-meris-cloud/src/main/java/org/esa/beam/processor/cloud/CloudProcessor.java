@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * The <code>CloudProcessor</code> implements all specific functionality to calculate a cloud probability.
@@ -105,8 +106,7 @@ public class CloudProcessor extends Processor {
 
             _logger.info(CloudConstants.LOG_MSG_SUCCESS);
         } catch (Exception e) {
-            _logger.severe(CloudConstants.LOG_MSG_PROC_ERROR);
-            _logger.severe(e.getMessage());
+            _logger.log(Level.SEVERE, CloudConstants.LOG_MSG_PROC_ERROR + e.getMessage(), e);
             throw new ProcessorException(e.getMessage(), e);
         } finally {
             try {
