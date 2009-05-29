@@ -7,6 +7,8 @@ import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 
 /**
  * Instances of this interface provide the context for implementations of {@link AbstractLayerSourceAssistantPage}.
+ * <p/>
+ * <i>Note: This API is not public yet and may significantly change in the future. Use it at your own risk.</i>
  */
 public interface LayerSourcePageContext extends AssistantPageContext {
 

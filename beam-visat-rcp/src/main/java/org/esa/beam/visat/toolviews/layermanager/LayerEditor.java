@@ -8,6 +8,8 @@ import javax.swing.JComponent;
 
 /**
  * An editor for a specific layer type.
+ * <p/>
+ * <i>Note: This API is not public yet and may significantly change in the future. Use it at your own risk.</i>
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$

@@ -9,6 +9,9 @@ import java.awt.Window;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * <i>Note: This API is not public yet and may significantly change in the future. Use it at your own risk.</i>
+ */
 public class LayerSourceAssistantPane extends AssistantPane implements LayerSourcePageContext {
 
     private final AppContext appContext;

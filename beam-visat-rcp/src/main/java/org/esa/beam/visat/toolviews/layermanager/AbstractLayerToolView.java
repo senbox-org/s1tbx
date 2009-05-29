@@ -33,6 +33,8 @@ import com.bc.ceres.glayer.Layer;
 
 /**
  * Layer manager tool view.
+ * <p/>
+ * <i>Note: This API is not public yet and may significantly change in the future. Use it at your own risk.</i>
  */
 public abstract class AbstractLayerToolView extends AbstractToolView {
 

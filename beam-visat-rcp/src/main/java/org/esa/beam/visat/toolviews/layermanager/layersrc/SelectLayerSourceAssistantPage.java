@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * <i>Note: This API is not public yet and may significantly change in the future. Use it at your own risk.</i>
+ */
 public class SelectLayerSourceAssistantPage extends AbstractLayerSourceAssistantPage {
 
     private JList list;

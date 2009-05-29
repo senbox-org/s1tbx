@@ -5,6 +5,8 @@ import com.bc.ceres.glayer.LayerType;
 /**
  * The {@code LayerSourceDescriptor} provides metadata and
  * a factory method for a {@link LayerSource}.
+ * <p/>
+ * <i>Note: This API is not public yet and may significantly change in the future. Use it at your own risk.</i>
  *
  * @author Marco Peters
  * @author Marco Zühlke

@@ -8,6 +8,8 @@ import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 
 /**
  * This layer source uses the given layer type to construct new layer.
+ * <p/>
+ * <i>Note: This API is not public yet and may significantly change in the future. Use it at your own risk.</i>
  *
  * @author Marco Peters
  * @version $ Revision $ $ Date $

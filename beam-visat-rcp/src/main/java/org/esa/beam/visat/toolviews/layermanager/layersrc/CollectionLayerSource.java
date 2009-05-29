@@ -20,7 +20,9 @@ import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 
 /**
  * This layer source creates a new and empty collection layer.
- *
+ * <p/>
+ * <i>Note: This API is not public yet and may significantly change in the future. Use it at your own risk.</i>
+ * 
  * @author Marco Zuehlke
  * @version $Revision$ $Date$
  * @since BEAM 4.6

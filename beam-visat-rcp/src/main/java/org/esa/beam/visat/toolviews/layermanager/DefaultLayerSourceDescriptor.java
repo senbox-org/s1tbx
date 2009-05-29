@@ -35,6 +35,8 @@ import org.esa.beam.visat.toolviews.layermanager.layersrc.SimpleLayerSource;
  *      &lt;/layerSource&gt;
  *    &lt;/extension&gt;
  * </pre>
+ * <p/>
+ * <i>Note: This API is not public yet and may significantly change in the future. Use it at your own risk.</i>
  */
 @SuppressWarnings({"UnusedDeclaration"})
 public class DefaultLayerSourceDescriptor implements LayerSourceDescriptor {

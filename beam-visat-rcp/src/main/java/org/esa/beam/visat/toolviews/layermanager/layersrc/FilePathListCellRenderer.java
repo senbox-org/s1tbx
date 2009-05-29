@@ -11,6 +11,8 @@ import java.io.File;
  * A {@link javax.swing.ListCellRenderer} which replaces the beginning of the file path
  * by "..." to ensure the given maximum length..
  * It shows also the complete path as a tool tip.
+ * <p/>
+ * <i>Note: This API is not public yet and may significantly change in the future. Use it at your own risk.</i>
  */
 public class FilePathListCellRenderer extends DefaultListCellRenderer {
 

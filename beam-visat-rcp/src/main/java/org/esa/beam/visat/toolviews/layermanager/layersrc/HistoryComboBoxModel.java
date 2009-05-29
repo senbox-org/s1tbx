@@ -7,7 +7,9 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-
+/**
+ * <i>Note: This API is not public yet and may significantly change in the future. Use it at your own risk.</i>
+ */
 public class HistoryComboBoxModel implements ComboBoxModel {
 
     private final UserInputHistory history;
