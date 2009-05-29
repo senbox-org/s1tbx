@@ -11,7 +11,7 @@
     <tr class="header">
         <td class="header">&nbsp;
             File Menu</td>
-        
+
     <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border="0"></a></td>
     </tr>
 </table>
@@ -19,7 +19,7 @@
 <h3>VISAT's File Menu</h3>
 
 
-<h4><a name="new"></a>New&nbsp;&nbsp;<img src="images/icons/New24.gif"></h4>
+<h4><a name="new"></a>New Product&nbsp;&nbsp;<img src="images/icons/New24.gif"></h4>
 
 <p>The new-command allows you to create a new product. The command is enabled only if you have
     already opened or imported a product from which the new product can derive it's geo-coding information.
@@ -27,10 +27,17 @@
     another, open product.</p>
 
 
-<h4><a name="open"></a>Open (Control-O)&nbsp;&nbsp;<img src="images/icons/Open24.gif"></h4>
+<h4><a name="open"></a>Open Product (Control-O)&nbsp;&nbsp;<img src="images/icons/Open24.gif"></h4>
 
-<p>Opens one or multiple data products stored on the hard disk in VISAT. You can select more than one product, e.g. by 
+<p>Opens one or multiple data products stored on the hard disk in VISAT. You can select more than one product, e.g. by
     pressing the <b>CTRL</b> and select the desired products with the mouse.</p>
+
+<h4><a name="openSession"></a>Open Session (Control-Shift-O)</h4>
+
+<p>Opens a BEAM session file stored on the hard disk in VISAT. A session is termed the collection of all products and image
+    views open in VISAT, including any layers added to a view. When a session file is opened, a previously saved
+    session (see <a href="#saveSession">Save Session</a>) is restored. Note that all open products will be closed
+    before a session file is opened.</p>
 
 <h4>Reopen&nbsp;&nbsp;<img src="images/icons/History24.gif"></h4>
 
@@ -43,29 +50,41 @@
     importing
     reasons.</p>
 
-<h4>Close (Control-W)</h4>
+<h4>Close Product (Control-W)</h4>
 
 <p>Closes the currently selected product. This commands is also available in the
     context menu when you right-click over the open product list.</p>
 
-<h4>Close All</h4>
+<h4>Close Session (Control-Shift-W)</h4>
 
-<p>Closes all products currently open in VISAT. This commands is also available
-    in the context menu when you right-click over the open product list. </p>
+<p>Closes all products and image views currently open in VISAT. Note that changes made during a session are not written
+    to an associated BEAM session file. In order to write the changes to a session file the session must be saved (see 
+    <a href="#saveSession">Save Session</a>) explicitly.</p>
 
 <p>&nbsp;</p>
 
 
-<h4><a name="save"></a>Save (Control S)&nbsp;&nbsp;<img src="images/icons/Save24.gif"></h4>
+<h4><a name="save"></a>Save Product (Control-S)&nbsp;&nbsp;<img src="images/icons/Save24.gif"></h4>
 
 <p>Saves the currently selected product in the <a href="../general/BeamDimapFormat.html">BEAM-DIMAP format</a>.
     If the product still does not have a file location, then you are asked to specify a storage location for the
     product. Note that save process can be a time consuming process for huge products.</p>
 
-<h4>Save As&nbsp;&nbsp;<img src="images/icons/SaveAs24.gif"></h4>
+<h4>Save Product As&nbsp;&nbsp;<img src="images/icons/SaveAs24.gif"></h4>
 
 <p>Saves the currently selected product to a different location. You are asked to specify a new storage location
     for the selected product.</p>
+
+<h4><a name="saveSession"></a>Save Session (Control-Shift-S)</h4>
+
+<p>Saves the current session to the associated BEAM session file. If the current session is not associated with a BEAM
+    session file, you are asked to specify a storage location for the session file.</p>
+
+<h4>Save Session As</h4>
+
+<p>Saves the current session to a new BEAM session file. You are asked to specify a storage location for the new
+    session file.</p>
+
 
 <h3><a name="import"></a>Import -&gt; </h3>
 
