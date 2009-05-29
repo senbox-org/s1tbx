@@ -727,21 +727,21 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (isValidPixelExpressionSet()) {
             dataMaskExpression = getValidPixelExpression();
             if (isNoDataValueUsed()) {
-                dataMaskExpression += " && " + createFuzzyNotEqualExpression();
+                dataMaskExpression += " && " + createValidMaskExpressionForNoDataValue();
             }
         } else if (isNoDataValueUsed()) {
-            dataMaskExpression = createFuzzyNotEqualExpression();
+            dataMaskExpression = createValidMaskExpressionForNoDataValue();
         }
         return dataMaskExpression;
     }
 
-    private String createFuzzyNotEqualExpression() {
+    private String createValidMaskExpressionForNoDataValue() {
         final String ref = BandArithmetic.createExternalName(getName());
         final double noDataValue = getGeophysicalNoDataValue();
         if (Double.isNaN(noDataValue)) {
-            return "nan(" + ref + ")";
+            return "!nan(" + ref + ")";
         } else if (Double.isInfinite(noDataValue)) {
-            return "inf(" + ref + ")";
+            return "!inf(" + ref + ")";
         } else {
             return "fneq(" + ref + "," + noDataValue + ")";
         }
