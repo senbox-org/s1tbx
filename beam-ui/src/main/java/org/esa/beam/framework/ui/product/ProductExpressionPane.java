@@ -170,7 +170,7 @@ public class ProductExpressionPane extends ExpressionPane {
         setCurrentProduct();
         List<String> listEntries = new ArrayList<String>(64);
         if (currentProduct != null) {
-            String[] flagNames = currentProduct.getFlagCodingGroup().getNodeNames();
+            String[] flagNames = currentProduct.getAllFlagNames();
             boolean hasBands = currentProduct.getNumBands() > 0;
             boolean hasGrids = currentProduct.getNumTiePointGrids() > 0;
             boolean hasFlags = flagNames.length > 0;
