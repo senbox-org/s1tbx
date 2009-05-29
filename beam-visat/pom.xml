@@ -8,13 +8,13 @@
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam</artifactId>
-        <version>4.6-SNAPSHOT</version>
+        <version>4.6</version>
     </parent>
 
     <name>BEAM VISAT Application</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-visat</artifactId>
-    <version>4.6-SNAPSHOT</version>
+    <version>4.6</version>
 
     <packaging>jar</packaging>
 
