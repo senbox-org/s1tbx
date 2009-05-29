@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-netcdf-reader</symbolicName>
-    <version>1.0.201</version>
+    <version>1.0.3</version>
     <name>NetCDF Product Reader</name>
     <description>
         A product reader for NetCDF files conforming to the
@@ -10,6 +10,8 @@
     
     <changelog>
         <![CDATA[
+        Changes in 1.0.3:<br/>
+        [BEAM-999] Rounding errors in map geocoding<br/>
         Changes in 1.0.201:<br/>
         [BEAM-874] Ensure thread safety of product reader<br/>
         [BEAM-851] Missing NetCDF command in import menu<br/>

@@ -88,12 +88,12 @@ public class NetcdfReaderUtils {
                                           final Variable latVar,
                                           int sceneRasterWidth,
                                           final int sceneRasterHeight) throws IOException {
-        float pixelX;
-        float pixelY;
-        float easting;
-        float northing;
-        float pixelSizeX;
-        float pixelSizeY;
+        double pixelX;
+        double pixelY;
+        double easting;
+        double northing;
+        double pixelSizeX;
+        double pixelSizeY;
 
         final NcAttributeMap lonAttrMap = NcAttributeMap.create(lonVar);
         final Number lonValidMin = lonAttrMap.getNumericValue(NetcdfConstants.VALID_MIN_ATT_NAME);
@@ -106,12 +106,12 @@ public class NetcdfReaderUtils {
         boolean yFlipped;
         if (lonValidMin != null && lonStep != null && latValidMin != null && latStep != null) {
             // COARDS convention uses 'valid_min' and 'step' attributes
-            pixelX = 0.5f;
-            pixelY = (sceneRasterHeight - 1.0f) + 0.5f;
-            easting = lonValidMin.floatValue();
-            northing = latValidMin.floatValue();
-            pixelSizeX = lonStep.floatValue();
-            pixelSizeY = latStep.floatValue();
+            pixelX = 0.5;
+            pixelY = (sceneRasterHeight - 1.0) + 0.5;
+            easting = lonValidMin.doubleValue();
+            northing = latValidMin.doubleValue();
+            pixelSizeX = lonStep.doubleValue();
+            pixelSizeY = latStep.doubleValue();
             // must flip
             yFlipped = true; // todo - check
         } else {
@@ -122,25 +122,25 @@ public class NetcdfReaderUtils {
 
             final Index i0 = lonData.getIndex().set(0);
             final Index i1 = lonData.getIndex().set(1);
-            pixelSizeX = lonData.getFloat(i1) - lonData.getFloat(i0);
-            easting = lonData.getFloat(i0);
+            pixelSizeX = lonData.getDouble(i1) - lonData.getDouble(i0);
+            easting = lonData.getDouble(i0);
 
             int latSize = (int) latVar.getSize();
             final Index j0 = latData.getIndex().set(0);
             final Index j1 = latData.getIndex().set(1);
-            pixelSizeY = latData.getFloat(j1) - latData.getFloat(j0);
+            pixelSizeY = latData.getDouble(j1) - latData.getDouble(j0);
 
             pixelX = 0.5f;
             pixelY = 0.5f;
 
             // this should be the 'normal' case
             if (pixelSizeY < 0) {
-                pixelSizeY *= -1;
+                pixelSizeY = -pixelSizeY;
                 yFlipped = false;
-                northing = latData.getFloat(latData.getIndex().set(0));
+                northing = latData.getDouble(latData.getIndex().set(0));
             } else {
                 yFlipped = true;
-                northing = latData.getFloat(latData.getIndex().set(latSize - 1));
+                northing = latData.getDouble(latData.getIndex().set(latSize - 1));
             }
         }
 
@@ -150,9 +150,9 @@ public class NetcdfReaderUtils {
 
         final MapProjection projection = MapProjectionRegistry.getProjection(IdentityTransformDescriptor.NAME);
         final MapInfo mapInfo = new MapInfo(projection,
-                                            pixelX, pixelY,
-                                            easting, northing,
-                                            pixelSizeX, pixelSizeY,
+                                            (float) pixelX, (float) pixelY,
+                                            (float) easting, (float) northing,
+                                            (float) pixelSizeX, (float) pixelSizeY,
                                             Datum.WGS_84);
         mapInfo.setSceneWidth(sceneRasterWidth);
         mapInfo.setSceneHeight(sceneRasterHeight);
