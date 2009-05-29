@@ -17,15 +17,19 @@
 </table>
 
 
-<h3>Session</h3>
+<h3>BEAM Session</h3>
 
 <p>
-    A session can stores your current configuration of VISAT. If you open a saved session all products,
-    scene views and layers will be restored. VISAT will be in state as if you have never closed the session.<br>
-    A session file has the file extension <b><code>.beam</code></b>.
+    A BEAM <i>session</i> comprises all currently opened products and all opened
+    <a href="ProductSceneView.html">image views</a>. Since BEAM 4.6, sessions
+    can be stored and restored to and from a <i>session file</i>. A session file has the
+    standard file extension <b><code>.beam</code></b>. If you have selected to create
+    a file association with VISAT session files during installation, you can double-click
+    session files in your file system which will invoke VISAT and restore the session.
 </p>
 
-<p>From the <a href="FileMenu.html">file menu</a> you can <br>
+<p>In VISAT, all session related commands are available from the <a href="FileMenu.html">file menu</a>.
+    Here you can 
     <a href="FileMenu.html#saveSession">save</a>,
     <a href="FileMenu.html#openSession">open</a> and
     <a href="FileMenu.html#closeSession">close</a>
@@ -33,11 +37,11 @@
 </p>
 
 <p>
-    If you store the your opened products beside the session file, the file pathes to
-    the products are stored as relative pathes. This means that you can take the parent folder of the session file
-    and move somewhere else on your hard disk without breaking the references top the products.
-    This allows you to package the whole folder and send it e.g. by e-mail, too. If the recipient of this e-mail
-    opens the session, he will have the same VISAT configuration has you had as you stored the session.
+    If you store the your opened products next to the session file, the file pathes to
+    the products are stored as relative pathes. This means that you can take the parent folder of the
+    session file and move it somewhere else in your file system without breaking the file references
+    to the products. This is possible because the parent folder is self-contained with respect to the stored
+    BEAM session.
 </p>
 
 <hr>
