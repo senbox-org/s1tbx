@@ -7,6 +7,40 @@ import java.util.List;
 
 
 public class RasterDataNodeNoDataTest extends TestCase {
+    public void testValidPixelExpression() {
+        double z = 0;
+
+        Product p = new Product("p", "t", 10, 10);
+        Band b = p.addBand("b", ProductData.TYPE_FLOAT32);
+
+        assertEquals(null, b.getValidMaskExpression());
+
+        b.setNoDataValueUsed(true);
+        b.setGeophysicalNoDataValue(-999.0);
+        assertEquals("fneq(b,-999.0)", b.getValidMaskExpression());
+
+        b.setGeophysicalNoDataValue(1.0 / z);
+        assertEquals("!inf(b)", b.getValidMaskExpression());
+
+        b.setGeophysicalNoDataValue(-1.0 / z);
+        assertEquals("!inf(b)", b.getValidMaskExpression());
+
+        b.setGeophysicalNoDataValue(Double.NaN);
+        assertEquals("!nan(b)", b.getValidMaskExpression());
+
+        b.setNoDataValueUsed(false);
+        b.setValidPixelExpression("b > 0");
+        assertEquals("b > 0", b.getValidMaskExpression());
+
+        b.setNoDataValueUsed(true);
+        assertEquals("(b > 0) && !nan(b)", b.getValidMaskExpression());
+
+        b.setValidPixelExpression("b < -1 || b > 0");
+        assertEquals("(b < -1 || b > 0) && !nan(b)", b.getValidMaskExpression());
+
+        b.setValidPixelExpression("!nan(b)");
+        assertEquals("!nan(b)", b.getValidMaskExpression());
+    }
 
     public void testNodeDataChangedEventFired() {
         Product p = new Product("p", "t", 10, 10);

@@ -727,7 +727,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (isValidPixelExpressionSet()) {
             dataMaskExpression = getValidPixelExpression();
             if (isNoDataValueUsed()) {
-                dataMaskExpression += " && " + createValidMaskExpressionForNoDataValue();
+                final String dataMaskExpression2 = createValidMaskExpressionForNoDataValue();
+                if (!dataMaskExpression2.equals(dataMaskExpression)) {
+                    dataMaskExpression = "(" + dataMaskExpression + ") && " + dataMaskExpression2;
+                }
             }
         } else if (isNoDataValueUsed()) {
             dataMaskExpression = createValidMaskExpressionForNoDataValue();
