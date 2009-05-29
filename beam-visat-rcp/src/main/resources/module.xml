@@ -226,7 +226,7 @@
 
         <layerSource>
             <id>windfield-layer-source</id>
-            <name>Wind Field</name>
+            <name>Wind speed vectors from MERIS ECMWF annotations</name>
             <description>?</description>
             <class>org.esa.beam.visat.toolviews.layermanager.layersrc.windfield.WindFieldLayerSource</class>
         </layerSource>

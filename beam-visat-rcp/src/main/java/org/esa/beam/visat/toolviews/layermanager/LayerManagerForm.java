@@ -145,12 +145,10 @@ class LayerManagerForm extends AbstractLayerForm {
 
 
         JPanel layerPanel = new JPanel(new BorderLayout(4, 4));
-        layerPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
         layerPanel.add(new JScrollPane(layerTree), BorderLayout.CENTER);
         layerPanel.add(sliderPanel, BorderLayout.SOUTH);
 
         control = new JPanel(new BorderLayout(4, 4));
-        control.setBorder(new EmptyBorder(4, 4, 4, 4));
         control.add(layerPanel, BorderLayout.CENTER);
         control.add(actionBar, BorderLayout.EAST);
 

@@ -36,7 +36,7 @@ public class WindFieldLayerType extends LayerType {
 
     @Override
     public String getName() {
-        return "Wind-Field Layer";
+        return "Wind Speed";
     }
 
     @Override
