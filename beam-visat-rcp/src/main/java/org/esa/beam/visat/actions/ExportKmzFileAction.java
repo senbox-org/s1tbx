@@ -21,6 +21,7 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
@@ -29,6 +30,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -256,7 +258,11 @@ public class ExportKmzFileAction extends ExecCommand {
                 pm.beginTask(message, view.isRGB() ? 4 : 3);
                 visatApp.setStatusBarMessage(message);
                 visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                RenderedImage image = ExportImageAction.createImage(view, true, null, true);
+                final Rectangle bounds = view.getLayerCanvas().getViewport().getViewBounds();
+                // TODO: let user specifiy dimension (rq-20090529)
+                final Dimension dimension = new Dimension(MathUtils.floorInt(bounds.getWidth()),
+                                                          MathUtils.floorInt(bounds.getHeight()));
+                RenderedImage image = ExportImageAction.createImage(view, true, dimension, true);
                 pm.worked(1);
                 String imageType = "PNG";
                 String imageName = "overlay.png";
