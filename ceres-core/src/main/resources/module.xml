@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>ceres-core</symbolicName>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.9</version>
     <name>Ceres Runtime Library</name>
     <activator>com.bc.ceres.core.runtime.internal.RuntimeActivator</activator>
 

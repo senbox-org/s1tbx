@@ -4,13 +4,13 @@
     <groupId>com.bc.ceres</groupId>
     <artifactId>ceres-glayer</artifactId>
     <packaging>jar</packaging>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.9</version>
     <name>Ceres GLayer Library</name>
 
     <parent>
 	    <groupId>com.bc.ceres</groupId>
 	    <artifactId>ceres</artifactId>
-	    <version>0.9-SNAPSHOT</version>
+	    <version>0.9</version>
 	</parent>
 
     <dependencies>

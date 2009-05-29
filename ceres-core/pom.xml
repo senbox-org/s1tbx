@@ -6,12 +6,12 @@
     <parent>
         <groupId>com.bc.ceres</groupId>
         <artifactId>ceres</artifactId>
-        <version>0.9-SNAPSHOT</version>
+        <version>0.9</version>
     </parent>
 
     <groupId>com.bc.ceres</groupId>
     <artifactId>ceres-core</artifactId>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.9</version>
     <packaging>jar</packaging>
     <name>Ceres Runtime</name>
 

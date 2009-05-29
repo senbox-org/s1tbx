@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>ceres-glayer</symbolicName>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.9</version>
     <name>Ceres GLayer Library</name>
 
     <categories>System,Library</categories>
