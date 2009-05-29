@@ -104,7 +104,7 @@ public class ProductExpressionPane extends ExpressionPane {
             inclBandsCheck.setSelected(true);
         }
 
-        inclGridsCheck = new JCheckBox("Show tie point grids"); /*I18N*/
+        inclGridsCheck = new JCheckBox("Show tie-point grids"); /*I18N*/
         inclGridsCheck.addActionListener(resetNodeListAL);
 
         inclFlagsCheck = new JCheckBox("Show single flags"); /*I18N*/
