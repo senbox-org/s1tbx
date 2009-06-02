@@ -1,8 +1,8 @@
-                                 CHANGELOG
+﻿                                 CHANGELOG
 
 This file contains all significant changes for each BEAM release.
 
-    o xx.xx.2009: Version 4.6
+    o 02.06.2009: Version 4.6
     o 31.10.2008: Version 4.5
     o 11.07.2008: Version 4.2
     o 31.10.2007: Version 4.1
@@ -32,8 +32,41 @@ _____________________________________________________________________________
 
 1) New VISAT Features
 
-o Colour manipulation window now indicates rough statistics generated from a
-  low-res version of the displayed image. Users can now compute accurate
+o A couple of new layers have been added to VISAT. Layers are used to enhance 
+  the (image) views by displaying additional data sources. The new layers are:
+  - Images of other bands or tie-point grids
+  - Images loaded from JPG or PNG image files
+  - Images downloaded from a Web Map Service (WMS)
+  - ESRI shapefiles
+  - NASA Blue Marble for Lat/lon projected views
+  - Wind speed vectors for MERIS
+
+o The layer manager tool window is now used to add, remove, change, select 
+  and organise the layers displayed in the selected view.
+
+o The new layer editor tool window is used to manipulate the properties of the
+  selected layer. 
+  
+o VISAT now allows to store and restore sessions. A session comprises all
+  opened product files and associated views along with their layers and
+  layer settings. A stored session only stores the file path references,
+  not the product data.
+
+2) VISAT Improvements
+
+o The band arithmetic GUI has been completely revised and simplified. 
+
+o When creating non-virtual bands using band arithmetic in BEAM versions 
+  prior to 4.6, the raster data has been allocated in memory which often caused 
+  out-of-memory errors for large images. This problem has been removed, raster 
+  data is now computed when requested.
+
+o The image export has been improved. Users can now specify the image output 
+  resolution. The created image files will directly represent the content of the
+  selected view comprising all displayed layers.
+
+o The colour manipulation window now indicates rough statistics generated 
+  from a low-res version of the displayed image. Users can now compute accurate
   statistics on demand.
   Colour palette import will now either
   - try to keep colours assigned to sample values or
@@ -43,65 +76,65 @@ o Band arithmetic now takes into account no-data values from all bands and
   tie-point grids referenced by the band-math expression (with no loss in
   runtime performance).
 
-2) Complete list of bug fixes and improvements
+3) Complete list of BEAM 4.6 bug fixes and improvements
 
-BEAM-999	Rounding errors in map geocoding
-BEAM-998	VISAT fails to import shapes from ESRI shapefiles
-BEAM-997	VISAT should display a band's coordinate system
-BEAM-996	Let user specify dimension of exported images
-BEAM-995	Exporting image yields out-of-memory error
-BEAM-994	VISAT "Save As" command shall not close views anymore
-BEAM-993	Filter band not correct if band is UINT type and does not have scaling
-BEAM-989	ATSR active fire bitmasks
-BEAM-988	Processor dialogs to output performance statistics
-BEAM-987	Processor dialogs to output detailed error messages
-BEAM-981	Valid-pixel expression removed when running 'mapproj' tool
-BEAM-981    Valid-pixel expression removed when running 'mapproj' tool
-BEAM-980    Cannot set output size in 'mapproj' tool
-BEAM-937    Colour palette sometimes incorrectly imported
-BEAM-936 	Layer visibility is not synchronised with tool bar buttons
-BEAM-932 	Inconsistent handling of adding and copying bitmasks
-BEAM-931 	Shapes are not displayed while drawing
-BEAM-930 	Navigation Window disregards manual scaling factor editing
-BEAM-928 	Statistics shall be shown immediately if already computed
-BEAM-927 	Mean and standard deviation of statistics are inexact
-BEAM-926 	Mean and standard deviation shall be stored in DIMAP
-BEAM-924 	Radiance to reflectance processor does not copy geo-coding
-BEAM-923 	Wrong exception type thrown on format errors
-BEAM-922 	Wrong Exception type thrown on format errors
-BEAM-921 	Sometimes pin manager cannot delete pins
-BEAM-920 	Pins in view out-of-sync with those in pin manager
-BEAM-919 	Spectrum view often causes severe problems with pins
-BEAM-917 	Value of a single pixel is not considered in histogram
-BEAM-916 	Colour manipulation shall allow values outside of histogram range
-BEAM-912 	Bitmasks don't work when applied in some sequences
-BEAM-913 	Histogram disappears for RGB channel in colour manipulation
-BEAM-910 	VISAT module manager does not work under Vista OS
-BEAM-909 	Expression or no-data changes of virtual band disregarded in image view
-BEAM-907 	PConvert fails with an IOException
-BEAM-906 	Bitmask layers are duplicated in within the layer manager
-BEAM-904 	Image export does not clip to the product bounds
-BEAM-902 	Graticule looks scrambled if it is displayed
-BEAM-901 	ROI sometimes not considered in Scatter Plot
-BEAM-900 	BEAM-DIMAP writer fails, if resulting XML has more than 20 indentation levels
-BEAM-899 	Colour manipulation window disregards RGB source band changes
-BEAM-898 	Display TIFF and GeoTIFF tags in metadata
-BEAM-897 	Installer should ship Java server VM for appropriate systems
-BEAM-896 	Missing "Color Manipulation" histogram
-BEAM-895 	"Zoom to selected Pin" in Pin Manager incorrectly moves image view
-BEAM-894 	Adapt check for valid ICOL product type
-BEAM-893 	Inconsistent handling of colour palettes in VISAT colour manipulation window
-BEAM-892 	VISAT colour manipulation window shall signal inexact statistics
-BEAM-891 	Model transformation is not applied if GeoTiff is projected
-BEAM-889 	Virtual bands are added as empty images to GeoTIFF files
-BEAM-886 	Meris L1N data products are not accepted
-BEAM-882 	Pin and GCP shapes grow when image is rotated
-BEAM-880 	Pixel info view has a typo
-BEAM-879 	Cannot display flag values
-BEAM-878 	ROI manager: unexpected behaviour with polylines
-BEAM-877 	Improve compatibility with icol products
-BEAM-782 	Using spatial subset when creating new arithmetic band causes exception
-BEAM-216	Support ESRI Shape Files
+BEAM-999  Rounding errors in map geocoding
+BEAM-998  VISAT fails to import shapes from ESRI shapefiles
+BEAM-997  VISAT should display a band's coordinate system
+BEAM-996  Let user specify dimension of exported images
+BEAM-995  Exporting image yields out-of-memory error
+BEAM-994  VISAT "Save As" command shall not close views anymore
+BEAM-993  Filter band not correct if band is UINT type and does not have scaling
+BEAM-989  ATSR active fire bitmasks
+BEAM-988  Processor dialogs to output performance statistics
+BEAM-987  Processor dialogs to output detailed error messages
+BEAM-981  Valid-pixel expression removed when running 'mapproj' tool
+BEAM-981  Valid-pixel expression removed when running 'mapproj' tool
+BEAM-980  Cannot set output size in 'mapproj' tool
+BEAM-937  Colour palette sometimes incorrectly imported
+BEAM-936  Layer visibility is not synchronised with tool bar buttons
+BEAM-932  Inconsistent handling of adding and copying bitmasks
+BEAM-931  Shapes are not displayed while drawing
+BEAM-930  Navigation Window disregards manual scaling factor editing
+BEAM-928  Statistics shall be shown immediately if already computed
+BEAM-927  Mean and standard deviation of statistics are inexact
+BEAM-926  Mean and standard deviation shall be stored in DIMAP
+BEAM-924  Radiance to reflectance processor does not copy geo-coding
+BEAM-923  Wrong exception type thrown on format errors
+BEAM-922  Wrong Exception type thrown on format errors
+BEAM-921  Sometimes pin manager cannot delete pins
+BEAM-920  Pins in view out-of-sync with those in pin manager
+BEAM-919  Spectrum view often causes severe problems with pins
+BEAM-917  Value of a single pixel is not considered in histogram
+BEAM-916  Colour manipulation shall allow values outside of histogram range
+BEAM-912  Bitmasks don't work when applied in some sequences
+BEAM-913  Histogram disappears for RGB channel in colour manipulation
+BEAM-910  VISAT module manager does not work under Vista OS
+BEAM-909  Expression or no-data changes of virtual band disregarded in image view
+BEAM-907  PConvert fails with an IOException
+BEAM-906  Bitmask layers are duplicated in within the layer manager
+BEAM-904  Image export does not clip to the product bounds
+BEAM-902  Graticule looks scrambled if it is displayed
+BEAM-901  ROI sometimes not considered in Scatter Plot
+BEAM-900  BEAM-DIMAP writer fails, if resulting XML has more than 20 indentation levels
+BEAM-899  Colour manipulation window disregards RGB source band changes
+BEAM-898  Display TIFF and GeoTIFF tags in metadata
+BEAM-897  Installer should ship Java server VM for appropriate systems
+BEAM-896  Missing "Color Manipulation" histogram
+BEAM-895  "Zoom to selected Pin" in Pin Manager incorrectly moves image view
+BEAM-894  Adapt check for valid ICOL product type
+BEAM-893  Inconsistent handling of colour palettes in VISAT colour manipulation window
+BEAM-892  VISAT colour manipulation window shall signal inexact statistics
+BEAM-891  Model transformation is not applied if GeoTiff is projected
+BEAM-889  Virtual bands are added as empty images to GeoTIFF files
+BEAM-886  Meris L1N data products are not accepted
+BEAM-882  Pin and GCP shapes grow when image is rotated
+BEAM-880  Pixel info view has a typo
+BEAM-879  Cannot display flag values
+BEAM-878  ROI manager: unexpected behaviour with polylines
+BEAM-877  Improve compatibility with icol products
+BEAM-782  Using spatial subset when creating new arithmetic band causes exception
+BEAM-216  Support ESRI Shape Files
 
 _____________________________________________________________________________
 
