@@ -45,6 +45,17 @@ o Band arithmetic now takes into account no-data values from all bands and
 
 2) Complete list of bug fixes and improvements
 
+BEAM-999	Rounding errors in map geocoding
+BEAM-998	VISAT fails to import shapes from ESRI shapefiles
+BEAM-997	VISAT should display a band's coordinate system
+BEAM-996	Let user specify dimension of exported images
+BEAM-995	Exporting image yields out-of-memory error
+BEAM-994	VISAT "Save As" command shall not close views anymore
+BEAM-993	Filter band not correct if band is UINT type and does not have scaling
+BEAM-989	ATSR active fire bitmasks
+BEAM-988	Processor dialogs to output performance statistics
+BEAM-987	Processor dialogs to output detailed error messages
+BEAM-981	Valid-pixel expression removed when running 'mapproj' tool
 BEAM-981    Valid-pixel expression removed when running 'mapproj' tool
 BEAM-980    Cannot set output size in 'mapproj' tool
 BEAM-937    Colour palette sometimes incorrectly imported
@@ -90,6 +101,7 @@ BEAM-879 	Cannot display flag values
 BEAM-878 	ROI manager: unexpected behaviour with polylines
 BEAM-877 	Improve compatibility with icol products
 BEAM-782 	Using spatial subset when creating new arithmetic band causes exception
+BEAM-216	Support ESRI Shape Files
 
 _____________________________________________________________________________
 
