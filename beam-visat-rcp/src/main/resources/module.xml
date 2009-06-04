@@ -13,6 +13,7 @@
         <![CDATA[
         <p>Changes in 4.7:<br/>
           [BEAM-1002] Editing bitmask overlays is not possible using the nimbus or gtk look & feel<br/>
+          [BEAM-1000] Spelling error in band arithmetic<br/>
         </p>
         <p>Changes in 4.6:<br/>
           [BEAM-998] VISAT fails to import shapes from ESRI shapefiles<br/>
