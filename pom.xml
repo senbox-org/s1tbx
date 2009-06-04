@@ -135,8 +135,6 @@
         <module>lib-netcdf</module>
         <module>blue-marble-worldmap</module>
 
-        <module>../chris-box</module>
-        <module>../smos-box</module>
     </modules>
 
     <dependencyManagement>
