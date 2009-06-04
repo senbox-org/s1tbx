@@ -1150,7 +1150,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
 
         @Override
         public String getName() {
-            return (String) _nameParam.getValue();
+            return _nameParam != null ? (String) _nameParam.getValue() : "";
         }
 
         public String getDescription() {
