@@ -24,7 +24,7 @@ public class BandArithmeticAction extends ExecCommand {
     @Override
     public void updateState(final CommandEvent event) {
         final int n = VisatApp.getApp().getProductManager().getProductCount();
-        setEnabled(n > 0);
+        setEnabled(n > 0 && VisatApp.getApp().getSelectedProduct() != null); 
     }
 
    
