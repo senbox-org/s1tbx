@@ -430,7 +430,7 @@ class ScatterPlotPanel extends PagePanel {
                         minX = Math.floor(minX);
                         maxX = Math.ceil(maxX);
                     }
-                    if (MathUtils.equalValues(maxY, maxY, 1.0e-4)) {
+                    if (MathUtils.equalValues(minY, maxY, 1.0e-4)) {
                         minY = Math.floor(minY);
                         maxY = Math.ceil(maxY);
                     }
