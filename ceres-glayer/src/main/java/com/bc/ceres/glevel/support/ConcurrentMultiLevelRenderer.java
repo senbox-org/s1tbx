@@ -470,9 +470,9 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
     private final class TileImageCache {
         private final Map<TileIndex, TileImage> cache;
         private long size;
-        private long capacity;
-        private long maxSize;
-        private long retentionPeriod;
+        private final long capacity;
+        private final long maxSize;
+        private final long retentionPeriod;
 
         public TileImageCache() {
             cache = new HashMap<TileIndex, TileImage>(37);
@@ -521,20 +521,36 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
         public synchronized void trim(int currentLevel) {
             if (size > capacity) {
-                final long now = System.currentTimeMillis();
-                final TreeSet<TileImage> treeSet = new TreeSet<TileImage>(new AscendingLevelsComparator());
-                treeSet.addAll(cache.values());
-                // try to remove "old" tiles from other levels first
-                for (TileImage image : treeSet) {
-                    if (image.tileIndex.level != currentLevel) {
-                        maybeRemove(image, now);
+                long now = System.currentTimeMillis();
+                removeOld(now, currentLevel);
+                
+                // If, still too big, because the tiles are all too new:
+                // remove some older ones, but not as aggressive
+                if (size > (2 * maxSize)) {
+                    final TreeSet<TileImage> treeSet = new TreeSet<TileImage>(new AgeComparator());
+                    treeSet.addAll(cache.values());
+                    for (TileImage image : treeSet) {
+                        if (size > (2 * maxSize)) {
+                            remove(image.tileIndex);
+                        }
                     }
                 }
-                // If we still need clean up, remove "old" tiles from current level as well
-                for (TileImage image : treeSet) {
-                    if (image.tileIndex.level == currentLevel) {
-                        maybeRemove(image, now);
-                    }
+            }
+        }
+
+        private void removeOld(final long now, int currentLevel) {
+            final TreeSet<TileImage> treeSet = new TreeSet<TileImage>(new AscendingLevelsComparator());
+            treeSet.addAll(cache.values());
+            // try to remove "old" tiles from other levels first
+            for (TileImage image : treeSet) {
+                if (image.tileIndex.level != currentLevel) {
+                    maybeRemove(image, now);
+                }
+            }
+            // If we still need clean up, remove "old" tiles from current level as well
+            for (TileImage image : treeSet) {
+                if (image.tileIndex.level == currentLevel) {
+                    maybeRemove(image, now);
                 }
             }
         }
@@ -649,6 +665,19 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         }
     }
 
+    private static class AgeComparator implements Comparator<TileImage> {
+        @Override
+        public int compare(TileImage ti1, TileImage ti2) {
+            long d = ti1.timeStamp - ti2.timeStamp;
+            if (d > 0) {
+                return 1;
+            } else if (d < 0) {
+                return -1;
+            }
+            return 0;
+        }
+    }
+    
     private static class AscendingLevelsComparator implements Comparator<TileImage> {
         @Override
         public int compare(TileImage ti1, TileImage ti2) {
