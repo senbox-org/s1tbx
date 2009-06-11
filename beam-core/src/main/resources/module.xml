@@ -22,6 +22,9 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 4.7:<br/>
+        [BEAM-1004] X and Y variables always zero in band arithmetic<br/>
+        </p>
         <p>Changes in 4.6:<br/>
         [BEAM-993] Filter band not correct if band is UINT type and does not have scaling<br/>
         [BEAM-978] Data Flip shifts product geo-location<br/>

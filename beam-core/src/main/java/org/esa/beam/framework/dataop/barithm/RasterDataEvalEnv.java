@@ -30,13 +30,11 @@ import com.bc.jexp.EvalEnv;
  */
 public class RasterDataEvalEnv implements EvalEnv {
 
-    private final int _offsetX;
-    private final int _offsetY;
-    private final int _regionWidth;
-    private final int _regionHeight;
-    private int _pixelX;
-    private int _pixelY;
-    private int _elemIndex;
+    private final int offsetX;
+    private final int offsetY;
+    private final int regionWidth;
+    private final int regionHeight;
+    private int elemIndex;
 
     /**
      * Constructs a new environment for the given raster data region.
@@ -47,10 +45,10 @@ public class RasterDataEvalEnv implements EvalEnv {
      * @param regionHeight the height of the raster region
      */
     public RasterDataEvalEnv(int offsetX, int offsetY, int regionWidth, int regionHeight) {
-        _offsetX = offsetX;
-        _offsetY = offsetY;
-        _regionWidth = regionWidth;
-        _regionHeight = regionHeight;
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
+        this.regionWidth = regionWidth;
+        this.regionHeight = regionHeight;
     }
 
     /**
@@ -59,7 +57,7 @@ public class RasterDataEvalEnv implements EvalEnv {
      * @return the x-offset of the raster region
      */
     public int getOffsetX() {
-        return _offsetX;
+        return offsetX;
     }
 
     /**
@@ -68,7 +66,7 @@ public class RasterDataEvalEnv implements EvalEnv {
      * @return the y-offset of the raster region.
      */
     public int getOffsetY() {
-        return _offsetY;
+        return offsetY;
     }
 
     /**
@@ -77,7 +75,7 @@ public class RasterDataEvalEnv implements EvalEnv {
      * @return the width of the raster region.
      */
     public int getRegionWidth() {
-        return _regionWidth;
+        return regionWidth;
     }
 
     /**
@@ -86,7 +84,7 @@ public class RasterDataEvalEnv implements EvalEnv {
      * @return the height of the raster region.
      */
     public int getRegionHeight() {
-        return _regionHeight;
+        return regionHeight;
     }
 
     /**
@@ -95,16 +93,17 @@ public class RasterDataEvalEnv implements EvalEnv {
      * @return the current pixel's x-coordinate
      */
     public final int getPixelX() {
-        return _pixelX;
+        return offsetX + elemIndex % regionWidth;
     }
 
     /**
      * Sets the absolute pixel's x-coordinate within the data raster.
      *
      * @param pixelX the current pixel's x-coordinate
+     * @deprecated not used anymore
      */
+    @Deprecated
     public void setPixelX(int pixelX) {
-        _pixelX = pixelX;
     }
 
     /**
@@ -113,16 +112,17 @@ public class RasterDataEvalEnv implements EvalEnv {
      * @return the current pixel's y-coordinate
      */
     public final int getPixelY() {
-        return _pixelY;
+        return offsetY + elemIndex / regionWidth;
     }
 
     /**
      * Sets the absolute pixel's y-coordinate within the data raster.
      *
      * @param pixelY the current pixel's y-coordinate
+     * @deprecated not used anymore
      */
+    @Deprecated
     public void setPixelY(int pixelY) {
-        _pixelY = pixelY;
     }
 
     /**
@@ -131,7 +131,7 @@ public class RasterDataEvalEnv implements EvalEnv {
      * @return the index of the current data element
      */
     public final int getElemIndex() {
-        return _elemIndex;
+        return elemIndex;
     }
 
     /**
@@ -140,6 +140,6 @@ public class RasterDataEvalEnv implements EvalEnv {
      * @param elemIndex the index of the current data element
      */
     public void setElemIndex(int elemIndex) {
-        _elemIndex = elemIndex;
+        this.elemIndex = elemIndex;
     }
 }

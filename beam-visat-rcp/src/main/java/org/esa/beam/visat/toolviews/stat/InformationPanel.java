@@ -1,6 +1,7 @@
 package org.esa.beam.visat.toolviews.stat;
 
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.StringUtils;
@@ -113,7 +114,11 @@ class InformationPanel extends TextPagePanel {
     }
 
     private static String getProductFormatName(final Product product) {
-        final ProductReaderPlugIn readerPlugIn = product.getProductReader().getReaderPlugIn();
+        final ProductReader productReader = product.getProductReader();
+        if (productReader == null) {
+            return null;
+        }
+        final ProductReaderPlugIn readerPlugIn = productReader.getReaderPlugIn();
         if (readerPlugIn != null) {
             return getProductFormatName(readerPlugIn);
         }

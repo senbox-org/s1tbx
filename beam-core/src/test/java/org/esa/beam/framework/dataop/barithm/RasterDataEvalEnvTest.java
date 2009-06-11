@@ -23,12 +23,35 @@ public class RasterDataEvalEnvTest extends TestCase {
 
     public void testConstructor() {
         final RasterDataEvalEnv env = new RasterDataEvalEnv(20, 14, 238, 548);
-        assertEquals(0, env.getPixelX());
-        assertEquals(0, env.getPixelY());
+        assertEquals(20, env.getPixelX());
+        assertEquals(14, env.getPixelY());
         assertEquals(0, env.getElemIndex());
         assertEquals(20, env.getOffsetX());
         assertEquals(14, env.getOffsetY());
         assertEquals(238, env.getRegionWidth());
         assertEquals(548, env.getRegionHeight());
+    }
+
+    public void testXY() {
+        final RasterDataEvalEnv env = new RasterDataEvalEnv(50, 20, 200, 100);
+
+        assertEquals(0, env.getElemIndex());
+        assertEquals(50, env.getPixelX());
+        assertEquals(20, env.getPixelY());
+
+        env.setElemIndex(1);
+        assertEquals(1, env.getElemIndex());
+        assertEquals(50 + 1, env.getPixelX());
+        assertEquals(20, env.getPixelY());
+
+        env.setElemIndex(200 + 2);
+        assertEquals(200 + 2, env.getElemIndex());
+        assertEquals(50 + 2, env.getPixelX());
+        assertEquals(20 + 1, env.getPixelY());
+
+        env.setElemIndex(70 * 200 + 110);
+        assertEquals(70 * 200 + 110, env.getElemIndex());
+        assertEquals(50 + 110, env.getPixelX());
+        assertEquals(20 + 70, env.getPixelY());
     }
 }

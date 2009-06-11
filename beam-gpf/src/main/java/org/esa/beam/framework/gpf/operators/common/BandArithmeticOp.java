@@ -203,10 +203,8 @@ public class BandArithmeticOp extends Operator {
                 if (pm.isCanceled()) {
                     break;
                 }
-                env.setPixelY(y);
                 for (int x = rect.x; x < rect.x + rect.width; x++) {
                     env.setElemIndex(pixelIndex);
-                    env.setPixelX(x);
                     targetTile.setSample(x, y, term.evalD(env));
                     pixelIndex++;
                 }

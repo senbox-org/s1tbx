@@ -18,7 +18,6 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.Band;
 
-// todo add apidoc
 /**
  * This class adds the following functions to VISAT's expression editor:
  * <pre>
