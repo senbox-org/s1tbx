@@ -134,7 +134,6 @@
         <module>lib-hdf</module>
         <module>lib-netcdf</module>
         <module>blue-marble-worldmap</module>
-        <module>beam-cursor-synchroniser</module>
 
     </modules>
 
