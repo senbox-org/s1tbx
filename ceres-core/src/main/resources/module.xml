@@ -8,8 +8,10 @@
 
     <changelog>
         <![CDATA[
+        Changes in 0.10<br/>
+        [CERES-035] Typo in classname com.bc.ceres.core.runtime.ConfigurationShemaElement<br/>
         Changes in 0.9<br/>
-        [CERES-029]  ExtensionManager shall consider complete type hierarchy<br/>
+        [CERES-029] ExtensionManager shall consider complete type hierarchy<br/>
         Changes in 0.7<br/>
         [CERES-027] Modules shall inherit extension points<br/>
         [CERES-025] Add support for extension objects<br/>

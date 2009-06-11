@@ -6,6 +6,7 @@ import com.bc.ceres.core.runtime.ConfigurationElement;
 import com.bc.ceres.core.runtime.ConfigurationShemaElement;
 import com.bc.ceres.core.runtime.Extension;
 import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.core.runtime.ConfigurationSchemaElement;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.XppDomReader;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
@@ -24,15 +25,21 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
         implements ConfigurationElement {
 
     private ExtensionImpl declaringExtension;
-    private ConfigurationShemaElementImpl shemaElement;
+    private ConfigurationSchemaElementImpl schemaElement;
 
     public ConfigurationElementImpl(ConfigurationElementImpl parent, Xpp3Dom dom) {
         super(parent, dom);
     }
 
     @Override
+    public ConfigurationSchemaElement getSchemaElement() {
+        return schemaElement;
+    }
+
+    @Override
+    @Deprecated
     public ConfigurationShemaElement getShemaElement() {
-        return shemaElement;
+        return schemaElement;
     }
 
     @Override
@@ -49,17 +56,17 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
         String extensionClassElementName = null;
         String extensionClassAttributeName = null;
         Class<T> extensionDefaultClass = null;
-        if (shemaElement != null) {
-            String typeAttributeValue = shemaElement.getAttribute("type");
+        if (schemaElement != null) {
+            String typeAttributeValue = schemaElement.getAttribute("type");
             checkExtensionType(extensionType, typeAttributeValue);
 
-            String classAttributeValue = shemaElement.getAttribute("class");
+            String classAttributeValue = schemaElement.getAttribute("class");
             String extensionDefaultClassName = classAttributeValue;
             if (classAttributeValue != null) {
                 if (classAttributeValue.startsWith("@")) {
                     // '@' is used to bind class name to an element, whose value is the actual class name value
                     extensionClassElementName = classAttributeValue.substring(1);
-                    ConfigurationShemaElement extensionDefaultClassNameElement = shemaElement.getChild(
+                    ConfigurationSchemaElement extensionDefaultClassNameElement = schemaElement.getChild(
                             extensionClassElementName);
                     if (extensionDefaultClassNameElement != null) {
                         extensionDefaultClassName = extensionDefaultClassNameElement.getValue();
@@ -203,24 +210,24 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
     private <T> XStream getXStream(Class<T> extensionType,
                                    Class<T> extensionClass,
                                    Class<T> extensionDefaultClass) {
-        if (shemaElement == null) {
+        if (schemaElement == null) {
             return null;
         }
 
-        String attribute = shemaElement.getAttribute("autoConfig");
+        String attribute = schemaElement.getAttribute("autoConfig");
         if (attribute == null || !attribute.equalsIgnoreCase("true")) {
             return null;
         }
 
-        XStream xStream = shemaElement.getXStream();
+        XStream xStream = schemaElement.getXStream();
         if (xStream == null) {
             xStream = createXStream(extensionType, extensionClass);
-            shemaElement.setXStream(xStream);
+            schemaElement.setXStream(xStream);
             if (extensionDefaultClass != null) {
-                shemaElement.configureAliases(extensionDefaultClass);
+                schemaElement.configureAliases(extensionDefaultClass);
             }
         }
-        shemaElement.configureAliases(extensionClass);
+        schemaElement.configureAliases(extensionClass);
         xStream.setClassLoader(getDeclaringModule().getClassLoader());
         return xStream;
     }
@@ -228,8 +235,8 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
     private <T> XStream createXStream(Class<T> extensionType, Class<T> extensionClass) {
         XStream xStream = new XStream();
         xStream.aliasType(getName(), extensionType);
-        ConfigurationShemaElement[] children = shemaElement.getChildren();
-        for (ConfigurationShemaElement child : children) {
+        ConfigurationSchemaElement[] children = schemaElement.getChildren();
+        for (ConfigurationSchemaElement child : children) {
             String fieldName = child.getAttribute("field");
             if (fieldName != null) {
                 xStream.aliasField(child.getName(), extensionClass, fieldName);
@@ -244,8 +251,8 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
         for (int i = 0; i < doms.length; i++) {
             ConfigurationElementImpl child = new ConfigurationElementImpl(this, doms[i]);
             child.setDeclaringExtension(declaringExtension);
-            if (shemaElement != null) {
-                child.setShemaElement((ConfigurationShemaElementImpl) shemaElement.getChild(child.getName()));
+            if (schemaElement != null) {
+                child.setShemaElement((ConfigurationSchemaElementImpl) schemaElement.getChild(child.getName()));
             }
             children[i] = child;
         }
@@ -261,7 +268,7 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
         this.declaringExtension = declaringExtension;
     }
 
-    void setShemaElement(ConfigurationShemaElementImpl shemaElement) {
-        this.shemaElement = shemaElement;
+    void setShemaElement(ConfigurationSchemaElementImpl schemaElement) {
+        this.schemaElement = schemaElement;
     }
 }

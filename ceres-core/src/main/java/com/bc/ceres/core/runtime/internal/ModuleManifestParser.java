@@ -276,7 +276,7 @@ public class ModuleManifestParser {
                             MarshallingContext marshallingContext) {
             ExtensionPointImpl extensionPoint = (ExtensionPointImpl) object;
             destination.addAttribute("id", extensionPoint.getId());
-            ConfigurationShemaElementImpl configurationElementImpl = (ConfigurationShemaElementImpl) extensionPoint.getConfigurationShemaElement();
+            ConfigurationSchemaElementImpl configurationElementImpl = (ConfigurationSchemaElementImpl) extensionPoint.getConfigurationSchemaElement();
             writeDom(configurationElementImpl.getDom(), destination);
         }
 
@@ -287,7 +287,7 @@ public class ModuleManifestParser {
                         MessageFormat.format("element [{0}]: missing attribute [id]", source.getNodeName()));
             }
             Xpp3Dom dom = readDom(source);
-            return new ExtensionPointImpl(id, new ConfigurationShemaElementImpl(null, dom));
+            return new ExtensionPointImpl(id, new ConfigurationSchemaElementImpl(null, dom));
         }
     }
 }

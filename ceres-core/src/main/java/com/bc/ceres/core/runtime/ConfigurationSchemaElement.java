@@ -20,8 +20,13 @@ package com.bc.ceres.core.runtime;
  * A configuration element of an extension point (shema).
  * <p/>
  * This interface is not intended to be implemented by clients.</p>
- * @deprecated since Ceres 0.10, {@link ConfigurationSchemaElement} is used instead
  */
-@Deprecated
-public interface ConfigurationShemaElement extends ConfigurationSchemaElement {
+public interface ConfigurationSchemaElement extends ConfigurationElementBase<ConfigurationSchemaElement> {
+
+    /**
+     * Gets the declaring extension point, if this is an element of an extension point configuration (the shema).
+     *
+     * @return The declaring extension point, or {@code null} if this is not a shema element.
+     */
+    ExtensionPoint getDeclaringExtensionPoint();
 }

@@ -1,6 +1,7 @@
 package com.bc.ceres.core.runtime.internal;
 
 import com.bc.ceres.core.runtime.ConfigurationShemaElement;
+import com.bc.ceres.core.runtime.ConfigurationSchemaElement;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.Annotations;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
@@ -8,14 +9,14 @@ import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ConfigurationShemaElementImpl extends ConfigurationElementBaseImpl<ConfigurationShemaElement>
-        implements ConfigurationShemaElement {
+public class ConfigurationSchemaElementImpl extends ConfigurationElementBaseImpl<ConfigurationSchemaElement>
+        implements ConfigurationSchemaElement, ConfigurationShemaElement {
 
     private ExtensionPointImpl declaringExtensionPoint;
     private XStream xStream;
     private Set<Class> classesWithConfiguredAliases;
 
-    public ConfigurationShemaElementImpl(ConfigurationShemaElementImpl parent, Xpp3Dom dom) {
+    public ConfigurationSchemaElementImpl(ConfigurationSchemaElementImpl parent, Xpp3Dom dom) {
         super(parent, dom);
     }
 
@@ -24,10 +25,10 @@ public class ConfigurationShemaElementImpl extends ConfigurationElementBaseImpl<
     }
 
     @Override
-    protected ConfigurationShemaElement[] createChildren(Xpp3Dom[] doms) {
-        ConfigurationShemaElement[] children = createEmptyArray(doms.length);
+    protected ConfigurationSchemaElement[] createChildren(Xpp3Dom[] doms) {
+        ConfigurationSchemaElement[] children = createEmptyArray(doms.length);
         for (int i = 0; i < doms.length; i++) {
-            ConfigurationShemaElementImpl child = new ConfigurationShemaElementImpl(this, doms[i]);
+            ConfigurationSchemaElementImpl child = new ConfigurationSchemaElementImpl(this, doms[i]);
             child.setDeclaringExtensionPoint(declaringExtensionPoint);
             children[i] = child;
         }
@@ -35,8 +36,8 @@ public class ConfigurationShemaElementImpl extends ConfigurationElementBaseImpl<
     }
 
     @Override
-    protected ConfigurationShemaElement[] createEmptyArray(int n) {
-        return new ConfigurationShemaElement[n];
+    protected ConfigurationSchemaElement[] createEmptyArray(int n) {
+        return new ConfigurationSchemaElement[n];
     }
 
     void setDeclaringExtensionPoint(ExtensionPointImpl declaringExtensionPoint) {

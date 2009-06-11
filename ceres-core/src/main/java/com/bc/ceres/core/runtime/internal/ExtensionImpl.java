@@ -60,7 +60,7 @@ public class ExtensionImpl implements Extension {
                 if (extensionPoint != null) {
                     // Set root of all shema elements
                     configurationElement.setShemaElement(
-                            (ConfigurationShemaElementImpl) extensionPoint.getConfigurationShemaElement());
+                            (ConfigurationSchemaElementImpl) extensionPoint.getConfigurationSchemaElement());
                 }
             }
         }

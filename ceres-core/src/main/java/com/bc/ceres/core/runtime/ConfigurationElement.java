@@ -17,6 +17,18 @@ public interface ConfigurationElement extends ConfigurationElementBase<Configura
      *
      * @see #getDeclaringExtension()
      */
+    ConfigurationSchemaElement getSchemaElement();
+
+
+    /**
+     * Gets the corresponding shema element, if this is an element of an extension configuration.
+     *
+     * @return The shema element, or {@code null} if this is a shema element.
+     *
+     * @see #getDeclaringExtension()
+     * @deprecated since Ceres 0.10, use {@link #getSchemaElement()} instead
+     */
+    @Deprecated
     ConfigurationShemaElement getShemaElement();
 
     /**
