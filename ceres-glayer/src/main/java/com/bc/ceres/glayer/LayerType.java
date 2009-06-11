@@ -81,13 +81,14 @@ public abstract class LayerType extends ExtensibleObject {
     }
 
     static {
-        REGISTRY = ServiceRegistryFactory.getInstance().getServiceRegistry(LayerType.class);
-
+        final ServiceRegistry<LayerType> typeServiceRegistry = ServiceRegistryFactory.getInstance().getServiceRegistry(LayerType.class);
         final ServiceLoader<LayerType> serviceLoader = ServiceLoader.load(LayerType.class);
         for (final LayerType layerType : serviceLoader) {
-            REGISTRY.addService(layerType);
+            typeServiceRegistry.addService(layerType);
         }
+        REGISTRY = typeServiceRegistry;
     }
+
 
     // todo - Layer API: check following createDefaultValueModel helpers:
     // (1) why "default"? why static if protected? should be non-static for override.
