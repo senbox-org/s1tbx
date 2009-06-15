@@ -91,6 +91,7 @@ public class NavigationToolView extends AbstractToolView {
     private AbstractButton zoomOutButton;
     private AbstractButton zoomAllButton;
     private AbstractButton syncViewsButton;
+    private AbstractButton syncCursorButton;
     private JTextField zoomFactorField;
     private JFormattedTextField rotationAngleField;
     private JSlider zoomSlider;
@@ -103,6 +104,7 @@ public class NavigationToolView extends AbstractToolView {
     private final Color positiveRotationAngleBackground = new Color(221, 255, 221); //#ddffdd
     private final Color negativeRotationAngleBackground = new Color(255, 221, 221); //#ffdddd
     private JSpinner rotationAngleSpinner;
+    private CursorSynchronizer cursorSynchronizer;
 
     public NavigationToolView() {
     }
@@ -111,6 +113,7 @@ public class NavigationToolView extends AbstractToolView {
     public JComponent createControl() {
         layerCanvasModelChangeChangeHandler = new LayerCanvasModelChangeHandler();
         productNodeChangeHandler = createProductNodeListener();
+        cursorSynchronizer = new CursorSynchronizer(VisatApp.getApp());
 
         final DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.ENGLISH);
         scaleFormat = new DecimalFormat("#####.##", decimalFormatSymbols);
@@ -157,13 +160,23 @@ public class NavigationToolView extends AbstractToolView {
             }
         });
 
-        syncViewsButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Chain24.gif"), true);
+        syncViewsButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/SyncViews24.png"), true);
         syncViewsButton.setToolTipText("Synchronize compatible product views."); /*I18N*/
         syncViewsButton.setName("syncViewsButton");
         syncViewsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 maybeSynchronizeCompatibleProductViews();
+            }
+        });
+
+        syncCursorButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/SyncCursor24.png"), true);
+        syncCursorButton.setToolTipText("Synchronize cursor position."); /*I18N*/
+        syncCursorButton.setName("syncCursorButton");
+        syncCursorButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                cursorSynchronizer.setEnabled(syncCursorButton.isSelected());
             }
         });
 
@@ -193,6 +206,9 @@ public class NavigationToolView extends AbstractToolView {
 
         gbc.gridy++;
         eastPane.add(syncViewsButton, gbc);
+
+        gbc.gridy++;
+        eastPane.add(syncCursorButton, gbc);
 
         gbc.gridy++;
         gbc.weighty = 1.0;
@@ -545,6 +561,7 @@ public class NavigationToolView extends AbstractToolView {
         zoomAllButton.setEnabled(canNavigate);
         zoomSlider.setEnabled(canNavigate);
         syncViewsButton.setEnabled(canNavigate);
+        syncCursorButton.setEnabled(canNavigate);
         zoomFactorField.setEnabled(canNavigate);
         rotationAngleSpinner.setEnabled(canNavigate);
         updateTitle();
