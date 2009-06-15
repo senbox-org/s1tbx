@@ -228,7 +228,7 @@
             <dependency>
                 <groupId>ucar.netcdf</groupId>
                 <artifactId>lib-netcdf</artifactId>
-                <version>2.2.16</version>
+                <version>4.0</version>
             </dependency>
 
             <!-- GeoTools Libraries ############################################# -->

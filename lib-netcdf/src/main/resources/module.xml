@@ -1,11 +1,11 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>lib-netcdf</symbolicName>
-    <version>2.2.16</version>
+    <version>4.0</version>
     <name>NetCDF Library</name>
 
 
-    <description>A wrapper module for libraries used to read data products in NetCDF format..</description>
+    <description>A wrapper module for libraries used to read data products in NetCDF format.</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
@@ -15,9 +15,6 @@
 
     <dependency>
         <module>beam-core</module>
-    </dependency>
-    <dependency>
-        <lib>lib/netcdf.jar</lib>
     </dependency>
 
     <packaging>dir</packaging>
