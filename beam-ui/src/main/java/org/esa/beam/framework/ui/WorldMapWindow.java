@@ -19,10 +19,20 @@ package org.esa.beam.framework.ui;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.framework.help.HelpSys;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JViewport;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -42,7 +52,7 @@ import java.awt.event.ActionListener;
  */
 public class WorldMapWindow extends JDialog {
 
-    private static String _TITLE = "World Map";
+    private static String TITLE = "World Map";
 
     private String _helpId;
     private WorldMapPane _worldMapPane;
@@ -58,9 +68,9 @@ public class WorldMapWindow extends JDialog {
     private static final float SCALE_32 = 4.0f;
 
     public WorldMapWindow(Frame owner, String title, String helpId, JComponent accessory) {
-        super(owner, title != null && title.length() > 0 ? title : _TITLE, false);
+        super(owner, title != null && title.length() > 0 ? title : TITLE, false);
         if (title != null) {
-            _TITLE = title;
+            TITLE = title;
         }
         _helpId = helpId;
         _accessory = accessory;
@@ -91,7 +101,7 @@ public class WorldMapWindow extends JDialog {
     }
 
     private void createUI() {
-        _worldMapPane = new WorldMapPane(WorldMapImageLoader.getWorldMapImage(false));
+        _worldMapPane = new WorldMapPane();
 
         final AbstractButton helpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Help24.gif"),
                                                                          false);
@@ -107,6 +117,7 @@ public class WorldMapWindow extends JDialog {
         final JRadioButton zoom16 = new JRadioButton("16 x");
         final JRadioButton zoom32 = new JRadioButton("32 x");
         final ActionListener listener = new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 setCursor(Cursor.WAIT_CURSOR);
                 try {
@@ -163,6 +174,7 @@ public class WorldMapWindow extends JDialog {
         checkBoxHighRes.setSelected(false);
         checkBoxHighRes.setEnabled(true);
         checkBoxHighRes.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 _worldMapPane.setWorldMapImage(WorldMapImageLoader.getWorldMapImage(checkBoxHighRes.isSelected()));
                 if (_checkBoxAuto.isSelected()) {
@@ -175,6 +187,7 @@ public class WorldMapWindow extends JDialog {
         final JButton buttonCenter = new JButton("Center");
         buttonCenter.setToolTipText("Center selected product"); /*I18N*/
         buttonCenter.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 centerSelectedProduct();
             }
@@ -184,22 +197,22 @@ public class WorldMapWindow extends JDialog {
         final GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
         gbc.gridy = 0;
         GridBagUtils.addToPanel(zoomPane, zoom1, gbc);
-        gbc.gridy ++;
+        gbc.gridy++;
         GridBagUtils.addToPanel(zoomPane, zoom2, gbc);
-        gbc.gridy ++;
+        gbc.gridy++;
         GridBagUtils.addToPanel(zoomPane, zoom4, gbc);
-        gbc.gridy ++;
+        gbc.gridy++;
         GridBagUtils.addToPanel(zoomPane, zoom8, gbc);
-        gbc.gridy ++;
+        gbc.gridy++;
         GridBagUtils.addToPanel(zoomPane, zoom16, gbc);
-        gbc.gridy ++;
+        gbc.gridy++;
         GridBagUtils.addToPanel(zoomPane, zoom32, gbc);
-        gbc.gridy ++;
+        gbc.gridy++;
         gbc.insets.top = 4;
         GridBagUtils.addToPanel(zoomPane, checkBoxHighRes, gbc);
-        gbc.gridy ++;
+        gbc.gridy++;
         GridBagUtils.addToPanel(zoomPane, _checkBoxAuto, gbc);
-        gbc.gridy ++;
+        gbc.gridy++;
         gbc.insets.top = 10;
         GridBagUtils.addToPanel(zoomPane, buttonCenter, gbc);
 
