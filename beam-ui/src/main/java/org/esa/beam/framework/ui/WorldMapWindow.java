@@ -37,7 +37,7 @@ public class WorldMapWindow extends JDialog {
     private static final String DEFAUL_TTITLE = "World Map";
 
     private String helpId;
-    private WorldMapPane worldMapPane;
+    private DefaultWorldMapPaneModel worldMapPaneModel;
 
     /**
      * @param owner  the owner of this window
@@ -68,33 +68,32 @@ public class WorldMapWindow extends JDialog {
     }
 
     public void setSelectedProduct(Product product) {
-        worldMapPane.setSelectedProduct(product);
+        worldMapPaneModel.setSelectedProduct(product);
     }
 
     public Product getSelectedProduct() {
-        return worldMapPane.getSelectedProduct();
+        return worldMapPaneModel.getSelectedProduct();
     }
 
     public void setProducts(Product[] products) {
-        worldMapPane.setProducts(products);
+        worldMapPaneModel.setProducts(products);
     }
 
     public void setPathesToDisplay(GeoPos[][] geoBoundaries) {
-        worldMapPane.setPathesToDisplay(geoBoundaries);
+        worldMapPaneModel.setAdditionalGeoBoundaries(geoBoundaries);
     }
 
     private void createUI() {
-        worldMapPane = new WorldMapPane();
+        worldMapPaneModel = new DefaultWorldMapPaneModel();
+        setContentPane(new WorldMapPane(worldMapPaneModel));
 
         if (helpId != null) {
             HelpSys.enableHelpKey(this, helpId);
         }
-
-        setContentPane(worldMapPane);
     }
 
     /**
-     * @deprecated since BEAM 4.7, no replacement
+     * @deprecated since BEAM 4.7, call {@link #pack()} instead directly
      */
     @Deprecated
     public void packIfNeeded() {

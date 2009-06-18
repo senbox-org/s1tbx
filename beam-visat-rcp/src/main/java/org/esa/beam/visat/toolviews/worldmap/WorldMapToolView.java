@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.ui.DefaultWorldMapPaneModel;
 import org.esa.beam.framework.ui.WorldMapPane;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -49,8 +50,7 @@ public class WorldMapToolView extends AbstractToolView {
     public static final String ID = WorldMapToolView.class.getName();
 
     private VisatApp visatApp;
-
-    private WorldMapPane worldMapPane;
+    private DefaultWorldMapPaneModel worldMapPaneModel;
 
 
     public WorldMapToolView() {
@@ -61,9 +61,10 @@ public class WorldMapToolView extends AbstractToolView {
     public JComponent createControl() {
         final JPanel mainPane = new JPanel(new BorderLayout(4, 4));
         mainPane.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
-        mainPane.setPreferredSize(new Dimension(320, 200));
+        mainPane.setPreferredSize(new Dimension(320, 160));
 
-        worldMapPane = new WorldMapPane();
+        worldMapPaneModel = new DefaultWorldMapPaneModel();
+        final WorldMapPane worldMapPane = new WorldMapPane(worldMapPaneModel);
         mainPane.add(worldMapPane, BorderLayout.CENTER);
 
         visatApp.addProductTreeListener(new WorldMapPTL());
@@ -73,37 +74,27 @@ public class WorldMapToolView extends AbstractToolView {
         // product scene view.
         //
         visatApp.addInternalFrameListener(new WorldMapIFL());
-        setProducts(visatApp);
+        setProducts(visatApp.getProductManager().getProducts());
         setSelectedProduct(visatApp.getSelectedProduct());
 
         return mainPane;
     }
 
     public void setSelectedProduct(Product product) {
-        worldMapPane.setSelectedProduct(product);
+        worldMapPaneModel.setSelectedProduct(product);
     }
 
     public Product getSelectedProduct() {
-        return worldMapPane.getSelectedProduct();
-    }
-
-    private void setProducts(final VisatApp visatApp) {
-        worldMapPane.setProducts(visatApp.getProductManager().getProducts());
+        return worldMapPaneModel.getSelectedProduct();
     }
 
 
-    /**
-     * @param products the product to display on the map
-     *
-     * @deprecated since BEAM 4.7, no replacement
-     */
-    @Deprecated
     public void setProducts(Product[] products) {
-        worldMapPane.setProducts(products);
+        worldMapPaneModel.setProducts(products);
     }
 
     public void setPathesToDisplay(GeoPos[][] geoBoundaries) {
-        worldMapPane.setPathesToDisplay(geoBoundaries);
+        worldMapPaneModel.setAdditionalGeoBoundaries(geoBoundaries);
     }
 
     public void packIfNeeded() {
@@ -117,8 +108,8 @@ public class WorldMapToolView extends AbstractToolView {
 
         @Override
         public void productAdded(final Product product) {
+            worldMapPaneModel.addProduct(product);
             setSelectedProduct(product);
-            setProducts(visatApp);
         }
 
         @Override
@@ -126,7 +117,7 @@ public class WorldMapToolView extends AbstractToolView {
             if (getSelectedProduct() == product) {
                 setSelectedProduct(null);
             }
-            setProducts(visatApp);
+            worldMapPaneModel.removeProduct(product);
         }
 
         @Override
@@ -163,10 +154,6 @@ public class WorldMapToolView extends AbstractToolView {
                 product = ((ProductSceneView) contentPane).getProduct();
             }
             setSelectedProduct(product);
-        }
-
-        @Override
-        public void internalFrameDeactivated(final InternalFrameEvent e) {
         }
     }
 }

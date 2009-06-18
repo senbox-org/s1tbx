@@ -16,10 +16,8 @@
  */
 package org.esa.beam.framework.ui;
 
-import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
-import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -44,9 +42,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.List;
 
 /**
- * This class displays a world map with the given products on top.
+ * This class displays a world map specified by the {@link WorldMapPaneModel}.
  *
  * @author Marco Peters
  * @version $Revision$ $Date$
@@ -54,88 +55,39 @@ import java.awt.geom.Rectangle2D;
 public final class WorldMapPane extends JPanel {
 
     private LayerCanvas layerCanvas;
-    private Product selectedProduct;
-    private Product[] products;
-    private GeoPos[][] additionalGeoBoundaries;
     private Layer worldMapLayer;
+    private final WorldMapPaneModel model;
 
-    public WorldMapPane() {
-        final LayerType type = LayerType.getLayerType("org.esa.beam.worldmap.BlueMarbleLayerType");
+    public WorldMapPane(WorldMapPaneModel model) {
+        this.model = model;
         layerCanvas = new LayerCanvas();
         layerCanvas.getModel().getViewport().setModelYAxisDown(false);
         installLayerCanvasNavigation(layerCanvas);
+        layerCanvas.addOverlay(new BoundaryOverlay());
         final Layer rootLayer = layerCanvas.getLayer();
-        worldMapLayer = type.createLayer(new WorldMapLayerContext(rootLayer), new ValueContainer());
-        rootLayer.getChildren().add(worldMapLayer);
+
         final Dimension dimension = new Dimension(400, 200);
-        this.setPreferredSize(dimension);
-        this.setSize(dimension);
         final Viewport viewport = layerCanvas.getViewport();
         viewport.setViewBounds(new Rectangle(dimension));
-        viewport.zoom(worldMapLayer.getModelBounds());
-        layerCanvas.addOverlay(new BoundaryOverlay());
+
+        setPreferredSize(dimension);
+        setSize(dimension);
         setLayout(new BorderLayout());
         add(layerCanvas, BorderLayout.CENTER);
 
-    }
+        model.addModelChangeListener(new ModelChangeListener());
 
-    /**
-     * @param image is ignored
-     *
-     * @deprecated since BEAM 4.7, no replacement
-     */
-    @Deprecated
-    @SuppressWarnings({"UnusedDeclaration"})
-    public WorldMapPane(final java.awt.image.BufferedImage image) {
-        this();
-    }
-
-    /**
-     * @param bufferedImage is ignored
-     *
-     * @deprecated since BEAM 4.7, no replacement
-     */
-    @Deprecated
-    @SuppressWarnings({"UnusedDeclaration"})
-    public void setWorldMapImage(java.awt.image.BufferedImage bufferedImage) {
+        worldMapLayer = model.getWorldMapLayer(new WorldMapLayerContext(rootLayer));
+        layerCanvas.getLayer().getChildren().add(worldMapLayer);
+        layerCanvas.getViewport().zoom(worldMapLayer.getModelBounds());
     }
 
     public Product getSelectedProduct() {
-        return selectedProduct;
-    }
-
-    public void setSelectedProduct(final Product product) {
-        if (getSelectedProduct() != product) {
-            final Product oldProduct = getSelectedProduct();
-            selectedProduct = product;
-            if (selectedProduct != null) {
-                zoomToProduct(selectedProduct);
-            }
-            repaint();
-            firePropertyChange("product", oldProduct, selectedProduct);
-        }
+        return model.getSelectedProduct();
     }
 
     public Product[] getProducts() {
-        return products;
-    }
-
-    public void setProducts(final Product[] products) {
-        if (getProducts() != products) {
-            final Product[] oldProducts = getProducts();
-            this.products = products.clone();
-            repaint();
-            firePropertyChange("products", oldProducts, this.products);
-        }
-    }
-
-    public void setPathesToDisplay(final GeoPos[][] geoBoundaries) {
-        if (additionalGeoBoundaries != geoBoundaries) {
-            final GeoPos[][] oldGeoBoundaries = additionalGeoBoundaries;
-            additionalGeoBoundaries = geoBoundaries.clone();
-            repaint();
-            firePropertyChange("extraGeoBoundaries", oldGeoBoundaries, additionalGeoBoundaries);
-        }
+        return model.getProducts();
     }
 
     public float getScale() {
@@ -148,35 +100,6 @@ public final class WorldMapPane extends JPanel {
             layerCanvas.getViewport().setZoomFactor(scale);
             firePropertyChange("scale", oldValue, scale);
         }
-    }
-
-    public Dimension getCurrentimageSize() {
-        return layerCanvas.getSize();
-    }
-
-    /**
-     * @return the center {@link PixelPos pixel position} of the
-     *         currently selected product
-     *
-     * @deprecated since BEAM 4.7, no replacement
-     */
-    @Deprecated
-    public PixelPos getCurrentProductCenter() {
-        if (selectedProduct == null) {
-            return null;
-        }
-        return getProductCenter(selectedProduct);
-    }
-
-    private PixelPos getProductCenter(final Product product) {
-        final GeoCoding geoCoding = product.getGeoCoding();
-        PixelPos centerPos = null;
-        if (geoCoding != null) {
-            final float pixelX = (float) Math.floor(0.5f * product.getSceneRasterWidth()) + 0.5f;
-            final float pixelY = (float) Math.floor(0.5f * product.getSceneRasterHeight()) + 0.5f;
-            centerPos = getPixelPos(geoCoding, new PixelPos(pixelX, pixelY));
-        }
-        return centerPos;
     }
 
     public void zoomToProduct(Product product) {
@@ -207,6 +130,37 @@ public final class WorldMapPane extends JPanel {
         viewport.zoom(modelBounds);
     }
 
+    private void updateUiState(PropertyChangeEvent evt) {
+        if (WorldMapPaneModel.PROPERTY_LAYER.equals(evt.getPropertyName())) {
+            exchangeWorldMapLayer();
+        }
+        if (WorldMapPaneModel.PROPERTY_PRODUCTS.equals(evt.getPropertyName())) {
+            repaint();
+        }
+        if (WorldMapPaneModel.PROPERTY_SELECTED_PRODUCT.equals(evt.getPropertyName())) {
+            final Product selectedProduct = model.getSelectedProduct();
+            if (selectedProduct != null) {
+                zoomToProduct(selectedProduct);
+            }
+        }
+        if (WorldMapPaneModel.PROPERTY_ADDITIONAL_GEO_BOUNDARIES.equals(evt.getPropertyName())) {
+            repaint();
+        }
+    }
+
+
+    private void exchangeWorldMapLayer() {
+        final List<Layer> children = layerCanvas.getLayer().getChildren();
+        for (Layer child : children) {
+            child.dispose();
+        }
+        children.clear();
+        final Layer rootLayer = layerCanvas.getLayer();
+        worldMapLayer = model.getWorldMapLayer(new WorldMapLayerContext(rootLayer));
+        children.add(worldMapLayer);
+        layerCanvas.getViewport().zoom(worldMapLayer.getModelBounds());
+    }
+
     private Rectangle2D cropToMaxModelBounds(Rectangle2D modelBounds) {
         final Rectangle2D maxModelBounds = worldMapLayer.getModelBounds();
         if (modelBounds.getWidth() >= maxModelBounds.getWidth() - 1 ||
@@ -222,19 +176,123 @@ public final class WorldMapPane extends JPanel {
         return ProductUtils.createGeoBoundaryPaths(product, null, step);
     }
 
-
-    private PixelPos getPixelPos(final GeoCoding geoCoding, final PixelPos productPixelPos) {
-        final GeoPos geoPos = geoCoding.getGeoPos(productPixelPos, null);
-        final AffineTransform transform = layerCanvas.getViewport().getModelToViewTransform();
-        final Point2D point2D = transform.transform(new Point2D.Double(geoPos.getLon(), geoPos.getLat()), null);
-        return new PixelPos((float) point2D.getX(), (float) point2D.getY());
+    private PixelPos getProductCenter(final Product product) {
+        final GeoCoding geoCoding = product.getGeoCoding();
+        PixelPos centerPos = null;
+        if (geoCoding != null) {
+            final float pixelX = (float) Math.floor(0.5f * product.getSceneRasterWidth()) + 0.5f;
+            final float pixelY = (float) Math.floor(0.5f * product.getSceneRasterHeight()) + 0.5f;
+            final GeoPos geoPos = geoCoding.getGeoPos(new PixelPos(pixelX, pixelY), null);
+            final AffineTransform transform = layerCanvas.getViewport().getModelToViewTransform();
+            final Point2D point2D = transform.transform(new Point2D.Double(geoPos.getLon(), geoPos.getLat()), null);
+            centerPos = new PixelPos((float) point2D.getX(), (float) point2D.getY());
+        }
+        return centerPos;
     }
 
-    public static void installLayerCanvasNavigation(LayerCanvas layerCanvas) {
+    private static void installLayerCanvasNavigation(LayerCanvas layerCanvas) {
         final MouseHandler mouseHandler = new MouseHandler(layerCanvas);
         layerCanvas.addMouseListener(mouseHandler);
         layerCanvas.addMouseMotionListener(mouseHandler);
         layerCanvas.addMouseWheelListener(mouseHandler);
+    }
+
+    /**
+     * @param image is ignored
+     *
+     * @deprecated since BEAM 4.7, no replacement
+     */
+    @Deprecated
+    @SuppressWarnings({"UnusedDeclaration"})
+    public WorldMapPane(final java.awt.image.BufferedImage image) {
+        this(new DefaultWorldMapPaneModel());
+    }
+
+    /**
+     * @param bufferedImage is ignored
+     *
+     * @deprecated since BEAM 4.7, no replacement
+     */
+    @Deprecated
+    @SuppressWarnings({"UnusedDeclaration"})
+    public void setWorldMapImage(java.awt.image.BufferedImage bufferedImage) {
+    }
+
+    /**
+     * @return the dimension of this {@link WorldMapPane}
+     *
+     * @deprecated since BEAM 4.7, no replacement
+     */
+    @Deprecated
+    public Dimension getCurrentimageSize() {
+        return getSize();
+    }
+
+    /**
+     * @param product the selected product
+     *
+     * @deprecated since BEAM 4.7, use the {@link WorldMapPaneModel} model provided
+     *             to this {@link WorldMapPane} via the constructor.
+     */
+    @Deprecated
+    public void setSelectedProduct(final Product product) {
+        final Product oldSelectedProduct = model.getSelectedProduct();
+        if (oldSelectedProduct != product) {
+            model.setSelectedProduct(product);
+            firePropertyChange("product", oldSelectedProduct, product);
+        }
+    }
+
+    /**
+     * @param products the products
+     *
+     * @deprecated since BEAM 4.7, use the {@link WorldMapPaneModel#setProducts(Product[])} model provided
+     *             to this {@link WorldMapPane} via the constructor.
+     */
+    @Deprecated
+    public void setProducts(final Product[] products) {
+        final Product[] oldProducts = model.getProducts();
+        if (oldProducts != products) {
+            model.setProducts(products);
+            firePropertyChange("products", oldProducts, products);
+        }
+    }
+
+    /**
+     * @param geoBoundaries additional geo-boundaries
+     *
+     * @deprecated since BEAM 4.7, use the {@link WorldMapPaneModel#setAdditionalGeoBoundaries(GeoPos[][])} model
+     *             provided to this {@link WorldMapPane} via the constructor.
+     */
+    @Deprecated
+    public void setPathesToDisplay(final GeoPos[][] geoBoundaries) {
+        final GeoPos[][] oldAdditionalGeoBoundaries = model.getAdditionalGeoBoundaries();
+        if (oldAdditionalGeoBoundaries != geoBoundaries) {
+            model.setAdditionalGeoBoundaries(geoBoundaries);
+            firePropertyChange("extraGeoBoundaries", oldAdditionalGeoBoundaries, oldAdditionalGeoBoundaries);
+        }
+    }
+
+    /**
+     * @return the center {@link PixelPos pixel position} of the
+     *         currently selected product
+     *
+     * @deprecated since BEAM 4.7, no replacement
+     */
+    @Deprecated
+    public PixelPos getCurrentProductCenter() {
+        if (model.getSelectedProduct() == null) {
+            return null;
+        }
+        return getProductCenter(model.getSelectedProduct());
+    }
+
+    private class ModelChangeListener implements PropertyChangeListener {
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            updateUiState(evt);
+        }
     }
 
     public static class MouseHandler extends MouseInputAdapter {
@@ -293,18 +351,17 @@ public final class WorldMapPane extends JPanel {
 
         @Override
         public void paintOverlay(LayerCanvas canvas, Graphics2D graphics) {
-            if (additionalGeoBoundaries != null) {
-                for (final GeoPos[] extraGeoBoundary : additionalGeoBoundaries) {
-                    drawGeoBoundary(graphics, extraGeoBoundary, false, null, null);
+            for (final GeoPos[] extraGeoBoundary : model.getAdditionalGeoBoundaries()) {
+                drawGeoBoundary(graphics, extraGeoBoundary, false, null, null);
+            }
+
+            final Product selectedProduct = model.getSelectedProduct();
+            for (final Product product : model.getProducts()) {
+                if (selectedProduct != product) {
+                    drawProduct(graphics, product, false);
                 }
             }
-            if (products != null) {
-                for (final Product product : products) {
-                    if (selectedProduct != product) {
-                        drawProduct(graphics, product, false);
-                    }
-                }
-            }
+
             if (selectedProduct != null) {
                 drawProduct(graphics, selectedProduct, true);
             }
@@ -402,4 +459,5 @@ public final class WorldMapPane extends JPanel {
         }
 
     }
+
 }
