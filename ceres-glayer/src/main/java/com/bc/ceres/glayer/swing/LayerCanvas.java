@@ -35,8 +35,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
 /**
  * A Swing component capable of drawing a collection of {@link com.bc.ceres.glayer.Layer}s.
@@ -59,7 +58,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
     private double maxZoomFactor;
     private double defaultZoomFactor;
 
-    private Map<String, Overlay> overlayMap;
+    private ArrayList<Overlay> overlays;
 
     private final ModelChangeHandler modelChangeHandler;
 
@@ -86,7 +85,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
         this.model = model;
         this.model.addChangeListener(modelChangeHandler);
         this.canvasRendering = new CanvasRendering();
-        this.overlayMap = new HashMap<String, Overlay>(4);
+        this.overlays = new ArrayList<Overlay>(4);
         this.initiallyZoomingAll = true;
         this.zoomedAll = false;
         setNavControlShown(false);
@@ -144,22 +143,9 @@ public class LayerCanvas extends JPanel implements AdjustableView {
      * Adds an overlay to the canvas.
      *
      * @param overlay An overlay
-     *
-     * @deprecated since BEAM 4.7, use {@link #addOverlay(String, Overlay)} instead
      */
-    @Deprecated
     public void addOverlay(Overlay overlay) {
-        addOverlay(overlay.getClass().getName(), overlay);
-    }
-
-    /**
-     * Adds an overlay to the canvas.
-     *
-     * @param id      The ID of the overlay
-     * @param overlay An overlay
-     */
-    public void addOverlay(String id, Overlay overlay) {
-        overlayMap.put(id, overlay);
+        overlays.add(overlay);
         repaint();
     }
 
@@ -167,21 +153,9 @@ public class LayerCanvas extends JPanel implements AdjustableView {
      * Removes an overlay from the canvas.
      *
      * @param overlay An overlay
-     *
-     * @deprecated since BEAM 4.7, use {@link #removeOverlay(String)} instead
      */
-    @Deprecated
     public void removeOverlay(Overlay overlay) {
-        removeOverlay(overlay.getClass().getName());
-    }
-
-    /**
-     * Removes an overlay from the canvas.
-     *
-     * @param id The ID of the overlay
-     */
-    public void removeOverlay(String id) {
-        overlayMap.remove(id);
+        overlays.remove(overlay);
         repaint();
     }
 
@@ -370,7 +344,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
         getLayer().render(canvasRendering, layerFilter);
 
         if (!isPaintingForPrint()) {
-            for (Overlay overlay : overlayMap.values()) {
+            for (Overlay overlay : overlays) {
                 overlay.paintOverlay(this, (Graphics2D) g);
             }
         }
@@ -388,7 +362,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
         private Graphics2D graphics2D;
 
-        private CanvasRendering() {
+        public CanvasRendering() {
         }
 
         @Override
@@ -420,7 +394,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
         private final Viewport viewport;
 
-        private NavControlModelImpl(Viewport viewport) {
+        public NavControlModelImpl(Viewport viewport) {
             this.viewport = viewport;
         }
 
