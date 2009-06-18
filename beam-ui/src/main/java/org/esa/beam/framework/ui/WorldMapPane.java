@@ -109,6 +109,9 @@ public final class WorldMapPane extends JPanel {
         if (getSelectedProduct() != product) {
             final Product oldProduct = getSelectedProduct();
             selectedProduct = product;
+            if (selectedProduct != null) {
+                zoomToProduct(selectedProduct);
+            }
             repaint();
             firePropertyChange("product", oldProduct, selectedProduct);
         }
@@ -152,6 +155,13 @@ public final class WorldMapPane extends JPanel {
         return layerCanvas.getSize();
     }
 
+    /**
+     * @return the center {@link PixelPos pixel position} of the
+     *         currently selected product
+     *
+     * @deprecated since BEAM 4.7, no replacement
+     */
+    @Deprecated
     public PixelPos getCurrentProductCenter() {
         if (selectedProduct == null) {
             return null;
@@ -170,7 +180,7 @@ public final class WorldMapPane extends JPanel {
         return centerPos;
     }
 
-    public void zoomToProductCenter(Product product) {
+    public void zoomToProduct(Product product) {
         if (product.getGeoCoding() == null) {
             return;
         }
@@ -181,19 +191,30 @@ public final class WorldMapPane extends JPanel {
             final Rectangle2D rectangle2D = generalPath.getBounds2D();
             if (modelArea.isEmpty()) {
                 if (!viewport.isModelYAxisDown()) {
-                    modelArea.setFrame(rectangle2D.getX() - 2, rectangle2D.getMaxY() + 2,
-                                       rectangle2D.getWidth() + 4, rectangle2D.getHeight() + 4);
+                    modelArea.setFrame(rectangle2D.getX(), rectangle2D.getMaxY(),
+                                       rectangle2D.getWidth(), rectangle2D.getHeight());
                 }
                 modelArea = rectangle2D;
             } else {
                 modelArea.add(rectangle2D);
             }
         }
-        Rectangle modelBounds = modelArea.getBounds();
+        Rectangle2D modelBounds = modelArea.getBounds2D();
+        modelBounds.setFrame(modelBounds.getX() - 2, modelBounds.getY() - 2,
+                             modelBounds.getWidth() + 4, modelBounds.getHeight() + 4);
 
-        final Rectangle2D maxModelBounds = worldMapLayer.getModelBounds();
-        Rectangle2D.intersect(maxModelBounds, modelBounds, modelBounds);
+        modelBounds = cropToMaxModelBounds(modelBounds);
+
         viewport.zoom(modelBounds);
+    }
+
+    private Rectangle2D cropToMaxModelBounds(Rectangle2D modelBounds) {
+        final Rectangle2D maxModelBounds = worldMapLayer.getModelBounds();
+        if (modelBounds.getWidth() >= maxModelBounds.getWidth() - 1 ||
+            modelBounds.getHeight() >= maxModelBounds.getHeight() - 1) {
+            modelBounds = maxModelBounds;
+        }
+        return modelBounds;
     }
 
 

@@ -16,38 +16,25 @@
  */
 package org.esa.beam.visat.toolviews.worldmap;
 
-import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.help.HelpSys;
-import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.WorldMapPane;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTreeListener;
-import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * The window displaying the world map.
@@ -64,10 +51,6 @@ public class WorldMapToolView extends AbstractToolView {
     private VisatApp visatApp;
 
     private WorldMapPane worldMapPane;
-    private JCheckBox checkBoxAuto;
-    private JTextField productRefField;
-    private AbstractButton nextButton;
-    private AbstractButton prevButton;
 
 
     public WorldMapToolView() {
@@ -83,50 +66,6 @@ public class WorldMapToolView extends AbstractToolView {
         worldMapPane = new WorldMapPane();
         mainPane.add(worldMapPane, BorderLayout.CENTER);
 
-        final TableLayout tableLayout = new TableLayout(1);
-        tableLayout.setTableFill(TableLayout.Fill.BOTH);
-        tableLayout.setTableWeightX(1.0);
-        tableLayout.setTableWeightY(0.0);
-        tableLayout.setTablePadding(4, 4);
-        final JPanel controlPanel = new JPanel(tableLayout);
-
-        checkBoxAuto = new JCheckBox("Autoc.");
-        checkBoxAuto.setName("checkBoxAuto");
-        checkBoxAuto.setToolTipText("Automatically center selected product");/*I18N*/
-        checkBoxAuto.setSelected(true);
-        checkBoxAuto.setEnabled(false);
-        controlPanel.add(checkBoxAuto);
-
-        final JButton buttonCenter = new JButton("Center");
-        buttonCenter.setName("buttonCenter");
-        buttonCenter.setToolTipText("Center selected product"); /*I18N*/
-        buttonCenter.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                centerSelectedProduct();
-            }
-        });
-        controlPanel.add(buttonCenter);
-
-        tableLayout.setCellPadding(2, 0, new Insets(10, 4, 4, 4));
-        controlPanel.add(createProductIterationPanel());
-
-        tableLayout.setRowFill(3, TableLayout.Fill.BOTH);
-        tableLayout.setRowWeightY(3, 1.0);
-        controlPanel.add(new JPanel());
-
-        final AbstractButton helpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Help24.gif"),
-                                                                         false);
-        helpButton.setToolTipText("Help."); /*I18N*/
-        helpButton.setName("helpButton");
-        if (getDescriptor().getHelpId() != null) {
-            HelpSys.enableHelpOnButton(helpButton, getDescriptor().getHelpId());
-            HelpSys.enableHelpKey(mainPane, getDescriptor().getHelpId());
-        }
-        controlPanel.add(helpButton);
-
-        mainPane.add(controlPanel, BorderLayout.EAST);
-
         visatApp.addProductTreeListener(new WorldMapPTL());
 
         // Add an internal frame listener to VISAT so that we can update our
@@ -140,87 +79,8 @@ public class WorldMapToolView extends AbstractToolView {
         return mainPane;
     }
 
-    private JPanel createProductIterationPanel() {
-        final JPanel panel = new JPanel(new BorderLayout(2, 2));
-        productRefField = new JTextField("-");
-        productRefField.setEditable(false);
-        productRefField.setHorizontalAlignment(JTextField.CENTER);
-        final Dimension preferredSize = productRefField.getPreferredSize();
-        preferredSize.setSize(30, preferredSize.getHeight());
-        productRefField.setPreferredSize(preferredSize);
-        panel.add(productRefField, BorderLayout.CENTER);
-
-        nextButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Right24.gif"),
-                                                    false);
-        nextButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final Product product = getSelectedProduct();
-                setSelectedProduct(getNextProduct(product));
-            }
-        });
-        prevButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Left24.gif"),
-                                                    false);
-        prevButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final Product product = getSelectedProduct();
-                setSelectedProduct(getPreviousProduct(product));
-            }
-        });
-        final JPanel buttonPanel = new JPanel(new BorderLayout(1, 1));
-        buttonPanel.add(prevButton, BorderLayout.WEST);
-        buttonPanel.add(nextButton, BorderLayout.EAST);
-
-        panel.add(buttonPanel, BorderLayout.SOUTH);
-
-        return panel;
-    }
-
-    private Product getPreviousProduct(Product product) {
-        final List<Product> products = Arrays.asList(worldMapPane.getProducts());
-        int i = products.indexOf(product) - 1;
-        if (i < 0) {
-            i = products.size() - 1;
-        }
-        return products.get(i);
-    }
-
-    private Product getNextProduct(Product product) {
-        final List<Product> products = Arrays.asList(worldMapPane.getProducts());
-        int i = products.indexOf(product) + 1;
-        if (i > products.size() - 1) {
-            i = 0;
-        }
-        return products.get(i);
-    }
-
     public void setSelectedProduct(Product product) {
         worldMapPane.setSelectedProduct(product);
-        if (checkBoxAuto.isSelected()) {
-            centerSelectedProduct();
-        }
-
-        if (worldMapPane.getProducts().length == 0) {
-            nextButton.setToolTipText("No products available.");
-            nextButton.setEnabled(false);
-            prevButton.setToolTipText("No products available.");
-            prevButton.setEnabled(false);
-        } else {
-            nextButton.setEnabled(true);
-            prevButton.setEnabled(true);
-            if (product != null) {
-                nextButton.setToolTipText(getNextProduct(product).getDisplayName());
-                prevButton.setToolTipText(getPreviousProduct(product).getDisplayName());
-            }
-        }
-        if (product != null) {
-            productRefField.setText(product.getProductRefString());
-            productRefField.setToolTipText(product.getDisplayName());
-        } else {
-            productRefField.setText("-");
-            productRefField.setToolTipText("No product selected.");
-        }
     }
 
     public Product getSelectedProduct() {
@@ -228,24 +88,22 @@ public class WorldMapToolView extends AbstractToolView {
     }
 
     private void setProducts(final VisatApp visatApp) {
-        setProducts(visatApp.getProductManager().getProducts());
+        worldMapPane.setProducts(visatApp.getProductManager().getProducts());
     }
 
 
+    /**
+     * @param products the product to display on the map
+     *
+     * @deprecated since BEAM 4.7, no replacement
+     */
+    @Deprecated
     public void setProducts(Product[] products) {
         worldMapPane.setProducts(products);
-        checkBoxAuto.setEnabled(products != null && products.length > 0);
     }
 
     public void setPathesToDisplay(GeoPos[][] geoBoundaries) {
         worldMapPane.setPathesToDisplay(geoBoundaries);
-    }
-
-    private void centerSelectedProduct() {
-        final Product product = worldMapPane.getSelectedProduct();
-        if (product != null) {
-            worldMapPane.zoomToProductCenter(product);
-        }
     }
 
     public void packIfNeeded() {

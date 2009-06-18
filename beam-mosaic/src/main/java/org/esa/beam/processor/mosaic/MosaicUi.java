@@ -66,7 +66,22 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.AbstractCellEditor;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingWorker;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -1254,7 +1269,7 @@ public class MosaicUi extends AbstractProcessorUI {
                 previewButton.setEnabled(false);
                 if (_worldMapWindow == null) {
                     _worldMapWindow = new WorldMapWindow(getApp().getMainFrame(), "Mosaic Processor - Location Preview",
-                                                         "mosaic", null); /*I18N*/
+                                                         "mosaic"); /*I18N*/
                     _worldMapWindow.pack();
                     _worldMapWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
                     _worldMapWindow.addWindowListener(new WindowAdapter() {
@@ -1267,7 +1282,7 @@ public class MosaicUi extends AbstractProcessorUI {
                     _worldMapWindow.addComponentListener(new ComponentAdapter() {
                         @Override
                         public void componentResized(ComponentEvent e) {
-                            _worldMapWindow.packIfNeeded();
+                            _worldMapWindow.pack();
                         }
                     });
                     UIUtils.centerComponent(_worldMapWindow);
