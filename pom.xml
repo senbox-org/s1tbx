@@ -39,7 +39,7 @@
 
     <repositories>
         <repository>
-            <id>bc-public</id>
+            <id>bc-mvn-repo</id>
             <name>Public Maven Repository at Brockmann-Consult</name>
             <url>http://www.brockmann-consult.de/mvn/os</url>
             <releases>
@@ -60,7 +60,7 @@
 
     <pluginRepositories>
         <pluginRepository>
-            <id>bc-public</id>
+            <id>bc-mvn-repo</id>
             <name>Public Maven Repository at Brockmann-Consult</name>
             <url>http://www.brockmann-consult.de/mvn/os</url>
             <releases>
@@ -84,6 +84,20 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
+
+    <distributionManagement>
+        <repository>
+            <id>bc-mvn-repo</id>
+            <name>Public Maven Repository at Brockmann Consult</name>
+            <url>scp://apache.bc.local/bc-mvn-repo/os</url>
+        </repository>
+        <snapshotRepository>
+            <id>bc-mvn-repo</id>
+            <name>Public Maven Repository at Brockmann Consult</name>
+            <url>scp://apache.bc.local/bc-mvn-repo/os</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 
     <modules>
         <module>../ceres-0.x</module>
