@@ -34,9 +34,13 @@ class CursorOverlay implements LayerCanvas.Overlay {
         geoPosition = geoPos;
     }
 
+    public void setGeoPosition(GeoPos geoPosition) {
+        this.geoPosition = geoPosition;
+    }
+
     @Override
     public void paintOverlay(LayerCanvas canvas, Graphics2D graphics) {
-        if (!geoPosition.isValid()) {
+        if (geoPosition == null || !geoPosition.isValid()) {
             return;
         }
 

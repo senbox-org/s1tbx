@@ -49,7 +49,7 @@ public class NavigationCanvas extends JPanel {
                 return layer instanceof ImageLayer;
             }
         });
-        thumbnailCanvas.addOverlay(getClass().getName() + "moveSliderRect", new LayerCanvas.Overlay() {
+        thumbnailCanvas.addOverlay(new LayerCanvas.Overlay() {
             @Override
             public void paintOverlay(LayerCanvas canvas, Graphics2D g) {
                 if (moveSliderRect != null && !moveSliderRect.isEmpty()) {

@@ -14,26 +14,23 @@ import java.awt.Container;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 class CursorSynchronizer {
 
     private static final GeoPos INVALID_GEO_POS = new GeoPos(Float.NaN, Float.NaN);
-    private static final String SYNC_CURSOR_OVERLAY_ID = "syncCursorOverlay";
 
     private final VisatApp visatApp;
 
-    private final List<ProductSceneView> psvList;
+    private final Map<ProductSceneView, CursorOverlay> psvOverlayMap;
     private final Map<ProductSceneView, ViewPPL> viewPplMap;
     private PsvListUpdater psvOverlayMapUpdater;
     private boolean enabled;
 
     CursorSynchronizer(VisatApp visatApp) {
         this.visatApp = visatApp;
-        psvList = new ArrayList<ProductSceneView>();
+        psvOverlayMap = new HashMap<ProductSceneView, CursorOverlay>();
         viewPplMap = new HashMap<ProductSceneView, ViewPPL>();
         psvOverlayMapUpdater = new PsvListUpdater();
         enabled = false;
@@ -57,12 +54,24 @@ class CursorSynchronizer {
     }
 
     private void updateCursorOverlays(ProductSceneView sourceView, GeoPos geoPos) {
-        for (ProductSceneView view : psvList) {
-            CursorOverlay overlay = new CursorOverlay(view, geoPos);
-            if (view != sourceView) {
-                view.getLayerCanvas().addOverlay(SYNC_CURSOR_OVERLAY_ID, overlay);
+        for (Map.Entry<ProductSceneView, CursorOverlay> entry : psvOverlayMap.entrySet()) {
+            final ProductSceneView view = entry.getKey();
+            CursorOverlay overlay = entry.getValue();
+            if (overlay == null) {
+                if (view != sourceView) {
+                    overlay = new CursorOverlay(view, geoPos);
+                    psvOverlayMap.put(view, overlay);
+                    view.getLayerCanvas().addOverlay(overlay);
+                }
             } else {
-                view.getLayerCanvas().removeOverlay(SYNC_CURSOR_OVERLAY_ID);
+                if (view != sourceView) {
+                    overlay.setGeoPosition(geoPos);
+                    view.getLayerCanvas().repaint();
+                } else {
+                    view.getLayerCanvas().removeOverlay(overlay);
+                    psvOverlayMap.put(view, null);
+                }
+
             }
         }
     }
@@ -73,18 +82,19 @@ class CursorSynchronizer {
             Container contentPane = internalFrame.getContentPane();
             if (contentPane instanceof ProductSceneView) {
                 ProductSceneView view = (ProductSceneView) contentPane;
-                psvList.add(view);
+                psvOverlayMap.put(view, null);
                 addPPL(view);
             }
         }
     }
 
     private void clearPsvOverlayMap() {
-        for (ProductSceneView view : psvList) {
+        for (Map.Entry<ProductSceneView, CursorOverlay> entry : psvOverlayMap.entrySet()) {
+            final ProductSceneView view = entry.getKey();
             removePPL(view);
-            view.getLayerCanvas().removeOverlay(SYNC_CURSOR_OVERLAY_ID);
+            view.getLayerCanvas().removeOverlay(entry.getValue());
         }
-        psvList.clear();
+        psvOverlayMap.clear();
     }
 
     private void addPPL(ProductSceneView view) {
@@ -106,7 +116,7 @@ class CursorSynchronizer {
             Container contentPane = e.getInternalFrame().getContentPane();
             if (contentPane instanceof ProductSceneView) {
                 ProductSceneView view = (ProductSceneView) contentPane;
-                psvList.add(view);
+                psvOverlayMap.put(view, null);
                 addPPL(view);
             }
         }

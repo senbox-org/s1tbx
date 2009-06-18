@@ -217,7 +217,7 @@ public class ProductSceneView extends BasicView
             add(layerCanvas, BorderLayout.CENTER);
         }
 
-        layerCanvas.addOverlay(ToolPainter.class.getName(), new ToolPainter());
+        layerCanvas.addOverlay(new ToolPainter());
 
         registerLayerCanvasListeners();
 

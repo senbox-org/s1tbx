@@ -57,7 +57,6 @@ public final class WorldMapPane extends JPanel {
     private Product selectedProduct;
     private Product[] products;
     private GeoPos[][] additionalGeoBoundaries;
-    private static final String WORLD_MAP_BOUNDARY_OVERLAY = "worldMapBoundaryOverlay";
     private Layer worldMapLayer;
 
     public WorldMapPane() {
@@ -74,7 +73,7 @@ public final class WorldMapPane extends JPanel {
         final Viewport viewport = layerCanvas.getViewport();
         viewport.setViewBounds(new Rectangle(dimension));
         viewport.zoom(worldMapLayer.getModelBounds());
-        layerCanvas.addOverlay(WORLD_MAP_BOUNDARY_OVERLAY, new BoundaryOverlay());
+        layerCanvas.addOverlay(new BoundaryOverlay());
         setLayout(new BorderLayout());
         add(layerCanvas, BorderLayout.CENTER);
 
