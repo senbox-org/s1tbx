@@ -47,7 +47,7 @@ import java.beans.PropertyChangeListener;
 import java.util.List;
 
 /**
- * This class displays a world map specified by the {@link WorldMapPaneModel}.
+ * This class displays a world map specified by the {@link WorldMapPaneDataModel}.
  *
  * @author Marco Peters
  * @version $Revision$ $Date$
@@ -56,10 +56,10 @@ public final class WorldMapPane extends JPanel {
 
     private LayerCanvas layerCanvas;
     private Layer worldMapLayer;
-    private final WorldMapPaneModel model;
+    private final WorldMapPaneDataModel dataModel;
 
-    public WorldMapPane(WorldMapPaneModel model) {
-        this.model = model;
+    public WorldMapPane(WorldMapPaneDataModel dataModel) {
+        this.dataModel = dataModel;
         layerCanvas = new LayerCanvas();
         layerCanvas.getModel().getViewport().setModelYAxisDown(false);
         installLayerCanvasNavigation(layerCanvas);
@@ -75,19 +75,19 @@ public final class WorldMapPane extends JPanel {
         setLayout(new BorderLayout());
         add(layerCanvas, BorderLayout.CENTER);
 
-        model.addModelChangeListener(new ModelChangeListener());
+        dataModel.addModelChangeListener(new ModelChangeListener());
 
-        worldMapLayer = model.getWorldMapLayer(new WorldMapLayerContext(rootLayer));
+        worldMapLayer = dataModel.getWorldMapLayer(new WorldMapLayerContext(rootLayer));
         layerCanvas.getLayer().getChildren().add(worldMapLayer);
         layerCanvas.getViewport().zoom(worldMapLayer.getModelBounds());
     }
 
     public Product getSelectedProduct() {
-        return model.getSelectedProduct();
+        return dataModel.getSelectedProduct();
     }
 
     public Product[] getProducts() {
-        return model.getProducts();
+        return dataModel.getProducts();
     }
 
     public float getScale() {
@@ -131,19 +131,19 @@ public final class WorldMapPane extends JPanel {
     }
 
     private void updateUiState(PropertyChangeEvent evt) {
-        if (WorldMapPaneModel.PROPERTY_LAYER.equals(evt.getPropertyName())) {
+        if (WorldMapPaneDataModel.PROPERTY_LAYER.equals(evt.getPropertyName())) {
             exchangeWorldMapLayer();
         }
-        if (WorldMapPaneModel.PROPERTY_PRODUCTS.equals(evt.getPropertyName())) {
+        if (WorldMapPaneDataModel.PROPERTY_PRODUCTS.equals(evt.getPropertyName())) {
             repaint();
         }
-        if (WorldMapPaneModel.PROPERTY_SELECTED_PRODUCT.equals(evt.getPropertyName())) {
-            final Product selectedProduct = model.getSelectedProduct();
+        if (WorldMapPaneDataModel.PROPERTY_SELECTED_PRODUCT.equals(evt.getPropertyName())) {
+            final Product selectedProduct = dataModel.getSelectedProduct();
             if (selectedProduct != null) {
                 zoomToProduct(selectedProduct);
             }
         }
-        if (WorldMapPaneModel.PROPERTY_ADDITIONAL_GEO_BOUNDARIES.equals(evt.getPropertyName())) {
+        if (WorldMapPaneDataModel.PROPERTY_ADDITIONAL_GEO_BOUNDARIES.equals(evt.getPropertyName())) {
             repaint();
         }
     }
@@ -156,7 +156,7 @@ public final class WorldMapPane extends JPanel {
         }
         children.clear();
         final Layer rootLayer = layerCanvas.getLayer();
-        worldMapLayer = model.getWorldMapLayer(new WorldMapLayerContext(rootLayer));
+        worldMapLayer = dataModel.getWorldMapLayer(new WorldMapLayerContext(rootLayer));
         children.add(worldMapLayer);
         layerCanvas.getViewport().zoom(worldMapLayer.getModelBounds());
     }
@@ -205,7 +205,7 @@ public final class WorldMapPane extends JPanel {
     @Deprecated
     @SuppressWarnings({"UnusedDeclaration"})
     public WorldMapPane(final java.awt.image.BufferedImage image) {
-        this(new DefaultWorldMapPaneModel());
+        this(new WorldMapPaneDataModel());
     }
 
     /**
@@ -231,14 +231,14 @@ public final class WorldMapPane extends JPanel {
     /**
      * @param product the selected product
      *
-     * @deprecated since BEAM 4.7, use the {@link WorldMapPaneModel} model provided
+     * @deprecated since BEAM 4.7, use the {@link WorldMapPaneDataModel} model provided
      *             to this {@link WorldMapPane} via the constructor.
      */
     @Deprecated
     public void setSelectedProduct(final Product product) {
-        final Product oldSelectedProduct = model.getSelectedProduct();
+        final Product oldSelectedProduct = dataModel.getSelectedProduct();
         if (oldSelectedProduct != product) {
-            model.setSelectedProduct(product);
+            dataModel.setSelectedProduct(product);
             firePropertyChange("product", oldSelectedProduct, product);
         }
     }
@@ -246,14 +246,14 @@ public final class WorldMapPane extends JPanel {
     /**
      * @param products the products
      *
-     * @deprecated since BEAM 4.7, use the {@link WorldMapPaneModel#setProducts(Product[])} model provided
+     * @deprecated since BEAM 4.7, use the {@link WorldMapPaneDataModel#setProducts(Product[])} model provided
      *             to this {@link WorldMapPane} via the constructor.
      */
     @Deprecated
     public void setProducts(final Product[] products) {
-        final Product[] oldProducts = model.getProducts();
+        final Product[] oldProducts = dataModel.getProducts();
         if (oldProducts != products) {
-            model.setProducts(products);
+            dataModel.setProducts(products);
             firePropertyChange("products", oldProducts, products);
         }
     }
@@ -261,14 +261,14 @@ public final class WorldMapPane extends JPanel {
     /**
      * @param geoBoundaries additional geo-boundaries
      *
-     * @deprecated since BEAM 4.7, use the {@link WorldMapPaneModel#setAdditionalGeoBoundaries(GeoPos[][])} model
+     * @deprecated since BEAM 4.7, use the {@link WorldMapPaneDataModel#setAdditionalGeoBoundaries(GeoPos[][])} model
      *             provided to this {@link WorldMapPane} via the constructor.
      */
     @Deprecated
     public void setPathesToDisplay(final GeoPos[][] geoBoundaries) {
-        final GeoPos[][] oldAdditionalGeoBoundaries = model.getAdditionalGeoBoundaries();
+        final GeoPos[][] oldAdditionalGeoBoundaries = dataModel.getAdditionalGeoBoundaries();
         if (oldAdditionalGeoBoundaries != geoBoundaries) {
-            model.setAdditionalGeoBoundaries(geoBoundaries);
+            dataModel.setAdditionalGeoBoundaries(geoBoundaries);
             firePropertyChange("extraGeoBoundaries", oldAdditionalGeoBoundaries, oldAdditionalGeoBoundaries);
         }
     }
@@ -281,10 +281,10 @@ public final class WorldMapPane extends JPanel {
      */
     @Deprecated
     public PixelPos getCurrentProductCenter() {
-        if (model.getSelectedProduct() == null) {
+        if (dataModel.getSelectedProduct() == null) {
             return null;
         }
-        return getProductCenter(model.getSelectedProduct());
+        return getProductCenter(dataModel.getSelectedProduct());
     }
 
     private class ModelChangeListener implements PropertyChangeListener {
@@ -351,12 +351,12 @@ public final class WorldMapPane extends JPanel {
 
         @Override
         public void paintOverlay(LayerCanvas canvas, Graphics2D graphics) {
-            for (final GeoPos[] extraGeoBoundary : model.getAdditionalGeoBoundaries()) {
+            for (final GeoPos[] extraGeoBoundary : dataModel.getAdditionalGeoBoundaries()) {
                 drawGeoBoundary(graphics, extraGeoBoundary, false, null, null);
             }
 
-            final Product selectedProduct = model.getSelectedProduct();
-            for (final Product product : model.getProducts()) {
+            final Product selectedProduct = dataModel.getSelectedProduct();
+            for (final Product product : dataModel.getProducts()) {
                 if (selectedProduct != product) {
                     drawProduct(graphics, product, false);
                 }

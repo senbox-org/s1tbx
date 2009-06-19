@@ -37,7 +37,7 @@ public class WorldMapWindow extends JDialog {
     private static final String DEFAUL_TTITLE = "World Map";
 
     private String helpId;
-    private DefaultWorldMapPaneModel worldMapPaneModel;
+    private WorldMapPaneDataModel worldMapDataModel;
 
     /**
      * @param owner  the owner of this window
@@ -68,24 +68,24 @@ public class WorldMapWindow extends JDialog {
     }
 
     public void setSelectedProduct(Product product) {
-        worldMapPaneModel.setSelectedProduct(product);
+        worldMapDataModel.setSelectedProduct(product);
     }
 
     public Product getSelectedProduct() {
-        return worldMapPaneModel.getSelectedProduct();
+        return worldMapDataModel.getSelectedProduct();
     }
 
     public void setProducts(Product[] products) {
-        worldMapPaneModel.setProducts(products);
+        worldMapDataModel.setProducts(products);
     }
 
     public void setPathesToDisplay(GeoPos[][] geoBoundaries) {
-        worldMapPaneModel.setAdditionalGeoBoundaries(geoBoundaries);
+        worldMapDataModel.setAdditionalGeoBoundaries(geoBoundaries);
     }
 
     private void createUI() {
-        worldMapPaneModel = new DefaultWorldMapPaneModel();
-        setContentPane(new WorldMapPane(worldMapPaneModel));
+        worldMapDataModel = new WorldMapPaneDataModel();
+        setContentPane(new WorldMapPane(worldMapDataModel));
 
         if (helpId != null) {
             HelpSys.enableHelpKey(this, helpId);

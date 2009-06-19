@@ -7,30 +7,34 @@ import com.bc.ceres.glayer.LayerType;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-
 /**
- * @author Marco Peters
- * @version $ Revision $ Date $
- * @since BEAM 4.6
+ * User: Marco
+ * Date: 17.06.2009
  */
-public class DefaultWorldMapPaneModel extends WorldMapPaneModel {
+public class WorldMapPaneDataModel {
 
+    public static final String PROPERTY_LAYER = "layer";
+    public static final String PROPERTY_SELECTED_PRODUCT = "selectedProduct";
+    public static final String PROPERTY_PRODUCTS = "products";
+    public static final String PROPERTY_ADDITIONAL_GEO_BOUNDARIES = "additionalGeoBoundaries";
+
+    private PropertyChangeSupport changeSupport;
     private static final LayerType layerType = LayerType.getLayerType("org.esa.beam.worldmap.BlueMarbleLayerType");
-
     private Layer worldMapLayer;
     private Product selectedProduct;
     private ArrayList<Product> productList;
     private ArrayList<GeoPos[]> additionalGeoBoundaryList;
 
-    public DefaultWorldMapPaneModel() {
+    public WorldMapPaneDataModel() {
         productList = new ArrayList<Product>();
         additionalGeoBoundaryList = new ArrayList<GeoPos[]>();
     }
 
-    @Override
     public Layer getWorldMapLayer(LayerContext context) {
         if (worldMapLayer == null) {
             worldMapLayer = layerType.createLayer(context, new ValueContainer());
@@ -38,7 +42,10 @@ public class DefaultWorldMapPaneModel extends WorldMapPaneModel {
         return worldMapLayer;
     }
 
-    @Override
+    public Product getSelectedProduct() {
+        return selectedProduct;
+    }
+
     public void setSelectedProduct(Product product) {
         Product oldSelectedProduct = selectedProduct;
         if (oldSelectedProduct != product) {
@@ -47,17 +54,10 @@ public class DefaultWorldMapPaneModel extends WorldMapPaneModel {
         }
     }
 
-    @Override
-    public Product getSelectedProduct() {
-        return selectedProduct;
-    }
-
-    @Override
     public Product[] getProducts() {
         return productList.toArray(new Product[productList.size()]);
     }
 
-    @Override
     public void setProducts(Product[] products) {
         final Product[] oldProducts = getProducts();
         productList.clear();
@@ -65,6 +65,38 @@ public class DefaultWorldMapPaneModel extends WorldMapPaneModel {
             productList.addAll(Arrays.asList(products));
         }
         firePropertyChange(PROPERTY_PRODUCTS, oldProducts, getProducts());
+    }
+
+    public GeoPos[][] getAdditionalGeoBoundaries() {
+        return additionalGeoBoundaryList.toArray(new GeoPos[additionalGeoBoundaryList.size()][]);
+    }
+
+    public void setAdditionalGeoBoundaries(GeoPos[][] geoBoundarys) {
+        final GeoPos[][] oldGeoBoundarys = getAdditionalGeoBoundaries();
+        additionalGeoBoundaryList.clear();
+        if (geoBoundarys != null) {
+            additionalGeoBoundaryList.addAll(Arrays.asList(geoBoundarys));
+        }
+        firePropertyChange(PROPERTY_ADDITIONAL_GEO_BOUNDARIES, oldGeoBoundarys, additionalGeoBoundaryList);
+    }
+
+    public void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+        if (changeSupport != null) {
+            changeSupport.firePropertyChange(propertyName, oldValue, newValue);
+        }
+    }
+
+    public void addModelChangeListener(PropertyChangeListener listener) {
+        if (changeSupport == null) {
+            changeSupport = new PropertyChangeSupport(this);
+        }
+        changeSupport.addPropertyChangeListener(listener);
+    }
+
+    public void removeModelChangeListener(PropertyChangeListener listener) {
+        if (changeSupport != null) {
+            changeSupport.removePropertyChangeListener(listener);
+        }
     }
 
     public void addProduct(Product product) {
@@ -83,20 +115,5 @@ public class DefaultWorldMapPaneModel extends WorldMapPaneModel {
                 firePropertyChange(PROPERTY_PRODUCTS, oldProducts, getProducts());
             }
         }
-    }
-
-    @Override
-    public GeoPos[][] getAdditionalGeoBoundaries() {
-        return additionalGeoBoundaryList.toArray(new GeoPos[additionalGeoBoundaryList.size()][]);
-    }
-
-    @Override
-    public void setAdditionalGeoBoundaries(GeoPos[][] geoBoundarys) {
-        final GeoPos[][] oldGeoBoundarys = getAdditionalGeoBoundaries();
-        additionalGeoBoundaryList.clear();
-        if (geoBoundarys != null) {
-            additionalGeoBoundaryList.addAll(Arrays.asList(geoBoundarys));
-        }
-        firePropertyChange(PROPERTY_ADDITIONAL_GEO_BOUNDARIES, oldGeoBoundarys, additionalGeoBoundaryList);
     }
 }

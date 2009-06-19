@@ -21,8 +21,8 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.ui.DefaultWorldMapPaneModel;
 import org.esa.beam.framework.ui.WorldMapPane;
+import org.esa.beam.framework.ui.WorldMapPaneDataModel;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTreeListener;
@@ -50,7 +50,7 @@ public class WorldMapToolView extends AbstractToolView {
     public static final String ID = WorldMapToolView.class.getName();
 
     private VisatApp visatApp;
-    private DefaultWorldMapPaneModel worldMapPaneModel;
+    private WorldMapPaneDataModel worldMapDataModel;
 
 
     public WorldMapToolView() {
@@ -63,8 +63,8 @@ public class WorldMapToolView extends AbstractToolView {
         mainPane.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         mainPane.setPreferredSize(new Dimension(320, 160));
 
-        worldMapPaneModel = new DefaultWorldMapPaneModel();
-        final WorldMapPane worldMapPane = new WorldMapPane(worldMapPaneModel);
+        worldMapDataModel = new WorldMapPaneDataModel();
+        final WorldMapPane worldMapPane = new WorldMapPane(worldMapDataModel);
         mainPane.add(worldMapPane, BorderLayout.CENTER);
 
         visatApp.addProductTreeListener(new WorldMapPTL());
@@ -81,20 +81,20 @@ public class WorldMapToolView extends AbstractToolView {
     }
 
     public void setSelectedProduct(Product product) {
-        worldMapPaneModel.setSelectedProduct(product);
+        worldMapDataModel.setSelectedProduct(product);
     }
 
     public Product getSelectedProduct() {
-        return worldMapPaneModel.getSelectedProduct();
+        return worldMapDataModel.getSelectedProduct();
     }
 
 
     public void setProducts(Product[] products) {
-        worldMapPaneModel.setProducts(products);
+        worldMapDataModel.setProducts(products);
     }
 
     public void setPathesToDisplay(GeoPos[][] geoBoundaries) {
-        worldMapPaneModel.setAdditionalGeoBoundaries(geoBoundaries);
+        worldMapDataModel.setAdditionalGeoBoundaries(geoBoundaries);
     }
 
     public void packIfNeeded() {
@@ -108,7 +108,7 @@ public class WorldMapToolView extends AbstractToolView {
 
         @Override
         public void productAdded(final Product product) {
-            worldMapPaneModel.addProduct(product);
+            worldMapDataModel.addProduct(product);
             setSelectedProduct(product);
         }
 
@@ -117,7 +117,7 @@ public class WorldMapToolView extends AbstractToolView {
             if (getSelectedProduct() == product) {
                 setSelectedProduct(null);
             }
-            worldMapPaneModel.removeProduct(product);
+            worldMapDataModel.removeProduct(product);
         }
 
         @Override
