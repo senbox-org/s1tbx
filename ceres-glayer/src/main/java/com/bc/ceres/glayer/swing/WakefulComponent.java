@@ -18,18 +18,32 @@ package com.bc.ceres.glayer.swing;
 
 import javax.swing.JComponent;
 import javax.swing.Timer;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Composite;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.LayoutManager;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 
 /**
  * An animated component which can be in one of four {@link WakefulComponent.VisualState}s.
- * The visual state is presented by different degrees of component opacity. Sate transitions are
+ * The visual state is presented by different degrees of component opacity. State transitions are
  * done smoothly and can be controlled by various time settings.
- *
+ * <p/>
  * <pre>
- *
+ * <p/>
  *   INACTIVE   |  ACTIVATING    |      ACTIVE        |   DEACTIVATING   | INACTIVE
  *              |mouseEntered           |mouseExited
  *  ------------|----------------|------|-------------|------------------|----------
@@ -39,9 +53,9 @@ import java.awt.image.BufferedImage;
  *                     ___/                                 \_____
  *                ___/                                            \_____
  *  ____________/                                                       \__________
- *
+ * <p/>
  * </pre>
- *
+ * <p/>
  * Clients can observe state changes by listening to changes of the
  * {@link WakefulComponent#getVisualState() visualState} property.
  *
@@ -49,6 +63,7 @@ import java.awt.image.BufferedImage;
  * @version $Revision$ $Date$
  */
 public class WakefulComponent extends JComponent {
+
     private static final int PPS = 20;
 
     private float currentAlpha;
@@ -67,6 +82,7 @@ public class WakefulComponent extends JComponent {
     private HitHandler hitHandler;
 
     public enum VisualState {
+
         INACTIVE,
         ACTIVATING,
         ACTIVE,
@@ -241,6 +257,7 @@ public class WakefulComponent extends JComponent {
     }
 
     private class HitHandler extends MouseAdapter {
+
         @Override
         public void mouseEntered(MouseEvent e) {
             // System.out.println("WakefulComponent.e = " + e);
@@ -266,8 +283,10 @@ public class WakefulComponent extends JComponent {
     }
 
     private class TimerListener implements ActionListener {
+
         private int counter;
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (getVisualState() == VisualState.ACTIVE) {
                 final long timestamp = System.currentTimeMillis();
@@ -305,6 +324,7 @@ public class WakefulComponent extends JComponent {
     }
 
     private class ChildResizeHandler extends ComponentAdapter {
+
         @Override
         public void componentResized(ComponentEvent e) {
             adaptSize(e.getComponent());
