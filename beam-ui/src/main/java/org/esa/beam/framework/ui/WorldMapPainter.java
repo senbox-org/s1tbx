@@ -25,7 +25,14 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
@@ -37,8 +44,11 @@ import java.awt.image.BufferedImage;
  *
  * @author Marco Peters
  * @version $Revision$ $Date$
+ * @deprecated since BEAM 4.7, no replacement
  */
+@Deprecated
 public class WorldMapPainter {
+
     private static final String _FONT_NAME = "Verdana";
     private static final int _FONT_SIZE = 11;
 
@@ -197,7 +207,8 @@ public class WorldMapPainter {
         final double scale_x = _worldImage.getWidth(null) / 360.0;
         final double scale_y = -_worldImage.getHeight(null) / 180.0;
         final AffineTransform transform = new AffineTransform(scale_x, 0.0, 0.0, scale_y,
-                _worldImage.getWidth(null) - scale_x * 180 - 1, _worldImage.getHeight(null) + scale_y * 90);
+                                                              _worldImage.getWidth(null) - scale_x * 180 - 1,
+                                                              _worldImage.getHeight(null) + scale_y * 90);
         for (int i = 0; i < boundaryPaths.length; i++) {
             GeneralPath boundaryPath = boundaryPaths[i];
             boundaryPath.transform(transform);
@@ -274,8 +285,8 @@ public class WorldMapPainter {
         g2d.setColor(Color.black);
 
         g2d.drawString(text,
-                textCenter.x - fontMetrics.stringWidth(text) / 2f,
-                textCenter.y + fontMetrics.getAscent() / 2f);
+                       textCenter.x - fontMetrics.stringWidth(text) / 2f,
+                       textCenter.y + fontMetrics.getAscent() / 2f);
         g2d.setColor(color);
     }
 
@@ -284,8 +295,8 @@ public class WorldMapPainter {
         PixelPos centerPos = null;
         if (geoCoding != null) {
             centerPos = getPixelPos(geoCoding,
-                    new PixelPos(0.5f * product.getSceneRasterWidth() + 0.5f,
-                            0.5f * product.getSceneRasterHeight() + 0.5f));
+                                    new PixelPos(0.5f * product.getSceneRasterWidth() + 0.5f,
+                                                 0.5f * product.getSceneRasterHeight() + 0.5f));
         }
         return centerPos;
     }
@@ -299,6 +310,7 @@ public class WorldMapPainter {
      * Retrives the pixel pisition adjusted to the wolrd map image.
      *
      * @param geoPos
+     *
      * @return the pixel position
      */
     private PixelPos getPixelPos(final GeoPos geoPos) {
@@ -323,7 +335,8 @@ public class WorldMapPainter {
             }
         }
         final PixelPos pixelPos = new PixelPos(_worldImage.getWidth(null) / 360f * (geoPos.getLon() + 180f),
-                _worldImage.getHeight(null) - (_worldImage.getHeight(null) / 180f * (geoPos.getLat() + 90f)));
+                                               _worldImage.getHeight(null) - (_worldImage.getHeight(
+                                                       null) / 180f * (geoPos.getLat() + 90f)));
         return pixelPos;
     }
 
