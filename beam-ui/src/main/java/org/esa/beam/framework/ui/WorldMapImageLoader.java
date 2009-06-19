@@ -86,7 +86,7 @@ public class WorldMapImageLoader {
                                                            BufferedImage.TYPE_3BYTE_BGR);
         final Graphics graphics = errorImage.getGraphics();
         graphics.setColor(Color.WHITE);
-        final Font font = graphics.getFont().deriveFont(150.0f);
+        final Font font = graphics.getFont().deriveFont(75.0f);
         if (graphics instanceof Graphics2D) {
             final Graphics2D g2d = (Graphics2D) graphics;
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
