@@ -16,20 +16,22 @@
  */
 package org.esa.beam.framework.ui;
 
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.ImageUtils;
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.glayer.CollectionLayer;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.grender.support.BufferedImageRendering;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 
-import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * This utility class is responsible for loading the world map image.
@@ -41,8 +43,8 @@ public class WorldMapImageLoader {
 
     private static BufferedImage worldMapImage;
     private static boolean highResolution = false;
-    private static final String WORLDMAP_JPG_HIGH = "WorldmapHighRes.jpg";
-    private static final String WORLDMAP_JPG_LOW = "WorldmapLowRes.jpg";
+    private static final Dimension HI_RES_DIMENSION = new Dimension(4320, 2160);
+    private static final Dimension LOW_RES_DIMENSION = new Dimension(2160, 1080);
 
     private WorldMapImageLoader() {
     }
@@ -60,47 +62,28 @@ public class WorldMapImageLoader {
     public static BufferedImage getWorldMapImage(boolean highRes) {
         if (worldMapImage == null || isHighRes() != highRes) {
             setHighRes(highRes);
-            final String imageFileName = highRes ? WORLDMAP_JPG_HIGH : WORLDMAP_JPG_LOW;
-            worldMapImage = loadImage(imageFileName);
+
+            LayerType layerType = LayerType.getLayerType("org.esa.beam.worldmap.BlueMarbleLayerType");
+            if (layerType == null) {
+                worldMapImage = createErrorImage();
+            } else {
+                final CollectionLayer rootLayer = new CollectionLayer();
+                Layer worldMapLayer = layerType.createLayer(new WorldMapLayerContext(rootLayer), new ValueContainer());
+                Dimension dimension = highRes ? HI_RES_DIMENSION : LOW_RES_DIMENSION;
+                final BufferedImageRendering biRendering = new BufferedImageRendering(dimension.width,
+                                                                                      dimension.height);
+                biRendering.getViewport().setModelYAxisDown(false);
+                biRendering.getViewport().zoom(worldMapLayer.getModelBounds());
+                worldMapLayer.render(biRendering);
+                worldMapImage = biRendering.getImage();
+            }
         }
         return worldMapImage;
     }
 
-    private static BufferedImage loadImage(final String fileName) {
-        String resourcePath = "/auxdata/worldmap/" + fileName;
-        InputStream stream = WorldMapImageLoader.class.getResourceAsStream(resourcePath);
-        if (stream == null) {
-            throw new IllegalStateException("resource not found: " + resourcePath);
-        }
-        BufferedImage loadedImage;
-        try {
-            final BufferedImage bi = ImageIO.read(stream);
-            if (bi.getType() != BufferedImage.TYPE_3BYTE_BGR) {
-                Debug.trace("Must convert world map image to 3-byte BGR...");
-                loadedImage = ImageUtils.convertImage(bi, BufferedImage.TYPE_3BYTE_BGR);
-                Debug.trace("World image converted");
-            } else {
-                loadedImage = bi;
-                Debug.trace("World map image is already 3-byte BGR");
-            }
-        } catch (IOException e) {
-            Debug.trace(e);
-            JOptionPane.showMessageDialog(null, "Failed to load world map image '" + resourcePath
-                                                + "':\n" + e.getMessage(), "Loading World Map Image",
-                                                                           JOptionPane.ERROR_MESSAGE);
-            loadedImage = createErrorImage();
-        } finally {
-            try {
-                stream.close();
-            } catch (IOException e) {
-                // ok
-            }
-        }
-        return loadedImage;
-    }
-
     private static BufferedImage createErrorImage() {
-        final BufferedImage errorImage = new BufferedImage(4000, 2000, BufferedImage.TYPE_3BYTE_BGR);
+        final BufferedImage errorImage = new BufferedImage(LOW_RES_DIMENSION.width, LOW_RES_DIMENSION.height,
+                                                           BufferedImage.TYPE_3BYTE_BGR);
         final Graphics graphics = errorImage.getGraphics();
         graphics.setColor(Color.WHITE);
         final Font font = graphics.getFont().deriveFont(150.0f);
@@ -124,4 +107,24 @@ public class WorldMapImageLoader {
     private static void setHighRes(boolean highRes) {
         highResolution = highRes;
     }
+
+    private static class WorldMapLayerContext implements LayerContext {
+
+        private final Layer rootLayer;
+
+        private WorldMapLayerContext(Layer rootLayer) {
+            this.rootLayer = rootLayer;
+        }
+
+        @Override
+        public Object getCoordinateReferenceSystem() {
+            return DefaultGeographicCRS.WGS84;
+        }
+
+        @Override
+        public Layer getRootLayer() {
+            return rootLayer;
+        }
+    }
+
 }
