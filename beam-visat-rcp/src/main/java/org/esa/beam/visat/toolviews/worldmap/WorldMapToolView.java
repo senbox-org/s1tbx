@@ -65,6 +65,7 @@ public class WorldMapToolView extends AbstractToolView {
 
         worldMapDataModel = new WorldMapPaneDataModel();
         final WorldMapPane worldMapPane = new WorldMapPane(worldMapDataModel);
+        worldMapPane.setNavControlVisible(true);
         mainPane.add(worldMapPane, BorderLayout.CENTER);
 
         visatApp.addProductTreeListener(new WorldMapPTL());

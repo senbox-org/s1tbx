@@ -19,6 +19,8 @@ package org.esa.beam.framework.ui;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.swing.LayerCanvas;
+import com.bc.ceres.glayer.swing.NavControl;
+import com.bc.ceres.glayer.swing.WakefulComponent;
 import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -27,6 +29,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.ProductUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
+import javax.swing.AbstractAction;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.BorderLayout;
@@ -36,6 +39,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.AffineTransform;
@@ -57,6 +61,8 @@ public final class WorldMapPane extends JPanel {
     private LayerCanvas layerCanvas;
     private Layer worldMapLayer;
     private final WorldMapPaneDataModel dataModel;
+    private boolean navControlShown;
+    private WakefulComponent navControlWrapper;
 
     public WorldMapPane(WorldMapPaneDataModel dataModel) {
         this.dataModel = dataModel;
@@ -80,6 +86,16 @@ public final class WorldMapPane extends JPanel {
         worldMapLayer = dataModel.getWorldMapLayer(new WorldMapLayerContext(rootLayer));
         layerCanvas.getLayer().getChildren().add(worldMapLayer);
         layerCanvas.getViewport().zoom(worldMapLayer.getModelBounds());
+        setNavControlVisible(true);
+
+    }
+
+    @Override
+    public void doLayout() {
+        if (navControlShown && navControlWrapper != null) {
+            navControlWrapper.setLocation(getWidth() - navControlWrapper.getWidth() - 4, 4);
+        }
+        super.doLayout();
     }
 
     public Product getSelectedProduct() {
@@ -130,6 +146,37 @@ public final class WorldMapPane extends JPanel {
         viewport.zoom(modelBounds);
     }
 
+    /**
+     * None API. Don't use this method!
+     *
+     * @return true, if this canvas uses a {@link NavControl}.
+     */
+    public boolean isNavControlShown() {
+        return navControlShown;
+    }
+
+    /**
+     * None API. Don't use this method!
+     *
+     * @param navControlShown true, if this canvas uses a navigation control.
+     */
+    public void setNavControlVisible(boolean navControlShown) {
+        boolean oldValue = this.navControlShown;
+        if (oldValue != navControlShown) {
+            if (navControlShown) {
+                final ButtonOverlayControl navControl = new ButtonOverlayControl(new ZoomAllAction(),
+                                                                                 new ZoomToSelectedAction());
+                navControlWrapper = new WakefulComponent(navControl);
+                layerCanvas.add(navControlWrapper);
+            } else {
+                layerCanvas.remove(navControlWrapper);
+                navControlWrapper = null;
+            }
+            validate();
+            this.navControlShown = navControlShown;
+        }
+    }
+
     private void updateUiState(PropertyChangeEvent evt) {
         if (WorldMapPaneDataModel.PROPERTY_LAYER.equals(evt.getPropertyName())) {
             exchangeWorldMapLayer();
@@ -137,17 +184,19 @@ public final class WorldMapPane extends JPanel {
         if (WorldMapPaneDataModel.PROPERTY_PRODUCTS.equals(evt.getPropertyName())) {
             repaint();
         }
-        if (WorldMapPaneDataModel.PROPERTY_SELECTED_PRODUCT.equals(evt.getPropertyName())) {
+        if (WorldMapPaneDataModel.PROPERTY_SELECTED_PRODUCT.equals(evt.getPropertyName()) ||
+            WorldMapPaneDataModel.PROPERTY_AUTO_ZOOM_ENABLED.equals(evt.getPropertyName())) {
             final Product selectedProduct = dataModel.getSelectedProduct();
-            if (selectedProduct != null) {
+            if (selectedProduct != null && dataModel.isAutoZommEnabled()) {
                 zoomToProduct(selectedProduct);
+            } else {
+                repaint();
             }
         }
         if (WorldMapPaneDataModel.PROPERTY_ADDITIONAL_GEO_BOUNDARIES.equals(evt.getPropertyName())) {
             repaint();
         }
     }
-
 
     private void exchangeWorldMapLayer() {
         final List<Layer> children = layerCanvas.getLayer().getChildren();
@@ -459,5 +508,30 @@ public final class WorldMapPane extends JPanel {
         }
 
     }
+
+    private class ZoomAllAction extends AbstractAction {
+
+        private ZoomAllAction() {
+            putValue(LARGE_ICON_KEY, UIUtils.loadImageIcon("icons/ZoomAll24.gif"));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            layerCanvas.getViewport().zoom(worldMapLayer.getModelBounds());
+        }
+    }
+
+    private class ZoomToSelectedAction extends AbstractAction {
+
+        private ZoomToSelectedAction() {
+            putValue(LARGE_ICON_KEY, UIUtils.loadImageIcon("icons/ZoomTo24.gif"));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            zoomToProduct(getSelectedProduct());
+        }
+    }
+
 
 }

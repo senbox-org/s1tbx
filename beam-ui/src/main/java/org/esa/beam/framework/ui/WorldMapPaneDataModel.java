@@ -22,17 +22,20 @@ public class WorldMapPaneDataModel {
     public static final String PROPERTY_SELECTED_PRODUCT = "selectedProduct";
     public static final String PROPERTY_PRODUCTS = "products";
     public static final String PROPERTY_ADDITIONAL_GEO_BOUNDARIES = "additionalGeoBoundaries";
+    public static final String PROPERTY_AUTO_ZOOM_ENABLED = "autoZoomEnabled";
 
     private PropertyChangeSupport changeSupport;
     private static final LayerType layerType = LayerType.getLayerType("org.esa.beam.worldmap.BlueMarbleLayerType");
     private Layer worldMapLayer;
     private Product selectedProduct;
+    private boolean autoZoomEnabled;
     private ArrayList<Product> productList;
     private ArrayList<GeoPos[]> additionalGeoBoundaryList;
 
     public WorldMapPaneDataModel() {
         productList = new ArrayList<Product>();
         additionalGeoBoundaryList = new ArrayList<GeoPos[]>();
+        autoZoomEnabled = false;
     }
 
     public Layer getWorldMapLayer(LayerContext context) {
@@ -80,12 +83,6 @@ public class WorldMapPaneDataModel {
         firePropertyChange(PROPERTY_ADDITIONAL_GEO_BOUNDARIES, oldGeoBoundarys, additionalGeoBoundaryList);
     }
 
-    public void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
-        if (changeSupport != null) {
-            changeSupport.firePropertyChange(propertyName, oldValue, newValue);
-        }
-    }
-
     public void addModelChangeListener(PropertyChangeListener listener) {
         if (changeSupport == null) {
             changeSupport = new PropertyChangeSupport(this);
@@ -114,6 +111,24 @@ public class WorldMapPaneDataModel {
             if (productList.remove(product)) {
                 firePropertyChange(PROPERTY_PRODUCTS, oldProducts, getProducts());
             }
+        }
+    }
+
+    public boolean isAutoZommEnabled() {
+        return autoZoomEnabled;
+    }
+
+    public void setAutoZoomEnabled(boolean autoZoomEnabled) {
+        final boolean oldAutoZommEnabled = isAutoZommEnabled();
+        if (oldAutoZommEnabled != autoZoomEnabled) {
+            this.autoZoomEnabled = autoZoomEnabled;
+            firePropertyChange(PROPERTY_AUTO_ZOOM_ENABLED, oldAutoZommEnabled, autoZoomEnabled);
+        }
+    }
+
+    private void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+        if (changeSupport != null) {
+            changeSupport.firePropertyChange(propertyName, oldValue, newValue);
         }
     }
 }

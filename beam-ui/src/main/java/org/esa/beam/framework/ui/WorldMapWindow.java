@@ -85,7 +85,9 @@ public class WorldMapWindow extends JDialog {
 
     private void createUI() {
         worldMapDataModel = new WorldMapPaneDataModel();
-        setContentPane(new WorldMapPane(worldMapDataModel));
+
+        final WorldMapPane mapPane = new WorldMapPane(worldMapDataModel);
+        setContentPane(mapPane);
 
         if (helpId != null) {
             HelpSys.enableHelpKey(this, helpId);
