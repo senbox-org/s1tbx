@@ -2,17 +2,22 @@ package org.esa.beam.jai;
 
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ROIDefinition;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
 import javax.media.jai.PlanarImage;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.RenderedImage;
 
 /**
  * @author Norman Fomferra
  * @version $revision$ $date$
  */
 public class ImageManagerTest extends TestCase {
+
     private static final double EPS_L = 1e-3;
     private static final double EPS_H = 1e-6;
 
@@ -34,6 +39,25 @@ public class ImageManagerTest extends TestCase {
     public void testBandWithLinearAndLog10Scaling() {
         Band band = createBand(0.1, 0.5, true);
         testTargetImageSampleValues(band, EPS_H);
+    }
+
+    public void testCreateRoiImageWithValueRange() {
+        final Product product = new Product("p", "t", 2, 2);
+        Band band = createBand(1.0, 0, false);
+        product.addBand(band);
+        final ROIDefinition roiDef = new ROIDefinition();
+        roiDef.setValueRangeEnabled(true);
+        roiDef.setValueRangeMin(1);
+        roiDef.setValueRangeMax(2);
+        band.setROIDefinition(roiDef);
+
+        final RenderedImage roiMaskImage = ImageManager.getInstance().createRoiMaskImage(band, 0);
+        final DataBuffer dataBuffer = roiMaskImage.getData().getDataBuffer();
+        assertEquals(0, dataBuffer.getElem(0));
+        assertEquals(255, dataBuffer.getElem(1));
+        assertEquals(255, dataBuffer.getElem(2));
+        assertEquals(0, dataBuffer.getElem(3));
+
     }
 
     private Band createBand(double factor, double offset, boolean log10Scaled) {
