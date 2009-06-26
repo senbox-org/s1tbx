@@ -511,6 +511,10 @@
                 <plugin>
                     <artifactId>maven-eclipse-plugin</artifactId>
                     <version>2.3-bc</version>
+                    <configuration>
+                        <downloadSources>true</downloadSources>
+                        <downloadJavadocs>true</downloadJavadocs>
+                    </configuration>
                 </plugin>
 
                 <plugin>
