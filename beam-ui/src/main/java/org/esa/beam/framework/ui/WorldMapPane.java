@@ -167,6 +167,7 @@ public final class WorldMapPane extends JPanel {
                 final ButtonOverlayControl navControl = new ButtonOverlayControl(new ZoomAllAction(),
                                                                                  new ZoomToSelectedAction());
                 navControlWrapper = new WakefulComponent(navControl);
+                navControlWrapper.setMinAlpha(0.3f);
                 layerCanvas.add(navControlWrapper);
             } else {
                 layerCanvas.remove(navControlWrapper);
