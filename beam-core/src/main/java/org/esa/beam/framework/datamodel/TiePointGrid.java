@@ -776,15 +776,17 @@ public class TiePointGrid extends RasterDataNode {
         final float[] srcTiePoints = this.getTiePoints();
         final float[] destTiePoints = new float[srcTiePoints.length];
         System.arraycopy(srcTiePoints, 0, destTiePoints, 0, srcTiePoints.length);
-        return new TiePointGrid(this.getName(),
-                                this.getRasterWidth(),
-                                this.getRasterHeight(),
-                                this.getOffsetX(),
-                                this.getOffsetY(),
-                                this.getSubSamplingX(),
-                                this.getSubSamplingY(),
-                                destTiePoints,
-                                this.getDiscontinuity());
+        TiePointGrid clone = new TiePointGrid(this.getName(),
+                                              this.getRasterWidth(),
+                                              this.getRasterHeight(),
+                                              this.getOffsetX(),
+                                              this.getOffsetY(),
+                                              this.getSubSamplingX(),
+                                              this.getSubSamplingY(),
+                                              destTiePoints,
+                                              this.getDiscontinuity());
+        clone.setDescription(getDescription());
+        return clone;
 
     }
 

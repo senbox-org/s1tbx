@@ -566,4 +566,33 @@ public class TiePointGridTest extends AbstractRasterDataNodeTest {
         final TiePointGrid tp4 = new TiePointGrid("tp4", 2, 2, 0, 0, 1, 1, new float[]{-4, 0, 278, 180}, true);
         assertEquals(TiePointGrid.DISCONT_AT_360, tp4.getDiscontinuity());
     }
+
+    public void testClone() {
+        TiePointGrid grid = new TiePointGrid("abc", 2, 2,
+                                             0.1f, 0.2f,
+                                             0.3f, 0.4f,
+                                             new float[]{1.2f, 2.3f, 3.4f, 4.5f});
+        grid.setDescription("Aha!");
+        grid.setDiscontinuity(TiePointGrid.DISCONT_AT_180);
+
+        TiePointGrid gridClone = grid.cloneTiePointGrid();
+        assertEquals("abc", gridClone.getName());
+        assertEquals("Aha!", gridClone.getDescription());
+        assertEquals(TiePointGrid.DISCONT_AT_180, gridClone.getDiscontinuity());
+        assertEquals(2, gridClone.getRasterWidth());
+        assertEquals(2, gridClone.getRasterHeight());
+        assertEquals(0.1f, gridClone.getOffsetX());
+        assertEquals(0.2f, gridClone.getOffsetY());
+        assertEquals(0.3f, gridClone.getSubSamplingX());
+        assertEquals(0.4f, gridClone.getSubSamplingY());
+        assertNotNull(gridClone.getData());
+        assertEquals(true, gridClone.getData().getElems() instanceof float[]);
+        float[] dataClone = (float[]) gridClone.getData().getElems();
+        assertEquals(4, dataClone.length);
+        assertEquals(1.2f, dataClone[0]);
+        assertEquals(2.3f, dataClone[1]);
+        assertEquals(3.4f, dataClone[2]);
+        assertEquals(4.5f, dataClone[3]);
+        assertNotSame(grid.getData().getElems(), dataClone);
+    }
 }
