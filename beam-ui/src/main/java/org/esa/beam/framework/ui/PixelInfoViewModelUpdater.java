@@ -323,8 +323,13 @@ class PixelInfoViewModelUpdater {
             }
             if (geoCoding != null) {
                 GeoPos geoPos = geoCoding.getGeoPos(pixelPos, null);
-                tgx = geoPos.getLonString();
-                tgy = geoPos.getLatString();
+                if (pixelInfoView.showGeoPosDecimal()) {
+                    tgx = String.valueOf(geoPos.getLon());
+                    tgy = String.valueOf(geoPos.getLat());
+                } else {
+                    tgx = geoPos.getLonString();
+                    tgy = geoPos.getLatString();
+                }
                 if (geoCoding instanceof MapGeoCoding) {
                     final MapGeoCoding mapGeoCoding = (MapGeoCoding) geoCoding;
                     final MapTransform mapTransform = mapGeoCoding.getMapInfo().getMapProjection().getMapTransform();

@@ -21,14 +21,19 @@ import com.bc.swing.dock.FloatingComponentFactory;
 import com.bc.swing.dock.FloatingDockableFrame;
 import com.jidesoft.docking.DockingManager;
 import com.jidesoft.swing.JideSplitPane;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 import java.awt.BorderLayout;
@@ -39,9 +44,9 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Vector;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 /**
  * The pixel info view component is used to display the geophysical values for the pixel at a given pixel position
@@ -64,11 +69,13 @@ public class PixelInfoView extends JPanel {
     private static final int _VALUE_COLUMN = 1;
     private static final int _UNIT_COLUMN = 2;
     private JideSplitPane multiSplitPane;
+    private boolean showGeoPosDecimal;
 
     public enum DockablePaneKey {
 
         GEOLOCATION, SCANLINE, BANDS, TIEPOINTS, FLAGS
     }
+
     private final PropertyChangeListener _displayFilterListener;
     private final ProductNodeListener _productNodeListener;
 
@@ -82,17 +89,17 @@ public class PixelInfoView extends JPanel {
     private float _pixelOffsetY;
     private DisplayFilter _displayFilter;
     private final BasicApp app;
-    private Map<DockablePaneKey,DockablePane> dockablePaneMap;
-    
+    private Map<DockablePaneKey, DockablePane> dockablePaneMap;
+
     private final PixelInfoViewTableModel geolocModel;
     private final PixelInfoViewTableModel scanlineModel;
     private final PixelInfoViewTableModel bandModel;
     private final PixelInfoViewTableModel tiePointModel;
     private final PixelInfoViewTableModel flagModel;
-    
+
     private final PixelInfoViewModelUpdater modelUpdater;
     private final PixelInfoUpdateService updateService;
-    
+
 
     /**
      * Constructs a new pixel info view.
@@ -108,11 +115,12 @@ public class PixelInfoView extends JPanel {
         bandModel = new PixelInfoViewTableModel(new String[]{"Band", "Value", "Unit"});
         tiePointModel = new PixelInfoViewTableModel(new String[]{"Tie Point Grid", "Value", "Unit"});
         flagModel = new PixelInfoViewTableModel(new String[]{"Flag", "Value",});
-        modelUpdater = new PixelInfoViewModelUpdater(geolocModel, scanlineModel, bandModel, tiePointModel, flagModel, this);
+        modelUpdater = new PixelInfoViewModelUpdater(geolocModel, scanlineModel, bandModel, tiePointModel, flagModel,
+                                                     this);
         updateService = new PixelInfoUpdateService(modelUpdater);
         createUI();
     }
-    
+
     ProductNodeListener getProductNodeListener() {
         return _productNodeListener;
     }
@@ -195,9 +203,20 @@ public class PixelInfoView extends JPanel {
             updateService.requestUpdate();
         }
     }
-    
+
     boolean showPixelPosDecimal() {
         return _showPixelPosDecimals;
+    }
+
+    public void setShowGeoPosDecimal(boolean showGeoPosDecimal) {
+        if (this.showGeoPosDecimal != showGeoPosDecimal) {
+            this.showGeoPosDecimal = showGeoPosDecimal;
+            updateService.requestUpdate();
+        }
+    }
+
+    boolean showGeoPosDecimal() {
+        return showGeoPosDecimal;
     }
 
     public void setPixelOffsetX(float pixelOffsetX) {
@@ -206,7 +225,7 @@ public class PixelInfoView extends JPanel {
             updateService.requestUpdate();
         }
     }
-    
+
     float getPixelOffsetX() {
         return _pixelOffsetX;
     }
@@ -217,7 +236,7 @@ public class PixelInfoView extends JPanel {
             updateService.requestUpdate();
         }
     }
-    
+
     float getPixelOffsetY() {
         return _pixelOffsetY;
     }
@@ -225,7 +244,7 @@ public class PixelInfoView extends JPanel {
     public void updatePixelValues(ProductSceneView view, int pixelX, int pixelY, int level, boolean pixelPosValid) {
         updateService.updateState(view, pixelX, pixelY, level, pixelPosValid);
     }
-    
+
     public boolean isAnyDockablePaneVisible() {
         for (DockablePaneKey paneKey : dockablePaneMap.keySet()) {
             if (isDockablePaneVisible(paneKey)) {
@@ -237,7 +256,7 @@ public class PixelInfoView extends JPanel {
 
     public void showDockablePanel(DockablePaneKey key, boolean show) {
         final DockablePane dockablePane = dockablePaneMap.get(key);
-        if(multiSplitPane.indexOfPane(dockablePane) < 0 && show) {
+        if (multiSplitPane.indexOfPane(dockablePane) < 0 && show) {
             multiSplitPane.addPane(dockablePane);
             multiSplitPane.invalidate();
         }
@@ -249,11 +268,15 @@ public class PixelInfoView extends JPanel {
     }
 
     private void createUI() {
-        geolocInfoPane = createDockablePane("Geo-location", 0, UIUtils.loadImageIcon("icons/WorldMap16.gif"), geolocModel);
-        scanLineInfoPane = createDockablePane("Time Info", 1, UIUtils.loadImageIcon("icons/Clock16.gif"), scanlineModel);
-        bandPixelInfoPane = createDockablePane("Bands", 2, UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif"), bandModel);
+        geolocInfoPane = createDockablePane("Geo-location", 0, UIUtils.loadImageIcon("icons/WorldMap16.gif"),
+                                            geolocModel);
+        scanLineInfoPane = createDockablePane("Time Info", 1, UIUtils.loadImageIcon("icons/Clock16.gif"),
+                                              scanlineModel);
+        bandPixelInfoPane = createDockablePane("Bands", 2, UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif"),
+                                               bandModel);
         tiePointGridPixelInfoPane = createDockablePane("Tie Point Grids", 3,
-                                                       UIUtils.loadImageIcon("icons/RsBandAsTiePoint16.gif"), tiePointModel);
+                                                       UIUtils.loadImageIcon("icons/RsBandAsTiePoint16.gif"),
+                                                       tiePointModel);
         flagPixelInfoPane = createDockablePane("Flags", 4, UIUtils.loadImageIcon("icons/RsBandFlags16.gif"), flagModel);
 
         geolocInfoPane.setPreferredSize(new Dimension(128, 128));
@@ -287,7 +310,7 @@ public class PixelInfoView extends JPanel {
 
         HelpSys.enableHelpKey(this, HELP_ID);
     }
-    
+
     private static JTable getTable(DockablePane pane) {
         return (JTable) ((JScrollPane) pane.getContent()).getViewport().getView();
     }
@@ -353,7 +376,7 @@ public class PixelInfoView extends JPanel {
         }
         return false;
     }
-    
+
     private class FlagCellRenderer extends DefaultTableCellRenderer {
 
         /**
@@ -365,6 +388,7 @@ public class PixelInfoView extends JPanel {
          * @param hasFocus   true if cell has focus
          * @param row        the row of the cell to render
          * @param column     the column of the cell to render
+         *
          * @return the default table cell renderer
          */
         @Override

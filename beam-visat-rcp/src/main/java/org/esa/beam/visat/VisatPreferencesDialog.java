@@ -18,6 +18,7 @@
 package org.esa.beam.visat;
 
 import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.update.ConnectionConfigData;
 import com.bc.ceres.swing.update.ConnectionConfigPane;
 import org.esa.beam.framework.param.ParamChangeEvent;
@@ -54,6 +55,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
@@ -443,10 +445,11 @@ public class VisatPreferencesDialog extends ConfigDialog {
 
     public static class GeolocationDisplayPage extends DefaultConfigPage {
 
-        private Parameter _paramOffsetX;
-        private Parameter _paramOffsetY;
-        private JComponent _visualizer;
-        private Parameter _paramShowDecimals;
+        private Parameter paramOffsetX;
+        private Parameter paramOffsetY;
+        private JComponent visualizer;
+        private Parameter paramShowDecimals;
+        private Parameter paramGeolocationAsDecimal;
 
         public GeolocationDisplayPage() {
             setTitle("Geo-location Display"); /*I18N*/
@@ -454,37 +457,38 @@ public class VisatPreferencesDialog extends ConfigDialog {
 
         @Override
         protected void initPageUI() {
-            _visualizer = createOffsetVisualizer();
-            _visualizer.setPreferredSize(new Dimension(60, 60));
-            _visualizer.setOpaque(true);
-            _visualizer.setBorder(BorderFactory.createLoweredBevelBorder());
+            visualizer = createOffsetVisualizer();
+            visualizer.setPreferredSize(new Dimension(60, 60));
+            visualizer.setOpaque(true);
+            visualizer.setBorder(BorderFactory.createLoweredBevelBorder());
 
-            final JPanel pageUI = GridBagUtils.createPanel();
-            final GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
-            gbc.insets.bottom = 3;
-            gbc.gridy++;
-            gbc.weightx = 0;
-            pageUI.add(_paramOffsetX.getEditor().getLabelComponent(), gbc);
-            gbc.weightx = 1;
-            pageUI.add(_paramOffsetX.getEditor().getEditorComponent(), gbc);
+            final TableLayout tableLayout = new TableLayout(3);
+            tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
+            tableLayout.setTablePadding(4, 4);
+            tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
 
-            gbc.gridy++;
-            gbc.weightx = 0;
-            pageUI.add(_paramOffsetY.getEditor().getLabelComponent(), gbc);
-            gbc.weightx = 1;
-            pageUI.add(_paramOffsetY.getEditor().getEditorComponent(), gbc);
+            final JPanel pageUI = new JPanel(tableLayout);
+            pageUI.add(paramOffsetX.getEditor().getLabelComponent());
+            tableLayout.setCellWeightX(0, 1, 1.0);
+            pageUI.add(paramOffsetX.getEditor().getEditorComponent());
 
-            gbc.gridy++;
-            gbc.insets.top = 5;
-            gbc.weightx = 0;
-            pageUI.add(new JLabel(""), gbc);
-            pageUI.add(_visualizer, gbc);
+            tableLayout.setCellRowspan(0, 2, 2);
+            tableLayout.setCellWeightX(0, 2, 1.0);
+            tableLayout.setCellAnchor(0, 2, TableLayout.Anchor.CENTER);
+            tableLayout.setCellFill(0, 2, TableLayout.Fill.NONE);
+            pageUI.add(visualizer);
 
-            gbc.gridy++;
-            gbc.insets.top = 25;
-            pageUI.add(_paramShowDecimals.getEditor().getEditorComponent(), gbc);
+            pageUI.add(paramOffsetY.getEditor().getLabelComponent());
+            tableLayout.setCellWeightX(1, 1, 1.0);
+            pageUI.add(paramOffsetY.getEditor().getEditorComponent());
+
+            tableLayout.setRowPadding(2, new Insets(10, 0, 4, 4));
+            pageUI.add(paramShowDecimals.getEditor().getEditorComponent(), new TableLayout.Cell(2, 0, 1, 3));
+            tableLayout.setRowPadding(3, new Insets(10, 0, 4, 4));
+            pageUI.add(paramGeolocationAsDecimal.getEditor().getEditorComponent(), new TableLayout.Cell(3, 0, 1, 3));
 
             setPageUI(createPageUIContentPane(pageUI));
+
         }
 
         private JComponent createOffsetVisualizer() {
@@ -517,8 +521,8 @@ public class VisatPreferencesDialog extends ConfigDialog {
                     g2d.setColor(Color.blue);
                     g2d.drawRect(pixel.x, pixel.y, pixel.width, pixel.height);
 
-                    final float offsetX = (Float) _paramOffsetX.getValue();
-                    final float offsetY = (Float) _paramOffsetY.getValue();
+                    final float offsetX = (Float) paramOffsetX.getValue();
+                    final float offsetY = (Float) paramOffsetY.getValue();
                     final int posX = Math.round(pixelSize * offsetX + pixel.x);
                     final int posY = Math.round(pixelSize * offsetY + pixel.y);
                     drawPos(g2d, posX, posY);
@@ -542,7 +546,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
         protected void initConfigParams(ParamGroup configParams) {
             final ParamChangeListener paramChangeListener = new ParamChangeListener() {
                 public void parameterValueChanged(ParamChangeEvent event) {
-                    _visualizer.repaint();
+                    visualizer.repaint();
                 }
             };
 
@@ -551,9 +555,9 @@ public class VisatPreferencesDialog extends ConfigDialog {
             propertiesX.setMinValue(0.0f);
             propertiesX.setMaxValue(1.0f);
             propertiesX.setLabel("Relative pixel-X offset");
-            _paramOffsetX = new Parameter(PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_X, propertiesX);
-            _paramOffsetX.addParamChangeListener(paramChangeListener);
-            configParams.addParameter(_paramOffsetX);
+            paramOffsetX = new Parameter(PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_X, propertiesX);
+            paramOffsetX.addParamChangeListener(paramChangeListener);
+            configParams.addParameter(paramOffsetX);
 
 
             final ParamProperties propertiesY = new ParamProperties(Float.class);
@@ -561,16 +565,23 @@ public class VisatPreferencesDialog extends ConfigDialog {
             propertiesY.setMinValue(0.0f);
             propertiesY.setMaxValue(1.0f);
             propertiesY.setLabel("Relative pixel-Y offset");
-            _paramOffsetY = new Parameter(PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_Y, propertiesY);
-            _paramOffsetY.addParamChangeListener(paramChangeListener);
-            configParams.addParameter(_paramOffsetY);
+            paramOffsetY = new Parameter(PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_Y, propertiesY);
+            paramOffsetY.addParamChangeListener(paramChangeListener);
+            configParams.addParameter(paramOffsetY);
 
             final ParamProperties propShowDecimals = new ParamProperties(Boolean.class);
             propShowDecimals.setDefaultValue(PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS);
             propShowDecimals.setLabel("Show floating-point image coordinates");
-            _paramShowDecimals = new Parameter(PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS,
-                                               propShowDecimals);
-            configParams.addParameter(_paramShowDecimals);
+            paramShowDecimals = new Parameter(PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS,
+                                              propShowDecimals);
+            configParams.addParameter(paramShowDecimals);
+
+            final ParamProperties propGeoLocationDisplay = new ParamProperties(Boolean.class);
+            propGeoLocationDisplay.setDefaultValue(PROPERTY_DEFAULT_DISPLAY_GEOLOCATION_AS_DECIMAL);
+            propGeoLocationDisplay.setLabel("Show geo-location coordinates in decimal degrees");
+            paramGeolocationAsDecimal = new Parameter(PROPERTY_KEY_DISPLAY_GEOLOCATION_AS_DECIMAL,
+                                                      propGeoLocationDisplay);
+            configParams.addParameter(paramGeolocationAsDecimal);
         }
     }
 

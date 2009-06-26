@@ -256,6 +256,16 @@ public class VisatApp extends BasicApp implements AppContext {
     public static final boolean PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS = false;
 
     /**
+     * Preferences key for display style of geo-locations
+     */
+    public static final String PROPERTY_KEY_DISPLAY_GEOLOCATION_AS_DECIMAL = "geolocation.display.decimal";
+
+    /**
+     * Default value for display style of geo-locations.
+     */
+    public static final boolean PROPERTY_DEFAULT_DISPLAY_GEOLOCATION_AS_DECIMAL = false;
+
+    /**
      * Location key "browserPane" for plugin comonents
      */
     public static final String LOCATION_BROWSERPANE = "browserPane";
@@ -907,7 +917,7 @@ public class VisatApp extends BasicApp implements AppContext {
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) contentPane;
                 if ((numBands == -1 || view.getNumRasters() == numBands) &&
-                        view.getRaster() == raster) {
+                    view.getRaster() == raster) {
                     frameList.add(frame);
                 }
             }
@@ -1197,7 +1207,7 @@ public class VisatApp extends BasicApp implements AppContext {
                 }
             }
             if (!modifiedOrNew.contains(product)
-                    && product.isModified()) {
+                && product.isModified()) {
                 modifiedOrNew.add(product);
             }
         }
@@ -1487,17 +1497,17 @@ public class VisatApp extends BasicApp implements AppContext {
             StringBuilder message = null;
             if (product.getFileLocation() == null) {
                 message = new StringBuilder("The product\n" +
-                        "  " + product.getDisplayName() + "\n" +
-                        "you want to close has not been saved yet.\n");
+                                            "  " + product.getDisplayName() + "\n" +
+                                            "you want to close has not been saved yet.\n");
             } else if (product.isModified()) {
                 message = new StringBuilder("The product\n" +
-                        "  " + product.getDisplayName() + "\n" +
-                        "has been modified.\n");
+                                            "  " + product.getDisplayName() + "\n" +
+                                            "has been modified.\n");
             }
             if (message != null) {
                 message.append("After closing this product all modifications will be lost.\n" +
-                        "\n" +
-                        "Do you really want to close this product now?");
+                               "\n" +
+                               "Do you really want to close this product now?");
                 final int pressedButton = showQuestionDialog("Product Modified", message.toString(), null);
                 if (pressedButton != JOptionPane.YES_OPTION) {
                     return false;
@@ -1542,9 +1552,9 @@ public class VisatApp extends BasicApp implements AppContext {
         final File file = product.getFileLocation();
         if (file.isFile() && !file.canWrite()) {
             showWarningDialog("The product\n" +
-                    "'" + file.getPath() + "'\n" +
-                    "exists and cannot be overwritten, because it is read only.\n" +
-                    "Please choose another file or remove the write protection."); /*I18N*/
+                              "'" + file.getPath() + "'\n" +
+                              "exists and cannot be overwritten, because it is read only.\n" +
+                              "Please choose another file or remove the write protection."); /*I18N*/
             return false;
         }
 
@@ -1618,7 +1628,7 @@ public class VisatApp extends BasicApp implements AppContext {
                 if (canceled) {
                     int result = JOptionPane.showConfirmDialog(getMainFrame(),
                                                                "Cancel saving may lead to an unreadable product.\n\n"
-                                                                       + "Do you really want to cancel the save process?",
+                                                               + "Do you really want to cancel the save process?",
                                                                "Cancel Process", JOptionPane.YES_NO_OPTION);
                     if (result != JOptionPane.YES_OPTION) {
                         super.setCanceled(false);
@@ -1675,10 +1685,10 @@ public class VisatApp extends BasicApp implements AppContext {
         if (reader != null && !(reader instanceof DimapProductReader)) {
             final int answer = showQuestionDialog("Save Product As",
                                                   "In order to save the product\n" +
-                                                          "   " + product.getDisplayName() + "\n" +
-                                                          "it has to be converted to the BEAM-DIMAP format.\n" +
-                                                          "Depending on the product size the conversion also may take a while.\n\n" +
-                                                          "Do you really want to convert the product now?\n",
+                                                  "   " + product.getDisplayName() + "\n" +
+                                                  "it has to be converted to the BEAM-DIMAP format.\n" +
+                                                  "Depending on the product size the conversion also may take a while.\n\n" +
+                                                  "Do you really want to convert the product now?\n",
                                                   "productConversionRequired"); /*I18N*/
             if (answer != 0) { // Zero means YES
                 return;
@@ -1819,8 +1829,8 @@ public class VisatApp extends BasicApp implements AppContext {
                     final Object defaultValue = parameter.getProperties().getDefaultValue();
                     showErrorDialog("Error in Preferences",
                                     String.format("A problem has been detected in the preferences settings of %s:\n\n"
-                                            + "Value for parameter '%s' is invalid.\n"
-                                            + "Its default value '%s' will be used instead.",
+                                                  + "Value for parameter '%s' is invalid.\n"
+                                                  + "Its default value '%s' will be used instead.",
                                                   getAppName(), parameter.getName(), defaultValue));
                     try {
                         parameter.setDefaultValue();
@@ -2558,7 +2568,7 @@ public class VisatApp extends BasicApp implements AppContext {
                 BeamFileFilter productFileFilter = plugIn.getProductFileFilter();
                 fileChooser.addChoosableFileFilter(productFileFilter);
                 if (!ALL_FILES_IDENTIFIER.equals(lastFormat) &&
-                        productFileFilter.getFormatName().equals(lastFormat)) {
+                    productFileFilter.getFormatName().equals(lastFormat)) {
                     actualFileFilter = productFileFilter;
                 }
             }

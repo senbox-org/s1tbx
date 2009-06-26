@@ -71,6 +71,8 @@ public class PixelInfoToolView extends AbstractToolView {
                     setShowOnlyLoadedBands(preferences, bandDisplayValidator);
                 } else if (VisatApp.PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS.equals(propertyName)) {
                     setShowPixelPosDecimals(preferences);
+                } else if (VisatApp.PROPERTY_KEY_DISPLAY_GEOLOCATION_AS_DECIMAL.equals(propertyName)) {
+                    setShowGeoPosDecimal(preferences);
                 } else if (VisatApp.PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_X.equals(propertyName)) {
                     setPixelOffsetX(preferences);
                 } else if (VisatApp.PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_Y.equals(propertyName)) {
@@ -80,6 +82,7 @@ public class PixelInfoToolView extends AbstractToolView {
         });
         setShowOnlyLoadedBands(preferences, bandDisplayValidator);
         setShowPixelPosDecimals(preferences);
+        setShowGeoPosDecimal(preferences);
         setPixelOffsetX(preferences);
         setPixelOffsetY(preferences);
 
@@ -212,6 +215,12 @@ public class PixelInfoToolView extends AbstractToolView {
         pixelInfoView.setShowPixelPosDecimals(preferences.getPropertyBool(
                 VisatApp.PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS,
                 VisatApp.PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS));
+    }
+
+    private void setShowGeoPosDecimal(final PropertyMap preferences) {
+        pixelInfoView.setShowGeoPosDecimal(preferences.getPropertyBool(
+                VisatApp.PROPERTY_KEY_DISPLAY_GEOLOCATION_AS_DECIMAL,
+                VisatApp.PROPERTY_DEFAULT_DISPLAY_GEOLOCATION_AS_DECIMAL));
     }
 
     private void setShowOnlyLoadedBands(final PropertyMap preferences, DisplayFilter validator) {

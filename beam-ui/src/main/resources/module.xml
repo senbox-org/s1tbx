@@ -9,6 +9,9 @@
     <description>This module provides user interface components used e.g. by VISAT.</description>
     <changelog>
         <![CDATA[
+        <p>Changes in 4.7<br/>
+        [BEAM-1007] Geo-location / Tie Point Grid consistency<br/>
+        </p>
         <p>Changes in 4.6<br/>
         [BEAM-976] Time Info displays wrong UTC time<br/>
         [BEAM-958] PixelInfo blocks the EDT while updating its table<br/>

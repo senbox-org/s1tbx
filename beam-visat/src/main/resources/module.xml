@@ -15,6 +15,7 @@
           [BEAM-1014] ROI not considered when using value range<br/>
           [BEAM-1011] Worl Map Tool View to utilise new layer capabilities<br/>
           [BEAM-1010] Show cursor position in other views<br/>
+          [BEAM-1007] Geo-location / Tie Point Grid consistency<br/>
           [BEAM-1002] Editing bitmask overlays is not possible using the nimbus or gtk look & feel<br/>
           [BEAM-1001] SelectedProduct can be null in BandArithmetic<br/>
           [BEAM-1000] Spelling error in band arithmetic<br/>
