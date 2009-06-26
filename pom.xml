@@ -528,6 +528,10 @@
                     </configuration>
                 </plugin>
 
+                <plugin>
+                	<artifactId>maven-clean-plugin</artifactId>
+                	<version>2.3</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -545,6 +549,20 @@
                         <descriptor>src/main/assembly/bin.xml</descriptor>
                         <descriptor>src/main/assembly/src.xml</descriptor>
                     </descriptors>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>modules</directory>
+                            <includes>
+                                <include>**/*</include>
+                            </includes>
+                        </fileset>
+                    </filesets>                        
                 </configuration>
             </plugin>
         </plugins>
