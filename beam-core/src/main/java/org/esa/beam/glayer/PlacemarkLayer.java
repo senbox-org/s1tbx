@@ -85,6 +85,29 @@ public class PlacemarkLayer extends Layer {
     }
 
     @Override
+    protected Rectangle2D getLayerModelBounds() {
+        final ProductNodeGroup<Pin> placemarkGroup = getPlacemarkGroup();
+        if (placemarkGroup.getNodeCount() == 0) {
+            return null;
+        }
+        double x0 = Double.MAX_VALUE;
+        double y0 = Double.MAX_VALUE;
+        double x1 = Double.MIN_VALUE;
+        double y1 = Double.MIN_VALUE;
+        for (int i = 0; i < placemarkGroup.getNodeCount(); i++) {
+            final Pin pin = placemarkGroup.get(i);
+            final PixelPos pixelPos = pin.getPixelPos();
+            x0 = Math.min(x0, pixelPos.getX());
+            y0 = Math.min(y0, pixelPos.getY());
+            x1 = Math.max(x1, pixelPos.getX());
+            y1 = Math.max(y1, pixelPos.getY());
+        }
+        final Rectangle2D.Double bounds = new Rectangle2D.Double();
+        bounds.setFrameFromDiagonal(x0, y0, x1, y1);
+        return getImageToModelTransform().createTransformedShape(bounds).getBounds2D();
+    }
+
+    @Override
     public void disposeLayer() {
         if (product != null) {
             product.removeProductNodeListener(pnl);
@@ -241,7 +264,7 @@ public class PlacemarkLayer extends Layer {
             for (Pin pin : placemarks) {
                 pin.getSymbol().setOutlineColor(color);
             }
-            fireLayerDataChanged(null); // todo - compute region (mp)
+            fireLayerDataChanged(getLayerModelBounds());
         }
     }
 
@@ -266,7 +289,7 @@ public class PlacemarkLayer extends Layer {
             for (Pin pin : placemarks) {
                 pin.getSymbol().setFillPaint(color);
             }
-            fireLayerDataChanged(null); // todo - compute region (mp)
+            fireLayerDataChanged(getLayerModelBounds());
         }
     }
 
@@ -322,8 +345,7 @@ public class PlacemarkLayer extends Layer {
         private void maybeFireLayerDataChanged(ProductNodeEvent event) {
             if (event.getSourceNode() instanceof Pin &&
                 !ProductNode.PROPERTY_NAME_OWNER.equals(event.getPropertyName())) {
-                final Rectangle2D region = null; // todo - compute region (nf)
-                fireLayerDataChanged(region);
+                fireLayerDataChanged(getLayerModelBounds());
             }
         }
 
