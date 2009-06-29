@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.7:<br/>
+          [BEAM-1016] Add "Zoom to Layer"-Button to Layer Manager<br/>
           [BEAM-1010] Show cursor position in other views<br/>
           [BEAM-1007] Geo-location / Tie Point Grid consistency<br/>
           [BEAM-1005] Incorrect scatter plot axes<br/>
