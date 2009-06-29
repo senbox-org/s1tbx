@@ -20,7 +20,7 @@
                 ]]>
     </changelog>
 
-    <categories>SMOS,World-Map</categories>
+    <categories>System,World-Map</categories>
 
     <dependency>
         <module>ceres-glayer</module>
