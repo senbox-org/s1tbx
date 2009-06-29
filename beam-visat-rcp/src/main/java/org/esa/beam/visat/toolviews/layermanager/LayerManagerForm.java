@@ -96,6 +96,9 @@ class LayerManagerForm extends AbstractLayerForm {
         openLayerEditorAction = new OpenLayerEditorAction();
         AbstractButton openButton = ToolButtonFactory.createButton(openLayerEditorAction, false);
 
+        zoomToLayerAction = new ZoomToLayerAction(getAppContext());
+        AbstractButton zoomButton = ToolButtonFactory.createButton(zoomToLayerAction, false);
+
         moveLayerUpAction = new MoveLayerUpAction(getAppContext());
         AbstractButton upButton = ToolButtonFactory.createButton(moveLayerUpAction, false);
 
@@ -107,9 +110,6 @@ class LayerManagerForm extends AbstractLayerForm {
 
         moveLayerRightAction = new MoveLayerRightAction(getAppContext());
         AbstractButton rightButton = ToolButtonFactory.createButton(moveLayerRightAction, false);
-
-        zoomToLayerAction = new ZoomToLayerAction(getAppContext());
-        AbstractButton zoomButton = ToolButtonFactory.createButton(zoomToLayerAction, false);
 
         AbstractButton helpButton = createToolButton("icons/Help24.gif");
         helpButton.setToolTipText("Help."); /*I18N*/
@@ -127,6 +127,8 @@ class LayerManagerForm extends AbstractLayerForm {
         gbc.gridy++;
         actionBar.add(openButton, gbc);
         gbc.gridy++;
+        actionBar.add(zoomButton, gbc);
+        gbc.gridy++;
         actionBar.add(upButton, gbc);
         gbc.gridy++;
         actionBar.add(downButton, gbc);
@@ -134,8 +136,6 @@ class LayerManagerForm extends AbstractLayerForm {
         actionBar.add(leftButton, gbc);
         gbc.gridy++;
         actionBar.add(rightButton, gbc);
-        gbc.gridy++;
-        actionBar.add(zoomButton, gbc);
         gbc.gridy++;
         gbc.insets.bottom = 0;
         gbc.fill = GridBagConstraints.VERTICAL;
