@@ -8,12 +8,9 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.esa.beam.jai.TiledFileOpImage;
 import org.esa.beam.util.StringUtils;
 
-import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import java.awt.geom.AffineTransform;
-import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
-import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -24,9 +21,8 @@ public class TiledFileMultiLevelSource extends AbstractMultiLevelSource {
 
     private final File imageDir;
     private final Properties imageProperties;
-    boolean visualDebug;
 
-    public static MultiLevelSource create(File imageDir, boolean visualDebug) throws IOException {
+    public static TiledFileMultiLevelSource create(File imageDir) throws IOException {
         Assert.notNull(imageDir);
         final Properties imageProperties = new Properties();
         imageProperties.load(new FileReader(new File(imageDir, "image.properties")));
@@ -46,14 +42,13 @@ public class TiledFileMultiLevelSource extends AbstractMultiLevelSource {
             }
         }
         final MultiLevelModel model = new DefaultMultiLevelModel(levelCount, i2mTransform, sourceWidth, sourceHeight);
-        return new TiledFileMultiLevelSource(model, imageDir, imageProperties, visualDebug);
+        return new TiledFileMultiLevelSource(model, imageDir, imageProperties);
     }
 
-    public TiledFileMultiLevelSource(MultiLevelModel model, File imageDir, Properties imageProperties, boolean visualDebug) {
+    public TiledFileMultiLevelSource(MultiLevelModel model, File imageDir, Properties imageProperties) {
         super(model);
         this.imageDir = imageDir;
         this.imageProperties = imageProperties;
-        this.visualDebug = visualDebug;
     }
 
     @Override
@@ -64,24 +59,16 @@ public class TiledFileMultiLevelSource extends AbstractMultiLevelSource {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        if (visualDebug) {
-            ParameterBlock pb = new ParameterBlock();
-            pb.addSource(image);
-            pb.add(new int[]{0x0F});
-            image = JAI.create("andconst", pb, null);
-
-            pb = new ParameterBlock();
-            pb.addSource(image);
-            pb.add(new double[]{16});
-            pb.add(new double[]{0});
-            image = JAI.create("rescale", pb, null);
-
-            pb = new ParameterBlock();
-            pb.addSource(image);
-            pb.add(DataBuffer.TYPE_BYTE);
-            image = JAI.create("format", pb, null);
-        }
         return image;
+    }
+
+    @Deprecated
+    public TiledFileMultiLevelSource(MultiLevelModel model, File imageDir, Properties imageProperties, boolean visualDebug) {
+        this(model, imageDir, imageProperties);
+    }
+
+    @Deprecated
+    public static MultiLevelSource create(File imageDir, boolean visualDebug) throws IOException {
+        return create(imageDir);
     }
 }

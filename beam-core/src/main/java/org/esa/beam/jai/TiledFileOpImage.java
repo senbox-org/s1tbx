@@ -3,15 +3,25 @@ package org.esa.beam.jai;
 import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.SourcelessOpImage;
 import javax.media.jai.operator.FileLoadDescriptor;
-import java.awt.*;
-import java.awt.image.*;
+import java.awt.Point;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
+import java.awt.image.DataBufferShort;
+import java.awt.image.DataBufferUShort;
+import java.awt.image.DataBufferInt;
+import java.awt.image.DataBufferFloat;
+import java.awt.image.DataBufferDouble;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
@@ -64,8 +74,6 @@ public class TiledFileOpImage extends SourcelessOpImage {
     @Override
     public Raster computeTile(int tileX, int tileY) {
         // System.out.println("TiledFileOpImage.computeTile: >> '" + getTileFilename(tileX, tileY) + "'...");
-
-
         final Point location = new Point(tileXToX(tileX), tileYToY(tileY));
         final Raster raster;
         if (imageHeader.getTileFormat().startsWith("raw")) {
@@ -100,22 +108,111 @@ public class TiledFileOpImage extends SourcelessOpImage {
         }
     }
 
-    private void readRawDataTile(ImageInputStream imageInputStream, WritableRaster targetRaster) throws IOException {
-        final DataBuffer dataBuffer = targetRaster.getDataBuffer();
-        final int size = dataBuffer.getSize();
-        if (sampleModel.getDataType() == DataBuffer.TYPE_BYTE) {
-            imageInputStream.readFully(((DataBufferByte) dataBuffer).getData(), 0, size);
-        } else if (sampleModel.getDataType() == DataBuffer.TYPE_SHORT) {
-            imageInputStream.readFully(((DataBufferShort) dataBuffer).getData(), 0, size);
-        } else if (sampleModel.getDataType() == DataBuffer.TYPE_USHORT) {
-            imageInputStream.readFully(((DataBufferShort) dataBuffer).getData(), 0, size);
-        } else if (sampleModel.getDataType() == DataBuffer.TYPE_INT) {
-            imageInputStream.readFully(((DataBufferInt) dataBuffer).getData(), 0, size);
-        } else if (sampleModel.getDataType() == DataBuffer.TYPE_FLOAT) {
-            imageInputStream.readFully(((DataBufferFloat) dataBuffer).getData(), 0, size);
-        } else if (sampleModel.getDataType() == DataBuffer.TYPE_DOUBLE) {
-            imageInputStream.readFully(((DataBufferDouble) dataBuffer).getData(), 0, size);
+    /**
+     * Reads the data buffer of the given raster from the given image input stream.
+     *
+     * @param raster The raster.
+     * @param stream The image input stream.
+     *
+     * @throws java.io.IOException      if an I/O error occurs
+     * @throws IllegalArgumentException if the {@code raster}'s data arrays cannot be retrieved
+     * @throws NullPointerException     if {@code raster} or {@code stream} is null
+     */
+    public static void readRawDataTile(ImageInputStream stream, WritableRaster raster) throws IOException {
+        final Object dataObject = getDataObject(raster);
+        if (dataObject instanceof byte[]) {
+            final byte[] data = (byte[]) dataObject;
+            stream.readFully(data, 0, data.length);
+        } else if (dataObject instanceof short[]) {
+            final short[] data = (short[]) dataObject;
+            stream.readFully(data, 0, data.length);
+        } else if (dataObject instanceof int[]) {
+            final int[] data = (int[]) dataObject;
+            stream.readFully(data, 0, data.length);
+        } else if (dataObject instanceof float[]) {
+            final float[] data = (float[]) dataObject;
+            stream.readFully(data, 0, data.length);
+        } else if (dataObject instanceof double[]) {
+            final double[] data = (double[]) dataObject;
+            stream.readFully(data, 0, data.length);
+        } else {
+            throw new IllegalArgumentException("raster: Unexpected type returned by raster.getDataBuffer().getData(): " + dataObject);
         }
+    }
+
+    /**
+     * Writes the data buffer of the given raster to the given image output stream.
+     *
+     * @param raster The raster.
+     * @param stream The image output stream.
+     *
+     * @throws java.io.IOException      if an I/O error occurs
+     * @throws IllegalArgumentException if the {@code raster}'s data arrays cannot be retrieved
+     * @throws NullPointerException     if {@code raster} or {@code stream} is null
+     */
+    public static void writeRawDataTile(Raster raster, ImageOutputStream stream) throws IOException {
+        final Object dataObject = getDataObject(raster);
+        if (dataObject instanceof byte[]) {
+            byte[] data = (byte[]) dataObject;
+            stream.write(data);
+        } else if (dataObject instanceof short[]) {
+            short[] data = (short[]) dataObject;
+            stream.writeShorts(data, 0, data.length);
+        } else if (dataObject instanceof int[]) {
+            int[] data = (int[]) dataObject;
+            stream.writeInts(data, 0, data.length);
+        } else if (dataObject instanceof float[]) {
+            float[] data = (float[]) dataObject;
+            stream.writeFloats(data, 0, data.length);
+        } else if (dataObject instanceof double[]) {
+            double[] data = (double[]) dataObject;
+            stream.writeDoubles(data, 0, data.length);
+        } else {
+            throw new IllegalArgumentException("raster: Unexpected type returned by raster.getDataBuffer().getData(): " + dataObject);
+        }
+    }
+
+    /**
+     * Gets the data object from the data buffer of the given raster.
+     * The data object which will always be of a primitive array type.
+     *
+     * @param raster The raster.
+     *
+     * @return The data array.
+     * @throws IllegalArgumentException if the {@code raster}'s data arrays cannot be retrieved
+     * @throws NullPointerException     if {@code raster} is null
+     */
+    public static Object getDataObject(Raster raster) {
+        final DataBuffer dataBuffer = raster.getDataBuffer();
+        final Object arrayObject;
+        if (dataBuffer instanceof DataBufferByte) {
+            arrayObject = ((DataBufferByte) dataBuffer).getData();
+        } else if (dataBuffer instanceof DataBufferShort) {
+            arrayObject =  ((DataBufferShort) dataBuffer).getData();
+        } else if (dataBuffer instanceof DataBufferUShort) {
+            arrayObject =  ((DataBufferUShort) dataBuffer).getData();
+        } else if (dataBuffer instanceof DataBufferInt) {
+            arrayObject =  ((DataBufferInt) dataBuffer).getData();
+        } else if (dataBuffer instanceof DataBufferFloat) {
+            arrayObject =  ((DataBufferFloat) dataBuffer).getData();
+        } else if (dataBuffer instanceof DataBufferDouble) {
+            arrayObject =  ((DataBufferDouble) dataBuffer).getData();
+        } else if (dataBuffer instanceof javax.media.jai.DataBufferFloat) {
+            arrayObject =  ((javax.media.jai.DataBufferFloat) dataBuffer).getData();
+        } else if (dataBuffer instanceof javax.media.jai.DataBufferDouble) {
+            arrayObject =  ((javax.media.jai.DataBufferDouble) dataBuffer).getData();
+        } else {
+            try {
+                final Method method = dataBuffer.getClass().getMethod("getData");
+                arrayObject = method.invoke(dataBuffer);
+            } catch (Throwable t) {
+                throw new IllegalArgumentException("raster: Failed to invoke raster.getDataBuffer().getData().", t);
+            }
+        }
+        if (arrayObject == null) {
+            throw new IllegalArgumentException("raster: raster.getDataBuffer().getData() returned null.");
+        }
+        return arrayObject;
     }
 
     @Override
@@ -132,7 +229,7 @@ public class TiledFileOpImage extends SourcelessOpImage {
         return getTileBasename(tileX, tileY) + "." + imageHeader.getTileFormat();
     }
 
-    private String getTileBasename(int tileX, int tileY) {
+    private static String getTileBasename(int tileX, int tileY) {
         return tileX + "-" + tileY;
     }
 

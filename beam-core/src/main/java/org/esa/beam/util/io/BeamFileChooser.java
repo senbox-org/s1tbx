@@ -18,12 +18,15 @@ package org.esa.beam.util.io;
 
 import org.esa.beam.util.Debug;
 
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Graphics;
 import java.awt.HeadlessException;
 import java.awt.Rectangle;
 import java.awt.Window;
@@ -41,9 +44,9 @@ import java.io.File;
  */
 public class BeamFileChooser extends JFileChooser {
 
-    private String _lastFilename;
-    private Rectangle _dialogBounds;
-    private ResizeHandler _resizeHandler;
+    private String lastFilename;
+    private Rectangle dialogBounds;
+    private ResizeHandler resizeHandler;
 
     public BeamFileChooser() {
         super();
@@ -65,6 +68,20 @@ public class BeamFileChooser extends JFileChooser {
         init();
     }
 
+    @Override
+    public Icon getIcon(File f) {
+        final Icon icon = super.getIcon(f);
+        if (f.isDirectory() && isCompoundDocument(f)) {
+            return new CompoundDocumentIcon(icon);
+        }
+        return icon;
+    }
+
+    @Override
+    public boolean isTraversable(File f) {
+        return f.isDirectory() && !isCompoundDocument(f);
+    }
+
     /**
      * Overridden in order to recognize dialog size changes.
      *
@@ -77,9 +94,9 @@ public class BeamFileChooser extends JFileChooser {
     @Override
     protected JDialog createDialog(Component parent) throws HeadlessException {
         final JDialog dialog = super.createDialog(parent);
-        dialog.addComponentListener(_resizeHandler);
-        if (_dialogBounds != null) {
-            dialog.setBounds(_dialogBounds);
+        dialog.addComponentListener(resizeHandler);
+        if (dialogBounds != null) {
+            dialog.setBounds(dialogBounds);
         }
         return dialog;
     }
@@ -103,7 +120,7 @@ public class BeamFileChooser extends JFileChooser {
      * @return the dialog bounds
      */
     public Rectangle getDialogBounds() {
-        return _dialogBounds;
+        return dialogBounds;
     }
 
     /**
@@ -112,11 +129,11 @@ public class BeamFileChooser extends JFileChooser {
      * @param dialogBounds the dialog bounds
      */
     public void setDialogBounds(Rectangle dialogBounds) {
-        _dialogBounds = dialogBounds;
+        this.dialogBounds = dialogBounds;
     }
 
     /**
-     * Gets the current filename.
+     * @return The current filename, or <code>null</code>.
      */
     public String getCurrentFilename() {
         File selectedFile = getSelectedFile();
@@ -128,6 +145,8 @@ public class BeamFileChooser extends JFileChooser {
 
     /**
      * Sets the current filename.
+     *
+     * @param currentFilename The current filename, or <code>null</code>.
      */
     public void setCurrentFilename(String currentFilename) {
         Debug.trace("BeamFileChooser: setCurrentFilename(\"" + currentFilename + "\")");
@@ -162,7 +181,7 @@ public class BeamFileChooser extends JFileChooser {
     }
 
     /**
-     * Returns the current extension or <code>null</code> if it is unknown.
+     * @return The current extension or <code>null</code> if it is unknown.
      */
     public String getDefaultExtension() {
         if (getBeamFileFilter() != null) {
@@ -170,6 +189,7 @@ public class BeamFileChooser extends JFileChooser {
         }
         return null;
     }
+
 
     /**
      * Checks whether or not the given filename with one of the known file extensions. The known file extension of this
@@ -185,8 +205,7 @@ public class BeamFileChooser extends JFileChooser {
         if (filename != null) {
             FileFilter[] fileFilters = getChoosableFileFilters();
             if (fileFilters != null) {
-                for (int i = 0; i < fileFilters.length; i++) {
-                    FileFilter filter = fileFilters[i];
+                for (FileFilter filter : fileFilters) {
                     if (filter instanceof BeamFileFilter) {
                         if (((BeamFileFilter) filter).checkExtension(filename)) {
                             return true;
@@ -216,27 +235,49 @@ public class BeamFileChooser extends JFileChooser {
     ///////////////////////////////////////////////////////////////////////////
 
     private void init() {
-        _resizeHandler = new ResizeHandler();
+
+        resizeHandler = new ResizeHandler();
         setAcceptAllFileFilterUsed(false);
+
         addPropertyChangeListener(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY, new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 Object newValue = evt.getNewValue();
                 if (newValue instanceof File) {
-                    _lastFilename = ((File) newValue).getName();
+                    lastFilename = ((File) newValue).getName();
                 }
             }
         });
         addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
+                final BeamFileFilter beamFileFilter = getBeamFileFilter();
+                if (beamFileFilter != null) {
+                    setFileSelectionMode(beamFileFilter.getFileSelectionMode().getValue());
+                } else {
+                    setFileSelectionMode(FILES_ONLY);
+                }
+
                 if (getSelectedFile() != null) {
                     return;
                 }
-                if (_lastFilename == null || _lastFilename.length() == 0) {
+                if (lastFilename == null || lastFilename.length() == 0) {
                     return;
                 }
-                setCurrentFilename(_lastFilename);
+                setCurrentFilename(lastFilename);
             }
         });
+    }
+
+    private boolean isCompoundDocument(File file) {
+        final FileFilter[] filters = getChoosableFileFilters();
+        for (FileFilter fileFilter : filters) {
+            if (fileFilter instanceof BeamFileFilter) {
+                BeamFileFilter beamFileFilter = (BeamFileFilter) fileFilter;
+                if (beamFileFilter.isCompoundDocument(file)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void ensureSelectedFileHasValidExtension() {
@@ -244,8 +285,8 @@ public class BeamFileChooser extends JFileChooser {
         if (selectedFile != null) {
             BeamFileFilter mff = getBeamFileFilter();
             if (mff != null
-                && mff.getDefaultExtension() != null
-                && !mff.checkExtension(selectedFile)) {
+                    && mff.getDefaultExtension() != null
+                    && !mff.checkExtension(selectedFile)) {
                 selectedFile = FileUtils.exchangeExtension(selectedFile, mff.getDefaultExtension());
                 Debug.trace("mod. selected file: " + selectedFile.getPath());
                 setSelectedFile(selectedFile);
@@ -263,6 +304,30 @@ public class BeamFileChooser extends JFileChooser {
         @Override
         public void componentResized(ComponentEvent e) {
             setDialogBounds(e.getComponent().getBounds());
+        }
+    }
+
+    private static class CompoundDocumentIcon implements Icon {
+        private final Icon baseIcon;
+        private static final Icon compoundDocumentIcon = new ImageIcon(CompoundDocumentIcon.class.getResource("CompoundDocument12.png"));
+
+        public CompoundDocumentIcon(Icon baseIcon) {
+            this.baseIcon = baseIcon;
+        }
+
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            baseIcon.paintIcon(c, g, x, y);
+            compoundDocumentIcon.paintIcon(c, g,
+                                           x + baseIcon.getIconWidth() - compoundDocumentIcon.getIconWidth(),
+                                           y + baseIcon.getIconHeight() - compoundDocumentIcon.getIconHeight());
+        }
+
+        public int getIconWidth() {
+            return baseIcon.getIconWidth();
+        }
+
+        public int getIconHeight() {
+            return baseIcon.getIconHeight();
         }
     }
 }

@@ -1,11 +1,64 @@
-package org.esa.beam.framework.ui.io;
+package org.esa.beam.util.io;
 
 import junit.framework.TestCase;
-import org.esa.beam.util.io.BeamFileFilter;
 
 import java.io.File;
 
 public class BeamFileFilterTest extends TestCase {
+    public void testSingleExt() {
+        testSingleExt(new BeamFileFilter("X", "xml", "X files"));
+        testSingleExt(new BeamFileFilter("X", new String[]{"xml"}, "X files"));
+    }
+
+    public void testMultiExt() {
+        testMultiExt(new BeamFileFilter("X", "xml,zip", "X files"));
+        testMultiExt(new BeamFileFilter("X", new String[]{".xml",".zip"}, "X files"));
+    }
+
+    public void testNoExt() {
+        testNoExt(new BeamFileFilter("X", "", "X files"));
+        testNoExt(new BeamFileFilter("X", new String[0], "X files"));
+    }
+
+    private void testSingleExt(BeamFileFilter fileFilter) {
+        assertEquals("X", fileFilter.getFormatName());
+        assertNotNull(fileFilter.getExtensions());
+        assertEquals(1, fileFilter.getExtensions().length);
+        assertEquals(".xml", fileFilter.getExtensions()[0]);
+        assertEquals(".xml", fileFilter.getDefaultExtension());
+        assertEquals("X files (*.xml)", fileFilter.getDescription());
+        assertEquals(true, fileFilter.accept(new File(".")));
+        assertEquals(true, fileFilter.accept(new File("./a.xml")));
+        assertEquals(false, fileFilter.accept(new File("./a.zip")));
+        assertEquals(false, fileFilter.accept(new File("./a.txt")));
+    }
+
+    private void testMultiExt(BeamFileFilter fileFilter) {
+        assertEquals("X", fileFilter.getFormatName());
+        assertNotNull(fileFilter.getExtensions());
+        assertEquals(2, fileFilter.getExtensions().length);
+        assertEquals(".xml", fileFilter.getExtensions()[0]);
+        assertEquals(".zip", fileFilter.getExtensions()[1]);
+        assertEquals(".xml", fileFilter.getDefaultExtension());
+        assertEquals("X files (*.xml,*.zip)", fileFilter.getDescription());
+        assertEquals(true, fileFilter.accept(new File(".")));
+        assertEquals(true, fileFilter.accept(new File("./a.xml")));
+        assertEquals(true, fileFilter.accept(new File("./a.zip")));
+        assertEquals(false, fileFilter.accept(new File("./a.txt")));
+    }
+
+    private void testNoExt(BeamFileFilter fileFilter) {
+        assertEquals("X", fileFilter.getFormatName());
+        assertNotNull(fileFilter.getExtensions());
+        assertEquals(0, fileFilter.getExtensions().length);
+        assertEquals(null, fileFilter.getDefaultExtension());
+        assertEquals("X files", fileFilter.getDescription());
+        assertEquals(true, fileFilter.accept(new File(".")));
+        assertEquals(true, fileFilter.accept(new File("./a.xml")));
+        assertEquals(true, fileFilter.accept(new File("./a.zip")));
+        assertEquals(true, fileFilter.accept(new File("./a.txt")));
+    }
+
 
     public void testDefaultConstructor() {
         final BeamFileFilter f = new BeamFileFilter();

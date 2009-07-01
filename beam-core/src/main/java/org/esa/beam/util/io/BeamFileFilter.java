@@ -19,6 +19,7 @@ package org.esa.beam.util.io;
 import org.esa.beam.util.StringUtils;
 
 import javax.swing.filechooser.FileFilter;
+import javax.swing.JFileChooser;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -30,9 +31,9 @@ import java.util.ArrayList;
  */
 public class BeamFileFilter extends FileFilter {
 
-    private String _formatName;
-    private String[] _extensions;
-    private String _description;
+    private String formatName;
+    private String[] extensions;
+    private String description;
 
     public BeamFileFilter() {
     }
@@ -48,11 +49,11 @@ public class BeamFileFilter extends FileFilter {
     }
 
     public String getFormatName() {
-        return _formatName;
+        return formatName;
     }
 
     public void setFormatName(String formatName) {
-        _formatName = formatName;
+        this.formatName = formatName;
     }
 
     /**
@@ -61,7 +62,7 @@ public class BeamFileFilter extends FileFilter {
      * @return <code>true</code> if so
      */
     public boolean hasExtensions() {
-        return _extensions != null && _extensions.length > 0;
+        return extensions != null && extensions.length > 0;
     }
 
     /**
@@ -79,31 +80,34 @@ public class BeamFileFilter extends FileFilter {
     /**
      * Returns the accepted extensions of this filter. For example: <code>{".jpg", ".gif", ".png"}</code>.
      *
+     * @return The array of extensions.
+     *
      * @see #setExtensions
      */
     public String[] getExtensions() {
-        return _extensions;
+        return extensions;
     }
 
     /**
      * Sets the accepted extensions of this filter. For example: <code>{".jpg", ".gif", ".png"}</code>.
+     *
+     * @param extensions The array of extensions.
      *
      * @see #getExtensions
      */
     public void setExtensions(String[] extensions) {
         if (extensions != null) {
             ArrayList<String> extensionList = new ArrayList<String>();
-            for (int i = 0; i < extensions.length; i++) {
-                final String extension = extensions[i];
+            for (final String extension : extensions) {
                 if (extension.startsWith(".")) {
                     extensionList.add(extension);
                 } else if (extension.trim().length() > 0) {
                     extensionList.add("." + extension);
                 }
             }
-            _extensions = extensionList.toArray(new String[0]);
+            this.extensions = extensionList.toArray(new String[extensionList.size()]);
         } else {
-            _extensions = null;
+            this.extensions = null;
         }
     }
 
@@ -114,12 +118,14 @@ public class BeamFileFilter extends FileFilter {
      */
     @Override
     public String getDescription() {
-        return _description;
+        return description;
     }
 
     /**
      * Returns the description of this filter. For example: <code>"JPEG Images (*.jpg,*.jpeg)"</code>. If the extension
      * list is missing in the description text, it is automatically appended.
+     *
+     * @param description The description, must not be null.
      *
      * @see #getDescription
      */
@@ -127,19 +133,19 @@ public class BeamFileFilter extends FileFilter {
         if (hasExtensions() && !description.endsWith(")")) {
             StringBuffer sb = new StringBuffer(description);
             sb.append(" (");
-            for (int i = 0; i < _extensions.length; i++) {
+            for (int i = 0; i < extensions.length; i++) {
                 if (i > 0) {
                     sb.append(",");
                 }
                 sb.append("*");
-                if (_extensions[i] != null) {
-                    sb.append(_extensions[i]);
+                if (extensions[i] != null) {
+                    sb.append(extensions[i]);
                 }
             }
             sb.append(")");
-            _description = sb.toString();
+            this.description = sb.toString();
         } else {
-            _description = description;
+            this.description = description;
         }
     }
 
@@ -166,8 +172,8 @@ public class BeamFileFilter extends FileFilter {
     public boolean checkExtension(String filename) {
         if (filename != null) {
             filename = filename.toLowerCase();
-            for (int i = 0; i < _extensions.length; i++) {
-                final String extension = _extensions[i].toLowerCase();
+            for (String extension : extensions) {
+                extension = extension.toLowerCase();
                 if (filename.endsWith(extension)) {
                     return true;
                 }
@@ -200,4 +206,55 @@ public class BeamFileFilter extends FileFilter {
         return checkExtension(file);
     }
 
+    /**
+     * Checks if the given directory represents a compound document.
+     * If so, we don't want the user to descend into it when using the
+     * {@link org.esa.beam.util.io.BeamFileChooser}.
+     * The default implementation returns {@code false}.
+     * Clients may override.
+     *
+     * @param dir The directory to check.
+     *
+     * @return {@code true} If the given directory represents a compound document.
+     * @since BEAM 4.6.1
+     */
+    public boolean isCompoundDocument(File dir) {
+        return false;
+    }
+
+    /**
+     * Gets the file selection mode for the {@link org.esa.beam.util.io.BeamFileChooser} if this filter is used.
+     * The default implementation returns {@link FileSelectionMode#FILES_ONLY}.
+     * Clients may override.
+     *
+     * @return {@code true} if the user can also select directories using this filter.
+     * @since BEAM 4.6.1
+     */
+    public FileSelectionMode getFileSelectionMode() {
+        return FileSelectionMode.FILES_ONLY;
+    }
+
+    /**
+     * File selection modes.
+     */
+    public enum FileSelectionMode {
+        /** Instruction to display only files. */
+        FILES_ONLY(JFileChooser.FILES_ONLY),
+
+        /** Instruction to display only directories. */
+        DIRECTORIES_ONLY(JFileChooser.DIRECTORIES_ONLY),
+
+        /** Instruction to display both files and directories. */
+        FILES_AND_DIRECTORIES (JFileChooser.FILES_AND_DIRECTORIES);
+
+        private final int value;
+
+        FileSelectionMode(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
 }
