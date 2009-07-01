@@ -23,6 +23,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.7:<br/>
+        [BEAM-1017] Wrong constant SECONDS_PER_DAY<br/>
         [BEAM-1015] ProductUtils.copyTiePointGrids does not copy description text<br/> 
         [BEAM-1014] ROI not considered when using value range<br/>
         [BEAM-1004] X and Y variables always zero in band arithmetic<br/>

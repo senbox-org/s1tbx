@@ -54,7 +54,7 @@ public class DateTimeUtils {
     /**
      * The number of seconds per day.
      */
-    public static final double SECONDS_PER_DAY = 60.0 * HOURS_PER_DAY;
+    public static final double SECONDS_PER_DAY = 3600.0 * HOURS_PER_DAY;
     /**
      * The number of milli-seconds per day.
      */
