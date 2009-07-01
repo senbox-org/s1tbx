@@ -144,6 +144,7 @@
         <module>beam-landsat-reader</module>
         <module>beam-geotiff</module>
         <module>beam-hdf5-writer</module>
+        <module>beam-rtp-codec</module>
 
         <module>lib-hdf</module>
         <module>lib-netcdf</module>
