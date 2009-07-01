@@ -9,7 +9,7 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>blue-marble-worldmap</artifactId>
     <name>NASA Blue Marble Worldmap</name>
-    <version>1.0</version>
+    <version>1.0.1</version>
 
     <dependencies>
         <dependency>

@@ -66,11 +66,6 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
         return new BlueMarbleWorldMapLayer(configuration);
     }
 
-    @Override
-    public ValueContainer getConfigurationTemplate() {
-        return new ValueContainer();
-    }
-
     private static MultiLevelSource createMultiLevelSource() {
         String dirPath = System.getProperty(WORLD_IMAGE_DIR_PROPERTY_NAME);
         if (dirPath == null || dirPath.isEmpty()) {
