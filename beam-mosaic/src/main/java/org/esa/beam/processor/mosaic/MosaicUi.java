@@ -27,6 +27,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
@@ -113,6 +114,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -121,7 +123,7 @@ public class MosaicUi extends AbstractProcessorUI {
     public static final int STANDARD_INSETS_TOP = 3;
     public static final int LARGE_INSETS_TOP = STANDARD_INSETS_TOP + 15;
     private static final String _defaultNumberText = "####";
-    private static final String _defaultLatLonText = "##�";
+    private static final String _defaultLatLonText = "##°";
     private static final int _PREFERRED_TABLE_WIDTH = 500;
 
     private MosaicRequestElementFactory _reqElemFac;
@@ -168,6 +170,7 @@ public class MosaicUi extends AbstractProcessorUI {
     public static final String LABEL_NAME_SCENE_HEIGHT = "Scene height";
     public static final String LABEL_NAME_SCENE_WIDTH = "Scene width";
     public static final String LABEL_NAME_CENTER_LON = "Center longitude";
+    private static final String DEFAULT_MAP_PROJECTION_NAME = IdentityTransformDescriptor.NAME;
 
     public MosaicUi() {
         _reqElemFac = MosaicRequestElementFactory.getInstance();
@@ -177,6 +180,7 @@ public class MosaicUi extends AbstractProcessorUI {
      * Retrieves the base component for the processor specific user interface classes. This can be any Java Swing
      * containertype.
      */
+    @Override
     public JComponent getGuiComponent() {
         return createTabbedPane();
     }
@@ -184,6 +188,7 @@ public class MosaicUi extends AbstractProcessorUI {
     /**
      * Retrieves the list of requests currently edited.
      */
+    @Override
     public Vector getRequests() throws ProcessorException {
         final Vector<Request> requests = new Vector<Request>();
         requests.add(getRequest());
@@ -193,9 +198,10 @@ public class MosaicUi extends AbstractProcessorUI {
     /**
      * Sets a new Request to be edited.
      */
+    @Override
     public void setRequests(Vector requests) throws ProcessorException {
         Guardian.assertNotNull("requests", requests);
-        if (requests.size() > 0) {
+        if (!requests.isEmpty()) {
             for (int i = 0; i < requests.size(); i++) {
                 Request request = (Request) requests.elementAt(i);
                 if (request == null) {
@@ -214,6 +220,7 @@ public class MosaicUi extends AbstractProcessorUI {
     /**
      * Create a set of new default requests.
      */
+    @Override
     public void setDefaultRequests() throws ProcessorException {
         disposeExampleProduct();
         setDefaultRequest();
@@ -230,6 +237,7 @@ public class MosaicUi extends AbstractProcessorUI {
         removeAllRequestValidators(app);
 
         app.addRequestValidator(new RequestValidator() {
+            @Override
             public boolean validateRequest(Processor processor, Request request) {
                 if (!MosaicConstants.REQUEST_TYPE.equals(request.getType())) {
                     return true;
@@ -279,16 +287,19 @@ public class MosaicUi extends AbstractProcessorUI {
 
     private Component createIOPane() {
         final FileArrayEditor.EditorParent parent = new FileArrayEditor.EditorParent() {
+            @Override
             public File getUserInputDir() {
                 return getInputProductDir();
             }
 
+            @Override
             public void setUserInputDir(File newDir) {
                 setInputProductDir(newDir);
             }
         };
         _inputProductEditor = new FileArrayEditor(parent, "Input products");
         final FileArrayEditor.FileArrayEditorListener listener = new FileArrayEditor.FileArrayEditorListener() {
+            @Override
             public void updatedList(final File[] files) {
                 if (files == null || files.length == 0) {
                     _inputProductBoundaries = null;
@@ -665,6 +676,7 @@ public class MosaicUi extends AbstractProcessorUI {
         _newVariableButton.setToolTipText("Add new processing variable"); /*I18N*/
         _newVariableButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 final int rows = _variablesTable.getRowCount();
                 addRow(_variablesTable, new Object[]{"variable_" + rows, ""}); /*I18N*/
@@ -678,6 +690,7 @@ public class MosaicUi extends AbstractProcessorUI {
         _removeVariableButton.setToolTipText("Remove selected rows."); /*I18N*/
         _removeVariableButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 removeRows(_variablesTable, _variablesTable.getSelectedRows());
             }
@@ -690,6 +703,7 @@ public class MosaicUi extends AbstractProcessorUI {
         _moveVariableUpButton.setToolTipText("Move up selected rows."); /*I18N*/
         _moveVariableUpButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 moveRowsUp(_variablesTable, _variablesTable.getSelectedRows());
             }
@@ -702,6 +716,7 @@ public class MosaicUi extends AbstractProcessorUI {
         _moveVariableDownButton.setToolTipText("Move down selected rows."); /*I18N*/
         _moveVariableDownButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 moveRowsDown(_variablesTable, _variablesTable.getSelectedRows());
             }
@@ -713,6 +728,7 @@ public class MosaicUi extends AbstractProcessorUI {
         _variableFilterButton = createButton("icons/Copy16.gif", "bandButton");
         _variableFilterButton.setToolTipText("Choose the bands to process"); /*I18N*/
         _variableFilterButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 final Product exampleProduct = getExampleProduct();
                 if (exampleProduct != null) {
@@ -767,6 +783,7 @@ public class MosaicUi extends AbstractProcessorUI {
         _newConditionsButton.setToolTipText("Add new processing condition"); /*I18N*/
         _newConditionsButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 final int rows = _conditionsTable.getRowCount();
                 addRow(_conditionsTable, new Object[]{"condition_" + rows, "", false}); /*I18N*/
@@ -780,6 +797,7 @@ public class MosaicUi extends AbstractProcessorUI {
         _removeConditionButton.setToolTipText("Remove selected rows."); /*I18N*/
         _removeConditionButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 removeRows(_conditionsTable, _conditionsTable.getSelectedRows());
             }
@@ -792,6 +810,7 @@ public class MosaicUi extends AbstractProcessorUI {
         _moveConditionUpButton.setToolTipText("Move up selected rows."); /*I18N*/
         _moveConditionUpButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 moveRowsUp(_conditionsTable, _conditionsTable.getSelectedRows());
             }
@@ -804,6 +823,7 @@ public class MosaicUi extends AbstractProcessorUI {
         _moveConditionDownButton.setToolTipText("Move down selected rows."); /*I18N*/
         _moveConditionDownButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 moveRowsDown(_conditionsTable, _conditionsTable.getSelectedRows());
             }
@@ -957,9 +977,11 @@ public class MosaicUi extends AbstractProcessorUI {
             }
         }
 
-        _paramProjectionName = new Parameter(MosaicConstants.PARAM_NAME_PROJECTION_NAME, _projectionNames[0]);
+        Arrays.sort(_projectionNames);
+        _paramProjectionName = new Parameter(MosaicConstants.PARAM_NAME_PROJECTION_NAME, DEFAULT_MAP_PROJECTION_NAME);
         _paramProjectionName.getProperties().setValueSet(_projectionNames);
         _paramProjectionName.getProperties().setValueSetBound(true);
+        _paramProjectionName.getProperties().setDefaultValue(DEFAULT_MAP_PROJECTION_NAME);
         _paramProjectionName.getProperties().setLabel(MosaicConstants.PARAM_LABEL_PROJECTION_NAME);
 
         addParamListeners();
@@ -967,6 +989,7 @@ public class MosaicUi extends AbstractProcessorUI {
 
     private void addParamListeners() {
         _paramProjectionName.addParamChangeListener(new ParamChangeListener() {
+            @Override
             public void parameterValueChanged(ParamChangeEvent event) {
                 updateButtonProjectionParamsEnabled();
                 updatePixelSize();
@@ -975,6 +998,7 @@ public class MosaicUi extends AbstractProcessorUI {
         });
 
         final ParamChangeListener cornerCoordinateListener = new ParamChangeListener() {
+            @Override
             public void parameterValueChanged(ParamChangeEvent event) {
                 computeOutputProduct();
             }
@@ -988,6 +1012,7 @@ public class MosaicUi extends AbstractProcessorUI {
         _paramPixelSizeY.addParamChangeListener(cornerCoordinateListener);
 
         final ParamChangeListener changeSouthMax = new ParamChangeListener() {
+            @Override
             public void parameterValueChanged(ParamChangeEvent event) {
                 _paramSouthLat.getProperties().setMaxValue((Number) _paramNorthLat.getValue());
             }
@@ -996,6 +1021,7 @@ public class MosaicUi extends AbstractProcessorUI {
         _paramNorthLat.addParamChangeListener(changeSouthMax);
 
         final ParamChangeListener changeNorthMin = new ParamChangeListener() {
+            @Override
             public void parameterValueChanged(ParamChangeEvent event) {
                 _paramNorthLat.getProperties().setMinValue((Number) _paramSouthLat.getValue());
             }
@@ -1005,12 +1031,14 @@ public class MosaicUi extends AbstractProcessorUI {
 
 
         _paramOutputProduct.addParamChangeListener(new ParamChangeListener() {
+            @Override
             public void parameterValueChanged(ParamChangeEvent event) {
                 updateProductDefinitionAndProcessingParameters();
             }
         });
 
         _paramUpdateMode.addParamChangeListener(new ParamChangeListener() {
+            @Override
             public void parameterValueChanged(ParamChangeEvent event) {
                 updateProductDefinitionAndProcessingParameters();
 
@@ -1044,11 +1072,13 @@ public class MosaicUi extends AbstractProcessorUI {
             }
         });
         _paramOrthorectify.addParamChangeListener(new ParamChangeListener() {
+            @Override
             public void parameterValueChanged(ParamChangeEvent event) {
                 updateElevationEnabled();
             }
         });
         _paramConditionsOperator.addParamChangeListener(new ParamChangeListener() {
+            @Override
             public void parameterValueChanged(ParamChangeEvent event) {
                 final String and = MosaicConstants.PARAM_VALUESET_CONDITIONS_OPERATOR[1];
                 final boolean isAnd = _paramConditionsOperator.getValueAsText().equals(and);
@@ -1183,6 +1213,7 @@ public class MosaicUi extends AbstractProcessorUI {
 
         _paramWestLon.getEditor().getEditorComponent().addPropertyChangeListener("enabled",
                                                                                  new PropertyChangeListener() {
+                                                                                     @Override
                                                                                      public void propertyChange(
                                                                                              PropertyChangeEvent evt) {
                                                                                          final boolean enabled = (Boolean) evt.getNewValue();
@@ -1249,6 +1280,7 @@ public class MosaicUi extends AbstractProcessorUI {
         _displayInputProductsCheck = new JCheckBox("Display input products"); /*I18N*/
         _displayInputProductsCheck.setOpaque(false);
         final ActionListener scanActionListener = new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 if (isWorldMapWindowVisible()) {
                     if (_displayInputProductsCheck.isSelected()) {
@@ -1265,6 +1297,7 @@ public class MosaicUi extends AbstractProcessorUI {
         previewButton.setEnabled(true);
         previewButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 previewButton.setEnabled(false);
                 if (_worldMapWindow == null) {
@@ -1326,6 +1359,7 @@ public class MosaicUi extends AbstractProcessorUI {
         _buttonProjectionParams.setEnabled(false);
         _buttonProjectionParams.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 showProjectionParameterDialog();
             }
@@ -1514,17 +1548,12 @@ public class MosaicUi extends AbstractProcessorUI {
 
     private MapProjection getProjection() {
         final String projectionName = _paramProjectionName.getValueAsText();
-        return _projections[getArrayIndex(projectionName)];
-    }
-
-    private int getArrayIndex(final String projectionName) {
-        for (int i = 0; i < _projectionNames.length; i++) {
-            final String name = _projectionNames[i];
-            if (name.equals(projectionName)) {
-                return i;
+        for (MapProjection projection : _projections) {
+            if (projection.getName().equals(projectionName)) {
+                return projection;
             }
         }
-        return -1;
+        throw new IllegalStateException("Unknown projection name 'projectionName'.");
     }
 
     private void disposeExampleProduct() {
@@ -1764,7 +1793,7 @@ public class MosaicUi extends AbstractProcessorUI {
             _paramOutputProduct.setDefaultValue();
         }
 
-        _paramProjectionName.setValueAsText(_projectionNames[0], null);
+        _paramProjectionName.setDefaultValue();
 
         _paramWestLon.setDefaultValue();
         _paramEastLon.setDefaultValue();
@@ -2046,6 +2075,7 @@ public class MosaicUi extends AbstractProcessorUI {
             setBorder(noFocusBorder);
         }
 
+        @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
                                                        int row, int column) {
             final boolean enabled = table.isEnabled();
@@ -2097,6 +2127,7 @@ public class MosaicUi extends AbstractProcessorUI {
             button.setPreferredSize(preferredSize);
             value = new String[1];
             final ActionListener actionListener = new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     final int i = editExpression(value, booleanExpected);
                     if (i == ModalDialog.ID_OK) {
@@ -2114,6 +2145,7 @@ public class MosaicUi extends AbstractProcessorUI {
          *
          * @return the value contained in the editor
          */
+        @Override
         public Object getCellEditorValue() {
             return value[0];
         }
@@ -2135,6 +2167,7 @@ public class MosaicUi extends AbstractProcessorUI {
          *
          * @return the component for editing
          */
+        @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
                                                      int column) {
             final JPanel renderPanel = new JPanel(new BorderLayout());
