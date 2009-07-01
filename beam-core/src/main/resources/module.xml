@@ -28,6 +28,7 @@
         [BEAM-1015] ProductUtils.copyTiePointGrids does not copy description text<br/>
         [BEAM-1014] ROI not considered when using value range<br/>
         [BEAM-1004] X and Y variables always zero in band arithmetic<br/>
+        [BEAM-456]  ROI includes also no-data pixels if "Include pixel by conditions" is selected<br/>
         </p>
         <p>Changes in 4.6:<br/>
         [BEAM-993] Filter band not correct if band is UINT type and does not have scaling<br/>

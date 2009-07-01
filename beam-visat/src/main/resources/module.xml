@@ -21,6 +21,7 @@
           [BEAM-1002] Editing bitmask overlays is not possible using the nimbus or gtk look & feel<br/>
           [BEAM-1001] SelectedProduct can be null in BandArithmetic<br/>
           [BEAM-1000] Spelling error in band arithmetic<br/>
+          [BEAM-456]  ROI includes also no-data pixels if "Include pixel by conditions" is selected<br/>
         </p>
         <p>Changes in 4.6:<br/>
           [BEAM-998] VISAT fails to import shapes from ESRI shapefiles<br/>
