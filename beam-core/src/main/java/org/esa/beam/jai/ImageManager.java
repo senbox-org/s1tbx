@@ -818,6 +818,10 @@ public class ImageManager {
             final String escapedName = BandArithmetic.createExternalName(rasterDataNode.getName());
             String rangeExpr = escapedName + " >= " + roiDefinition.getValueRangeMin() + " && "
                                + escapedName + " <= " + roiDefinition.getValueRangeMax();
+            final String validMaskExpression = rasterDataNode.getValidMaskExpression();
+            if (validMaskExpression != null) {
+                rangeExpr += " && " + validMaskExpression;
+            }
             roiImages.add(getMaskImage(rangeExpr, rasterDataNode.getProduct(), level));
         }
 
