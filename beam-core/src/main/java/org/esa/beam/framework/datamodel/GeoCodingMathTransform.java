@@ -76,12 +76,29 @@ public class GeoCodingMathTransform extends AbstractMathTransform {
         }
 
         GeoCodingMathTransform that = (GeoCodingMathTransform) o;
-
-        if (!geoCoding.equals(that.geoCoding)) {
+        if (areGeoCodingsEqual(geoCoding, that.geoCoding)) {
             return false;
         }
         return t == that.t;
 
+    }
+
+    private boolean areGeoCodingsEqual(GeoCoding geoCoding, GeoCoding otherGeoCoding) {
+        final PixelPos pixelPos0 = new PixelPos(0, 0);
+        final GeoPos geoPos = geoCoding.getGeoPos(pixelPos0, null);
+        final GeoPos thatGeoPos = otherGeoCoding.getGeoPos(pixelPos0, null);
+        if (!equalsGeoPos(geoPos, thatGeoPos)) {
+            return true;
+        }
+        final PixelPos pixelPos1 = new PixelPos(1, 1);
+        final GeoPos geoPos1 = geoCoding.getGeoPos(pixelPos1, null);
+        final GeoPos thatGeoPos1 = otherGeoCoding.getGeoPos(pixelPos1, null);
+        return !equalsGeoPos(geoPos1, thatGeoPos1);
+    }
+
+    private boolean equalsGeoPos(GeoPos geoPos, GeoPos thatGeoPos) {
+        return Math.abs(geoPos.getLat() - thatGeoPos.getLat()) < 1.0e-6 &&
+               Math.abs(geoPos.getLon() - thatGeoPos.getLon()) < 1.0e-6;
     }
 
     @Override
