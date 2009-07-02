@@ -97,6 +97,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      *
      * @return the datum
      */
+    @Override
     public Datum getDatum() {
         return _datum;
     }
@@ -107,6 +108,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      *
      * @return true if so
      */
+    @Override
     public boolean isCrossingMeridianAt180() {
         return _normalized;
     }
@@ -136,6 +138,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      *
      * @return <code>true</code>, if so
      */
+    @Override
     public boolean canGetGeoPos() {
         return true;
     }
@@ -145,6 +148,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      *
      * @return <code>true</code>, if so
      */
+    @Override
     public boolean canGetPixelPos() {
         return _approximations != null;
     }
@@ -191,6 +195,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      *
      * @return the pixel co-ordinates as x/y
      */
+    @Override
     public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
         Approximation[] approximations = _approximations;
         if (approximations != null) {
@@ -281,6 +286,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      * <p/>
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
      */
+    @Override
     public void dispose() {
         if (_normalizedLonGrid != _lonGrid) {
             _normalizedLonGrid.dispose();
