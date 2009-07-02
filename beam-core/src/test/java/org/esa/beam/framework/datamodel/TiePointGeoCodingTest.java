@@ -27,8 +27,8 @@ public class TiePointGeoCodingTest extends TestCase {
         TiePointGeoCoding gc = createTestGeoCoding();
         assertTrue(gc.isCrossingMeridianAt180());
         gc.getPixelPos(new GeoPos(31.25f, -177.5f), pixelPos);
-        assertEquals(4.5f, pixelPos.y, 1e-5f);
-        assertEquals(7.5f, pixelPos.x, 1e-5f);
+        assertEquals(4.5f, pixelPos.y, 1.0e-5f);
+        assertEquals(7.5f, pixelPos.x, 1.0e-5f);
     }
 
     public void testThatReturnedPositionsNotNull() {
@@ -39,8 +39,11 @@ public class TiePointGeoCodingTest extends TestCase {
 
     public void testGetGeoPosWithPixePosOutOfBounds() {
         TiePointGeoCoding gc = createTestGeoCoding();
-        assertNotNull(gc.getGeoPos(new PixelPos(50, 700), null));
-        final GeoPos geoPos = gc.getGeoPos(new PixelPos(50, 700), null);
+        final int px = gc.getLatGrid().getSceneRasterWidth() + 2;
+        final int py = gc.getLatGrid().getSceneRasterHeight() + 2;
+        final PixelPos pixelPos = new PixelPos(px, py);
+        final GeoPos geoPos = gc.getGeoPos(pixelPos, null);
+        assertNotNull(geoPos);
         assertEquals("geoPos is not invalid", true, !geoPos.isValid());
     }
 

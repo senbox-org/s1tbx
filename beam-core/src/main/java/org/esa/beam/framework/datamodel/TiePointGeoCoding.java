@@ -181,8 +181,13 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         if (geoPos == null) {
             geoPos = new GeoPos();
         }
-        geoPos.lat = _latGrid.getPixelFloat(pixelPos.x, pixelPos.y);
-        geoPos.lon = _lonGrid.getPixelFloat(pixelPos.x, pixelPos.y);
+        if (pixelPos.x < 0 || pixelPos.x >= _latGrid.getSceneRasterWidth() ||
+            pixelPos.y < 0 || pixelPos.y >= _latGrid.getSceneRasterHeight()) {
+            geoPos.setInvalid();
+        } else {
+            geoPos.lat = _latGrid.getPixelFloat(pixelPos.x, pixelPos.y);
+            geoPos.lon = _lonGrid.getPixelFloat(pixelPos.x, pixelPos.y);
+        }
         return geoPos;
     }
 
