@@ -21,4 +21,9 @@ public class BlueMarbleWorldMapLayer extends ImageLayer {
         setName(WORLD_MAP_LAYER_NAME);
         setVisible(true);
     }
+
+    @Override
+    public ValueContainer getConfiguration() {
+        return new ValueContainer();
+    }
 }
