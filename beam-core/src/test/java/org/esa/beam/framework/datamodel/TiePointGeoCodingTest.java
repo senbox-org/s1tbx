@@ -34,7 +34,14 @@ public class TiePointGeoCodingTest extends TestCase {
     public void testThatReturnedPositionsNotNull() {
         TiePointGeoCoding gc = createTestGeoCoding();
         assertNotNull(gc.getPixelPos(new GeoPos(31.25f, -177.5f), null));
-        assertNotNull(gc.getGeoPos(new PixelPos(2,2), null));
+        assertNotNull(gc.getGeoPos(new PixelPos(2, 2), null));
+    }
+
+    public void testGetGeoPosWithPixePosOutOfBounds() {
+        TiePointGeoCoding gc = createTestGeoCoding();
+        assertNotNull(gc.getGeoPos(new PixelPos(50, 700), null));
+        final GeoPos geoPos = gc.getGeoPos(new PixelPos(50, 700), null);
+        assertEquals("geoPos is not invalid", true, !geoPos.isValid());
     }
 
     public void testTransferGeoCodingWithoutSubset() {
