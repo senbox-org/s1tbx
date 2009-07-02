@@ -61,7 +61,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
     public TiePointGeoCoding(TiePointGrid latGrid, TiePointGrid lonGrid) {
         this(latGrid, lonGrid, Datum.WGS_84);
     }
-    
+
     /**
      * Constructs geo-coding based on two given tie-point grids.
      *
@@ -97,6 +97,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      *
      * @return the datum
      */
+    @Override
     public Datum getDatum() {
         return _datum;
     }
@@ -107,6 +108,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      *
      * @return true if so
      */
+    @Override
     public boolean isCrossingMeridianAt180() {
         return _normalized;
     }
@@ -136,6 +138,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      *
      * @return <code>true</code>, if so
      */
+    @Override
     public boolean canGetGeoPos() {
         return true;
     }
@@ -145,6 +148,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      *
      * @return <code>true</code>, if so
      */
+    @Override
     public boolean canGetPixelPos() {
         return _approximations != null;
     }
@@ -172,12 +176,18 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      *
      * @return the geographical position as lat/lon.
      */
+    @Override
     public GeoPos getGeoPos(final PixelPos pixelPos, GeoPos geoPos) {
         if (geoPos == null) {
             geoPos = new GeoPos();
         }
-        geoPos.lat = _latGrid.getPixelFloat(pixelPos.x, pixelPos.y);
-        geoPos.lon = _lonGrid.getPixelFloat(pixelPos.x, pixelPos.y);
+        if (pixelPos.x < 0 || pixelPos.x >= _latGrid.getSceneRasterWidth() ||
+            pixelPos.y < 0 || pixelPos.y >= _latGrid.getSceneRasterHeight()) {
+            geoPos.setInvalid();
+        } else {
+            geoPos.lat = _latGrid.getPixelFloat(pixelPos.x, pixelPos.y);
+            geoPos.lon = _lonGrid.getPixelFloat(pixelPos.x, pixelPos.y);
+        }
         return geoPos;
     }
 
@@ -190,6 +200,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      *
      * @return the pixel co-ordinates as x/y
      */
+    @Override
     public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
         Approximation[] approximations = _approximations;
         if (approximations != null) {
@@ -226,11 +237,11 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
     }
 
     private double rescaleLongitude(double lon, double centerLon) {
-        return  (lon - centerLon)/90.0;
+        return (lon - centerLon) / 90.0;
     }
 
     private double rescaleLatitude(double lat) {
-        return  lat/90.0;
+        return lat / 90.0;
     }
 
     /**
@@ -280,6 +291,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      * <p/>
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
      */
+    @Override
     public void dispose() {
         if (_normalizedLonGrid != _lonGrid) {
             _normalizedLonGrid.dispose();
@@ -309,13 +321,11 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         System.arraycopy(longitudes, 0, normalizedLongitudes, 0, numValues);
         float lonDeltaMax = 0;
         for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++)
-            { // Normalise line-wise, by detecting longituidal discontinuities. lonDelta is the difference between a base point and the current point
+            for (int x = 0; x < w; x++) { // Normalise line-wise, by detecting longituidal discontinuities. lonDelta is the difference between a base point and the current point
                 final int index = x + y * w;
                 if (x == 0 && y == 0) { // first point in grid: base point is un-normalised
                     p1 = normalizedLongitudes[index];
-                } else if (x == 0)
-                { // first point in line: base point is the (possibly) normalised lon. of first point of last line
+                } else if (x == 0) { // first point in line: base point is the (possibly) normalised lon. of first point of last line
                     p1 = normalizedLongitudes[x + (y - 1) * w];
                 } else { // other points in line: base point is the (possibly) normalised lon. of last point in line
                     p1 = normalizedLongitudes[index - 1];
@@ -594,7 +604,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
 
     private Approximation createApproximation(Rectangle subsetRect) {
         final double[][] data = createWarpPoints(subsetRect);
-        
+
         float sumLat = 0.0f;
         float sumLon = 0.0f;
         for (final double[] point : data) {
@@ -604,14 +614,14 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         float centerLon = sumLon / data.length;
         float centerLat = sumLat / data.length;
         final float maxSquareDistance = getMaxSquareDistance(data, centerLat, centerLon);
-        
+
         if (_swathResampling) {
             for (int i = 0; i < data.length; i++) {
                 data[i][0] = rescaleLatitude(data[i][0]);
                 data[i][1] = rescaleLongitude(data[i][1], centerLon);
             }
         }
-        
+
         final int[] xIndices = new int[]{0, 1, 2};
         final int[] yIndices = new int[]{0, 1, 3};
 
@@ -724,7 +734,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         }
         final float result = linearRegression(data);
         final float resultSin = linearRegression(dataSin);
-        return (resultSin<result);
+        return (resultSin < result);
     }
 
     private float linearRegression(float[] data) {
@@ -746,11 +756,11 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         float sxy = sumXY - sumX * sumY / num;
         float b = sxy / sxx;
         float a = (sumY - b * sumX) / num;
-        
+
         float squareError = 0;
         for (int x = 0; x < num; x++) {
             float y = data[x];
-            float currentResidual = (y-(a + b * x));
+            float currentResidual = (y - (a + b * x));
             squareError += currentResidual * currentResidual;
         }
         squareError /= num;
