@@ -33,6 +33,7 @@ import com.jidesoft.status.LabelStatusBarItem;
 import com.jidesoft.swing.FolderChooser;
 import com.jidesoft.swing.JideMenu;
 import com.jidesoft.swing.LayoutPersistence;
+import org.esa.beam.BeamUiActivator;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.framework.ui.application.support.DefaultApplicationDescriptor;
@@ -54,7 +55,6 @@ import org.esa.beam.util.io.FileChooserFactory;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.logging.CacheHandler;
-import org.esa.beam.BeamUiActivator;
 
 import javax.help.HelpSet;
 import javax.help.HelpSetException;
@@ -490,8 +490,10 @@ public class BasicApp {
 
     private boolean initLookAndFeel() {
         String currentLafClassName = UIManager.getLookAndFeel().getClass().getName();
-        String newLafClassName = getPreferences().getPropertyString(PROPERTY_KEY_APP_UI_LAF,
-                                                                    UIManager.getSystemLookAndFeelClassName());
+
+        String defaultLAFClassName = getDefaultLookAndFeelClassName();
+
+        String newLafClassName = getPreferences().getPropertyString(PROPERTY_KEY_APP_UI_LAF, defaultLAFClassName);
         if (!_uiDefaultsInitialized || !currentLafClassName.equals(newLafClassName)) {
             try {
                 UIManager.setLookAndFeel(newLafClassName);
@@ -505,6 +507,21 @@ public class BasicApp {
             }
         }
         return false;
+    }
+
+    private String getDefaultLookAndFeelClassName() {
+        String defaultLookAndFeelClassName = UIManager.getSystemLookAndFeelClassName();
+        String osName = System.getProperty("os.name").toLowerCase();
+        // returning Nimbus as default LAF id not Mac OS and not Windows
+        if (!SystemUtils.isRunningOnMacOS() && !osName.contains("windows")) {
+            final UIManager.LookAndFeelInfo[] lookAndFeels = UIManager.getInstalledLookAndFeels();
+            for (UIManager.LookAndFeelInfo laf : lookAndFeels) {
+                if ("nimbus".equalsIgnoreCase(laf.getName())) {
+                    defaultLookAndFeelClassName = laf.getClassName();
+                }
+            }
+        }
+        return defaultLookAndFeelClassName;
     }
 
     /**
