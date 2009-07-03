@@ -1,18 +1,30 @@
 package com.bc.ceres.binding;
 
+import com.bc.ceres.binding.validators.TypeValidator;
 import junit.framework.TestCase;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.HashMap;
-
-import com.bc.ceres.binding.validators.TypeValidator;
 
 public class ValueModelTest extends TestCase {
     private static final long LEGAL_PLONG = 999L;
     private static final Long LEGAL_OLONG = 999L;
     private static final String ILLEGAL = "42";
+    private static final float FLOAT_EPS = 1.0e-4f;
+    private static final double DOUBLE_EPS = 1.0e-10;
+    private static final String MODE_ACCURATE = "acc";
+    private static final String MODE_FUZZY = "fuz";
 
     long plong;
     Long olong;
+
+    float pfloat;
+    Float ofloat;
+
+    double pdouble;
+    Double odouble;
 
     public void testFactoryUsingClassFieldAccessor() throws ValidationException {
         testPLong(ValueModel.createClassFieldModel(this, "plong"), 0L);
@@ -77,6 +89,106 @@ public class ValueModelTest extends TestCase {
             fail("ValidationException expected");
         } catch (ValidationException e) {
             // ok
+        }
+    }
+
+    public void testPropertyChangeEvents() throws ValidationException {
+        final ValueModel plong = ValueModel.createClassFieldModel(this, "plong");
+        final ValueModel olong = ValueModel.createClassFieldModel(this, "olong");
+        final ValueModel pfloat = ValueModel.createClassFieldModel(this, "pfloat");
+        final ValueModel ofloat = ValueModel.createClassFieldModel(this, "ofloat");
+        final ValueModel pdouble = ValueModel.createClassFieldModel(this, "pdouble");
+        final ValueModel odouble = ValueModel.createClassFieldModel(this, "odouble");
+
+        final ValueContainer container = new ValueContainer();
+        final ValueModelChangeListener listener = new ValueModelChangeListener();
+        container.addPropertyChangeListener(listener);
+        container.addModel(plong);
+        container.addModel(olong);
+        container.addModel(pfloat);
+        container.addModel(ofloat);
+        container.addModel(pdouble);
+        container.addModel(odouble);
+
+        testPCLLong(plong, listener);
+        testPCLLong(olong, listener);
+        testPCLFloat(pfloat, listener, MODE_ACCURATE);
+        testPCLFloat(ofloat, listener, MODE_ACCURATE);
+        testPCLDouble(pdouble, listener, MODE_ACCURATE);
+        testPCLDouble(odouble, listener, MODE_ACCURATE);
+
+        pfloat.getDescriptor().setProperty("eps", FLOAT_EPS);
+        ofloat.getDescriptor().setProperty("eps", FLOAT_EPS);
+        pdouble.getDescriptor().setProperty("eps", DOUBLE_EPS);
+        odouble.getDescriptor().setProperty("eps", DOUBLE_EPS);
+
+        testPCLLong(plong, listener);
+        testPCLLong(olong, listener);
+        testPCLFloat(pfloat, listener, MODE_FUZZY);
+        testPCLFloat(ofloat, listener, MODE_FUZZY);
+        testPCLDouble(pdouble, listener, MODE_FUZZY);
+        testPCLDouble(odouble, listener, MODE_FUZZY);
+    }
+
+    private void testPCLLong(ValueModel model, ValueModelChangeListener listener) throws ValidationException {
+        final int n0 = listener.events.size();
+        model.setValue(1L);
+        assertEquals(1, listener.events.size() - n0);
+        model.setValue(1L);
+        assertEquals(1, listener.events.size() - n0);
+        model.setValue(2L);
+        assertEquals(2, listener.events.size() - n0);
+    }
+
+    private void testPCLFloat(ValueModel model, ValueModelChangeListener listener, String mode) throws ValidationException {
+        final int n0 = listener.events.size();
+        model.setValue(1.0f);
+        assertEquals(1, listener.events.size() - n0);
+        model.setValue(1.0f);
+        assertEquals(1, listener.events.size() - n0);
+        model.setValue(2.0f);
+        assertEquals(2, listener.events.size() - n0);
+        if (mode.equals(MODE_FUZZY)) {
+            model.setValue(2.0f - 0.99f * FLOAT_EPS);
+            assertEquals(2, listener.events.size() - n0);
+            model.setValue(2.0f + 0.99f * FLOAT_EPS);
+            assertEquals(2, listener.events.size() - n0);
+        } else {
+            model.setValue(2.0f - 0.99f * FLOAT_EPS);
+            assertEquals(3, listener.events.size() - n0);
+            model.setValue(2.0f + 0.99f * FLOAT_EPS);
+            assertEquals(4, listener.events.size() - n0);
+        }
+    }
+
+    private void testPCLDouble(ValueModel model, ValueModelChangeListener listener, String mode) throws ValidationException {
+        final int n0 = listener.events.size();
+        model.setValue(1.0);
+        assertEquals(1, listener.events.size() - n0);
+        model.setValue(1.0);
+        assertEquals(1, listener.events.size() - n0);
+        model.setValue(2.0);
+        assertEquals(2, listener.events.size() - n0);
+
+        if (mode.equals(MODE_FUZZY)) {
+            model.setValue(2.0 - 0.99 * DOUBLE_EPS);
+            assertEquals(2, listener.events.size() - n0);
+            model.setValue(2.0 + 0.99 * DOUBLE_EPS);
+            assertEquals(2, listener.events.size() - n0);
+        } else {
+            model.setValue(2.0 - 0.99 * DOUBLE_EPS);
+            assertEquals(3, listener.events.size() - n0);
+            model.setValue(2.0 + 0.99 * DOUBLE_EPS);
+            assertEquals(4, listener.events.size() - n0);
+        }
+    }
+
+    private static class ValueModelChangeListener implements PropertyChangeListener {
+        ArrayList<PropertyChangeEvent> events = new ArrayList<PropertyChangeEvent>();
+
+        @Override
+        public void propertyChange(PropertyChangeEvent event) {
+            events.add(event);
         }
     }
 }
