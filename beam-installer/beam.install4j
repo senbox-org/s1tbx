@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="4.2.2" transformSequenceNumber="2">
+<install4j version="4.2.3" transformSequenceNumber="2">
   <directoryPresets config="./src/main/resources/images" />
   <application name="BEAM" distributionSourceDir="" applicationId="2648-9058-9483-8098" mediaDir="../target/installers" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" keepModificationTimes="true" missingFilesStrategy="warn" shortName="beam" publisher="Brockmann Consult GmbH" publisherWeb="http://www.brockmann-consult.de" version="4.6.0" allPathsRelative="true" backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
@@ -34,7 +34,7 @@
     <components />
   </files>
   <launchers>
-    <launcher name="visat" id="19" external="false" excludeFromMenu="false" menuName="VISAT" icnsFile="" pngIcon16File="./src/main/resources/images/beam-icon-16.png" pngIcon32File="./src/main/resources/images/visat-icon-32.png" macServiceDependencies="" swtApp="false" fileset="">
+    <launcher name="visat" id="19" external="false" excludeFromMenu="false" menuName="VISAT" icnsFile="./src/main/resources/images/visat-icon.icns" pngIcon16File="./src/main/resources/images/visat-icon-16.png" pngIcon32File="./src/main/resources/images/visat-icon-32.png" macServiceDependencies="" swtApp="false" fileset="">
       <executable name="visat" type="1" iconSet="true" iconFile="" executableDir="bin" redirectStderr="true" stderrFile="error.log" redirectStdout="false" stdoutFile="output.log" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory=".." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="highestAvailable" checkConsoleParameter="false">
         <versionInfo include="false" fileVersion="" fileDescription="" legalCopyright="" internalName="" />
       </executable>
@@ -44,7 +44,7 @@
           <versionLine x="20" y="40" text="version ${compiler:sys.version}" font="Arial" fontSize="8" fontColor="0,0,0" fontWeight="500" />
         </text>
       </splashScreen>
-      <java mainClass="com.bc.ceres.launcher.Launcher" vmParameters="-Dceres.context=beam" arguments="" allowVMPassthroughParameters="true" preferredVM="">
+      <java mainClass="com.bc.ceres.launcher.Launcher" vmParameters="-Dceres.context=beam" arguments="" allowVMPassthroughParameters="true" preferredVM="" bundleRuntime="true">
         <classPath>
           <archive location="bin/ceres-launcher.jar" failOnError="false" />
         </classPath>
@@ -605,6 +605,7 @@
                   </java>
                 </serializedBean>
                 <initScript />
+                <visibiltyScript />
               </formComponent>
               <formComponent name="" id="4015" beanClass="com.install4j.runtime.beans.formcomponents.HyperlinkLabelComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
                 <serializedBean>
@@ -620,6 +621,7 @@
                   </java>
                 </serializedBean>
                 <initScript />
+                <visibiltyScript />
               </formComponent>
             </formComponents>
           </screen>
@@ -774,6 +776,7 @@
                   </java>
                 </serializedBean>
                 <initScript />
+                <visibiltyScript />
               </formComponent>
               <formComponent name="" id="4176" beanClass="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
                 <serializedBean>
@@ -788,6 +791,7 @@ This directory will be entirely removed if you select this option.</string>
                   </java>
                 </serializedBean>
                 <initScript />
+                <visibiltyScript />
               </formComponent>
             </formComponents>
           </screen>
@@ -1198,6 +1202,7 @@ This directory will be entirely removed if you select this option.</string>
                       </java>
                     </serializedBean>
                     <initScript />
+                    <visibiltyScript />
                   </formComponent>
                   <formComponent name="" id="4425" beanClass="com.install4j.runtime.beans.formcomponents.KeyValuePairComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
                     <serializedBean>
@@ -1228,6 +1233,7 @@ This directory will be entirely removed if you select this option.</string>
                       </java>
                     </serializedBean>
                     <initScript />
+                    <visibiltyScript />
                   </formComponent>
                   <formComponent name="" id="4426" beanClass="com.install4j.runtime.beans.formcomponents.HyperlinkActionLabelComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
                     <serializedBean>
@@ -1248,6 +1254,7 @@ This directory will be entirely removed if you select this option.</string>
                     </serializedBean>
                     <initScript>boolean hasComment = ((String)context.getVariable("updaterComment")).length() &gt; 0;
 component.setVisible(hasComment);</initScript>
+                    <visibiltyScript />
                   </formComponent>
                   <formComponent name="" id="4427" beanClass="com.install4j.runtime.beans.formcomponents.SpacerComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
                     <serializedBean>
@@ -1256,6 +1263,7 @@ component.setVisible(hasComment);</initScript>
                       </java>
                     </serializedBean>
                     <initScript />
+                    <visibiltyScript />
                   </formComponent>
                   <formComponent name="" id="4428" beanClass="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
                     <serializedBean>
@@ -1268,6 +1276,7 @@ component.setVisible(hasComment);</initScript>
                       </java>
                     </serializedBean>
                     <initScript />
+                    <visibiltyScript />
                   </formComponent>
                   <formComponent name="" id="4429" beanClass="com.install4j.runtime.beans.formcomponents.DirectoryChooserComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
                     <serializedBean>
@@ -1289,6 +1298,7 @@ component.setVisible(hasComment);</initScript>
                       </java>
                     </serializedBean>
                     <initScript />
+                    <visibiltyScript />
                   </formComponent>
                   <formComponent name="" id="4430" beanClass="com.install4j.runtime.beans.formcomponents.KeyValuePairComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
                     <serializedBean>
@@ -1304,6 +1314,7 @@ component.setVisible(hasComment);</initScript>
                       </java>
                     </serializedBean>
                     <initScript />
+                    <visibiltyScript />
                   </formComponent>
                 </formComponents>
               </screen>
@@ -1488,6 +1499,7 @@ if (wizardContext != null) {
                       </java>
                     </serializedBean>
                     <initScript />
+                    <visibiltyScript />
                   </formComponent>
                   <formComponent name="" id="4441" beanClass="com.install4j.runtime.beans.formcomponents.SpacerComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
                     <serializedBean>
@@ -1500,6 +1512,7 @@ if (wizardContext != null) {
                       </java>
                     </serializedBean>
                     <initScript />
+                    <visibiltyScript />
                   </formComponent>
                   <formComponent name="" id="4442" beanClass="com.install4j.runtime.beans.formcomponents.RadiobuttonsComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
                     <serializedBean>
@@ -1524,6 +1537,7 @@ if (wizardContext != null) {
                     <initScript>if (context.getBooleanVariable("isArchive")) {
     component.setVisible(false);
 }</initScript>
+                    <visibiltyScript />
                   </formComponent>
                   <formComponent name="" id="4443" beanClass="com.install4j.runtime.beans.formcomponents.HyperlinkActionLabelComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
                     <serializedBean>
@@ -1543,6 +1557,7 @@ if (wizardContext != null) {
                       </java>
                     </serializedBean>
                     <initScript />
+                    <visibiltyScript />
                   </formComponent>
                   <formComponent name="" id="4444" beanClass="com.install4j.runtime.beans.formcomponents.ProgressComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
                     <serializedBean>
@@ -1558,6 +1573,7 @@ if (wizardContext != null) {
                       </java>
                     </serializedBean>
                     <initScript />
+                    <visibiltyScript />
                   </formComponent>
                 </formComponents>
               </screen>
