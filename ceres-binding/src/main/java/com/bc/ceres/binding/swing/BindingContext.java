@@ -140,6 +140,16 @@ public class BindingContext {
         return bind(propertyName, adapter);
     }
 
+    /**
+     * Adjusts all UI components by calling {@link Binding#adjustComponents()} on
+     * each of its {@link Binding}s.
+     */
+    public void adjustComponents() {
+        for (BindingImpl binding : bindingMap.values()) {
+            binding.adjustComponents();
+        }
+    }
+
     public void addPropertyChangeListener(PropertyChangeListener l) {
         valueContainer.addPropertyChangeListener(l);
     }

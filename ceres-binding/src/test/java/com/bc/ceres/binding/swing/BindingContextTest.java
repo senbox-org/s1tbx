@@ -275,6 +275,38 @@ public class BindingContextTest extends TestCase {
         assertEquals(6, list.getSelectedValue());
     }
     
+    public void testAdjustComponents() throws ValidationException {
+        JTextField textField1 = new JTextField();
+        JTextField textField2 = new JTextField();
+        JCheckBox checkBox = new JCheckBox();
+
+        pojo.booleanValue = true;
+        pojo.doubleValue = 3.2;
+        pojo.stringValue = "ABC";
+
+        bindingContextOB.bind("booleanValue", checkBox);
+        bindingContextOB.bind("doubleValue", textField1);
+        bindingContextOB.bind("stringValue", textField2);
+
+        assertEquals(true, checkBox.isSelected());
+        assertEquals("3.2", textField1.getText());
+        assertEquals("ABC", textField2.getText());
+
+        pojo.booleanValue = false;
+        pojo.doubleValue = 1.5;
+        pojo.stringValue = "XYZ";
+
+        assertEquals(true, checkBox.isSelected());
+        assertEquals("3.2", textField1.getText());
+        assertEquals("ABC", textField2.getText());
+
+        bindingContextOB.adjustComponents();
+
+        assertEquals(false, checkBox.isSelected());
+        assertEquals("1.5", textField1.getText());
+        assertEquals("XYZ", textField2.getText());
+    }
+
     public void testSecondaryComponent() throws Exception {
         JTextField textField = new JTextField();
         Binding binding = bindingContextVB.bind("stringValue", textField);
