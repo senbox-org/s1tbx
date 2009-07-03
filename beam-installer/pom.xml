@@ -22,7 +22,7 @@
         <dependency>
             <groupId>com.install4j</groupId>
             <artifactId>i4jruntime</artifactId>
-            <version>4.2.1</version>
+            <version>4.2.3</version>
         </dependency>
     </dependencies>
 
