@@ -60,9 +60,9 @@ public class ValueEditorRegistry {
     }
 
     /**
-     * Get a value editor by its class name.
+     * Gets a {@link ValueEditor} by its class name.
      *
-     * @param className The class name of the value editor.
+     * @param className The class name of the {@link ValueEditor}.
      *
      * @return the value editor or {@code null} if no editor exist for the given class name.
      */

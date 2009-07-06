@@ -88,7 +88,7 @@ public interface Binding {
     void addComponent(JComponent component);
 
     /**
-     * Removed a secondary Swing component from this binding.
+     * Removes a secondary Swing component from this binding.
      *
      * @param component The secondary component.
      * @see #addComponent(javax.swing.JComponent)

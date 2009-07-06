@@ -40,7 +40,7 @@ public class RangeEditor extends NumericEditor {
     @Override
     public boolean isValidFor(ValueDescriptor valueDescriptor) {
 // (08.04.2009, mz) For now disabled automatic selection of range editor
-//                  must find better selection criterias.
+//                  must find better selection criteria.
 //        
 //        Class<?> type = valueDescriptor.getType();
 //        if (NumericEditor.isNumericType(type)) {
