@@ -36,13 +36,13 @@ public class DateTimeUtils {
     public static final SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
 
     /**
-     * The number of days from Jan 1, 4713 BC (Proleptic Julian) to 1/1/1970 AD (Gregorian).  1/1/1970 is time zero for
-     * a java.util.Date.
+     * The number of days from noon Jan 1, 4713 BC (Proleptic Julian) to midnight 1/1/1970 AD (Gregorian).
+     * 1/1/1970 is time zero for a java.util.Date.
      */
-    public static final double JD_OFFSET = 2440588.0;
+    public static final double JD_OFFSET = 2440587.5;
     /**
-     * The Modified Julian Day (MJD) gives the number of days since midnight on November 17, 1858. This date corresponds
-     * to <code>MJD_OFFSET = 2400000.5</code> days after day zero of the Julian calendar.
+     * The Modified Julian Day (MJD) gives the number of days since midnight on November 17, 1858. This date
+     * corresponds to <code>MJD_OFFSET = 2400000.5</code> days after day zero of the Julian calendar.
      */
     public static final double MJD_OFFSET = 2400000.5;
 
