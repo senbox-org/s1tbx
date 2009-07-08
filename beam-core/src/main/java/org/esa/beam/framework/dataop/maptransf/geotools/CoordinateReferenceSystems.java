@@ -48,7 +48,7 @@ public class CoordinateReferenceSystems {
                         if (Datum.WGS_72.equals(datum)) {
                             result = factory.createProjectedCRS("EPSG:" + (32200 + zone));
                         } else if (Datum.WGS_84.equals(datum)) {
-                            result = factory.createProjectedCRS("EPSG:" + (32200 + zone));
+                            result = factory.createProjectedCRS("EPSG:" + (32600 + zone));
                         }
                     } else {
                         if (Datum.WGS_72.equals(datum)) {
