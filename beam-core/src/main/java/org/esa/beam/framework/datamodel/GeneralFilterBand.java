@@ -16,7 +16,6 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
@@ -35,7 +34,6 @@ import javax.media.jai.operator.MinFilterDescriptor;
 import javax.media.jai.operator.MinFilterShape;
 import java.awt.RenderingHints;
 import java.awt.image.RenderedImage;
-import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -55,6 +53,8 @@ public class GeneralFilterBand extends FilterBand {
     public static final Operator MEAN = new Mean();              // JAI: ConvolveDescriptor
     public static final Operator STDDEV = new StandardDeviation();     // TODO - Write JAI Operator
     public static final Operator RMS = new RootMeanSquare();           // TODO - Write JAI Operator
+    
+    private static final Operator[] operators = {MIN, MAX, MEDIAN, MEAN, STDDEV, RMS};
 
     private final int subWindowSize;
     private final Operator operator;
@@ -110,18 +110,12 @@ public class GeneralFilterBand extends FilterBand {
      * @return instance of {@link Operator}
      */
     public static Operator createOperator(String operatorClassName) {
-        Operator operator = null;
-        try {
-            final Class operatorClass = Class.forName(operatorClassName);
-            operator = (Operator) operatorClass.newInstance();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
+        for (Operator operator : operators) {
+            if (operator.getClass().getName().equals(operatorClassName)) {
+                return operator;
+            }
         }
-        return operator;
+        return null;
     }
 
     public int getSubWindowSize() {

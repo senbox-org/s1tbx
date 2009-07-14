@@ -23,6 +23,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.7:<br/>
+        [BEAM-1031] Filtered bands are not available when opening a saved product in VISAT<br/>
         [BEAM-1030] UTM projected products have wrong CRS<br/>
         [BEAM-1023] Can not overlay compatible products<br/>
         [BEAM-1021] File chooser boxes shall support "component documents"<br/>
