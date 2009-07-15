@@ -17,7 +17,6 @@
 package com.bc.ceres.binding.swing.internal;
 
 import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ComponentAdapter;
 import com.bc.ceres.binding.swing.ValueEditor;

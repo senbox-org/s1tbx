@@ -28,23 +28,23 @@ public abstract class ComponentAdapter {
 
     /**
      * Adjusts the bound Swing components in reaction to a property change event in the
-     * associated {@code ValueContainer} in the {@link BindingContext}.
+     * associated {@code ValueContainer} of the {@link BindingContext}.
      */
     public abstract void adjustComponents();
 
     /**
      * Handles an error occured while transferring data from the bound property to the
      * Swing component or vice versa.
-     * Delegates the call to {@link BindingContext#handleError(Exception, javax.swing.JComponent) handleError()}
+     * Delegates the call to {@link BindingContext#handleError(Throwable, javax.swing.JComponent)}  handleError()}
      * of the binding context using this adapters's first component:
      * <pre>
      * getBinding().getContext().handleError(exception, getComponents()[0]);
      * </pre>
      *
-     * @param exception The error.
+     * @param error The error.
      * @see #getComponents()
      */
-    public void handleError(Exception exception) {
-        getBinding().getContext().handleError(exception, getComponents()[0]);
+    public void handleError(Exception error) {
+        getBinding().getContext().handleError( error, getComponents()[0]);
     }
 }

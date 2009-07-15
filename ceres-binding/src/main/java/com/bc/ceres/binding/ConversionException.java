@@ -7,7 +7,7 @@ package com.bc.ceres.binding;
  * @author Norman Fomferra
  * @since 0.6
  */
-public class ConversionException extends Exception {
+public class ConversionException extends BindingException {
     public ConversionException(String message) {
         super(message);
     }

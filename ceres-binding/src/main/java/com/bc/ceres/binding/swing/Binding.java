@@ -53,12 +53,26 @@ public interface Binding {
     void setPropertyValue(Object value);
 
     /**
+     * @return The current error state, or {@code null}.
+     */
+    BindingProblem getProblem();
+
+    /**
+     * Sets the new error state.
+     * Will cause a state change event to be fired on the {@link #getContext() context}.
+     *
+     * @param bindingProblem The error state, or {@code null}.
+     */
+    void setProblem(BindingProblem bindingProblem);
+
+    /**
      * Adjusts the bound Swing components in reaction to a property change event in the
      * associated {@code ValueContainer}. Calls {@link ComponentAdapter#adjustComponents()}
      * only if this binding is not already adjusting the bound Swing components.
      * Any kind of exceptions thrown during execution of the method
      * will be handled by delegating the exception to
-     * the {@link ComponentAdapter#handleError(Exception)} method.
+     * the {@link ComponentAdapter#handleError(Throwable)} method.
+     *
      * @see #isAdjustingComponents()
      */
     void adjustComponents();

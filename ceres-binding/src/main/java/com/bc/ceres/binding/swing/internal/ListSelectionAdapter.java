@@ -5,6 +5,7 @@ import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.ComponentAdapter;
+import com.bc.ceres.binding.swing.BindingProblem;
 
 import javax.swing.JComponent;
 import javax.swing.JList;
@@ -104,8 +105,8 @@ public class ListSelectionAdapter extends ComponentAdapter implements ListSelect
         }
     }
 
-    public void valueChanged(ListSelectionEvent e) {
-        if (e.getValueIsAdjusting()) {
+    public void valueChanged(ListSelectionEvent event) {
+        if (event.getValueIsAdjusting()) {
             return;
         }
         if (getBinding().isAdjustingComponents()) {
@@ -119,8 +120,11 @@ public class ListSelectionAdapter extends ComponentAdapter implements ListSelect
         }
         try {
             model.setValue(array);
-        } catch (ValidationException e1) {
-            handleError(e1);
+            // Now model is in sync with UI
+            getBinding().setProblem(null);
+        } catch (ValidationException e) {
+            getBinding().setProblem(new BindingProblem(getBinding(), e));
+            handleError(e);
         }
     }
 }

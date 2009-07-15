@@ -1,22 +1,29 @@
 package com.bc.ceres.binding.swing;
 
-import com.bc.ceres.binding.*;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.internal.TextComponentAdapter;
-
 import junit.framework.TestCase;
 
-import javax.swing.*;
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
-
 import java.util.Arrays;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
-public class BindingContextTest extends TestCase {
+public class BindingContextTest extends TestCase implements BindingContext.ErrorHandler {
 
     private BindingContext bindingContextVB;
     private ValueContainer valueContainerVB;
@@ -25,16 +32,33 @@ public class BindingContextTest extends TestCase {
     private BindingContext bindingContextOB;
     private TestPojo pojo;
 
+    private Exception error;
+    private JComponent component;
+
     @Override
     protected void setUp() throws Exception {
         valueContainerVB = ValueContainer.createValueBacked(TestPojo.class);
         valueContainerVB.getDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
-        bindingContextVB = new BindingContext(valueContainerVB);
+        bindingContextVB = new BindingContext(valueContainerVB, this);
 
         pojo = new TestPojo();
         valueContainerOB = ValueContainer.createObjectBacked(pojo);
         valueContainerOB.getDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
-        bindingContextOB = new BindingContext(valueContainerOB);
+        bindingContextOB = new BindingContext(valueContainerOB, this);
+
+        error = null;
+        component = null;
+    }
+
+    @Override
+    public void handleError(Exception error, JComponent component) {
+        this.error = error;
+        this.component = component;
+    }
+
+    private void clearError() {
+        error = null;
+        component = null;
     }
 
     public void testBindSpinner() throws ValidationException {
@@ -146,7 +170,7 @@ public class BindingContextTest extends TestCase {
         valueContainerVB.setValue("doubleValue", 2.71);
         assertEquals(2.71, textField.getValue());
     }
-    
+
     public void testBindTextArea() throws ValidationException, BadLocationException {
         JTextArea textArea = new JTextArea();
         TextComponentAdapter textComponentAdapter = new TextComponentAdapter(textArea);
@@ -274,7 +298,7 @@ public class BindingContextTest extends TestCase {
         valueContainerVB.setValue("listValue", new int[]{6});
         assertEquals(6, list.getSelectedValue());
     }
-    
+
     public void testAdjustComponents() throws ValidationException {
         JTextField textField1 = new JTextField();
         JTextField textField2 = new JTextField();
@@ -312,13 +336,76 @@ public class BindingContextTest extends TestCase {
         Binding binding = bindingContextVB.bind("stringValue", textField);
         JLabel label = new JLabel("myLabel");
         binding.addComponent(label);
-        
+
         JComponent[] components = binding.getComponents();
         assertNotNull(components);
         assertEquals(2, components.length);
         assertSame(getPrimaryComponent(binding), components[0]);
         assertSame(label, components[1]);
     }
+
+    public void testExceptions() {
+        JTextField intTextField = new JTextField();
+        JTextField stringTextField = new JTextField();
+        final MyChangeListener listener = new MyChangeListener();
+
+        clearError();
+        bindingContextVB.addStateChangeListener(listener);
+        bindingContextVB.bind("intValue", intTextField);
+        bindingContextVB.bind("stringValue", stringTextField);
+
+        assertEquals("", listener.trace);
+        assertEquals(false, bindingContextVB.hasProblems());
+        assertNotNull(bindingContextVB.getProblems());
+        assertEquals(0, bindingContextVB.getProblems().length);
+        assertNull(error);
+        assertNull(component);
+
+        clearError();
+        bindingContextVB.getBinding("intValue").setPropertyValue("a");
+
+        // binding.exception != null
+        assertEquals("SC;", listener.trace);
+        assertEquals(true, bindingContextVB.hasProblems());
+        assertNotNull(bindingContextVB.getProblems());
+        assertEquals(1, bindingContextVB.getProblems().length);
+        assertNotNull(error);
+        assertSame(intTextField, component);
+
+        clearError();
+        bindingContextVB.getBinding("stringValue").setPropertyValue(5);
+
+        // binding.exception != null;binding.exception != null
+        assertEquals("SC;SC;", listener.trace);
+        assertEquals(true, bindingContextVB.hasProblems());
+        assertNotNull(bindingContextVB.getProblems());
+        assertEquals(2, bindingContextVB.getProblems().length);
+        assertNotNull(error);
+        assertSame(stringTextField, component);
+
+        clearError();
+        bindingContextVB.getBinding("intValue").setPropertyValue(5);
+
+        // binding.exception != null;binding.exception != null;property-change;;binding.exception != null
+        assertEquals("SC;SC;SC;SC;", listener.trace);
+        assertEquals(true, bindingContextVB.hasProblems());
+        assertNotNull(bindingContextVB.getProblems());
+        assertEquals(1, bindingContextVB.getProblems().length);
+        assertNull(error);
+        assertNull(component);
+
+        clearError();
+        bindingContextVB.getBinding("stringValue").setPropertyValue("a");
+
+        // binding.exception != null;binding.exception != null;property-change;binding.exception != null;property-change;binding.exception != null
+        assertEquals("SC;SC;SC;SC;SC;SC;", listener.trace);
+        assertEquals(false, bindingContextVB.hasProblems());
+        assertNotNull(bindingContextVB.getProblems());
+        assertEquals(0, bindingContextVB.getProblems().length);
+        assertNull(error);
+        assertNull(component);
+    }
+
 
     private JComponent getPrimaryComponent(Binding binding) {
         return binding.getComponents()[0];
@@ -332,6 +419,14 @@ public class BindingContextTest extends TestCase {
         int[] listValue;
 
         int valueSetBoundIntValue;
-        static Integer[] intValueSet = new Integer[] {101, 102, 103};
+        static Integer[] intValueSet = new Integer[]{101, 102, 103};
+    }
+
+    private static class MyChangeListener implements ChangeListener {
+        String trace = "";
+        @Override
+        public void stateChanged(ChangeEvent e) {
+            trace += "SC;";
+        }
     }
 }
