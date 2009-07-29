@@ -56,8 +56,28 @@ public class ValueContainerTest extends TestCase {
         assertEquals(72.9, pojo.weight);
     }
 
-    private void testValueContainerModels(ValueContainer vc) throws ValidationException {
+    public void testAddValueContainer() {
+        final Pojo pojo = new Pojo();
+        ValueContainer pojoContainer = ValueContainer.createObjectBacked(pojo);
 
+        final B b = new B();
+        ValueContainer bContainer = ValueContainer.createObjectBacked(b);
+
+        pojoContainer.addValueContainer(bContainer);
+
+        final ValueModel[] models = pojoContainer.getModels();
+        assertEquals(9, models.length);
+
+        final ValueModel nameModel = pojoContainer.getModel("name");
+        assertNotNull(nameModel);
+        assertEquals("Hermann", nameModel.getValueAsText());
+
+        final ValueModel xModel = pojoContainer.getModel("x");
+        assertNotNull(xModel);
+        assertEquals("42", xModel.getValueAsText());
+    }
+
+    private void testValueContainerModels(ValueContainer vc) throws ValidationException {
         final ValueModel nameModel = vc.getModel("name");
         assertNotNull(nameModel);
         nameModel.setValue("Ernie");

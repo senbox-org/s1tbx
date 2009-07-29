@@ -33,7 +33,6 @@ public class ValueContainer {
      * The factory method will not modify the object, thus not setting any default values.
      *
      * @param object the backing object
-     *
      * @return the value container
      */
     public static ValueContainer createObjectBacked(Object object) {
@@ -46,13 +45,12 @@ public class ValueContainer {
      *
      * @param object                      the backing object
      * @param classFieldDescriptorFactory a factory used to create {@link ValueDescriptor}s of the fields of the object's type
-     *
      * @return the value container
      */
     public static ValueContainer createObjectBacked(Object object,
                                                     ClassFieldDescriptorFactory classFieldDescriptorFactory) {
         return create(object.getClass(), new ObjectBackedValueAccessorFactory(object), classFieldDescriptorFactory,
-                      false);
+                false);
     }
 
     /**
@@ -60,7 +58,6 @@ public class ValueContainer {
      * The factory method will not modify the given map, thus not setting any default values.
      *
      * @param map the map which backs the values
-     *
      * @return the value container
      */
     public static ValueContainer createMapBacked(Map<String, Object> map) {
@@ -69,7 +66,7 @@ public class ValueContainer {
             String name = entry.getKey();
             Object value = entry.getValue();
             vc.addModel(new ValueModel(ValueDescriptor.createValueDescriptor(name, value.getClass()),
-                                       new MapEntryAccessor(map, name)));
+                    new MapEntryAccessor(map, name)));
         }
         return vc;
     }
@@ -80,7 +77,6 @@ public class ValueContainer {
      *
      * @param map          the map which backs the values
      * @param templateType the template type
-     *
      * @return the value container
      */
     public static ValueContainer createMapBacked(Map<String, Object> map, Class<?> templateType) {
@@ -94,7 +90,6 @@ public class ValueContainer {
      * @param map                         the map which backs the values
      * @param templateType                the template type
      * @param classFieldDescriptorFactory a factory used to create {@link ValueDescriptor}s of the fields of the template type
-     *
      * @return the value container
      */
     public static ValueContainer createMapBacked(Map<String, Object> map, Class<?> templateType,
@@ -107,7 +102,6 @@ public class ValueContainer {
      * The value model returned will have its values set to defaults (if specified).
      *
      * @param templateType the template type
-     *
      * @return the value container
      */
     public static ValueContainer createValueBacked(Class<?> templateType) {
@@ -120,7 +114,6 @@ public class ValueContainer {
      *
      * @param templateType                the template type
      * @param classFieldDescriptorFactory a factory used to create {@link ValueDescriptor}s of the fields of the template type
-     *
      * @return the value container
      */
     public static ValueContainer createValueBacked(Class<?> templateType,
@@ -169,6 +162,14 @@ public class ValueContainer {
     public void removeModels(ValueModel[] models) {
         for (ValueModel model : models) {
             removeModel(model);
+        }
+    }
+
+    public void addValueContainer(ValueContainer vc) {
+        final ValueModel[] nestedModels = vc.getModels();
+        for (int i = 0; i < nestedModels.length; i++) {
+            ValueModel current = nestedModels[i];
+            addModel(current);
         }
     }
 
@@ -245,7 +246,7 @@ public class ValueContainer {
                 final int mod = field.getModifiers();
                 if (!Modifier.isTransient(mod) && !Modifier.isStatic(mod)) {
                     final ValueDescriptor valueDescriptor = ValueDescriptor.createValueDescriptor(field,
-                                                                                                  classFieldDescriptorFactory);
+                            classFieldDescriptorFactory);
                     if (valueDescriptor != null) {
                         vc.addModel(new ValueModel(valueDescriptor, valueAccessorFactory.createValueAccessor(field)));
                     }
