@@ -169,6 +169,9 @@ public class ValueContainer {
         final ValueModel[] nestedModels = vc.getModels();
         for (int i = 0; i < nestedModels.length; i++) {
             ValueModel current = nestedModels[i];
+            if (getModel(current.getDescriptor().getName()) != null) {
+                throw new IllegalStateException("Duplicate ValueModel name: " + current.toString());
+            }
             addModel(current);
         }
     }

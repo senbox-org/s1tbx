@@ -77,6 +77,18 @@ public class ValueContainerTest extends TestCase {
         assertEquals("42", xModel.getValueAsText());
     }
 
+    public void testAddValueCOntainer_duplicateModelNames() {
+        final Pojo pojo = new Pojo();
+        ValueContainer vc_1 = ValueContainer.createObjectBacked(pojo);
+        ValueContainer vc_2 = ValueContainer.createObjectBacked(pojo);
+
+        try {
+            vc_1.addValueContainer(vc_2);
+            fail("IllegalStateException expected");
+        } catch (IllegalStateException expected) {            
+        }
+    }
+
     private void testValueContainerModels(ValueContainer vc) throws ValidationException {
         final ValueModel nameModel = vc.getModel("name");
         assertNotNull(nameModel);
