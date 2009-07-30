@@ -31,6 +31,7 @@ import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.PointingFactory;
 import org.esa.beam.framework.datamodel.PointingFactoryRegistry;
 import org.esa.beam.framework.datamodel.Product;
@@ -58,6 +59,7 @@ import org.esa.beam.util.XmlWriter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.FXYSum;
+import org.jdom.Content;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.DOMBuilder;
@@ -228,21 +230,7 @@ public class DimapProductHelpers {
         Debug.assertNotNull(product);
         if (dom.getRootElement().getChild(DimapProductConstants.TAG_GEOPOSITION) != null) {
 
-            final Element crsElem = dom.getRootElement().getChild(
-                    DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
-            final Element hcsElem = crsElem.getChild(DimapProductConstants.TAG_HORIZONTAL_CS);
-            final Element gcsElem = hcsElem.getChild(DimapProductConstants.TAG_GEOGRAPHIC_CS);
-            final Element horizDatumElem = gcsElem.getChild(DimapProductConstants.TAG_HORIZONTAL_DATUM);
-            final String datumName = horizDatumElem.getChildTextTrim(DimapProductConstants.TAG_HORIZONTAL_DATUM_NAME);
-            final Element ellipsoidElem = horizDatumElem.getChild(DimapProductConstants.TAG_ELLIPSOID);
-            final String ellipsoidName = ellipsoidElem.getChildTextTrim(DimapProductConstants.TAG_ELLIPSOID_NAME);
-            final Element ellipsoidParamElem = ellipsoidElem.getChild(DimapProductConstants.TAG_ELLIPSOID_PARAMETERS);
-            final Element majorAxisElem = ellipsoidParamElem.getChild(DimapProductConstants.TAG_ELLIPSOID_MAJ_AXIS);
-            final double majorAxis = Double.parseDouble(majorAxisElem.getTextTrim());
-            final Element minorAxisElem = ellipsoidParamElem.getChild(DimapProductConstants.TAG_ELLIPSOID_MIN_AXIS);
-            final double minorAxis = Double.parseDouble(minorAxisElem.getTextTrim());
-
-            final Datum datum = new Datum(datumName, new Ellipsoid(ellipsoidName, minorAxis, majorAxis), 0, 0, 0);
+            final Datum datum = createDatum(dom);
 
             final List geoPosElems = dom.getRootElement().getChildren(DimapProductConstants.TAG_GEOPOSITION);
             final GeoCoding[] geoCodings = new GeoCoding[geoPosElems.size()];
@@ -255,47 +243,13 @@ public class DimapProductHelpers {
                 } else {
                     bandIndex = 0;
                 }
-
-                final Element geoPosInsertElem = geoPosElem.getChild(DimapProductConstants.TAG_GEOPOSITION_INSERT);
-
-                final String ulxString = geoPosInsertElem.getChildTextTrim(DimapProductConstants.TAG_ULX_MAP);
-                final float ulX = Float.parseFloat(ulxString);
-                final String ulyString = geoPosInsertElem.getChildTextTrim(DimapProductConstants.TAG_ULY_MAP);
-                final float ulY = Float.parseFloat(ulyString);
-                final String xDimString = geoPosInsertElem.getChildTextTrim(DimapProductConstants.TAG_X_DIM);
-                final float xDim = Float.parseFloat(xDimString);
-                final String yDimString = geoPosInsertElem.getChildTextTrim(DimapProductConstants.TAG_Y_DIM);
-                final float yDim = Float.parseFloat(yDimString);
-
-                final Element simplifiedLMElem = geoPosElem.getChild(
-                        DimapProductConstants.TAG_SIMPLIFIED_LOCATION_MODEL);
-                final Element directLMElem = simplifiedLMElem.getChild(DimapProductConstants.TAG_DIRECT_LOCATION_MODEL);
-                final String dlmOrderString = directLMElem.getAttributeValue(DimapProductConstants.ATTRIB_ORDER);
-                final int dlmOrder = Integer.parseInt(dlmOrderString);
-                final Element lcListElem = directLMElem.getChild(DimapProductConstants.TAG_LC_LIST);
-                final List lcElems = lcListElem.getChildren(DimapProductConstants.TAG_LC);
-                final double[] lambdaCoeffs = readCoefficients(lcElems);
-                final Element pcListElem = directLMElem.getChild(DimapProductConstants.TAG_PC_LIST);
-                final List pcElems = pcListElem.getChildren(DimapProductConstants.TAG_PC);
-                final double[] phiCoeffs = readCoefficients(pcElems);
-
-                final Element reverseLMElem = simplifiedLMElem.getChild(
-                        DimapProductConstants.TAG_REVERSE_LOCATION_MODEL);
-                final String rlmOrderString = reverseLMElem.getAttributeValue(DimapProductConstants.ATTRIB_ORDER);
-                final int rlmOrder = Integer.parseInt(rlmOrderString);
-                final Element icListElem = reverseLMElem.getChild(DimapProductConstants.TAG_IC_LIST);
-                final List icElems = icListElem.getChildren(DimapProductConstants.TAG_IC);
-                final double[] xCoeffs = readCoefficients(icElems);
-                final Element jcListElem = reverseLMElem.getChild(DimapProductConstants.TAG_JC_LIST);
-                final List jcElems = jcListElem.getChildren(DimapProductConstants.TAG_JC);
-                final double[] yCoeffs = readCoefficients(jcElems);
-
-                final FXYSum lambdaSum = FXYSum.createFXYSum(dlmOrder, lambdaCoeffs);
-                final FXYSum phiSum = FXYSum.createFXYSum(dlmOrder, phiCoeffs);
-                final FXYSum xSum = FXYSum.createFXYSum(rlmOrder, xCoeffs);
-                final FXYSum ySum = FXYSum.createFXYSum(rlmOrder, yCoeffs);
-
-                geoCodings[bandIndex] = new FXYGeoCoding(ulX, ulY, xDim, yDim, xSum, ySum, phiSum, lambdaSum, datum);
+                if (geoPosElem.getChild(DimapProductConstants.TAG_SIMPLIFIED_LOCATION_MODEL) != null &&
+                    geoPosElem.getChild(DimapProductConstants.TAG_GEOPOSITION_INSERT) != null) {
+                    geoCodings[bandIndex] = createFXYGeoCoding(datum, geoPosElem);
+                } else if (geoPosElem.getChild(DimapProductConstants.TAG_SEARCH_RADIUS) != null &&
+                           geoPosElem.getChild(DimapProductConstants.TAG_LATITUDE_BAND) != null) {
+                    geoCodings[bandIndex] = createPixelGeoCoding(product, datum, geoPosElem);
+                }
             }
             return geoCodings;
         }
@@ -323,11 +277,9 @@ public class DimapProductHelpers {
             if (tpgElem != null) {
                 final String tpgNameLat = tpgElem.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_GRID_NAME_LAT);
                 final String tpgNameLon = tpgElem.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_GRID_NAME_LON);
-                TiePointGrid tiePointGridLat;
-                TiePointGrid tiePointGridLon;
                 if (tpgNameLat != null && tpgNameLon != null) {
-                    tiePointGridLat = product.getTiePointGrid(tpgNameLat);
-                    tiePointGridLon = product.getTiePointGrid(tpgNameLon);
+                    TiePointGrid tiePointGridLat = product.getTiePointGrid(tpgNameLat);
+                    TiePointGrid tiePointGridLon = product.getTiePointGrid(tpgNameLon);
                     if (tiePointGridLat != null && tiePointGridLon != null) {
                         // TODO - parse datum!!!
                         if (tiePointGridLat.hasRasterData() && tiePointGridLon.hasRasterData()) {
@@ -336,7 +288,7 @@ public class DimapProductHelpers {
                             };
                         } else {
                             Debug.trace(
-                                    "DimapProductHelpers.ProductBuilder.createGeoCoding(): tiePoitGrids have no raster data loaded"); /*I18N*/
+                                    "DimapProductHelpers.ProductBuilder.createGeoCoding(): Tie-point grids have no raster data loaded"); /*I18N*/
                         }
                     } else {
                         Debug.trace(
@@ -428,10 +380,97 @@ public class DimapProductHelpers {
         return null;
     }
 
+    private static GeoCoding createPixelGeoCoding(Product product, Datum datum, Element geoPosElem) {
+        final String latBandName = geoPosElem.getChildTextTrim(DimapProductConstants.TAG_LATITUDE_BAND);
+        final String lonBandName = geoPosElem.getChildTextTrim(DimapProductConstants.TAG_LONGITUDE_BAND);
+        final Band latBand = product.getBand(latBandName);
+        final Band lonBand = product.getBand(lonBandName);
+        final Element searchRadiusElem = geoPosElem.getChild(DimapProductConstants.TAG_SEARCH_RADIUS);
+        final int searchRadius = Integer.parseInt(searchRadiusElem.getTextTrim());
+        String validMask = null;
+        if (geoPosElem.getChild(DimapProductConstants.TAG_VALID_MASK_EXPRESSION) != null) {
+            validMask = geoPosElem.getChildTextTrim(DimapProductConstants.TAG_VALID_MASK_EXPRESSION);
+        }
+        final Element posEstimatorElement = geoPosElem.getChild(DimapProductConstants.TAG_PIXEL_POSITION_ESTIMATOR);
+        if (posEstimatorElement != null) {
+            final Content posEstimatoContent = posEstimatorElement.detach();
+            final Document dom = new Document();
+            dom.addContent(posEstimatoContent);
+            product.setGeoCoding(createGeoCoding(dom, product)[0]);
+        }
+
+        return new PixelGeoCoding(latBand, lonBand, validMask, searchRadius);
+    }
+
+    private static FXYGeoCoding createFXYGeoCoding(Datum datum, Element geoPosElem) {
+        final Element geoPosInsertElem = geoPosElem.getChild(DimapProductConstants.TAG_GEOPOSITION_INSERT);
+
+        final String ulxString = geoPosInsertElem.getChildTextTrim(DimapProductConstants.TAG_ULX_MAP);
+        final float ulX = Float.parseFloat(ulxString);
+        final String ulyString = geoPosInsertElem.getChildTextTrim(DimapProductConstants.TAG_ULY_MAP);
+        final float ulY = Float.parseFloat(ulyString);
+        final String xDimString = geoPosInsertElem.getChildTextTrim(DimapProductConstants.TAG_X_DIM);
+        final float xDim = Float.parseFloat(xDimString);
+        final String yDimString = geoPosInsertElem.getChildTextTrim(DimapProductConstants.TAG_Y_DIM);
+        final float yDim = Float.parseFloat(yDimString);
+
+        final Element simplifiedLMElem = geoPosElem.getChild(
+                DimapProductConstants.TAG_SIMPLIFIED_LOCATION_MODEL);
+        final Element directLMElem = simplifiedLMElem.getChild(DimapProductConstants.TAG_DIRECT_LOCATION_MODEL);
+        final String dlmOrderString = directLMElem.getAttributeValue(DimapProductConstants.ATTRIB_ORDER);
+        final int dlmOrder = Integer.parseInt(dlmOrderString);
+        final Element lcListElem = directLMElem.getChild(DimapProductConstants.TAG_LC_LIST);
+        final List lcElems = lcListElem.getChildren(DimapProductConstants.TAG_LC);
+        final double[] lambdaCoeffs = readCoefficients(lcElems);
+        final Element pcListElem = directLMElem.getChild(DimapProductConstants.TAG_PC_LIST);
+        final List pcElems = pcListElem.getChildren(DimapProductConstants.TAG_PC);
+        final double[] phiCoeffs = readCoefficients(pcElems);
+
+        final Element reverseLMElem = simplifiedLMElem.getChild(
+                DimapProductConstants.TAG_REVERSE_LOCATION_MODEL);
+        final String rlmOrderString = reverseLMElem.getAttributeValue(DimapProductConstants.ATTRIB_ORDER);
+        final int rlmOrder = Integer.parseInt(rlmOrderString);
+        final Element icListElem = reverseLMElem.getChild(DimapProductConstants.TAG_IC_LIST);
+        final List icElems = icListElem.getChildren(DimapProductConstants.TAG_IC);
+        final double[] xCoeffs = readCoefficients(icElems);
+        final Element jcListElem = reverseLMElem.getChild(DimapProductConstants.TAG_JC_LIST);
+        final List jcElems = jcListElem.getChildren(DimapProductConstants.TAG_JC);
+        final double[] yCoeffs = readCoefficients(jcElems);
+
+        final FXYSum lambdaSum = FXYSum.createFXYSum(dlmOrder, lambdaCoeffs);
+        final FXYSum phiSum = FXYSum.createFXYSum(dlmOrder, phiCoeffs);
+        final FXYSum xSum = FXYSum.createFXYSum(rlmOrder, xCoeffs);
+        final FXYSum ySum = FXYSum.createFXYSum(rlmOrder, yCoeffs);
+
+        return new FXYGeoCoding(ulX, ulY, xDim, yDim, xSum, ySum, phiSum, lambdaSum,
+                                datum);
+    }
+
+    private static Datum createDatum(Document dom) {
+        final Element crsElem = dom.getRootElement().getChild(
+                DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
+        if (crsElem != null) {
+            final Element hcsElem = crsElem.getChild(DimapProductConstants.TAG_HORIZONTAL_CS);
+            final Element gcsElem = hcsElem.getChild(DimapProductConstants.TAG_GEOGRAPHIC_CS);
+            final Element horizDatumElem = gcsElem.getChild(DimapProductConstants.TAG_HORIZONTAL_DATUM);
+            final String datumName = horizDatumElem.getChildTextTrim(DimapProductConstants.TAG_HORIZONTAL_DATUM_NAME);
+            final Element ellipsoidElem = horizDatumElem.getChild(DimapProductConstants.TAG_ELLIPSOID);
+            final String ellipsoidName = ellipsoidElem.getChildTextTrim(DimapProductConstants.TAG_ELLIPSOID_NAME);
+            final Element ellipsoidParamElem = ellipsoidElem.getChild(DimapProductConstants.TAG_ELLIPSOID_PARAMETERS);
+            final Element majorAxisElem = ellipsoidParamElem.getChild(DimapProductConstants.TAG_ELLIPSOID_MAJ_AXIS);
+            final double majorAxis = Double.parseDouble(majorAxisElem.getTextTrim());
+            final Element minorAxisElem = ellipsoidParamElem.getChild(DimapProductConstants.TAG_ELLIPSOID_MIN_AXIS);
+            final double minorAxis = Double.parseDouble(minorAxisElem.getTextTrim());
+
+            return new Datum(datumName, new Ellipsoid(ellipsoidName, minorAxis, majorAxis), 0, 0, 0);
+        }
+        return Datum.WGS_84;
+    }
+
     private static double[] readCoefficients(final List elementList) {
         final double[] coeffs = new double[elementList.size()];
-        for (int i = 0; i < elementList.size(); i++) {
-            final Element element = (Element) elementList.get(i);
+        for (Object anElement : elementList) {
+            final Element element = (Element) anElement;
             final String indexString = element.getAttribute(DimapProductConstants.ATTRIB_INDEX).getValue();
             final int index = Integer.parseInt(indexString);
             coeffs[index] = Double.parseDouble(element.getTextTrim());
@@ -712,13 +751,13 @@ public class DimapProductHelpers {
      * @see DimapProductHelpers#convertBeamUnitToDimapUnit(String)
      */
     public static String convertDimapUnitToBeamUnit(final String unit) {
-        if (unit.equals("M")) {
+        if ("M".equals(unit)) {
             return "meter";
-        } else if (unit.equals("KM")) {
+        } else if ("KM".equals(unit)) {
             return "kilometer";
-        } else if (unit.equals("DEG")) {
+        } else if ("DEG".equals(unit)) {
             return "deg";
-        } else if (unit.equals("RAD")) {
+        } else if ("RAD".equals(unit)) {
             return "rad";
         }
         return unit;

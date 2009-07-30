@@ -72,25 +72,25 @@ import java.util.Vector;
  */
 public final class DimapHeaderWriter extends XmlWriter {
 
-    private final Product _product;
-    private final String _dataDirectory;
+    private final Product product;
+    private final String dataDirectory;
 
     public DimapHeaderWriter(Product product, File file, String dataDirectory) throws IOException {
         super(file);
-        _product = product;
-        _dataDirectory = dataDirectory;
+        this.product = product;
+        this.dataDirectory = dataDirectory;
     }
 
     public DimapHeaderWriter(Product product, Writer writer, String dataDirectory) {
         super(writer, true);
-        _product = product;
-        _dataDirectory = dataDirectory;
+        this.product = product;
+        this.dataDirectory = dataDirectory;
     }
 
     public void writeHeader() {
         int indent = 0;
         final String[][] attributes = new String[1][];
-        final String documentName = _product.getName() + DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION;
+        final String documentName = product.getName() + DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION;
         attributes[0] = new String[]{DimapProductConstants.ATTRIB_NAME, documentName};
         final String[] tags = createTags(indent, DimapProductConstants.TAG_ROOT, attributes);
         println(tags[0]);
@@ -116,7 +116,7 @@ public final class DimapHeaderWriter extends XmlWriter {
     }
 
     protected void writePins(int indent) {
-        ProductNodeGroup<Pin> pinGroup = _product.getPinGroup();
+        ProductNodeGroup<Pin> pinGroup = product.getPinGroup();
         final Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
         final String[] pinGroupTags = createTags(indent, DimapProductConstants.TAG_PIN_GROUP);
         if (pins.length > 0) {
@@ -129,7 +129,7 @@ public final class DimapHeaderWriter extends XmlWriter {
     }
 
     protected void writeGcps(int indent) {
-        ProductNodeGroup<Pin> gcpGroup = _product.getGcpGroup();
+        ProductNodeGroup<Pin> gcpGroup = product.getGcpGroup();
         final Pin[] gcps = gcpGroup.toArray(new Pin[gcpGroup.getNodeCount()]);
         final String[] gcpGroupTags = createTags(indent, DimapProductConstants.TAG_GCP_GROUP);
         if (gcps.length > 0) {
@@ -142,7 +142,7 @@ public final class DimapHeaderWriter extends XmlWriter {
     }
 
     protected void writeAnnotatonDataSet(int indent) {
-        final MetadataElement metadataRoot = _product.getMetadataRoot();
+        final MetadataElement metadataRoot = product.getMetadataRoot();
         if (metadataRoot != null && metadataRoot.getNumElements() > 0) {
             final String[] dsTags = createTags(indent, DimapProductConstants.TAG_DATASET_SOURCES);
             println(dsTags[0]);
@@ -211,7 +211,7 @@ public final class DimapHeaderWriter extends XmlWriter {
     }
 
     protected void writeImageInterpretationElements(int indent) {
-        final Band[] bands = _product.getBands();
+        final Band[] bands = product.getBands();
         if (bands != null && bands.length > 0) {
             final String[] iiTags = createTags(indent, DimapProductConstants.TAG_IMAGE_INTERPRETATION);
             println(iiTags[0]);
@@ -272,7 +272,7 @@ public final class DimapHeaderWriter extends XmlWriter {
     }
 
     protected void writeBitmaskDefinitions(int indent) {
-        final BitmaskDef[] bitmaskDefs = _product.getBitmaskDefs();
+        final BitmaskDef[] bitmaskDefs = product.getBitmaskDefs();
         if (bitmaskDefs.length > 0) {
             final String[] bdTags = createTags(indent, DimapProductConstants.TAG_BITMASK_DEFINITIONS);
             println(bdTags[0]);
@@ -286,11 +286,11 @@ public final class DimapHeaderWriter extends XmlWriter {
     protected void writeImageDisplayElements(int indent) {
         final StringWriter stringWriter = new StringWriter();
         final XmlWriter sXmlW = new XmlWriter(stringWriter, false);
-        final Band[] bands = _product.getBands();
+        final Band[] bands = product.getBands();
         final String[] idTags = createTags(indent, DimapProductConstants.TAG_IMAGE_DISPLAY);
         writeBandStatistics(sXmlW, indent, bands);
         writeBitmaskDefinitions(sXmlW, indent + 1, bands);
-        writeBitmaskDefinitions(sXmlW, indent + 1, _product.getTiePointGrids());
+        writeBitmaskDefinitions(sXmlW, indent + 1, product.getTiePointGrids());
         writeRoiDefinitions(sXmlW, indent, bands);
 
         sXmlW.close();
@@ -529,16 +529,16 @@ public final class DimapHeaderWriter extends XmlWriter {
         }
     }
 
-    protected void writeTiePointGridElements(int indent) { //Übernommen
-        final int numTiePointGrids = _product.getNumTiePointGrids();
+    protected void writeTiePointGridElements(int indent) {
+        final int numTiePointGrids = product.getNumTiePointGrids();
         if (numTiePointGrids > 0) {
             final String[] tpgTags = createTags(indent, DimapProductConstants.TAG_TIE_POINT_GRIDS);
             println(tpgTags[0]);
             printLine(indent + 1, DimapProductConstants.TAG_TIE_POINT_NUM_TIE_POINT_GRIDS, numTiePointGrids);
-            final String[] gridNames = _product.getTiePointGridNames();
+            final String[] gridNames = product.getTiePointGridNames();
             for (int i = 0; i < gridNames.length; i++) {
                 final String name = gridNames[i];
-                final TiePointGrid tiePointGrid = _product.getTiePointGrid(name);
+                final TiePointGrid tiePointGrid = product.getTiePointGrid(name);
                 final String[] tpgiTags = createTags(indent + 1, DimapProductConstants.TAG_TIE_POINT_GRID_INFO);
                 println(tpgiTags[0]);
                 printLine(indent + 2, DimapProductConstants.TAG_TIE_POINT_GRID_INDEX, i);
@@ -562,7 +562,7 @@ public final class DimapHeaderWriter extends XmlWriter {
     }
 
     protected void writeDataAccessElements(int indent) {
-        if (_product.getNumBands() > 0 || _product.getNumTiePointGrids() > 0) {
+        if (product.getNumBands() > 0 || product.getNumTiePointGrids() > 0) {
             final String[] daTags = createTags(indent, DimapProductConstants.TAG_DATA_ACCESS);
             println(daTags[0]);
             printLine(indent + 1, DimapProductConstants.TAG_DATA_FILE_FORMAT, DimapProductConstants.DATA_FILE_FORMAT);
@@ -571,14 +571,13 @@ public final class DimapHeaderWriter extends XmlWriter {
             printLine(indent + 1, DimapProductConstants.TAG_DATA_FILE_ORGANISATION,
                       DimapProductConstants.DATA_FILE_ORGANISATION);
 
-            final Band[] bands = _product.getBands();
-            Band band;
+            final Band[] bands = product.getBands();
             for (int i = 0; i < bands.length; i++) {
-                band = bands[i];
+                Band band = bands[i];
                 if (!(band instanceof VirtualBand || band instanceof FilterBand)) {
                     final String[] dfTags = createTags(indent + 1, DimapProductConstants.TAG_DATA_FILE);
                     println(dfTags[0]);
-                    final String href = _dataDirectory + "/" + band.getName() + EnviHeader.FILE_EXTENSION;
+                    final String href = dataDirectory + "/" + band.getName() + EnviHeader.FILE_EXTENSION;
                     final String[][] attributes = new String[][]{
                             new String[]{DimapProductConstants.ATTRIB_HREF, href}
                     };
@@ -588,11 +587,11 @@ public final class DimapHeaderWriter extends XmlWriter {
                 }
             }
 
-            final String[] tpgNames = _product.getTiePointGridNames();
+            final String[] tpgNames = product.getTiePointGridNames();
             for (int i = 0; i < tpgNames.length; i++) {
                 final String[] tpgfTags = createTags(indent + 1, DimapProductConstants.TAG_TIE_POINT_GRID_FILE);
                 println(tpgfTags[0]);
-                final String href = _dataDirectory + "/" + DimapProductConstants.TIE_POINT_GRID_DIR_NAME + "/" + tpgNames[i] + EnviHeader.FILE_EXTENSION;
+                final String href = dataDirectory + "/" + DimapProductConstants.TIE_POINT_GRID_DIR_NAME + "/" + tpgNames[i] + EnviHeader.FILE_EXTENSION;
                 final String[][] attributes = new String[][]{new String[]{DimapProductConstants.ATTRIB_HREF, href}};
                 printLine(indent + 2, DimapProductConstants.TAG_TIE_POINT_GRID_FILE_PATH, attributes, null);
                 printLine(indent + 2, DimapProductConstants.TAG_TIE_POINT_GRID_INDEX, i);
@@ -606,39 +605,41 @@ public final class DimapHeaderWriter extends XmlWriter {
     protected void writeRasterDimensionElements(int indent) {
         final String[] rdTags = createTags(indent, DimapProductConstants.TAG_RASTER_DIMENSIONS);
         println(rdTags[0]);
-        printLine(indent + 1, DimapProductConstants.TAG_NCOLS, _product.getSceneRasterWidth());
-        printLine(indent + 1, DimapProductConstants.TAG_NROWS, _product.getSceneRasterHeight());
-        printLine(indent + 1, DimapProductConstants.TAG_NBANDS, _product.getNumBands());
+        printLine(indent + 1, DimapProductConstants.TAG_NCOLS, product.getSceneRasterWidth());
+        printLine(indent + 1, DimapProductConstants.TAG_NROWS, product.getSceneRasterHeight());
+        printLine(indent + 1, DimapProductConstants.TAG_NBANDS, product.getNumBands());
         println(rdTags[1]);
     }
 
     protected void writeFlagCoding(int indent) {
-        SampleCoding[] a = _product.getFlagCodingGroup().toArray(new FlagCoding[0]);
-        vvv(indent, a, DimapProductConstants.TAG_FLAG_CODING, DimapProductConstants.TAG_FLAG,
-            DimapProductConstants.TAG_FLAG_NAME, DimapProductConstants.TAG_FLAG_INDEX,
-            DimapProductConstants.TAG_FLAG_DESCRIPTION);
+        SampleCoding[] a = product.getFlagCodingGroup().toArray(new FlagCoding[0]);
+        writeSampleCodings(indent, a, DimapProductConstants.TAG_FLAG_CODING, DimapProductConstants.TAG_FLAG,
+                           DimapProductConstants.TAG_FLAG_NAME, DimapProductConstants.TAG_FLAG_INDEX,
+                           DimapProductConstants.TAG_FLAG_DESCRIPTION);
     }
 
     protected void writeIndexCoding(int indent) {
-        SampleCoding[] a = _product.getIndexCodingGroup().toArray(new IndexCoding[0]);
-        vvv(indent, a, DimapProductConstants.TAG_INDEX_CODING, DimapProductConstants.TAG_INDEX,
-            DimapProductConstants.TAG_INDEX_NAME, DimapProductConstants.TAG_INDEX_VALUE,
-            DimapProductConstants.TAG_INDEX_DESCRIPTION);
+        SampleCoding[] a = product.getIndexCodingGroup().toArray(new IndexCoding[0]);
+        writeSampleCodings(indent, a, DimapProductConstants.TAG_INDEX_CODING, DimapProductConstants.TAG_INDEX,
+                           DimapProductConstants.TAG_INDEX_NAME, DimapProductConstants.TAG_INDEX_VALUE,
+                           DimapProductConstants.TAG_INDEX_DESCRIPTION);
     }
 
-    private void vvv(int indent, SampleCoding[] a, String tagCoding, String tagFlag, String tagName, String tagIndex,
-                     String tagDescription) {
+    private void writeSampleCodings(int indent, SampleCoding[] a, String tagCoding, String tagFlag, String tagName,
+                                    String tagIndex,
+                                    String tagDescription) {
         for (SampleCoding sampleCoding : a) {
             final String[][] attributes = new String[1][];
             attributes[0] = new String[]{DimapProductConstants.ATTRIB_NAME, sampleCoding.getName()};
             final String[] fcTags = createTags(indent, tagCoding, attributes);
             println(fcTags[0]);
-            uuu(indent, sampleCoding, fcTags, tagFlag, tagName, tagIndex, tagDescription);
+            writeSampleCoding(indent, sampleCoding, fcTags, tagFlag, tagName, tagIndex, tagDescription);
         }
     }
 
-    private void uuu(int indent, SampleCoding sampleCoding, String[] fcTags, String tagFlag, String tagName,
-                     String tagIndex, String tagDescription) {
+    private void writeSampleCoding(int indent, SampleCoding sampleCoding, String[] fcTags, String tagFlag,
+                                   String tagName,
+                                   String tagIndex, String tagDescription) {
         final String[] names = sampleCoding.getAttributeNames();
         for (String name : names) {
             final MetadataAttribute attribute = sampleCoding.getAttribute(name);
@@ -653,10 +654,10 @@ public final class DimapHeaderWriter extends XmlWriter {
     }
 
     protected void writeGeoCoding(final int indent) {
-        if (_product.isUsingSingleGeoCoding()) {
-            writeGeoCoding(_product.getGeoCoding(), indent, -1);
+        if (product.isUsingSingleGeoCoding()) {
+            writeGeoCoding(product.getGeoCoding(), indent, -1);
         } else {
-            final Band[] bands = _product.getBands();
+            final Band[] bands = product.getBands();
             for (int i = 0; i < bands.length; i++) {
                 final Band band = bands[i];
                 writeGeoCoding(band.getGeoCoding(), indent, i);
@@ -846,10 +847,30 @@ public final class DimapHeaderWriter extends XmlWriter {
         println(crsTags[1]);
     }
 
-    private void writePixelGeoCoding(final GeoCoding geoCoding, final int indent, final int index
-    ) {
-        // todo - (nf) since we don't write out PixelGeoCodings for time being, we write out the underlying delegate instead
-        writeGeoCoding(((PixelGeoCoding) geoCoding).getPixelPosEstimator(), indent, index);
+    private void writePixelGeoCoding(final GeoCoding geoCoding, final int indent, final int index) {
+        final PixelGeoCoding pixelGeoCoding = (PixelGeoCoding) geoCoding;
+        final String latBandName = pixelGeoCoding.getLatBand().getName();
+        final String lonBandName = pixelGeoCoding.getLonBand().getName();
+        final String validMask = pixelGeoCoding.getValidMask();
+        final int searchRadius = pixelGeoCoding.getSearchRadius();
+        final GeoCoding posEstimator = pixelGeoCoding.getPixelPosEstimator();
+
+        final String[] geopositionTags = createTags(indent, DimapProductConstants.TAG_GEOPOSITION);
+        println(geopositionTags[0]);
+        printLine(indent + 1, DimapProductConstants.TAG_LATITUDE_BAND, latBandName);
+        printLine(indent + 1, DimapProductConstants.TAG_LONGITUDE_BAND, lonBandName);
+        if (validMask != null && !validMask.trim().isEmpty()) {
+            printLine(indent + 1, DimapProductConstants.TAG_VALID_MASK_EXPRESSION, validMask);
+        }
+        printLine(indent + 1, DimapProductConstants.TAG_SEARCH_RADIUS, searchRadius);
+        if (posEstimator != null) {
+            final String[] pixelPosEstimatorTags = createTags(indent + 1,
+                                                              DimapProductConstants.TAG_PIXEL_POSITION_ESTIMATOR);
+            println(pixelPosEstimatorTags[0]);
+            writeGeoCoding(posEstimator, indent + 2, index);
+            println(pixelPosEstimatorTags[1]);
+        }
+        println(geopositionTags[1]);
     }
 
     private void writeFXYGeoCoding(final GeoCoding geoCoding, int indent, final int index) {
@@ -1042,13 +1063,13 @@ public final class DimapHeaderWriter extends XmlWriter {
         println(productionTags[0]);
         printLine(indent + 1, DimapProductConstants.TAG_DATASET_PRODUCER_NAME,
                   DimapProductConstants.DATASET_PRODUCER_NAME);
-        printLine(indent + 1, DimapProductConstants.TAG_PRODUCT_TYPE, _product.getProductType());
-        final ProductData.UTC sceneRasterStartTime = _product.getStartTime();
+        printLine(indent + 1, DimapProductConstants.TAG_PRODUCT_TYPE, product.getProductType());
+        final ProductData.UTC sceneRasterStartTime = product.getStartTime();
         if (sceneRasterStartTime != null) {
             printLine(indent + 1, DimapProductConstants.TAG_PRODUCT_SCENE_RASTER_START_TIME,
                       sceneRasterStartTime.format());
         }
-        final ProductData.UTC sceneRasterStopTime = _product.getEndTime();
+        final ProductData.UTC sceneRasterStopTime = product.getEndTime();
         if (sceneRasterStopTime != null) {
             printLine(indent + 1, DimapProductConstants.TAG_PRODUCT_SCENE_RASTER_STOP_TIME,
                       sceneRasterStopTime.format());
@@ -1073,12 +1094,12 @@ public final class DimapHeaderWriter extends XmlWriter {
         final String[] idTags = createTags(indent, DimapProductConstants.TAG_DATASET_ID);
         println(idTags[0]);
         printLine(indent + 1, DimapProductConstants.TAG_DATASET_SERIES, DimapProductConstants.DIMAP_DATASET_SERIES);
-        printLine(indent + 1, DimapProductConstants.TAG_DATASET_NAME, _product.getName());
+        printLine(indent + 1, DimapProductConstants.TAG_DATASET_NAME, product.getName());
         println(idTags[1]);
     }
 
     protected void writeDatasetUse(int indent) {
-        final String description = _product.getDescription();
+        final String description = product.getDescription();
         if (description != null && description.length() > 0) {
             final String[] idTags = createTags(indent, DimapProductConstants.TAG_DATASET_USE);
             println(idTags[0]);

@@ -160,7 +160,7 @@ public class DimapProductReader extends AbstractProductReader {
             final Band lonBand = product.getBand("longitude");
             final Band latBand = product.getBand("latitude");
             if (latBand != null && lonBand != null) {
-                product.setGeoCoding(new PixelGeoCoding(latBand, lonBand, null, 6, ProgressMonitor.NULL));
+                product.setGeoCoding(new PixelGeoCoding(latBand, lonBand, null, 6));
             }
         }
     }

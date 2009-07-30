@@ -332,9 +332,25 @@ public final class DimapProductConstants {
      * </pre>
      * </td>
      * </tr>
+     * <tr>
+     * <td valign="top">2.7.0</td>
+     * <td> Since version 4.6.2 BEAM DIMAP supports PixelGeoCoding.
+     * <pre>
+     *    &lt;Geoposition&gt;
+     *        &lt;LATITUDE_BAND&gt; latBandName &lt;/LATITUDE_BAND&gt;
+     *        &lt;LONGITUDE_BAND&gt; lonBandName &lt;/LONGITUDE_BAND&gt;
+     *        &lt;VALID_MASK_EXPRESSION&gt; validMask &lt;/VALID_MASK_EXPRESSION&gt;
+     *        &lt;SEARCH_RADIUS&gt; searchRadius &lt;/SEARCH_RADIUS&gt;
+     *        &lt;Pixel_Position_Estimator&gt;
+     *            &lt;!-- GeoCoding of the pixel position estimator --&gt;
+     *        &lt;/Pixel_Position_Estimator&gt;
+     *    &lt;/Geoposition&gt;
+     * </pre>
+     * </td>
+     * </tr>
      * </table>
      */
-    public static final String DIMAP_CURRENT_VERSION = "2.6.1";
+    public static final String DIMAP_CURRENT_VERSION = "2.7.0";
 
     // BEAM-Dimap default text
     public static final String DIMAP_METADATA_PROFILE = "BEAM-DATAMODEL-V1";
@@ -378,6 +394,11 @@ public final class DimapProductConstants {
     public static final String TAG_TIE_POINT_GRID_NAME_LON = "TIE_POINT_GRID_NAME_LON";
     public static final String TAG_GEOCODING_MAP = "Geocoding_Map";
     public static final String TAG_GEOCODING_MAP_INFO = "MAP_INFO";
+    public static final String TAG_LATITUDE_BAND = "LATITUDE_BAND";
+    public static final String TAG_LONGITUDE_BAND = "LONGITUDE_BAND";
+    public static final String TAG_VALID_MASK_EXPRESSION = "VALID_MASK_EXPRESSION";
+    public static final String TAG_SEARCH_RADIUS = "SEARCH_RADIUS";
+    public static final String TAG_PIXEL_POSITION_ESTIMATOR = "Pixel_Position_Estimator";
 
     //  -since version 2.0.0
     public static final String TAG_HORIZONTAL_CS_TYPE = "HORIZONTAL_CS_TYPE";

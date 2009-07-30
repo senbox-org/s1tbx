@@ -46,23 +46,23 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     // TODO - (nf) make EPS for quad-tree search dependent on current scene
     private static final float EPS = 0.04F; // used by quad-tree search
     private static final boolean _trace = false;
-    private static float D2R = (float) (Math.PI / 180.0);
+    private static final float D2R = (float) (Math.PI / 180.0);
 
-    private GeoCoding _pixelPosEstimator;
     private Boolean _crossingMeridianAt180;
-    private Band _latBand;
-    private Band _lonBand;
-    private String _validMask;
+    private final Band _latBand;
+    private final Band _lonBand;
+    private final String _validMask;
+    private final int _searchRadius; // used by direct search only
+    private GeoCoding _pixelPosEstimator;
     private PixelGrid _latGrid;
     private PixelGrid _lonGrid;
-    private int _searchRadius; // used by direct search only
-
+    private boolean initialized;
 
     /**
      * Constructs a new pixel-based geo-coding.
      * <p/>
-     * <p><i>Use with care: This constructor fully loads the data given by the latitudes and longitudes bands and
-     * the valid mask (if any) into memory.</i></p>
+     * <i>Use with care: In contrast to the other constructor this one loads the data not until first access to
+     * {@link #getPixelPos(GeoPos, PixelPos)} or {@link #getGeoPos(PixelPos, GeoPos)}. </i>
      *
      * @param latBand      the band providing the latitudes
      * @param lonBand      the band providing the longitudes
@@ -71,12 +71,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * @param searchRadius the search radius in pixels, shall depend on the actual spatial scene resolution,
      *                     e.g. for 300 meter pixels a search radius of 5 is a good choice. This parameter is ignored
      *                     if the source product is not geo-coded.
-     * @param pm           a monitor to inform the user about progress
-     *
-     * @throws IOException if an I/O error occurs while additional data is loaded from the source product
      */
-    public PixelGeoCoding(final Band latBand, final Band lonBand, final String validMask, final int searchRadius,
-                          ProgressMonitor pm) throws IOException {
+    public PixelGeoCoding(final Band latBand, final Band lonBand, final String validMask, final int searchRadius) {
         Guardian.assertNotNull("latBand", latBand);
         Guardian.assertNotNull("lonBand", lonBand);
         if (latBand.getProduct() == null) {
@@ -104,11 +100,35 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         if (_pixelPosEstimator != null) {
             _crossingMeridianAt180 = _pixelPosEstimator.isCrossingMeridianAt180();
         }
-        initData(latBand, lonBand, validMask, pm);
+        initialized = false;
     }
 
-    private void initData(final Band latBand, final Band lonBand, final String validMaskExpr, ProgressMonitor pm) throws
-                                                                                                                  IOException {
+    /**
+     * Constructs a new pixel-based geo-coding.
+     * <p/>
+     * <p><i>Use with care: This constructor fully loads the data given by the latitudes and longitudes bands and
+     * the valid mask (if any) into memory.</i></p>
+     *
+     * @param latBand      the band providing the latitudes
+     * @param lonBand      the band providing the longitudes
+     * @param validMask    the valid mask expression used to identify valid lat/lon pairs, e.g. "NOT l1_flags.DUPLICATED".
+     *                     Can be <code>null</code> if a valid mask is not used.
+     * @param searchRadius the search radius in pixels, shall depend on the actual spatial scene resolution,
+     *                     e.g. for 300 meter pixels a search radius of 5 is a good choice. This parameter is ignored
+     *                     if the source product is not geo-coded.
+     * @param pm           a monitor to inform the user about progress
+     *
+     * @throws IOException if an I/O error occurs while additional data is loaded from the source product
+     */
+    public PixelGeoCoding(final Band latBand, final Band lonBand, final String validMask, final int searchRadius,
+                          ProgressMonitor pm) throws IOException {
+        this(latBand, lonBand, validMask, searchRadius);
+        initData(latBand, lonBand, validMask, pm);
+        initialized = true;
+    }
+
+    private void initData(final Band latBand, final Band lonBand,
+                          final String validMaskExpr, ProgressMonitor pm) throws IOException {
         try {
             pm.beginTask("Preparing data for pixel based geo-coding...", 4);
             _latGrid = PixelGrid.create(latBand, SubProgressMonitor.create(pm, 1));
@@ -232,12 +252,13 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      *
      * @return <code>true</code>, if so
      */
+    @Override
     public boolean isCrossingMeridianAt180() {
         if (_crossingMeridianAt180 == null) {
             _crossingMeridianAt180 = false;
             final PixelPos[] pixelPoses = ProductUtils.createPixelBoundary(_lonBand, null, 1);
-            float[] firstLonValue = new float[1];
             try {
+                float[] firstLonValue = new float[1];
                 _lonBand.readPixels(0, 0, 1, 1, firstLonValue);
                 float[] secondLonValue = new float[1];
                 for (int i = 1; i < pixelPoses.length; i++) {
@@ -261,6 +282,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      *
      * @return <code>true</code>, if so
      */
+    @Override
     public boolean canGetPixelPos() {
         return true;
     }
@@ -270,6 +292,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      *
      * @return <code>true</code>, if so
      */
+    @Override
     public boolean canGetGeoPos() {
         return true;
     }
@@ -283,7 +306,9 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      *
      * @return the pixel co-ordinates as x/y
      */
+    @Override
     public PixelPos getPixelPos(final GeoPos geoPos, PixelPos pixelPos) {
+        initialize();
         if (pixelPos == null) {
             pixelPos = new PixelPos();
         }
@@ -306,6 +331,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * @param pixelPos the return value.
      */
     public void getPixelPosUsingEstimator(final GeoPos geoPos, PixelPos pixelPos) {
+        initialize();
+
         pixelPos = _pixelPosEstimator.getPixelPos(geoPos, pixelPos);
         if (!pixelPos.isValid()) {
             getPixelPosUsingQuadTreeSearch(geoPos, pixelPos);
@@ -379,6 +406,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * @param pixelPos the retun value
      */
     public void getPixelPosUsingQuadTreeSearch(final GeoPos geoPos, PixelPos pixelPos) {
+        initialize();
+
         final Result result = new Result();
         final int rasterWidth = _latGrid.getSceneRasterWidth();
         final int rasterHeight = _latGrid.getSceneRasterHeight();
@@ -397,6 +426,17 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         }
     }
 
+    private synchronized void initialize() {
+        if (!initialized) {
+            try {
+                initData(_latBand, _lonBand, _validMask, ProgressMonitor.NULL);
+            } catch (IOException e) {
+                throw new IllegalStateException("Unable to initialse data for pixel geo-coding", e);
+            }
+            initialized = true;
+        }
+    }
+
     /**
      * Returns the latitude and longitude value for a given pixel co-ordinate.
      *
@@ -406,7 +446,9 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      *
      * @return the geographical position as lat/lon.
      */
+    @Override
     public GeoPos getGeoPos(final PixelPos pixelPos, GeoPos geoPos) {
+        initialize();
         if (geoPos == null) {
             geoPos = new GeoPos();
         }
@@ -439,7 +481,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
      */
-    public void dispose() {
+    @Override
+    public synchronized void dispose() {
         if (_latGrid != null) {
             _latGrid.dispose();
             _latGrid = null;
@@ -553,11 +596,11 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     }
 
 
-    public static float min(final float a, final float b) {
+    private static float min(final float a, final float b) {
         return (a <= b) ? a : b;
     }
 
-    public static float max(final float a, final float b) {
+    private static float max(final float a, final float b) {
         return (a >= b) ? a : b;
     }
 
@@ -573,11 +616,11 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      */
     private static float lonDiff(float a1, float a2) {
         float d = a1 - a2;
-        if (d < 0f) {
+        if (d < 0.0f) {
             d = -d;
         }
-        if (d > 180f) {
-            d = 360f - d;
+        if (d > 180.0f) {
+            d = 360.0f - d;
         }
         return d;
     }
@@ -679,16 +722,9 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             origGeoCoding.transferGeoCoding(srcScene, destScene, subsetDef);
         }
         if (latBand != null && lonBand != null) {
-            try {
-                destScene.setGeoCoding(new PixelGeoCoding(latBand, lonBand,
-                                                          getValidMask(),
-                                                          getSearchRadius(),
-                                                          ProgressMonitor.NULL));
-                return true;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
+            destScene.setGeoCoding(new PixelGeoCoding(latBand, lonBand,
+                                                      getValidMask(),
+                                                      getSearchRadius()));
         }
         return false;
     }
@@ -725,7 +761,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             final int h = b.getRasterHeight();
             final float[] pixels = new float[w * h];
             b.readPixels(0, 0, w, h, pixels, pm);
-            return new PixelGrid(b.getProduct(), b.getName(), w, h, 0.5f, 0.5f, 1f, 1f, pixels);
+            return new PixelGrid(b.getProduct(), b.getName(), w, h, 0.5f, 0.5f, 1.0f, 1.0f, pixels);
         }
     }
 
@@ -737,7 +773,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         private int y;
         private float delta;
 
-        public Result() {
+        private Result() {
             delta = INVALID;
         }
 
@@ -762,6 +798,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      *
      * @return the datum
      */
+    @Override
     public Datum getDatum() {
         if (_pixelPosEstimator != null) {
             return _pixelPosEstimator.getDatum();
