@@ -25,6 +25,7 @@ import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.PointingFactory;
 import org.esa.beam.framework.datamodel.PointingFactoryRegistry;
 import org.esa.beam.framework.datamodel.Product;
@@ -56,6 +57,7 @@ import java.util.Vector;
  * @see org.esa.beam.dataio.envisat.EnvisatProductReaderPlugIn
  */
 public class EnvisatProductReader extends AbstractProductReader {
+    private static final String ENVISAT_AMORGOS_USE_PIXEL_GEO_CODING = "beam.envisat.amorgos.usePixelGeoCoding";
 
     /**
      * Represents the product's file.
@@ -120,7 +122,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                 final InputStream inputStream;
                 try {
                     inputStream = EnvisatProductReaderPlugIn.getInflaterInputStream(file);
-                } catch (IOException e1) {
+                } catch (IOException ignored) {
                     throw e;
                 }
                 _productFile = ProductFile.open(file, new FileCacheImageInputStream(inputStream, null));
@@ -175,13 +177,13 @@ public class EnvisatProductReader extends AbstractProductReader {
         final int sourceMinY = sourceOffsetY;
         final int sourceMaxX = Math.min(destBand.getRasterWidth() - 1, sourceMinX + sourceWidth - 1);
         final int sourceMaxY = sourceMinY + sourceHeight - 1;
-        int destArrayPos = 0;
 
 
         pm.beginTask("Reading band '" + destBand.getName() + "'...", (sourceMaxY - sourceMinY) + 1);
         // For each scan in the data source
         try {
 
+            int destArrayPos = 0;
             for (int sourceY = sourceMinY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
                 if (pm.isCanceled()) {
                     break;
@@ -209,8 +211,6 @@ public class EnvisatProductReader extends AbstractProductReader {
         File file = getProductFile().getFile();
         String productName;
         if (file != null) {
-//            final String mission = AsarAbstractMetadata.getMission(getProductFile().getProductType(), file);
-//            productName = mission + '-' + file.getName();
             productName = file.getName();
         } else {
             productName = getProductFile().getProductId();
@@ -228,6 +228,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         product.setStartTime(getProductFile().getSceneRasterStartTime());
         product.setEndTime(getProductFile().getSceneRasterStopTime());
 
+        addBandsToProduct(product);
         if (!isMetadataIgnored()) {
             addHeaderAnnotationsToProduct(product);
             addDatasetAnnotationsToProduct(product);
@@ -235,7 +236,6 @@ public class EnvisatProductReader extends AbstractProductReader {
             addGeoCodingToProduct(product);
             initPointingFactory(product);
         }
-        addBandsToProduct(product);
         addDefaultBitmaskDefsToProduct(product);
         addDefaultBitmaskDefsToBands(product);
 
@@ -255,7 +255,7 @@ public class EnvisatProductReader extends AbstractProductReader {
             }
             if (!(bandLineReader instanceof BandLineReader.Virtual)) {
                 if (bandLineReader.getPixelDataReader().getDSD().getDatasetSize() == 0 ||
-                        bandLineReader.getPixelDataReader().getDSD().getNumRecords() == 0) {
+                    bandLineReader.getPixelDataReader().getDSD().getNumRecords() == 0) {
                     continue;
                 }
             }
@@ -318,7 +318,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                 flagDsList.add(band);
             }
         }
-        if (flagDsList.size() > 0) {
+        if (!flagDsList.isEmpty()) {
             for (Band flagDs : flagDsList) {
                 String flagDsName = flagDs.getName();
                 BitmaskDef[] bitmaskDefs = _productFile.createDefaultBitmaskDefs(flagDsName);
@@ -388,6 +388,23 @@ public class EnvisatProductReader extends AbstractProductReader {
 
     private static void addGeoCodingToProduct(Product product) {
         initTiePointGeoCoding(product);
+
+        final boolean usePixeGeoCoding = Boolean.getBoolean(ENVISAT_AMORGOS_USE_PIXEL_GEO_CODING);
+        if (usePixeGeoCoding) {
+            final String productType = product.getProductType();
+            if (productType.equals(EnvisatConstants.MERIS_FRG_L1B_PRODUCT_TYPE_NAME) ||
+                productType.equals(EnvisatConstants.MERIS_FSG_L1B_PRODUCT_TYPE_NAME)) {
+                initPixelGeoCoding(product);
+            }
+        }
+    }
+
+    private static void initPixelGeoCoding(Product product) {
+        final PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(
+                product.getBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LATITUDE_BAND_NAME),
+                product.getBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LONGITUDE_BAND_NAME),
+                "NOT l1_flags.INVALID", 6);
+        product.setGeoCoding(pixelGeoCoding);
     }
 
     /**
@@ -408,12 +425,6 @@ public class EnvisatProductReader extends AbstractProductReader {
         PointingFactoryRegistry registry = PointingFactoryRegistry.getInstance();
         PointingFactory pointingFactory = registry.getPointingFactory(product.getProductType());
         product.setPointingFactory(pointingFactory);
-
-//        if (product.getProductType().startsWith("MER_")) {
-//            product.setPointingFactory(new MerisPointingFactory());
-//        } else if (product.getProductType().startsWith("ATS_")) {
-//            product.setPointingFactory(new AatsrPointingFactory());
-//        }
     }
 
     private void addHeaderAnnotationsToProduct(Product product) {
@@ -469,7 +480,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         for (String datasetName : datasetNames) {
             DSD dsd = _productFile.getDSD(datasetName);
             if (dsd.getDatasetType() == EnvisatConstants.DS_TYPE_ANNOTATION
-                    || dsd.getDatasetType() == EnvisatConstants.DS_TYPE_GLOBAL_ANNOTATION) {
+                || dsd.getDatasetType() == EnvisatConstants.DS_TYPE_GLOBAL_ANNOTATION) {
                 RecordReader recordReader = _productFile.getRecordReader(datasetName);
                 if (recordReader.getNumRecords() == 1) {
                     MetadataElement table = createDatasetTable(datasetName, recordReader);
@@ -622,7 +633,7 @@ public class EnvisatProductReader extends AbstractProductReader {
 
             String description = field.getInfo().getDescription();
             if (description != null) {
-                if (description.equalsIgnoreCase("Spare")) {
+                if ("Spare".equalsIgnoreCase(description)) {
                     continue;
                 }
             }
@@ -649,18 +660,19 @@ public class EnvisatProductReader extends AbstractProductReader {
      * {@link org.esa.beam.framework.datamodel.TiePointGrid#DISCONT_NONE} otherwise.
      *
      * @param name the grid name
+     *
      * @return the discontinuity mode, always one of {@link org.esa.beam.framework.datamodel.TiePointGrid#DISCONT_NONE}, {@link org.esa.beam.framework.datamodel.TiePointGrid#DISCONT_AT_180} and {@link org.esa.beam.framework.datamodel.TiePointGrid#DISCONT_AT_360}.
      */
     @Override
     protected int getGridDiscontinutity(String name) {
         if (name.equalsIgnoreCase(EnvisatConstants.MERIS_SUN_AZIMUTH_DS_NAME) ||
-                name.equalsIgnoreCase(EnvisatConstants.MERIS_VIEW_AZIMUTH_DS_NAME)) {
+            name.equalsIgnoreCase(EnvisatConstants.MERIS_VIEW_AZIMUTH_DS_NAME)) {
             return TiePointGrid.DISCONT_AT_360;
         } else if (name.equalsIgnoreCase(EnvisatConstants.LON_DS_NAME) ||
-                name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_NADIR_DS_NAME) ||
-                name.equalsIgnoreCase(EnvisatConstants.AATSR_VIEW_AZIMUTH_NADIR_DS_NAME) ||
-                name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_FWARD_DS_NAME) ||
-                name.equalsIgnoreCase(EnvisatConstants.AATSR_VIEW_AZIMUTH_FWARD_DS_NAME)) {
+                   name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_NADIR_DS_NAME) ||
+                   name.equalsIgnoreCase(EnvisatConstants.AATSR_VIEW_AZIMUTH_NADIR_DS_NAME) ||
+                   name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_FWARD_DS_NAME) ||
+                   name.equalsIgnoreCase(EnvisatConstants.AATSR_VIEW_AZIMUTH_FWARD_DS_NAME)) {
             return TiePointGrid.DISCONT_AT_180;
         } else {
             return TiePointGrid.DISCONT_NONE;

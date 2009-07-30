@@ -212,6 +212,13 @@ public interface EnvisatConstants {
     int MERIS_L1B_NUM_NON_SPECTRAL_BANDS = MERIS_L1B_NON_SPECTRAL_BAND_NAMES.length;
 
     /**
+     * The addtional names of non spectral bands of FSG and FRG added by AMORGOS.
+     */
+    String MERIS_AMORGOS_L1B_CORR_LATITUDE_BAND_NAME = "corr_latitude";
+    String MERIS_AMORGOS_L1B_CORR_LONGITUDE_BAND_NAME = "corr_longitude";
+    String MERIS_AMORGOS_L1B_ALTIUDE_BAND_NAME = "altitude";
+
+    /**
      * The names of the Meris Level 1 MDS.
      */
     String[] MERIS_L1B_BAND_NAMES = StringUtils.addArrays(MERIS_L1B_SPECTRAL_BAND_NAMES,
