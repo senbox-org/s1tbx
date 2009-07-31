@@ -352,6 +352,19 @@ public class TiePointGrid extends RasterDataNode {
         return Math.round(getPixelFloat(x, y));
     }
 
+    @Override
+    public void dispose() {
+        if (_cosGrid != null) {
+            _cosGrid.dispose();
+            _cosGrid = null;
+        }
+        if (_sinGrid != null) {
+            _sinGrid.dispose();
+            _sinGrid = null;
+        }
+        super.dispose();
+    }
+
     /**
      * Computes the interpolated sample for the pixel located at (x,y). <p/>
      * <p/>
