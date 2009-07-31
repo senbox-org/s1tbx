@@ -68,6 +68,7 @@ public class SmacRequestParameterPool {
 
     /**
      * This constructor creates an instance of SmacRequestParameterPool.
+     * @param editor The editor to create the parameter pool for.
      */
     public SmacRequestParameterPool(SmacRequestEditor editor) {
         _editor = editor;
@@ -114,6 +115,7 @@ public class SmacRequestParameterPool {
 
     /**
      * Creates a new request with all parameters set to their default values
+     * @return returns the default request.
      */
     public Request getDefaultRequest() {
         Request request = new Request();
@@ -144,6 +146,7 @@ public class SmacRequestParameterPool {
 
     /**
      * Sets the current state of this class to the state of the given request.
+     * @param request The request to set.
      */
     public void setRequest(Request request) {
         _requestFile = request.getFile();
@@ -162,7 +165,7 @@ public class SmacRequestParameterPool {
      * Scans the input product stored in the request for all the bands it contains. When the request contains no input
      * product - nothing happens.
      * <p/>
-     * qparam request the <code>Request</code> currently set
+     * @param request the <code>Request</code> currently set
      *
      * @throws org.esa.beam.framework.processor.ProcessorException
      *          when a failure occurs
@@ -214,6 +217,7 @@ public class SmacRequestParameterPool {
     private ParamChangeListener createParamChangeListener() {
         return new ParamChangeListener() {
 
+            @Override
             public void parameterValueChanged(ParamChangeEvent e) {
                 parameterChanged(e);
             }
@@ -268,7 +272,7 @@ public class SmacRequestParameterPool {
         typeParameter.setValueAsText(type, null);
     }
 
-    /**
+    /*
      * Toggles the bitmask editor between the appropriate types Calls back to editor class.
      */
     private void toggleBitmaskEditor(String type) {
@@ -395,7 +399,7 @@ public class SmacRequestParameterPool {
         }
     }
 
-    /**
+    /*
      * Reads the parameter values out of threquest and sets parameters accordingly.
      */
     private void resetParameters(Request request) {
@@ -435,7 +439,7 @@ public class SmacRequestParameterPool {
     }
 
     private void handleParameterChangedEventUseMeris(Parameter param) {
-        boolean enable = ((Boolean) param.getValue()).booleanValue();
+        boolean enable = (Boolean) param.getValue();
         getParameter(SmacConstants.SURFACE_AIR_PRESSURE_PARAM_NAME).getEditor().setEnabled(!enable);
         getParameter(SmacConstants.OZONE_CONTENT_PARAM_NAME).getEditor().setEnabled(!enable);
         getParameter(SmacConstants.RELATIVE_HUMIDITY_PARAM_NAME).getEditor().setEnabled(!enable);
@@ -487,12 +491,13 @@ public class SmacRequestParameterPool {
         Band[] bands = inProduct.getBands();
         Vector<String> bandNamesVec = new Vector<String>();
 
-        for (int i = 0; i < bands.length; i++) {
-            String bandName = bands[i].getName();
-            if (bands[i].getSpectralBandIndex() != -1 && isSupportedBand(bandName)) {
+        for (Band band : bands) {
+            String bandName = band.getName();
+            if (band.getSpectralBandIndex() != -1 && isSupportedBand(bandName)) {
                 bandNamesVec.add(bandName);
             }
         }
+        inProduct.dispose();
 
         String[] bandNames = bandNamesVec.toArray(new String[bandNamesVec.size()]);
         Parameter bandParam = getParameter(SmacConstants.BANDS_PARAM_NAME);
@@ -509,7 +514,7 @@ public class SmacRequestParameterPool {
         return bandNames.contains(bandName);
     }
 
-    /**
+    /*
      * Scans the given input product for the product type.
      *
      * @return a string containing the product type
@@ -519,8 +524,8 @@ public class SmacRequestParameterPool {
 
         File file = (File) inputProductParam.getValue();
         if ((file != null) && file.exists() && file.isFile()) {
-            Product inProduct;
 
+            Product inProduct = null;
             try {
                 inProduct = ProductIO.readProduct(file, null);
                 if (inProduct != null) {
@@ -528,26 +533,28 @@ public class SmacRequestParameterPool {
                 }
             } catch (IOException e) {
                 Debug.trace(e);
+            }finally {
+                if(inProduct != null) {
+                    inProduct.dispose();
+                }
             }
         }
         return stRet;
     }
 
-    /**
+    /*
      * Creates a <code>ProductRef</code> pointing to the smac default input product
      */
     private static ProductRef createDefaultInputProduct() {
         return new ProductRef(new File(""));
     }
 
-    /**
+    /*
      * Creates a <code>ProductRef</code> pointing to the smac default input product
      */
     private static ProductRef createDefaultOutputProduct() {
-        ProductRef ref = null;
-
         File defaultOutFile = new File(SystemUtils.getUserHomeDir(), SmacConstants.DEFAULT_FILE_NAME);
-        ref = new ProductRef(defaultOutFile);
+        ProductRef ref = new ProductRef(defaultOutFile);
         ref.setFileFormat(DimapProductConstants.DIMAP_FORMAT_NAME);
 
         return ref;

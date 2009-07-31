@@ -331,7 +331,7 @@ public class CloudProcessorUI extends AbstractProcessorUI {
             return;
         }
         String msg = null;
-        Product product;
+        Product product = null;
         try {
             product = ProductIO.readProduct(file, null);
             if (product != null) {
@@ -362,6 +362,10 @@ public class CloudProcessorUI extends AbstractProcessorUI {
             }
         } catch (IOException e) {
             msg = e.getMessage();
+        }finally {
+            if (product != null) {
+                product.dispose();
+            }
         }
         if (msg != null) {
             getApp().showWarningDialog("Invalid input file:\n" + msg); /*I18N*/

@@ -75,6 +75,7 @@ public class SmileProcessorUI extends AbstractProcessorUI {
      * Retrieves the base component for the processor specific user interface classes. This can be any Java Swing
      * containertype. This method creates the UI from scratch if not present.
      */
+    @Override
     public JComponent getGuiComponent() {
         if (_tabbedPane == null) {
             createUI();
@@ -85,6 +86,7 @@ public class SmileProcessorUI extends AbstractProcessorUI {
     /**
      * Retrieves the requests currently edited.
      */
+    @Override
     public Vector getRequests() throws ProcessorException {
         final Vector<Request> requests = new Vector<Request>();
         final Parameter outputParam = _paramGroup.getParameter(DefaultRequestElementFactory.OUTPUT_PRODUCT_PARAM_NAME);
@@ -100,9 +102,10 @@ public class SmileProcessorUI extends AbstractProcessorUI {
      *
      * @param requests the request list to be edited
      */
+    @Override
     public void setRequests(final Vector requests) throws ProcessorException {
         Guardian.assertNotNull("requests", requests);
-        if (requests.size() > 0) {
+        if (!requests.isEmpty()) {
             final Request request = (Request) requests.elementAt(0);
             _requestFile = request.getFile();
             updateParamInputFile(request);
@@ -117,6 +120,7 @@ public class SmileProcessorUI extends AbstractProcessorUI {
     /**
      * Create a new default request for the sst processor and sets it to the UI
      */
+    @Override
     public void setDefaultRequests() throws ProcessorException {
         final Vector<Request> requests = new Vector<Request>();
         requests.add(createDefaultRequest());
@@ -183,6 +187,7 @@ public class SmileProcessorUI extends AbstractProcessorUI {
 
     private ParamChangeListener createParamChangeListener() {
         return new ParamChangeListener() {
+            @Override
             public void parameterValueChanged(final ParamChangeEvent event) {
                 final Parameter parameter = event.getParameter();
                 if (parameter.getName().equals(SmileConstants.INPUT_PRODUCT_PARAM_NAME)) {
@@ -335,12 +340,10 @@ public class SmileProcessorUI extends AbstractProcessorUI {
         return request;
     }
 
-    /**
+    /*
      * Brings up a message box if the input product is not valid. Valid input products are: MERIS level 1b products with
      * existing detector index band. The message box only comes up if the parameter contains an existing file. So you
      * can create requests with not existing input products without interfering message Box.
-     *
-     * @param parameter
      */
     private void checkForValidInputProduct(Parameter parameter) {
         Object value = parameter.getValue();
@@ -355,13 +358,12 @@ public class SmileProcessorUI extends AbstractProcessorUI {
             return;
         }
         String msg = null;
-        Product product;
         try {
-            product = ProductIO.readProduct(file, null);
+            Product product = ProductIO.readProduct(file, null);
             if (product != null) {
                 final String diName = EnvisatConstants.MERIS_DETECTOR_INDEX_DS_NAME;
-                final String ssiName = EnvisatConstants.MERIS_SPECTRAL_SHIFT_INDEX_DS_NAME;
                 if (product.getBand(diName) == null) {
+                    final String ssiName = EnvisatConstants.MERIS_SPECTRAL_SHIFT_INDEX_DS_NAME;
                     if (product.getBand(ssiName) != null) {
                         msg = "The input product is obviously a MERIS L1b product but\n" +
                               "contains spectral shift indexes (band '" + ssiName + "')\n" +
@@ -372,6 +374,7 @@ public class SmileProcessorUI extends AbstractProcessorUI {
                               "which also contain the MERIS detector indexes (band '" + diName + "').";
                     }
                 }
+                product.dispose();
             } else {
                 msg = "Unknown file format.";
             }

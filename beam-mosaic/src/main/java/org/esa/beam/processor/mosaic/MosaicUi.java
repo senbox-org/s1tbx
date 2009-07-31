@@ -128,7 +128,6 @@ public class MosaicUi extends AbstractProcessorUI {
 
     private MosaicRequestElementFactory _reqElemFac;
     private MapProjection[] _projections;
-    private String[] _projectionNames;
     private Parameter _paramProjectionName;
     private Parameter _paramOutputProduct;
     private Parameter _paramWestLon;
@@ -386,15 +385,21 @@ public class MosaicUi extends AbstractProcessorUI {
                         if (pm.isCanceled()) {
                             break;
                         }
-                        pm.setSubTaskName("Product " + (i + 1) + " of " + filesSize);
+                        pm.setSubTaskName(String.format("Product %d of %d", (i + 1), filesSize));
                         final File file = (File) files.get(i);
                         final Product product = loadProduct(file, messages);
-                        if (product != null) {
-                            final int step = Math.max(16,
-                                                      (product.getSceneRasterWidth() +
-                                                       product.getSceneRasterHeight()) / 250);
-                            final GeoPos[] geoBoundary = ProductUtils.createGeoBoundary(product, step);
-                            geoBoundaries.add(geoBoundary);
+                        try {
+                            if (product != null) {
+                                final int step = Math.max(16,
+                                                          (product.getSceneRasterWidth() +
+                                                           product.getSceneRasterHeight()) / 250);
+                                final GeoPos[] geoBoundary = ProductUtils.createGeoBoundary(product, step);
+                                geoBoundaries.add(geoBoundary);
+                            }
+                        } finally {
+                            if(product != null) {
+                                product.dispose();
+                            }
                         }
                         pm.worked(1);
                     }
@@ -939,7 +944,7 @@ public class MosaicUi extends AbstractProcessorUI {
 
             try {
                 _logToOutputParameter = _reqElemFac.createLogToOutputParameter("false");
-            } catch (ParamValidateException e) {
+            } catch (ParamValidateException ignored) {
                 // ignore
             }
             _logPrefixParameter = _reqElemFac.createDefaultLogPatternParameter(MosaicConstants.DEFAULT_LOG_PREFIX);
@@ -957,12 +962,12 @@ public class MosaicUi extends AbstractProcessorUI {
             _paramElevation = _reqElemFac.createParameter(
                     MosaicConstants.PARAM_NAME_ELEVATION_MODEL_FOR_ORTHORECTIFICATION, null);
         } catch (RequestElementFactoryException e) {
-            throw new IllegalStateException("Unable to initialize parameters for processor UI."); /*I18N*/
+            throw new IllegalStateException("Unable to initialize parameters for processor UI.", e);
         }
 
         _projections = MapProjectionRegistry.getProjections();
         final int length = _projections.length;
-        _projectionNames = new String[length];
+        String[] _projectionNames = new String[length];
         Dimension maxMapUnitPreferredSize = new Dimension(0, 0);
         for (int i = 0; i < _projections.length; i++) {
             _projections[i] = (MapProjection) _projections[i].clone();
@@ -1862,7 +1867,7 @@ public class MosaicUi extends AbstractProcessorUI {
                 if (valid) {
                     valid = file.delete();
                 }
-            } catch (IOException e) {
+            } catch (IOException ignored) {
                 valid = false;
             } finally {
                 if (!valid) {
@@ -1891,7 +1896,7 @@ public class MosaicUi extends AbstractProcessorUI {
 
     private boolean validateInputProducts() {
         final List files = _inputProductEditor.getFiles();
-        if (files.size() == 0) {
+        if (files.isEmpty()) {
             getApp().showErrorDialog("No input products selected.\n" +
                                      "Please choose at least one input product."); /*I18N*/
             return false;
@@ -1939,7 +1944,7 @@ public class MosaicUi extends AbstractProcessorUI {
                                  final boolean checkForConditions) {
         final String reservedBandname = MosaicConstants.BANDNAME_COUNT;
         final List tableData = ((DefaultTableModel) table.getModel()).getDataVector();
-        if (!checkForConditions && tableData.size() == 0) {
+        if (!checkForConditions && tableData.isEmpty()) {
             getApp().showWarningDialog("No processing variables are defined.\n" +
                                        "At least one processing variable must be defined.");
             return false;
@@ -1956,42 +1961,40 @@ public class MosaicUi extends AbstractProcessorUI {
                 name = n0.trim();
             }
             if (name == null || name.length() == 0) {
-                getApp().showWarningDialog("No name given for the\n" +
-                                           s1 + " at row " + (i + 1) + "."); /*I18N*/
+                final String msg = String.format("No name given for the\n%s at row %d.", s1, (i + 1));
+                getApp().showWarningDialog(msg);
                 return false;
             }
             if (name.equals(reservedBandname)) {
-                getApp().showWarningDialog("The given name '" + reservedBandname + "'\n" +
-                                           "for the " + s1 + " at row " + (i + 1) + "\n" +
-                                           "is reserved and cannot be used."); /*I18N*/
+                final String msg = String.format(
+                        "The given name '%s'\nfor the %s at row %d\nis reserved and cannot be used.",
+                        reservedBandname, s1, (i + 1));
+                getApp().showWarningDialog(msg);
                 return false;
             }
             if (names.contains(name)) {
-                getApp().showWarningDialog("The name '" + name + "'\n" +
-                                           "for the " + s1 + " at row " + (i + 1) + "\n" +
-                                           "is already in use."); /*I18N*/
+                final String msg = String.format("The name '%s'\nfor the %s at row %d\nis already in use.",
+                                                 name, s1, (i + 1));
+                getApp().showWarningDialog(msg);
                 return false;
             }
             names.add(name);
             final String expression = (String) row.get(1);
             if (expression == null || expression.trim().length() == 0) {
-                getApp().showWarningDialog("The expression for the " + s1 + "\n" +
-                                           "named '" + name + "'\n" +
-                                           "is empty.");
+                final String msg = String.format("The expression for the %s\nnamed '%s'\nis empty.", s1, name);
+                getApp().showWarningDialog(msg);
                 return false;
             }
             try {
                 final Term term = parser.parse(expression);
                 if (checkForConditions && !term.isB()) {
-                    getApp().showWarningDialog("The expression for the " + s1 + "\n" +
-                                               "named '" + name + "'\n" +
-                                               "is not boolean."); /*I18N*/
+                    final String msg = String.format("The expression for the %s\nnamed '%s'\nis not boolean.", s1, name);
+                    getApp().showWarningDialog(msg);
                     return false;
                 }
-            } catch (ParseException e) {
-                getApp().showWarningDialog("The expression for the " + s1 + "\n" +
-                                           "named '" + name + "'\n" +
-                                           "is invalid."); /*I18N*/
+            } catch (ParseException ignored) {
+                final String message = String.format("The expression for the %s\nnamed '%s'\nis invalid.", s1, name);
+                getApp().showWarningDialog(message);
                 return false;
             }
         }
@@ -2032,8 +2035,8 @@ public class MosaicUi extends AbstractProcessorUI {
             if (productFile != null) {
                 product = ProductIO.readProduct(productFile, null);
             }
-        } catch (IOException e) {
-            final String message = "Unable to open file '" + productFile.getPath() + "'"; /*I18N*/
+        } catch (IOException ignored) {
+            final String message = String.format("Unable to open file '%s'", productFile.getPath());
             if (errorMessages == null) {
                 getApp().showErrorDialog(message);
             } else {
@@ -2070,7 +2073,7 @@ public class MosaicUi extends AbstractProcessorUI {
          * centered vertically in its display area. The label's contents, once set, will be displayed on the leading
          * edge of the label's display area.
          */
-        public TCR() {
+        private TCR() {
             setOpaque(true);
             setBorder(noFocusBorder);
         }
@@ -2120,7 +2123,7 @@ public class MosaicUi extends AbstractProcessorUI {
         private final JButton button;
         private String[] value;
 
-        public ExprEditor(final boolean booleanExpected) {
+        private ExprEditor(final boolean booleanExpected) {
             button = new JButton("...");
             final Dimension preferredSize = button.getPreferredSize();
             preferredSize.setSize(25, preferredSize.getHeight());

@@ -105,6 +105,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
      * Retrieves the base component for the processor specific user interface classes. This can be any Java Swing
      * containertype. This method creates the UI from scratch if not present
      */
+    @Override
     public JComponent getGuiComponent() {
         if (_tabbedPane == null) {
             createUI();
@@ -118,9 +119,10 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
      *
      * @param requests the requests to be edited
      */
+    @Override
     public void setRequests(Vector requests) {
         Guardian.assertNotNull("requests", requests);
-        if (requests.size() > 0) {
+        if (!requests.isEmpty()) {
             Request request = (Request) requests.elementAt(0);
             _requestFile = request.getFile();
             setInputFile(request);
@@ -134,6 +136,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
     /**
      * Retrieves the request currently edited.
      */
+    @Override
     public Vector getRequests() throws ProcessorException {
         final Request request = new Request();
         request.setType(FlhMciConstants.REQUEST_TYPE);
@@ -149,6 +152,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
     /**
      * Create a new default request and set it in the UI
      */
+    @Override
     public void setDefaultRequests() {
         final Vector<Request> init = new Vector<Request>();
         init.add(createDefaultRequest());
@@ -161,6 +165,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
      *
      * @param evt the event that triggered the callback
      */
+    @Override
     public void parameterValueChanged(final ParamChangeEvent evt) {
         try {
             if (evt.getParameter().getName().equals(DefaultRequestElementFactory.INPUT_PRODUCT_PARAM_NAME)) {
@@ -190,7 +195,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
     /////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
 
-    /**
+    /*
      * Creates a request with all parameters set to default values
      */
     private Request createDefaultRequest() {
@@ -221,7 +226,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         return request;
     }
 
-    /**
+    /*
      * Creates a <code>ProductRef</code> pointing to the FLH/MCI default input product
      */
     private static ProductRef createDefaultInputProduct() {
@@ -231,7 +236,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         return new ProductRef(new File(inProdParam.getValueAsText()));
     }
 
-    /**
+    /*
      * Creates a <code>ProductRef</code> pointing to the SST default output product.
      */
     private static ProductRef createDefaultOutputProduct() {
@@ -293,6 +298,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         _fileFormatCombo = new JComboBox(_formatNames);
         _fileFormatCombo.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 updateOutFileType();
             }
@@ -323,10 +329,8 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         return panel;
     }
 
-    /**
+    /*
      * Creates the parameter tab for flh/mci processor
-     *
-     * @return the panel containing the parameter tab
      */
     private JPanel createParameterTab() {
         int line = 0;
@@ -382,7 +386,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         return panel;
     }
 
-    /**
+    /*
      * Scans the ProductIO for all product format strings of the registered writer plugins
      */
     private void scanWriterFormatStrings() {
@@ -390,14 +394,14 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         _formatNames = manager.getAllProductWriterFormatStrings();
     }
 
-    /**
+    /*
      * Callback for output file format combo box
      */
     private void updateOutFileType() {
         _outFileFormat = (String) _fileFormatCombo.getSelectedItem();
     }
 
-    /**
+    /*
      * Updates all components according to a change in the input product parameter
      */
     private void handleUpdateInputProduct() throws ProcessorException {
@@ -427,13 +431,13 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         }
     }
 
-    /**
+    /*
      * Updates all components due to a change in the procdess slope parameter
      */
     private void handleUpdateSlopeBand() {
         Parameter paramProc = _paramGroup.getParameter(FlhMciConstants.PROCESS_SLOPE_PARAM_NAME);
         if (paramProc != null) {
-            if (((Boolean) paramProc.getValue()).booleanValue()) {
+            if ((Boolean) paramProc.getValue()) {
                 enableSlopeBand(_paramGroup.getParameter(FlhMciConstants.SLOPE_BAND_NAME_PARAM_NAME).getValueAsText());
             } else {
                 disableSlopeBand();
@@ -441,7 +445,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         }
     }
 
-    /**
+    /*
      * Updates all components due to a change in the preset parameter
      */
     private void handleUpdatePreset() {
@@ -464,11 +468,8 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         }
     }
 
-    /**
+    /*
      * Updates a preset parameter due to a preset change
-     *
-     * @param paramName the parameter name
-     * @param value     the new value
      */
     private void updatePresetParameter(String paramName, String value) {
         Parameter toUpdate;
@@ -477,7 +478,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         toUpdate.setValue(value, null);
     }
 
-    /**
+    /*
      * Creates the parameter group for the UI class
      */
     private void createParamGroup() {
@@ -509,7 +510,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         _paramGroup.addParamChangeListener(this);
     }
 
-    /**
+    /*
      * Sets the input file parameter to the value stored in the request. Tries to open the input file and retrieve a
      * list of bands.
      */
@@ -520,20 +521,26 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
             File file = new File(prodRef.getFilePath());
             param.setValue(file, null);
 
+            Product inProduct = null;
             try {
                 if (file.canRead()) {
-                    Product inProduct = ProductIO.readProduct(prodRef.getFile(), null);
+                    inProduct = ProductIO.readProduct(prodRef.getFile(), null);
                     scanForBandNames(inProduct);
                     scanForFlags(inProduct);
                 }
             } catch (IOException e) {
                 _logger.warning(e.getMessage());
                 Debug.trace(e);
+            } finally {
+                if(inProduct != null) {
+                    inProduct.dispose();
+                }
             }
+
         }
     }
 
-    /**
+    /*
      * Copies the value of the input file parameter to the request passed in
      */
     private void getInputFile(Request request) {
@@ -542,7 +549,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         request.addInputProduct(new ProductRef(inputURL, null, null));
     }
 
-    /**
+    /*
      * Sets the output file parameter to the value stored in the request. Updates the file format combo box with the
      * correct value
      */
@@ -563,7 +570,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         }
     }
 
-    /**
+    /*
      * Copies the value of the output file parameter to the request passed in
      */
     private void getOutputFile(Request request) {
@@ -572,7 +579,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         request.addOutputProduct(ProcessorUtils.createProductRef(fileName, _outFileFormat));
     }
 
-    /**
+    /*
      * Copies the values of the standard parameters to the request passed in
      */
     private void getParameter(Request request) {
@@ -590,7 +597,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         request.addParameter(_paramGroup.getParameter(FlhMciConstants.LOG_TO_OUTPUT_PARAM_NAME));
     }
 
-    /**
+    /*
      * Updates all UI parameter components with the values stored in the request
      */
     private void setParameter(Request request) {
@@ -607,7 +614,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         setProcessSlopeParameter(request);
     }
 
-    /**
+    /*
      * Updates a single UI parameter with the parameter value passed in. Triggers a screen refresh of that parameter
      * editor
      */
@@ -620,7 +627,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         }
     }
 
-    /**
+    /*
      * Sets the parameter for process slope an slope band name and updates the UI components accordingly
      */
     private void setProcessSlopeParameter(Request request) {
@@ -632,7 +639,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
             bProcess = (Boolean) processSlope.getValue();
             slopeUpdate.setValue(bProcess, null);
 
-            if (bProcess.booleanValue()) {
+            if (bProcess) {
                 Parameter slopeBandName = request.getParameter(FlhMciConstants.SLOPE_BAND_NAME_PARAM_NAME);
                 enableSlopeBand(slopeBandName.getValueAsText());
             } else {
@@ -641,7 +648,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         }
     }
 
-    /**
+    /*
      * Disables the UI for the parameter slope band name
      */
     private void disableSlopeBand() {
@@ -651,10 +658,8 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         }
     }
 
-    /**
+    /*
      * Enables the UI for the parameter slope band name and sets the control to the parameter value passed as argument
-     *
-     * @param value the Parameter value to be set
      */
     private void enableSlopeBand(String value) {
         Guardian.assertNotNull("value", value);
@@ -685,7 +690,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         }
     }
 
-    /**
+    /*
      * Scans the product passed in for the bands it contains and sets the valueset for the appropriate parameter. Keeps
      * the value currently set, even if it might not be valid in the new valueset
      */
@@ -719,21 +724,20 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         String[] allBandNames = product.getBandNames();
         final Vector<String> spectralBandVector = new Vector<String>(allBandNames.length);
 
-        Band band;
-        for (int i = 0; i < allBandNames.length; i++) {
-            band = product.getBand(allBandNames[i]);
-            if (band.getSpectralWavelength() > 1e-3) {
-                spectralBandVector.add(allBandNames[i]);
+        for (String allBandName : allBandNames) {
+            Band band = product.getBand(allBandName);
+            if (band.getSpectralWavelength() > 1.0e-3) {
+                spectralBandVector.add(allBandName);
             }
         }
 
         String[] spectralBands = new String[spectralBandVector.size()];
-        spectralBands = (String[]) spectralBandVector.toArray(spectralBands);
+        spectralBands = spectralBandVector.toArray(spectralBands);
 
         return spectralBands;
     }
 
-    /**
+    /*
      * Scans the product passed in for the flag names
      */
     private void scanForFlags(Product inProd) {
@@ -744,11 +748,11 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
         }
     }
 
-    /**
+    /*
      * Enables and disables presets according to the input product type selected
      */
     private void setPresetBox(String productType) {
-        if (productType.equals("")) {
+        if (productType.length() == 0) {
             // short cut when no product is loaded
             return;
         }

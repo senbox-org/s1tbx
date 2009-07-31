@@ -438,14 +438,19 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
 
             // check if file exists and is file
             if (file.exists() && file.isFile()) {
+                Product inProduct = null;
                 try {
-                    Product inProduct = ProductIO.readProduct(prodRef.getFile(), null);
+                    inProduct = ProductIO.readProduct(prodRef.getFile(), null);
                     if (inProduct != null) {
                         scanForFlags(inProduct);
                     }
                 } catch (IOException e) {
                     _logger.severe("Unable to read the input product '" + prodRef.getFilePath() + "'");
                     Debug.trace(e);
+                }finally {
+                    if(inProduct != null) {
+                        inProduct.dispose();
+                    }
                 }
             }
         }
