@@ -10,6 +10,7 @@ import com.bc.jexp.EvalException;
 import com.bc.jexp.WritableNamespace;
 
 import java.util.Random;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -93,11 +94,12 @@ class MoreFuncs {
         
         BandArithmetic.addNamespaceExtender(new BandArithmetic.NamespaceExtender() {
             public void extendNamespace(WritableNamespace namespace, Product product, String namePrefix) {
-                final GeoCoding geoCoding = product.getGeoCoding();
+                final WeakReference<GeoCoding> geocodingRef = new WeakReference<GeoCoding>(product.getGeoCoding());
                 final Symbol lat = new AbstractSymbol.D("LAT") {
                     public double evalD(EvalEnv env) throws EvalException {
                     	double latitude = Double.NaN;
-                    	if (geoCoding.canGetGeoPos()) {
+                    	GeoCoding geoCoding = geocodingRef.get();
+                        if (geoCoding != null && geoCoding.canGetGeoPos()) {
                     		GeoPos geoPos = getGeoPos(geoCoding, env);
                     		if (geoPos.isValid()) {
                     			latitude =  geoPos.getLat();
@@ -109,7 +111,8 @@ class MoreFuncs {
                 final Symbol lon = new AbstractSymbol.D("LON") {
                     public double evalD(EvalEnv env) throws EvalException {
                     	double longitude = Double.NaN;
-                    	if (geoCoding.canGetGeoPos()) {
+                    	GeoCoding geoCoding = geocodingRef.get();
+                        if (geoCoding != null && geoCoding.canGetGeoPos()) {
                     		GeoPos geoPos = getGeoPos(geoCoding, env);
                     		if (geoPos.isValid()) {
                     			longitude =  geoPos.getLon();
