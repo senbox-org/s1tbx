@@ -58,7 +58,7 @@ public class SmileProcessor extends Processor {
 
     public static final String PROCESSOR_NAME = "BEAM Smile Correction Processor";
     public static final String PROCESSOR_SYMBOLIC_NAME = "beam-meris-smile";
-    public static final String VERSION_STRING = "1.1.2";
+    public static final String VERSION_STRING = "1.2.101";
     public static final String COPYRIGHT_INFO = "Copyright (C) 2002-2004 by Brockmann Consult (info@brockmann-consult.de)";
 
     public static final double SPECTRAL_BAND_SF_FACTOR = 1.1;
