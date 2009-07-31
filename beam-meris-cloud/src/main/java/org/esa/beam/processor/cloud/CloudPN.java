@@ -26,6 +26,7 @@ import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.processor.cloud.internal.ProcessingNode;
 import org.esa.beam.util.SystemUtils;
@@ -72,7 +73,7 @@ public class CloudPN extends ProcessingNode {
     private TiePointGrid vzaGrid;
     private TiePointGrid vaaGrid;
     private TiePointGrid pressGrid;
-    private TiePointGrid altitudeGrid;
+    private RasterDataNode altitude;
 
     private float[] centralWavelenth;
     private CentralWavelengthProvider centralWavelengthProvider;
@@ -283,7 +284,7 @@ public class CloudPN extends ProcessingNode {
             vzaGrid.readPixels(frameX, frameY, frameW, frameH, vzaScanLine, SubProgressMonitor.create(pm, 1));
             vaaGrid.readPixels(frameX, frameY, frameW, frameH, vaaScanLine, SubProgressMonitor.create(pm, 1));
             pressGrid.readPixels(frameX, frameY, frameW, frameH, pressScanLine, SubProgressMonitor.create(pm, 1));
-            altitudeGrid.readPixels(frameX, frameY, frameW, frameH, altitudeScanLine, SubProgressMonitor.create(pm, 1));
+            altitude.readPixels(frameX, frameY, frameW, frameH, altitudeScanLine, SubProgressMonitor.create(pm, 1));
 
 
             ProgressMonitor subPM = SubProgressMonitor.create(pm, 1);
@@ -411,7 +412,11 @@ public class CloudPN extends ProcessingNode {
         vzaGrid = l1bProduct.getTiePointGrid(EnvisatConstants.MERIS_VIEW_ZENITH_DS_NAME);
         vaaGrid = l1bProduct.getTiePointGrid(EnvisatConstants.MERIS_VIEW_AZIMUTH_DS_NAME);
         pressGrid = l1bProduct.getTiePointGrid("atm_press");
-        altitudeGrid = l1bProduct.getTiePointGrid(EnvisatConstants.MERIS_DEM_ALTITUDE_DS_NAME);
+        
+        altitude = l1bProduct.getBand(EnvisatConstants.MERIS_AMORGOS_L1B_ALTIUDE_BAND_NAME);
+        if (altitude == null) {
+            altitude = l1bProduct.getTiePointGrid(EnvisatConstants.MERIS_DEM_ALTITUDE_DS_NAME);
+        }
 
         validLandTerm = l1bProduct.createTerm(validLandExpression);
         validOceanTerm = l1bProduct.createTerm(validOceanExpression);

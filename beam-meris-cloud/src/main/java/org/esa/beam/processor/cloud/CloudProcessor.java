@@ -48,7 +48,7 @@ public class CloudProcessor extends Processor {
 
     public static final String PROCESSOR_NAME = "Cloud Probability Processor";
     private static final String PROCESSOR_SYMBOLIC_NAME = "beam-meris-cloud";
-    private static final String PROCESSOR_VERSION = "1.5.101";
+    private static final String PROCESSOR_VERSION = "1.5.203";
     private static final String PROCESSOR_COPYRIGHT = "Copyright (C) 2004 by ESA, FUB and Brockmann Consult";
 
     public static final String DEFAULT_OUTPUT_DIR_NAME = "processor";
@@ -200,9 +200,18 @@ public class CloudProcessor extends Processor {
         cloudProduct = cloudNode.readProductNodes(l1bProduct, null);
         cloudNodeBands = cloudProduct.getBands();
 
-        ProductUtils.copyFlagBands(l1bProduct, cloudProduct);
+        copyFlagBands(l1bProduct, cloudProduct);
 //        PNHelper.copyAllBandsToProduct(l1bProduct, cloudProduct, true);
-        PNHelper.copyMiscData(l1bProduct, cloudProduct);
+        ProductUtils.copyTiePointGrids(l1bProduct, cloudProduct);
+        
+        // for MERIS FSG / FRG products
+        copyBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LATITUDE_BAND_NAME, l1bProduct, cloudProduct);
+        copyBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LONGITUDE_BAND_NAME, l1bProduct, cloudProduct);
+        copyBand(EnvisatConstants.MERIS_AMORGOS_L1B_ALTIUDE_BAND_NAME, l1bProduct, cloudProduct);
+
+        copyGeoCoding(l1bProduct, cloudProduct);
+        cloudProduct.setStartTime(l1bProduct.getStartTime());
+        cloudProduct.setEndTime(l1bProduct.getEndTime());
         copyRequestMetaData(cloudProduct);
 
         PNHelper.initWriter(getRequest().getOutputProductAt(0), cloudProduct, _logger);
