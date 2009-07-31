@@ -20,14 +20,20 @@ import com.bc.ceres.core.NullProgressMonitor;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import com.bc.jexp.ParseException;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.processor.ui.ProcessorUI;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.ResourceInstaller;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
@@ -38,7 +44,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
@@ -71,6 +79,7 @@ public abstract class Processor {
     private List<ProcessorStatusListener> _processorStatusListeners;
     private File _auxdataInstallDir;
     private File _defaultAuxdataInstallDir;
+    private Set<String> bandNamesToCopy = new LinkedHashSet<String>();
 
     /**
      * Retrieves the current request.
@@ -465,7 +474,10 @@ public abstract class Processor {
 
     /**
      * Copies the flags bands data from input to output product
+     *
+     * @deprecated since BEAM 4.6.2, use {@link #copyFlagBands(Product, Product)} instead.
      */
+    @Deprecated
     protected final void copyFlagBandData(Product inputProduct, Product outputProduct, ProgressMonitor pm) throws
                                                                                                            IOException,
                                                                                                            ProcessorException {
@@ -487,16 +499,24 @@ public abstract class Processor {
      * @param outputProduct the product that contains the destination bands
      * @param pm            a monitor to inform the user about progress
      *
-     * @throws IOException
-     * @throws ProcessorException
+     * @throws IOException  if the data could not be copied because of an I/O error
+     * @throws ProcessorException if the data could not be copied because any other reason
      */
     protected final void copyBandData(String[] bandNames,
                                       Product inputProduct,
                                       Product outputProduct,
                                       ProgressMonitor pm) throws IOException,
                                                                  ProcessorException {
-        for (String bandName : bandNames) {
-            copyBandData(bandName, inputProduct, outputProduct, pm);
+        pm.beginTask("Copying band data ...", bandNames.length);
+        try {
+            for (String bandName : bandNames) {
+                copyBandData(bandName, inputProduct, outputProduct, SubProgressMonitor.create(pm, 1));
+                if (pm.isCanceled()) {
+                    return;
+                }
+            }
+        } finally {
+            pm.done();
         }
     }
 
@@ -590,6 +610,111 @@ public abstract class Processor {
 
 
     /**
+     * Gets all band names which shall be copied to the output product.
+     *
+     * @return The names of bands to be copied.
+     *
+     * @see #addToBandNamesToCopy(String)
+     * @see #copyBand(String, Product, Product)
+     * @see #copyFlagBands(Product, Product)
+     */
+    protected String[] getBandNamesToCopy() {
+        return bandNamesToCopy.toArray(new String[bandNamesToCopy.size()]);
+    }
+
+    /**
+     * Adds the band name to the internal list of band which shall be copied.
+     *
+     * @param bandName The name of the band.
+     *
+     * @see #getBandNamesToCopy()
+     * @see #copyBand(String, Product, Product)
+     * @see #copyFlagBands(Product, Product)
+     */
+    protected void addToBandNamesToCopy(String bandName) {
+        bandNamesToCopy.add(bandName);
+    }
+
+    /**
+     * Copies the band with the given {@code bandName} from the {@code inputProduct}
+     * to the {@code outputProduct}, if the band exists in the {@code inputProduct}.
+     *
+     * The band is added to the copy list by calling {@link #addToBandNamesToCopy(String) addToBandNamesToCopy(bandName)}.
+     *
+     * @param bandName The name of the band to be copied.
+     * @param inputProduct The input product.
+     * @param outputProduct The output product.
+     *
+     * @see #copyBandData(String[], Product, Product, ProgressMonitor)
+     * @see #addToBandNamesToCopy (String)
+     * @see #getBandNamesToCopy()
+     */
+    protected void copyBand(String bandName, Product inputProduct, Product outputProduct) {
+        if (!outputProduct.containsBand(bandName)) {
+            final Band band = ProductUtils.copyBand(bandName, inputProduct, outputProduct);
+            if (band != null) {
+                addToBandNamesToCopy(bandName);
+            }
+        }
+    }
+
+    /**
+     * Copies the {@link GeoCoding geo-coding} from the input to the output product.
+     *
+     * @param inputProduct The input product.
+     * @param outputProduct The output product.
+     */
+    protected void copyGeoCoding(Product inputProduct, Product outputProduct) {
+        Set<String> bandsToCopy = getBandNamesForGeoCoding(inputProduct);
+        for (String bandName : bandsToCopy) {
+            copyBand(bandName, inputProduct, outputProduct);
+        }
+        ProductUtils.copyGeoCoding(inputProduct, outputProduct);
+    }
+
+    /**
+     * Copies all flag bands together with their flagcoding from the input product
+     * to the outout product. The band will be remembered in a list which can be retrieved
+     * by {@link #getBandNamesToCopy()} and copying with
+     * the {@link #copyBandData(String[], Product, Product, ProgressMonitor)} method.
+     *
+     * @param inputProduct  The input product.
+     * @param outputProduct The output product.
+     */
+    protected void copyFlagBands(Product inputProduct, Product outputProduct) {
+        ProductUtils.copyFlagBands(inputProduct, outputProduct);
+        if (inputProduct.getNumFlagCodings() > 0) {
+            // loop over bands and check if they have a flags coding attached
+            for (int n = 0; n < inputProduct.getNumBands(); n++) {
+                final Band band = inputProduct.getBandAt(n);
+                if (band.getFlagCoding() != null) {
+                    addToBandNamesToCopy(band.getName());
+                }
+            }
+        }
+    }
+
+    private Set<String> getBandNamesForGeoCoding(Product inputProduct) {
+        Set<String> bandsToCopy = new LinkedHashSet<String>();
+        GeoCoding geoCoding = inputProduct.getGeoCoding();
+        if (geoCoding != null && geoCoding instanceof PixelGeoCoding) {
+            PixelGeoCoding pixelGeoCoding = (PixelGeoCoding) geoCoding;
+            bandsToCopy.add(pixelGeoCoding.getLonBand().getName());
+            bandsToCopy.add(pixelGeoCoding.getLatBand().getName());
+            String validMask = pixelGeoCoding.getValidMask();
+            try {
+                RasterDataNode[] refRasters = BandArithmetic.getRefRasters(validMask, new Product[]{inputProduct});
+                for (RasterDataNode rasterDataNode : refRasters) {
+                    bandsToCopy.add(rasterDataNode.getName());
+                }
+            } catch (ParseException ignore) {
+            }
+        }
+        return bandsToCopy;
+    }
+
+
+    /**
      * @deprecated in 4.1, use {@link #installAuxdata(java.net.URL, String, java.io.File)} instead
      */
     protected void installAuxdata(URL sourceLocation, String relSourcePath, URL targetLocation) {
@@ -675,19 +800,19 @@ public abstract class Processor {
     private static void fireStatusChanged(ProcessorStatusListener listener, ProcessorStatusEvent event) {
         listener.handleProcessingStateChanged(event);
         switch (event.getNewStatus()) {
-        case ProcessorConstants.STATUS_STARTED:
-            listener.handleProcessingStarted(event);
-            break;
-        case ProcessorConstants.STATUS_COMPLETED:
-        case ProcessorConstants.STATUS_COMPLETED_WITH_WARNING:
-            listener.handleProcessingCompleted(event);
-            break;
-        case ProcessorConstants.STATUS_ABORTED:
-            listener.handleProcessingAborted(event);
-            break;
-        case ProcessorConstants.STATUS_FAILED:
-            listener.handleProcessingFailed(event);
-            break;
+            case ProcessorConstants.STATUS_STARTED:
+                listener.handleProcessingStarted(event);
+                break;
+            case ProcessorConstants.STATUS_COMPLETED:
+            case ProcessorConstants.STATUS_COMPLETED_WITH_WARNING:
+                listener.handleProcessingCompleted(event);
+                break;
+            case ProcessorConstants.STATUS_ABORTED:
+                listener.handleProcessingAborted(event);
+                break;
+            case ProcessorConstants.STATUS_FAILED:
+                listener.handleProcessingFailed(event);
+                break;
         }
     }
 

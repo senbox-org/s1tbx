@@ -15,10 +15,12 @@
 
     <changelog>
         <![CDATA[
-        Changes in 4.2<br>
+        <p>Changes in 4.7<br>
+        [BEAM-1006] MER_FSG pixel geocoding not used<br/>
+        <p>Changes in 4.2<br>
         [BEAM-356] Processors do not check, if output product already exists<br>
         [BEAM-712] Processors produce visat.exe zombies<br>
-        <br>Changes in 4.1<br>
+        <p>Changes in 4.1<br>
         [BEAM-616] Remove package org.esa.beam.framework.dataproc.<br>
         ]]>
     </changelog>

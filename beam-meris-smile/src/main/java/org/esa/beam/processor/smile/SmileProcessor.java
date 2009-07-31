@@ -63,7 +63,7 @@ public class SmileProcessor extends Processor {
 
     public static final double SPECTRAL_BAND_SF_FACTOR = 1.1;
 
-    private final static String _DETECTOR_INDEX_BAND_NAME = EnvisatConstants.MERIS_L1B_BAND_NAMES[EnvisatConstants.MERIS_L1B_BAND_NAMES.length - 1];
+    private static final String _DETECTOR_INDEX_BAND_NAME = EnvisatConstants.MERIS_L1B_BAND_NAMES[EnvisatConstants.MERIS_L1B_BAND_NAMES.length - 1];
 
     private Product _inputProduct;
     private Product _outputProduct;
@@ -106,31 +106,19 @@ public class SmileProcessor extends Processor {
             createOutputProduct();
             createBitmaskTermLand(SmileConstants.BITMASK_TERM_LAND);
             createBitmaskTermProcess(SmileConstants.BITMASK_TERM_PROCESS);
-            pm.beginTask("Computing smile correction...", _includeAllSpectralBands ? 4 : 3);
+            final String[] bandsToCopy = getBandNamesToCopy();
+            pm.beginTask("Computing smile correction...", bandsToCopy.length * 3);
             try {
-                processSmileCorrection(SubProgressMonitor.create(pm, 1));
+                processSmileCorrection(SubProgressMonitor.create(pm, bandsToCopy.length * 2));
                 if (pm.isCanceled()) {
                     setCurrentStatus(SmileConstants.STATUS_ABORTED);
                     return;
                 }
-                pm.setSubTaskName("Copying flag band data...");
-                copyFlagBandData(SubProgressMonitor.create(pm, 1));
+                pm.setSubTaskName("Copying additional band data...");
+                copyBandData(bandsToCopy, _inputProduct, _outputProduct,
+                             SubProgressMonitor.create(pm, bandsToCopy.length));
                 if (pm.isCanceled()) {
                     setCurrentStatus(SmileConstants.STATUS_ABORTED);
-                    return;
-                }
-                pm.setSubTaskName("Copying detector index band data...");
-                copyDetectorIndexBandData(SubProgressMonitor.create(pm, 1));
-                if (pm.isCanceled()) {
-                    setCurrentStatus(SmileConstants.STATUS_ABORTED);
-                    return;
-                }
-                if (_includeAllSpectralBands) {
-                    pm.setSubTaskName("Copying other spectral band data...");
-                    copyRequiredBandDataThatIsNotProcessed(SubProgressMonitor.create(pm, 1));
-                    if (pm.isCanceled()) {
-                        setCurrentStatus(SmileConstants.STATUS_ABORTED);
-                    }
                 }
             } finally {
                 try {
@@ -255,6 +243,7 @@ public class SmileProcessor extends Processor {
      * Retrieves a progress message for the request passed in. Override this method if you need custom messaging.
      *
      * @param request
+     *
      * @return the progress message for the request
      */
     @Override
@@ -326,7 +315,7 @@ public class SmileProcessor extends Processor {
      * @throws IOException
      */
     private void loadInputProduct() throws ProcessorException,
-            IOException {
+                                           IOException {
         _inputProduct = loadInputProduct(0);
         if (!_inputProduct.containsBand(_DETECTOR_INDEX_BAND_NAME)) {
             throw new ProcessorException(SmileConstants.LOG_MSG_WRONG_PRODUCT); /*I18N*/
@@ -380,13 +369,23 @@ public class SmileProcessor extends Processor {
             final double sfOld = band.getScalingFactor();
             final double sfNew = sfOld * SPECTRAL_BAND_SF_FACTOR;
             band.setScalingFactor(sfNew);
+
+            if (_includeAllSpectralBands && !StringUtils.contains(_bandNamesToProcessIn, bandName)) {
+                addToBandNamesToCopy(bandName);
+            }
         }
 
         ProductUtils.copyTiePointGrids(_inputProduct, _outputProduct);
-        ProductUtils.copyGeoCoding(_inputProduct, _outputProduct);
         copyRequestMetaData(_outputProduct);
-        ProductUtils.copyFlagBands(_inputProduct, _outputProduct);
-        ProductUtils.copyBand(_DETECTOR_INDEX_BAND_NAME, _inputProduct, _outputProduct);
+        copyFlagBands(_inputProduct, _outputProduct);
+        copyBand(_DETECTOR_INDEX_BAND_NAME, _inputProduct, _outputProduct);
+
+        // for MERIS FSG / FRG products
+        copyBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LATITUDE_BAND_NAME, _inputProduct, _outputProduct);
+        copyBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LONGITUDE_BAND_NAME, _inputProduct, _outputProduct);
+        copyBand(EnvisatConstants.MERIS_AMORGOS_L1B_ALTIUDE_BAND_NAME, _inputProduct, _outputProduct);
+
+        copyGeoCoding(_inputProduct, _outputProduct);
 
         createMetadataElements();
 
@@ -395,39 +394,7 @@ public class SmileProcessor extends Processor {
         writer.writeProductNodes(_outputProduct, new File(prod.getFilePath()));
     }
 
-    private void copyDetectorIndexBandData(ProgressMonitor pm) throws ProcessorException,
-            IOException {
-        _logger.info(SmileConstants.LOG_MSG_COPY_DETECTOR_BAND);
-        copyBandData(_DETECTOR_INDEX_BAND_NAME, _inputProduct, _outputProduct, pm);
-        _logger.info(SmileConstants.LOG_MSG_SUCCESS);
-    }
-
-    private void copyFlagBandData(ProgressMonitor pm) throws IOException,
-            ProcessorException {
-        _logger.info(SmileConstants.LOG_MSG_COPY_FLAG_BAND);
-        copyFlagBandData(_inputProduct, _outputProduct, pm);
-        _logger.info(SmileConstants.LOG_MSG_SUCCESS);
-    }
-
-    private void copyRequiredBandDataThatIsNotProcessed(ProgressMonitor pm) throws ProcessorException,
-            IOException {
-        _logger.info(SmileConstants.LOG_MSG_COPY_UNPROCESSED_BANDS);
-
-        if (_includeAllSpectralBands) {
-            for (String bandName : EnvisatConstants.MERIS_L1B_SPECTRAL_BAND_NAMES) {
-                if (!StringUtils.contains(_bandNamesToProcessIn, bandName)) {
-                    copyBandData(bandName, _inputProduct, _outputProduct, pm);
-                }
-                if (isAborted()) {
-                    break;
-                }
-            }
-        }
-
-        _logger.info(SmileConstants.LOG_MSG_SUCCESS);
-    }
-
-    /**
+    /*
      * Creates a the bitmask term for land bitmask from the bitmask expression passed in.
      */
     private void createBitmaskTermLand(String expression) throws ProcessorException {
@@ -439,7 +406,7 @@ public class SmileProcessor extends Processor {
         _logger.info("Using land pixel bitmask: '" + expression + "'");
     }
 
-    /**
+    /*
      * Creates a the bitmask term for land bitmask from the bitmask expression passed in.
      */
     private void createBitmaskTermProcess(String expression) throws ProcessorException {
@@ -611,7 +578,7 @@ public class SmileProcessor extends Processor {
     }
 
     private void readRadianceLines(final int[] bandIndexes, final int lineIndex, ProgressMonitor pm) throws
-            IOException {
+                                                                                                     IOException {
         assert _inputProduct != null;
         assert _radianceLineCache != null;
         assert bandIndexes != null;
@@ -634,7 +601,7 @@ public class SmileProcessor extends Processor {
     // **********************
 
     private void loadAuxdata() throws ProcessorException,
-            IOException {
+                                      IOException {
         assert _inputProduct != null;
         final String productType = _inputProduct.getProductType();
         if (productType.startsWith("MER_F")) {
@@ -643,7 +610,7 @@ public class SmileProcessor extends Processor {
             _auxData = SmileAuxData.loadRRAuxData(getAuxdataInstallDir());
         } else {
             throw new ProcessorException("No auxillary data found for input product of type '"
-                    + _inputProduct.getProductType() + "'"); /*I18N*/
+                                         + _inputProduct.getProductType() + "'"); /*I18N*/
         }
     }
 

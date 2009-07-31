@@ -19,6 +19,7 @@
         <![CDATA[
         Changes in 1.2.101<br/>
         [BEAM-1036] Ensure temporarily loaded products are disposed in processors<br/>
+        [BEAM-1006] MER_FSG pixel geocoding not used<br/>
         Changes in 1.2<br/>
         [BEAM-835] Consider latest auxillary data<br/>
         Changes in 1.1.102<br/>

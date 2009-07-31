@@ -558,17 +558,19 @@ public class SmacProcessor extends Processor {
             addBandsToOutput("Atmosphere corrected band ");
         }
         ProductUtils.copyTiePointGrids(_inputProduct, _outputProduct);
-
-        // copy geocoding
-        // --------------
-        ProductUtils.copyGeoCoding(_inputProduct, _outputProduct);
         copyRequestMetaData(_outputProduct);
-        ProductUtils.copyFlagBands(_inputProduct, _outputProduct);
+        copyFlagBands(_inputProduct, _outputProduct);
+
+        // for MERIS FSG / FRG products
+        copyBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LATITUDE_BAND_NAME, _inputProduct, _outputProduct);
+        copyBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LONGITUDE_BAND_NAME, _inputProduct, _outputProduct);
+        copyBand(EnvisatConstants.MERIS_AMORGOS_L1B_ALTIUDE_BAND_NAME, _inputProduct, _outputProduct);
+
+        copyGeoCoding(_inputProduct, _outputProduct);
 
         // and initialize the disk represenation
         writer.writeProductNodes(_outputProduct, new File(prod.getFilePath()));
-
-        copyFlagBandData(_inputProduct, _outputProduct, pm);
+        copyBandData(getBandNamesToCopy(), _inputProduct, _outputProduct, pm);
     }
 
 
@@ -613,9 +615,9 @@ public class SmacProcessor extends Processor {
                 newBandName = inBand.getName();
             }
             Band outBand = new Band(newBandName,
-                               inBand.getGeophysicalDataType(),
-                               inBand.getSceneRasterWidth(),
-                               inBand.getSceneRasterHeight());
+                                    inBand.getGeophysicalDataType(),
+                                    inBand.getSceneRasterWidth(),
+                                    inBand.getSceneRasterHeight());
             outBand.setUnit(inBand.getUnit());
             ProductUtils.copySpectralBandProperties(inBand, outBand);
             outBand.setDescription(description + inBand.getName());
