@@ -18,13 +18,11 @@ package org.esa.beam.framework.processor.ui;
 
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.util.Vector;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.esa.beam.framework.processor.Processor;
-import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
 
