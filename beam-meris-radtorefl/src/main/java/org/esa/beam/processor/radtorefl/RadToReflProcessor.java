@@ -313,7 +313,15 @@ public class RadToReflProcessor extends Processor {
 
         copyRequestMetaData(outputProduct);
         ProductUtils.copyTiePointGrids(inputProduct, outputProduct);
-        ProductUtils.copyGeoCoding(inputProduct, outputProduct);
+        copyFlagBands(inputProduct, outputProduct);
+        
+        // for MERIS FSG / FRG products
+        copyBand("corr_latitude", inputProduct, outputProduct);
+        copyBand("corr_longitude", inputProduct, outputProduct);
+        copyBand("altitude", inputProduct, outputProduct);
+        
+        copyGeoCoding(inputProduct, outputProduct);
+        
         createOutputProductBands(pm);
     }
 
@@ -328,7 +336,7 @@ public class RadToReflProcessor extends Processor {
                                                                      ProcessorException {
         if (copyInputBands) {
             for (final Band band : inputBandList) {
-                ProductUtils.copyBand(band.getName(), inputProduct, outputProduct);
+                copyBand(band.getName(), inputProduct, outputProduct);
             }
         }
         for (final Band inputBand : inputBandList) {
@@ -352,26 +360,9 @@ public class RadToReflProcessor extends Processor {
 
             outputProduct.addBand(outputBand);
         }
-        ProductUtils.copyFlagBands(inputProduct, outputProduct);
-
-        outputProduct.getProductWriter().writeProductNodes(outputProduct,
-                                                           outputProduct.getFileLocation());
-
-        pm.beginTask("Copying band data...", inputBandList.size() + 1);
-        try {
-            if (copyInputBands) {
-                for (Band band : inputBandList) {
-                    if (pm.isCanceled()) {
-                        return;
-                    }
-                    copyBandData(band.getName(), inputProduct, outputProduct, SubProgressMonitor.create(pm, 1));
-                }
-            }
-            copyFlagBandData(inputProduct, outputProduct, pm);
-            pm.worked(1);
-        } finally {
-            pm.done();
-        }
+        
+        outputProduct.getProductWriter().writeProductNodes(outputProduct, outputProduct.getFileLocation());
+        copyBandData(getBandNamesToCopy(), inputProduct, outputProduct, pm);
     }
 
 

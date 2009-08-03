@@ -7,7 +7,7 @@ import org.esa.beam.framework.processor.ProcessorConstants;
 public class RadToReflConstants implements ProcessorConstants {
 	public static final String PROCESSOR_NAME = "BEAM Radiance-To-Reflectance Processor";
     public static final String PROCESSOR_SYMBOLIC_NAME = "beam-meris-radtorefl";
-	public static final String VERSION = "1.3.100";
+	public static final String VERSION = "1.3.301";
 	public static final String COPYRIGHT = "Copyright (C) 2006 Brockmann Consult (info@brockmann-consult.de)";
 
     public static final String REQUEST_TYPE = "RAD_TO_REFL";
