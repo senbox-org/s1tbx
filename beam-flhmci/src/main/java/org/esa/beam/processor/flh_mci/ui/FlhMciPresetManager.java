@@ -30,7 +30,7 @@ import org.esa.beam.util.Guardian;
  */
 public class FlhMciPresetManager {
 
-    private final Map _presetMap;
+    private final Map<String, FlhMciPreset> _presetMap;
     private static FlhMciPresetManager _instance = null;
     private static final String L2_FLH_LOW_BAND = "reflec_7";
     private static final String L2_FLH_HIGH_BAND = "reflec_9";
@@ -71,7 +71,7 @@ public class FlhMciPresetManager {
         FlhMciPreset preset = null;
         FlhMciPreset presetReturn = null;
 
-        preset = (FlhMciPreset) _presetMap.get(presetName);
+        preset = _presetMap.get(presetName);
         if (preset != null) {
             presetReturn = new FlhMciPreset(preset);
         }
@@ -108,7 +108,7 @@ public class FlhMciPresetManager {
      * Constructs the object, creates the preset map.
      */
     private FlhMciPresetManager() {
-        _presetMap = new HashMap();
+        _presetMap = new HashMap<String, FlhMciPreset>();
 
         fillPresetMap();
     }

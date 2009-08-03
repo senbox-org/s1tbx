@@ -47,7 +47,7 @@ public final class FlhMciProcessor extends Processor {
 
     public static final String PROCESSOR_NAME = "BEAM FLH/MCI Processor";
     private static final String PROCESSOR_SYMBOLIC_NAME = "beam-flhmci";
-    public static final String PROCESSOR_VERSION = "1.6.100";
+    public static final String PROCESSOR_VERSION = "1.6.202";
     public static final String PROCESSOR_COPYRIGHT = "Copyright (C) 2002-2004 by Brockmann Consult (info@brockmann-consult.de)";
 
     private Product _inputProduct;
@@ -480,7 +480,7 @@ public final class FlhMciProcessor extends Processor {
         // these in this processor.
         final ProductRef prodRef = getOutputProductSafe();
 
-        // retrieve product specific inpormation
+        // retrieve product specific information
         // -------------------------------------
         final File outputFile = new File(prodRef.getFilePath());
         final String productType = getOutputProductTypeSafe();
@@ -513,15 +513,20 @@ public final class FlhMciProcessor extends Processor {
         }
 
         ProductUtils.copyTiePointGrids(_inputProduct, _outputProduct);
-        ProductUtils.copyGeoCoding(_inputProduct, _outputProduct);
         copyRequestMetaData(_outputProduct);
-        ProductUtils.copyFlagBands(_inputProduct, _outputProduct);
+        copyFlagBands(_inputProduct, _outputProduct);
+        
+        // for MERIS FSG / FRG products
+        copyBand("corr_latitude", _inputProduct, _outputProduct);
+        copyBand("corr_longitude", _inputProduct, _outputProduct);
+        copyBand("altitude", _inputProduct, _outputProduct);
+
+        copyGeoCoding(_inputProduct, _outputProduct);
 
         // initialize the disk represenation
         // ---------------------------------
         writer.writeProductNodes(_outputProduct, outputFile);
-
-        copyFlagBandData(_inputProduct, _outputProduct, pm);
+        copyBandData(getBandNamesToCopy(), _inputProduct, _outputProduct, pm);
     }
 
     /**
