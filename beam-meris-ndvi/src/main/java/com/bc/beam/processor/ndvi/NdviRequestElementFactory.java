@@ -44,7 +44,7 @@ public class NdviRequestElementFactory implements RequestElementFactory {
     private static NdviRequestElementFactory _factory;
 
     private DefaultRequestElementFactory _defaultFactory;
-    private Map _paramPropertiesMap;
+    private Map<String, ParamProperties> _paramPropertiesMap;
 
     /**
      * Singleton interface - creates the one and only instance of this factory.
@@ -111,7 +111,7 @@ public class NdviRequestElementFactory implements RequestElementFactory {
     }
 
     public Parameter createParameter(final String name) {
-        final ParamProperties paramProperties = (ParamProperties) _paramPropertiesMap.get(name);
+        final ParamProperties paramProperties = _paramPropertiesMap.get(name);
         if (paramProperties != null) {
             return new Parameter(name, paramProperties);
         }
@@ -128,7 +128,7 @@ public class NdviRequestElementFactory implements RequestElementFactory {
      */
     private NdviRequestElementFactory() {
         _defaultFactory = DefaultRequestElementFactory.getInstance();
-        _paramPropertiesMap = new HashMap(7);
+        _paramPropertiesMap = new HashMap<String, ParamProperties>(7);
 
         _paramPropertiesMap.put(NdviProcessor.LOWER_FACTOR_PARAM_NAME, createLowerFactorProperties());
         _paramPropertiesMap.put(NdviProcessor.UPPER_FACTOR_PARAM_NAME, createUpperFactorProperties());

@@ -51,7 +51,7 @@ public class NdviProcessor extends Processor {
 
     // Constants
     public static final String PROCESSOR_NAME = "NDVI Processor";
-    public static final String PROCESSOR_VERSION = "1.2.101";
+    public static final String PROCESSOR_VERSION = "1.2.203";
     public static final String PROCESSOR_COPYRIGHT = "Copyright (C) 2003 by Brockmann Consult (info@brockmann-consult.de)";
 
     public static final String LOGGER_NAME = "beam.processor.processor";
@@ -95,9 +95,7 @@ public class NdviProcessor extends Processor {
     private Product _outputProduct;
     private Band _lowerInputBand;
     private Band _upperInputBand;
-    private Band _l1FlagsInputBand;
     private Band _ndviOutputBand;
-    private Band _l1FlagsOutputBand;
     private Band _ndviFlagsOutputBand;
     private Logger _logger;
     private float _upperFactor = UPPER_FACTOR_PARAM_DEFAULT;
@@ -255,10 +253,6 @@ public class NdviProcessor extends Processor {
         }
         _logger.info(ProcessorConstants.LOG_MSG_LOADED_BAND + _upperBandName);
 
-        _l1FlagsInputBand = _inputProduct.getBand(L1FLAGS_INPUT_BAND_NAME);
-        if (_upperInputBand == null) {
-            throw new ProcessorException("Can not load band " + L1FLAGS_INPUT_BAND_NAME);
-        }
         _logger.info(ProcessorConstants.LOG_MSG_LOADED_BAND + L1FLAGS_INPUT_BAND_NAME);
     }
 
@@ -300,17 +294,11 @@ public class NdviProcessor extends Processor {
         _outputProduct.addBand(_ndviOutputBand);
 
         // copy all tie point grids to output product
-        //
         ProductUtils.copyTiePointGrids(_inputProduct, _outputProduct);
-
-        // copy geo-coding and the lat/lon tiepoints to the output product
-        //
-        ProductUtils.copyGeoCoding(_inputProduct, _outputProduct);
-
         // copy L1b flag band
-        //
-        ProductUtils.copyFlagBands(_inputProduct, _outputProduct);
-        _l1FlagsOutputBand = _outputProduct.getBand(L1FLAGS_INPUT_BAND_NAME);
+        copyFlagBands(_inputProduct, _outputProduct);
+        // copy geo-coding to the output product
+        copyGeoCoding(_inputProduct, _outputProduct);
 
         // create and add the NDVI flags coding
         //
@@ -403,7 +391,6 @@ public class NdviProcessor extends Processor {
         final float[] upper = new float[width];
         final float[] ndvi = new float[width];
         final int[] ndviFlags = new int[width];
-        final int[] l1Flags = new int[width];
 
         float highValue, lowValue, ndviValue;
         int ndviFlagsValue;
@@ -419,7 +406,6 @@ public class NdviProcessor extends Processor {
                 //
                 _lowerInputBand.readPixels(0, y, width, 1, lower, ProgressMonitor.NULL);
                 _upperInputBand.readPixels(0, y, width, 1, upper, ProgressMonitor.NULL);
-                _l1FlagsInputBand.readPixels(0, y, width, 1, l1Flags, ProgressMonitor.NULL);
 
                 // process the complete scanline
                 //
@@ -448,7 +434,6 @@ public class NdviProcessor extends Processor {
                 //
                 _ndviOutputBand.writePixels(0, y, width, 1, ndvi, ProgressMonitor.NULL);
                 _ndviFlagsOutputBand.writePixels(0, y, width, 1, ndviFlags, ProgressMonitor.NULL);
-                _l1FlagsOutputBand.writePixels(0, y, width, 1, l1Flags, ProgressMonitor.NULL);
 
                 // Notify process listeners about processing progress and
                 // check whether or not processing shall be terminated

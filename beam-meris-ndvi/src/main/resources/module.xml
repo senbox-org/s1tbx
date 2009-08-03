@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-meris-ndvi</symbolicName>
-    <version>1.2.102</version>
+    <version>1.2.203</version>
     <name>MERIS NDVI Processor</name>
 
     <description>
@@ -19,20 +19,24 @@
         <module>beam-envisat-reader</module>
     </dependency>
     <dependency>
+        <module>beam-processing</module>
+    </dependency>
+    <dependency>
         <module>beam-visat</module>
         <optional>true</optional>
     </dependency>
 
     <changelog>
         <![CDATA[
-        Changes in 1.2.102:<br>
-        [BEAM-957] "Search" tab missing VISAT help<br>
-        Changes in 1.2.101:<br>
+        Changes in 1.2.203:<br/>
+        [BEAM-1006] MER_FSG pixel geocoding not used<br/>
+        Changes in 1.2.102:<br/>
+        [BEAM-957] "Search" tab missing VISAT help<br/>
+        Changes in 1.2.101:<br/>
         [BEAM-867] NDVI processor fails with a java.lang.ClassCastException when invoked
-        with a request file in non-interactive mode<br>
-        <br>
-        Changes in 1.2.100:<br>
-        [BEAM-757] Layout of help pages is not uniform<br>
+        with a request file in non-interactive mode<br/>
+        Changes in 1.2.100:<br/>
+        [BEAM-757] Layout of help pages is not uniform<br/>
         ]]>
     </changelog>
 
