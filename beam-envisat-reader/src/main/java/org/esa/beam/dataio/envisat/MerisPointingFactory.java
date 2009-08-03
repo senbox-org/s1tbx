@@ -16,9 +16,10 @@ public class MerisPointingFactory implements PointingFactory {
             EnvisatConstants.MERIS_RR_L2_PRODUCT_TYPE_NAME,
             EnvisatConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME,
             EnvisatConstants.MERIS_FR_L2_PRODUCT_TYPE_NAME,
+            EnvisatConstants.MERIS_FRS_L1B_PRODUCT_TYPE_NAME,
+            EnvisatConstants.MERIS_FRS_L2_PRODUCT_TYPE_NAME,
             EnvisatConstants.MERIS_FSG_L1B_PRODUCT_TYPE_NAME,
-            EnvisatConstants.MERIS_FRG_L1B_PRODUCT_TYPE_NAME,
-            EnvisatConstants.MERIS_FRS_L1B_PRODUCT_TYPE_NAME
+            EnvisatConstants.MERIS_FRG_L1B_PRODUCT_TYPE_NAME
     };
 
     /**
