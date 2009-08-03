@@ -204,11 +204,6 @@ public class CloudProcessor extends Processor {
 //        PNHelper.copyAllBandsToProduct(l1bProduct, cloudProduct, true);
         ProductUtils.copyTiePointGrids(l1bProduct, cloudProduct);
         
-        // for MERIS FSG / FRG products
-        copyBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LATITUDE_BAND_NAME, l1bProduct, cloudProduct);
-        copyBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LONGITUDE_BAND_NAME, l1bProduct, cloudProduct);
-        copyBand(EnvisatConstants.MERIS_AMORGOS_L1B_ALTIUDE_BAND_NAME, l1bProduct, cloudProduct);
-
         copyGeoCoding(l1bProduct, cloudProduct);
         cloudProduct.setStartTime(l1bProduct.getStartTime());
         cloudProduct.setEndTime(l1bProduct.getEndTime());

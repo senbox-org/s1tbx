@@ -516,11 +516,6 @@ public final class FlhMciProcessor extends Processor {
         copyRequestMetaData(_outputProduct);
         copyFlagBands(_inputProduct, _outputProduct);
         
-        // for MERIS FSG / FRG products
-        copyBand("corr_latitude", _inputProduct, _outputProduct);
-        copyBand("corr_longitude", _inputProduct, _outputProduct);
-        copyBand("altitude", _inputProduct, _outputProduct);
-
         copyGeoCoding(_inputProduct, _outputProduct);
 
         // initialize the disk represenation
