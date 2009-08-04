@@ -668,6 +668,9 @@ public abstract class Processor {
         Set<String> bandsToCopy = getBandNamesForGeoCoding(inputProduct);
         for (String bandName : bandsToCopy) {
             copyBand(bandName, inputProduct, outputProduct);
+            final Band srcBand = inputProduct.getBand(bandName);
+            final Band destBand = outputProduct.getBand(bandName);
+            destBand.setSourceImage(srcBand.getSourceImage());
         }
         ProductUtils.copyGeoCoding(inputProduct, outputProduct);
     }
