@@ -100,7 +100,6 @@ public class CloudProcessor extends Processor {
 
             // create the output product
             initOutputProduct(SubProgressMonitor.create(pm, 1));
-            prepareProcessing();
 
             // and process the processor
             processCloud(SubProgressMonitor.create(pm, 9));
@@ -192,8 +191,7 @@ public class CloudProcessor extends Processor {
     /**
      * Creates the output product skeleton.
      */
-    private void initOutputProduct(ProgressMonitor pm) throws ProcessorException,
-            IOException {
+    private void initOutputProduct(ProgressMonitor pm) throws Exception {
         l1bProduct = loadInputProduct(0);
         if (!EnvisatConstants.MERIS_L1_TYPE_PATTERN.matcher(l1bProduct.getProductType()).matches()) {
             throw new ProcessorException("Product type '" + l1bProduct.getProductType() + "' is not supported." +
@@ -210,6 +208,8 @@ public class CloudProcessor extends Processor {
         cloudProduct.setStartTime(l1bProduct.getStartTime());
         cloudProduct.setEndTime(l1bProduct.getEndTime());
         copyRequestMetaData(cloudProduct);
+        
+        prepareProcessing();
 
         PNHelper.initWriter(getRequest().getOutputProductAt(0), cloudProduct, _logger);
         copyBandData(getBandNamesToCopy(), l1bProduct, cloudProduct, pm);
