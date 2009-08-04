@@ -89,6 +89,7 @@ public class CloudProcessor extends Processor {
     public void process(ProgressMonitor pm) throws ProcessorException {
         ProcessorUtils.setProcessorLoggingHandler(CloudConstants.DEFAULT_LOG_PREFIX, getRequest(),
                                                   getName(), getVersion(), getCopyrightInformation());
+        pm.beginTask("Processing cloud product...", 10);
         try {
             _logger.info(CloudConstants.LOG_MSG_START_REQUEST);
 
@@ -98,17 +99,18 @@ public class CloudProcessor extends Processor {
             initCloudNode();
 
             // create the output product
-            initOutputProduct();
+            initOutputProduct(SubProgressMonitor.create(pm, 1));
             prepareProcessing();
 
             // and process the processor
-            processCloud(pm);
+            processCloud(SubProgressMonitor.create(pm, 9));
 
             _logger.info(CloudConstants.LOG_MSG_SUCCESS);
         } catch (Exception e) {
             _logger.log(Level.SEVERE, CloudConstants.LOG_MSG_PROC_ERROR + e.getMessage(), e);
             throw new ProcessorException(e.getMessage(), e);
         } finally {
+            pm.done();
             try {
                 if (isAborted()) {
                     deleteOutputProduct();
@@ -190,7 +192,7 @@ public class CloudProcessor extends Processor {
     /**
      * Creates the output product skeleton.
      */
-    private void initOutputProduct() throws ProcessorException,
+    private void initOutputProduct(ProgressMonitor pm) throws ProcessorException,
             IOException {
         l1bProduct = loadInputProduct(0);
         if (!EnvisatConstants.MERIS_L1_TYPE_PATTERN.matcher(l1bProduct.getProductType()).matches()) {
@@ -210,6 +212,7 @@ public class CloudProcessor extends Processor {
         copyRequestMetaData(cloudProduct);
 
         PNHelper.initWriter(getRequest().getOutputProductAt(0), cloudProduct, _logger);
+        copyBandData(getBandNamesToCopy(), l1bProduct, cloudProduct, pm);
         _logger.info(CloudConstants.LOG_MSG_OUTPUT_CREATED);
     }
 

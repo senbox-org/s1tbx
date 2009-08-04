@@ -13,6 +13,8 @@
 package com.bc.beam.processor.ndvi;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
+
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.dataio.ProductWriter;
@@ -117,6 +119,7 @@ public class NdviProcessor extends Processor {
         ProcessorUtils.setProcessorLoggingHandler(DEFAULT_LOG_PREFIX, getRequest(),
                                                   getName(), getVersion(), getCopyrightInformation());
 
+        pm.beginTask("Processing NDVI...", 10);
         try {
             _logger.info("Started processing ...");
 
@@ -134,14 +137,15 @@ public class NdviProcessor extends Processor {
             loadInputProduct();
 
             // create the output product
-            createOutputProduct();
+            createOutputProduct(SubProgressMonitor.create(pm, 1));
 
             // and process the processor
-            processNdvi(pm);
+            processNdvi(SubProgressMonitor.create(pm, 9));
         } catch (IOException e) {
             // catch all exceptions expect ProcessorException and throw ProcessorException
             throw new ProcessorException(e.getMessage());
         } finally {
+            pm.done();
             if (_outputProduct != null) {
                 _outputProduct.dispose();
             }
@@ -259,8 +263,7 @@ public class NdviProcessor extends Processor {
     /**
      * Creates the output product skeleton.
      */
-    private void createOutputProduct() throws ProcessorException,
-                                              IOException {
+    private void createOutputProduct(ProgressMonitor pm) throws ProcessorException, IOException {
         // get the request from the base class
         // -----------------------------------
         final Request request = getRequest();
@@ -334,10 +337,10 @@ public class NdviProcessor extends Processor {
         final ProductWriter writer = ProcessorUtils.createProductWriter(outputRef);
         _outputProduct.setProductWriter(writer);
 
-        // and initialize the disk represenation
-        //
+        // and initialize the disk representation
         writer.writeProductNodes(_outputProduct, new File(outputRef.getFilePath()));
-
+        copyBandData(getBandNamesToCopy(), _inputProduct, _outputProduct, pm);
+        
         _logger.info("Output product successfully created");
     }
 
