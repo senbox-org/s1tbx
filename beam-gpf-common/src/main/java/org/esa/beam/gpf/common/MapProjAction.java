@@ -30,7 +30,7 @@ public class MapProjAction extends AbstractVisatAction {
     public void actionPerformed(final CommandEvent event) {
         if (dialog == null) {
             DefaultSingleTargetProductDialog dstpDialog =
-                    new DefaultSingleTargetProductDialog("Mapproj", 
+                    new DefaultSingleTargetProductDialog("MapProjOpWithResampler", 
                                                          getAppContext(),
                                                          "map projection operator (SPIKE)", 
                                                          "helpId");
