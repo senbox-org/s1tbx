@@ -1,0 +1,40 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-gpf-common</symbolicName>
+    <version>4.7</version>
+    <name>BEAM Graph Processing Common Operators</name>
+
+    <description>The basic operators for processing.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2009 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <changelog>
+        <![CDATA[
+        <p>For 4.7:<br/>
+            Initial release<br/>
+        </p>]]>
+    </changelog>
+
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>System,Application,Processing</categories>
+    
+    <extension point="beam-ui:actions">
+        <action>
+            <id>mapProjAction</id>
+            <class>org.esa.beam.gpf.common.MapProjAction</class>
+            <text>Map Projection Operator (SPIKE)...</text>
+        </action>
+    </extension>
+    
+</module>
