@@ -11,7 +11,7 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-pconvert</artifactId>
     <packaging>jar</packaging>
-    <version>1.3</version>
+    <version>1.3.101-SNAPSHOT</version>
     <name>Product Conversion Tool</name>
 
     <dependencies>

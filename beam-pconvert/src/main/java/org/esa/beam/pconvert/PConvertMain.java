@@ -540,7 +540,8 @@ public class PConvertMain {
             }
             final Band band = product.getBandAt(index);
             log("creating histogram for band '" + band.getName() + "'...");
-            band.getImageInfo(_histoSkipRatios, ProgressMonitor.NULL);
+            final ImageInfo imageInfo = band.createDefaultImageInfo(_histoSkipRatios, ProgressMonitor.NULL);
+            band.setImageInfo(imageInfo);
             if (colorPaletteDef != null) {
                 if (band.getIndexCoding() != null) {
                     band.getImageInfo().setColors(colorPaletteDef.getColors());
