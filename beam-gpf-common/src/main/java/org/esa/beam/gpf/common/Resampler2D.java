@@ -149,15 +149,7 @@ final class Resampler2D {
         ////                                                                                ////
         ////////////////////////////////////////////////////////////////////////////////////////
 
-        /*
-         * If the source coverage is already the result of a previous "Resample" operation,
-         * go up in the chain and check if a previously computed image could fits (i.e. the
-         * requested resampling may be the inverse of a previous resampling). This method
-         * may stop immediately if a suitable image is found.
-         */
         final GridGeometry2D sourceGG = sourceCoverage.getGridGeometry();
-        final CoordinateReferenceSystem compatibleSourceCRS = compatibleSourceCRS(
-                sourceCoverage.getCoordinateReferenceSystem2D(), sourceCRS, targetCRS);
 
         ////////////////////////////////////////////////////////////////////////////////////////
         ////                                                                                ////
@@ -191,46 +183,13 @@ final class Resampler2D {
          *                   ^              ^
          *                 step 1         step 3
          */
-        final MathTransform step1, step2, step3, allSteps;
+        final MathTransform allSteps;
+        MathTransform step1 = targetGG.getGridToCRS(CORNER);
+        MathTransform step3 = sourceGG.getGridToCRS(CORNER).inverse();
         if (CRS.equalsIgnoreMetadata(sourceCRS, targetCRS)) {
-            step1    = targetGG.getGridToCRS(CORNER);
-            step2    = IdentityTransform.create(step1.getTargetDimensions());
-            step3    = sourceGG.getGridToCRS(CORNER).inverse();
             allSteps = mtFactory.createConcatenatedTransform(step1, step3);
         } else {
-            final Envelope        sourceEnvelope;
-            final GeneralEnvelope targetEnvelope;
-            final CoordinateOperation operation = factory.createOperation(sourceCRS, targetCRS);
-            final boolean force2D = (sourceCRS != compatibleSourceCRS);
-            step2          = factory.createOperation(targetCRS, compatibleSourceCRS).getMathTransform();
-            step3          = (force2D ? sourceGG.getGridToCRS2D(CORNER) : sourceGG.getGridToCRS(CORNER)).inverse();
-            sourceEnvelope = sourceCoverage.getEnvelope(); // Don't force this one to 2D.
-            targetEnvelope = CRS.transform(operation, sourceEnvelope);
-            targetEnvelope.setCoordinateReferenceSystem(targetCRS);
-            // 'targetCRS' may be different than the one set by CRS.transform(...).
-            /*
-             * If the target GridGeometry is incomplete, provides default
-             * values for the missing fields. Three cases may occurs:
-             *
-             * - User provided no GridGeometry at all. Then, constructs an image of the same size
-             *   than the source image and set an envelope big enough to contains the projected
-             *   coordinates. The transform will derive from the grid range and the envelope.
-             *
-             * - User provided only a grid range.  Then, set an envelope big enough to contains
-             *   the projected coordinates. The transform will derive from the grid range and
-             *   the envelope.
-             *
-             * - User provided only a "grid to CRS" transform. Then, transform the projected
-             *   envelope to "grid units" using the specified transform and create a grid range
-             *   big enough to hold the result.
-             */
-            step1 = targetGG.getGridToCRS(CORNER);
-            if (!targetGG.isDefined(GridGeometry2D.GRID_RANGE)) {
-                GeneralEnvelope gridRange = CRS.transform(step1.inverse(), targetEnvelope);
-                // According OpenGIS specification, GridGeometry maps pixel's center.
-                targetGG = new GridGeometry2D(new GeneralGridRange(gridRange,
-                        PixelInCell.CELL_CENTER), step1, targetCRS);
-            }
+            MathTransform step2 = factory.createOperation(targetCRS, sourceCRS).getMathTransform();
             /*
              * Computes the final transform.
              */
@@ -358,69 +317,46 @@ final class Resampler2D {
             }
         } else {
             /*
-             * Special case for the affine transform. Try to use the JAI "Affine" operation
-             * instead of the more general "Warp" one. JAI provides native acceleration for
-             * the affine operation.
+             * General case: constructs the warp transform.
              *
-             * NOTE 1: There is no need to check for "Scale" and "Translate" as special cases
-             *         of "Affine" since JAI already does this check for us.
+             * TODO: JAI 1.1.3 seems to have a bug when the target envelope is greater than
+             *       the source envelope:  Warp on float values doesn't set to 'background'
+             *       the points outside the envelope. The operation seems to work correctly
+             *       on integer values, so as a workaround we restart the operation without
+             *       interpolation (which increase the chances to get it down on integers).
+             *       Remove this hack when this JAI bug will be fixed.
              *
-             * NOTE 2: "Affine", "Scale", "Translate", "Rotate" and similar operations ignore
-             *         the 'xmin', 'ymin', 'width' and 'height' image layout. Consequently, we
-             *         can't use this operation if the user provided explicitly a grid range.
-             *
-             * NOTE 3: If the user didn't specified any grid geometry, then a yet cheaper approach
-             *         is to just update the 'gridToCRS' value. We returns a grid coverage wrapping
-             *         the SOURCE image with the updated grid geometry.
+             * TODO: Move the check for AffineTransform into WarpTransform2D.
              */
-            if ((targetBB.equals(sourceBB)) && allSteps instanceof AffineTransform) {
-                // More general approach: apply the affine transform.
-                operation = "Affine";
-                final AffineTransform affine = (AffineTransform) allSteps.inverse();
-                paramBlk.add(affine).add(interpolation).add(background);
-            } else {
-                /*
-                 * General case: constructs the warp transform.
-                 *
-                 * TODO: JAI 1.1.3 seems to have a bug when the target envelope is greater than
-                 *       the source envelope:  Warp on float values doesn't set to 'background'
-                 *       the points outside the envelope. The operation seems to work correctly
-                 *       on integer values, so as a workaround we restart the operation without
-                 *       interpolation (which increase the chances to get it down on integers).
-                 *       Remove this hack when this JAI bug will be fixed.
-                 *
-                 * TODO: Move the check for AffineTransform into WarpTransform2D.
-                 */
-                boolean forceAdapter = false;
-                switch (sourceImage.getSampleModel().getTransferType()) {
-                    case DataBuffer.TYPE_DOUBLE:
-                    case DataBuffer.TYPE_FLOAT: {
-                        Envelope source = CRS.transform(sourceGG.getEnvelope(), targetCRS);
-                        Envelope target = CRS.transform(targetGG.getEnvelope(), targetCRS);
-                        source = targetGG.reduce(source);
-                        target = targetGG.reduce(target);
-                        if (!(new GeneralEnvelope(source).contains(target, true))) {
-                            if (interpolation != null && !(interpolation instanceof InterpolationNearest)) {
-                                return reproject(sourceCoverage, sourceImage, sourceCRS, targetCRS, targetGG, null, hints);
-                            } else {
-                                // If we were already using nearest-neighbor interpolation, force
-                                // usage of WarpAdapter2D instead of WarpAffine. The price will be
-                                // a slower reprojection.
-                                forceAdapter = true;
-                            }
+            boolean forceAdapter = false;
+            switch (sourceImage.getSampleModel().getTransferType()) {
+                case DataBuffer.TYPE_DOUBLE:
+                case DataBuffer.TYPE_FLOAT: {
+                    Envelope source = CRS.transform(sourceGG.getEnvelope(), targetCRS);
+                    Envelope target = CRS.transform(targetGG.getEnvelope(), targetCRS);
+                    source = targetGG.reduce(source);
+                    target = targetGG.reduce(target);
+                    if (!(new GeneralEnvelope(source).contains(target, true))) {
+                        if (interpolation != null && !(interpolation instanceof InterpolationNearest)) {
+                            return reproject(sourceCoverage, sourceImage, sourceCRS, targetCRS, targetGG, null, hints);
+                        } else {
+                            // If we were already using nearest-neighbor interpolation, force
+                            // usage of WarpAdapter2D instead of WarpAffine. The price will be
+                            // a slower reprojection.
+                            forceAdapter = true;
                         }
                     }
                 }
-                final CharSequence name = sourceCoverage.getName();
-                operation = "Warp";
-                final Warp warp;
-                if (forceAdapter) {
-                    warp = WarpTransform2D.getWarp(name, allSteps2D);
-                } else {
-                    warp = createWarp(name, allSteps2D);
-                }
-                paramBlk.add(warp).add(interpolation).add(background);
             }
+            final CharSequence name = sourceCoverage.getName();
+            operation = "Warp";
+            final Warp warp;
+            if (forceAdapter) {
+                warp = WarpTransform2D.getWarp(name, allSteps2D);
+            } else {
+                warp = createWarp(name, allSteps2D);
+            }
+            paramBlk.add(warp).add(interpolation).add(background);
         }
         final RenderedOp targetImage = JAI.getDefaultInstance().createNS(operation, paramBlk, targetHints);
         final Locale locale = sourceCoverage.getLocale();  // For logging purpose.

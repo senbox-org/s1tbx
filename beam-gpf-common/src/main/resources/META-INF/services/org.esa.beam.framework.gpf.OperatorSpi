@@ -1,2 +1,2 @@
 org.esa.beam.gpf.common.MapProjOp$Spi
-org.esa.beam.gpf.common.MapProjOpWithResampler$Spi
+org.esa.beam.gpf.common.MapProjOpWithResamplerOld$Spi
