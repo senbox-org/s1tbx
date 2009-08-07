@@ -24,7 +24,7 @@ import java.awt.geom.AffineTransform;
 
 
 
-public class GridGeometry  {
+public class BeamGridGeometry  {
 
 //    //reference pixel X
 //    final double pixelX;
@@ -72,11 +72,10 @@ public class GridGeometry  {
     private Rectangle bounds;
     private Envelope2D envelope;
     
-    public GridGeometry(AffineTransform i2m, Rectangle bounds, CoordinateReferenceSystem crs) {
+    public BeamGridGeometry(AffineTransform i2m, Rectangle bounds, CoordinateReferenceSystem crs) {
         this.i2m = i2m;
         this.bounds = bounds;
         envelope = new Envelope2D(crs, bounds);
-        
     }
     
     public AffineTransform getImageToModel() {
@@ -90,7 +89,12 @@ public class GridGeometry  {
     public Envelope2D getEnvelope() {
         return envelope;
     }
+
+    public CoordinateReferenceSystem getCRS() {
+        return envelope.getCoordinateReferenceSystem();
+    }
     
     public final static int dimensionXIndex = 0;
     public final static int dimensionYIndex = 1;
+
 }

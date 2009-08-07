@@ -26,40 +26,21 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.LevelImageSupport;
 import org.esa.beam.jai.ResolutionLevel;
-import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
-import org.geotools.coverage.Category;
-import org.geotools.coverage.CoverageFactoryFinder;
-import org.geotools.coverage.GridSampleDimension;
-import org.geotools.coverage.grid.GeneralGridEnvelope;
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.GridCoverageFactory;
-import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.factory.Hints;
-import org.geotools.geometry.Envelope2D;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
-import org.geotools.referencing.operation.transform.AffineTransform2D;
-import org.geotools.resources.i18n.Vocabulary;
-import org.geotools.resources.i18n.VocabularyKeys;
-import org.geotools.util.NumberRange;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import javax.media.jai.ImageLayout;
-import javax.media.jai.Interpolation;
-import javax.media.jai.InterpolationNearest;
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -67,6 +48,12 @@ import java.awt.geom.Point2D;
 import java.awt.image.ColorModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
+
+import javax.media.jai.ImageLayout;
+import javax.media.jai.Interpolation;
+import javax.media.jai.InterpolationNearest;
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
 
 /**
  * @author Marco Zuehlke
@@ -77,6 +64,7 @@ import java.awt.image.SampleModel;
                   internal = false)
 public class MapProjOpWithResampler extends Operator {
 
+
     @SourceProduct
     private Product sourceProduct;
     @TargetProduct
@@ -84,28 +72,24 @@ public class MapProjOpWithResampler extends Operator {
 
     @Parameter
     private String projectionName = "Geographic Lat/Lon";
-    
     private CoordinateReferenceSystem targetCRS;
-    
 
     @Override
     public void initialize() throws OperatorException {
+        Rectangle sourceRect = new Rectangle(sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
+        BeamGridGeometry sourceGridGeometry = new BeamGridGeometry(sourceProduct.getGeoCoding().getImageToModelTransform(), 
+                                                                   sourceRect, 
+                                                                   sourceProduct.getGeoCoding().getImageCRS());
         try {
             if (targetCRS == null) {
                 targetCRS = createTargetCRS();
             }
-            CoordinateReferenceSystem sourceCRS = sourceProduct.getGeoCoding().getImageCRS();
-            int sourceWidth = sourceProduct.getSceneRasterWidth();
-            int sourceHeight = sourceProduct.getSceneRasterHeight();
-            final Envelope2D sourceEnvelope = new Envelope2D(sourceCRS,
-                                                             0, 0,
-                                                             sourceWidth,
-                                                             sourceHeight);
+            
             /*
              * 2. Compute the target grid geometry
              */
-            final GridGeometry2D targetGridGeometry = createGridGeometry(sourceProduct, sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight(), sourceCRS, targetCRS);
-            Rectangle targetGridRect = targetGridGeometry.getGridRange2D();
+            final BeamGridGeometry targetGridGeometry = createTargetGridGeometry(sourceProduct, sourceRect.width, sourceRect.height, targetCRS);
+            Rectangle targetGridRect = targetGridGeometry.getBounds();
 
             /*
              * 3. Create the target product
@@ -114,18 +98,16 @@ public class MapProjOpWithResampler extends Operator {
                                         "projection of: " + sourceProduct.getDescription(),
                                         targetGridRect.width,
                                         targetGridRect.height);
-
             /*
              * 4. Define some target properties
              */
             // TODO: also query operatorContext rendering hints for tile size
-            final Dimension tileSize = new Dimension(128, 128);
+            final Dimension tileSize = ImageManager.getPreferredTileSize(targetProduct);
             targetProduct.setPreferredTileSize(tileSize);
             addMetadataToProduct(targetProduct);
             addFlagCodingsToProduct(targetProduct);
             addIndexCodingsToProduct(targetProduct);
 
-        
             /*
              * 5. Create target bands
              */
@@ -133,20 +115,20 @@ public class MapProjOpWithResampler extends Operator {
                 Band targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
                 ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
 
-                /*
-                 * 7. Create coverage from source band
-                 */
-                RenderedImage sourceImage = sourceBand.getSourceImage();
-                GridCoverage2D sourceCoverage = createSourceCoverage(sourceEnvelope, sourceImage, sourceBand);
-                // only the tile size of the image layout is actually taken into account
-                // by the resample operation.   Use Operations.DEFAULT if tile size does
-                // not matter
-                Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, createImageLayout(targetBand, targetGridRect.width, targetGridRect.height, tileSize));
-                RenderedImage targetImage = Resampler2D.reproject(sourceCoverage, sourceImage, sourceCRS, targetCRS, targetGridGeometry, getInterpolation(), hints);
+//                ImageLayout imageLayout = createImageLayout(targetBand, tileSize);
+//                Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
+//
+//                RenderedImage sourceImage = sourceBand.getSourceImage();
+//                double backgroundValue = 0;
+//                if (sourceBand.getFlagCoding() != null) {
+//                    backgroundValue = 128;
+//                }
+//                RenderedImage targetImage = Reproject.reproject(sourceImage, sourceGridGeometry, targetGridGeometry, backgroundValue, getInterpolation(), hints);
                 
-//                MultiLevelImage targetImage2 = createSourceImage(sourceBand, targetBand);
-                
-                targetBand.setSourceImage(targetImage);
+                targetBand.setSourceImage(createSourceImage(sourceBand, targetBand));
+//                targetBand.setSourceImage(targetImage);
+//                targetBand.setStx(sourceBand.getStx());
+//                targetBand.setImageInfo(sourceBand.getImageInfo());
 
                 /*
                  * Flag and index codings
@@ -177,51 +159,62 @@ public class MapProjOpWithResampler extends Operator {
             throw new OperatorException(t.getMessage(), t);
         }
     }
-    
+
     private MultiLevelImage createSourceImage(final Band sourceBand, final Band targetBand) {
-        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(sourceBand);
-        final int sourceWidth = sourceBand.getSceneRasterWidth();
-        final int sourceHeight = sourceBand.getSceneRasterHeight();
-        final CoordinateReferenceSystem sourceCRS = sourceBand.getGeoCoding().getBaseCRS();
+        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(targetBand);
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
 
             @Override
-            public RenderedImage createImage(int level) {
-                MultiLevelModel multiLevelModel = getModel();
-                ResolutionLevel resolutionLevel = ResolutionLevel.create(multiLevelModel, level);
-                new LevelImageSupport(sourceWidth, sourceHeight, resolutionLevel);
-                PlanarImage leveledSourceimage = ImageManager.getInstance().getSourceImage(sourceBand, level);
-                int leveledSourceWidth = leveledSourceimage.getWidth();
-                int leveledSourceHeight = leveledSourceimage.getHeight();
-                final Envelope2D sourceEnvelope = new Envelope2D(sourceCRS,
-                                                                 0, 0,
-                                                                 leveledSourceWidth,
-                                                                 leveledSourceHeight);
+            public RenderedImage createImage(int targetLevel) {
+                int sourceLevel = targetLevel;
+                MultiLevelModel sourceMLModel = sourceBand.getSourceImage().getModel();
+                double targetScale = getModel().getScale(targetLevel);
+                int targetWidth = (int)Math.floor(targetBand.getSceneRasterWidth() / targetScale);
+                int targetHeight = (int)Math.floor(targetBand.getSceneRasterHeight() / targetScale);
+                int sourceLevelCount = sourceMLModel.getLevelCount();
+                if (sourceLevelCount-1 < targetLevel) {
+                    sourceLevel = sourceLevelCount - 1;
+                }
+                PlanarImage leveledSourceImage = ImageManager.getInstance().getSourceImage(sourceBand, sourceLevel);
                 
-                GridCoverage2D sourceCoverage = createSourceCoverage(sourceEnvelope, leveledSourceimage, sourceBand);
-                // only the tile size of the image layout is actually taken into account
-                // by the resample operation.   Use Operations.DEFAULT if tile size does
-                // not matter
-                GridGeometry2D targetGG = createGridGeometry(sourceProduct.getProduct(), leveledSourceWidth, leveledSourceHeight, sourceCRS, targetCRS);
-                Rectangle gridRect = targetGG.getGridRange2D();
-                Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, createImageLayout(targetBand, gridRect.width, gridRect.height, targetBand.getProduct().getPreferredTileSize()));
+                int leveledSourceWidth = leveledSourceImage.getWidth();
+                int leveledSourceHeight = leveledSourceImage.getHeight();
+                
+                Rectangle sourceRect = new Rectangle(leveledSourceWidth, leveledSourceHeight);
+                BeamGridGeometry sourceGridGeometry = new BeamGridGeometry(sourceMLModel.getImageToModelTransform(sourceLevel), 
+                                                                           sourceRect, 
+                                                                           sourceProduct.getGeoCoding().getImageCRS());
+                
+                final BeamGridGeometry targetGridGeometry = createTargetGridGeometry(sourceProduct, leveledSourceWidth, leveledSourceHeight, targetWidth, targetHeight, targetCRS);
+                
+                Rectangle targetRect = targetGridGeometry.getBounds();
+                ImageLayout imageLayout = createImageLayout(targetBand, targetRect.width, targetRect.height, new Dimension(128, 128));
+                Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
+                
+                System.out.println("level "+targetLevel);
+                System.out.println("targetGG "+targetGridGeometry.getBounds());
+                
                 try {
-                    RenderedImage image = Resampler2D.reproject(sourceCoverage, leveledSourceimage, sourceCRS, targetCRS, targetGG, getInterpolation(), hints);
+                    double backgroundValue = 0;
+                  if (sourceBand.getFlagCoding() != null) {
+                      backgroundValue = 128;
+                  }
+                    RenderedImage image = Reproject.reproject(leveledSourceImage, sourceGridGeometry, targetGridGeometry, backgroundValue, getInterpolation(), hints);
+                    System.out.println("width "+image.getWidth());
+                    System.out.println("height "+image.getHeight());
                     return image;
                 } catch (FactoryException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
+                    throw new RuntimeException(e);
                 } catch (TransformException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
-                return null;
             }
         });
     }
-
-
+    
     protected void addFlagCodingsToProduct(Product product) {
         final ProductNodeGroup<FlagCoding> flagCodingGroup = sourceProduct.getFlagCodingGroup();
         for (int i = 0; i < flagCodingGroup.getNodeCount(); i++) {
@@ -318,16 +311,17 @@ public class MapProjOpWithResampler extends Operator {
         return new InterpolationNearest();
     }
 
-    private static GridGeometry2D createGridGeometry(Product product,
-                                                     int sourceW,
-                                                     int sourceH,
-                                                     CoordinateReferenceSystem sourceCRS,
+    private static BeamGridGeometry createTargetGridGeometry(Product product,
+                                                       int sourceWidth,
+                                                       int sourceHeight,
                                                      CoordinateReferenceSystem targetCRS) {
         // TODO: create grid geometry from parameters
+        final int sourceW = product.getSceneRasterWidth();
+        final int sourceH = product.getSceneRasterHeight();
         final int step = Math.min(sourceW, sourceH) / 2;
         MathTransform mathTransform;
         try {
-            mathTransform = CRS.findMathTransform(product.getGeoCoding().getModelCRS(), targetCRS);
+            mathTransform = CRS.findMathTransform(DefaultGeographicCRS.WGS84, targetCRS);
         } catch (FactoryException e) {
             throw new OperatorException(e);
         }
@@ -337,13 +331,12 @@ public class MapProjOpWithResampler extends Operator {
         } catch (TransformException e) {
             throw new OperatorException(e);
         }
-//        Point2D[] minMax = ProductUtils.getMinMax(mapBoundary);
         final Point2D pMin = mapBoundary[0];
         final Point2D pMax = mapBoundary[1];
         double mapW = pMax.getX() - pMin.getX();
         double mapH = pMax.getY() - pMin.getY();
 
-        float pixelSize = (float) Math.min(mapW / sourceW, mapH / sourceH);
+        float pixelSize = (float) Math.min(mapW / sourceWidth, mapH / sourceHeight);
         if (MathUtils.equalValues(pixelSize, 0.0f)) {
             pixelSize = 1.0f;
         }
@@ -364,9 +357,59 @@ public class MapProjOpWithResampler extends Operator {
         transform.rotate(Math.toRadians(-orientation));
         transform.translate(-pixelX, -pixelY);
 
-        final MathTransform gridToCrs = new AffineTransform2D(transform);
-        return new GridGeometry2D(new GeneralGridEnvelope(targetGrid, 2), gridToCrs, targetCRS);
+        return new BeamGridGeometry(transform, targetGrid, targetCRS);
     }
+    
+    private static BeamGridGeometry createTargetGridGeometry(Product product,
+                                                             int sourceWidth,
+                                                             int sourceHeight,
+                                                             int targetWidth,
+                                                             int targetHeight,
+                                                           CoordinateReferenceSystem targetCRS) {
+              // TODO: create grid geometry from parameters
+              final int sourceW = product.getSceneRasterWidth();
+              final int sourceH = product.getSceneRasterHeight();
+              final int step = Math.min(sourceW, sourceH) / 2;
+              MathTransform mathTransform;
+              try {
+                  mathTransform = CRS.findMathTransform(DefaultGeographicCRS.WGS84, targetCRS);
+              } catch (FactoryException e) {
+                  throw new OperatorException(e);
+              }
+              Point2D[] mapBoundary;
+              try {
+                  mapBoundary = createMapBoundary(product, step, mathTransform);
+              } catch (TransformException e) {
+                  throw new OperatorException(e);
+              }
+              final Point2D pMin = mapBoundary[0];
+              final Point2D pMax = mapBoundary[1];
+              double mapW = pMax.getX() - pMin.getX();
+              double mapH = pMax.getY() - pMin.getY();
+
+              float pixelSize = (float) Math.min(mapW / sourceWidth, mapH / sourceHeight);
+              if (MathUtils.equalValues(pixelSize, 0.0f)) {
+                  pixelSize = 1.0f;
+              }
+//              final int targetW = 1 + (int) Math.floor(mapW / pixelSize);
+//              final int targetH = 1 + (int) Math.floor(mapH / pixelSize);
+              Rectangle targetGrid = new Rectangle(targetWidth, targetHeight);
+
+              final float pixelX = 0.5f * targetWidth;
+              final float pixelY = 0.5f * targetHeight;
+
+              final float easting = (float) pMin.getX() + pixelX * pixelSize;
+              final float northing = (float) pMax.getY() - pixelY * pixelSize;
+              final double orientation = 0.0;
+
+              AffineTransform transform = new AffineTransform();
+              transform.translate(easting, northing);
+              transform.scale(pixelSize, -pixelSize);
+              transform.rotate(Math.toRadians(-orientation));
+              transform.translate(-pixelX, -pixelY);
+
+              return new BeamGridGeometry(transform, targetGrid, targetCRS);
+    }    
 
     private static Point2D[] createMapBoundary(Product product, int step,
                                                MathTransform mathTransform) throws TransformException {
@@ -401,15 +444,21 @@ public class MapProjOpWithResampler extends Operator {
         return new Point2D[]{min, max};
     }
 
-    private static ImageLayout createImageLayout(RasterDataNode node, int imageWidth, int imageHeight, final Dimension tileSize) {
-//        final int w = node.getSceneRasterWidth();
-//        final int h = node.getSceneRasterHeight();
+    private static ImageLayout createImageLayout(RasterDataNode node, final Dimension tileSize) {
+        final int w = node.getSceneRasterWidth();
+        final int h = node.getSceneRasterHeight();
         final int bufferType = ImageManager.getDataBufferType(node.getDataType());
 
-        return createSingleBandedImageLayout(bufferType, imageWidth, imageHeight, tileSize.width, tileSize.height);
+        return createSingleBandedImageLayout(bufferType, w, h, tileSize.width, tileSize.height);
+    }
+    
+    private static ImageLayout createImageLayout(RasterDataNode node, int w, int h, final Dimension tileSize) {
+        final int bufferType = ImageManager.getDataBufferType(node.getDataType());
+
+        return createSingleBandedImageLayout(bufferType, w, h, tileSize.width, tileSize.height);
     }
 
-    public static ImageLayout createSingleBandedImageLayout(int dataType,
+    private static ImageLayout createSingleBandedImageLayout(int dataType,
                                                             int width,
                                                             int height,
                                                             int tileWidth,
@@ -433,32 +482,5 @@ public class MapProjOpWithResampler extends Operator {
                                tileHeight,
                                sampleModel,
                                colorModel);
-    }
-
-    private static GridCoverage2D createSourceCoverage(Envelope2D envelope, RenderedImage sourceImage, Band band) {
-        GridCoverageFactory factory = CoverageFactoryFinder.getGridCoverageFactory(null);
-
-        // TODO: create no-data gridSampleDimension from parameters
-        if (band.getFlagCoding() == null) {
-            return factory.create(band.getName(), sourceImage, envelope);
-        }
-
-        final Category category = createNoDataCategory(128.0);
-        final GridSampleDimension sampleDimension = createGridSampleDimension(category);
-        final GridSampleDimension[] sampleDimensions = new GridSampleDimension[]{sampleDimension};
-
-        return factory.create(band.getName(), sourceImage, envelope, sampleDimensions, null, null);
-    }
-
-    private static GridSampleDimension createGridSampleDimension(Category category) {
-        return new GridSampleDimension(category.getName(), new Category[]{category}, null);
-    }
-
-    private static Category createNoDataCategory(final double value) {
-        final CharSequence name = Vocabulary.formatInternational(VocabularyKeys.NODATA);
-        final Color transparent = new Color(0, 0, 0, 0);
-        final NumberRange<Double> range = NumberRange.create(value, value);
-
-        return new Category(name, transparent, range);
     }
 }
