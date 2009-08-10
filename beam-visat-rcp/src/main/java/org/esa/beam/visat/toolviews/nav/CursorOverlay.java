@@ -45,6 +45,9 @@ class CursorOverlay implements LayerCanvas.Overlay {
         }
 
         final GeoCoding geoCoding = sceneView.getRaster().getGeoCoding();
+        if (!geoCoding.canGetPixelPos()) {
+            return;
+        }
         final Product product = sceneView.getRaster().getProduct();
         final PixelPos pixelPos = geoCoding.getPixelPos(geoPosition, null);
         if (!pixelPos.isValid() || !product.containsPixel(pixelPos)) {
