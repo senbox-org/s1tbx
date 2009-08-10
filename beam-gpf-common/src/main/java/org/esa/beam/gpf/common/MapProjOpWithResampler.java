@@ -107,6 +107,7 @@ public class MapProjOpWithResampler extends Operator {
             addMetadataToProduct(targetProduct);
             addFlagCodingsToProduct(targetProduct);
             addIndexCodingsToProduct(targetProduct);
+            targetProduct.setGeoCoding(new GeotoolsGeoCoding(targetCRS, targetGridGeometry));
 
             /*
              * 5. Create target bands

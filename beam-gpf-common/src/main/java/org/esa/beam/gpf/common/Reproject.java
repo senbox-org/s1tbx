@@ -167,8 +167,8 @@ final class Reproject {
          *                 step 1         step 3
          */
         final MathTransform allSteps;
-        MathTransform step1 = new AffineTransform2D(targetGG.getImageToModel());
-        MathTransform step3 = new AffineTransform2D(sourceGG.getImageToModel()).inverse();
+        MathTransform step1 = targetGG.getImageToModel(CORNER);
+        MathTransform step3 = sourceGG.getImageToModel(CORNER).inverse();
         if (CRS.equalsIgnoreMetadata(sourceGG.getCRS(), targetGG.getCRS())) {
             allSteps = mtFactory.createConcatenatedTransform(step1, step3);
         } else {

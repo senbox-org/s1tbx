@@ -17,7 +17,11 @@
 package org.esa.beam.gpf.common;
 
 import org.geotools.geometry.Envelope2D;
+import org.geotools.metadata.iso.spatial.PixelTranslation;
+import org.geotools.referencing.operation.transform.AffineTransform2D;
+import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -80,6 +84,11 @@ public class BeamGridGeometry  {
     
     public AffineTransform getImageToModel() {
         return i2m;
+    }
+    
+    public MathTransform getImageToModel(PixelOrientation orientation) {
+        return PixelTranslation.translate(new AffineTransform2D(i2m), PixelOrientation.CENTER, orientation,
+                                          dimensionXIndex, dimensionYIndex);
     }
     
     public Rectangle getBounds() {
