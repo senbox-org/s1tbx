@@ -74,31 +74,17 @@ public class GeoCodingMathTransform extends AbstractMathTransform {
         if (!super.equals(o)) {
             return false;
         }
-
+        
         GeoCodingMathTransform that = (GeoCodingMathTransform) o;
-        if (areGeoCodingsEqual(geoCoding, that.geoCoding)) {
+        if (t != that.t) {
             return false;
         }
-        return t == that.t;
 
-    }
-
-    private boolean areGeoCodingsEqual(GeoCoding geoCoding, GeoCoding otherGeoCoding) {
-        final PixelPos pixelPos0 = new PixelPos(0, 0);
-        final GeoPos geoPos = geoCoding.getGeoPos(pixelPos0, null);
-        final GeoPos thatGeoPos = otherGeoCoding.getGeoPos(pixelPos0, null);
-        if (!equalsGeoPos(geoPos, thatGeoPos)) {
+        if (areGeoCodingsEqual(geoCoding, that.geoCoding)) {
             return true;
         }
-        final PixelPos pixelPos1 = new PixelPos(1, 1);
-        final GeoPos geoPos1 = geoCoding.getGeoPos(pixelPos1, null);
-        final GeoPos thatGeoPos1 = otherGeoCoding.getGeoPos(pixelPos1, null);
-        return !equalsGeoPos(geoPos1, thatGeoPos1);
-    }
-
-    private boolean equalsGeoPos(GeoPos geoPos, GeoPos thatGeoPos) {
-        return Math.abs(geoPos.getLat() - thatGeoPos.getLat()) < 1.0e-6 &&
-               Math.abs(geoPos.getLon() - thatGeoPos.getLon()) < 1.0e-6;
+        
+        return false;
     }
 
     @Override
@@ -107,6 +93,28 @@ public class GeoCodingMathTransform extends AbstractMathTransform {
         result = 31 * result + geoCoding.hashCode();
         result = 31 * result + t.hashCode();
         return result;
+    }
+    
+    private static boolean areGeoCodingsEqual(GeoCoding oneGeoCoding, GeoCoding otherGeoCoding) {
+        try {
+            final PixelPos pixelPos0 = new PixelPos(0, 0);
+            final GeoPos geoPos = oneGeoCoding.getGeoPos(pixelPos0, null);
+            final GeoPos thatGeoPos = otherGeoCoding.getGeoPos(pixelPos0, null);
+            if (!equalsGeoPos(geoPos, thatGeoPos)) {
+                return false;
+            }
+            final PixelPos pixelPos1 = new PixelPos(1, 1);
+            final GeoPos geoPos1 = oneGeoCoding.getGeoPos(pixelPos1, null);
+            final GeoPos thatGeoPos1 = otherGeoCoding.getGeoPos(pixelPos1, null);
+            return equalsGeoPos(geoPos1, thatGeoPos1);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static boolean equalsGeoPos(GeoPos geoPos, GeoPos thatGeoPos) {
+        return Math.abs(geoPos.getLat() - thatGeoPos.getLat()) < 1.0e-6 &&
+               Math.abs(geoPos.getLon() - thatGeoPos.getLon()) < 1.0e-6;
     }
 
     private interface T {
@@ -123,18 +131,24 @@ public class GeoCodingMathTransform extends AbstractMathTransform {
                               double[] srcPts, int srcOff,
                               double[] dstPts, int dstOff,
                               int numPts) throws TransformException {
-            GeoPos geoPos = new GeoPos();
-            PixelPos pixelPos = new PixelPos();
-            for (int i = 0; i < numPts; i++) {
-                final int firstIndex = (DIMS * i);
-                final int secondIndex = firstIndex + 1;
-                pixelPos.x = (float) srcPts[srcOff + firstIndex];
-                pixelPos.y = (float) srcPts[srcOff + secondIndex];
+            try {
+                GeoPos geoPos = new GeoPos();
+                PixelPos pixelPos = new PixelPos();
+                for (int i = 0; i < numPts; i++) {
+                    final int firstIndex = (DIMS * i);
+                    final int secondIndex = firstIndex + 1;
+                    pixelPos.x = (float) srcPts[srcOff + firstIndex];
+                    pixelPos.y = (float) srcPts[srcOff + secondIndex];
 
-                geoCoding.getGeoPos(pixelPos, geoPos);
+                    geoCoding.getGeoPos(pixelPos, geoPos);
 
-                dstPts[dstOff + firstIndex] = geoPos.lon;
-                dstPts[dstOff + secondIndex] = geoPos.lat;
+                    dstPts[dstOff + firstIndex] = geoPos.lon;
+                    dstPts[dstOff + secondIndex] = geoPos.lat;
+                }
+            } catch (Exception e) {
+                TransformException transformException = new TransformException();
+                transformException.initCause(e);
+                throw transformException;
             }
         }
     }
@@ -146,18 +160,24 @@ public class GeoCodingMathTransform extends AbstractMathTransform {
                               double[] srcPts, int srcOff,
                               double[] dstPts, int dstOff,
                               int numPts) throws TransformException {
-            GeoPos geoPos = new GeoPos();
-            PixelPos pixelPos = new PixelPos();
-            for (int i = 0; i < numPts; i++) {
-                final int firstIndex = (DIMS * i);
-                final int secondIndex = firstIndex + 1;
-                geoPos.lon = (float) srcPts[srcOff + firstIndex];
-                geoPos.lat = (float) srcPts[srcOff + secondIndex];
+            try {
+                GeoPos geoPos = new GeoPos();
+                PixelPos pixelPos = new PixelPos();
+                for (int i = 0; i < numPts; i++) {
+                    final int firstIndex = (DIMS * i);
+                    final int secondIndex = firstIndex + 1;
+                    geoPos.lon = (float) srcPts[srcOff + firstIndex];
+                    geoPos.lat = (float) srcPts[srcOff + secondIndex];
 
-                geoCoding.getPixelPos(geoPos, pixelPos);
+                    geoCoding.getPixelPos(geoPos, pixelPos);
 
-                dstPts[dstOff + firstIndex] = pixelPos.x;
-                dstPts[dstOff + secondIndex] = pixelPos.y;
+                    dstPts[dstOff + firstIndex] = pixelPos.x;
+                    dstPts[dstOff + secondIndex] = pixelPos.y;
+                }
+            } catch (Exception e) {
+                TransformException transformException = new TransformException();
+                transformException.initCause(e);
+                throw transformException;
             }
         }
     }
