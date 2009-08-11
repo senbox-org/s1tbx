@@ -16,6 +16,7 @@ import org.esa.beam.util.ImageUtils;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Rectangle;
+import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
@@ -251,7 +252,14 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
             RasterDataNode sourceRDN = rasterDataSymbol.getRaster();
             RenderedImage sourceImage = ImageManager.getInstance().getGeophysicalImage(sourceRDN, getLevel());
             Raster sourceRaster = sourceImage.getData(destRect);
-            Object sourceArray = ImageUtils.getPrimitiveArray(sourceRaster.getDataBuffer());
+            DataBuffer dataBuffer = sourceRaster.getDataBuffer();
+            if (dataBuffer.getSize() != destRect.width * destRect.height) {
+                WritableRaster wr =
+                    sourceRaster.createCompatibleWritableRaster(destRect);
+                sourceImage.copyData(wr);
+                dataBuffer = wr.getDataBuffer();
+            }
+            Object sourceArray = ImageUtils.getPrimitiveArray(dataBuffer);
             ProductData productData = ProductData.createInstance(sourceRDN.getGeophysicalDataType(), sourceArray);
             rasterDataSymbol.setData(productData);
         }
