@@ -24,10 +24,9 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.jai.LevelImageSupport;
-import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.geotools.factory.Hints;
 import org.geotools.referencing.CRS;
@@ -35,6 +34,7 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
+import org.opengis.parameter.ParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -48,17 +48,18 @@ import java.awt.geom.Point2D;
 import java.awt.image.ColorModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
+import java.io.File;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
-import javax.media.jai.InterpolationNearest;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 
 /**
  * @author Marco Zuehlke
+ * @author Marco Peters
  * @version $Revision$ $Date$
- * @since BEAM 4.6
+ * @since BEAM 4.7
  */
 @OperatorMetadata(alias = "MapProjOpWithResampler",
                   internal = false)
@@ -70,9 +71,20 @@ public class MapProjOpWithResampler extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter
-    private String projectionName = "Geographic Lat/Lon";
-    private CoordinateReferenceSystem targetCRS;
+    @Parameter(description="An EPSG code for the projected Coordinate Reference System.")
+    private String epsgCode;
+    @Parameter(description="A file which contains the projected Coordinate Reference System in WKT format.")
+    private File wktFile;
+    @Parameter(description="The name of the projection.")
+    private String projection;
+//    @Parameter(description = "The list of projection parameters.", itemAlias = "parameter")
+    private ProjectionParameter[] projectionParameters = new ProjectionParameter[0];
+
+    @Parameter(description = "The interpolation.", 
+               valueSet= {"Nearest", "Bilinear","Bicubic","Bicubic_2"}, 
+               defaultValue = "Nearest")
+    private String interpolationName;
+    
 
     @Override
     public void initialize() throws OperatorException {
@@ -81,9 +93,7 @@ public class MapProjOpWithResampler extends Operator {
                                                                    sourceRect, 
                                                                    sourceProduct.getGeoCoding().getImageCRS());
         try {
-            if (targetCRS == null) {
-                targetCRS = createTargetCRS();
-            }
+            CoordinateReferenceSystem targetCRS = createTargetCRS();
             
             /*
              * 2. Compute the target grid geometry
@@ -107,29 +117,37 @@ public class MapProjOpWithResampler extends Operator {
             addMetadataToProduct(targetProduct);
             addFlagCodingsToProduct(targetProduct);
             addIndexCodingsToProduct(targetProduct);
-            targetProduct.setGeoCoding(new GeotoolsGeoCoding(targetCRS, targetGridGeometry));
+            targetProduct.setGeoCoding(new GeotoolsGeoCoding(targetGridGeometry));
 
             /*
              * 5. Create target bands
              */
+//            String reprojFlagBandName = "reproject_flag";
+//            Band reprojectValidBand = targetProduct.addBand(reprojFlagBandName, ProductData.TYPE_INT8);
+//            final FlagCoding flagCoding = new FlagCoding(reprojFlagBandName);
+//            flagCoding.setDescription("Reprojection Flag Coding");
+//
+//            MetadataAttribute reprojAttr = new MetadataAttribute("valid", ProductData.TYPE_UINT8);
+//            reprojAttr.getData().setElemInt(1);
+//            reprojAttr.setDescription("valid data from reprojection");
+//            flagCoding.addAttribute(reprojAttr);
+//            targetProduct.getFlagCodingGroup().add(flagCoding);
+//            reprojectValidBand.setSampleCoding(flagCoding);
+            
             for (Band sourceBand : sourceProduct.getBands()) {
                 Band targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
                 ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
 
-//                ImageLayout imageLayout = createImageLayout(targetBand, tileSize);
-//                Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
-//
-//                RenderedImage sourceImage = sourceBand.getSourceImage();
-//                double backgroundValue = 0;
-//                if (sourceBand.getFlagCoding() != null) {
-//                    backgroundValue = 128;
-//                }
-//                RenderedImage targetImage = Reproject.reproject(sourceImage, sourceGridGeometry, targetGridGeometry, backgroundValue, getInterpolation(), hints);
+                ImageLayout imageLayout = createImageLayout(targetBand, tileSize);
+                Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
+
+                RenderedImage sourceImage = sourceBand.getSourceImage();
+                RenderedImage targetImage = Reproject.reproject(sourceImage, sourceGridGeometry, targetGridGeometry, 0, createInterpolation(), hints);
                 
-                targetBand.setSourceImage(createSourceImage(sourceBand, targetBand));
-//                targetBand.setSourceImage(targetImage);
+//                targetBand.setSourceImage(createSourceImage(sourceBand, targetBand, targetCRS));
+                targetBand.setSourceImage(targetImage);
 //                targetBand.setStx(sourceBand.getStx());
-//                targetBand.setImageInfo(sourceBand.getImageInfo());
+                targetBand.setImageInfo(sourceBand.getImageInfo());
 
                 /*
                  * Flag and index codings
@@ -161,7 +179,7 @@ public class MapProjOpWithResampler extends Operator {
         }
     }
 
-    private MultiLevelImage createSourceImage(final Band sourceBand, final Band targetBand) {
+    private MultiLevelImage createSourceImage(final Band sourceBand, final Band targetBand, final CoordinateReferenceSystem targetCRS) {
         final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(targetBand);
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
@@ -193,18 +211,8 @@ public class MapProjOpWithResampler extends Operator {
                 ImageLayout imageLayout = createImageLayout(targetBand, targetRect.width, targetRect.height, new Dimension(128, 128));
                 Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
                 
-                System.out.println("level "+targetLevel);
-                System.out.println("targetGG "+targetGridGeometry.getBounds());
-                
                 try {
-                    double backgroundValue = 0;
-                  if (sourceBand.getFlagCoding() != null) {
-                      backgroundValue = 128;
-                  }
-                    RenderedImage image = Reproject.reproject(leveledSourceImage, sourceGridGeometry, targetGridGeometry, backgroundValue, getInterpolation(), hints);
-                    System.out.println("width "+image.getWidth());
-                    System.out.println("height "+image.getHeight());
-                    return image;
+                    return Reproject.reproject(leveledSourceImage, sourceGridGeometry, targetGridGeometry, 0, createInterpolation(), hints);
                 } catch (FactoryException e) {
                     e.printStackTrace();
                     throw new RuntimeException(e);
@@ -292,43 +300,79 @@ public class MapProjOpWithResampler extends Operator {
         }
     }
 
-    private static CoordinateReferenceSystem createTargetCRS() throws FactoryException {
-        // TODO: create targetCRS from parameters
-        final DefaultMathTransformFactory mtf = new DefaultMathTransformFactory();
+    private CoordinateReferenceSystem createTargetCRS() throws OperatorException {
+        final CoordinateReferenceSystem targetCRS; 
+        try {
+            if (epsgCode != null && !epsgCode.isEmpty()) {
+                // to force longitude==xAxis and latitude==yAxis
+                boolean longitudeFirst = true; 
+                targetCRS = CRS.decode(epsgCode, longitudeFirst);
+            } else if (wktFile != null) {
+                String wkt = FileUtils.readText(wktFile);
+                targetCRS = CRS.parseWKT(wkt);
+            } else {
+                final DefaultMathTransformFactory mtf = new DefaultMathTransformFactory();
+                ParameterValueGroup p = mtf.getDefaultParameters(projection);
+                if (p == null) {
+                    throw new OperatorException("Unsupported projection: " + projection);
+                }
+                for (ProjectionParameter projectionParameter : projectionParameters) {
+                    ParameterValue<?> parameter = p.parameter(projectionParameter.name);
+                    if (parameter == null) {
+                        throw new OperatorException("Unknown projection parameter: " + projectionParameter.name);
+                    }
+                    parameter.setValue(projectionParameter.value);
+                }
+                final MathTransform transformation = mtf.createParameterizedTransform(p);
+                targetCRS = new DefaultProjectedCRS("User CRS (" + projection + ")", 
+                                                    DefaultGeographicCRS.WGS84, transformation, 
+                                                    DefaultCartesianCS.PROJECTED);
+            }
+        } catch (Exception e) {
+            throw new OperatorException(e);
+        }
+        if (targetCRS == null) {
+            throw new OperatorException("Unable to create CRS");
+        }
+        return targetCRS;
 //        Set<OperationMethod> methods = mtf.getAvailableMethods(Projection.class);
 //        for (OperationMethod method : methods) {
 //            System.out.println("method.getName() = " + method.getName());
 //        }
-        final ParameterValueGroup p = mtf.getDefaultParameters("Transverse_Mercator");
-        p.parameter("semi_major").setValue(6378137.000);
-        p.parameter("semi_minor").setValue(6356752.314);
-        final MathTransform mt = mtf.createParameterizedTransform(p);
-
-        return new DefaultProjectedCRS("tm", DefaultGeographicCRS.WGS84, mt, DefaultCartesianCS.PROJECTED);
     }
 
-    private static Interpolation getInterpolation() {
-        // TODO: create interpolation from parameters
-        return new InterpolationNearest();
+    private Interpolation createInterpolation() {
+        final int interpolationType;
+        if (interpolationName.equalsIgnoreCase("Bilinear")) {
+            interpolationType = Interpolation.INTERP_BILINEAR;
+        } else if (interpolationName.equalsIgnoreCase("Bicubic")) {
+            interpolationType = Interpolation.INTERP_BICUBIC;
+        } else if (interpolationName.equalsIgnoreCase("Bicubic_2")) {
+            interpolationType = Interpolation.INTERP_BICUBIC_2;
+        } else {
+            interpolationType = Interpolation.INTERP_NEAREST;
+        }
+        return Interpolation.getInstance(interpolationType);
     }
 
-    private static BeamGridGeometry createTargetGridGeometry(Product product,
-                                                       int sourceWidth,
-                                                       int sourceHeight,
-                                                     CoordinateReferenceSystem targetCRS) {
+    private static BeamGridGeometry createTargetGridGeometry(Product sourceProduct,
+                                                             int sourceWidth,
+                                                             int sourceHeight,
+                                                             CoordinateReferenceSystem targetCRS) {
         // TODO: create grid geometry from parameters
-        final int sourceW = product.getSceneRasterWidth();
-        final int sourceH = product.getSceneRasterHeight();
-        final int step = Math.min(sourceW, sourceH) / 2;
+        final int sourceW = sourceProduct.getSceneRasterWidth();
+        final int sourceH = sourceProduct.getSceneRasterHeight();
         MathTransform mathTransform;
+        
         try {
-            mathTransform = CRS.findMathTransform(DefaultGeographicCRS.WGS84, targetCRS);
+            mathTransform = CRS.findMathTransform(sourceProduct.getGeoCoding().getBaseCRS(), targetCRS);
         } catch (FactoryException e) {
             throw new OperatorException(e);
         }
         Point2D[] mapBoundary;
         try {
-            mapBoundary = createMapBoundary(product, step, mathTransform);
+            final int step = Math.min(sourceW, sourceH) / 2;
+            mapBoundary = createMapBoundary(sourceProduct, step, mathTransform);
         } catch (TransformException e) {
             throw new OperatorException(e);
         }
@@ -361,25 +405,25 @@ public class MapProjOpWithResampler extends Operator {
         return new BeamGridGeometry(transform, targetGrid, targetCRS);
     }
     
-    private static BeamGridGeometry createTargetGridGeometry(Product product,
+    private static BeamGridGeometry createTargetGridGeometry(Product sourceProduct,
                                                              int sourceWidth,
                                                              int sourceHeight,
                                                              int targetWidth,
                                                              int targetHeight,
-                                                           CoordinateReferenceSystem targetCRS) {
+                                                             CoordinateReferenceSystem targetCRS) {
               // TODO: create grid geometry from parameters
-              final int sourceW = product.getSceneRasterWidth();
-              final int sourceH = product.getSceneRasterHeight();
+              final int sourceW = sourceProduct.getSceneRasterWidth();
+              final int sourceH = sourceProduct.getSceneRasterHeight();
               final int step = Math.min(sourceW, sourceH) / 2;
               MathTransform mathTransform;
               try {
-                  mathTransform = CRS.findMathTransform(DefaultGeographicCRS.WGS84, targetCRS);
+                  mathTransform = CRS.findMathTransform(sourceProduct.getGeoCoding().getBaseCRS(), targetCRS);
               } catch (FactoryException e) {
                   throw new OperatorException(e);
               }
               Point2D[] mapBoundary;
               try {
-                  mapBoundary = createMapBoundary(product, step, mathTransform);
+                  mapBoundary = createMapBoundary(sourceProduct, step, mathTransform);
               } catch (TransformException e) {
                   throw new OperatorException(e);
               }
@@ -416,27 +460,27 @@ public class MapProjOpWithResampler extends Operator {
                                                MathTransform mathTransform) throws TransformException {
         GeoPos[] geoPoints = ProductUtils.createGeoBoundary(product, null, step);
         ProductUtils.normalizeGeoPolygon(geoPoints);
-        double[] geoPointsD = new double[geoPoints.length * 2];
+        float[] geoPointsD = new float[geoPoints.length * 2];
         for (int i = 0; i < geoPoints.length; i++) {
             geoPointsD[i * 2] = geoPoints[i].lon;
             geoPointsD[(i * 2) + 1] = geoPoints[i].lat;
         }
-        double[] mapPointsD = new double[geoPoints.length * 2];
+        float[] mapPointsD = new float[geoPoints.length * 2];
         mathTransform.transform(geoPointsD, 0, mapPointsD, 0, geoPoints.length);
 
         return getMinMax(mapPointsD);
     }
 
-    private static Point2D[] getMinMax(double[] mapPointsD) {
-        Point2D.Double min = new Point2D.Double();
-        Point2D.Double max = new Point2D.Double();
-        min.x = +Double.MAX_VALUE;
-        min.y = +Double.MAX_VALUE;
-        max.x = -Double.MAX_VALUE;
-        max.y = -Double.MAX_VALUE;
+    private static Point2D[] getMinMax(float[] mapPointsD) {
+        Point2D.Float min = new Point2D.Float();
+        Point2D.Float max = new Point2D.Float();
+        min.x = +Float.MAX_VALUE;
+        min.y = +Float.MAX_VALUE;
+        max.x = -Float.MAX_VALUE;
+        max.y = -Float.MAX_VALUE;
         for (int i = 0; i < mapPointsD.length;) {
-            double pointX = mapPointsD[i++];
-            double pointY = mapPointsD[i++];
+            float pointX = mapPointsD[i++];
+            float pointY = mapPointsD[i++];
             min.x = Math.min(min.x, pointX);
             min.y = Math.min(min.y, pointY);
             max.x = Math.max(max.x, pointX);

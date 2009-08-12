@@ -15,7 +15,6 @@ import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.resources.CRSUtilities;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.CoordinateOperationFactory;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransformFactory;
@@ -23,24 +22,25 @@ import org.opengis.referencing.operation.NoninvertibleTransformException;
 
 public class GeotoolsGeoCoding extends AbstractGeoCoding {
 
-    private final Datum datum;
     private final BeamGridGeometry gridGeometry;
+    private final Datum datum;
     private MathTransform image2Base;
     private MathTransform base2image;
 
-    public GeotoolsGeoCoding(CoordinateReferenceSystem modelCrs, BeamGridGeometry gridGeometry) throws FactoryException, NoninvertibleTransformException {
+    public GeotoolsGeoCoding(BeamGridGeometry gridGeometry) throws FactoryException, NoninvertibleTransformException {
         this.gridGeometry = gridGeometry;
-        setModelCRS(modelCrs);
-        org.opengis.referencing.datum.Ellipsoid gtEllipsoid = CRS.getEllipsoid(modelCrs);
+        setModelCRS(gridGeometry.getModelCRS());
+
+        org.opengis.referencing.datum.Ellipsoid gtEllipsoid = CRS.getEllipsoid(getModelCRS());
         String ellipsoidName = gtEllipsoid.getName().getCode();
         Ellipsoid ellipsoid = new Ellipsoid(ellipsoidName, gtEllipsoid.getSemiMajorAxis(),
                                             gtEllipsoid.getSemiMinorAxis());
-        org.opengis.referencing.datum.Datum gtDatum = CRSUtilities.getDatum(modelCrs);
+        org.opengis.referencing.datum.Datum gtDatum = CRSUtilities.getDatum(getModelCRS());
         String datumName = gtDatum.getName().getCode();
         this.datum = new Datum(datumName, ellipsoid, 0, 0, 0);
 
         MathTransform imageToModel = new AffineTransform2D(gridGeometry.getImageToModel());
-        MathTransform model2Base = CRS.findMathTransform(gridGeometry.getCRS(), getBaseCRS());
+        MathTransform model2Base = CRS.findMathTransform(getModelCRS(), getBaseCRS());
 
         final CoordinateOperationFactory factory = ReferencingFactoryFinder.getCoordinateOperationFactory(null);
         final MathTransformFactory mtFactory;

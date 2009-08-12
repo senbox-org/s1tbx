@@ -1,18 +1,16 @@
 /*
- *    GeoTools - The Open Source Java GIS Toolkit
- *    http://geotools.org
+ * Copyright (C) 2009 by Brockmann Consult (info@brockmann-consult.de)
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
  *
- *    This library is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation;
- *    version 2.1 of the License.
- *
- *    This library is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 package org.esa.beam.gpf.common;
 
@@ -43,7 +41,6 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.MathTransformFactory;
 import org.opengis.referencing.operation.TransformException;
-import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.geometry.Envelope;
 
 import org.geotools.factory.Hints;
@@ -66,32 +63,13 @@ import org.geotools.resources.image.ImageUtilities;
  * separated class for two purpose: avoid loading this code before needed and provide some
  * way to check if a grid coverages is a result of a resample operation.
  *
- * @since 2.2
- * @source $URL: http://svn.osgeo.org/geotools/tags/2.5.3/modules/library/coverage/src/main/java/org/geotools/coverage/processing/operation/Resampler2D.java $
- * @version $Id: Resampler2D.java 31446 2008-09-07 18:29:44Z desruisseaux $
- * @author Martin Desruisseaux (IRD)
  */
 final class Reproject {
-    /**
-     * For compatibility during cross-version serialization.
-     */
-    private static final long serialVersionUID = -8593569923766544474L;
-
-    /**
-     * The corner to use for performing calculation. By default {@link BeamGridGeometry#getGridToCRS()}
-     * maps to pixel center (as of OGC specification). In JAI, the transforms rather map to the
-     * upper left corner.
-     *
-     * @todo Left to CENTER for now because we need to pass this argument to {@link GridGeometry2D}
-     *       constructors.
-     */
-    private static final PixelOrientation CORNER = PixelOrientation.CENTER; //UPPER_LEFT;
 
     /**
      * Small tolerance threshold for floating point number comparaisons.
      */
     private static final double EPS = 1E-6;
-
 
 
     /**
@@ -125,14 +103,6 @@ final class Reproject {
                                           double backgroundValue,
                                           final Interpolation interpolation, 
                                           final Hints hints) throws FactoryException, TransformException {
-        ////////////////////////////////////////////////////////////////////////////////////////
-        ////                                                                                ////
-        //// =======>>  STEP 1: Extracts needed informations from the parameters   <<====== ////
-        ////            STEP 2: Creates the "target to source" MathTransform                ////
-        ////            STEP 3: Computes the target image layout                            ////
-        ////            STEP 4: Applies the JAI operation ("Affine", "Warp", etc)           ////
-        ////                                                                                ////
-        ////////////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////////////
         ////                                                                                ////
@@ -167,12 +137,12 @@ final class Reproject {
          *                 step 1         step 3
          */
         final MathTransform allSteps;
-        MathTransform step1 = targetGG.getImageToModel(CORNER);
-        MathTransform step3 = sourceGG.getImageToModel(CORNER).inverse();
-        if (CRS.equalsIgnoreMetadata(sourceGG.getCRS(), targetGG.getCRS())) {
+        MathTransform step1 = new AffineTransform2D(targetGG.getImageToModel());
+        MathTransform step3 = new AffineTransform2D(sourceGG.getImageToModel()).inverse();
+        if (CRS.equalsIgnoreMetadata(sourceGG.getModelCRS(), targetGG.getModelCRS())) {
             allSteps = mtFactory.createConcatenatedTransform(step1, step3);
         } else {
-            MathTransform step2 = factory.createOperation(targetGG.getCRS(), sourceGG.getCRS()).getMathTransform();
+            MathTransform step2 = factory.createOperation(targetGG.getModelCRS(), sourceGG.getModelCRS()).getMathTransform();
             /*
              * Computes the final transform.
              */
@@ -313,10 +283,8 @@ final class Reproject {
             switch (sourceImage.getSampleModel().getTransferType()) {
                 case DataBuffer.TYPE_DOUBLE:
                 case DataBuffer.TYPE_FLOAT: {
-                    Envelope source = CRS.transform(sourceGG.getEnvelope(), targetGG.getCRS());
-                    Envelope target = CRS.transform(targetGG.getEnvelope(), targetGG.getCRS());
-//                    source = targetGridGeometry.reduce(source);
-//                    target = targetGridGeometry.reduce(target);
+                    Envelope source = CRS.transform(sourceGG.getEnvelope(), targetGG.getModelCRS());
+                    Envelope target = CRS.transform(targetGG.getEnvelope(), targetGG.getModelCRS());
                     if (!(new GeneralEnvelope(source).contains(target, true))) {
                         if (interpolation != null && !(interpolation instanceof InterpolationNearest)) {
                             return reproject(sourceImage, sourceGG, targetGG, backgroundValue, interpolation, hints);
@@ -388,30 +356,6 @@ final class Reproject {
                    ImageLayout.MIN_Y_MASK | ImageLayout.HEIGHT_MASK;
         }
         return (layout.getValidMask() & mask) == 0;
-    }
-
-    /**
-     * Returns a source CRS compatible with the given target CRS. This method try to returns
-     * a CRS which would not thrown an {@link NoninvertibleTransformException} if attempting
-     * to transform from "target" to "source" (reminder: Warp works on <strong>inverse</strong>
-     * transforms).
-     *
-     * @param sourceCRS2D
-     *          The two-dimensional source CRS. Actually, this method accepts arbitrary dimension
-     *          provided that are not greater than {@code sourceCRS}, but in theory it is 2D.
-     * @param sourceCRS
-     *          The n-dimensional source CRS.
-     * @param targetCRS
-     *          The n-dimensional target CRS.
-     */
-    private static CoordinateReferenceSystem compatibleSourceCRS(
-             final CoordinateReferenceSystem sourceCRS2D,
-             final CoordinateReferenceSystem sourceCRS,
-             final CoordinateReferenceSystem targetCRS)
-    {
-        final int dim2D = sourceCRS2D.getCoordinateSystem().getDimension();
-        return (targetCRS.getCoordinateSystem().getDimension() == dim2D &&
-                sourceCRS.getCoordinateSystem().getDimension()  > dim2D) ? sourceCRS2D : sourceCRS;
     }
 
     /**
