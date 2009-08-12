@@ -263,6 +263,7 @@ public class ProductFileChooser extends BeamFileChooser {
 
         long fileSize = 0L;
         if (isImportDialog()) {
+            setDialogType(JFileChooser.OPEN_DIALOG);
             _subsetButton.setEnabled(selectedFile != null);
             if (_productSubsetDef != null) {
                 setApproveButtonText("Import Subset"); /*I18N*/
@@ -277,6 +278,7 @@ public class ProductFileChooser extends BeamFileChooser {
                 fileSize = selectedFile.length();
             }
         } else {
+            setDialogType(JFileChooser.SAVE_DIALOG);
             _subsetButton.setEnabled(_product != null);
             if (_productSubsetDef != null) {
                 setApproveButtonText("Export Subset"); /*I18N*/
