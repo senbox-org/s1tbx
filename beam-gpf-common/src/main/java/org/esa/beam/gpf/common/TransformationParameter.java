@@ -18,7 +18,7 @@ package org.esa.beam.gpf.common;
 
 import org.esa.beam.framework.gpf.annotations.Parameter;
 
-public class ProjectionParameter {
+public class TransformationParameter {
     @Parameter
     public String name;
     @Parameter

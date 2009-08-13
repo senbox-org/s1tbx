@@ -71,20 +71,20 @@ public class MapProjOpWithResampler extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(description="An EPSG code for the projected Coordinate Reference System.")
+    @Parameter(label = "EPSG Code:", description="An EPSG code for the projected Coordinate Reference System.")
     private String epsgCode;
-    @Parameter(description="A file which contains the projected Coordinate Reference System in WKT format.")
+    @Parameter(label = "WKT File:", description="A file which contains the projected Coordinate Reference System in WKT format.")
     private File wktFile;
-    @Parameter(description="The name of the projection.")
-    private String projection;
-//    @Parameter(description = "The list of projection parameters.", itemAlias = "parameter")
-    private ProjectionParameter[] projectionParameters = new ProjectionParameter[0];
+    @Parameter(label = "Transformation Name:", description="The name of the transformation.")
+    private String transformationName;
+//    @Parameter(label = "Transformation Parameter:", description = "The parameters of the transformation.", itemAlias = "parameter")
+    private TransformationParameter[] transformationParameters = new TransformationParameter[0];
 
-    @Parameter(description = "The interpolation.", 
+    @Parameter(description = "The interpolation method.", 
                valueSet= {"Nearest", "Bilinear","Bicubic","Bicubic_2"}, 
                defaultValue = "Nearest")
     private String interpolationName;
-    
+
 
     @Override
     public void initialize() throws OperatorException {
@@ -312,19 +312,19 @@ public class MapProjOpWithResampler extends Operator {
                 targetCRS = CRS.parseWKT(wkt);
             } else {
                 final DefaultMathTransformFactory mtf = new DefaultMathTransformFactory();
-                ParameterValueGroup p = mtf.getDefaultParameters(projection);
+                ParameterValueGroup p = mtf.getDefaultParameters(transformationName);
                 if (p == null) {
-                    throw new OperatorException("Unsupported projection: " + projection);
+                    throw new OperatorException("Unsupported projection: " + transformationName);
                 }
-                for (ProjectionParameter projectionParameter : projectionParameters) {
-                    ParameterValue<?> parameter = p.parameter(projectionParameter.name);
+                for (TransformationParameter transformationParameter : transformationParameters) {
+                    ParameterValue<?> parameter = p.parameter(transformationParameter.name);
                     if (parameter == null) {
-                        throw new OperatorException("Unknown projection parameter: " + projectionParameter.name);
+                        throw new OperatorException("Unknown projection parameter: " + transformationParameter.name);
                     }
-                    parameter.setValue(projectionParameter.value);
+                    parameter.setValue(transformationParameter.value);
                 }
                 final MathTransform transformation = mtf.createParameterizedTransform(p);
-                targetCRS = new DefaultProjectedCRS("User CRS (" + projection + ")", 
+                targetCRS = new DefaultProjectedCRS("User CRS (" + transformationName + ")",
                                                     DefaultGeographicCRS.WGS84, transformation, 
                                                     DefaultCartesianCS.PROJECTED);
             }
