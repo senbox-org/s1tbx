@@ -4,7 +4,6 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -41,6 +40,10 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import javax.media.jai.ImageLayout;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -49,11 +52,6 @@ import java.awt.image.ColorModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.File;
-
-import javax.media.jai.ImageLayout;
-import javax.media.jai.Interpolation;
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
 
 /**
  * @author Marco Zuehlke
@@ -71,17 +69,17 @@ public class MapProjOpWithResampler extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(label = "EPSG Code:", description="An EPSG code for the projected Coordinate Reference System.")
+    @Parameter(label = "EPSG Code", description="An EPSG code for the projected Coordinate Reference System.")
     private String epsgCode;
-    @Parameter(label = "WKT File:", description="A file which contains the projected Coordinate Reference System in WKT format.")
+    @Parameter(label = "WKT File", description="A file which contains the projected Coordinate Reference System in WKT format.")
     private File wktFile;
-    @Parameter(label = "Transformation Name:", description="The name of the transformation.")
+    @Parameter(label = "Transformation Name", description="The name of the transformation.")
     private String transformationName;
 //    @Parameter(label = "Transformation Parameter:", description = "The parameters of the transformation.", itemAlias = "parameter")
     private TransformationParameter[] transformationParameters = new TransformationParameter[0];
 
-    @Parameter(description = "The interpolation method.", 
-               valueSet= {"Nearest", "Bilinear","Bicubic","Bicubic_2"}, 
+    @Parameter(label = "Interpolation Method", description = "The interpolation method.", 
+               valueSet= {"Nearest", "Bilinear","Bicubic","Bicubic_2"},
                defaultValue = "Nearest")
     private String interpolationName;
 
