@@ -314,12 +314,12 @@ public class MapProjOpWithResampler extends Operator {
                 final DefaultMathTransformFactory mtf = new DefaultMathTransformFactory();
                 ParameterValueGroup p = mtf.getDefaultParameters(transformationName);
                 if (p == null) {
-                    throw new OperatorException("Unsupported projection: " + transformationName);
+                    throw new OperatorException("Unsupported transformation: " + transformationName);
                 }
                 for (TransformationParameter transformationParameter : transformationParameters) {
                     ParameterValue<?> parameter = p.parameter(transformationParameter.name);
                     if (parameter == null) {
-                        throw new OperatorException("Unknown projection parameter: " + transformationParameter.name);
+                        throw new OperatorException("Unknown transformation parameter: " + transformationParameter.name);
                     }
                     parameter.setValue(transformationParameter.value);
                 }
