@@ -21,6 +21,7 @@ import com.bc.ceres.swing.TableLayout.Anchor;
 import com.bc.ceres.swing.TableLayout.Fill;
 import com.jidesoft.list.FilterableListModel;
 import com.jidesoft.list.QuickListFilterField;
+import com.jidesoft.utils.Lm;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
@@ -36,9 +37,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.JButton;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -49,6 +52,7 @@ public class ProjectedCRSSelectionPanel extends JPanel {
 
     // for testing the UI
     public static void main(String[] args) {
+        Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
         final JFrame jFrame = new JFrame("CRS Selection Panel");
         Container contentPane = jFrame.getContentPane();
         ProjectedCRSSelectionPanel projectedCRSSelectionPanel = new ProjectedCRSSelectionPanel();
@@ -67,13 +71,13 @@ public class ProjectedCRSSelectionPanel extends JPanel {
 
     public ProjectedCRSSelectionPanel() {
         final CRSListModel crsListModel = new CRSListModel(generateSupportedCRSList());
-        final QuickListFilterField searchField = new QuickListFilterField(crsListModel);
-        searchField.setHintText("Type here to filter CRS");
+        final QuickListFilterField filterField = new QuickListFilterField(crsListModel);
+        filterField.setHintText("Type here to filter Projections");
 
-        final FilterableListModel listModel = searchField.getDisplayListModel();
+        final FilterableListModel listModel = filterField.getDisplayListModel();
         final JList crsList = new JList(listModel);
         crsList.setVisibleRowCount(10);
-        searchField.setList(crsList);
+        filterField.setList(crsList);
         crsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         crsList.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -87,30 +91,35 @@ public class ProjectedCRSSelectionPanel extends JPanel {
             }
         });
 
+        final JLabel filterLabel = new JLabel("Filter:");
+        final JLabel infoLabel = new JLabel("CRS Info:");
+        JScrollPane crsListScrollPane = new JScrollPane(crsList);
+        crsListScrollPane.setPreferredSize(new Dimension(200, 150));
+        wktField = new JTextArea(10, 30);
+        wktField.setEditable(false);
+        JScrollPane infoAreaScrollPane = new JScrollPane(wktField);
+        final JButton defineCrsBtn = new JButton("Create User Defined Projection");
+
         TableLayout tableLayout = new TableLayout(3);
+        setLayout(tableLayout);
         tableLayout.setTableFill(Fill.BOTH);
         tableLayout.setTableAnchor(Anchor.NORTHWEST);
         tableLayout.setTableWeightX(1);
-        tableLayout.setTableWeightY(1);
-        tableLayout.setTablePadding(5, 5);
-        setLayout(tableLayout);
+        tableLayout.setTablePadding(4, 4);
 
-        tableLayout.setRowWeightY(0, 0);
-        tableLayout.setCellWeightX(0, 0, 0.1);
-        add(new JLabel("Filter"));
-        add(searchField);
-        tableLayout.setCellWeightX(0, 2, 0.7);
-        tableLayout.setCellAnchor(0, 2, Anchor.EAST);
-        add(new JLabel("Info"));
+        tableLayout.setRowWeightY(0, 0);        // no weight Y for first row
+        tableLayout.setCellWeightX(0, 0, 0);    // filter label; no grow in X
+        tableLayout.setRowWeightY(1, 1.0);      // second row grow in Y
+        tableLayout.setCellColspan(1, 0, 2);    // CRS list; spans 2 cols
+        tableLayout.setCellRowspan(1, 2, 2);    // info area; spans 2 rows
+        tableLayout.setCellColspan(2, 0, 2);    // defineCrsBtn button; spans to cols
 
-        JScrollPane crsScrollPane = new JScrollPane(crsList);
-        crsScrollPane.setSize(200, 150);
-        tableLayout.setCellColspan(1, 0, 2);
-        add(crsScrollPane);
-        wktField = new JTextArea(10, 30);
-        wktField.setEditable(false);
-        JScrollPane wktScrollPane = new JScrollPane(wktField);
-        add(wktScrollPane);
+        add(filterLabel);
+        add(filterField);
+        add(infoLabel);
+        add(crsListScrollPane);
+        add(infoAreaScrollPane);
+        add(defineCrsBtn);
     }
 
 
