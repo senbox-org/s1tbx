@@ -28,7 +28,7 @@ import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.ProjectedCRS;
 
-import javax.swing.AbstractListModel;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -37,7 +37,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.JButton;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.Container;
@@ -45,18 +44,23 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.Collections;
 
-public class ProjectedCRSSelectionPanel extends JPanel {
+public class ProjectedCrsSelectionForm extends JPanel {
 
-    private JTextArea wktField;
+    private ProjectedCrsSelectionFormModel crsSelectionFormModel;
+    private JTextArea infoArea;
 
     // for testing the UI
     public static void main(String[] args) {
         Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
         final JFrame jFrame = new JFrame("CRS Selection Panel");
         Container contentPane = jFrame.getContentPane();
-        ProjectedCRSSelectionPanel projectedCRSSelectionPanel = new ProjectedCRSSelectionPanel();
-        contentPane.add(projectedCRSSelectionPanel);
+
+        final CrsInfoListModel crsInfoListModel = new CrsInfoListModel(generateSupportedCRSList());
+        final ProjectedCrsSelectionFormModel model = new ProjectedCrsSelectionFormModel(crsInfoListModel);
+        ProjectedCrsSelectionForm projectedCRSSelectionForm = new ProjectedCrsSelectionForm(model);
+        contentPane.add(projectedCRSSelectionForm);
         jFrame.setSize(600, 400);
         jFrame.setLocationRelativeTo(null);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -69,9 +73,9 @@ public class ProjectedCRSSelectionPanel extends JPanel {
     }
 
 
-    public ProjectedCRSSelectionPanel() {
-        final CRSListModel crsListModel = new CRSListModel(generateSupportedCRSList());
-        final QuickListFilterField filterField = new QuickListFilterField(crsListModel);
+    ProjectedCrsSelectionForm(ProjectedCrsSelectionFormModel model) {
+        crsSelectionFormModel = model;
+        final QuickListFilterField filterField = new QuickListFilterField(crsSelectionFormModel.getListModel());
         filterField.setHintText("Type here to filter Projections");
 
         final FilterableListModel listModel = filterField.getDisplayListModel();
@@ -79,25 +83,15 @@ public class ProjectedCRSSelectionPanel extends JPanel {
         crsList.setVisibleRowCount(10);
         filterField.setList(crsList);
         crsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        crsList.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                CrsInfo selectedValue = (CrsInfo) crsList.getSelectedValue();
-                if (selectedValue != null) {
-                    wktField.setText(selectedValue.crs.toString());
-                } else {
-                    wktField.setText("");
-                }
-            }
-        });
 
         final JLabel filterLabel = new JLabel("Filter:");
         final JLabel infoLabel = new JLabel("CRS Info:");
         JScrollPane crsListScrollPane = new JScrollPane(crsList);
         crsListScrollPane.setPreferredSize(new Dimension(200, 150));
-        wktField = new JTextArea(10, 30);
-        wktField.setEditable(false);
-        JScrollPane infoAreaScrollPane = new JScrollPane(wktField);
+        infoArea = new JTextArea(10, 30);
+        infoArea.setEditable(false);
+        crsList.addListSelectionListener(new CrsListSelectionListener());
+        JScrollPane infoAreaScrollPane = new JScrollPane(infoArea);
         final JButton defineCrsBtn = new JButton("Create User Defined Projection");
 
         TableLayout tableLayout = new TableLayout(3);
@@ -122,60 +116,46 @@ public class ProjectedCRSSelectionPanel extends JPanel {
         add(defineCrsBtn);
     }
 
+    private void selectedCrsChanged(CrsInfo selectedValue) {
+        if (selectedValue != null) {
+            infoArea.setText(selectedValue.getCrs().toString());
+            crsSelectionFormModel.setSelectedCrs(selectedValue.getCrs());
+        } else {
+            infoArea.setText("");
+            crsSelectionFormModel.setSelectedCrs(null);
+        }
+    }
+
 
     private static List<CrsInfo> generateSupportedCRSList() {
         // todo - (mp/mz) this takes much time (5 sec.) try to speed up
         final CRSAuthorityFactory authorityFactory = CRS.getAuthorityFactory(true);
-        List<CrsInfo> crsList = new ArrayList<CrsInfo>(1000);
+        Set<String> codes;
         try {
-            Set<String> codes = authorityFactory.getAuthorityCodes(ProjectedCRS.class);
-            for (String code : codes) {
-                try {
-                    CoordinateReferenceSystem crs = authorityFactory.createCoordinateReferenceSystem(code);
-                    crsList.add(new CrsInfo(code, (ProjectedCRS) crs));
-                } catch (Exception ignore) {
-                    // bad CRS --> ignore
-                }
-            }
+            codes = authorityFactory.getAuthorityCodes(ProjectedCRS.class);
         } catch (FactoryException ignore) {
+            return Collections.EMPTY_LIST;
+        }
+        List<CrsInfo> crsList = new ArrayList<CrsInfo>(codes.size());
+        for (String code : codes) {
+            try {
+                CoordinateReferenceSystem crs = authorityFactory.createCoordinateReferenceSystem(code);
+                crsList.add(new CrsInfo(code, (ProjectedCRS) crs));
+            } catch (FactoryException ignore) {
+                // bad CRS --> ignore
+            }
         }
         return crsList;
     }
 
-    private static class CRSListModel extends AbstractListModel {
-
-        private final List<CrsInfo> crsList;
-
-        private CRSListModel(List<CrsInfo> projectedCRSList) {
-            crsList = new ArrayList<CrsInfo>();
-            crsList.addAll(projectedCRSList);
-        }
+    private class CrsListSelectionListener implements ListSelectionListener {
 
         @Override
-        public CrsInfo getElementAt(int index) {
-            return crsList.get(index);
+        public void valueChanged(ListSelectionEvent e) {
+            final JList list = (JList) e.getSource();
+            CrsInfo selectedValue = (CrsInfo) list.getSelectedValue();
+            selectedCrsChanged(selectedValue);
         }
 
-        @Override
-        public int getSize() {
-            return crsList.size();
-        }
     }
-
-    private static class CrsInfo {
-
-        private final String epsgCode;
-        private final ProjectedCRS crs;
-
-        CrsInfo(String epsgCode, ProjectedCRS crs) {
-            this.epsgCode = epsgCode;
-            this.crs = crs;
-        }
-
-        @Override
-        public String toString() {
-            return epsgCode + " : " + crs.getName().getCode();
-        }
-    }
-
 }
