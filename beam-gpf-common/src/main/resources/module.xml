@@ -32,7 +32,7 @@
     <extension point="beam-ui:actions">
         <action>
             <id>mapProjAction</id>
-            <class>org.esa.beam.gpf.common.MapProjAction</class>
+            <class>org.esa.beam.gpf.common.reproject.MapProjAction</class>
             <text>Map Projection Operator (SPIKE)...</text>
         </action>
     </extension>

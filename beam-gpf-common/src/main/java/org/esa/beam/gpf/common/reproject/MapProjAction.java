@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.gpf.common;
+package org.esa.beam.gpf.common.reproject;
 
 import org.esa.beam.framework.gpf.ui.DefaultSingleTargetProductDialog;
 import org.esa.beam.framework.ui.ModelessDialog;
@@ -30,7 +30,7 @@ public class MapProjAction extends AbstractVisatAction {
     public void actionPerformed(final CommandEvent event) {
         if (dialog == null) {
             DefaultSingleTargetProductDialog dstpDialog =
-                    new DefaultSingleTargetProductDialog("MapProjOpWithResampler", 
+                    new DefaultSingleTargetProductDialog("Reprojection",
                                                          getAppContext(),
                                                          "map projection operator (SPIKE)", 
                                                          "helpId");

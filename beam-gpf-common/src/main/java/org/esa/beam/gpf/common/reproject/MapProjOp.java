@@ -1,4 +1,4 @@
-package org.esa.beam.gpf.common;
+package org.esa.beam.gpf.common.reproject;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -68,6 +68,7 @@ import java.awt.image.SampleModel;
  */
 @OperatorMetadata(alias = "Mapproj",
                   internal = false)
+@Deprecated
 public class MapProjOp extends Operator {
 
     @SourceProduct

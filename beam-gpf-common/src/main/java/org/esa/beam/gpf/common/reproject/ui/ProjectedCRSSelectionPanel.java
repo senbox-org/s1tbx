@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.gpf.common;
+package org.esa.beam.gpf.common.reproject.ui;
 
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.TableLayout.Anchor;
@@ -46,6 +46,23 @@ import java.util.Set;
 public class ProjectedCRSSelectionPanel extends JPanel {
 
     private JTextArea wktField;
+
+    // for testing the UI
+    public static void main(String[] args) {
+        final JFrame jFrame = new JFrame("CRS Selection Panel");
+        Container contentPane = jFrame.getContentPane();
+        ProjectedCRSSelectionPanel projectedCRSSelectionPanel = new ProjectedCRSSelectionPanel();
+        contentPane.add(projectedCRSSelectionPanel);
+        jFrame.setSize(600, 400);
+        jFrame.setLocationRelativeTo(null);
+        jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                jFrame.setVisible(true);
+            }
+        });
+    }
 
 
     public ProjectedCRSSelectionPanel() {
@@ -96,23 +113,6 @@ public class ProjectedCRSSelectionPanel extends JPanel {
         add(wktScrollPane);
     }
 
-
-    public static void main(String[] args) {
-        final JFrame jFrame = new JFrame();
-        Container contentPane = jFrame.getContentPane();
-        ProjectedCRSSelectionPanel projectedCRSSelectionPanel = new ProjectedCRSSelectionPanel();
-        contentPane.add(projectedCRSSelectionPanel);
-        jFrame.setSize(600, 400);
-        jFrame.setLocationRelativeTo(null);
-        jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        SwingUtilities.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                jFrame.setVisible(true);
-            }
-        });
-    }
 
     private static List<CrsInfo> generateSupportedCRSList() {
         // todo - (mp/mz) this takes much time (5 sec.) try to speed up

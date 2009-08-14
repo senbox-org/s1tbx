@@ -1,4 +1,4 @@
-package org.esa.beam.gpf.common;
+package org.esa.beam.gpf.common.reproject;
 
 import com.bc.ceres.glevel.MultiLevelImage;
 
@@ -31,7 +31,6 @@ import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.coverage.processing.Operations;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.referencing.CRS;
@@ -71,6 +70,7 @@ import javax.media.jai.PlanarImage;
  */
 @OperatorMetadata(alias = "MapProjOpWithResamplerOld",
                   internal = false)
+@Deprecated
 public class MapProjOpWithResamplerOld extends Operator {
 
 

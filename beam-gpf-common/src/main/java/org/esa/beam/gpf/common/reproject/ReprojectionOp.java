@@ -1,4 +1,4 @@
-package org.esa.beam.gpf.common;
+package org.esa.beam.gpf.common.reproject;
 
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
@@ -59,9 +59,9 @@ import java.io.File;
  * @version $Revision$ $Date$
  * @since BEAM 4.7
  */
-@OperatorMetadata(alias = "MapProjOpWithResampler",
+@OperatorMetadata(alias = "Reprojection",
                   internal = false)
-public class MapProjOpWithResampler extends Operator {
+public class ReprojectionOp extends Operator {
 
 
     @SourceProduct
@@ -294,7 +294,7 @@ public class MapProjOpWithResampler extends Operator {
     public static class Spi extends OperatorSpi {
 
         public Spi() {
-            super(MapProjOpWithResampler.class);
+            super(ReprojectionOp.class);
         }
     }
 

@@ -1,20 +1,19 @@
 /*
- *    GeoTools - The Open Source Java GIS Toolkit
- *    http://geotools.org
+ * Copyright (C) 2009 by Brockmann Consult (info@brockmann-consult.de)
  *
- *    (C) 2002-2008, Open Source Geospatial Foundation (OSGeo)
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
  *
- *    This library is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation;
- *    version 2.1 of the License.
- *
- *    This library is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.gpf.common;
+package org.esa.beam.gpf.common.reproject;
+
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -23,10 +22,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.renderable.ParameterBlock;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
-import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.LogRecord;
 
 import javax.media.jai.JAI;
 import javax.media.jai.Warp;
@@ -39,39 +34,27 @@ import javax.media.jai.BorderExtenderConstant;
 import javax.media.jai.operator.MosaicDescriptor;
 import javax.media.jai.InterpolationNearest;
 
-import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.CoordinateOperation;
 import org.opengis.referencing.operation.CoordinateOperationFactory;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.MathTransformFactory;
 import org.opengis.referencing.operation.TransformException;
-import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.geometry.Envelope;
 
-import org.esa.beam.util.logging.BeamLogManager;
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.operation.AbstractCoordinateOperationFactory;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
+import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.referencing.operation.transform.DimensionFilter;
-import org.geotools.referencing.operation.transform.IdentityTransform;
 import org.geotools.referencing.operation.transform.WarpTransform2D;
 import org.geotools.resources.XArray;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
-import org.geotools.resources.i18n.Loggings;
-import org.geotools.resources.i18n.LoggingKeys;
 import org.geotools.resources.image.ImageUtilities;
-import org.geotools.resources.coverage.CoverageUtilities;
 
 
 /**
@@ -79,26 +62,8 @@ import org.geotools.resources.coverage.CoverageUtilities;
  * separated class for two purpose: avoid loading this code before needed and provide some
  * way to check if a grid coverages is a result of a resample operation.
  *
- * @since 2.2
- * @source $URL: http://svn.osgeo.org/geotools/tags/2.5.3/modules/library/coverage/src/main/java/org/geotools/coverage/processing/operation/Resampler2D.java $
- * @version $Id: Resampler2D.java 31446 2008-09-07 18:29:44Z desruisseaux $
- * @author Martin Desruisseaux (IRD)
  */
-final class Resampler2D {
-    /**
-     * For compatibility during cross-version serialization.
-     */
-    private static final long serialVersionUID = -8593569923766544474L;
-
-    /**
-     * The corner to use for performing calculation. By default {@link GridGeometry#getGridToCRS()}
-     * maps to pixel center (as of OGC specification). In JAI, the transforms rather map to the
-     * upper left corner.
-     *
-     * @todo Left to CENTER for now because we need to pass this argument to {@link GridGeometry2D}
-     *       constructors.
-     */
-    private static final PixelOrientation CORNER = PixelOrientation.CENTER; //UPPER_LEFT;
+final class Reproject {
 
     /**
      * Small tolerance threshold for floating point number comparaisons.
@@ -106,18 +71,18 @@ final class Resampler2D {
     private static final double EPS = 1E-6;
 
 
-
     /**
      * Creates a new coverage with a different coordinate reference reference system. If a
      * grid geometry is supplied, only its {@linkplain GridGeometry2D#getRange grid range}
      * and {@linkplain GridGeometry2D#getGridToCRS grid to CRS} transform are taken in account.
      *
-     * @param sourceCoverage
+     * @param sourceImage
      *          The source grid coverage.
      * @param targetCRS
      *          Coordinate reference system for the new grid coverage, or {@code null}.
      * @param targetGG
      *          The target grid geometry, or {@code null} for default.
+     * @param backgroundValue no-data-value 
      * @param interpolation
      *          The interpolation to use, or {@code null} if none.
      * @param hints
@@ -131,25 +96,12 @@ final class Resampler2D {
      * @throws TransformException
      *          if a transformation failed.
      */
-    public static RenderedImage reproject(GridCoverage2D                    sourceCoverage,
-                                          final RenderedImage               sourceImage,
-                                          final CoordinateReferenceSystem   sourceCRS,
-                                          CoordinateReferenceSystem         targetCRS,
-                                          GridGeometry2D                    targetGG,
-                                          final Interpolation               interpolation,
-                                          final Hints                       hints)
-            throws FactoryException, TransformException
-    {
-        ////////////////////////////////////////////////////////////////////////////////////////
-        ////                                                                                ////
-        //// =======>>  STEP 1: Extracts needed informations from the parameters   <<====== ////
-        ////            STEP 2: Creates the "target to source" MathTransform                ////
-        ////            STEP 3: Computes the target image layout                            ////
-        ////            STEP 4: Applies the JAI operation ("Affine", "Warp", etc)           ////
-        ////                                                                                ////
-        ////////////////////////////////////////////////////////////////////////////////////////
-
-        final GridGeometry2D sourceGG = sourceCoverage.getGridGeometry();
+    public static RenderedImage reproject(RenderedImage sourceImage, 
+                                          BeamGridGeometry sourceGG,
+                                          BeamGridGeometry targetGG,
+                                          double backgroundValue,
+                                          final Interpolation interpolation, 
+                                          final Hints hints) throws FactoryException, TransformException {
 
         ////////////////////////////////////////////////////////////////////////////////////////
         ////                                                                                ////
@@ -184,12 +136,12 @@ final class Resampler2D {
          *                 step 1         step 3
          */
         final MathTransform allSteps;
-        MathTransform step1 = targetGG.getGridToCRS(CORNER);
-        MathTransform step3 = sourceGG.getGridToCRS(CORNER).inverse();
-        if (CRS.equalsIgnoreMetadata(sourceCRS, targetCRS)) {
+        MathTransform step1 = new AffineTransform2D(targetGG.getImageToModel());
+        MathTransform step3 = new AffineTransform2D(sourceGG.getImageToModel()).inverse();
+        if (CRS.equalsIgnoreMetadata(sourceGG.getModelCRS(), targetGG.getModelCRS())) {
             allSteps = mtFactory.createConcatenatedTransform(step1, step3);
         } else {
-            MathTransform step2 = factory.createOperation(targetCRS, sourceCRS).getMathTransform();
+            MathTransform step2 = factory.createOperation(targetGG.getModelCRS(), sourceGG.getModelCRS()).getMathTransform();
             /*
              * Computes the final transform.
              */
@@ -224,8 +176,8 @@ final class Resampler2D {
             // Let the operation decide itself. This is necessary in case we change the
             // source, as we do if we choose the "Mosaic" operation.
         }
-        final Rectangle sourceBB = sourceGG.getGridRange2D();
-        final Rectangle targetBB = targetGG.getGridRange2D();
+        final Rectangle sourceBB = sourceGG.getBounds();
+        final Rectangle targetBB = targetGG.getBounds();
         if (isBoundsUndefined(layout, false)) {
             layout.setMinX  (targetBB.x);
             layout.setMinY  (targetBB.y);
@@ -248,16 +200,14 @@ final class Resampler2D {
          * desired target grid range. NOT specifying border extender will allows "Affine" to
          * shrink the target image bounds to the range containing computed values.
          */
-        final double[] background = CoverageUtilities.getBackgroundValues(sourceCoverage);
-        if (background != null && background.length != 0) {
-            final BorderExtender borderExtender;
-            if (XArray.allEquals(background, 0)) {
-                borderExtender = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
-            } else {
-                borderExtender = new BorderExtenderConstant(background);
-            }
-            hints.put(JAI.KEY_BORDER_EXTENDER, borderExtender);
+        final double[] background = new double[]{backgroundValue};
+        final BorderExtender borderExtender;
+        if (XArray.allEquals(background, 0)) {
+            borderExtender = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
+        } else {
+            borderExtender = new BorderExtenderConstant(background);
         }
+        hints.put(JAI.KEY_BORDER_EXTENDER, borderExtender);
         /*
          * We need to correctly manage the Hints to control the replacement of IndexColorModel.
          * It is worth to point out that setting the JAI.KEY_REPLACE_INDEX_COLOR_MODEL hint to
@@ -332,13 +282,11 @@ final class Resampler2D {
             switch (sourceImage.getSampleModel().getTransferType()) {
                 case DataBuffer.TYPE_DOUBLE:
                 case DataBuffer.TYPE_FLOAT: {
-                    Envelope source = CRS.transform(sourceGG.getEnvelope(), targetCRS);
-                    Envelope target = CRS.transform(targetGG.getEnvelope(), targetCRS);
-                    source = targetGG.reduce(source);
-                    target = targetGG.reduce(target);
+                    Envelope source = CRS.transform(sourceGG.getEnvelope(), targetGG.getModelCRS());
+                    Envelope target = CRS.transform(targetGG.getEnvelope(), targetGG.getModelCRS());
                     if (!(new GeneralEnvelope(source).contains(target, true))) {
                         if (interpolation != null && !(interpolation instanceof InterpolationNearest)) {
-                            return reproject(sourceCoverage, sourceImage, sourceCRS, targetCRS, targetGG, null, hints);
+                            return reproject(sourceImage, sourceGG, targetGG, backgroundValue, interpolation, hints);
                         } else {
                             // If we were already using nearest-neighbor interpolation, force
                             // usage of WarpAdapter2D instead of WarpAffine. The price will be
@@ -348,18 +296,16 @@ final class Resampler2D {
                     }
                 }
             }
-            final CharSequence name = sourceCoverage.getName();
             operation = "Warp";
             final Warp warp;
             if (forceAdapter) {
-                warp = WarpTransform2D.getWarp(name, allSteps2D);
+                warp = WarpTransform2D.getWarp(null, allSteps2D);
             } else {
-                warp = createWarp(name, allSteps2D);
+                warp = createWarp(null, allSteps2D);
             }
             paramBlk.add(warp).add(interpolation).add(background);
         }
         final RenderedOp targetImage = JAI.getDefaultInstance().createNS(operation, paramBlk, targetHints);
-        final Locale locale = sourceCoverage.getLocale();  // For logging purpose.
         /*
          * The JAI operation sometime returns an image with a bounding box different than what we
          * expected. This is true especially for the "Affine" operation: the JAI documentation said
@@ -367,23 +313,21 @@ final class Resampler2D {
          * As a safety, we check the bounding box in any case. If it doesn't matches, then we will
          * reconstruct the target grid geometry.
          */
-        final GridEnvelope targetGR = targetGG.getGridRange();
-        final int[] lower = targetGR.getLow().getCoordinateValues();
-        final int[] upper = targetGR.getHigh().getCoordinateValues();
-        for (int i=0; i<upper.length; i++) {
-            upper[i]++; // Make them exclusive.
-        }
-        lower[targetGG.gridDimensionX] = targetImage.getMinX();
-        lower[targetGG.gridDimensionY] = targetImage.getMinY();
-        upper[targetGG.gridDimensionX] = targetImage.getMaxX();
-        upper[targetGG.gridDimensionY] = targetImage.getMaxY();
-        final GridEnvelope actualGR = new GeneralGridRange(lower, upper);
-        if (!targetGR.equals(actualGR)) {
-            MathTransform gridToCRS = targetGG.getGridToCRS(CORNER);
-            targetGG = new GridGeometry2D(actualGR, gridToCRS, targetCRS);
-            log(Loggings.getResources(locale).getLogRecord(Level.WARNING,
-                    LoggingKeys.ADJUSTED_GRID_GEOMETRY_$1, sourceCoverage.getName().toString(locale)));
-        }
+//        final GridEnvelope targetGR = targetGridGeometry.getGridRange();
+//        final int[] lower = targetGR.getLow().getCoordinateValues();
+//        final int[] upper = targetGR.getHigh().getCoordinateValues();
+//        for (int i=0; i<upper.length; i++) {
+//            upper[i]++; // Make them exclusive.
+//        }
+//        lower[targetGridGeometry.dimensionXIndex] = targetImage.getMinX();
+//        lower[targetGridGeometry.dimensionYIndex] = targetImage.getMinY();
+//        upper[targetGridGeometry.dimensionXIndex] = targetImage.getMaxX();
+//        upper[targetGridGeometry.dimensionYIndex] = targetImage.getMaxY();
+//        final GridEnvelope actualGR = new GeneralGridRange(lower, upper);
+//        if (!targetGR.equals(actualGR)) {
+//            MathTransform gridToCRS = new AffineTransform2D(targetGridGeometry.getImageToModel());
+//            targetGridGeometry = new BeamGridGeometry(actualGR, gridToCRS, targetCRS);
+//        }
         /*
          * Constructs the final grid coverage, then log a message as in the following example:
          *
@@ -414,30 +358,6 @@ final class Resampler2D {
     }
 
     /**
-     * Returns a source CRS compatible with the given target CRS. This method try to returns
-     * a CRS which would not thrown an {@link NoninvertibleTransformException} if attempting
-     * to transform from "target" to "source" (reminder: Warp works on <strong>inverse</strong>
-     * transforms).
-     *
-     * @param sourceCRS2D
-     *          The two-dimensional source CRS. Actually, this method accepts arbitrary dimension
-     *          provided that are not greater than {@code sourceCRS}, but in theory it is 2D.
-     * @param sourceCRS
-     *          The n-dimensional source CRS.
-     * @param targetCRS
-     *          The n-dimensional target CRS.
-     */
-    private static CoordinateReferenceSystem compatibleSourceCRS(
-             final CoordinateReferenceSystem sourceCRS2D,
-             final CoordinateReferenceSystem sourceCRS,
-             final CoordinateReferenceSystem targetCRS)
-    {
-        final int dim2D = sourceCRS2D.getCoordinateSystem().getDimension();
-        return (targetCRS.getCoordinateSystem().getDimension() == dim2D &&
-                sourceCRS.getCoordinateSystem().getDimension()  > dim2D) ? sourceCRS2D : sourceCRS;
-    }
-
-    /**
      * Returns the math transform for the two specified dimensions of the specified transform.
      *
      * @param  transform The transform.
@@ -450,18 +370,18 @@ final class Resampler2D {
      */
     private static MathTransform2D toMathTransform2D(final MathTransform        transform,
                                                      final MathTransformFactory mtFactory,
-                                                     final GridGeometry2D       sourceGG)
+                                                     final BeamGridGeometry     sourceGG)
             throws FactoryException
     {
         final DimensionFilter filter = new DimensionFilter(mtFactory);
-        filter.addSourceDimension(sourceGG.axisDimensionX);
-        filter.addSourceDimension(sourceGG.axisDimensionY);
+        filter.addSourceDimension(sourceGG.dimensionXIndex);
+        filter.addSourceDimension(sourceGG.dimensionYIndex);
         MathTransform candidate = filter.separate(transform);
         if (candidate instanceof MathTransform2D) {
             return (MathTransform2D) candidate;
         }
-        filter.addTargetDimension(sourceGG.axisDimensionX);
-        filter.addTargetDimension(sourceGG.axisDimensionY);
+        filter.addTargetDimension(sourceGG.dimensionXIndex);
+        filter.addTargetDimension(sourceGG.dimensionYIndex);
         candidate = filter.separate(transform);
         if (candidate instanceof MathTransform2D) {
             return (MathTransform2D) candidate;
@@ -497,17 +417,6 @@ final class Resampler2D {
         return warp;
     }
 
-    /**
-     * Logs a message.
-     */
-    private static void log(final LogRecord record) {
-        record.setSourceClassName("Resample");
-        record.setSourceMethodName("doOperation");
-        final Logger logger = BeamLogManager.getSystemLogger();
-        record.setLoggerName(logger.getName());
-        logger.log(record);
-    }
-    
     private static RenderingHints getRenderingHints(final RenderedImage image, Interpolation interpolation) {
         RenderingHints hints = ImageUtilities.getRenderingHints(image);
         if (hints == null) {

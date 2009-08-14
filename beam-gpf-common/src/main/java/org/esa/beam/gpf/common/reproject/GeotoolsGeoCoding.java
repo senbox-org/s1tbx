@@ -1,4 +1,4 @@
-package org.esa.beam.gpf.common;
+package org.esa.beam.gpf.common.reproject;
 
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.AbstractGeoCoding;
