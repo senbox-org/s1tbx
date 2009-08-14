@@ -96,7 +96,9 @@ public class ReprojectionOp extends Operator {
             /*
              * 2. Compute the target grid geometry
              */
-            final BeamGridGeometry targetGridGeometry = createTargetGridGeometry(sourceProduct, sourceRect.width, sourceRect.height, targetCRS);
+            final BeamGridGeometry targetGridGeometry = createTargetGridGeometry(sourceProduct,
+                                                                                 sourceRect.width, sourceRect.height,
+                                                                                 targetCRS);
             Rectangle targetGridRect = targetGridGeometry.getBounds();
 
             /*
