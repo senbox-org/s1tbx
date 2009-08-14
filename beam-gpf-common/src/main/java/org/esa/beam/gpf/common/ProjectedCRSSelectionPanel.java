@@ -55,6 +55,7 @@ public class ProjectedCRSSelectionPanel extends JPanel {
 
         final FilterableListModel listModel = searchField.getDisplayListModel();
         final JList crsList = new JList(listModel);
+        crsList.setVisibleRowCount(10);
         searchField.setList(crsList);
         crsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         crsList.addListSelectionListener(new ListSelectionListener() {
