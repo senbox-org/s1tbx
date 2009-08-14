@@ -48,8 +48,9 @@ import java.util.Collections;
 
 public class ProjectedCrsSelectionForm extends JPanel {
 
-    private ProjectedCrsSelectionFormModel crsSelectionFormModel;
+    private final ProjectedCrsSelectionFormModel crsSelectionFormModel;
     private JTextArea infoArea;
+    private JList crsList;
 
     // for testing the UI
     public static void main(String[] args) {
@@ -75,11 +76,16 @@ public class ProjectedCrsSelectionForm extends JPanel {
 
     ProjectedCrsSelectionForm(ProjectedCrsSelectionFormModel model) {
         crsSelectionFormModel = model;
+        creaeUI();
+        updateUIState();
+    }
+
+    private void creaeUI() {
         final QuickListFilterField filterField = new QuickListFilterField(crsSelectionFormModel.getListModel());
         filterField.setHintText("Type here to filter Projections");
 
         final FilterableListModel listModel = filterField.getDisplayListModel();
-        final JList crsList = new JList(listModel);
+        crsList = new JList(listModel);
         crsList.setVisibleRowCount(10);
         filterField.setList(crsList);
         crsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -116,13 +122,24 @@ public class ProjectedCrsSelectionForm extends JPanel {
         add(defineCrsBtn);
     }
 
-    private void selectedCrsChanged(CrsInfo selectedValue) {
-        if (selectedValue != null) {
-            infoArea.setText(selectedValue.getCrs().toString());
-            crsSelectionFormModel.setSelectedCrs(selectedValue.getCrs());
+    private void selectedCrsChanged(final ProjectedCRS crs) {
+        if (crs != null) {
+            crsSelectionFormModel.setSelectedCrs(crs);
+        } else {
+            crsSelectionFormModel.setSelectedCrs(null);
+        }
+        updateUIState();
+    }
+
+    private void updateUIState() {
+        final ProjectedCRS selectedCrs = crsSelectionFormModel.getSelectedCrs();
+        if(crsList.getSelectedValue() != selectedCrs){
+            crsList.setSelectedValue(selectedCrs, true);
+        }
+        if (selectedCrs != null) {
+            infoArea.setText(selectedCrs.toString());
         } else {
             infoArea.setText("");
-            crsSelectionFormModel.setSelectedCrs(null);
         }
     }
 
@@ -154,7 +171,7 @@ public class ProjectedCrsSelectionForm extends JPanel {
         public void valueChanged(ListSelectionEvent e) {
             final JList list = (JList) e.getSource();
             CrsInfo selectedValue = (CrsInfo) list.getSelectedValue();
-            selectedCrsChanged(selectedValue);
+            selectedCrsChanged(selectedValue != null ? selectedValue.getCrs() : null);
         }
 
     }
