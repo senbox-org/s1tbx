@@ -89,6 +89,7 @@ public class ReprojectionOp extends Operator {
     
     
     private CoordinateReferenceSystem targetCRS;
+    private Interpolation interpolation;
     private Point2D[] mapBoundary;
     
 
@@ -96,7 +97,8 @@ public class ReprojectionOp extends Operator {
     public void initialize() throws OperatorException {
         Rectangle sourceRect = new Rectangle(sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
         try {
-            createTargetCRS();
+            targetCRS = createTargetCRS();
+            interpolation = createInterpolation();
             computeMapBoundary();
             
             /*
@@ -276,8 +278,14 @@ public class ReprojectionOp extends Operator {
                 ImageLayout imageLayout = createImageLayout(targetBand, targetRect.width, targetRect.height, targetProduct.getPreferredTileSize());
                 Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
                 
+                Interpolation usedInterpolation = interpolation;
+                int dataType = targetBand.getDataType();
+                if (ProductData.isFloatingPointType(dataType)) {
+                    usedInterpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
+                }
+                
                 try {
-                    return Reproject.reproject(leveledSourceImage, sourceGridGeometry, targetGridGeometry, targetBand.getNoDataValue(), createInterpolation(), hints);
+                    return Reproject.reproject(leveledSourceImage, sourceGridGeometry, targetGridGeometry, targetBand.getNoDataValue(), usedInterpolation, hints);
                 } catch (FactoryException e) {
                     e.printStackTrace();
                     throw new RuntimeException(e);
@@ -315,15 +323,16 @@ public class ReprojectionOp extends Operator {
         }
     }
 
-    private void createTargetCRS() throws OperatorException {
+    private CoordinateReferenceSystem createTargetCRS() throws OperatorException {
+        CoordinateReferenceSystem crs;
         try {
             if (epsgCode != null && !epsgCode.isEmpty()) {
                 // to force longitude==xAxis and latitude==yAxis
                 boolean longitudeFirst = true; 
-                targetCRS = CRS.decode(epsgCode, longitudeFirst);
+                crs = CRS.decode(epsgCode, longitudeFirst);
             } else if (wktFile != null) {
                 String wkt = FileUtils.readText(wktFile);
-                targetCRS = CRS.parseWKT(wkt);
+                crs = CRS.parseWKT(wkt);
             } else {
                 final DefaultMathTransformFactory mtf = new DefaultMathTransformFactory();
                 ParameterValueGroup p = mtf.getDefaultParameters(transformationName);
@@ -338,16 +347,17 @@ public class ReprojectionOp extends Operator {
                     parameter.setValue(transformationParameter.value);
                 }
                 final MathTransform transformation = mtf.createParameterizedTransform(p);
-                targetCRS = new DefaultProjectedCRS("User CRS (" + transformationName + ")",
+                crs = new DefaultProjectedCRS("User CRS (" + transformationName + ")",
                                                     DefaultGeographicCRS.WGS84, transformation, 
                                                     DefaultCartesianCS.PROJECTED);
             }
         } catch (Exception e) {
             throw new OperatorException(e);
         }
-        if (targetCRS == null) {
+        if (crs == null) {
             throw new OperatorException("Unable to create CRS");
         }
+        return crs;
     }
 
     private Interpolation createInterpolation() {
