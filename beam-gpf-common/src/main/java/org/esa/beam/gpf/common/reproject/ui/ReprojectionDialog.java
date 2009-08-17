@@ -30,6 +30,7 @@ public class ReprojectionDialog extends SingleTargetProductDialog {
 
         final Map<String, Object> parameterMap = new HashMap<String, Object>(5);
         // Reprojection parameters
+        parameterMap.put("sourceProduct", formModel.getSourceProduct());
         parameterMap.put("targetCrs", formModel.getTargetCrs());
         parameterMap.put("interpolationName", formModel.getInterpolationName());
 

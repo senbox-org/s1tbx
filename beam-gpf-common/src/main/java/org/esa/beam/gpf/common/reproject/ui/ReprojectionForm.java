@@ -18,9 +18,12 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Rectangle;
 import java.util.List;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValidationException;
 
 /**
  * User: Marco

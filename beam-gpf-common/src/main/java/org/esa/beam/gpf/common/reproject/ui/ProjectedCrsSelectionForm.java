@@ -47,20 +47,20 @@ public class ProjectedCrsSelectionForm extends JPanel {
     // for testing the UI
     public static void main(String[] args) {
         Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
-        final JFrame jFrame = new JFrame("CRS Selection Panel");
-        Container contentPane = jFrame.getContentPane();
+        final JFrame frame = new JFrame("CRS Selection Panel");
+        Container contentPane = frame.getContentPane();
 
         final CrsInfoListModel crsInfoListModel = new CrsInfoListModel(CrsInfo.generateSupportedCRSList());
         final ProjectedCrsSelectionFormModel model = new ProjectedCrsSelectionFormModel(crsInfoListModel);
         ProjectedCrsSelectionForm projectedCRSSelectionForm = new ProjectedCrsSelectionForm(model);
         contentPane.add(projectedCRSSelectionForm);
-        jFrame.setSize(600, 400);
-        jFrame.setLocationRelativeTo(null);
-        jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(600, 400);
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                jFrame.setVisible(true);
+                frame.setVisible(true);
             }
         });
     }
@@ -81,6 +81,7 @@ public class ProjectedCrsSelectionForm extends JPanel {
         crsList.setVisibleRowCount(10);
         filterField.setList(crsList);
         crsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        crsList.setSelectedValue(crsSelectionFormModel.getSelectedCrs(), true);
 
         final JLabel filterLabel = new JLabel("Filter:");
         final JLabel infoLabel = new JLabel("CRS Info:");
