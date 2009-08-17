@@ -9,10 +9,10 @@ import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.Operator;
@@ -23,6 +23,8 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.jai.ResolutionLevel;
+import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.io.FileUtils;
@@ -44,6 +46,8 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
+import javax.media.jai.operator.ConstantDescriptor;
+
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -82,23 +86,23 @@ public class ReprojectionOp extends Operator {
                valueSet= {"Nearest", "Bilinear","Bicubic","Bicubic_2"},
                defaultValue = "Nearest")
     private String interpolationName;
-
+    
+    
+    private CoordinateReferenceSystem targetCRS;
+    private Point2D[] mapBoundary;
+    
 
     @Override
     public void initialize() throws OperatorException {
         Rectangle sourceRect = new Rectangle(sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
-        BeamGridGeometry sourceGridGeometry = new BeamGridGeometry(sourceProduct.getGeoCoding().getImageToModelTransform(), 
-                                                                   sourceRect, 
-                                                                   sourceProduct.getGeoCoding().getImageCRS());
         try {
-            CoordinateReferenceSystem targetCRS = createTargetCRS();
+            createTargetCRS();
+            computeMapBoundary();
             
             /*
              * 2. Compute the target grid geometry
              */
-            final BeamGridGeometry targetGridGeometry = createTargetGridGeometry(sourceProduct,
-                                                                                 sourceRect.width, sourceRect.height,
-                                                                                 targetCRS);
+            final BeamGridGeometry targetGridGeometry = createTargetGridGeometry(sourceRect.width, sourceRect.height);
             Rectangle targetGridRect = targetGridGeometry.getBounds();
 
             /*
@@ -114,40 +118,56 @@ public class ReprojectionOp extends Operator {
             // TODO: also query operatorContext rendering hints for tile size
             final Dimension tileSize = ImageManager.getPreferredTileSize(targetProduct);
             targetProduct.setPreferredTileSize(tileSize);
-            addMetadataToProduct(targetProduct);
-            addFlagCodingsToProduct(targetProduct);
-            addIndexCodingsToProduct(targetProduct);
+            ProductUtils.copyMetadata(sourceProduct, targetProduct);
+            ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
+            copyIndexCoding();
             targetProduct.setGeoCoding(new GeotoolsGeoCoding(targetGridGeometry));
 
             /*
              * 5. Create target bands
-             */
-//            String reprojFlagBandName = "reproject_flag";
-//            Band reprojectValidBand = targetProduct.addBand(reprojFlagBandName, ProductData.TYPE_INT8);
-//            final FlagCoding flagCoding = new FlagCoding(reprojFlagBandName);
-//            flagCoding.setDescription("Reprojection Flag Coding");
-//
-//            MetadataAttribute reprojAttr = new MetadataAttribute("valid", ProductData.TYPE_UINT8);
-//            reprojAttr.getData().setElemInt(1);
-//            reprojAttr.setDescription("valid data from reprojection");
-//            flagCoding.addAttribute(reprojAttr);
-//            targetProduct.getFlagCodingGroup().add(flagCoding);
-//            reprojectValidBand.setSampleCoding(flagCoding);
-            
+             */            
+            boolean reprojectionFlagRequired = false;
             for (Band sourceBand : sourceProduct.getBands()) {
-                Band targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
-                ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
+                int geophysicalDataType = sourceBand.getGeophysicalDataType();
+                Band targetBand;
+                MultiLevelImage sourceImage;
+                if (ProductData.isFloatingPointType(geophysicalDataType)) {
+                    targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getGeophysicalDataType());
+                    targetBand.setDescription(sourceBand.getDescription());
+                    targetBand.setUnit(sourceBand.getUnit());
+                    if (ProductData.TYPE_FLOAT32 == geophysicalDataType) {
+                        targetBand.setNoDataValue(Float.NaN);
+                    } else {
+                        targetBand.setNoDataValue(Double.NaN);
+                    }
+                    targetBand.setNoDataValueUsed(true);
+                    ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
+                    sourceImage = sourceBand.getGeophysicalImage();
+                    String exp = sourceBand.getValidMaskExpression();
+                    if (exp != null) {
+                        exp = "(" + exp + ")>0?" + sourceBand.getName() + ":NaN";
+                        sourceImage = createVirtualSourceImage(exp, geophysicalDataType, targetBand.getNoDataValue(), sourceProduct);
+                    }
+                } else {
+                    targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
+                    ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
+                    String validPixelExpression = targetBand.getValidPixelExpression();
+                    if (validPixelExpression == null) {
+                        validPixelExpression = "reproject_flag.valid";
+                    } else {
+                        validPixelExpression = "reproject_flag.valid && " + validPixelExpression;
+                    }
+                    targetBand.setValidPixelExpression(validPixelExpression);
+                    sourceImage = sourceBand.getSourceImage();
+                    reprojectionFlagRequired = true;
+                }
 
-                ImageLayout imageLayout = createImageLayout(targetBand, tileSize);
-                Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
+//                ImageLayout imageLayout = createImageLayout(targetBand, tileSize);
+//                Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
 
-                RenderedImage sourceImage = sourceBand.getSourceImage();
-                RenderedImage targetImage = Reproject.reproject(sourceImage, sourceGridGeometry, targetGridGeometry, 0, createInterpolation(), hints);
+//                targetBand.setSourceImage(Reproject.reproject(sourceImage, sourceGridGeometry, targetGridGeometry, targetBand.getNoDataValue(), createInterpolation(), hints));
                 
-//                targetBand.setSourceImage(createSourceImage(sourceBand, targetBand, targetCRS));
-                targetBand.setSourceImage(targetImage);
-//                targetBand.setStx(sourceBand.getStx());
-                targetBand.setImageInfo(sourceBand.getImageInfo());
+                targetBand.setSourceImage(createProjectedImage(sourceImage, targetBand, targetCRS));
 
                 /*
                  * Flag and index codings
@@ -164,6 +184,29 @@ public class ReprojectionOp extends Operator {
                     targetBand.setSampleCoding(destIndexCoding);
                 }
             }
+            if (reprojectionFlagRequired) {
+                /*
+                 * 6. Create reprojection valid flag band
+                 */
+                String reprojFlagBandName = "reproject_flag";
+                Band reprojectValidBand = targetProduct.addBand(reprojFlagBandName, ProductData.TYPE_INT8);
+                final FlagCoding flagCoding = new FlagCoding(reprojFlagBandName);
+                flagCoding.setDescription("Reprojection Flag Coding");
+
+                MetadataAttribute reprojAttr = new MetadataAttribute("valid", ProductData.TYPE_UINT8);
+                reprojAttr.getData().setElemInt(1);
+                reprojAttr.setDescription("valid data from reprojection");
+                flagCoding.addAttribute(reprojAttr);
+                targetProduct.getFlagCodingGroup().add(flagCoding);
+                reprojectValidBand.setSampleCoding(flagCoding);
+//                Hints bhints = new Hints(JAI.KEY_IMAGE_LAYOUT, createImageLayout(reprojectValidBand, tileSize));
+//                RenderedImage productImage = VirtualBandOpImage.create("1", reprojectValidBand.getDataType(),
+//                                                        0, 
+//                                                        sourceProduct, ResolutionLevel.MAXRES);
+//                RenderedImage producttargetImage = Reproject.reproject(productImage, sourceGridGeometry, targetGridGeometry, 0, createInterpolation(), bhints);
+//                reprojectValidBand.setSourceImage(producttargetImage);
+                reprojectValidBand.setSourceImage(createProjectedImage(null, reprojectValidBand, targetCRS));
+            }
 
             /*
              * Bitmask definitions and placemarks
@@ -178,16 +221,32 @@ public class ReprojectionOp extends Operator {
             throw new OperatorException(t.getMessage(), t);
         }
     }
+    
+    private static MultiLevelImage createVirtualSourceImage(final String expression, final int geophysicalDataType,
+                                                            final Number noDataValue, final Product sourceProduct) {
+        
+        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(sourceProduct.getBandAt(0));
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
 
-    private MultiLevelImage createSourceImage(final Band sourceBand, final Band targetBand, final CoordinateReferenceSystem targetCRS) {
+            @Override
+            public RenderedImage createImage(int level) {
+                return VirtualBandOpImage.create(expression, geophysicalDataType,
+                                                        noDataValue, 
+                                                        sourceProduct,
+                                                        ResolutionLevel.create(getModel(), level));
+            }
+        });
+    }
+    
+    private MultiLevelImage createProjectedImage(final RenderedImage sourceImage, final Band targetBand, final CoordinateReferenceSystem targetCRS) {
         final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(targetBand);
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
 
             @Override
             public RenderedImage createImage(int targetLevel) {
+                MultiLevelModel sourceMLModel = sourceProduct.getBandAt(0).getSourceImage().getModel();
                 int sourceLevel = targetLevel;
-                MultiLevelModel sourceMLModel = sourceBand.getSourceImage().getModel();
                 double targetScale = getModel().getScale(targetLevel);
                 int targetWidth = (int)Math.floor(targetBand.getSceneRasterWidth() / targetScale);
                 int targetHeight = (int)Math.floor(targetBand.getSceneRasterHeight() / targetScale);
@@ -195,24 +254,30 @@ public class ReprojectionOp extends Operator {
                 if (sourceLevelCount-1 < targetLevel) {
                     sourceLevel = sourceLevelCount - 1;
                 }
-                PlanarImage leveledSourceImage = ImageManager.getInstance().getSourceImage(sourceBand, sourceLevel);
                 
-                int leveledSourceWidth = leveledSourceImage.getWidth();
-                int leveledSourceHeight = leveledSourceImage.getHeight();
-                
+                int leveledSourceWidth = (int)Math.floor(sourceProduct.getSceneRasterWidth() / sourceMLModel.getScale(sourceLevel));
+                int leveledSourceHeight = (int)Math.floor(sourceProduct.getSceneRasterHeight() / sourceMLModel.getScale(sourceLevel));
                 Rectangle sourceRect = new Rectangle(leveledSourceWidth, leveledSourceHeight);
+                
+                RenderedImage leveledSourceImage;
+                if (sourceImage instanceof MultiLevelImage) {
+                    MultiLevelImage multiLevelSourceImage = (MultiLevelImage) sourceImage;
+                    leveledSourceImage = multiLevelSourceImage.getImage(sourceLevel);
+                    
+                } else {
+                    leveledSourceImage = ConstantDescriptor.create((float)leveledSourceWidth, (float)leveledSourceHeight, new Integer[] {1}, null);
+                }
                 BeamGridGeometry sourceGridGeometry = new BeamGridGeometry(sourceMLModel.getImageToModelTransform(sourceLevel), 
                                                                            sourceRect, 
                                                                            sourceProduct.getGeoCoding().getImageCRS());
-                
-                final BeamGridGeometry targetGridGeometry = createTargetGridGeometry(sourceProduct, leveledSourceWidth, leveledSourceHeight, targetWidth, targetHeight, targetCRS);
+                BeamGridGeometry targetGridGeometry = createTargetGridGeometry(leveledSourceWidth, leveledSourceHeight, targetWidth, targetHeight);
                 
                 Rectangle targetRect = targetGridGeometry.getBounds();
-                ImageLayout imageLayout = createImageLayout(targetBand, targetRect.width, targetRect.height, new Dimension(128, 128));
+                ImageLayout imageLayout = createImageLayout(targetBand, targetRect.width, targetRect.height, targetProduct.getPreferredTileSize());
                 Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
                 
                 try {
-                    return Reproject.reproject(leveledSourceImage, sourceGridGeometry, targetGridGeometry, 0, createInterpolation(), hints);
+                    return Reproject.reproject(leveledSourceImage, sourceGridGeometry, targetGridGeometry, targetBand.getNoDataValue(), createInterpolation(), hints);
                 } catch (FactoryException e) {
                     e.printStackTrace();
                     throw new RuntimeException(e);
@@ -224,64 +289,14 @@ public class ReprojectionOp extends Operator {
         });
     }
     
-    protected void addFlagCodingsToProduct(Product product) {
-        final ProductNodeGroup<FlagCoding> flagCodingGroup = sourceProduct.getFlagCodingGroup();
-        for (int i = 0; i < flagCodingGroup.getNodeCount(); i++) {
-            FlagCoding sourceFlagCoding = flagCodingGroup.get(i);
-            FlagCoding destFlagCoding = new FlagCoding(sourceFlagCoding.getName());
-            destFlagCoding.setDescription(sourceFlagCoding.getDescription());
-            cloneFlags(sourceFlagCoding, destFlagCoding);
-            product.getFlagCodingGroup().add(destFlagCoding);
-        }
-    }
-
-    protected void addIndexCodingsToProduct(Product product) {
+    private void copyIndexCoding() {
         final ProductNodeGroup<IndexCoding> indexCodingGroup = sourceProduct.getIndexCodingGroup();
         for (int i = 0; i < indexCodingGroup.getNodeCount(); i++) {
             IndexCoding sourceIndexCoding = indexCodingGroup.get(i);
-            IndexCoding destIndexCoding = new IndexCoding(sourceIndexCoding.getName());
-            destIndexCoding.setDescription(sourceIndexCoding.getDescription());
-            cloneIndexes(sourceIndexCoding, destIndexCoding);
-            product.getIndexCodingGroup().add(destIndexCoding);
+            ProductUtils.copyIndexCoding(sourceIndexCoding, targetProduct);
         }
     }
-
-    protected void addMetadataToProduct(Product product) {
-        cloneMetadataElementsAndAttributes(sourceProduct.getMetadataRoot(), product.getMetadataRoot(), 0);
-    }
-
-    protected void cloneFlags(FlagCoding sourceFlagCoding, FlagCoding destFlagCoding) {
-        cloneMetadataElementsAndAttributes(sourceFlagCoding, destFlagCoding, 1);
-    }
-
-    protected void cloneIndexes(IndexCoding sourceFlagCoding, IndexCoding destFlagCoding) {
-        cloneMetadataElementsAndAttributes(sourceFlagCoding, destFlagCoding, 1);
-    }
-
-    protected void cloneMetadataElementsAndAttributes(MetadataElement sourceRoot, MetadataElement destRoot, int level) {
-        cloneMetadataElements(sourceRoot, destRoot, level);
-        cloneMetadataAttributes(sourceRoot, destRoot);
-    }
-
-    protected void cloneMetadataElements(MetadataElement sourceRoot, MetadataElement destRoot, int level) {
-        for (int i = 0; i < sourceRoot.getNumElements(); i++) {
-            MetadataElement sourceElement = sourceRoot.getElementAt(i);
-            if (level > 0) {
-                MetadataElement element = new MetadataElement(sourceElement.getName());
-                element.setDescription(sourceElement.getDescription());
-                destRoot.addElement(element);
-                cloneMetadataElementsAndAttributes(sourceElement, element, level + 1);
-            }
-        }
-    }
-
-    protected void cloneMetadataAttributes(MetadataElement sourceRoot, MetadataElement destRoot) {
-        for (int i = 0; i < sourceRoot.getNumAttributes(); i++) {
-            MetadataAttribute sourceAttribute = sourceRoot.getAttributeAt(i);
-            destRoot.addAttribute(sourceAttribute.createDeepClone());
-        }
-    }
-
+    
     private static void copyPlacemarks(ProductNodeGroup<Pin> sourcePlacemarkGroup,
                                        ProductNodeGroup<Pin> targetPlacemarkGroup, PlacemarkSymbol symbol) {
         final Pin[] placemarks = sourcePlacemarkGroup.toArray(new Pin[0]);
@@ -300,8 +315,7 @@ public class ReprojectionOp extends Operator {
         }
     }
 
-    private CoordinateReferenceSystem createTargetCRS() throws OperatorException {
-        final CoordinateReferenceSystem targetCRS; 
+    private void createTargetCRS() throws OperatorException {
         try {
             if (epsgCode != null && !epsgCode.isEmpty()) {
                 // to force longitude==xAxis and latitude==yAxis
@@ -334,11 +348,6 @@ public class ReprojectionOp extends Operator {
         if (targetCRS == null) {
             throw new OperatorException("Unable to create CRS");
         }
-        return targetCRS;
-//        Set<OperationMethod> methods = mtf.getAvailableMethods(Projection.class);
-//        for (OperationMethod method : methods) {
-//            System.out.println("method.getName() = " + method.getName());
-//        }
     }
 
     private Interpolation createInterpolation() {
@@ -354,28 +363,9 @@ public class ReprojectionOp extends Operator {
         }
         return Interpolation.getInstance(interpolationType);
     }
-
-    private static BeamGridGeometry createTargetGridGeometry(Product sourceProduct,
-                                                             int sourceWidth,
-                                                             int sourceHeight,
-                                                             CoordinateReferenceSystem targetCRS) {
+    
+    private BeamGridGeometry createTargetGridGeometry(int sourceWidth, int sourceHeight) {
         // TODO: create grid geometry from parameters
-        final int sourceW = sourceProduct.getSceneRasterWidth();
-        final int sourceH = sourceProduct.getSceneRasterHeight();
-        MathTransform mathTransform;
-        
-        try {
-            mathTransform = CRS.findMathTransform(sourceProduct.getGeoCoding().getBaseCRS(), targetCRS);
-        } catch (FactoryException e) {
-            throw new OperatorException(e);
-        }
-        Point2D[] mapBoundary;
-        try {
-            final int step = Math.min(sourceW, sourceH) / 2;
-            mapBoundary = createMapBoundary(sourceProduct, step, mathTransform);
-        } catch (TransformException e) {
-            throw new OperatorException(e);
-        }
         final Point2D pMin = mapBoundary[0];
         final Point2D pMax = mapBoundary[1];
         double mapW = pMax.getX() - pMin.getX();
@@ -405,28 +395,9 @@ public class ReprojectionOp extends Operator {
         return new BeamGridGeometry(transform, targetGrid, targetCRS);
     }
     
-    private static BeamGridGeometry createTargetGridGeometry(Product sourceProduct,
-                                                             int sourceWidth,
-                                                             int sourceHeight,
-                                                             int targetWidth,
-                                                             int targetHeight,
-                                                             CoordinateReferenceSystem targetCRS) {
+    private BeamGridGeometry createTargetGridGeometry(int sourceWidth, int sourceHeight, int targetWidth,
+                                                      int targetHeight) {
               // TODO: create grid geometry from parameters
-              final int sourceW = sourceProduct.getSceneRasterWidth();
-              final int sourceH = sourceProduct.getSceneRasterHeight();
-              final int step = Math.min(sourceW, sourceH) / 2;
-              MathTransform mathTransform;
-              try {
-                  mathTransform = CRS.findMathTransform(sourceProduct.getGeoCoding().getBaseCRS(), targetCRS);
-              } catch (FactoryException e) {
-                  throw new OperatorException(e);
-              }
-              Point2D[] mapBoundary;
-              try {
-                  mapBoundary = createMapBoundary(sourceProduct, step, mathTransform);
-              } catch (TransformException e) {
-                  throw new OperatorException(e);
-              }
               final Point2D pMin = mapBoundary[0];
               final Point2D pMax = mapBoundary[1];
               double mapW = pMax.getX() - pMin.getX();
@@ -454,7 +425,24 @@ public class ReprojectionOp extends Operator {
               transform.translate(-pixelX, -pixelY);
 
               return new BeamGridGeometry(transform, targetGrid, targetCRS);
-    }    
+    }
+    
+    private void computeMapBoundary() {
+        final int sourceW = sourceProduct.getSceneRasterWidth();
+        final int sourceH = sourceProduct.getSceneRasterHeight();
+        final int step = Math.min(sourceW, sourceH) / 2;
+        MathTransform mathTransform;
+        try {
+            mathTransform = CRS.findMathTransform(sourceProduct.getGeoCoding().getBaseCRS(), targetCRS);
+        } catch (FactoryException e) {
+            throw new OperatorException(e);
+        }
+        try {
+            mapBoundary = createMapBoundary(sourceProduct, step, mathTransform);
+        } catch (TransformException e) {
+            throw new OperatorException(e);
+        }
+    }
 
     private static Point2D[] createMapBoundary(Product product, int step,
                                                MathTransform mathTransform) throws TransformException {
