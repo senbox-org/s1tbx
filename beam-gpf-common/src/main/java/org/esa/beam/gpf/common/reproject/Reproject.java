@@ -15,7 +15,6 @@
 package org.esa.beam.gpf.common.reproject;
 
 
-import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
@@ -167,32 +166,6 @@ final class Reproject {
         if (hints != null) {
             targetHints.add(hints);
         }
-        ImageLayout layout = (ImageLayout) targetHints.get(JAI.KEY_IMAGE_LAYOUT);
-        if (layout != null) {
-            layout = (ImageLayout) layout.clone();
-        } else {
-            layout = new ImageLayout();
-            // Do not inherit the color model and sample model from the 'sourceImage';
-            // Let the operation decide itself. This is necessary in case we change the
-            // source, as we do if we choose the "Mosaic" operation.
-        }
-        final Rectangle sourceBB = sourceGG.getBounds();
-        final Rectangle targetBB = targetGG.getBounds();
-        if (isBoundsUndefined(layout, false)) {
-            layout.setMinX  (targetBB.x);
-            layout.setMinY  (targetBB.y);
-            layout.setWidth (targetBB.width);
-            layout.setHeight(targetBB.height);
-        }
-        if (isBoundsUndefined(layout, true)) {
-            Dimension size = new Dimension(layout.getWidth (sourceImage),
-                                           layout.getHeight(sourceImage));
-            size = ImageUtilities.toTileSize(size);
-            layout.setTileGridXOffset(layout.getMinX(sourceImage));
-            layout.setTileGridYOffset(layout.getMinY(sourceImage));
-            layout.setTileWidth (size.width);
-            layout.setTileHeight(size.height);
-        }
         /*
          * Creates the border extender from the background values. We add it inconditionnaly as
          * a matter of principle, but it will be ignored by all JAI operations except "Affine".
@@ -208,17 +181,6 @@ final class Reproject {
             borderExtender = new BorderExtenderConstant(background);
         }
         hints.put(JAI.KEY_BORDER_EXTENDER, borderExtender);
-        /*
-         * We need to correctly manage the Hints to control the replacement of IndexColorModel.
-         * It is worth to point out that setting the JAI.KEY_REPLACE_INDEX_COLOR_MODEL hint to
-         * Boolean.TRUE is not enough to force the operators to do an expansion. If we explicitly
-         * provide an ImageLayout built with the source image where the CM and the SM are valid.
-         * those will be employed overriding a the possibility to expand the color model.
-         */
-//        if (ViewType.PHOTOGRAPHIC.equals(processingView)) {
-//            layout.unsetValid(ImageLayout.COLOR_MODEL_MASK | ImageLayout.SAMPLE_MODEL_MASK);
-//        }
-//        targetHints.put(JAI.KEY_IMAGE_LAYOUT, layout);
 
         ////////////////////////////////////////////////////////////////////////////////////////
         ////                                                                                ////
@@ -236,8 +198,10 @@ final class Reproject {
         final String operation;
         final ParameterBlock paramBlk = new ParameterBlock().addSource(sourceImage);
         if (allSteps.isIdentity() || (allSteps instanceof AffineTransform &&
-                XAffineTransform.isIdentity((AffineTransform) allSteps, EPS)))
-        {
+                XAffineTransform.isIdentity((AffineTransform) allSteps, EPS))) {
+
+            final Rectangle sourceBB = sourceGG.getBounds();
+            final Rectangle targetBB = targetGG.getBounds();
             /*
              * Since there is no interpolation to perform, use the native view (which may be
              * packed or geophysics - it is just the view which is closest to original data).
@@ -278,31 +242,35 @@ final class Reproject {
              *
              * TODO: Move the check for AffineTransform into WarpTransform2D.
              */
-            boolean forceAdapter = false;
-            switch (sourceImage.getSampleModel().getTransferType()) {
-                case DataBuffer.TYPE_DOUBLE:
-                case DataBuffer.TYPE_FLOAT: {
-                    Envelope source = CRS.transform(sourceGG.getEnvelope(), targetGG.getModelCRS());
-                    Envelope target = CRS.transform(targetGG.getEnvelope(), targetGG.getModelCRS());
-                    if (!(new GeneralEnvelope(source).contains(target, true))) {
-                        if (interpolation != null && !(interpolation instanceof InterpolationNearest)) {
-                            return reproject(sourceImage, sourceGG, targetGG, backgroundValue, interpolation, hints);
-                        } else {
-                            // If we were already using nearest-neighbor interpolation, force
-                            // usage of WarpAdapter2D instead of WarpAffine. The price will be
-                            // a slower reprojection.
-                            forceAdapter = true;
-                        }
-                    }
-                }
-            }
+//            boolean forceAdapter = false;
+//            switch (sourceImage.getSampleModel().getTransferType()) {
+//                case DataBuffer.TYPE_DOUBLE:
+//                case DataBuffer.TYPE_FLOAT: {
+//                    Envelope source = CRS.transform(sourceGG.getEnvelope(), targetGG.getModelCRS());
+//                    Envelope target = CRS.transform(targetGG.getEnvelope(), targetGG.getModelCRS());
+//                    if (!(new GeneralEnvelope(source).contains(target, true))) {
+//                        if (interpolation != null && !(interpolation instanceof InterpolationNearest)) {
+//                            return reproject(sourceImage, sourceGG, targetGG, backgroundValue, interpolation, hints);
+//                        } else {
+//                            // If we were already using nearest-neighbor interpolation, force
+//                            // usage of WarpAdapter2D instead of WarpAffine. The price will be
+//                            // a slower reprojection.
+//                            forceAdapter = true;
+//                        }
+//                    }
+//                }
+//            }
             operation = "Warp";
             final Warp warp;
-            if (forceAdapter) {
-                warp = WarpTransform2D.getWarp(null, allSteps2D);
-            } else {
-                warp = createWarp(null, allSteps2D);
-            }
+//            if (forceAdapter) {
+//                warp = WarpTransform2D.getWarp(null, allSteps2D);
+//            } else {
+                if (allSteps2D instanceof AffineTransform) {
+                    warp = new WarpAffine((AffineTransform) allSteps2D);
+                } else {
+                    warp = WarpTransform2D.getWarp(null, allSteps2D);
+                }
+//            }
             paramBlk.add(warp).add(interpolation).add(background);
         }
         final RenderedOp targetImage = JAI.getDefaultInstance().createNS(operation, paramBlk, targetHints);
@@ -340,24 +308,6 @@ final class Reproject {
     }
 
     /**
-     * Returns {@code true} if the image or tile location and size are totally undefined.
-     *
-     * @param layout The image layout to query.
-     * @param tile {@code true} for testing tile bounds, or {@code false} for testing image bounds.
-     */
-    private static boolean isBoundsUndefined(final ImageLayout layout, final boolean tile) {
-        final int mask;
-        if (tile) {
-            mask = ImageLayout.TILE_GRID_X_OFFSET_MASK | ImageLayout.TILE_WIDTH_MASK |
-                   ImageLayout.TILE_GRID_Y_OFFSET_MASK | ImageLayout.TILE_HEIGHT_MASK;
-        } else {
-            mask = ImageLayout.MIN_X_MASK | ImageLayout.WIDTH_MASK |
-                   ImageLayout.MIN_Y_MASK | ImageLayout.HEIGHT_MASK;
-        }
-        return (layout.getValidMask() & mask) == 0;
-    }
-
-    /**
      * Returns the math transform for the two specified dimensions of the specified transform.
      *
      * @param  transform The transform.
@@ -387,34 +337,6 @@ final class Reproject {
             return (MathTransform2D) candidate;
         }
         throw new FactoryException(Errors.format(ErrorKeys.NO_TRANSFORM2D_AVAILABLE));
-    }
-
-    /**
-     * Creates a warp for the given transform. This method performs some empirical adjustment
-     * for working around the {@link ArrayIndexOutOfBoundsException} which occurs sometime in
-     * {@code MlibWarpPolynomialOpImage.computeTile(...)}.
-     *
-     * @param  name       The coverage name, for information purpose.
-     * @param  allSteps2D Transform from target to source CRS.
-     * @return The warp.
-     * @throws FactoryException if the warp can't be created.
-     */
-    private static Warp createWarp(final CharSequence name, final MathTransform2D allSteps2D) {
-        /*
-         * Creates the warp object, trying to optimize to WarpAffine if possible. The transform
-         * should have been computed in such a way that the target rectangle, when transformed,
-         * matches exactly the source rectangle. Checks if the bounding boxes calculated by the
-         * Warp object match the expected ones. In the usual case where they do, we are done.
-         * Otherwise we assume that the difference is caused by rounding error and we will try
-         * progressive empirical adjustment in order to get the rectangles to fit.
-         */
-        final Warp warp;
-        if (allSteps2D instanceof AffineTransform) {
-            warp = new WarpAffine((AffineTransform) allSteps2D);
-        } else {
-            warp = WarpTransform2D.getWarp(name, allSteps2D);
-        }
-        return warp;
     }
 
     private static RenderingHints getRenderingHints(final RenderedImage image, Interpolation interpolation) {
