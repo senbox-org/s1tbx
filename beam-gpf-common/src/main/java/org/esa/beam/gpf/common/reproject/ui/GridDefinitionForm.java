@@ -47,7 +47,7 @@ public class GridDefinitionForm extends JPanel{
         CoordinateReferenceSystem sourceCrs = DefaultGeographicCRS.WGS84;
         CoordinateReferenceSystem targetCrs = CRS.decode("EPSG:32632");
         GridDefinitionFormModel model = new GridDefinitionFormModel(sourceDimension, sourceCrs, targetCrs,
-                                                                    0, 0, 0.003, 0.003, "°");
+                                                                    "°");
         GridDefinitionForm projectedCRSSelectionForm = new GridDefinitionForm(model);
         contentPane.add(projectedCRSSelectionForm);
         jFrame.setSize(300, 150);
@@ -126,24 +126,27 @@ public class GridDefinitionForm extends JPanel{
     }
 
     private void updateGridDiemension() {
-        final int sourceW = model.getSourceDimension().width;
-        final int sourceH = model.getSourceDimension().height;
+        final CoordinateReferenceSystem sourceCrs = model.getSourceCrs();
+        if (sourceCrs != null) {
+            final int sourceW = model.getSourceDimension().width;
+            final int sourceH = model.getSourceDimension().height;
 
-        GeographicBoundingBox geoBBox = CRS.getGeographicBoundingBox(model.getSourceCrs());
-        double mapW = geoBBox.getNorthBoundLatitude() - geoBBox.getSouthBoundLatitude();
-        double mapH = geoBBox.getEastBoundLongitude() - geoBBox.getWestBoundLongitude();
+            GeographicBoundingBox geoBBox = CRS.getGeographicBoundingBox(sourceCrs);
+            double mapW = geoBBox.getNorthBoundLatitude() - geoBBox.getSouthBoundLatitude();
+            double mapH = geoBBox.getEastBoundLongitude() - geoBBox.getWestBoundLongitude();
 
-        float pixelSize = (float) Math.min(mapW / sourceW, mapH / sourceH);
-        if (MathUtils.equalValues(pixelSize, 0.0f)) {
-            pixelSize = 1.0f;
-        }
-        final int targetW = 1 + (int) Math.floor(mapW / pixelSize);
-        final int targetH = 1 + (int) Math.floor(mapH / pixelSize);
-        try {
-            valueContainer.setValue(GRID_WIDTH_NAME, targetW);
-            valueContainer.setValue(GRID_HEIGHT_NAME, targetH);
-        } catch (ValidationException e) {
-            e.printStackTrace();
+            float pixelSize = (float) Math.min(mapW / sourceW, mapH / sourceH);
+            if (MathUtils.equalValues(pixelSize, 0.0f)) {
+                pixelSize = 1.0f;
+            }
+            final int targetW = 1 + (int) Math.floor(mapW / pixelSize);
+            final int targetH = 1 + (int) Math.floor(mapH / pixelSize);
+            try {
+                valueContainer.setValue(GRID_WIDTH_NAME, targetW);
+                valueContainer.setValue(GRID_HEIGHT_NAME, targetH);
+            } catch (ValidationException e) {
+                e.printStackTrace();
+            }
         }
     }
 

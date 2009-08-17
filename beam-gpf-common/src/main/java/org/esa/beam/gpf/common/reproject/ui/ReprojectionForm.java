@@ -52,10 +52,9 @@ public class ReprojectionForm extends JPanel {
         add(crsSelectionForm);
         final Rectangle sourceDimension = new Rectangle(100, 200);
         final CoordinateReferenceSystem sourceCrs = DefaultGeographicCRS.WGS84;
-        final CoordinateReferenceSystem crs = CRS.decode("EPSG:32632");
-        final String unit = crs.getCoordinateSystem().getAxis(0).getUnit().toString();
-        gridDefinitionFormModel = new GridDefinitionFormModel(sourceDimension, sourceCrs, crs, sourceDimension.width, sourceDimension.height,
-                                    1, 1, unit);
+        final CoordinateReferenceSystem targetCrs = CRS.decode("EPSG:32632");
+        final String unit = targetCrs.getCoordinateSystem().getAxis(0).getUnit().toString();
+        gridDefinitionFormModel = new GridDefinitionFormModel(sourceDimension, sourceCrs, targetCrs, unit);
         final GridDefinitionForm gridDefinitionForm = new GridDefinitionForm(gridDefinitionFormModel);
         gridDefinitionForm.setBorder(BorderFactory.createTitledBorder("Target Grid"));
         add(gridDefinitionForm);

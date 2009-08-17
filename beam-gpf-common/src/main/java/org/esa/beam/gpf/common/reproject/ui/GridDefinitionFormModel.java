@@ -7,7 +7,7 @@ import java.awt.Rectangle;
 /**
  * @author Marco Peters
  * @version $ Revision $ Date $
- * @since BEAM 4.6
+ * @since BEAM 4.7
  */
 class GridDefinitionFormModel {
 
@@ -29,7 +29,9 @@ class GridDefinitionFormModel {
     private String unit;
     private boolean adjustSizeToSourceRegion;
 
-    GridDefinitionFormModel(Rectangle sourceDimension, CoordinateReferenceSystem sourceCrs, CoordinateReferenceSystem targetCrs, int gridWidth, int gridHeight, double pixelSizeX, double pixelSizeY, String unit) {
+    GridDefinitionFormModel(Rectangle sourceDimension, CoordinateReferenceSystem sourceCrs,
+                            CoordinateReferenceSystem targetCrs,
+                            String unit) {
         this.sourceDimension = sourceDimension;
         this.sourceCrs = sourceCrs;
         this.targetCrs = targetCrs;
