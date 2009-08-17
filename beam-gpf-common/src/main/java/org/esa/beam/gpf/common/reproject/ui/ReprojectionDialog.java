@@ -4,6 +4,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
+import org.opengis.referencing.FactoryException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +17,7 @@ public class ReprojectionDialog extends SingleTargetProductDialog {
     private ReprojectionFormModel formModel;
     private ReprojectionForm form;
 
-    public ReprojectionDialog(AppContext appContext) {
+    public ReprojectionDialog(AppContext appContext) throws FactoryException {
         super(appContext, "Collocation", "collocation");
         formModel = new ReprojectionFormModel();
         form = new ReprojectionForm(formModel, getTargetProductSelector(), appContext);

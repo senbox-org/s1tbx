@@ -1,11 +1,14 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.datamodel.Product;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.ProjectedCRS;
+import org.opengis.referencing.FactoryException;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.CRS;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -19,15 +22,17 @@ import java.util.List;
  * Date: 16.08.2009
  */
 public class ReprojectionForm extends JPanel {
-    private final ReprojectionFormModel model;
-    private final TargetProductSelector targetProductSelector;
+
+    private ReprojectionFormModel model;
+    private ProjectedCrsSelectionFormModel crsSelectionModel;
+    private GridDefinitionFormModel gridDefinitionFormModel;
 
     private SourceProductSelector sourceProductSelector;
-    private ProjectedCrsSelectionFormModel crsSelectionModel;
+    private TargetProductSelector targetProductSelector;
 
     public ReprojectionForm(final ReprojectionFormModel model,
                             TargetProductSelector targetProductSelector,
-                            AppContext appContext) {
+                            AppContext appContext) throws FactoryException {
         this.model = model;
         this.targetProductSelector = targetProductSelector;
         sourceProductSelector = new SourceProductSelector(appContext, "Source Product:");
@@ -39,7 +44,7 @@ public class ReprojectionForm extends JPanel {
 
     }
 
-    private void createUI() {
+    private void createUI() throws FactoryException {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         add(createSourceProductPanel());
@@ -47,13 +52,16 @@ public class ReprojectionForm extends JPanel {
         final ProjectedCrsSelectionForm crsSelectionForm = new ProjectedCrsSelectionForm(crsSelectionModel);
         crsSelectionForm.setBorder(BorderFactory.createTitledBorder("Target CRS"));
         add(crsSelectionForm);
-        final Product sourceProduct = sourceProductSelector.getSelectedProduct();
-        final Rectangle sourceDimension = new Rectangle(sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
-        final CoordinateReferenceSystem sourceCrs = sourceProduct.getGeoCoding().getBaseCRS();
-        final ProjectedCRS crs = crsSelectionModel.getSelectedCrs();
+        final Rectangle sourceDimension = new Rectangle(100, 200);
+        final CoordinateReferenceSystem sourceCrs = DefaultGeographicCRS.WGS84;
+        final CoordinateReferenceSystem crs = CRS.decode("EPSG:32632");
         final String unit = crs.getCoordinateSystem().getAxis(0).getUnit().toString();
-        new GridDefinitionFormModel(sourceDimension, sourceCrs, crs, sourceDimension.width, sourceDimension.height,
+        gridDefinitionFormModel = new GridDefinitionFormModel(sourceDimension, sourceCrs, crs, sourceDimension.width, sourceDimension.height,
                                     1, 1, unit);
+        final GridDefinitionForm gridDefinitionForm = new GridDefinitionForm(gridDefinitionFormModel);
+        gridDefinitionForm.setBorder(BorderFactory.createTitledBorder("Target Grid"));
+        add(gridDefinitionForm);
+
     }
 
 

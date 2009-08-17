@@ -3,6 +3,7 @@ package org.esa.beam.gpf.common.reproject.ui;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.actions.AbstractVisatAction;
+import org.opengis.referencing.FactoryException;
 
 /**
  * Geographic collocation action.
@@ -17,7 +18,11 @@ public class ReprojectionAction extends AbstractVisatAction {
     @Override
     public void actionPerformed(CommandEvent event) {
         if (dialog == null) {
-            dialog = new ReprojectionDialog(getAppContext());
+            try {
+                dialog = new ReprojectionDialog(getAppContext());
+            } catch (FactoryException e) {
+                e.printStackTrace();
+            }
         }
         dialog.show();
     }
