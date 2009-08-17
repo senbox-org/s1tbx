@@ -15,6 +15,9 @@ import java.awt.BorderLayout;
 import java.awt.Rectangle;
 import java.util.List;
 
+import com.bc.ceres.binding.swing.BindingContext;
+import com.bc.ceres.binding.ValueContainer;
+
 /**
  * User: Marco
  * Date: 16.08.2009
@@ -22,9 +25,10 @@ import java.util.List;
 public class ReprojectionForm extends JPanel {
 
     private ReprojectionFormModel model;
+    private ValueContainer valueContainer;
+
     private ProjectedCrsSelectionFormModel crsSelectionModel;
     private GridDefinitionFormModel gridDefinitionFormModel;
-
     private SourceProductSelector sourceProductSelector;
     private TargetProductSelector targetProductSelector;
 
@@ -32,6 +36,7 @@ public class ReprojectionForm extends JPanel {
                             TargetProductSelector targetProductSelector,
                             AppContext appContext) throws FactoryException {
         this.model = model;
+        valueContainer = ValueContainer.createObjectBacked(model);
         this.targetProductSelector = targetProductSelector;
         sourceProductSelector = new SourceProductSelector(appContext, "Source Product:");
 
@@ -39,17 +44,13 @@ public class ReprojectionForm extends JPanel {
         crsSelectionModel = new ProjectedCrsSelectionFormModel(new CrsInfoListModel(crsList));
 
         createUI();
-
+        bindUI();
     }
 
     private void createUI() throws FactoryException {
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-
-        add(createSourceProductPanel());
-        add(targetProductSelector.createDefaultPanel());
         final ProjectedCrsSelectionForm crsSelectionForm = new ProjectedCrsSelectionForm(crsSelectionModel);
         crsSelectionForm.setBorder(BorderFactory.createTitledBorder("Target CRS"));
-        add(crsSelectionForm);
+
         final Rectangle sourceDimension = new Rectangle(100, 200);
         final CoordinateReferenceSystem sourceCrs = DefaultGeographicCRS.WGS84;
         final CoordinateReferenceSystem targetCrs = CRS.decode("EPSG:32632");
@@ -57,10 +58,20 @@ public class ReprojectionForm extends JPanel {
         gridDefinitionFormModel = new GridDefinitionFormModel(sourceDimension, sourceCrs, targetCrs, unit);
         final GridDefinitionForm gridDefinitionForm = new GridDefinitionForm(gridDefinitionFormModel);
         gridDefinitionForm.setBorder(BorderFactory.createTitledBorder("Target Grid"));
+
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
+        add(createSourceProductPanel());
+        add(targetProductSelector.createDefaultPanel());
+        add(crsSelectionForm);
         add(gridDefinitionForm);
 
     }
 
+    private void bindUI() {
+        final BindingContext context = new BindingContext(valueContainer);
+        context.bind("sourceProduct", sourceProductSelector.getProductNameComboBox());
+    }
 
     private JPanel createSourceProductPanel() {
         final JPanel panel = new JPanel(new BorderLayout(3, 3));

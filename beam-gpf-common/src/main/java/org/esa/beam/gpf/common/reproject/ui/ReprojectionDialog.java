@@ -18,7 +18,7 @@ public class ReprojectionDialog extends SingleTargetProductDialog {
     private ReprojectionForm form;
 
     public ReprojectionDialog(AppContext appContext) throws FactoryException {
-        super(appContext, "Collocation", "collocation");
+        super(appContext, "Reproject", "reproject");
         formModel = new ReprojectionFormModel();
         form = new ReprojectionForm(formModel, getTargetProductSelector(), appContext);
     }
@@ -29,7 +29,7 @@ public class ReprojectionDialog extends SingleTargetProductDialog {
         productMap.put("source", formModel.getSourceProduct());
 
         final Map<String, Object> parameterMap = new HashMap<String, Object>(5);
-        // collocation parameters
+        // Reprojection parameters
         parameterMap.put("targetCrs", formModel.getTargetCrs());
         parameterMap.put("interpolationName", formModel.getInterpolationName());
 
