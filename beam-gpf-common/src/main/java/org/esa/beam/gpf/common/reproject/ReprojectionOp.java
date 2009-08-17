@@ -184,7 +184,7 @@ public class ReprojectionOp extends Operator {
                     targetBand.setSampleCoding(destIndexCoding);
                 }
             }
-            if (reprojectionFlagRequired) {
+            if (reprojectionFlagRequired && !sourceProduct.containsBand("reproject_flag")) {
                 /*
                  * 6. Create reprojection valid flag band
                  */
