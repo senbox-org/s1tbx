@@ -41,7 +41,7 @@
         <action>
             <id>reprojAction</id>
             <class>org.esa.beam.gpf.common.reproject.ui.ReprojectionAction</class>
-            <text>Rerojection (SPIKE)...</text>
+            <text>Reprojection (SPIKE)...</text>
         </action>
     </extension>
 

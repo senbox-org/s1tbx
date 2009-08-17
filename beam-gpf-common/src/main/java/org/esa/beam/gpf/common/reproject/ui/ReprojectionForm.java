@@ -2,7 +2,11 @@ package org.esa.beam.gpf.common.reproject.ui;
 
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
+import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.application.SelectionChangeListener;
+import org.esa.beam.framework.ui.application.SelectionChangeEvent;
+import org.esa.beam.framework.datamodel.Product;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
@@ -73,26 +77,40 @@ public class ReprojectionForm extends JPanel {
         context.bind("sourceProduct", sourceProductSelector.getProductNameComboBox());
     }
 
-    private JPanel createSourceProductPanel() {
-        final JPanel panel = new JPanel(new BorderLayout(3, 3));
-        sourceProductSelector.getProductNameComboBox().setPrototypeDisplayValue(
-                "MER_RR__1PPBCM20030730_071000_000003972018_00321_07389_0000.N1");
-        panel.add(sourceProductSelector.getProductNameComboBox(), BorderLayout.CENTER);
-        panel.add(sourceProductSelector.getProductFileChooserButton(), BorderLayout.EAST);
-
-        panel.setBorder(BorderFactory.createTitledBorder("Source Product"));
-        return panel;
-    }
-
     public void prepareShow() {
         sourceProductSelector.initProducts();
         if (sourceProductSelector.getProductCount() > 0) {
             sourceProductSelector.setSelectedIndex(0);
         }
+        updateTargetProductName(sourceProductSelector.getSelectedProduct());
     }
 
     public void prepareHide() {
         sourceProductSelector.releaseProducts();
     }
 
+    private JPanel createSourceProductPanel() {
+        final JPanel panel = new JPanel(new BorderLayout(3, 3));
+        sourceProductSelector.getProductNameComboBox().setPrototypeDisplayValue(
+                "MER_RR__1PPBCM20030730_071000_000003972018_00321_07389_0000.N1");
+        panel.add(sourceProductSelector.getProductNameComboBox(), BorderLayout.CENTER);
+        panel.add(sourceProductSelector.getProductFileChooserButton(), BorderLayout.EAST);
+        panel.setBorder(BorderFactory.createTitledBorder("Source Product"));
+        sourceProductSelector.addSelectionChangeListener(new SelectionChangeListener() {
+            @Override
+            public void selectionChanged(SelectionChangeEvent event) {
+                updateTargetProductName(sourceProductSelector.getSelectedProduct());
+            }
+        });
+        return panel;
+    }
+
+    private void updateTargetProductName(Product selectedProduct) {
+        final TargetProductSelectorModel selectorModel = targetProductSelector.getModel();
+        if (selectedProduct != null) {
+            selectorModel.setProductName(selectedProduct.getName() + "_reprojected");
+        } else if (selectorModel.getProductName() == null) {
+            selectorModel.setProductName("reprojected");
+        }
+    }
 }
