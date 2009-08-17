@@ -1,6 +1,7 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
 
@@ -12,6 +13,22 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import java.awt.Container;
 import java.awt.Insets;
+import java.awt.Rectangle;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
+
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.FactoryException;
+import org.opengis.metadata.extent.GeographicBoundingBox;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.CRS;
+
+import static org.esa.beam.gpf.common.reproject.ui.GridDefinitionFormModel.ADJUST_SIZE_TO_SOURCE_REGION_NAME;
+import static org.esa.beam.gpf.common.reproject.ui.GridDefinitionFormModel.GRID_HEIGHT_NAME;
+import static org.esa.beam.gpf.common.reproject.ui.GridDefinitionFormModel.GRID_WIDTH_NAME;
+import static org.esa.beam.gpf.common.reproject.ui.GridDefinitionFormModel.PIXEL_SIZE_X_NAME;
+import static org.esa.beam.gpf.common.reproject.ui.GridDefinitionFormModel.PIXEL_SIZE_Y_NAME;
+import org.esa.beam.util.math.MathUtils;
 
 
 /**
@@ -21,12 +38,16 @@ import java.awt.Insets;
  */
 public class GridDefinitionForm extends JPanel{
     private GridDefinitionFormModel model;
-
+    private ValueContainer valueContainer;
     // for testing the UI
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FactoryException {
         final JFrame jFrame = new JFrame("Grid Definition Form");
         Container contentPane = jFrame.getContentPane();
-        GridDefinitionFormModel model = new GridDefinitionFormModel(0, 0, 0.003, 0.003, "°");
+        Rectangle sourceDimension = new Rectangle(200, 300);
+        CoordinateReferenceSystem sourceCrs = DefaultGeographicCRS.WGS84;
+        CoordinateReferenceSystem targetCrs = CRS.decode("EPSG:32632");
+        GridDefinitionFormModel model = new GridDefinitionFormModel(sourceDimension, sourceCrs, targetCrs,
+                                                                    0, 0, 0.003, 0.003, "°");
         GridDefinitionForm projectedCRSSelectionForm = new GridDefinitionForm(model);
         contentPane.add(projectedCRSSelectionForm);
         jFrame.setSize(300, 150);
@@ -43,6 +64,7 @@ public class GridDefinitionForm extends JPanel{
     public GridDefinitionForm(GridDefinitionFormModel model) {
         this.model = model;
         creatUI();
+        updateGridDiemension();
     }
 
     private void creatUI() {
@@ -88,17 +110,54 @@ public class GridDefinitionForm extends JPanel{
         add(gridHeightLabel, new TableLayout.Cell(2, 3));   // jump over unit column
         add(gridHeightField);
 
-        final ValueContainer valueContainer = ValueContainer.createObjectBacked(model);
+        valueContainer = ValueContainer.createObjectBacked(model);
         final BindingContext context = new BindingContext(valueContainer);
-        context.bind(GridDefinitionFormModel.PIXEL_SIZE_X_NAME, pixelSizeXField);
-        context.bind(GridDefinitionFormModel.PIXEL_SIZE_Y_NAME, pixelSizeYField);
-        context.bind(GridDefinitionFormModel.ADJUST_SIZE_TO_SOURCE_REGION_NAME, adjustGrid);
-        context.bind(GridDefinitionFormModel.GRID_WIDTH_NAME, gridWidthField);
-        context.bind(GridDefinitionFormModel.GRID_HEIGHT_NAME, gridHeightField);
-        context.bindEnabledState(GridDefinitionFormModel.GRID_WIDTH_NAME, false,
-                                 GridDefinitionFormModel.ADJUST_SIZE_TO_SOURCE_REGION_NAME, true);
-        context.bindEnabledState(GridDefinitionFormModel.GRID_HEIGHT_NAME, false,
-                                 GridDefinitionFormModel.ADJUST_SIZE_TO_SOURCE_REGION_NAME, true);
+        context.bind(PIXEL_SIZE_X_NAME, pixelSizeXField);
+        context.bind(PIXEL_SIZE_Y_NAME, pixelSizeYField);
+        context.bind(ADJUST_SIZE_TO_SOURCE_REGION_NAME, adjustGrid);
+        context.bind(GRID_WIDTH_NAME, gridWidthField);
+        context.bind(GRID_HEIGHT_NAME, gridHeightField);
+        context.bindEnabledState(GRID_WIDTH_NAME, false,
+                                 ADJUST_SIZE_TO_SOURCE_REGION_NAME, true);
+        context.bindEnabledState(GRID_HEIGHT_NAME, false,
+                                 ADJUST_SIZE_TO_SOURCE_REGION_NAME, true);
 
+        context.addPropertyChangeListener(new PixelSizeChangedListener());
+    }
+
+    private void updateGridDiemension() {
+        final int sourceW = model.getSourceDimension().width;
+        final int sourceH = model.getSourceDimension().height;
+
+        GeographicBoundingBox geoBBox = CRS.getGeographicBoundingBox(model.getSourceCrs());
+        double mapW = geoBBox.getNorthBoundLatitude() - geoBBox.getSouthBoundLatitude();
+        double mapH = geoBBox.getEastBoundLongitude() - geoBBox.getWestBoundLongitude();
+
+        float pixelSize = (float) Math.min(mapW / sourceW, mapH / sourceH);
+        if (MathUtils.equalValues(pixelSize, 0.0f)) {
+            pixelSize = 1.0f;
+        }
+        final int targetW = 1 + (int) Math.floor(mapW / pixelSize);
+        final int targetH = 1 + (int) Math.floor(mapH / pixelSize);
+        try {
+            valueContainer.setValue(GRID_WIDTH_NAME, targetW);
+            valueContainer.setValue(GRID_HEIGHT_NAME, targetH);
+        } catch (ValidationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private class PixelSizeChangedListener implements PropertyChangeListener {
+
+        @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+            String propertyName = evt.getPropertyName();
+            boolean pixelSizeChanged = PIXEL_SIZE_X_NAME.equals(propertyName) ||
+                                       PIXEL_SIZE_Y_NAME.equals(propertyName);
+            boolean adjustGridEnabled = Boolean.TRUE.equals(valueContainer.getValue(ADJUST_SIZE_TO_SOURCE_REGION_NAME));
+            if (pixelSizeChanged && adjustGridEnabled) {
+               updateGridDiemension();
+            }
+        }
     }
 }

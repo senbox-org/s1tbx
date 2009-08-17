@@ -1,5 +1,9 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import java.awt.Rectangle;
+
 /**
  * @author Marco Peters
  * @version $ Revision $ Date $
@@ -14,6 +18,9 @@ class GridDefinitionFormModel {
     public static final String ADJUST_SIZE_TO_SOURCE_REGION_NAME = "adjustSizeToSourceRegion";
 
 
+    private final Rectangle sourceDimension;
+    private final CoordinateReferenceSystem sourceCrs;
+    private final CoordinateReferenceSystem targetCrs;
     private int gridWidth;
     private int gridHeight;
 
@@ -22,13 +29,28 @@ class GridDefinitionFormModel {
     private String unit;
     private boolean adjustSizeToSourceRegion;
 
-    GridDefinitionFormModel(int gridWidth, int gridHeight, double pixelSizeX, double pixelSizeY, String unit) {
+    GridDefinitionFormModel(Rectangle sourceDimension, CoordinateReferenceSystem sourceCrs, CoordinateReferenceSystem targetCrs, int gridWidth, int gridHeight, double pixelSizeX, double pixelSizeY, String unit) {
+        this.sourceDimension = sourceDimension;
+        this.sourceCrs = sourceCrs;
+        this.targetCrs = targetCrs;
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.pixelSizeX = pixelSizeX;
         this.pixelSizeY = pixelSizeY;
         this.unit = unit;
         adjustSizeToSourceRegion = true;
+    }
+
+    public Rectangle getSourceDimension() {
+        return sourceDimension;
+    }
+
+    public CoordinateReferenceSystem getSourceCrs() {
+        return sourceCrs;
+    }
+
+    public CoordinateReferenceSystem getTargetCrs() {
+        return targetCrs;
     }
 
     public int getGridWidth() {

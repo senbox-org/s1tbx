@@ -22,10 +22,6 @@ import com.bc.ceres.swing.TableLayout.Fill;
 import com.jidesoft.list.FilterableListModel;
 import com.jidesoft.list.QuickListFilterField;
 import com.jidesoft.utils.Lm;
-import org.geotools.referencing.CRS;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CRSAuthorityFactory;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.ProjectedCRS;
 
 import javax.swing.JButton;
@@ -41,10 +37,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.Collections;
 
 public class ProjectedCrsSelectionForm extends JPanel {
 
@@ -58,7 +50,7 @@ public class ProjectedCrsSelectionForm extends JPanel {
         final JFrame jFrame = new JFrame("CRS Selection Panel");
         Container contentPane = jFrame.getContentPane();
 
-        final CrsInfoListModel crsInfoListModel = new CrsInfoListModel(generateSupportedCRSList());
+        final CrsInfoListModel crsInfoListModel = new CrsInfoListModel(CrsInfo.generateSupportedCRSList());
         final ProjectedCrsSelectionFormModel model = new ProjectedCrsSelectionFormModel(crsInfoListModel);
         ProjectedCrsSelectionForm projectedCRSSelectionForm = new ProjectedCrsSelectionForm(model);
         contentPane.add(projectedCRSSelectionForm);
@@ -143,27 +135,6 @@ public class ProjectedCrsSelectionForm extends JPanel {
         }
     }
 
-
-    private static List<CrsInfo> generateSupportedCRSList() {
-        // todo - (mp/mz) this takes much time (5 sec.) try to speed up
-        final CRSAuthorityFactory authorityFactory = CRS.getAuthorityFactory(true);
-        Set<String> codes;
-        try {
-            codes = authorityFactory.getAuthorityCodes(ProjectedCRS.class);
-        } catch (FactoryException ignore) {
-            return Collections.EMPTY_LIST;
-        }
-        List<CrsInfo> crsList = new ArrayList<CrsInfo>(codes.size());
-        for (String code : codes) {
-            try {
-                CoordinateReferenceSystem crs = authorityFactory.createCoordinateReferenceSystem(code);
-                crsList.add(new CrsInfo(code, (ProjectedCRS) crs));
-            } catch (FactoryException ignore) {
-                // bad CRS --> ignore
-            }
-        }
-        return crsList;
-    }
 
     private class CrsListSelectionListener implements ListSelectionListener {
 

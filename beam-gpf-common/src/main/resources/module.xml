@@ -37,4 +37,12 @@
         </action>
     </extension>
     
+    <extension point="beam-ui:actions">
+        <action>
+            <id>reprojAction</id>
+            <class>org.esa.beam.gpf.common.reproject.ui.ReprojectionAction</class>
+            <text>Rerojection (SPIKE)...</text>
+        </action>
+    </extension>
+
 </module>

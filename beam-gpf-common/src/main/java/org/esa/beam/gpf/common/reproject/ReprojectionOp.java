@@ -59,12 +59,12 @@ import java.io.File;
  * @version $Revision$ $Date$
  * @since BEAM 4.7
  */
-@OperatorMetadata(alias = "Reprojection",
+@OperatorMetadata(alias = "Reproject",
                   internal = false)
 public class ReprojectionOp extends Operator {
 
 
-    @SourceProduct
+    @SourceProduct (alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
