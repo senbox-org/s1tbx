@@ -2,6 +2,7 @@ package org.esa.beam.gpf.common.reproject.ui;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.opengis.referencing.crs.ProjectedCRS;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * User: Marco
@@ -10,7 +11,7 @@ import org.opengis.referencing.crs.ProjectedCRS;
 public class ReprojectionFormModel {
     private Product sourceProduct;
     private String interpolationName = "Nearest";
-    private ProjectedCRS targetCrs;
+    private CoordinateReferenceSystem targetCrs;
 
     public Product getSourceProduct() {
         return sourceProduct;
@@ -20,7 +21,7 @@ public class ReprojectionFormModel {
         return interpolationName;
     }
 
-    public ProjectedCRS getTargetCrs() {
+    public CoordinateReferenceSystem getTargetCrs() {
         return targetCrs;
     }
 }

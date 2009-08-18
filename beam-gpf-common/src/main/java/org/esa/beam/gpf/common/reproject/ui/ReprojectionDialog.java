@@ -6,7 +6,7 @@ import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.gpf.common.reproject.ReprojectionOp;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.ProjectedCRS;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +28,7 @@ public class ReprojectionDialog extends SingleTargetProductDialog {
     @Override
     protected Product createTargetProduct() throws Exception {
 
-        final ProjectedCRS crs = formModel.getTargetCrs();
+        final CoordinateReferenceSystem crs = formModel.getTargetCrs();
         String interpolationName = formModel.getInterpolationName();
         
         if (crs != null) {

@@ -105,6 +105,15 @@ public class ReprojectionForm extends JTabbedPane {
     private JPanel createProjectionPanel() {
         collocateProductSelector = new SourceProductSelector(appContext, "Product:");
         collocateProductSelector.setProductFilter(new CollocateProductFilter());
+        collocateProductSelector.addSelectionChangeListener(new SelectionChangeListener() {
+            @Override
+            public void selectionChanged(SelectionChangeEvent event) {
+                final Product selectedProduct = collocateProductSelector.getSelectedProduct();
+                if (selectedProduct != null) {
+                    updateTargetCrs(selectedProduct.getGeoCoding().getModelCRS());
+                }
+            }
+        });
         crsSelectionForm = createCrsSelectionForm();
         final ButtonGroup group = new ButtonGroup();
         collocateRadioButton = new JRadioButton("Collocate with Product");
@@ -113,6 +122,10 @@ public class ReprojectionForm extends JTabbedPane {
         collocateRadioButton.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
+                final Product selectedProduct = collocateProductSelector.getSelectedProduct();
+                if (selectedProduct != null) {
+                    updateTargetCrs(selectedProduct.getGeoCoding().getModelCRS());
+                }
                 updateUIState();
             }
         });
@@ -160,14 +173,18 @@ public class ReprojectionForm extends JTabbedPane {
         crsSelectionModel.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                try {
-                    valueContainer.setValue("targetCrs", evt.getNewValue());
-                } catch (ValidationException e) {
-                    e.printStackTrace();
-                }
+                updateTargetCrs((CoordinateReferenceSystem) evt.getNewValue());
             }
         });
         return crsForm;
+    }
+
+    private void updateTargetCrs(CoordinateReferenceSystem value) {
+        try {
+            valueContainer.setValue("targetCrs", value);
+        } catch (ValidationException e) {
+            e.printStackTrace();
+        }
     }
 
     private void bindUI() {
