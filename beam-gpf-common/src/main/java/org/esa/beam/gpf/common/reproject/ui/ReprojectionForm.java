@@ -1,12 +1,15 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.swing.BindingContext;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.application.SelectionChangeListener;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.ui.application.SelectionChangeListener;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
@@ -20,10 +23,6 @@ import java.awt.Rectangle;
 import java.util.List;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
-
-import com.bc.ceres.binding.swing.BindingContext;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValidationException;
 
 /**
  * User: Marco
@@ -57,7 +56,16 @@ public class ReprojectionForm extends JPanel {
     private void createUI() throws FactoryException {
         final ProjectedCrsSelectionForm crsSelectionForm = new ProjectedCrsSelectionForm(crsSelectionModel);
         crsSelectionForm.setBorder(BorderFactory.createTitledBorder("Target CRS"));
-
+        crsSelectionModel.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                try {
+                    valueContainer.setValue("targetCrs", evt.getNewValue());
+                } catch (ValidationException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
         final Rectangle sourceDimension = new Rectangle(100, 200);
         final CoordinateReferenceSystem sourceCrs = DefaultGeographicCRS.WGS84;
         final CoordinateReferenceSystem targetCrs = CRS.decode("EPSG:32632");

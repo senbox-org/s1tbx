@@ -9,7 +9,7 @@ import org.opengis.referencing.crs.ProjectedCRS;
  */
 public class ReprojectionFormModel {
     private Product sourceProduct;
-    private String interpolationName;
+    private String interpolationName = "Nearest";
     private ProjectedCRS targetCrs;
 
     public Product getSourceProduct() {

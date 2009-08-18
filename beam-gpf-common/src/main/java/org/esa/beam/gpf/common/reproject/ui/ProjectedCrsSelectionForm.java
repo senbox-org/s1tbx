@@ -75,7 +75,7 @@ public class ProjectedCrsSelectionForm extends JPanel {
     private void creaeUI() {
         final QuickListFilterField filterField = new QuickListFilterField(crsSelectionFormModel.getListModel());
         filterField.setHintText("Type here to filter Projections");
-
+        filterField.setWildcardEnabled(true);
         final FilterableListModel listModel = filterField.getDisplayListModel();
         crsList = new JList(listModel);
         crsList.setVisibleRowCount(10);

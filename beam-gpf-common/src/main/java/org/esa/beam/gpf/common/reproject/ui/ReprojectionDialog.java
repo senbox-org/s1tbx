@@ -5,9 +5,12 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.ReferenceIdentifier;
+import org.opengis.referencing.crs.ProjectedCRS;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * User: Marco
@@ -30,8 +33,13 @@ public class ReprojectionDialog extends SingleTargetProductDialog {
 
         final Map<String, Object> parameterMap = new HashMap<String, Object>(5);
         // Reprojection parameters
-        parameterMap.put("sourceProduct", formModel.getSourceProduct());
-        parameterMap.put("targetCrs", formModel.getTargetCrs());
+        final ProjectedCRS crs = formModel.getTargetCrs();
+        final Set<ReferenceIdentifier> identifierSet = crs.getIdentifiers();
+        for (ReferenceIdentifier referenceIdentifier : identifierSet) {
+            if("epsg".equalsIgnoreCase(referenceIdentifier.getCodeSpace())){
+                parameterMap.put("epsgCode", referenceIdentifier.toString());
+            }
+        }
         parameterMap.put("interpolationName", formModel.getInterpolationName());
 
         return GPF.createProduct("Reproject", parameterMap, productMap);
