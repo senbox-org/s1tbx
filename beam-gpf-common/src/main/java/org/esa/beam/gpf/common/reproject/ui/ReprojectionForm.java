@@ -48,7 +48,6 @@ public class ReprojectionForm extends JTabbedPane {
     private SourceProductSelector collocateProductSelector;
     private ProjectedCrsSelectionForm crsSelectionForm;
     private JRadioButton collocateRadioButton;
-    private JRadioButton projectionRadioButton;
 
     public ReprojectionForm(final ReprojectionFormModel model,
                             TargetProductSelector targetProductSelector,
@@ -117,7 +116,7 @@ public class ReprojectionForm extends JTabbedPane {
         crsSelectionForm = createCrsSelectionForm();
         final ButtonGroup group = new ButtonGroup();
         collocateRadioButton = new JRadioButton("Collocate with Product");
-        projectionRadioButton = new JRadioButton("Define Projection", true);
+        JRadioButton projectionRadioButton = new JRadioButton("Define Projection", true);
 
         collocateRadioButton.addChangeListener(new ChangeListener() {
             @Override
