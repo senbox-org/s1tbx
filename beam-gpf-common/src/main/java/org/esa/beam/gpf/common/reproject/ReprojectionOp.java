@@ -77,6 +77,8 @@ public class ReprojectionOp extends Operator {
     private String epsgCode;
     @Parameter(label = "WKT File", description="A file which contains the projected Coordinate Reference System in WKT format.")
     private File wktFile;
+    @Parameter(label = "Collocation product", description="A product to collocate with.")
+    private Product collocationProduct;
     @Parameter(label = "Transformation Name", description="The name of the transformation.")
     private String transformationName;
 //    @Parameter(label = "Transformation Parameter:", description = "The parameters of the transformation.", itemAlias = "parameter")
@@ -92,12 +94,22 @@ public class ReprojectionOp extends Operator {
     private Interpolation interpolation;
     private Point2D[] mapBoundary;
     
+    
+    public static ReprojectionOp create(Product sourceProduct, CoordinateReferenceSystem targetCrs, String interpolationName) {
+        ReprojectionOp reprojectionOp = new ReprojectionOp();
+        reprojectionOp.setSourceProduct(sourceProduct);
+        reprojectionOp.targetCRS = targetCrs;
+        reprojectionOp.interpolationName = interpolationName;
+        return reprojectionOp;
+    }
 
     @Override
     public void initialize() throws OperatorException {
         Rectangle sourceRect = new Rectangle(sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
         try {
-            targetCRS = createTargetCRS();
+            if (targetCRS != null) {
+                targetCRS = createTargetCRS();
+            }
             interpolation = createInterpolation();
             computeMapBoundary();
             
@@ -333,6 +345,8 @@ public class ReprojectionOp extends Operator {
             } else if (wktFile != null) {
                 String wkt = FileUtils.readText(wktFile);
                 crs = CRS.parseWKT(wkt);
+            } else if (collocationProduct != null && collocationProduct.getGeoCoding() != null) {
+                crs = collocationProduct.getGeoCoding().getModelCRS();
             } else {
                 final DefaultMathTransformFactory mtf = new DefaultMathTransformFactory();
                 ParameterValueGroup p = mtf.getDefaultParameters(transformationName);
