@@ -104,7 +104,7 @@ public class ReprojectionOp extends Operator {
             /*
              * 2. Compute the target grid geometry
              */
-            final BeamGridGeometry targetGridGeometry = createTargetGridGeometry(sourceRect.width, sourceRect.height);
+            final BeamGridGeometry targetGridGeometry = createTargetGridGeometryFromSourceSize(sourceRect.width, sourceRect.height);
             Rectangle targetGridRect = targetGridGeometry.getBounds();
 
             /*
@@ -272,7 +272,7 @@ public class ReprojectionOp extends Operator {
                 BeamGridGeometry sourceGridGeometry = new BeamGridGeometry(sourceMLModel.getImageToModelTransform(sourceLevel), 
                                                                            sourceRect, 
                                                                            sourceProduct.getGeoCoding().getImageCRS());
-                BeamGridGeometry targetGridGeometry = createTargetGridGeometry(leveledSourceWidth, leveledSourceHeight, targetWidth, targetHeight);
+                BeamGridGeometry targetGridGeometry = createTargetGridGeometryFromTargetSize(targetWidth, targetHeight);
                 
                 Rectangle targetRect = targetGridGeometry.getBounds();
                 ImageLayout imageLayout = createImageLayout(targetBand, targetRect.width, targetRect.height, targetProduct.getPreferredTileSize());
@@ -374,7 +374,7 @@ public class ReprojectionOp extends Operator {
         return Interpolation.getInstance(interpolationType);
     }
     
-    private BeamGridGeometry createTargetGridGeometry(int sourceWidth, int sourceHeight) {
+    private BeamGridGeometry createTargetGridGeometryFromSourceSize(int sourceWidth, int sourceHeight) {
         // TODO: create grid geometry from parameters
         final Point2D pMin = mapBoundary[0];
         final Point2D pMax = mapBoundary[1];
@@ -405,20 +405,17 @@ public class ReprojectionOp extends Operator {
         return new BeamGridGeometry(transform, targetGrid, targetCRS);
     }
     
-    private BeamGridGeometry createTargetGridGeometry(int sourceWidth, int sourceHeight, int targetWidth,
-                                                      int targetHeight) {
+    private BeamGridGeometry createTargetGridGeometryFromTargetSize(int targetWidth, int targetHeight) {
               // TODO: create grid geometry from parameters
               final Point2D pMin = mapBoundary[0];
               final Point2D pMax = mapBoundary[1];
               double mapW = pMax.getX() - pMin.getX();
               double mapH = pMax.getY() - pMin.getY();
 
-              float pixelSize = (float) Math.min(mapW / sourceWidth, mapH / sourceHeight);
+              float pixelSize = (float) Math.min(mapW / targetWidth, mapH / targetHeight);
               if (MathUtils.equalValues(pixelSize, 0.0f)) {
                   pixelSize = 1.0f;
               }
-//              final int targetW = 1 + (int) Math.floor(mapW / pixelSize);
-//              final int targetH = 1 + (int) Math.floor(mapH / pixelSize);
               Rectangle targetGrid = new Rectangle(targetWidth, targetHeight);
 
               final float pixelX = 0.5f * targetWidth;
