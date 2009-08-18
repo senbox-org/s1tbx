@@ -124,8 +124,11 @@ public class SourceProductSelector {
         for (Product product : appContext.getProductManager().getProducts()) {
             addProduct(product);
         }
-        productListModel.setSelectedItem(appContext.getSelectedProduct());
-        appContext.getProductManager().addListener(productManagerListener)       ;
+        final Product selectedProduct = appContext.getSelectedProduct();
+        if (productFilter.accept(selectedProduct)) {
+            productListModel.setSelectedItem(selectedProduct);
+        }
+        appContext.getProductManager().addListener(productManagerListener);
     }
 
     public int getProductCount() {
