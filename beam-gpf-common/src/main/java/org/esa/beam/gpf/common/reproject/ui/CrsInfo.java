@@ -1,15 +1,17 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
-import org.opengis.referencing.crs.ProjectedCRS;
+import org.geotools.metadata.iso.citation.Citations;
+import org.geotools.referencing.ReferencingFactoryFinder;
+import org.geotools.referencing.factory.FallbackAuthorityFactory;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.FactoryException;
-import org.geotools.referencing.CRS;
+import org.opengis.referencing.crs.ProjectedCRS;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.Collections;
-import java.util.ArrayList;
 
 /**
  * @author Marco Peters
@@ -18,44 +20,56 @@ import java.util.ArrayList;
 */
 class CrsInfo {
 
+    private static final String AUTHORITY = "EPSG";
     private final String epsgCode;
-    private final ProjectedCRS crs;
+    private final CRSAuthorityFactory factory;
 
-    CrsInfo(String epsgCode, ProjectedCRS crs) {
+    CrsInfo(String epsgCode, CRSAuthorityFactory factory) {
         this.epsgCode = epsgCode;
-        this.crs = crs;
+        this.factory = factory;
     }
-
+    
     public String getEpsgCode() {
         return epsgCode;
     }
 
-    public ProjectedCRS getCrs() {
-        return crs;
+    public CoordinateReferenceSystem getCrs() throws FactoryException {
+        return factory.createCoordinateReferenceSystem(epsgCode);
     }
 
     @Override
     public String toString() {
-        return epsgCode + " : " + crs.getName().getCode();
+        String crsDescription = AUTHORITY + ":" + epsgCode + " - ";
+        try {
+            crsDescription += factory.getDescriptionText(epsgCode).toString();
+        } catch (Exception e) {
+            crsDescription += e.getLocalizedMessage();
+        }
+        return crsDescription;
     }
 
-    static List<CrsInfo> generateSupportedCRSList() {
-        // todo - (mp/mz) this takes much time (5 sec.) try to speed up
-        final CRSAuthorityFactory authorityFactory = CRS.getAuthorityFactory(true);
+    static List<CrsInfo> generateCRSList() {
+        // todo - (mp/mz) this method takes time (2 sec.) try to speed up
+        
+        Set<CRSAuthorityFactory> factories = ReferencingFactoryFinder.getCRSAuthorityFactories(null);
+        final List<CRSAuthorityFactory> filtered = new ArrayList<CRSAuthorityFactory>();
+        for (final CRSAuthorityFactory factory : factories) {
+            if (Citations.identifierMatches(factory.getAuthority(), AUTHORITY )) {
+                filtered.add(factory);
+            }
+        }
+        CRSAuthorityFactory crsAuthorityFactory = FallbackAuthorityFactory.create(CRSAuthorityFactory.class, filtered);
+
+//        final CRSAuthorityFactory authorityFactory = CRS.getAuthorityFactory(true);
         Set<String> codes;
         try {
-            codes = authorityFactory.getAuthorityCodes(ProjectedCRS.class);
+            codes = crsAuthorityFactory.getAuthorityCodes(ProjectedCRS.class);
         } catch (FactoryException ignore) {
             return Collections.EMPTY_LIST;
         }
         List<CrsInfo> crsList = new ArrayList<CrsInfo>(codes.size());
         for (String code : codes) {
-            try {
-                CoordinateReferenceSystem crs = authorityFactory.createCoordinateReferenceSystem(code);
-                crsList.add(new CrsInfo(code, (ProjectedCRS) crs));
-            } catch (FactoryException ignore) {
-                // bad CRS --> ignore
-            }
+            crsList.add(new CrsInfo(code, crsAuthorityFactory));
         }
         return crsList;
     }

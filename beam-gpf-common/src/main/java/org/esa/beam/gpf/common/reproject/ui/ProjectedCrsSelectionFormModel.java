@@ -1,5 +1,6 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.ProjectedCRS;
 
 import java.beans.PropertyChangeListener;
@@ -12,25 +13,25 @@ import java.beans.PropertyChangeSupport;
  */
 class ProjectedCrsSelectionFormModel {
     private final CrsInfoListModel listModel;
-    private ProjectedCRS selectedCrs;
+    private CoordinateReferenceSystem selectedCrs;
     private PropertyChangeSupport changeSupport;
 
-    ProjectedCrsSelectionFormModel(CrsInfoListModel listModel) {
+    ProjectedCrsSelectionFormModel(CrsInfoListModel listModel, CoordinateReferenceSystem selectedCrs) {
         this.listModel = listModel;
-        selectedCrs = listModel.getElementAt(0).getCrs();
+        this.selectedCrs = selectedCrs;
     }
 
     public CrsInfoListModel getListModel() {
         return listModel;
     }
 
-    public ProjectedCRS getSelectedCrs() {
+    public CoordinateReferenceSystem getSelectedCrs() {
         return selectedCrs;
     }
 
-    public void setSelectedCrs(ProjectedCRS selectedCrs) {
+    public void setSelectedCrs(CoordinateReferenceSystem selectedCrs) {
         if (this.selectedCrs != selectedCrs) {
-            final ProjectedCRS oldCrs = this.selectedCrs;
+            final CoordinateReferenceSystem oldCrs = this.selectedCrs;
             this.selectedCrs = selectedCrs;
             fireSelectedCrsChanged(oldCrs, selectedCrs);
         }
@@ -49,7 +50,7 @@ class ProjectedCrsSelectionFormModel {
         }
     }
 
-    private void fireSelectedCrsChanged(ProjectedCRS oldCrs, ProjectedCRS selectedCrs) {
+    private void fireSelectedCrsChanged(CoordinateReferenceSystem oldCrs, CoordinateReferenceSystem selectedCrs) {
         if(changeSupport != null) {
             changeSupport.firePropertyChange("selectedCrs", oldCrs, selectedCrs);
         }

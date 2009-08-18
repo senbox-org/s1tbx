@@ -58,8 +58,10 @@ public class ReprojectionForm extends JTabbedPane {
         this.targetProductSelector = targetProductSelector;
         sourceProductSelector = new SourceProductSelector(appContext, "Source Product:");
 
-        final List<CrsInfo> crsList = CrsInfo.generateSupportedCRSList();
-        crsSelectionModel = new ProjectedCrsSelectionFormModel(new CrsInfoListModel(crsList));
+        final List<CrsInfo> crsList = CrsInfo.generateCRSList();
+        CrsInfoListModel crsInfoListModel = new CrsInfoListModel(crsList);
+        CoordinateReferenceSystem selectedCrs = crsInfoListModel.getElementAt(0).getCrs();
+        crsSelectionModel = new ProjectedCrsSelectionFormModel(crsInfoListModel, selectedCrs);
 
         createUI();
         bindUI();

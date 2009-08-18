@@ -22,6 +22,9 @@ import com.bc.ceres.swing.TableLayout.Fill;
 import com.jidesoft.list.FilterableListModel;
 import com.jidesoft.list.QuickListFilterField;
 import com.jidesoft.utils.Lm;
+
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.ProjectedCRS;
 
 import javax.swing.JButton;
@@ -47,13 +50,13 @@ public class ProjectedCrsSelectionForm extends JPanel {
     private QuickListFilterField filterField;
 
     // for testing the UI
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FactoryException {
         Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
         final JFrame frame = new JFrame("CRS Selection Panel");
         Container contentPane = frame.getContentPane();
 
-        final CrsInfoListModel crsInfoListModel = new CrsInfoListModel(CrsInfo.generateSupportedCRSList());
-        final ProjectedCrsSelectionFormModel model = new ProjectedCrsSelectionFormModel(crsInfoListModel);
+        final CrsInfoListModel crsInfoListModel = new CrsInfoListModel(CrsInfo.generateCRSList());
+        final ProjectedCrsSelectionFormModel model = new ProjectedCrsSelectionFormModel(crsInfoListModel, crsInfoListModel.getElementAt(0).getCrs());
         ProjectedCrsSelectionForm projectedCRSSelectionForm = new ProjectedCrsSelectionForm(model);
         contentPane.add(projectedCRSSelectionForm);
         frame.setSize(600, 400);
@@ -125,7 +128,7 @@ public class ProjectedCrsSelectionForm extends JPanel {
         add(defineCrsBtn);
     }
 
-    private void selectedCrsChanged(final ProjectedCRS crs) {
+    private void selectedCrsChanged(final CoordinateReferenceSystem crs) {
         if (crs != null) {
             crsSelectionFormModel.setSelectedCrs(crs);
         } else {
@@ -135,7 +138,7 @@ public class ProjectedCrsSelectionForm extends JPanel {
     }
 
     private void updateUIState() {
-        final ProjectedCRS selectedCrs = crsSelectionFormModel.getSelectedCrs();
+        final CoordinateReferenceSystem selectedCrs = crsSelectionFormModel.getSelectedCrs();
         if(crsList.getSelectedValue() != selectedCrs){
             crsList.setSelectedValue(selectedCrs, true);
         }
@@ -153,7 +156,14 @@ public class ProjectedCrsSelectionForm extends JPanel {
         public void valueChanged(ListSelectionEvent e) {
             final JList list = (JList) e.getSource();
             CrsInfo selectedValue = (CrsInfo) list.getSelectedValue();
-            selectedCrsChanged(selectedValue != null ? selectedValue.getCrs() : null);
+            CoordinateReferenceSystem crs = null;
+            if (selectedValue != null) {
+                try {
+                    crs = selectedValue.getCrs();
+                } catch (FactoryException e1) {
+                }
+            }
+            selectedCrsChanged(crs);
         }
 
     }
