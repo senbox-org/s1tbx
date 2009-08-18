@@ -5,6 +5,7 @@ import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
@@ -85,6 +86,14 @@ public class ReprojectionForm extends JPanel {
     }
 
     private JPanel createProjectionPanel() {
+        collocateProductSelector = new SourceProductSelector(appContext, "Product:");
+        collocateProductSelector.setProductFilter(new ProductFilter() {
+            @Override
+            public boolean accept(Product product) {
+                final boolean b = sourceProductSelector.getSelectedProduct() != product;
+                return b;
+            }
+        });
         crsSelectionForm = createCrsSelectionForm();
         final ButtonGroup group = new ButtonGroup();
         collocateRadioButton = new JRadioButton("Collocate with Product");
@@ -136,8 +145,6 @@ public class ReprojectionForm extends JPanel {
     }
 
     private ProjectedCrsSelectionForm createCrsSelectionForm() {
-        collocateProductSelector = new SourceProductSelector(appContext, "Product:");
-
         final ProjectedCrsSelectionForm crsForm = new ProjectedCrsSelectionForm(crsSelectionModel);
         crsSelectionModel.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
@@ -163,6 +170,7 @@ public class ReprojectionForm extends JPanel {
             sourceProductSelector.setSelectedIndex(0);
         }
         collocateProductSelector.initProducts();
+        updateUIState();
     }
 
     public void prepareHide() {
@@ -170,16 +178,15 @@ public class ReprojectionForm extends JPanel {
     }
 
     private JPanel createSourceProductPanel() {
-        final JPanel panel = new JPanel(new BorderLayout(3, 3));
+        final JPanel panel = sourceProductSelector.createDefaultPanel();
+        sourceProductSelector.getProductNameLabel().setText("Name:");
         sourceProductSelector.getProductNameComboBox().setPrototypeDisplayValue(
                 "MER_RR__1PPBCM20030730_071000_000003972018_00321_07389_0000.N1");
-        panel.add(sourceProductSelector.getProductNameComboBox(), BorderLayout.CENTER);
-        panel.add(sourceProductSelector.getProductFileChooserButton(), BorderLayout.EAST);
-        panel.setBorder(BorderFactory.createTitledBorder("Source Product"));
         sourceProductSelector.addSelectionChangeListener(new SelectionChangeListener() {
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
                 updateTargetProductName(sourceProductSelector.getSelectedProduct());
+                updateUIState();
             }
         });
         return panel;
