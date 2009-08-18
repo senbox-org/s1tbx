@@ -90,8 +90,7 @@ public class ReprojectionForm extends JPanel {
         collocateProductSelector.setProductFilter(new ProductFilter() {
             @Override
             public boolean accept(Product product) {
-                final boolean b = sourceProductSelector.getSelectedProduct() != product;
-                return b;
+                return sourceProductSelector.getSelectedProduct() != product;
             }
         });
         crsSelectionForm = createCrsSelectionForm();
