@@ -1,8 +1,9 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
-import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.swing.BindingContext;
+import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
@@ -17,12 +18,17 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.BorderLayout;
+import java.awt.Insets;
 import java.awt.Rectangle;
-import java.util.List;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.List;
 
 /**
  * User: Marco
@@ -31,17 +37,23 @@ import java.beans.PropertyChangeEvent;
 public class ReprojectionForm extends JPanel {
 
     private ReprojectionFormModel model;
+    private final AppContext appContext;
     private ValueContainer valueContainer;
 
     private ProjectedCrsSelectionFormModel crsSelectionModel;
     private GridDefinitionFormModel gridDefinitionFormModel;
     private SourceProductSelector sourceProductSelector;
     private TargetProductSelector targetProductSelector;
+    private SourceProductSelector collocateProductSelector;
+    private ProjectedCrsSelectionForm crsSelectionForm;
+    private JRadioButton collocateRadioButton;
+    private JRadioButton projectionRadioButton;
 
     public ReprojectionForm(final ReprojectionFormModel model,
                             TargetProductSelector targetProductSelector,
                             AppContext appContext) throws FactoryException {
         this.model = model;
+        this.appContext = appContext;
         valueContainer = ValueContainer.createObjectBacked(model);
         this.targetProductSelector = targetProductSelector;
         sourceProductSelector = new SourceProductSelector(appContext, "Source Product:");
@@ -51,21 +63,10 @@ public class ReprojectionForm extends JPanel {
 
         createUI();
         bindUI();
+        updateUIState();
     }
 
     private void createUI() throws FactoryException {
-        final ProjectedCrsSelectionForm crsSelectionForm = new ProjectedCrsSelectionForm(crsSelectionModel);
-        crsSelectionForm.setBorder(BorderFactory.createTitledBorder("Target CRS"));
-        crsSelectionModel.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                try {
-                    valueContainer.setValue("targetCrs", evt.getNewValue());
-                } catch (ValidationException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
         final Rectangle sourceDimension = new Rectangle(100, 200);
         final CoordinateReferenceSystem sourceCrs = DefaultGeographicCRS.WGS84;
         final CoordinateReferenceSystem targetCrs = CRS.decode("EPSG:32632");
@@ -78,9 +79,77 @@ public class ReprojectionForm extends JPanel {
 
         add(createSourceProductPanel());
         add(targetProductSelector.createDefaultPanel());
-        add(crsSelectionForm);
+        add(createProjectionPanel());
         add(gridDefinitionForm);
 
+    }
+
+    private JPanel createProjectionPanel() {
+        crsSelectionForm = createCrsSelectionForm();
+        final ButtonGroup group = new ButtonGroup();
+        collocateRadioButton = new JRadioButton("Collocate with Product");
+        projectionRadioButton = new JRadioButton("Define Projection", true);
+
+        collocateRadioButton.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                updateUIState();
+            }
+        });
+        group.add(collocateRadioButton);
+        group.add(projectionRadioButton);
+        final TableLayout tableLayout = new TableLayout(2);
+        tableLayout.setTablePadding(3, 3);
+        tableLayout.setTableFill(TableLayout.Fill.BOTH);
+        tableLayout.setTableWeightX(1.0);
+        tableLayout.setRowWeightY(0, 0.0);
+        tableLayout.setCellColspan(0, 0, 2);
+        tableLayout.setCellColspan(1, 0, 2);
+        tableLayout.setRowWeightY(1, 1.0);
+        tableLayout.setCellPadding(1, 0, new Insets(3, 15, 3, 3));
+        tableLayout.setRowPadding(1, new Insets(3, 3, 15, 3));
+        tableLayout.setRowWeightY(2, 0.0);
+        tableLayout.setCellColspan(2, 0, 2);
+        tableLayout.setRowWeightY(3, 0.0);
+        tableLayout.setCellPadding(3, 0, new Insets(3, 15, 3, 3));
+        tableLayout.setCellWeightX(3, 1, 0.0);
+
+        final JPanel panel = new JPanel(tableLayout);
+        panel.setBorder(BorderFactory.createTitledBorder("Projection"));
+        // row 0
+        panel.add(projectionRadioButton);                                       // col 0
+        // row 1
+        panel.add(crsSelectionForm);
+        // row 2
+        panel.add(collocateRadioButton);                                        // col 0
+        // row 3
+        panel.add(collocateProductSelector.getProductNameComboBox());           // col 0
+        panel.add(collocateProductSelector.getProductFileChooserButton());      // col 1
+        return panel;
+    }
+
+    private void updateUIState() {
+        final boolean collocate = collocateRadioButton.isSelected();
+        collocateProductSelector.getProductNameComboBox().setEnabled(collocate);
+        collocateProductSelector.getProductFileChooserButton().setEnabled(collocate);
+        crsSelectionForm.setFormEnabled(!collocate);
+    }
+
+    private ProjectedCrsSelectionForm createCrsSelectionForm() {
+        collocateProductSelector = new SourceProductSelector(appContext, "Product:");
+
+        final ProjectedCrsSelectionForm crsForm = new ProjectedCrsSelectionForm(crsSelectionModel);
+        crsSelectionModel.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                try {
+                    valueContainer.setValue("targetCrs", evt.getNewValue());
+                } catch (ValidationException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        return crsForm;
     }
 
     private void bindUI() {
@@ -93,7 +162,7 @@ public class ReprojectionForm extends JPanel {
         if (sourceProductSelector.getProductCount() > 0) {
             sourceProductSelector.setSelectedIndex(0);
         }
-        updateTargetProductName(sourceProductSelector.getSelectedProduct());
+        collocateProductSelector.initProducts();
     }
 
     public void prepareHide() {

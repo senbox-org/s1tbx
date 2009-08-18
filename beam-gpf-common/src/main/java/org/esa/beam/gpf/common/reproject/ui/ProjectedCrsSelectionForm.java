@@ -43,6 +43,8 @@ public class ProjectedCrsSelectionForm extends JPanel {
     private final ProjectedCrsSelectionFormModel crsSelectionFormModel;
     private JTextArea infoArea;
     private JList crsList;
+    private JButton defineCrsBtn;
+    private QuickListFilterField filterField;
 
     // for testing the UI
     public static void main(String[] args) {
@@ -72,8 +74,16 @@ public class ProjectedCrsSelectionForm extends JPanel {
         updateUIState();
     }
 
+    public void setFormEnabled(boolean enable) {
+        filterField.setEnabled(enable);
+        crsList.setEnabled(enable);
+        infoArea.setEnabled(enable);
+        defineCrsBtn.setEnabled(enable);
+    }
+
+
     private void creaeUI() {
-        final QuickListFilterField filterField = new QuickListFilterField(crsSelectionFormModel.getListModel());
+        filterField = new QuickListFilterField(crsSelectionFormModel.getListModel());
         filterField.setHintText("Type here to filter Projections");
         filterField.setWildcardEnabled(true);
         final FilterableListModel listModel = filterField.getDisplayListModel();
@@ -91,7 +101,7 @@ public class ProjectedCrsSelectionForm extends JPanel {
         infoArea.setEditable(false);
         crsList.addListSelectionListener(new CrsListSelectionListener());
         JScrollPane infoAreaScrollPane = new JScrollPane(infoArea);
-        final JButton defineCrsBtn = new JButton("Create User Defined Projection");
+        defineCrsBtn = new JButton("Create User Defined Projection");
 
         TableLayout tableLayout = new TableLayout(3);
         setLayout(tableLayout);
