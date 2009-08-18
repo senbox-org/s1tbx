@@ -22,6 +22,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Insets;
@@ -34,7 +35,7 @@ import java.util.List;
  * User: Marco
  * Date: 16.08.2009
  */
-public class ReprojectionForm extends JPanel {
+public class ReprojectionForm extends JTabbedPane {
 
     private final ReprojectionFormModel model;
     private final AppContext appContext;
@@ -67,6 +68,11 @@ public class ReprojectionForm extends JPanel {
     }
 
     private void createUI() throws FactoryException {
+        addTab("I/O Parameter", createIOTab());
+        addTab("Projection Parameter", createProjectionTab());
+    }
+
+    private JPanel createProjectionTab() throws FactoryException {
         final Rectangle sourceDimension = new Rectangle(100, 200);
         final CoordinateReferenceSystem sourceCrs = DefaultGeographicCRS.WGS84;
         final CoordinateReferenceSystem targetCrs = CRS.decode("EPSG:32632");
@@ -75,12 +81,25 @@ public class ReprojectionForm extends JPanel {
         final GridDefinitionForm gridDefinitionForm = new GridDefinitionForm(gridDefinitionFormModel);
         gridDefinitionForm.setBorder(BorderFactory.createTitledBorder("Target Grid"));
 
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        final JPanel projPanel = new JPanel();
+        projPanel.setLayout(new BoxLayout(projPanel, BoxLayout.Y_AXIS));
+        projPanel.add(createProjectionPanel());
+        projPanel.add(gridDefinitionForm);
+        return projPanel;
+    }
 
-        add(createSourceProductPanel());
-        add(targetProductSelector.createDefaultPanel());
-        add(createProjectionPanel());
-        add(gridDefinitionForm);
+    private JPanel createIOTab() {
+        final TableLayout tableLayout = new TableLayout(1);
+        tableLayout.setTableWeightX(1.0);
+        tableLayout.setTableWeightY(0);
+        tableLayout.setTableFill(TableLayout.Fill.BOTH);
+        tableLayout.setTablePadding(3,3);
+
+        final JPanel ioPanel = new JPanel(tableLayout);
+        ioPanel.add(createSourceProductPanel());
+        ioPanel.add(targetProductSelector.createDefaultPanel());
+        ioPanel.add(tableLayout.createVerticalSpacer());
+        return ioPanel;
     }
 
     private JPanel createProjectionPanel() {
