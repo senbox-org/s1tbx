@@ -4,13 +4,12 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.gpf.common.reproject.ReprojectionOp;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.crs.ProjectedCRS;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * User: Marco
@@ -28,22 +27,21 @@ public class ReprojectionDialog extends SingleTargetProductDialog {
 
     @Override
     protected Product createTargetProduct() throws Exception {
-        final Map<String, Product> productMap = new HashMap<String, Product>(5);
-        productMap.put("source", formModel.getSourceProduct());
 
-        final Map<String, Object> parameterMap = new HashMap<String, Object>(5);
-        // Reprojection parameters
         final ProjectedCRS crs = formModel.getTargetCrs();
-        final Set<ReferenceIdentifier> identifierSet = crs.getIdentifiers();
-        for (ReferenceIdentifier referenceIdentifier : identifierSet) {
-            if("epsg".equalsIgnoreCase(referenceIdentifier.getCodeSpace())){
-                parameterMap.put("epsgCode", referenceIdentifier.toString());
-            }
+        String interpolationName = formModel.getInterpolationName();
+        
+        if (crs != null) {
+            ReprojectionOp op = ReprojectionOp.create(formModel.getSourceProduct(), crs, interpolationName);
+            return op.getTargetProduct();
+        } else {
+            final Map<String, Product> productMap = new HashMap<String, Product>(5);
+            productMap.put("source", formModel.getSourceProduct());
+            final Map<String, Object> parameterMap = new HashMap<String, Object>(5);
+            // Reprojection parameters
+            parameterMap.put("interpolationName", interpolationName);
+            return GPF.createProduct("Reproject", parameterMap, productMap);
         }
-        parameterMap.put("interpolationName", formModel.getInterpolationName());
-
-        return GPF.createProduct("Reproject", parameterMap, productMap);
-
     }
 
     @Override

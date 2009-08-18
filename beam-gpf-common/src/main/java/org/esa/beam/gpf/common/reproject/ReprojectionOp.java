@@ -70,6 +70,8 @@ public class ReprojectionOp extends Operator {
 
     @SourceProduct (alias = "source")
     private Product sourceProduct;
+    @SourceProduct (alias = "colocate", optional = true, label = "Collocation product", description="A product to collocate with.")
+    private Product collocationProduct;
     @TargetProduct
     private Product targetProduct;
 
@@ -77,8 +79,6 @@ public class ReprojectionOp extends Operator {
     private String epsgCode;
     @Parameter(label = "WKT File", description="A file which contains the projected Coordinate Reference System in WKT format.")
     private File wktFile;
-    @Parameter(label = "Collocation product", description="A product to collocate with.")
-    private Product collocationProduct;
     @Parameter(label = "Transformation Name", description="The name of the transformation.")
     private String transformationName;
 //    @Parameter(label = "Transformation Parameter:", description = "The parameters of the transformation.", itemAlias = "parameter")
@@ -107,7 +107,7 @@ public class ReprojectionOp extends Operator {
     public void initialize() throws OperatorException {
         Rectangle sourceRect = new Rectangle(sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
         try {
-            if (targetCRS != null) {
+            if (targetCRS == null) {
                 targetCRS = createTargetCRS();
             }
             interpolation = createInterpolation();
