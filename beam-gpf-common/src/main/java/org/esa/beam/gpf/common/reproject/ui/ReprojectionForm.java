@@ -24,7 +24,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.BorderLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
@@ -37,9 +36,9 @@ import java.util.List;
  */
 public class ReprojectionForm extends JPanel {
 
-    private ReprojectionFormModel model;
+    private final ReprojectionFormModel model;
     private final AppContext appContext;
-    private ValueContainer valueContainer;
+    private final ValueContainer valueContainer;
 
     private ProjectedCrsSelectionFormModel crsSelectionModel;
     private GridDefinitionFormModel gridDefinitionFormModel;
@@ -82,17 +81,11 @@ public class ReprojectionForm extends JPanel {
         add(targetProductSelector.createDefaultPanel());
         add(createProjectionPanel());
         add(gridDefinitionForm);
-
     }
 
     private JPanel createProjectionPanel() {
         collocateProductSelector = new SourceProductSelector(appContext, "Product:");
-        collocateProductSelector.setProductFilter(new ProductFilter() {
-            @Override
-            public boolean accept(Product product) {
-                return sourceProductSelector.getSelectedProduct() != product;
-            }
-        });
+        collocateProductSelector.setProductFilter(new CollocateProductFilter());
         crsSelectionForm = createCrsSelectionForm();
         final ButtonGroup group = new ButtonGroup();
         collocateRadioButton = new JRadioButton("Collocate with Product");
@@ -197,6 +190,14 @@ public class ReprojectionForm extends JPanel {
             selectorModel.setProductName(selectedProduct.getName() + "_reprojected");
         } else if (selectorModel.getProductName() == null) {
             selectorModel.setProductName("reprojected");
+        }
+    }
+
+    private class CollocateProductFilter implements ProductFilter {
+
+        @Override
+            public boolean accept(Product product) {
+            return sourceProductSelector.getSelectedProduct() != product;
         }
     }
 }
