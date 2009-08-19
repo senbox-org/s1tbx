@@ -77,6 +77,7 @@ public class ButtonGroupAdapter extends ComponentAdapter implements ActionListen
         }
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         AbstractButton button = (AbstractButton) e.getSource();
         getBinding().setPropertyValue(buttonToValueMap.get(button));
