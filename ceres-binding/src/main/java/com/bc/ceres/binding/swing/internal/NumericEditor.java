@@ -25,6 +25,7 @@ import java.awt.Font;
 
 import javax.swing.JComponent;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 /**
  * An editor for numeric values with an unlimited range.
@@ -38,16 +39,13 @@ public class NumericEditor extends ValueEditor {
     @Override
     public boolean isValidFor(ValueDescriptor valueDescriptor) {
         Class<?> type = valueDescriptor.getType();
-        if (isNumericType(type)) {
-            return true;
-        }
-        return false;
+        return isNumericType(type);
     }
     
     @Override
     public JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
         JTextField textField = new JTextField();
-        textField.setHorizontalAlignment(JTextField.RIGHT);
+        textField.setHorizontalAlignment(SwingConstants.RIGHT);
         int fontSize = textField.getFont().getSize();
         textField.setFont(new Font("Courier", Font.PLAIN, fontSize));
         ComponentAdapter adapter = new TextFieldAdapter(textField);
