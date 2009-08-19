@@ -73,7 +73,7 @@ public class RangeEditor extends NumericEditor {
         return sliderLabelTable;
     }
 
-    private JLabel createSliderLabel(String text) {
+    private static JLabel createSliderLabel(String text) {
         JLabel label = new JLabel(text);
         Font oldFont = label.getFont();
         Font newFont = oldFont.deriveFont(oldFont.getSize2D() * 0.85f);
