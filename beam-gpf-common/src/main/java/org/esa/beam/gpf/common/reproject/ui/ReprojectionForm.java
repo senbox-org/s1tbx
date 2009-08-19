@@ -194,9 +194,6 @@ public class ReprojectionForm extends JTabbedPane {
 
     public void prepareShow() {
         sourceProductSelector.initProducts();
-        if (sourceProductSelector.getProductCount() > 0) {
-            sourceProductSelector.setSelectedIndex(0);
-        }
         collocateProductSelector.initProducts();
         updateUIState();
     }
