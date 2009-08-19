@@ -34,11 +34,11 @@ public class ReprojectionForm extends JTabbedPane {
 
     private final AppContext appContext;
 
-    private ProjectedCrsSelectionFormModel crsSelectionModel;
+    private CrsSelectionFormModel crsSelectionModel;
     private SourceProductSelector sourceProductSelector;
     private TargetProductSelector targetProductSelector;
     private SourceProductSelector collocateProductSelector;
-    private ProjectedCrsSelectionForm crsSelectionForm;
+    private CrsSelectionForm crsSelectionForm;
     private JRadioButton collocateRadioButton;
     private CoordinateReferenceSystem targetCrs;
     private String interpolationName;
@@ -54,7 +54,7 @@ public class ReprojectionForm extends JTabbedPane {
         final List<CrsInfo> crsList = CrsInfo.generateCRSList();
         CrsInfoListModel crsInfoListModel = new CrsInfoListModel(crsList);
         CoordinateReferenceSystem selectedCrs = crsInfoListModel.getElementAt(0).getCrs();
-        crsSelectionModel = new ProjectedCrsSelectionFormModel(crsInfoListModel, selectedCrs);
+        crsSelectionModel = new CrsSelectionFormModel(crsInfoListModel, selectedCrs);
 
         createUI();
         updateUIState();
@@ -181,8 +181,8 @@ public class ReprojectionForm extends JTabbedPane {
         crsSelectionForm.setFormEnabled(!collocate);
     }
 
-    private ProjectedCrsSelectionForm createCrsSelectionForm() {
-        final ProjectedCrsSelectionForm crsForm = new ProjectedCrsSelectionForm(crsSelectionModel);
+    private CrsSelectionForm createCrsSelectionForm() {
+        final CrsSelectionForm crsForm = new CrsSelectionForm(crsSelectionModel);
         crsSelectionModel.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {

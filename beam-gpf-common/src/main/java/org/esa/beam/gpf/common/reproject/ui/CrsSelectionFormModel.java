@@ -11,12 +11,12 @@ import java.beans.PropertyChangeSupport;
  * @version $ Revision $ Date $
  * @since BEAM 4.7
  */
-class ProjectedCrsSelectionFormModel {
+class CrsSelectionFormModel {
     private final CrsInfoListModel listModel;
     private CoordinateReferenceSystem selectedCrs;
     private PropertyChangeSupport changeSupport;
 
-    ProjectedCrsSelectionFormModel(CrsInfoListModel listModel, CoordinateReferenceSystem selectedCrs) {
+    CrsSelectionFormModel(CrsInfoListModel listModel, CoordinateReferenceSystem selectedCrs) {
         this.listModel = listModel;
         this.selectedCrs = selectedCrs;
     }

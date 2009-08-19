@@ -39,9 +39,9 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.Container;
 import java.awt.Dimension;
 
-public class ProjectedCrsSelectionForm extends JPanel {
+public class CrsSelectionForm extends JPanel {
 
-    private final ProjectedCrsSelectionFormModel crsSelectionFormModel;
+    private final CrsSelectionFormModel crsSelectionFormModel;
     private JTextArea infoArea;
     private JList crsList;
     private JButton defineCrsBtn;
@@ -54,9 +54,9 @@ public class ProjectedCrsSelectionForm extends JPanel {
         Container contentPane = frame.getContentPane();
 
         final CrsInfoListModel crsInfoListModel = new CrsInfoListModel(CrsInfo.generateCRSList());
-        final ProjectedCrsSelectionFormModel model = new ProjectedCrsSelectionFormModel(crsInfoListModel, crsInfoListModel.getElementAt(0).getCrs());
-        ProjectedCrsSelectionForm projectedCRSSelectionForm = new ProjectedCrsSelectionForm(model);
-        contentPane.add(projectedCRSSelectionForm);
+        final CrsSelectionFormModel model = new CrsSelectionFormModel(crsInfoListModel, crsInfoListModel.getElementAt(0).getCrs());
+        CrsSelectionForm CrsSelectionForm = new CrsSelectionForm(model);
+        contentPane.add(CrsSelectionForm);
         frame.setSize(600, 400);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -69,7 +69,7 @@ public class ProjectedCrsSelectionForm extends JPanel {
     }
 
 
-    ProjectedCrsSelectionForm(ProjectedCrsSelectionFormModel model) {
+    CrsSelectionForm(CrsSelectionFormModel model) {
         crsSelectionFormModel = model;
         creaeUI();
         updateUIState();
