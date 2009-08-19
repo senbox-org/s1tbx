@@ -51,7 +51,7 @@ public class CheckBoxEditor extends ValueEditor {
         return createCheckBoxComponent(valueDescriptor, bindingContext);
     }
     
-    private JCheckBox createCheckBoxComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
+    private static JCheckBox createCheckBoxComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
         JCheckBox checkBox = new JCheckBox();
         ComponentAdapter adapter = new AbstractButtonAdapter(checkBox);
         bindingContext.bind(valueDescriptor.getName(), adapter);
