@@ -9,6 +9,8 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -19,7 +21,7 @@ import java.beans.PropertyChangeListener;
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-public class ComboBoxAdapter extends ComponentAdapter implements ActionListener, PropertyChangeListener {
+public class ComboBoxAdapter extends ComponentAdapter implements ActionListener, ItemListener, PropertyChangeListener {
 
     final JComboBox comboBox;
 
@@ -27,7 +29,13 @@ public class ComboBoxAdapter extends ComponentAdapter implements ActionListener,
         this.comboBox = comboBox;
     }
 
+    @Override
     public void actionPerformed(ActionEvent event) {
+        getBinding().setPropertyValue(comboBox.getSelectedItem());
+    }
+
+    @Override
+    public void itemStateChanged(ItemEvent e) {
         getBinding().setPropertyValue(comboBox.getSelectedItem());
     }
 
@@ -36,17 +44,20 @@ public class ComboBoxAdapter extends ComponentAdapter implements ActionListener,
         updateComboBoxModel();
         getValueDescriptor().addPropertyChangeListener(this);
         comboBox.addActionListener(this);
+        comboBox.addItemListener(this);
     }
 
     @Override
     public void unbindComponents() {
         getValueDescriptor().removePropertyChangeListener(this);
         comboBox.removeActionListener(this);
+        comboBox.removeItemListener(this);
     }
 
     @Override
     public void adjustComponents() {
         Object value = getBinding().getPropertyValue();
+        // Note: directly calling comboBox.setSelectedItem(value) will always fire ActionEvent
         comboBox.setSelectedItem(value);
     }
 
@@ -55,6 +66,7 @@ public class ComboBoxAdapter extends ComponentAdapter implements ActionListener,
         return new JComponent[]{comboBox};
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getSource() == getValueDescriptor() && evt.getPropertyName().equals("valueSet")) {
             updateComboBoxModel();
@@ -69,11 +81,11 @@ public class ComboBoxAdapter extends ComponentAdapter implements ActionListener,
         ValueSet valueSet = getValueDescriptor().getValueSet();
         if (valueSet != null) {
             final Object oldValue = getBinding().getPropertyValue();
-            final DefaultComboBoxModel aModel = new DefaultComboBoxModel(valueSet.getItems());
+            final DefaultComboBoxModel model = new DefaultComboBoxModel(valueSet.getItems());
             if (!valueSet.contains(oldValue)) {
-                aModel.addElement(oldValue);
+                model.addElement(oldValue);
             }
-            comboBox.setModel(aModel);
+            comboBox.setModel(model);
             comboBox.setSelectedItem(oldValue);
         }
     }
