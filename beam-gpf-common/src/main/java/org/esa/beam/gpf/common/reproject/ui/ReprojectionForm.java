@@ -44,18 +44,15 @@ public class ReprojectionForm extends JTabbedPane {
     private String interpolationName;
     private Product sourceProduct;
 
-    public ReprojectionForm(TargetProductSelector targetProductSelector,
-            AppContext appContext) throws FactoryException {
+    public ReprojectionForm(TargetProductSelector targetProductSelector, AppContext appContext) throws FactoryException {
         this.appContext = appContext;
         this.targetProductSelector = targetProductSelector;
         sourceProductSelector = new SourceProductSelector(appContext, "Source Product:");
         interpolationName = "Nearest";
-
         final List<CrsInfo> crsList = CrsInfo.generateCRSList();
         CrsInfoListModel crsInfoListModel = new CrsInfoListModel(crsList);
         CoordinateReferenceSystem selectedCrs = crsInfoListModel.getElementAt(0).getCrs();
         crsSelectionModel = new CrsSelectionFormModel(crsInfoListModel, selectedCrs);
-
         createUI();
         updateUIState();
     }
