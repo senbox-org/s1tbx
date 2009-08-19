@@ -15,12 +15,17 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Insets;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
@@ -31,6 +36,7 @@ import java.util.List;
  * Date: 16.08.2009
  */
 public class ReprojectionForm extends JTabbedPane {
+    private static final String[] INTERPOLATION_IDENTIFIER = {"Nearest", "Bilinear", "Bicubic"};
 
     private final AppContext appContext;
 
@@ -43,6 +49,7 @@ public class ReprojectionForm extends JTabbedPane {
     private CoordinateReferenceSystem targetCrs;
     private String interpolationName;
     private Product sourceProduct;
+    private JComboBox interpolComboBox;
 
     public ReprojectionForm(TargetProductSelector targetProductSelector, AppContext appContext) throws FactoryException {
         this.appContext = appContext;
@@ -143,21 +150,37 @@ public class ReprojectionForm extends JTabbedPane {
         });
         group.add(collocateRadioButton);
         group.add(projectionRadioButton);
+
+        interpolComboBox = new JComboBox(INTERPOLATION_IDENTIFIER);
+        interpolComboBox.setPrototypeDisplayValue(INTERPOLATION_IDENTIFIER[0]);
+        interpolComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateUIState();
+            }
+        });
+        final JPanel interpolPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 3));
+        interpolPanel.add(new JLabel("Interpolation:"));
+        interpolPanel.add(interpolComboBox);
+
         final TableLayout tableLayout = new TableLayout(2);
         tableLayout.setTablePadding(3, 3);
         tableLayout.setTableFill(TableLayout.Fill.BOTH);
+        tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
         tableLayout.setTableWeightX(1.0);
-        tableLayout.setRowWeightY(0, 0.0);
+        tableLayout.setTableWeightY(0.0);
+//        tableLayout.setRowWeightY(0, 0.0);
         tableLayout.setCellColspan(0, 0, 2);
         tableLayout.setCellColspan(1, 0, 2);
         tableLayout.setRowWeightY(1, 1.0);
         tableLayout.setCellPadding(1, 0, new Insets(3, 15, 3, 3));
         tableLayout.setRowPadding(1, new Insets(3, 3, 15, 3));
-        tableLayout.setRowWeightY(2, 0.0);
+//        tableLayout.setRowWeightY(2, 0.0);
         tableLayout.setCellColspan(2, 0, 2);
-        tableLayout.setRowWeightY(3, 0.0);
+//        tableLayout.setRowWeightY(3, 0.0);
         tableLayout.setCellPadding(3, 0, new Insets(3, 15, 3, 3));
         tableLayout.setCellWeightX(3, 1, 0.0);
+        tableLayout.setCellColspan(4, 0, 2);
 
         final JPanel panel = new JPanel(tableLayout);
         panel.setBorder(BorderFactory.createTitledBorder("Projection"));
@@ -170,6 +193,8 @@ public class ReprojectionForm extends JTabbedPane {
         // row 3
         panel.add(collocateProductSelector.getProductNameComboBox());           // col 0
         panel.add(collocateProductSelector.getProductFileChooserButton());      // col 1
+        // row 4
+        panel.add(interpolPanel);
         return panel;
     }
 
@@ -178,6 +203,8 @@ public class ReprojectionForm extends JTabbedPane {
         collocateProductSelector.getProductNameComboBox().setEnabled(collocate);
         collocateProductSelector.getProductFileChooserButton().setEnabled(collocate);
         crsSelectionForm.setFormEnabled(!collocate);
+
+        interpolationName = interpolComboBox.getSelectedItem().toString();
     }
 
     private CrsSelectionForm createCrsSelectionForm() {
