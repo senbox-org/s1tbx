@@ -22,6 +22,7 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 
 
+@Deprecated
 public class MapProjAction extends AbstractVisatAction {
 
     private ModelessDialog dialog;
