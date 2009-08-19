@@ -23,7 +23,7 @@ import java.lang.reflect.Array;
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
- * @since BEAM 4.2
+ * @since Ceres 0.6
  */
 public class ListSelectionAdapter extends ComponentAdapter implements ListSelectionListener, PropertyChangeListener {
 
@@ -106,6 +106,7 @@ public class ListSelectionAdapter extends ComponentAdapter implements ListSelect
         }
     }
 
+    @Override
     public void valueChanged(ListSelectionEvent event) {
         if (event.getValueIsAdjusting()) {
             return;
