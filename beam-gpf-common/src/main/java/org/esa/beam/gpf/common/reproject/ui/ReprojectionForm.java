@@ -12,8 +12,6 @@ import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -26,10 +24,10 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Insets;
-import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
+import java.text.MessageFormat;
 
 /**
  * User: Marco
@@ -37,12 +35,10 @@ import java.util.List;
  */
 public class ReprojectionForm extends JTabbedPane {
 
-    private final ReprojectionFormModel model;
     private final AppContext appContext;
     private final ValueContainer valueContainer;
 
     private ProjectedCrsSelectionFormModel crsSelectionModel;
-    private GridDefinitionFormModel gridDefinitionFormModel;
     private SourceProductSelector sourceProductSelector;
     private TargetProductSelector targetProductSelector;
     private SourceProductSelector collocateProductSelector;
@@ -52,7 +48,6 @@ public class ReprojectionForm extends JTabbedPane {
     public ReprojectionForm(final ReprojectionFormModel model,
                             TargetProductSelector targetProductSelector,
                             AppContext appContext) throws FactoryException {
-        this.model = model;
         this.appContext = appContext;
         valueContainer = ValueContainer.createObjectBacked(model);
         this.targetProductSelector = targetProductSelector;
@@ -68,26 +63,31 @@ public class ReprojectionForm extends JTabbedPane {
         updateUIState();
     }
 
-    private void createUI() throws FactoryException {
+    private void createUI() {
         addTab("I/O Parameter", createIOTab());
         addTab("Projection Parameter", createProjectionTab());
     }
 
-    private JPanel createProjectionTab() throws FactoryException {
-        final Rectangle sourceDimension = new Rectangle(100, 200);
-        final CoordinateReferenceSystem sourceCrs = DefaultGeographicCRS.WGS84;
-        final CoordinateReferenceSystem targetCrs = CRS.decode("EPSG:32632");
-        final String unit = targetCrs.getCoordinateSystem().getAxis(0).getUnit().toString();
-        gridDefinitionFormModel = new GridDefinitionFormModel(sourceDimension, sourceCrs, targetCrs, unit);
-        final GridDefinitionForm gridDefinitionForm = new GridDefinitionForm(gridDefinitionFormModel);
-        gridDefinitionForm.setBorder(BorderFactory.createTitledBorder("Target Grid"));
+    private JPanel createProjectionTab() {
 
         final JPanel projPanel = new JPanel();
         projPanel.setLayout(new BoxLayout(projPanel, BoxLayout.Y_AXIS));
         projPanel.add(createProjectionPanel());
-        projPanel.add(gridDefinitionForm);
+//        projPanel.add(createGridDifinitionForm());
         return projPanel;
     }
+
+    // currently not displaying this form
+//    private GridDefinitionForm createGridDifinitionForm() throws FactoryException {
+//        final Rectangle sourceDimension = new Rectangle(100, 200);
+//        final CoordinateReferenceSystem sourceCrs = DefaultGeographicCRS.WGS84;
+//        final CoordinateReferenceSystem targetCrs = CRS.decode("EPSG:32632");
+//        final String unit = targetCrs.getCoordinateSystem().getAxis(0).getUnit().toString();
+//        GridDefinitionFormModel formModel = new GridDefinitionFormModel(sourceDimension, sourceCrs, targetCrs, unit);
+//        final GridDefinitionForm gridDefinitionForm = new GridDefinitionForm(formModel);
+//        gridDefinitionForm.setBorder(BorderFactory.createTitledBorder("Target Grid"));
+//        return gridDefinitionForm;
+//    }
 
     private JPanel createIOTab() {
         final TableLayout tableLayout = new TableLayout(1);
@@ -224,7 +224,8 @@ public class ReprojectionForm extends JTabbedPane {
     private void updateTargetProductName(Product selectedProduct) {
         final TargetProductSelectorModel selectorModel = targetProductSelector.getModel();
         if (selectedProduct != null) {
-            selectorModel.setProductName(selectedProduct.getName() + "_reprojected");
+            final String productName = MessageFormat.format("{0}_reprojected", selectedProduct.getName());
+            selectorModel.setProductName(productName);
         } else if (selectorModel.getProductName() == null) {
             selectorModel.setProductName("reprojected");
         }
