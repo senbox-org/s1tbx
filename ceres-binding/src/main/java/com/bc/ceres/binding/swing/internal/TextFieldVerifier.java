@@ -15,7 +15,7 @@ import javax.swing.JTextField;
  * @since BEAM 4.2
  */
 class TextFieldVerifier extends InputVerifier {
-    private TextFieldAdapter adapter;
+    private final TextFieldAdapter adapter;
 
     TextFieldVerifier(TextFieldAdapter adapter) {
         this.adapter = adapter;

@@ -29,7 +29,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 
 /**
- * A binding for a {@link javax.swing.JTextComponent} component.
+ * A binding for a {@link JTextComponent} component.
  *
  * @author Marco Zuehlke
  * @version $Revision$ $Date$

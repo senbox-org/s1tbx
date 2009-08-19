@@ -80,6 +80,7 @@ public class TextFieldAdapter extends ComponentAdapter implements ActionListener
         return new TextFieldVerifier(this);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         adjustValue();
     }

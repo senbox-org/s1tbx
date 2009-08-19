@@ -19,7 +19,7 @@ import javax.swing.text.JTextComponent;
  * @since BEAM 4.2
  */
 class TextComponentVerifier extends InputVerifier {
-    private TextComponentAdapter adapter;
+    private final TextComponentAdapter adapter;
 
     TextComponentVerifier(TextComponentAdapter adapter) {
         this.adapter = adapter;
