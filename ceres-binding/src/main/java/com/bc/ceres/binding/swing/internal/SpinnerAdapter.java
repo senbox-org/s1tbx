@@ -47,6 +47,7 @@ public class SpinnerAdapter extends ComponentAdapter implements ChangeListener {
         spinner.setValue(value);
     }
 
+    @Override
     public void stateChanged(ChangeEvent evt) {
         getBinding().setPropertyValue(spinner.getValue());
     }
