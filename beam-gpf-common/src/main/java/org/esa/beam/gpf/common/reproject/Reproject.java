@@ -19,19 +19,16 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.renderable.ParameterBlock;
-import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 
 import javax.media.jai.JAI;
 import javax.media.jai.Warp;
 import javax.media.jai.WarpAffine;
 import javax.media.jai.RenderedOp;
-import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.BorderExtender;
 import javax.media.jai.BorderExtenderConstant;
 import javax.media.jai.operator.MosaicDescriptor;
-import javax.media.jai.InterpolationNearest;
 
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.CoordinateOperationFactory;
@@ -39,10 +36,8 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.MathTransformFactory;
 import org.opengis.referencing.operation.TransformException;
-import org.opengis.geometry.Envelope;
 
 import org.geotools.factory.Hints;
-import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.operation.AbstractCoordinateOperationFactory;
