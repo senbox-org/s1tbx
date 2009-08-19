@@ -1,7 +1,6 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.ProjectedCRS;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
