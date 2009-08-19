@@ -80,20 +80,37 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
     }
 
     public void testBindComboBox() throws ValidationException {
-        JComboBox combobox = new JComboBox(new Integer[]{1, 3, 7});
-        Binding binding = bindingContextVB.bind("intValue", combobox);
+        JComboBox comboBox = new JComboBox(new Integer[]{1, 3, 7});
+        comboBox.setEditable(false);
+
+        Binding binding = bindingContextVB.bind("intValue", comboBox);
         assertNotNull(binding);
-        assertSame(combobox, getPrimaryComponent(binding));
+        assertSame(comboBox, getPrimaryComponent(binding));
         assertNotNull(binding.getComponents());
         assertEquals(1, binding.getComponents().length);
 
-        assertEquals("intValue", combobox.getName());
+        assertEquals("intValue", comboBox.getName());
 
-        combobox.setSelectedItem(3);
+        comboBox.setSelectedItem(3);
         assertEquals(3, valueContainerVB.getValue("intValue"));
 
         valueContainerVB.setValue("intValue", 1);
-        assertEquals(1, combobox.getSelectedItem());
+        assertEquals(1, comboBox.getSelectedItem());
+
+        comboBox.setSelectedItem(7);
+        assertEquals(7, valueContainerVB.getValue("intValue"));
+
+        // "4" is not allowed, so valueContainerVB will not be changed
+        comboBox.setSelectedItem(4);
+        assertEquals(7, comboBox.getSelectedItem());
+        assertEquals(7, valueContainerVB.getValue("intValue"));
+
+        comboBox.setEditable(true);
+
+        // Now "4" is allowed, so valueContainerVB will be changed
+        comboBox.setSelectedItem(4);
+        assertEquals(4, comboBox.getSelectedItem());
+        assertEquals(4, valueContainerVB.getValue("intValue"));
     }
 
     public void testBindTextField() throws ValidationException {
