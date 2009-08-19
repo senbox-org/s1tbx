@@ -43,6 +43,7 @@ public class FormattedTextFieldAdapter extends ComponentAdapter implements Prope
         textField.setValue(value);
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent e) {
         getBinding().setPropertyValue(textField.getValue());
     }
