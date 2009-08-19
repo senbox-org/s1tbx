@@ -376,11 +376,11 @@ public class ReprojectionOp extends Operator {
 
     private Interpolation createInterpolation() {
         final int interpolationType;
-        if (interpolationName.equalsIgnoreCase("Bilinear")) {
+        if ("Bilinear".equalsIgnoreCase(interpolationName)) {
             interpolationType = Interpolation.INTERP_BILINEAR;
-        } else if (interpolationName.equalsIgnoreCase("Bicubic")) {
+        } else if ("Bicubic".equalsIgnoreCase(interpolationName)) {
             interpolationType = Interpolation.INTERP_BICUBIC;
-        } else if (interpolationName.equalsIgnoreCase("Bicubic_2")) {
+        } else if ("Bicubic_2".equalsIgnoreCase(interpolationName)) {
             interpolationType = Interpolation.INTERP_BICUBIC_2;
         } else {
             interpolationType = Interpolation.INTERP_NEAREST;
@@ -418,36 +418,36 @@ public class ReprojectionOp extends Operator {
 
         return new BeamGridGeometry(transform, targetGrid, targetCRS);
     }
-    
+
     private BeamGridGeometry createTargetGridGeometryFromTargetSize(int targetWidth, int targetHeight) {
-              // TODO: create grid geometry from parameters
-              final Point2D pMin = mapBoundary[0];
-              final Point2D pMax = mapBoundary[1];
-              double mapW = pMax.getX() - pMin.getX();
-              double mapH = pMax.getY() - pMin.getY();
+        // TODO: create grid geometry from parameters
+        final Point2D pMin = mapBoundary[0];
+        final Point2D pMax = mapBoundary[1];
+        double mapW = pMax.getX() - pMin.getX();
+        double mapH = pMax.getY() - pMin.getY();
 
-              float pixelSize = (float) Math.min(mapW / targetWidth, mapH / targetHeight);
-              if (MathUtils.equalValues(pixelSize, 0.0f)) {
-                  pixelSize = 1.0f;
-              }
-              Rectangle targetGrid = new Rectangle(targetWidth, targetHeight);
+        float pixelSize = (float) Math.min(mapW / targetWidth, mapH / targetHeight);
+        if (MathUtils.equalValues(pixelSize, 0.0f)) {
+            pixelSize = 1.0f;
+        }
+        Rectangle targetGrid = new Rectangle(targetWidth, targetHeight);
 
-              final float pixelX = 0.5f * targetWidth;
-              final float pixelY = 0.5f * targetHeight;
+        final float pixelX = 0.5f * targetWidth;
+        final float pixelY = 0.5f * targetHeight;
 
-              final float easting = (float) pMin.getX() + pixelX * pixelSize;
-              final float northing = (float) pMax.getY() - pixelY * pixelSize;
-              final double orientation = 0.0;
+        final float easting = (float) pMin.getX() + pixelX * pixelSize;
+        final float northing = (float) pMax.getY() - pixelY * pixelSize;
+        final double orientation = 0.0;
 
-              AffineTransform transform = new AffineTransform();
-              transform.translate(easting, northing);
-              transform.scale(pixelSize, -pixelSize);
-              transform.rotate(Math.toRadians(-orientation));
-              transform.translate(-pixelX, -pixelY);
+        AffineTransform transform = new AffineTransform();
+        transform.translate(easting, northing);
+        transform.scale(pixelSize, -pixelSize);
+        transform.rotate(Math.toRadians(-orientation));
+        transform.translate(-pixelX, -pixelY);
 
-              return new BeamGridGeometry(transform, targetGrid, targetCRS);
+        return new BeamGridGeometry(transform, targetGrid, targetCRS);
     }
-    
+
     private void computeMapBoundary() {
         final int sourceW = sourceProduct.getSceneRasterWidth();
         final int sourceH = sourceProduct.getSceneRasterHeight();
@@ -498,14 +498,6 @@ public class ReprojectionOp extends Operator {
         return new Point2D[]{min, max};
     }
 
-    private static ImageLayout createImageLayout(RasterDataNode node, final Dimension tileSize) {
-        final int w = node.getSceneRasterWidth();
-        final int h = node.getSceneRasterHeight();
-        final int bufferType = ImageManager.getDataBufferType(node.getDataType());
-
-        return createSingleBandedImageLayout(bufferType, w, h, tileSize.width, tileSize.height);
-    }
-    
     private static ImageLayout createImageLayout(RasterDataNode node, int w, int h, final Dimension tileSize) {
         final int bufferType = ImageManager.getDataBufferType(node.getDataType());
 
