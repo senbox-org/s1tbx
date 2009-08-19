@@ -10,15 +10,22 @@ import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
+import org.geotools.referencing.crs.DefaultDerivedCRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.operation.AbstractCoordinateOperationFactory;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.resources.CRSUtilities;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.crs.DerivedCRS;
 import org.opengis.referencing.operation.CoordinateOperationFactory;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransformFactory;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
+
+import java.awt.geom.AffineTransform;
 
 public class GeotoolsGeoCoding extends AbstractGeoCoding {
 
@@ -29,7 +36,6 @@ public class GeotoolsGeoCoding extends AbstractGeoCoding {
 
     public GeotoolsGeoCoding(BeamGridGeometry gridGeometry) throws FactoryException, NoninvertibleTransformException {
         this.gridGeometry = gridGeometry;
-        setModelCRS(gridGeometry.getModelCRS());
 
         org.opengis.referencing.datum.Ellipsoid gtEllipsoid = CRS.getEllipsoid(getModelCRS());
         String ellipsoidName = gtEllipsoid.getName().getCode();
@@ -40,6 +46,21 @@ public class GeotoolsGeoCoding extends AbstractGeoCoding {
         this.datum = new Datum(datumName, ellipsoid, 0, 0, 0);
 
         MathTransform imageToModel = new AffineTransform2D(gridGeometry.getImageToModel());
+        
+        final CoordinateReferenceSystem modelCRS = gridGeometry.getModelCRS();
+        if (modelCRS instanceof DerivedCRS) {
+            DerivedCRS derivedCRS = (DerivedCRS) modelCRS;
+            CoordinateReferenceSystem baseCRS = derivedCRS.getBaseCRS();
+            setBaseCRS(baseCRS);
+        } else {
+            setBaseCRS(DefaultGeographicCRS.WGS84);
+        }
+        setGridCRS(new DefaultDerivedCRS("Grid CS based on " + getBaseCRS().getName(),
+                                         getBaseCRS(),
+                                         imageToModel.inverse(),
+                                         DefaultCartesianCS.DISPLAY));
+        setModelCRS(modelCRS);
+        
         MathTransform model2Base = CRS.findMathTransform(getModelCRS(), getBaseCRS());
 
         final CoordinateOperationFactory factory = ReferencingFactoryFinder.getCoordinateOperationFactory(null);
@@ -51,6 +72,7 @@ public class GeotoolsGeoCoding extends AbstractGeoCoding {
         }
         image2Base = mtFactory.createConcatenatedTransform(imageToModel, model2Base);
         base2image = image2Base.inverse();
+        
     }
 
     @Override
@@ -113,5 +135,10 @@ public class GeotoolsGeoCoding extends AbstractGeoCoding {
     public boolean isCrossingMeridianAt180() {
         // TODO Auto-generated method stub
         return false;
+    }
+    
+    @Override
+    public AffineTransform getImageToModelTransform() {
+        return gridGeometry.getImageToModel();
     }
 }
