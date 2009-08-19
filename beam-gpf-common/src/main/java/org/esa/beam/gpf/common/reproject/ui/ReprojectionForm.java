@@ -119,7 +119,7 @@ public class ReprojectionForm extends JTabbedPane {
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
                 final Product selectedProduct = collocateProductSelector.getSelectedProduct();
-                if (selectedProduct != null) {
+                if (selectedProduct != null && collocateRadioButton.isSelected()) {
                     setTargetCrs(selectedProduct.getGeoCoding().getModelCRS());
                 }
             }
@@ -132,9 +132,11 @@ public class ReprojectionForm extends JTabbedPane {
         collocateRadioButton.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                final Product selectedProduct = collocateProductSelector.getSelectedProduct();
-                if (selectedProduct != null) {
-                    setTargetCrs(selectedProduct.getGeoCoding().getModelCRS());
+                if (collocateRadioButton.isSelected()) {
+                    final Product selectedProduct = collocateProductSelector.getSelectedProduct();
+                    if (selectedProduct != null) {
+                        setTargetCrs(selectedProduct.getGeoCoding().getModelCRS());
+                    }
                 }
                 updateUIState();
             }
