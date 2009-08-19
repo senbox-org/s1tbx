@@ -1,8 +1,5 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
@@ -26,8 +23,8 @@ import javax.swing.event.ChangeListener;
 import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.List;
 import java.text.MessageFormat;
+import java.util.List;
 
 /**
  * User: Marco
@@ -36,7 +33,6 @@ import java.text.MessageFormat;
 public class ReprojectionForm extends JTabbedPane {
 
     private final AppContext appContext;
-    private final ValueContainer valueContainer;
 
     private ProjectedCrsSelectionFormModel crsSelectionModel;
     private SourceProductSelector sourceProductSelector;
@@ -44,14 +40,16 @@ public class ReprojectionForm extends JTabbedPane {
     private SourceProductSelector collocateProductSelector;
     private ProjectedCrsSelectionForm crsSelectionForm;
     private JRadioButton collocateRadioButton;
+    private CoordinateReferenceSystem targetCrs;
+    private String interpolationName;
+    private Product sourceProduct;
 
-    public ReprojectionForm(final ReprojectionFormModel model,
-                            TargetProductSelector targetProductSelector,
-                            AppContext appContext) throws FactoryException {
+    public ReprojectionForm(TargetProductSelector targetProductSelector,
+            AppContext appContext) throws FactoryException {
         this.appContext = appContext;
-        valueContainer = ValueContainer.createObjectBacked(model);
         this.targetProductSelector = targetProductSelector;
         sourceProductSelector = new SourceProductSelector(appContext, "Source Product:");
+        interpolationName = "Nearest";
 
         final List<CrsInfo> crsList = CrsInfo.generateCRSList();
         CrsInfoListModel crsInfoListModel = new CrsInfoListModel(crsList);
@@ -59,8 +57,22 @@ public class ReprojectionForm extends JTabbedPane {
         crsSelectionModel = new ProjectedCrsSelectionFormModel(crsInfoListModel, selectedCrs);
 
         createUI();
-        bindUI();
         updateUIState();
+    }
+
+    public CoordinateReferenceSystem getTargetCrs() {
+        return targetCrs;
+    }
+    private void setTargetCrs(CoordinateReferenceSystem targetCrs) {
+        this.targetCrs = targetCrs;
+    }
+
+    public String getInterpolationName() {
+        return interpolationName;
+    }
+
+    public Product getSourceProduct() {
+        return sourceProduct;
     }
 
     private void createUI() {
@@ -111,7 +123,7 @@ public class ReprojectionForm extends JTabbedPane {
             public void selectionChanged(SelectionChangeEvent event) {
                 final Product selectedProduct = collocateProductSelector.getSelectedProduct();
                 if (selectedProduct != null) {
-                    updateTargetCrs(selectedProduct.getGeoCoding().getModelCRS());
+                    setTargetCrs(selectedProduct.getGeoCoding().getModelCRS());
                 }
             }
         });
@@ -125,7 +137,7 @@ public class ReprojectionForm extends JTabbedPane {
             public void stateChanged(ChangeEvent e) {
                 final Product selectedProduct = collocateProductSelector.getSelectedProduct();
                 if (selectedProduct != null) {
-                    updateTargetCrs(selectedProduct.getGeoCoding().getModelCRS());
+                    setTargetCrs(selectedProduct.getGeoCoding().getModelCRS());
                 }
                 updateUIState();
             }
@@ -174,23 +186,10 @@ public class ReprojectionForm extends JTabbedPane {
         crsSelectionModel.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                updateTargetCrs((CoordinateReferenceSystem) evt.getNewValue());
+                setTargetCrs((CoordinateReferenceSystem) evt.getNewValue());
             }
         });
         return crsForm;
-    }
-
-    private void updateTargetCrs(CoordinateReferenceSystem value) {
-        try {
-            valueContainer.setValue("targetCrs", value);
-        } catch (ValidationException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void bindUI() {
-        final BindingContext context = new BindingContext(valueContainer);
-        context.bind("sourceProduct", sourceProductSelector.getProductNameComboBox());
     }
 
     public void prepareShow() {
@@ -214,7 +213,8 @@ public class ReprojectionForm extends JTabbedPane {
         sourceProductSelector.addSelectionChangeListener(new SelectionChangeListener() {
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
-                updateTargetProductName(sourceProductSelector.getSelectedProduct());
+                sourceProduct = sourceProductSelector.getSelectedProduct();
+                updateTargetProductName(sourceProduct);
                 updateUIState();
             }
         });

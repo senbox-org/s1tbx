@@ -16,27 +16,26 @@ import java.util.Map;
  * Date: 16.08.2009
  */
 public class ReprojectionDialog extends SingleTargetProductDialog {
-    private ReprojectionFormModel formModel;
+
     private ReprojectionForm form;
 
     public ReprojectionDialog(AppContext appContext) throws FactoryException {
         super(appContext, "Reproject", "reproject");
-        formModel = new ReprojectionFormModel();
-        form = new ReprojectionForm(formModel, getTargetProductSelector(), appContext);
+        form = new ReprojectionForm(getTargetProductSelector(), appContext);
     }
 
     @Override
     protected Product createTargetProduct() throws Exception {
 
-        final CoordinateReferenceSystem crs = formModel.getTargetCrs();
-        String interpolationName = formModel.getInterpolationName();
+        final CoordinateReferenceSystem crs = form.getTargetCrs();
+        String interpolationName = form.getInterpolationName();
         
         if (crs != null) {
-            ReprojectionOp op = ReprojectionOp.create(formModel.getSourceProduct(), crs, interpolationName);
+            ReprojectionOp op = ReprojectionOp.create(form.getSourceProduct(), crs, interpolationName);
             return op.getTargetProduct();
         } else {
             final Map<String, Product> productMap = new HashMap<String, Product>(5);
-            productMap.put("source", formModel.getSourceProduct());
+            productMap.put("source", form.getSourceProduct());
             final Map<String, Object> parameterMap = new HashMap<String, Object>(5);
             // Reprojection parameters
             parameterMap.put("interpolationName", interpolationName);
