@@ -48,6 +48,7 @@ public class AbstractButtonAdapter extends ComponentAdapter implements ActionLis
         button.setSelected(selected);
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         getBinding().setPropertyValue(getButton().isSelected());
     }
