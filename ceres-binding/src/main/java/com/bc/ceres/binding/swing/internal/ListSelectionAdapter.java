@@ -74,6 +74,7 @@ public class ListSelectionAdapter extends ComponentAdapter implements ListSelect
         }
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getSource() == getValueDescriptor() && evt.getPropertyName().equals("valueSet")) {
             updateListModel();
