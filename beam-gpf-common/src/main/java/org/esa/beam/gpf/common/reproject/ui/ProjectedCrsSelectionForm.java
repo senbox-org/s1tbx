@@ -22,10 +22,8 @@ import com.bc.ceres.swing.TableLayout.Fill;
 import com.jidesoft.list.FilterableListModel;
 import com.jidesoft.list.QuickListFilterField;
 import com.jidesoft.utils.Lm;
-
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.ProjectedCRS;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -91,7 +89,7 @@ public class ProjectedCrsSelectionForm extends JPanel {
         filterField.setWildcardEnabled(true);
         final FilterableListModel listModel = filterField.getDisplayListModel();
         crsList = new JList(listModel);
-        crsList.setVisibleRowCount(10);
+        crsList.setVisibleRowCount(15);
         filterField.setList(crsList);
         crsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         crsList.setSelectedValue(crsSelectionFormModel.getSelectedCrs(), true);
@@ -100,7 +98,7 @@ public class ProjectedCrsSelectionForm extends JPanel {
         final JLabel infoLabel = new JLabel("CRS Info:");
         JScrollPane crsListScrollPane = new JScrollPane(crsList);
         crsListScrollPane.setPreferredSize(new Dimension(200, 150));
-        infoArea = new JTextArea(10, 30);
+        infoArea = new JTextArea(15, 30);
         infoArea.setEditable(false);
         crsList.addListSelectionListener(new CrsListSelectionListener());
         JScrollPane infoAreaScrollPane = new JScrollPane(infoArea);
