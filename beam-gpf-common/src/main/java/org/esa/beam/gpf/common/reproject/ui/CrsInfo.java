@@ -3,6 +3,7 @@ package org.esa.beam.gpf.common.reproject.ui;
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.factory.FallbackAuthorityFactory;
+import org.geotools.factory.Hints;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -50,8 +51,9 @@ class CrsInfo {
 
     static List<CrsInfo> generateCRSList() {
         // todo - (mp/mz) this method takes time (2 sec.) try to speed up
-        
-        Set<CRSAuthorityFactory> factories = ReferencingFactoryFinder.getCRSAuthorityFactories(null);
+
+        Hints hints = new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, true);
+        Set<CRSAuthorityFactory> factories = ReferencingFactoryFinder.getCRSAuthorityFactories(hints);
         final List<CRSAuthorityFactory> filtered = new ArrayList<CRSAuthorityFactory>();
         for (final CRSAuthorityFactory factory : factories) {
             if (Citations.identifierMatches(factory.getAuthority(), AUTHORITY )) {
