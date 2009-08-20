@@ -127,11 +127,7 @@ public class CrsSelectionForm extends JPanel {
     }
 
     private void selectedCrsChanged(final CoordinateReferenceSystem crs) {
-        if (crs != null) {
-            crsSelectionFormModel.setSelectedCrs(crs);
-        } else {
-            crsSelectionFormModel.setSelectedCrs(null);
-        }
+        crsSelectionFormModel.setSelectedCrs(crs);
         updateUIState();
     }
 
@@ -159,6 +155,7 @@ public class CrsSelectionForm extends JPanel {
                 try {
                     crs = selectedValue.getCrs();
                 } catch (FactoryException e1) {
+                    e1.printStackTrace();
                 }
             }
             selectedCrsChanged(crs);
