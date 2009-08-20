@@ -15,9 +15,8 @@ class CrsSelectionFormModel {
     private CoordinateReferenceSystem selectedCrs;
     private PropertyChangeSupport changeSupport;
 
-    CrsSelectionFormModel(CrsInfoListModel listModel, CoordinateReferenceSystem selectedCrs) {
+    CrsSelectionFormModel(CrsInfoListModel listModel) {
         this.listModel = listModel;
-        this.selectedCrs = selectedCrs;
     }
 
     public CrsInfoListModel getListModel() {

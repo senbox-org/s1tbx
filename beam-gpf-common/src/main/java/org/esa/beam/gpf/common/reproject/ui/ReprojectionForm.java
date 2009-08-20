@@ -10,6 +10,7 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CRSFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.BorderFactory;
@@ -58,8 +59,7 @@ public class ReprojectionForm extends JTabbedPane {
         resamplingName = "Nearest";
         final List<CrsInfo> crsList = CrsInfo.generateCRSList();
         CrsInfoListModel crsInfoListModel = new CrsInfoListModel(crsList);
-        CoordinateReferenceSystem selectedCrs = crsInfoListModel.getElementAt(0).getCrs();
-        crsSelectionModel = new CrsSelectionFormModel(crsInfoListModel, selectedCrs);
+        crsSelectionModel = new CrsSelectionFormModel(crsInfoListModel);
         createUI();
         updateUIState();
     }
@@ -237,6 +237,7 @@ public class ReprojectionForm extends JTabbedPane {
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
                 sourceProduct = sourceProductSelector.getSelectedProduct();
+                crsSelectionForm.setSelectedProduct(sourceProduct);
                 updateTargetProductName(sourceProduct);
                 updateUIState();
             }

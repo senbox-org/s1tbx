@@ -22,6 +22,8 @@ import com.bc.ceres.swing.TableLayout.Fill;
 import com.jidesoft.list.FilterableListModel;
 import com.jidesoft.list.QuickListFilterField;
 import com.jidesoft.utils.Lm;
+
+import org.esa.beam.framework.datamodel.Product;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -42,6 +44,7 @@ import java.awt.Dimension;
 public class CrsSelectionForm extends JPanel {
 
     private final CrsSelectionFormModel crsSelectionFormModel;
+    private Product sourceProduct;
     private JTextArea infoArea;
     private JList crsList;
     private JButton defineCrsBtn;
@@ -54,7 +57,7 @@ public class CrsSelectionForm extends JPanel {
         Container contentPane = frame.getContentPane();
 
         final CrsInfoListModel crsInfoListModel = new CrsInfoListModel(CrsInfo.generateCRSList());
-        final CrsSelectionFormModel model = new CrsSelectionFormModel(crsInfoListModel, crsInfoListModel.getElementAt(0).getCrs());
+        final CrsSelectionFormModel model = new CrsSelectionFormModel(crsInfoListModel);
         CrsSelectionForm CrsSelectionForm = new CrsSelectionForm(model);
         contentPane.add(CrsSelectionForm);
         frame.setSize(600, 400);
@@ -153,7 +156,7 @@ public class CrsSelectionForm extends JPanel {
             CoordinateReferenceSystem crs = null;
             if (selectedValue != null) {
                 try {
-                    crs = selectedValue.getCrs();
+                    crs = selectedValue.getCrs(sourceProduct);
                 } catch (FactoryException e1) {
                     e1.printStackTrace();
                 }
@@ -161,5 +164,11 @@ public class CrsSelectionForm extends JPanel {
             selectedCrsChanged(crs);
         }
 
+    }
+
+    public void setSelectedProduct(Product sourceProduct) {
+        this.sourceProduct = sourceProduct;
+        crsSelectionFormModel.setSelectedCrs(null);
+        updateUIState();
     }
 }
