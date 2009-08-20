@@ -6,7 +6,6 @@ import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.Pin;
@@ -30,11 +29,13 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.geotools.factory.Hints;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
+import org.geotools.resources.geometry.XRectangle2D;
 import org.opengis.parameter.ParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
@@ -47,11 +48,10 @@ import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
-
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.ColorModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
@@ -90,15 +90,15 @@ public class ReprojectionOp extends Operator {
     private String interpolationName;
     
     
-    private CoordinateReferenceSystem targetCRS;
+    private CoordinateReferenceSystem targetCrs;
     private Interpolation interpolation;
-    private Point2D[] mapBoundary;
-    
-    
+    private Rectangle2D mapBoundary;
+
+
     public static ReprojectionOp create(Product sourceProduct, CoordinateReferenceSystem targetCrs, String interpolationName) {
         ReprojectionOp reprojectionOp = new ReprojectionOp();
         reprojectionOp.setSourceProduct(sourceProduct);
-        reprojectionOp.targetCRS = targetCrs;
+        reprojectionOp.targetCrs = targetCrs;
         reprojectionOp.interpolationName = interpolationName;
         return reprojectionOp;
     }
@@ -107,12 +107,11 @@ public class ReprojectionOp extends Operator {
     public void initialize() throws OperatorException {
         Rectangle sourceRect = new Rectangle(sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
         try {
-            if (targetCRS == null) {
-                targetCRS = createTargetCRS();
+            if (targetCrs == null) {
+                targetCrs = createTargetCRS();
             }
             interpolation = createInterpolation();
-            computeMapBoundary();
-            
+            mapBoundary = createMapBoundary();
             /*
              * 2. Compute the target grid geometry
              */
@@ -159,7 +158,7 @@ public class ReprojectionOp extends Operator {
                     sourceImage = sourceBand.getGeophysicalImage();
                     String exp = sourceBand.getValidMaskExpression();
                     if (exp != null) {
-                        exp = "(" + exp + ")>0?" + sourceBand.getName() + ":NaN";
+                        exp = String.format("(%s)>0?%s:NaN", exp, sourceBand.getName());
                         sourceImage = createVirtualSourceImage(exp, geophysicalDataType, targetBand.getNoDataValue(), sourceProduct);
                     }
                 } else {
@@ -169,7 +168,7 @@ public class ReprojectionOp extends Operator {
                     if (validPixelExpression == null) {
                         validPixelExpression = "reproject_flag.valid";
                     } else {
-                        validPixelExpression = "reproject_flag.valid && " + validPixelExpression;
+                        validPixelExpression = String.format("reproject_flag.valid && %s", validPixelExpression);
                     }
                     targetBand.setValidPixelExpression(validPixelExpression);
                     sourceImage = sourceBand.getSourceImage();
@@ -181,7 +180,7 @@ public class ReprojectionOp extends Operator {
 
 //                targetBand.setSourceImage(Reproject.reproject(sourceImage, sourceGridGeometry, targetGridGeometry, targetBand.getNoDataValue(), createInterpolation(), hints));
                 
-                targetBand.setSourceImage(createProjectedImage(sourceImage, targetBand, targetCRS));
+                targetBand.setSourceImage(createProjectedImage(sourceImage, targetBand));
 
                 /*
                  * Flag and index codings
@@ -219,7 +218,7 @@ public class ReprojectionOp extends Operator {
 //                                                        sourceProduct, ResolutionLevel.MAXRES);
 //                RenderedImage producttargetImage = Reproject.reproject(productImage, sourceGridGeometry, targetGridGeometry, 0, createInterpolation(), bhints);
 //                reprojectValidBand.setSourceImage(producttargetImage);
-                reprojectValidBand.setSourceImage(createProjectedImage(null, reprojectValidBand, targetCRS));
+                reprojectValidBand.setSourceImage(createProjectedImage(null, reprojectValidBand));
             }
 
             /*
@@ -252,7 +251,7 @@ public class ReprojectionOp extends Operator {
         });
     }
     
-    private MultiLevelImage createProjectedImage(final RenderedImage sourceImage, final Band targetBand, final CoordinateReferenceSystem targetCRS) {
+    private MultiLevelImage createProjectedImage(final RenderedImage sourceImage, final Band targetBand) {
         final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(targetBand);
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
@@ -390,10 +389,8 @@ public class ReprojectionOp extends Operator {
     
     private BeamGridGeometry createTargetGridGeometryFromSourceSize(int sourceWidth, int sourceHeight) {
         // TODO: create grid geometry from parameters
-        final Point2D pMin = mapBoundary[0];
-        final Point2D pMax = mapBoundary[1];
-        double mapW = pMax.getX() - pMin.getX();
-        double mapH = pMax.getY() - pMin.getY();
+        double mapW = mapBoundary.getWidth();
+        double mapH = mapBoundary.getHeight();
 
         float pixelSize = (float) Math.min(mapW / sourceWidth, mapH / sourceHeight);
         if (MathUtils.equalValues(pixelSize, 0.0f)) {
@@ -403,28 +400,14 @@ public class ReprojectionOp extends Operator {
         final int targetH = 1 + (int) Math.floor(mapH / pixelSize);
         Rectangle targetGrid = new Rectangle(targetW, targetH);
 
-        final float pixelX = 0.5f * targetW;
-        final float pixelY = 0.5f * targetH;
-
-        final float easting = (float) pMin.getX() + pixelX * pixelSize;
-        final float northing = (float) pMax.getY() - pixelY * pixelSize;
-        final double orientation = 0.0;
-
-        AffineTransform transform = new AffineTransform();
-        transform.translate(easting, northing);
-        transform.scale(pixelSize, -pixelSize);
-        transform.rotate(Math.toRadians(-orientation));
-        transform.translate(-pixelX, -pixelY);
-
-        return new BeamGridGeometry(transform, targetGrid, targetCRS);
+        AffineTransform transform = createI2MTransform(targetGrid, pixelSize);
+        return new BeamGridGeometry(transform, targetGrid, targetCrs);
     }
 
     private BeamGridGeometry createTargetGridGeometryFromTargetSize(int targetWidth, int targetHeight) {
         // TODO: create grid geometry from parameters
-        final Point2D pMin = mapBoundary[0];
-        final Point2D pMax = mapBoundary[1];
-        double mapW = pMax.getX() - pMin.getX();
-        double mapH = pMax.getY() - pMin.getY();
+        double mapW = mapBoundary.getWidth();
+        double mapH = mapBoundary.getHeight();
 
         float pixelSize = (float) Math.min(mapW / targetWidth, mapH / targetHeight);
         if (MathUtils.equalValues(pixelSize, 0.0f)) {
@@ -432,11 +415,15 @@ public class ReprojectionOp extends Operator {
         }
         Rectangle targetGrid = new Rectangle(targetWidth, targetHeight);
 
-        final float pixelX = 0.5f * targetWidth;
-        final float pixelY = 0.5f * targetHeight;
+        AffineTransform transform = createI2MTransform(targetGrid, pixelSize);
+        return new BeamGridGeometry(transform, targetGrid, targetCrs);
+    }
 
-        final float easting = (float) pMin.getX() + pixelX * pixelSize;
-        final float northing = (float) pMax.getY() - pixelY * pixelSize;
+    private AffineTransform createI2MTransform(Rectangle imageRect, double pixelSize) {
+        final double pixelX = 0.5 * imageRect.getWidth();
+        final double pixelY = 0.5 * imageRect.getHeight();
+        final double easting = mapBoundary.getX() + pixelX * pixelSize;
+        final double northing = (mapBoundary.getY() + mapBoundary.getHeight())- pixelY * pixelSize;
         final double orientation = 0.0;
 
         AffineTransform transform = new AffineTransform();
@@ -444,58 +431,27 @@ public class ReprojectionOp extends Operator {
         transform.scale(pixelSize, -pixelSize);
         transform.rotate(Math.toRadians(-orientation));
         transform.translate(-pixelX, -pixelY);
-
-        return new BeamGridGeometry(transform, targetGrid, targetCRS);
+        return transform;
     }
 
-    private void computeMapBoundary() {
-        final int sourceW = sourceProduct.getSceneRasterWidth();
-        final int sourceH = sourceProduct.getSceneRasterHeight();
-        final int step = Math.min(sourceW, sourceH) / 2;
-        MathTransform mathTransform;
+    private Rectangle2D createMapBoundary() {
         try {
-            mathTransform = CRS.findMathTransform(sourceProduct.getGeoCoding().getBaseCRS(), targetCRS);
-        } catch (FactoryException e) {
+            final CoordinateReferenceSystem sourceCrs = sourceProduct.getGeoCoding().getImageCRS();
+            final int sourceW = sourceProduct.getSceneRasterWidth();
+            final int sourceH = sourceProduct.getSceneRasterHeight();
+
+            Rectangle2D rect = XRectangle2D.createFromExtremums(0.5, 0.5, sourceW - 0.5, sourceH - 0.5);
+            int pointsPerSide = Math.min(sourceH, sourceW) / 10;
+            pointsPerSide = Math.max(9, pointsPerSide);
+
+            final ReferencedEnvelope sourceEnvelope = new ReferencedEnvelope(rect, sourceCrs);
+            final ReferencedEnvelope targetEnvelope = sourceEnvelope.transform(targetCrs, true, pointsPerSide);
+            return new Rectangle2D.Double(targetEnvelope.getMinX(), targetEnvelope.getMinY(),
+                                          targetEnvelope.getWidth(), targetEnvelope.getHeight());
+
+        } catch (Exception e) {
             throw new OperatorException(e);
         }
-        try {
-            mapBoundary = createMapBoundary(sourceProduct, step, mathTransform);
-        } catch (TransformException e) {
-            throw new OperatorException(e);
-        }
-    }
-
-    private static Point2D[] createMapBoundary(Product product, int step,
-                                               MathTransform mathTransform) throws TransformException {
-        GeoPos[] geoPoints = ProductUtils.createGeoBoundary(product, null, step);
-        ProductUtils.normalizeGeoPolygon(geoPoints);
-        float[] geoPointsD = new float[geoPoints.length * 2];
-        for (int i = 0; i < geoPoints.length; i++) {
-            geoPointsD[i * 2] = geoPoints[i].lon;
-            geoPointsD[(i * 2) + 1] = geoPoints[i].lat;
-        }
-        float[] mapPointsD = new float[geoPoints.length * 2];
-        mathTransform.transform(geoPointsD, 0, mapPointsD, 0, geoPoints.length);
-
-        return getMinMax(mapPointsD);
-    }
-
-    private static Point2D[] getMinMax(float[] mapPointsD) {
-        Point2D.Float min = new Point2D.Float();
-        Point2D.Float max = new Point2D.Float();
-        min.x = +Float.MAX_VALUE;
-        min.y = +Float.MAX_VALUE;
-        max.x = -Float.MAX_VALUE;
-        max.y = -Float.MAX_VALUE;
-        for (int i = 0; i < mapPointsD.length;) {
-            float pointX = mapPointsD[i++];
-            float pointY = mapPointsD[i++];
-            min.x = Math.min(min.x, pointX);
-            min.y = Math.min(min.y, pointY);
-            max.x = Math.max(max.x, pointX);
-            max.y = Math.max(max.y, pointY);
-        }
-        return new Point2D[]{min, max};
     }
 
     private static ImageLayout createImageLayout(RasterDataNode node, int w, int h, final Dimension tileSize) {
