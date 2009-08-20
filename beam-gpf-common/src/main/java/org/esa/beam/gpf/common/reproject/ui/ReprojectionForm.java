@@ -36,7 +36,7 @@ import java.util.List;
  * Date: 16.08.2009
  */
 public class ReprojectionForm extends JTabbedPane {
-    private static final String[] INTERPOLATION_IDENTIFIER = {"Nearest", "Bilinear", "Bicubic"};
+    private static final String[] RESAMPLING_IDENTIFIER = {"Nearest", "Bilinear", "Bicubic"};
 
     private final AppContext appContext;
 
@@ -47,15 +47,15 @@ public class ReprojectionForm extends JTabbedPane {
     private CrsSelectionForm crsSelectionForm;
     private JRadioButton collocateRadioButton;
     private CoordinateReferenceSystem targetCrs;
-    private String interpolationName;
+    private String resamplingName;
     private Product sourceProduct;
-    private JComboBox interpolComboBox;
+    private JComboBox resampleComboBox;
 
     public ReprojectionForm(TargetProductSelector targetProductSelector, AppContext appContext) throws FactoryException {
         this.appContext = appContext;
         this.targetProductSelector = targetProductSelector;
         sourceProductSelector = new SourceProductSelector(appContext, "Source Product:");
-        interpolationName = "Nearest";
+        resamplingName = "Nearest";
         final List<CrsInfo> crsList = CrsInfo.generateCRSList();
         CrsInfoListModel crsInfoListModel = new CrsInfoListModel(crsList);
         CoordinateReferenceSystem selectedCrs = crsInfoListModel.getElementAt(0).getCrs();
@@ -71,8 +71,8 @@ public class ReprojectionForm extends JTabbedPane {
         this.targetCrs = targetCrs;
     }
 
-    public String getInterpolationName() {
-        return interpolationName;
+    public String getResamplingName() {
+        return resamplingName;
     }
 
     public Product getSourceProduct() {
@@ -151,17 +151,17 @@ public class ReprojectionForm extends JTabbedPane {
         group.add(collocateRadioButton);
         group.add(projectionRadioButton);
 
-        interpolComboBox = new JComboBox(INTERPOLATION_IDENTIFIER);
-        interpolComboBox.setPrototypeDisplayValue(INTERPOLATION_IDENTIFIER[0]);
-        interpolComboBox.addActionListener(new ActionListener() {
+        resampleComboBox = new JComboBox(RESAMPLING_IDENTIFIER);
+        resampleComboBox.setPrototypeDisplayValue(RESAMPLING_IDENTIFIER[0]);
+        resampleComboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 updateUIState();
             }
         });
-        final JPanel interpolPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 3));
-        interpolPanel.add(new JLabel("Interpolation:"));
-        interpolPanel.add(interpolComboBox);
+        final JPanel resamplePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 3));
+        resamplePanel.add(new JLabel("Resampling Method:"));
+        resamplePanel.add(resampleComboBox);
 
         final TableLayout tableLayout = new TableLayout(2);
         tableLayout.setTablePadding(3, 3);
@@ -194,7 +194,7 @@ public class ReprojectionForm extends JTabbedPane {
         panel.add(collocateProductSelector.getProductNameComboBox());           // col 0
         panel.add(collocateProductSelector.getProductFileChooserButton());      // col 1
         // row 4
-        panel.add(interpolPanel);
+        panel.add(resamplePanel);
         return panel;
     }
 
@@ -204,7 +204,7 @@ public class ReprojectionForm extends JTabbedPane {
         collocateProductSelector.getProductFileChooserButton().setEnabled(collocate);
         crsSelectionForm.setFormEnabled(!collocate);
 
-        interpolationName = interpolComboBox.getSelectedItem().toString();
+        resamplingName = resampleComboBox.getSelectedItem().toString();
     }
 
     private CrsSelectionForm createCrsSelectionForm() {

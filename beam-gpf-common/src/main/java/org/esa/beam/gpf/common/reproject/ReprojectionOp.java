@@ -31,16 +31,9 @@ import org.esa.beam.util.math.MathUtils;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.crs.DefaultProjectedCRS;
-import org.geotools.referencing.cs.DefaultCartesianCS;
-import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.resources.geometry.XRectangle2D;
-import org.opengis.parameter.ParameterValue;
-import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import javax.media.jai.ImageLayout;
@@ -79,42 +72,38 @@ public class ReprojectionOp extends Operator {
     private String epsgCode;
     @Parameter(label = "WKT File", description="A file which contains the projected Coordinate Reference System in WKT format.")
     private File wktFile;
-    @Parameter(label = "Transformation Name", description="The name of the transformation.")
-    private String transformationName;
-//    @Parameter(label = "Transformation Parameter:", description = "The parameters of the transformation.", itemAlias = "parameter")
-    private TransformationParameter[] transformationParameters = new TransformationParameter[0];
 
-    @Parameter(label = "Interpolation Method", description = "The interpolation method.", 
+    @Parameter(label = "Resampling Method", description = "The resampling method.",
                valueSet= {"Nearest", "Bilinear","Bicubic","Bicubic_2"},
                defaultValue = "Nearest")
-    private String interpolationName;
+    private String resamplingName;
     
     
     private CoordinateReferenceSystem targetCrs;
-    private Interpolation interpolation;
+    private Interpolation resampling;
     private Rectangle2D mapBoundary;
 
 
-    public static ReprojectionOp create(Product sourceProduct, CoordinateReferenceSystem targetCrs, String interpolationName) {
+    public static ReprojectionOp create(Product sourceProduct, CoordinateReferenceSystem targetCrs, String resamplingName) {
         ReprojectionOp reprojectionOp = new ReprojectionOp();
         reprojectionOp.setSourceProduct(sourceProduct);
         reprojectionOp.targetCrs = targetCrs;
-        reprojectionOp.interpolationName = interpolationName;
+        reprojectionOp.resamplingName = resamplingName;
         return reprojectionOp;
     }
 
     @Override
     public void initialize() throws OperatorException {
-        Rectangle sourceRect = new Rectangle(sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
         try {
             if (targetCrs == null) {
                 targetCrs = createTargetCRS();
             }
-            interpolation = createInterpolation();
+            resampling = createResampling();
             mapBoundary = createMapBoundary();
             /*
              * 2. Compute the target grid geometry
              */
+            Rectangle sourceRect = new Rectangle(sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
             final BeamGridGeometry targetGridGeometry = createTargetGridGeometryFromSourceSize(sourceRect.width, sourceRect.height);
             Rectangle targetGridRect = targetGridGeometry.getBounds();
 
@@ -138,7 +127,8 @@ public class ReprojectionOp extends Operator {
 
             /*
              * 5. Create target bands
-             */            
+             */
+            final MultiLevelModel srcModel = ImageManager.getInstance().getMultiLevelModel(sourceProduct.getBandAt(0));
             boolean reprojectionFlagRequired = false;
             for (Band sourceBand : sourceProduct.getBands()) {
                 int geophysicalDataType = sourceBand.getGeophysicalDataType();
@@ -159,7 +149,7 @@ public class ReprojectionOp extends Operator {
                     String exp = sourceBand.getValidMaskExpression();
                     if (exp != null) {
                         exp = String.format("(%s)>0?%s:NaN", exp, sourceBand.getName());
-                        sourceImage = createVirtualSourceImage(exp, geophysicalDataType, targetBand.getNoDataValue(), sourceProduct);
+                        sourceImage = createVirtualSourceImage(exp, geophysicalDataType, targetBand.getNoDataValue(), sourceProduct, srcModel);
                     }
                 } else {
                     targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
@@ -174,13 +164,7 @@ public class ReprojectionOp extends Operator {
                     sourceImage = sourceBand.getSourceImage();
                     reprojectionFlagRequired = true;
                 }
-
-//                ImageLayout imageLayout = createImageLayout(targetBand, tileSize);
-//                Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
-
-//                targetBand.setSourceImage(Reproject.reproject(sourceImage, sourceGridGeometry, targetGridGeometry, targetBand.getNoDataValue(), createInterpolation(), hints));
-                
-                targetBand.setSourceImage(createProjectedImage(sourceImage, targetBand));
+                targetBand.setSourceImage(createProjectedImage(sourceImage, targetBand, srcModel));
 
                 /*
                  * Flag and index codings
@@ -212,13 +196,7 @@ public class ReprojectionOp extends Operator {
                 flagCoding.addAttribute(reprojAttr);
                 targetProduct.getFlagCodingGroup().add(flagCoding);
                 reprojectValidBand.setSampleCoding(flagCoding);
-//                Hints bhints = new Hints(JAI.KEY_IMAGE_LAYOUT, createImageLayout(reprojectValidBand, tileSize));
-//                RenderedImage productImage = VirtualBandOpImage.create("1", reprojectValidBand.getDataType(),
-//                                                        0, 
-//                                                        sourceProduct, ResolutionLevel.MAXRES);
-//                RenderedImage producttargetImage = Reproject.reproject(productImage, sourceGridGeometry, targetGridGeometry, 0, createInterpolation(), bhints);
-//                reprojectValidBand.setSourceImage(producttargetImage);
-                reprojectValidBand.setSourceImage(createProjectedImage(null, reprojectValidBand));
+                reprojectValidBand.setSourceImage(createProjectedImage(createConstSourceImage(srcModel), reprojectValidBand, srcModel));
             }
 
             /*
@@ -234,12 +212,24 @@ public class ReprojectionOp extends Operator {
             throw new OperatorException(t.getMessage(), t);
         }
     }
-    
-    private static MultiLevelImage createVirtualSourceImage(final String expression, final int geophysicalDataType,
-                                                            final Number noDataValue, final Product sourceProduct) {
+
+    private MultiLevelImage createConstSourceImage(final MultiLevelModel srcModel) {
+
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
+
+            @Override
+            public RenderedImage createImage(int level) {
+                Rectangle bounds = createLevelBounds(getModel(), level);
+                return ConstantDescriptor.create((float)bounds.width, (float)bounds.height, new Integer[] {1}, null);
+            }
+        });
+    }
+
+    private MultiLevelImage createVirtualSourceImage(final String expression, final int geophysicalDataType,
+                                                            final Number noDataValue, final Product sourceProduct,
+                                                            final MultiLevelModel srcModel) {
         
-        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(sourceProduct.getBandAt(0));
-        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
 
             @Override
             public RenderedImage createImage(int level) {
@@ -251,52 +241,40 @@ public class ReprojectionOp extends Operator {
         });
     }
     
-    private MultiLevelImage createProjectedImage(final RenderedImage sourceImage, final Band targetBand) {
-        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(targetBand);
-
-        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
+    private MultiLevelImage createProjectedImage(final MultiLevelImage sourceImage, final Band targetBand,
+                                                 final MultiLevelModel srcModel) {
+        final MultiLevelModel targetModel = ImageManager.getInstance().getMultiLevelModel(targetBand);
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(targetModel) {
 
             @Override
             public RenderedImage createImage(int targetLevel) {
-                MultiLevelModel sourceMLModel = sourceProduct.getBandAt(0).getSourceImage().getModel();
                 int sourceLevel = targetLevel;
-                double targetScale = getModel().getScale(targetLevel);
-                int targetWidth = (int)Math.floor(targetBand.getSceneRasterWidth() / targetScale);
-                int targetHeight = (int)Math.floor(targetBand.getSceneRasterHeight() / targetScale);
-                int sourceLevelCount = sourceMLModel.getLevelCount();
+                int sourceLevelCount = srcModel.getLevelCount();
                 if (sourceLevelCount-1 < targetLevel) {
                     sourceLevel = sourceLevelCount - 1;
                 }
-                
-                int leveledSourceWidth = (int)Math.floor(sourceProduct.getSceneRasterWidth() / sourceMLModel.getScale(sourceLevel));
-                int leveledSourceHeight = (int)Math.floor(sourceProduct.getSceneRasterHeight() / sourceMLModel.getScale(sourceLevel));
-                Rectangle sourceRect = new Rectangle(leveledSourceWidth, leveledSourceHeight);
-                
-                RenderedImage leveledSourceImage;
-                if (sourceImage instanceof MultiLevelImage) {
-                    MultiLevelImage multiLevelSourceImage = (MultiLevelImage) sourceImage;
-                    leveledSourceImage = multiLevelSourceImage.getImage(sourceLevel);
-                    
-                } else {
-                    leveledSourceImage = ConstantDescriptor.create((float)leveledSourceWidth, (float)leveledSourceHeight, new Integer[] {1}, null);
-                }
-                BeamGridGeometry sourceGridGeometry = new BeamGridGeometry(sourceMLModel.getImageToModelTransform(sourceLevel), 
-                                                                           sourceRect, 
-                                                                           sourceProduct.getGeoCoding().getImageCRS());
-                BeamGridGeometry targetGridGeometry = createTargetGridGeometryFromTargetSize(targetWidth, targetHeight);
-                
-                Rectangle targetRect = targetGridGeometry.getBounds();
+                Rectangle sourceRect = createLevelBounds(srcModel, sourceLevel);
+                Rectangle targetRect = createLevelBounds(targetModel, targetLevel);
+
+                RenderedImage leveledSourceImage = sourceImage.getImage(sourceLevel);
+                BeamGridGeometry sourceGridGeometry = new BeamGridGeometry(srcModel.getImageToModelTransform(sourceLevel),
+                                                                           sourceRect,
+                                                                           sourceProduct.getGeoCoding().getModelCRS());
+                BeamGridGeometry targetGridGeometry = new BeamGridGeometry(getModel().getImageToModelTransform(targetLevel),
+                                                                           targetRect,
+                                                                           targetProduct.getGeoCoding().getModelCRS());
+
                 ImageLayout imageLayout = createImageLayout(targetBand, targetRect.width, targetRect.height, targetProduct.getPreferredTileSize());
                 Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
                 
-                Interpolation usedInterpolation = interpolation;
+                Interpolation usedResampling= resampling;
                 int dataType = targetBand.getDataType();
-                if (ProductData.isFloatingPointType(dataType)) {
-                    usedInterpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
+                if (!ProductData.isFloatingPointType(dataType)) {
+                    usedResampling = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
                 }
                 
                 try {
-                    return Reproject.reproject(leveledSourceImage, sourceGridGeometry, targetGridGeometry, targetBand.getNoDataValue(), usedInterpolation, hints);
+                    return Reproject.reproject(leveledSourceImage, sourceGridGeometry, targetGridGeometry, targetBand.getNoDataValue(), usedResampling, hints);
                 } catch (FactoryException e) {
                     e.printStackTrace();
                     throw new RuntimeException(e);
@@ -307,7 +285,12 @@ public class ReprojectionOp extends Operator {
             }
         });
     }
-    
+
+    private Rectangle createLevelBounds(MultiLevelModel model, int level) {
+        final AffineTransform m2i = model.getModelToImageTransform(level);
+        return m2i.createTransformedShape(model.getModelBounds()).getBounds();
+    }
+
     private void copyIndexCoding() {
         final ProductNodeGroup<IndexCoding> indexCodingGroup = sourceProduct.getIndexCodingGroup();
         for (int i = 0; i < indexCodingGroup.getNodeCount(); i++) {
@@ -335,7 +318,7 @@ public class ReprojectionOp extends Operator {
     }
 
     private CoordinateReferenceSystem createTargetCRS() throws OperatorException {
-        CoordinateReferenceSystem crs;
+        CoordinateReferenceSystem crs = null;
         try {
             if (epsgCode != null && !epsgCode.isEmpty()) {
                 // to force longitude==xAxis and latitude==yAxis
@@ -346,23 +329,23 @@ public class ReprojectionOp extends Operator {
                 crs = CRS.parseWKT(wkt);
             } else if (collocationProduct != null && collocationProduct.getGeoCoding() != null) {
                 crs = collocationProduct.getGeoCoding().getModelCRS();
-            } else {
-                final DefaultMathTransformFactory mtf = new DefaultMathTransformFactory();
-                ParameterValueGroup p = mtf.getDefaultParameters(transformationName);
-                if (p == null) {
-                    throw new OperatorException("Unsupported transformation: " + transformationName);
-                }
-                for (TransformationParameter transformationParameter : transformationParameters) {
-                    ParameterValue<?> parameter = p.parameter(transformationParameter.name);
-                    if (parameter == null) {
-                        throw new OperatorException("Unknown transformation parameter: " + transformationParameter.name);
-                    }
-                    parameter.setValue(transformationParameter.value);
-                }
-                final MathTransform transformation = mtf.createParameterizedTransform(p);
-                crs = new DefaultProjectedCRS("User CRS (" + transformationName + ")",
-                                                    DefaultGeographicCRS.WGS84, transformation, 
-                                                    DefaultCartesianCS.PROJECTED);
+//            } else {
+//                final DefaultMathTransformFactory mtf = new DefaultMathTransformFactory();
+//                ParameterValueGroup p = mtf.getDefaultParameters(transformationName);
+//                if (p == null) {
+//                    throw new OperatorException("Unsupported transformation: " + transformationName);
+//                }
+//                for (TransformationParameter transformationParameter : transformationParameters) {
+//                    ParameterValue<?> parameter = p.parameter(transformationParameter.name);
+//                    if (parameter == null) {
+//                        throw new OperatorException("Unknown transformation parameter: " + transformationParameter.name);
+//                    }
+//                    parameter.setValue(transformationParameter.value);
+//                }
+//                final MathTransform transformation = mtf.createParameterizedTransform(p);
+//                crs = new DefaultProjectedCRS("User CRS (" + transformationName + ")",
+//                                                    DefaultGeographicCRS.WGS84, transformation,
+//                                                    DefaultCartesianCS.PROJECTED);
             }
         } catch (Exception e) {
             throw new OperatorException(e);
@@ -373,18 +356,18 @@ public class ReprojectionOp extends Operator {
         return crs;
     }
 
-    private Interpolation createInterpolation() {
-        final int interpolationType;
-        if ("Bilinear".equalsIgnoreCase(interpolationName)) {
-            interpolationType = Interpolation.INTERP_BILINEAR;
-        } else if ("Bicubic".equalsIgnoreCase(interpolationName)) {
-            interpolationType = Interpolation.INTERP_BICUBIC;
-        } else if ("Bicubic_2".equalsIgnoreCase(interpolationName)) {
-            interpolationType = Interpolation.INTERP_BICUBIC_2;
+    private Interpolation createResampling() {
+        final int resamplingType;
+        if ("Bilinear".equalsIgnoreCase(resamplingName)) {
+            resamplingType = Interpolation.INTERP_BILINEAR;
+        } else if ("Bicubic".equalsIgnoreCase(resamplingName)) {
+            resamplingType = Interpolation.INTERP_BICUBIC;
+        } else if ("Bicubic_2".equalsIgnoreCase(resamplingName)) {
+            resamplingType = Interpolation.INTERP_BICUBIC_2;
         } else {
-            interpolationType = Interpolation.INTERP_NEAREST;
+            resamplingType = Interpolation.INTERP_NEAREST;
         }
-        return Interpolation.getInstance(interpolationType);
+        return Interpolation.getInstance(resamplingType);
     }
     
     private BeamGridGeometry createTargetGridGeometryFromSourceSize(int sourceWidth, int sourceHeight) {
