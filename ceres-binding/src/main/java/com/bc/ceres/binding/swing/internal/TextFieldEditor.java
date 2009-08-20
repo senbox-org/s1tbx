@@ -33,7 +33,7 @@ import javax.swing.JTextField;
  *
  * @author Marco Zuehlke
  * @version $Revision$ $Date$
- * @since BEAM 4.6
+ * @since Ceres 0.9
  */
 public class TextFieldEditor extends ValueEditor {
 

@@ -16,29 +16,35 @@
  */
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.BindingException;
+import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.swing.BindingProblem;
 import com.bc.ceres.binding.swing.ComponentAdapter;
+import com.bc.ceres.core.Assert;
 
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 /**
- * A binding for a {@link JTextComponent} component.
+ * A binding for a {@link javax.swing.text.JTextComponent} component.
  *
- * @author Marco Zuehlke
+ * @author Norman Fomferra
  * @version $Revision$ $Date$
- * @since BEAM 4.6
+ * @since Ceres 0.9
  */
-public class TextComponentAdapter extends ComponentAdapter implements DocumentListener {
+public class TextComponentAdapter extends ComponentAdapter implements ActionListener, FocusListener {
 
     private final JTextComponent textComponent;
-    private boolean isAdjustingValue; 
 
     public TextComponentAdapter(JTextComponent textComponent) {
         super();
@@ -52,64 +58,79 @@ public class TextComponentAdapter extends ComponentAdapter implements DocumentLi
 
     @Override
     public void bindComponents() {
-        textComponent.getDocument().addDocumentListener(this);
+        if (textComponent instanceof JTextField) {
+            ((JTextField) textComponent).addActionListener(this);
+        }
+        textComponent.addFocusListener(this);
         textComponent.setInputVerifier(createInputVerifier());
     }
 
     @Override
     public void unbindComponents() {
-        textComponent.getDocument().removeDocumentListener(this);
-//        textArea.setInputVerifier(null);
+        if (textComponent instanceof JTextField) {
+            ((JTextField) textComponent).removeActionListener(this);
+        }
+        textComponent.setInputVerifier(null);
     }
 
     @Override
     public void adjustComponents() {
         final ValueContainer valueContainer = getBinding().getContext().getValueContainer();
         final ValueModel model = valueContainer.getModel(getBinding().getPropertyName());
-        if (!isAdjustingValue) {
-            if (model != null) {
-                textComponent.setText(model.getValueAsText());
-            } else {
-                textComponent.setText("");
-            }
+        if (model != null) {
+            textComponent.setText(model.getValueAsText());
+        } else {
+            textComponent.setText("");
         }
     }
 
-    boolean adjustValue() {
+    void adjustValue() {
         try {
-            if (!isAdjustingValue) {
-                final ValueContainer valueContainer = getBinding().getContext().getValueContainer();
-                final ValueModel model = valueContainer.getModel(getBinding().getPropertyName());
-                isAdjustingValue = true;
-                model.setValueFromText(textComponent.getText());
-                isAdjustingValue = false;
-            }
-            return true;
-        } catch (ValidationException e) {
-            handleError(e);
-            return false;
-        } catch (ConversionException e) {
-            handleError(e);
-            return false;
+            final ValueContainer valueContainer = getBinding().getContext().getValueContainer();
+            final ValueModel model = valueContainer.getModel(getBinding().getPropertyName());
+            model.setValueFromText(textComponent.getText());
+            getBinding().setProblem(null);
+        } catch (BindingException e) {
+            getBinding().setProblem(new BindingProblem(getBinding(), e));
         }
     }
 
     public InputVerifier createInputVerifier() {
-        return new TextComponentVerifier(this);
+        return new TextVerifier();
     }
 
     @Override
-    public void changedUpdate(DocumentEvent e) {
+    public void actionPerformed(ActionEvent e) {
         adjustValue();
     }
 
     @Override
-    public void insertUpdate(DocumentEvent e) {
-        adjustValue();
+    public void focusGained(FocusEvent e) {
+        if (getBinding().getProblem() != null) {
+            textComponent.selectAll();
+        }
     }
 
     @Override
-    public void removeUpdate(DocumentEvent e) {
-        adjustValue();
+    public void focusLost(FocusEvent event) {
+    }
+
+    class TextVerifier extends InputVerifier {
+        /*
+         * Only called by base class InputVerifier.shouldYieldFocus()?
+         */
+        @Override
+        public boolean verify(JComponent input) {
+            return getBinding().getProblem() == null;
+        }
+
+        /*
+         * Called by JComponent.focusController.
+         */
+        @Override
+        public boolean shouldYieldFocus(JComponent input) {
+            adjustValue();
+            return getBinding().getProblem() == null;
+        }
     }
 }

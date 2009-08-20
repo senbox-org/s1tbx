@@ -11,11 +11,12 @@
 
     <changelog>
         <![CDATA[
-        Changes in 0.7<br>
-        [CERES-23] Default value for primitive types is not set<br>
-        <br>Changes in 0.6.1<br>
-        [CERES-19] JRadioButtons inside a ButtonGroup don't update their ValueContainer.<br>
-        Use customized DOM conversion.<br>
+        <p>Changes in 0.10</p>
+        [CERES-40] Inconsitent handling of focus-lost events on text components<br/>
+        <p>Changes in 0.7</p>
+        [CERES-23] Default value for primitive types is not set<br/>
+        <p>Changes in 0.6.1</p>
+        [CERES-19] JRadioButtons inside a ButtonGroup don't update their ValueContainer.<br/>
         ]]>
     </changelog>
 

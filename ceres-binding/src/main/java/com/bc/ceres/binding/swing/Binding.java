@@ -20,7 +20,7 @@ import javax.swing.JComponent;
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
- * @since BEAM 4.2
+ * @since Ceres 0.6
  */
 public interface Binding {
     /**
@@ -46,7 +46,7 @@ public interface Binding {
     /**
      * Sets the value of the bound property.
      * This may trigger a property change event in the associated {@code ValueContainer}.
-     * Any exception thrown during this operation will be delegated to {@link ComponentAdapter#handleError(Exception)}.
+     * Whether or not setting the value was successful can be retrieved by {@link #getProblem()}.
      *
      * @param value The new value of the bound property.
      */
@@ -54,6 +54,7 @@ public interface Binding {
 
     /**
      * @return The current error state, or {@code null}.
+     * @since Ceres 0.10
      */
     BindingProblem getProblem();
 
@@ -62,6 +63,7 @@ public interface Binding {
      * Will cause a state change event to be fired on the {@link #getContext() context}.
      *
      * @param bindingProblem The error state, or {@code null}.
+     * @since Ceres 0.10
      */
     void setProblem(BindingProblem bindingProblem);
 
@@ -71,7 +73,7 @@ public interface Binding {
      * only if this binding is not already adjusting the bound Swing components.
      * Any kind of exceptions thrown during execution of the method
      * will be handled by delegating the exception to
-     * the {@link ComponentAdapter#handleError(Throwable)} method.
+     * the {@link ComponentAdapter#handleError(Exception)} method.
      *
      * @see #isAdjustingComponents()
      */

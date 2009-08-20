@@ -142,7 +142,7 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
         assertEquals("stringValue", textField.getName());
 
         textField.setText("Bibo");
-        textField.postActionEvent();
+        textField.postActionEvent();        
         assertEquals("Bibo", valueContainerOB.getValue("stringValue"));
 
         valueContainerOB.setValue("stringValue", "Samson");
@@ -200,6 +200,7 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
         assertEquals("stringValue", textArea.getName());
 
         textArea.setText("Bibo");
+        textComponentAdapter.actionPerformed(null);
         assertEquals("Bibo", valueContainerVB.getValue("stringValue"));
 
         valueContainerVB.setValue("stringValue", "Samson");

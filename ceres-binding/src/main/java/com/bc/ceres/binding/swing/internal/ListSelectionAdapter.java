@@ -126,7 +126,6 @@ public class ListSelectionAdapter extends ComponentAdapter implements ListSelect
             getBinding().setProblem(null);
         } catch (ValidationException e) {
             getBinding().setProblem(new BindingProblem(getBinding(), e));
-            handleError(e);
         }
     }
 }

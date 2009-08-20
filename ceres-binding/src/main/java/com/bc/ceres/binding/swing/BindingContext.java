@@ -12,7 +12,7 @@ import com.bc.ceres.binding.swing.internal.ComboBoxAdapter;
 import com.bc.ceres.binding.swing.internal.FormattedTextFieldAdapter;
 import com.bc.ceres.binding.swing.internal.ListSelectionAdapter;
 import com.bc.ceres.binding.swing.internal.SpinnerAdapter;
-import com.bc.ceres.binding.swing.internal.TextFieldAdapter;
+import com.bc.ceres.binding.swing.internal.TextComponentAdapter;
 import com.bc.ceres.core.Assert;
 
 import javax.swing.AbstractButton;
@@ -29,6 +29,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.JTextComponent;
 import java.awt.Window;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -42,7 +43,7 @@ import java.util.Map;
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
- * @since BEAM 4.1
+ * @since Ceres 0.6
  */
 public class BindingContext {
 
@@ -53,20 +54,30 @@ public class BindingContext {
     private ArrayList<ChangeListener> stateChangeListeners;
     private final PropertyChangeListener valueContainerListener;
 
+    /**
+     * Constructor.
+     */
     public BindingContext() {
         this(new ValueContainer());
     }
 
+    /**
+     * Constructor.
+     *
+     * @param valueContainer The value container.
+     */
     public BindingContext(ValueContainer valueContainer) {
         this(valueContainer, new BindingContext.DefaultErrorHandler());
     }
 
     /**
      * Constructor.
+     *
      * @param valueContainer The value container.
-     * @param errorHandler  The error handler.
+     * @param errorHandler   The error handler.
+     *
      * @deprecated Since 0.10, for error handling use {@link #addStateChangeListener(javax.swing.event.ChangeListener)}
-     * and {@link #getProblems()} instead
+     *             and {@link #getProblems()} instead
      */
     @Deprecated
     public BindingContext(ValueContainer valueContainer, BindingContext.ErrorHandler errorHandler) {
@@ -103,16 +114,22 @@ public class BindingContext {
 
     /**
      * Sets the error handler.
+     *
      * @param errorHandler the error handler
      *
      * @deprecated Since 0.10, use {@link #addStateChangeListener(javax.swing.event.ChangeListener)}
-     * and {@link #getProblems()} instead
+     *             and {@link #getProblems()} instead
      */
     @Deprecated
     public void setErrorHandler(ErrorHandler errorHandler) {
         this.errorHandler = errorHandler;
     }
 
+    /**
+     * @return {@code true} if this context has problems.
+     *
+     * @since Ceres 0.10
+     */
     public boolean hasProblems() {
         for (Map.Entry<String, BindingImpl> entry : bindingMap.entrySet()) {
             if (entry.getValue().getProblem() != null) {
@@ -122,6 +139,11 @@ public class BindingContext {
         return false;
     }
 
+    /**
+     * @return The array of problems this context might have.
+     *
+     * @since Ceres 0.10
+     */
     public BindingProblem[] getProblems() {
         ArrayList<BindingProblem> list = new ArrayList<BindingProblem>();
         for (Map.Entry<String, BindingImpl> entry : bindingMap.entrySet()) {
@@ -133,6 +155,13 @@ public class BindingContext {
         return list.toArray(new BindingProblem[list.size()]);
     }
 
+    /**
+     * Adds a state change listener to this context.
+     *
+     * @param listener The listener.
+     *
+     * @since Ceres 0.10
+     */
     public void addStateChangeListener(ChangeListener listener) {
         Assert.notNull(listener, "listener");
         if (stateChangeListeners == null) {
@@ -141,6 +170,13 @@ public class BindingContext {
         stateChangeListeners.add(listener);
     }
 
+    /**
+     * Removes a state change listener from this context.
+     *
+     * @param listener The listener.
+     *
+     * @since Ceres 0.10
+     */
     public void removeStateChangeListener(ChangeListener listener) {
         Assert.notNull(listener, "listener");
         if (stateChangeListeners != null) {
@@ -148,18 +184,32 @@ public class BindingContext {
         }
     }
 
+    /**
+     * @return The array of state change listeners.
+     *
+     * @since Ceres 0.10
+     */
     public ChangeListener[] getStateChangeListeners() {
-        if (stateChangeListeners != null) {
-            return stateChangeListeners.toArray(new ChangeListener[stateChangeListeners.size()]);
-        } else {
-            return new ChangeListener[0];
-        }
+        return stateChangeListeners != null ? stateChangeListeners.toArray(new ChangeListener[stateChangeListeners.size()]) : new ChangeListener[0];
     }
 
+    /**
+     * Fires a state change event by notifying all listeners.
+     */
     public void fireStateChanged() {
         ChangeEvent changeEvent = new ChangeEvent(this);
         for (ChangeListener listener : getStateChangeListeners()) {
             listener.stateChanged(changeEvent);
+        }
+    }
+
+    /**
+     * Adjusts all associated Swing components so that they reflect the
+     * values of the associated value container.
+     */
+    public void adjustComponents() {
+        for (Map.Entry<String, BindingImpl> entry : bindingMap.entrySet()) {
+            entry.getValue().adjustComponents();
         }
     }
 
@@ -186,8 +236,12 @@ public class BindingContext {
         binding.getComponentAdapter().unbindComponents();
     }
 
+    public Binding bind(final String propertyName, final JTextComponent textComponent) {
+        return bind(propertyName, new TextComponentAdapter(textComponent));
+    }
+
     public Binding bind(final String propertyName, final JTextField textField) {
-        return bind(propertyName, new TextFieldAdapter(textField));
+        return bind(propertyName, new TextComponentAdapter(textField));
     }
 
     public Binding bind(final String propertyName, final JFormattedTextField textField) {
@@ -229,16 +283,6 @@ public class BindingContext {
         return bind(propertyName, adapter);
     }
 
-    /**
-     * Adjusts all UI components by calling {@link Binding#adjustComponents()} on
-     * each of its {@link Binding}s.
-     */
-    public void adjustComponents() {
-        for (BindingImpl binding : bindingMap.values()) {
-            binding.adjustComponents();
-        }
-    }
-
     public void addPropertyChangeListener(PropertyChangeListener l) {
         valueContainer.addPropertyChangeListener(l);
     }
@@ -256,13 +300,53 @@ public class BindingContext {
     }
 
     /**
+     * Permits component validation and property changes of the value container
+     * triggered by the given component.
+     *
+     * @param component The component.
+     *
+     * @see #preventPropertyChanges(javax.swing.JComponent)
+     * @see #getValueContainer()
+     * @since Ceres 0.10
+     */
+    @SuppressWarnings({"MethodMayBeStatic"})
+    public void permitPropertyChanges(JComponent component) {
+        component.setVerifyInputWhenFocusTarget(true);
+    }
+
+    /**
+     * Prevents component validation and property changes of the value container
+     * triggered by the given component.
+     * <p/>
+     * For example, if a text component loses keyboard focus because another component requests it,
+     * its text value will be converted, validated and the value container's property will be changed.
+     * For some focus targets, like a dialog's "Cancel" button, this is not desired.
+     * <p/>
+     * By default, component validation and property changes are permitted for most Swing components.
+     *
+     * @param component The component.
+     *
+     * @see #permitPropertyChanges(javax.swing.JComponent)
+     * @see #getValueContainer()
+     * @since Ceres 0.10
+     */
+    @SuppressWarnings({"MethodMayBeStatic"})
+    public void preventPropertyChanges(JComponent component) {
+        component.setVerifyInputWhenFocusTarget(false);
+    }
+
+    /**
      * Delegates the call to the error handler.
      *
      * @param error     The error.
      * @param component The Swing component in which the error occured.
+     *
      * @see #getErrorHandler()
      * @see #setErrorHandler(ErrorHandler)
+     * @deprecated Since 0.10, for error handling use {@link BindingContext#addStateChangeListener(javax.swing.event.ChangeListener)}
+     *             and {@link BindingContext#getProblems()} instead
      */
+    @Deprecated
     public void handleError(Exception error, JComponent component) {
         errorHandler.handleError(error, component);
     }
@@ -294,7 +378,7 @@ public class BindingContext {
         return toolTipText.toString();
     }
 
-    private void configureComponent(JComponent component, String name, String toolTipText) {
+    private static void configureComponent(JComponent component, String name, String toolTipText) {
         if (component.getName() == null) {
             component.setName(name);
         }
@@ -355,14 +439,16 @@ public class BindingContext {
 
     /**
      * An error handler.
-     * @deprecated Since 0.10, for error handling use {@link BindingContext#addStateChangeListener(javax.swing.event.ChangeListener)}
-     * and {@link BindingContext#getProblems()} instead
+     *
+     * @deprecated Since Ceres 0.10, for error handling use {@link BindingContext#addStateChangeListener(javax.swing.event.ChangeListener)}
+     *             and {@link BindingContext#getProblems()} instead
      */
     @Deprecated
     public interface ErrorHandler {
         /**
          * Handles an error.
-         * @param error  A {@link com.bc.ceres.binding.BindingException}
+         *
+         * @param error     A {@link com.bc.ceres.binding.BindingException}
          * @param component The component.
          */
         void handleError(Exception error, JComponent component);

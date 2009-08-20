@@ -49,6 +49,9 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
                 || !problem.equals(this.problem))) {
             this.problem = problem;
             context.fireStateChanged();
+            if (problem != null) {
+                componentAdapter.handleError(problem.getCause());
+            }
         }
     }
 
@@ -84,7 +87,6 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
             setProblem(null);
         } catch (ValidationException e) {
             setProblem(new BindingProblem(this, e));
-            componentAdapter.handleError(e);
         }
     }
 
@@ -108,9 +110,9 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
     }
 
     /**
-     * Gets the secondary Swing components attached to the binding, e.g. some {@link javax.swing.JLabel}s.
+     * Gets all Swing components this binding is associated with.
      *
-     * @return the secondary Swing components. The returned array may be empty.
+     * @return The component array.
      * @see #addComponent(javax.swing.JComponent)
      */
     @Override
