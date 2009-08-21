@@ -12,12 +12,9 @@ public class TypeValidator implements Validator {
     public void validateValue(ValueModel valueModel, Object value) throws ValidationException {
         final Class<?> type = valueModel.getDescriptor().getType();
         if (!isAssignableFrom(type, value)) {
-            String name = valueModel.getDescriptor().getDisplayName();
-            if (name == null) {
-                name = valueModel.getDescriptor().getName();
-            }
-            throw new ValidationException(MessageFormat.format("Value for ''{0}'' is not of type ''{1}''.",
-                                                               name, type.getSimpleName()));
+            throw new ValidationException(MessageFormat.format("Value for ''{0}'' must be of type ''{1}''.",
+                                                               valueModel.getDescriptor().getDisplayName(),
+                                                               type.getSimpleName()));
         }
     }
 

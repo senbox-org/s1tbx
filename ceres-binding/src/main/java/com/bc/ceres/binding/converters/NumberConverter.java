@@ -14,7 +14,7 @@ public abstract class NumberConverter<T extends Number > implements Converter<T>
             return null;
         }
         try {
-            return parseNumber(com.bc.ceres.binding.converters.NumberConverter.trimNumberString(value));
+            return parseNumber(trimNumberString(value));
         } catch (NumberFormatException e) {
             throw new ConversionException("'" + value + "' cannot be converted to a number.");
         }

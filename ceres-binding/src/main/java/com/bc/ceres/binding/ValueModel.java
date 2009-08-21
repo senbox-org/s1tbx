@@ -6,6 +6,7 @@ import com.bc.ceres.binding.accessors.MapEntryAccessor;
 
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -94,10 +95,19 @@ public class ValueModel {
         }
     }
 
-    public void setValueFromText(String text) throws ConversionException, ValidationException {
+    public void setValueFromText(String text) throws ValidationException {
         final Converter converter = descriptor.getConverter(true);
         if (converter != null) {
-            setValue(converter.parse(text));
+            final Object value;
+            try {
+                value = converter.parse(text);
+            } catch (ConversionException e) {
+                throw new ValidationException(MessageFormat.format("Value for ''{0}'' is invalid.\n''{1}''",
+                                                                   getDescriptor().getDisplayName(),
+                                                                   e.getMessage()),
+                                              e);
+            }
+            setValue(value);
         } else {
             setValue(text);
         }

@@ -56,6 +56,7 @@ public class ValueDescriptor {
         this.type = type;
         this.properties = new HashMap<String, Object>(properties);
 
+        setDisplayName(createDisplayName(name));
         addPropertyChangeListener(new EffectiveValidatorUpdater());
     }
 
@@ -72,6 +73,7 @@ public class ValueDescriptor {
     }
 
     public void setDisplayName(String displayName) {
+        Assert.notNull(displayName, "displayName");
         setProperty("displayName", displayName);
     }
 
@@ -361,6 +363,35 @@ public class ValueDescriptor {
             validator = new MultiValidator(validators);
         }
         return validator;
+    }
+
+    public static String getDisplayName(ValueDescriptor valueDescriptor) {
+        String label = valueDescriptor.getDisplayName();
+        if (label != null) {
+            return label;
+        }
+        String name = valueDescriptor.getName().replace("_", " ");
+        return createDisplayName(name);
+    }
+
+    public static String createDisplayName(String name) {
+        StringBuilder sb = new StringBuilder(name.length());
+        for (int i = 0; i < name.length(); i++) {
+            char ch = name.charAt(i);
+            if (i == 0) {
+                sb.append(Character.toUpperCase(ch));
+            } else if (i > 0 && i < name.length() - 1
+                    && Character.isUpperCase(ch) &&
+                    Character.isLowerCase(name.charAt(i + 1))) {
+                sb.append(' ');
+                sb.append(Character.toLowerCase(ch));
+            } else if (ch == '_'){
+                sb.append(' ');
+            } else {
+                sb.append(ch);
+            }
+        }
+        return sb.toString();
     }
 
     private class EffectiveValidatorUpdater implements PropertyChangeListener {

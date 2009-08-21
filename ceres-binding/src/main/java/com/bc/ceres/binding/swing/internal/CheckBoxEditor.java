@@ -42,7 +42,7 @@ public class CheckBoxEditor extends ValueEditor {
     @Override
     public JComponent[] createComponents(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
         JCheckBox checkBox = createCheckBoxComponent(valueDescriptor, bindingContext);
-        checkBox.setText(getDisplayName(valueDescriptor));
+        checkBox.setText(valueDescriptor.getDisplayName());
         return new JComponent[] {checkBox};
     }
     

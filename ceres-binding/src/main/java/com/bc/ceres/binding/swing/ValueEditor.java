@@ -54,7 +54,7 @@ public abstract class ValueEditor {
     public JComponent[] createComponents(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
         JComponent editorComponent = createEditorComponent(valueDescriptor, bindingContext);
         
-        JLabel label = new JLabel(getDisplayName(valueDescriptor) + ":");
+        JLabel label = new JLabel(valueDescriptor.getDisplayName() + ":");
         Binding binding = bindingContext.getBinding(valueDescriptor.getName());
         binding.addComponent(label);
         
@@ -73,31 +73,5 @@ public abstract class ValueEditor {
      * @return an array containing the editor component as first element and (if applicable) a label as second element
      */
     public abstract JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext);
-    
-    protected static String getDisplayName(ValueDescriptor valueDescriptor) {
-        String label = valueDescriptor.getDisplayName();
-        if (label != null) {
-            return label;
-        }
-        String name = valueDescriptor.getName().replace("_", " ");
-        return createDisplayName(name);
-    }
 
-    public static String createDisplayName(String name) {
-        StringBuilder sb = new StringBuilder(name.length());
-        for (int i = 0; i < name.length(); i++) {
-            char ch = name.charAt(i);
-            if (i == 0) {
-                sb.append(Character.toUpperCase(ch));
-            } else if (i > 0 && i < name.length() - 1
-                    && Character.isUpperCase(ch) &&
-                    Character.isLowerCase(name.charAt(i + 1))) {
-                sb.append(' ');
-                sb.append(Character.toLowerCase(ch));
-            } else {
-                sb.append(ch);
-            }
-        }
-        return sb.toString();
-    }
 }
