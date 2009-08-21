@@ -99,23 +99,6 @@ public class ReprojectionOp extends Operator {
         reprojectionOp.setSourceProduct(sourceProduct);
         reprojectionOp.targetCrs = targetCrs;
         reprojectionOp.resamplingName = resamplingName;
-        // example: how to create a 'Geographic Lat/Lon' CRS
-//        try {
-//            final DefaultMathTransformFactory factory = new DefaultMathTransformFactory();
-//            final ParameterValueGroup valueGroup = factory.getDefaultParameters("Plate_Carree");
-//            final Ellipsoid ellipsoid = DefaultGeographicCRS.WGS84.getDatum().getEllipsoid();
-//            valueGroup.parameter("semi_minor").setValue(ellipsoid.getSemiMajorAxis());
-//            valueGroup.parameter("semi_major").setValue(ellipsoid.getSemiMajorAxis());
-//            final MathTransform transform = factory.createParameterizedTransform(valueGroup);
-//
-//            reprojectionOp.targetCrs = new DefaultProjectedCRS("Geographic Lat/Lon", DefaultGeographicCRS.WGS84,
-//                                                               transform,
-//                                                               DefaultCartesianCS.DISPLAY);
-//        } catch (NoSuchIdentifierException e) {
-//            e.printStackTrace();
-//        } catch (FactoryException e) {
-//            e.printStackTrace();
-//        }
         return reprojectionOp;
     }
 
