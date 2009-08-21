@@ -1,10 +1,12 @@
 package com.bc.ceres.binding.swing.internal;
 
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.BindingException;
 import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.BindingProblem;
 import com.bc.ceres.binding.swing.ComponentAdapter;
+import com.bc.ceres.core.Assert;
 
 import javax.swing.JComponent;
 import java.beans.PropertyChangeEvent;
@@ -23,6 +25,9 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
     private BindingProblem problem;
 
     public BindingImpl(BindingContext context, String name, ComponentAdapter componentAdapter) {
+        Assert.notNull(context, "context");
+        Assert.notNull(name, "name");
+        Assert.notNull(componentAdapter, "componentAdapter");
         this.context = context;
         this.name = name;
         this.componentAdapter = componentAdapter;
@@ -42,17 +47,14 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
     }
 
     @Override
-    public void setProblem(BindingProblem problem) {
-        if (this.problem != problem
-                && (problem == null
-                || this.problem == null
-                || !problem.equals(this.problem))) {
-            this.problem = problem;
-            context.fireStateChanged();
-            if (problem != null) {
-                componentAdapter.handleError(problem.getCause());
-            }
-        }
+    public void clearProblem() {
+        setProblem(null);
+    }
+
+    @Override
+    public void reportProblem(BindingException cause) {
+        Assert.notNull(cause, "cause");
+        setProblem(new BindingProblem(this, cause));
     }
 
     @Override
@@ -160,6 +162,19 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
     public void removeComponent(JComponent component) {
         if (secondaryComponents != null) {
             secondaryComponents.remove(component);
+        }
+    }
+
+    private void setProblem(BindingProblem problem) {
+        if (this.problem != problem
+                && (problem == null
+                || this.problem == null
+                || !problem.equals(this.problem))) {
+            this.problem = problem;
+            context.fireProblemOccurred(problem);
+            if (problem != null) {
+                componentAdapter.handleError(problem.getCause());
+            }
         }
     }
 }

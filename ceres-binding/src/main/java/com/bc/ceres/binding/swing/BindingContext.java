@@ -27,8 +27,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 import java.awt.Window;
 import java.beans.PropertyChangeEvent;
@@ -51,8 +49,7 @@ public class BindingContext {
     private BindingContext.ErrorHandler errorHandler;
     private Map<String, BindingImpl> bindingMap;
     private Map<String, EnablePCL> enablePCLMap;
-    private ArrayList<ChangeListener> stateChangeListeners;
-    private final PropertyChangeListener valueContainerListener;
+    private ArrayList<BindingProblemListener> bindingProblemListeners;
 
     /**
      * Constructor.
@@ -74,9 +71,9 @@ public class BindingContext {
      * Constructor.
      *
      * @param valueContainer The value container.
-     * @param errorHandler   The error handler.
+     * @param errorHandler   The error handler, or {@code null}.
      *
-     * @deprecated Since 0.10, for error handling use {@link #addStateChangeListener(javax.swing.event.ChangeListener)}
+     * @deprecated Since 0.10, for error handling use {@link #addProblemListener(BindingProblemListener)}
      *             and {@link #getProblems()} instead
      */
     @Deprecated
@@ -85,19 +82,6 @@ public class BindingContext {
         this.errorHandler = errorHandler;
         this.bindingMap = new HashMap<String, BindingImpl>(17);
         this.enablePCLMap = new HashMap<String, EnablePCL>(11);
-        valueContainerListener = new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                fireStateChanged();
-            }
-        };
-        this.valueContainer.addPropertyChangeListener(valueContainerListener);
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        this.valueContainer.removePropertyChangeListener(valueContainerListener);
     }
 
     public ValueContainer getValueContainer() {
@@ -105,7 +89,10 @@ public class BindingContext {
     }
 
     /**
-     * @return the error handler
+     * @return The error handler or {@code null}.
+     *
+     * @deprecated Since 0.10, for error handling use {@link #addProblemListener(BindingProblemListener)}
+     *             and {@link #getProblems()} instead
      */
     @Deprecated
     public ErrorHandler getErrorHandler() {
@@ -115,14 +102,32 @@ public class BindingContext {
     /**
      * Sets the error handler.
      *
-     * @param errorHandler the error handler
+     * @param errorHandler The error handler, or {@code null}.
      *
-     * @deprecated Since 0.10, use {@link #addStateChangeListener(javax.swing.event.ChangeListener)}
+     * @deprecated Since 0.10, for error handling use {@link #addProblemListener(BindingProblemListener)}
      *             and {@link #getProblems()} instead
      */
     @Deprecated
     public void setErrorHandler(ErrorHandler errorHandler) {
         this.errorHandler = errorHandler;
+    }
+
+    /**
+     * Delegates the call to the error handler, if any.
+     *
+     * @param error     The error.
+     * @param component The Swing component in which the error occured.
+     *
+     * @see #getErrorHandler()
+     * @see #setErrorHandler(ErrorHandler)
+     * @deprecated Since 0.10, for error handling use {@link #addProblemListener(BindingProblemListener)}
+     *             and {@link BindingContext#getProblems()} instead
+     */
+    @Deprecated
+    public void handleError(Exception error, JComponent component) {
+        if (errorHandler != null) {
+            errorHandler.handleError(error, component);
+        }
     }
 
     /**
@@ -156,50 +161,53 @@ public class BindingContext {
     }
 
     /**
-     * Adds a state change listener to this context.
+     * Adds a problem listener to this context.
      *
      * @param listener The listener.
      *
      * @since Ceres 0.10
      */
-    public void addStateChangeListener(ChangeListener listener) {
+    public void addProblemListener(BindingProblemListener listener) {
         Assert.notNull(listener, "listener");
-        if (stateChangeListeners == null) {
-            stateChangeListeners = new ArrayList<ChangeListener>();
+        if (bindingProblemListeners == null) {
+            bindingProblemListeners = new ArrayList<BindingProblemListener>();
         }
-        stateChangeListeners.add(listener);
+        bindingProblemListeners.add(listener);
     }
 
     /**
-     * Removes a state change listener from this context.
+     * Removes a problem listener from this context.
      *
      * @param listener The listener.
      *
      * @since Ceres 0.10
      */
-    public void removeStateChangeListener(ChangeListener listener) {
+    public void removeProblemListener(BindingProblemListener listener) {
         Assert.notNull(listener, "listener");
-        if (stateChangeListeners != null) {
-            stateChangeListeners.remove(listener);
+        if (bindingProblemListeners != null) {
+            bindingProblemListeners.remove(listener);
         }
     }
 
     /**
-     * @return The array of state change listeners.
+     * @return The array of problem listeners.
      *
      * @since Ceres 0.10
      */
-    public ChangeListener[] getStateChangeListeners() {
-        return stateChangeListeners != null ? stateChangeListeners.toArray(new ChangeListener[stateChangeListeners.size()]) : new ChangeListener[0];
+    public BindingProblemListener[] getProblemListeners() {
+        return bindingProblemListeners != null
+                ? bindingProblemListeners.toArray(new BindingProblemListener[bindingProblemListeners.size()])
+                : new BindingProblemListener[0];
     }
 
     /**
-     * Fires a state change event by notifying all listeners.
+     * Fires a problem-occurred event by notifying all listeners.
+     *
+     * @param problem The problem.
      */
-    public void fireStateChanged() {
-        ChangeEvent changeEvent = new ChangeEvent(this);
-        for (ChangeListener listener : getStateChangeListeners()) {
-            listener.stateChanged(changeEvent);
+    public void fireProblemOccurred(BindingProblem problem) {
+        for (BindingProblemListener listener : getProblemListeners()) {
+            listener.problemOccurred(problem);
         }
     }
 
@@ -335,22 +343,6 @@ public class BindingContext {
         component.setVerifyInputWhenFocusTarget(false);
     }
 
-    /**
-     * Delegates the call to the error handler.
-     *
-     * @param error     The error.
-     * @param component The Swing component in which the error occured.
-     *
-     * @see #getErrorHandler()
-     * @see #setErrorHandler(ErrorHandler)
-     * @deprecated Since 0.10, for error handling use {@link BindingContext#addStateChangeListener(javax.swing.event.ChangeListener)}
-     *             and {@link BindingContext#getProblems()} instead
-     */
-    @Deprecated
-    public void handleError(Exception error, JComponent component) {
-        errorHandler.handleError(error, component);
-    }
-
     private void configureComponents(Binding binding) {
         final String propertyName = binding.getPropertyName();
         final String toolTipTextStr = getToolTipText(propertyName);
@@ -440,7 +432,7 @@ public class BindingContext {
     /**
      * An error handler.
      *
-     * @deprecated Since Ceres 0.10, for error handling use {@link BindingContext#addStateChangeListener(javax.swing.event.ChangeListener)}
+     * @deprecated Since 0.10, for error handling use {@link BindingContext#addProblemListener(BindingProblemListener)}
      *             and {@link BindingContext#getProblems()} instead
      */
     @Deprecated

@@ -46,7 +46,7 @@ public abstract class ComponentAdapter {
      * @param error The error.
      *
      * @see #getComponents()
-     * @deprecated Since 0.10, for error handling use {@link BindingContext#addStateChangeListener(javax.swing.event.ChangeListener)}
+     * @deprecated Since 0.10, for error handling use {@link BindingContext#addProblemListener(javax.swing.event.ChangeListener)}
      *             and {@link BindingContext#getProblems()} instead
      */
     @Deprecated

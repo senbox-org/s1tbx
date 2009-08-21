@@ -1,5 +1,7 @@
 package com.bc.ceres.binding.swing;
 
+import com.bc.ceres.binding.BindingException;
+
 import javax.swing.JComponent;
 
 /**
@@ -53,19 +55,32 @@ public interface Binding {
     void setPropertyValue(Object value);
 
     /**
-     * @return The current error state, or {@code null}.
+     * Gets the current problem. If the GUI is in sync with the associated value model,
+     * the method will return {@code null}.
+     *
+     * @return The current problem, or {@code null}.
+     *
      * @since Ceres 0.10
      */
     BindingProblem getProblem();
 
     /**
-     * Sets the new error state.
-     * Will cause a state change event to be fired on the {@link #getContext() context}.
+     * Clears the current a problem.
      *
-     * @param bindingProblem The error state, or {@code null}.
      * @since Ceres 0.10
      */
-    void setProblem(BindingProblem bindingProblem);
+    void clearProblem();
+
+    /**
+     * Reports a problem.
+     * The method sets the current problem and will cause the {@link #getContext() context}
+     * to fire a problem-occurred event.
+     *
+     * @param cause The cause.
+     *
+     * @since Ceres 0.10
+     */
+    void reportProblem(BindingException cause);
 
     /**
      * Adjusts the bound Swing components in reaction to a property change event in the
@@ -83,6 +98,7 @@ public interface Binding {
      * Tests if this binding is currently adjusting the bound Swing components.
      *
      * @return {@code true} if so.
+     *
      * @see #adjustComponents()
      */
     boolean isAdjustingComponents();
@@ -99,6 +115,7 @@ public interface Binding {
      * Adds a secondary Swing component to this binding, e.g. a {@link javax.swing.JLabel}.
      *
      * @param component The secondary component.
+     *
      * @see #removeComponent(javax.swing.JComponent)
      */
     void addComponent(JComponent component);
@@ -107,6 +124,7 @@ public interface Binding {
      * Removes a secondary Swing component from this binding.
      *
      * @param component The secondary component.
+     *
      * @see #addComponent(javax.swing.JComponent)
      */
     void removeComponent(JComponent component);
