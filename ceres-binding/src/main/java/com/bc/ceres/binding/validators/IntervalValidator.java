@@ -15,6 +15,7 @@ public class IntervalValidator implements Validator {
         this.valueRange = valueRange;
     }
 
+    @Override
     public void validateValue(ValueModel valueModel, Object value) throws ValidationException {
         if (value instanceof Number) {
 

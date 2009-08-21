@@ -21,7 +21,7 @@ public class TypeValidator implements Validator {
         }
     }
 
-    boolean isAssignableFrom(Class<?> type, Object value) {
+    static boolean isAssignableFrom(Class<?> type, Object value) {
         if (value == null) {
             return !type.isPrimitive();
         }

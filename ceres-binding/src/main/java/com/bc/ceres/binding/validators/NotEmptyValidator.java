@@ -11,7 +11,7 @@ public class NotEmptyValidator implements Validator {
     public void validateValue(ValueModel valueModel, Object value) throws ValidationException {
         if (value == null || value.toString().trim().isEmpty()) {
             throw new ValidationException(MessageFormat.format("No value for ''{0}'' specified.", 
-                                                               valueModel.getDescriptor().getName()));
+                                                               valueModel.getDescriptor().getDisplayName()));
         }
     }
 }

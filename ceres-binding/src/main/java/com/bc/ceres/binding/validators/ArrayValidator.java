@@ -30,6 +30,7 @@ public class ArrayValidator implements Validator {
         this.validator = validator;
     }
 
+    @Override
     public void validateValue(ValueModel valueModel, Object value) throws ValidationException {
         final int length = Array.getLength(value);
         for (int i = 0; i < length; i++) {

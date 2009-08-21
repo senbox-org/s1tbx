@@ -12,6 +12,7 @@ public class ValueSetValidator implements Validator {
         this.valueDescriptor = valueDescriptor;
     }
 
+    @Override
     public void validateValue(ValueModel valueModel, Object value) throws ValidationException {
         if (!valueDescriptor.getValueSet().contains(value)) {
             throw new ValidationException("Value for '" + valueModel.getDescriptor().getDisplayName() + "' is invalid.");
