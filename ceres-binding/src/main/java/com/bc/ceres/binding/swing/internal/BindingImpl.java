@@ -6,6 +6,8 @@ import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.BindingProblem;
 import com.bc.ceres.binding.swing.ComponentAdapter;
+import com.bc.ceres.binding.swing.BindingProblemListener;
+import com.bc.ceres.binding.swing.internal.BindingProblemImpl;
 import com.bc.ceres.core.Assert;
 
 import javax.swing.JComponent;
@@ -48,13 +50,25 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
 
     @Override
     public void clearProblem() {
-        setProblem(null);
+        BindingProblem oldProblem = this.problem;
+        if (oldProblem != null) {
+            this.problem = null;
+            fireProblemCleared(oldProblem);
+        }
     }
 
     @Override
-    public void reportProblem(BindingException cause) {
+    public BindingProblem reportProblem(BindingException cause) {
         Assert.notNull(cause, "cause");
-        setProblem(new BindingProblem(this, cause));
+        final BindingProblem newProblem = new BindingProblemImpl(this, cause);
+        BindingProblem oldProblem = this.problem;
+        if (newProblem != oldProblem
+                && (oldProblem == null || !newProblem.equals(oldProblem))) {
+            this.problem = newProblem;
+            fireProblemReported(newProblem, oldProblem);
+            componentAdapter.handleError(newProblem.getCause());
+        }
+        return newProblem;
     }
 
     @Override
@@ -86,9 +100,9 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
     public void setPropertyValue(Object value) {
         try {
             context.getValueContainer().setValue(getPropertyName(), value);
-            setProblem(null);
+            clearProblem();
         } catch (ValidationException e) {
-            setProblem(new BindingProblem(this, e));
+            reportProblem(e);
         }
     }
 
@@ -104,7 +118,7 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
                 adjustingComponents = true;
                 componentAdapter.adjustComponents();
                 // Now model is in sync with UI
-                setProblem(null);
+                clearProblem();
             } finally {
                 adjustingComponents = false;
             }
@@ -165,16 +179,18 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
         }
     }
 
-    private void setProblem(BindingProblem problem) {
-        if (this.problem != problem
-                && (problem == null
-                || this.problem == null
-                || !problem.equals(this.problem))) {
-            this.problem = problem;
-            context.fireProblemOccurred(problem);
-            if (problem != null) {
-                componentAdapter.handleError(problem.getCause());
-            }
+
+    void fireProblemReported(BindingProblem newProblem, BindingProblem oldProblem) {
+        for (BindingProblemListener listener : context.getProblemListeners()) {
+            listener.problemReported(newProblem, oldProblem);
         }
     }
+
+    void fireProblemCleared(BindingProblem oldProblem) {
+        for (BindingProblemListener listener : context.getProblemListeners()) {
+            listener.problemCleared(oldProblem);
+        }
+    }
+
+
 }

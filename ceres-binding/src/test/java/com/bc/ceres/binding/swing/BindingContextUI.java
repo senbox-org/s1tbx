@@ -19,6 +19,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -34,12 +35,12 @@ public class BindingContextUI {
     String name;
     int age;
     double height;
+    String eyeColor;
 
     Gender gender;
 
     String country;
     boolean healthy;
-
 
     JPanel controlPanel;
     BindingContext bindingContext;
@@ -51,18 +52,21 @@ public class BindingContextUI {
 
 
     public BindingContextUI() {
-        name = "";
+        name = "Urte";
         age = 20;
         height = 1.50;
+        eyeColor = "brown";
         gender = Gender.female;
         country = "Germany";
         healthy = true;
 
         final ValueContainer vc = ValueContainer.createObjectBacked(this);
 
+        vc.getModel("name").getDescriptor().setNotEmpty(true);
         vc.getModel("age").getDescriptor().setValueRange(new ValueRange(1, 150));
         vc.getModel("height").getDescriptor().setValueRange(new ValueRange(0.5, 2.5));
         vc.getModel("gender").getDescriptor().setValueSet(new ValueSet(new Object[]{Gender.female, Gender.male}));
+        vc.getModel("eyeColor").getDescriptor().setNotEmpty(true);
         vc.getModel("country").getDescriptor().setValueSet(new ValueSet(new Object[]{"France", "Italy", "Spain", "Germany", "United Kingdom", "United States"}));
 
         bindingContext = new BindingContext(vc);
@@ -80,6 +84,11 @@ public class BindingContextUI {
         bindingContext.bind("name", new JTextField(16));
         bindingContext.bind("age", new JTextField(4));
         bindingContext.bind("height", new JTextArea(1, 7));
+
+        final JComboBox comboBox = new JComboBox(new DefaultComboBoxModel(new String[]{"brown", "blue", "green"}));
+        comboBox.setEditable(true);
+        bindingContext.bind("eyeColor", comboBox);
+
         final JRadioButton r1 = new JRadioButton("Female");
         final JRadioButton r2 = new JRadioButton("Male");
         final ButtonGroup bg = new ButtonGroup();
@@ -120,6 +129,12 @@ public class BindingContextUI {
         controlPanel.add(new JLabel("Height: "), gbc);
         gbc.gridx = 1;
         controlPanel.add(getPrimaryComponent(bindingContext, "height"), gbc);
+
+        gbc.gridy++;
+        gbc.gridx = 0;
+        controlPanel.add(new JLabel("Eye colour: "), gbc);
+        gbc.gridx = 1;
+        controlPanel.add(getPrimaryComponent(bindingContext, "eyeColor"), gbc);
 
         gbc.gridy++;
         gbc.gridx = 0;

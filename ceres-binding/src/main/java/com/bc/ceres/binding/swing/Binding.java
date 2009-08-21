@@ -65,7 +65,7 @@ public interface Binding {
     BindingProblem getProblem();
 
     /**
-     * Clears the current a problem.
+     * Clears the current problem.
      *
      * @since Ceres 0.10
      */
@@ -78,17 +78,21 @@ public interface Binding {
      *
      * @param cause The cause.
      *
+     * @return The resulting problem.
+     *
      * @since Ceres 0.10
      */
-    void reportProblem(BindingException cause);
+    BindingProblem reportProblem(BindingException cause);
 
     /**
-     * Adjusts the bound Swing components in reaction to a property change event in the
-     * associated {@code ValueContainer}. Calls {@link ComponentAdapter#adjustComponents()}
-     * only if this binding is not already adjusting the bound Swing components.
-     * Any kind of exceptions thrown during execution of the method
-     * will be handled by delegating the exception to
-     * the {@link ComponentAdapter#handleError(Exception)} method.
+     * Adjusts the Swing components in reaction to a bound property change event in the
+     * associated {@link com.bc.ceres.binding.ValueContainer ValueContainer}.
+     * <p/>
+     * The method delegates to {@link ComponentAdapter#adjustComponents()},
+     * but only if this binding is not already adjusting its GUI components.
+     * <p/>
+     * After calling this method the UI is in sync with the value model, so that {@link #getProblem()}
+     * will return {@code null}.
      *
      * @see #isAdjustingComponents()
      */

@@ -18,8 +18,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
 import java.util.Arrays;
 import java.beans.PropertyChangeListener;
@@ -405,7 +403,7 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
         clearError();
         bindingContextVB.getBinding("intValue").setPropertyValue(5);
 
-        assertEquals("P;P;VC;P;", listener.trace);
+        assertEquals("P;P;V;C;", listener.trace);
         assertEquals(true, bindingContextVB.hasProblems());
         assertNotNull(bindingContextVB.getProblems());
         assertEquals(1, bindingContextVB.getProblems().length);
@@ -415,7 +413,7 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
         clearError();
         bindingContextVB.getBinding("stringValue").setPropertyValue("a");
 
-        assertEquals("P;P;VC;P;VC;P;", listener.trace);
+        assertEquals("P;P;V;C;V;C;", listener.trace);
         assertEquals(false, bindingContextVB.hasProblems());
         assertNotNull(bindingContextVB.getProblems());
         assertEquals(0, bindingContextVB.getProblems().length);
@@ -443,13 +441,18 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
         String trace = "";
 
         @Override
-        public void problemOccurred(BindingProblem problem) {
+        public void problemReported(BindingProblem newProblem, BindingProblem oldProblem) {
             trace += "P;";
         }
 
         @Override
+        public void problemCleared(BindingProblem oldProblem) {
+            trace += "C;";
+        }
+
+        @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            trace += "VC;";
+            trace += "V;";  
         }
     }
 }

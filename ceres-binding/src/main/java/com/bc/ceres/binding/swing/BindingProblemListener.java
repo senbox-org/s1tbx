@@ -10,8 +10,17 @@ package com.bc.ceres.binding.swing;
  */
 public interface BindingProblemListener {
     /**
-     * Called when a problem occurred in a {@link BindingContext}.
-     * @param problem The problem.
+     * Called when a problem has been reported on a {@link Binding} of a {@link BindingContext}.
+     *
+     * @param newProblem The new problem.
+     * @param oldProblem The old problem, may be {@code null} if no problem existed before.
      */
-    void problemOccurred(BindingProblem problem);
+    void problemReported(BindingProblem newProblem, BindingProblem oldProblem);
+
+    /**
+     * Called when a problem has been cleared in a {@link Binding} of a {@link BindingContext}.
+     *
+     * @param oldProblem The old problem.
+     */
+    void problemCleared(BindingProblem oldProblem);
 }

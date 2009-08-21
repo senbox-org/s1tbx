@@ -1,7 +1,6 @@
 package com.bc.ceres.binding.swing;
 
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
@@ -31,7 +30,6 @@ import javax.swing.text.JTextComponent;
 import java.awt.Window;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,7 +62,22 @@ public class BindingContext {
      * @param valueContainer The value container.
      */
     public BindingContext(ValueContainer valueContainer) {
-        this(valueContainer, new BindingContext.DefaultErrorHandler());
+        this(valueContainer, new VerbousProblemHandler());
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param valueContainer The value container.
+     * @param problemHandler A problem handler, or {@code null}.
+     */
+    public BindingContext(ValueContainer valueContainer, BindingProblemListener problemHandler) {
+        this.valueContainer = valueContainer;
+        this.bindingMap = new HashMap<String, BindingImpl>(17);
+        this.enablePCLMap = new HashMap<String, EnablePCL>(11);
+        if (problemHandler != null) {
+            addProblemListener(problemHandler);
+        }
     }
 
     /**
@@ -78,10 +91,8 @@ public class BindingContext {
      */
     @Deprecated
     public BindingContext(ValueContainer valueContainer, BindingContext.ErrorHandler errorHandler) {
-        this.valueContainer = valueContainer;
+        this(valueContainer, (BindingProblemListener) null);
         this.errorHandler = errorHandler;
-        this.bindingMap = new HashMap<String, BindingImpl>(17);
-        this.enablePCLMap = new HashMap<String, EnablePCL>(11);
     }
 
     public ValueContainer getValueContainer() {
@@ -198,17 +209,6 @@ public class BindingContext {
         return bindingProblemListeners != null
                 ? bindingProblemListeners.toArray(new BindingProblemListener[bindingProblemListeners.size()])
                 : new BindingProblemListener[0];
-    }
-
-    /**
-     * Fires a problem-occurred event by notifying all listeners.
-     *
-     * @param problem The problem.
-     */
-    public void fireProblemOccurred(BindingProblem problem) {
-        for (BindingProblemListener listener : getProblemListeners()) {
-            listener.problemOccurred(problem);
-        }
     }
 
     /**
@@ -429,41 +429,32 @@ public class BindingContext {
         bindingMap.remove(propertyName);
     }
 
-    /**
-     * An error handler.
-     *
-     * @deprecated Since 0.10, for error handling use {@link BindingContext#addProblemListener(BindingProblemListener)}
-     *             and {@link BindingContext#getProblems()} instead
-     */
-    @Deprecated
-    public interface ErrorHandler {
-        /**
-         * Handles an error.
-         *
-         * @param error     A {@link com.bc.ceres.binding.BindingException}
-         * @param component The component.
-         */
-        void handleError(Exception error, JComponent component);
-    }
-
-    @Deprecated
-    private static class DefaultErrorHandler implements BindingContext.ErrorHandler {
+    public static class VerbousProblemHandler implements BindingProblemListener {
+        @Override
+        public void problemReported(BindingProblem newProblem, BindingProblem oldProblem) {
+            final Binding binding = newProblem.getBinding();
+            final ComponentAdapter adapter = binding.getComponentAdapter();
+            final JComponent component = adapter.getComponents()[0];
+            final Window window = SwingUtilities.windowForComponent(component);
+            JOptionPane.showMessageDialog(window,
+                                          newProblem.getCause().getMessage(),
+                                          "Invalid Input",
+                                          JOptionPane.ERROR_MESSAGE);
+        }
 
         @Override
-        public void handleError(Exception error, JComponent component) {
-            Window window = component != null ? SwingUtilities.windowForComponent(component) : null;
-            if (error instanceof ValidationException) {
-                JOptionPane.showMessageDialog(window, error.getMessage(), "Invalid Input",
-                                              JOptionPane.ERROR_MESSAGE);
-            } else {
-                String message = MessageFormat.format("An internal error occured:\nType: {0}\nMessage: {1}\n",
-                                                      error.getClass(), error.getMessage());
-                JOptionPane.showMessageDialog(window, message, "Internal Error", JOptionPane.ERROR_MESSAGE);
-                error.printStackTrace();
-            }
-            if (component != null) {
-                component.requestFocus();
-            }
+        public void problemCleared(BindingProblem oldProblem) {
+        }
+    }
+
+    public static class SilentProblemHandler implements BindingProblemListener {
+        @Override
+        public void problemReported(BindingProblem newProblem, BindingProblem oldProblem) {
+            newProblem.getBinding().adjustComponents();
+        }
+
+        @Override
+        public void problemCleared(BindingProblem oldProblem) {
         }
     }
 
@@ -493,5 +484,22 @@ public class BindingContext {
                                  sourcePropertyName,
                                  sourcePropertyValue);
         }
+    }
+
+    /**
+     * An error handler.
+     *
+     * @deprecated Since 0.10, for error handling use {@link BindingContext#addProblemListener(BindingProblemListener)}
+     *             and {@link BindingContext#getProblems()} instead
+     */
+    @Deprecated
+    public interface ErrorHandler {
+        /**
+         * Handles an error.
+         *
+         * @param error     A {@link com.bc.ceres.binding.BindingException}
+         * @param component The component.
+         */
+        void handleError(Exception error, JComponent component);
     }
 }
