@@ -5,7 +5,6 @@ import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.swing.BindingContext;
-import com.bc.ceres.binding.swing.ValueEditor;
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
@@ -158,7 +157,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                 if (!annot.alias().isEmpty()) {
                     name = annot.alias();
                 }
-                label = ValueEditor.createDisplayName(name);
+                label = ValueDescriptor.createDisplayName(name);
             }
             if (!label.endsWith(":")) {
                 label += ":";

@@ -1,8 +1,8 @@
 package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.swing.BindingContext;
-import com.bc.ceres.binding.swing.ValueEditor;
 import org.esa.beam.framework.ui.ValueEditorsPane;
 
 import javax.swing.JPanel;
@@ -24,6 +24,6 @@ public class ParametersPane extends ValueEditorsPane {
     }
 
     public static String createDisplayName(String name) {
-        return ValueEditor.createDisplayName(name);
+        return ValueDescriptor.createDisplayName(name);
     }
 }
