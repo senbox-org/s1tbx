@@ -90,8 +90,9 @@ public class ReprojectionOp extends Operator {
                defaultValue = "Nearest")
     private String resamplingName;
     
-    @Parameter
-    private boolean includeTiePointGrids; // TODO implement
+    @Parameter(description = "Wether TiePoint grids should be included in the output product.",
+               defaultValue = "true")
+    private boolean includeTiePointGrids;
     
     // Referencing  todo - parameter object?
     @Parameter(description = "The X-position of the reference pixel.")
