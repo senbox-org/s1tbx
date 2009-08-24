@@ -48,7 +48,7 @@ public class NumericEditor extends ValueEditor {
         textField.setHorizontalAlignment(SwingConstants.RIGHT);
         int fontSize = textField.getFont().getSize();
         textField.setFont(new Font("Courier", Font.PLAIN, fontSize));
-        ComponentAdapter adapter = new TextFieldAdapter(textField);
+        ComponentAdapter adapter = new TextComponentAdapter(textField);
         bindingContext.bind(valueDescriptor.getName(), adapter);
         return textField;
     }

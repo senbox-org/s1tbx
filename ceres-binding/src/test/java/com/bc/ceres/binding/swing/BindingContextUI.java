@@ -3,6 +3,9 @@ package com.bc.ceres.binding.swing;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.ValidationException;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -36,7 +39,6 @@ public class BindingContextUI {
     int age;
     double height;
     String eyeColor;
-
     Gender gender;
 
     String country;
@@ -67,6 +69,7 @@ public class BindingContextUI {
         vc.getModel("height").getDescriptor().setValueRange(new ValueRange(0.5, 2.5));
         vc.getModel("gender").getDescriptor().setValueSet(new ValueSet(new Object[]{Gender.female, Gender.male}));
         vc.getModel("eyeColor").getDescriptor().setNotEmpty(true);
+        vc.getModel("eyeColor").getDescriptor().setValidator(new LettersOnlyValidator());
         vc.getModel("country").getDescriptor().setValueSet(new ValueSet(new Object[]{"France", "Italy", "Spain", "Germany", "United Kingdom", "United States"}));
 
         bindingContext = new BindingContext(vc);
@@ -78,6 +81,18 @@ public class BindingContextUI {
                 System.out.println(this + ": '" + evt.getPropertyName() +
                         "' changed from '" + evt.getOldValue() +
                         "' to '" + evt.getNewValue() + "'");
+            }
+        });
+        bindingContext.addProblemListener(new BindingProblemListener() {
+            @Override
+            public void problemReported(BindingProblem newProblem, BindingProblem oldProblem) {
+                System.out.println("problemReported: newProblem = " + newProblem);
+                System.out.println("                 oldProblem = " + oldProblem);
+            }
+
+            @Override
+            public void problemCleared(BindingProblem oldProblem) {
+                System.out.println("problemCleared: oldProblem = " + oldProblem);
             }
         });
 
@@ -238,5 +253,16 @@ public class BindingContextUI {
         });
 
         dlg.setVisible(true);
+    }
+
+    private static class LettersOnlyValidator implements Validator {
+        @Override
+            public void validateValue(ValueModel valueModel, Object value) throws ValidationException {
+            for (char c : ((String) value).toCharArray()) {
+                if (!Character.isLetter(c)) {
+                    throw new ValidationException("Only letters!");
+                }
+            }
+        }
     }
 }

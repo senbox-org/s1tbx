@@ -50,7 +50,7 @@ public class FileEditor extends ValueEditor {
     @Override
     public JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
         JTextField textField = new JTextField();
-        ComponentAdapter adapter = new TextFieldAdapter(textField);
+        ComponentAdapter adapter = new TextComponentAdapter(textField);
         final Binding binding = bindingContext.bind(valueDescriptor.getName(), adapter);
         final JPanel subPanel = new JPanel(new BorderLayout(2, 2));
         subPanel.add(textField, BorderLayout.CENTER);

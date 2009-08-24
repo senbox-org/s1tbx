@@ -40,7 +40,7 @@ public class TextFieldEditor extends ValueEditor {
     @Override
     public JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
         JTextField textField = new JTextField();
-        ComponentAdapter adapter = new TextFieldAdapter(textField);
+        ComponentAdapter adapter = new TextComponentAdapter(textField);
         bindingContext.bind(valueDescriptor.getName(), adapter);
         return textField;
     }

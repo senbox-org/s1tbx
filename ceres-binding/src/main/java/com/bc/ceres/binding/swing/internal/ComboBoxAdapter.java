@@ -7,10 +7,10 @@ import com.bc.ceres.binding.swing.ComponentAdapter;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.text.JTextComponent;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemListener;
-import java.awt.event.ItemEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -21,12 +21,15 @@ import java.beans.PropertyChangeListener;
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-public class ComboBoxAdapter extends ComponentAdapter implements ActionListener, ItemListener, PropertyChangeListener {
+public class ComboBoxAdapter extends ComponentAdapter implements ActionListener, PropertyChangeListener {
 
     final JComboBox comboBox;
+    private final EditableChangeListener listener;
+    private TextComponentAdapter textComponentAdapter;
 
     public ComboBoxAdapter(JComboBox comboBox) {
         this.comboBox = comboBox;
+        listener = new EditableChangeListener();
     }
 
     @Override
@@ -35,23 +38,19 @@ public class ComboBoxAdapter extends ComponentAdapter implements ActionListener,
     }
 
     @Override
-    public void itemStateChanged(ItemEvent e) {
-        getBinding().setPropertyValue(comboBox.getSelectedItem());
-    }
-
-    @Override
     public void bindComponents() {
         updateComboBoxModel();
         getValueDescriptor().addPropertyChangeListener(this);
         comboBox.addActionListener(this);
-        comboBox.addItemListener(this);
+        comboBox.addPropertyChangeListener("editable", listener);
+        updateEditable();
     }
 
     @Override
     public void unbindComponents() {
         getValueDescriptor().removePropertyChangeListener(this);
         comboBox.removeActionListener(this);
-        comboBox.removeItemListener(this);
+        comboBox.removePropertyChangeListener("editable", listener);
     }
 
     @Override
@@ -87,6 +86,25 @@ public class ComboBoxAdapter extends ComponentAdapter implements ActionListener,
             }
             comboBox.setModel(model);
             comboBox.setSelectedItem(oldValue);
+        }
+    }
+
+    private void updateEditable() {
+        final Component editorComponent = comboBox.getEditor().getEditorComponent();
+        if (comboBox.isEditable() && editorComponent instanceof JTextComponent) {
+            textComponentAdapter = new TextComponentAdapter((JTextComponent) editorComponent);
+            textComponentAdapter.setBinding(getBinding());
+            textComponentAdapter.bindComponents();
+        } else if (textComponentAdapter != null) {
+            textComponentAdapter.unbindComponents();
+            textComponentAdapter = null;
+        }
+    }
+
+    private class EditableChangeListener implements PropertyChangeListener {
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            updateEditable();
         }
     }
 }

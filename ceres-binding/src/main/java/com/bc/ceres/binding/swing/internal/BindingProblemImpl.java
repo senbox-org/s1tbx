@@ -28,7 +28,7 @@ class BindingProblemImpl implements BindingProblem {
 
     @Override
     public int hashCode() {
-        return getBinding().hashCode() + getCause().hashCode();
+        return getBinding().hashCode() + getCause().getMessage().hashCode();
     }
 
     @Override
@@ -38,8 +38,13 @@ class BindingProblemImpl implements BindingProblem {
         } else if (obj instanceof BindingProblemImpl) {
             BindingProblem other = (BindingProblem) obj;
             return this.getBinding() == other.getBinding()
-                    && this.getCause().equals(other.getCause());
+                    && this.getCause().getMessage().equals(other.getCause().getMessage());
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return getCause().getMessage();
     }
 }
