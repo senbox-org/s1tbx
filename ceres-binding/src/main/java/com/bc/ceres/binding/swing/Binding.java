@@ -5,20 +5,10 @@ import com.bc.ceres.binding.BindingException;
 import javax.swing.JComponent;
 
 /**
- * A bi-directional binding between one or more Swing components and a property in a value container.
+ * A bi-directional binding between one or more Swing GUI components and a
+ * property in a value container.
  * <p/>
- * Classes derived from {@code Binding} are asked to add an appropriate change listener to their Swing component
- * which will transfer the value from the component into the associated {@link com.bc.ceres.binding.ValueContainer}
- * using the {@link #setPropertyValue(Object)} method.
- * <p/>
- * Whenever the value of the named property changes in the {@link com.bc.ceres.binding.ValueContainer},
- * the template method {@link #adjustComponents()} will be called.
- * Clients implement the {@link ComponentAdapter#adjustComponents()} method
- * in order to adjust their Swing component according the new property value.
- * Note that {@code adjustComponents()} will <i>not</i> be recursively called again, if the
- * the property value changes while {@code adjustComponents()} is executed. In this case,
- * the value of the {@link #isAdjustingComponents() adjustingComponent} property will be {@code true}.
- * <p/>
+ * This class is not intended to be implemented by clients.
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
@@ -91,7 +81,7 @@ public interface Binding {
      * The method delegates to {@link ComponentAdapter#adjustComponents()},
      * but only if this binding is not already adjusting its GUI components.
      * <p/>
-     * After calling this method the UI is in sync with the value model, so that {@link #getProblem()}
+     * After calling this method the UI is in-sync with the value model, so that {@link #getProblem()}
      * will return {@code null}.
      *
      * @see #isAdjustingComponents()
@@ -99,7 +89,7 @@ public interface Binding {
     void adjustComponents();
 
     /**
-     * Tests if this binding is currently adjusting the bound Swing components.
+     * Tests if this binding is currently adjusting the bound GUI components.
      *
      * @return {@code true} if so.
      *

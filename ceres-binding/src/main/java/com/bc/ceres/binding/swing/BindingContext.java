@@ -95,6 +95,9 @@ public class BindingContext {
         this.errorHandler = errorHandler;
     }
 
+    /**
+     * @return The value container.
+     */
     public ValueContainer getValueContainer() {
         return valueContainer;
     }
@@ -212,8 +215,11 @@ public class BindingContext {
     }
 
     /**
-     * Adjusts all associated Swing components so that they reflect the
+     * Adjusts all associated GUI components so that they reflect the
      * values of the associated value container.
+     * <p/>
+     *
+     * @see ComponentAdapter#adjustComponents()
      */
     public void adjustComponents() {
         for (Map.Entry<String, BindingImpl> entry : bindingMap.entrySet()) {
@@ -221,22 +227,58 @@ public class BindingContext {
         }
     }
 
+    /**
+     * Gets the binding for the given property name.
+     *
+     * @param propertyName The property name.
+     *
+     * @return The binding, or {@code null} if no such exists.
+     */
     public Binding getBinding(String propertyName) {
+        Assert.notNull(propertyName, "propertyName");
         return bindingMap.get(propertyName);
     }
 
-    public Binding bind(String propertyName, ComponentAdapter adapter) {
-        BindingImpl binding = new BindingImpl(this, propertyName, adapter);
+    /**
+     * Binds the property given by its name to the given component adapter.
+     * <p/>
+     * The method calls the follwing methods on the given component adapter:
+     * <ol>
+     * <li>{@link ComponentAdapter#setBinding(Binding)}</li>
+     * <li>{@link ComponentAdapter#bindComponents()}</li>
+     * <li>{@link ComponentAdapter#adjustComponents()}</li>
+     * </ol>
+     *
+     * @param propertyName     The property name.
+     * @param componentAdapter The component adapter.
+     *
+     * @return The resulting binding.
+     *
+     * @see #unbind(Binding)
+     */
+    public Binding bind(String propertyName, ComponentAdapter componentAdapter) {
+        Assert.notNull(propertyName, "propertyName");
+        Assert.notNull(componentAdapter, "componentAdapter");
+        BindingImpl binding = new BindingImpl(this, propertyName, componentAdapter);
         addBinding(binding);
-        adapter.setBinding(binding);
-        adapter.bindComponents();
+        componentAdapter.setBinding(binding);
+        componentAdapter.bindComponents();
         binding.bindProperty();
         binding.adjustComponents();
         configureComponents(binding);
         return binding;
     }
 
+    /**
+     * Cancels the given binding by calling {@link ComponentAdapter#unbindComponents()} and
+     * removing it from this context.
+     *
+     * @param binding The binding.
+     *
+     * @see #bind(String, ComponentAdapter)
+     */
     public void unbind(Binding binding) {
+        Assert.notNull(binding, "binding");
         removeBinding(binding.getPropertyName());
         if (binding instanceof BindingImpl) {
             ((BindingImpl) binding).unbindProperty();
@@ -244,65 +286,170 @@ public class BindingContext {
         binding.getComponentAdapter().unbindComponents();
     }
 
-    public Binding bind(final String propertyName, final JTextComponent textComponent) {
-        return bind(propertyName, new TextComponentAdapter(textComponent));
+    /**
+     * Binds a property in the value container to a Swing {@code JTextComponent} component.
+     *
+     * @param propertyName The property name.
+     * @param component    The Swing component.
+     *
+     * @return The resulting binding.
+     */
+    public Binding bind(final String propertyName, final JTextComponent component) {
+        return bind(propertyName, new TextComponentAdapter(component));
     }
 
-    public Binding bind(final String propertyName, final JTextField textField) {
-        return bind(propertyName, new TextComponentAdapter(textField));
+    /**
+     * Binds a property in the value container to a Swing {@code JTextField} component.
+     *
+     * @param propertyName The property name.
+     * @param component    The Swing component.
+     *
+     * @return The resulting binding.
+     */
+    public Binding bind(final String propertyName, final JTextField component) {
+        return bind(propertyName, new TextComponentAdapter(component));
     }
 
-    public Binding bind(final String propertyName, final JFormattedTextField textField) {
-        return bind(propertyName, new FormattedTextFieldAdapter(textField));
+    /**
+     * Binds a property in the value container to a Swing {@code JFormattedTextField} component.
+     *
+     * @param propertyName The property name.
+     * @param component    The Swing component.
+     *
+     * @return The resulting binding.
+     */
+    public Binding bind(final String propertyName, final JFormattedTextField component) {
+        return bind(propertyName, new FormattedTextFieldAdapter(component));
     }
 
-    public Binding bind(final String propertyName, final JCheckBox checkBox) {
-        return bind(propertyName, new AbstractButtonAdapter(checkBox));
+    /**
+     * Binds a property in the value container to a Swing {@code JCheckBox} component.
+     *
+     * @param propertyName The property name.
+     * @param component    The Swing component.
+     *
+     * @return The resulting binding.
+     */
+    public Binding bind(final String propertyName, final JCheckBox component) {
+        return bind(propertyName, new AbstractButtonAdapter(component));
     }
 
-    public Binding bind(String propertyName, JRadioButton radioButton) {
-        return bind(propertyName, new AbstractButtonAdapter(radioButton));
+    /**
+     * Binds a property in the value container to a Swing {@code JRadioButton} component.
+     *
+     * @param propertyName The property name.
+     * @param component    The Swing component.
+     *
+     * @return The resulting binding.
+     */
+    public Binding bind(String propertyName, JRadioButton component) {
+        return bind(propertyName, new AbstractButtonAdapter(component));
     }
 
-    public Binding bind(final String propertyName, final JList list, final boolean selectionIsValue) {
+    /**
+     * Binds a property in the value container to a Swing {@code JList} component.
+     *
+     * @param propertyName     The property name.
+     * @param component        The Swing component.
+     * @param selectionIsValue if {@code true}, the current list selection provides the value,
+     *                         if {@code false}, the list content is the value.
+     *
+     * @return The resulting binding.
+     */
+    public Binding bind(final String propertyName, final JList component, final boolean selectionIsValue) {
         if (selectionIsValue) {
-            return bind(propertyName, new ListSelectionAdapter(list));
+            return bind(propertyName, new ListSelectionAdapter(component));
         } else {
             throw new RuntimeException("not implemented");
         }
     }
 
-    public Binding bind(final String propertyName, final JSpinner spinner) {
-        return bind(propertyName, new SpinnerAdapter(spinner));
+    /**
+     * Binds a property in the value container to a Swing {@code JSpinner} component.
+     *
+     * @param propertyName The property name.
+     * @param component    The Swing component.
+     *
+     * @return The resulting binding.
+     */
+    public Binding bind(final String propertyName, final JSpinner component) {
+        return bind(propertyName, new SpinnerAdapter(component));
     }
 
-    public Binding bind(final String propertyName, final JComboBox comboBox) {
-        return bind(propertyName, new ComboBoxAdapter(comboBox));
+    /**
+     * Binds a property in the value container to a Swing {@code JComboBox} component.
+     *
+     * @param propertyName The property name.
+     * @param component    The Swing component.
+     *
+     * @return The resulting binding.
+     */
+    public Binding bind(final String propertyName, final JComboBox component) {
+        return bind(propertyName, new ComboBoxAdapter(component));
     }
 
+    /**
+     * Binds a property in the value container to a Swing {@code ButtonGroup}.
+     *
+     * @param propertyName The property name.
+     * @param buttonGroup  The button group.
+     *
+     * @return The resulting binding.
+     */
     public Binding bind(final String propertyName, final ButtonGroup buttonGroup) {
         return bind(propertyName, buttonGroup,
                     ButtonGroupAdapter.createButtonToValueMap(buttonGroup, getValueContainer(), propertyName));
     }
 
+    /**
+     * Binds a property in the value container to a Swing {@code ButtonGroup}.
+     *
+     * @param propertyName The property name.
+     * @param buttonGroup  The button group.
+     * @param valueSet     The mapping from a button to the actual property value.
+     *
+     * @return The resulting binding.
+     */
     public Binding bind(final String propertyName, final ButtonGroup buttonGroup,
                         final Map<AbstractButton, Object> valueSet) {
         ComponentAdapter adapter = new ButtonGroupAdapter(buttonGroup, valueSet);
         return bind(propertyName, adapter);
     }
 
+    /**
+     * Shortcut for {@link com.bc.ceres.binding.ValueContainer#addPropertyChangeListener(java.beans.PropertyChangeListener) getValueContainer().addPropertyChangeListener(l}.
+     *
+     * @param l The property change listener.
+     */
     public void addPropertyChangeListener(PropertyChangeListener l) {
         valueContainer.addPropertyChangeListener(l);
     }
 
+    /**
+     * Shortcut for {@link com.bc.ceres.binding.ValueContainer#addPropertyChangeListener(String, java.beans.PropertyChangeListener) getValueContainer().addPropertyChangeListener(name, l}.
+     *
+     * @param name The property name.
+     * @param l    The property change listener.
+     */
     public void addPropertyChangeListener(String name, PropertyChangeListener l) {
         valueContainer.addPropertyChangeListener(name, l);
     }
 
+    /**
+     * Shortcut for {@link com.bc.ceres.binding.ValueContainer#removePropertyChangeListener(java.beans.PropertyChangeListener) getValueContainer().removePropertyChangeListener(l}.
+     *
+     * @param l The property change listener.
+     */
     public void removePropertyChangeListener(PropertyChangeListener l) {
         valueContainer.removePropertyChangeListener(l);
     }
 
+    /**
+     * Shortcut for {@link com.bc.ceres.binding.ValueContainer#removePropertyChangeListener(String, java.beans.PropertyChangeListener) getValueContainer().removePropertyChangeListener(name, l}.
+     *
+     * @param name The property name.
+     * @param l    The property change listener.
+     */
     public void removePropertyChangeListener(String name, PropertyChangeListener l) {
         valueContainer.removePropertyChangeListener(name, l);
     }

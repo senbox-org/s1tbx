@@ -23,7 +23,7 @@ import java.beans.PropertyChangeListener;
  */
 public class ComboBoxAdapter extends ComponentAdapter implements ActionListener, PropertyChangeListener {
 
-    final JComboBox comboBox;
+    private final JComboBox comboBox;
     private final EditableChangeListener listener;
     private TextComponentAdapter textComponentAdapter;
 
@@ -56,7 +56,6 @@ public class ComboBoxAdapter extends ComponentAdapter implements ActionListener,
     @Override
     public void adjustComponents() {
         Object value = getBinding().getPropertyValue();
-        // Note: directly calling comboBox.setSelectedItem(value) will always fire ActionEvent
         comboBox.setSelectedItem(value);
     }
 
