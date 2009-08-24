@@ -17,7 +17,7 @@ public class ReprojectionOpTest {
                                       "UNIT[\"degree\",0.01745329251994328,AUTHORITY[\"EPSG\",\"9122\"]]," +
                                       "AUTHORITY[\"EPSG\",\"4236\"]]";
     private static final File wktFile = new File("file.wkt");
-    private static final Product collocateProduct = new Product("P", "T", 2,2);
+    private static final Product collocateProduct = new Product("P", "T", 2, 2);
 
     @Test
     public void testParameterAmbigouity_epsgCode() {
@@ -37,7 +37,13 @@ public class ReprojectionOpTest {
     public void testParameterAmbigouity_wkt() {
         final ReprojectionOp op = new ReprojectionOp();
         op.setWkt(wkt);
+        op.validateParameters();
+    }
 
+    @Test
+    public void testParameterAmbigouity_collocateProduct() {
+        final ReprojectionOp op = new ReprojectionOp();
+        op.setCollocationProduct(collocateProduct);
         op.validateParameters();
     }
 
@@ -60,6 +66,14 @@ public class ReprojectionOpTest {
         final ReprojectionOp op = new ReprojectionOp();
         op.setWkt(wkt);
         op.setWktFile(wktFile);
+        op.validateParameters();
+    }
+
+    @Test(expected = OperatorException.class)
+    public void testParameterAmbigouity_wkt_collocateProduct() {
+        final ReprojectionOp op = new ReprojectionOp();
+        op.setWkt(wkt);
+        op.setCollocationProduct(collocateProduct);
         op.validateParameters();
     }
 }
