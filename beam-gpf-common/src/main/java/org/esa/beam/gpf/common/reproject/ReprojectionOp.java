@@ -4,6 +4,7 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.IndexCoding;
@@ -13,7 +14,6 @@ import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -31,26 +31,11 @@ import org.esa.beam.util.math.MathUtils;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
-import org.geotools.referencing.cs.DefaultCartesianCS;
-import org.geotools.referencing.operation.projection.PlateCarree;
-import org.geotools.referencing.operation.DefaultMathTransformFactory;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.resources.geometry.XRectangle2D;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchIdentifierException;
-import org.opengis.referencing.datum.Ellipsoid;
-import org.opengis.referencing.cs.CartesianCS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.parameter.ParameterValueGroup;
 
-import javax.media.jai.ImageLayout;
-import javax.media.jai.Interpolation;
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -59,6 +44,13 @@ import java.awt.image.ColorModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.File;
+import java.io.IOException;
+
+import javax.media.jai.ImageLayout;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.operator.ConstantDescriptor;
 
 /**
  * @author Marco Zuehlke
@@ -82,6 +74,8 @@ public class ReprojectionOp extends Operator {
     private String epsgCode;
     @Parameter(label = "WKT File", description="A file which contains the projected Coordinate Reference System in WKT format.")
     private File wktFile;
+    @Parameter(label = "WKT", description="The projected Coordinate Reference System in WKT format.")
+    private String wkt;
 
     @Parameter(label = "Resampling Method", description = "The resampling method.",
                valueSet= {"Nearest", "Bilinear","Bicubic","Bicubic_2"},
@@ -266,7 +260,6 @@ public class ReprojectionOp extends Operator {
                 Rectangle sourceRect = createLevelBounds(srcModel, sourceLevel);
                 Rectangle targetRect = createLevelBounds(targetModel, targetLevel);
 
-                RenderedImage leveledSourceImage = sourceImage.getImage(sourceLevel);
                 BeamGridGeometry sourceGridGeometry = new BeamGridGeometry(srcModel.getImageToModelTransform(sourceLevel),
                                                                            sourceRect,
                                                                            sourceProduct.getGeoCoding().getModelCRS());
@@ -274,14 +267,15 @@ public class ReprojectionOp extends Operator {
                                                                            targetRect,
                                                                            targetProduct.getGeoCoding().getModelCRS());
 
-                ImageLayout imageLayout = createImageLayout(targetBand, targetRect.width, targetRect.height, targetProduct.getPreferredTileSize());
-                Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
-                
-                Interpolation usedResampling= resampling;
+                Interpolation usedResampling = resampling;
                 int dataType = targetBand.getDataType();
                 if (!ProductData.isFloatingPointType(dataType)) {
                     usedResampling = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
                 }
+                
+                ImageLayout imageLayout = createImageLayout(dataType, targetRect.width, targetRect.height, targetProduct.getPreferredTileSize());
+                Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
+                RenderedImage leveledSourceImage = sourceImage.getImage(sourceLevel);
                 
                 try {
                     return Reproject.reproject(leveledSourceImage, sourceGridGeometry, targetGridGeometry, targetBand.getNoDataValue(), usedResampling, hints);
@@ -329,39 +323,49 @@ public class ReprojectionOp extends Operator {
 
     private CoordinateReferenceSystem createTargetCRS() throws OperatorException {
         CoordinateReferenceSystem crs = null;
-        try {
-            if (epsgCode != null && !epsgCode.isEmpty()) {
-                // to force longitude==xAxis and latitude==yAxis
-                boolean longitudeFirst = true; 
+        if (epsgCode != null && !epsgCode.isEmpty()) {
+            // to force longitude==xAxis and latitude==yAxis
+            boolean longitudeFirst = true; 
+            try {
                 crs = CRS.decode(epsgCode, longitudeFirst);
-            } else if (wktFile != null) {
-                String wkt = FileUtils.readText(wktFile);
-                crs = CRS.parseWKT(wkt);
-            } else if (collocationProduct != null && collocationProduct.getGeoCoding() != null) {
-                crs = collocationProduct.getGeoCoding().getModelCRS();
-//            } else {
-//                final DefaultMathTransformFactory mtf = new DefaultMathTransformFactory();
-//                ParameterValueGroup p = mtf.getDefaultParameters(transformationName);
-//                if (p == null) {
-//                    throw new OperatorException("Unsupported transformation: " + transformationName);
-//                }
-//                for (TransformationParameter transformationParameter : transformationParameters) {
-//                    ParameterValue<?> parameter = p.parameter(transformationParameter.name);
-//                    if (parameter == null) {
-//                        throw new OperatorException("Unknown transformation parameter: " + transformationParameter.name);
-//                    }
-//                    parameter.setValue(transformationParameter.value);
-//                }
-//                final MathTransform transformation = mtf.createParameterizedTransform(p);
-//                crs = new DefaultProjectedCRS("User CRS (" + transformationName + ")",
-//                                                    DefaultGeographicCRS.WGS84, transformation,
-//                                                    DefaultCartesianCS.PROJECTED);
+            } catch (Exception e) {
+                throw new OperatorException(e);
             }
-        } catch (Exception e) {
-            throw new OperatorException(e);
+        }
+        if (wktFile != null) {
+            if (crs != null) {
+                throw new OperatorException("You have specified the projected CRS multiple time. Use only one definition."); 
+            }
+            String wktString;
+            try {
+                wktString = FileUtils.readText(wktFile);
+            } catch (IOException e) {
+                throw new OperatorException(e);
+            }
+            try {
+                crs = CRS.parseWKT(wktString);
+            } catch (FactoryException e) {
+                throw new OperatorException(e);
+            }
+        }
+        if (wkt != null && !wkt.isEmpty()) {
+            if (crs != null) {
+                throw new OperatorException("You have specified the projected CRS multiple time. Use only one definition."); 
+            }
+            try {
+                crs = CRS.parseWKT(wkt);
+            } catch (FactoryException e) {
+                throw new OperatorException(e);
+            }
+        }
+        if (collocationProduct != null && collocationProduct.getGeoCoding() != null) {
+            if (crs != null) {
+                throw new OperatorException("You have specified the projected CRS multiple time. Use only one definition."); 
+            }
+            crs = collocationProduct.getGeoCoding().getModelCRS();
         }
         if (crs == null) {
-            throw new OperatorException("Unable to create CRS");
+            throw new OperatorException("You have specified no projected CRS.");
         }
         return crs;
     }
@@ -447,35 +451,10 @@ public class ReprojectionOp extends Operator {
         }
     }
 
-    private static ImageLayout createImageLayout(RasterDataNode node, int w, int h, final Dimension tileSize) {
-        final int bufferType = ImageManager.getDataBufferType(node.getDataType());
-
-        return createSingleBandedImageLayout(bufferType, w, h, tileSize.width, tileSize.height);
-    }
-
-    private static ImageLayout createSingleBandedImageLayout(int dataType,
-                                                            int width,
-                                                            int height,
-                                                            int tileWidth,
-                                                            int tileHeight) {
-        SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataType, 1, 1);
+    private static ImageLayout createImageLayout(int productDataType, int width, int height, final Dimension tileSize) {
+        int bufferType = ImageManager.getDataBufferType(productDataType);
+        SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(bufferType, tileSize.width, tileSize.height);
         ColorModel colorModel = PlanarImage.createColorModel(sampleModel);
-        return createImageLayout(width, height, tileWidth, tileHeight, sampleModel, colorModel);
-    }
-
-    private static ImageLayout createImageLayout(int width,
-                                                 int height,
-                                                 int tileWidth,
-                                                 int tileHeight,
-                                                 SampleModel sampleModel,
-                                                 ColorModel colorModel) {
-        return new ImageLayout(0, 0,
-                               width,
-                               height,
-                               0, 0,
-                               tileWidth,
-                               tileHeight,
-                               sampleModel,
-                               colorModel);
+        return new ImageLayout(0, 0, width, height, 0, 0, tileSize.width, tileSize.height, sampleModel, colorModel);
     }
 }
