@@ -88,28 +88,29 @@ public class ReprojectionOp extends Operator {
                defaultValue = "Nearest")
     private String resamplingName;
     
-    // Referencing
+    // Referencing  todo - parameter object?
     @Parameter(description = "The X-position of the reference pixel.")
-    private double referencePixelX;
+    private Double referencePixelX;
     @Parameter(description = "The Y-position of the reference pixel.")
-    private double referencePixelY;
+    private Double referencePixelY;
     @Parameter(description = "The easting of the reference pixel.")
-    private double easting;
+    private Double easting;
     @Parameter(description = "The northing of the reference pixel.")
-    private double northing;
-    @Parameter(description = "The orientation of the output product (in degree).")
-    private double orientation;
+    private Double northing;
+    @Parameter(description = "The orientation of the output product (in degree).",
+               defaultValue = "0", interval = "[0,360]" )
+    private Double orientation;
     
 
-    // target product size
+    // target grid  todo - parameter object?
     @Parameter(description = "The pixels per reference unit in X direction.")
-    private double pixelSizeX;
+    private Double pixelSizeX;
     @Parameter(description = "The pixels per reference unit in Y direction.")
-    private double pixelSizeY;
+    private Double pixelSizeY;
     @Parameter(description = "The width of the output product.")
-    private int width;
+    private Integer width;
     @Parameter(description = "The height of the output product.")
-    private double height;
+    private Integer height;
     
     
     private CoordinateReferenceSystem targetCrs;
