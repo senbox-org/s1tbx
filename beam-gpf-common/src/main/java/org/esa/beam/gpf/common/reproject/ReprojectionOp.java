@@ -65,15 +65,16 @@ import java.text.MessageFormat;
 public class ReprojectionOp extends Operator {
 
 
-    @SourceProduct(alias = "source")
+    @SourceProduct(alias = "source", description = "The product which will be reprojected.")
     private Product sourceProduct;
     @SourceProduct(alias = "colocate", optional = true, label = "Collocation product",
-                   description = "A product to collocate with.")
+                   description = "The source product will be collocated with this product.")
     private Product collocationProduct;
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(description = "An EPSG code for the target Coordinate Reference System.")
+    @Parameter(description = "An EPSG code for the target Coordinate Reference System.",
+               pattern = "[0-9]*")
     private String epsgCode;
 
     @Parameter(description = "A file which contains the target Coordinate Reference System in WKT format.")
