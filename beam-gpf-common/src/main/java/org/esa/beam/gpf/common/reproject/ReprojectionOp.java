@@ -13,6 +13,8 @@ import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -189,55 +191,15 @@ public class ReprojectionOp extends Operator {
         final MultiLevelModel srcModel = ImageManager.getInstance().getMultiLevelModel(sourceProduct.getBandAt(0));
         boolean reprojectionFlagRequired = false;
         for (Band sourceBand : sourceProduct.getBands()) {
-            int geophysicalDataType = sourceBand.getGeophysicalDataType();
-            Band targetBand;
-            MultiLevelImage sourceImage;
-            if (ProductData.isFloatingPointType(geophysicalDataType)) {
-                targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getGeophysicalDataType());
-                targetBand.setDescription(sourceBand.getDescription());
-                targetBand.setUnit(sourceBand.getUnit());
-                if (ProductData.TYPE_FLOAT32 == geophysicalDataType) {
-                    targetBand.setNoDataValue(Float.NaN);
-                } else {
-                    targetBand.setNoDataValue(Double.NaN);
-                }
-                targetBand.setNoDataValueUsed(true);
-                ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
-                sourceImage = sourceBand.getGeophysicalImage();
-                String exp = sourceBand.getValidMaskExpression();
-                if (exp != null) {
-                    exp = String.format("(%s)>0?%s:NaN", exp, sourceBand.getName());
-                    sourceImage = createVirtualSourceImage(exp, geophysicalDataType, targetBand.getNoDataValue(),
-                                                           sourceProduct, srcModel);
-                }
-            } else {
-                targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
-                ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
-                String validPixelExpression = targetBand.getValidPixelExpression();
-                if (validPixelExpression == null) {
-                    validPixelExpression = "reproject_flag.valid";
-                } else {
-                    validPixelExpression = String.format("reproject_flag.valid && %s", validPixelExpression);
-                }
-                targetBand.setValidPixelExpression(validPixelExpression);
-                sourceImage = sourceBand.getSourceImage();
+            if (handleSourceRaster(sourceBand, srcModel)) {
                 reprojectionFlagRequired = true;
             }
-            targetBand.setSourceImage(createProjectedImage(sourceImage, targetBand, srcModel));
-
-            /*
-            * Flag and index codings
-            */
-            FlagCoding sourceFlagCoding = sourceBand.getFlagCoding();
-            IndexCoding sourceIndexCoding = sourceBand.getIndexCoding();
-            if (sourceFlagCoding != null) {
-                String flagCodingName = sourceFlagCoding.getName();
-                FlagCoding destFlagCoding = targetProduct.getFlagCodingGroup().get(flagCodingName);
-                targetBand.setSampleCoding(destFlagCoding);
-            } else if (sourceIndexCoding != null) {
-                String indexCodingName = sourceIndexCoding.getName();
-                IndexCoding destIndexCoding = targetProduct.getIndexCodingGroup().get(indexCodingName);
-                targetBand.setSampleCoding(destIndexCoding);
+        }
+        if (includeTiePointGrids) {
+            for (TiePointGrid tiePointGrid: sourceProduct.getTiePointGrids()) {
+                if (handleSourceRaster(tiePointGrid, srcModel)) {
+                    reprojectionFlagRequired = true;
+                }
             }
         }
         if (reprojectionFlagRequired && !sourceProduct.containsBand("reproject_flag")) {
@@ -267,6 +229,66 @@ public class ReprojectionOp extends Operator {
                        PlacemarkSymbol.createDefaultPinSymbol());
         copyPlacemarks(sourceProduct.getGcpGroup(), targetProduct.getGcpGroup(),
                        PlacemarkSymbol.createDefaultGcpSymbol());
+    }
+    
+    private boolean handleSourceRaster(RasterDataNode sourceRaster, MultiLevelModel srcModel) {
+        int geophysicalDataType = sourceRaster.getGeophysicalDataType();
+        Band targetBand;
+        boolean reprojectionFlagRequired = false;;
+        MultiLevelImage sourceImage;
+        if (ProductData.isFloatingPointType(geophysicalDataType)) {
+            targetBand = targetProduct.addBand(sourceRaster.getName(), sourceRaster.getGeophysicalDataType());
+            targetBand.setDescription(sourceRaster.getDescription());
+            targetBand.setUnit(sourceRaster.getUnit());
+            if (ProductData.TYPE_FLOAT32 == geophysicalDataType) {
+                targetBand.setNoDataValue(Float.NaN);
+            } else {
+                targetBand.setNoDataValue(Double.NaN);
+            }
+            targetBand.setNoDataValueUsed(true);
+            sourceImage = sourceRaster.getGeophysicalImage();
+            String exp = sourceRaster.getValidMaskExpression();
+            if (exp != null) {
+                exp = String.format("(%s)>0?%s:NaN", exp, sourceRaster.getName());
+                sourceImage = createVirtualSourceImage(exp, geophysicalDataType, targetBand.getNoDataValue(),
+                                                       sourceProduct, srcModel);
+            }
+        } else {
+            targetBand = targetProduct.addBand(sourceRaster.getName(), sourceRaster.getDataType());
+            ProductUtils.copyRasterDataNodeProperties(sourceRaster, targetBand);
+            String validPixelExpression = targetBand.getValidPixelExpression();
+            if (validPixelExpression == null) {
+                validPixelExpression = "reproject_flag.valid";
+            } else {
+                validPixelExpression = String.format("reproject_flag.valid && %s", validPixelExpression);
+            }
+            targetBand.setValidPixelExpression(validPixelExpression);
+            sourceImage = sourceRaster.getSourceImage();
+            reprojectionFlagRequired = true;
+        }
+        targetBand.setSourceImage(createProjectedImage(sourceImage, targetBand, srcModel));
+
+        /*
+        * Flag and index codings
+        */
+        if (sourceRaster instanceof Band) {
+            Band sourceBand = (Band) sourceRaster;
+            if (ProductData.isFloatingPointType(geophysicalDataType)) {
+                ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
+            }
+            FlagCoding sourceFlagCoding = sourceBand.getFlagCoding();
+            IndexCoding sourceIndexCoding = sourceBand.getIndexCoding();
+            if (sourceFlagCoding != null) {
+                String flagCodingName = sourceFlagCoding.getName();
+                FlagCoding destFlagCoding = targetProduct.getFlagCodingGroup().get(flagCodingName);
+                targetBand.setSampleCoding(destFlagCoding);
+            } else if (sourceIndexCoding != null) {
+                String indexCodingName = sourceIndexCoding.getName();
+                IndexCoding destIndexCoding = targetProduct.getIndexCodingGroup().get(indexCodingName);
+                targetBand.setSampleCoding(destIndexCoding);
+            }
+        }
+        return reprojectionFlagRequired;
     }
 
     private MultiLevelImage createConstSourceImage(final MultiLevelModel srcModel) {
