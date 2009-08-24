@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import java.io.File;
 
-public class ReprojectionOpTest {
+public class ReprojectionOpParameterValidationTest {
 
     private static final String epsgCode = "EPSG:4326";
     private static final String wkt = "GEOGCS[\"Hu Tzu Shan\"," +
