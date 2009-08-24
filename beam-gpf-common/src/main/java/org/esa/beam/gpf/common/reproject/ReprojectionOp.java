@@ -497,10 +497,10 @@ public class ReprojectionOp extends Operator {
         }
         
         if (width == null) {
-            width = 1 + (int) Math.floor(mapW / pixelSizeX);
+            width = (int) Math.floor(mapW / pixelSizeX);
         }
         if (height == null) {
-            height = 1 + (int) Math.floor(mapH / pixelSizeY);
+            height = (int) Math.floor(mapH / pixelSizeY);
         }
         
         if (easting == null) {
