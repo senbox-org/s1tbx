@@ -4,6 +4,7 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.swing.internal.TextComponentAdapter;
 import junit.framework.TestCase;
 
@@ -92,25 +93,42 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
         assertEquals("intValue", comboBox.getName());
 
         comboBox.setSelectedItem(3);
-        assertEquals(3, valueContainerVB.getValue("intValue"));
+        assertEquals(3, comboBox.getSelectedItem());
+        assertEquals(3, binding.getPropertyValue());
 
         valueContainerVB.setValue("intValue", 1);
         assertEquals(1, comboBox.getSelectedItem());
+        assertEquals(1, binding.getPropertyValue());
 
-        comboBox.setSelectedItem(7);
-        assertEquals(7, valueContainerVB.getValue("intValue"));
-
-        // "4" is not allowed, so valueContainerVB will not be changed
+        // "4" is not allowed, because it is not in the comboBox's model
         comboBox.setSelectedItem(4);
-        assertEquals(7, comboBox.getSelectedItem());
-        assertEquals(7, valueContainerVB.getValue("intValue"));
+        assertEquals(1, comboBox.getSelectedItem());
+        assertEquals(1, binding.getPropertyValue());
 
         comboBox.setEditable(true);
 
-        // Now "4" is allowed, so valueContainerVB will be changed
+        // Now "4" is allowed, because the comboBox is editable
         comboBox.setSelectedItem(4);
         assertEquals(4, comboBox.getSelectedItem());
-        assertEquals(4, valueContainerVB.getValue("intValue"));
+        assertEquals(4, binding.getPropertyValue());
+
+        valueContainerVB.setValue("intValue", 5);
+        assertEquals(5, comboBox.getSelectedItem());
+        assertEquals(5, binding.getPropertyValue());
+
+        comboBox.setEditable(false);
+
+        final ValueSet valueSet = new ValueSet(new Object[]{10, 20});
+        final ValueDescriptor descriptor = binding.getContext().getValueContainer().getDescriptor("intValue");
+        descriptor.setValueSet(valueSet);
+
+        assertEquals(2, comboBox.getModel().getSize());
+        assertEquals(10, comboBox.getModel().getElementAt(0));
+        assertEquals(20, comboBox.getModel().getElementAt(1));
+
+        assertEquals(10, comboBox.getSelectedItem());
+        assertEquals(10, binding.getPropertyValue());
+        assertNull(binding.getProblem());
     }
 
     public void testBindTextField() throws ValidationException {

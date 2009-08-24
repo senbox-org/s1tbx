@@ -24,33 +24,32 @@ import java.beans.PropertyChangeListener;
 public class ComboBoxAdapter extends ComponentAdapter implements ActionListener, PropertyChangeListener {
 
     private final JComboBox comboBox;
-    private final EditableChangeListener listener;
     private TextComponentAdapter textComponentAdapter;
 
     public ComboBoxAdapter(JComboBox comboBox) {
         this.comboBox = comboBox;
-        listener = new EditableChangeListener();
     }
 
     @Override
     public void actionPerformed(ActionEvent event) {
-        getBinding().setPropertyValue(comboBox.getSelectedItem());
+        adjustProperty();
     }
 
     @Override
     public void bindComponents() {
-        updateComboBoxModel();
+        adjustComboBoxModel();
+        adjustTextComponent();
         getValueDescriptor().addPropertyChangeListener(this);
+        comboBox.addPropertyChangeListener("editable", this);
         comboBox.addActionListener(this);
-        comboBox.addPropertyChangeListener("editable", listener);
-        updateEditable();
     }
 
     @Override
     public void unbindComponents() {
-        getValueDescriptor().removePropertyChangeListener(this);
         comboBox.removeActionListener(this);
-        comboBox.removePropertyChangeListener("editable", listener);
+        comboBox.removePropertyChangeListener("editable", this);
+        getValueDescriptor().removePropertyChangeListener(this);
+        unbindTextComponent();
     }
 
     @Override
@@ -66,8 +65,13 @@ public class ComboBoxAdapter extends ComponentAdapter implements ActionListener,
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getSource() == getValueDescriptor() && evt.getPropertyName().equals("valueSet")) {
-            updateComboBoxModel();
+        if (evt.getSource() == getValueDescriptor()
+                && "valueSet".equals(evt.getPropertyName())) {
+            adjustComboBoxModel();
+        }
+        if (evt.getSource() == comboBox
+                && "editable".equals(evt.getPropertyName())) {
+            adjustTextComponent();
         }
     }
 
@@ -75,35 +79,43 @@ public class ComboBoxAdapter extends ComponentAdapter implements ActionListener,
         return getBinding().getContext().getValueContainer().getDescriptor(getBinding().getPropertyName());
     }
 
-    private void updateComboBoxModel() {
+    private void adjustComboBoxModel() {
         ValueSet valueSet = getValueDescriptor().getValueSet();
         if (valueSet != null) {
             final Object oldValue = getBinding().getPropertyValue();
-            final DefaultComboBoxModel model = new DefaultComboBoxModel(valueSet.getItems());
-            if (!valueSet.contains(oldValue)) {
-                model.addElement(oldValue);
-            }
-            comboBox.setModel(model);
+            comboBox.setModel(new DefaultComboBoxModel(valueSet.getItems()));
             comboBox.setSelectedItem(oldValue);
+            adjustProperty();
+        } else {
+            // No else here, "valueSet == null" means the comboBox's model
+            // is controlled by client.
         }
     }
 
-    private void updateEditable() {
+    private void adjustProperty() {
+        getBinding().setPropertyValue(comboBox.getSelectedItem());
+    }
+
+    private void adjustTextComponent() {
         final Component editorComponent = comboBox.getEditor().getEditorComponent();
         if (comboBox.isEditable() && editorComponent instanceof JTextComponent) {
-            textComponentAdapter = new TextComponentAdapter((JTextComponent) editorComponent);
-            textComponentAdapter.setBinding(getBinding());
-            textComponentAdapter.bindComponents();
-        } else if (textComponentAdapter != null) {
-            textComponentAdapter.unbindComponents();
-            textComponentAdapter = null;
+            bindTextComponent((JTextComponent) editorComponent);
+        } else {
+            unbindTextComponent();
         }
     }
 
-    private class EditableChangeListener implements PropertyChangeListener {
-        @Override
-        public void propertyChange(PropertyChangeEvent evt) {
-            updateEditable();
+    private void bindTextComponent(JTextComponent editorComponent) {
+        textComponentAdapter = new TextComponentAdapter(editorComponent);
+        textComponentAdapter.setBinding(getBinding());
+        textComponentAdapter.bindComponents();
+    }
+
+    private void unbindTextComponent() {
+        if (textComponentAdapter != null) {
+            textComponentAdapter.unbindComponents();
+            textComponentAdapter.setBinding(null);
+            textComponentAdapter = null;
         }
     }
 }

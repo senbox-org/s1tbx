@@ -242,11 +242,12 @@ public class BindingContext {
     /**
      * Binds the property given by its name to the given component adapter.
      * <p/>
-     * The method calls the follwing methods on the given component adapter:
+     * The method creates a new binding, adds it to this context and calls the follwing methods on
+     * the given component adapter:
      * <ol>
-     * <li>{@link ComponentAdapter#setBinding(Binding)}</li>
-     * <li>{@link ComponentAdapter#bindComponents()}</li>
-     * <li>{@link ComponentAdapter#adjustComponents()}</li>
+     * <li>{@link ComponentAdapter#setBinding(Binding) componentAdapter.setBinding(binding)}</li>
+     * <li>{@link ComponentAdapter#bindComponents() componentAdapter.bindComponents()}</li>
+     * <li>{@link ComponentAdapter#adjustComponents() componentAdapter.adjustComponents(}</li>
      * </ol>
      *
      * @param propertyName     The property name.
@@ -270,8 +271,11 @@ public class BindingContext {
     }
 
     /**
-     * Cancels the given binding by calling {@link ComponentAdapter#unbindComponents()} and
-     * removing it from this context.
+     * Cancels the given binding by calling removing it from this context and finally calling
+     * <ol>
+     * <li>{@link ComponentAdapter#unbindComponents() componentAdapter.unbindComponents()}</li>
+     * <li>{@link ComponentAdapter#setBinding(Binding) componentAdapter.setBinding(null)}</li>
+     * </ol>
      *
      * @param binding The binding.
      *
@@ -284,6 +288,7 @@ public class BindingContext {
             ((BindingImpl) binding).unbindProperty();
         }
         binding.getComponentAdapter().unbindComponents();
+        binding.getComponentAdapter().setBinding(null);
     }
 
     /**

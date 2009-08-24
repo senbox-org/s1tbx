@@ -1,5 +1,7 @@
 package com.bc.ceres.binding.swing;
 
+import com.bc.ceres.core.Assert;
+
 import javax.swing.JComponent;
 
 
@@ -36,9 +38,7 @@ public abstract class ComponentAdapter {
      * @throws IllegalStateException if the binding has already been set.
      */
     public final void setBinding(Binding binding) {
-        if (this.binding != null) {
-            throw new IllegalStateException("this.binding != null");
-        }
+        Assert.state(binding == null || this.binding == null, "binding already set");
         this.binding = binding;
     }
 
@@ -102,7 +102,7 @@ public abstract class ComponentAdapter {
      * @param error The error.
      *
      * @see #getComponents()
-     * @deprecated Since 0.10, for error handling use {@link BindingContext#addProblemListener(javax.swing.event.ChangeListener)}
+     * @deprecated Since 0.10, for error handling use {@link BindingContext#addProblemListener(BindingProblemListener)} 
      *             and {@link BindingContext#getProblems()} instead
      */
     @Deprecated
