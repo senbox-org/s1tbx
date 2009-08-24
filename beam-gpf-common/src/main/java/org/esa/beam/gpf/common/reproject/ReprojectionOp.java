@@ -86,8 +86,31 @@ public class ReprojectionOp extends Operator {
                valueSet = {"Nearest", "Bilinear", "Bicubic"},
                defaultValue = "Nearest")
     private String resamplingName;
+    
+    // Referencing
+    @Parameter(description = "The X-position of the reference pixel.")
+    private double referencePixelX;
+    @Parameter(description = "The Y-position of the reference pixel.")
+    private double referencePixelY;
+    @Parameter(description = "The easting of the reference pixel.")
+    private double easting;
+    @Parameter(description = "The northing of the reference pixel.")
+    private double northing;
+    @Parameter(description = "The orientation of the output product (in degree).")
+    private double orientation;
+    
 
-
+    // target product size
+    @Parameter(description = "The pixels per reference unit in X direction.")
+    private double pixelSizeX;
+    @Parameter(description = "The pixels per reference unit in Y direction.")
+    private double pixelSizeY;
+    @Parameter(description = "The width of the output product.")
+    private int width;
+    @Parameter(description = "The height of the output product.")
+    private double height;
+    
+    
     private CoordinateReferenceSystem targetCrs;
     private Interpolation resampling;
     private Rectangle2D mapBoundary;
