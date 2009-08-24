@@ -60,7 +60,6 @@ public class WorldMapToolView extends AbstractToolView {
     @Override
     public JComponent createControl() {
         final JPanel mainPane = new JPanel(new BorderLayout(4, 4));
-        mainPane.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         mainPane.setPreferredSize(new Dimension(320, 160));
 
         worldMapDataModel = new WorldMapPaneDataModel();
