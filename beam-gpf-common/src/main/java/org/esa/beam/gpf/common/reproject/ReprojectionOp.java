@@ -88,6 +88,9 @@ public class ReprojectionOp extends Operator {
                defaultValue = "Nearest")
     private String resamplingName;
     
+    @Parameter
+    private boolean includeTiePointGrids; // TODO implement
+    
     // Referencing  todo - parameter object?
     @Parameter(description = "The X-position of the reference pixel.")
     private Double referencePixelX;
@@ -115,7 +118,6 @@ public class ReprojectionOp extends Operator {
     
     private CoordinateReferenceSystem targetCrs;
     private Interpolation resampling;
-    private Rectangle2D mapBoundary;
 
 
     public static ReprojectionOp create(Product sourceProduct, CoordinateReferenceSystem targetCrs,
@@ -151,14 +153,12 @@ public class ReprojectionOp extends Operator {
             targetCrs = createTargetCRS();
         }
         resampling = createResampling();
-        mapBoundary = createMapBoundary();
+        validateReferencingParameters();
+        validateTargetGridParameters();
         /*
         * 2. Compute the target grid geometry
         */
-        Rectangle sourceRect = new Rectangle(sourceProduct.getSceneRasterWidth(),
-                                             sourceProduct.getSceneRasterHeight());
-        final BeamGridGeometry targetGridGeometry = createTargetGridGeometryFromSourceSize(sourceRect.width,
-                                                                                           sourceRect.height);
+        final BeamGridGeometry targetGridGeometry = createTargetGridGeometry();
         Rectangle targetGridRect = targetGridGeometry.getBounds();
 
         /*
@@ -381,6 +381,9 @@ public class ReprojectionOp extends Operator {
         CoordinateReferenceSystem crs = null;
         try {
             if (epsgCode != null && !epsgCode.isEmpty()) {
+                if (!epsgCode.startsWith("EPSG:") && !epsgCode.startsWith("EPSG:")) {
+                    epsgCode = "EPSG:"+epsgCode;
+                }
                 // to force longitude==xAxis and latitude==yAxis
                 crs = CRS.decode(epsgCode, true);
             } else if (wktFile != null) {
@@ -440,54 +443,60 @@ public class ReprojectionOp extends Operator {
         }
         return Interpolation.getInstance(resamplingType);
     }
-
-    private BeamGridGeometry createTargetGridGeometryFromSourceSize(int sourceWidth, int sourceHeight) {
-        // TODO: create grid geometry from parameters
-        double mapW = mapBoundary.getWidth();
-        double mapH = mapBoundary.getHeight();
-
-        float pixelSize = (float) Math.min(mapW / sourceWidth, mapH / sourceHeight);
-        if (MathUtils.equalValues(pixelSize, 0.0f)) {
-            pixelSize = 1.0f;
+    
+    void validateReferencingParameters() {
+        if (!((referencePixelX == null && referencePixelY == null && easting == null && northing == null) 
+                || (referencePixelX != null && referencePixelY != null && easting != null && northing != null))) {
+            throw new OperatorException("Invalid referencing parameters: \n" +
+            		"'referencePixelX, referencePixelY, easting and northing' have to be specified either all or non.");
         }
-        final int targetW = 1 + (int) Math.floor(mapW / pixelSize);
-        final int targetH = 1 + (int) Math.floor(mapH / pixelSize);
-        Rectangle targetGrid = new Rectangle(targetW, targetH);
-
-        AffineTransform transform = createI2MTransform(targetGrid, pixelSize);
-        return new BeamGridGeometry(transform, targetGrid, targetCrs);
     }
 
-    private BeamGridGeometry createTargetGridGeometryFromTargetSize(int targetWidth, int targetHeight) {
-        // TODO: create grid geometry from parameters
+    void validateTargetGridParameters() {
+        if ((pixelSizeX != null && pixelSizeY == null) ||
+                (pixelSizeX == null && pixelSizeY != null)) {
+            throw new OperatorException("'pixelSizeX' and 'pixelSizeY' must be specifies both or not at all.");
+        }
+    }
+    
+    private BeamGridGeometry createTargetGridGeometry() {
+        Rectangle2D mapBoundary = createMapBoundary(); 
         double mapW = mapBoundary.getWidth();
         double mapH = mapBoundary.getHeight();
-
-        float pixelSize = (float) Math.min(mapW / targetWidth, mapH / targetHeight);
-        if (MathUtils.equalValues(pixelSize, 0.0f)) {
-            pixelSize = 1.0f;
+        
+        if (pixelSizeX == null && pixelSizeY == null) {
+            double pixelSize =  Math.min(mapW / sourceProduct.getSceneRasterWidth(), mapH / sourceProduct.getSceneRasterHeight());
+            if (MathUtils.equalValues(pixelSize, 0.0f)) {
+                pixelSize = 1.0f;
+            }
+            pixelSizeX = pixelSize;
+            pixelSizeY = pixelSize;
         }
-        Rectangle targetGrid = new Rectangle(targetWidth, targetHeight);
-
-        AffineTransform transform = createI2MTransform(targetGrid, pixelSize);
-        return new BeamGridGeometry(transform, targetGrid, targetCrs);
-    }
-
-    private AffineTransform createI2MTransform(Rectangle imageRect, double pixelSize) {
-        final double pixelX = 0.5 * imageRect.getWidth();
-        final double pixelY = 0.5 * imageRect.getHeight();
-        final double easting = mapBoundary.getX() + pixelX * pixelSize;
-        final double northing = (mapBoundary.getY() + mapBoundary.getHeight()) - pixelY * pixelSize;
-        final double orientation = 0.0;
+        
+        if (width == null) {
+            width = 1 + (int) Math.floor(mapW / pixelSizeX);
+        }
+        if (height == null) {
+            height = 1 + (int) Math.floor(mapH / pixelSizeY);
+        }
+        
+        if (easting == null) {
+            referencePixelX = 0.5 * width;
+            referencePixelY = 0.5 * height;
+            easting = mapBoundary.getX() + referencePixelX * pixelSizeX;
+            northing = (mapBoundary.getY() + mapBoundary.getHeight()) - referencePixelY * pixelSizeY;
+        }
 
         AffineTransform transform = new AffineTransform();
         transform.translate(easting, northing);
-        transform.scale(pixelSize, -pixelSize);
+        transform.scale(pixelSizeX, -pixelSizeY);
         transform.rotate(Math.toRadians(-orientation));
-        transform.translate(-pixelX, -pixelY);
-        return transform;
+        transform.translate(-referencePixelX, -referencePixelY);
+        
+        Rectangle targetGrid = new Rectangle(width, height);
+        return new BeamGridGeometry(transform, targetGrid, targetCrs);
     }
-
+    
     private Rectangle2D createMapBoundary() {
         try {
             final CoordinateReferenceSystem sourceCrs = sourceProduct.getGeoCoding().getImageCRS();
