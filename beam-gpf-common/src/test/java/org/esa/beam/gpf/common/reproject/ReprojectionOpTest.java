@@ -1,5 +1,6 @@
 package org.esa.beam.gpf.common.reproject;
 
+import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
@@ -7,14 +8,12 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.dataio.ProductIO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.media.jai.Interpolation;
 import java.io.IOException;
 
 public class ReprojectionOpTest {
@@ -66,12 +65,12 @@ public class ReprojectionOpTest {
         dataBand.setRasterData(createDataFor(dataBand));
         dataBand.setSynthetic(true);
         // Just for debugging purpose
-        try {
-            final String path = "C:\\Dokumente und Einstellungen\\Marco Peters\\Eigene Dateien\\EOData\\temp\\TestProd_5050.dim";
-            ProductIO.writeProduct(sourceProduct, path, ProductIO.DEFAULT_FORMAT_NAME);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            final String path = "C:\\Dokumente und Einstellungen\\Marco Peters\\Eigene Dateien\\EOData\\temp\\TestProd_5050.dim";
+//            ProductIO.writeProduct(sourceProduct, path, ProductIO.DEFAULT_FORMAT_NAME);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Test
