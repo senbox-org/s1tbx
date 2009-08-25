@@ -17,6 +17,26 @@ import java.io.IOException;
 public class ReprojectionOpTest {
     private static final String WGS84_CODE = "EPSG:4326";
     private static final String UTM33N_CODE = "EPSG:32633";
+    private static final String UTM33N_WKT = "PROJCS[\"WGS 84 / UTM zone 33N\"," +
+    		"GEOGCS[\"WGS 84\"," +
+    		"  DATUM[\"World Geodetic System 1984\"," +
+    		"    SPHEROID[\"WGS 84\", 6378137.0, 298.257223563, AUTHORITY[\"EPSG\",\"7030\"]]," +
+    		"    AUTHORITY[\"EPSG\",\"6326\"]]," +
+    		"  PRIMEM[\"Greenwich\", 0.0, AUTHORITY[\"EPSG\",\"8901\"]]," +
+    		"  UNIT[\"degree\", 0.017453292519943295]," +
+    		"  AXIS[\"Geodetic longitude\", EAST]," +
+    		"  AXIS[\"Geodetic latitude\", NORTH]," +
+    		"  AUTHORITY[\"EPSG\",\"4326\"]]," +
+    		"PROJECTION[\"Transverse Mercator\", AUTHORITY[\"EPSG\",\"9807\"]]," +
+    		"PARAMETER[\"central_meridian\", 15.0]," +
+    		"PARAMETER[\"latitude_of_origin\", 0.0]," +
+    		"PARAMETER[\"scale_factor\", 0.9996]," +
+    		"PARAMETER[\"false_easting\", 500000.0]," +
+    		"PARAMETER[\"false_northing\", 0.0]," +
+    		"UNIT[\"m\", 1.0]," +
+    		"AXIS[\"Easting\", EAST]," +
+    		"AXIS[\"Northing\", NORTH]," +
+    		"AUTHORITY[\"EPSG\",\"32633\"]]";
     private static final String BAND_NAME = "data";
 
     private static final float[] LATS = new float[]{
@@ -73,10 +93,23 @@ public class ReprojectionOpTest {
         repOp.setResamplingName("Nearest");  // setting Nearest cause a particualr value is checked
         repOp.setEpsgCode(UTM33N_CODE);
         final Product targetPoduct = repOp.getTargetProduct();
+        
         assertNotNull(targetPoduct);
-
         testPixelValue(targetPoduct, 23.5f, 13.5f, 299);
     }
+    
+    @Test
+    public void testUTMWithWktText() throws IOException {
+        final ReprojectionOp repOp = new ReprojectionOp();
+        repOp.setSourceProduct(sourceProduct);
+        repOp.setResamplingName("Nearest");  // setting Nearest cause a particualr value is checked
+        repOp.setWkt(UTM33N_WKT);
+        final Product targetPoduct = repOp.getTargetProduct();
+        
+        assertNotNull(targetPoduct);
+        testPixelValue(targetPoduct, 23.5f, 13.5f, 299);
+    }
+
 
     @Test
     public void testSpecifyingTargetDimension() throws IOException {
