@@ -64,6 +64,7 @@ import java.text.MessageFormat;
                   copyright = "(c) 2009 by Brockmann Consult",
                   description = "Reprojection of a source product to a target Coordinate Reference System.",
                   internal = false)
+@SuppressWarnings({"UnusedDeclaration"})
 public class ReprojectionOp extends Operator {
 
 
@@ -235,7 +236,7 @@ public class ReprojectionOp extends Operator {
     private boolean handleSourceRaster(RasterDataNode sourceRaster, MultiLevelModel srcModel) {
         int geophysicalDataType = sourceRaster.getGeophysicalDataType();
         Band targetBand;
-        boolean reprojectionFlagRequired = false;;
+        boolean reprojectionFlagRequired = false;
         MultiLevelImage sourceImage;
         if (ProductData.isFloatingPointType(geophysicalDataType)) {
             targetBand = targetProduct.addBand(sourceRaster.getName(), sourceRaster.getGeophysicalDataType());
