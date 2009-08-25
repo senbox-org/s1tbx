@@ -141,8 +141,9 @@ public class CrsSelectionForm extends JPanel {
         }
         if (selectedCrs != null) {
             infoArea.setText(selectedCrs.toString());
-        } else {
-            infoArea.setText("");
+// disabled, (mz 2009-08-25) print error message instead for easier evaluation            
+//        } else {
+//            infoArea.setText("");
         }
     }
 
@@ -157,8 +158,12 @@ public class CrsSelectionForm extends JPanel {
             if (selectedValue != null) {
                 try {
                     crs = selectedValue.getCrs(sourceProduct);
-                } catch (FactoryException e1) {
-                    e1.printStackTrace();
+                } catch (Exception e1) {
+                    String message = e1.getMessage();
+                    if (message != null) {
+                        infoArea.setText("Error while creating CRS:\n\n" + message);
+                    }
+//                    e1.printStackTrace();
                 }
             }
             selectedCrsChanged(crs);
