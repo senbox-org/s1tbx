@@ -34,6 +34,7 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.resources.geometry.XRectangle2D;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
@@ -535,9 +536,15 @@ public class ReprojectionOp extends Operator {
             northing = (mapBoundary.getY() + mapBoundary.getHeight()) - referencePixelY * pixelSizeY;
         }
 
+        final AxisDirection targetAxisDirection = targetCrs.getCoordinateSystem().getAxis(1).getDirection();
+        // When collocating the Y-Axis is DISPLAY_DOWN, then pixelSizeY must not negated
+        if (!AxisDirection.DISPLAY_DOWN.equals(targetAxisDirection)) {
+            pixelSizeY = -pixelSizeY;
+        }
+
         AffineTransform transform = new AffineTransform();
         transform.translate(easting, northing);
-        transform.scale(pixelSizeX, -pixelSizeY);
+        transform.scale(pixelSizeX, pixelSizeY);
         transform.rotate(Math.toRadians(-orientation));
         transform.translate(-referencePixelX, -referencePixelY);
         
