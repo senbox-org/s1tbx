@@ -67,6 +67,7 @@ class CrsInfo implements Comparable<CrsInfo> {
             super(epsgCode, factory);
         }
 
+        @Override
         public CoordinateReferenceSystem getCrs(Product product) throws FactoryException {
             PixelPos pixelPos = new PixelPos(product.getSceneRasterWidth()/2, product.getSceneRasterHeight()/2);
             GeoPos geoPos = product.getGeoCoding().getGeoPos(pixelPos, null);
