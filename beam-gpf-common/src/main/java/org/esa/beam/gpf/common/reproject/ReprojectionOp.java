@@ -405,8 +405,8 @@ public class ReprojectionOp extends Operator {
         CoordinateReferenceSystem crs = null;
         try {
             if (epsgCode != null && !epsgCode.isEmpty()) {
-                if (!epsgCode.startsWith("EPSG:") && !epsgCode.startsWith("EPSG:")) {
-                    epsgCode = "EPSG:"+epsgCode;
+                if (!epsgCode.toUpperCase().startsWith("EPSG:")) {
+                    epsgCode = "EPSG:" + epsgCode;
                 }
                 // to force longitude==xAxis and latitude==yAxis
                 crs = CRS.decode(epsgCode, true);
