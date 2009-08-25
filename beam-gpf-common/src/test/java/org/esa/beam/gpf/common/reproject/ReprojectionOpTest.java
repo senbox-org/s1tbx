@@ -9,6 +9,7 @@ import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -143,6 +144,30 @@ public class ReprojectionOpTest {
         assertEquals(4, targetPoduct.getSceneRasterWidth());
         // 20° Height / 10° PixelSizeX = 2 SceneHeight
         assertEquals(2, targetPoduct.getSceneRasterHeight());
+    }
+    
+    @Test
+    public void testIncludeTiePointGrids() throws Exception {
+        ReprojectionOp repOp = new ReprojectionOp();
+        repOp.setSourceProduct(sourceProduct);
+        repOp.setEpsgCode(WGS84_CODE);
+        Product targetPoduct = repOp.getTargetProduct();
+        TiePointGrid[] tiePointGrids = targetPoduct.getTiePointGrids();
+        assertNotNull(tiePointGrids);
+        assertEquals(0, tiePointGrids.length);
+        Band latGrid = targetPoduct.getBand("latGrid");
+        assertNotNull(latGrid);
+        
+        repOp = new ReprojectionOp();
+        repOp.setSourceProduct(sourceProduct);
+        repOp.setEpsgCode(WGS84_CODE);
+        repOp.setIncludeTiePointGrids(false);
+        targetPoduct = repOp.getTargetProduct();
+        tiePointGrids = targetPoduct.getTiePointGrids();
+        assertNotNull(tiePointGrids);
+        assertEquals(0, tiePointGrids.length);
+        latGrid = targetPoduct.getBand("latGrid");
+        assertNull(latGrid);
     }
 
     private void testPixelValue(Product targetPoduct, float sourceX, float sourceY, int expectedPixelValue) throws IOException {

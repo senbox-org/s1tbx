@@ -179,6 +179,10 @@ public class ReprojectionOp extends Operator {
     void setPixelSizeY(double pixelSizeY) {
         this.pixelSizeY = pixelSizeY;
     }
+    
+    public void setIncludeTiePointGrids(boolean includeTiePointGrids) {
+        this.includeTiePointGrids = includeTiePointGrids;
+    }
 
     @Override
     public void initialize() throws OperatorException {
