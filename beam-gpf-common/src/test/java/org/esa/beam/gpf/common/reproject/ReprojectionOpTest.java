@@ -7,12 +7,14 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.dataio.ProductIO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import javax.media.jai.Interpolation;
 import java.io.IOException;
 
 public class ReprojectionOpTest {
@@ -60,16 +62,16 @@ public class ReprojectionOpTest {
         sourceProduct.addTiePointGrid(latGrid);
         sourceProduct.addTiePointGrid(lonGrid);
         sourceProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
-        Band dataBand = sourceProduct.addBand(BAND_NAME, ProductData.TYPE_INT32);
+        Band dataBand = sourceProduct.addBand(BAND_NAME, ProductData.TYPE_FLOAT32);
         dataBand.setRasterData(createDataFor(dataBand));
         dataBand.setSynthetic(true);
         // Just for debugging purpose
-//        try {
-//            final String path = "C:\\Dokumente und Einstellungen\\Marco Peters\\Eigene Dateien\\EOData\\temp\\TestProd_5050.dim";
-//            ProductIO.writeProduct(sourceProduct, path, ProductIO.DEFAULT_FORMAT_NAME);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            final String path = "C:\\Dokumente und Einstellungen\\Marco Peters\\Eigene Dateien\\EOData\\temp\\TestProd_5050.dim";
+            ProductIO.writeProduct(sourceProduct, path, ProductIO.DEFAULT_FORMAT_NAME);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -84,9 +86,8 @@ public class ReprojectionOpTest {
         assertEquals(50, targetPoduct.getSceneRasterHeight());
         assertNotNull(targetPoduct.getGeoCoding());
 
-        testPixelValue(targetPoduct, 23.5f, 13.5f, 299);
+        testPixelValue(targetPoduct, 23.5f, 13.5f, 299, 1.0e-6);
     }
-
 
     @Test
     public void testUTM() throws IOException {
@@ -97,9 +98,24 @@ public class ReprojectionOpTest {
         final Product targetPoduct = repOp.getTargetProduct();
         
         assertNotNull(targetPoduct);
-        testPixelValue(targetPoduct, 23.5f, 13.5f, 299);
+        testPixelValue(targetPoduct, 23.5f, 13.5f, 299, 1.0e-6);
     }
     
+    @Test
+    public void testUTM_Bilinear() throws IOException {
+        final ReprojectionOp repOp = new ReprojectionOp();
+        repOp.setSourceProduct(sourceProduct);
+        repOp.setResamplingName("Bilinear");
+        repOp.setEpsgCode(UTM33N_CODE);
+        final Product targetPoduct = repOp.getTargetProduct();
+        assertNotNull(targetPoduct);
+        assertNotNull(targetPoduct.getGeoCoding());
+        // 299, 312
+        // 322, 336
+        // interpolated = 317.25 for pixel (24, 14)
+        testPixelValue(targetPoduct, 24f, 14f, 317.25, 1.0e-2);
+    }
+
     @Test
     public void testUTMWithWktText() throws IOException {
         final ReprojectionOp repOp = new ReprojectionOp();
@@ -109,7 +125,7 @@ public class ReprojectionOpTest {
         final Product targetPoduct = repOp.getTargetProduct();
         
         assertNotNull(targetPoduct);
-        testPixelValue(targetPoduct, 23.5f, 13.5f, 299);
+        testPixelValue(targetPoduct, 23.5f, 13.5f, 299, 1.0e-6);
     }
 
 
@@ -127,7 +143,7 @@ public class ReprojectionOpTest {
         assertEquals(width, targetPoduct.getSceneRasterWidth());
         assertEquals(height, targetPoduct.getSceneRasterHeight());
 
-        testPixelValue(targetPoduct, 23.5f, 13.5f, 299);
+        testPixelValue(targetPoduct, 23.5f, 13.5f, 299, 1.0e-6);
     }
 
     @Test
@@ -162,7 +178,7 @@ public class ReprojectionOpTest {
         assertNotNull(targetPoduct);
         final GeoPos geoPos = targetPoduct.getGeoCoding().getGeoPos(new PixelPos(0.5f, 0.5f), null);
         assertEquals(new GeoPos(52.0f, 9.0f), geoPos);
-        testPixelValue(targetPoduct, 23.5f, 13.5f, 299);
+        testPixelValue(targetPoduct, 23.5f, 13.5f, 299, 1.0e-6);
     }
 
     @Test
@@ -189,15 +205,15 @@ public class ReprojectionOpTest {
         assertNull(latGrid);
     }
 
-    private void testPixelValue(Product targetPoduct, float sourceX, float sourceY, int expectedPixelValue) throws IOException {
+    private void testPixelValue(Product targetPoduct, float sourceX, float sourceY, double expectedPixelValue, double delta) throws IOException {
         final Band sourceBand = sourceProduct.getBand(BAND_NAME);
         final Band targetBand = targetPoduct.getBand(BAND_NAME);
-        final PixelPos sourcePP = new PixelPos(sourceX, sourceY);        // pixelValue = 23 * 13 = 299
+        final PixelPos sourcePP = new PixelPos(sourceX, sourceY);
         final GeoPos geoPos = sourceBand.getGeoCoding().getGeoPos(sourcePP, null);
         final PixelPos targetPP = targetBand.getGeoCoding().getPixelPos(geoPos, null);
-        final int[] pixels = new int[1];
+        final double[] pixels = new double[1];
         targetBand.readPixels((int) targetPP.x, (int) targetPP.y, 1,1, pixels);
-        assertEquals(expectedPixelValue, pixels[0]);
+        assertEquals(expectedPixelValue, pixels[0], delta);
     }
 
     private static ProductData createDataFor(Band dataBand) {

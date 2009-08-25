@@ -210,13 +210,15 @@ public class ReprojectionOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
 
-        if (targetCrs == null) {
-            validateParameters();
-            targetCrs = createTargetCRS();
-        }
-        resampling = createResampling();
+        validateCrsParameters();
+        validateResamplingParameter();
         validateReferencingParameters();
         validateTargetGridParameters();
+        
+        if (targetCrs == null) {
+            targetCrs = createTargetCRS();
+        }
+        resampling = Interpolation.getInstance(getResampleType(resamplingName));
         /*
         * 2. Compute the target grid geometry
         */
@@ -487,7 +489,10 @@ public class ReprojectionOp extends Operator {
         return crs;
     }
 
-    protected void validateParameters() {
+    protected void validateCrsParameters() {
+        if(targetCrs != null) {
+            return;     // no need to validate
+        }
         final String msgPattern = "Invalid target CRS specification.\nSpecify {0} one of " +
                                   "''epsgCode'', ''wktFile'', ''wkt'' and ''collocationProduct'' parameter.";
 
@@ -518,20 +523,26 @@ public class ReprojectionOp extends Operator {
         }
     }
 
-    private Interpolation createResampling() {
+    private int getResampleType(String resamplingName) {
         final int resamplingType;
-        if ("Bilinear".equalsIgnoreCase(resamplingName)) {
+        if ("Nearest".equalsIgnoreCase(resamplingName)) {
+            resamplingType = Interpolation.INTERP_NEAREST;
+        } else if ("Bilinear".equalsIgnoreCase(resamplingName)) {
             resamplingType = Interpolation.INTERP_BILINEAR;
         } else if ("Bicubic".equalsIgnoreCase(resamplingName)) {
             resamplingType = Interpolation.INTERP_BICUBIC;
-        } else if ("Bicubic_2".equalsIgnoreCase(resamplingName)) {
-            resamplingType = Interpolation.INTERP_BICUBIC_2;
         } else {
-            resamplingType = Interpolation.INTERP_NEAREST;
+            resamplingType = -1;
         }
-        return Interpolation.getInstance(resamplingType);
+        return resamplingType;
     }
-    
+
+    void validateResamplingParameter() {
+        if(getResampleType(resamplingName) == -1) {
+            throw new OperatorException("Invalid resampling method: " + resamplingName);
+        }
+    }
+
     void validateReferencingParameters() {
         if (!((referencePixelX == null && referencePixelY == null && easting == null && northing == null) 
                 || (referencePixelX != null && referencePixelY != null && easting != null && northing != null))) {

@@ -23,34 +23,34 @@ public class ReprojectionOpParameterValidationTest {
     public void testParameterAmbigouity_epsgCode() {
         final ReprojectionOp op = new ReprojectionOp();
         op.setEpsgCode(epsgCode);
-        op.validateParameters();
+        op.validateCrsParameters();
     }
 
     @Test
     public void testParameterAmbigouity_wktFile() {
         final ReprojectionOp op = new ReprojectionOp();
         op.setWktFile(wktFile);
-        op.validateParameters();
+        op.validateCrsParameters();
     }
 
     @Test
     public void testParameterAmbigouity_wkt() {
         final ReprojectionOp op = new ReprojectionOp();
         op.setWkt(wkt);
-        op.validateParameters();
+        op.validateCrsParameters();
     }
 
     @Test
     public void testParameterAmbigouity_collocateProduct() {
         final ReprojectionOp op = new ReprojectionOp();
         op.setCollocationProduct(collocateProduct);
-        op.validateParameters();
+        op.validateCrsParameters();
     }
 
     @Test(expected = OperatorException.class)
     public void testParameterAmbigouity_AllNull() {
         final ReprojectionOp op = new ReprojectionOp();
-        op.validateParameters();
+        op.validateCrsParameters();
     }
 
     @Test(expected = OperatorException.class)
@@ -58,7 +58,7 @@ public class ReprojectionOpParameterValidationTest {
         final ReprojectionOp op = new ReprojectionOp();
         op.setEpsgCode(epsgCode);
         op.setWkt(wkt);
-        op.validateParameters();
+        op.validateCrsParameters();
     }
 
     @Test(expected = OperatorException.class)
@@ -66,7 +66,7 @@ public class ReprojectionOpParameterValidationTest {
         final ReprojectionOp op = new ReprojectionOp();
         op.setWkt(wkt);
         op.setWktFile(wktFile);
-        op.validateParameters();
+        op.validateCrsParameters();
     }
 
     @Test(expected = OperatorException.class)
@@ -74,7 +74,14 @@ public class ReprojectionOpParameterValidationTest {
         final ReprojectionOp op = new ReprojectionOp();
         op.setWkt(wkt);
         op.setCollocationProduct(collocateProduct);
-        op.validateParameters();
+        op.validateCrsParameters();
+    }
+
+    @Test(expected = OperatorException.class)
+    public void testUnknownResamplingMethode() {
+        final ReprojectionOp op = new ReprojectionOp();
+        op.setResamplingName("Super_Duper_Resampling");
+        op.validateResamplingParameter();
     }
 
     @Test(expected = OperatorException.class)
