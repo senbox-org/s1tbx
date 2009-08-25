@@ -126,13 +126,15 @@ public class ReprojectionOp extends Operator {
     
     
     private CoordinateReferenceSystem targetCrs;
+    private BeamGridGeometry targetGridGeometry;
     private Interpolation resampling;
 
 
     public static ReprojectionOp create(Map<String, Object> parameters,
                          Map<String, Product> sourceProducts,
                          RenderingHints renderingHints, 
-                         CoordinateReferenceSystem targetCrs) {
+                         CoordinateReferenceSystem targetCrs,
+                         BeamGridGeometry targetGridGeometry) {
         OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
         String operatorName = ReprojectionOp.Spi.getOperatorAlias(ReprojectionOp.class);
         OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(operatorName);
@@ -141,6 +143,7 @@ public class ReprojectionOp extends Operator {
         }
         ReprojectionOp operator = (ReprojectionOp) operatorSpi.createOperator(parameters, sourceProducts, renderingHints);
         operator.targetCrs = targetCrs;
+        operator.targetGridGeometry = targetGridGeometry;
         return operator;
     }
     
@@ -197,7 +200,9 @@ public class ReprojectionOp extends Operator {
         /*
         * 2. Compute the target grid geometry
         */
-        final BeamGridGeometry targetGridGeometry = createTargetGridGeometry();
+        if (targetGridGeometry == null) {
+            targetGridGeometry = createTargetGridGeometry();
+        }
         Rectangle targetGridRect = targetGridGeometry.getBounds();
 
         /*

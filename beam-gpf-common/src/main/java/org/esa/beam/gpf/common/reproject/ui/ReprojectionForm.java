@@ -1,6 +1,8 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
 import com.bc.ceres.swing.TableLayout;
+
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
@@ -9,6 +11,7 @@ import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
+import org.esa.beam.gpf.common.reproject.BeamGridGeometry;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CRSFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -28,8 +31,10 @@ import javax.swing.event.ChangeListener;
 import java.awt.BorderLayout;
 import java.awt.Insets;
 import java.awt.FlowLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
@@ -71,6 +76,22 @@ public class ReprojectionForm extends JTabbedPane {
     public CoordinateReferenceSystem getTargetCrs() {
         return targetCrs;
     }
+    
+    public BeamGridGeometry getTargetGeometry() {
+        if (!collocateRadioButton.isSelected()) {
+            return null;
+        }
+        Product colloProduct = collocateProductSelector.getSelectedProduct();
+        if (colloProduct == null) {
+            return null;
+        }
+        GeoCoding geoCoding = colloProduct.getGeoCoding();
+        AffineTransform i2m = geoCoding.getImageToModelTransform();
+        Rectangle bounds = new Rectangle(colloProduct.getSceneRasterWidth(), colloProduct.getSceneRasterHeight());
+        BeamGridGeometry gridGeometry = new BeamGridGeometry(i2m, bounds, geoCoding.getModelCRS());
+        return gridGeometry;
+    }
+    
     private void setTargetCrs(CoordinateReferenceSystem targetCrs) {
         this.targetCrs = targetCrs;
     }

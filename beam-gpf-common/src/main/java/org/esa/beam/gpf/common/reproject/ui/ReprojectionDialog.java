@@ -33,7 +33,7 @@ public class ReprojectionDialog extends SingleTargetProductDialog {
         // Reprojection parameters
         parameterMap.put("resamplingName", form.getResamplingName());
         parameterMap.put("includeTiePointGrids", form.isIncludeTiePoints());
-        ReprojectionOp reprojectionOp = ReprojectionOp.create(parameterMap, productMap, null, form.getTargetCrs());
+        ReprojectionOp reprojectionOp = ReprojectionOp.create(parameterMap, productMap, null, form.getTargetCrs(), form.getTargetGeometry());
         return reprojectionOp.getTargetProduct();
     }
 
