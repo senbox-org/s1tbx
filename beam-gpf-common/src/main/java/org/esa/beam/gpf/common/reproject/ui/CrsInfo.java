@@ -16,6 +16,7 @@ import org.opengis.referencing.crs.ProjectedCRS;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -99,23 +100,30 @@ class CrsInfo implements Comparable<CrsInfo> {
         }
         CRSAuthorityFactory crsAuthorityFactory = FallbackAuthorityFactory.create(CRSAuthorityFactory.class, filtered);
 
+        Set<String> codes = new HashSet<String>();
         List<CrsInfo> crsList = new ArrayList<CrsInfo>(1024);
-        createCrsInfos(crsList, GeodeticCRS.class, AUTHORITY, crsAuthorityFactory);
-        createCrsInfos(crsList, ProjectedCRS.class, AUTHORITY, crsAuthorityFactory);
-        createCrsInfos(crsList, ProjectedCRS.class, "AUTO", new AutoCRSFactory());
+        retrieveCodes(codes, GeodeticCRS.class, crsAuthorityFactory);
+        retrieveCodes(codes, ProjectedCRS.class, crsAuthorityFactory);
+        for (String code : codes) {
+            crsList.add(new CrsInfo(AUTHORITY+":"+code, crsAuthorityFactory));
+        }
+        codes.clear();
+        AutoCRSFactory autoCRSFactory = new AutoCRSFactory();
+        retrieveCodes(codes, ProjectedCRS.class, autoCRSFactory);
+        for (String code : codes) {
+            crsList.add(new AutoCrsInfo("AUTO:"+code, autoCRSFactory));
+        }
         Collections.sort(crsList);
         return crsList;
     }
     
-    private static void createCrsInfos(List<CrsInfo> crsList, Class<? extends CoordinateReferenceSystem> crsType, String authority, CRSAuthorityFactory factory) {
-        Set<String> codes;
+    private static void retrieveCodes(Set<String> codes, Class<? extends CoordinateReferenceSystem> crsType, CRSAuthorityFactory factory) {
+        Set<String> localCodes;
         try {
-            codes = factory.getAuthorityCodes(crsType);
+            localCodes = factory.getAuthorityCodes(crsType);
         } catch (FactoryException ignore) {
             return;
         }
-        for (String code : codes) {
-            crsList.add(new CrsInfo(authority+":"+code, factory));
-        }
+        codes.addAll(localCodes);
     }
 }
