@@ -1,6 +1,5 @@
 package org.esa.beam.gpf.common.reproject;
 
-import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
