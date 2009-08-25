@@ -153,6 +153,22 @@ public class ReprojectionOp extends Operator {
         this.resamplingName = resamplingName;
     }
 
+    void setWidth(int width) {
+        this.width = width;
+    }
+
+    void setHeight(int height) {
+        this.height = height;
+    }
+
+    void setPixelSizeX(double pixelSizeX) {
+        this.pixelSizeX = pixelSizeX;
+    }
+
+    void setPixelSizeY(double pixelSizeY) {
+        this.pixelSizeY = pixelSizeY;
+    }
+
     @Override
     public void initialize() throws OperatorException {
 
@@ -535,6 +551,7 @@ public class ReprojectionOp extends Operator {
             final int sourceW = sourceProduct.getSceneRasterWidth();
             final int sourceH = sourceProduct.getSceneRasterHeight();
 
+//            Rectangle2D rect = XRectangle2D.createFromExtremums(0.0, 0.0, sourceW - 0.0, sourceH - 0.0);
             Rectangle2D rect = XRectangle2D.createFromExtremums(0.5, 0.5, sourceW - 0.5, sourceH - 0.5);
             int pointsPerSide = Math.min(sourceH, sourceW) / 10;
             pointsPerSide = Math.max(9, pointsPerSide);
