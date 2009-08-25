@@ -12,6 +12,7 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
 import org.esa.beam.gpf.common.reproject.BeamGridGeometry;
+import org.geotools.referencing.CRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CRSFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -86,10 +87,17 @@ public class ReprojectionForm extends JTabbedPane {
             return null;
         }
         GeoCoding geoCoding = colloProduct.getGeoCoding();
-        AffineTransform i2m = geoCoding.getImageToModelTransform();
+        AffineTransform i2m = (AffineTransform) geoCoding.getImageToModelTransform().clone();
         Rectangle bounds = new Rectangle(colloProduct.getSceneRasterWidth(), colloProduct.getSceneRasterHeight());
-        BeamGridGeometry gridGeometry = new BeamGridGeometry(i2m, bounds, geoCoding.getModelCRS());
-        return gridGeometry;
+        CoordinateReferenceSystem modelCRS = geoCoding.getModelCRS();
+        String modelWkt = modelCRS.toString();
+        try {
+            CoordinateReferenceSystem modelCrsClone = CRS.parseWKT(modelWkt);
+            BeamGridGeometry gridGeometry = new BeamGridGeometry(i2m, bounds, modelCrsClone);
+            return gridGeometry;
+        } catch (FactoryException e) {
+            return null;
+        }
     }
     
     private void setTargetCrs(CoordinateReferenceSystem targetCrs) {
