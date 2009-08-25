@@ -63,6 +63,7 @@ public class ReprojectionOpTest {
         Band dataBand = sourceProduct.addBand(BAND_NAME, ProductData.TYPE_INT32);
         dataBand.setRasterData(createDataFor(dataBand));
         dataBand.setSynthetic(true);
+        // Just for debugging purpose
 //        try {
 //            final String path = "C:\\Dokumente und Einstellungen\\Marco Peters\\Eigene Dateien\\EOData\\temp\\TestProd_5050.dim";
 //            ProductIO.writeProduct(sourceProduct, path, ProductIO.DEFAULT_FORMAT_NAME);
@@ -91,7 +92,7 @@ public class ReprojectionOpTest {
     public void testUTM() throws IOException {
         final ReprojectionOp repOp = new ReprojectionOp();
         repOp.setSourceProduct(sourceProduct);
-        repOp.setResamplingName("Nearest");  // setting Nearest cause a particualr value is checked
+        repOp.setResamplingName("Nearest");  // setting Nearest cause a particular value is checked
         repOp.setEpsgCode(UTM33N_CODE);
         final Product targetPoduct = repOp.getTargetProduct();
         
@@ -103,7 +104,7 @@ public class ReprojectionOpTest {
     public void testUTMWithWktText() throws IOException {
         final ReprojectionOp repOp = new ReprojectionOp();
         repOp.setSourceProduct(sourceProduct);
-        repOp.setResamplingName("Nearest");  // setting Nearest cause a particualr value is checked
+        repOp.setResamplingName("Nearest");  // setting Nearest cause a particular value is checked
         repOp.setWkt(UTM33N_WKT);
         final Product targetPoduct = repOp.getTargetProduct();
         
@@ -150,6 +151,7 @@ public class ReprojectionOpTest {
     public void testSpecifyingReferencing() throws IOException {
         final ReprojectionOp repOp = new ReprojectionOp();
         repOp.setSourceProduct(sourceProduct);
+        repOp.setResamplingName("Nearest");  // setting Nearest cause a particular value is checked
         repOp.setEpsgCode(WGS84_CODE);
         repOp.setReferencePixelX(0.5);
         repOp.setReferencePixelY(0.5);

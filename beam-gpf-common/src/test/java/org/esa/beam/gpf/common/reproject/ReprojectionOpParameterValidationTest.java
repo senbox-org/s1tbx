@@ -76,4 +76,57 @@ public class ReprojectionOpParameterValidationTest {
         op.setCollocationProduct(collocateProduct);
         op.validateParameters();
     }
+
+    @Test(expected = OperatorException.class)
+    public void testMissingPixelSizeY() {
+        final ReprojectionOp op = new ReprojectionOp();
+        op.setPixelSizeX(0.024);
+        op.validateTargetGridParameters();
+    }
+
+    @Test(expected = OperatorException.class)
+    public void testMissingPixelSizeX() {
+        final ReprojectionOp op = new ReprojectionOp();
+        op.setPixelSizeY(0.024);
+        op.validateTargetGridParameters();
+    }
+
+    @Test(expected = OperatorException.class)
+    public void testMissingReferencingPixelX() {
+        final ReprojectionOp op = new ReprojectionOp();
+        // missing pixel X
+        op.setReferencePixelY(0.5);
+        op.setEasting(12345);
+        op.setNorthing(12345);
+        op.validateReferencingParameters();
+    }
+
+    @Test(expected = OperatorException.class)
+    public void testMissingReferencingpixelY() {
+        final ReprojectionOp op = new ReprojectionOp();
+        op.setReferencePixelX(0.5);
+        // missing pixel Y
+        op.setEasting(12345);
+        op.setNorthing(12345);
+        op.validateReferencingParameters();
+    }
+    @Test(expected = OperatorException.class)
+    public void testMissingReferencingNorthing() {
+        final ReprojectionOp op = new ReprojectionOp();
+        op.setReferencePixelX(0.5);
+        op.setReferencePixelY(0.5);
+        op.setEasting(12345);
+        // missing northing
+        op.validateReferencingParameters();
+    }
+
+    @Test(expected = OperatorException.class)
+    public void testMissingReferencingEasting() {
+        final ReprojectionOp op = new ReprojectionOp();
+        op.setReferencePixelX(0.5);
+        op.setReferencePixelY(0.5);
+        // missing easting
+        op.setNorthing(12345);
+        op.validateReferencingParameters();
+    }
 }
