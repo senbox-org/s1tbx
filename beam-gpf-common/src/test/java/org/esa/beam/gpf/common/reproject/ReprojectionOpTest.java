@@ -147,6 +147,23 @@ public class ReprojectionOpTest {
     }
     
     @Test
+    public void testSpecifyingReferencing() throws IOException {
+        final ReprojectionOp repOp = new ReprojectionOp();
+        repOp.setSourceProduct(sourceProduct);
+        repOp.setEpsgCode(WGS84_CODE);
+        repOp.setReferencePixelX(0.5);
+        repOp.setReferencePixelY(0.5);
+        repOp.setEasting(9);        // just move it 3° degrees eastward
+        repOp.setNorthing(52);      // just move it 2° degrees up
+        repOp.setOrientation(0);
+        final Product targetPoduct = repOp.getTargetProduct();
+        assertNotNull(targetPoduct);
+        final GeoPos geoPos = targetPoduct.getGeoCoding().getGeoPos(new PixelPos(0.5f, 0.5f), null);
+        assertEquals(new GeoPos(52.0f, 9.0f), geoPos);
+        testPixelValue(targetPoduct, 23.5f, 13.5f, 299);
+    }
+
+    @Test
     public void testIncludeTiePointGrids() throws Exception {
         ReprojectionOp repOp = new ReprojectionOp();
         repOp.setSourceProduct(sourceProduct);

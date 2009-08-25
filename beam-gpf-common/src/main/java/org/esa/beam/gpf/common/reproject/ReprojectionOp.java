@@ -167,6 +167,26 @@ public class ReprojectionOp extends Operator {
         this.resamplingName = resamplingName;
     }
 
+    void setReferencePixelX(double referencePixelX) {
+        this.referencePixelX = referencePixelX;
+    }
+
+    void setReferencePixelY(double referencePixelY) {
+        this.referencePixelY = referencePixelY;
+    }
+
+    void setEasting(double easting) {
+        this.easting = easting;
+    }
+
+    void setNorthing(double northing) {
+        this.northing = northing;
+    }
+
+    void setOrientation(double orientation) {
+        this.orientation = orientation;
+    }
+
     void setWidth(int width) {
         this.width = width;
     }
@@ -577,7 +597,6 @@ public class ReprojectionOp extends Operator {
             final int sourceW = sourceProduct.getSceneRasterWidth();
             final int sourceH = sourceProduct.getSceneRasterHeight();
 
-//            Rectangle2D rect = XRectangle2D.createFromExtremums(0.0, 0.0, sourceW - 0.0, sourceH - 0.0);
             Rectangle2D rect = XRectangle2D.createFromExtremums(0.5, 0.5, sourceW - 0.5, sourceH - 0.5);
             int pointsPerSide = Math.min(sourceH, sourceW) / 10;
             pointsPerSide = Math.max(9, pointsPerSide);
