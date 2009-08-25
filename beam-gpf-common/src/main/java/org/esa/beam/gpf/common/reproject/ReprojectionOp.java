@@ -299,8 +299,9 @@ public class ReprojectionOp extends Operator {
 
             @Override
             public RenderedImage createImage(int level) {
-                Rectangle bounds = createLevelBounds(getModel(), level);
-                return ConstantDescriptor.create((float) bounds.width, (float) bounds.height, new Integer[]{1}, null);
+                Rectangle2D bounds = createLevelBounds(getModel(), level);
+                Rectangle intBounds = BeamGridGeometry.getIntRectangle(bounds);
+                return ConstantDescriptor.create((float) intBounds.width, (float) intBounds.height, new Integer[]{1}, null);
             }
         });
     }
@@ -333,8 +334,8 @@ public class ReprojectionOp extends Operator {
                 if (sourceLevelCount - 1 < targetLevel) {
                     sourceLevel = sourceLevelCount - 1;
                 }
-                Rectangle sourceRect = createLevelBounds(srcModel, sourceLevel);
-                Rectangle targetRect = createLevelBounds(targetModel, targetLevel);
+                Rectangle2D sourceRect = createLevelBounds(srcModel, sourceLevel);
+                Rectangle2D targetRect = createLevelBounds(targetModel, targetLevel);
 
                 BeamGridGeometry sourceGridGeometry = new BeamGridGeometry(
                         srcModel.getImageToModelTransform(sourceLevel),
@@ -351,7 +352,10 @@ public class ReprojectionOp extends Operator {
                     usedResampling = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
                 }
 
-                ImageLayout imageLayout = createImageLayout(dataType, targetRect.width, targetRect.height,
+                Rectangle targetRectInt = targetGridGeometry.getBounds();
+                ImageLayout imageLayout = createImageLayout(dataType, 
+                                                            targetRectInt.width, 
+                                                            targetRectInt.height, 
                                                             targetProduct.getPreferredTileSize());
                 Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
                 RenderedImage leveledSourceImage = sourceImage.getImage(sourceLevel);
@@ -370,9 +374,9 @@ public class ReprojectionOp extends Operator {
         });
     }
 
-    private Rectangle createLevelBounds(MultiLevelModel model, int level) {
+    private Rectangle2D createLevelBounds(MultiLevelModel model, int level) {
         final AffineTransform m2i = model.getModelToImageTransform(level);
-        return m2i.createTransformedShape(model.getModelBounds()).getBounds();
+        return m2i.createTransformedShape(model.getModelBounds()).getBounds2D();
     }
 
     private void copyIndexCoding() {

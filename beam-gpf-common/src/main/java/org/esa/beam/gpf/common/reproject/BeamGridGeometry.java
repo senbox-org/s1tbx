@@ -14,11 +14,13 @@
  */
 package org.esa.beam.gpf.common.reproject;
 
+import org.esa.beam.util.math.MathUtils;
 import org.geotools.geometry.Envelope2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 
 
 public class BeamGridGeometry  {
@@ -27,10 +29,10 @@ public class BeamGridGeometry  {
     public static final int dimensionYIndex = 1;
     
     private AffineTransform i2m;
-    private Rectangle bounds;
+    private Rectangle2D bounds;
     private Envelope2D envelope;
     
-    public BeamGridGeometry(AffineTransform i2m, Rectangle bounds, CoordinateReferenceSystem modelCrs) {
+    public BeamGridGeometry(AffineTransform i2m, Rectangle2D bounds, CoordinateReferenceSystem modelCrs) {
         this.i2m = i2m;
         this.bounds = bounds;
         envelope = new Envelope2D(modelCrs, bounds);
@@ -40,8 +42,12 @@ public class BeamGridGeometry  {
         return i2m;
     }
     
-    public Rectangle getBounds() {
+    public Rectangle2D getBounds2D() {
         return bounds;
+    }
+    
+    public Rectangle getBounds() {
+        return getIntRectangle(bounds);
     }
     
     public Envelope2D getEnvelope() {
@@ -50,5 +56,9 @@ public class BeamGridGeometry  {
 
     public CoordinateReferenceSystem getModelCRS() {
         return envelope.getCoordinateReferenceSystem();
+    }
+    
+    public static Rectangle getIntRectangle(Rectangle2D rectangle2d) {
+        return new Rectangle(MathUtils.floorInt(rectangle2d.getWidth()), MathUtils.floorInt(rectangle2d.getHeight()));
     }
 }
