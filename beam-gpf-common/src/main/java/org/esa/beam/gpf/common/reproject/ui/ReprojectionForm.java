@@ -16,6 +16,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -23,6 +24,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import java.awt.BorderLayout;
 import java.awt.Insets;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -51,6 +54,7 @@ public class ReprojectionForm extends JTabbedPane {
     private String resamplingName;
     private Product sourceProduct;
     private JComboBox resampleComboBox;
+    private JCheckBox includeTPcheck;
 
     public ReprojectionForm(TargetProductSelector targetProductSelector, AppContext appContext) throws FactoryException {
         this.appContext = appContext;
@@ -73,6 +77,10 @@ public class ReprojectionForm extends JTabbedPane {
 
     public String getResamplingName() {
         return resamplingName;
+    }
+    
+    public boolean isIncludeTiePoints() {
+        return includeTPcheck.isSelected();
     }
 
     public Product getSourceProduct() {
@@ -159,9 +167,13 @@ public class ReprojectionForm extends JTabbedPane {
                 updateUIState();
             }
         });
+        final JPanel settingsPanel = new JPanel(new BorderLayout(3, 3));
         final JPanel resamplePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 3));
         resamplePanel.add(new JLabel("Resampling Method:"));
         resamplePanel.add(resampleComboBox);
+        includeTPcheck = new JCheckBox("Include Tie Point Grids", true);
+        settingsPanel.add(resamplePanel, BorderLayout.NORTH);
+        settingsPanel.add(includeTPcheck, BorderLayout.SOUTH);
 
         final TableLayout tableLayout = new TableLayout(2);
         tableLayout.setTablePadding(3, 3);
@@ -194,7 +206,7 @@ public class ReprojectionForm extends JTabbedPane {
         panel.add(collocateProductSelector.getProductNameComboBox());           // col 0
         panel.add(collocateProductSelector.getProductFileChooserButton());      // col 1
         // row 4
-        panel.add(resamplePanel);
+        panel.add(settingsPanel);
         return panel;
     }
 

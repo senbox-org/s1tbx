@@ -15,9 +15,11 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
@@ -45,6 +47,7 @@ import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ColorModel;
@@ -52,6 +55,7 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.Map;
 
 /**
  * @author Marco Zuehlke
@@ -125,15 +129,21 @@ public class ReprojectionOp extends Operator {
     private Interpolation resampling;
 
 
-    public static ReprojectionOp create(Product sourceProduct, CoordinateReferenceSystem targetCrs,
-                                        String resamplingName) {
-        ReprojectionOp reprojectionOp = new ReprojectionOp();
-        reprojectionOp.setSourceProduct(sourceProduct);
-        reprojectionOp.targetCrs = targetCrs;
-        reprojectionOp.resamplingName = resamplingName;
-        return reprojectionOp;
+    public static ReprojectionOp create(Map<String, Object> parameters,
+                         Map<String, Product> sourceProducts,
+                         RenderingHints renderingHints, 
+                         CoordinateReferenceSystem targetCrs) {
+        OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        String operatorName = ReprojectionOp.Spi.getOperatorAlias(ReprojectionOp.class);
+        OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(operatorName);
+        if (operatorSpi == null) {
+            throw new OperatorException("No SPI found for operator '" + operatorName + "'");
+        }
+        ReprojectionOp operator = (ReprojectionOp) operatorSpi.createOperator(parameters, sourceProducts, renderingHints);
+        operator.targetCrs = targetCrs;
+        return operator;
     }
-
+    
     void setCollocationProduct(Product collocationProduct) {
         this.collocationProduct = collocationProduct;
     }

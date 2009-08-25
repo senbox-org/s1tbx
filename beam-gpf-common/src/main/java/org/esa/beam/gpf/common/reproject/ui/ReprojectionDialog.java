@@ -27,20 +27,14 @@ public class ReprojectionDialog extends SingleTargetProductDialog {
     @Override
     protected Product createTargetProduct() throws Exception {
 
-        final CoordinateReferenceSystem crs = form.getTargetCrs();
-        String resamplingName = form.getResamplingName();
-        
-        if (crs != null) {
-            ReprojectionOp op = ReprojectionOp.create(form.getSourceProduct(), crs, resamplingName);
-            return op.getTargetProduct();
-        } else {
-            final Map<String, Product> productMap = new HashMap<String, Product>(5);
-            productMap.put("source", form.getSourceProduct());
-            final Map<String, Object> parameterMap = new HashMap<String, Object>(5);
-            // Reprojection parameters
-            parameterMap.put("resamplingName", resamplingName);
-            return GPF.createProduct("Reproject", parameterMap, productMap);
-        }
+        final Map<String, Product> productMap = new HashMap<String, Product>(5);
+        productMap.put("source", form.getSourceProduct());
+        final Map<String, Object> parameterMap = new HashMap<String, Object>(5);
+        // Reprojection parameters
+        parameterMap.put("resamplingName", form.getResamplingName());
+        parameterMap.put("includeTiePointGrids", form.isIncludeTiePoints());
+        ReprojectionOp reprojectionOp = ReprojectionOp.create(parameterMap, productMap, null, form.getTargetCrs());
+        return reprojectionOp.getTargetProduct();
     }
 
     @Override
