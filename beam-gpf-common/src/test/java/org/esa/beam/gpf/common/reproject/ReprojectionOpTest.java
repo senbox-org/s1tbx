@@ -74,6 +74,25 @@ public class ReprojectionOpTest {
     }
 
 
+    @Test
+    public void testUTM() throws IOException {
+        final ReprojectionOp repOp = new ReprojectionOp();
+        repOp.setSourceProduct(sourceProduct);
+        repOp.setResamplingName("Nearest");
+        repOp.setEpsgCode("EPSG:32633");    // UTM Zone 33N
+        final Product targetPoduct = repOp.getTargetProduct();
+        assertNotNull(targetPoduct);
+
+        final Band sourceBand = sourceProduct.getBand(BAND_NAME);
+        final Band targetBand = targetPoduct.getBand(BAND_NAME);
+        final PixelPos sourcePP = new PixelPos(23.5f, 13.5f);        // pixelValue = 23 * 13 = 299
+        final GeoPos geoPos = sourceBand.getGeoCoding().getGeoPos(sourcePP, null);
+        final PixelPos targetPP = targetBand.getGeoCoding().getPixelPos(geoPos, null);
+        final int[] pixels = new int[1];
+        targetBand.readPixels((int) targetPP.x, (int) targetPP.y, 1,1, pixels);
+        assertEquals(299, pixels[0]);
+    }
+
     private static ProductData createDataFor(Band dataBand) {
         final int width = dataBand.getSceneRasterWidth();
         final int height = dataBand.getSceneRasterHeight();

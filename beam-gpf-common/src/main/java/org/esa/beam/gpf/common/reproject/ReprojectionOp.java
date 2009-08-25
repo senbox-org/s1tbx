@@ -149,6 +149,10 @@ public class ReprojectionOp extends Operator {
         this.wkt = wkt;
     }
 
+    void setResamplingName(String resamplingName) {
+        this.resamplingName = resamplingName;
+    }
+
     @Override
     public void initialize() throws OperatorException {
 
