@@ -1,12 +1,9 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.gpf.common.reproject.ReprojectionOp;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.util.HashMap;
 import java.util.Map;
