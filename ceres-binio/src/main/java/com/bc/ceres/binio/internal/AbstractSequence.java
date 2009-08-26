@@ -45,7 +45,6 @@ abstract class AbstractSequence extends AbstractCollection implements SequenceIn
         if (mappedSequenceType instanceof VarSequenceType) {
             VarSequenceType varSequenceType = (VarSequenceType) mappedSequenceType;
             mappedSequenceType = varSequenceType.resolve(parent);
-            // WRITE PROBLEM
             if (mappedSequenceType != null) {
                 mappedSequenceType = mapSequenceType(parent, mappedSequenceType);
             }

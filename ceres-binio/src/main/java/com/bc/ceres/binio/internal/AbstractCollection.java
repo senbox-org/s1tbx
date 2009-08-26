@@ -16,14 +16,17 @@ abstract class AbstractCollection implements CollectionInstance {
         this.parent = parent;
     }
 
+    @Override
     public DataContext getContext() {
         return context;
     }
 
+    @Override
     public CollectionData getParent() {
         return parent;
     }
 
+    @Override
     public boolean isSizeResolved() {
         return getSize() >= 0L;
     }
@@ -31,50 +34,62 @@ abstract class AbstractCollection implements CollectionInstance {
     /////////////////////////////////////////////////////////////////////////
     // Non-indexed data access (not applicable)
 
+    @Override
     public byte getByte() {
         throw new DataAccessException();
     }
 
+    @Override
     public void setByte(byte value) throws IOException {
         throw new DataAccessException();
     }
 
+    @Override
     public short getShort() {
         throw new DataAccessException();
     }
 
+    @Override
     public void setShort(short value) throws IOException {
         throw new DataAccessException();
     }
 
+    @Override
     public int getInt() {
         throw new DataAccessException();
     }
 
+    @Override
     public void setInt(int value) throws IOException {
         throw new DataAccessException();
     }
 
+    @Override
     public long getLong() {
         throw new DataAccessException();
     }
 
+    @Override
     public void setLong(long value) throws IOException {
         throw new DataAccessException();
     }
 
+    @Override
     public float getFloat() {
         throw new DataAccessException();
     }
 
+    @Override
     public void setFloat(float value) throws IOException {
         throw new DataAccessException();
     }
 
+    @Override
     public double getDouble() {
         throw new DataAccessException();
     }
 
+    @Override
     public void setDouble(double value) throws IOException {
         throw new DataAccessException();
     }
@@ -82,26 +97,32 @@ abstract class AbstractCollection implements CollectionInstance {
     /////////////////////////////////////////////////////////////////////////
     // Indexed data access
 
+    @Override
     public int getUByte(int index) throws IOException {
         return getByte(index) & 0xFF;
     }
 
+    @Override
     public int getUShort(int index) throws IOException {
         return getShort(index) & 0xFFFF;
     }
 
+    @Override
     public long getUInt(int index) throws IOException {
         return getInt(index) & 0xFFFFFFFFL;
     }
 
+    @Override
     public void setUByte(int index, int value) throws IOException {
         setInt(index, value);
     }
 
+    @Override
     public void setUShort(int index, int value) throws IOException {
         setInt(index, value);
     }
 
+    @Override
     public void setUInt(int index, long value) throws IOException {
         setLong(index, value);
     }

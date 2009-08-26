@@ -22,16 +22,19 @@ final class VarSequenceOfFixCollections extends AbstractSequenceOfFixCollections
     }
 
     // todo - code duplication: see VarSequenceOfSimples.resolveSize()
+    @Override
     public boolean isSizeResolved(int index) {
         return resolvedSequenceType != null && resolvedSequenceType.isSizeKnown();
     }
 
     // todo - code duplication: see VarSequenceOfSimples.resolveSize()
+    @Override
     public void resolveSize(int index) throws IOException {
         resolveSize();
     }
 
     // todo - code duplication: see VarSequenceOfSimples.resolveSize()
+    @Override
     public void resolveSize() throws IOException {
         if (resolvedSequenceType == null) {
             resolvedSequenceType = resolveSequenceType();
@@ -41,6 +44,7 @@ final class VarSequenceOfFixCollections extends AbstractSequenceOfFixCollections
         }
     }
 
+    @Override
     public void flush() throws IOException {
         // todo - flush modified elements
     }

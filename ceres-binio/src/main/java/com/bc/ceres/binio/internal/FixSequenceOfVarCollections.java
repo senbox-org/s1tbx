@@ -26,22 +26,27 @@ final class FixSequenceOfVarCollections extends AbstractSequenceOfCollections {
         size = -1L;
     }
 
+    @Override
     public long getSize() {
         return size;
     }
 
+    @Override
     public Type getType() {
         return getSequenceType();
     }
 
+    @Override
     public boolean isSizeResolved(int index) {
         return index <= maxResolvedElementIndex;
     }
 
+    @Override
     public void resolveSize() throws IOException {
         resolveSize(getElementCount() - 1);
     }
 
+    @Override
     public void resolveSize(int index) throws IOException {
         if (isSizeResolved(index)) {
             return;
@@ -79,14 +84,17 @@ final class FixSequenceOfVarCollections extends AbstractSequenceOfCollections {
         }
     }
 
+    @Override
     public int getElementCount() {
         return getSequenceType().getElementCount();
     }
 
+    @Override
     public SequenceData getSequence(int index) throws IOException {
         return (SequenceData) createElementInstance(index);
     }
 
+    @Override
     public CompoundData getCompound(int index) throws IOException {
         return (CompoundData) createElementInstance(index);
     }
@@ -115,6 +123,7 @@ final class FixSequenceOfVarCollections extends AbstractSequenceOfCollections {
         return InstanceFactory.createCollection(getContext(), this, unresolvedElementType, position, getContext().getFormat().getByteOrder());
     }
 
+    @Override
     public void flush() throws IOException {
         // todo - flush modified elements
     }

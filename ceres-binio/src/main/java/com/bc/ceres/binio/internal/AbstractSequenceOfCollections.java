@@ -17,54 +17,67 @@ abstract class AbstractSequenceOfCollections extends AbstractSequence {
         this.position = position;
     }
 
+    @Override
     public long getPosition() {
         return position;
     }
 
+    @Override
     public byte getByte(int index) {
         throw new DataAccessException();
     }
 
+    @Override
     public short getShort(int index) {
         throw new DataAccessException();
     }
 
+    @Override
     public int getInt(int index) {
         throw new DataAccessException();
     }
 
+    @Override
     public long getLong(int index) {
         throw new DataAccessException();
     }
 
+    @Override
     public float getFloat(int index) {
         throw new DataAccessException();
     }
 
+    @Override
     public double getDouble(int index) {
         throw new DataAccessException();
     }
 
+    @Override
     public void setByte(int index, byte value) throws IOException {
         throw new DataAccessException();
     }
 
+    @Override
     public void setShort(int index, short value) throws IOException {
         throw new DataAccessException();
     }
 
+    @Override
     public void setInt(int index, int value) throws IOException {
         throw new DataAccessException();
     }
 
+    @Override
     public void setLong(int index, long value) throws IOException {
         throw new DataAccessException();
     }
 
+    @Override
     public void setFloat(int index, float value) throws IOException {
         throw new DataAccessException();
     }
 
+    @Override
     public void setDouble(int index, double value) throws IOException {
         throw new DataAccessException();
     }

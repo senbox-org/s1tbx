@@ -11,22 +11,26 @@ abstract class AbstractSequenceOfFixCollections extends AbstractSequenceOfCollec
         super(context, parent, sequenceType, position);
     }
 
+    @Override
     public long getSize() {
         final SequenceType type = getResolvedSequenceType();
         return type != null ? type.getSize() : -1;
     }
 
+    @Override
     public int getElementCount() {
         final SequenceType type = getResolvedSequenceType();
         return type != null ? type.getElementCount() : -1;
     }
 
+    @Override
     public Type getType() {
         return getResolvedSequenceType();
     }
 
     protected abstract SequenceType getResolvedSequenceType();
 
+    @Override
     public SequenceData getSequence(int index) throws IOException {
         ensureSizeResolved(index);
         final Type elementType = getResolvedSequenceType().getElementType();
@@ -37,6 +41,7 @@ abstract class AbstractSequenceOfFixCollections extends AbstractSequenceOfCollec
         throw new DataAccessException();
     }
 
+    @Override
     public CompoundData getCompound(int index) throws IOException {
         ensureSizeResolved(index);
         final Type elementType = getResolvedSequenceType().getElementType();

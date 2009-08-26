@@ -23,10 +23,12 @@ public final class SequenceTypeImpl extends AbstractType implements SequenceType
         this.size = (elementCount >= 0 && elementType.getSize() >= 0) ? elementCount * elementType.getSize() : -1;
     }
 
+    @Override
     public final Type getElementType() {
         return elementType;
     }
 
+    @Override
     public final int getElementCount() {
         return elementCount;
     }

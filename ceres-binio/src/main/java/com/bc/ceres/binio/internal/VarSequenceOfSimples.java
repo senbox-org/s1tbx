@@ -25,33 +25,40 @@ final class VarSequenceOfSimples extends AbstractSequenceOfSimples {
         return 0;
     }
 
+    @Override
     public Type getType() {
         return resolvedSequenceType;
     }
 
+    @Override
     public long getPosition() {
         return position;
     }
 
+    @Override
     public long getSize() {
         return resolvedSequenceType != null ? resolvedSequenceType.getSize() : -1L;
     }
 
+    @Override
     public int getElementCount() {
         return resolvedSequenceType != null ? resolvedSequenceType.getElementCount() : -1;
     }
 
     // todo - code duplication: see VarSequenceOfFixCollections.resolveSize()
+    @Override
     public boolean isSizeResolved(int index) {
         return resolvedSequenceType != null;
     }
 
     // todo - code duplication: see VarSequenceOfFixCollections.resolveSize()
+    @Override
     public void resolveSize(int index) throws IOException {
         resolveSize();
     }
 
     // todo - code duplication: see VarSequenceOfFixCollections.resolveSize()
+    @Override
     public void resolveSize() throws IOException {
         if (resolvedSequenceType == null) {
             resolvedSequenceType = resolveSequenceType();
@@ -74,6 +81,7 @@ final class VarSequenceOfSimples extends AbstractSequenceOfSimples {
         }
     }
 
+    @Override
     public void flush() throws IOException {
         if (isDataAccessible()) {
             segment.flushData(getContext());

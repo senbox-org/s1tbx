@@ -37,10 +37,12 @@ final class VarCompound extends AbstractCompound {
         maxResolvedIndex = maxMemberIndex;
     }
 
+    @Override
     public Type getType() {
         return resolvedCompoundType;
     }
 
+    @Override
     public long getSize() {
         return resolvedCompoundType.getSize();
     }
@@ -50,14 +52,17 @@ final class VarCompound extends AbstractCompound {
         return resolvedCompoundType.isSizeKnown();
     }
 
+    @Override
     public boolean isSizeResolved(int index) {
         return index <= maxResolvedIndex;
     }
 
+    @Override
     public void resolveSize() throws IOException {
         resolveSize(getElementCount() - 1);
     }
 
+    @Override
     public void resolveSize(int index) throws IOException {
         if (isSizeResolved(index)) {
             return;
@@ -67,7 +72,10 @@ final class VarCompound extends AbstractCompound {
             if (!memberInstance.isSizeResolved()) {
                 memberInstance.resolveSize();
             }
-            final CompoundMember resolvedMember = TypeBuilder.MEMBER(getCompoundType().getMember(i).getName(), memberInstance.getType());
+            final CompoundMember resolvedMember = new CompoundMemberImpl(getCompoundType().getMember(i).getName(),
+                                                                         memberInstance.getType(),
+                                                                         memberInstance.getSize(),
+                                                                         null);
             resolvedCompoundType.setMember(i, resolvedMember);
         }
         if (maxResolvedIndex < index) {

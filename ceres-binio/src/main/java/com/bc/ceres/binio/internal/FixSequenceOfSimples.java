@@ -32,14 +32,17 @@ final class FixSequenceOfSimples extends AbstractSequenceOfSimples {
         return segmentOffset;
     }
 
+    @Override
     public long getPosition() {
         return segment.getPosition();
     }
 
+    @Override
     public long getSize() {
         return getSequenceType().getSize();
     }
 
+    @Override
     public int getElementCount() {
         return getSequenceType().getElementCount();
     }
@@ -49,18 +52,22 @@ final class FixSequenceOfSimples extends AbstractSequenceOfSimples {
         return true;
     }
 
+    @Override
     public boolean isSizeResolved(int index) {
         return true;
     }
 
+    @Override
     public void resolveSize(int index) throws IOException {
         // ok
     }
 
+    @Override
     public void resolveSize() throws IOException {
         // ok
     }
 
+    @Override
     public Type getType() {
         return getSequenceType();
     }
@@ -75,6 +82,7 @@ final class FixSequenceOfSimples extends AbstractSequenceOfSimples {
         segment.makeDataAccessible(getContext());
     }
 
+    @Override
     public void flush() throws IOException {
         segment.flushData(getContext());
     }

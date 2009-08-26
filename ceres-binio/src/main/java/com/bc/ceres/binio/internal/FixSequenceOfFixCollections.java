@@ -28,8 +28,7 @@ final class FixSequenceOfFixCollections extends AbstractSequenceOfFixCollections
                                        CollectionData parent,
                                        SequenceType sequenceType,
                                        Segment segment,
-                                       int segmentOffset
-    ) {
+                                       int segmentOffset) {
         super(context, parent, sequenceType, segment.getPosition() + segmentOffset);
         this.segment = null;
     }
@@ -59,14 +58,17 @@ final class FixSequenceOfFixCollections extends AbstractSequenceOfFixCollections
         return getSequenceType().getElementCount();
     }
 
+    @Override
     public boolean isSizeResolved(int index) {
         return true;
     }
 
+    @Override
     public void resolveSize(int index) throws IOException {
         // ok
     }
 
+    @Override
     public void resolveSize() throws IOException {
         // ok
     }
@@ -101,6 +103,7 @@ final class FixSequenceOfFixCollections extends AbstractSequenceOfFixCollections
         }
     }
 
+    @Override
     public void flush() throws IOException {
         if (segment != null) {
             segment.flushData(getContext());
