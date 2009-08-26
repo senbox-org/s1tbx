@@ -297,7 +297,10 @@ public class ReprojectionForm extends JTabbedPane {
 
         @Override
             public boolean accept(Product product) {
-            return sourceProductSelector.getSelectedProduct() != product;
+            final boolean sameProduct = sourceProductSelector.getSelectedProduct() == product;
+            final boolean hasGeoCoding = product.getGeoCoding() != null;
+            final boolean geoCodingUsable = product.getGeoCoding().canGetGeoPos() && product.getGeoCoding().canGetPixelPos();
+            return !sameProduct && hasGeoCoding && geoCodingUsable;
         }
     }
 }
