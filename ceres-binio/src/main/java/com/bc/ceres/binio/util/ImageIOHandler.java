@@ -21,6 +21,7 @@ public class ImageIOHandler implements IOHandler {
         this.imageOutputStream = imageOutputStream;
     }
 
+    @Override
     public void read(DataContext context, byte[] data, long position) throws IOException {
         synchronized (imageInputStream) {
             imageInputStream.seek(position);
@@ -28,6 +29,7 @@ public class ImageIOHandler implements IOHandler {
         }
     }
 
+    @Override
     public void write(DataContext context, byte[] data, long position) throws IOException {
         if (imageOutputStream == null) {
             throw new IOException("Read only.");
@@ -38,6 +40,7 @@ public class ImageIOHandler implements IOHandler {
         }
     }
     
+    @Override
     public long getMaxPosition() throws IOException {
         synchronized (imageOutputStream) {
             return imageInputStream.length();

@@ -13,6 +13,7 @@ public class RandomAccessFileIOHandler implements IOHandler {
         this.raf = raf;
     }
 
+    @Override
     public synchronized void read(DataContext context, byte[] data, long position) throws IOException {
         synchronized (raf) {
             raf.seek(position);
@@ -20,6 +21,7 @@ public class RandomAccessFileIOHandler implements IOHandler {
         }
     }
 
+    @Override
     public synchronized void write(DataContext context, byte[] data, long position) throws IOException {
         synchronized (raf) {
             raf.seek(position);
@@ -27,6 +29,7 @@ public class RandomAccessFileIOHandler implements IOHandler {
         }
     }
     
+    @Override
     public long getMaxPosition() throws IOException {
         synchronized (raf) {
             return raf.length();

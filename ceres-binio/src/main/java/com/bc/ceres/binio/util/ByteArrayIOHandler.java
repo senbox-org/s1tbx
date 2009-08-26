@@ -23,6 +23,7 @@ public class ByteArrayIOHandler implements IOHandler {
         return copyByteArray(size);
     }
 
+    @Override
     public void read(DataContext context, byte[] data, long position) throws IOException {
         int r = data.length;
         if (position + r > (long) Integer.MAX_VALUE) {
@@ -39,6 +40,7 @@ public class ByteArrayIOHandler implements IOHandler {
         System.arraycopy(byteArray, pos, data, 0, n);
     }
 
+    @Override
     public void write(DataContext context, byte[] data, long position) throws IOException {
         int n = data.length;
         if (position + n > (long) Integer.MAX_VALUE) {
@@ -50,6 +52,7 @@ public class ByteArrayIOHandler implements IOHandler {
         size = pos + n;
     }
     
+    @Override
     public long getMaxPosition() {
         return size;
     }
