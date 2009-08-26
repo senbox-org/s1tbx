@@ -129,7 +129,6 @@ public class ReprojectionOp extends Operator {
     
     private CoordinateReferenceSystem targetCrs;
     private BeamGridGeometry targetGridGeometry;
-    private Interpolation resampling;
 
 
     public static ReprojectionOp create(Map<String, Object> parameters,
@@ -220,7 +219,6 @@ public class ReprojectionOp extends Operator {
         if (targetCrs == null) {
             targetCrs = createTargetCRS();
         }
-        resampling = Interpolation.getInstance(getResampleType(resamplingName));
         /*
         * 2. Compute the target grid geometry
         */
@@ -296,7 +294,7 @@ public class ReprojectionOp extends Operator {
         copyPlacemarks(sourceProduct.getGcpGroup(), targetProduct.getGcpGroup(),
                        PlacemarkSymbol.createDefaultGcpSymbol());
     }
-    
+
     private boolean handleSourceRaster(RasterDataNode sourceRaster, MultiLevelModel srcModel) {
         int geophysicalDataType = sourceRaster.getGeophysicalDataType();
         Band targetBand;
@@ -410,7 +408,7 @@ public class ReprojectionOp extends Operator {
                         targetRect,
                         targetProduct.getGeoCoding().getModelCRS());
 
-                Interpolation usedResampling = resampling;
+                Interpolation usedResampling = getResampling();
                 int dataType = targetBand.getDataType();
                 if (!ProductData.isFloatingPointType(dataType)) {
                     usedResampling = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
@@ -523,6 +521,10 @@ public class ReprojectionOp extends Operator {
         if (collocationProduct != null && isCrsDefined) {
             throw new OperatorException(exceptionMsg);
         }
+    }
+
+    private Interpolation getResampling() {
+        return Interpolation.getInstance(getResampleType(resamplingName));
     }
 
     private int getResampleType(String resamplingName) {
