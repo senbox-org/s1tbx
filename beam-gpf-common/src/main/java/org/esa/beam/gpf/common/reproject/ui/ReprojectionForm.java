@@ -59,7 +59,7 @@ public class ReprojectionForm extends JTabbedPane {
     private JComboBox resampleComboBox;
     private JCheckBox includeTPcheck;
 
-    public ReprojectionForm(TargetProductSelector targetProductSelector, AppContext appContext) throws FactoryException {
+    public ReprojectionForm(TargetProductSelector targetProductSelector, AppContext appContext) {
         this.appContext = appContext;
         this.targetProductSelector = targetProductSelector;
         sourceProductSelector = new SourceProductSelector(appContext, "Source Product:");
