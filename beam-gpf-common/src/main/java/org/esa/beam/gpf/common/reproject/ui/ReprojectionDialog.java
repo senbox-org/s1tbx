@@ -19,7 +19,7 @@ public class ReprojectionDialog extends SingleTargetProductDialog {
 
     private ReprojectionForm form;
 
-    public ReprojectionDialog(AppContext appContext) throws FactoryException {
+    public ReprojectionDialog(AppContext appContext) {
         super(appContext, "Reproject", "reproject");
         form = new ReprojectionForm(getTargetProductSelector(), appContext);
     }

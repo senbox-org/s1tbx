@@ -18,11 +18,7 @@ public class ReprojectionAction extends AbstractVisatAction {
     @Override
     public void actionPerformed(CommandEvent event) {
         if (dialog == null) {
-            try {
-                dialog = new ReprojectionDialog(getAppContext());
-            } catch (FactoryException e) {
-                e.printStackTrace();
-            }
+            dialog = new ReprojectionDialog(getAppContext());
         }
         dialog.show();
     }
