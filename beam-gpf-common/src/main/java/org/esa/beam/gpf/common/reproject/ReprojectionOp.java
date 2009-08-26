@@ -138,7 +138,7 @@ public class ReprojectionOp extends Operator {
                          CoordinateReferenceSystem targetCrs,
                          BeamGridGeometry targetGridGeometry) {
         OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        String operatorName = ReprojectionOp.Spi.getOperatorAlias(ReprojectionOp.class);
+        String operatorName = OperatorSpi.getOperatorAlias(ReprojectionOp.class);
         OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(operatorName);
         if (operatorSpi == null) {
             throw new OperatorException("No SPI found for operator '" + operatorName + "'");
