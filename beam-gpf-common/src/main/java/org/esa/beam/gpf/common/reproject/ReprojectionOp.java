@@ -559,21 +559,12 @@ public class ReprojectionOp extends Operator {
     }
     
     private BeamGridGeometry createTargetGridGeometry() {
-        if (collocationProduct != null) {
-            return createTargetGridGeometry(collocationProduct);
-        } else {
-            return createTargetGridGeometry(sourceProduct);
-        }
-    }
-
-    private BeamGridGeometry createTargetGridGeometry(Product product) {
-        Rectangle2D mapBoundary = createMapBoundary(sourceProduct);
+        Rectangle2D mapBoundary = createMapBoundary(sourceProduct); 
         double mapW = mapBoundary.getWidth();
         double mapH = mapBoundary.getHeight();
 
         if (pixelSizeX == null && pixelSizeY == null) {
-            double pixelSize =  Math.min(mapW / product.getSceneRasterWidth(),
-                                         mapH / product.getSceneRasterHeight());
+            double pixelSize =  Math.min(mapW / sourceProduct.getSceneRasterWidth(), mapH / sourceProduct.getSceneRasterHeight());
             if (MathUtils.equalValues(pixelSize, 0.0f)) {
                 pixelSize = 1.0f;
             }
