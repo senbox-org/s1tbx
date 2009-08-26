@@ -82,7 +82,7 @@ public class ReprojectionOp extends Operator {
     private Product targetProduct;
 
     @Parameter(description = "An EPSG code for the target Coordinate Reference System.",
-               pattern = "[0-9]*")
+               pattern = "(?:[a-zA-Z]+:)?[0-9]+")
     private String epsgCode;
 
     @Parameter(description = "A file which contains the target Coordinate Reference System in WKT format.")
@@ -91,7 +91,9 @@ public class ReprojectionOp extends Operator {
     @Parameter(description = "Text in WKT format describing the target Coordinate Reference System.")
     private String wkt;
 
-    @Parameter(label = "Resampling Method", description = "The method used for resampling.",
+    @Parameter(alias = "resampling",
+               label = "Resampling Method", 
+               description = "The method used for resampling.",
                valueSet = {"Nearest", "Bilinear", "Bicubic"},
                defaultValue = "Nearest")
     private String resamplingName;
