@@ -90,9 +90,8 @@ public class ReprojectionForm extends JTabbedPane {
         String modelWkt = modelCRS.toString();
         try {
             CoordinateReferenceSystem modelCrsClone = CRS.parseWKT(modelWkt);
-            BeamGridGeometry gridGeometry = new BeamGridGeometry(i2m, bounds, modelCrsClone);
-            return gridGeometry;
-        } catch (FactoryException e) {
+            return new BeamGridGeometry(i2m, bounds, modelCrsClone);
+        } catch (FactoryException ignored) {
             return null;
         }
     }
