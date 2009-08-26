@@ -4,6 +4,7 @@ import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.IOHandler;
 
 import java.io.IOException;
+import java.io.EOFException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
@@ -17,7 +18,9 @@ public class FileChannelIOHandler implements IOHandler {
     @Override
     public void read(DataContext context, byte[] data, long position) throws IOException {
         synchronized (fileChannel) {
-            fileChannel.read(ByteBuffer.wrap(data), position);
+            if (fileChannel.read(ByteBuffer.wrap(data), position) == -1) {
+                throw new EOFException("illegal read at end of file");
+            }
         }
     }
 

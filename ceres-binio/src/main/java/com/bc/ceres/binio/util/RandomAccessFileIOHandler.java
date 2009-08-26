@@ -5,6 +5,7 @@ import com.bc.ceres.binio.IOHandler;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.EOFException;
 
 public class RandomAccessFileIOHandler implements IOHandler {
     private final RandomAccessFile raf;
@@ -17,7 +18,9 @@ public class RandomAccessFileIOHandler implements IOHandler {
     public synchronized void read(DataContext context, byte[] data, long position) throws IOException {
         synchronized (raf) {
             raf.seek(position);
-            raf.read(data, 0, data.length);
+            if (raf.read(data, 0, data.length) == -1) {
+                throw new EOFException("illegal read at end of file");
+            }
         }
     }
 
