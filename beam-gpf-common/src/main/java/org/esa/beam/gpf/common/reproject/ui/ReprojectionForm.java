@@ -24,8 +24,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Insets;
@@ -36,45 +34,42 @@ import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * User: Marco
  * Date: 16.08.2009
  */
 public class ReprojectionForm extends JTabbedPane {
+
     private static final String[] RESAMPLING_IDENTIFIER = {"Nearest", "Bilinear", "Bicubic"};
 
     private final AppContext appContext;
 
-    private CrsSelectionFormModel crsSelectionModel;
+    private CrsInfoListModel crsListModel;
     private SourceProductSelector sourceProductSelector;
     private TargetProductSelector targetProductSelector;
     private SourceProductSelector collocateProductSelector;
     private CrsSelectionForm crsSelectionForm;
     private JRadioButton collocateRadioButton;
-    private CoordinateReferenceSystem targetCrs;
     private String resamplingName;
     private Product sourceProduct;
     private JComboBox resampleComboBox;
     private JCheckBox includeTPcheck;
+    private String crsCode;
+    private Product collocationProduct;
 
     public ReprojectionForm(TargetProductSelector targetProductSelector, AppContext appContext) {
         this.appContext = appContext;
         this.targetProductSelector = targetProductSelector;
         sourceProductSelector = new SourceProductSelector(appContext, "Source Product:");
         resamplingName = "Nearest";
-        final List<CrsInfo> crsList = CrsInfo.generateCRSList();
-        CrsInfoListModel crsInfoListModel = new CrsInfoListModel(crsList);
-        crsSelectionModel = new CrsSelectionFormModel(crsInfoListModel);
+        crsListModel = new CrsInfoListModel(CrsInfo.generateCRSList());
         createUI();
         updateUIState();
     }
 
-    public CoordinateReferenceSystem getTargetCrs() {
-        return targetCrs;
-    }
-    
     public BeamGridGeometry getTargetGeometry() {
         if (!collocateRadioButton.isSelected()) {
             return null;
@@ -95,22 +90,26 @@ public class ReprojectionForm extends JTabbedPane {
             return null;
         }
     }
-    
-    private void setTargetCrs(CoordinateReferenceSystem targetCrs) {
-        this.targetCrs = targetCrs;
+
+    public Map<String, Object> getParameterMap() {
+        Map<String, Object> parameterMap = new HashMap<String, Object>(5);
+        parameterMap.put("resamplingName", resamplingName);
+        parameterMap.put("includeTiePointGrids", includeTPcheck.isSelected());
+        if(!collocateRadioButton.isSelected()) {
+            parameterMap.put("crsCode", crsCode);
+        }
+        return parameterMap;
     }
 
-    public String getResamplingName() {
-        return resamplingName;
-    }
-    
-    public boolean isIncludeTiePoints() {
-        return includeTPcheck.isSelected();
+    public Map<String, Product> getProductMap() {
+        final Map<String, Product> productMap = new HashMap<String, Product>(5);
+        productMap.put("source", sourceProduct);
+        if(collocateRadioButton.isSelected()) {
+            productMap.put("collocate", collocationProduct);
+        }
+        return productMap;
     }
 
-    public Product getSourceProduct() {
-        return sourceProduct;
-    }
 
     private void createUI() {
         addTab("I/O Parameter", createIOTab());
@@ -143,7 +142,7 @@ public class ReprojectionForm extends JTabbedPane {
         tableLayout.setTableWeightX(1.0);
         tableLayout.setTableWeightY(0);
         tableLayout.setTableFill(TableLayout.Fill.BOTH);
-        tableLayout.setTablePadding(3,3);
+        tableLayout.setTablePadding(3, 3);
 
         final JPanel ioPanel = new JPanel(tableLayout);
         ioPanel.add(createSourceProductPanel());
@@ -158,29 +157,27 @@ public class ReprojectionForm extends JTabbedPane {
         collocateProductSelector.addSelectionChangeListener(new SelectionChangeListener() {
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
-                final Product selectedProduct = collocateProductSelector.getSelectedProduct();
-                if (selectedProduct != null && collocateRadioButton.isSelected()) {
-                    setTargetCrs(selectedProduct.getGeoCoding().getModelCRS());
-                }
+                updateUIState();
             }
         });
         crsSelectionForm = createCrsSelectionForm();
         final ButtonGroup group = new ButtonGroup();
         collocateRadioButton = new JRadioButton("Collocate with Product");
-        JRadioButton projectionRadioButton = new JRadioButton("Define Projection", true);
 
-        collocateRadioButton.addChangeListener(new ChangeListener() {
+        collocateRadioButton.addActionListener(new ActionListener() {
             @Override
-            public void stateChanged(ChangeEvent e) {
-                if (collocateRadioButton.isSelected()) {
-                    final Product selectedProduct = collocateProductSelector.getSelectedProduct();
-                    if (selectedProduct != null) {
-                        setTargetCrs(selectedProduct.getGeoCoding().getModelCRS());
-                    }
-                }
+            public void actionPerformed(ActionEvent e) {
                 updateUIState();
             }
         });
+        JRadioButton projectionRadioButton = new JRadioButton("Define Projection", true);
+        projectionRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateUIState();
+            }
+        });
+        
         group.add(collocateRadioButton);
         group.add(projectionRadioButton);
 
@@ -206,15 +203,12 @@ public class ReprojectionForm extends JTabbedPane {
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
         tableLayout.setTableWeightX(1.0);
         tableLayout.setTableWeightY(0.0);
-//        tableLayout.setRowWeightY(0, 0.0);
         tableLayout.setCellColspan(0, 0, 2);
         tableLayout.setCellColspan(1, 0, 2);
         tableLayout.setRowWeightY(1, 1.0);
         tableLayout.setCellPadding(1, 0, new Insets(3, 15, 3, 3));
         tableLayout.setRowPadding(1, new Insets(3, 3, 15, 3));
-//        tableLayout.setRowWeightY(2, 0.0);
         tableLayout.setCellColspan(2, 0, 2);
-//        tableLayout.setRowWeightY(3, 0.0);
         tableLayout.setCellPadding(3, 0, new Insets(3, 15, 3, 3));
         tableLayout.setCellWeightX(3, 1, 0.0);
         tableLayout.setCellColspan(4, 0, 2);
@@ -240,16 +234,20 @@ public class ReprojectionForm extends JTabbedPane {
         collocateProductSelector.getProductNameComboBox().setEnabled(collocate);
         collocateProductSelector.getProductFileChooserButton().setEnabled(collocate);
         crsSelectionForm.setFormEnabled(!collocate);
+        collocationProduct = collocate ? collocateProductSelector.getSelectedProduct() : null;
 
         resamplingName = resampleComboBox.getSelectedItem().toString();
     }
 
     private CrsSelectionForm createCrsSelectionForm() {
-        final CrsSelectionForm crsForm = new CrsSelectionForm(crsSelectionModel);
-        crsSelectionModel.addPropertyChangeListener(new PropertyChangeListener() {
+        final CrsSelectionForm crsForm = new CrsSelectionForm(crsListModel);
+        crsForm.addPropertyChangeListener(CrsSelectionForm.PROPERTY_SELECTED_CRS_CODE, new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                setTargetCrs((CoordinateReferenceSystem) evt.getNewValue());
+                final Object selectedObject = evt.getNewValue();
+                if (selectedObject instanceof String) {
+                    crsCode = (String) selectedObject;
+                }
             }
         });
         return crsForm;
@@ -293,9 +291,8 @@ public class ReprojectionForm extends JTabbedPane {
     }
 
     private class CollocateProductFilter implements ProductFilter {
-
         @Override
-            public boolean accept(Product product) {
+        public boolean accept(Product product) {
             final boolean sameProduct = sourceProductSelector.getSelectedProduct() == product;
             final boolean hasGeoCoding = product.getGeoCoding() != null;
             final boolean geoCodingUsable = product.getGeoCoding().canGetGeoPos() && product.getGeoCoding().canGetPixelPos();

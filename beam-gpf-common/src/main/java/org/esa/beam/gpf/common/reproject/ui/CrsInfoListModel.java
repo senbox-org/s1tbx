@@ -1,8 +1,8 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
 import javax.swing.AbstractListModel;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Marco Peters
@@ -14,8 +14,7 @@ class CrsInfoListModel extends AbstractListModel {
     private final List<CrsInfo> crsList;
 
     CrsInfoListModel(List<CrsInfo> projectedCRSList) {
-        crsList = new ArrayList<CrsInfo>();
-        crsList.addAll(projectedCRSList);
+        crsList = new ArrayList<CrsInfo>(projectedCRSList);
     }
 
     @Override

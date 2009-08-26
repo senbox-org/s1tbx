@@ -5,7 +5,6 @@ import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.gpf.common.reproject.ReprojectionOp;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -23,14 +22,10 @@ public class ReprojectionDialog extends SingleTargetProductDialog {
 
     @Override
     protected Product createTargetProduct() throws Exception {
-
-        final Map<String, Product> productMap = new HashMap<String, Product>(5);
-        productMap.put("source", form.getSourceProduct());
-        final Map<String, Object> parameterMap = new HashMap<String, Object>(5);
-        // Reprojection parameters
-        parameterMap.put("resamplingName", form.getResamplingName());
-        parameterMap.put("includeTiePointGrids", form.isIncludeTiePoints());
-        ReprojectionOp reprojectionOp = ReprojectionOp.create(parameterMap, productMap, null, form.getTargetCrs(), form.getTargetGeometry());
+        final Map<String, Product> productMap = form.getProductMap();
+        final Map<String, Object> parameterMap = form.getParameterMap();
+        ReprojectionOp reprojectionOp = ReprojectionOp.create(parameterMap, productMap,
+                                                              null, form.getTargetGeometry());
         return reprojectionOp.getTargetProduct();
     }
 

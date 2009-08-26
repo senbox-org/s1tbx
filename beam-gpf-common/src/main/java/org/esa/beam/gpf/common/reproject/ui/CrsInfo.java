@@ -23,31 +23,51 @@ import java.util.Set;
 /**
  * @author Marco Peters
  * @author Marco Zühlke
-* @version $ Revision $ Date $
-* @since BEAM 4.7
-*/
+ * @version $ Revision $ Date $
+ * @since BEAM 4.7
+ */
 class CrsInfo implements Comparable<CrsInfo> {
 
     private static final String AUTHORITY = "EPSG";
     private final String epsgCode;
     private final CRSAuthorityFactory factory;
 
-    CrsInfo(String epsgCode, CRSAuthorityFactory factory) {
-        this.epsgCode = epsgCode;
+    CrsInfo(String crsCode, CRSAuthorityFactory factory) {
+        this.epsgCode = crsCode;
         this.factory = factory;
     }
-    
-    public String getEpsgCode() {
+
+    public String getCrsCode() {
         return epsgCode;
     }
 
     public CoordinateReferenceSystem getCrs(Product product) throws FactoryException {
         return factory.createCoordinateReferenceSystem(epsgCode);
     }
-    
+
     @Override
     public int compareTo(CrsInfo o) {
         return epsgCode.compareTo(o.epsgCode);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof CrsInfo)) {
+            return false;
+        }
+
+        CrsInfo crsInfo = (CrsInfo) o;
+
+        return !(epsgCode != null ? !epsgCode.equals(crsInfo.epsgCode) : crsInfo.epsgCode != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return epsgCode != null ? epsgCode.hashCode() : 0;
     }
 
     @Override
@@ -60,7 +80,7 @@ class CrsInfo implements Comparable<CrsInfo> {
         }
         return crsDescription;
     }
-    
+
     private static class AutoCrsInfo extends CrsInfo {
 
         AutoCrsInfo(String epsgCode, CRSAuthorityFactory factory) {
@@ -69,9 +89,13 @@ class CrsInfo implements Comparable<CrsInfo> {
 
         @Override
         public CoordinateReferenceSystem getCrs(Product product) throws FactoryException {
-            PixelPos pixelPos = new PixelPos(product.getSceneRasterWidth()/2, product.getSceneRasterHeight()/2);
-            GeoPos geoPos = product.getGeoCoding().getGeoPos(pixelPos, null);
-            String code = super.epsgCode+","+geoPos.lon+","+geoPos.lat;
+            GeoPos geoPos = new GeoPos(0, 0);
+            if (product != null) {
+                PixelPos pixelPos = new PixelPos(product.getSceneRasterWidth() / 2, product.getSceneRasterHeight() / 2);
+                geoPos = product.getGeoCoding().getGeoPos(pixelPos, null);
+            }
+
+            String code = String.format("%s,%s,%s", super.epsgCode, geoPos.lon, geoPos.lat);
             return super.factory.createCoordinateReferenceSystem(code);
         }
 
@@ -95,7 +119,7 @@ class CrsInfo implements Comparable<CrsInfo> {
         Set<CRSAuthorityFactory> factories = ReferencingFactoryFinder.getCRSAuthorityFactories(hints);
         final List<CRSAuthorityFactory> filtered = new ArrayList<CRSAuthorityFactory>();
         for (final CRSAuthorityFactory factory : factories) {
-            if (Citations.identifierMatches(factory.getAuthority(), AUTHORITY )) {
+            if (Citations.identifierMatches(factory.getAuthority(), AUTHORITY)) {
                 filtered.add(factory);
             }
         }
@@ -106,19 +130,22 @@ class CrsInfo implements Comparable<CrsInfo> {
         retrieveCodes(codes, GeodeticCRS.class, crsAuthorityFactory);
         retrieveCodes(codes, ProjectedCRS.class, crsAuthorityFactory);
         for (String code : codes) {
-            crsList.add(new CrsInfo(AUTHORITY+":"+code, crsAuthorityFactory));
+            final String authCode = String.format("%s:%s", AUTHORITY, code);
+            crsList.add(new CrsInfo(authCode, crsAuthorityFactory));
         }
         codes.clear();
         AutoCRSFactory autoCRSFactory = new AutoCRSFactory();
         retrieveCodes(codes, ProjectedCRS.class, autoCRSFactory);
         for (String code : codes) {
-            crsList.add(new AutoCrsInfo("AUTO:"+code, autoCRSFactory));
+            final String authCode = String.format("AUTO:%s", code);
+            crsList.add(new AutoCrsInfo(authCode, autoCRSFactory));
         }
         Collections.sort(crsList);
         return crsList;
     }
-    
-    private static void retrieveCodes(Set<String> codes, Class<? extends CoordinateReferenceSystem> crsType, CRSAuthorityFactory factory) {
+
+    private static void retrieveCodes(Set<String> codes, Class<? extends CoordinateReferenceSystem> crsType,
+                                      CRSAuthorityFactory factory) {
         Set<String> localCodes;
         try {
             localCodes = factory.getAuthorityCodes(crsType);

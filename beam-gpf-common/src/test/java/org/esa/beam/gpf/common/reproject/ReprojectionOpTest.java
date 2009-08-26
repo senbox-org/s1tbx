@@ -11,12 +11,8 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -29,6 +25,7 @@ import java.util.Map;
 public class ReprojectionOpTest {
     private static final String WGS84_CODE = "EPSG:4326";
     private static final String UTM33N_CODE = "EPSG:32633";
+    @SuppressWarnings({"StringConcatenation"})
     private static final String UTM33N_WKT = "PROJCS[\"WGS 84 / UTM zone 33N\"," +
     		"GEOGCS[\"WGS 84\"," +
     		"  DATUM[\"World Geodetic System 1984\"," +
@@ -85,13 +82,6 @@ public class ReprojectionOpTest {
         Band dataBand = sourceProduct.addBand(BAND_NAME, ProductData.TYPE_FLOAT32);
         dataBand.setRasterData(createDataFor(dataBand));
         dataBand.setSynthetic(true);
-        // Just for debugging purpose
-//        try {
-//            final String path = "C:\\Dokumente und Einstellungen\\Marco Peters\\Eigene Dateien\\EOData\\temp\\TestProd_5050.dim";
-//            ProductIO.writeProduct(sourceProduct, path, ProductIO.DEFAULT_FORMAT_NAME);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
     }
     
     @AfterClass
@@ -102,7 +92,7 @@ public class ReprojectionOpTest {
 
     @Test
     public void testGeoLatLon() throws IOException {
-        parameterMap.put("epsgCode", WGS84_CODE);
+        parameterMap.put("crsCode", WGS84_CODE);
         final Product targetPoduct = createReprojectedProduct();
 
         assertNotNull(targetPoduct);
@@ -143,21 +133,21 @@ public class ReprojectionOpTest {
     
     @Test(expected = OperatorException.class)
     public void testEmptyParameterMap() {
-        final Product targetPoduct = createReprojectedProduct();
+        createReprojectedProduct();
     }
 
     @Test(expected = OperatorException.class)
     public void testParameterAmbigouity_wkt_epsgCode() {
         parameterMap.put("wkt", UTM33N_WKT);
-        parameterMap.put("epsgCode", UTM33N_CODE);
-        final Product targetPoduct = createReprojectedProduct();
+        parameterMap.put("crsCode", UTM33N_CODE);
+        createReprojectedProduct();
     }
     
     @Test(expected = OperatorException.class)
     public void testParameterAmbigouity_wkt_wktFile() {
         parameterMap.put("wkt", UTM33N_WKT);
         parameterMap.put("wktFile", wktFile);
-        final Product targetPoduct = createReprojectedProduct();
+        createReprojectedProduct();
     }
     
     @Test(expected = OperatorException.class)
@@ -166,25 +156,25 @@ public class ReprojectionOpTest {
         productMap.put("source", sourceProduct);
         productMap.put("collocate", sourceProduct);
         parameterMap.put("wkt", UTM33N_WKT);
-        final Product targetPoduct = createReprojectedProduct(productMap);
+        createReprojectedProduct(productMap);
     }
 
     @Test(expected = OperatorException.class)
     public void testUnknownResamplingMethode() {
         parameterMap.put("resampling", "Super_Duper_Resampling");
-        final Product targetPoduct = createReprojectedProduct();
+        createReprojectedProduct();
     }
     
     @Test(expected = OperatorException.class)
     public void testMissingPixelSizeY() {
         parameterMap.put("pixelSizeX", 0.024);
-        final Product targetPoduct = createReprojectedProduct();
+        createReprojectedProduct();
     }
     
     @Test(expected = OperatorException.class)
     public void testMissingPixelSizeX() {
         parameterMap.put("pixelSizeY", 0.024);
-        final Product targetPoduct = createReprojectedProduct();
+        createReprojectedProduct();
     }
 
     @Test(expected = OperatorException.class)
@@ -192,7 +182,7 @@ public class ReprojectionOpTest {
         parameterMap.put("referencePixelY", 0.5);
         parameterMap.put("easting", 1234.5);
         parameterMap.put("northing", 1234.5);
-        final Product targetPoduct = createReprojectedProduct();
+        createReprojectedProduct();
     }
 
     @Test(expected = OperatorException.class)
@@ -200,7 +190,7 @@ public class ReprojectionOpTest {
         parameterMap.put("referencePixelX", 0.5);
         parameterMap.put("easting", 1234.5);
         parameterMap.put("northing", 1234.5);
-        final Product targetPoduct = createReprojectedProduct();
+        createReprojectedProduct();
     }
     
 
@@ -209,7 +199,7 @@ public class ReprojectionOpTest {
         parameterMap.put("referencePixelX", 0.5);
         parameterMap.put("referencePixelY", 0.5);
         parameterMap.put("easting", 1234.5);
-        final Product targetPoduct = createReprojectedProduct();
+        createReprojectedProduct();
     }
 
     @Test(expected = OperatorException.class)
@@ -217,12 +207,12 @@ public class ReprojectionOpTest {
         parameterMap.put("referencePixelX", 0.5);
         parameterMap.put("referencePixelY", 0.5);
         parameterMap.put("northing", 1234.5);
-        final Product targetPoduct = createReprojectedProduct();
+        createReprojectedProduct();
     }
     
     @Test
     public void testUTM() throws IOException {
-        parameterMap.put("epsgCode", UTM33N_CODE);
+        parameterMap.put("crsCode", UTM33N_CODE);
         final Product targetPoduct = createReprojectedProduct();
         
         assertNotNull(targetPoduct);
@@ -231,7 +221,7 @@ public class ReprojectionOpTest {
     
     @Test
     public void testUTM_Bilinear() throws IOException {
-        parameterMap.put("epsgCode", UTM33N_CODE);
+        parameterMap.put("crsCode", UTM33N_CODE);
         parameterMap.put("resampling", "Bilinear");
         final Product targetPoduct = createReprojectedProduct();
         
@@ -240,14 +230,14 @@ public class ReprojectionOpTest {
         // 299, 312
         // 322, 336
         // interpolated = 317.25 for pixel (24, 14)
-        testPixelValue(targetPoduct, 24f, 14f, 317.25, 1.0e-2);
+        testPixelValue(targetPoduct, 24.0f, 14.0f, 317.25, 1.0e-2);
     }
 
     @Test
     public void testSpecifyingTargetDimension() throws IOException {
         final int width = 200;
         final int height = 300;
-        parameterMap.put("epsgCode", WGS84_CODE);
+        parameterMap.put("crsCode", WGS84_CODE);
         parameterMap.put("width", width);
         parameterMap.put("height", height);
         final Product targetPoduct = createReprojectedProduct();
@@ -263,7 +253,7 @@ public class ReprojectionOpTest {
     public void testSpecifyingPixelSize() throws IOException {
         final double sizeX = 5; // degree
         final double sizeY = 10;// degree
-        parameterMap.put("epsgCode", WGS84_CODE);
+        parameterMap.put("crsCode", WGS84_CODE);
         parameterMap.put("pixelSizeX", sizeX);
         parameterMap.put("pixelSizeY", sizeY);
         final Product targetPoduct = createReprojectedProduct();
@@ -277,7 +267,7 @@ public class ReprojectionOpTest {
     
     @Test
     public void testSpecifyingReferencing() throws IOException {
-        parameterMap.put("epsgCode", WGS84_CODE);
+        parameterMap.put("crsCode", WGS84_CODE);
         parameterMap.put("referencePixelX", 0.5);
         parameterMap.put("referencePixelY", 0.5);
         parameterMap.put("easting", 9.0);   // just move it 3° degrees eastward
@@ -293,7 +283,7 @@ public class ReprojectionOpTest {
 
     @Test
     public void testIncludeTiePointGrids() throws Exception {
-        parameterMap.put("epsgCode", WGS84_CODE);
+        parameterMap.put("crsCode", WGS84_CODE);
         Product targetPoduct = createReprojectedProduct();
         
         TiePointGrid[] tiePointGrids = targetPoduct.getTiePointGrids();
@@ -312,12 +302,12 @@ public class ReprojectionOpTest {
     }
     
     private Product createReprojectedProduct(Map<String, Product> sourceMap) {
-        String operatorName = ReprojectionOp.Spi.getOperatorAlias(ReprojectionOp.class);
+        String operatorName = OperatorSpi.getOperatorAlias(ReprojectionOp.class);
         return GPF.createProduct(operatorName, parameterMap, sourceMap);
     }
     
     private Product createReprojectedProduct() {
-        String operatorName = ReprojectionOp.Spi.getOperatorAlias(ReprojectionOp.class);
+        String operatorName = OperatorSpi.getOperatorAlias(ReprojectionOp.class);
         return GPF.createProduct(operatorName, parameterMap, sourceProduct);
     }
 

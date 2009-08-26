@@ -23,7 +23,6 @@ import com.jidesoft.list.FilterableListModel;
 import com.jidesoft.list.QuickListFilterField;
 import com.jidesoft.utils.Lm;
 import org.esa.beam.framework.datamodel.Product;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -40,13 +39,16 @@ import java.awt.Container;
 import java.awt.Dimension;
 
 public class CrsSelectionForm extends JPanel {
+    public static final String PROPERTY_SELECTED_CRS_CODE = "selectedCrsCode";
 
-    private final CrsSelectionFormModel crsSelectionFormModel;
+    private final CrsInfoListModel crsListModel;
     private Product sourceProduct;
     private JTextArea infoArea;
     private JList crsList;
     private JButton defineCrsBtn;
     private QuickListFilterField filterField;
+
+    private String selectedCrsCode;
 
     // for testing the UI
     public static void main(String[] args) {
@@ -54,9 +56,8 @@ public class CrsSelectionForm extends JPanel {
         final JFrame frame = new JFrame("CRS Selection Panel");
         Container contentPane = frame.getContentPane();
 
-        final CrsInfoListModel crsInfoListModel = new CrsInfoListModel(CrsInfo.generateCRSList());
-        final CrsSelectionFormModel model = new CrsSelectionFormModel(crsInfoListModel);
-        CrsSelectionForm CrsSelectionForm = new CrsSelectionForm(model);
+        final CrsInfoListModel listModel = new CrsInfoListModel(CrsInfo.generateCRSList());
+        CrsSelectionForm CrsSelectionForm = new CrsSelectionForm(listModel);
         contentPane.add(CrsSelectionForm);
         frame.setSize(600, 400);
         frame.setLocationRelativeTo(null);
@@ -69,11 +70,9 @@ public class CrsSelectionForm extends JPanel {
         });
     }
 
-
-    CrsSelectionForm(CrsSelectionFormModel model) {
-        crsSelectionFormModel = model;
-        creaeUI();
-        updateUIState();
+    CrsSelectionForm(CrsInfoListModel model) {
+        crsListModel = model;
+        createUI();
     }
 
     public void setFormEnabled(boolean enable) {
@@ -83,9 +82,8 @@ public class CrsSelectionForm extends JPanel {
         defineCrsBtn.setEnabled(enable);
     }
 
-
-    private void creaeUI() {
-        filterField = new QuickListFilterField(crsSelectionFormModel.getListModel());
+    private void createUI() {
+        filterField = new QuickListFilterField(crsListModel);
         filterField.setHintText("Type here to filter Projections");
         filterField.setWildcardEnabled(true);
         final FilterableListModel listModel = filterField.getDisplayListModel();
@@ -93,7 +91,7 @@ public class CrsSelectionForm extends JPanel {
         crsList.setVisibleRowCount(15);
         filterField.setList(crsList);
         crsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        crsList.setSelectedValue(crsSelectionFormModel.getSelectedCrs(), true);
+        crsList.setSelectedValue(crsListModel.getElementAt(0), true);
 
         final JLabel filterLabel = new JLabel("Filter:");
         final JLabel infoLabel = new JLabel("CRS Info:");
@@ -127,47 +125,36 @@ public class CrsSelectionForm extends JPanel {
         add(defineCrsBtn);
     }
 
-    private void selectedCrsChanged(final CoordinateReferenceSystem crs) {
-        crsSelectionFormModel.setSelectedCrs(crs);
-        updateUIState();
-    }
-
-    private void updateUIState() {
-        final CoordinateReferenceSystem selectedCrs = crsSelectionFormModel.getSelectedCrs();
-        if(crsList.getSelectedValue() != selectedCrs){
-            crsList.setSelectedValue(selectedCrs, true);
-        }
-        if (selectedCrs != null) {
-            infoArea.setText(selectedCrs.toString());
-        }
-    }
-
-
     private class CrsListSelectionListener implements ListSelectionListener {
-
         @Override
         public void valueChanged(ListSelectionEvent e) {
             final JList list = (JList) e.getSource();
-            CrsInfo selectedValue = (CrsInfo) list.getSelectedValue();
-            CoordinateReferenceSystem crs = null;
-            if (selectedValue != null) {
+            CrsInfo crsInfo = (CrsInfo) list.getSelectedValue();
+            String oldCrsCode = selectedCrsCode;
+            if (crsInfo != null) {
                 try {
-                    crs = selectedValue.getCrs(sourceProduct);
+                    setInfoText(crsInfo.getCrs(sourceProduct).toString());
+                    selectedCrsCode = crsInfo.getCrsCode();
                 } catch (Exception e1) {
+                    selectedCrsCode = null;
                     String message = e1.getMessage();
                     if (message != null) {
-                        infoArea.setText("Error while creating CRS:\n\n" + message);
+                        setInfoText("Error while creating CRS:\n\n" + message);
                     }
                 }
             }
-            selectedCrsChanged(crs);
+            firePropertyChange(PROPERTY_SELECTED_CRS_CODE, oldCrsCode, selectedCrsCode);
         }
 
+    }
+
+    private void setInfoText(String infoText) {
+        infoArea.setText(infoText);
+        infoArea.setCaretPosition(0);
     }
 
     public void setSelectedProduct(Product sourceProduct) {
         this.sourceProduct = sourceProduct;
-        crsSelectionFormModel.setSelectedCrs(null);
-        updateUIState();
+        crsList.setSelectedValue(null, false);
     }
 }

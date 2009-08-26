@@ -6,9 +6,11 @@ import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -36,8 +38,8 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.resources.geometry.XRectangle2D;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.operation.TransformException;
 
 import javax.media.jai.ImageLayout;
@@ -81,9 +83,10 @@ public class ReprojectionOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
+    // todo describe in more detail the possibilities of this parameter
     @Parameter(description = "An EPSG code for the target Coordinate Reference System.",
                pattern = "(?:[a-zA-Z]+:)?[0-9]+")
-    private String epsgCode;
+    private String crsCode;
 
     @Parameter(description = "A file which contains the target Coordinate Reference System in WKT format.")
     private File wktFile;
@@ -127,15 +130,13 @@ public class ReprojectionOp extends Operator {
     private Integer height;
     
     
-    private CoordinateReferenceSystem targetCrs;
     private BeamGridGeometry targetGridGeometry;
 
 
     public static ReprojectionOp create(Map<String, Object> parameters,
-                         Map<String, Product> sourceProducts,
-                         RenderingHints renderingHints, 
-                         CoordinateReferenceSystem targetCrs,
-                         BeamGridGeometry targetGridGeometry) {
+                                        Map<String, Product> sourceProducts,
+                                        RenderingHints renderingHints,
+                                        BeamGridGeometry targetGridGeometry) {
         OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
         String operatorName = OperatorSpi.getOperatorAlias(ReprojectionOp.class);
         OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(operatorName);
@@ -143,7 +144,6 @@ public class ReprojectionOp extends Operator {
             throw new OperatorException("No SPI found for operator '" + operatorName + "'");
         }
         ReprojectionOp operator = (ReprojectionOp) operatorSpi.createOperator(parameters, sourceProducts, renderingHints);
-        operator.targetCrs = targetCrs;
         operator.targetGridGeometry = targetGridGeometry;
         return operator;
     }
@@ -155,15 +155,13 @@ public class ReprojectionOp extends Operator {
         validateResamplingParameter();
         validateReferencingParameters();
         validateTargetGridParameters();
-        
-        if (targetCrs == null) {
-            targetCrs = createTargetCRS();
-        }
+
+        CoordinateReferenceSystem targetCrs = createTargetCRS();
         /*
         * 2. Compute the target grid geometry
         */
         if (targetGridGeometry == null) {
-            targetGridGeometry = createTargetGridGeometry();
+            targetGridGeometry = createTargetGridGeometry(targetCrs);
         }
         Rectangle targetGridRect = targetGridGeometry.getBounds();
 
@@ -410,12 +408,18 @@ public class ReprojectionOp extends Operator {
     private CoordinateReferenceSystem createTargetCRS() throws OperatorException {
         CoordinateReferenceSystem crs = null;
         try {
-            if (epsgCode != null && !epsgCode.isEmpty()) {
-                if (!epsgCode.toUpperCase().startsWith("EPSG:")) {
-                    epsgCode = "EPSG:" + epsgCode;
+            if (crsCode != null && !crsCode.isEmpty()) {
+                if (crsCode.matches("[0-9]*")) {  // if only numbers, then prefix with EPSG
+                    crsCode = "EPSG:" + crsCode;
+                }
+                if (crsCode.matches("AUTO:[0-9]*")) {  // if AUTO code, then appen center Lon/Lat
+                    PixelPos pixelPos = new PixelPos(sourceProduct.getSceneRasterWidth() / 2,
+                                                     sourceProduct.getSceneRasterHeight() / 2);
+                    GeoPos geoPos = sourceProduct.getGeoCoding().getGeoPos(pixelPos, null);
+                    crsCode = String.format("%s,%s,%s", crsCode, geoPos.lon, geoPos.lat);
                 }
                 // to force longitude==xAxis and latitude==yAxis
-                crs = CRS.decode(epsgCode, true);
+                crs = CRS.decode(crsCode, true);
             } else if (wktFile != null) {
                 crs = CRS.parseWKT(FileUtils.readText(wktFile));
             } else if (wkt != null) {
@@ -430,19 +434,16 @@ public class ReprojectionOp extends Operator {
     }
 
     protected void validateCrsParameters() {
-        if(targetCrs != null) {
-            return;     // no need to validate
-        }
         final String msgPattern = "Invalid target CRS specification.\nSpecify {0} one of " +
-                                  "''epsgCode'', ''wktFile'', ''wkt'' and ''collocationProduct'' parameter.";
+                                  "''crsCode'', ''wktFile'', ''wkt'' and ''collocationProduct'' parameter.";
 
-        if (epsgCode == null && wktFile == null && wkt == null && collocationProduct == null) {
+        if (crsCode == null && wktFile == null && wkt == null && collocationProduct == null) {
             throw new OperatorException(MessageFormat.format(msgPattern, "at least"));
         }
 
         boolean isCrsDefined = false;
         final String exceptionMsg = MessageFormat.format(msgPattern, "only");
-        if (epsgCode != null) {
+        if (crsCode != null) {
             isCrsDefined = true;
         }
         if (wktFile != null) {
@@ -502,13 +503,14 @@ public class ReprojectionOp extends Operator {
         }
     }
     
-    private BeamGridGeometry createTargetGridGeometry() {
-        Rectangle2D mapBoundary = createMapBoundary(sourceProduct); 
+    private BeamGridGeometry createTargetGridGeometry(CoordinateReferenceSystem targetCrs) {
+        Rectangle2D mapBoundary = createMapBoundary(sourceProduct, targetCrs);
         double mapW = mapBoundary.getWidth();
         double mapH = mapBoundary.getHeight();
 
         if (pixelSizeX == null && pixelSizeY == null) {
-            double pixelSize =  Math.min(mapW / sourceProduct.getSceneRasterWidth(), mapH / sourceProduct.getSceneRasterHeight());
+            double pixelSize =  Math.min(mapW / sourceProduct.getSceneRasterWidth(),
+                                         mapH / sourceProduct.getSceneRasterHeight());
             if (MathUtils.equalValues(pixelSize, 0.0f)) {
                 pixelSize = 1.0f;
             }
@@ -546,7 +548,7 @@ public class ReprojectionOp extends Operator {
         return new BeamGridGeometry(transform, targetGrid, targetCrs);
     }
 
-    private Rectangle2D createMapBoundary(final Product product) {
+    private Rectangle2D createMapBoundary(final Product product, CoordinateReferenceSystem targetCrs) {
         try {
             final CoordinateReferenceSystem sourceCrs = product.getGeoCoding().getImageCRS();
             final int sourceW = product.getSceneRasterWidth();
