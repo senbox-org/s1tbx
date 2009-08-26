@@ -20,10 +20,13 @@ public abstract class VarElementCountSequenceType extends AbstractType implement
         this.elementType = elementType;
     }
 
+    @Override
     public SequenceType resolve(CollectionData parent) throws IOException {
         int elementCount = resolveElementCount(parent);
+        // WRITE PROBLEM
         if (elementCount < 0) {
-            throw new IllegalStateException("elementCount < 0");
+            return null; // resolve failed!
+            // throw new IllegalStateException("elementCount < 0");
         }
         return TypeBuilder.SEQUENCE(elementType, elementCount);
     }

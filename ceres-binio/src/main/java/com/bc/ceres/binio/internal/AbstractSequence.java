@@ -13,14 +13,17 @@ abstract class AbstractSequence extends AbstractCollection implements SequenceIn
         this.sequenceType = sequenceType;
     }
 
+    @Override
     public SequenceType getSequenceType() {
         return sequenceType;
     }
 
+    @Override
     public CompoundInstance getCompound() {
         throw new DataAccessException();
     }
 
+    @Override
     public SequenceInstance getSequence() {
         return this;
     }
@@ -42,7 +45,10 @@ abstract class AbstractSequence extends AbstractCollection implements SequenceIn
         if (mappedSequenceType instanceof VarSequenceType) {
             VarSequenceType varSequenceType = (VarSequenceType) mappedSequenceType;
             mappedSequenceType = varSequenceType.resolve(parent);
-            mappedSequenceType = mapSequenceType(parent, mappedSequenceType);
+            // WRITE PROBLEM
+            if (mappedSequenceType != null) {
+                mappedSequenceType = mapSequenceType(parent, mappedSequenceType);
+            }
         }
         return mappedSequenceType;
     }
