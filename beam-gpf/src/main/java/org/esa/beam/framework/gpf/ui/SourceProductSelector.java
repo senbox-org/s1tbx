@@ -102,8 +102,8 @@ public class SourceProductSelector {
                 Product product = event.getProduct();
                 if (productListModel.getSelectedItem() == product) {
                     productListModel.setSelectedItem(null);
-                    productListModel.removeElement(product);
                 }
+                productListModel.removeElement(product);
             }
         };
     }
