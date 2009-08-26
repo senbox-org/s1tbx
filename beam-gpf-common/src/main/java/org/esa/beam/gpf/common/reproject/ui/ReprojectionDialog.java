@@ -24,8 +24,7 @@ public class ReprojectionDialog extends SingleTargetProductDialog {
     protected Product createTargetProduct() throws Exception {
         final Map<String, Product> productMap = form.getProductMap();
         final Map<String, Object> parameterMap = form.getParameterMap();
-        ReprojectionOp reprojectionOp = ReprojectionOp.create(parameterMap, productMap,
-                                                              null, form.getTargetGeometry());
+        ReprojectionOp reprojectionOp = ReprojectionOp.create(parameterMap, productMap, null);
         return reprojectionOp.getTargetProduct();
     }
 

@@ -17,6 +17,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -128,24 +129,17 @@ public class ReprojectionOp extends Operator {
     private Integer width;
     @Parameter(description = "The height of the output product.")
     private Integer height;
-    
-    
-    private BeamGridGeometry targetGridGeometry;
 
 
-    public static ReprojectionOp create(Map<String, Object> parameters,
-                                        Map<String, Product> sourceProducts,
-                                        RenderingHints renderingHints,
-                                        BeamGridGeometry targetGridGeometry) {
+    public static ReprojectionOp create(Map<String, Object> parameters, Map<String, Product> sourceProducts,
+                                        RenderingHints renderingHints) {
         OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
         String operatorName = OperatorSpi.getOperatorAlias(ReprojectionOp.class);
         OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(operatorName);
         if (operatorSpi == null) {
             throw new OperatorException("No SPI found for operator '" + operatorName + "'");
         }
-        ReprojectionOp operator = (ReprojectionOp) operatorSpi.createOperator(parameters, sourceProducts, renderingHints);
-        operator.targetGridGeometry = targetGridGeometry;
-        return operator;
+        return (ReprojectionOp) operatorSpi.createOperator(parameters, sourceProducts, renderingHints);
     }
     
     @Override
@@ -156,18 +150,19 @@ public class ReprojectionOp extends Operator {
         validateReferencingParameters();
         validateTargetGridParameters();
 
+        /*
+        * 1. Compute the target CRS
+        */
         CoordinateReferenceSystem targetCrs = createTargetCRS();
         /*
         * 2. Compute the target grid geometry
         */
-        if (targetGridGeometry == null) {
-            targetGridGeometry = createTargetGridGeometry(targetCrs);
-        }
-        Rectangle targetGridRect = targetGridGeometry.getBounds();
+        BeamGridGeometry targetGridGeometry = createTargetGridGeometry(targetCrs);
 
         /*
         * 3. Create the target product
         */
+        Rectangle targetGridRect = targetGridGeometry.getBounds();
         targetProduct = new Product("projected_" + sourceProduct.getName(),
                                     "projection of: " + sourceProduct.getDescription(),
                                     targetGridRect.width,
@@ -504,13 +499,21 @@ public class ReprojectionOp extends Operator {
     }
     
     private BeamGridGeometry createTargetGridGeometry(CoordinateReferenceSystem targetCrs) {
-        Rectangle2D mapBoundary = createMapBoundary(sourceProduct, targetCrs);
+        if (collocationProduct != null) {
+            return createCollocationTargetGrid(collocationProduct);
+        } else {
+            return createTargetGrid(sourceProduct, targetCrs);
+        }
+    }
+
+    private BeamGridGeometry createTargetGrid(Product product, CoordinateReferenceSystem targetCrs) {
+        Rectangle2D mapBoundary = createMapBoundary(product, targetCrs);
         double mapW = mapBoundary.getWidth();
         double mapH = mapBoundary.getHeight();
 
         if (pixelSizeX == null && pixelSizeY == null) {
-            double pixelSize =  Math.min(mapW / sourceProduct.getSceneRasterWidth(),
-                                         mapH / sourceProduct.getSceneRasterHeight());
+            double pixelSize =  Math.min(mapW / product.getSceneRasterWidth(),
+                                         mapH / product.getSceneRasterHeight());
             if (MathUtils.equalValues(pixelSize, 0.0f)) {
                 pixelSize = 1.0f;
             }
@@ -546,6 +549,25 @@ public class ReprojectionOp extends Operator {
 
         Rectangle targetGrid = new Rectangle(width, height);
         return new BeamGridGeometry(transform, targetGrid, targetCrs);
+    }
+
+    private BeamGridGeometry createCollocationTargetGrid(Product collocationProduct) {
+        GeoCoding geoCoding = collocationProduct.getGeoCoding();
+        AffineTransform i2m = (AffineTransform) geoCoding.getImageToModelTransform().clone();
+        Rectangle bounds = new Rectangle(collocationProduct.getSceneRasterWidth(),
+                                         collocationProduct.getSceneRasterHeight());
+        CoordinateReferenceSystem modelCRS = geoCoding.getModelCRS();
+        return new BeamGridGeometry(i2m, bounds, modelCRS);
+        // todo - (mp,mz) - This is the old Code. Why creating a clone? Could not figure out.
+        // This lead to the error that collocated products did not have equal crs
+        // They had different CartesianCS
+//        String modelWkt = modelCRS.toString();
+//        try {
+//            CoordinateReferenceSystem modelCrsClone = CRS.parseWKT(modelWkt);
+//            return new BeamGridGeometry(i2m, bounds, modelCRS);
+//        } catch (FactoryException fe) {
+//            throw new OperatorException("Could not create target grid: " + fe.getMessage(), fe);
+//        }
     }
 
     private Rectangle2D createMapBoundary(final Product product, CoordinateReferenceSystem targetCrs) {

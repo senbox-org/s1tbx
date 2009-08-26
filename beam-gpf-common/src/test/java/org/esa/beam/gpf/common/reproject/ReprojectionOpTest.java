@@ -123,12 +123,18 @@ public class ReprojectionOpTest {
     
     @Test
     public void testWithCollocationProduct() {
-        final Map<String, Product> productMap = new HashMap<String, Product>(5);
+        Map<String, Product> productMap = new HashMap<String, Product>(5);
         productMap.put("source", sourceProduct);
-        productMap.put("collocate", sourceProduct);
-        final Product targetPoduct = createReprojectedProduct(productMap);
+        parameterMap.put("crsCode", "AUTO:42002");
+        final Product collocationProduct = createReprojectedProduct(productMap);
 
-        assertNotNull(targetPoduct);
+        productMap = new HashMap<String, Product>(5);
+        productMap.put("source", sourceProduct);
+        productMap.put("collocate", collocationProduct);
+        parameterMap.remove("crsCode");
+        final Product targetProduct = createReprojectedProduct(productMap);
+
+        assertNotNull(targetProduct);
     }
     
     @Test(expected = OperatorException.class)
