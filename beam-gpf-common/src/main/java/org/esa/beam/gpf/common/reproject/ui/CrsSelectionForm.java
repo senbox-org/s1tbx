@@ -22,9 +22,7 @@ import com.bc.ceres.swing.TableLayout.Fill;
 import com.jidesoft.list.FilterableListModel;
 import com.jidesoft.list.QuickListFilterField;
 import com.jidesoft.utils.Lm;
-
 import org.esa.beam.framework.datamodel.Product;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.JButton;
@@ -51,7 +49,7 @@ public class CrsSelectionForm extends JPanel {
     private QuickListFilterField filterField;
 
     // for testing the UI
-    public static void main(String[] args) throws FactoryException {
+    public static void main(String[] args) {
         Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
         final JFrame frame = new JFrame("CRS Selection Panel");
         Container contentPane = frame.getContentPane();
@@ -141,9 +139,6 @@ public class CrsSelectionForm extends JPanel {
         }
         if (selectedCrs != null) {
             infoArea.setText(selectedCrs.toString());
-// disabled, (mz 2009-08-25) print error message instead for easier evaluation            
-//        } else {
-//            infoArea.setText("");
         }
     }
 
@@ -163,7 +158,6 @@ public class CrsSelectionForm extends JPanel {
                     if (message != null) {
                         infoArea.setText("Error while creating CRS:\n\n" + message);
                     }
-//                    e1.printStackTrace();
                 }
             }
             selectedCrsChanged(crs);
