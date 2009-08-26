@@ -75,7 +75,7 @@ public class ReprojectionOp extends Operator {
 
     @SourceProduct(alias = "source", description = "The product which will be reprojected.")
     private Product sourceProduct;
-    @SourceProduct(alias = "colocate", optional = true, label = "Collocation product",
+    @SourceProduct(alias = "collocate", optional = true, label = "Collocation product",
                    description = "The source product will be collocated with this product.")
     private Product collocationProduct;
     @TargetProduct
@@ -559,26 +559,35 @@ public class ReprojectionOp extends Operator {
     }
     
     private BeamGridGeometry createTargetGridGeometry() {
-        Rectangle2D mapBoundary = createMapBoundary(); 
+        if (collocationProduct != null) {
+            return createTargetGridGeometry(collocationProduct);
+        } else {
+            return createTargetGridGeometry(sourceProduct);
+        }
+    }
+
+    private BeamGridGeometry createTargetGridGeometry(Product product) {
+        Rectangle2D mapBoundary = createMapBoundary(sourceProduct);
         double mapW = mapBoundary.getWidth();
         double mapH = mapBoundary.getHeight();
-        
+
         if (pixelSizeX == null && pixelSizeY == null) {
-            double pixelSize =  Math.min(mapW / sourceProduct.getSceneRasterWidth(), mapH / sourceProduct.getSceneRasterHeight());
+            double pixelSize =  Math.min(mapW / product.getSceneRasterWidth(),
+                                         mapH / product.getSceneRasterHeight());
             if (MathUtils.equalValues(pixelSize, 0.0f)) {
                 pixelSize = 1.0f;
             }
             pixelSizeX = pixelSize;
             pixelSizeY = pixelSize;
         }
-        
+
         if (width == null) {
             width = (int) Math.floor(mapW / pixelSizeX);
         }
         if (height == null) {
             height = (int) Math.floor(mapH / pixelSizeY);
         }
-        
+
         if (easting == null) {
             referencePixelX = 0.5 * width;
             referencePixelY = 0.5 * height;
@@ -597,16 +606,16 @@ public class ReprojectionOp extends Operator {
         transform.scale(pixelSizeX, pixelSizeY);
         transform.rotate(Math.toRadians(-orientation));
         transform.translate(-referencePixelX, -referencePixelY);
-        
+
         Rectangle targetGrid = new Rectangle(width, height);
         return new BeamGridGeometry(transform, targetGrid, targetCrs);
     }
-    
-    private Rectangle2D createMapBoundary() {
+
+    private Rectangle2D createMapBoundary(final Product product) {
         try {
-            final CoordinateReferenceSystem sourceCrs = sourceProduct.getGeoCoding().getImageCRS();
-            final int sourceW = sourceProduct.getSceneRasterWidth();
-            final int sourceH = sourceProduct.getSceneRasterHeight();
+            final CoordinateReferenceSystem sourceCrs = product.getGeoCoding().getImageCRS();
+            final int sourceW = product.getSceneRasterWidth();
+            final int sourceH = product.getSceneRasterHeight();
 
             Rectangle2D rect = XRectangle2D.createFromExtremums(0.5, 0.5, sourceW - 0.5, sourceH - 0.5);
             int pointsPerSide = Math.min(sourceH, sourceW) / 10;
