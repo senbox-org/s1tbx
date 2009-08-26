@@ -3,6 +3,7 @@ package com.bc.ceres.binio.internal;
 import com.bc.ceres.binio.CompoundMember;
 import com.bc.ceres.binio.CompoundType;
 import com.bc.ceres.binio.Type;
+import com.bc.ceres.core.Assert;
 
 import java.util.HashMap;
 
@@ -21,25 +22,30 @@ public final class CompoundTypeImpl extends AbstractType implements CompoundType
         this.name = name;
         this.members = members.clone();
         this.metadata = metadata;
-        updateSize();
+        this.size = -1;
     }
 
+    @Override
     public Object getMetadata() {
         return metadata;
     }
 
+    @Override
     public void setMetadata(Object metadata) {
         this.metadata = metadata;
     }
 
+    @Override
     public CompoundMember[] getMembers() {
         return members.clone();
     }
 
+    @Override
     public int getMemberCount() {
         return members.length;
     }
 
+    @Override
     public int getMemberIndex(String name) {
         if (indices == null) {
             synchronized (this) {
@@ -56,23 +62,28 @@ public final class CompoundTypeImpl extends AbstractType implements CompoundType
         return index != null ? index : -1;
     }
 
+    @Override
     public CompoundMember getMember(int memberIndex) {
         return members[memberIndex];
     }
 
     public void setMember(int memberIndex, CompoundMember member) {
+        Assert.notNull(member, "member");
         members[memberIndex] = member;
-        updateSize();
+        size = -1;
     }
 
+    @Override
     public String getMemberName(int memberIndex) {
         return getMember(memberIndex).getName();
     }
 
+    @Override
     public Type getMemberType(int memberIndex) {
         return getMember(memberIndex).getType();
     }
 
+    @Override
     public int getMemberSize(int memberIndex) {
         return getMember(memberIndex).getType().getSize();
     }
@@ -84,6 +95,9 @@ public final class CompoundTypeImpl extends AbstractType implements CompoundType
 
     @Override
     public int getSize() {
+        if (size == -1) {
+            size = computeSize();
+        }
         return size;
     }
 
@@ -97,7 +111,7 @@ public final class CompoundTypeImpl extends AbstractType implements CompoundType
         return true;
     }
 
-    private void updateSize() {
+    private int computeSize() {
         int size = 0;
         for (CompoundMember member : members) {
             final int memberSize = member.getType().getSize();
@@ -108,7 +122,7 @@ public final class CompoundTypeImpl extends AbstractType implements CompoundType
                 break;
             }
         }
-        this.size = size;
+        return size;
     }
 
 }
