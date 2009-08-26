@@ -7,13 +7,24 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ReprojectionOpTest {
     private static final String WGS84_CODE = "EPSG:4326";
@@ -39,6 +50,8 @@ public class ReprojectionOpTest {
     		"AXIS[\"Northing\", NORTH]," +
     		"AUTHORITY[\"EPSG\",\"32633\"]]";
     private static final String BAND_NAME = "data";
+    
+    private static File wktFile;
 
     private static final float[] LATS = new float[]{
             50.0f, 50.0f,
@@ -51,9 +64,18 @@ public class ReprojectionOpTest {
     };
 
     private static Product sourceProduct;
+    private static OperatorSpi spi;
+    
+    private final Map<String, Object> parameterMap = new HashMap<String, Object>(5);
 
     @BeforeClass
-    public static void setup() {
+    public static void setup() throws URISyntaxException {
+        spi = new ReprojectionOp.Spi();
+        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        registry.addOperatorSpi(spi);
+        
+        wktFile = new File(ReprojectionOpTest.class.getResource("test.wkt").toURI());
+        
         sourceProduct = new Product("source", "t", 50, 50);
         final TiePointGrid latGrid = new TiePointGrid("latGrid", 2, 2, 0.5f, 0.5f, 49, 49, LATS);
         final TiePointGrid lonGrid = new TiePointGrid("lonGrid", 2, 2, 0.5f, 0.5f, 49, 49, LONS);
@@ -71,13 +93,18 @@ public class ReprojectionOpTest {
 //            e.printStackTrace();
 //        }
     }
+    
+    @AfterClass
+    public static void tearDown() {
+        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        registry.removeOperatorSpi(spi);
+    }
 
     @Test
     public void testGeoLatLon() throws IOException {
-        final ReprojectionOp repOp = new ReprojectionOp();
-        repOp.setSourceProduct(sourceProduct);
-        repOp.setEpsgCode(WGS84_CODE);
-        final Product targetPoduct = repOp.getTargetProduct();
+        parameterMap.put("epsgCode", WGS84_CODE);
+        final Product targetPoduct = createReprojectedProduct();
+
         assertNotNull(targetPoduct);
         // because source is rectangular the size of source is preserved
         assertEquals(50, targetPoduct.getSceneRasterWidth());
@@ -86,14 +113,117 @@ public class ReprojectionOpTest {
 
         testPixelValue(targetPoduct, 23.5f, 13.5f, 299, 1.0e-6);
     }
+    
+    @Test
+    public void testUTMWithWktText() throws IOException {
+        parameterMap.put("wkt", UTM33N_WKT);
+        final Product targetPoduct = createReprojectedProduct();
+        
+        assertNotNull(targetPoduct);
+        testPixelValue(targetPoduct, 23.5f, 13.5f, 299, 1.0e-6);
+    }
+    
+    @Test
+    public void testWithWktFile() {
+        parameterMap.put("wktFile", wktFile);
+        final Product targetPoduct = createReprojectedProduct();
 
+        assertNotNull(targetPoduct);
+    }
+    
+    @Test
+    public void testWithCollocationProduct() {
+        final Map<String, Product> productMap = new HashMap<String, Product>(5);
+        productMap.put("source", sourceProduct);
+        productMap.put("collocate", sourceProduct);
+        final Product targetPoduct = createReprojectedProduct(productMap);
+
+        assertNotNull(targetPoduct);
+    }
+    
+    @Test(expected = OperatorException.class)
+    public void testEmptyParameterMap() {
+        final Product targetPoduct = createReprojectedProduct();
+    }
+
+    @Test(expected = OperatorException.class)
+    public void testParameterAmbigouity_wkt_epsgCode() {
+        parameterMap.put("wkt", UTM33N_WKT);
+        parameterMap.put("epsgCode", UTM33N_CODE);
+        final Product targetPoduct = createReprojectedProduct();
+    }
+    
+    @Test(expected = OperatorException.class)
+    public void testParameterAmbigouity_wkt_wktFile() {
+        parameterMap.put("wkt", UTM33N_WKT);
+        parameterMap.put("wktFile", wktFile);
+        final Product targetPoduct = createReprojectedProduct();
+    }
+    
+    @Test(expected = OperatorException.class)
+    public void testParameterAmbigouity_wkt_collocateProduct() {
+        final Map<String, Product> productMap = new HashMap<String, Product>(5);
+        productMap.put("source", sourceProduct);
+        productMap.put("collocate", sourceProduct);
+        parameterMap.put("wkt", UTM33N_WKT);
+        final Product targetPoduct = createReprojectedProduct(productMap);
+    }
+
+    @Test(expected = OperatorException.class)
+    public void testUnknownResamplingMethode() {
+        parameterMap.put("resampling", "Super_Duper_Resampling");
+        final Product targetPoduct = createReprojectedProduct();
+    }
+    
+    @Test(expected = OperatorException.class)
+    public void testMissingPixelSizeY() {
+        parameterMap.put("pixelSizeX", 0.024);
+        final Product targetPoduct = createReprojectedProduct();
+    }
+    
+    @Test(expected = OperatorException.class)
+    public void testMissingPixelSizeX() {
+        parameterMap.put("pixelSizeY", 0.024);
+        final Product targetPoduct = createReprojectedProduct();
+    }
+
+    @Test(expected = OperatorException.class)
+    public void testMissingReferencingPixelX() {
+        parameterMap.put("referencePixelY", 0.5);
+        parameterMap.put("easting", 1234.5);
+        parameterMap.put("northing", 1234.5);
+        final Product targetPoduct = createReprojectedProduct();
+    }
+
+    @Test(expected = OperatorException.class)
+    public void testMissingReferencingpixelY() {
+        parameterMap.put("referencePixelX", 0.5);
+        parameterMap.put("easting", 1234.5);
+        parameterMap.put("northing", 1234.5);
+        final Product targetPoduct = createReprojectedProduct();
+    }
+    
+
+    @Test(expected = OperatorException.class)
+    public void testMissingReferencingNorthing() {
+        parameterMap.put("referencePixelX", 0.5);
+        parameterMap.put("referencePixelY", 0.5);
+        parameterMap.put("easting", 1234.5);
+        final Product targetPoduct = createReprojectedProduct();
+    }
+
+    @Test(expected = OperatorException.class)
+    public void testMissingReferencingEasting() {
+        parameterMap.put("referencePixelX", 0.5);
+        parameterMap.put("referencePixelY", 0.5);
+        parameterMap.put("northing", 1234.5);
+        final Product targetPoduct = createReprojectedProduct();
+    }
+    
     @Test
     public void testUTM() throws IOException {
-        final ReprojectionOp repOp = new ReprojectionOp();
-        repOp.setSourceProduct(sourceProduct);
-        repOp.setResamplingName("Nearest");  // setting Nearest cause a particular value is checked
-        repOp.setEpsgCode(UTM33N_CODE);
-        final Product targetPoduct = repOp.getTargetProduct();
+        parameterMap.put("epsgCode", UTM33N_CODE);
+        final Product targetPoduct = createReprojectedProduct();
         
         assertNotNull(targetPoduct);
         testPixelValue(targetPoduct, 23.5f, 13.5f, 299, 1.0e-6);
@@ -101,11 +231,10 @@ public class ReprojectionOpTest {
     
     @Test
     public void testUTM_Bilinear() throws IOException {
-        final ReprojectionOp repOp = new ReprojectionOp();
-        repOp.setSourceProduct(sourceProduct);
-        repOp.setResamplingName("Bilinear");
-        repOp.setEpsgCode(UTM33N_CODE);
-        final Product targetPoduct = repOp.getTargetProduct();
+        parameterMap.put("epsgCode", UTM33N_CODE);
+        parameterMap.put("resampling", "Bilinear");
+        final Product targetPoduct = createReprojectedProduct();
+        
         assertNotNull(targetPoduct);
         assertNotNull(targetPoduct.getGeoCoding());
         // 299, 312
@@ -115,28 +244,14 @@ public class ReprojectionOpTest {
     }
 
     @Test
-    public void testUTMWithWktText() throws IOException {
-        final ReprojectionOp repOp = new ReprojectionOp();
-        repOp.setSourceProduct(sourceProduct);
-        repOp.setResamplingName("Nearest");  // setting Nearest cause a particular value is checked
-        repOp.setWkt(UTM33N_WKT);
-        final Product targetPoduct = repOp.getTargetProduct();
-        
-        assertNotNull(targetPoduct);
-        testPixelValue(targetPoduct, 23.5f, 13.5f, 299, 1.0e-6);
-    }
-
-
-    @Test
     public void testSpecifyingTargetDimension() throws IOException {
         final int width = 200;
         final int height = 300;
-        final ReprojectionOp repOp = new ReprojectionOp();
-        repOp.setSourceProduct(sourceProduct);
-        repOp.setEpsgCode(WGS84_CODE);
-        repOp.setWidth(width);
-        repOp.setHeight(height);
-        final Product targetPoduct = repOp.getTargetProduct();
+        parameterMap.put("epsgCode", WGS84_CODE);
+        parameterMap.put("width", width);
+        parameterMap.put("height", height);
+        final Product targetPoduct = createReprojectedProduct();
+
         assertNotNull(targetPoduct);
         assertEquals(width, targetPoduct.getSceneRasterWidth());
         assertEquals(height, targetPoduct.getSceneRasterHeight());
@@ -146,14 +261,13 @@ public class ReprojectionOpTest {
 
     @Test
     public void testSpecifyingPixelSize() throws IOException {
-        final int sizeX = 5; // degree
-        final int sizeY = 10;// degree
-        final ReprojectionOp repOp = new ReprojectionOp();
-        repOp.setSourceProduct(sourceProduct);
-        repOp.setEpsgCode(WGS84_CODE);
-        repOp.setPixelSizeX(sizeX);
-        repOp.setPixelSizeY(sizeY);
-        final Product targetPoduct = repOp.getTargetProduct();
+        final double sizeX = 5; // degree
+        final double sizeY = 10;// degree
+        parameterMap.put("epsgCode", WGS84_CODE);
+        parameterMap.put("pixelSizeX", sizeX);
+        parameterMap.put("pixelSizeY", sizeY);
+        final Product targetPoduct = createReprojectedProduct();
+        
         assertNotNull(targetPoduct);
         // 20° Width / 5° PixelSizeX = 4 SceneWidth
         assertEquals(4, targetPoduct.getSceneRasterWidth());
@@ -163,16 +277,14 @@ public class ReprojectionOpTest {
     
     @Test
     public void testSpecifyingReferencing() throws IOException {
-        final ReprojectionOp repOp = new ReprojectionOp();
-        repOp.setSourceProduct(sourceProduct);
-        repOp.setResamplingName("Nearest");  // setting Nearest cause a particular value is checked
-        repOp.setEpsgCode(WGS84_CODE);
-        repOp.setReferencePixelX(0.5);
-        repOp.setReferencePixelY(0.5);
-        repOp.setEasting(9);        // just move it 3° degrees eastward
-        repOp.setNorthing(52);      // just move it 2° degrees up
-        repOp.setOrientation(0);
-        final Product targetPoduct = repOp.getTargetProduct();
+        parameterMap.put("epsgCode", WGS84_CODE);
+        parameterMap.put("referencePixelX", 0.5);
+        parameterMap.put("referencePixelY", 0.5);
+        parameterMap.put("easting", 9.0);   // just move it 3° degrees eastward
+        parameterMap.put("northing", 52.0); // just move it 2° degrees up
+        parameterMap.put("orientation", 0.0);
+        final Product targetPoduct = createReprojectedProduct();
+        
         assertNotNull(targetPoduct);
         final GeoPos geoPos = targetPoduct.getGeoCoding().getGeoPos(new PixelPos(0.5f, 0.5f), null);
         assertEquals(new GeoPos(52.0f, 9.0f), geoPos);
@@ -181,26 +293,32 @@ public class ReprojectionOpTest {
 
     @Test
     public void testIncludeTiePointGrids() throws Exception {
-        ReprojectionOp repOp = new ReprojectionOp();
-        repOp.setSourceProduct(sourceProduct);
-        repOp.setEpsgCode(WGS84_CODE);
-        Product targetPoduct = repOp.getTargetProduct();
+        parameterMap.put("epsgCode", WGS84_CODE);
+        Product targetPoduct = createReprojectedProduct();
+        
         TiePointGrid[] tiePointGrids = targetPoduct.getTiePointGrids();
         assertNotNull(tiePointGrids);
         assertEquals(0, tiePointGrids.length);
         Band latGrid = targetPoduct.getBand("latGrid");
         assertNotNull(latGrid);
         
-        repOp = new ReprojectionOp();
-        repOp.setSourceProduct(sourceProduct);
-        repOp.setEpsgCode(WGS84_CODE);
-        repOp.setIncludeTiePointGrids(false);
-        targetPoduct = repOp.getTargetProduct();
+        parameterMap.put("includeTiePointGrids", false);
+        targetPoduct = createReprojectedProduct();
         tiePointGrids = targetPoduct.getTiePointGrids();
         assertNotNull(tiePointGrids);
         assertEquals(0, tiePointGrids.length);
         latGrid = targetPoduct.getBand("latGrid");
         assertNull(latGrid);
+    }
+    
+    private Product createReprojectedProduct(Map<String, Product> sourceMap) {
+        String operatorName = ReprojectionOp.Spi.getOperatorAlias(ReprojectionOp.class);
+        return GPF.createProduct(operatorName, parameterMap, sourceMap);
+    }
+    
+    private Product createReprojectedProduct() {
+        String operatorName = ReprojectionOp.Spi.getOperatorAlias(ReprojectionOp.class);
+        return GPF.createProduct(operatorName, parameterMap, sourceProduct);
     }
 
     private void testPixelValue(Product targetPoduct, float sourceX, float sourceY, double expectedPixelValue, double delta) throws IOException {

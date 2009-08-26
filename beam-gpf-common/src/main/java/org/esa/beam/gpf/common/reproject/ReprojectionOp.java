@@ -148,66 +148,6 @@ public class ReprojectionOp extends Operator {
         return operator;
     }
     
-    void setCollocationProduct(Product collocationProduct) {
-        this.collocationProduct = collocationProduct;
-    }
-
-    void setEpsgCode(String epsgCode) {
-        this.epsgCode = epsgCode;
-    }
-
-    void setWktFile(File wktFile) {
-        this.wktFile = wktFile;
-    }
-
-    void setWkt(String wkt) {
-        this.wkt = wkt;
-    }
-
-    void setResamplingName(String resamplingName) {
-        this.resamplingName = resamplingName;
-    }
-
-    void setReferencePixelX(double referencePixelX) {
-        this.referencePixelX = referencePixelX;
-    }
-
-    void setReferencePixelY(double referencePixelY) {
-        this.referencePixelY = referencePixelY;
-    }
-
-    void setEasting(double easting) {
-        this.easting = easting;
-    }
-
-    void setNorthing(double northing) {
-        this.northing = northing;
-    }
-
-    void setOrientation(double orientation) {
-        this.orientation = orientation;
-    }
-
-    void setWidth(int width) {
-        this.width = width;
-    }
-
-    void setHeight(int height) {
-        this.height = height;
-    }
-
-    void setPixelSizeX(double pixelSizeX) {
-        this.pixelSizeX = pixelSizeX;
-    }
-
-    void setPixelSizeY(double pixelSizeY) {
-        this.pixelSizeY = pixelSizeY;
-    }
-    
-    public void setIncludeTiePointGrids(boolean includeTiePointGrids) {
-        this.includeTiePointGrids = includeTiePointGrids;
-    }
-
     @Override
     public void initialize() throws OperatorException {
 
