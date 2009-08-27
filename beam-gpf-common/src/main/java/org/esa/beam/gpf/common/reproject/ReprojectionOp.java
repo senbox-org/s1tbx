@@ -18,11 +18,9 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
@@ -50,7 +48,6 @@ import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ColorModel;
@@ -58,7 +55,6 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.Map;
 
 /**
  * @author Marco Zuehlke
@@ -133,17 +129,6 @@ public class ReprojectionOp extends Operator {
     @Parameter(description = "The height of the output product.")
     private Integer height;
 
-
-    public static ReprojectionOp create(Map<String, Object> parameters, Map<String, Product> sourceProducts,
-                                        RenderingHints renderingHints) {
-        OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        String operatorName = OperatorSpi.getOperatorAlias(ReprojectionOp.class);
-        OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(operatorName);
-        if (operatorSpi == null) {
-            throw new OperatorException("No SPI found for operator '" + operatorName + "'");
-        }
-        return (ReprojectionOp) operatorSpi.createOperator(parameters, sourceProducts, renderingHints);
-    }
     
     @Override
     public void initialize() throws OperatorException {
@@ -561,16 +546,6 @@ public class ReprojectionOp extends Operator {
                                          collocationProduct.getSceneRasterHeight());
         CoordinateReferenceSystem modelCRS = geoCoding.getModelCRS();
         return new BeamGridGeometry(i2m, bounds, modelCRS);
-        // todo - (mp,mz) - This is the old Code. Why creating a clone? Could not figure out.
-        // This lead to the error that collocated products did not have equal crs
-        // They had different CartesianCS
-//        String modelWkt = modelCRS.toString();
-//        try {
-//            CoordinateReferenceSystem modelCrsClone = CRS.parseWKT(modelWkt);
-//            return new BeamGridGeometry(i2m, bounds, modelCRS);
-//        } catch (FactoryException fe) {
-//            throw new OperatorException("Could not create target grid: " + fe.getMessage(), fe);
-//        }
     }
 
     private Rectangle2D createMapBoundary(final Product product, CoordinateReferenceSystem targetCrs) {
