@@ -145,12 +145,12 @@ public class ReprojectionOp extends Operator {
         /*
         * 2. Compute the target grid geometry
         */
-        BeamGridGeometry targetGridGeometry = createTargetGridGeometry(targetCrs);
+        GridGeometry targetGridGeometry = createTargetGridGeometry(targetCrs);
 
         /*
         * 3. Create the target product
         */
-        Rectangle targetGridRect = targetGridGeometry.getBounds();
+        Rectangle targetGridRect = targetGridGeometry.getBounds2D().getBounds();
         targetProduct = new Product("projected_" + sourceProduct.getName(),
                                     "projection of: " + sourceProduct.getDescription(),
                                     targetGridRect.width,
@@ -165,7 +165,10 @@ public class ReprojectionOp extends Operator {
         ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
         copyIndexCoding();
         try {
-            targetProduct.setGeoCoding(new GeotoolsGeoCoding(targetGridGeometry));
+            targetProduct.setGeoCoding(new CrsGeoCoding(targetGridGeometry.getModelCRS(),
+                                                             targetGridGeometry.getBounds2D(),
+                                                             targetGridGeometry.getGridToModel()
+            ));
         } catch (Exception e) {
             throw new OperatorException(e);
         }
@@ -282,8 +285,8 @@ public class ReprojectionOp extends Operator {
 
             @Override
             public RenderedImage createImage(int level) {
-                Rectangle2D bounds = createLevelBounds(getModel(), level);
-                Rectangle intBounds = BeamGridGeometry.getIntRectangle(bounds);
+                Rectangle2D bounds2D = createLevelBounds(getModel(), level);
+                Rectangle intBounds = bounds2D.getBounds();
                 return ConstantDescriptor.create((float) intBounds.width, (float) intBounds.height, new Integer[]{1}, null);
             }
         });
@@ -320,14 +323,12 @@ public class ReprojectionOp extends Operator {
                 Rectangle2D sourceRect = createLevelBounds(srcModel, sourceLevel);
                 Rectangle2D targetRect = createLevelBounds(targetModel, targetLevel);
 
-                BeamGridGeometry sourceGridGeometry = new BeamGridGeometry(
-                        srcModel.getImageToModelTransform(sourceLevel),
-                        sourceRect,
-                        sourceProduct.getGeoCoding().getModelCRS());
-                BeamGridGeometry targetGridGeometry = new BeamGridGeometry(
-                        getModel().getImageToModelTransform(targetLevel),
-                        targetRect,
-                        targetProduct.getGeoCoding().getModelCRS());
+                GridGeometry sourceGridGeometry = new GridGeometry(
+                        sourceRect, sourceProduct.getGeoCoding().getModelCRS(), srcModel.getImageToModelTransform(sourceLevel)
+                );
+                GridGeometry targetGridGeometry = new GridGeometry(
+                        targetRect, targetProduct.getGeoCoding().getModelCRS(), getModel().getImageToModelTransform(targetLevel)
+                );
 
                 Interpolation usedResampling = getResampling();
                 int dataType = targetBand.getDataType();
@@ -335,7 +336,7 @@ public class ReprojectionOp extends Operator {
                     usedResampling = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
                 }
 
-                Rectangle targetRectInt = targetGridGeometry.getBounds();
+                Rectangle targetRectInt = targetGridGeometry.getBounds2D().getBounds();
                 ImageLayout imageLayout = createImageLayout(dataType, 
                                                             targetRectInt.width, 
                                                             targetRectInt.height, 
@@ -486,7 +487,7 @@ public class ReprojectionOp extends Operator {
         }
     }
     
-    private BeamGridGeometry createTargetGridGeometry(CoordinateReferenceSystem targetCrs) {
+    private GridGeometry createTargetGridGeometry(CoordinateReferenceSystem targetCrs) {
         if (collocationProduct != null) {
             return createCollocationTargetGrid(collocationProduct);
         } else {
@@ -494,7 +495,7 @@ public class ReprojectionOp extends Operator {
         }
     }
 
-    private BeamGridGeometry createTargetGrid(Product product, CoordinateReferenceSystem targetCrs) {
+    private GridGeometry createTargetGrid(Product product, CoordinateReferenceSystem targetCrs) {
         Rectangle2D mapBoundary = createMapBoundary(product, targetCrs);
         double mapW = mapBoundary.getWidth();
         double mapH = mapBoundary.getHeight();
@@ -536,16 +537,16 @@ public class ReprojectionOp extends Operator {
         transform.translate(-referencePixelX, -referencePixelY);
 
         Rectangle targetGrid = new Rectangle(width, height);
-        return new BeamGridGeometry(transform, targetGrid, targetCrs);
+        return new GridGeometry(targetGrid, targetCrs, transform);
     }
 
-    private BeamGridGeometry createCollocationTargetGrid(Product collocationProduct) {
+    private GridGeometry createCollocationTargetGrid(Product collocationProduct) {
         GeoCoding geoCoding = collocationProduct.getGeoCoding();
         AffineTransform i2m = (AffineTransform) geoCoding.getImageToModelTransform().clone();
         Rectangle bounds = new Rectangle(collocationProduct.getSceneRasterWidth(),
                                          collocationProduct.getSceneRasterHeight());
         CoordinateReferenceSystem modelCRS = geoCoding.getModelCRS();
-        return new BeamGridGeometry(i2m, bounds, modelCRS);
+        return new GridGeometry(bounds, modelCRS, i2m);
     }
 
     private Rectangle2D createMapBoundary(final Product product, CoordinateReferenceSystem targetCrs) {

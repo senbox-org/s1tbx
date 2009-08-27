@@ -26,17 +26,22 @@ import org.opengis.referencing.operation.MathTransformFactory;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
 
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 
-public class GeotoolsGeoCoding extends AbstractGeoCoding {
+public class CrsGeoCoding extends AbstractGeoCoding {
 
-    private final BeamGridGeometry gridGeometry;
     private final Datum datum;
     private MathTransform image2Base;
     private MathTransform base2image;
+    private final AffineTransform gridToModel;
+    private final Rectangle2D bounds2D;
+    private final CoordinateReferenceSystem modelCRS;
 
-    public GeotoolsGeoCoding(BeamGridGeometry gridGeometry) throws FactoryException, NoninvertibleTransformException {
-        this.gridGeometry = gridGeometry;
-
+    public CrsGeoCoding(final CoordinateReferenceSystem modelCRS, final Rectangle2D gridBounds2D,
+                             final AffineTransform gridToModel) throws FactoryException, NoninvertibleTransformException {
+        this.gridToModel = gridToModel;
+        this.bounds2D = gridBounds2D;
+        this.modelCRS = modelCRS;
         org.opengis.referencing.datum.Ellipsoid gtEllipsoid = CRS.getEllipsoid(getModelCRS());
         String ellipsoidName = gtEllipsoid.getName().getCode();
         Ellipsoid ellipsoid = new Ellipsoid(ellipsoidName, gtEllipsoid.getSemiMajorAxis(),
@@ -45,9 +50,8 @@ public class GeotoolsGeoCoding extends AbstractGeoCoding {
         String datumName = gtDatum.getName().getCode();
         this.datum = new Datum(datumName, ellipsoid, 0, 0, 0);
 
-        MathTransform imageToModel = new AffineTransform2D(gridGeometry.getImageToModel());
+        MathTransform imageToModel = new AffineTransform2D(gridToModel);
         
-        final CoordinateReferenceSystem modelCRS = gridGeometry.getModelCRS();
         if (modelCRS instanceof DerivedCRS) {
             DerivedCRS derivedCRS = (DerivedCRS) modelCRS;
             CoordinateReferenceSystem baseCRS = derivedCRS.getBaseCRS();
@@ -110,7 +114,7 @@ public class GeotoolsGeoCoding extends AbstractGeoCoding {
             DirectPosition directPixelPos = new DirectPosition2D(pixelPos);
             DirectPosition directGeoPos = image2Base.transform(directPixelPos, null);
             geoPos.setLocation((float) directGeoPos.getOrdinate(1), (float) directGeoPos.getOrdinate(0));
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             geoPos.setInvalid();
         }
         return geoPos;
@@ -125,7 +129,7 @@ public class GeotoolsGeoCoding extends AbstractGeoCoding {
             DirectPosition directGeoPos = new DirectPosition2D(geoPos.getLon(), geoPos.getLat());
             DirectPosition directPixelPos = base2image.transform(directGeoPos, null);
             pixelPos.setLocation((float) directPixelPos.getOrdinate(0), (float) directPixelPos.getOrdinate(1));
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             pixelPos.setInvalid();
         }
         return pixelPos;
@@ -139,6 +143,6 @@ public class GeotoolsGeoCoding extends AbstractGeoCoding {
     
     @Override
     public AffineTransform getImageToModelTransform() {
-        return gridGeometry.getImageToModel();
+        return gridToModel;
     }
 }

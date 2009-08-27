@@ -46,8 +46,9 @@ public class ReprojectionOpTest {
     		"AXIS[\"Easting\", EAST]," +
     		"AXIS[\"Northing\", NORTH]," +
     		"AUTHORITY[\"EPSG\",\"32633\"]]";
-    private static final String BAND_NAME = "data";
-    
+    private static final String FLOAT_BAND_NAME = "floatData";
+    private static final String INT_BAND_NAME = "intData";
+
     private static File wktFile;
 
     private static final float[] LATS = new float[]{
@@ -79,9 +80,12 @@ public class ReprojectionOpTest {
         sourceProduct.addTiePointGrid(latGrid);
         sourceProduct.addTiePointGrid(lonGrid);
         sourceProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
-        Band dataBand = sourceProduct.addBand(BAND_NAME, ProductData.TYPE_FLOAT32);
-        dataBand.setRasterData(createDataFor(dataBand));
-        dataBand.setSynthetic(true);
+        Band floatDataBand = sourceProduct.addBand(FLOAT_BAND_NAME, ProductData.TYPE_FLOAT32);
+        floatDataBand.setRasterData(createDataFor(floatDataBand));
+        floatDataBand.setSynthetic(true);
+        Band intDataBand = sourceProduct.addBand(INT_BAND_NAME, ProductData.TYPE_INT16);
+        intDataBand.setRasterData(createDataFor(intDataBand));
+        intDataBand.setSynthetic(true);
     }
     
     @AfterClass
@@ -318,8 +322,8 @@ public class ReprojectionOpTest {
     }
 
     private void testPixelValue(Product targetPoduct, float sourceX, float sourceY, double expectedPixelValue, double delta) throws IOException {
-        final Band sourceBand = sourceProduct.getBand(BAND_NAME);
-        final Band targetBand = targetPoduct.getBand(BAND_NAME);
+        final Band sourceBand = sourceProduct.getBand(FLOAT_BAND_NAME);
+        final Band targetBand = targetPoduct.getBand(FLOAT_BAND_NAME);
         final PixelPos sourcePP = new PixelPos(sourceX, sourceY);
         final GeoPos geoPos = sourceBand.getGeoCoding().getGeoPos(sourcePP, null);
         final PixelPos targetPP = targetBand.getGeoCoding().getPixelPos(geoPos, null);

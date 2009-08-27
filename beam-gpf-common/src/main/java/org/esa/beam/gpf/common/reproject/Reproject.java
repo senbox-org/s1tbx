@@ -15,28 +15,6 @@
 package org.esa.beam.gpf.common.reproject;
 
 
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
-import java.awt.image.renderable.ParameterBlock;
-import java.awt.image.RenderedImage;
-
-import javax.media.jai.JAI;
-import javax.media.jai.Warp;
-import javax.media.jai.WarpAffine;
-import javax.media.jai.RenderedOp;
-import javax.media.jai.Interpolation;
-import javax.media.jai.BorderExtender;
-import javax.media.jai.BorderExtenderConstant;
-import javax.media.jai.operator.MosaicDescriptor;
-
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.CoordinateOperationFactory;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.MathTransform2D;
-import org.opengis.referencing.operation.MathTransformFactory;
-import org.opengis.referencing.operation.TransformException;
-
 import org.geotools.factory.Hints;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
@@ -46,9 +24,29 @@ import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.referencing.operation.transform.DimensionFilter;
 import org.geotools.referencing.operation.transform.WarpTransform2D;
 import org.geotools.resources.XArray;
-import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.image.ImageUtilities;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.CoordinateOperationFactory;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.MathTransform2D;
+import org.opengis.referencing.operation.MathTransformFactory;
+import org.opengis.referencing.operation.TransformException;
+
+import javax.media.jai.BorderExtender;
+import javax.media.jai.BorderExtenderConstant;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.Warp;
+import javax.media.jai.WarpAffine;
+import javax.media.jai.operator.MosaicDescriptor;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
+import java.awt.image.RenderedImage;
+import java.awt.image.renderable.ParameterBlock;
 
 
 /**
@@ -91,8 +89,8 @@ final class Reproject {
      *          if a transformation failed.
      */
     public static RenderedImage reproject(RenderedImage sourceImage, 
-                                          BeamGridGeometry sourceGG,
-                                          BeamGridGeometry targetGG,
+                                          GridGeometry sourceGG,
+                                          GridGeometry targetGG,
                                           double backgroundValue,
                                           final Interpolation interpolation, 
                                           final Hints hints) throws FactoryException, TransformException {
@@ -130,8 +128,8 @@ final class Reproject {
          *                 step 1         step 3
          */
         final MathTransform allSteps;
-        MathTransform step1 = new AffineTransform2D(targetGG.getImageToModel());
-        MathTransform step3 = new AffineTransform2D(sourceGG.getImageToModel()).inverse();
+        MathTransform step1 = new AffineTransform2D(targetGG.getGridToModel());
+        MathTransform step3 = new AffineTransform2D(sourceGG.getGridToModel()).inverse();
         if (CRS.equalsIgnoreMetadata(sourceGG.getModelCRS(), targetGG.getModelCRS())) {
             allSteps = mtFactory.createConcatenatedTransform(step1, step3);
         } else {
@@ -146,7 +144,7 @@ final class Reproject {
                            mtFactory.createConcatenatedTransform(step1, step2), step3);
             }
         }
-        MathTransform2D allSteps2D = toMathTransform2D(allSteps, mtFactory, targetGG);
+        MathTransform2D allSteps2D = toMathTransform2D(allSteps, mtFactory);
 
         ////////////////////////////////////////////////////////////////////////////////////////
         ////                                                                                ////
@@ -195,8 +193,8 @@ final class Reproject {
         if (allSteps.isIdentity() || (allSteps instanceof AffineTransform &&
                 XAffineTransform.isIdentity((AffineTransform) allSteps, EPS))) {
 
-            final Rectangle sourceBB = sourceGG.getBounds();
-            final Rectangle targetBB = targetGG.getBounds();
+            final Rectangle sourceBB = sourceGG.getBounds2D().getBounds();
+            final Rectangle targetBB = targetGG.getBounds2D().getBounds();
             /*
              * Since there is no interpolation to perform, use the native view (which may be
              * packed or geophysics - it is just the view which is closest to original data).
@@ -289,7 +287,7 @@ final class Reproject {
 //        final GridEnvelope actualGR = new GeneralGridRange(lower, upper);
 //        if (!targetGR.equals(actualGR)) {
 //            MathTransform gridToCRS = new AffineTransform2D(targetGridGeometry.getImageToModel());
-//            targetGridGeometry = new BeamGridGeometry(actualGR, gridToCRS, targetCRS);
+//            targetGridGeometry = new GridGeometry(actualGR, gridToCRS, targetCRS);
 //        }
         /*
          * Constructs the final grid coverage, then log a message as in the following example:
@@ -307,26 +305,21 @@ final class Reproject {
      *
      * @param  transform The transform.
      * @param  mtFactory The factory to use for extracting the sub-transform.
-     * @param  sourceGG  The grid geometry which is the source of the <strong>transform</strong>.
-     *                   This is {@code targetGG} in the {@link #reproject} method, because the
-     *                   later computes a transform from target to source grid geometry.
      * @return The {@link MathTransform2D} part of {@code transform}.
      * @throws FactoryException If {@code transform} is not separable.
      */
-    private static MathTransform2D toMathTransform2D(final MathTransform        transform,
-                                                     final MathTransformFactory mtFactory,
-                                                     final BeamGridGeometry     sourceGG)
-            throws FactoryException
+    private static MathTransform2D toMathTransform2D(final MathTransform transform,
+                                                     final MathTransformFactory mtFactory) throws FactoryException
     {
         final DimensionFilter filter = new DimensionFilter(mtFactory);
-        filter.addSourceDimension(sourceGG.dimensionXIndex);
-        filter.addSourceDimension(sourceGG.dimensionYIndex);
+        filter.addSourceDimension(GridGeometry.dimensionXIndex);
+        filter.addSourceDimension(GridGeometry.dimensionYIndex);
         MathTransform candidate = filter.separate(transform);
         if (candidate instanceof MathTransform2D) {
             return (MathTransform2D) candidate;
         }
-        filter.addTargetDimension(sourceGG.dimensionXIndex);
-        filter.addTargetDimension(sourceGG.dimensionYIndex);
+        filter.addTargetDimension(GridGeometry.dimensionXIndex);
+        filter.addTargetDimension(GridGeometry.dimensionYIndex);
         candidate = filter.separate(transform);
         if (candidate instanceof MathTransform2D) {
             return (MathTransform2D) candidate;

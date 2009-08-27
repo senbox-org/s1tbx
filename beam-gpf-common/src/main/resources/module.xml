@@ -31,14 +31,6 @@
     
     <extension point="beam-ui:actions">
         <action>
-            <id>mapProjAction</id>
-            <class>org.esa.beam.gpf.common.reproject.MapProjAction</class>
-            <text>Map Projection Operator (SPIKE)...</text>
-        </action>
-    </extension>
-    
-    <extension point="beam-ui:actions">
-        <action>
             <id>reprojAction</id>
             <class>org.esa.beam.gpf.common.reproject.ui.ReprojectionAction</class>
             <text>Reprojection (SPIKE)...</text>

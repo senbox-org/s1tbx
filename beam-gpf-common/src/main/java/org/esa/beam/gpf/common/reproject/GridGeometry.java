@@ -14,51 +14,37 @@
  */
 package org.esa.beam.gpf.common.reproject;
 
-import org.esa.beam.util.math.MathUtils;
-import org.geotools.geometry.Envelope2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
 
-public class BeamGridGeometry  {
+class GridGeometry {
 
     public static final int dimensionXIndex = 0;
     public static final int dimensionYIndex = 1;
     
-    private AffineTransform i2m;
-    private Rectangle2D bounds;
-    private Envelope2D envelope;
-    
-    public BeamGridGeometry(AffineTransform i2m, Rectangle2D bounds, CoordinateReferenceSystem modelCrs) {
-        this.i2m = i2m;
-        this.bounds = bounds;
-        envelope = new Envelope2D(modelCrs, bounds);
+    private final AffineTransform i2m;
+    private final Rectangle2D bounds2D;
+    private final CoordinateReferenceSystem modelCrs;
+
+    GridGeometry(Rectangle2D bounds2D, CoordinateReferenceSystem modelCrs, AffineTransform grid2model) {
+        this.i2m = grid2model;
+        this.bounds2D = bounds2D;
+        this.modelCrs = modelCrs;
     }
-    
-    public AffineTransform getImageToModel() {
+
+    public AffineTransform getGridToModel() {
         return i2m;
     }
     
     public Rectangle2D getBounds2D() {
-        return bounds;
+        return bounds2D;
     }
     
-    public Rectangle getBounds() {
-        return getIntRectangle(bounds);
-    }
-    
-    public Envelope2D getEnvelope() {
-        return envelope;
+    public CoordinateReferenceSystem getModelCRS() {
+        return modelCrs;
     }
 
-    public CoordinateReferenceSystem getModelCRS() {
-        return envelope.getCoordinateReferenceSystem();
-    }
-    
-    public static Rectangle getIntRectangle(Rectangle2D rectangle2d) {
-        return new Rectangle(MathUtils.floorInt(rectangle2d.getWidth()), MathUtils.floorInt(rectangle2d.getHeight()));
-    }
 }
