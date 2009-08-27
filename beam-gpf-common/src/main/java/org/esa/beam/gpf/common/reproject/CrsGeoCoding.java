@@ -33,14 +33,14 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     private final Datum datum;
     private MathTransform image2Base;
     private MathTransform base2image;
-    private final AffineTransform gridToModel;
+    private final AffineTransform imageToModel;
     private final Rectangle2D bounds2D;
     private final CoordinateReferenceSystem modelCRS;
 
-    public CrsGeoCoding(final CoordinateReferenceSystem modelCRS, final Rectangle2D gridBounds2D,
-                             final AffineTransform gridToModel) throws FactoryException, NoninvertibleTransformException {
-        this.gridToModel = gridToModel;
-        this.bounds2D = gridBounds2D;
+    public CrsGeoCoding(final CoordinateReferenceSystem modelCRS, final Rectangle2D imageBounds2D,
+                             final AffineTransform imageToModel) throws FactoryException, NoninvertibleTransformException {
+        this.imageToModel = imageToModel;
+        this.bounds2D = imageBounds2D;
         this.modelCRS = modelCRS;
         org.opengis.referencing.datum.Ellipsoid gtEllipsoid = CRS.getEllipsoid(getModelCRS());
         String ellipsoidName = gtEllipsoid.getName().getCode();
@@ -50,7 +50,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         String datumName = gtDatum.getName().getCode();
         this.datum = new Datum(datumName, ellipsoid, 0, 0, 0);
 
-        MathTransform imageToModel = new AffineTransform2D(gridToModel);
+        MathTransform i2m = new AffineTransform2D(imageToModel);
         
         if (modelCRS instanceof DerivedCRS) {
             DerivedCRS derivedCRS = (DerivedCRS) modelCRS;
@@ -61,7 +61,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         }
         setGridCRS(new DefaultDerivedCRS("Grid CS based on " + getBaseCRS().getName(),
                                          getBaseCRS(),
-                                         imageToModel.inverse(),
+                                         i2m.inverse(),
                                          DefaultCartesianCS.DISPLAY));
         setModelCRS(modelCRS);
         
@@ -74,7 +74,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         } else {
             mtFactory = ReferencingFactoryFinder.getMathTransformFactory(null);
         }
-        image2Base = mtFactory.createConcatenatedTransform(imageToModel, model2Base);
+        image2Base = mtFactory.createConcatenatedTransform(i2m, model2Base);
         base2image = image2Base.inverse();
         
     }
@@ -143,6 +143,6 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     
     @Override
     public AffineTransform getImageToModelTransform() {
-        return gridToModel;
+        return imageToModel;
     }
 }
