@@ -166,6 +166,7 @@ public class ReprojectionOp extends Operator {
         copyIndexCoding();
         try {
             targetProduct.setGeoCoding(new CrsGeoCoding(targetGridGeometry.getModelCRS(),
+                                                        targetGridGeometry.getBounds2D(),
                                                         targetGridGeometry.getGridToModel()
             ));
         } catch (Exception e) {

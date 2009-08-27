@@ -1,5 +1,6 @@
 package org.esa.beam.gpf.common.reproject;
 
+import com.vividsolutions.jts.geom.Envelope;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.AbstractGeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -9,6 +10,7 @@ import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
 import org.esa.beam.util.Debug;
 import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.crs.DefaultDerivedCRS;
@@ -24,21 +26,26 @@ import org.opengis.referencing.crs.DerivedCRS;
 import org.opengis.referencing.operation.CoordinateOperationFactory;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransformFactory;
-import org.opengis.referencing.operation.NoninvertibleTransformException;
+import org.opengis.referencing.operation.TransformException;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 
 public class CrsGeoCoding extends AbstractGeoCoding {
 
-    private final Datum datum;
+    private Rectangle2D imageBounds2D;
     private final AffineTransform imageToModel;
 
     private final MathTransform image2Base;
     private final MathTransform base2image;
+    private final Datum datum;
+    private boolean crossingMeridianAt180;
 
     public CrsGeoCoding(final CoordinateReferenceSystem modelCRS,
-                        final AffineTransform imageToModel) throws FactoryException, NoninvertibleTransformException {
+                        Rectangle2D imageBounds2D, final AffineTransform imageToModel) throws FactoryException,
+                                                                                              TransformException {
+        this.imageBounds2D = imageBounds2D;
         this.imageToModel = imageToModel;
         org.opengis.referencing.datum.Ellipsoid gtEllipsoid = CRS.getEllipsoid(getModelCRS());
         String ellipsoidName = gtEllipsoid.getName().getCode();
@@ -74,27 +81,28 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         }
         image2Base = mtFactory.createConcatenatedTransform(i2m, model2Base);
         base2image = image2Base.inverse();
-        
+        crossingMeridianAt180 = isCrossing180Meridian();
     }
 
     @Override
     public boolean transferGeoCoding(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef) {
-        final AffineTransform i2m = new AffineTransform(getImageToModelTransform());
+        final AffineTransform destTransform = new AffineTransform(getImageToModelTransform());
+        Rectangle2D destBounds = new Rectangle2D.Double(0, 0, destScene.getRasterWidth(), destScene.getRasterHeight());
+
         if (subsetDef != null) {
             final Rectangle region = subsetDef.getRegion();
-            if (region != null) {
-                i2m.translate(region.getX(), region.getY());
-            }
             double scaleX = subsetDef.getSubSamplingX();
             double scaleY = subsetDef.getSubSamplingY();
-            i2m.scale(scaleX, scaleY);
+            if (region != null) {
+                destTransform.translate(region.getX(), region.getY());
+                destBounds.setRect(0, 0, region.getWidth() / scaleX, region.getHeight() / scaleY);
+            }
+            destTransform.scale(scaleX, scaleY);
         }
+
         try {
-            destScene.setGeoCoding(new CrsGeoCoding(getModelCRS(), i2m));
-        } catch (FactoryException e) {
-            Debug.trace(e);
-            return false;
-        } catch (NoninvertibleTransformException e) {
+            destScene.setGeoCoding(new CrsGeoCoding(getModelCRS(), destBounds, destTransform));
+        } catch (Exception e) {
             Debug.trace(e);
             return false;
         }
@@ -151,10 +159,17 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         return pixelPos;
     }
 
+    private boolean isCrossing180Meridian() throws TransformException, FactoryException {
+        ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(this.imageBounds2D, getImageCRS());
+        referencedEnvelope = referencedEnvelope.transform(getBaseCRS(), true);
+        final Rectangle2D.Double meridian180 = new Rectangle2D.Double(180 - 1.0e-3, 90, 2 * 1.0e-3, -180);
+        final Envelope meridian180Envelop = new ReferencedEnvelope(meridian180, getBaseCRS());
+        return referencedEnvelope.intersects(meridian180Envelop);
+    }
+
     @Override
     public boolean isCrossingMeridianAt180() {
-        // TODO Auto-generated method stub
-        return false;
+        return crossingMeridianAt180;
     }
     
     @Override
