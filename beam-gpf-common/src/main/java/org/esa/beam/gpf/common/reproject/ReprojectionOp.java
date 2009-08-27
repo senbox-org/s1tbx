@@ -6,6 +6,7 @@ import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
@@ -17,7 +18,6 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -84,8 +84,11 @@ public class ReprojectionOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    // todo describe in more detail the possibilities of this parameter
-    @Parameter(description = "An EPSG code for the target Coordinate Reference System.",
+    // todo (mp) - description needs to be enhanced
+    @Parameter(description = "An EPSG or AUTO code defining the target Coordinate Reference System. " +
+                             "To find appropriate EPSG codes see (www.epsg-registry.com). " +
+                             "AUTO can be used with code 42001 (UTM), and 42002 (Transverse Mercator) where the scene center " +
+                             "is used as reference. Examples: EPSG:4326, AUTO:42001",
                pattern = "(?:[a-zA-Z]+:)?[0-9]+")
     private String crsCode;
 
@@ -102,7 +105,7 @@ public class ReprojectionOp extends Operator {
                defaultValue = "Nearest")
     private String resamplingName;
     
-    @Parameter(description = "Wether TiePoint grids should be included in the output product.",
+    @Parameter(description = "Wether Tie-point grids should be included in the output product.",
                defaultValue = "true")
     private boolean includeTiePointGrids;
     
