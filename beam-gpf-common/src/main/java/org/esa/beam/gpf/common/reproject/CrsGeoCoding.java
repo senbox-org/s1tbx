@@ -32,15 +32,14 @@ import java.awt.geom.AffineTransform;
 public class CrsGeoCoding extends AbstractGeoCoding {
 
     private final Datum datum;
-    private MathTransform image2Base;
-    private MathTransform base2image;
     private final AffineTransform imageToModel;
-    private final CoordinateReferenceSystem modelCRS;
+
+    private final MathTransform image2Base;
+    private final MathTransform base2image;
 
     public CrsGeoCoding(final CoordinateReferenceSystem modelCRS,
                         final AffineTransform imageToModel) throws FactoryException, NoninvertibleTransformException {
         this.imageToModel = imageToModel;
-        this.modelCRS = modelCRS;
         org.opengis.referencing.datum.Ellipsoid gtEllipsoid = CRS.getEllipsoid(getModelCRS());
         String ellipsoidName = gtEllipsoid.getName().getCode();
         Ellipsoid ellipsoid = new Ellipsoid(ellipsoidName, gtEllipsoid.getSemiMajorAxis(),
