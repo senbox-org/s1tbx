@@ -7,6 +7,7 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Scene;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
+import org.esa.beam.util.Debug;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
@@ -25,6 +26,7 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransformFactory;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
 
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 
 public class CrsGeoCoding extends AbstractGeoCoding {
@@ -78,8 +80,26 @@ public class CrsGeoCoding extends AbstractGeoCoding {
 
     @Override
     public boolean transferGeoCoding(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef) {
-        // TODO Auto-generated method stub
-        return false;
+        final AffineTransform i2m = new AffineTransform(getImageToModelTransform());
+        if (subsetDef != null) {
+            final Rectangle region = subsetDef.getRegion();
+            if (region != null) {
+                i2m.translate(region.getX(), region.getY());
+            }
+            double scaleX = subsetDef.getSubSamplingX();
+            double scaleY = subsetDef.getSubSamplingY();
+            i2m.scale(scaleX, scaleY);
+        }
+        try {
+            destScene.setGeoCoding(new CrsGeoCoding(getModelCRS(), i2m));
+        } catch (FactoryException e) {
+            Debug.trace(e);
+            return false;
+        } catch (NoninvertibleTransformException e) {
+            Debug.trace(e);
+            return false;
+        }
+        return true;
     }
 
     @Override
