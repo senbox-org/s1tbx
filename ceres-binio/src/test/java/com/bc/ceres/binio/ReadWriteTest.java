@@ -89,4 +89,38 @@ public class ReadWriteTest extends TestCase {
 
         assertEquals("R(0,16)R(16,16)R(32,16)R(48,16)R(64,16)", tracingIOHandler.getTrace());
     }
+
+    public void testWriteVarSequence() throws IOException {
+
+        CompoundType type =
+                COMPOUND("Data",
+                         MEMBER("Counter", INT),
+                         MEMBER("Complex_List",
+                                VAR_SEQUENCE(COMPOUND("Complex",
+                                                      MEMBER("x", DOUBLE),
+                                                      MEMBER("y", DOUBLE)), "Counter")));
+
+        ByteArrayIOHandler byteArrayIOHandler = new ByteArrayIOHandler();
+        TracingIOHandler tracingIOHandler = new TracingIOHandler(byteArrayIOHandler);
+        DataContext context = new DataFormat(type).createContext(tracingIOHandler);
+        CompoundData data = context.getData();
+        data.setInt("Counter", -1);
+        SequenceData seq = data.getSequence("Complex_List");
+        assertEquals(-1, seq.getElementCount());
+        assertEquals(-1, seq.getSize());
+        data.flush();
+        assertEquals("R(0,4)W(0,4)", tracingIOHandler.getTrace());
+// TODO - want to test also the following (nf 27.08.2009)
+//        SequenceData seq = data.getSequence("Complex_List");
+//        for (int i = 0; i < 5; i++) {
+// TODO - Next statement throws a com.bc.ceres.binio.DataAccessException,
+// TODO - instead seq.elementCount shall increase by one during the call to seq.getCompound(i) (nf 27.08.2009)                  
+//            CompoundData complex = seq.getCompound(i);
+//            complex.setDouble("x", i + 23.04);
+//            complex.setDouble("y", i + 10.12);
+//            complex.flush();
+//        }
+//        data.flush();
+//        assertEquals("R(0,16)W(0,16)R(16,16)W(16,16)R(32,16)W(32,16)R(48,16)W(48,16)R(64,16)W(64,16)", tracingIOHandler.getTrace());
+    }
 }
