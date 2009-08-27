@@ -60,6 +60,7 @@ public class DataFormat {
 
             @Override
             public void dispose() {
+                super.dispose();
                 disposed = true;
                 try {
                     raf.close();
