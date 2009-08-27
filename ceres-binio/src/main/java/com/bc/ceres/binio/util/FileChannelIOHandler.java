@@ -18,9 +18,9 @@ public class FileChannelIOHandler implements IOHandler {
     @Override
     public void read(DataContext context, byte[] data, long position) throws IOException {
         synchronized (fileChannel) {
-            if (fileChannel.read(ByteBuffer.wrap(data), position) == -1) {
-                throw new EOFException("illegal read at end of file");
-            }
+            // We do not check for EOF here, because read() is called whenever
+            // segment data is allocated
+            fileChannel.read(ByteBuffer.wrap(data), position);
         }
     }
 

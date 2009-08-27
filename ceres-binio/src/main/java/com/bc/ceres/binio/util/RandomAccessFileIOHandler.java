@@ -18,9 +18,9 @@ public class RandomAccessFileIOHandler implements IOHandler {
     public synchronized void read(DataContext context, byte[] data, long position) throws IOException {
         synchronized (raf) {
             raf.seek(position);
-            if (raf.read(data, 0, data.length) == -1) {
-                throw new EOFException("illegal read at end of file");
-            }
+            // We do not check for EOF here, because read() is called whenever
+            // segment data is allocated
+            raf.read(data, 0, data.length);
         }
     }
 
