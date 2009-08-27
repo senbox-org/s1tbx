@@ -93,17 +93,31 @@ public class SourceProductSelectorTest extends TestCase {
     }
 
     public void testSelectedProductIsRemoved() {
-        SourceProductSelector selector = new SourceProductSelector(appContext, "Source");
-        selector.initProducts();
-        appContext.getProductManager().removeProduct(defaultProducts[0]);
-        assertEquals(defaultProducts.length - 1, selector.getProductCount());
+        if (appContext == null) {
+            return;
+        }
+        try {
+            SourceProductSelector selector = new SourceProductSelector(appContext, "Source");
+            selector.initProducts();
+            appContext.getProductManager().removeProduct(defaultProducts[0]);
+            assertEquals(defaultProducts.length - 1, selector.getProductCount());
+        } catch (HeadlessException e) {
+            warnHeadless();
+        }
     }
 
     public void testNotSelectedProductIsRemoved() {
-        SourceProductSelector selector = new SourceProductSelector(appContext, "Source");
-        selector.initProducts();
-        appContext.getProductManager().removeProduct(defaultProducts[2]);
-        assertEquals(defaultProducts.length - 1, selector.getProductCount());
+        if (appContext == null) {
+            return;
+        }
+        try {
+            SourceProductSelector selector = new SourceProductSelector(appContext, "Source");
+            selector.initProducts();
+            appContext.getProductManager().removeProduct(defaultProducts[2]);
+            assertEquals(defaultProducts.length - 1, selector.getProductCount());
+        } catch (HeadlessException e) {
+            warnHeadless();
+        }
     }
 
     public void testNewProductIsDisposed() throws Exception {
