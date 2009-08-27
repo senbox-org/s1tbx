@@ -13,8 +13,8 @@ class CrsInfoListModel extends AbstractListModel {
 
     private final List<CrsInfo> crsList;
 
-    CrsInfoListModel(List<CrsInfo> projectedCRSList) {
-        crsList = new ArrayList<CrsInfo>(projectedCRSList);
+    CrsInfoListModel(List<CrsInfo> crsList) {
+        this.crsList = new ArrayList<CrsInfo>(crsList);
     }
 
     @Override
