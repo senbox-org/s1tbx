@@ -40,7 +40,6 @@ public class ReprojectionForm extends JTabbedPane {
 
     private final AppContext appContext;
 
-    private CrsInfoListModel crsListModel;
     private SourceProductSelector sourceProductSelector;
     private TargetProductSelector targetProductSelector;
     private SourceProductSelector collocateProductSelector;
@@ -58,7 +57,6 @@ public class ReprojectionForm extends JTabbedPane {
         this.targetProductSelector = targetProductSelector;
         sourceProductSelector = new SourceProductSelector(appContext, "Source Product:");
         resamplingName = "Nearest";
-        crsListModel = new CrsInfoListModel(CrsInfo.generateCRSList());
         createUI();
         updateUIState();
     }
@@ -212,7 +210,7 @@ public class ReprojectionForm extends JTabbedPane {
     }
 
     private CrsSelectionForm createCrsSelectionForm() {
-        final CrsSelectionForm crsForm = new CrsSelectionForm(crsListModel);
+        final CrsSelectionForm crsForm = new CrsSelectionForm(new CrsInfoListModel(CrsInfo.generateCRSList()));
         crsForm.addPropertyChangeListener(CrsSelectionForm.PROPERTY_SELECTED_CRS_CODE, new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
