@@ -29,25 +29,25 @@ import java.util.Set;
 class CrsInfo implements Comparable<CrsInfo> {
 
     private static final String AUTHORITY = "EPSG";
-    private final String epsgCode;
+    private final String crsCode;
     private final CRSAuthorityFactory factory;
 
     CrsInfo(String crsCode, CRSAuthorityFactory factory) {
-        this.epsgCode = crsCode;
+        this.crsCode = crsCode;
         this.factory = factory;
     }
 
     public String getCrsCode() {
-        return epsgCode;
+        return crsCode;
     }
 
     public CoordinateReferenceSystem getCrs(Product product) throws FactoryException {
-        return factory.createCoordinateReferenceSystem(epsgCode);
+        return factory.createCoordinateReferenceSystem(crsCode);
     }
 
     @Override
     public int compareTo(CrsInfo o) {
-        return epsgCode.compareTo(o.epsgCode);
+        return crsCode.compareTo(o.crsCode);
     }
 
     @Override
@@ -61,20 +61,20 @@ class CrsInfo implements Comparable<CrsInfo> {
 
         CrsInfo crsInfo = (CrsInfo) o;
 
-        return !(epsgCode != null ? !epsgCode.equals(crsInfo.epsgCode) : crsInfo.epsgCode != null);
+        return !(crsCode != null ? !crsCode.equals(crsInfo.crsCode) : crsInfo.crsCode != null);
 
     }
 
     @Override
     public int hashCode() {
-        return epsgCode != null ? epsgCode.hashCode() : 0;
+        return crsCode != null ? crsCode.hashCode() : 0;
     }
 
     @Override
     public String toString() {
-        String crsDescription = epsgCode + " - ";
+        String crsDescription = crsCode + " - ";
         try {
-            crsDescription += factory.getDescriptionText(epsgCode).toString();
+            crsDescription += factory.getDescriptionText(crsCode).toString();
         } catch (Exception e) {
             crsDescription += e.getLocalizedMessage();
         }
@@ -95,15 +95,15 @@ class CrsInfo implements Comparable<CrsInfo> {
                 geoPos = product.getGeoCoding().getGeoPos(pixelPos, null);
             }
 
-            String code = String.format("%s,%s,%s", super.epsgCode, geoPos.lon, geoPos.lat);
+            String code = String.format("%s,%s,%s", super.crsCode, geoPos.lon, geoPos.lat);
             return super.factory.createCoordinateReferenceSystem(code);
         }
 
         @Override
         public String toString() {
-            String crsDescription = super.epsgCode + " - ";
+            String crsDescription = super.crsCode + " - ";
             try {
-                String code = super.epsgCode + ",0,0";
+                String code = super.crsCode + ",0,0";
                 crsDescription += super.factory.getDescriptionText(code).toString();
             } catch (Exception e) {
                 crsDescription += e.getLocalizedMessage();
