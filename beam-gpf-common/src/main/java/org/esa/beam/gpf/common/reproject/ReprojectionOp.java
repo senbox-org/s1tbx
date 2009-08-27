@@ -33,12 +33,11 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.geotools.factory.Hints;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
-import org.geotools.resources.geometry.XRectangle2D;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.cs.AxisDirection;
+import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import javax.media.jai.ImageLayout;
@@ -49,6 +48,7 @@ import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ColorModel;
 import java.awt.image.RenderedImage;
@@ -166,8 +166,7 @@ public class ReprojectionOp extends Operator {
         copyIndexCoding();
         try {
             targetProduct.setGeoCoding(new CrsGeoCoding(targetGridGeometry.getModelCRS(),
-                                                             targetGridGeometry.getBounds2D(),
-                                                             targetGridGeometry.getGridToModel()
+                                                        targetGridGeometry.getGridToModel()
             ));
         } catch (Exception e) {
             throw new OperatorException(e);
@@ -549,24 +548,59 @@ public class ReprojectionOp extends Operator {
         return new GridGeometry(bounds, modelCRS, i2m);
     }
 
-    private Rectangle2D createMapBoundary(final Product product, CoordinateReferenceSystem targetCrs) {
+    private  Rectangle2D createMapBoundary(final Product product, CoordinateReferenceSystem targetCrs) {
+        final int sourceW = sourceProduct.getSceneRasterWidth();
+        final int sourceH = sourceProduct.getSceneRasterHeight();
+        final int step = Math.min(sourceW, sourceH) / 2;
+        MathTransform mathTransform;
         try {
-            final CoordinateReferenceSystem sourceCrs = product.getGeoCoding().getImageCRS();
-            final int sourceW = product.getSceneRasterWidth();
-            final int sourceH = product.getSceneRasterHeight();
-
-            Rectangle2D rect = XRectangle2D.createFromExtremums(0.5, 0.5, sourceW - 0.5, sourceH - 0.5);
-            int pointsPerSide = Math.min(sourceH, sourceW) / 10;
-            pointsPerSide = Math.max(9, pointsPerSide);
-
-            final ReferencedEnvelope sourceEnvelope = new ReferencedEnvelope(rect, sourceCrs);
-            final ReferencedEnvelope targetEnvelope = sourceEnvelope.transform(targetCrs, true, pointsPerSide);
-            return new Rectangle2D.Double(targetEnvelope.getMinX(), targetEnvelope.getMinY(),
-                                          targetEnvelope.getWidth(), targetEnvelope.getHeight());
-
-        } catch (Exception e) {
+            mathTransform = CRS.findMathTransform(product.getGeoCoding().getBaseCRS(), targetCrs);
+        } catch (FactoryException e) {
             throw new OperatorException(e);
         }
+        try {
+            final Point2D[] point2Ds = createMapBoundary(product, step, mathTransform);
+            return new Rectangle2D.Double(point2Ds[0].getX(),
+                                          point2Ds[0].getY(),
+                                          point2Ds[1].getX() - point2Ds[0].getX(),
+                                          point2Ds[1].getY() - point2Ds[0].getY());
+        } catch (TransformException e) {
+            throw new OperatorException(e);
+        }
+    }
+
+    private static Point2D[] createMapBoundary(Product product, int step,
+                                               MathTransform mathTransform) throws TransformException {
+        GeoPos[] geoPoints = ProductUtils.createGeoBoundary(product, null, step);
+        ProductUtils.normalizeGeoPolygon(geoPoints);
+        float[] geoPointsD = new float[geoPoints.length * 2];
+        for (int i = 0; i < geoPoints.length; i++) {
+            geoPointsD[i * 2] = geoPoints[i].lon;
+            geoPointsD[(i * 2) + 1] = geoPoints[i].lat;
+        }
+        float[] mapPointsD = new float[geoPoints.length * 2];
+        mathTransform.transform(geoPointsD, 0, mapPointsD, 0, geoPoints.length);
+
+        return getMinMax(mapPointsD);
+    }
+
+    private static Point2D[] getMinMax(float[] mapPointsD) {
+        Point2D.Float min = new Point2D.Float();
+        Point2D.Float max = new Point2D.Float();
+        min.x = +Float.MAX_VALUE;
+        min.y = +Float.MAX_VALUE;
+        max.x = -Float.MAX_VALUE;
+        max.y = -Float.MAX_VALUE;
+        int i = 0;
+        while (i < mapPointsD.length) {
+            float pointX = mapPointsD[i++];
+            float pointY = mapPointsD[i++];
+            min.x = Math.min(min.x, pointX);
+            min.y = Math.min(min.y, pointY);
+            max.x = Math.max(max.x, pointX);
+            max.y = Math.max(max.y, pointY);
+        }
+        return new Point2D[]{min, max};
     }
 
     private static ImageLayout createImageLayout(int productDataType, int width, int height, final Dimension tileSize) {
@@ -575,4 +609,28 @@ public class ReprojectionOp extends Operator {
         ColorModel colorModel = PlanarImage.createColorModel(sampleModel);
         return new ImageLayout(0, 0, width, height, 0, 0, tileSize.width, tileSize.height, sampleModel, colorModel);
     }
+
+    // This code is simpler as the code currently used, but it does not consider the crossing of the 180° meridian.
+    // This results in a map coverage of the whole earth.
+    // todo - suggestion to simplify the currently used code are welcome
+//    private Rectangle2D createMapBoundary(final Product product, CoordinateReferenceSystem targetCrs) {
+//        try {
+//            final CoordinateReferenceSystem sourceCrs = product.getGeoCoding().getImageCRS();
+//            final int sourceW = product.getSceneRasterWidth();
+//            final int sourceH = product.getSceneRasterHeight();
+//
+//            Rectangle2D rect = XRectangle2D.createFromExtremums(0.5, 0.5, sourceW - 0.5, sourceH - 0.5);
+//            int pointsPerSide = Math.min(sourceH, sourceW) / 10;
+//            pointsPerSide = Math.max(9, pointsPerSide);
+//
+//            final ReferencedEnvelope sourceEnvelope = new ReferencedEnvelope(rect, sourceCrs);
+//            final ReferencedEnvelope targetEnvelope = sourceEnvelope.transform(targetCrs, true, pointsPerSide);
+//            return new Rectangle2D.Double(targetEnvelope.getMinX(), targetEnvelope.getMinY(),
+//                                          targetEnvelope.getWidth(), targetEnvelope.getHeight());
+//        } catch (Exception e) {
+//            throw new OperatorException(e);
+//        }
+//    }
+
+
 }

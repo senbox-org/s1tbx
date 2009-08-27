@@ -26,7 +26,6 @@ import org.opengis.referencing.operation.MathTransformFactory;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
 
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 
 public class CrsGeoCoding extends AbstractGeoCoding {
 
@@ -34,13 +33,11 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     private MathTransform image2Base;
     private MathTransform base2image;
     private final AffineTransform imageToModel;
-    private final Rectangle2D bounds2D;
     private final CoordinateReferenceSystem modelCRS;
 
-    public CrsGeoCoding(final CoordinateReferenceSystem modelCRS, final Rectangle2D imageBounds2D,
-                             final AffineTransform imageToModel) throws FactoryException, NoninvertibleTransformException {
+    public CrsGeoCoding(final CoordinateReferenceSystem modelCRS,
+                        final AffineTransform imageToModel) throws FactoryException, NoninvertibleTransformException {
         this.imageToModel = imageToModel;
-        this.bounds2D = imageBounds2D;
         this.modelCRS = modelCRS;
         org.opengis.referencing.datum.Ellipsoid gtEllipsoid = CRS.getEllipsoid(getModelCRS());
         String ellipsoidName = gtEllipsoid.getName().getCode();
