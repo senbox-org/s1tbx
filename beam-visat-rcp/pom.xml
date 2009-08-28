@@ -35,22 +35,18 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-main</artifactId>
-            <version>2.5.3</version>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-wms</artifactId>
-            <version>2.5.3</version>
         </dependency>
         <dependency>
           <groupId>org.geotools</groupId>
           <artifactId>gt-shapefile</artifactId>
-          <version>2.5.3</version>
         </dependency>
         <dependency>
           <groupId>org.geotools</groupId>
           <artifactId>gt-render</artifactId>
-          <version>2.5.3</version>
         </dependency>
     </dependencies>
 </project>

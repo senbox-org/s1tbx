@@ -1,13 +1,6 @@
-package org.esa.beam.gpf.common.reproject;
+package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.Scene;
-import org.esa.beam.framework.datamodel.SceneFactory;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import static org.junit.Assert.*;
 import org.junit.Before;

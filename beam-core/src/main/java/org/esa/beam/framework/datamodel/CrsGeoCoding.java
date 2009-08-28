@@ -1,11 +1,6 @@
-package org.esa.beam.gpf.common.reproject;
+package org.esa.beam.framework.datamodel;
 
-import com.vividsolutions.jts.geom.Envelope;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.AbstractGeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Scene;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
 import org.esa.beam.util.Debug;
@@ -19,6 +14,7 @@ import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.operation.AbstractCoordinateOperationFactory;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.resources.CRSUtilities;
+import org.opengis.geometry.BoundingBox;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -163,7 +159,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(this.imageBounds2D, getImageCRS());
         referencedEnvelope = referencedEnvelope.transform(getBaseCRS(), true);
         final Rectangle2D.Double meridian180 = new Rectangle2D.Double(180 - 1.0e-3, 90, 2 * 1.0e-3, -180);
-        final Envelope meridian180Envelop = new ReferencedEnvelope(meridian180, getBaseCRS());
+        final BoundingBox meridian180Envelop = new ReferencedEnvelope(meridian180, getBaseCRS());
         return referencedEnvelope.intersects(meridian180Envelop);
     }
 
