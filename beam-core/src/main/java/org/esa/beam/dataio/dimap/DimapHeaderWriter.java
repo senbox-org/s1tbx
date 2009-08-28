@@ -22,6 +22,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FXYGeoCoding;
 import org.esa.beam.framework.datamodel.FilterBand;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -52,8 +53,10 @@ import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.XmlWriter;
 import org.jdom.Element;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
@@ -64,6 +67,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -677,8 +681,36 @@ public final class DimapHeaderWriter extends XmlWriter {
                 writeFXYGeoCoding(geoCoding, indent, index);
             } else if (geoCoding instanceof GcpGeoCoding) {
                 writeGcpGeoCoding(geoCoding, indent, index);
+            } else if (geoCoding instanceof CrsGeoCoding) {
+                writeCrsGeoCoding(geoCoding, indent, index);
             }
         }
+    }
+
+    private void writeCrsGeoCoding(GeoCoding geoCoding, int indent, int index) {
+        final CrsGeoCoding crsGeoCoding = (CrsGeoCoding) geoCoding;
+        final CoordinateReferenceSystem crs = crsGeoCoding.getModelCRS();
+        final double[] matrix = new double[6];
+        crsGeoCoding.getImageToModelTransform().getMatrix(matrix);
+
+        final String[] crsTags = createTags(indent, DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
+        println(crsTags[0]);
+        final String[] wktTags = createTags(indent + 1, DimapProductConstants.TAG_WKT);
+        println(wktTags[0]);
+        final char[] wsChars = new char[wktTags[0].length()];
+        Arrays.fill(wsChars, ' ');
+        final String ws = new String(wsChars);
+        for (String wktLine : crs.toString().split(SystemUtils.LS)) {
+            print(ws);
+            println(wktLine);
+        }
+        println(wktTags[1]);
+        println(crsTags[1]);
+        final String[] geopositionTags = createTags(indent, DimapProductConstants.TAG_GEOPOSITION);
+        println(geopositionTags[0]);
+        printLine(indent + 1, DimapProductConstants.TAG_IMAGE_TO_MODEL_TRANSFORM, StringUtils.arrayToCsv(matrix));
+        println(geopositionTags[1]);
+
     }
 
     private void writeGcpGeoCoding(GeoCoding geoCoding, int indent, int index) {

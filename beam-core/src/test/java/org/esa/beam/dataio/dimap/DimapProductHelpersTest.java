@@ -19,6 +19,7 @@ package org.esa.beam.dataio.dimap;
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FXYGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
@@ -37,8 +38,12 @@ import org.esa.beam.util.ArrayUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.FXYSum;
+import org.geotools.referencing.CRS;
 import org.jdom.Document;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -613,6 +618,26 @@ public class DimapProductHelpersTest extends TestCase {
 
     }
 
+    public void testCreateGeoCodingForCrsGeoCoding() throws Exception {
+        final Rectangle2D.Double imageBounds = new Rectangle2D.Double(0, 0, product.getSceneRasterWidth(),
+                                                                      product.getSceneRasterHeight());
+        final AffineTransform expectedI2m = new AffineTransform(0.12, 1.23, 2.34, 3.45, 4.56, 5.67);
+        final CoordinateReferenceSystem expectedCrs = CRS.decode("EPSG:4326");
+        final byte[] bytes = createCrsGeoCodingString(new CrsGeoCoding(expectedCrs, imageBounds, expectedI2m)).getBytes();
+        final Document dom = DimapProductHelpers.createDom(new ByteArrayInputStream(bytes));
+        final GeoCoding geoCoding = DimapProductHelpers.createGeoCoding(dom, product)[0];
+
+        assertNotNull(geoCoding);
+        assertEquals(CrsGeoCoding.class, geoCoding.getClass());
+        final CrsGeoCoding crsGeoCoding = (CrsGeoCoding) geoCoding;
+
+        final CoordinateReferenceSystem modelCRS = crsGeoCoding.getModelCRS();
+        // ignoring metadata because scope and domainOfValidity are not restored
+        // but not important for our GeoCoding
+        assertTrue(CRS.equalsIgnoreMetadata(expectedCrs, modelCRS));
+        assertEquals(expectedI2m, crsGeoCoding.getImageToModelTransform());
+    }
+
     public void testReadingGeoCodingPerBand() {
         final byte[] bytes = _xmlBandedFXYGeoCodingString.getBytes();
         final Document dom = DimapProductHelpers.createDom(new ByteArrayInputStream(bytes));
@@ -770,6 +795,22 @@ public class DimapProductHelpersTest extends TestCase {
                "                </Simplified_Location_Model>" + LS +
                "            </Geoposition>" + LS +
                "        </Pixel_Position_Estimator>" + LS +
+               "    </Geoposition>" + LS +
+               "</" + DimapProductConstants.TAG_ROOT + ">";
+    }
+
+    private String createCrsGeoCodingString(CrsGeoCoding geoCoding) {
+        final double[] matrix = new double[6];
+        geoCoding.getImageToModelTransform().getMatrix(matrix);
+
+        return "<" + DimapProductConstants.TAG_ROOT + ">" + LS +
+               "    <Coordinate_Reference_System>" + LS +
+               "        <WKT>" + LS +
+               geoCoding.getModelCRS().toString() +
+               "        </WKT>" + LS +
+               "    </Coordinate_Reference_System>" + LS +
+               "    <Geoposition>" + LS +
+               "        <IMAGE_TO_MODEL_TRANSFORM>"+StringUtils.arrayToCsv(matrix)+"</IMAGE_TO_MODEL_TRANSFORM>" + LS +
                "    </Geoposition>" + LS +
                "</" + DimapProductConstants.TAG_ROOT + ">";
     }

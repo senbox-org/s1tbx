@@ -348,9 +348,24 @@ public final class DimapProductConstants {
      * </pre>
      * </td>
      * </tr>
+     * <tr>
+     * <td valign="top">2.8.0</td>
+     * <td> Since version 4.7 BEAM DIMAP supports CrsGeoCoding.
+     * <pre>
+     *    &lt;Coordinate_Reference_System&gt;
+     *        &lt;WKT&gt;
+     *            wktString
+     *        &lt;/WKT&gt;
+     *    &lt;/Coordinate_Reference_System&gt;
+     *    &lt;Geoposition&gt;
+     *        &lt;IMAGE_TO_MODEL_TRANSFORM&gt;matrix values&lt;/IMAGE_TO_MODEL_TRANSFORM&gt;
+     *    &lt;/Geoposition&gt;
+     * </pre>
+     * </td>
+     * </tr>
      * </table>
      */
-    public static final String DIMAP_CURRENT_VERSION = "2.7.0";
+    public static final String DIMAP_CURRENT_VERSION = "2.8.0";
 
     // BEAM-Dimap default text
     public static final String DIMAP_METADATA_PROFILE = "BEAM-DATAMODEL-V1";
@@ -399,6 +414,8 @@ public final class DimapProductConstants {
     public static final String TAG_VALID_MASK_EXPRESSION = "VALID_MASK_EXPRESSION";
     public static final String TAG_SEARCH_RADIUS = "SEARCH_RADIUS";
     public static final String TAG_PIXEL_POSITION_ESTIMATOR = "Pixel_Position_Estimator";
+    public static final String TAG_WKT = "WKT";
+    public static final String TAG_IMAGE_TO_MODEL_TRANSFORM = "IMAGE_TO_MODEL_TRANSFORM";
 
     //  -since version 2.0.0
     public static final String TAG_HORIZONTAL_CS_TYPE = "HORIZONTAL_CS_TYPE";

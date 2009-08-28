@@ -165,6 +165,15 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         return imageToModel;
     }
 
+    @Override
+    public String toString() {
+        final String s = super.toString();
+        return s + "\n\n" +
+               "Model CRS:\n" + getModelCRS().toString() + "\n" +
+               "Image To Model:\n" + imageToModel.toString();
+
+    }
+
     private boolean detect180MeridianCrossing() throws TransformException, FactoryException {
         ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(this.imageBounds2D, getImageCRS());
         referencedEnvelope = referencedEnvelope.transform(getBaseCRS(), true);

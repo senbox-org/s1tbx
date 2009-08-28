@@ -21,6 +21,7 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.ConvolutionFilterBand;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FXYGeoCoding;
 import org.esa.beam.framework.datamodel.GeneralFilterBand;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -42,8 +43,12 @@ import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.FXYSum;
+import org.geotools.referencing.CRS;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Color;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.StringWriter;
 
@@ -291,6 +296,17 @@ public class DimapHeaderWriterTest extends TestCase {
         dimapHeaderWriter.writeHeader();
 
         assertEquals(expectedForPixelGeoCoding, stringWriter.toString());
+    }
+
+    // ###############################################
+    // ##  W r i t e   C r s G e o C o d i n g      ##
+    // ###############################################
+    public void testWriteCrsGeoCoding() throws Exception {
+        final String expectedForCrsGeoCoding = setCrsGeoCodingAndGetExpected();
+
+        dimapHeaderWriter.writeHeader();
+
+        assertEquals(expectedForCrsGeoCoding, stringWriter.toString());
     }
 
     private void addPinsToProduct() {
@@ -997,6 +1013,39 @@ public class DimapHeaderWriterTest extends TestCase {
                "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
                "        </Spectral_Band_Info>" + LS +
                "    </Image_Interpretation>" + LS +
+               footer;
+    }
+
+    private String setCrsGeoCodingAndGetExpected() throws Exception {
+
+        final Rectangle2D.Double imageBounds = new Rectangle2D.Double(0, 0, product.getSceneRasterWidth(),
+                                                                      product.getSceneRasterHeight());
+        final AffineTransform i2m = new AffineTransform(0.12, 1.23, 2.34, 3.45, 4.56, 5.67);
+        final CoordinateReferenceSystem crs = CRS.decode("EPSG:4326");
+        final CrsGeoCoding crsGeoCoding = new CrsGeoCoding(crs, imageBounds, i2m);
+        product.setGeoCoding(crsGeoCoding);
+        return header +
+               "    <Coordinate_Reference_System>" + LS +
+               "        <WKT>" + LS +
+               "             GEOGCS[\"WGS 84\", "  + LS +
+               "               DATUM[\"World Geodetic System 1984\", "  + LS +
+               "                 SPHEROID[\"WGS 84\", 6378137.0, 298.257223563, AUTHORITY[\"EPSG\",\"7030\"]], "  + LS +
+               "                 AUTHORITY[\"EPSG\",\"6326\"]], "  + LS +
+               "               PRIMEM[\"Greenwich\", 0.0, AUTHORITY[\"EPSG\",\"8901\"]], "  + LS +
+               "               UNIT[\"degree\", 0.017453292519943295], "  + LS +
+               "               AXIS[\"Geodetic latitude\", NORTH], "  + LS +
+               "               AXIS[\"Geodetic longitude\", EAST], "  + LS +
+               "               AUTHORITY[\"EPSG\",\"4326\"]]"+ LS +
+               "        </WKT>" + LS +
+               "    </Coordinate_Reference_System>" + LS +
+               "    <Geoposition>" + LS +
+               "        <IMAGE_TO_MODEL_TRANSFORM>0.12,1.23,2.34,3.45,4.56,5.67</IMAGE_TO_MODEL_TRANSFORM>" + LS +
+               "    </Geoposition>" + LS +
+               "    <Raster_Dimensions>" + LS +
+               "        <NCOLS>200</NCOLS>" + LS +
+               "        <NROWS>300</NROWS>" + LS +
+               "        <NBANDS>0</NBANDS>" + LS +
+               "    </Raster_Dimensions>" + LS +
                footer;
     }
 
