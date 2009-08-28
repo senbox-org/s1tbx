@@ -77,7 +77,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         }
         image2Base = mtFactory.createConcatenatedTransform(i2m, model2Base);
         base2image = image2Base.inverse();
-        crossingMeridianAt180 = isCrossing180Meridian();
+        crossingMeridianAt180 = detect180MeridianCrossing();
     }
 
     @Override
@@ -155,14 +155,6 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         return pixelPos;
     }
 
-    private boolean isCrossing180Meridian() throws TransformException, FactoryException {
-        ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(this.imageBounds2D, getImageCRS());
-        referencedEnvelope = referencedEnvelope.transform(getBaseCRS(), true);
-        final Rectangle2D.Double meridian180 = new Rectangle2D.Double(180 - 1.0e-3, 90, 2 * 1.0e-3, -180);
-        final BoundingBox meridian180Envelop = new ReferencedEnvelope(meridian180, getBaseCRS());
-        return referencedEnvelope.intersects(meridian180Envelop);
-    }
-
     @Override
     public boolean isCrossingMeridianAt180() {
         return crossingMeridianAt180;
@@ -171,5 +163,13 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     @Override
     public AffineTransform getImageToModelTransform() {
         return imageToModel;
+    }
+
+    private boolean detect180MeridianCrossing() throws TransformException, FactoryException {
+        ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(this.imageBounds2D, getImageCRS());
+        referencedEnvelope = referencedEnvelope.transform(getBaseCRS(), true);
+        final Rectangle2D.Double meridian180 = new Rectangle2D.Double(180 - 1.0e-3, 90, 2 * 1.0e-3, -180);
+        final BoundingBox meridian180Envelop = new ReferencedEnvelope(meridian180, getBaseCRS());
+        return referencedEnvelope.intersects(meridian180Envelop);
     }
 }
