@@ -257,6 +257,8 @@ public abstract class Processor {
             setCurrentStatus(ProcessorConstants.STATUS_FAILED);
             cleanupAfterFailure();
             throw e;
+        }finally {
+            bandNamesToCopy.clear();
         }
     }
 
