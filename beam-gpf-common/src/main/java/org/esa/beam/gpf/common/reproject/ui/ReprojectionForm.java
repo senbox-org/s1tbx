@@ -1,6 +1,7 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
 import com.bc.ceres.swing.TableLayout;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
@@ -267,8 +268,9 @@ public class ReprojectionForm extends JTabbedPane {
                 return false;
             }
             final boolean sameProduct = sourceProductSelector.getSelectedProduct() == product;
-            final boolean hasGeoCoding = product.getGeoCoding() != null;
-            final boolean geoCodingUsable = hasGeoCoding && product.getGeoCoding().canGetGeoPos() && product.getGeoCoding().canGetPixelPos();
+            final GeoCoding geoCoding = product.getGeoCoding();
+            final boolean hasGeoCoding = geoCoding != null;
+            final boolean geoCodingUsable = hasGeoCoding && geoCoding.canGetGeoPos() && geoCoding.canGetPixelPos();
             return !sameProduct && geoCodingUsable;
         }
     }
