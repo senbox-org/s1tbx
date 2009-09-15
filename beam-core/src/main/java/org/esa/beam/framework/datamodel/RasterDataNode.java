@@ -82,7 +82,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Text returned by the <code>{@link #getPixelString}</code> method if no data is available at the given pixel
      * position.
      */
-    public final static String NO_DATA_TEXT = "No data"; /*I18N*/
+    public final static String NO_DATA_TEXT = "NaN"; /*I18N*/
     /**
      * Text returned by the <code>{@link #getPixelString}</code> method if no data is available at the given pixel
      * position.

@@ -1,12 +1,5 @@
 package org.esa.beam.visat.toolviews.stat;
 
-import java.awt.Container;
-import java.awt.Shape;
-import java.awt.geom.Point2D;
-import java.io.IOException;
-
-import javax.swing.JInternalFrame;
-
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TransectProfileData;
@@ -15,6 +8,12 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
+
+import javax.swing.JInternalFrame;
+import java.awt.Container;
+import java.awt.Shape;
+import java.awt.geom.Point2D;
+import java.io.IOException;
 
 
 /**
@@ -86,6 +85,10 @@ public class StatisticsUtils {
                 return null;
             }
 
+            return createTransectProfileText(raster, data);
+        }
+
+        static String createTransectProfileText(RasterDataNode raster, TransectProfileData data) {
             final Point2D[] pixelPositions = data.getPixelPositions();
             final GeoPos[] geoPositions = data.getGeoPositions();
             final float[] sampleValues = data.getSampleValues();
@@ -113,11 +116,7 @@ public class StatisticsUtils {
                     sb.append(String.format(formatString, String.valueOf(geoPos.lat)));
                     sb.append(String.format(formatString, String.valueOf(geoPos.lon)));
                 }
-                if(Float.isNaN(sampleValues[i])){
-                    sb.append(String.format(formatString, "No Data"));
-                }else {
-                    sb.append(String.format(formatString, String.valueOf(sampleValues[i])));
-                }
+                sb.append(String.format(formatString, String.valueOf(sampleValues[i])));
                 sb.append(" \n");
             }
 
