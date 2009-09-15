@@ -30,16 +30,17 @@ import java.awt.geom.Rectangle2D;
 
 public class CrsGeoCoding extends AbstractGeoCoding {
 
-    private Rectangle2D imageBounds2D;
+    private final Rectangle2D imageBounds2D;
     private final AffineTransform imageToModel;
 
     private final MathTransform image2Base;
     private final MathTransform base2image;
     private final Datum datum;
-    private boolean crossingMeridianAt180;
+    private final boolean crossingMeridianAt180;
 
     public CrsGeoCoding(final CoordinateReferenceSystem modelCRS,
-                        Rectangle2D imageBounds2D, final AffineTransform imageToModel) throws FactoryException,
+                        final Rectangle2D imageBounds2D, 
+                        final AffineTransform imageToModel) throws FactoryException,
                                                                                               TransformException {
         this.imageBounds2D = imageBounds2D;
         this.imageToModel = imageToModel;
