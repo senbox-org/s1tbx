@@ -1,6 +1,7 @@
 package org.esa.beam.dataio.netcdf;
 
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -41,8 +42,7 @@ public class NetcdfReaderUtils {
         return new NcRasterDigest(rasterDim, rasterVariables);
     }
 
-    public static Band createBand(final Variable variable, final int rasterWidth, final int rasterHeight) {
-        final NcAttributeMap attMap = NcAttributeMap.create(variable);
+    public static Band createBand(final Variable variable, final NcAttributeMap attMap, final int rasterWidth, final int rasterHeight) {
         final Band band = new Band(NcVariableMap.getAbsoluteName(variable),
                                    getRasterDataType(variable),
                                    rasterWidth,
@@ -82,6 +82,22 @@ public class NetcdfReaderUtils {
             noDataValue = attMap.getNumericValue(NetcdfConstants.MISSING_VALUE_ATT_NAME);
         }
         return noDataValue;
+    }
+    
+    public static IndexCoding createIndexCoding(final String codingName, final NcAttributeMap attMap) {
+        Attribute flagValues = attMap.get("flag_values");
+        String flagMeanings = attMap.getStringValue("flag_meanings");
+        if (flagValues != null && flagMeanings != null) {
+            String[] meanings = flagMeanings.split(" ");
+            final IndexCoding coding = new IndexCoding(codingName);
+            int numElems = flagValues.getLength();
+            numElems = Math.min(numElems, meanings.length);
+            for (int i = 0; i < numElems; i++) {
+                coding.addSample(meanings[i], flagValues.getNumericValue(i).intValue(), "");
+            }
+            return coding;
+        }
+        return null;
     }
 
     public static MapInfoX createMapInfoX(final Variable lonVar,

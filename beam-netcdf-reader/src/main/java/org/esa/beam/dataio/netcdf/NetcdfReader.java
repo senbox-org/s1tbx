@@ -4,6 +4,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -221,12 +222,17 @@ public class NetcdfReader extends AbstractProductReader {
     }
 
     private void addBandsToProduct(final Variable[] variables) {
-        for (int i = 0; i < variables.length; i++) {
-            final int rank = variables[i].getRank();
-            final int width = variables[i].getDimension(rank - 1).getLength();
-            final int height = variables[i].getDimension(rank - 2).getLength();
-            final Band band = NetcdfReaderUtils.createBand(variables[i], width, height);
-
+        for (Variable variable : variables) {
+            final int rank = variable.getRank();
+            final int width = variable.getDimension(rank - 1).getLength();
+            final int height = variable.getDimension(rank - 2).getLength();
+            final NcAttributeMap attMap = NcAttributeMap.create(variable);
+            final Band band = NetcdfReaderUtils.createBand(variable, attMap, width, height);
+            final IndexCoding indexCoding = NetcdfReaderUtils.createIndexCoding(band.getName() + "_coding", attMap);
+            if (indexCoding != null) {
+                _product.getIndexCodingGroup().add(indexCoding);
+                band.setSampleCoding(indexCoding);
+            }
             _product.addBand(band);
         }
     }
