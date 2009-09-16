@@ -490,20 +490,20 @@ public class ReprojectionOp extends Operator {
     
     private GridGeometry createTargetGridGeometry(CoordinateReferenceSystem targetCrs) {
         if (collocationProduct != null) {
-            return createCollocationTargetGrid(collocationProduct);
+            return createCollocationTargetGrid();
         } else {
-            return createTargetGrid(sourceProduct, targetCrs);
+            return createTargetGrid(targetCrs);
         }
     }
 
-    private GridGeometry createTargetGrid(Product product, CoordinateReferenceSystem targetCrs) {
-        Rectangle2D mapBoundary = createMapBoundary(product, targetCrs);
+    private GridGeometry createTargetGrid(CoordinateReferenceSystem targetCrs) {
+        Rectangle2D mapBoundary = createMapBoundary(targetCrs);
         double mapW = mapBoundary.getWidth();
         double mapH = mapBoundary.getHeight();
 
         if (pixelSizeX == null && pixelSizeY == null) {
-            double pixelSize =  Math.min(mapW / product.getSceneRasterWidth(),
-                                         mapH / product.getSceneRasterHeight());
+            double pixelSize =  Math.min(mapW / sourceProduct.getSceneRasterWidth(),
+                                         mapH / sourceProduct.getSceneRasterHeight());
             if (MathUtils.equalValues(pixelSize, 0.0f)) {
                 pixelSize = 1.0f;
             }
@@ -541,7 +541,7 @@ public class ReprojectionOp extends Operator {
         return new GridGeometry(targetGrid, targetCrs, transform);
     }
 
-    private GridGeometry createCollocationTargetGrid(Product collocationProduct) {
+    private GridGeometry createCollocationTargetGrid() {
         GeoCoding geoCoding = collocationProduct.getGeoCoding();
         AffineTransform i2m = (AffineTransform) geoCoding.getImageToModelTransform().clone();
         Rectangle bounds = new Rectangle(collocationProduct.getSceneRasterWidth(),
@@ -550,18 +550,18 @@ public class ReprojectionOp extends Operator {
         return new GridGeometry(bounds, modelCRS, i2m);
     }
 
-    private  Rectangle2D createMapBoundary(final Product product, CoordinateReferenceSystem targetCrs) {
+    private  Rectangle2D createMapBoundary(CoordinateReferenceSystem targetCrs) {
         final int sourceW = sourceProduct.getSceneRasterWidth();
         final int sourceH = sourceProduct.getSceneRasterHeight();
         final int step = Math.min(sourceW, sourceH) / 2;
         MathTransform mathTransform;
         try {
-            mathTransform = CRS.findMathTransform(product.getGeoCoding().getBaseCRS(), targetCrs);
+            mathTransform = CRS.findMathTransform(sourceProduct.getGeoCoding().getBaseCRS(), targetCrs);
         } catch (FactoryException e) {
             throw new OperatorException(e);
         }
         try {
-            final Point2D[] point2Ds = createMapBoundary(product, step, mathTransform);
+            final Point2D[] point2Ds = createMapBoundary(sourceProduct, step, mathTransform);
             return new Rectangle2D.Double(point2Ds[0].getX(),
                                           point2Ds[0].getY(),
                                           point2Ds[1].getX() - point2Ds[0].getX(),
