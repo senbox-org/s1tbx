@@ -87,17 +87,23 @@ public class NetcdfReaderUtils {
     public static IndexCoding createIndexCoding(final String codingName, final NcAttributeMap attMap) {
         Attribute flagValues = attMap.get("flag_values");
         String flagMeanings = attMap.getStringValue("flag_meanings");
+        IndexCoding coding = null;
         if (flagValues != null && flagMeanings != null) {
             String[] meanings = flagMeanings.split(" ");
-            final IndexCoding coding = new IndexCoding(codingName);
+            coding = new IndexCoding(codingName);
             int numElems = flagValues.getLength();
             numElems = Math.min(numElems, meanings.length);
             for (int i = 0; i < numElems; i++) {
-                coding.addSample(meanings[i], flagValues.getNumericValue(i).intValue(), "");
+                Number number = flagValues.getNumericValue(i);
+                if (number != null) {
+                    coding.addSample(meanings[i], number.intValue(), "");
+                }
             }
-            return coding;
+            if (coding.getNumAttributes() == 0) {
+                coding = null;
+            }
         }
-        return null;
+        return coding;
     }
 
     public static MapInfoX createMapInfoX(final Variable lonVar,
