@@ -310,7 +310,7 @@
             <dependency>
                 <groupId>com.sun.media</groupId>
                 <artifactId>jai-imageio</artifactId>
-                <version>1.1</version>
+                <version>1.2-20090918</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.media</groupId>
