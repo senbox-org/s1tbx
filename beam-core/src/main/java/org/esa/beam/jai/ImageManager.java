@@ -190,9 +190,9 @@ public class ImageManager {
         // todo - The knowledge of how width and height are computed should go either into AbstractMultiLevelSource or into the MultiLevelModel (nf 20090113)
         int destWidth = (int) Math.floor(sourceWidth / level.getScale());
         int destHeight = (int) Math.floor(sourceHeight / level.getScale());
+        tileSize = tileSize != null ? tileSize : JAIUtils.computePreferredTileSize(destWidth, destHeight, 1);
         SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataBufferType,
-                                                                           destWidth,
-                                                                           destHeight);
+                                                                           tileSize.width, tileSize.height);
         ColorModel colorModel = PlanarImage.createColorModel(sampleModel);
 
         if (colorModel == null) {
@@ -204,7 +204,6 @@ public class ImageManager {
                                                  dataType);
         }
 
-        tileSize = tileSize != null ? tileSize : JAIUtils.computePreferredTileSize(destWidth, destHeight, 1);
         return createImageLayout(destWidth, destHeight, tileSize.width, tileSize.height, sampleModel, colorModel);
     }
 
