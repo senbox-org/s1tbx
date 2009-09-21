@@ -3,6 +3,7 @@ package org.esa.beam.dataio.netcdf;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
@@ -86,7 +87,7 @@ public class NetcdfReader extends AbstractProductReader {
     private NcVariableMap _variableMap;
     private boolean _yFlipped;
 
-    public NetcdfReader(final NetcdfReaderPlugIn readerPlugIn) {
+    public NetcdfReader(final ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
     }
 
