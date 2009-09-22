@@ -224,18 +224,23 @@ public class NetcdfReader extends AbstractProductReader {
 
     private void addBandsToProduct(final Variable[] variables) {
         for (Variable variable : variables) {
-            final int rank = variable.getRank();
-            final int width = variable.getDimension(rank - 1).getLength();
-            final int height = variable.getDimension(rank - 2).getLength();
-            final NcAttributeMap attMap = NcAttributeMap.create(variable);
-            final Band band = NetcdfReaderUtils.createBand(variable, attMap, width, height);
-            final IndexCoding indexCoding = NetcdfReaderUtils.createIndexCoding(band.getName() + "_coding", attMap);
-            if (indexCoding != null) {
-                _product.getIndexCodingGroup().add(indexCoding);
-                band.setSampleCoding(indexCoding);
-            }
-            _product.addBand(band);
+            handleVariable(variable, _product);
         }
+    }
+
+    protected void handleVariable(Variable variable, Product product) {
+        DataTypeWorkarounds typeWorkarounds =  NetcdfDataTypeWorkarounds.getInstance();
+        final int rank = variable.getRank();
+        final int width = variable.getDimension(rank - 1).getLength();
+        final int height = variable.getDimension(rank - 2).getLength();
+        final NcAttributeMap attMap = NcAttributeMap.create(variable);
+        final Band band = NetcdfReaderUtils.createBand(variable, attMap, typeWorkarounds, width, height);
+        final IndexCoding indexCoding = NetcdfReaderUtils.createIndexCoding(band.getName() + "_coding", attMap);
+        if (indexCoding != null) {
+            product.getIndexCodingGroup().add(indexCoding);
+            band.setSampleCoding(indexCoding);
+        }
+        product.addBand(band);
     }
 
 

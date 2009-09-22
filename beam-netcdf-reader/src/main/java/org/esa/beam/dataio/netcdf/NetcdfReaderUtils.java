@@ -42,9 +42,10 @@ public class NetcdfReaderUtils {
         return new NcRasterDigest(rasterDim, rasterVariables);
     }
 
-    public static Band createBand(final Variable variable, final NcAttributeMap attMap, final int rasterWidth, final int rasterHeight) {
+    public static Band createBand(final Variable variable, final NcAttributeMap attMap, DataTypeWorkarounds typeWorkarounds, final int rasterWidth, final int rasterHeight) {
+        int rasterDataType = getRasterDataType(variable, typeWorkarounds);
         final Band band = new Band(NcVariableMap.getAbsoluteName(variable),
-                                   getRasterDataType(variable),
+                                   rasterDataType,
                                    rasterWidth,
                                    rasterHeight);
         band.setDescription(variable.getDescription());
@@ -60,7 +61,7 @@ public class NetcdfReaderUtils {
         return band;
     }
     
-    private static double getScalingFactor(NcAttributeMap attMap) {
+    public static double getScalingFactor(NcAttributeMap attMap) {
         Number numValue = attMap.getNumericValue(NetcdfConstants.SCALE_FACTOR_ATT_NAME);
         if (numValue == null) {
             numValue = attMap.getNumericValue(NetcdfConstants.SLOPE_ATT_NAME);
@@ -68,7 +69,7 @@ public class NetcdfReaderUtils {
         return numValue != null ? numValue.doubleValue() : 1.0;
     }
     
-    private static double getAddOffset(NcAttributeMap attMap) {
+    public static double getAddOffset(NcAttributeMap attMap) {
         Number numValue = attMap.getNumericValue(NetcdfConstants.ADD_OFFSET_ATT_NAME);
         if (numValue == null) {
             numValue = attMap.getNumericValue(NetcdfConstants.INTERCEPT_ATT_NAME);
@@ -76,7 +77,7 @@ public class NetcdfReaderUtils {
         return numValue != null ? numValue.doubleValue() : 0.0;
     }
     
-    private static Number getNoDataValue(NcAttributeMap attMap) {
+    public static Number getNoDataValue(NcAttributeMap attMap) {
         Number noDataValue = attMap.getNumericValue(NetcdfConstants.FILL_VALUE_ATT_NAME);
         if (noDataValue == null) {
             noDataValue = attMap.getNumericValue(NetcdfConstants.MISSING_VALUE_ATT_NAME);
@@ -99,7 +100,7 @@ public class NetcdfReaderUtils {
                     coding.addSample(meanings[i], number.intValue(), "");
                 }
             }
-            if (coding.getNumAttributes() == 0) {
+            if (coding.getNumAttributes() <= 1) {
                 coding = null;
             }
         }
@@ -181,9 +182,8 @@ public class NetcdfReaderUtils {
         return new MapInfoX(mapInfo, yFlipped);
     }
     
-    public static int getRasterDataType(Variable variable) {
-        NetcdfDataTypeWorkarounds workarounds = NetcdfDataTypeWorkarounds.getInstance();
-        if (workarounds.hasWorkaroud(variable.getName(), variable.getDataType())) {
+    public static int getRasterDataType(Variable variable, DataTypeWorkarounds workarounds) {
+        if (workarounds != null && workarounds.hasWorkaroud(variable.getName(), variable.getDataType())) {
             return workarounds.getRasterDataType(variable.getName(), variable.getDataType());
         }
         return getRasterDataType(variable.getDataType(), variable.isUnsigned());

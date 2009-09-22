@@ -16,15 +16,15 @@
  */
 package org.esa.beam.dataio.netcdf;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.StringUtils;
 
 import ucar.ma2.DataType;
 
-class NetcdfDataTypeWorkarounds {
+import java.util.HashMap;
+import java.util.Map;
+
+class NetcdfDataTypeWorkarounds implements DataTypeWorkarounds {
     
     private static NetcdfDataTypeWorkarounds INSTANCE = new NetcdfDataTypeWorkarounds();
     private Map<NameTypePair, Integer> workaroundMap;
@@ -40,6 +40,7 @@ class NetcdfDataTypeWorkarounds {
         return INSTANCE;
     }
     
+    @Override
     public boolean hasWorkaroud(String variableName, DataType dataType) {
         if (StringUtils.isNullOrEmpty(variableName) || dataType == null) {
             return false;
@@ -48,6 +49,7 @@ class NetcdfDataTypeWorkarounds {
         return workaroundMap.containsKey(nameTypePair);
     }
     
+    @Override
     public int getRasterDataType(String variableName, DataType dataType) {
         if (StringUtils.isNullOrEmpty(variableName) || dataType == null) {
             throw new IllegalArgumentException();
