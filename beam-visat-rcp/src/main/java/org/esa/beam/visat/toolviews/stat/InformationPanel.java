@@ -86,6 +86,10 @@ class InformationPanel extends TextPagePanel {
         final String productFormatName = getProductFormatName(product);
         final String productFormatNameString = productFormatName != null ? productFormatName : "unknown";
         appendEntry(sb, "Product format:", productFormatNameString, null);
+        
+        final String productReaderName = getProductReaderName(product);
+        final String productReaderNameString = productReaderName != null ? productReaderName : "unknown";
+        appendEntry(sb, "Product reader:", productReaderNameString, null);
 
         appendEntry(sb, "Product file location:",
                     product.getFileLocation() != null ? product.getFileLocation().getPath() : "Not yet saved", "");
@@ -111,6 +115,18 @@ class InformationPanel extends TextPagePanel {
             sb.append("\t ").append(unit);
         }
         sb.append('\n');
+    }
+    
+    private static String getProductReaderName(final Product product) {
+        final ProductReader productReader = product.getProductReader();
+        if (productReader == null) {
+            return null;
+        }
+        final ProductReaderPlugIn readerPlugIn = productReader.getReaderPlugIn();
+        if (readerPlugIn != null) {
+            return readerPlugIn.getDescription(null);
+        }
+        return null;
     }
 
     private static String getProductFormatName(final Product product) {
