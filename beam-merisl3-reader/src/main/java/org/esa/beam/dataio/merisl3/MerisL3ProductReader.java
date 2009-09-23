@@ -88,7 +88,8 @@ public class MerisL3ProductReader extends AbstractProductReader {
             _grid = new ISINGrid(ISINGrid.detectRowCount(path));
             _sceneRasterWidth = _grid.getRowCount() * 2;
             _sceneRasterHeight = _grid.getRowCount();
-            _product = new Product(FileUtils.getFilenameWithoutExtension(new File(path)),
+            File productFile = new File(path);
+            _product = new Product(FileUtils.getFilenameWithoutExtension(productFile),
                                    "L3_ENV_MER",
                                    _sceneRasterWidth,
                                    _sceneRasterHeight,
@@ -104,6 +105,7 @@ public class MerisL3ProductReader extends AbstractProductReader {
             addBand("count");
             _product.addBand(createColumnIndexBand());
             _product.setQuicklookBandName("mean");
+            _product.setFileLocation(productFile);
 
             if (_product.getNumBands() == 0) {
                 throw new IOException("No bands found.");
