@@ -60,6 +60,7 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
     private ApplicationDescriptor applicationDescriptor;
     private int helpSetNo;
 
+    @Override
     public void start(ModuleContext moduleContext) throws CoreException {
         this.moduleContext = moduleContext;
         instance = this;
@@ -69,6 +70,7 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
         registerApplicationDescriptors(moduleContext);
     }
 
+    @Override
     public void stop(ModuleContext moduleContext) throws CoreException {
         this.helpSetRegistry = null;
         this.moduleContext = null;
@@ -121,10 +123,12 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
         return actionRegistry.values().toArray(new Command[actionRegistry.size()]);
     }
 
+    @Override
     public ToolViewDescriptor[] getToolViewDescriptors() {
         return toolViewDescriptorRegistry.values().toArray(new ToolViewDescriptor[toolViewDescriptorRegistry.values().size()]);
     }
 
+    @Override
     public ToolViewDescriptor getToolViewDescriptor(String viewDescriptorId) {
         return toolViewDescriptorRegistry.get(viewDescriptorId);
     }

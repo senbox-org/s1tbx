@@ -57,6 +57,7 @@ public class VisatMain implements RuntimeRunnable {
      * @param progressMonitor a progress monitor
      * @throws Exception if an error occurs
      */
+    @Override
     public void run(Object argument, ProgressMonitor progressMonitor) throws Exception {
 
         String[] args = new String[0];
@@ -106,6 +107,7 @@ public class VisatMain implements RuntimeRunnable {
         Debug.setEnabled(debugEnabled);
         if (debugEnabled) {
             JAI.getDefaultInstance().setImagingListener(new ImagingListener() {
+                @Override
                 public boolean errorOccurred(String message, Throwable thrown, Object where, boolean isRetryable) throws RuntimeException {
                     Debug.trace("JAI Error: " + message);
                     Debug.trace(thrown);
@@ -140,6 +142,7 @@ public class VisatMain implements RuntimeRunnable {
 
     private static void openProduct(final VisatApp app, final String productFilepath) {
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 UIUtils.setRootFrameWaitCursor(app.getMainFrame());
                 try {

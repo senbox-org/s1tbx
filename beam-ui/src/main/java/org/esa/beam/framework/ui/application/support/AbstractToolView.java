@@ -25,10 +25,12 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
     protected AbstractToolView() {
     }
 
+    @Override
     public PageComponentDescriptor getDescriptor() {
         return descriptor;
     }
 
+    @Override
     public final void setDescriptor(PageComponentDescriptor descriptor) {
         Assert.notNull(descriptor, "descriptor");
         Assert.state(this.descriptor == null, "this.descriptor == null");
@@ -41,6 +43,7 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      * @return The tool window part instance as passed into the {@link #setContext(PageComponentContext)} method
      *         or <code>null</code> if the too window has not yet been initialised.
      */
+    @Override
     public PageComponentContext getContext() {
         return context;
     }
@@ -57,6 +60,7 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      *
      * @param context The tool window part.
      */
+    @Override
     public final void setContext(PageComponentContext context) {
         Assert.notNull(context, "context");
         Assert.state(this.context == null, "this.context == null");
@@ -69,36 +73,43 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      *
      * @return The tool window identifier.
      */
+    @Override
     public String getId() {
         assertDescriptorSet();
         return descriptor.getId();
     }
 
+    @Override
     public String getTitle() {
         assertDescriptorSet();
         return descriptor.getTitle();
     }
 
+    @Override
     public Icon getIcon() {
         assertDescriptorSet();
         return descriptor.getSmallIcon();
     }
 
+    @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         assertDescriptorSet();
         descriptor.addPropertyChangeListener(listener);
     }
 
+    @Override
     public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
         assertDescriptorSet();
         descriptor.addPropertyChangeListener(propertyName, listener);
     }
 
+    @Override
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         assertDescriptorSet();
         descriptor.removePropertyChangeListener(listener);
     }
 
+    @Override
     public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
         assertDescriptorSet();
         descriptor.removePropertyChangeListener(propertyName, listener);
@@ -118,6 +129,7 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      * The default implementation does nothing.
      * <p>Clients shall not call this method directly.</p>
      */
+    @Override
     public void dispose() {
     }
 
@@ -179,6 +191,7 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      * The default implementation does nothing.
      * <p>Clients shall not call this method directly.</p>
      */
+    @Override
     public void componentOpened() {
     }
 
@@ -186,6 +199,7 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      * The default implementation does nothing.
      * <p>Clients shall not call this method directly.</p>
      */
+    @Override
     public void componentClosed() {
     }
 
@@ -193,6 +207,7 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      * The default implementation does nothing.
      * <p>Clients shall not call this method directly.</p>
      */
+    @Override
     public void componentShown() {
     }
 
@@ -200,6 +215,7 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      * The default implementation does nothing.
      * <p>Clients shall not call this method directly.</p>
      */
+    @Override
     public void componentHidden() {
     }
 
@@ -207,6 +223,7 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      * The default implementation does nothing.
      * <p>Clients shall not call this method directly.</p>
      */
+    @Override
     public void componentFocusGained() {
     }
 
@@ -214,6 +231,7 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      * The default implementation does nothing.
      * <p>Clients shall not call this method directly.</p>
      */
+    @Override
     public void componentFocusLost() {
     }
 
