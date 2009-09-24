@@ -59,7 +59,7 @@ public class DataFormat {
             private boolean disposed;
 
             @Override
-            public void dispose() {
+            public synchronized void dispose() {
                 super.dispose();
                 disposed = true;
                 try {
