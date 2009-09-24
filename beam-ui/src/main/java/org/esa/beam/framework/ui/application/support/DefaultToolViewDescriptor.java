@@ -80,18 +80,22 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
         pojoWrapper = new PojoWrapper(this);
     }
 
+    @Override
     public String getId() {
         return id;
     }
 
+    @Override
     public String getHelpId() {
         return helpId;
     }
 
+    @Override
     public void setHelpId(String helpId) {
         pojoWrapper.setValue(PROPERTY_KEY_HELP_ID, helpId);
     }
 
+    @Override
     public String getTitle() {
         if (title == null) {
             title = tabTitle;
@@ -99,6 +103,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
         return title;
     }
 
+    @Override
     public void setTitle(String title) {
         pojoWrapper.setValue(PROPERTY_KEY_TITLE, title);
     }
@@ -106,6 +111,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
     /**
      * @return The window tab-title.
      */
+    @Override
     public String getTabTitle() {
         if (tabTitle == null) {
             tabTitle = title;
@@ -116,26 +122,32 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
     /**
      * @param tabTitle The window tab-title.
      */
+    @Override
     public void setTabTitle(String tabTitle) {
         pojoWrapper.setValue(PROPERTY_KEY_TAB_TITLE, tabTitle);
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
 
+    @Override
     public void setDescription(String description) {
         pojoWrapper.setValue(PROPERTY_KEY_DESCRIPTION, description);
     }
 
+    @Override
     public String getToolBarId() {
         return toolBarId;
     }
 
+    @Override
     public void setToolBarId(String toolBarId) {
         this.toolBarId = toolBarId;
     }
 
+    @Override
     public Icon getSmallIcon() {
         if (smallIconPath != null && smallIcon == null) {
             smallIcon = UIUtils.loadImageIcon(smallIconPath, toolViewClass);
@@ -143,6 +155,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
         return smallIcon;
     }
 
+    @Override
     public Icon getLargeIcon() {
         if (largeIconPath != null && largeIcon == null) {
             largeIcon = UIUtils.loadImageIcon(largeIconPath, toolViewClass);
@@ -150,26 +163,32 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
         return largeIcon;
     }
 
+    @Override
     public void setSmallIcon(Icon smallIcon) {
         pojoWrapper.setValue(PROPERTY_KEY_SMALL_ICON, smallIcon);
     }
 
+    @Override
     public void setLargeIcon(Icon largeIcon) {
         pojoWrapper.setValue(PROPERTY_KEY_LARGE_ICON, largeIcon);
     }
 
+    @Override
     public char getMnemonic() {
         return mnemonic;
     }
 
+    @Override
     public void setMnemonic(char mnemonic) {
         pojoWrapper.setValue(PROPERTY_KEY_MNEMONIC, mnemonic);
     }
 
+    @Override
     public KeyStroke getAccelerator() {
         return accelerator;
     }
 
+    @Override
     public void setAccelerator(KeyStroke accelerator) {
         pojoWrapper.setValue(PROPERTY_KEY_ACCELERATOR, accelerator);
     }
@@ -177,6 +196,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
     /**
      * @return The initial state.
      */
+    @Override
     public State getInitState() {
         return initState;
     }
@@ -184,6 +204,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
     /**
      * @param initState The initial state.
      */
+    @Override
     public void setInitState(State initState) {
         pojoWrapper.setValue("initState", initState);
     }
@@ -191,6 +212,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
     /**
      * @return The initial side.
      */
+    @Override
     public DockSide getInitSide() {
         return initSide;
     }
@@ -198,6 +220,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
     /**
      * @param initSide The initial side.
      */
+    @Override
     public void setInitSide(DockSide initSide) {
         pojoWrapper.setValue("initSide", initSide);
     }
@@ -205,6 +228,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
     /**
      * @return The initial index.
      */
+    @Override
     public int getInitIndex() {
         return initIndex;
     }
@@ -212,6 +236,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
     /**
      * @param initIndex The initial index.
      */
+    @Override
     public void setInitIndex(int initIndex) {
         pojoWrapper.setValue("initIndex", initIndex);
     }
@@ -219,6 +244,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
     /**
      * @return The docked width in pixels.
      */
+    @Override
     public int getDockedWidth() {
         return dockedWidth;
     }
@@ -226,6 +252,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
     /**
      * @param dockedWidth The docked width in pixels.
      */
+    @Override
     public void setDockedWidth(int dockedWidth) {
         pojoWrapper.setValue("dockedWidth", dockedWidth);
     }
@@ -233,6 +260,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
     /**
      * @return The docked height in pixels.
      */
+    @Override
     public int getDockedHeight() {
         return dockedHeight;
     }
@@ -240,106 +268,130 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
     /**
      * @param dockedHeight The docked height in pixels.
      */
+    @Override
     public void setDockedHeight(int dockedHeight) {
         pojoWrapper.setValue("dockedHeight", dockedHeight);
     }
 
+    @Override
     public Rectangle getFloatingBounds() {
         return floatingBounds;
     }
 
+    @Override
     public void setFloatingBounds(Rectangle floatingBounds) {
         pojoWrapper.setValue("floatingBounds", floatingBounds);
     }
 
+    @Override
     public Dimension getPreferredSize() {
         return preferredSize;
     }
 
+    @Override
     public void setPreferredSize(Dimension preferredSize) {
         pojoWrapper.setValue("preferredSize", preferredSize);
     }
 
+    @Override
     public boolean isHidable() {
         // todo
         return false;
     }
 
+    @Override
     public void setHidable(boolean state) {
         // todo
     }
 
+    @Override
     public boolean isDockable() {
         // todo
         return false;
     }
 
+    @Override
     public void setDockable(boolean state) {
         // todo
     }
 
+    @Override
     public boolean isFloatable() {
         // todo
         return false;
     }
 
+    @Override
     public void setFloatable(boolean state) {
         // todo
     }
 
+    @Override
     public boolean isAutohidable() {
         // todo
         return false;
     }
 
+    @Override
     public void setAutohidable(boolean state) {
         // todo
     }
 
+    @Override
     public boolean isMaximizable() {
         // todo
         return false;
     }
 
+    @Override
     public void setMaximizable(boolean state) {
         // todo
     }
 
     // todo - the following actually are not descriptor properties!
     // {{{
+    @Override
     public boolean isVisible() {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    @Override
     public void setVisible(boolean state) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    @Override
     public boolean isEnabled() {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    @Override
     public void setEnabled(boolean state) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
     // }}}
 
+    @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         pojoWrapper.addPropertyChangeListener(listener);
     }
 
+    @Override
     public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
         pojoWrapper.addPropertyChangeListener(propertyName, listener);
     }
 
+    @Override
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         pojoWrapper.removePropertyChangeListener(listener);
     }
 
+    @Override
     public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
         pojoWrapper.removePropertyChangeListener(propertyName, listener);
     }
 
+    @Override
     public PageComponent createPageComponent() {
         return createToolView();
     }
@@ -367,6 +419,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
      *
      * @return The show page component command.
      */
+    @Override
     public Command createShowViewCommand(final ApplicationWindow window) {
         final String commandId = getId() + ".showCmd";
         final ExecCommand command = window.getCommandManager().createExecCommand(commandId, new CommandAdapter() {
@@ -405,6 +458,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
         return command;
     }
 
+    @Override
     public void configure(ConfigurationElement config) throws CoreException {
     }
 }
