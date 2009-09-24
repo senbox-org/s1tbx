@@ -44,6 +44,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
                                                                                               TransformException {
         this.imageBounds2D = imageBounds2D;
         this.imageToModel = imageToModel;
+        setModelCRS(modelCRS);
         org.opengis.referencing.datum.Ellipsoid gtEllipsoid = CRS.getEllipsoid(getModelCRS());
         String ellipsoidName = gtEllipsoid.getName().getCode();
         Ellipsoid ellipsoid = new Ellipsoid(ellipsoidName, gtEllipsoid.getSemiMajorAxis(),
@@ -65,8 +66,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
                                          getBaseCRS(),
                                          i2m.inverse(),
                                          DefaultCartesianCS.DISPLAY));
-        setModelCRS(modelCRS);
-        
+
         MathTransform model2Base = CRS.findMathTransform(getModelCRS(), getBaseCRS());
 
         final CoordinateOperationFactory factory = ReferencingFactoryFinder.getCoordinateOperationFactory(null);
