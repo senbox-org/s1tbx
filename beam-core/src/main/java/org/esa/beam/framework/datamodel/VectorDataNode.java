@@ -4,6 +4,17 @@ import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
 
+/**
+ * Preliminary API. Don't use.
+ * TODO:
+ * <ol>
+ *   <li>Add add/remove/get API to {@link Product}</li>
+ *   <li>Discuss ways to make it persistent (e.g. path to shapefile in BEAM-DIMAP)</li> 
+ * </ol>
+ *
+ * @author Norman Fomferra
+ * @since BEAM 4.7
+ */
 public class VectorDataNode extends ProductNode {
     private final FeatureSource featureSource;
 
