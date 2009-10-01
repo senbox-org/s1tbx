@@ -9,6 +9,6 @@
     <tocitem text="Graph Processing Framework">
 		<tocitem text="Overview" target="gpf.overview"/>
 		<tocitem text="Graph Processing Tool" target="gpf.graphProcessingTool"/>
-		<tocitem text="Common Operators" target="gpf.CommonOperators"/>
+		<tocitem text="Common Operators" target="gpf.commonOperators"/>
     </tocitem>
 </toc>

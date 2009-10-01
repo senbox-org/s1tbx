@@ -25,15 +25,9 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
  * <b>NOTE:</b> You have to adopt the pathes to your needs.
  * <p/>
  * <pre>
-<<<<<<< .mine
- *  SET DocletClassName=org.esa.beam.framework.gpf.doclet.OperatorDoclet
- *  SET SourcePath=C:\Projects\beam-4.x\beam-gpf\src\main\java
- *  SET ClassPath=C:\Projects\beam-4.x\beam-gpf\target\classes
-=======
  *  SET DocletClassName=org.esa.beam.framework.gpf.doclet.OperatorDoclet
  *  SET SourcePath=.\beam-gpf\src\main\java
- *  SET ClassPath=.\modules\beam-gpf-4.7-SNAPSHOT
->>>>>>> .r5907
+ *  SET ClassPath=.\beam-gpf\target\classes
  * </pre>
  * <p/>
  * <pre>
@@ -60,9 +54,10 @@ public class OperatorDoclet extends Doclet {
         }
         com.sun.tools.javadoc.Main.main(new String[] {
                  "-doclet", OperatorDoclet.class.getName(),
-                "-sourcepath", "./beam-gpf/src/main/java",
+                "-sourcepath", "./beam-gpf/src/main/java;./beam-gpf-common/src/main/java",
 //                "-classpath", "./beam-gpf/target/classes"
                 "org.esa.beam.framework.gpf.operators.common",
+                "org.esa.beam.gpf.common.reproject",
                 "org.esa.beam.framework.gpf.operators.meris",
         });
     }

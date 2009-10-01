@@ -23,8 +23,8 @@ public class OperatorHandlerHtml implements OperatorHandler {
     @Override
     public void start(RootDoc root) throws IOException, URISyntaxException {
         final URL location = OperatorHandlerHtml.class.getProtectionDomain().getCodeSource().getLocation();
-        System.out.println("location = " + location);
         baseDir = new File(new File(location.toURI()), "doc/help/gpf");
+        System.out.println("Output goes to " + baseDir);
         if (!baseDir.isDirectory()) {
             if (!baseDir.mkdirs()) {
                 throw new IOException("Failed to create base directory " + baseDir);
