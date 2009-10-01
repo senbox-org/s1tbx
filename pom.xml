@@ -98,7 +98,6 @@
         </snapshotRepository>
     </distributionManagement>
 
-
     <modules>
         <module>../ceres-0.x</module>
 

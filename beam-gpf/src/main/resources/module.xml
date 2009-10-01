@@ -61,4 +61,11 @@
         <serviceProvider>org.esa.beam.framework.gpf.OperatorSpi</serviceProvider>
     </extension>
 
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/gpf.hs</path>
+        </helpSet>
+    </extension>
+
 </module>

@@ -7,6 +7,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.net.URL;
+import java.net.URISyntaxException;
 
 // todo - use template engine, e.g. apache velocity (nf)
 public class OperatorHandlerHtml implements OperatorHandler {
@@ -19,8 +21,10 @@ public class OperatorHandlerHtml implements OperatorHandler {
     }
 
     @Override
-    public void start(RootDoc root) throws IOException {
-        baseDir = new File("help");   // todo - use main arguments (nf)
+    public void start(RootDoc root) throws IOException, URISyntaxException {
+        final URL location = OperatorHandlerHtml.class.getProtectionDomain().getCodeSource().getLocation();
+        System.out.println("location = " + location);
+        baseDir = new File(new File(location.toURI()), "doc/help/gpf");
         if (!baseDir.isDirectory()) {
             if (!baseDir.mkdirs()) {
                 throw new IOException("Failed to create base directory " + baseDir);
@@ -30,7 +34,7 @@ public class OperatorHandlerHtml implements OperatorHandler {
 
     @Override
     public void stop(RootDoc root) throws IOException {
-        File indexFile = new File(baseDir, "index.html");
+        File indexFile = new File(baseDir, "CommonOperators.html");
         PrintWriter writer = new PrintWriter(new FileWriter(indexFile));
         try {
             writeIndex(writer);
@@ -52,15 +56,8 @@ public class OperatorHandlerHtml implements OperatorHandler {
     }
 
     private void writeIndex(PrintWriter writer) throws IOException {
-        writer.println("<!DOCTYPE HTML PUBLIC " +
-                "\"-//W3C//DTD HTML 4.01//EN\" " +
-                "\"http://www.w3.org/TR/html4/strict.dtd\">");
-        writer.println("<html>");
-        writer.println("<head><title>Operator Index</title></head>");
-        writer.println("<body>");
-
+        writeHeader("Operator Index", writer);
         writer.println("<h1>Operator Index</h1>");
-
         writer.println("<table>");
         for (OperatorDesc operatorDesc : operatorDescs) {
             writer.println("  <tr>");
@@ -69,17 +66,11 @@ public class OperatorHandlerHtml implements OperatorHandler {
             writer.println("  </tr>");
         }
         writer.println("</table>");
-        writer.println("</body>");
-        writer.println("</html>");
+        writeFooter(writer);
     }
 
-    private void writeOperatorPage(OperatorDesc operatorDesc, PrintWriter writer) {
-        writer.println("<!DOCTYPE HTML PUBLIC " +
-                "\"-//W3C//DTD HTML 4.01//EN\" " +
-                "\"http://www.w3.org/TR/html4/strict.dtd\">");
-        writer.println("<html>");
-        writer.println("<head><title>" + operatorDesc.getName() + "</title></head>");
-        writer.println("<body>");
+    private static void writeOperatorPage(OperatorDesc operatorDesc, PrintWriter writer) {
+        writeHeader(operatorDesc.getName(), writer);
 
         writer.println("<h1>" + operatorDesc.getName() + " Operator</h1>");
 
@@ -142,11 +133,40 @@ public class OperatorHandlerHtml implements OperatorHandler {
         writer.println("<h2>Usage</h2>");
         writer.println("<p><i>TODO</i></p>");
 
+        writeFooter(writer);
+    }
+
+    private static void writeHeader(String title, PrintWriter writer) {
+        writer.println("<!DOCTYPE HTML PUBLIC " +
+                "\"-//W3C//DTD HTML 4.01//EN\" " +
+                "\"http://www.w3.org/TR/html4/strict.dtd\">");
+        writer.println("<html>");
+        writer.println("" +
+                "<head>\n" +
+                "    <title>"+title+"</title>\n" +
+                "    <link rel=\"stylesheet\" href=\"../style.css\">\n" +
+                "</head>");
+        writer.println("<body>");
+
+        writer.println("" +
+                "<table class=\"header\">\n" +
+                "    <tr class=\"header\">\n" +
+                "        <td class=\"header\">&nbsp;"+title+"</td>\n" +
+                "        <td class=\"header\" align=\"right\">\n" +
+                "           <a href=\"../general/BeamOverview.html\">" +
+                "             <img src=\"images/BeamHeader.jpg\" border=\"0\"/></a>\n" +
+                "        </td>\n" +
+                "    </tr>\n" +
+                "</table>");
+    }
+
+    private static void writeFooter(PrintWriter writer) {
+        writer.println("<hr/>");
         writer.println("</body>");
         writer.println("</html>");
     }
 
-    private String getFullDescription(ElementDesc elementDesc) {
+    private static String getFullDescription(ElementDesc elementDesc) {
         String shortDescription = elementDesc.getShortDescription();
         String longDescription = elementDesc.getLongDescription();
         if (shortDescription.isEmpty()) {
@@ -162,7 +182,7 @@ public class OperatorHandlerHtml implements OperatorHandler {
         return new File(baseDir, getOperatorPageName(operatorDesc));
     }
 
-    private String getOperatorPageName(OperatorDesc operatorDesc) {
+    private static String getOperatorPageName(OperatorDesc operatorDesc) {
         return operatorDesc.getType().getName().replace('.', '_') + ".html";
     }
 
