@@ -5,12 +5,17 @@ import com.bc.ceres.binio.SimpleType;
 import junit.framework.TestCase;
 
 public class CompoundTypeImplTest extends TestCase {
+
+    static final CompoundType COMPLEX = new CompoundTypeImpl("Complex", new CompoundMemberImpl[]{
+            new CompoundMemberImpl("real", SimpleType.DOUBLE),
+            new CompoundMemberImpl("imag", SimpleType.DOUBLE),
+    });
     static final CompoundType RECORD_TYPE = new CompoundTypeImpl("Record", new CompoundMemberImpl[]{
             new CompoundMemberImpl("id", SimpleType.USHORT),
             new CompoundMemberImpl("flags", SimpleType.UINT),
             new CompoundMemberImpl("x", SimpleType.DOUBLE),
             new CompoundMemberImpl("y", SimpleType.DOUBLE),
-            new CompoundMemberImpl("z", SimpleType.DOUBLE),
+            new CompoundMemberImpl("z", COMPLEX),
     });
     static final CompoundType DATASET_TYPE = new CompoundTypeImpl("Dataset", new CompoundMemberImpl[]{
             new CompoundMemberImpl("recordCount", SimpleType.INT),
@@ -20,13 +25,13 @@ public class CompoundTypeImplTest extends TestCase {
     public void testCompoundTypes() {
         final CompoundType cr = RECORD_TYPE;
         assertEquals("Record", cr.getName());
-        assertEquals(2 + 4 + 3 * 8, cr.getSize());
+        assertEquals(2 + 4 + 2 * 8 + 16, cr.getSize());
         assertEquals(5, cr.getMemberCount());
         assertEquals(SimpleType.USHORT, cr.getMemberType(0));
         assertEquals(SimpleType.UINT, cr.getMemberType(1));
         assertEquals(SimpleType.DOUBLE, cr.getMemberType(2));
         assertEquals(SimpleType.DOUBLE, cr.getMemberType(3));
-        assertEquals(SimpleType.DOUBLE, cr.getMemberType(4));
+        assertEquals(COMPLEX, cr.getMemberType(4));
         assertEquals(-1, cr.getMemberIndex("ID"));
         assertEquals(0, cr.getMemberIndex("id"));
         assertEquals(1, cr.getMemberIndex("flags"));

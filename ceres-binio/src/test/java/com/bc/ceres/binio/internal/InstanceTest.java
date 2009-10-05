@@ -52,7 +52,8 @@ public class InstanceTest extends TestCase {
         ios.close();
 
         final ImageInputStream iis = new MemoryCacheImageInputStream(new ByteArrayInputStream(baos.toByteArray()));
-        final DataContext context = new DataFormat(COMPOUND("UNDEFINED"), ByteOrder.LITTLE_ENDIAN).createContext(new ImageIOHandler(iis));
+        final DataContext context = new DataFormat(COMPOUND("UNDEFINED"), ByteOrder.LITTLE_ENDIAN).createContext(
+                new ImageIOHandler(iis));
 
         SequenceType type = SEQUENCE(SimpleType.INT, 3);
         final FixSequenceOfSimples sequenceInstance = new FixSequenceOfSimples(context, null, type, 0);
@@ -87,9 +88,11 @@ public class InstanceTest extends TestCase {
 
         final byte[] byteData = baos.toByteArray();
         assertEquals(3 * 4, byteData.length);
-        final DataContext context = new DataFormat(type, ByteOrder.LITTLE_ENDIAN).createContext(new ByteArrayIOHandler(byteData));
+        final DataContext context = new DataFormat(type, ByteOrder.LITTLE_ENDIAN).createContext(
+                new ByteArrayIOHandler(byteData));
 
-        CompoundInstance compoundInstance = InstanceFactory.createCompound(context, null, type, 4, ByteOrder.LITTLE_ENDIAN);
+        CompoundInstance compoundInstance = InstanceFactory.createCompound(context, null, type, 4,
+                                                                           ByteOrder.LITTLE_ENDIAN);
         assertSame(FixCompound.class, compoundInstance.getClass());
 
         assertEquals(2, compoundInstance.getElementCount());
@@ -99,6 +102,53 @@ public class InstanceTest extends TestCase {
         assertEquals(true, compoundInstance.isSizeResolved());
         assertEquals(55, compoundInstance.getInt(0));
         assertEquals(27.88f, compoundInstance.getFloat(1), 0.00001f);
+    }
+
+    public void testFixCompoundOfFixCompounds() throws IOException {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        MemoryCacheImageOutputStream ios = new MemoryCacheImageOutputStream(baos);
+        ios.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+        ios.writeDouble(17.0);
+        ios.writeDouble(11.0);
+        ios.writeDouble(19.0);
+        ios.writeDouble(67.0);
+        ios.close();
+
+        final CompoundType complexType = COMPOUND("Complex", MEMBER("x", DOUBLE), MEMBER("y", DOUBLE));
+        CompoundType type = COMPOUND("compoundTestType",
+                                     MEMBER("x", SimpleType.DOUBLE),
+                                     MEMBER("y", SimpleType.DOUBLE),
+                                     MEMBER("z", complexType));
+        assertFalse(FixCompound.isCompoundTypeWithinSizeLimit(type, 31));
+        assertTrue(FixCompound.isCompoundTypeWithinSizeLimit(type, 32));
+        assertTrue(FixCompound.isCompoundTypeWithinSizeLimit(type, 33));
+
+        final byte[] byteData = baos.toByteArray();
+        assertEquals(2 * 8 + 16, byteData.length);
+        final DataContext context = new DataFormat(type, ByteOrder.LITTLE_ENDIAN).createContext(
+                new ByteArrayIOHandler(byteData));
+
+        CompoundInstance compoundInstance = InstanceFactory.createCompound(context, null, type, 0,
+                                                                           ByteOrder.LITTLE_ENDIAN);
+        assertSame(FixCompound.class, compoundInstance.getClass());
+
+        assertEquals(3, compoundInstance.getElementCount());
+        assertEquals(2 * 8 + 16, compoundInstance.getSize());
+        assertEquals(0, compoundInstance.getPosition());
+        assertEquals(type, compoundInstance.getType());
+        assertEquals(true, compoundInstance.isSizeResolved());
+        assertEquals(11.0, compoundInstance.getDouble(1), 0.0);
+        assertEquals(19.0, compoundInstance.getCompound(2).getDouble(0), 0.0);
+        assertEquals(67.0, compoundInstance.getCompound(2).getDouble(1), 0.0);
+
+        final CompoundData complexData = compoundInstance.getCompound(2);
+        complexData.setDouble(0, 67.0);
+        complexData.setDouble(0, 19.0);
+
+        // todo - uncomment and make test run (rq-20091005)
+        // compoundInstance.setCompound(2, complexData);
+        // assertEquals(19.0, compoundInstance.getCompound(2).getDouble(0), 0.0);
+        // assertEquals(67.0, compoundInstance.getCompound(2).getDouble(1), 0.0);
     }
 
     public void testVarCompound() throws Exception {
@@ -229,8 +279,10 @@ public class InstanceTest extends TestCase {
 
         for (int j = 0; j < nj; j++) {
             for (int i = 0; i < ni; i++) {
-                assertEquals("i=" + i + ",j=" + j, 20.0 + 0.1 * i + 0.2 * j, compoundData.getSequence(0).getSequence(j).getCompound(i).getDouble(0), 1e-10);
-                assertEquals("i=" + i + ",j=" + j, 40.0 + 0.1 * i + 0.2 * j, compoundData.getSequence(0).getSequence(j).getCompound(i).getDouble(1), 1e-10);
+                assertEquals("i=" + i + ",j=" + j, 20.0 + 0.1 * i + 0.2 * j,
+                             compoundData.getSequence(0).getSequence(j).getCompound(i).getDouble(0), 1e-10);
+                assertEquals("i=" + i + ",j=" + j, 40.0 + 0.1 * i + 0.2 * j,
+                             compoundData.getSequence(0).getSequence(j).getCompound(i).getDouble(1), 1e-10);
             }
         }
     }
