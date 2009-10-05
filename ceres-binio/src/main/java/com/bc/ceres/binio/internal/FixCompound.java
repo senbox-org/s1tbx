@@ -26,6 +26,7 @@ final class FixCompound extends AbstractCompound {
         return getCompoundType();
     }
 
+    @Override
     public long getSize() {
         return getCompoundType().getSize();
     }
@@ -35,14 +36,17 @@ final class FixCompound extends AbstractCompound {
         return true;
     }
 
+    @Override
     public boolean isSizeResolved(int index) {
         return true;
     }
 
+    @Override
     public void resolveSize() {
         // ok
     }
 
+    @Override
     public void resolveSize(int index) {
         // ok
     }
