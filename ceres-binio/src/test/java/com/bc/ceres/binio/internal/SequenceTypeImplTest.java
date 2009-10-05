@@ -51,7 +51,7 @@ public class SequenceTypeImplTest extends TestCase {
         testSequenceType(sssf, ssf, 8, "float[32][43][8]", 8 * 43 * 32 * 4);
 
         SequenceType sr = new SequenceTypeImpl(RECORD_TYPE, 300);
-        testSequenceType(sr, RECORD_TYPE, 300, "Record[300]", 300 * (2 + 4 + 3 * 8));
+        testSequenceType(sr, RECORD_TYPE, 300, "Record[300]", 300 * (2 + 4 + 2 * 8 + 16));
         sr = new SequenceTypeImpl(RECORD_TYPE);
         testSequenceType(sr, RECORD_TYPE, -1, "Record[]", -1);
 
