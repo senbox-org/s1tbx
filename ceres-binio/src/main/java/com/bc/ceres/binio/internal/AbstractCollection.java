@@ -5,6 +5,7 @@ import com.bc.ceres.binio.DataAccessException;
 import com.bc.ceres.binio.DataContext;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 
 
 abstract class AbstractCollection implements CollectionInstance {
@@ -36,62 +37,62 @@ abstract class AbstractCollection implements CollectionInstance {
 
     @Override
     public byte getByte() {
-        throw new DataAccessException();
+        throw new DataAccessException(getTypeErrorMsg());
     }
 
     @Override
     public void setByte(byte value) throws IOException {
-        throw new DataAccessException();
+        throw new DataAccessException(getTypeErrorMsg());
     }
 
     @Override
     public short getShort() {
-        throw new DataAccessException();
+        throw new DataAccessException(getTypeErrorMsg());
     }
 
     @Override
     public void setShort(short value) throws IOException {
-        throw new DataAccessException();
+        throw new DataAccessException(getTypeErrorMsg());
     }
 
     @Override
     public int getInt() {
-        throw new DataAccessException();
+        throw new DataAccessException(getTypeErrorMsg());
     }
 
     @Override
     public void setInt(int value) throws IOException {
-        throw new DataAccessException();
+        throw new DataAccessException(getTypeErrorMsg());
     }
 
     @Override
     public long getLong() {
-        throw new DataAccessException();
+        throw new DataAccessException(getTypeErrorMsg());
     }
 
     @Override
     public void setLong(long value) throws IOException {
-        throw new DataAccessException();
+        throw new DataAccessException(getTypeErrorMsg());
     }
 
     @Override
     public float getFloat() {
-        throw new DataAccessException();
+        throw new DataAccessException(getTypeErrorMsg());
     }
 
     @Override
     public void setFloat(float value) throws IOException {
-        throw new DataAccessException();
+        throw new DataAccessException(getTypeErrorMsg());
     }
 
     @Override
     public double getDouble() {
-        throw new DataAccessException();
+        throw new DataAccessException(getTypeErrorMsg());
     }
 
     @Override
     public void setDouble(double value) throws IOException {
-        throw new DataAccessException();
+        throw new DataAccessException(getTypeErrorMsg());
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -139,8 +140,12 @@ abstract class AbstractCollection implements CollectionInstance {
 
     protected void assertSizeResolved(int index) {
         if (!isSizeResolved(index)) {
-            // todo - improve error message
             throw new DataAccessException(this + " at index " + index);
         }
     }
+
+    String getTypeErrorMsg() {
+        return MessageFormat.format("Illegal data access, actual type is ''{0}''", getType());
+    }
+
 }
