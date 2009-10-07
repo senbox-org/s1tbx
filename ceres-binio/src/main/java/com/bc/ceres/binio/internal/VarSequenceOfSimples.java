@@ -26,7 +26,7 @@ final class VarSequenceOfSimples extends AbstractSequenceOfSimples {
     }
 
     @Override
-    public Type getType() {
+    public SequenceType getType() {
         return resolvedSequenceType;
     }
 

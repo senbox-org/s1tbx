@@ -30,8 +30,8 @@ public class SmosTest extends TestCase {
 
         SequenceData snapshotList = data.getSequence(1);
         assertNotNull(snapshotList);
-        assertNotNull(snapshotList.getSequenceType());
-        assertEquals(3, snapshotList.getSequenceType().getElementCount());
+        assertNotNull(snapshotList.getType());
+        assertEquals(3, snapshotList.getType().getElementCount());
         testSnapshotInfo(snapshotList, 0);
         testSnapshotInfo(snapshotList, 1);
         testSnapshotInfo(snapshotList, 2);
@@ -48,8 +48,8 @@ public class SmosTest extends TestCase {
 
         SequenceData gridPointList = data.getSequence(3);
         assertNotNull(gridPointList);
-        assertNotNull(gridPointList.getSequenceType());
-        assertEquals(4, gridPointList.getSequenceType().getElementCount());
+        assertNotNull(gridPointList.getType());
+        assertEquals(4, gridPointList.getType().getElementCount());
         testGridPointData(gridPointList, 0);
         testGridPointData(gridPointList, 1);
         testGridPointData(gridPointList, 2);
@@ -99,8 +99,8 @@ public class SmosTest extends TestCase {
 
         SequenceData gridPointList = data.getSequence(3);
         assertNotNull(gridPointList);
-        assertNotNull(gridPointList.getSequenceType());
-        assertEquals(4, gridPointList.getSequenceType().getElementCount());
+        assertNotNull(gridPointList.getType());
+        assertEquals(4, gridPointList.getType().getElementCount());
         testGridPointData(gridPointList, 2);
         assertEquals("R(0,4)" +
                 "R(487,4)" +

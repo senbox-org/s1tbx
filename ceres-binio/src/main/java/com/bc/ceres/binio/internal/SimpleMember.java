@@ -57,11 +57,6 @@ final class SimpleMember implements MemberInstance {
         // ok
     }
 
-    @Override
-    public Type getType() {
-        return simpleType;
-    }
-
     ////////////////////////////////////////////////////
     // data access
 

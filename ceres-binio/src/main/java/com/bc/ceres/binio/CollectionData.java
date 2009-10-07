@@ -7,6 +7,9 @@ import java.io.IOException;
  */
 public interface CollectionData {
 
+    // todo - remove
+    void resolveSize() throws IOException;
+
     DataContext getContext();
 
     CollectionData getParent();

@@ -18,7 +18,13 @@ abstract class AbstractCompound extends AbstractCollection implements CompoundIn
     }
 
     @Override
+    @Deprecated
     public final CompoundType getCompoundType() {
+        return getType();
+    }
+
+    @Override
+    public CompoundType getType() {
         return compoundType;
     }
 

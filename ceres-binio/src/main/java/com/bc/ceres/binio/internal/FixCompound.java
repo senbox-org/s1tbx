@@ -22,13 +22,8 @@ final class FixCompound extends AbstractCompound {
     }
 
     @Override
-    public Type getType() {
-        return getCompoundType();
-    }
-
-    @Override
     public long getSize() {
-        return getCompoundType().getSize();
+        return getType().getSize();
     }
 
     @Override

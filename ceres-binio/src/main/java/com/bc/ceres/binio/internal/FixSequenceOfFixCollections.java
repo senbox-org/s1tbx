@@ -1,11 +1,19 @@
 package com.bc.ceres.binio.internal;
 
-import com.bc.ceres.binio.*;
+import com.bc.ceres.binio.CollectionData;
+import com.bc.ceres.binio.CompoundData;
+import com.bc.ceres.binio.CompoundType;
+import com.bc.ceres.binio.DataAccessException;
+import com.bc.ceres.binio.DataContext;
+import com.bc.ceres.binio.SequenceData;
+import com.bc.ceres.binio.SequenceType;
+import com.bc.ceres.binio.Type;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 
 
-final class FixSequenceOfFixCollections extends AbstractSequenceOfFixCollections {
+final class FixSequenceOfFixCollections extends AbstractSequenceOfCollections {
 
     private final Segment segment;
 
@@ -35,7 +43,7 @@ final class FixSequenceOfFixCollections extends AbstractSequenceOfFixCollections
 
     @Override
     public long getSize() {
-        return getSequenceType().getSize();
+        return getType().getSize();
     }
 
     @Override
@@ -44,18 +52,8 @@ final class FixSequenceOfFixCollections extends AbstractSequenceOfFixCollections
     }
 
     @Override
-    public Type getType() {
-        return getSequenceType();
-    }
-
-    @Override
-    protected SequenceType getResolvedSequenceType() {
-        return getSequenceType();
-    }
-
-    @Override
     public int getElementCount() {
-        return getSequenceType().getElementCount();
+        return getType().getElementCount();
     }
 
     @Override
@@ -75,32 +73,36 @@ final class FixSequenceOfFixCollections extends AbstractSequenceOfFixCollections
 
     @Override
     public SequenceData getSequence(int index) throws IOException {
-        if (segment != null) {
-            ensureSizeResolved(index);
-            final Type elementType = getResolvedSequenceType().getElementType();
-            if (elementType instanceof SequenceType) {
-                final SequenceType sequenceElementType = (SequenceType) elementType;
-                return InstanceFactory.createFixSequence(getContext(), this, sequenceElementType, segment, index * sequenceElementType.getSize());
+        final Type elementType = getType().getElementType();
+        if (elementType instanceof SequenceType) {
+            final SequenceType sequenceElementType = (SequenceType) elementType;
+            if (segment != null) {
+                return InstanceFactory.createFixSequence(getContext(), this, sequenceElementType, segment,
+                                                         index * sequenceElementType.getSize());
+            } else {
+                return InstanceFactory.createSequence(getContext(), this, sequenceElementType,
+                                                      getPosition() + index * sequenceElementType.getSize(),
+                                                      getContext().getFormat().getByteOrder());
             }
-            throw new DataAccessException();
-        } else {
-            return super.getSequence(index);
         }
+        throw new DataAccessException(MessageFormat.format("Sequence expected at index = {0}", index));
     }
 
     @Override
     public CompoundData getCompound(int index) throws IOException {
-        if (segment != null) {
-            ensureSizeResolved(index);
-            final Type elementType = getResolvedSequenceType().getElementType();
-            if (elementType instanceof CompoundType) {
-                final CompoundType compoundElementType = (CompoundType) elementType;
-                return InstanceFactory.createFixCompound(getContext(), this, compoundElementType, segment, index * compoundElementType.getSize());
+        final Type elementType = getType().getElementType();
+        if (elementType instanceof CompoundType) {
+            final CompoundType compoundElementType = (CompoundType) elementType;
+            if (segment != null) {
+                return InstanceFactory.createFixCompound(getContext(), this, compoundElementType, segment,
+                                                         index * compoundElementType.getSize());
+            } else {
+                return InstanceFactory.createCompound(getContext(), this, compoundElementType,
+                                                      getPosition() + index * compoundElementType.getSize(),
+                                                      getContext().getFormat().getByteOrder());
             }
-            throw new DataAccessException();
-        } else {
-            return super.getCompound(index);
         }
+        throw new DataAccessException(MessageFormat.format("Compound expected at index = {0}", index));
     }
 
     @Override

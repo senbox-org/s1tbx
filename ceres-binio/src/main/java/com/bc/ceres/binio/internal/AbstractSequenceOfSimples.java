@@ -114,7 +114,7 @@ abstract class AbstractSequenceOfSimples extends AbstractSequence {
 
     private void ensureDataAccessible() throws IOException {
         if (dataAccessor == null) {
-            dataAccessor = DataAccessor.getInstance(getSequenceType().getElementType(), getContext().getFormat().getByteOrder());
+            dataAccessor = DataAccessor.getInstance(getType().getElementType(), getContext().getFormat().getByteOrder());
         }
         if (!isDataAccessible()) {
             if (!isSizeResolved()) {

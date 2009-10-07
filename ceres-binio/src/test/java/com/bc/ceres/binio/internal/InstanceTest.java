@@ -188,7 +188,7 @@ public class InstanceTest extends TestCase {
         compoundInstance.resolveSize();
 
         assertTrue(compoundInstance.isSizeResolved());
-        assertNotSame(type, compoundInstance.getType());
+        assertTrue(compoundInstance.getSize() > 0);
 
         assertNotNull(sequenceData);
         assertEquals(3, sequenceData.getElementCount());

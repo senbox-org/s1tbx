@@ -32,11 +32,6 @@ final class FixSequenceOfVarCollections extends AbstractSequenceOfCollections {
     }
 
     @Override
-    public Type getType() {
-        return getSequenceType();
-    }
-
-    @Override
     public boolean isSizeResolved(int index) {
         return index <= maxResolvedElementIndex;
     }
@@ -86,7 +81,7 @@ final class FixSequenceOfVarCollections extends AbstractSequenceOfCollections {
 
     @Override
     public int getElementCount() {
-        return getSequenceType().getElementCount();
+        return getType().getElementCount();
     }
 
     @Override

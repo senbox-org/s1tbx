@@ -58,7 +58,7 @@ public class DataPrinter {
     }
 
     private void printSequence(String prefix, String name, SequenceData sequenceData) throws IOException {
-        SequenceType sequenceType = sequenceData.getSequenceType();
+        SequenceType sequenceType = sequenceData.getType();
         printComplexTypeName(prefix, name, sequenceType, sequenceData);
         Type type = sequenceType.getElementType();
         final int elementCount = sequenceType.getElementCount();

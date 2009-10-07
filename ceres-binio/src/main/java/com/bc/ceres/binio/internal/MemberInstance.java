@@ -7,8 +7,6 @@ import java.io.IOException;
 
 interface MemberInstance {
 
-    Type getType();
-
     long getPosition();
 
     long getSize();

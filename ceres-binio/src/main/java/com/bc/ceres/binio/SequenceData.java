@@ -7,8 +7,16 @@ public interface SequenceData extends CollectionData {
 
     /**
      * @return The resolved instance type of the sequence.
+     *
+     * @deprecated since ceres 0.10; use {@link #getType()} instead.
      */
+    @Deprecated
     SequenceType getSequenceType();
+
+    /**
+     * @return The resolved instance type of the sequence.
+     */
+    SequenceType getType();
 
     // todo - get<type>s(index, array, off, len)
     // todo - set<type>s(index, array, off, len)

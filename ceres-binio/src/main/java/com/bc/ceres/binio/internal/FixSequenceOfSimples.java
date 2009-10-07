@@ -3,7 +3,6 @@ package com.bc.ceres.binio.internal;
 import com.bc.ceres.binio.CollectionData;
 import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.SequenceType;
-import com.bc.ceres.binio.Type;
 
 import java.io.IOException;
 
@@ -39,12 +38,12 @@ final class FixSequenceOfSimples extends AbstractSequenceOfSimples {
 
     @Override
     public long getSize() {
-        return getSequenceType().getSize();
+        return getType().getSize();
     }
 
     @Override
     public int getElementCount() {
-        return getSequenceType().getElementCount();
+        return getType().getElementCount();
     }
 
     @Override
@@ -65,11 +64,6 @@ final class FixSequenceOfSimples extends AbstractSequenceOfSimples {
     @Override
     public void resolveSize() throws IOException {
         // ok
-    }
-
-    @Override
-    public Type getType() {
-        return getSequenceType();
     }
 
     @Override

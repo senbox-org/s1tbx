@@ -14,8 +14,14 @@ abstract class AbstractSequence extends AbstractCollection implements SequenceIn
     }
 
     @Override
-    public SequenceType getSequenceType() {
+    public SequenceType getType() {
         return sequenceType;
+    }
+
+    @Override
+    @Deprecated
+    public final SequenceType getSequenceType() {
+        return getType();
     }
 
     @Override
@@ -29,7 +35,7 @@ abstract class AbstractSequence extends AbstractCollection implements SequenceIn
     }
 
     public SequenceType resolveSequenceType() throws IOException {
-        SequenceType unresolvedSequenceType = getSequenceType();
+        SequenceType unresolvedSequenceType = getType();
         if (unresolvedSequenceType.isSizeKnown()) {
             return unresolvedSequenceType;
         }

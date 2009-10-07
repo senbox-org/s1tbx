@@ -4,21 +4,19 @@ import com.bc.ceres.binio.CollectionData;
 import com.bc.ceres.binio.DataAccessException;
 import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.SequenceType;
+import com.bc.ceres.binio.SequenceData;
+import com.bc.ceres.binio.Type;
+import com.bc.ceres.binio.CompoundData;
+import com.bc.ceres.binio.CompoundType;
 
 import java.io.IOException;
 
 
-final class VarSequenceOfFixCollections extends AbstractSequenceOfFixCollections {
+final class VarSequenceOfFixCollections extends AbstractSequenceOfCollections {
     private SequenceType resolvedSequenceType;
 
     public VarSequenceOfFixCollections(DataContext context, CollectionData parent, SequenceType sequenceType, long position) {
         super(context, parent, sequenceType, position);
-    }
-
-    // todo - code duplication: see VarSequenceOfSimples.resolveSize()
-    @Override
-    protected SequenceType getResolvedSequenceType() {
-        return resolvedSequenceType;
     }
 
     // todo - code duplication: see VarSequenceOfSimples.resolveSize()
@@ -47,5 +45,44 @@ final class VarSequenceOfFixCollections extends AbstractSequenceOfFixCollections
     @Override
     public void flush() throws IOException {
         // todo - flush modified elements
+    }
+
+    @Override
+    public long getSize() {
+        final SequenceType type = resolvedSequenceType;
+        return type != null ? type.getSize() : -1;
+    }
+
+    @Override
+    public int getElementCount() {
+        final SequenceType type = resolvedSequenceType;
+        return type != null ? type.getElementCount() : -1;
+    }
+
+    @Override
+    public SequenceType getType() {
+        return resolvedSequenceType;
+    }
+
+    @Override
+    public SequenceData getSequence(int index) throws IOException {
+        ensureSizeResolved(index);
+        final Type elementType = resolvedSequenceType.getElementType();
+        if (elementType instanceof SequenceType) {
+            final SequenceType sequenceElementType = (SequenceType) elementType;
+            return InstanceFactory.createSequence(getContext(), this, sequenceElementType, getPosition() + index * sequenceElementType.getSize(), getContext().getFormat().getByteOrder());
+        }
+        throw new DataAccessException();
+    }
+
+    @Override
+    public CompoundData getCompound(int index) throws IOException {
+        ensureSizeResolved(index);
+        final Type elementType = resolvedSequenceType.getElementType();
+        if (elementType instanceof CompoundType) {
+            final CompoundType compoundElementType = (CompoundType) elementType;
+            return InstanceFactory.createCompound(getContext(), this, compoundElementType, getPosition() + index * compoundElementType.getSize(), getContext().getFormat().getByteOrder());
+        }
+        throw new DataAccessException();
     }
 }
