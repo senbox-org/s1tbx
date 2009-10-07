@@ -10,7 +10,25 @@ final class Segment {
     private final int size;
     private byte[] data;
     private boolean dirty;
-    static final int SEGMENT_SIZE_LIMIT = 16 * 1024;
+
+    static final String SEGMENT_SIZE_LIMIT_PROPERTY = "ceres.binio.segmentSizeLimit";
+
+    private static long segmentSizeLimit = 16 * 1024L;
+
+    static {
+        final String value = System.getProperty(SEGMENT_SIZE_LIMIT_PROPERTY);
+        if (value != null) {
+            try {
+                segmentSizeLimit = Long.parseLong(value);
+            } catch (NumberFormatException e) {
+                // ignored
+            }
+        }
+    }
+
+    static long getSegmentSizeLimit() {
+        return segmentSizeLimit;
+    }
 
     public Segment(long position, int size) {
         this.position = position;

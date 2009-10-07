@@ -1,6 +1,9 @@
 package com.bc.ceres.binio.internal;
 
-import com.bc.ceres.binio.*;
+import com.bc.ceres.binio.CollectionData;
+import com.bc.ceres.binio.CompoundType;
+import com.bc.ceres.binio.DataContext;
+import com.bc.ceres.binio.Type;
 
 import java.io.IOException;
 
@@ -15,10 +18,9 @@ final class VarCompound extends AbstractCompound {
 
         // todo - OPT: do this in resolve()
         // todo - OPT: do this for all subsequntial fixed-size member types
-        // todo - OPT: idea: register a hint with a type in a format whcih tells the com.bc.ceres.binio API to use a fixed size segment
 
         // Determine first members up to maxMemberIndex which have known size
-        int maxMemberIndex = FixCompound.getMemberIndexWithinSizeLimit(compoundType, com.bc.ceres.binio.internal.Segment.SEGMENT_SIZE_LIMIT);
+        int maxMemberIndex = FixCompound.getMemberIndexWithinSizeLimit(compoundType, Segment.getSegmentSizeLimit());
         if (maxMemberIndex >= 0) {
             int segmentSize = 0;
             for (int i = 0; i <= maxMemberIndex; i++) {
@@ -28,10 +30,11 @@ final class VarCompound extends AbstractCompound {
             int segmentOffset = 0;
             for (int i = 0; i <= maxMemberIndex; i++) {
                 final Type memberType = compoundType.getMember(i).getType();
-                final MemberInstance fixMember = InstanceFactory.createFixMember(context, this, memberType, segment,
+                final MemberInstance fixMember = InstanceFactory.createFixMember(context, this, memberType,
+                                                                                 segment,
                                                                                  segmentOffset);
                 setMemberInstance(i, fixMember);
-                setResolvedMember(i, fixMember);
+                size += fixMember.getSize();
                 segmentOffset += memberType.getSize();
             }
         }
@@ -69,7 +72,7 @@ final class VarCompound extends AbstractCompound {
             if (!memberInstance.isSizeResolved()) {
                 memberInstance.resolveSize();
             }
-            setResolvedMember(i, memberInstance);
+            size += memberInstance.getSize();
         }
         if (maxResolvedIndex < index) {
             maxResolvedIndex = index;
@@ -99,10 +102,8 @@ final class VarCompound extends AbstractCompound {
         } else {
             position = getPosition();
         }
-        return InstanceFactory.createMember(context, this, memberType, position, getContext().getFormat().getByteOrder());
+        return InstanceFactory.createMember(context, this, memberType, position,
+                                            getContext().getFormat().getByteOrder());
     }
 
-    private void setResolvedMember(int i, MemberInstance memberInstance) {
-        size += memberInstance.getSize();
-    }
 }

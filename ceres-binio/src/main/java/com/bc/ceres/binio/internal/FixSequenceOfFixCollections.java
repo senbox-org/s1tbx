@@ -25,7 +25,7 @@ final class FixSequenceOfFixCollections extends AbstractSequenceOfCollections {
         if (!sequenceType.isCollectionType() || !sequenceType.isSizeKnown()) {
             throw new IllegalArgumentException("sequenceType");
         }
-        if (sequenceType.getSize() <= com.bc.ceres.binio.internal.Segment.SEGMENT_SIZE_LIMIT) {
+        if (sequenceType.getSize() <= Segment.getSegmentSizeLimit()) {
             this.segment = new Segment(position, sequenceType.getSize());
         } else {
             this.segment = null;
