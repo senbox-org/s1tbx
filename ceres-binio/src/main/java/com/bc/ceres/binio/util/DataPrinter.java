@@ -38,7 +38,7 @@ public class DataPrinter {
     }
 
     private void printCompound(String prefix, String name, CompoundData compoundData) throws IOException {
-        CompoundType compoundType = compoundData.getCompoundType();
+        CompoundType compoundType = compoundData.getType();
         printComplexTypeName(prefix, name, compoundType, compoundData);
         final int memberCount = compoundType.getMemberCount();
         for (int i = 0; i < memberCount; i++) {

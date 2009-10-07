@@ -130,20 +130,6 @@ abstract class AbstractCollection implements CollectionInstance {
     /////////////////////////////////////////////////////////////////////////
     // Resolving
 
-//    protected final void ensureDataValid() throws IOException {
-//        if (!isDataValid()) {
-//            validateData();
-//            assertDataValid();
-//        }
-//    }
-//
-//    protected void assertDataValid() {
-//        if (!isDataValid()) {
-//            // todo - improve error message
-//            throw new DataAccessException(toString());
-//        }
-//    }
-
     protected final void ensureSizeResolved(int index) throws IOException {
         if (!isSizeResolved(index)) {
             resolveSize(index);

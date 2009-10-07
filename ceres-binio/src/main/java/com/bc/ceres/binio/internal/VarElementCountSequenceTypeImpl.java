@@ -33,7 +33,7 @@ public final class VarElementCountSequenceTypeImpl extends VarElementCountSequen
                 if (memberIndex == -1) {
                     if (parent instanceof CompoundData) {
                         CompoundData compoundData = (CompoundData) parent;
-                        memberIndex = compoundData.getCompoundType().getMemberIndex(memberName);
+                        memberIndex = compoundData.getType().getMemberIndex(memberName);
                     }
                 }
             }

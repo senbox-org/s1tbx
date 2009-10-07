@@ -18,14 +18,14 @@ abstract class AbstractCompound extends AbstractCollection implements CompoundIn
     }
 
     @Override
-    @Deprecated
-    public final CompoundType getCompoundType() {
-        return getType();
+    public CompoundType getType() {
+        return compoundType;
     }
 
     @Override
-    public CompoundType getType() {
-        return compoundType;
+    @Deprecated
+    public final CompoundType getCompoundType() {
+        return getType();
     }
 
     @Override
@@ -148,7 +148,7 @@ abstract class AbstractCompound extends AbstractCollection implements CompoundIn
 
     @Override
     public int getMemberIndex(String name) {
-        return getCompoundType().getMemberIndex(name);
+        return getType().getMemberIndex(name);
     }
 
     @Override
