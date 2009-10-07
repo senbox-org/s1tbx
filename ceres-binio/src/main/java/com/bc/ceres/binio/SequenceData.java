@@ -8,6 +8,7 @@ public interface SequenceData extends CollectionData {
     /**
      * @return The resolved instance type of the sequence.
      */
+    @Override
     SequenceType getType();
 
     /**

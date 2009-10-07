@@ -9,6 +9,7 @@ public interface CompoundData extends CollectionData {
     /**
      * @return The resolved instance type of the compound.
      */
+    @Override
     CompoundType getType();
 
     /**

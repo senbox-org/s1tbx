@@ -1,6 +1,6 @@
 package com.bc.ceres.binio;
 
-public interface CompoundType extends Type, MetadataAware {
+public interface CompoundType extends CollectionType, MetadataAware {
     int getMemberCount();
 
     CompoundMember[] getMembers();

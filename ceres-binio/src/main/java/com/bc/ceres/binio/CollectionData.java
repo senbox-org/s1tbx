@@ -7,6 +7,8 @@ import java.io.IOException;
  */
 public interface CollectionData {
 
+    CollectionType getType();
+
     // todo - remove
     void resolveSize() throws IOException;
 
