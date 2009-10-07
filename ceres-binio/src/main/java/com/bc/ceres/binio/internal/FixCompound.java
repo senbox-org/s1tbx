@@ -46,7 +46,7 @@ final class FixCompound extends AbstractCompound {
         // ok
     }
 
-    public static int getMemberIndexWithinSizeLimit(CompoundType compoundType, int sizeLimit) {
+    static int getMemberIndexWithinSizeLimit(CompoundType compoundType, long sizeLimit) {
         int index = -1;
         int segmentSize = 0;
         for (int i = 0; i < compoundType.getMemberCount(); i++) {
@@ -61,7 +61,7 @@ final class FixCompound extends AbstractCompound {
         return index;
     }
 
-    public static boolean isCompoundTypeWithinSizeLimit(CompoundType compoundType, int sizeLimit) {
+    static boolean isCompoundTypeWithinSizeLimit(CompoundType compoundType, long sizeLimit) {
         return getMemberIndexWithinSizeLimit(compoundType, sizeLimit) == compoundType.getMemberCount() - 1;
     }
 }
