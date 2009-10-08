@@ -100,12 +100,12 @@ abstract class AbstractSequenceOfSimples extends AbstractSequence {
 
     @Override
     public SequenceInstance getSequence(int index) {
-        throw new DataAccessException();
+        throw new DataAccessException(getTypeErrorMsg());
     }
 
     @Override
     public CompoundInstance getCompound(int index) {
-        throw new DataAccessException();
+        throw new DataAccessException(getTypeErrorMsg());
     }
 
     protected int getSegmentOffset(int index) {
