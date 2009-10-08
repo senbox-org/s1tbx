@@ -1,11 +1,17 @@
 package com.bc.ceres.binio.internal;
 
-import com.bc.ceres.binio.*;
+import com.bc.ceres.binio.CollectionData;
+import com.bc.ceres.binio.CompoundData;
+import com.bc.ceres.binio.CompoundType;
+import com.bc.ceres.binio.DataAccessException;
+import com.bc.ceres.binio.DataContext;
+import com.bc.ceres.binio.SequenceData;
 
 import java.io.IOException;
 
 
 abstract class AbstractCompound extends AbstractCollection implements CompoundInstance {
+
     private final CompoundType compoundType;
     private final long position;
     private final MemberInstance[] members;
@@ -264,7 +270,9 @@ abstract class AbstractCompound extends AbstractCollection implements CompoundIn
     @Override
     public void flush() throws IOException {
         for (MemberInstance member : members) {
-            member.flush();
+            if (member != null) {
+                member.flush();
+            }
         }
     }
 }
