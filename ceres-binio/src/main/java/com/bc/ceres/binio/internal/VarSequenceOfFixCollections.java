@@ -72,7 +72,7 @@ final class VarSequenceOfFixCollections extends AbstractSequenceOfCollections {
             final SequenceType sequenceElementType = (SequenceType) elementType;
             return InstanceFactory.createSequence(getContext(), this, sequenceElementType, getPosition() + index * sequenceElementType.getSize(), getContext().getFormat().getByteOrder());
         }
-        throw new DataAccessException();
+        throw new DataAccessException(getTypeErrorMsg());
     }
 
     @Override
@@ -83,6 +83,6 @@ final class VarSequenceOfFixCollections extends AbstractSequenceOfCollections {
             final CompoundType compoundElementType = (CompoundType) elementType;
             return InstanceFactory.createCompound(getContext(), this, compoundElementType, getPosition() + index * compoundElementType.getSize(), getContext().getFormat().getByteOrder());
         }
-        throw new DataAccessException();
+        throw new DataAccessException(getTypeErrorMsg());
     }
 }
