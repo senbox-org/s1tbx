@@ -3,6 +3,7 @@ package com.bc.ceres.binio.internal;
 import com.bc.ceres.binio.*;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 
 
 abstract class AbstractSequence extends AbstractCollection implements SequenceInstance {
@@ -26,7 +27,7 @@ abstract class AbstractSequence extends AbstractCollection implements SequenceIn
 
     @Override
     public CompoundInstance getCompound() {
-        throw new DataAccessException();
+        throw new DataAccessException(getTypeErrorMsg());
     }
 
     @Override
@@ -34,29 +35,38 @@ abstract class AbstractSequence extends AbstractCollection implements SequenceIn
         return this;
     }
 
-    public SequenceType resolveSequenceType() throws IOException {
+    SequenceType resolveSequenceType() throws IOException {
         SequenceType unresolvedSequenceType = getType();
         if (unresolvedSequenceType.isSizeKnown()) {
             return unresolvedSequenceType;
         }
-        final SequenceType resolvedSequenceType = mapSequenceType(getParent(), unresolvedSequenceType);
+        final SequenceType resolvedSequenceType = resolveSequenceType(getParent(), unresolvedSequenceType);
         if (resolvedSequenceType == null || !resolvedSequenceType.isSizeKnown()) {
-            throw new DataAccessException("failed to resolve type " + unresolvedSequenceType);
+            String msg = MessageFormat.format("Failed to resolve type ''{0}''", unresolvedSequenceType);
+            throw new DataAccessException(msg);
         }
         return resolvedSequenceType;
     }
 
-    static SequenceType mapSequenceType(CollectionData parent, SequenceType sequenceType) throws IOException {
-        SequenceType mappedSequenceType = sequenceType;
-        if (mappedSequenceType instanceof VarSequenceType) {
-            VarSequenceType varSequenceType = (VarSequenceType) mappedSequenceType;
-            mappedSequenceType = varSequenceType.resolve(parent);
-            if (mappedSequenceType != null) {
-                mappedSequenceType = mapSequenceType(parent, mappedSequenceType);
-            } else {
-                mappedSequenceType = varSequenceType;
+    static SequenceType resolveSequenceType(CollectionData parent, SequenceType sequenceType) throws IOException {
+        SequenceType resolvedSequenceType;
+        if (sequenceType instanceof VarSequenceType) {
+            resolvedSequenceType = ((VarSequenceType) sequenceType).resolve(parent);
+            if (resolvedSequenceType == null) {
+                throw new IllegalStateException("Sequence type resolved to null: " + sequenceType);
             }
+            if (resolvedSequenceType == sequenceType) {
+                throw new IllegalStateException("Sequence type resolved to itself: " + sequenceType);
+            }
+            if (resolvedSequenceType instanceof VarSequenceType) {
+                resolvedSequenceType = resolveSequenceType(parent, resolvedSequenceType);
+                if (resolvedSequenceType instanceof VarSequenceType) {
+                    throw new IllegalStateException("Sequence type resolved to an unresolvable type: " + resolvedSequenceType);
+                }
+            }
+        }  else {
+            resolvedSequenceType = sequenceType;
         }
-        return mappedSequenceType;
+        return resolvedSequenceType;
     }
 }

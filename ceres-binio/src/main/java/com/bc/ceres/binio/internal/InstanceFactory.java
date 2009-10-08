@@ -53,7 +53,7 @@ public class InstanceFactory {
         if (type.isCompoundType()) {
             return createCompound(context, parent, (CompoundType) type, position, byteOrder);
         } else if (type.isSequenceType()) {
-            return createSequence(context, parent, AbstractSequence.mapSequenceType(parent, (SequenceType) type), position, byteOrder);
+            return createSequence(context, parent, AbstractSequence.resolveSequenceType(parent, (SequenceType) type), position, byteOrder);
         } else {
             throw new IllegalArgumentException("illegal type: " + type);
         }

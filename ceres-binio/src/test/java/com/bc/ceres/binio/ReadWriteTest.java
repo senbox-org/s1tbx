@@ -106,8 +106,8 @@ public class ReadWriteTest extends TestCase {
         CompoundData data = context.getData();
         data.setInt("Counter", -1);
         SequenceData seq = data.getSequence("Complex_List");
-        assertEquals(-1, seq.getElementCount());
-        assertEquals(-1, seq.getSize());
+        assertEquals(0, seq.getElementCount());
+        assertEquals(0, seq.getSize());
         data.flush();
         assertEquals("R(0,4)W(0,4)", tracingIOHandler.getTrace());
 // TODO - want to test also the following (nf 27.08.2009)

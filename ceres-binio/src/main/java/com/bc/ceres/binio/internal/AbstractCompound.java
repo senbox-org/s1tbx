@@ -54,7 +54,7 @@ abstract class AbstractCompound extends AbstractCollection implements CompoundIn
 
     @Override
     public SequenceInstance getSequence() {
-        throw new DataAccessException();
+        throw new DataAccessException(getTypeErrorMsg());
     }
 
     @Override

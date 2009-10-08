@@ -3,6 +3,7 @@ package com.bc.ceres.binio.util;
 import com.bc.ceres.binio.*;
 import static com.bc.ceres.binio.TypeBuilder.*;
 import com.bc.ceres.binio.internal.CompoundTypeImpl;
+import com.bc.ceres.binio.internal.VarElementCountSequenceTypeImpl;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -65,7 +66,7 @@ public class TypeParser {
     private final HashMap<String, CompoundType> compoundTypeMap;
     private final StreamTokenizer st;
     private static final String UNRESOLVED = "Unresolved@";
-    public final static SimpleType[] SIMPLE_TYPES = new SimpleType[]{
+    public final static SimpleType[] SIMPLE_TYPES = {
             SimpleType.BYTE, SimpleType.UBYTE,
             SimpleType.SHORT, SimpleType.USHORT,
             SimpleType.INT, SimpleType.UINT,
@@ -145,7 +146,12 @@ public class TypeParser {
     }
 
     private Type resolve(SequenceType sequenceType) throws ParseException {
-        return SEQUENCE(resolveType(sequenceType.getElementType()), sequenceType.getElementCount());
+        if (sequenceType instanceof VarElementCountSequenceTypeImpl) {
+            VarElementCountSequenceTypeImpl varSequenceType = (VarElementCountSequenceTypeImpl) sequenceType;
+            return VAR_SEQUENCE(resolveType(sequenceType.getElementType()), varSequenceType.getMemberName());
+        } else {
+            return SEQUENCE(resolveType(sequenceType.getElementType()), sequenceType.getElementCount());
+        }
     }
 
     public CompoundType[] parseCompoundTypes() throws IOException, ParseException {
@@ -266,6 +272,8 @@ public class TypeParser {
                     if (token != ']') {
                         error(st, "']' expected.");
                     }
+                } else if (token == ']') {
+                    type = SEQUENCE(type, -1);
                 } else {
                     st.pushBack();
                     error(st, "Array length specifier expected after '['.");

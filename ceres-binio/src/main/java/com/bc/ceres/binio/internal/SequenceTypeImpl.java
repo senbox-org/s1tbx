@@ -2,25 +2,25 @@ package com.bc.ceres.binio.internal;
 
 import com.bc.ceres.binio.SequenceType;
 import com.bc.ceres.binio.Type;
+import com.bc.ceres.core.Assert;
 
 /**
  * Represents a data type that is composed of a sequence of zero or more elements
  * all having the same data type.
  */
 public final class SequenceTypeImpl extends AbstractType implements SequenceType {
-    private volatile String name;
+    private final String name;
     private final Type elementType;
     private final int elementCount;
     private final int size;
 
-    public SequenceTypeImpl(Type elementType) {
-        this(elementType, -1);
-    }
-
     public SequenceTypeImpl(Type elementType, int elementCount) {
+        Assert.notNull(elementType, "elementCount");
+        Assert.argument(elementCount >= 0, "elementCount");
+        this.name = elementType.getName() + "[" + elementCount + "]";
         this.elementType = elementType;
-        this.elementCount = elementCount >= 0 ? elementCount : -1;
-        this.size = (elementCount >= 0 && elementType.getSize() >= 0) ? elementCount * elementType.getSize() : -1;
+        this.elementCount = elementCount;
+        this.size = elementCount * elementType.getSize();
     }
 
     @Override
@@ -35,13 +35,6 @@ public final class SequenceTypeImpl extends AbstractType implements SequenceType
 
     @Override
     public final String getName() {
-        if (name == null) {
-            synchronized (this) {
-                if (name == null) {
-                    name = elementType.getName() + (elementCount >= 0 ? "[" + elementCount + "]" : "[]");
-                }
-            }
-        }
         return name;
     }
 
