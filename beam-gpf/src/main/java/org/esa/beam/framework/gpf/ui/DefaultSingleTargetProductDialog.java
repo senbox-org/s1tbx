@@ -102,8 +102,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             showErrorDialog(e.getMessage());
         }
         if (valueContainer.getModels().length > 0) {
-            BindingContext context = new BindingContext(valueContainer);
-            ValueEditorsPane parametersPane = new ValueEditorsPane(context);
+            ValueEditorsPane parametersPane = new ValueEditorsPane(valueContainer);
             final JPanel paremetersPanel = parametersPane.createPanel();
             paremetersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
             this.form.add("Processing Parameters", new JScrollPane(paremetersPanel));
