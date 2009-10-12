@@ -23,6 +23,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.7:<br/>
+        [BEAM-1042] Pin pixels exported using BEAM 4.6.1 not correct<br/> 
         [BEAM-1040] Exchange 'no data' with 'NaN' in text exports<br/>
         [BEAM-1035] BandArithmetic.NamespaceExtender should not hold references to products<br/>
         [BEAM-1033] DIMAP should preserve PixelGeoCoding<br/>
