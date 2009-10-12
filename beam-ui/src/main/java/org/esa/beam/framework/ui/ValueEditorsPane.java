@@ -23,6 +23,10 @@ public class ValueEditorsPane {
 
     private final BindingContext bindingContext;
 
+    public ValueEditorsPane(ValueContainer container) {
+        this(new BindingContext(container));
+    }
+
     public ValueEditorsPane(BindingContext bindingContext) {
         this.bindingContext = bindingContext;
     }
