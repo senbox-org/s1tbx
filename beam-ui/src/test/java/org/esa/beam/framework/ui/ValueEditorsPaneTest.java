@@ -5,6 +5,8 @@ import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.BindingContext;
+import com.bc.ceres.binding.swing.BindingProblemListener;
+import com.bc.ceres.binding.swing.BindingProblem;
 import junit.framework.TestCase;
 
 import javax.swing.JCheckBox;
@@ -24,12 +26,7 @@ import java.io.File;
 public class ValueEditorsPaneTest extends TestCase {
 
     public void testComponentsInPanel() throws ConversionException {
-        ValueEditorsPane parametersPane = createPane(new BindingContext.ErrorHandler() {
-            @Override
-            public void handleError(Exception e, JComponent component) {
-                System.out.println("Error: " + e.getMessage());
-            }
-        });
+        ValueEditorsPane parametersPane = createPane(new BindingContext.SilentProblemHandler());
         JPanel panel = parametersPane.createPanel();
         Component[] components = panel.getComponents();
         assertEquals(14, components.length);
@@ -76,18 +73,31 @@ public class ValueEditorsPaneTest extends TestCase {
     }
 
     public static void main(String[] args) throws ConversionException {
-        ValueEditorsPane propertyPane = createPane(new BindingContext.ErrorHandler() {
+        final ModalDialog dialog = new ModalDialog(null, "ValueEditorsPaneTest", ModalDialog.ID_OK + ModalDialog.ID_CANCEL, null) {
             @Override
-            public void handleError(Exception e, JComponent component) {
-                JOptionPane.showMessageDialog(null, e.getMessage());
+            protected void onOK() {
+                hide();
+            }
+
+            @Override
+            protected void onCancel() {
+                hide();
+            }
+        };
+
+        ValueEditorsPane propertyPane = createPane(new BindingProblemListener() {
+            @Override
+            public void problemReported(BindingProblem newProblem, BindingProblem oldProblem) {
+                JOptionPane.showMessageDialog(dialog.getJDialog(), newProblem.getCause().getMessage());
+            }
+
+            @Override
+            public void problemCleared(BindingProblem oldProblem) {
             }
         });
         JPanel panel = propertyPane.createPanel();
-        JFrame frame = new JFrame("PropertyPaneTest");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(panel);
-        frame.pack();
-        frame.setVisible(true);
+        dialog.setContent(panel);
+        dialog.show();
 
         propertyPane.getBindingContext().getValueContainer().addPropertyChangeListener(new PropertyChangeListener() {
 
@@ -98,7 +108,7 @@ public class ValueEditorsPaneTest extends TestCase {
         });
     }
 
-    private static ValueEditorsPane createPane(BindingContext.ErrorHandler errorHandler) throws ConversionException {
+    private static ValueEditorsPane createPane(BindingProblemListener bpl) throws ConversionException {
         ValueContainer vc = ValueContainer.createObjectBacked(new V());
 
         vc.getDescriptor("threshold").setValueRange(
@@ -106,7 +116,7 @@ public class ValueEditorsPaneTest extends TestCase {
         vc.getDescriptor("resamplingMethod").setValueSet(
                 new ValueSet(new String[]{"NN", "CC", "BQ"}));
 
-        BindingContext sbc = new BindingContext(vc, errorHandler);
+        BindingContext sbc = new BindingContext(vc, bpl);
         return new ValueEditorsPane(sbc);
     }
 
