@@ -7,6 +7,7 @@ import java.beans.PropertyChangeEvent;
 
 import org.esa.beam.framework.ui.application.support.PojoWrapper;
 
+@Deprecated
 public class PojoWrapperTest extends TestCase {
     public void testA() {
         A a = new A();
