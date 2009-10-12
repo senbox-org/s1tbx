@@ -3,6 +3,7 @@ package org.esa.beam.framework.dataop.barithm;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.jexp.Term;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.awt.Point;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
  */
 public class RasterDataLoopTest {
 
+    @Ignore
     @Test
     public void testForEachPixel() throws IOException {
         final ArrayList<Integer> pixelIndexList = new ArrayList<Integer>();

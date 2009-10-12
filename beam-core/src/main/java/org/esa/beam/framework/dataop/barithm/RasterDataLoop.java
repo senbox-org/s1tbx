@@ -143,7 +143,7 @@ public class RasterDataLoop {
                 }
                 readRegion(y, 1, SubProgressMonitor.create(pm, 1));
                 for (int x = 0; x < width; x++) {
-                    env.setElemIndex(pixelIndex);
+                    env.setElemIndex(x);
                     body.eval(env, pixelIndex);
                     pixelIndex++;
                 }
