@@ -25,6 +25,7 @@ import org.esa.beam.util.Guardian;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -128,22 +129,21 @@ public class RasterDataLoop {
      */
     public void forEachPixel(final Body body, String message) throws IOException {
         Guardian.assertNotNull("body", body);
-        final int offsetX = getOffsetX();
         final int offsetY = getOffsetY();
         final int width = getRegionWidth();
         final int height = getRegionHeight();
         final RasterDataEvalEnv env = rasterDataEvalEnv;
-        int pixelIndex = 0;
         message = (message == null) ? "Computing pixels..." : message;
         pm.beginTask(message, (height - offsetY) * 2);
         try {
+            int pixelIndex = 0;
             for (int y = offsetY; y < offsetY + height; y++) {
                 if (pm.isCanceled()) {
                     break;
                 }
                 readRegion(y, 1, SubProgressMonitor.create(pm, 1));
                 for (int x = 0; x < width; x++) {
-                    env.setElemIndex(x);
+                    env.setElemIndex(pixelIndex);
                     body.eval(env, pixelIndex);
                     pixelIndex++;
                 }
@@ -187,9 +187,7 @@ public class RasterDataLoop {
         final Set<RasterDataSymbol> rasterSymbolSet = new HashSet<RasterDataSymbol>();
         for (final Term term : terms) {
             final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
-            for (RasterDataSymbol symbol : refRasterDataSymbols) {
-                rasterSymbolSet.add(symbol);
-            }
+            rasterSymbolSet.addAll(Arrays.asList(refRasterDataSymbols));
         }
 
         List<RasterRegion> rasterRegions = new ArrayList<RasterRegion>(rasterSymbolSet.size());
@@ -204,7 +202,7 @@ public class RasterDataLoop {
     /**
      * Represents the body to be evaluated for each pixel within the raster.
      */
-    public static interface Body {
+    public interface Body {
 
         /**
          * This method is called for each pixel within the sub-raster.
@@ -213,7 +211,7 @@ public class RasterDataLoop {
          *
          * @param env        the {@link RasterDataEvalEnv} which must be used by any term to be evaluated.
          * @param pixelIndex the current, relative pixel index
-         * @see RasterDataLoop#forEachPixel(RasterDataLoop.Body)
+         * @see RasterDataLoop#forEachPixel(Body)
          */
         void eval(final RasterDataEvalEnv env, final int pixelIndex);
     }
