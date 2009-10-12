@@ -200,6 +200,7 @@ public class Session {
 
 
     private static ValueContainer getConfiguration(LayerContext ctx, Layer layer) {
+        // todo - check - why create a copy here?! (nf, 10.2009)         
         return layer.getLayerType().getConfigurationCopy(ctx, layer);
     }
 
