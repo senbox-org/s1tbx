@@ -4,6 +4,8 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ConfigurableExtension;
 import com.bc.ceres.core.runtime.ConfigurationElement;
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValidationException;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import org.esa.beam.framework.ui.UIUtils;
@@ -56,28 +58,33 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
 
     private String toolBarId;
 
-    private State initState = State.HIDDEN;
+    private State initState;
 
-    private DockSide initSide = DockSide.WEST;
+    private DockSide initSide;
 
-    private int initIndex = 0;
+    private int initIndex;
 
     private int dockedWidth;
 
     private int dockedHeight;
 
     // todo: add XStream converter?
-    private Rectangle floatingBounds = new Rectangle(100, 100, 320, 200);
+    private Rectangle floatingBounds;
 
     // todo: add XStream converter?
-    private Dimension preferredSize = new Dimension(320, 200);
+    private Dimension preferredSize;
 
     private transient Icon smallIcon;
     private transient Icon largeIcon;
-    private transient PojoWrapper pojoWrapper;
+    private transient ValueContainer valueContainer;
 
     public DefaultToolViewDescriptor() {
-        pojoWrapper = new PojoWrapper(this);
+        valueContainer = ValueContainer.createObjectBacked(this);
+        initState = State.HIDDEN;
+        preferredSize = new Dimension(320, 200);
+        floatingBounds = new Rectangle(100, 100, 320, 200);
+        initSide = DockSide.WEST;
+        initIndex = 0;
     }
 
     @Override
@@ -92,7 +99,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
 
     @Override
     public void setHelpId(String helpId) {
-        pojoWrapper.setValue(PROPERTY_KEY_HELP_ID, helpId);
+        setValue(PROPERTY_KEY_HELP_ID, helpId);
     }
 
     @Override
@@ -105,7 +112,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
 
     @Override
     public void setTitle(String title) {
-        pojoWrapper.setValue(PROPERTY_KEY_TITLE, title);
+        setValue(PROPERTY_KEY_TITLE, title);
     }
 
     /**
@@ -124,7 +131,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
      */
     @Override
     public void setTabTitle(String tabTitle) {
-        pojoWrapper.setValue(PROPERTY_KEY_TAB_TITLE, tabTitle);
+        setValue(PROPERTY_KEY_TAB_TITLE, tabTitle);
     }
 
     @Override
@@ -134,7 +141,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
 
     @Override
     public void setDescription(String description) {
-        pojoWrapper.setValue(PROPERTY_KEY_DESCRIPTION, description);
+        setValue(PROPERTY_KEY_DESCRIPTION, description);
     }
 
     @Override
@@ -165,12 +172,12 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
 
     @Override
     public void setSmallIcon(Icon smallIcon) {
-        pojoWrapper.setValue(PROPERTY_KEY_SMALL_ICON, smallIcon);
+        setValue(PROPERTY_KEY_SMALL_ICON, smallIcon);
     }
 
     @Override
     public void setLargeIcon(Icon largeIcon) {
-        pojoWrapper.setValue(PROPERTY_KEY_LARGE_ICON, largeIcon);
+        setValue(PROPERTY_KEY_LARGE_ICON, largeIcon);
     }
 
     @Override
@@ -180,7 +187,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
 
     @Override
     public void setMnemonic(char mnemonic) {
-        pojoWrapper.setValue(PROPERTY_KEY_MNEMONIC, mnemonic);
+        setValue(PROPERTY_KEY_MNEMONIC, mnemonic);
     }
 
     @Override
@@ -190,7 +197,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
 
     @Override
     public void setAccelerator(KeyStroke accelerator) {
-        pojoWrapper.setValue(PROPERTY_KEY_ACCELERATOR, accelerator);
+        setValue(PROPERTY_KEY_ACCELERATOR, accelerator);
     }
 
     /**
@@ -206,7 +213,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
      */
     @Override
     public void setInitState(State initState) {
-        pojoWrapper.setValue("initState", initState);
+        setValue("initState", initState);
     }
 
     /**
@@ -222,7 +229,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
      */
     @Override
     public void setInitSide(DockSide initSide) {
-        pojoWrapper.setValue("initSide", initSide);
+        setValue("initSide", initSide);
     }
 
     /**
@@ -238,7 +245,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
      */
     @Override
     public void setInitIndex(int initIndex) {
-        pojoWrapper.setValue("initIndex", initIndex);
+        setValue("initIndex", initIndex);
     }
 
     /**
@@ -254,7 +261,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
      */
     @Override
     public void setDockedWidth(int dockedWidth) {
-        pojoWrapper.setValue("dockedWidth", dockedWidth);
+        setValue("dockedWidth", dockedWidth);
     }
 
     /**
@@ -270,7 +277,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
      */
     @Override
     public void setDockedHeight(int dockedHeight) {
-        pojoWrapper.setValue("dockedHeight", dockedHeight);
+        setValue("dockedHeight", dockedHeight);
     }
 
     @Override
@@ -280,7 +287,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
 
     @Override
     public void setFloatingBounds(Rectangle floatingBounds) {
-        pojoWrapper.setValue("floatingBounds", floatingBounds);
+        setValue("floatingBounds", floatingBounds);
     }
 
     @Override
@@ -290,7 +297,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
 
     @Override
     public void setPreferredSize(Dimension preferredSize) {
-        pojoWrapper.setValue("preferredSize", preferredSize);
+        setValue("preferredSize", preferredSize);
     }
 
     @Override
@@ -373,22 +380,22 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
 
     @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
-        pojoWrapper.addPropertyChangeListener(listener);
+        valueContainer.addPropertyChangeListener(listener);
     }
 
     @Override
     public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
-        pojoWrapper.addPropertyChangeListener(propertyName, listener);
+        valueContainer.addPropertyChangeListener(propertyName, listener);
     }
 
     @Override
     public void removePropertyChangeListener(PropertyChangeListener listener) {
-        pojoWrapper.removePropertyChangeListener(listener);
+        valueContainer.removePropertyChangeListener(listener);
     }
 
     @Override
     public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
-        pojoWrapper.removePropertyChangeListener(propertyName, listener);
+        valueContainer.removePropertyChangeListener(propertyName, listener);
     }
 
     @Override
@@ -461,4 +468,13 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
     @Override
     public void configure(ConfigurationElement config) throws CoreException {
     }
+
+    private void setValue(String key, Object value)  {
+        try {
+            valueContainer.setValue(key, value);
+        } catch (ValidationException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
 }
