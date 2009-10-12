@@ -56,12 +56,12 @@ public abstract class LayerType extends ExtensibleObject {
     protected abstract Layer createLayerImpl(LayerContext ctx, ValueContainer configuration);
 
     // todo - Layer API: why not use annotations? (nf)
-    // todo - Layer API: check ALT+F7: is this a utility or framework API? Only framework usage is in createLayer(). How must clients use this? (nf)
+    // todo - Layer API: check IDEA ALT+F7: is this a utility or framework API? Only framework usage is in createLayer(). How must clients use this? (nf)
     // todo - Layer API: shouldn't it be createLayerConfiguration(LayerContext ctx)? (nf)
     // todo - Layer API: how can clients know whether my value model can be serialized or not? when to impl. a converter? (nf)
     public abstract ValueContainer getConfigurationTemplate();
 
-    // todo - Layer API: check ALT+F7: is this a utility or framework API? move to BEAM Session?  (nf)
+    // todo - Layer API: check IDEA ALT+F7: is this a utility or framework API? move to BEAM Session?  (nf)
     public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
         final ValueContainer configuration = new ValueContainer();
 
