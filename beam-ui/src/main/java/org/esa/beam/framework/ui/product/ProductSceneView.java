@@ -91,7 +91,7 @@ import java.util.Vector;
  * @version $ Revision: $ $ Date: $
  */
 public class ProductSceneView extends BasicView
-        implements ProductNodeView, DrawingEditor, PropertyMapChangeListener, PixelInfoFactory {
+        implements ProductNodeView, DrawingEditor, PropertyMapChangeListener, PixelInfoFactory, LayerContext {
 
     public static final String BASE_IMAGE_LAYER_ID = "org.esa.beam.layers.baseImage";
     public static final String NO_DATA_LAYER_ID = "org.esa.beam.layers.noData";
@@ -248,10 +248,27 @@ public class ProductSceneView extends BasicView
         return sceneImage;
     }
 
+    /**
+     * @return The root layer.
+     */
+    @Override
     public Layer getRootLayer() {
         return sceneImage.getRootLayer();
     }
 
+    /**
+     * The coordinate reference system (CRS) used by all the layers in this context.
+     * May be used by a {@link com.bc.ceres.glayer.LayerType} in order to decide whether
+     * the source can provide a new layer instance for this context.
+     *
+     * @return The CRS. May be {@code null}.
+     */
+    @Override
+    public Object getCoordinateReferenceSystem() {
+        return sceneImage.getCoordinateReferenceSystem();
+    }
+
+    @Deprecated
     public LayerContext getLayerContext() {
         return sceneImage;
     }
