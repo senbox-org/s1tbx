@@ -80,7 +80,6 @@ public interface GeoCoding {
      */
     GeoPos getGeoPos(final PixelPos pixelPos, GeoPos geoPos);
 
-
     /**
      * Gets the datum, the reference point or surface against which {@link GeoPos} measurements are made.
      *
@@ -97,7 +96,6 @@ public interface GeoCoding {
      */
     void dispose();
 
-    // todo - remove? (nf - 05.05.2009)
     /**
      * @return The base coordinate reference system (CRS). It may be either a geographical CRS (nominal case is
      *         "WGS-84") or a derived projected CRS, e.g. "UTM 32 - North".
@@ -106,13 +104,13 @@ public interface GeoCoding {
 
     /**
      * @return The image coordinate reference system (CRS). It is usually derived from the base CRS by including
-     * a linear or non-linear transformation from base (geodetic) coordinates to image coordinates.
+     *         a linear or non-linear transformation from base (geodetic) coordinates to image coordinates.
      */
     CoordinateReferenceSystem getImageCRS();
 
     /**
      * @return The model coordinate reference system (CRS). It may be the same as the base CRS for rectified,
-     * geo-referenced images or may be same as the image CRS for unrectified images still in satellite coordinates.
+     *         geo-referenced images or may be same as the image CRS for unrectified images still in satellite coordinates.
      */
     CoordinateReferenceSystem getModelCRS();
 

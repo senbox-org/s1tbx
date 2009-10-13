@@ -6,6 +6,7 @@ import org.geotools.referencing.crs.DefaultDerivedCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.geom.AffineTransform;
 
@@ -21,15 +22,12 @@ import java.awt.geom.AffineTransform;
 public abstract class AbstractGeoCoding implements GeoCoding {
 
     private CoordinateReferenceSystem baseCRS;
-    private CoordinateReferenceSystem gridCRS;
+    private CoordinateReferenceSystem imageCRS;
     private CoordinateReferenceSystem modelCRS;
 
     protected AbstractGeoCoding() {
         setBaseCRS(DefaultGeographicCRS.WGS84);
-        setGridCRS(new DefaultDerivedCRS("Grid CS based on " + baseCRS.getName(),
-                                         getBaseCRS(),
-                                         new GeoCodingMathTransform(this),
-                                         DefaultCartesianCS.DISPLAY));
+        setImageCRS(createImageCRS(getBaseCRS(), new GeoCodingMathTransform(this)));
         setModelCRS(getImageCRS());
     }
 
@@ -62,12 +60,17 @@ public abstract class AbstractGeoCoding implements GeoCoding {
 
     @Override
     public CoordinateReferenceSystem getImageCRS() {
-        return gridCRS;
+        return imageCRS;
     }
 
+    @Deprecated
     protected final void setGridCRS(CoordinateReferenceSystem gridCRS) {
-        Assert.notNull(gridCRS, "gridCRS");
-        this.gridCRS = gridCRS;
+        setImageCRS(gridCRS);
+    }
+
+    protected final void setImageCRS(CoordinateReferenceSystem imageCRS) {
+        Assert.notNull(imageCRS, "imageCRS");
+        this.imageCRS = imageCRS;
     }
 
     @Override
@@ -78,5 +81,13 @@ public abstract class AbstractGeoCoding implements GeoCoding {
     protected void setModelCRS(CoordinateReferenceSystem modelCRS) {
         Assert.notNull(modelCRS, "modelCRS");
         this.modelCRS = modelCRS;
+    }
+
+    protected static DefaultDerivedCRS createImageCRS(CoordinateReferenceSystem baseCRS,
+                                                        MathTransform baseToDerivedTransform) {
+        return new DefaultDerivedCRS("Image CS based on " + baseCRS.getName(),
+                                     baseCRS,
+                                     baseToDerivedTransform,
+                                     DefaultCartesianCS.DISPLAY);
     }
 }

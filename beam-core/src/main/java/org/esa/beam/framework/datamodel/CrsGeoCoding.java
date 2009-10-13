@@ -8,9 +8,7 @@ import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
-import org.geotools.referencing.crs.DefaultDerivedCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.operation.AbstractCoordinateOperationFactory;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.resources.CRSUtilities;
@@ -39,9 +37,9 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     private final boolean crossingMeridianAt180;
 
     public CrsGeoCoding(final CoordinateReferenceSystem modelCRS,
-                        final Rectangle2D imageBounds2D, 
+                        final Rectangle2D imageBounds2D,
                         final AffineTransform imageToModel) throws FactoryException,
-                                                                                              TransformException {
+            TransformException {
         this.imageBounds2D = imageBounds2D;
         this.imageToModel = imageToModel;
         setModelCRS(modelCRS);
@@ -54,7 +52,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         this.datum = new Datum(datumName, ellipsoid, 0, 0, 0);
 
         MathTransform i2m = new AffineTransform2D(imageToModel);
-        
+
         if (modelCRS instanceof DerivedCRS) {
             DerivedCRS derivedCRS = (DerivedCRS) modelCRS;
             CoordinateReferenceSystem baseCRS = derivedCRS.getBaseCRS();
@@ -62,10 +60,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         } else {
             setBaseCRS(DefaultGeographicCRS.WGS84);
         }
-        setGridCRS(new DefaultDerivedCRS("Grid CS based on " + getBaseCRS().getName(),
-                                         getBaseCRS(),
-                                         i2m.inverse(),
-                                         DefaultCartesianCS.DISPLAY));
+        setImageCRS(createImageCRS(getBaseCRS(), i2m.inverse()));
 
         MathTransform model2Base = CRS.findMathTransform(getModelCRS(), getBaseCRS());
 
@@ -160,7 +155,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     public boolean isCrossingMeridianAt180() {
         return crossingMeridianAt180;
     }
-    
+
     @Override
     public AffineTransform getImageToModelTransform() {
         return imageToModel;
@@ -170,8 +165,8 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     public String toString() {
         final String s = super.toString();
         return s + "\n\n" +
-               "Model CRS:\n" + getModelCRS().toString() + "\n" +
-               "Image To Model:\n" + imageToModel.toString();
+                "Model CRS:\n" + getModelCRS().toString() + "\n" +
+                "Image To Model:\n" + imageToModel.toString();
 
     }
 

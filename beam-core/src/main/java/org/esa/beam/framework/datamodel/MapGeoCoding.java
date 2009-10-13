@@ -23,8 +23,6 @@ import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.framework.dataop.maptransf.geotools.CoordinateReferenceSystems;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
-import org.geotools.referencing.crs.DefaultDerivedCRS;
-import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -86,10 +84,7 @@ public class MapGeoCoding extends AbstractGeoCoding {
         final CoordinateReferenceSystem baseCRS = CoordinateReferenceSystems.getCRS(mapInfo.getMapProjection(),
                                                                                     mapInfo.getDatum());
         setBaseCRS(baseCRS);
-        setGridCRS(new DefaultDerivedCRS("Grid CS based on " + baseCRS.getName(),
-                                         baseCRS,
-                                         new AffineTransform2D(modelToImageTransform),
-                                         DefaultCartesianCS.DISPLAY));
+        setImageCRS(createImageCRS(baseCRS, new AffineTransform2D(modelToImageTransform)));
         setModelCRS(baseCRS);
     }
 
