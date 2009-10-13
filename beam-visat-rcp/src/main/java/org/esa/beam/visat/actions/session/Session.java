@@ -285,7 +285,7 @@ public class Session {
             for (ViewRef viewRef : viewRefs) {
                 try {
                     if (ProductSceneView.class.getName().equals(viewRef.type)) {
-                        collectSceneView(viewRef, productManager, applicationPreferences, pm, views);
+                        collectSceneView(viewRef, productManager, applicationPreferences, pm, problems, views);
                     } else if (ProductMetadataView.class.getName().equals(viewRef.type)) {
                         collectMetadataView(viewRef, productManager, views);
                     } else {
@@ -303,62 +303,84 @@ public class Session {
         return views.toArray(new ProductNodeView[views.size()]);
     }
 
-    private static void collectSceneView(ViewRef viewRef, ProductManager productManager, PropertyMap applicationPreferences, ProgressMonitor pm, ArrayList<ProductNodeView> views) throws Exception {
-        final ProductSceneView view;
-        Product product = productManager.getProductByRefNo(viewRef.productRefNo);
-        if (product != null) {
-            final ProductSceneImage sceneImage;
-            if (viewRef.productNodeName != null) {
-                RasterDataNode node = product.getRasterDataNode(viewRef.productNodeName);
-                if (node != null) {
-                    sceneImage = new ProductSceneImage(node, applicationPreferences,
-                                                       SubProgressMonitor.create(pm, 1));
-                } else {
-                    throw new Exception("Unknown raster data source: " + viewRef.productNodeName);
-                }
-            } else {
-                final Band rBand = getRgbBand(product, viewRef.expressionR,
-                                              RGBImageProfile.RGB_BAND_NAMES[0]);
-                final Band gBand = getRgbBand(product, viewRef.expressionG,
-                                              RGBImageProfile.RGB_BAND_NAMES[1]);
-                final Band bBand = getRgbBand(product, viewRef.expressionB,
-                                              RGBImageProfile.RGB_BAND_NAMES[2]);
-                sceneImage = new ProductSceneImage(viewRef.viewName, rBand, gBand, bBand,
-                                                   applicationPreferences,
-                                                   SubProgressMonitor.create(pm, 1));
-            }
-            view = new ProductSceneView(sceneImage);
-            Rectangle bounds = viewRef.bounds;
-            if (bounds != null && !bounds.isEmpty()) {
-                view.setBounds(bounds);
-            }
-            ViewportDef viewportDef = viewRef.viewportDef;
-            if (viewportDef != null) {
-                Viewport viewport = view.getLayerCanvas().getViewport();
-                viewport.setModelYAxisDown(viewportDef.modelYAxisDown);
-                viewport.setZoomFactor(viewportDef.zoomFactor);
-                viewport.setOrientation(viewportDef.orientation);
-                viewport.setOffset(viewportDef.offsetX, viewportDef.offsetY);
-            }
-            views.add(view);
-        } else {
-            throw new Exception("Unknown product reference number: " + viewRef.productRefNo);
-        }
-        view.setLayerProperties(applicationPreferences);
+    private static void collectSceneView(ViewRef viewRef,
+                                         ProductManager productManager,
+                                         PropertyMap applicationPreferences,
+                                         ProgressMonitor pm,
+                                         List<Exception> problems,
+                                         List<ProductNodeView> views) throws Exception {
+        final ProductSceneView view = createSceneView(viewRef, productManager, applicationPreferences, pm);
+        views.add(view);
         for (int i = 0; i < viewRef.getLayerCount(); i++) {
             final LayerRef ref = viewRef.getLayerRef(i);
-            if (!view.getBaseImageLayer().getId().equals(ref.id)) {
-                addLayerRef(view, view.getRootLayer(), ref, productManager);
-            } else {
+            if (isBaseImageLayerRef(view, ref)) {
                 // The BaseImageLayer is not restored by LayerRef, so we have to adjust
                 // transparency and visibility  manually
                 view.getBaseImageLayer().setTransparency(ref.transparency);
                 view.getBaseImageLayer().setVisible(ref.visible);
+            } else {
+                try {
+                    addLayerRef(view, view.getRootLayer(), ref, productManager);
+                } catch (Exception e) {
+                    problems.add(e);
+                }
             }
         }
     }
 
-    private static void collectMetadataView(ViewRef viewRef, ProductManager productManager, ArrayList<ProductNodeView> views) throws Exception {
+    private static boolean isBaseImageLayerRef(ProductSceneView view, LayerRef ref) {
+        return view.getBaseImageLayer().getId().equals(ref.id);
+    }
+
+    private static ProductSceneView createSceneView(ViewRef viewRef,
+                                                    ProductManager productManager,
+                                                    PropertyMap applicationPreferences,
+                                                    ProgressMonitor pm) throws Exception {
+        Product product = productManager.getProductByRefNo(viewRef.productRefNo);
+        if (product == null) {
+            throw new Exception("Unknown product reference number: " + viewRef.productRefNo);
+        }
+        final ProductSceneImage sceneImage;
+        if (viewRef.productNodeName != null) {
+            RasterDataNode node = product.getRasterDataNode(viewRef.productNodeName);
+            if (node != null) {
+                sceneImage = new ProductSceneImage(node, applicationPreferences,
+                                                   SubProgressMonitor.create(pm, 1));
+            } else {
+                throw new Exception("Unknown raster data source: " + viewRef.productNodeName);
+            }
+        } else {
+            final Band rBand = getRgbBand(product, viewRef.expressionR,
+                                          RGBImageProfile.RGB_BAND_NAMES[0]);
+            final Band gBand = getRgbBand(product, viewRef.expressionG,
+                                          RGBImageProfile.RGB_BAND_NAMES[1]);
+            final Band bBand = getRgbBand(product, viewRef.expressionB,
+                                          RGBImageProfile.RGB_BAND_NAMES[2]);
+            sceneImage = new ProductSceneImage(viewRef.viewName, rBand, gBand, bBand,
+                                               applicationPreferences,
+                                               SubProgressMonitor.create(pm, 1));
+        }
+
+        final ProductSceneView view = new ProductSceneView(sceneImage);
+        Rectangle bounds = viewRef.bounds;
+        if (bounds != null && !bounds.isEmpty()) {
+            view.setBounds(bounds);
+        }
+        ViewportDef viewportDef = viewRef.viewportDef;
+        if (viewportDef != null) {
+            Viewport viewport = view.getLayerCanvas().getViewport();
+            viewport.setModelYAxisDown(viewportDef.modelYAxisDown);
+            viewport.setZoomFactor(viewportDef.zoomFactor);
+            viewport.setOrientation(viewportDef.orientation);
+            viewport.setOffset(viewportDef.offsetX, viewportDef.offsetY);
+        }
+        view.setLayerProperties(applicationPreferences);
+        return view;
+    }
+
+    private static void collectMetadataView(ViewRef viewRef,
+                                            ProductManager productManager,
+                                            ArrayList<ProductNodeView> views) throws Exception {
         Product product = productManager.getProductByRefNo(viewRef.productRefNo);
         if (product != null) {
             String[] productNodeNames = viewRef.productNodeName.split("\\|");
@@ -382,10 +404,10 @@ public class Session {
         }
     }
 
-    private static void addLayerRef(LayerContext layerContext, Layer parentLayer, LayerRef layerRef,
-                                    ProductManager productManager) throws
-            ConversionException,
-            ValidationException {
+    private static void addLayerRef(LayerContext layerContext,
+                                    Layer parentLayer,
+                                    LayerRef layerRef,
+                                    ProductManager productManager) throws ConversionException, ValidationException {
         final LayerType type = LayerType.getLayerType(layerRef.layerTypeName);
         final SessionDomConverter converter = new SessionDomConverter(productManager);
         final ValueContainer template = type.getConfigurationTemplate();
