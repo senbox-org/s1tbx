@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 
 /**
- * A default implementation for the {@#link MultiLevelSource} interface.
+ * A default implementation for the {@link MultiLevelSource} interface.
  */
 public class DefaultMultiLevelSource extends AbstractMultiLevelSource {
 

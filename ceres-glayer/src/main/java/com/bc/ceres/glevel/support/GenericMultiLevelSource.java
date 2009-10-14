@@ -5,7 +5,9 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import java.awt.image.RenderedImage;
 
 /**
- * A {@code GenericMultiLevelSource} retrieves source level images
+ * A {@code GenericMultiLevelSource} is a {@link MultiLevelSource} computing its
+ * images at a given resolution level from a number of source images of the same level.
+ * <p/>Subclasses will have to to implement {@link #createImage(java.awt.image.RenderedImage[], int)}.
  *
  * @author Norman Fomferra
  * @version $revision$ $date$

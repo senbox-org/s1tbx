@@ -5,10 +5,9 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import java.awt.image.RenderedImage;
 
 /**
- * A source for images at a given resolution level.
- * The resolution level, an integer number ranging from zero (the highest resolution)
- * to {@link MultiLevelModel#getLevelCount()}-1 (the lowest resolution) is computed from a given
- * scaling factor and vice versa.
+ * A source for images at a given resolution level. The layout of the {@code MultiLevelSource}
+ * is given by a {@link MultiLevelModel} which also provides the number of available resolution
+ * levels.
  *
  * @author Norman Fomferra
  * @author Marco Zühlke

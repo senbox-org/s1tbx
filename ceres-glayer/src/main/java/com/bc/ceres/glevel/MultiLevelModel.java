@@ -5,7 +5,7 @@ import java.awt.geom.Rectangle2D;
 
 /**
  * The {@code MultiLevelModel} class represents a layout model for multi-resolution images such as image pyramids.
- * <p>It comprises the number of resolution levels, the affine transformation
+ * <p>It provides the number of resolution levels, the affine transformation
  * from image (pixel) to model coordinates and the bounds in model coordinates.</p>
  * <p>The resolution level is an integer number ranging from zero (the highest resolution)
  * to {@link #getLevelCount()}-1 (the lowest resolution).</p>
