@@ -1,0 +1,20 @@
+CrsGeoCoding:
+=============
+Stupid name because GeoCoding *has* a CRS, it isn't one. CrsGeoCoding is the GeoTools replacement for MapGeoCoding!!
+
+GeoCoding.getDatum():
+=====================
+It is still the "old" BEAM Datum and should have already been replaced by the GeoTools one.
+
+<X>LayerType:
+=============
+We once decided that we wanted to introduce static factory method for each(!) layer type following the JAI-Descriptor
+concept. Nothing done so far.
+
+FeatureLayer:
+=============
+
+Several problems:
+- Target-CRS called FC-CRS, which is actually a view CRS.
+- Clipping done against WGS84-CRS geometry if and only if feature ceollection has not been loaded from a shapefile (?!?).
+
