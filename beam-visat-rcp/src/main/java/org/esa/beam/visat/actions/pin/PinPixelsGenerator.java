@@ -16,9 +16,9 @@
  */
 package org.esa.beam.visat.actions.pin;
 
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Term;
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
 import org.esa.beam.framework.dataop.barithm.RasterDataLoop;
@@ -74,9 +74,12 @@ class PinPixelsGenerator {
         }
 
         loop.forEachPixel(new RasterDataLoop.Body() {
+            @Override
             public void eval(RasterDataEvalEnv env, int pixelIndex) {
                 if (t == null || t.evalB(env)) {
-                    pixels.add(new Point(env.getPixelX(), env.getPixelY()));
+                    int pixelX = minX + pixelIndex % regionWidth;
+                    int pixelY = minY + pixelIndex / regionWidth;
+                    pixels.add(new Point(pixelX, pixelY));
                 }
             }
         });
