@@ -19,6 +19,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -83,9 +84,9 @@ public class ReprojectionOp extends Operator {
 
     // todo (mp) - description needs to be enhanced
     @Parameter(description = "An EPSG or AUTO code defining the target Coordinate Reference System. " +
-                             "To find appropriate EPSG codes see (www.epsg-registry.com). " +
-                             "AUTO can be used with code 42001 (UTM), and 42002 (Transverse Mercator) where the scene center " +
-                             "is used as reference. Examples: EPSG:4326, AUTO:42001",
+            "To find appropriate EPSG codes see (www.epsg-registry.com). " +
+            "AUTO can be used with code 42001 (UTM), and 42002 (Transverse Mercator) where the scene center " +
+            "is used as reference. Examples: EPSG:4326, AUTO:42001",
                pattern = "(?:[a-zA-Z]+:)?[0-9]+")
     private String crsCode;
 
@@ -96,16 +97,16 @@ public class ReprojectionOp extends Operator {
     private String wkt;
 
     @Parameter(alias = "resampling",
-               label = "Resampling Method", 
-               description = "The method used for resampling.",
+               label = "Resampling Method",
+               description = "The method used for resampling of floating-point raster data.",
                valueSet = {"Nearest", "Bilinear", "Bicubic"},
                defaultValue = "Nearest")
     private String resamplingName;
-    
+
     @Parameter(description = "Wether tie-point grids should be included in the output product.",
                defaultValue = "true")
     private boolean includeTiePointGrids;
-    
+
     // Referencing  todo - parameter object?
     @Parameter(description = "The X-position of the reference pixel.")
     private Double referencePixelX;
@@ -116,9 +117,9 @@ public class ReprojectionOp extends Operator {
     @Parameter(description = "The northing of the reference pixel.")
     private Double northing;
     @Parameter(description = "The orientation of the output product (in degree).",
-               defaultValue = "0", interval = "[0,360]" )
+               defaultValue = "0", interval = "[0,360]")
     private Double orientation;
-    
+
 
     // target grid  todo - parameter object?
     @Parameter(description = "The pixels per reference unit in X direction.")
@@ -129,7 +130,7 @@ public class ReprojectionOp extends Operator {
     private Integer width;
     @Parameter(description = "The height of the output product.")
     private Integer height;
-    
+
     // todo use these parameters 
     @Parameter(description = "Wether the source product should be orthorectified. (Currently only applicable for MERIS and AATSR)",
                defaultValue = "false")
@@ -137,7 +138,7 @@ public class ReprojectionOp extends Operator {
     @Parameter(description = "The name of the elevation model for the orthorectification. If not given tie-point data is used.")
     private String elevationModelName;
 
-    
+
     @Override
     public void initialize() throws OperatorException {
 
@@ -175,8 +176,7 @@ public class ReprojectionOp extends Operator {
         try {
             targetProduct.setGeoCoding(new CrsGeoCoding(targetGridGeometry.getModelCRS(),
                                                         targetGridGeometry.getBounds2D(),
-                                                        targetGridGeometry.getGridToModel()
-            ));
+                                                        targetGridGeometry.getGridToModel()));
         } catch (Exception e) {
             throw new OperatorException(e);
         }
@@ -192,7 +192,7 @@ public class ReprojectionOp extends Operator {
             }
         }
         if (includeTiePointGrids) {
-            for (TiePointGrid tiePointGrid: sourceProduct.getTiePointGrids()) {
+            for (TiePointGrid tiePointGrid : sourceProduct.getTiePointGrids()) {
                 if (handleSourceRaster(tiePointGrid, srcModel)) {
                     reprojectionFlagRequired = true;
                 }
@@ -214,8 +214,8 @@ public class ReprojectionOp extends Operator {
             flagCoding.addAttribute(reprojAttr);
             targetProduct.getFlagCodingGroup().add(flagCoding);
             reprojectValidBand.setSampleCoding(flagCoding);
-            reprojectValidBand.setSourceImage(
-                    createProjectedImage(createConstSourceImage(srcModel), reprojectValidBand, srcModel));
+            reprojectValidBand.setSourceImage(createProjectedImage(createConstSourceImage(srcModel),
+                                                                   reprojectValidBand, srcModel));
         }
 
         /*
@@ -234,10 +234,11 @@ public class ReprojectionOp extends Operator {
         boolean reprojectionFlagRequired = false;
         MultiLevelImage sourceImage;
         if (ProductData.isFloatingPointType(geophysicalDataType)) {
-            targetBand = targetProduct.addBand(sourceRaster.getName(), sourceRaster.getGeophysicalDataType());
+            targetBand = targetProduct.addBand(sourceRaster.getName(),
+                                               sourceRaster.getGeophysicalDataType());
             targetBand.setDescription(sourceRaster.getDescription());
             targetBand.setUnit(sourceRaster.getUnit());
-            if (ProductData.TYPE_FLOAT32 == geophysicalDataType) {
+            if (geophysicalDataType == ProductData.TYPE_FLOAT32) {
                 targetBand.setNoDataValue(Float.NaN);
             } else {
                 targetBand.setNoDataValue(Double.NaN);
@@ -246,7 +247,7 @@ public class ReprojectionOp extends Operator {
             sourceImage = sourceRaster.getGeophysicalImage();
             String exp = sourceRaster.getValidMaskExpression();
             if (exp != null) {
-                exp = String.format("(%s)>0?%s:NaN", exp, sourceRaster.getName());
+                exp = String.format("(%s) ? %s : NaN", exp, BandArithmetic.createExternalName(sourceRaster.getName()));
                 sourceImage = createVirtualSourceImage(exp, geophysicalDataType, targetBand.getNoDataValue(),
                                                        sourceProduct, srcModel);
             }
@@ -301,9 +302,9 @@ public class ReprojectionOp extends Operator {
         });
     }
 
-    private MultiLevelImage createVirtualSourceImage(final String expression, final int geophysicalDataType,
-                                                     final Number noDataValue, final Product sourceProduct,
-                                                     final MultiLevelModel srcModel) {
+    private static MultiLevelImage createVirtualSourceImage(final String expression, final int geophysicalDataType,
+                                                            final Number noDataValue, final Product sourceProduct,
+                                                            final MultiLevelModel srcModel) {
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
 
@@ -332,12 +333,12 @@ public class ReprojectionOp extends Operator {
                 Rectangle2D sourceRect = createLevelBounds(srcModel, sourceLevel);
                 Rectangle2D targetRect = createLevelBounds(targetModel, targetLevel);
 
-                GridGeometry sourceGridGeometry = new GridGeometry(
-                        sourceRect, sourceProduct.getGeoCoding().getModelCRS(), srcModel.getImageToModelTransform(sourceLevel)
-                );
-                GridGeometry targetGridGeometry = new GridGeometry(
-                        targetRect, targetProduct.getGeoCoding().getModelCRS(), getModel().getImageToModelTransform(targetLevel)
-                );
+                GridGeometry sourceGridGeometry = new GridGeometry(sourceRect,
+                                                                   sourceProduct.getGeoCoding().getModelCRS(),
+                                                                   srcModel.getImageToModelTransform(sourceLevel));
+                GridGeometry targetGridGeometry = new GridGeometry(targetRect,
+                                                                   targetProduct.getGeoCoding().getModelCRS(),
+                                                                   getModel().getImageToModelTransform(targetLevel));
 
                 Interpolation usedResampling = getResampling();
                 int dataType = targetBand.getDataType();
@@ -346,9 +347,9 @@ public class ReprojectionOp extends Operator {
                 }
 
                 Rectangle targetRectInt = targetGridGeometry.getBounds2D().getBounds();
-                ImageLayout imageLayout = createImageLayout(dataType, 
-                                                            targetRectInt.width, 
-                                                            targetRectInt.height, 
+                ImageLayout imageLayout = createImageLayout(dataType,
+                                                            targetRectInt.width,
+                                                            targetRectInt.height,
                                                             targetProduct.getPreferredTileSize());
                 Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
                 RenderedImage leveledSourceImage = sourceImage.getImage(sourceLevel);
@@ -428,7 +429,7 @@ public class ReprojectionOp extends Operator {
 
     protected void validateCrsParameters() {
         final String msgPattern = "Invalid target CRS specification.\nSpecify {0} one of " +
-                                  "''crsCode'', ''wktFile'', ''wkt'' and ''collocationProduct'' parameter.";
+                "''crsCode'', ''wktFile'', ''wkt'' and ''collocationProduct'' parameter.";
 
         if (crsCode == null && wktFile == null && wkt == null && collocationProduct == null) {
             throw new OperatorException(MessageFormat.format(msgPattern, "at least"));
@@ -476,16 +477,16 @@ public class ReprojectionOp extends Operator {
     }
 
     void validateResamplingParameter() {
-        if(getResampleType(resamplingName) == -1) {
+        if (getResampleType(resamplingName) == -1) {
             throw new OperatorException("Invalid resampling method: " + resamplingName);
         }
     }
 
     void validateReferencingParameters() {
-        if (!((referencePixelX == null && referencePixelY == null && easting == null && northing == null) 
+        if (!((referencePixelX == null && referencePixelY == null && easting == null && northing == null)
                 || (referencePixelX != null && referencePixelY != null && easting != null && northing != null))) {
             throw new OperatorException("Invalid referencing parameters: \n" +
-            		"'referencePixelX, referencePixelY, easting and northing' have to be specified either all or non.");
+                    "'referencePixelX, referencePixelY, easting and northing' have to be specified either all or non.");
         }
     }
 
@@ -495,7 +496,7 @@ public class ReprojectionOp extends Operator {
             throw new OperatorException("'pixelSizeX' and 'pixelSizeY' must be specifies both or not at all.");
         }
     }
-    
+
     private GridGeometry createTargetGridGeometry(CoordinateReferenceSystem targetCrs) {
         if (collocationProduct != null) {
             return createCollocationTargetGrid();
@@ -510,8 +511,8 @@ public class ReprojectionOp extends Operator {
         double mapH = mapBoundary.getHeight();
 
         if (pixelSizeX == null && pixelSizeY == null) {
-            double pixelSize =  Math.min(mapW / sourceProduct.getSceneRasterWidth(),
-                                         mapH / sourceProduct.getSceneRasterHeight());
+            double pixelSize = Math.min(mapW / sourceProduct.getSceneRasterWidth(),
+                                        mapH / sourceProduct.getSceneRasterHeight());
             if (MathUtils.equalValues(pixelSize, 0.0f)) {
                 pixelSize = 1.0f;
             }
@@ -558,7 +559,7 @@ public class ReprojectionOp extends Operator {
         return new GridGeometry(bounds, modelCRS, i2m);
     }
 
-    private  Rectangle2D createMapBoundary(CoordinateReferenceSystem targetCrs) {
+    private Rectangle2D createMapBoundary(CoordinateReferenceSystem targetCrs) {
         final int sourceW = sourceProduct.getSceneRasterWidth();
         final int sourceH = sourceProduct.getSceneRasterHeight();
         final int step = Math.min(sourceW, sourceH) / 2;
