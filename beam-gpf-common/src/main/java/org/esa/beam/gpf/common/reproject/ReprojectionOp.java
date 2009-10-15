@@ -102,7 +102,7 @@ public class ReprojectionOp extends Operator {
                defaultValue = "Nearest")
     private String resamplingName;
     
-    @Parameter(description = "Wether Tie-point grids should be included in the output product.",
+    @Parameter(description = "Wether tie-point grids should be included in the output product.",
                defaultValue = "true")
     private boolean includeTiePointGrids;
     
@@ -129,6 +129,13 @@ public class ReprojectionOp extends Operator {
     private Integer width;
     @Parameter(description = "The height of the output product.")
     private Integer height;
+    
+    // todo use these parameters 
+    @Parameter(description = "Wether the source product should be orthorectified. (Currently only applicable for MERIS and AATSR)",
+               defaultValue = "false")
+    private boolean orthorectify;
+    @Parameter(description = "The name of the elevation model for the orthorectification. If not given tie-point data is used.")
+    private String elevationModelName;
 
     
     @Override
@@ -159,7 +166,7 @@ public class ReprojectionOp extends Operator {
         /*
         * 4. Define some target properties
         */
-        // TODO: also query operatorContext rendering hints for tile size
+        // todo: also query operatorContext rendering hints for tile size
         final Dimension tileSize = ImageManager.getPreferredTileSize(targetProduct);
         targetProduct.setPreferredTileSize(tileSize);
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
@@ -195,6 +202,7 @@ public class ReprojectionOp extends Operator {
             /*
             * 6. Create reprojection valid flag band
             */
+            // todo consider products with more than ONE GeoCoding (mz)
             String reprojFlagBandName = "reproject_flag";
             Band reprojectValidBand = targetProduct.addBand(reprojFlagBandName, ProductData.TYPE_INT8);
             final FlagCoding flagCoding = new FlagCoding(reprojFlagBandName);
