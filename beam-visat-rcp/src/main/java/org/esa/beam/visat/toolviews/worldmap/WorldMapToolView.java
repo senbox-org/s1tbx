@@ -21,11 +21,13 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.ui.WorldMapPane;
 import org.esa.beam.framework.ui.WorldMapPaneDataModel;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTreeListener;
+import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.BorderFactory;
@@ -101,7 +103,7 @@ public class WorldMapToolView extends AbstractToolView {
         getPaneWindow().pack();
     }
 
-    private class WorldMapPTL implements ProductTreeListener {
+    private class WorldMapPTL extends ProductTreeListenerAdapter {
 
         private WorldMapPTL() {
         }
@@ -121,26 +123,8 @@ public class WorldMapToolView extends AbstractToolView {
         }
 
         @Override
-        public void productSelected(final Product product, final int clickCount) {
-            setSelectedProduct(product);
-        }
-
-        @Override
-        public void metadataElementSelected(final MetadataElement group, final int clickCount) {
-            final Product product = group.getProduct();
-            setSelectedProduct(product);
-        }
-
-        @Override
-        public void tiePointGridSelected(final TiePointGrid tiePointGrid, final int clickCount) {
-            final Product product = tiePointGrid.getProduct();
-            setSelectedProduct(product);
-        }
-
-        @Override
-        public void bandSelected(final Band band, final int clickCount) {
-            final Product product = band.getProduct();
-            setSelectedProduct(product);
+        public void productNodeSelected(ProductNode productNode, int clickCount) {
+            setSelectedProduct(productNode.getProduct());
         }
     }
 

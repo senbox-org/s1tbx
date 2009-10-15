@@ -12,6 +12,7 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTreeListener;
+import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
 import org.esa.beam.util.*;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
@@ -895,6 +896,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     private class PlacemarkListener implements ProductNodeListener {
 
+        @Override
         public void nodeChanged(ProductNodeEvent event) {
             ProductNode sourceNode = event.getSourceNode();
             if (sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(product) && sourceNode instanceof Pin) {
@@ -902,6 +904,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             }
         }
 
+        @Override
         public void nodeDataChanged(ProductNodeEvent event) {
             ProductNode sourceNode = event.getSourceNode();
             if (sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(product) && sourceNode instanceof Pin) {
@@ -909,6 +912,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             }
         }
 
+        @Override
         public void nodeAdded(ProductNodeEvent event) {
             ProductNode sourceNode = event.getSourceNode();
             if (sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(product) && sourceNode instanceof Pin) {
@@ -917,6 +921,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             }
         }
 
+        @Override
         public void nodeRemoved(ProductNodeEvent event) {
             ProductNode sourceNode = event.getSourceNode();
             if (sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(product) && sourceNode instanceof Pin) {
@@ -958,6 +963,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     private static class ColumnModelListener implements TableColumnModelListener {
 
+        @Override
         public void columnAdded(TableColumnModelEvent e) {
             int minWidth;
             final int index = e.getToIndex();
@@ -973,15 +979,19 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             columnModel.getColumn(index).setPreferredWidth(minWidth);
         }
 
+        @Override
         public void columnRemoved(TableColumnModelEvent e) {
         }
 
+        @Override
         public void columnMoved(TableColumnModelEvent e) {
         }
 
+        @Override
         public void columnMarginChanged(ChangeEvent e) {
         }
 
+        @Override
         public void columnSelectionChanged(ListSelectionEvent e) {
         }
     }
@@ -1012,6 +1022,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                     menuItem = new JMenuItem("Copy selected data to clipboard");
                     menuItem.addActionListener(new ActionListener() {
 
+                        @Override
                         public void actionPerformed(ActionEvent actionEvent) {
                             final StringWriter stringWriter = new StringWriter();
                             writePlacemarkDataTableText(stringWriter);
@@ -1265,38 +1276,30 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         return placemarkDescriptor;
     }
 
-    private class ProductSelectionListener implements ProductTreeListener {
+    private class ProductSelectionListener extends ProductTreeListenerAdapter {
 
+        @Override
         public void productAdded(Product product) {
             setProduct(product);
         }
 
+        @Override
         public void productRemoved(Product product) {
             setProduct(null);
             productToSelectedBands.remove(product);
             productToSelectedGrids.remove(product);
         }
 
-        public void productSelected(Product product, int clickCount) {
-            setProduct(product);
-        }
-
-        public void metadataElementSelected(MetadataElement group, int clickCount) {
-            setProduct(group.getProduct());
-        }
-
-        public void tiePointGridSelected(TiePointGrid tiePointGrid, int clickCount) {
-            setProduct(tiePointGrid.getProduct());
-        }
-
-        public void bandSelected(Band band, int clickCount) {
-            setProduct(band.getProduct());
+        @Override
+        public void productNodeSelected(ProductNode productNode, int clickCount) {
+            setProduct(productNode.getProduct());
         }
     }
 
 
     private class PlacemarkTableSelectionListener implements ListSelectionListener {
 
+        @Override
         public void valueChanged(ListSelectionEvent e) {
             if (e.getValueIsAdjusting() || e.getFirstIndex() == -1 || synchronizingPlacemarkSelectedState) {
                 return;

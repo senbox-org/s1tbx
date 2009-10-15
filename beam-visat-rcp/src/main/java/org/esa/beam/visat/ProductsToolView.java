@@ -1,20 +1,37 @@
 package org.esa.beam.visat;
 
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerType;
 import com.jidesoft.swing.JideScrollPane;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductManager;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VectorData;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTree;
-import org.esa.beam.framework.ui.product.ProductTreeListener;
+import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.actions.ShowMetadataViewAction;
+import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayerType;
+import org.geotools.styling.Graphic;
+import org.geotools.styling.Mark;
+import org.geotools.styling.Style;
+import org.geotools.styling.StyleBuilder;
+import org.geotools.styling.Symbolizer;
 
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JScrollPane;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.beans.PropertyVetoException;
@@ -109,7 +126,7 @@ public class ProductsToolView extends AbstractToolView {
     /**
      * This listener listens to product tree events in VISAT's product browser.
      */
-    private class VisatPTL implements ProductTreeListener {
+    private class VisatPTL extends ProductTreeListenerAdapter {
 
         public VisatPTL() {
         }
@@ -143,6 +160,37 @@ public class ProductsToolView extends AbstractToolView {
         @Override
         public void bandSelected(final Band band, final int clickCount) {
             rasterDataNodeSelected(band, clickCount);
+        }
+
+        @Override
+        public void vectorDataSelected(VectorData vectorData, int clickCount) {
+            setSelectedProductNode(vectorData);
+            final ProductSceneView sceneView = visatApp.getSelectedProductSceneView();
+            if (sceneView == null) {
+                return;
+            }
+            if (clickCount == 2) {
+                LayerType flt = LayerType.getLayerType(FeatureLayerType.class.getName());
+
+                final ValueContainer conf = flt.getConfigurationTemplate();
+                final StyleBuilder builder = new StyleBuilder();
+                Mark mark = builder.createMark("circle", Color.RED);
+                Graphic g = builder.createGraphic(null, mark, null);
+                Symbolizer s = builder.createPointSymbolizer(g);
+                Style style = builder.createStyle(s);
+                try {
+                    conf.setValue(FeatureLayerType.PROPERTY_NAME_SLD_STYLE, style);
+                    conf.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION, vectorData.getFeatureCollection());
+                } catch (Exception e) {
+                    visatApp.handleError(e);
+                    return;
+                }
+                final Layer layer = flt.createLayer(sceneView, conf);
+                layer.setName(vectorData.getName());
+                layer.setVisible(true);
+
+                sceneView.getRootLayer().getChildren().add(0, layer);
+            }
         }
 
         @Override

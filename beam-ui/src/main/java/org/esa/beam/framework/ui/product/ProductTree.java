@@ -31,6 +31,7 @@ import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.VectorData;
 import org.esa.beam.framework.ui.ExceptionHandler;
 import org.esa.beam.framework.ui.PopupMenuFactory;
 import org.esa.beam.framework.ui.PopupMenuHandler;
@@ -73,6 +74,12 @@ import java.util.Map;
  * @see org.esa.beam.framework.datamodel.Product
  */
 public class ProductTree extends JTree implements PopupMenuFactory {
+    private static final String METADATA = "Metadata";
+    private static final String BANDS = "Bands";
+    private static final String VECTOR_DATA = "Vector data";
+    private static final String TIE_POINT_GRIDS = "Tie-point grids";
+    private static final String FLAG_CODINGS = "Flag codings";
+    private static final String INDEX_CODINGS = "Index codings";
 
     private final ProductNodeListener productNodeListener;
 
@@ -126,10 +133,12 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         TreeCellExtender.equip(this);
     }
 
+    @Override
     public JPopupMenu createPopupMenu(final Component component) {
         return null;
     }
 
+    @Override
     public JPopupMenu createPopupMenu(MouseEvent event) {
         TreePath selPath = getPathForLocation(event.getX(), event.getY());
         if (selPath != null) {
@@ -289,11 +298,14 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         DefaultMutableTreeNode bandsGroupTreeNode = createBandNodes(product);
         productTreeNode.add(bandsGroupTreeNode);
 
+        DefaultMutableTreeNode vectorDataGroupTreeNode = createVectorDataNodes(product);
+        productTreeNode.add(vectorDataGroupTreeNode);
+
         return productTreeNode;
     }
 
     private DefaultMutableTreeNode createMetadataNodes(Product product) {
-        DefaultMutableTreeNode rootTreeNode = new DefaultMutableTreeNode("Metadata");
+        DefaultMutableTreeNode rootTreeNode = new DefaultMutableTreeNode(METADATA);
         MetadataElement rootElement = product.getMetadataRoot();
         return createMetadataNodes(rootElement, rootTreeNode);
     }
@@ -319,20 +331,29 @@ public class ProductTree extends JTree implements PopupMenuFactory {
     }
 
     private static DefaultMutableTreeNode createBandNodes(Product product) {
-        DefaultMutableTreeNode bandsGroupTreeNode = new DefaultMutableTreeNode("Bands");
+        DefaultMutableTreeNode bandsGroupTreeNode = new DefaultMutableTreeNode(BANDS);
         for (int i = 0; i < product.getNumBands(); i++) {
             DefaultMutableTreeNode childTreeNode = new DefaultMutableTreeNode(product.getBandAt(i));
-
             bandsGroupTreeNode.add(childTreeNode);
         }
         return bandsGroupTreeNode;
+    }
+
+    private static DefaultMutableTreeNode createVectorDataNodes(Product product) {
+        DefaultMutableTreeNode vectorDataGroupTreeNode = new DefaultMutableTreeNode(VECTOR_DATA);
+        ProductNodeGroup<VectorData> vectorDataGroup = product.getVectorDataGroup();
+        for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
+            DefaultMutableTreeNode childTreeNode = new DefaultMutableTreeNode(vectorDataGroup.get(i));
+            vectorDataGroupTreeNode.add(childTreeNode);
+        }
+        return vectorDataGroupTreeNode;
     }
 
     private static DefaultMutableTreeNode createTiePointGridNodes(Product product) {
         if (product.getNumTiePointGrids() == 0) {
             return null;
         }
-        DefaultMutableTreeNode tiePointGridGroupTreeNode = new DefaultMutableTreeNode("Tie Point Grids");
+        DefaultMutableTreeNode tiePointGridGroupTreeNode = new DefaultMutableTreeNode(TIE_POINT_GRIDS);
         for (int i = 0; i < product.getNumTiePointGrids(); i++) {
             DefaultMutableTreeNode childTreeNode = new DefaultMutableTreeNode(product.getTiePointGridAt(i));
             tiePointGridGroupTreeNode.add(childTreeNode);
@@ -345,7 +366,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         if (productNodeGroup.getNodeCount() == 0) {
             return null;
         }
-        DefaultMutableTreeNode flagCodingsGroupTreeNode = new DefaultMutableTreeNode("Flag Codings");
+        DefaultMutableTreeNode flagCodingsGroupTreeNode = new DefaultMutableTreeNode(FLAG_CODINGS);
         for (int i = 0; i < productNodeGroup.getNodeCount(); i++) {
             DefaultMutableTreeNode childTreeNode = new DefaultMutableTreeNode(productNodeGroup.get(i));
             flagCodingsGroupTreeNode.add(childTreeNode);
@@ -358,7 +379,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         if (productNodeGroup.getNodeCount() == 0) {
             return null;
         }
-        DefaultMutableTreeNode indexCodingsGroupTreeNode = new DefaultMutableTreeNode("Index Codings");
+        DefaultMutableTreeNode indexCodingsGroupTreeNode = new DefaultMutableTreeNode(INDEX_CODINGS);
         for (int i = 0; i < productNodeGroup.getNodeCount(); i++) {
             DefaultMutableTreeNode childTreeNode = new DefaultMutableTreeNode(productNodeGroup.get(i));
             indexCodingsGroupTreeNode.add(childTreeNode);
@@ -410,6 +431,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
     private class PTSelectionListener implements TreeSelectionListener {
 
+        @Override
         public void valueChanged(TreeSelectionEvent event) {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) getLastSelectedPathComponent();
             if (node != null) {
@@ -432,6 +454,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         ImageIcon bandIndexesIconUnloaded;
         ImageIcon bandVirtualIcon;
         ImageIcon bandVirtualIconUnloaded;
+        ImageIcon vectorDataIcon;
 
         public PTCellRenderer() {
             productIcon = UIUtils.loadImageIcon("icons/RsProduct16.gif");
@@ -446,6 +469,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             bandFlagsIconUnloaded = UIUtils.loadImageIcon("icons/RsBandFlags16Disabled.gif");
             bandVirtualIcon = UIUtils.loadImageIcon("icons/RsBandVirtual16.gif");
             bandVirtualIconUnloaded = UIUtils.loadImageIcon("icons/RsBandVirtual16Disabled.gif");
+            vectorDataIcon = UIUtils.loadImageIcon("icons/RsVectorData16.gif");
         }
 
         @Override
@@ -553,6 +577,11 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                     toolTipBuffer.append(grid.getRasterWidth());
                     toolTipBuffer.append(" x ");
                     toolTipBuffer.append(grid.getRasterHeight());
+                } else if (productNode instanceof VectorData) {
+                    VectorData grid = (VectorData) productNode;
+                    this.setIcon(vectorDataIcon);
+                    toolTipBuffer.append(", ");
+                    toolTipBuffer.append(grid.getFeatureType().toString());
                 }
                 this.setText(text);
                 this.setToolTipText(toolTipBuffer.toString());
@@ -666,8 +695,17 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                     l.tiePointGridSelected((TiePointGrid) node, clickCount);
                 } else if (node instanceof Band) {
                     l.bandSelected((Band) node, clickCount);
-                } else if (node instanceof MetadataAttribute) {
-                    /* ? */
+                } else if (node instanceof VectorData) {
+                    if (l instanceof ProductTreeListener2) {
+                        ProductTreeListener2 l2 = (ProductTreeListener2) l;
+                        l2.vectorDataSelected((VectorData) node, clickCount);
+                    }
+                }
+                if (node instanceof ProductNode) {
+                    if (l instanceof ProductTreeListener2) {
+                        ProductTreeListener2 l2 = (ProductTreeListener2) l;
+                        l2.productNodeSelected((ProductNode) node, clickCount);
+                    }
                 }
             }
         }
@@ -706,6 +744,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
     private class ProductTreePTL implements ProductNodeListener {
 
+        @Override
         public void nodeChanged(final ProductNodeEvent event) {
             final ProductNode sourceNode = event.getSourceNode();
             final TreePath path = findTreePathFor(sourceNode);
@@ -714,10 +753,12 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             }
         }
 
+        @Override
         public void nodeDataChanged(final ProductNodeEvent event) {
             repaint();
         }
 
+        @Override
         public void nodeAdded(final ProductNodeEvent event) {
             final ProductNode sourceNode = event.getSourceNode();
             if (sourceNode instanceof AbstractBand) {
@@ -725,12 +766,13 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
                 final Product product = sourceNode.getProduct();
                 final DefaultMutableTreeNode productTNode = getTreeNodeFor(product, rootTNode);
-                final DefaultMutableTreeNode bandGroupTNode = getTreeNodeFor("Bands", productTNode);
+                final DefaultMutableTreeNode bandGroupTNode = getTreeNodeFor(BANDS, productTNode);
                 bandGroupTNode.add(new DefaultMutableTreeNode(sourceNode));
                 getTreeModel().nodeStructureChanged(bandGroupTNode);
-            }
+            } 
         }
 
+        @Override
         public void nodeRemoved(final ProductNodeEvent event) {
             final ProductNode sourceNode = event.getSourceNode();
             if (sourceNode instanceof AbstractBand) {
@@ -738,7 +780,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
                 final Product product = sourceNode.getProduct();
                 final DefaultMutableTreeNode productTNode = getTreeNodeFor(product, rootTNode);
-                final DefaultMutableTreeNode bandGroupTNode = getTreeNodeFor("Bands", productTNode);
+                final DefaultMutableTreeNode bandGroupTNode = getTreeNodeFor(BANDS, productTNode);
                 final DefaultMutableTreeNode sourceTNode = getTreeNodeFor(sourceNode, bandGroupTNode);
                 if (sourceTNode != null) {
                     final TreePath path = findTreePathFor(sourceNode);

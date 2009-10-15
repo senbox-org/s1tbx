@@ -4,6 +4,7 @@ import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductTree;
 import org.esa.beam.framework.ui.product.ProductTreeListener;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
@@ -38,7 +39,7 @@ public class StatisticsToolView extends AbstractToolView {
     public static final int PROFILEPLOT_TAB_INDEX = 5;
     public static final int COORDLIST_TAB_INDEX = 6;
 
-    private static String[] helpIDs = {
+    private static final String[] helpIDs = {
             "informationDialog",
             "geoCodingInfoDialog",
             "statisticsDialog",
@@ -101,6 +102,7 @@ public class StatisticsToolView extends AbstractToolView {
 
         tabbedPane.addChangeListener(new ChangeListener() {
 
+            @Override
             public void stateChanged(ChangeEvent e) {
                 if (tabbedPane.getSelectedIndex() != currTabIndex) {
                     currTabIndex = tabbedPane.getSelectedIndex();
@@ -209,31 +211,21 @@ public class StatisticsToolView extends AbstractToolView {
     }
 
 
-    private class PagePanelPTL implements ProductTreeListener {
-
-        public void tiePointGridSelected(TiePointGrid tiePointGrid, int clickCount) {
-            selectionChanged(tiePointGrid.getProduct(), tiePointGrid);
+    private class PagePanelPTL extends ProductTreeListenerAdapter {
+        @Override
+        public void productAdded(Product product) {
         }
 
-        public void bandSelected(Band band, int clickCount) {
-            selectionChanged(band.getProduct(), band);
-        }
-
-        public void productSelected(Product product, int clickCount) {
-            selectionChanged(product, null);
-        }
-
-        public void metadataElementSelected(MetadataElement group, int clickCount) {
-            selectionChanged(group.getProduct(), null);
-        }
-
+        @Override
         public void productRemoved(Product product) {
             selectionChanged(null, null);
         }
 
-        public void productAdded(Product product) {
+        @Override
+        public void productNodeSelected(ProductNode productNode, int clickCount) {
+            selectionChanged(productNode.getProduct(),
+                             productNode instanceof  RasterDataNode ? (RasterDataNode) productNode : null);
         }
-
     }
 
     private class PagePanelIFL extends InternalFrameAdapter {
