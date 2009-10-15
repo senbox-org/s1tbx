@@ -31,6 +31,7 @@ public class ProductNodeListenerAdapter implements ProductNodeListener {
      *
      * @param event the product node which the listener to be notified
      */
+    @Override
     public void nodeChanged(ProductNodeEvent event) {
     }
 
@@ -39,6 +40,7 @@ public class ProductNodeListenerAdapter implements ProductNodeListener {
      *
      * @param event the product node which the listener to be notified
      */
+    @Override
     public void nodeDataChanged(ProductNodeEvent event) {
     }
 
@@ -47,6 +49,7 @@ public class ProductNodeListenerAdapter implements ProductNodeListener {
      *
      * @param event the product node which the listener to be notified
      */
+    @Override
     public void nodeAdded(ProductNodeEvent event) {
     }
 
@@ -55,6 +58,7 @@ public class ProductNodeListenerAdapter implements ProductNodeListener {
      *
      * @param event the product node which the listener to be notified
      */
+    @Override
     public void nodeRemoved(ProductNodeEvent event) {
     }
 }
